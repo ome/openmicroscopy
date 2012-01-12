@@ -96,6 +96,7 @@
                 $('#annotation_tabs').tabs();
                 
                 $('#acquisition').click(function() {
+                    $("#metadata_spinner").show();
                     var $tab = $("#metadata_tab");
                     var href = $("#acquisition-link").attr('href');
                     if (!acquisition_load) {
@@ -107,6 +108,7 @@
                 });
                 
                 $('#preview').click(function() {
+                    $("#preview_spinner").show();
                     var $tab = $("#preview_tab");
                     var href = $("#preview-link").attr('href');
                     if (!preview_load) {
@@ -306,7 +308,7 @@
                     $("#add_tags_form").dialog("open");
                     // load form via AJAX...
                     var load_url = $(this).attr('href');
-                    $("#add_tags_form form").load(load_url);
+                    $("#add_tags_form").load(load_url);
                     return false;
                 });
                 // set-up the tags form to use dialog
@@ -319,7 +321,7 @@
                     buttons: {
                         "Accept": function() {
                             // simply submit the form (AJAX handling set-up above)
-                            $("#add_tags_form form").submit();
+                            $("#add_tags_form").submit();
                             $( this ).dialog( "close" );
                         },
                         "Cancel": function() {
@@ -327,8 +329,9 @@
                         }
                     }
                 });
-                $('#add_tags_form form').ajaxForm({
+                $('#add_tags_form').ajaxForm({
                     success: function(data) {
+                        $("#add_tags_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
                         // update the list of tags
                         var $tag = $(data);
                         $("#tags_container").prepend($tag);
@@ -370,8 +373,9 @@
 
 
                 // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
-                $('#choose_attachments_form form').ajaxForm({
+                $('#choose_attachments_form').ajaxForm({
                     success: function(data) {
+                        $("#choose_attachments_form").dialog( "close" );
                         // update the list of file annotations and bind actions
                         var $fileanns = $(data)
                         $("#fileanns_container").prepend( $fileanns );
@@ -387,13 +391,13 @@
                 $("#choose_attachments_form").dialog({
                     autoOpen: false,
                     resizable: true,
-                    height: 210,
+                    height: 400,
                     width:420,
                     modal: true,
                     buttons: {
                         "Accept": function() {
                             // simply submit the form (AJAX handling set-up above)
-                            $("#choose_attachments_form form").submit();
+                            $("#choose_attachments_form").submit();
                             $( this ).dialog( "close" );
                         },
                         "Cancel": function() {
@@ -408,7 +412,7 @@
                     attach_form.dialog( "open" );
                     // load form via AJAX...
                     var load_url = $(this).attr('href');
-                    $("form", attach_form).load(load_url + " #id_files");   // only load the files field
+                    attach_form.load(load_url);
                     return false;
                 });
 
@@ -461,14 +465,14 @@
         <!-- VIEWER "Preview"-->
         <div id="preview_tab">
             <a id="preview-link" href="{% url load_metadata_preview manager.image.id %}" style='display:none'>Preview</a>
-            <img src="{% static "common/image/spinner.gif" %}" />
+            <img id="preview_spinner" src="{% static "common/image/spinner.gif" %}" style='display:none'/>
         </div>
         {% endif %}
         {% if manager.well %}
         <!-- VIEWER "Preview" -->
         <div id="preview_tab">
             <a id="preview-link" href="{% url load_metadata_preview manager.well.getWellSample.image.id %}" style='display:none'>Preview</a>
-            <img src="{% static "common/image/spinner.gif" %}" />
+            <img id="preview_spinner" src="{% static "common/image/spinner.gif" %}" style='display:none'/>
         </div>
         {% endif %}
         
@@ -478,14 +482,14 @@
         <div id="metadata_tab">
             <!-- content is loaded by ajax when this tab is first displayed -->
             <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.image.id %}" style='display:none' >Acquisition</a>
-            <img src="{% static "common/image/spinner.gif" %}" />
+            <img id="metadata_spinner" src="{% static "common/image/spinner.gif" %}" style='display:none'/>
         </div>
         {% endif %}
         {% if manager.well %}
         <div id="metadata_tab">
             <!-- content is loaded by ajax when this tab is first displayed -->
             <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.well.getWellSample.image.id %}" style='display:none' >Acquisition</a>
-            <img src="{% static "common/image/spinner.gif" %}" />
+            <img id="metadata_spinner" src="{% static "common/image/spinner.gif" %}" style='display:none'/>
         </div>
         {% endif %}
                 
@@ -802,18 +806,15 @@
                 <th>{% trans "Tag" %}:</th>
                 <td style="vertical-align: middle">
                     {% if manager.isEditable %}
-                    <a id="launch_tags_form" href="{% url manage_action_containers 'newtag' manager.obj_type manager.obj_id %}">
+                    <a id="launch_tags_form" href="{% url annotate_tags %}?{{manager.obj_type}}={{ manager.obj_id }}">
                         <!-- link for loading tags we can add to this object. Loaded by AJAX into form below & displayed as dialog -->
                         <img src="{% static 'webclient/image/plus_11.png' %}" alt="e" title="Add Tags."/>
                     </a>
                     {% endif %}
                 </td>
                 <!-- hidden form for choosing new or existing Tags in dialog - load form via AJAX when we show dialog -->
-                <div id='add_tags_form' title="Tags Selection">
-                    <p>Select the Tags to add, or Create new Tags</p>
-                    <form action="{% url manage_action_containers 'addtag' manager.obj_type manager.obj_id %}" method="post">
-                    </form>
-                </div>
+                <form id='add_tags_form' title="Tags Selection" action="{% url annotate_tags %}" method="post" style="display:none">
+                </form>
                 <!-- display existing Tags -->
                 <td>
                     <div id="tags_container" class="lntags">
@@ -835,7 +836,7 @@
                         <ul class="dropdown_menu_options">
                             <li><a id="choose_local_document" href="#">Local document...</a></li>
                             <li>
-                                <a id="choose_uploaded_document" href="{% url manage_action_containers 'newfile' manager.obj_type manager.obj_id %}">
+                                <a id="choose_uploaded_document" href="{% url annotate_file %}?{{manager.obj_type}}={{ manager.obj_id }}">
                                     Uploaded document...
                                 </a>
                             </li>
@@ -844,20 +845,15 @@
                     {% endif %}
                     
                     <!-- hidden form for choosing file to upload. Activated & submitted by js -->
-                    <form id='upload_file_form' style="display:none"
-                        action="{% if manager.project %}{% url manage_action_containers "addfile" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addfile" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addfile" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addfile" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addfile" "plate" manager.plate.id %}{% else %}{% if manager.acquisition %}{% url manage_action_containers "addfile" "acquisition" manager.acquisition.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addfile" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}" enctype="multipart/form-data" method="post"><input type="hidden" name="action" value="file" />
+                    <form id='upload_file_form' style="display:none" action="{% url annotate_new_file %}" method="post">
                     {% for field in form_file %}
                         {{ field }}
                     {% endfor %}
                     </form>
                     
                     <!-- hidden form for choosing uploaded file in dialog - load form via AJAX when we show dialog -->
-                    <div id="choose_attachments_form" title="Select Attachments">
-                        <p>Select the Attachments to add</p>
-                        <form action="{% url manage_action_containers 'usefile' manager.obj_type manager.obj_id %}" method="post">
-                            Load form here...
-                        </form>
-                    </div>
+                    <form id="choose_attachments_form" title="Select Attachments" style="display:none" action="{% url annotate_file %}" method="post">
+                    </form>
                     
                 </td>
                 <!-- display existing file annotations -->
@@ -944,17 +940,21 @@
                 <th colspan="3">                
                     {% trans "Comment:" %}
                     {% if manager.project.isEditable or manager.dataset.isEditable or manager.image.isEditable or manager.screen.isEditable or manager.plate.isEditable or manager.acquisition.isEditable or  manager.well.isEditable %}
-                    <form id="add_comment_form" action="{% if manager.project %}{% url manage_action_containers "addcomment" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addcomment" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addcomment" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addcomment" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addcomment" "plate" manager.plate.id %}{% else %}{% if manager.acquisition %}{% url manage_action_containers "addcomment" "acquisition" manager.acquisition.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addcomment" "well" manager.well.id %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% if index %}?index={{ index }}&{% else %}?{% endif %}url={{url}}" method="post">
+                    <form id="add_comment_form" action="{% url annotate_comment %}" method="post">
                     <table>
-                        {% for field in form_comment %}
-                            <tr>
-                                <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
-                            </tr>
-                            <tr>
-                                <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
-                            </tr>
-                        {% endfor %}
-                            <tr><td colspan="2"><input type="submit" value="{% trans 'Add Comment' %}" /></td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.image }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.dataset }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.project }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.screen }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.plate }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.acquisition }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.well }}</td></tr>
+                        <tr>
+                            <td>{{ form_comment.comment }}</td>
+                        </tr>
+                        <tr>
+                            <td><input type="submit" value="{% trans 'Add Comment' %}" /></td>
+                        </tr>
                     </table>
                     </form>
                     {% endif %}                        

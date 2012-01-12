@@ -529,11 +529,8 @@
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
                     var selected = data.inst.get_selected();
                     if (selected.length > 1) {
-                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% static "common/image/knotes16.png" %}"/> Batch Annotate</a></p>');
-                        $("#batchAnnotate").click(function() {
-                            multipleAnnotation(selected, null, '{% url webindex %}');
-                            return false;
-                        });
+                        multipleAnnotation(selected, null, '{% url batch_annotate %}');
+                        // if any non-images are selected, clear the centre panel
                         if (selected.filter('li:not([id|=image])').length > 0) {
                             $("div#content_details").empty();
                             $("div#content_details").removeAttr('rel');

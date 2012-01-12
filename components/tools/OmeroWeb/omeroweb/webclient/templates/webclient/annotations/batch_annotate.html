@@ -1,0 +1,305 @@
+{% extends "common/base/base_html.html" %}
+{% load i18n %}
+{% load common_filters %}
+{% load common_tags %}
+
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/googiespell.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/annotation.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/autocomplete.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
+    
+{% endblock %}
+
+{% block script %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.autocomplete.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
+  
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/AJS.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/googiespell.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/cookiesupport.js" %}"></script>
+
+    <script type="text/javascript">        
+        $(document).ready(function() 
+            {
+
+                // handle submit of Add Comment form
+                $("#add_comment_form").submit(function() {
+                    var $form = $(this);
+                    var add_comment_url = $form.attr('action');
+                    var postData = $form.serialize();
+                    var textArea = $('textarea', $form);
+                    if (textArea.val().trim().length == 0) {
+                        return false;
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: add_comment_url,
+                        data:postData,
+                        contentType:'html',
+                        success: function(html){
+                            var $comment = $(html)
+                            $('#comments_container').prepend( $comment );
+                            $(".removeComment", $comment).hide();
+                            textArea.val('');
+                        },
+                        error: function(html) {
+                            alert("Internal server error. Cannot add comment.");
+                        }
+                    });
+                    return false;
+                });
+
+
+                $(".dropdown_menu .menu_launch").click(function(e){
+                    $(this).parent().find('ul').css('visibility', 'visible');
+                    $(this).parent().find('.dropdown_menu_options').show();
+                    return false;
+                });
+                // on hover-out of the menu itself, hide drop-down menus
+                $(".dropdown_menu_options").hover(function(){}, function(){
+                    $(this).css('visibility', 'hidden');
+                }).hide();
+
+
+                // Choose to add tags...
+                $("#launch_tags_form").click(function(event) {
+                    $("#add_tags_form").dialog("open");
+                    // load form via AJAX...
+                    var load_url = $(this).attr('href');
+                    $("#add_tags_form").load(load_url);
+                    return false;
+                });
+                // set-up the tags form to use dialog
+                $("#add_tags_form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 410,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "Accept": function() {
+                            // simply submit the form (AJAX handling set-up above)
+                            $("#add_tags_form").submit();
+                            $( this ).dialog( "close" );
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                $('#add_tags_form').ajaxForm({
+                    success: function(data) {
+                        $("#add_tags_form").dialog( "close" );
+                        // update the list of tags
+                        var $tag = $(data);
+                        $("#tags_container").prepend($tag);
+                        $(".removeTag", $tag).click(function(event) {
+                            removeItem(event, "tag_annotation_wrapper");
+                        });
+                    }
+                });
+
+
+                // Choose to upload a local file...
+                $("#choose_local_document").click(function(event) {
+                    $("#upload_file_form input[type=file]").click();    // 'click' the hidden file field to launch file chooser
+                    return false;
+                });
+                // handle the file chooser closing: submit the form if we have a value
+                $('#upload_file_form input[type=file]').bind('change focus', function() {
+                    var value = $(this).val();
+                    var $form = $("#upload_file_form");
+                    if (value.trim().length > 0) {
+                        $form.submit();
+                    }
+                    return false;
+                });
+                // set-up the form to use AJAX. (requires jquery.form.js plugin)
+                $('#upload_file_form').ajaxForm({
+                    success: function(data) {
+                        // update the list of file annotations and bind actions
+                        var $fileann = $(data)
+                        $("#fileanns_container").prepend( $fileann );
+                        $(".deleteFile", $fileann).click(function(event) {
+                            deleteItem(event, "file_ann_wrapper");
+                        });
+                        $(".removeFile", $fileann).click(function(event) {
+                            removeItem(event, "file_ann_wrapper");
+                        });
+                    }
+                });
+
+
+                // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
+                $('#choose_attachments_form').ajaxForm({
+                    success: function(data) {
+                        $("#choose_attachments_form").dialog( "close" );
+                        // update the list of file annotations and bind actions
+                        var $fileanns = $(data)
+                        $("#fileanns_container").prepend( $fileanns );
+                        $(".deleteFile", $fileanns).click(function(event) {
+                            deleteItem(event, "file_ann_wrapper");
+                        });
+                        $(".removeFile", $fileanns).click(function(event) {
+                            removeItem(event, "file_ann_wrapper");
+                        });
+                    }
+                });
+                // prepare dialog for choosing file to attach...
+                $("#choose_attachments_form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 400,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "Accept": function() {
+                            // simply submit the form (AJAX handling set-up above)
+                            $("#choose_attachments_form").submit();
+                            $( this ).dialog( "close" );
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                // show dialog for choosing file to attach...
+                $("#choose_uploaded_document").click(function() {
+                    // show dialog first, then do the AJAX call to load files...
+                    var attach_form = $( "#choose_attachments_form" );
+                    attach_form.dialog( "open" );
+                    // load form via AJAX...
+                    var load_url = $(this).attr('href');
+                    attach_form.load(load_url);
+                    return false;
+                });
+
+            });
+            
+    </script>
+    
+{% endblock %}
+
+{% block body %}
+
+<h2>Batch Annotate</h2>
+<table>
+            <!-- TAGS -->               
+            <tr>
+                <th>{% trans "Tag" %}:</th>
+                <td style="vertical-align: middle">
+                    <a id="launch_tags_form" href="{% url annotate_tags %}?{{ obj_string }}">
+                        <!-- link for loading tags we can add to this object. Loaded by AJAX into form below & displayed as dialog -->
+                        <img src="{% static 'webclient/image/plus_11.png' %}" alt="e" title="Add Tags."/>
+                    </a>
+                </td>
+                <!-- hidden form for choosing new or existing Tags in dialog - load form via AJAX when we show dialog -->
+                <form id='add_tags_form' title="Tags Selection" action="{% url annotate_tags %}" method="post" style="display:none">
+                </form>
+                <!-- display existing Tags -->
+                <td>
+                    <div id="tags_container" class="lntags">
+
+                    </div>
+                </td>
+            </tr>
+            <!-- FILES -->
+            <tr>
+                <th>{% trans "Attach" %}:</th>
+                <td style="vertical-align: middle">
+                    
+                    <span class="dropdown_menu">
+                        <span class="menu_launch">
+                            <img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attach an existing file."/>
+                        </span>
+                        <ul class="dropdown_menu_options">
+                            <li><a id="choose_local_document" href="#">Local document...</a></li>
+                            <li>
+                                <a id="choose_uploaded_document" href="{% url annotate_file %}?{{ obj_string }}">
+                                    Uploaded document...
+                                </a>
+                            </li>
+                        </ul>
+                    </span>
+                    
+                    <!-- hidden form for choosing file to upload. Activated & submitted by js -->
+                    <form id='upload_file_form' style="display:none" action="{% url annotate_new_file %}" method="post">
+                    {% for field in form_file %}
+                        {{ field }}
+                    {% endfor %}
+                    </form>
+                    
+                    <!-- hidden form for choosing uploaded file in dialog - load form via AJAX when we show dialog -->
+                    <form id="choose_attachments_form" title="Select Attachments" action="{% url annotate_tags %}" method="post">
+                    </form>
+                    
+                </td>
+                <!-- display existing file annotations -->
+                <td>
+                    <div id="fileanns_container" class="lnfiles">
+                        
+                    </div>
+                </td>
+            </tr>  
+
+
+            <!-- COMMENT -->
+            <tr>
+                <th colspan="3">                
+                    {% trans "Comment:" %}
+                    <form id="add_comment_form" action="{% url annotate_comment %}" method="post">
+                    <table>
+                        <tr class="hiddenField"><td>{{ form_comment.image }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.dataset }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.project }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.screen }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.plate }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.acquisition }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.well }}</td></tr>
+                        <tr>
+                            <td>{{ form_comment.comment }}</td>
+                        </tr>
+                        <tr>
+                            <td><input type="submit" value="{% trans 'Add Comment' %}" /></td>
+                        </tr>
+                    </table>
+                    </form>
+                </th>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <div id="comments_container" class="lncomments">
+                        
+                    </div>
+                </td>
+            </tr>            
+</table>            
+
+{% endblock %}

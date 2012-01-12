@@ -1,3 +1,4 @@
+
 {% load i18n %}
 {% load common_filters %}
 
@@ -23,37 +24,24 @@
 
 {% comment %}
 <!--
-  This is the content of a form for adding new Tags or choosing existing ones.
+  This is the content of a form for choosing existing file-annotations.
   Loaded by AJAX into a form dialog.
 -->
 {% endcomment %}
 
 <div>
-    <p>Select the Tags to add, or Create new Tags</p>
-    <h1>{% trans "Available Tags" %}:</h1>
+    <h1>{% trans "Upload a new file" %}:</h1>
+    <p>Select the Attachments to add</p>
     <table>
-        <tr class="hiddenField"><td>{{ form_tags.image }}</td></tr>
-        <tr class="hiddenField"><td>{{ form_tags.dataset }}</td></tr>
-        <tr class="hiddenField"><td>{{ form_tags.project }}</td></tr>
-        <tr class="hiddenField"><td>{{ form_tags.screen }}</td></tr>
-        <tr class="hiddenField"><td>{{ form_tags.plate }}</td></tr>
-        <tr class="hiddenField"><td>{{ form_tags.acquisition }}</td></tr>
-        <tr class="hiddenField"><td>{{ form_tags.well }}</td></tr>
-
-        
+        <tr class="hiddenField"><td>{{ form_file.image }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_file.dataset }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_file.project }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_file.screen }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_file.plate }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_file.acquisition }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_file.well }}</td></tr>
         <tr>
-            <td>{{ form_tags.tag }}</td>
-        </tr>
-        <tr>
-            <td>{{ form_tags.description }}</td>
+            <td>{{ form_file.files }}</td>
         </tr>
     </table>
-    
-    <h1>{% trans "New Tag" %}:</h1>
-    <table>
-        <tr>
-            <td>{{ form_tags.tags }}{% if form_tags.tags.field.required %}*{% endif %}</td>
-        </tr>
-    </table>
-
 </div>

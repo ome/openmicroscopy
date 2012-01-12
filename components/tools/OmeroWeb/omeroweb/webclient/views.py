@@ -74,12 +74,12 @@ from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpL
 from webclient_utils import _formatReport, _purgeCallback
 from forms import ShareForm, BasketShareForm, ShareCommentForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
-                    CommentAnnotationForm, TagAnnotationForm, \
-                    UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
+                    CommentAnnotationForm, TagsAnnotationForm, \
+                    UploadFileAnnotationForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataObjectiveSettingsForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
-                    TagListForm, FileListForm, TagFilterForm, \
+                    TagListForm, FilesAnnotationForm, TagFilterForm, \
                     MultiAnnotationForm, \
                     WellIndexForm
 
@@ -1042,18 +1042,12 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
 
 
 @isUserConnected
-def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
+def load_metadata_details(request, c_type, c_id, conn, share_id=None, **kwargs):
     """
     This page is the right-hand panel 'general metadata', first tab only.
     Shown for Projects, Datasets, Images, Screens, Plates, Wells, Tags etc.
     The data and annotations are loaded by the manager. Display of appropriate data is handled by the template.
     """
-    conn = None
-    try:
-        conn = kwargs["conn"]        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     conn_share = None
     try:
@@ -1074,6 +1068,30 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
     except:
         index = 0
 
+    # we only expect a single object, but forms can take multiple objects
+    images = c_type == "image" and list(conn.getObjects("Image", [c_id])) or list()
+    datasets = c_type == "dataset" and list(conn.getObjects("Dataset", [c_id])) or list()
+    projects = c_type == "project" and list(conn.getObjects("Project", [c_id])) or list()
+    screens = c_type == "screen" and list(conn.getObjects("Screen", [c_id])) or list()
+    plates = c_type == "plate" and list(conn.getObjects("Plate", [c_id])) or list()
+    acquisitions = c_type == "acquisition" and list(conn.getObjects("PlateAcquisition", [c_id])) or list()
+    wells = list()
+    if c_type == "well":
+        for w in conn.getObjects("Well", [c_id]):
+            w.index=index
+            wells.append(w)
+
+    # we simply set up the annotation form, passing the objects to be annotated.
+    selected = {'images':c_type == "image" and [c_id] or [],
+        'datasets':c_type == "dataset" and [c_id] or [],
+        'projects':c_type == "project" and [c_id] or [],
+        'screens':c_type == "screen" and [c_id] or [],
+        'plates':c_type == "plate" and [c_id] or [],
+        'acquisitions':c_type == "acquisition" and [c_id] or [],
+        'wells':c_type == "well" and [c_id] or []}
+
+    initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}
+    
     form_comment = None
     try:
         if c_type in ("share", "discussion"):
@@ -1091,7 +1109,8 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                 template = "webclient/annotations/metadata_general.html"
                 manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
                 manager.annotationList()
-                form_comment = CommentAnnotationForm()
+                form_comment = CommentAnnotationForm(initial=initial)
+                
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(x)    
@@ -1100,7 +1119,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'index':index}
-    context['form_file'] = UploadFileForm()
+    context['form_file'] = UploadFileAnnotationForm(initial=initial)
     t = template_loader.get_template(template)
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
@@ -1390,6 +1409,311 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
 ###########################################################################
 # ACTIONS
 
+# Annotation in the right-hand panel is handled the same way for single objects (metadata_general.html)
+# AND for batch annotation (batch_annotate.html) by 4 forms:
+# Comment (this is loaded in the initial page)
+# Tags (the empty form is in the initial page but fields are loaded via AJAX)
+# Local File (this is loaded in the initial page)
+# Existing File (the empty form is in the initial page but field is loaded via AJAX)
+#
+# In each case, the form itself contains hidden fields to specify the object(s) being annotated
+# All forms inherit from a single form that has these fields.
+
+@isUserConnected
+def batch_annotate(request, conn, **kwargs):
+    """
+    This page gives a form for batch annotation. 
+    Local File form and Comment form are loaded. Other forms are loaded via AJAX
+    """
+    
+    # TODO: DRY!
+    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
+    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
+    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
+    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
+    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
+    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
+    wells = list()
+    if len(request.REQUEST.getlist('well')) > 0:
+        for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
+            w.index=index
+            wells.append(w)
+
+
+    oids = {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+    
+    selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), 'wells':request.REQUEST.getlist('well')}
+    
+    
+    initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}
+        
+    form_comment = CommentAnnotationForm(initial=initial)
+    form_file = UploadFileAnnotationForm(initial=initial)
+
+    obj_ids = []
+    for key in oids:
+        obj_ids += ["%s=%s"%(key,o.id) for o in oids[key]]
+    obj_string = "&".join(obj_ids)
+    
+    template = "webclient/annotations/batch_annotate.html"
+    context = {'form_comment':form_comment, 'form_file':form_file, 'obj_string':obj_string}
+    
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+
+
+@isUserConnected
+def annotate_new_file(request, conn, **kwargs):
+    """ This handles the submission of Files to upload, creating File Annotation linked to one or more objects """
+
+    # much of this code is replicated elsewhere - TODO: don't repeat yourself!
+    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
+    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
+    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
+    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
+    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
+    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
+    wells = list()
+    if len(request.REQUEST.getlist('well')) > 0:
+        for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
+            w.index=index
+            wells.append(w)
+
+    oids = {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+
+    manager = BaseContainer(conn)
+
+    # Handle form submission...
+    if request.method == 'POST':
+        form_multi = UploadFileAnnotationForm(initial={'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}, data=request.REQUEST.copy(), files=request.FILES)
+        if form_multi.is_valid():
+            # In each case below, we pass the {'object_type': [ids]} map
+            fileupload = request.FILES['annotation_file']
+            if fileupload is not None and fileupload != "":
+                fileann = manager.createFileAnnotations(fileupload, oids)
+                template = "webclient/annotations/fileann.html"
+                context = {'fileann': fileann}
+
+                t = template_loader.get_template(template)
+                c = Context(request,context)
+                logger.debug('TEMPLATE: '+template)
+                return HttpResponse(t.render(c))
+
+
+@isUserConnected
+def annotate_file(request, conn, **kwargs):
+    """ 
+    On 'POST', This handles attaching an existing file-annotation to one or more objects 
+    Otherwise it generates the form for choosing file-annotations
+    """
+    try:
+        index = int(request.REQUEST['index'])
+    except:
+        index = None
+
+    # TODO: DRY!
+    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
+    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
+    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
+    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
+    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
+    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
+    wells = list()
+    if len(request.REQUEST.getlist('well')) > 0:
+        for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
+            w.index=index
+            wells.append(w)
+
+    oids = {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+    
+    selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 
+            'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 
+            'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), 
+            'wells':request.REQUEST.getlist('well')}
+    
+    obj_count = sum( [len(selected[types]) for types in selected] )
+    
+    # Get appropriate manager, either to list available Tags to add to single object, or list ALL Tags (multiple objects)
+    manager = None
+    if obj_count == 1:
+        for t in selected:
+            if len(selected[t]) > 0:
+                o_type = t[:-1]         # "images" -> "image"
+                o_id = selected[t][0]
+                break
+        if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
+            if o_type == 'tagset': o_type = 'tag' # TODO: this should be handled by the BaseContainer
+            kw = {'index':index}
+            if o_type is not None and o_id > 0:
+                kw[str(o_type)] = long(o_id)
+            try:
+                manager = BaseContainer(conn, **kw)
+            except AttributeError, x:
+                logger.error(traceback.format_exc())
+                return handlerInternalError(x)
+        elif o_type in ("share", "sharecomment"):
+            manager = BaseShare(conn, None, o_id)
+    if manager is None:
+        manager = BaseContainer(conn)
+    
+    files = manager.getFilesByObject()
+    initial={'files': files, 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 
+            'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}
+
+    if request.method == 'POST':
+        # handle form submission
+        form_file = FilesAnnotationForm(initial=initial, data=request.REQUEST.copy())
+        # Link existing files...
+        if form_file.is_valid():
+            linked_files = []
+            files = form_file.cleaned_data['files']
+            if files is not None and len(files)>0:
+                linked_files = manager.createAnnotationsLinks('file', files, oids)
+            template = "webclient/annotations/fileanns.html"
+            context = {'fileanns':linked_files}
+        else:
+            return HttpResponse(str(form_file.errors))      # TODO: handle invalid form error
+
+    else:
+        form_file = FilesAnnotationForm(initial=initial)
+        context = {'form_file': form_file}
+        template = "webclient/annotations/files_form.html"
+    
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+    
+@isUserConnected
+def annotate_comment(request, conn, **kwargs):
+    """ Handle adding Comments to one or more objects """
+    
+    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
+    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
+    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
+    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
+    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
+    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
+    wells = list()
+    if len(request.REQUEST.getlist('well')) > 0:
+        for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
+            w.index=index
+            wells.append(w)
+    
+    oids = {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+
+    manager = BaseContainer(conn)
+
+    # Handle form submission...
+    if request.method == 'POST':
+        form_multi = CommentAnnotationForm(initial={'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}, data=request.REQUEST.copy())
+        if form_multi.is_valid():
+            # In each case below, we pass the {'object_type': [ids]} map
+            content = form_multi.cleaned_data['comment']
+            if content is not None and content != "":
+                textAnn = manager.createCommentAnnotations(content, oids)
+                template = "webclient/annotations/comment.html"
+                context = {'tann': textAnn}
+                
+                t = template_loader.get_template(template)
+                c = Context(request,context)
+                logger.debug('TEMPLATE: '+template)
+                return HttpResponse(t.render(c))
+        else:
+            return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
+
+
+@isUserConnected
+def annotate_tags(request, conn, **kwargs):
+    """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
+
+    try:
+        index = int(request.REQUEST['index'])
+    except:
+        index = None
+
+    # TODO: DRY!
+    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
+    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
+    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
+    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
+    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
+    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
+    wells = list()
+    if len(request.REQUEST.getlist('well')) > 0:
+        for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
+            w.index=index
+            wells.append(w)
+
+    oids = {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+
+    selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 
+            'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 
+            'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), 
+            'wells':request.REQUEST.getlist('well')}
+
+    obj_count = sum( [len(selected[types]) for types in selected] )
+
+    # Get appropriate manager, either to list available Tags to add to single object, or list ALL Tags (multiple objects)
+    manager = None
+    if obj_count == 1:
+        for t in selected:
+            if len(selected[t]) > 0:
+                o_type = t[:-1]         # "images" -> "image"
+                o_id = selected[t][0]
+                break
+        if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
+            if o_type == 'tagset': o_type = 'tag' # TODO: this should be handled by the BaseContainer
+            kw = {'index':index}
+            if o_type is not None and o_id > 0:
+                kw[str(o_type)] = long(o_id)
+            try:
+                manager = BaseContainer(conn, **kw)
+            except AttributeError, x:
+                logger.error(traceback.format_exc())
+                return handlerInternalError(x)
+        elif o_type in ("share", "sharecomment"):
+            manager = BaseShare(conn, None, o_id)
+
+    if manager is None:
+        manager = BaseContainer(conn)
+
+    tags = manager.getTagsByObject()
+    initial={'tags': tags, 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 
+            'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}
+
+    if request.method == 'POST':
+        # handle form submission
+        form_tags = TagsAnnotationForm(initial=initial, data=request.REQUEST.copy())
+        # Create new tags or Link existing tags...
+        if form_tags.is_valid():
+            tag = form_tags.cleaned_data['tag']
+            description = form_tags.cleaned_data['description']
+            tags = form_tags.cleaned_data['tags']
+            linked_tags = []
+            if tags is not None and len(tags)>0:
+                linked_tags = manager.createAnnotationsLinks('tag', tags, oids)
+            if tag is not None and tag != "":
+                new_tag = manager.createTagAnnotations(tag, description, oids)
+                linked_tags.append(new_tag)
+            template = "webclient/annotations/tags.html"
+            context = {'tags':linked_tags}
+        else:
+            return HttpResponse(str(form_tags.errors))      # TODO: handle invalid form error
+
+    else:
+        form_tags = TagsAnnotationForm(initial=initial)
+        context = {'form_tags': form_tags}
+        template = "webclient/annotations/tags_form.html"
+    
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+
+
 @isUserConnected
 def manage_annotation_multi(request, action=None, **kwargs):   
     """
@@ -1570,7 +1894,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'form_tags':form_tags, 'index':index}
     elif action == 'newfile':
         # form for attaching existing file Annotation (used via AJAX to load into dialog).
-        template = "webclient/annotations/annotation_new_form.html"
+        template = "webclient/annotations/files_form.html"
         form_files = FileListForm(initial={'files':manager.getFilesByObject()})
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files, 'index':index}
     elif action == 'newsharecomment':

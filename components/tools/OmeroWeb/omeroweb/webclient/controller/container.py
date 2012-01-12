@@ -545,6 +545,8 @@ class BaseContainer(BaseController):
     
     # Comment annotation
     def createCommentAnnotation(self, otype, content):
+        """ TODO: not used now - remove? """
+
         otype = str(otype).lower()
         if not otype in ("project", "dataset", "image", "screen", "plate", "acquisition", "well"):
             raise AttributeError("Object type must be: project, dataset, image, screen, plate, acquisition, well. ")
@@ -633,6 +635,7 @@ class BaseContainer(BaseController):
         return file_type
             
     def createFileAnnotation(self, otype, newFile):
+        """ TODO: not used now - remove? """
         otype = str(otype).lower()
         if not otype in ("project", "dataset", "image", "screen", "plate", "acquisition", "well"):
             raise AttributeError("Object type must be: project, dataset, image, screen, plate, acquisition, well. ")
@@ -692,9 +695,11 @@ class BaseContainer(BaseController):
                     l_ann.setParent(obj._obj)
                     l_ann.setChild(ann._obj)
                     new_links.append(l_ann)
-        
+
         if len(new_links) > 0 :
             self.conn.saveArray(new_links)
+        return self.conn.getObject("CommentAnnotation", ann.getId())
+
     
     def createTagAnnotations(self, tag, desc, oids):
         ann = None
@@ -707,8 +712,9 @@ class BaseContainer(BaseController):
             ann.textValue = rstring(str(tag))
             ann.setDescription(rstring(str(desc)))
             ann = self.conn.saveAndReturnObject(ann)
-        
+
         new_links = list()
+        parent_objs = []
         for k in oids:
             if len(oids[k]) > 0:
                 for ob in oids[k]:
@@ -721,12 +727,21 @@ class BaseContainer(BaseController):
                     else:
                         t = k.lower().title()
                         obj = ob
+                    parent_objs.append(obj)
                     l_ann = getattr(omero.model, t+"AnnotationLinkI")()
                     l_ann.setParent(obj._obj)
                     l_ann.setChild(ann._obj)
                     new_links.append(l_ann)
         if len(new_links) > 0 :
             self.conn.saveArray(new_links)
+        # if we only annotated a single object, return file-anns with link loaded
+        if len(parent_objs) == 1:
+            parent = parent_objs[0]
+            links = self.conn.getAnnotationLinks (parent.OMERO_CLASS, parent_ids=[parent.getId()], ann_ids=[ann.id])
+            lnk = links.next()
+            return lnk.getAnnotation()
+        # Each annotation will have several new links - Just return the annotations
+        return ann
     
     def createFileAnnotations(self, newFile, oids):
         format = self.checkMimetype(newFile.content_type)
@@ -746,6 +761,7 @@ class BaseContainer(BaseController):
         fa = self.conn.saveAndReturnObject(fa)
         
         new_links = list()
+        otype = None    # needed if we only have a single Object
         for k in oids:
             if len(oids[k]) > 0:
                 for ob in oids[k]:
@@ -758,18 +774,27 @@ class BaseContainer(BaseController):
                     else:
                         t = k.lower().title()
                         obj = ob
+                        otype = t
                     l_ann = getattr(omero.model, t+"AnnotationLinkI")()
                     l_ann.setParent(obj._obj)
                     l_ann.setChild(fa._obj)
                     new_links.append(l_ann)
         if len(new_links) > 0 :
-            self.conn.saveArray(new_links)
+            new_links = self.conn.getUpdateService().saveAndReturnArray(new_links)
+        
+        # if we only annotated a single object, return file-ann with link loaded
+        if len(new_links) == 1:
+            links = self.conn.getAnnotationLinks (otype, ann_ids=[new_links[0].child.getId().getValue()])
+            fa_link = links.next()  # get first item in generator
+            fa = fa_link.getAnnotation()
+            return fa
+        return self.conn.getObject("FileAnnotation", fa.getId())
+
     
     # Create links
-    def createAnnotationLinks(self, otype, atype, ids):
-        otype = str(otype).lower()
-        if not otype in ("project", "dataset", "image", "screen", "plate", "acquisition", "well"):
-            raise AttributeError("Object type must be: project, dataset, image, screen, plate, acquisition, well.")
+    def createAnnotationLinks(self, otype, atype, ann_ids):
+        """ TODO: not used? remove? """
+        
         atype = str(atype).lower()
         if not atype in ("tag", "comment", "file"):
             raise AttributeError("Object type must be: tag, comment, file.")
@@ -784,7 +809,7 @@ class BaseContainer(BaseController):
             otype = otype.title()
             
         new_links = list()
-        for a in self.conn.getObjects("Annotation", ids):
+        for a in self.conn.getObjects("Annotation", ann_ids):
             ann = getattr(omero.model, otype+"AnnotationLinkI")()
             ann.setParent(selfobject._obj)
             ann.setChild(a._obj)
@@ -812,6 +837,8 @@ class BaseContainer(BaseController):
             raise AttributeError("Object type must be: tag, comment, file.")
         
         new_links = list()
+        annotations = list(self.conn.getObjects("Annotation", tids))
+        parent_objs = []
         for k in oids:
             if len(oids[k]) > 0:
                 if k.lower() == 'acquisitions':
@@ -819,7 +846,8 @@ class BaseContainer(BaseController):
                 else:
                     t = k.lower().title()
                 for ob in self.conn.getObjects(t, [o.id for o in oids[k]]):
-                    for a in self.conn.getObjects("Annotation", tids):
+                    parent_objs.append(ob)
+                    for a in annotations:
                         if isinstance(ob._obj, omero.model.WellI):
                             t = 'Image'
                             obj = ob.getWellSample().image()
@@ -830,15 +858,25 @@ class BaseContainer(BaseController):
                         l_ann.setChild(a._obj)
                         new_links.append(l_ann)
         failed = 0
+        saved_links = []
         try:
-            self.conn.saveArray(new_links)            
+            # will fail if any of the links already exist
+            saved_links = self.conn.getUpdateService().saveAndReturnArray(new_links)
         except omero.ValidationException, x:
             for l in new_links:
                 try:
-                    self.conn.saveObject(l)
+                    saved_links.append(self.conn.getUpdateService().saveAndReturnObject(l))
                 except:
                     failed+=1
-        return failed
+
+        # if we only annotated a single object, return file-anns with link loaded
+        if len(parent_objs) == 1:
+            parent = parent_objs[0]
+            links = self.conn.getAnnotationLinks (parent.OMERO_CLASS, parent_ids=[parent.getId()], ann_ids=tids)
+            fas = [fa_link.getAnnotation() for fa_link in links]
+            return fas
+        # Each annotation will have several new links - Just return the annotations
+        return annotations
             
     ################################################################
     # Update

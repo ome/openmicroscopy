@@ -123,20 +123,19 @@ class ContainerDescriptionForm(NonASCIIForm):
     
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 39}), required=False)
 
-class CommentAnnotationForm(NonASCIIForm):
-    
-    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}))
-
 class TagFilterForm(NonASCIIForm):
+    """ TODO: Not used - remove """
     
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
 
 class TagAnnotationForm(NonASCIIForm):
+    """ TODO: Not used - remove """
     
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}))
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 31}), required=False, label="Desc")
 
 class TagListForm(forms.Form):
+    """ TODO: Not used - remove """
     
     def __init__(self, *args, **kwargs):
         super(TagListForm, self).__init__(*args, **kwargs)
@@ -144,6 +143,7 @@ class TagListForm(forms.Form):
         self.fields.keyOrder = ['tags']
 
 class FileListForm(forms.Form):
+    """ TODO: Not used - remove """
     
     def __init__(self, *args, **kwargs):
         super(FileListForm, self).__init__(*args, **kwargs)
@@ -151,6 +151,7 @@ class FileListForm(forms.Form):
         self.fields.keyOrder = ['files']
 
 class UploadFileForm(NonASCIIForm):
+    """ TODO: Not used - remove """
     annotation_file  = forms.FileField(required=False)
     
     def clean_annotation_file(self):
@@ -158,11 +159,14 @@ class UploadFileForm(NonASCIIForm):
             raise forms.ValidationError('This field is required.')
 
 class MultiAnnotationForm(NonASCIIForm):
-    
+    """
+    This will not be used once we have removed iframe. TODO: check and remove.
+    """
     def __init__(self, *args, **kwargs):
         super(MultiAnnotationForm, self).__init__(*args, **kwargs)
         try:
-            self.fields['image'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['images'], initial=kwargs['initial']['selected']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            self.fields['image'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['images'], 
+                initial=kwargs['initial']['selected']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         except:
             logger.error(traceback.format_exc())
             self.fields['image'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
@@ -212,7 +216,88 @@ class MultiAnnotationForm(NonASCIIForm):
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 31}), required=False, label="Desc")
     annotation_file  = forms.FileField(required=False)
+
+
+class BaseAnnotationForm(NonASCIIForm):
+    """
+    This is the superclass of the various forms used for annotating single or multiple objects.
+    All these forms use hidden fields to specify the object(s) currently being annotated.
+    """
+    def __init__(self, *args, **kwargs):
+        super(BaseAnnotationForm, self).__init__(*args, **kwargs)
+        try:
+            self.fields['image'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['images'], initial=kwargs['initial']['selected']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        except:
+            logger.error(traceback.format_exc())
+            self.fields['image'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        try:
+            self.fields['dataset'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['datasets'], initial=kwargs['initial']['selected']['datasets'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        except:
+            logger.error(traceback.format_exc())
+            self.fields['dataset'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['datasets'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        try:
+            self.fields['project'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['projects'], initial=kwargs['initial']['selected']['projects'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        except:
+            logger.error(traceback.format_exc())
+            self.fields['project'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['projects'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        try:
+            self.fields['screen'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['screens'], initial=kwargs['initial']['selected']['screens'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        except:
+            logger.error(traceback.format_exc())
+            self.fields['screen'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['screens'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        try:
+            self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['plates'], initial=kwargs['initial']['selected']['plates'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        except:
+            logger.error(traceback.format_exc())
+            self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['plates'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        try:
+            self.fields['acquisition'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['acquisitions'], initial=kwargs['initial']['selected']['acquisitions'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        except:
+            logger.error(traceback.format_exc())
+            self.fields['acquisition'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['acquisitions'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        try:
+            self.fields['well'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['wells'], initial=kwargs['initial']['selected']['wells'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        except:
+            logger.error(traceback.format_exc())
+            self.fields['well'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['wells'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+
+
+class TagsAnnotationForm(BaseAnnotationForm):
+    """ Form for annotating one or more objects with existing Tags or New tags """
+
+    def __init__(self, *args, **kwargs):
+        super(TagsAnnotationForm, self).__init__(*args, **kwargs)
+        self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], 
+                widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
+
+    tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 31}), required=False, label="Desc")
+
+
+class FilesAnnotationForm(BaseAnnotationForm):
     
+    def __init__(self, *args, **kwargs):
+        super(FilesAnnotationForm, self).__init__(*args, **kwargs)
+        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':8, 'class':'existing'}))
+
+
+class UploadFileAnnotationForm(BaseAnnotationForm):
+
+    annotation_file  = forms.FileField(required=False)
+    
+    def clean_annotation_file(self):
+        if self.cleaned_data['annotation_file'] is None:
+            raise forms.ValidationError('This field is required.')
+
+class CommentAnnotationForm(BaseAnnotationForm):
+    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}))
+
 class UsersForm(forms.Form):
 
     def __init__(self, *args, **kwargs):

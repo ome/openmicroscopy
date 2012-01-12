@@ -163,7 +163,7 @@ var multipleAnnotation = function(selected, index, prefix){
         selected.each( function(i){
             productListQuery[i] = $(this).attr('id').replace("-","=");
         });
-        var query = prefix+"metadata_details/multiaction/annotatemany/?"+productListQuery.join("&")
+        var query = prefix+"?"+productListQuery.join("&")
         if (index != null && index > -1) {
             query += "&index="+index;
         }

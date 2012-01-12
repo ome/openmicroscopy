@@ -77,6 +77,11 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^metadata_details/multiaction/(?:(?P<action>[a-zA-Z]+)/)?$', views.manage_annotation_multi, name="manage_annotation_multi" ),
     
     url( r'^action/(?P<action>[a-zA-Z]+)/(?:(?P<o_type>[a-zA-Z]+)/)?(?:(?P<o_id>[0-9]+)/)?$', views.manage_action_containers, name="manage_action_containers" ),
+    url( r'^batch_annotate/$', views.batch_annotate, name="batch_annotate" ),
+    url( r'^annotate_tags/$', views.annotate_tags, name="annotate_tags" ),
+    url( r'^annotate_comment/$', views.annotate_comment, name="annotate_comment" ),
+    url( r'^annotate_file/$', views.annotate_file, name="annotate_file" ),
+    url( r'annotate_new_file/$', views.annotate_new_file, name="annotate_new_file"),
     url( r'^annotation/(?P<action>[a-zA-Z]+)/(?P<iid>[0-9]+)/$', views.download_annotation, name="download_annotation" ),
     url( r'^archived_files/download/(?P<iid>[0-9]+)/$', views.archived_files, name="archived_files" ),
     
