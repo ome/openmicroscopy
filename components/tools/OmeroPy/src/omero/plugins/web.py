@@ -114,27 +114,12 @@ class WebControl(BaseControl):
         unittest.add_argument("--path", action="store", help = "Path to Django-app. Must include '/'.")
 
 
-    def host_and_port(self, APPLICATION_HOST):
-        parts = APPLICATION_HOST.split(':')
-        if len(parts) != 3:
-            self.ctx.die(656, "Invalid application host: %s" % ":".join(parts))
-        try:
-            host = parts[1]
-            while host.startswith(r"/"):
-                host = host[1:]
-            port = parts[2]
-            port = re.search(r'^(\d+).*', port).group(1)
-            port = int(port)
-            return (host, port)
-        except Exception, e:
-            self.ctx.die(567, "Badly formed domain: %s -- %s" % (":".join(parts), e))
-
     def config(self, args):
         if not args.type:
             self.ctx.out("Available configuration helpers:\n - nginx, apache\n")
         else:
             server = args.type
-            host, port = self.host_and_port(settings.APPLICATION_HOST)
+            port = 8080
             if args.http:
                 port = args.http
             if settings.APPLICATION_SERVER == settings.FASTCGITCP:
