@@ -52,7 +52,7 @@ import omero.sys.ParametersI;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class RenderingSettingsServiceTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 
     

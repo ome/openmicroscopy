@@ -41,7 +41,7 @@ import omero.sys.ParametersI;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class ExporterTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 	
     /**
