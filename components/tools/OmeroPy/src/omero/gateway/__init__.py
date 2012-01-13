@@ -2816,19 +2816,21 @@ class _BlitzGateway (object):
 
     def getAvailableDeleteCommands(self):
         """
-        Retrieves the current set of delete commands with type and options
-        filled.
+        Retrieves the current set of delete commands with type (graph spec)
+        and options filled.
+        @return:    Exhaustive list of available delete commands.
+        @rtype:     L{omero.api.delete.DeleteCommand}
         """
         return self.getDeleteService().availableCommands()
 
-    def deleteObjects(self, delete_spec, obj_ids, deleteAnns=False,
+    def deleteObjects(self, graph_spec, obj_ids, deleteAnns=False,
                       deleteChildren=False):
         """
         Generic method for deleting using the delete queue. Options allow to
         delete 'independent' Annotations (Tag, Term, File) and to delete
         child objects.
 
-        @param delete_spec:     String to indicate the object type or delete
+        @param graph_spec:      String to indicate the object type or graph
                                 specification. Examples include:
                                  * 'Project'
                                  * 'Dataset'
@@ -2855,13 +2857,13 @@ class _BlitzGateway (object):
         if not isinstance(obj_ids, list) and len(obj_ids) < 1:
             raise AttributeError('Must be a list of object IDs')
 
-        if not delete_spec.startswith('/'):
-            delete_spec = '/%s' % delete_spec
-            logger.debug('Received object type, using "%s"' % delete_spec)
+        if not graph_spec.startswith('/'):
+            graph_spec = '/%s' % graph_spec
+            logger.debug('Received object type, using "%s"' % graph_spec)
 
         op = dict()
-        if not deleteAnns and delete_spec not in ["/Annotation",
-                                                  "/TagAnnotation"]:
+        if not deleteAnns and graph_spec not in ["/Annotation",
+                                                 "/TagAnnotation"]:
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
@@ -2876,17 +2878,17 @@ class _BlitzGateway (object):
 
         if not deleteChildren:
             try:
-                for c in childTypes[delete_spec]:
+                for c in childTypes[graph_spec]:
                     op[c] = "KEEP"
             except KeyError:
                 pass
 
         dcs = list()
         logger.debug('Deleting %s [%s]. Options: %s' % \
-                (delete_spec, str(obj_ids), op))
+                (graph_spec, str(obj_ids), op))
         for oid in obj_ids:
             dcs.append(omero.api.delete.DeleteCommand(
-                delete_spec, long(oid), op))
+                graph_spec, long(oid), op))
         handle = self.getDeleteService().queueDelete(dcs)
         return handle
 
