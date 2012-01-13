@@ -296,10 +296,12 @@ public class TreeCellRenderer
     /** Flag indicating if the node to render is the target node.*/
     private boolean isTargetNode;
     
+    /** Flag indicating if the node to render is the target node.*/
+    private boolean droppedAllowed;
+    
     /** The color used when dragging.*/
     private Color draggedColor;
-    
-	
+
     /**
      * Sets the icon and the text corresponding to the user's object.
      * 
@@ -496,11 +498,14 @@ public class TreeCellRenderer
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
                                                 row, hasFocus);
         isTargetNode = false;
+        droppedAllowed = true;
         if (tree instanceof DnDTree) {
         	DnDTree dndTree = (DnDTree) tree;
         	isTargetNode = (value == dndTree.getDropTargetNode());
+        	if (dndTree.getDropLocation() == row) {
+        		droppedAllowed = false;
+        	}
         }
-
         setIcon(FILE_TEXT_ICON);
         if (!(value instanceof TreeImageDisplay)) return this;
         TreeImageDisplay  node = (TreeImageDisplay) value;
@@ -554,7 +559,9 @@ public class TreeCellRenderer
     	super.paintComponent(g);
 		if (isTargetNode) {
 			g.setColor(draggedColor);
+			if (!droppedAllowed) g.setColor(backgroundNonSelectionColor);
 			g.fillRoundRect(0, 0, getSize().width-1, getSize().height-1, 2, 2);
+			if (!droppedAllowed) super.paintComponent(g);
 		}
 	}
   

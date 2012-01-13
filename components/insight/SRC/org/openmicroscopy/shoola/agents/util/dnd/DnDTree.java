@@ -139,6 +139,9 @@ public class DnDTree
 	/** Flag indicating if the drop action is allowed or not.*/
 	private boolean dropAllowed;
 	
+	/** The location of the drop.*/
+	private int dropLocation;
+	
 	/** 
 	 * Sets the cursor depending on the selected node.
 	 * 
@@ -340,6 +343,7 @@ public class DnDTree
 	{
 		super();
 		defaultCursor = getCursor();
+		dropLocation = -1;
 		this.userID = userID;
 		this.administrator = administrator;
 		setDragEnabled(true);
@@ -368,6 +372,21 @@ public class DnDTree
 	public TreeNode getDropTargetNode() { return dropTargetNode; }
 
 	/**
+	 * Returns the row where the node was dropped.
+	 * 
+	 * @return See above.
+	 */
+	public int getDropLocation() { return dropLocation; }
+	
+	/**
+	 * Returns <code>true</code> if the drop action is allowed,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isDropAllowed() { return dropAllowed; }
+	
+	/**
 	 * Sets the target node.
 	 * {@link DropTargetListener#dragOver(DropTargetDragEvent)}
 	 */
@@ -387,17 +406,20 @@ public class DnDTree
 	 */
 	public void drop(DropTargetDropEvent dtde)
 	{
+		Point dropPoint = dtde.getLocation();
+		TreePath path = getPathForLocation(dropPoint.x, dropPoint.y);
+		dropLocation = getRowForPath(path);
 		if (!dropAllowed) {
 			dtde.rejectDrop();
+			repaint();
 			return;
 		}
 		Transferable transferable = dtde.getTransferable();
 		if (!transferable.isDataFlavorSupported(localFlavor)) {
 			dtde.rejectDrop();
+			repaint();
 			return;
 		}
-		Point dropPoint = dtde.getLocation();
-		TreePath path = getPathForLocation(dropPoint.x, dropPoint.y);
 		boolean dropped = false;
 		try {
 			dtde.acceptDrop(DnDConstants.ACTION_MOVE);
@@ -420,6 +442,7 @@ public class DnDTree
 			if (nodes.size() == 0) {
 				dropped = true;
 				dtde.dropComplete(dropped);
+				repaint();
 				return;
 			}
 			TreeImageDisplay parent = null;
