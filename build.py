@@ -15,7 +15,13 @@ import subprocess
 
 def popen(args, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
         copy = os.environ.copy()
-        return subprocess.Popen(args, env=copy, stdin=stdin, stdout=stdout, stderr=stderr)
+        shell = (sys.platform == "win32")
+        return subprocess.Popen(args,
+                env=copy,
+                stdin=stdin,
+                stdout=stdout,
+                stderr=stderr,
+                shell=shell)
 
 
 def execute(args):
