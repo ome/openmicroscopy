@@ -267,11 +267,17 @@ class DataBrowserComponent
 	 */
 	public void setSelectedDisplays(List<ImageDisplay> nodes)
 	{
+		if (nodes == null) return;
+		if (nodes.size() == 1) {
+			setSelectedDisplay(nodes.get(0));
+			return;
+		}
 		List<Object> others = new ArrayList<Object>();
 		List<Object> objects = new ArrayList<Object>();
-		Iterator<ImageDisplay> i = nodes.iterator();
+		
 		ImageDisplay node = nodes.get(0);
 		Object object = node.getHierarchyObject();
+		Iterator<ImageDisplay> i = nodes.iterator();
 		while (i.hasNext()) {
 			others.add(i.next().getHierarchyObject());
 		}

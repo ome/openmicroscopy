@@ -937,6 +937,7 @@ class TreeViewerComponent
 			browser.onSelectedNode(parent, selection, selection.size() > 0);
 		}
 		int size = selection.size();
+		System.err.println(size);
 		if (size == 1) {
 			Browser browser = model.getSelectedBrowser();
 			ExperimenterData exp = null;
@@ -960,7 +961,8 @@ class TreeViewerComponent
 			return;
 		}
 		List result = new ArrayList();
-		result.add(selection.subList(1, size-1));
+		selection.remove(0);
+		result.add(selection);
 		result.add(selected);
 		result.add(parent);
 		setSelectedNode(result);
