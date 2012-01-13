@@ -157,5 +157,38 @@ class TestAdmin(unittest.TestCase):
         self.invoke("a status")
         self.assertEquals(0, self.cli.rv)
 
+    #
+    # Bugs
+    #
+
+    """
+    Issues with error handling in certain situations
+    especially with changing networks interfaces.
+    """
+
+    def test7325NoWaitForShutdown(self):
+        """
+        First issue in the error reported in Will's description
+        (ignoring the comments) is that if the master could
+        not be reached, there should be no waiting on shutdown.
+        """
+
+        # Although later status says the servers not running
+        # the node ping much return a 0 because otherwise
+        # stopasync returns immediately
+        self.cli.checksStatus(0)     # node ping
+
+        # Then since "Was the server already stopped?" was
+        # printed, the call to shutdown master must return 1
+        self.cli.addCall(1)
+
+        self.invoke("a restart")
+        self.cli.assertStderr([])
+        self.cli.assertStdout([])
+
+        # This test fails. With whatever solution is chosen
+        # for 7325, the restart here should not wait on shutdown
+        # if there's no connection available.
+
 if __name__ == '__main__':
     unittest.main()
