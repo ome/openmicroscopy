@@ -177,8 +177,8 @@ public class BfPixelBufferTest extends AbstractTest {
         int midZ = bf.getSizeZ()/2;
         int midC = bf.getSizeC()/2;
         int midT = bf.getSizeT()/2;
-        byte[] buff1 = new byte[bf.getPlaneSize()];
-        byte[] buff2 = new byte[rps.getPlaneSize()];
+        byte[] buff1 = new byte[bf.getPlaneSize().intValue()];
+        byte[] buff2 = new byte[RomioPixelBuffer.safeLongToInteger(rps.getPlaneSize())];
         bf.getPlaneDirect(midZ,midC,midT,buff1);
         buff2 = rps.getPlane(midZ,midC,midT);
         assertEquals(sha1(buff1), sha1(buff2));
@@ -193,8 +193,8 @@ public class BfPixelBufferTest extends AbstractTest {
         List<Integer> offset = Arrays.asList(new Integer[]{0,0,midZ,midC,midT});
         List<Integer> size = Arrays.asList(new Integer[]{sizeX,sizeY,1,1,1});
         List<Integer> step = Arrays.asList(new Integer[]{1,1,1,1,1});
-        byte[] buff1 = new byte[bf.getPlaneSize()];
-        byte[] buff2 = new byte[bf.getPlaneSize()];
+        byte[] buff1 = new byte[bf.getPlaneSize().intValue()];
+        byte[] buff2 = new byte[bf.getPlaneSize().intValue()];
         bf.getPlaneDirect(midZ,midC,midT,buff1);
         bf.getHypercubeDirect(offset,size,step,buff2);
         assertEquals(sha1(buff1), sha1(buff2));
@@ -204,8 +204,8 @@ public class BfPixelBufferTest extends AbstractTest {
     private void testgetStackDirect() throws IOException, DimensionsOutOfBoundsException, ServerError {
         int midC = bf.getSizeC()/2;
         int midT = bf.getSizeT()/2;
-        byte[] buff1 = new byte[bf.getStackSize()];
-        byte[] buff2 = new byte[rps.getStackSize()];
+        byte[] buff1 = new byte[bf.getStackSize().intValue()];
+        byte[] buff2 = new byte[RomioPixelBuffer.safeLongToInteger(rps.getStackSize())];
         bf.getStackDirect(midC,midT,buff1);
         buff2 = rps.getStack(midC,midT);
         assertEquals(sha1(buff1), sha1(buff2));
@@ -214,8 +214,8 @@ public class BfPixelBufferTest extends AbstractTest {
     private void testgetTimepointDirect() 
             throws IOException, DimensionsOutOfBoundsException, ServerError {
         int midT = bf.getSizeT()/2;
-        byte[] buff1 = new byte[bf.getTimepointSize()];
-        byte[] buff2 = new byte[rps.getTimepointSize()];
+        byte[] buff1 = new byte[bf.getTimepointSize().intValue()];
+        byte[] buff2 = new byte[RomioPixelBuffer.safeLongToInteger(rps.getTimepointSize())];
         bf.getTimepointDirect(midT,buff1);
         buff2 = rps.getTimepoint(midT);
         assertEquals(sha1(buff1), sha1(buff2));
@@ -238,12 +238,12 @@ public class BfPixelBufferTest extends AbstractTest {
     }
     
     private void testSizeGetters() throws ServerError {
-        assertEquals((int)rps.getRowSize(), (int)bf.getRowSize());
-        assertEquals((int)rps.getPlaneSize()*rps.getByteWidth()/rps.getRowSize(), (int)bf.getColSize());
-        assertEquals((int)rps.getPlaneSize(), (int)bf.getPlaneSize());
-        assertEquals((int)rps.getStackSize(), (int)bf.getStackSize());
-        assertEquals((int)rps.getTimepointSize(), (int)bf.getTimepointSize());
-        assertEquals((int)rps.getTotalSize(), (int)bf.getTotalSize());
+        assertEquals(rps.getRowSize(), bf.getRowSize().intValue());
+        assertEquals(rps.getPlaneSize()*rps.getByteWidth()/rps.getRowSize(), bf.getColSize().intValue());
+        assertEquals(rps.getPlaneSize(), bf.getPlaneSize().longValue());
+        assertEquals(rps.getStackSize(), bf.getStackSize().longValue());
+        assertEquals(rps.getTimepointSize(), bf.getTimepointSize().longValue());
+        assertEquals(rps.getTotalSize(), bf.getTotalSize().longValue());
     }
 
     private void testOffsetGettersZero() throws DimensionsOutOfBoundsException {

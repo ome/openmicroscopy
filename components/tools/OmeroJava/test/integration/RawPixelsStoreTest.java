@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
+import ome.io.nio.RomioPixelBuffer;
 import omero.api.RawPixelsStorePrx;
 import omero.model.Image;
 import omero.model.Pixels;
@@ -104,7 +105,7 @@ public class RawPixelsStoreTest
     public void testSetGetPlane() 
     	throws Exception
     {
-        byte[] data = prepareTestByteArray(svc.getPlaneSize(), 0);
+        byte[] data = prepareTestByteArray(RomioPixelBuffer.safeLongToInteger(svc.getPlaneSize()), 0);
         svc.setPlane(data, 0, 0, 0);
         byte[] r = svc.getPlane(0, 0, 0);
         assertNotNull(r);
@@ -123,7 +124,7 @@ public class RawPixelsStoreTest
     public void testSetPlaneGetHypercube() 
     	throws Exception
     {
-        byte[] data = prepareTestByteArray(svc.getPlaneSize(), 0);
+        byte[] data = prepareTestByteArray(RomioPixelBuffer.safeLongToInteger(svc.getPlaneSize()), 0);
         svc.setPlane(data, 0, 0, 0);
         List<Integer> offset = Arrays.asList(new Integer[]{0,0,0,0,0});
         List<Integer> size = Arrays.asList(new Integer[]{ModelMockFactory.SIZE_X,
@@ -146,7 +147,7 @@ public class RawPixelsStoreTest
     public void testSetEveryPlaneGetHypercube() 
     	throws Exception
     {
-        byte[] data = prepareTestByteArray(svc.getPlaneSize(), 0);
+        byte[] data = prepareTestByteArray(RomioPixelBuffer.safeLongToInteger(svc.getPlaneSize()), 0);
         for (int t = 0; t < ModelMockFactory.SIZE_T; t++) {
             for (int c = 0;c < 1; c++) {
                 for (int z = 0; z < ModelMockFactory.SIZE_Z; z++) {
