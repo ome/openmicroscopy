@@ -376,7 +376,7 @@ public class DnDTree
 	 * 
 	 * @return See above.
 	 */
-	public int getDropLocation() { return dropLocation; }
+	public int getRowDropLocation() { return dropLocation; }
 	
 	/**
 	 * Returns <code>true</code> if the drop action is allowed,

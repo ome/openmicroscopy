@@ -502,7 +502,7 @@ public class TreeCellRenderer
         if (tree instanceof DnDTree) {
         	DnDTree dndTree = (DnDTree) tree;
         	isTargetNode = (value == dndTree.getDropTargetNode());
-        	if (dndTree.getDropLocation() == row) {
+        	if (dndTree.getRowDropLocation() == row) {
         		droppedAllowed = false;
         	}
         }
