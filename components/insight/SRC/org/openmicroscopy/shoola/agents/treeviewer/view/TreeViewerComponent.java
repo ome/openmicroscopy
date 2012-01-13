@@ -937,7 +937,6 @@ class TreeViewerComponent
 			browser.onSelectedNode(parent, selection, selection.size() > 0);
 		}
 		int size = selection.size();
-		System.err.println(size);
 		if (size == 1) {
 			Browser browser = model.getSelectedBrowser();
 			ExperimenterData exp = null;
