@@ -479,8 +479,10 @@ class EditorControl
 	{
 		if (e.getSource() instanceof JTabbedPane) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			if (pane.getSelectedIndex() == EditorUI.RND_INDEX)
-				model.loadRenderingControl(RenderingControlLoader.LOAD);
+			if (view.checkIfTabEnabled(pane.getSelectedIndex())) {
+				if (pane.getSelectedIndex() == EditorUI.RND_INDEX)
+					model.loadRenderingControl(RenderingControlLoader.LOAD);
+			}
 		}
 	}
 	
