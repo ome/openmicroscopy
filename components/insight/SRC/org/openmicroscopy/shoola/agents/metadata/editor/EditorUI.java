@@ -919,6 +919,7 @@ class EditorUI
 	 */
 	boolean checkIfTabEnabled(int index)
 	{
+		if (index == -1) return false;
 		if (tabPane.isEnabledAt(index)) return true;
 		tabPane.setSelectedIndex(GENERAL_INDEX);
 		return false;

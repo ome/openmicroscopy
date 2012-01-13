@@ -391,7 +391,8 @@ class MetadataViewerModel
 			if (uo instanceof WellSampleData) {
 				WellSampleData wsd = (WellSampleData) uo;
 				uo = wsd.getImage();
-				if (!loaders.containsKey(refNode) && parentData == null) {
+				if (!loaders.containsKey(refNode) && parentData == null
+						&& parentRefObject != null) {
 					StructuredDataLoader l = new StructuredDataLoader(component,
 							refNode, parentRefObject);
 					loaders.put(refNode, l);
