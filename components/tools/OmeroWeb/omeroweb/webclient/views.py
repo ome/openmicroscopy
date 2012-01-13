@@ -546,9 +546,13 @@ def load_template(request, menu, **kwargs):
     form_users = None
     filter_user_id = None
     
-    users = list(conn.listColleagues())
-    users.sort(key=lambda x: x.getOmeName().lower())
-    empty_label = "*%s (%s)" % (conn.getUser().getFullName(), conn.getUser().omeName)
+    s = conn.groupSummary()
+    leaders = s["leaders"]
+    members = s["colleagues"]
+    leaders.sort(key=lambda x: x.getOmeName().lower())
+    members.sort(key=lambda x: x.getOmeName().lower())
+    users = ( ("Leaders", leaders), ("Members", members) )
+    empty_label = None #"*%s (%s)" % (conn.getUser().getFullName(), conn.getUser().omeName)
     if len(users) > 0:
         if request.REQUEST.get('experimenter') is not None and len(request.REQUEST.get('experimenter'))>0:
             filter_user_id = request.REQUEST.get('experimenter', None)
@@ -558,10 +562,9 @@ def load_template(request, menu, **kwargs):
             if request.REQUEST.get('experimenter') == "":
                 request.session.get('nav')['experimenter'] = None
             filter_user_id = request.session.get('nav')['experimenter'] is not None and request.session.get('nav')['experimenter'] or None
-            if filter_user_id is not None:
-                form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
-            else:
-                form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
+            if filter_user_id is None:
+                filter_user_id = conn.getEventContext().userId
+            form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
             
     else:
         form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
