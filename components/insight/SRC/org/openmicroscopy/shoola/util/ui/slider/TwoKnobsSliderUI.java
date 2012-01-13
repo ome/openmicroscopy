@@ -632,9 +632,11 @@ class TwoKnobsSliderUI
 	 * Determines the value corresponding to the passed x-coordinate.
 	 * 
 	 * @param xPosition The x-coordinate to map.
+	 * @param start Pass <code>true</code> to start calculating from the start,
+	 *              <code>false</code> to start from the end.
 	 * @return See above.
 	 */
-	int xValueForPosition(int xPosition)
+	int xValueForPosition(int xPosition, boolean start)
 	{
 		int value;
 		int minValue = model.getPartialMinimum();
@@ -646,12 +648,14 @@ class TwoKnobsSliderUI
 		if (xPosition <= trackLeft)  value = minValue;
 		else if (xPosition >= trackRight) value = maxValue;
 		else {
-			int distanceFromTrackLeft = xPosition-trackLeft;
+			int distanceFromTrackLeft = trackRight-xPosition;
+			if (start) distanceFromTrackLeft = xPosition-trackLeft;
 			double valueRange = (double) maxValue-(double) minValue;
-			double valuePerPixel = valueRange/trackLength;
+			double valuePerPixel = Math.ceil(valueRange/trackLength*10)/10;
 			int valueFromTrackLeft = 
 				(int) Math.round(distanceFromTrackLeft*valuePerPixel);
-			value = minValue+valueFromTrackLeft;
+			if (start) value = minValue+valueFromTrackLeft;
+			else value = maxValue-valueFromTrackLeft;
 		}
 		return value;
 	}
@@ -660,9 +664,11 @@ class TwoKnobsSliderUI
 	 * Determines the value corresponding to the passed y-coordinate.
 	 * 
 	 * @param yPosition The y-coordinate to map.
+	 * @param start Pass <code>true</code> to start calculating from the start,
+	 *              <code>false</code> to start from the end.
 	 * @return See above.
 	 */
-	int yValueForPosition(int yPosition)
+	int yValueForPosition(int yPosition, boolean start)
 	{
 		int value;
 		int minValue = model.getPartialMinimum();
@@ -674,12 +680,15 @@ class TwoKnobsSliderUI
 		if (yPosition <= trackTop) value = maxValue;
 		else if (yPosition >= trackBottom) value = minValue;
 		else {
-			int distanceFromTrackTop = yPosition-trackTop;
+			int distanceFromTrackTop = trackBottom-yPosition;
+			if (start) distanceFromTrackTop = yPosition-trackTop;
 			double valueRange = (double) maxValue-(double) minValue;
-			double valuePerPixel = valueRange/trackLength;
+			double valuePerPixel = Math.ceil(valueRange/trackLength*10)/10;
 			int valueFromTrackTop = 
 				(int) Math.round(distanceFromTrackTop*valuePerPixel);
-			value = maxValue-valueFromTrackTop;
+			//value = maxValue-valueFromTrackTop;
+			if (!start) value = minValue+valueFromTrackTop;
+			else value = maxValue-valueFromTrackTop;
 		}
 		return value;
 	}

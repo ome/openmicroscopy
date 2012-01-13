@@ -277,18 +277,14 @@ public class TwoKnobsSlider
 			else {
 				if (left > right && right < xmax) left = right-1;
 			}
-			int e = 0;
-			if (model.allowOverlap()) e++;
-			model.setStartValue(uiDelegate.xValueForPosition(left)+e);
+			model.setStartValue(uiDelegate.xValueForPosition(left, true));
 		} else if (knobControl == RIGHT) { //right knob moved.
 			if (right > xmax) right = xmax;
 			else if (right < (xmin+knobWidth)) right = xmin+knobWidth;
 			else {
 				if (right < left && left > xmin) right = left+1;
 			}
-			int e = 0;
-			if (model.allowOverlap()) e++;
-			model.setEndValue(uiDelegate.xValueForPosition(right)-e);
+			model.setEndValue(uiDelegate.xValueForPosition(right, false));
 		}
 		repaint();
 	}
@@ -321,14 +317,14 @@ public class TwoKnobsSlider
 			else {
 				if (up > down && down < ymax) up = down-1;
 			}
-			model.setEndValue(uiDelegate.yValueForPosition(up));
+			model.setEndValue(uiDelegate.yValueForPosition(up, true));
 		} else if (knobControl == RIGHT) { //right knob moved.
 			if (down > ymax) down = ymax;
 			else if (down < (ymin+knobHeight)) down = ymin+knobHeight;
 			else {
 				if (down < up && up > ymin) down = up+1;
 			}
-			model.setStartValue(uiDelegate.yValueForPosition(down));
+			model.setStartValue(uiDelegate.yValueForPosition(down, false));
 		}
 		repaint();
 	}
