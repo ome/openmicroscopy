@@ -100,12 +100,13 @@ class Server(ServerBase):
         return r
     
     @classmethod
-    def find(cls, **kwargs):
+    def find(cls, host=None, port=None, server=None):
         rv = []
         for s in cls._registry.values():
-            for k,v in kwargs.items():
-                if getattr(s, k) != v:
-                    continue
-                rv.append(s)
+            if (host is not None and host != s.host) or \
+               (port is not None and port != s.port) or \
+               (server is not None and server != s.server): 
+                continue
+            rv.append(s)
         return rv
 
