@@ -487,7 +487,7 @@ class OMEROGateway
 				e instanceof ConnectionLostException)
 				index = DataServicesFactory.LOST_CONNECTION;
 			connected = false;
-			dsFactory.sessionExpiredExit(index);
+			dsFactory.sessionExpiredExit(index, cause);
 		}
 	}
 
