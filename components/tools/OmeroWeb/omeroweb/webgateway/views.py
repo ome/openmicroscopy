@@ -275,16 +275,17 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     port = r.get('port', None)
 
     if host is None or port is None:
+        from webadmin.custom_models import Server
         ## Server from request - server_id or server.host, server = r.server OR
         ## Server from session - server_id or session.server.host, server = session.server
         server = r.get('server', request.session.get('server', None))
         if server is not None:
             with_session = True
-            blitz = settings.SERVER_LIST.get(server)
+            blitz = Server.get(server)
 
         ## Use server_id arg- server_id = server_id, server = serverlist.find(server=server_id)
         if blitz is None and server_id is not None:
-            blitz = settings.SERVER_LIST.find(server=server_id)
+            blitz = Server.find(server=server_id)
             if len(blitz):
                 blitz = blitz[0]
             else:
@@ -294,10 +295,10 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
             server = blitz.id
             host = blitz.host
             port = blitz.port
-            server_id = server_id or blitz.server
+            server_id = blitz.server or server_id
 
     if server_id is None:
-        server_id = '0'
+        server_id = '1'
 
     # If we couldn't resolve host and port at this point, give up
     if host is None or port is None:
