@@ -42,6 +42,7 @@ def additional_tests():
     suite.addTest(load("integration.gateway"))
     suite.addTest(load("integration.icontainer"))
     suite.addTest(load("integration.ildap"))
+    suite.addTest(load("integration.imetadata"))
     suite.addTest(load("integration.iquery"))
     suite.addTest(load("integration.isession"))
     suite.addTest(load("integration.ishare"))
