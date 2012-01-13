@@ -561,7 +561,8 @@ public class TreeCellRenderer
 			g.setColor(draggedColor);
 			if (!droppedAllowed) g.setColor(backgroundNonSelectionColor);
 			g.fillRoundRect(0, 0, getSize().width-1, getSize().height-1, 2, 2);
-			if (!droppedAllowed) super.paintComponent(g);
+			//if (!droppedAllowed) 
+			super.paintComponent(g);
 		}
 	}
   
