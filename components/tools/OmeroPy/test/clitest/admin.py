@@ -15,6 +15,7 @@ import os
 from path import path
 
 import omero
+import omero.clients
 
 from omero.cli import CLI, NonZeroReturnCode
 from omero.plugins.admin import AdminControl
@@ -88,34 +89,25 @@ class TestAdmin(unittest.TestCase):
         self.cli.assertStderr(['No descriptor given. Using etc/grid/default.xml'])
 
     def testStopAsyncRunning(self):
+        self.cli.checksStatus(0) # I.e. running
         self.cli.addCall(0)
         self.invoke("a stopasync")
-        self.cli.assertCalled()
         self.cli.assertStderr([])
         self.cli.assertStdout([])
 
     def testStopAsyncNotRunning(self):
-        self.cli.addCall(1)
+        self.cli.checksStatus(1) # I.e. not running
         self.invoke("a stopasync", fails=True)
-        self.cli.assertCalled()
-        self.cli.assertStderr([])
-        self.cli.assertStdout(["Was the server already stopped?"])
+        self.cli.assertStderr(["Server not running"])
+        self.cli.assertStdout([])
 
     def testStop(self):
+        self.cli.checksStatus(0) # I.e. running
+        self.cli.addCall(0)
+        self.cli.checksStatus(1) # I.e. not running
         self.invoke("a stop")
-
-    def testComplete(self):
-        c = AdminControl()
-        t = ""
-        l = "admin deploy "
-        b = len(l)
-        l = c._complete(t,l+"lib",b,b+3)
-        self.assert_( "omero" in l, str(l) )
-        l = c._complete(t,l+"lib/",b,b+4)
-        self.assert_( "omero" in l, str(l) )
-
-    def testProperMethodsUseConfigXml(self):
-        self.fail("NYI")
+        self.cli.assertStderr([])
+        self.cli.assertStdout(['Waiting on shutdown. Use CTRL-C to exit'])
 
     #
     # STATUS

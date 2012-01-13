@@ -10,6 +10,7 @@
 
 import exceptions
 import subprocess
+import logging
 
 from omero.cli import CLI
 from omero.cli import Context
@@ -17,6 +18,8 @@ from omero.cli import BaseControl
 from omero.cli import NonZeroReturnCode
 
 from omero_ext import mox
+
+LOG = logging.getLogger("climocks")
 
 
 class MockCLI(CLI):
@@ -56,6 +59,7 @@ class MockCLI(CLI):
         self.__error.append(args[0])
 
     def call(self, args):
+        LOG.debug("call:%s" % args)
         rv = self.__call.pop(0)
         if rv != 0:
             raise NonZeroReturnCode(rv)
@@ -65,6 +69,7 @@ class MockCLI(CLI):
         assert False
 
     def popen(self, *args, **kwargs):
+        LOG.debug("popen:%s {%s}" % (args, kwargs))
         return self.__popen.pop(0)
 
     #

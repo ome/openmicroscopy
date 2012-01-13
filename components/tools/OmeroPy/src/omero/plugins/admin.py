@@ -412,7 +412,7 @@ Examples:
             self.ctx.out(output)
         else:
             command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg(),"--deploy",str(descript)] + args.targets
-            self.ctx.call(command)
+            self.ctx.rv = self.ctx.call(command)
 
     @with_config
     def start(self, args, config):
