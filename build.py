@@ -128,7 +128,7 @@ def choose_omero_version():
         print "Error getting version for OMERO_BUILD=%s" % omero_build
         if err:
             print err
-        sys.exit(rc)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
