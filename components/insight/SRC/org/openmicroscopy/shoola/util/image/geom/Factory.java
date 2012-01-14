@@ -49,8 +49,10 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
 import java.awt.image.Kernel;
+import java.awt.image.LookupOp;
 import java.awt.image.Raster;
 import java.awt.image.RescaleOp;
+import java.awt.image.ShortLookupTable;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
@@ -951,6 +953,34 @@ public class Factory
 			x += l;
 		}
 		return image;
+	}
+	
+	/**
+	 * Applies a look up operation to the specified image.
+	 * 
+	 * @param image The image to handle.
+	 * @return See above.
+	 */
+	public static Image makeConstrastDecImage(Image image)
+	{
+		if (image == null) return null;
+		short values[] = new short[256];
+		short v;
+        for (int i = 0; i < 256; i++) {
+            v = (short) (i/1.5);
+            if (v > 255) v = 255;
+            else if (v < 0) v = 0;
+            values[i] = v;
+        }
+        ShortLookupTable lookupTable = new ShortLookupTable(0, values);
+        BufferedImage img = new BufferedImage(image.getWidth(null),
+        		image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+
+        Graphics g = img.createGraphics();
+        g.drawImage(image, 0, 0, null);
+        LookupOp lop = new LookupOp(lookupTable, null);
+        lop.filter(img, img);
+        return img;
 	}
 	
 }

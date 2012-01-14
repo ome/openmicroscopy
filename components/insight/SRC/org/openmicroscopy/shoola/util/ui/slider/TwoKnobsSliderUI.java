@@ -44,6 +44,7 @@ import javax.swing.UIManager;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -116,6 +117,12 @@ class TwoKnobsSliderUI
 	/** The image used to draw the thumb when the slider is disabled.  */
 	private Image 					disabledThumbImage;
 
+	/** The image used to draw the thumb.  */
+	private Image 					thumbImageDarker;
+	
+	/** The image used to draw the thumb when the slider is disabled.  */
+	private Image 					disabledThumbImageDarker;
+	
 	/** Initializes the components. */
 	private void initialize()
 	{
@@ -128,7 +135,7 @@ class TwoKnobsSliderUI
 		fontColor = UIUtilities.LINE_COLOR;
 	}
 
-	/** Loads the thumb for the two knob slider.  */
+	/** Loads the thumb for the two knob slider.*/
 	private void createThumbImage()
 	{
 		// Create the thumb image 
@@ -343,11 +350,11 @@ class TwoKnobsSliderUI
 	{
 		int l = xPositionForValue(model.getStartValue());
 		int r = xPositionForValue(model.getEndValue());
-		if (!this.component.getColourGradient())
+		if (!component.getColourGradient())
 		{
-			Paint paint = new GradientPaint(0, trackRect.y, 
-				UIUtilities.TRACK_GRADIENT_START, 0, 
-				trackRect.y+trackRect.height-10, 
+			Paint paint = new GradientPaint(0, trackRect.y,
+				UIUtilities.TRACK_GRADIENT_START, 0,
+				trackRect.y+trackRect.height-10,
 				UIUtilities.TRACK_GRADIENT_END, false);
 			g2D.setPaint(paint);
 			g2D.fillRoundRect(trackRect.x, trackRect.y+3, trackRect.width,
@@ -356,9 +363,7 @@ class TwoKnobsSliderUI
 			g2D.setColor(TRACK_COLOR);
 			g2D.drawRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
 					trackRect.height-11, trackRect.height/3, trackRect.height/3);
-		}
-		else
-		{
+		} else {
 			Color[] colors = component.getGradientColors();
 			Paint paint = new GradientPaint(trackRect.x,
 					trackRect.y-2,  colors[0], trackRect.width,
@@ -376,30 +381,36 @@ class TwoKnobsSliderUI
 		int h = component.getKnobHeight();
 		Image img;
 		int offset = 0;
-		if(!component.getColourGradient())
-			if (model.isEnabled()) 
-				img = thumbImage;
-			else
-				img = disabledThumbImage;
-		else
-		{
+		if (!component.getColourGradient()) {
+			if (model.isEnabled()) img = thumbImage;
+			else img = disabledThumbImage;
+		} else {
 			w = 12;
 			h = 12;
-			if (model.isEnabled()) 
-				img = upArrowImage;
-			else
-				img = disabledUpArrowImage;
+			if (model.isEnabled()) img = upArrowImage;
+			else img = disabledUpArrowImage;
 			offset = 5;	
 		}
-		if (component.getKnobControl() == TwoKnobsSlider.LEFT) 
-		{
-				g2D.drawImage(img, r-w/2, 1+offset, w, h, null);
-				g2D.drawImage(img, l-w/2, 1+offset, w, h, null);
-		} 
-		else 
-		{
-				g2D.drawImage(img, l-w/2, 1+offset, w, h, null);
-				g2D.drawImage(img, r-w/2, 1+offset, w, h, null);
+		if (component.getKnobControl() == TwoKnobsSlider.LEFT) {
+			if (model.allowOverlap() && !component.getColourGradient()) {
+				img = thumbImageDarker;
+				if (!model.isEnabled()) 
+					img = disabledThumbImageDarker;
+			}
+			g2D.drawImage(img, r-w/2, 1+offset, w, h, null);
+			if (!component.getColourGradient()) {
+				if (model.isEnabled()) img = thumbImage;
+				else img = disabledThumbImage;
+			}
+			g2D.drawImage(img, l-w/2, 1+offset, w, h, null);
+		} else  {
+			g2D.drawImage(img, l-w/2, 1+offset, w, h, null);
+			if (model.allowOverlap() && !component.getColourGradient()) {
+				img = thumbImageDarker;
+				if (!model.isEnabled()) 
+					img = disabledThumbImageDarker;
+			}
+			g2D.drawImage(img, r-w/2, 1+offset, w, h, null);
 		}
 	}
 	
@@ -419,16 +430,15 @@ class TwoKnobsSliderUI
 		if (!component.getColourGradient())
 		{
 			paint = new GradientPaint(trackRect.x+1, trackRect.y+h/2, 
-				UIUtilities.TRACK_GRADIENT_START, 
-				trackRect.x+1+trackRect.width-w-2, 
+				UIUtilities.TRACK_GRADIENT_START,
+				trackRect.x+1+trackRect.width-w-2,
 				trackRect.y+h/2, UIUtilities.TRACK_GRADIENT_END, false);
 
-		g2D.setPaint(paint);
-		g2D.fillRoundRect(trackRect.x+1, trackRect.y+h/2, trackRect.width-w-2,
-				trackRect.height, trackRect.width/3, trackRect.width/3);
-		}
-		else
-		{
+			g2D.setPaint(paint);
+			g2D.fillRoundRect(trackRect.x+1, trackRect.y+h/2,
+					trackRect.width-w-2, trackRect.height,
+					trackRect.width/3, trackRect.width/3);
+		} else {
 			Color[] colors = component.getGradientColors();
 			paint = new GradientPaint(trackRect.x+1, trackRect.y+h/2, 
 					colors[0], 
@@ -443,11 +453,10 @@ class TwoKnobsSliderUI
 		//Draw the knobs
 		Image img;
 	
-		if (!component.getColourGradient())
+		if (!component.getColourGradient()) {
 			if (model.isEnabled()) img = thumbImage;
 			else img = disabledThumbImage;
-		else
-		{
+		} else {
 			w = 10;
 			h = 10;
 			if (model.isEnabled()) img = upArrowImage;
@@ -503,9 +512,7 @@ class TwoKnobsSliderUI
 				endLabelRect.setBounds(trackRect.x+trackRect.width, 
 						trackRect.y, v, trackRect.y);
 			}
-			
-			
-			
+
 			if (model.isPaintTicks())
 				tickRect = new Rectangle(trackRect.x,
 						trackRect.y+trackRect.height,
@@ -549,6 +556,14 @@ class TwoKnobsSliderUI
 		createThumbImage();
 	}
 
+	/** Creates darker thumbnails.*/
+	void createDarkerImage()
+	{
+		if (!model.allowOverlap()) return;
+		thumbImageDarker = Factory.makeConstrastDecImage(thumbImage);
+		disabledThumbImageDarker = Factory.makeConstrastDecImage(disabledThumbImage);
+	}
+	
 	/**
 	 * Returns the width of the image knob.
 	 * 

@@ -720,7 +720,11 @@ public class TwoKnobsSlider
 	 * @param overlap Pass <code>true</code> to allow <code>start == end</code>,
 	 * <code>false</code> otherwise.
 	 */
-	public void setOverlap(boolean overlap) { model.setOverlap(overlap); }
+	public void setOverlap(boolean overlap)
+	{ 
+		model.setOverlap(overlap);
+		uiDelegate.createDarkerImage();
+	}
 	
 	/**
 	 * Overrides method to return the <code>Preferred Size</code>.
