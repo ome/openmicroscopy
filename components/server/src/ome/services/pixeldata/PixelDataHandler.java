@@ -84,11 +84,17 @@ public class PixelDataHandler extends SimpleWork {
             return null;
         }
 
-        long start = System.currentTimeMillis();
-        process(eventLog.getEntityId(), sf, session);
+        final long start = System.currentTimeMillis();
+        final boolean handled = process(eventLog.getEntityId(), sf, session);
+        final String msg = String.format("EventLog:%s(entityId=%s) [%s ms.]",
+                eventLog.getId(), eventLog.getEntityId(),
+                (System.currentTimeMillis() - start));
 
-        log.info(String.format("HANDLED %s object(s) in %s batch(es) [%s ms.]",
-                1, 1, (System.currentTimeMillis() - start)));
+        if (handled) {
+            log.info("HANDLED "+ msg);
+        } else {
+            log.debug("SKIPPED "+ msg);
+        }
 
         return null;
     }
