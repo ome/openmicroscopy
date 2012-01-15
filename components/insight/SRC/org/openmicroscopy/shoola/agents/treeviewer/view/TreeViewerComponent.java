@@ -418,7 +418,18 @@ class TreeViewerComponent
         			return;
         		}
         	}
-        	db = DataBrowserFactory.getDataBrowser(object);
+        	Object p = object;
+        	if (object instanceof PlateData) {
+        		PlateData plate = (PlateData) object;
+        		Set<PlateAcquisitionData> set = plate.getPlateAcquisitions();
+        		if (set != null && set.size() == 1) {
+        			Iterator<PlateAcquisitionData> k = set.iterator();
+        			while (k.hasNext()) {
+						p = k.next();
+					}
+        		}
+        	}
+        	db = DataBrowserFactory.getDataBrowser(p);
         	if (db != null) {
         		db.setComponentTitle("");
         		if (visible) {

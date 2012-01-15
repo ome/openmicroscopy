@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import omero.model.PlateAcquisition;
+
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 
@@ -418,6 +420,16 @@ public class DataBrowserFactory
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();
+		if (parent instanceof PlateData) {
+			PlateData plate = (PlateData) parent;
+			Set<PlateAcquisitionData> set = plate.getPlateAcquisitions();
+			if (set != null && set.size() == 1) {
+				Iterator<PlateAcquisitionData> j = set.iterator();
+				while (j.hasNext()) {
+					parent = j.next();
+				}
+			}
+		}
 		String key = parent.toString();
 		if (parent instanceof DataObject) 
 			key += ((DataObject) parent).getId();
