@@ -25,6 +25,7 @@
     <constructor-arg ref="executor"/>
     <constructor-arg ref="pixelDataHandler"/>
     <constructor-arg ref="uuid"/>
+    <constructor-arg value="${omero.pixeldata.threads}"/>
   </bean>
 
   <bean id="pixelDataHandler" class="ome.services.pixeldata.PixelDataHandler">
