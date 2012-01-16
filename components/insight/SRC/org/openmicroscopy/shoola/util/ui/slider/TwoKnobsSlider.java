@@ -31,10 +31,12 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 //Third-party libraries
 
@@ -271,19 +273,23 @@ public class TwoKnobsSlider
 		}
 
 		if (knobControl == LEFT) { //left knob moved.
+			/*
 			if (left < xmin) {
 				left = xmin;
 			} else if (left > (xmax-knobWidth)) left = xmax-knobWidth;
 			else {
 				if (left > right && right < xmax) left = right-1;
 			}
+			*/
 			model.setStartValue(uiDelegate.xValueForPosition(left, true));
 		} else if (knobControl == RIGHT) { //right knob moved.
+			/*
 			if (right > xmax) right = xmax;
 			else if (right < (xmin+knobWidth)) right = xmin+knobWidth;
 			else {
 				if (right < left && left > xmin) right = left+1;
 			}
+			*/
 			model.setEndValue(uiDelegate.xValueForPosition(right, false));
 		}
 		repaint();
