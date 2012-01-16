@@ -808,7 +808,7 @@ public class TaskBarManager
 			try {
 				DataServicesFactory factory = 
 					DataServicesFactory.getInstance(container);
-				factory.sessionExpiredExit(index);
+				factory.sessionExpiredExit(index, null);
 			} catch (Exception e) {
 				// TODO: handle exception
 			}

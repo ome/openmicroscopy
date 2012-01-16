@@ -114,7 +114,8 @@ import pojos.WellSampleData;
  * @since OME3.0
  */
 class EditorControl
-	implements ActionListener, ChangeListener, PropertyChangeListener, MouseListener
+	implements ActionListener, ChangeListener, PropertyChangeListener,
+	MouseListener
 {
 
 	/** Bound property indicating that the save status has been modified. */
@@ -478,8 +479,10 @@ class EditorControl
 	{
 		if (e.getSource() instanceof JTabbedPane) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			if (pane.getSelectedIndex() == EditorUI.RND_INDEX)
-				model.loadRenderingControl(RenderingControlLoader.LOAD);
+			if (view.checkIfTabEnabled(pane.getSelectedIndex())) {
+				if (pane.getSelectedIndex() == EditorUI.RND_INDEX)
+					model.loadRenderingControl(RenderingControlLoader.LOAD);
+			}
 		}
 	}
 	

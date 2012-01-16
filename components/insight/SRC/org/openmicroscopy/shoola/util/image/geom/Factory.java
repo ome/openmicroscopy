@@ -39,10 +39,8 @@ import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BandedSampleModel;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.ConvolveOp;
@@ -51,12 +49,13 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
 import java.awt.image.Kernel;
+import java.awt.image.LookupOp;
 import java.awt.image.Raster;
 import java.awt.image.RescaleOp;
+import java.awt.image.ShortLookupTable;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
-
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -64,9 +63,12 @@ import javax.swing.ImageIcon;
 
 //Third-party libraries
 import sun.awt.image.IntegerInterleavedRaster;
+import com.mortennobel.imagescaling.ResampleOp;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
+
+
 
 /** 
  * Utility class. Applies some basic filtering methods and affine 
@@ -194,28 +196,12 @@ public class Factory
      * @param height	The required height of the thumbnail. 
      * @return See above.
      */
-    public static BufferedImage createDefaultImageThumbnail(int width, 
+    public static BufferedImage createDefaultImageThumbnail(int width,
     														int height)
     {
-    	ImageIcon img = null;//icons.getImageIcon(IconManager.BROKEN_FILE_96);
-    	//if (img == null) {
-    		if (width == 0) width = THUMB_DEFAULT_WIDTH;
-        	if (height == 0) height = THUMB_DEFAULT_HEIGHT;
-    		return createDefaultThumbnail(width, height, null);     	
-    	//}
-    		/*
     	if (width == 0) width = THUMB_DEFAULT_WIDTH;
     	if (height == 0) height = THUMB_DEFAULT_HEIGHT;
-    	//if (h == height && w == width)
-    	//	return createDefaultImageThumbnail();
-    	
-        BufferedImage thumbPix = new BufferedImage(width, height, 
-                                BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = (Graphics2D) thumbPix.getGraphics();
-        g.drawImage(img.getImage(), 0, 0, width, height, null);
-        g.dispose();
-        return thumbPix;
-        */
+    	return createDefaultThumbnail(width, height, null);
     }
     
     /**
@@ -330,13 +316,17 @@ public class Factory
                                          int w)
     {
     	if (img == null) return null;
-    	
+    	int width = (int) (img.getWidth()*level)+w;
+        int height = (int) (img.getHeight()*level)+w;
+        ResampleOp  resampleOp = new ResampleOp(width, height);
+        return resampleOp.filter(img, null);
+    	/*
         AffineTransform a = new AffineTransform();
         a.scale(level, level);
         BufferedImageOp biop = new AffineTransformOp(a,
                                         AffineTransformOp.TYPE_BILINEAR); 
-        int width = (int) (img.getWidth()*level)+w;
-        int height = (int) (img.getHeight()*level)+w;
+        //int width = (int) (img.getWidth()*level)+w;
+        //int height = (int) (img.getHeight()*level)+w;
         if (width <= 0 || height <= 0) return null;
         BufferedImage rescaleBuff = new BufferedImage(width, height,
                 						BufferedImage.TYPE_INT_RGB);
@@ -354,6 +344,7 @@ public class Factory
         bimg.flush();
         rescaleBuff.flush();
         return rescaleBuff;
+        */
     }   
     
     /** 
@@ -367,7 +358,7 @@ public class Factory
     public static BufferedImage magnifyImage(double f, BufferedImage img)
     {
     	if (img == null) return null;
-    	
+
     	AffineTransform at = new AffineTransform();
     	at.scale(f, f);
     	int type = img.getType();
@@ -381,7 +372,6 @@ public class Factory
     	Graphics2D g2 = rescaleBuff.createGraphics();
     	g2.drawImage(img, at, null);
     	g2.dispose();
-
     	return rescaleBuff;
     }
 
@@ -548,7 +538,7 @@ public class Factory
      * 				described.
      * @return See above.
      */
-    public static BufferedImage createImage(DataBuffer buf, int bits, int sizeX, 
+    public static BufferedImage createImage(DataBuffer buf, int bits, int sizeX,
     										int sizeY)
     {
     	return createImage(buf, bits, RGB, sizeX, sizeY);
@@ -963,6 +953,34 @@ public class Factory
 			x += l;
 		}
 		return image;
+	}
+	
+	/**
+	 * Applies a look up operation to the specified image.
+	 * 
+	 * @param image The image to handle.
+	 * @return See above.
+	 */
+	public static Image makeConstrastDecImage(Image image)
+	{
+		if (image == null) return null;
+		short values[] = new short[256];
+		short v;
+        for (int i = 0; i < 256; i++) {
+            v = (short) (i/1.5);
+            if (v > 255) v = 255;
+            else if (v < 0) v = 0;
+            values[i] = v;
+        }
+        ShortLookupTable lookupTable = new ShortLookupTable(0, values);
+        BufferedImage img = new BufferedImage(image.getWidth(null),
+        		image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+
+        Graphics g = img.createGraphics();
+        g.drawImage(image, 0, 0, null);
+        LookupOp lop = new LookupOp(lookupTable, null);
+        lop.filter(img, img);
+        return img;
 	}
 	
 }

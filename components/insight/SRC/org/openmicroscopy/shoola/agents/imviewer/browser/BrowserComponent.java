@@ -735,4 +735,13 @@ class BrowserComponent
 		view.setViewLocation(rx, ry);
 	}
 
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#discard()
+	 */
+	public void discard()
+	{
+		model.discard();
+	}
+
 }

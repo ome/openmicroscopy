@@ -440,4 +440,12 @@ public abstract class ImageDisplay
      */
     public abstract boolean containsImages();
     
+    /** 
+     * Adds the specified listener to the passed components.
+     * 
+     * @param listener The listener to add.
+     * @param listener
+     */
+    public abstract void addListenerToComponents(Object listener);
+    
 }
