@@ -267,6 +267,11 @@ class EditorUI
         	generalPane.layoutUI();
         	acquisitionPane.layoutCompanionFiles();
         	component = tabPane;
+        	if (model.isMultiSelection()) {
+				tabPane.setSelectedIndex(GENERAL_INDEX);
+				tabPane.setEnabledAt(ACQUISITION_INDEX, false);
+				tabPane.setEnabledAt(RND_INDEX, false);
+			}
     	}
     	if (add) add(component, BorderLayout.CENTER);
     	validate();
