@@ -45,9 +45,23 @@
     <script type="text/javascript" src="{% static "webclient/javascript/googiespell/googiespell.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/googiespell/cookiesupport.js" %}"></script>
 
-    <script type="text/javascript">        
-        $(document).ready(function() 
+    <script type="text/javascript">
+        
+        jQuery.fn.hide_if_empty = function() {
+            if ($(this).children().length == 0) {
+                $(this).hide();
+            } else {
+                $(this).show();
+            }
+          return this;
+        };
+        
+        $(document).ready(function()
             {
+                $("#comments_container").hide_if_empty();
+                $("#fileanns_container").hide_if_empty();
+                $("#tags_container").hide_if_empty();
+                
                 {% if manager.image.isOwned %}
                 $( "#imagename-{{ manager.image.id }} img" ).editable('{% url manage_action_containers "editname" "image" manager.image.id %}', '{% url manage_action_containers "savename" "image" manager.image.id %}', "imagename-{{ manager.image.id }}" );
                 $( "#imagedescription-{{ manager.image.id }} img" ).editable('{% url manage_action_containers "editdescription" "image" manager.image.id %}', '{% url manage_action_containers "savedescription" "image" manager.image.id %}', "imagedescription-{{ manager.image.id }}" );                
@@ -188,6 +202,7 @@
                     var parentId = $.trim($("#parent-id").text());
                     var url = "/webclient/action/remove/"+ dType +"/"+ annId +"/";
                     var $parent = $(event.target).parents("."+domClass);
+                    var $annContainer = $parent.parent();
                     var confirm_remove = confirm_dialog('Remove '+ dType + '?',
                         function() {
                             if(confirm_remove.data("clicked_button") == "OK") {
@@ -202,6 +217,7 @@
                                         } else {
                                             // simply remove the item (parent class div)
                                             $parent.remove();
+                                            $annContainer.hide_if_empty();
                                         }
                                     },
                                     error: function(response) {
@@ -230,7 +246,7 @@
                         contentType:'html',
                         success: function(html){
                             var $comment = $(html)
-                            $('#comments_container').prepend( $comment );
+                            $('#comments_container').prepend( $comment ).show();
                             $(".removeComment", $comment).click(function(event) {
                                 removeItem(event, "ann_comment_wrapper");
                             });
@@ -262,6 +278,7 @@
                     var parentId = $.trim($("#parent-id").text());
                     var url = "/webclient/action/delete/"+ dType +"/"+ annId +"/";
                     var $parent = $(event.target).parents("."+domClass);
+                    var $annContainer = $parent.parent();
                     var confirm_remove = confirm_dialog('Delete '+ dType + '?',
                         function() {
                             if(confirm_remove.data("clicked_button") == "OK") {
@@ -275,6 +292,7 @@
                                         } else {
                                             // simply remove the item (parent class div)
                                             $parent.remove();
+                                            $annContainer.hide_if_empty();
                                             window.parent.refreshActivities();
                                         }
                                     },
@@ -334,7 +352,7 @@
                         $("#add_tags_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
                         // update the list of tags
                         var $tag = $(data);
-                        $("#tags_container").prepend($tag);
+                        $("#tags_container").prepend($tag).hide_if_empty();
                         $(".removeTag", $tag).click(function(event) {
                             removeItem(event, "tag_annotation_wrapper");
                         });
@@ -361,7 +379,7 @@
                     success: function(data) {
                         // update the list of file annotations and bind actions
                         var $fileann = $(data)
-                        $("#fileanns_container").prepend( $fileann );
+                        $("#fileanns_container").prepend( $fileann ).show();
                         $(".deleteFile", $fileann).click(function(event) {
                             deleteItem(event, "file_ann_wrapper");
                         });
@@ -378,7 +396,7 @@
                         $("#choose_attachments_form").dialog( "close" );
                         // update the list of file annotations and bind actions
                         var $fileanns = $(data)
-                        $("#fileanns_container").prepend( $fileanns );
+                        $("#fileanns_container").prepend( $fileanns ).show();
                         $(".deleteFile", $fileanns).click(function(event) {
                             deleteItem(event, "file_ann_wrapper");
                         });
