@@ -302,6 +302,9 @@ public class TreeCellRenderer
     /** The color used when dragging.*/
     private Color draggedColor;
 
+    /** Indicates if the node is selected or not.*/
+    private boolean selected;
+    
     /**
      * Sets the icon and the text corresponding to the user's object.
      * 
@@ -499,6 +502,7 @@ public class TreeCellRenderer
                                                 row, hasFocus);
         isTargetNode = false;
         droppedAllowed = true;
+        selected = sel;
         if (tree instanceof DnDTree) {
         	DnDTree dndTree = (DnDTree) tree;
         	isTargetNode = (value == dndTree.getDropTargetNode());
@@ -556,14 +560,16 @@ public class TreeCellRenderer
      */
     public void paintComponent(Graphics g)
     {
-    	super.paintComponent(g);
-		if (isTargetNode) {
+    	//super.paintComponent(g);
+    	if (isTargetNode) {
 			g.setColor(draggedColor);
-			if (!droppedAllowed) g.setColor(backgroundNonSelectionColor);
-			g.fillRoundRect(0, 0, getSize().width-1, getSize().height-1, 2, 2);
-			//if (!droppedAllowed) 
-			super.paintComponent(g);
+			if (!droppedAllowed) {
+				if (selected) g.setColor(backgroundSelectionColor);
+				else g.setColor(backgroundNonSelectionColor);
+			}
+			g.fillRect(0, 0, getSize().width, getSize().height);
 		}
+    	super.paintComponent(g);
 	}
   
 }
