@@ -409,6 +409,7 @@ public class DnDTree
 		Point dropPoint = dtde.getLocation();
 		TreePath path = getPathForLocation(dropPoint.x, dropPoint.y);
 		dropLocation = getRowForPath(path);
+		setCursor(defaultCursor);
 		if (!dropAllowed) {
 			dtde.rejectDrop();
 			repaint();
