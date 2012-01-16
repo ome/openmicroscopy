@@ -200,7 +200,6 @@ class BrowserModel
 		int n = l.size();	
 		clearList(gridImages);
 		if (combinedImage != null) combinedImage.flush();
-		System.gc();
 		switch (n) {
 			case 0:
 				for (int i = 0; i < maxC; i++) 
@@ -392,7 +391,6 @@ class BrowserModel
     		createGridImagesForGreyScale();
     		return;
     	}
-    	System.gc();
     	List l = parent.getActiveChannels();
     	int maxC = parent.getMaxC();
     	switch (l.size()) {
@@ -547,7 +545,6 @@ class BrowserModel
         if (displayedImage != null) displayedImage.flush();
         if (combinedImage != null) combinedImage.flush();
         clearList(gridImages);
-        System.gc();
         displayedImage = null;
         combinedImage = null;
     }
@@ -564,7 +561,6 @@ class BrowserModel
 		} catch (Exception e) {
 			handleGridImageCreationException(e);
 		}
-		System.gc();
     }
     
     /**
@@ -646,7 +642,6 @@ class BrowserModel
 			}
 			if (img != null) displayedImage = img;
         } else displayedImage = renderedImage;
-        System.gc();
     }
    
     /**
@@ -668,7 +663,6 @@ class BrowserModel
 			}
 			if (img != null) displayedProjectedImage = img;
         } else displayedProjectedImage = projectedImage;
-        System.gc();
     }
     
     /** 
@@ -1051,7 +1045,6 @@ class BrowserModel
 		}
 		int n = originalGridImages.size();
 		clearList(gridImages);
-		System.gc();
 		int maxC = parent.getMaxC();
 		switch (n) {
 			case 0:
@@ -1134,7 +1127,6 @@ class BrowserModel
 	{
 		if (this.projectedImage != null) this.projectedImage.flush();
 		this.projectedImage = projectedImage;
-		System.gc();
 	}
 
 	/** Builds a projected image to preview. */
@@ -1181,7 +1173,6 @@ class BrowserModel
         //displayedImage = null;
         //combinedImage = null;
         clearTextureMap(gridImagesAsTextures);
-        System.gc();
     }
 	
 	/**
@@ -1194,7 +1185,6 @@ class BrowserModel
 		if (this.projectedImageAsTexture != null)
 			this.projectedImageAsTexture.flush();
 		this.projectedImageAsTexture = projectedImage;
-		System.gc();
 	}
 	
 	/**
@@ -1345,7 +1335,6 @@ class BrowserModel
 		clearTextureMap(gridImagesAsTextures);
 		if (projectedImageAsTexture != null) projectedImageAsTexture.flush();
 		if (renderedImageAsTexture != null) renderedImageAsTexture.flush();
-		System.gc();
 	}
 
 }
