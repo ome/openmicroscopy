@@ -270,6 +270,11 @@ java component.
         <tryEclipse settingsRef="ivy.toplevel" filter="true"/>
     </target>
 
+    <target name="format" depends="init">
+        <iterate buildpathref="all.buildpath" target="format"/>
+        <iterate buildpathref="all-tools.buildpath" target="format"/>
+    </target>
+
     <macrodef name="launchSuite">
         <attribute name="suite"/>
         <attribute name="excludes" default="**/tools/build.xml"/>

@@ -56,6 +56,22 @@
                 <tryEclipse settingsRef="ivy.${ant.project.name}"/>
 	</target>
 
+        <target name="format">
+            <property name="eclipse.exe" value="eclipse"/>
+            <apply executable="${eclipse.exe}" failonerror="true" parallel="true">
+                <arg value="-vm"/>
+                <arg value="${java.home}/bin/java"/>
+                <arg value="-application"/>
+                <arg value="org.eclipse.jdt.core.JavaCodeFormatter"/>
+                <arg value="-verbose"/>
+                <arg value="-nosplash"/>
+                <arg value="-config"/>
+                <arg value="${omero.home}/.settings/org.eclipse.jdt.core.prefs"/>
+                <fileset dir="${src.dir}" includes="**/*.java"/>
+                <fileset dir="${test.dir}" includes="**/*.java"/>
+            </apply>
+        </target>
+
         <target name="retrieve" unless="retrieve.done">
                 <property name="retrieve.done" value="true"/>
                 <installIvy/>

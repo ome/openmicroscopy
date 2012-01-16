@@ -16,5 +16,6 @@
     <target name="test" description="No-op"/>
     <target name="integration" description="No-op"/>
     <target name="findbugs" description="No-op"/>
+    <target name="format" description="No-op"/>
 
 </project>

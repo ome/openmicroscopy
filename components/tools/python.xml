@@ -99,4 +99,8 @@ ice_compatibility="${versions.ice}"
         <echo>Not yet implemented</echo>
     </target>
 
+    <target name="format">
+        <echo>Not yet implemented</echo>
+    </target>
+
 </project>
