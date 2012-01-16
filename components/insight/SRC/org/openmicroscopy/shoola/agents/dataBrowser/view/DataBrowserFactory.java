@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import omero.model.PlateAcquisition;
+
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 
@@ -82,9 +84,16 @@ public class DataBrowserFactory
 	/** Discards all the tracked {@link DataBrowser}s. */
 	public static final void discardAll()
 	{
-		Iterator<Object> i = singleton.browsers.keySet().iterator();
-		while (i.hasNext())
-			singleton.discardedBrowsers.add((String) i.next());
+		Iterator v = singleton.browsers.entrySet().iterator();
+		DataBrowserComponent comp;
+		Entry entry;
+		while (v.hasNext()) {
+			entry = (Entry) v.next();
+			comp = (DataBrowserComponent) entry.getValue();
+			comp.discard();
+			singleton.discardedBrowsers.add((String) entry.getKey());
+		}
+		System.gc();
 		singleton.browsers.clear();
 	}
 	
@@ -260,6 +269,7 @@ public class DataBrowserFactory
 				comp = (DataBrowserComponent) entry.getValue();
 				comp.reloadThumbnails(ids);
 			}
+			System.gc();
 		}
 	}
 	
@@ -326,6 +336,7 @@ public class DataBrowserFactory
 			comp = (DataBrowserComponent) entry.getValue();
 			comp.discard();
 		}
+		System.gc();
 		singleton.browsers.clear();
 		singleton.discardedBrowsers.clear();
 		singleton.searchBrowser = null;
@@ -409,6 +420,16 @@ public class DataBrowserFactory
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();
+		if (parent instanceof PlateData) {
+			PlateData plate = (PlateData) parent;
+			Set<PlateAcquisitionData> set = plate.getPlateAcquisitions();
+			if (set != null && set.size() == 1) {
+				Iterator<PlateAcquisitionData> j = set.iterator();
+				while (j.hasNext()) {
+					parent = j.next();
+				}
+			}
+		}
 		String key = parent.toString();
 		if (parent instanceof DataObject) 
 			key += ((DataObject) parent).getId();

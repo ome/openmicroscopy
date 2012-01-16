@@ -296,10 +296,15 @@ public class TreeCellRenderer
     /** Flag indicating if the node to render is the target node.*/
     private boolean isTargetNode;
     
+    /** Flag indicating if the node to render is the target node.*/
+    private boolean droppedAllowed;
+    
     /** The color used when dragging.*/
     private Color draggedColor;
+
+    /** Indicates if the node is selected or not.*/
+    private boolean selected;
     
-	
     /**
      * Sets the icon and the text corresponding to the user's object.
      * 
@@ -496,11 +501,15 @@ public class TreeCellRenderer
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
                                                 row, hasFocus);
         isTargetNode = false;
+        droppedAllowed = true;
+        selected = sel;
         if (tree instanceof DnDTree) {
         	DnDTree dndTree = (DnDTree) tree;
         	isTargetNode = (value == dndTree.getDropTargetNode());
+        	if (dndTree.getRowDropLocation() == row) {
+        		droppedAllowed = false;
+        	}
         }
-
         setIcon(FILE_TEXT_ICON);
         if (!(value instanceof TreeImageDisplay)) return this;
         TreeImageDisplay  node = (TreeImageDisplay) value;
@@ -551,11 +560,16 @@ public class TreeCellRenderer
      */
     public void paintComponent(Graphics g)
     {
-    	super.paintComponent(g);
-		if (isTargetNode) {
+    	//super.paintComponent(g);
+    	if (isTargetNode) {
 			g.setColor(draggedColor);
-			g.fillRoundRect(0, 0, getSize().width-1, getSize().height-1, 2, 2);
+			if (!droppedAllowed) {
+				if (selected) g.setColor(backgroundSelectionColor);
+				else g.setColor(backgroundNonSelectionColor);
+			}
+			g.fillRect(0, 0, getSize().width, getSize().height);
 		}
+    	super.paintComponent(g);
 	}
   
 }

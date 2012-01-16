@@ -267,6 +267,11 @@ class EditorUI
         	generalPane.layoutUI();
         	acquisitionPane.layoutCompanionFiles();
         	component = tabPane;
+        	if (model.isMultiSelection()) {
+				tabPane.setSelectedIndex(GENERAL_INDEX);
+				tabPane.setEnabledAt(ACQUISITION_INDEX, false);
+				tabPane.setEnabledAt(RND_INDEX, false);
+			}
     	}
     	if (add) add(component, BorderLayout.CENTER);
     	validate();
@@ -907,6 +912,22 @@ class EditorUI
 	void cancelAnalysisResultsLoading(AnalysisResultsItem item)
 	{
 		
+	}
+
+	/**
+	 * Returns <code>true</code> if the tab is enabled, <code>false</code>
+	 * otherwise. if it is not enabled, reset to the default tab, this should
+	 * use to reset to the <code>General</code> tab.
+	 * 
+	 * @param index The index of the tab.
+	 * @return See above.
+	 */
+	boolean checkIfTabEnabled(int index)
+	{
+		if (index == -1) return false;
+		if (tabPane.isEnabledAt(index)) return true;
+		tabPane.setSelectedIndex(GENERAL_INDEX);
+		return false;
 	}
 	
 }

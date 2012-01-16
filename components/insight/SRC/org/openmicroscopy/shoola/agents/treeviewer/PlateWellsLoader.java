@@ -153,6 +153,5 @@ public class PlateWellsLoader
 		}
         viewer.setPlates(plates, withThumbnails);
     }
-    
-    
+
 }

@@ -382,6 +382,14 @@ public interface MetadataViewer
 	 */
 	public StructuredDataResults getStructuredData();
 	
+	/**
+	 * Returns the metadata linked to the currently edited object
+	 * or <code>null</code> if not loaded.
+	 * 
+	 * @return See above.
+	 */
+	public StructuredDataResults getParentStructuredData();
+	
     /**
      * Sets to <code>true</code> if loading data, to <code>false</code>
      * otherwise.
@@ -627,4 +635,6 @@ public interface MetadataViewer
 	 */
 	JFrame getParentUI();
 	
+	/** Refreshes the view. */
+	void refresh();
 }

@@ -418,7 +418,18 @@ class TreeViewerComponent
         			return;
         		}
         	}
-        	db = DataBrowserFactory.getDataBrowser(object);
+        	Object p = object;
+        	if (object instanceof PlateData) {
+        		PlateData plate = (PlateData) object;
+        		Set<PlateAcquisitionData> set = plate.getPlateAcquisitions();
+        		if (set != null && set.size() == 1) {
+        			Iterator<PlateAcquisitionData> k = set.iterator();
+        			while (k.hasNext()) {
+						p = k.next();
+					}
+        		}
+        	}
+        	db = DataBrowserFactory.getDataBrowser(p);
         	if (db != null) {
         		db.setComponentTitle("");
         		if (visible) {
@@ -960,7 +971,8 @@ class TreeViewerComponent
 			return;
 		}
 		List result = new ArrayList();
-		result.add(selection.subList(1, size-1));
+		selection.remove(0);
+		result.add(selection);
 		result.add(selected);
 		result.add(parent);
 		setSelectedNode(result);

@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
+import java.awt.event.KeyListener;
+
 
 //Java imports
 
@@ -145,5 +147,18 @@ public class ImageSet
         if (containsImages == null) return false;
         return containsImages.booleanValue();
     }
+
+	/**
+	 * Adds listener to the components.
+	 * 
+	 * @param listener The listener to handle.
+	 */
+	public void addListenerToComponents(Object listener)
+	{
+		if (listener == null) return;
+		if (listener instanceof KeyListener) {
+			getInternalDesktop().addKeyListener((KeyListener) listener);
+		}
+	}
 
 }

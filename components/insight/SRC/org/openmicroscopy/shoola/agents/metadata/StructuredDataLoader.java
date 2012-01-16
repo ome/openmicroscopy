@@ -54,7 +54,6 @@ public class StructuredDataLoader
 	/** The object the data are related to. */
 	private Object		dataObject;
 
-	
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     

@@ -951,9 +951,10 @@ class PropertiesUI
 		if (parent instanceof WellData) {
 			WellData well = (WellData) parent;
 			PlateData plate = well.getPlate();
-			String text = "Plate: "; 
-			text += plate.getName();
-			parentLabel.setText(text);
+			String text = plate.getName();
+			String s = UIUtilities.formatPartialName(text);
+			parentLabel.setText("Plate: "+s);
+			parentLabel.setToolTipText(text);
 			parentLabel.repaint();
 			text = "Well "+getWellLabel(well, plate.getColumnSequenceIndex(), 
 					plate.getRowSequenceIndex());

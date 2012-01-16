@@ -373,30 +373,6 @@ public class TextualTwoKnobsSlider
 	private void handleFocusLost(Object field)
 	{
 		if (field == null) return;
-		/*
-		String s = formatValue((int) start);
-		String e = formatValue((int) end);
-		double v, value;
-		int m;
-		Number n;
-		if (startField == field) {
-			n = startField.getValueAsNumber();
-			if (n != null) v = n.doubleValue();
-			else v = slider.getStartValue();
-			value = v*roundingFactor;
-			m = slider.getPartialMinimum();
-			if (value < m || n == null) startField.setText(s);
-			if (v > end) endField.setText(formatValue((int) v));
-		} else if (endField == field) {
-			n = endField.getValueAsNumber();
-			if (n != null) v = n.doubleValue();
-			else v = slider.getEndValue();
-			value = v*roundingFactor;
-			m = slider.getPartialMaximum();
-			if (value > m || n == null) endField.setText(e);
-			if (v < start) startField.setText(formatValue((int) v));
-		}
-		*/
 		if (startField == field) setStartValue();
 		else if (endField == field) setEndValue();
 	}
@@ -419,7 +395,7 @@ public class TextualTwoKnobsSlider
 		endField.setPreferredSize(new Dimension(x, d.height));
 		GridBagConstraints c = new GridBagConstraints();
 		p.setLayout(new GridBagLayout());
-		c.weightx = 0;        
+		c.weightx = 0;
 		c.anchor = GridBagConstraints.WEST;
 		p.add(startLabel, c);
 		c.gridx = 1;
