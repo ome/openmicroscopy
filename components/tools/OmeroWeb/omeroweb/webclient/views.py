@@ -1425,7 +1425,12 @@ def batch_annotate(request, conn, **kwargs):
     This page gives a form for batch annotation. 
     Local File form and Comment form are loaded. Other forms are loaded via AJAX
     """
-    
+
+    try:
+        index = int(request.REQUEST['index'])
+    except:
+        index = 0
+
     # TODO: DRY!
     images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
     datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
@@ -1468,6 +1473,11 @@ def batch_annotate(request, conn, **kwargs):
 def annotate_new_file(request, conn, **kwargs):
     """ This handles the submission of Files to upload, creating File Annotation linked to one or more objects """
 
+    try:
+        index = int(request.REQUEST['index'])
+    except:
+        index = 0
+
     # much of this code is replicated elsewhere - TODO: don't repeat yourself!
     images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
     datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
@@ -1509,9 +1519,9 @@ def annotate_file(request, conn, **kwargs):
     Otherwise it generates the form for choosing file-annotations
     """
     try:
-        index = int(request.REQUEST['index'])
+        index = int(request.REQUEST['index'])   # well index
     except:
-        index = None
+        index = 0
 
     # TODO: DRY!
     images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
@@ -1589,7 +1599,13 @@ def annotate_file(request, conn, **kwargs):
 @isUserConnected
 def annotate_comment(request, conn, **kwargs):
     """ Handle adding Comments to one or more objects """
-    
+
+    try:
+        # well index
+        index = int(request.REQUEST['index'])
+    except:
+        index = 0
+
     images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
     datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
     projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
@@ -1630,9 +1646,10 @@ def annotate_tags(request, conn, **kwargs):
     """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
 
     try:
+        # well index
         index = int(request.REQUEST['index'])
     except:
-        index = None
+        index = 0
 
     # TODO: DRY!
     images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
