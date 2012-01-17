@@ -31,13 +31,32 @@
 -->
 {% endcomment %}
 
+{% block link %}
+    {{ block.super }}
+    <!-- All the following are required by the right-hand panel, E.g. annotations/metadata_general.html -->
+    <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/googiespell.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/annotation.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/autocomplete.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
+{% endblock %}
 
 {% block script %}
     {{ block.super }}
+    <!-- The following are required by the right-hand panel, E.g. annotations/metadata_general.html -->
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.autocomplete.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/AJS.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/googiespell.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/cookiesupport.js" %}"></script>
+    
+    <!-- required for this page (left panel) -->
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.cookie.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.hotkeys.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.js" %}"></script>   
-    
     <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
     <script type="text/javascript">
         String.prototype.capitalize = function() {
