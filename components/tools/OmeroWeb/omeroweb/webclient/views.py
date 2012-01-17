@@ -1419,6 +1419,30 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
 # In each case, the form itself contains hidden fields to specify the object(s) being annotated
 # All forms inherit from a single form that has these fields.
 
+def getObjects(request, conn):
+    
+    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
+    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
+    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
+    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
+    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
+    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and \
+            list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
+    wells = list()
+    if len(request.REQUEST.getlist('well')) > 0:
+        for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
+            w.index=index
+            wells.append(w)
+    return {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+
+def getIds(request):
+    selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), \
+            'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), \
+            'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), \
+            'wells':request.REQUEST.getlist('well')}
+    return selected
+
+
 @isUserConnected
 def batch_annotate(request, conn, **kwargs):
     """
@@ -1426,32 +1450,13 @@ def batch_annotate(request, conn, **kwargs):
     Local File form and Comment form are loaded. Other forms are loaded via AJAX
     """
 
-    try:
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
+    index = int(request.REQUEST.get('index', 0))
 
-    # TODO: DRY!
-    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
-    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
-    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
-    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
-    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
-    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
-    wells = list()
-    if len(request.REQUEST.getlist('well')) > 0:
-        for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
-            w.index=index
-            wells.append(w)
-
-
-    oids = {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+    oids = getObjects(request, conn)
+    selected = getIds(request)
+    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
     
-    selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), 'wells':request.REQUEST.getlist('well')}
-    
-    
-    initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}
-        
     form_comment = CommentAnnotationForm(initial=initial)
     form_file = UploadFileAnnotationForm(initial=initial)
 
@@ -1473,36 +1478,21 @@ def batch_annotate(request, conn, **kwargs):
 def annotate_new_file(request, conn, **kwargs):
     """ This handles the submission of Files to upload, creating File Annotation linked to one or more objects """
 
-    try:
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
-
-    # much of this code is replicated elsewhere - TODO: don't repeat yourself!
-    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
-    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
-    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
-    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
-    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
-    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
-    wells = list()
-    if len(request.REQUEST.getlist('well')) > 0:
-        for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
-            w.index=index
-            wells.append(w)
-
-    oids = {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
-
+    index = int(request.REQUEST.get('index', 0))
+    oids = getObjects(request, conn)
+    initial = {'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
+    
     manager = BaseContainer(conn)
 
     # Handle form submission...
     if request.method == 'POST':
-        form_multi = UploadFileAnnotationForm(initial={'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}, data=request.REQUEST.copy(), files=request.FILES)
+        form_multi = UploadFileAnnotationForm(initial=initial, data=request.REQUEST.copy(), files=request.FILES)
         if form_multi.is_valid():
             # In each case below, we pass the {'object_type': [ids]} map
             fileupload = request.FILES['annotation_file']
             if fileupload is not None and fileupload != "":
-                fileann = manager.createFileAnnotations(fileupload, oids)
+                fileann = manager.createFileAnnotations(fileupload, oids, well_index=index)
                 template = "webclient/annotations/fileann.html"
                 context = {'fileann': fileann}
 
@@ -1518,30 +1508,11 @@ def annotate_file(request, conn, **kwargs):
     On 'POST', This handles attaching an existing file-annotation to one or more objects 
     Otherwise it generates the form for choosing file-annotations
     """
-    try:
-        index = int(request.REQUEST['index'])   # well index
-    except:
-        index = 0
-
-    # TODO: DRY!
-    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
-    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
-    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
-    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
-    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
-    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
-    wells = list()
-    if len(request.REQUEST.getlist('well')) > 0:
-        for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
-            w.index=index
-            wells.append(w)
-
-    oids = {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
-    
-    selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 
-            'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 
-            'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), 
-            'wells':request.REQUEST.getlist('well')}
+    index = int(request.REQUEST.get('index', 0))
+    oids = getObjects(request, conn)
+    selected = getIds(request)
+    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
     
     obj_count = sum( [len(selected[types]) for types in selected] )
     
@@ -1569,8 +1540,7 @@ def annotate_file(request, conn, **kwargs):
         manager = BaseContainer(conn)
     
     files = manager.getFilesByObject()
-    initial={'files': files, 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 
-            'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}
+    initial['files'] = files
 
     if request.method == 'POST':
         # handle form submission
@@ -1580,7 +1550,7 @@ def annotate_file(request, conn, **kwargs):
             linked_files = []
             files = form_file.cleaned_data['files']
             if files is not None and len(files)>0:
-                linked_files = manager.createAnnotationsLinks('file', files, oids)
+                linked_files = manager.createAnnotationsLinks('file', files, oids, well_index=index)
             template = "webclient/annotations/fileanns.html"
             context = {'fileanns':linked_files}
         else:
@@ -1600,36 +1570,22 @@ def annotate_file(request, conn, **kwargs):
 def annotate_comment(request, conn, **kwargs):
     """ Handle adding Comments to one or more objects """
 
-    try:
-        # well index
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
-
-    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
-    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
-    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
-    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
-    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
-    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
-    wells = list()
-    if len(request.REQUEST.getlist('well')) > 0:
-        for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
-            w.index=index
-            wells.append(w)
-    
-    oids = {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+    index = int(request.REQUEST.get('index', 0))
+    oids = getObjects(request, conn)
+    selected = getIds(request)
+    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
 
     manager = BaseContainer(conn)
 
     # Handle form submission...
     if request.method == 'POST':
-        form_multi = CommentAnnotationForm(initial={'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}, data=request.REQUEST.copy())
+        form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
         if form_multi.is_valid():
             # In each case below, we pass the {'object_type': [ids]} map
             content = form_multi.cleaned_data['comment']
             if content is not None and content != "":
-                textAnn = manager.createCommentAnnotations(content, oids)
+                textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
                 template = "webclient/annotations/comment.html"
                 context = {'tann': textAnn}
                 
@@ -1645,32 +1601,9 @@ def annotate_comment(request, conn, **kwargs):
 def annotate_tags(request, conn, **kwargs):
     """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
 
-    try:
-        # well index
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
-
-    # TODO: DRY!
-    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
-    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
-    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
-    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
-    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
-    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
-    wells = list()
-    if len(request.REQUEST.getlist('well')) > 0:
-        for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
-            w.index=index
-            wells.append(w)
-
-    oids = {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
-
-    selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 
-            'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 
-            'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), 
-            'wells':request.REQUEST.getlist('well')}
-
+    index = int(request.REQUEST.get('index', 0))
+    oids = getObjects(request, conn)
+    selected = getIds(request)
     obj_count = sum( [len(selected[types]) for types in selected] )
 
     # Get appropriate manager, either to list available Tags to add to single object, or list ALL Tags (multiple objects)
@@ -1698,8 +1631,9 @@ def annotate_tags(request, conn, **kwargs):
         manager = BaseContainer(conn)
 
     tags = manager.getTagsByObject()
-    initial={'tags': tags, 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 
-            'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}
+    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
+    initial['tags'] = tags
 
     if request.method == 'POST':
         # handle form submission
@@ -1711,9 +1645,9 @@ def annotate_tags(request, conn, **kwargs):
             tags = form_tags.cleaned_data['tags']
             linked_tags = []
             if tags is not None and len(tags)>0:
-                linked_tags = manager.createAnnotationsLinks('tag', tags, oids)
+                linked_tags = manager.createAnnotationsLinks('tag', tags, oids, well_index=index)
             if tag is not None and tag != "":
-                new_tag = manager.createTagAnnotations(tag, description, oids)
+                new_tag = manager.createTagAnnotations(tag, description, oids, well_index=index)
                 linked_tags.append(new_tag)
             template = "webclient/annotations/tags.html"
             context = {'tags':linked_tags}

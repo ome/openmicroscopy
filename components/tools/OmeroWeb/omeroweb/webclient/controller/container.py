@@ -673,7 +673,7 @@ class BaseContainer(BaseController):
         fa = fa_link.getAnnotation()
         return fa
     
-    def createCommentAnnotations(self, content, oids):
+    def createCommentAnnotations(self, content, oids, well_index=0):
         ann = omero.model.CommentAnnotationI()
         ann.textValue = rstring(str(content))
         ann = self.conn.saveAndReturnObject(ann)
@@ -684,7 +684,7 @@ class BaseContainer(BaseController):
                 for ob in oids[k]:
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
-                        obj = ob.getWellSample().image()
+                        obj = ob.getWellSample(well_index).image()
                     elif isinstance(ob._obj, omero.model.PlateAcquisitionI):
                         t = 'PlateAcquisition'
                         obj = ob
@@ -701,7 +701,7 @@ class BaseContainer(BaseController):
         return self.conn.getObject("CommentAnnotation", ann.getId())
 
     
-    def createTagAnnotations(self, tag, desc, oids):
+    def createTagAnnotations(self, tag, desc, oids, well_index=0):
         ann = None
         try:
             ann = self.conn.findTag(tag, desc)
@@ -720,7 +720,7 @@ class BaseContainer(BaseController):
                 for ob in oids[k]:
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
-                        obj = ob.getWellSample().image()
+                        obj = ob.getWellSample(well_index).image()
                     elif isinstance(ob._obj, omero.model.PlateAcquisitionI):
                         t = 'PlateAcquisition'
                         obj = ob
@@ -743,7 +743,7 @@ class BaseContainer(BaseController):
         # Each annotation will have several new links - Just return the annotations
         return ann
     
-    def createFileAnnotations(self, newFile, oids):
+    def createFileAnnotations(self, newFile, oids, well_index=0):
         format = self.checkMimetype(newFile.content_type)
         
         oFile = omero.model.OriginalFileI()
@@ -767,14 +767,14 @@ class BaseContainer(BaseController):
                 for ob in oids[k]:
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
-                        obj = ob.getWellSample().image()
+                        obj = ob.getWellSample(well_index).image()
                     elif isinstance(ob._obj, omero.model.PlateAcquisitionI):
                         t = 'PlateAcquisition'
                         obj = ob
                     else:
                         t = k.lower().title()
                         obj = ob
-                        otype = t
+                    otype = t
                     l_ann = getattr(omero.model, t+"AnnotationLinkI")()
                     l_ann.setParent(obj._obj)
                     l_ann.setChild(fa._obj)
@@ -830,7 +830,7 @@ class BaseContainer(BaseController):
         fas = [fa_link.getAnnotation() for fa_link in links]
         return fas
     
-    def createAnnotationsLinks(self, atype, tids, oids):
+    def createAnnotationsLinks(self, atype, tids, oids, well_index=0):
         #TODO: check if link already exist !!!
         atype = str(atype).lower()
         if not atype.lower() in ("tag", "comment", "file"):
@@ -850,7 +850,7 @@ class BaseContainer(BaseController):
                     for a in annotations:
                         if isinstance(ob._obj, omero.model.WellI):
                             t = 'Image'
-                            obj = ob.getWellSample().image()
+                            obj = ob.getWellSample(well_index).image()
                         else:
                             obj = ob
                         l_ann = getattr(omero.model, t+"AnnotationLinkI")()
