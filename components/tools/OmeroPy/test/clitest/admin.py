@@ -15,6 +15,7 @@ import os
 from path import path
 
 import omero
+import omero.clients
 
 from omero.cli import CLI, NonZeroReturnCode
 from omero.plugins.admin import AdminControl
@@ -88,34 +89,25 @@ class TestAdmin(unittest.TestCase):
         self.cli.assertStderr(['No descriptor given. Using etc/grid/default.xml'])
 
     def testStopAsyncRunning(self):
+        self.cli.checksStatus(0) # I.e. running
         self.cli.addCall(0)
         self.invoke("a stopasync")
-        self.cli.assertCalled()
         self.cli.assertStderr([])
         self.cli.assertStdout([])
 
     def testStopAsyncNotRunning(self):
-        self.cli.addCall(1)
+        self.cli.checksStatus(1) # I.e. not running
         self.invoke("a stopasync", fails=True)
-        self.cli.assertCalled()
-        self.cli.assertStderr([])
-        self.cli.assertStdout(["Was the server already stopped?"])
+        self.cli.assertStderr(["Server not running"])
+        self.cli.assertStdout([])
 
     def testStop(self):
+        self.cli.checksStatus(0) # I.e. running
+        self.cli.addCall(0)
+        self.cli.checksStatus(1) # I.e. not running
         self.invoke("a stop")
-
-    def testComplete(self):
-        c = AdminControl()
-        t = ""
-        l = "admin deploy "
-        b = len(l)
-        l = c._complete(t,l+"lib",b,b+3)
-        self.assert_( "omero" in l, str(l) )
-        l = c._complete(t,l+"lib/",b,b+4)
-        self.assert_( "omero" in l, str(l) )
-
-    def testProperMethodsUseConfigXml(self):
-        self.fail("NYI")
+        self.cli.assertStderr([])
+        self.cli.assertStdout(['Waiting on shutdown. Use CTRL-C to exit'])
 
     #
     # STATUS
@@ -164,6 +156,39 @@ class TestAdmin(unittest.TestCase):
         self.cli.mox.ReplayAll()
         self.invoke("a status")
         self.assertEquals(0, self.cli.rv)
+
+    #
+    # Bugs
+    #
+
+    """
+    Issues with error handling in certain situations
+    especially with changing networks interfaces.
+    """
+
+    def test7325NoWaitForShutdown(self):
+        """
+        First issue in the error reported in Will's description
+        (ignoring the comments) is that if the master could
+        not be reached, there should be no waiting on shutdown.
+        """
+
+        # Although later status says the servers not running
+        # the node ping much return a 0 because otherwise
+        # stopasync returns immediately
+        self.cli.checksStatus(0)     # node ping
+
+        # Then since "Was the server already stopped?" was
+        # printed, the call to shutdown master must return 1
+        self.cli.addCall(1)
+
+        self.invoke("a restart")
+        self.cli.assertStderr([])
+        self.cli.assertStdout([])
+
+        # This test fails. With whatever solution is chosen
+        # for 7325, the restart here should not wait on shutdown
+        # if there's no connection available.
 
 if __name__ == '__main__':
     unittest.main()

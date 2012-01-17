@@ -15,6 +15,22 @@ import datetime, time
 
 class TestSearch(lib.ITest):
 
+    def test2541(self):
+        """
+        Search for private data from another user
+        """
+        group = self.new_group(perms="rw----")
+        owner = self.new_client(group)
+        searcher = self.new_client(group)
+        uuid = self.uuid().replace("-", "")
+        tag = omero.model.TagAnnotationI()
+        tag.ns = omero.rtypes.rstring(uuid)
+        tag = self.update.saveAndReturnObject(tag)
+        self.root.sf.getUpdateService().indexObject(tag)
+        q = searcher.sf.getQueryService()
+        r = q.findAllByFullText("TagAnnotation", uuid, None)
+        self.assertEquals(0, len(r))
+
     def test3164Private(self):
         group = self.new_group(perms="rw----")
         owner = self.new_client(group)

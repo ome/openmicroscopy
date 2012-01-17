@@ -316,6 +316,7 @@
     <bean parent="delSpec" name="/OriginalFile">
         <constructor-arg>
             <list>
+                <value>/OriginalFile/PixelsOriginalFileMap;FORCE</value>
                 <value>/OriginalFile/OriginalFileAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value>
                 <value>/OriginalFile</value>

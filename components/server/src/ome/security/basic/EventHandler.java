@@ -15,6 +15,7 @@ import java.util.List;
 import ome.api.StatefulServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.conditions.SessionTimeoutException;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.system.EventContext;
@@ -113,7 +114,21 @@ public class EventHandler implements MethodInterceptor {
             sql.deferConstraints();
         }
 
-        secSys.loadEventContext(readOnly, isClose);
+        try {
+            secSys.loadEventContext(readOnly, isClose);
+        } catch (SessionTimeoutException ste) {
+            // If this is a CloseOnNoSessionContext then we skip all handling
+            // since almost any action by the close() method will try to load
+            // the context and will fail. This assumes that EventHandler is
+            // the most inner handler. If this changes, then this logic may
+            // need to be pushed down further.
+            if (ste.sessionContext instanceof
+                BasicSecurityWiring.CloseOnNoSessionContext) {
+                log.debug("CloseOnNoSessionContext. Skipping");
+                return null;
+            }
+            throw ste;
+        }
 
         // now the user can be considered to be logged in.
         EventContext ec = secSys.getEventContext();

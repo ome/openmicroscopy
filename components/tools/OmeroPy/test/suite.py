@@ -20,6 +20,7 @@ def additional_tests():
     suite = unittest.TestSuite()
     suite.addTest(load("PythonOnly"))
     suite.addTest(load("t_bin"))
+    suite.addTest(load("t_clients"))
     suite.addTest(load("t_config"))
     suite.addTest(load("t_ext"))
     suite.addTest(load("t_rtypes"))

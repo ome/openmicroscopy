@@ -125,6 +125,29 @@ class TestTickets3000(lib.ITest):
 
         self.assert_( la.id.val in [x.id.val for x in res] )
 
+    def test2762(self):
+        """
+        Test that the page (limit/offset) settings on a ParametersI
+        are properly handled by IQuery.findAllByFullText
+        """
+
+        uuid = self.uuid().replace("-","")
+        tas = []
+        for x in range(15):
+            ta = omero.model.TagAnnotationI()
+            ta.setNs(rstring(uuid))
+            ta = self.update.saveAndReturnObject(ta)
+            tas.append(ta)
+            self.root.sf.getUpdateService().indexObject(ta)
+
+        results = self.query.findAllByFullText("TagAnnotation", uuid, None)
+        self.assertEquals(len(tas), len(results))
+
+        params = omero.sys.ParametersI()
+        params.page(0, 10)
+        results = self.query.findAllByFullText("TagAnnotation", uuid, params)
+        self.assertEquals(10, len(results))
+
 
 if __name__ == '__main__':
     unittest.main()

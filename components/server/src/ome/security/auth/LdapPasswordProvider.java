@@ -103,7 +103,7 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
         // Known user, preventing special users by checking for a null dn
         // in which case we ignore any information from LDAP.
         // See ticket:6702
-        final String dn1 = getOmeroDN(id);
+        final String dn1 = (id == null) ? null : getOmeroDN(id);
         if (dn1 != null) {
 
             // If LDAP doesn't return a DN for a user that expects one
