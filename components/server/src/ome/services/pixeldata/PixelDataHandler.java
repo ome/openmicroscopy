@@ -78,19 +78,39 @@ public class PixelDataHandler extends SimpleWork {
     @Transactional(readOnly = false)
     public Object doWork(Session session, ServiceFactory sf) {
 
+        EventLog eventLog = loadNext();
+        if (eventLog == null)
+        {
+            return null;
+        }
+
+        final long start = System.currentTimeMillis();
+        final boolean handled = process(eventLog.getEntityId(), sf, session);
+        final String msg = String.format("EventLog:%s(entityId=%s) [%s ms.]",
+                eventLog.getId(), eventLog.getEntityId(),
+                (System.currentTimeMillis() - start));
+
+        if (handled) {
+            log.info("HANDLED "+ msg);
+        } else {
+            log.debug("SKIPPED "+ msg);
+        }
+
+        return null;
+    }
+
+    /**
+     * Synchronized loading since the event log loader infrastructure assumes
+     * a single threaded environment.
+     */
+    private synchronized EventLog loadNext()
+    {
         if (!loader.hasNext()) {
             log.debug("No objects indexed");
             return null;
         }
 
-        long start = System.currentTimeMillis();
-        EventLog eventLog = loader.next();
-        process(eventLog.getEntityId(), sf, session);
-
-        log.info(String.format("HANDLED %s object(s) in %s batch(es) [%s ms.]",
-                1, 1, (System.currentTimeMillis() - start)));
-
-        return null;
+        return loader.next();
     }
 
     /**
@@ -105,13 +125,7 @@ public class PixelDataHandler extends SimpleWork {
      */
     public boolean process(Long id, ServiceFactory sf, Session s) {
 
-        final IQuery iQuery = sf.getQueryService();
-        final IUpdate iUpdate = sf.getUpdateService();
-        final Pixels pixels = iQuery.findByQuery(
-                "select p from Pixels as p " +
-                "left outer join fetch p.channels ch " + // For statsinfo
-                "join fetch p.pixelsType where p.id = :id ",
-                new Parameters().addId(id));
+        final Pixels pixels = getPixels(id, sf);
 
         if (pixels == null) {
             log.error("No valid pixels found with id=" + id);
@@ -142,6 +156,18 @@ public class PixelDataHandler extends SimpleWork {
         }
 
         return true;
+    }
+
+    protected Pixels getPixels(Long id, ServiceFactory sf)
+    {
+        final IQuery iQuery = sf.getQueryService();
+        final IUpdate iUpdate = sf.getUpdateService();
+        final Pixels pixels = iQuery.findByQuery(
+                "select p from Pixels as p " +
+                "left outer join fetch p.channels ch " + // For statsinfo
+                "join fetch p.pixelsType where p.id = :id ",
+                new Parameters().addId(id));
+        return pixels;
     }
 
 }

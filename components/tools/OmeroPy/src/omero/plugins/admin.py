@@ -412,7 +412,7 @@ Examples:
             self.ctx.out(output)
         else:
             command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg(),"--deploy",str(descript)] + args.targets
-            self.ctx.call(command)
+            self.ctx.rv = self.ctx.call(command)
 
     @with_config
     def start(self, args, config):
@@ -441,7 +441,7 @@ Examples:
 
     def status(self, args, node_only = False):
         self.check_node(args)
-        command = self._cmd("-e","node ping master") #3141, TODO should be configurable
+        command = self._cmd("-e","node ping %s" % self._node())
         self.ctx.rv = self.ctx.popen(command).wait() # popen
 
         # node_only implies that "up" need not check for all
@@ -536,7 +536,7 @@ Examples:
             self.ctx.out(self.ctx.popen(["sc","stop",svc_name]).communicate()[0]) # popen
             self.ctx.out(self.ctx.popen(["sc","delete",svc_name]).communicate()[0]) # popen
         else:
-            command = self._cmd("-e","node shutdown master")
+            command = self._cmd("-e","node shutdown %s" % self._node())
             try:
                 self.ctx.call(command)
             except NonZeroReturnCode, nzrc:

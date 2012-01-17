@@ -120,13 +120,15 @@ public interface SqlAction {
     Map<String, Object> repoFile(long value);
 
     /**
-     * Returns an array of longs for the following SQL return values:
-     * <code>experimenter, eventlog, entityid as pixels</code>
+     * Returns arrays of longs for the following SQL return values:
+     * <code>experimenter, eventlog, entityid as pixels, rownumber</code>
      *
-     * The oldest eventlog with action = "PIXELDATA" and entitytype = "ome.model.core.Pixels"
-     * is found <em>per user</em> and returned.
+     * The oldest N eventlogs with action = "PIXELDATA" and entitytype = "ome.model.core.Pixels"
+     * is found <em>per user</em> and returned. Multiple eventlogs are returned
+     * per user in order to support multi-threading. Duplicate pixel ids
+     * are stripped.
      */
-    List<long[]> nextPixelsDataLogForRepo(String repo, long lastEventId);
+    List<long[]> nextPixelsDataLogForRepo(String repo, long lastEventId, int howmany);
 
     long countFormat(String name);
 
@@ -347,25 +349,26 @@ public interface SqlAction {
         // FILES
         //
 
-        public List<long[]> nextPixelsDataLogForRepo(String repo, long lastEventId) {
+        public List<long[]> nextPixelsDataLogForRepo(String repo, long lastEventId, int rows) {
             final RowMapper<long[]> rm = new RowMapper<long[]>() {
                 public long[] mapRow(ResultSet arg0, int arg1)
                         throws SQLException {
-                    long[] rv = new long[3];
+                    long[] rv = new long[4];
                     rv[0] = arg0.getLong(1);
                     rv[1] = arg0.getLong(2);
                     rv[2] = arg0.getLong(3);
+                    rv[3] = arg0.getLong(4);
                     return rv;
                 }};
             try {
                 if (repo == null) {
                     return _jdbc().query(
                             _lookup("find_next_pixels_data_per_user_for_null_repo"), // $NON-NLS-1$
-                            rm, lastEventId);
+                            rm, lastEventId, rows);
                 } else {
                     return _jdbc().query(
                             _lookup("find_next_pixels_data__per_user_for_repo"), // $NON-NLS-1$
-                            rm, lastEventId, repo);
+                            rm, lastEventId, repo, rows);
                 }
             } catch (EmptyResultDataAccessException erdae) {
                 return null;

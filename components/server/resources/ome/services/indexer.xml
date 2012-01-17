@@ -74,4 +74,7 @@
      <constructor-arg value="${omero.data.dir}"/>
   </bean>
 
+  <!-- Workaround for session mgr dependency#5216-->
+  <bean id="dbPatchCheck" class="java.lang.Object"/>
+
 </beans>

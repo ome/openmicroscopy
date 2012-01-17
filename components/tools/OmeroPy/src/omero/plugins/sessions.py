@@ -160,7 +160,7 @@ class SessionsControl(BaseControl):
             else:
                 server = args.server
 
-        if server: server, name = self._parse_conn(server)
+        if server: server, name = self._parse_conn(server, name)
 
         if args.user:
             if name:
@@ -220,7 +220,7 @@ class SessionsControl(BaseControl):
         # an active session or has requested another (different options)
         # If they've omitted some required value, we must ask for it.
         #
-        if not server: server, name = self._get_server(store)
+        if not server: server, name = self._get_server(store, name)
         if not name: name = self._get_username(previous[1])
 
         props["omero.host"] = server
@@ -486,20 +486,20 @@ class SessionsControl(BaseControl):
     # Private methods
     #
 
-    def _parse_conn(self, server):
+    def _parse_conn(self, server, name):
         try:
             idx = server.rindex("@")
             return  server[idx+1:], server[0:idx] # server, user which may also contain an @
         except ValueError:
-            return server, None
+            return server, name
 
-    def _get_server(self, store):
+    def _get_server(self, store, name):
         defserver = store.last_host()
         rv = self.ctx.input("Server: [%s]" % defserver)
         if not rv:
-            return defserver, None
+            return defserver, name
         else:
-            return self._parse_conn(rv)
+            return self._parse_conn(rv, name)
 
     def _get_username(self, defuser):
         if defuser is None:
