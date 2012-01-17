@@ -328,7 +328,7 @@ class ITest(unittest.TestCase):
     # Data methods
     #
 
-    def missing_pyramid(self):
+    def missing_pyramid(self, client=None):
         """
         Creates and returns a pixels whose shape changes from
         1,1,4000,4000,1 to 4000,4000,1,1,1 making it a pyramid
@@ -336,8 +336,12 @@ class ITest(unittest.TestCase):
         initial import in 4.3+. This simulates a big image that
         was imported in 4.2.
         """
-        pix = self.pix(x=1, y=1, z=4000, t=4000, c=1)
-        rps = self.client.sf.createRawPixelsStore()
+
+        if client is None:
+            client = self.client
+
+        pix = self.pix(x=1, y=1, z=4000, t=4000, c=1, client=client)
+        rps = client.sf.createRawPixelsStore()
         try:
             rps.setPixelsId(pix.id.val, True)
             for t in range(4000):
@@ -350,9 +354,11 @@ class ITest(unittest.TestCase):
         pix.sizeY = rint(4000)
         pix.sizeZ = rint(1)
         pix.sizeT = rint(1)
-        return self.update.saveAndReturnObject(pix)
 
-    def pix(self, x=10, y=10, z=10, c=3, t=50):
+        update = client.sf.getUpdateService()
+        return update.saveAndReturnObject(pix)
+
+    def pix(self, x=10, y=10, z=10, c=3, t=50, client=None):
         """
         Creates an int8 pixel of the given size in the database.
         No data is written.
@@ -370,7 +376,11 @@ class ITest(unittest.TestCase):
         pixels.dimensionOrder = omero.model.DimensionOrderI()
         pixels.dimensionOrder.value = rstring("XYZCT")
         image.addPixels(pixels)
-        image = self.update.saveAndReturnObject(image)
+
+        if client is None:
+            client = self.client
+        update = client.sf.getUpdateService()
+        image = update.saveAndReturnObject(image)
         pixels = image.getPrimaryPixels()
         return pixels
 

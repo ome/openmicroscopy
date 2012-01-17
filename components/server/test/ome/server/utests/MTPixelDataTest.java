@@ -95,7 +95,7 @@ public class MTPixelDataTest extends MockObjectTestCase {
 
 
         // pixeldata
-        PersistentEventLogLoader loader = new PersistentEventLogLoader("REPO") {
+        PersistentEventLogLoader loader = new PersistentEventLogLoader("REPO", numThreads) {
             @Override
             protected  EventLog query()
             {
