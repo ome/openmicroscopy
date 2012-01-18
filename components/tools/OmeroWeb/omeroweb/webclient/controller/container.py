@@ -544,8 +544,8 @@ class BaseContainer(BaseController):
         return self.conn.saveAndReturnId(sc)
     
     # Comment annotation
+    """ TODO: not used now - remove?
     def createCommentAnnotation(self, otype, content):
-        """ TODO: not used now - remove? """
 
         otype = str(otype).lower()
         if not otype in ("project", "dataset", "image", "screen", "plate", "acquisition", "well"):
@@ -582,7 +582,7 @@ class BaseContainer(BaseController):
             ann.textValue = rstring(str(tag))
             ann.setDescription(rstring(str(desc)))
             self.conn.saveObject(ann)
-     
+    
     def createTagAnnotation(self, otype, tag, desc):
         otype = str(otype).lower()
         if not otype in ("project", "dataset", "image", "screen", "plate", "acquisition", "well"):
@@ -628,14 +628,14 @@ class BaseContainer(BaseController):
         fa_link = links.next()  # get first item in generator
         fa = fa_link.getAnnotation()
         return fa
-    
+    """
     def checkMimetype(self, file_type):
         if file_type is None or len(file_type) == 0:
             file_type = "application/octet-stream"
         return file_type
-            
+    
+    """
     def createFileAnnotation(self, otype, newFile):
-        """ TODO: not used now - remove? """
         otype = str(otype).lower()
         if not otype in ("project", "dataset", "image", "screen", "plate", "acquisition", "well"):
             raise AttributeError("Object type must be: project, dataset, image, screen, plate, acquisition, well. ")
@@ -672,7 +672,8 @@ class BaseContainer(BaseController):
         fa_link = links.next()  # get first item in generator
         fa = fa_link.getAnnotation()
         return fa
-    
+    """
+
     def createCommentAnnotations(self, content, oids, well_index=0):
         ann = omero.model.CommentAnnotationI()
         ann.textValue = rstring(str(content))
@@ -792,8 +793,8 @@ class BaseContainer(BaseController):
 
     
     # Create links
+    """ TODO: not used? remove?
     def createAnnotationLinks(self, otype, atype, ann_ids):
-        """ TODO: not used? remove? """
         
         atype = str(atype).lower()
         if not atype in ("tag", "comment", "file"):
@@ -829,7 +830,8 @@ class BaseContainer(BaseController):
         links = self.conn.getAnnotationLinks (otype, parent_ids=[selfobject.getId()], ann_ids=ids)
         fas = [fa_link.getAnnotation() for fa_link in links]
         return fas
-    
+    """
+
     def createAnnotationsLinks(self, atype, tids, oids, well_index=0):
         #TODO: check if link already exist !!!
         atype = str(atype).lower()
@@ -941,7 +943,7 @@ class BaseContainer(BaseController):
         else:
             container.description = None
         self.conn.saveObject(container)
-    
+    """
     def saveCommentAnnotation(self, content):
         ann = self.comment._obj
         ann.textValue = rstring(str(content))
@@ -955,7 +957,7 @@ class BaseContainer(BaseController):
         else:
             ann.description = None
         self.conn.saveObject(ann)
-    
+    """
     def move(self, parent, destination):
         if self.project is not None:
             return 'Cannot move project.'

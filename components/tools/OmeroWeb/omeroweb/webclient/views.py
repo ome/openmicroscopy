@@ -1420,7 +1420,10 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
 # All forms inherit from a single form that has these fields.
 
 def getObjects(request, conn):
-    
+    """ 
+    Prepare objects for use in the annotation forms. 
+    These objects are required by the form superclass to populate hidden fields, so we know what we're annotating on submission
+    """
     images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
     datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
     projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
@@ -1436,6 +1439,7 @@ def getObjects(request, conn):
     return {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
 
 def getIds(request):
+    """ Used by forms to indicate the currently selected objects prepared above """
     selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), \
             'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), \
             'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), \
@@ -1480,6 +1484,7 @@ def annotate_new_file(request, conn, **kwargs):
 
     index = int(request.REQUEST.get('index', 0))
     oids = getObjects(request, conn)
+    # TODO: This seems a bit silly: Mapping from 'image' -> 'images' etc. 
     initial = {'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
     
@@ -1664,12 +1669,10 @@ def annotate_tags(request, conn, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-
+"""
 @isUserConnected
 def manage_annotation_multi(request, action=None, **kwargs):   
-    """
-    Handles setup OR sumbission of batch annotation form.
-    """
+
     template = "webclient/annotations/annotation_new_form_multi.html"
      
     conn = None
@@ -1763,18 +1766,17 @@ def manage_annotation_multi(request, action=None, **kwargs):
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
+"""
 
 @isUserConnected
 def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     """
     Handles many different actions on various objects.
     
-    @param action:      "new", "newcomment", "newtagonly", "newtag", "newfile", "newsharecomment",  (these prepare forms for annotation etc.)
-                            "addnewcontainer", "addnew", (create new P/D, Screen etc.)
-                            "edit", "save",
-                            "editname", "savename", "editdescription", "savedescription",  (used as GET and POST for in-line editing)
-                            "paste", "move", "remove", "removefromshare", 
-                            "addcomment", "addtag", "addtagonly", "addfile", "usefile", "delete", "deletemany"
+    @param action:      "addnewcontainer", 
+                        "editname", "savename", "editdescription", "savedescription",  (used as GET and POST for in-line editing)
+                        "paste", "move", "remove", "removefromshare", 
+                        "delete", "deletemany"
     @param o_type:      "dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset","share", "sharecomment"
     """
     template = None
@@ -1823,6 +1825,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         
     form = None
     if action == 'new':
+        pass
+        """
         # form to create new Project, Dataset or Screen. - TODO: not used now?
         template = "webclient/data/container_new.html"
         form = ContainerForm()
@@ -1856,6 +1860,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         else:
             form_sharecomments = ShareCommentForm()
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}  
+        """
     elif action == 'addnewcontainer':
         # Used within the jsTree to add a new Project, Dataset etc under a specified parent OR top-level
         if not request.method == 'POST':
@@ -1899,6 +1904,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'addnew':
+        pass
+        """
         # Handles submission from 'container_new.html'. TODO: not used now?
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["action", "new"]))
@@ -1924,7 +1931,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
                 else:
                     template = "webclient/data/container_new.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
+                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}"""
     elif action == 'edit':
         # form for editing an Object. E.g. Project etc. TODO: not used now? 
         if o_type == "share" and o_id > 0:
@@ -1948,6 +1955,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             form = ContainerForm(initial={'name': obj.name, 'description':obj.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
     elif action == 'save':
+        pass
+        """
         # Handles submission of the 'edit' form above. TODO: not used now?
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))        
@@ -2011,7 +2020,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/annotations/annotation_new_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}
+                context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}"""
     elif action == 'editname':
         # start editing 'name' in-line
         if hasattr(manager, o_type) and o_id > 0:
@@ -2134,6 +2143,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         json = simplejson.dumps(rdict, ensure_ascii=False)
         return HttpResponse( json, mimetype='application/javascript')
     elif action == 'addcomment':
+        pass
+        """
         # Handles Adding of comment to Project etc. in the 'metadata_general' page
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("load_metadata_details", args=[o_type, o_id]))
@@ -2218,6 +2229,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         else:
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files, 'index':index}
+            """
     elif action == 'delete':
         # Handles delete of a file attached to object.
         child = toBoolean(request.REQUEST.get('child'))
