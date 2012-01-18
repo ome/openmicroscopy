@@ -1955,11 +1955,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             form = ContainerForm(initial={'name': obj.name, 'description':obj.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
     elif action == 'save':
-        pass
-        """
         # Handles submission of the 'edit' form above. TODO: not used now?
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))        
+        """
         if o_type in ("project", "dataset", "image", "screen", "plate", "well"):
             if hasattr(manager, o_type) and o_id > 0:
                 form = ContainerForm(data=request.REQUEST.copy())
@@ -1993,7 +1992,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             else:
                 template = "webclient/data/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'index':index}
-        elif o_type == "share":
+                """
+        if o_type == "share":
             experimenters = list(conn.getExperimenters())
             experimenters.sort(key=lambda x: x.getOmeName().lower())
             form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
@@ -2006,7 +2006,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 enable = toBoolean(form.cleaned_data['enable'])
                 host = request.build_absolute_uri(reverse("load_template", args=["public"]))
                 manager.updateShareOrDiscussion(host, request.session.get('server'), message, members, enable, expiration)
-                return HttpResponseRedirect(url)
+                return HttpResponse("DONE")
             else:
                 template = "webclient/public/share_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'share':manager, 'form':form}
@@ -2020,7 +2020,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/annotations/annotation_new_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}"""
+                context = {'nav':request.session['nav'], 'url':url, 
+                        'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}
     elif action == 'editname':
         # start editing 'name' in-line
         if hasattr(manager, o_type) and o_id > 0:

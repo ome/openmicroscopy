@@ -1,4 +1,4 @@
-{% extends "common/base/base_frame.html" %}
+{% extends "common/base/base_html.html" %}
 {% load i18n %}
 {% load common_tags %}
 {% load wikitags %}
@@ -25,22 +25,11 @@
 {% endcomment %}
 
 {% block link %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/annotation.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/autocomplete.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
-    
+    <!-- overwrite body.css -->
 {% endblock %}
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.autocomplete.js" %}"></script>
-    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
 
     <script type="text/javascript">
         $(document).ready(function() 
@@ -87,6 +76,46 @@
                     left: -100
                 });
                 
+                
+                // Edit share: launch dialog with edit-share form
+                $("#edit_share").click(function(){
+                    var edit_share_url = $(this).attr('href');
+                    console.log(edit_share_url);
+                    $("#edit_share_form").dialog("open");
+                    // load form via AJAX...
+                    $("#edit_share_form").load(edit_share_url, function(){
+                        console.log("set up datepicker");
+                        $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
+                    });
+                    return false;
+                });
+                // set-up the edit-share form to use dialog
+                $("#edit_share_form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 410,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "Accept": function() {
+                            // simply submit the form (AJAX handling set-up below)
+                            $("#edit_share_form").submit();
+                            $( this ).dialog( "close" );
+                        },
+                        "Cancel": function() {
+                            console.log("CLOSE");
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                $('#edit_share_form').ajaxForm({
+                    success: function(data) {
+                        $("#edit_share_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
+                        // update the UI
+                        console.log("OK");
+                        loadMetadataPanel("{% url load_metadata_details c_type='share' c_id=manager.share.id %}");
+                    }
+                });
             });
 
 
@@ -133,93 +162,26 @@
     <div id="annotation_tabs" class="ui-tabs">
         <ul class="tabslist">
             <li><a href="#annotation_tab">{% trans "General" %}</a></li>
-            {% if manager.image %}
-                <li><a id='acquisition' href="#metadata_tab">{% trans "Acquisition" %}</a></li>                
-                <li><a id='preview' href="#preview_tab">{% trans "Preview" %}</a></li>
-            {% endif %}
         </ul>
         <div class="clear"></div>        
         
-        {% if manager.image %}
-        <!-- VIEWER "Preview"-->
-        <div id="preview_tab">
-            <a id="preview-link" href="{% if manager.getShareId %}{% url load_metadata_preview manager.image.id manager.getShareId %}{% else %}{% url load_metadata_preview manager.image.id %}{% endif %}" style='display:none'>Preview</a>
-            <img src="{% static "common/image/spinner.gif" %}"/>
-        </div>
-        {% endif %}    
-        
-        <!-- METADATA "Acquisition" TAB  - only show for images -->
-        {% if manager.image %}
-        <div id="metadata_tab">
-            <!-- content is loaded by ajax when this tab is first displayed -->
-            <a id="acquisition-link" href="{% if manager.getShareId %}{% url load_metadata_acquisition 'image' manager.image.id manager.getShareId %}{% else %}{% url load_metadata_acquisition 'image' manager.image.id %}{% endif %}" style='display:none' >Acquisition</a>
-            <img src="{% static "common/image/spinner.gif" %}"/>
-        </div>
-        {% endif %}
         
         
         {% if not manager.tag %}
         <!-- ANNOTATIONS "General" -->
         <div id="annotation_tab">
-            {% if manager.image %}            
-            <h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>
-            
-            <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>    
-            <!-- open-image link -->
-            <div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% if manager.getShareId %}{% url web_image_viewer manager.getShareId manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')"><img id="{{ manager.image.id }}" src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
-                    
-            <div class="description">
-                <span id='image_desc'>{{ manager.image.description|default_if_none:"no description"|linebreaks }}</span>
-            </div>
-            <table>                    
-                {% if not manager.image.isOwned %}
-                <tr>
-                    <th>Owner:</th>
-                    <td id='owner_fullname'>{{ manager.image.getOwner.getFullName }}</td>                    
-                </tr>
-                {% endif %}
-                <tr>
-                    <th>Acquisition Date:</th>
-                    <td id='acqu_date'>{{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
-                </tr>
-                <tr>
-                    <th>Imported Date:</th>
-                    <td id='import_date'>{{ manager.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
-                </tr>
-                <tr>
-                    <th>Dimensions (XY):</th>
-                    <td id='dims_xy'>{{ manager.image.getSizeX }} x {{ manager.image.getSizeY }}</td>
-                </tr>
-                <tr>
-                    <th>Pixels Type:</th>
-                    <td id='pixels_type'>{{ manager.image.getPixelsType }}</td>
-                </tr>
-                <tr>
-                    <th>Pixels Size (XYZ) (&#181m):</th>
-                    <td id='pixels_size'>
-                        <div class='tooltip'>{{ manager.image.getPixelSizeX|floatformat:4 }} x {{ manager.image.getPixelSizeY|floatformat:4 }} 
-                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ|floatformat:4 }} {% endif %}
-                        </div>
-                        <span style='display:none'>{{ manager.image.getPixelSizeX }} x {{ manager.image.getPixelSizeY }}
-                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ }} {% endif %}
-                        </span>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Z-sections/Timepoints:</th>
-                    <td id='dims_zt'>{{ manager.image.getSizeZ }} x {{ manager.image.getSizeT }}</td>
-                </tr>
-                <tr>
-                    <th>Channels:</th>
-                    <td id='channel_names'>
-                    {% if manager.image.getChannels %}{% for c in manager.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
-                    </td>
-                </tr>
-            </table>
-            {% endif %}
     
+            <!-- hidden form for editing Share - load form via AJAX when we show dialog -->
+            <form id='edit_share_form' title="Edit Share" action="{% url manage_action_containers 'save' 'share' manager.share.id %}" 
+                    method="post" style="display:none">
+            </form>
             {% if manager.share %}
-                <h1>{{ manager.share.getShareType }} {{ manager.share.id }} {% if manager.share.isOwned %}<a href="{% url manage_action_containers "edit" "share" manager.share.id %}?url={{url}}"><img src="{% static "webclient/image/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</h1>
+                <h1>{{ manager.share.getShareType }} {{ manager.share.id }}
+                    {% if manager.share.isOwned %}
+                        <a id="edit_share" href="{% url manage_action_containers 'edit' 'share' manager.share.id %}">
+                            <img src="{% static 'webclient/image/color_line16.png' %}" alt="e" title="Edit Share"/>
+                        </a>
+                    {% endif %}</h1>
                 
                 <div class="description">
                     {{ manager.share.message|default_if_none:""|sharewikify|safe|linebreaks }}
@@ -259,10 +221,9 @@
                         </td>
                     </tr>
                 </table>
-            {% endif %}
+            
         
             <!-- ANNOTATIONS -->
-            {% if manager.share %}
             <h1>{% trans "Annotations" %}</h1>
             
             <table>
