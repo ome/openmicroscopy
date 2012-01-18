@@ -48,7 +48,7 @@ import pojos.GroupData;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class AdminServiceTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 	
 	/** The password of the user. */
