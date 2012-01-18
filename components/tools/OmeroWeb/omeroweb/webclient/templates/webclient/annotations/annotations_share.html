@@ -80,11 +80,9 @@
                 // Edit share: launch dialog with edit-share form
                 $("#edit_share").click(function(){
                     var edit_share_url = $(this).attr('href');
-                    console.log(edit_share_url);
                     $("#edit_share_form").dialog("open");
                     // load form via AJAX...
                     $("#edit_share_form").load(edit_share_url, function(){
-                        console.log("set up datepicker");
                         $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
                     });
                     return false;
@@ -103,7 +101,6 @@
                             $( this ).dialog( "close" );
                         },
                         "Cancel": function() {
-                            console.log("CLOSE");
                             $( this ).dialog( "close" );
                         }
                     }
@@ -112,7 +109,6 @@
                     success: function(data) {
                         $("#edit_share_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
                         // update the UI
-                        console.log("OK");
                         loadMetadataPanel("{% url load_metadata_details c_type='share' c_id=manager.share.id %}");
                     }
                 });
