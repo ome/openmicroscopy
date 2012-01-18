@@ -98,6 +98,7 @@ public class ProjectionTest extends AbstractManagedContextTest {
         FileAnnotation fa = new FileAnnotation();
         fa.setNs("OMIT");
         LongAnnotation la = new LongAnnotation();
+        la.setNs("");
         i.linkAnnotation(fa);
         i.linkAnnotation(la);
         i = iUpdate.saveAndReturnObject(i);
@@ -109,6 +110,6 @@ public class ProjectionTest extends AbstractManagedContextTest {
                 "group by i.id", null);
         Object[] values = rv.get(0);
         assertEquals(i.getId(), values[0]);
-        assertEquals(1, values[1]);
+        assertEquals((long) 1, values[1]);
     }
 }
