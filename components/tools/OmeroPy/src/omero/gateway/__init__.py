@@ -705,16 +705,23 @@ class BlitzObjectWrapper (object):
 
     def removeAnnotations (self, ns):
         """
-        Uses updateService to delete annotations, with specified ns, and their links on the object
+        Uses the delete service to delete annotations, with a specified ns,
+        and their links on the object and any other objects. Will raise a
+        L{omero.LockTimeout} if the annotation removal has not finished in
+        5 seconds.
         
         @param ns:      Namespace
         @type ns:       String
         """
+        ids = list()
         for al in self._getAnnotationLinks(ns=ns):
             a = al.child
-            update = self._conn.getUpdateService()
-            update.deleteObject(al)
-            update.deleteObject(a)
+            ids.append(a.id.val)
+            handle = self._conn.deleteObjects('/Annotation', ids)
+            callback = omero.callbacks.DeleteCallbackI(self._conn.c, handle)
+            # Maximum wait time 5 seconds, will raise a LockTimeout if the
+            # delete has not finished by then.
+            callback.loop(10, 500)
         self._obj.unloadAnnotationLinks()        
     
     # findAnnotations(self, ns=[])
