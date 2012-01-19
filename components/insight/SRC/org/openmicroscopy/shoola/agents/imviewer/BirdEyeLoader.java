@@ -31,12 +31,8 @@ import java.util.Set;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
-import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import pojos.ImageData;
@@ -72,21 +68,6 @@ public class BirdEyeLoader
     
     /** The ratio by which to scale the image down.*/
     private double ratio;
-    
-    /**
-     * Creates a new instance.
-     * 
-     * @param viewer	The view this loader is for.
-     * 					Mustn't be <code>null</code>.
-     * @param image	  	The image to handle.
-     */
-	public BirdEyeLoader(ImViewer viewer, ImageData image)
-	{
-		super(viewer);
-		if (image == null)
-			throw new IllegalArgumentException("No image to load.");
-		this.image = image;
-	}
 	
     /**
      * Creates a new instance.
@@ -115,16 +96,8 @@ public class BirdEyeLoader
      */
     public void load()
     {
-    	if (plane != null) {
-    		handle = ivView.render(image.getDefaultPixels().getId(),
-    				plane, false, true, this);
-    	} else {
-        	Set<Long> ids = new HashSet<Long>();
-        	ids.add(ImViewerAgent.getUserDetails().getId());
-        	handle = mhView.loadThumbnails(image, ids, 
-        			Factory.THUMB_DEFAULT_WIDTH,
-        			Factory.THUMB_DEFAULT_HEIGHT, this);
-    	}
+    	handle = ivView.render(image.getDefaultPixels().getId(),
+				plane, false, true, this);
     }
     
     /**
@@ -153,28 +126,12 @@ public class BirdEyeLoader
     }
     
     /** 
-     * Feeds the tiles back to the viewer, as they arrive. 
-     * @see DataBrowserLoader#update(DSCallFeedbackEvent)
-     */
-    /*
-    public void update(DSCallFeedbackEvent fe) 
-    {
-        if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-        if (plane == null) {
-	        ThumbnailData td = (ThumbnailData) fe.getPartialResult();
-	        if (td != null)
-	        	viewer.setBirdEyeView(td.getThumbnail());
-        }
-    }
-    */
-    /** 
      * Feeds the result back to the viewer. 
      * @see DataLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        System.err.println(result);
         BufferedImage image = (BufferedImage) result;
         if (image != null && ratio != 1)
         	image = Factory.magnifyImage(ratio, image);
