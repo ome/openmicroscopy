@@ -742,7 +742,20 @@ omero.version=${omero.version}
     </target>
 
     <target name="version">
-        <echo>${omero.version}-ice${versions.ice_lib}</echo>
+        <trycatch>
+            <try>
+                <git command="describe" output="version.describe" failonerror="true">
+                    <args>
+                        <arg line="--dirty"/>
+                    </args>
+                </git>
+                <echo>${version.describe}-ice${versions.ice_lib}</echo>
+            </try>
+            <catch>
+                <echo>UNKNOWN-ice${versions.ice_lib}</echo>
+            </catch>
+        </trycatch>
+
     </target>
 
 </project>

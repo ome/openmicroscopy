@@ -37,7 +37,7 @@
         <sequential>
             <ant antfile="${basedir}/build/build.xml" inheritAll="false" inheritRefs="false" target="@{target}">
                 <property name="dont.run.tests" value="true"/>
-                <property name="omero.display_version" value="${omero.display_version}"/>
+                <property name="omero.display_version" value="${omero.version}"/>
             </ant>
         </sequential>
     </macrodef>
