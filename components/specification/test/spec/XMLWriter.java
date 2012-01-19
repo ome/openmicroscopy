@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package integration;
+package spec;
 
 //Java imports
 import java.io.ByteArrayOutputStream;
