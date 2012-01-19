@@ -537,7 +537,7 @@ class ImViewerModel
 		initialize(bounds, separateWindow);
 		numberOfRows = 1;
 		numberOfColumns = 1;
-		initializeMetadataViewer();
+		//initializeMetadataViewer();
 		if (getImage().getDefaultPixels() != null) {
 			currentPixelsID = getImage().getDefaultPixels().getId();
 		}
@@ -2043,6 +2043,7 @@ class ImViewerModel
 	 */
 	void setImageData(ImageData image)
 	{
+		state = ImViewer.LOADING_RND;
 		this.image = image;
 		initializeMetadataViewer();
 		currentPixelsID = image.getDefaultPixels().getId();
@@ -2532,8 +2533,8 @@ class ImViewerModel
 			n++;
 		}
 		pDef.region = new RegionDef(0, 0, tiledImageSizeX, tiledImageSizeY);
-		rnd.setSelectedResolutionLevel(0);
-		BufferedImage image = rnd.renderPlane(pDef);
+		//rnd.setSelectedResolutionLevel(0);
+		//BufferedImage image = rnd.renderPlane(pDef);
 		double ratio = 1;
 		w = tiledImageSizeX;
 		h = tiledImageSizeY;
@@ -2543,6 +2544,11 @@ class ImViewerModel
 			if (w >= h) ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/w;
 			else ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/h;
 		}
+		state = ImViewer.LOADING_BIRD_EYE_VIEW;
+		BirdEyeLoader loader = new BirdEyeLoader(component, getImage(), pDef,
+				ratio);
+		loader.load();
+		/*
 		if (image != null) {
 			BufferedImage newImage;
 			if (ratio != 1) newImage = Factory.magnifyImage(ratio, image);
@@ -2552,7 +2558,8 @@ class ImViewerModel
 			BirdEyeLoader loader = new BirdEyeLoader(component, getImage());
 			loader.load();
 		}
-		rnd.setSelectedResolutionLevel(level);
+		*/
+		//rnd.setSelectedResolutionLevel(level);
 	}
 
 	/**

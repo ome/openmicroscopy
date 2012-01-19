@@ -887,15 +887,25 @@ class ImViewerControl
 				view.dispose();
 				historyState = state;
 				break;
+			case ImViewer.LOADING_RND:
+			case ImViewer.LOADING_BIRD_EYE_VIEW:
+				//view.onStateChange(false);
+				window = view.getLoadingWindow();
+				if (!window.isVisible())
+					UIUtilities.centerAndShow(window);
+				break;
 			case ImViewer.LOADING_IMAGE:
 				if (historyState == ImViewer.LOADING_METADATA)
 					view.getLoadingWindow().setVisible(false);
 				view.onStateChange(false);
+				view.getLoadingWindow().setVisible(false);
+				/*
 				window = view.getLoadingWindow();
 				if (!window.isVisible())
 					UIUtilities.centerAndShow(window);
+					*/
 				historyState = state;
-				break;  
+				break;
 			case ImViewer.PROJECTING:
 			case ImViewer.PROJECTION_PREVIEW:
 			case ImViewer.PASTING:
@@ -913,6 +923,7 @@ class ImViewerControl
 				}
 				break;
 			case ImViewer.LOADING_TILES:
+				view.getLoadingWindow().setVisible(false);
 				view.onStateChange(false);
 				break;
 			case ImViewer.CHANNEL_MOVIE:
@@ -961,7 +972,7 @@ class ImViewerControl
 						(Boolean) entry.getValue());
 			}
 		} else if (LoadingWindow.CANCEL_LOADING_PROPERTY.equals(pName)) {
-			model.cancelRendering();
+			model.cancelInit();
 		} else if (MetadataViewer.RENDER_PLANE_PROPERTY.equals(pName)) {
 			model.renderXYPlane();
 		} else if (MetadataViewer.RND_LOADED_PROPERTY.equals(pName)) {

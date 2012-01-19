@@ -92,7 +92,7 @@ public class LoadingWindow
     private void initComponents()
     {
         progressBar = new JProgressBar();
-        status = new JLabel("Rendering...");
+        status = new JLabel("Loading...");
         progressBar.setIndeterminate(true);
         cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ActionListener() {
@@ -168,7 +168,7 @@ public class LoadingWindow
      * @param s The message to display.
      */
     public void setStatus(String s) { status.setText(s); }
-    
+
     /**
      * Sets the value of the progress bar.
      * 

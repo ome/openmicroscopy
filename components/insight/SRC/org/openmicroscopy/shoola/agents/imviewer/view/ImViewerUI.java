@@ -1101,6 +1101,7 @@ class ImViewerUI
 	{
 		super(title);
 		loadingWindow = new LoadingWindow(this);
+		loadingWindow.setTitle("Retrieving Image Settings");
 		defaultIndex = UnitBarSizeAction.DEFAULT_UNIT_INDEX;
 		displayMode = NEUTRAL;
 		bigImageMagnification = 1.0;
@@ -1305,10 +1306,12 @@ class ImViewerUI
 		//TODO
 		//model.getRenderer().onStateChange(b);
 		model.getBrowser().onStateChange(b);
-		tabs.setEnabled(b);
-		enableSliders(b);
-		controlPane.onStateChange(b); 
-		toolBar.onStateChange(b); 
+		if (tabs != null) {
+			tabs.setEnabled(b);
+			enableSliders(b);
+			controlPane.onStateChange(b); 
+			toolBar.onStateChange(b); 
+		}
 	}
 	
 	/** Sets the default text of the status bar. */

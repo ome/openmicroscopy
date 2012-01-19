@@ -627,8 +627,11 @@ class ImViewerComponent
 				*/
 				if (!model.isImageLoaded()) {
 					model.fireImageLoading();
-					fireStateChange();
+				} else {
+					model.setState(ImViewer.LOADING_IMAGE_DATA);
+					setImageData(model.getImage());
 				}
+				fireStateChange();
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
@@ -1076,7 +1079,7 @@ class ImViewerComponent
 				return;
 		} 
 		if (model.isBigImage()) {
-			model.fireBirdEyeViewRetrieval();
+			//model.fireBirdEyeViewRetrieval();
 			model.resetTiles();
 			loadTiles(model.getBrowser().getVisibleRectangle());
 			return;
@@ -2831,6 +2834,26 @@ class ImViewerComponent
 	 */
 	public boolean isNumerousChannel() { return model.isNumerousChannel(); }
 
+	private void buildView()
+	{
+		int index = UnitBarSizeAction.getDefaultIndex(5*getPixelsSizeX());
+		setUnitBarSize(UnitBarSizeAction.getValue(index));
+		view.setDefaultScaleBarMenu(index);
+		colorModel = model.getColorModel();
+		view.buildComponents();
+		view.onRndLoaded();
+		if (model.isSeparateWindow()) {
+			view.setOnScreen();
+			view.toFront();
+			view.requestFocusInWindow();
+		} else {
+			postViewerCreated(true, false);;
+		}
+		if (ImViewerAgent.isFastConnection())
+			model.firePlaneInfoRetrieval();
+		view.setLeftStatus();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#onRndLoaded(boolean)
@@ -2840,33 +2863,18 @@ class ImViewerComponent
 		//if (model.isNumerousChannel()) model.setForLifetime();
 		model.onRndLoaded();
 		if (!reload) {
-			int index = UnitBarSizeAction.getDefaultIndex(5*getPixelsSizeX());
-			setUnitBarSize(UnitBarSizeAction.getValue(index));
-			view.setDefaultScaleBarMenu(index);
-			colorModel = model.getColorModel();
-			view.buildComponents();
-			view.onRndLoaded();
-			if (model.isSeparateWindow()) {
-				view.setOnScreen();
-				view.toFront();
-				view.requestFocusInWindow();
-			} else {
-				postViewerCreated(true, false);;
+			if (model.isBigImage()) {
+				model.fireBirdEyeViewRetrieval();
+				fireStateChange();
+				return;
 			}
-			if (ImViewerAgent.isFastConnection())
-				model.firePlaneInfoRetrieval();
-			view.setLeftStatus();
+			buildView();
 		} else {
 			//TODO
 			//clean history, reset UI element
 			model.resetHistory();
 			view.switchRndControl();
 		}
-		
-		/*
-		if (model.isBigImage()) { //bird eye loaded.
-			model.fireBirdEyeViewRetrieval();
-		}*/
 		renderXYPlane();
 		fireStateChange();
 	}
@@ -3216,8 +3224,12 @@ class ImViewerComponent
 	 */
 	public void setBirdEyeView(BufferedImage image)
 	{
-		if (model.getState() == DISCARDED) 
+		if (model.getState() != LOADING_BIRD_EYE_VIEW) 
 			return;
+		if (!view.isVisible()) {
+			buildView();
+			renderXYPlane();
+		}
 		model.getBrowser().setBirdEyeView(image);
 	}
 	
@@ -3340,14 +3352,21 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#cancelRendering()
+	 * @see ImViewer#cancelInit()
 	 */
-	public void cancelRendering()
+	public void cancelInit()
 	{
-		if (model.getState() == LOADING_IMAGE) {
-			model.cancelRendering();
-			view.getLoadingWindow().setVisible(false);
-			fireStateChange();
+		switch (model.getState()) {
+			case LOADING_RND:
+				if (model.isBigImage()) discard();
+				else {
+					model.cancelRendering();
+					view.getLoadingWindow().setVisible(false);
+					fireStateChange();
+				}
+				break;
+			case LOADING_BIRD_EYE_VIEW:
+				discard();
 		}
 	}
 	

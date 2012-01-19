@@ -448,7 +448,7 @@ class OmeroImageServiceImpl
 		try {
 			//if (!largeImage)
 				return PixelsServicesFactory.render(context, 
-						Long.valueOf(pixelsID), pDef, asTexture);
+						Long.valueOf(pixelsID), pDef, asTexture, largeImage);
 			/*
 			List<Long> ids = new ArrayList<Long>();
 			ids.add(pixelsID);

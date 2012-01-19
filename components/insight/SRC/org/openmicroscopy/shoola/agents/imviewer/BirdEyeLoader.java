@@ -23,12 +23,15 @@
 package org.openmicroscopy.shoola.agents.imviewer;
 
 //Java imports
+import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.romio.PlaneDef;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -64,6 +67,12 @@ public class BirdEyeLoader
     /** The object the image is for. */
     private ImageData	image;
     
+    /** Reference to the plane.*/
+    private PlaneDef	plane;
+    
+    /** The ratio by which to scale the image down.*/
+    private double ratio;
+    
     /**
      * Creates a new instance.
      * 
@@ -79,16 +88,43 @@ public class BirdEyeLoader
 		this.image = image;
 	}
 	
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer	The view this loader is for.
+     * 					Mustn't be <code>null</code>.
+     * @param image	  	The image to handle.
+     * @param ratio     The ratio by with to scale the image.
+     */
+	public BirdEyeLoader(ImViewer viewer, ImageData image, 
+			PlaneDef plane, double ratio)
+	{
+		super(viewer);
+		if (image == null)
+			throw new IllegalArgumentException("No image to load.");
+		this.image = image;
+		if (plane == null)
+			throw new IllegalArgumentException("No plane to load.");
+		this.plane = plane;
+		this.ratio = ratio;
+	}
+	
 	/**
      * Loads the image.
      * @see DataLoader#load()
      */
     public void load()
     {
-    	Set<Long> ids = new HashSet<Long>();
-    	ids.add(ImViewerAgent.getUserDetails().getId());
-    	handle = mhView.loadThumbnails(image, ids, Factory.THUMB_DEFAULT_WIDTH,
-    			Factory.THUMB_DEFAULT_HEIGHT, this);
+    	if (plane != null) {
+    		handle = ivView.render(image.getDefaultPixels().getId(),
+    				plane, false, true, this);
+    	} else {
+        	Set<Long> ids = new HashSet<Long>();
+        	ids.add(ImViewerAgent.getUserDetails().getId());
+        	handle = mhView.loadThumbnails(image, ids, 
+        			Factory.THUMB_DEFAULT_WIDTH,
+        			Factory.THUMB_DEFAULT_HEIGHT, this);
+    	}
     }
     
     /**
@@ -120,12 +156,29 @@ public class BirdEyeLoader
      * Feeds the tiles back to the viewer, as they arrive. 
      * @see DataBrowserLoader#update(DSCallFeedbackEvent)
      */
+    /*
     public void update(DSCallFeedbackEvent fe) 
     {
         if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-        ThumbnailData td = (ThumbnailData) fe.getPartialResult();
-        if (td != null)
-        	viewer.setBirdEyeView(td.getThumbnail());
+        if (plane == null) {
+	        ThumbnailData td = (ThumbnailData) fe.getPartialResult();
+	        if (td != null)
+	        	viewer.setBirdEyeView(td.getThumbnail());
+        }
+    }
+    */
+    /** 
+     * Feeds the result back to the viewer. 
+     * @see DataLoader#handleResult(Object)
+     */
+    public void handleResult(Object result)
+    {
+        if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
+        System.err.println(result);
+        BufferedImage image = (BufferedImage) result;
+        if (image != null && ratio != 1)
+        	image = Factory.magnifyImage(ratio, image);
+        viewer.setBirdEyeView(image);
     }
 
 }
