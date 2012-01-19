@@ -1101,7 +1101,7 @@ class ImViewerUI
 	{
 		super(title);
 		loadingWindow = new LoadingWindow(this);
-		loadingWindow.setTitle("Retrieving Image Settings");
+		loadingWindow.setTitle("Opening Image Viewer...");
 		defaultIndex = UnitBarSizeAction.DEFAULT_UNIT_INDEX;
 		displayMode = NEUTRAL;
 		bigImageMagnification = 1.0;

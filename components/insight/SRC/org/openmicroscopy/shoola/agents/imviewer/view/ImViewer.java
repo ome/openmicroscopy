@@ -1251,4 +1251,12 @@ public interface ImViewer
 	/** Cancels the rendering of the image.*/
 	void cancelInit();
 	
+	/**
+	 * Returns <code>true</code> if the image is compressed,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isCompressed();
+
 }

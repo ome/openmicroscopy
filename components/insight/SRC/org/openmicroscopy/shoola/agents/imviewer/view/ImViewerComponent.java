@@ -86,6 +86,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.SaveEventBox;
@@ -3368,6 +3369,15 @@ class ImViewerComponent
 			case LOADING_BIRD_EYE_VIEW:
 				discard();
 		}
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#isCompressed()
+	 */
+	public boolean isCompressed()
+	{
+		return model.getCompressionLevel() != RenderingControl.UNCOMPRESSED;
 	}
 	
 	/** 
