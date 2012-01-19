@@ -717,11 +717,11 @@ class BlitzObjectWrapper (object):
         for al in self._getAnnotationLinks(ns=ns):
             a = al.child
             ids.append(a.id.val)
-            handle = self._conn.deleteObjects('/Annotation', ids)
-            callback = omero.callbacks.DeleteCallbackI(self._conn.c, handle)
-            # Maximum wait time 5 seconds, will raise a LockTimeout if the
-            # delete has not finished by then.
-            callback.loop(10, 500)
+        handle = self._conn.deleteObjects('/Annotation', ids)
+        callback = omero.callbacks.DeleteCallbackI(self._conn.c, handle)
+        # Maximum wait time 5 seconds, will raise a LockTimeout if the
+        # delete has not finished by then.
+        callback.loop(10, 500)
         self._obj.unloadAnnotationLinks()        
     
     # findAnnotations(self, ns=[])
