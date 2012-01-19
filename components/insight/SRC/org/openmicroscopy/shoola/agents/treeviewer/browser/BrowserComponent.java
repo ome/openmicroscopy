@@ -1109,11 +1109,15 @@ class BrowserComponent
         countItems(null);
         countExperimenterDataInFolders();
         model.getParentModel().setStatus(false, "", true);
-        //Visit the tree and 
-        ParentVisitor visitor = new ParentVisitor();
-        accept(visitor, ParentVisitor.TREEIMAGE_SET_ONLY);
-        EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-        bus.post(new ExperimenterLoadedDataEvent(visitor.getData()));
+        //Visit the tree and
+        switch(model.getBrowserType()) {
+        	case Browser.PROJECTS_EXPLORER:
+        	case Browser.SCREENS_EXPLORER:
+        		ParentVisitor visitor = new ParentVisitor();
+        		accept(visitor, ParentVisitor.TREEIMAGE_SET_ONLY);
+        		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+        		bus.post(new ExperimenterLoadedDataEvent(visitor.getData()));
+        }
         fireStateChange();
 	}
 	
@@ -1394,10 +1398,14 @@ class BrowserComponent
 				}	
 			}
         }
-		ParentVisitor visitor = new ParentVisitor();
-		accept(visitor, ParentVisitor.TREEIMAGE_SET_ONLY);
-		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-		bus.post(new ExperimenterLoadedDataEvent(visitor.getData()));
+		switch(model.getBrowserType()) {
+	    	case Browser.PROJECTS_EXPLORER:
+	    	case Browser.SCREENS_EXPLORER:
+	    		ParentVisitor visitor = new ParentVisitor();
+	    		accept(visitor, ParentVisitor.TREEIMAGE_SET_ONLY);
+	    		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+	    		bus.post(new ExperimenterLoadedDataEvent(visitor.getData()));
+    	}
 		fireStateChange(); 
 	}
 

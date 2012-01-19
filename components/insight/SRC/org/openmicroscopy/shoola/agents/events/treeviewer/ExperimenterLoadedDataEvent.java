@@ -31,8 +31,7 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.DataObject;
-import pojos.ExperimenterData;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
@@ -47,14 +46,14 @@ public class ExperimenterLoadedDataEvent
 {
 
 	/** Map hosting the data objects owned by users displayed.*/
-	private Map<Long, List<DataObject>> data;
+	private Map<Long, List<TreeImageDisplay>> data;
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param data The data to store.
 	 */
-	public ExperimenterLoadedDataEvent(Map<Long, List<DataObject>> data)
+	public ExperimenterLoadedDataEvent(Map<Long, List<TreeImageDisplay>> data)
 	{
 		this.data = data;
 	}
@@ -64,6 +63,6 @@ public class ExperimenterLoadedDataEvent
 	 * 
 	 * @return See above.
 	 */
-	public Map<Long, List<DataObject>> getData() { return data; }
+	public Map<Long, List<TreeImageDisplay>> getData() { return data; }
 	
 }

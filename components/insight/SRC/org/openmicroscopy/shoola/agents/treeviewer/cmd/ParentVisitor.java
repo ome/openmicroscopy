@@ -57,12 +57,12 @@ public class ParentVisitor
 {
 	
 	/** Map hosting the data objects owned by users displayed.*/
-	private Map<Long, List<DataObject>> data;
+	private Map<Long, List<TreeImageDisplay>> data;
 	
 	/** Creates a new instance.*/
 	public ParentVisitor()
 	{
-		data = new HashMap<Long, List<DataObject>>();
+		data = new HashMap<Long, List<TreeImageDisplay>>();
 	}
 	
     /**
@@ -84,12 +84,12 @@ public class ParentVisitor
            Object ho = parent.getUserObject();
            if (ho instanceof ExperimenterData) {
         	   ExperimenterData exp = (ExperimenterData) ho;
-        	   List<DataObject> l = data.get(exp.getId());
+        	   List<TreeImageDisplay> l = data.get(exp.getId());
         	   if (l == null) {
-        		   l = new ArrayList<DataObject>();
+        		   l = new ArrayList<TreeImageDisplay>();
         		   data.put(exp.getId(), l);
         	   }
-        	   l.add((DataObject) uo);
+        	   l.add(node);
            }
         }
     }
@@ -99,6 +99,6 @@ public class ParentVisitor
 	 * 
 	 * @return See above.
 	 */
-	public Map<Long, List<DataObject>> getData() { return data; }
+	public Map<Long, List<TreeImageDisplay>> getData() { return data; }
 
 }
