@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
+import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -697,6 +698,11 @@ class TreeViewerComponent
 			model.getMetadataViewer().setSelectionMode(false);
 			firePropertyChange(SELECTED_BROWSER_PROPERTY, oldBrowser, browser);
 		}
+		Browser b = model.getSelectedBrowser();
+		int t = -1;
+		if (b != null) t = b.getBrowserType();
+		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+		bus.post(new BrowserSelectionEvent(t));
 		view.updateMenuItems();
 	}
 

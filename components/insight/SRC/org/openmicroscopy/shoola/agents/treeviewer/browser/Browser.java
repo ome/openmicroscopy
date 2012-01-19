@@ -39,6 +39,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
@@ -106,37 +107,43 @@ public interface Browser
      * Indicates that the browser corresponds to an <code>Hierarchy</code>
      * explorer.
      */
-    public static final int     	PROJECTS_EXPLORER = 100;
+    public static final int     	PROJECTS_EXPLORER =
+    	BrowserSelectionEvent.PROJECT_TYPE;
     
     /** 
      * Indicates that the browser corresponds to an <code>Images</code>
      * explorer.
      */
-    public static final int     	IMAGES_EXPLORER = 101;
+    public static final int     	IMAGES_EXPLORER =
+    	BrowserSelectionEvent.IMAGE_TYPE;
     
     /** 
      * Indicates that the browser corresponds to a <code>Tags</code>
      * explorer.
      */
-    public static final int     	TAGS_EXPLORER = 102;
+    public static final int     	TAGS_EXPLORER =
+    	BrowserSelectionEvent.TAG_TYPE;
    
     /** 
      * Indicates that the browser corresponds to a <code>Screen</code>
      * explorer.
      */
-    public static final int     	SCREENS_EXPLORER = 103;
+    public static final int     	SCREENS_EXPLORER =
+    	BrowserSelectionEvent.SCREEN_TYPE;
     
     /** 
      * Indicates that the browser corresponds to a <code>Files</code>
      * (saved on server) explorer.
      */
-    public static final int     	FILES_EXPLORER = 104;
+    public static final int     	FILES_EXPLORER =
+    	BrowserSelectionEvent.FILE_TYPE;
     
     /** 
      * Indicates that the browser corresponds to a <code>Files</code>
      * explorer.
      */
-    public static final int     	FILE_SYSTEM_EXPLORER = 105;
+    public static final int     	FILE_SYSTEM_EXPLORER =
+    	BrowserSelectionEvent.FILE_SYSTEM_TYPE;
     
     /** 
      * Indicates that the browser corresponds to a <code>Shares</code>
@@ -148,7 +155,8 @@ public interface Browser
      * Indicates that the browser corresponds to an Administration
      * explorer.
      */
-    public static final int     	ADMIN_EXPLORER = 107;
+    public static final int     	ADMIN_EXPLORER =
+    	BrowserSelectionEvent.ADMIN_TYPE;
     
     /** Indicates to sort the nodes by date. */
     public static final int         SORT_NODES_BY_DATE = 300;

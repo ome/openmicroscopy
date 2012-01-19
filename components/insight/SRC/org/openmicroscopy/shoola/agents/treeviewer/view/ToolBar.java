@@ -73,6 +73,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
 
@@ -172,22 +173,41 @@ class ToolBar
         UIUtilities.unifiedButtonLookAndFeel(b);
         //bar.add(b);
         
-        bar.add(new JSeparator(JSeparator.VERTICAL));
+        
        
         TreeViewerAction a = controller.getAction(TreeViewerControl.MANAGER);
         b = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         b.addMouseListener((ManagerAction) a);
         bar.add(b);
+        bar.add(new JSeparator(JSeparator.VERTICAL));
+        //Now register the agent if any
+        TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
+        List<JComponent> l = tb.getToolBarEntries(TaskBar.AGENTS);
+        if (l != null) {
+        	Iterator<JComponent> i = l.iterator();
+        	JComponent comp;
+        	while (i.hasNext()) {
+				comp = i.next();
+				UIUtilities.unifiedButtonLookAndFeel(comp);
+		        bar.add(comp);
+			}
+        	/*
+        	b = new JButton(controller.getAction(
+            		TreeViewerControl.IMPORT_NO_SELECTION));
+            UIUtilities.unifiedButtonLookAndFeel(b);
+            bar.add(b);
+            */
+            bar.add(new JSeparator(JSeparator.VERTICAL));
+        }
+        
+        /*
         b = new JButton(controller.getAction(
         		TreeViewerControl.EDITOR_NO_SELECTION));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
-        b = new JButton(controller.getAction(
-        		TreeViewerControl.IMPORT_NO_SELECTION));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
-        bar.add(new JSeparator(JSeparator.VERTICAL));
+        */
+        
         fullScreen = new JToggleButton(
         		controller.getAction(TreeViewerControl.FULLSCREEN));
         //UIUtilities.unifiedButtonLookAndFeel(button);

@@ -33,6 +33,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -72,10 +73,11 @@ public interface Importer
 	public static final int     PERSONAL_MENU = 100;
 	
 	/** Indicates that the type is for project. */
-	public static final int		PROJECT_TYPE = 0;
+	public static final int		PROJECT_TYPE = 
+		BrowserSelectionEvent.PROJECT_TYPE;
 	
 	/** Indicates that the type is for Screening data. */
-	public static final int		SCREEN_TYPE = 1;
+	public static final int		SCREEN_TYPE = BrowserSelectionEvent.SCREEN_TYPE;
 	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
