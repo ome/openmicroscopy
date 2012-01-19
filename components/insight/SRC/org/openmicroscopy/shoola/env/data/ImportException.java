@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -82,6 +83,8 @@ public class ImportException
 				return "Missing ome-xml.jar required to read OME-TIFF files";
 			String[] s = message.split(":");
 			if (s.length > 0) return s[0];
+		} else if (cause instanceof IOException) {
+			
 		}
 		return null;
 	}
@@ -137,6 +140,16 @@ public class ImportException
 			return COMPRESSION;
 		} else if (cause instanceof FormatException) {
 			return MISSING_LIBRARY;
+		} else if (cause instanceof IOException) {
+			String message = cause.getMessage();
+			if (message.contains(
+					"The specified network name is no longer available"))
+				return FILE_ON_TAPE;
+		} else if (cause.getCause() instanceof IOException) {
+			String message = cause.getCause().getMessage();
+			if (message.contains(
+					"The specified network name is no longer available"))
+				return FILE_ON_TAPE;
 		}
 		return status;
 	}
