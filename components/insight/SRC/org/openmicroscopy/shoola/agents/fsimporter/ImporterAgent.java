@@ -54,8 +54,6 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-
-import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -218,7 +216,7 @@ public class ImporterAgent
     /** Registers the agent with the tool bar.*/
 	private void register()
 	{
-		String description = "Launch the Importer.";
+		String description = "Open the Importer.";
 		TaskBar tb = registry.getTaskBar();
 		IconManager icons = IconManager.getInstance();
 		JButton b = new JButton(icons.getIcon(IconManager.IMPORT));
