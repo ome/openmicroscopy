@@ -46,10 +46,12 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.treeviewer.ExperimenterLoadedDataEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ParentVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.ContainerFinder;
@@ -66,6 +68,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
@@ -1106,6 +1109,15 @@ class BrowserComponent
         countItems(null);
         countExperimenterDataInFolders();
         model.getParentModel().setStatus(false, "", true);
+        //Visit the tree and
+        switch(model.getBrowserType()) {
+        	case Browser.PROJECTS_EXPLORER:
+        	case Browser.SCREENS_EXPLORER:
+        		ParentVisitor visitor = new ParentVisitor();
+        		accept(visitor, ParentVisitor.TREEIMAGE_SET_ONLY);
+        		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+        		bus.post(new ExperimenterLoadedDataEvent(visitor.getData()));
+        }
         fireStateChange();
 	}
 	
@@ -1386,6 +1398,14 @@ class BrowserComponent
 				}	
 			}
         }
+		switch(model.getBrowserType()) {
+	    	case Browser.PROJECTS_EXPLORER:
+	    	case Browser.SCREENS_EXPLORER:
+	    		ParentVisitor visitor = new ParentVisitor();
+	    		accept(visitor, ParentVisitor.TREEIMAGE_SET_ONLY);
+	    		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+	    		bus.post(new ExperimenterLoadedDataEvent(visitor.getData()));
+    	}
 		fireStateChange(); 
 	}
 

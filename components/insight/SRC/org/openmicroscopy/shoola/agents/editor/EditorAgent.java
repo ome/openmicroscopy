@@ -26,11 +26,14 @@ package org.openmicroscopy.shoola.agents.editor;
 //Java imports
 import java.io.File;
 import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JMenuItem;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
+import org.openmicroscopy.shoola.agents.editor.actions.RegisterAction;
 import org.openmicroscopy.shoola.agents.editor.view.AutosaveRecovery;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;
@@ -50,6 +53,7 @@ import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -302,6 +306,20 @@ public class EditorAgent
 		EditorFactory.setCopiedData(evt.getCopiedData());
 	}
 	
+	/** Registers the agent with the tool bar.*/
+	private void register()
+	{
+		TaskBar tb = registry.getTaskBar();
+		RegisterAction a = new RegisterAction();
+		//register with tool bar
+		JButton b = new JButton(a);
+		tb.addToToolBar(TaskBar.AGENTS, b);
+		//register with File menu
+		JMenuItem item = new JMenuItem(a);
+		item.setText(RegisterAction.NAME);
+		tb.addToMenu(TaskBar.FILE_MENU, item);
+	}
+	
 	 /** Creates a new instance. */
     public EditorAgent() {}
     
@@ -334,6 +352,8 @@ public class EditorAgent
         bus.register(this, CopyEvent.class);
         bus.register(this, UserGroupSwitched.class);
         bus.register(this, ReconnectedEvent.class);
+        //Register itself for the toolbar.
+        register();
     }
 
     /**

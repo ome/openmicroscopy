@@ -375,8 +375,8 @@ class ImViewerUI
 		menuBar.add(createShowViewMenu());
 		TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
 		//menuBar.add(tb.getWindowsMenu());
-		menuBar.add(tb.getWindowsMenu());
-		menuBar.add(tb.getHelpMenu());
+		menuBar.add(tb.getMenu(TaskBar.WINDOW_MENU));
+		menuBar.add(tb.getMenu(TaskBar.HELP_MENU));
 		return menuBar;
 	}
 

@@ -24,6 +24,9 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import java.util.List;
+
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -80,10 +83,7 @@ public interface TaskBar
 	
 	//NOTE: The TaskBarView uses these constants to do direct indexing.
 	//So changing these values requires a review of TaskBarView as well.  
-	
-	/** Identifies the file menu within the menu bar. */
-	//public static final int		FILE_MENU = 0;
-    
+	 
     /** 
      * Identifies the tasks menu within the menu bar.
      * Entries in this menu trigger actions related to the application
@@ -107,12 +107,38 @@ public interface TaskBar
 	/** Identifies the help menu within the menu bar. */
 	public static final int		HELP_MENU = 1;
 	
+	/** Identifies the file menu within the menu bar. */
+	public static final int		FILE_MENU = 2;
+	
 	/** Identifies the <code>Send Comment</code> menu item. */
 	public static final int		COMMENT = 100;
 	
 	/** Identifies the <code>Help content</code> menu item. */
 	public static final int		HELP_CONTENTS = 101;
     
+	/** Identifies the <code>Agents</code> tool bar. */
+	public static final int		AGENTS = 201;
+	
+	/** Identifies the <code>Agents</code> tool bar. */
+	public static final int		ANALYSIS = 202;
+	
+	/**
+	 * Adds the component to the specified toolbar, This is the way to register
+	 * to agents.
+	 * 
+	 * @param toolBarID The identifier of the tool bar.
+	 * @param entry The item to add.
+	 */
+	public void addToToolBar(int toolBarID, JComponent entry);
+	
+	/** 
+	 * Returns the collection of the entries registered for that tool bar.
+	 * 
+	 * @param toolBarID The identifier of the tool bar.
+	 * @return See above.
+	 */
+	public List<JComponent> getToolBarEntries(int toolBarID);
+	
 	/**
 	 * Adds <code>entry</code> to the specified menu.
 	 * 
@@ -149,22 +175,6 @@ public interface TaskBar
     public JMenuBar getTaskBarMenuBar();
     
     /**
-     * Returns a copy of the <code>Windows</code> menu. New items should
-     * be added using the method {@link #addToMenu(int, JMenuItem)}
-     * 
-     * @return See above.
-     */
-    public JMenu getWindowsMenu();
-    
-    /**
-     * Returns a copy of <code>Help</code> menu. New items should
-     * be added using the method {@link #addToMenu(int, JMenuItem)}
-     * 
-     * @return See above.
-     */
-    public JMenu getHelpMenu();
-    
-    /**
      * Builds and returns a copy of the menu item specified by the passed index.
      * If the passed value is not supported, a <code>null</code> value
      * is returned.
@@ -196,4 +206,12 @@ public interface TaskBar
      */
     public void sessionExpired(int index);
     
+    /**
+     * Returns the menu corresponding to the specified value or 
+     * <code>null</code>.
+     * 
+     * @param menuID The identifier of the menu.
+     * @return See above.
+     */
+    public JMenu getMenu(int menuID);
 }

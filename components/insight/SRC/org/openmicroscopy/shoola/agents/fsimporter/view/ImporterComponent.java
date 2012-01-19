@@ -221,7 +221,8 @@ class ImporterComponent
 			chooser.requestFocusInWindow();
 			view.selectChooser();
 		}
-		if (model.isMaster()) refreshContainers(type);
+		if (model.isMaster() || objects == null || objects.size() == 0)
+			refreshContainers(type);
 		//load available disk space
 		model.fireDiskSpaceLoading();
 		view.setOnScreen();
