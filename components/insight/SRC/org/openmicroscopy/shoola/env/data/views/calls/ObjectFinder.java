@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -53,10 +54,13 @@ public class ObjectFinder
 {
 
 	 /** The root nodes of the found trees. */
-    private Object		result;
+    private Object result;
     
     /** The search call. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Creates a {@link BatchCall} to retrieve the data
@@ -70,7 +74,7 @@ public class ObjectFinder
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.advancedSearchFor(searchContext);
+                result = os.advancedSearchFor(ctx, searchContext);
             }
         };
     }
@@ -90,10 +94,12 @@ public class ObjectFinder
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param searchContext The context of the search.
      */
-    public ObjectFinder(SearchDataContext searchContext)
+    public ObjectFinder(SecurityContext ctx, SearchDataContext searchContext)
     {
+    	this.ctx = ctx;
     	loadCall = searchFor(searchContext);
     }
     

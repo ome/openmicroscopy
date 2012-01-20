@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -352,7 +353,7 @@ public class DataServicesFactory
 						while (i.hasNext()) {
 							id = i.next();
 							try {
-								svc.reloadRenderingService(id);
+								//svc.reloadRenderingService(id);
 							} catch (Exception e) {
 								failure.add(id);
 							}
@@ -472,21 +473,8 @@ public class DataServicesFactory
         executor = new ScheduledThreadPoolExecutor(1);
         executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
         
-        String ldap = omeroGateway.lookupLdapAuthExperimenter(exp.getId());
-        //replace Server string in fs config
-        /*
-        Iterator k = fsConfig.keySet().iterator();
-        String value, key;
-        String regex = LookupNames.FS_HOSTNAME;
-        while (k.hasNext()) {
-        	key = (String) k.next();
-			value = fsConfig.getProperty(key);
-			value = value.replaceAll(regex, uc.getHostName());
-			fsConfig.setProperty(key, value);
-		}
-        omeroGateway.startFS(fsConfig);
-        */ 
-        registry.bind(LookupNames.USER_AUTHENTICATION, ldap);
+        //String ldap = omeroGateway.lookupLdapAuthExperimenter(exp.getId());
+        //registry.bind(LookupNames.USER_AUTHENTICATION, ldap);
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.CONNECTION_SPEED, 
         		isFastConnection(uc.getSpeedLevel()));
@@ -495,7 +483,7 @@ public class DataServicesFactory
         Set<GroupData> available;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
         try {
-        	groups = omeroGateway.getAvailableGroups(exp);
+        	groups = omeroGateway.getAvailableGroups(null, exp);
         	//Check if the current experimenter is an administrator 
         	Iterator<GroupData> i = groups.iterator();
         	GroupData g;
@@ -544,7 +532,7 @@ public class DataServicesFactory
 			agentInfo = (AgentInfo) i.next();
 			if (agentInfo.isActive()) {
 				reg = agentInfo.getRegistry();
-				reg.bind(LookupNames.USER_AUTHENTICATION, ldap);
+				//reg.bind(LookupNames.USER_AUTHENTICATION, ldap);
 				reg.bind(LookupNames.CURRENT_USER_DETAILS, exp);
 				reg.bind(LookupNames.USER_GROUP_DETAILS, available);
 				reg.bind(LookupNames.USERS_DETAILS, exps);
@@ -574,8 +562,12 @@ public class DataServicesFactory
 	 */
 	public boolean isCompatible() { return compatible; }
 	
-    /** Shuts down the connection. */
-	public void shutdown()
+    /** 
+     * Shuts down the connection.
+     * 
+     * @param ctx The security context.
+     */
+	public void shutdown(SecurityContext ctx)
     { 
 		//Need to write the current group.
 		Set groups = (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
@@ -599,7 +591,7 @@ public class DataServicesFactory
 			ScreenLogin.registerGroup(names);
 		} else ScreenLogin.registerGroup(null);
 		CacheServiceFactory.shutdown(container);
-        ((OmeroImageServiceImpl) is).shutDown();
+        ((OmeroImageServiceImpl) is).shutDown(ctx);
         omeroGateway.logout(); 
         if (executor != null) executor.shutdown();
         executor = null;
@@ -657,7 +649,7 @@ public class DataServicesFactory
 					return;
 			}
 		}
-		shutdown();
+		shutdown(null);
 		if (exit) container.exit();
 	}
 
@@ -669,7 +661,8 @@ public class DataServicesFactory
 	 */
 	public static void isSessionAlive(Registry context)
 	{
-		if (context == registry) omeroGateway.isSessionAlive();
+		//To review
+		//if (context == registry) omeroGateway.isSessionAlive();
 	}
 	
 }

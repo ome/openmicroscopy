@@ -30,6 +30,7 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -54,10 +55,13 @@ public class ExportLoader
 	public static final int	EXPORT_AS_OMETIFF = 0;
 	
 	/** Loads the specified annotations. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
     
     /** The result of the call. */
-    private Object		result;
+    private Object result;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Creates a {@link BatchCall} to export the image as XML.
@@ -73,7 +77,7 @@ public class ExportLoader
             public void doCall() throws Exception
             {
                 OmeroImageService service = context.getImageService();
-                result = service.exportImageAsOMETiff(imageID, file);
+                result = service.exportImageAsOMETiff(ctx, imageID, file);
             }
         };
     }
@@ -93,12 +97,14 @@ public class ExportLoader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
 	 * @param imageID The id of the image to export.
 	 * @param file    The file where to store the exported file.
 	 * @param index	  One of the constants defined by this class.
      */
-    public ExportLoader(long imageID, File file, int index)
+    public ExportLoader(SecurityContext ctx, long imageID, File file, int index)
     {
+    	this.ctx = ctx;
     	switch (index) {
 			case EXPORT_AS_OMETIFF:
 				loadCall = makeAsOMETiffBatchCall(file, imageID);

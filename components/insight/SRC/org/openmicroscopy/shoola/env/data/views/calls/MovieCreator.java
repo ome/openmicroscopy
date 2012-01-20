@@ -32,6 +32,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
@@ -55,10 +56,13 @@ public class MovieCreator
 {
     
     /** Loads the specified tree. */
-    private BatchCall   	loadCall;
+    private BatchCall loadCall;
 
     /** The server call-handle to the computation. */
-    private Object		callBack;
+    private Object callBack;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Creates a {@link BatchCall} to create a movie.
@@ -76,8 +80,8 @@ public class MovieCreator
             public ProcessCallback initialize() throws Exception
             {
                 OmeroImageService os = context.getImageService();
-                ScriptCallback cb = os.createMovie(imageID, pixelsID, channels, 
-                		param);
+                ScriptCallback cb = os.createMovie(ctx, imageID, pixelsID,
+                		channels, param);
                 if (cb == null) {
                 	callBack = Boolean.valueOf(false);
                 	return null;
@@ -113,14 +117,16 @@ public class MovieCreator
     /**
      * Creates a new instance.
      * 
-     * @param imageID 	The id of the image.	
-     * @param pixelsID 	The id of the pixels set.
-     * @param channels 	The channels to map.
-     * @param param 	The parameters to create the movie.
+     * @param ctx The security context.
+     * @param imageID The id of the image.
+     * @param pixelsID The id of the pixels set.
+     * @param channels The channels to map.
+     * @param param The parameters to create the movie.
      */
-	public MovieCreator(long imageID, long pixelsID, List<Integer> channels, 
-			MovieExportParam param)
+	public MovieCreator(SecurityContext ctx, long imageID, long pixelsID,
+		List<Integer> channels, MovieExportParam param)
 	{
+		this.ctx = ctx;
 		loadCall = makeBatchCall(imageID, pixelsID, channels, param);
 	}
 	

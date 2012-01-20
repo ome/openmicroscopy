@@ -35,6 +35,7 @@ import java.util.Map.Entry;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -56,10 +57,13 @@ public class PlateWellsLoader
 {
 
     /** The result of the call. */
-    private Object		result;
+    private Object result;
     
     /** Loads the specified experimenter groups. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Creates a {@link BatchCall} to retrieve the wells-wellsample-image.
@@ -85,17 +89,8 @@ public class PlateWellsLoader
 					entry = (Entry) i.next();
 					key = (Long) entry.getKey();
 					value = (Long) entry.getValue();
-					r.put(key, os.loadPlateWells(key, value, userID));
+					r.put(key, os.loadPlateWells(ctx, key, value, userID));
 				}
-            	/*
-            	Iterator<Long> i = plateIDs.iterator();
-            	long id;
-            	Map<Long, Collection> r = new HashMap<Long, Collection>();
-            	while (i.hasNext()) {
-					id = i.next();
-					r.put(id, os.loadPlateWells(id, userID));
-				}
-				*/
             	result = r;
             }
         };
@@ -116,12 +111,15 @@ public class PlateWellsLoader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param ids 	Map whose keys are the plate ID and values are the 
      * 				screen acquisition ID or <code>-1</code>.  
      * @param userID  	The id of the user.
      */
-    public PlateWellsLoader(Map<Long, Long> ids, long userID)
+    public PlateWellsLoader(SecurityContext ctx, Map<Long, Long> ids,
+    		long userID)
     {
+    	this.ctx = ctx;
     	loadCall = loadPlateWells(ids, userID);
     }
     
