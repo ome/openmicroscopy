@@ -8,6 +8,7 @@
 # General build scripts.
 
 import os
+import re
 import sys
 import time
 import subprocess
@@ -123,6 +124,15 @@ def choose_omero_version():
         p = popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         omero_version, err = p.communicate()
         omero_version = omero_version.split()[1]
+
+        # If we're not on hudson, then we don't want to force
+        # users to deal with rebuilding after each commit.
+        # Instead, drop everything except for "-DEV"
+        #
+        # See gh-67 for the discussion.
+        if not omero_build:
+            omero_version = re.sub("([-]DEV)?-\d+-g[^-]+[+]?",\
+                    "-DEV", omero_version)
         return [ "-Domero.version=%s%s" % (omero_version, omero_build) ]
     except:
         print "Error getting version for OMERO_BUILD=%s" % omero_build
