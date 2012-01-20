@@ -33,6 +33,7 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -131,16 +132,18 @@ public class ROIAnalyser
      * Computes an {@link ROIShapeStats} object for each {@link ROIShape} 
      * specified
      * 
-     * @param shapes 	The shapes to analyse.
-     * @param channels	Collection of selected channels.
-     * @return 	A map whose keys are the {@link ROIShape} objects specified 
-     * 			and whose values are a map (keys: channel index, value 
-     * 			the corresponding {@link ROIShapeStats} objects computed by 
-     * 			this method).
+     * @param ctx The security context.
+     * @param shapes The shapes to analyze.
+     * @param channels Collection of selected channels.
+     * @return A map whose keys are the {@link ROIShape} objects specified 
+     *         and whose values are a map (keys: channel index, value 
+     *         the corresponding {@link ROIShapeStats} objects computed by 
+     *         this method).
      * @throws DataSourceException  If an error occurs while retrieving plane
      *                              data from the pixels source.
      */
-    public Map analyze(ROIShape[] shapes, List channels) 
+    public Map analyze(SecurityContext ctx, ROIShape[] shapes,
+    		List channels) 
         throws DataSourceException
     {
     	if (shapes == null) throw new NullPointerException("No shapes.");
@@ -166,7 +169,7 @@ public class ROIAnalyser
     				if (checkChannel(w.intValue())) {
     					computer =  new ROIShapeStats();
         				runner.register(computer);
-        				runner.iterate(shape, points, w.intValue());
+        				runner.iterate(ctx, shape, points, w.intValue());
         				runner.remove(computer);
         				stats.put(w, computer);
     				}

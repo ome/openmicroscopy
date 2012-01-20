@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -77,19 +78,19 @@ public interface OmeroMetadataService
 {
 
 	/** Identifies that the file is of type protocol. */
-	public static final int		EDITOR_PROTOCOL = 0;
+	public static final int EDITOR_PROTOCOL = 0;
 	
 	/** Identifies that the file is of type experiment. */
-	public static final int		EDITOR_EXPERIMENT = 1;
+	public static final int EDITOR_EXPERIMENT = 1;
 	
 	/** Identifies that the file is of type movie. */
-	public static final int		MOVIE = 2;
+	public static final int MOVIE = 2;
 	
 	/** Identifies that the file is of type other. */
-	public static final int		OTHER = 3;
+	public static final int OTHER = 3;
 	
 	/** Identifies that the tag and tag set not owned. */
-	public static final int		TAG_NOT_OWNED = 4;
+	public static final int TAG_NOT_OWNED = 4;
 	
 	/** Indicates to retrieve the tags. */
 	public static final int LEVEL_TAG = 0;
@@ -157,78 +158,82 @@ public interface OmeroMetadataService
 	 * Loads the ratings linked to an object identifying by the specified
 	 * type and id.
 	 * 
-	 * @param type 		The type of the object.
-     * @param id		The id of the object.
-     * @param userID	The id of the user who added attachments to the object 
-     * 					or <code>-1</code> if the user is not specified.
+	 * @param ctx The security context.
+	 * @param type The type of the object.
+     * @param id The id of the object.
+     * @param userID The id of the user who added attachments to the object 
+     *               or <code>-1</code> if the user is not specified.
      * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection loadRatings(Class type, long id, long userID)
+	public Collection loadRatings(SecurityContext ctx, Class type, long id,
+			long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Loads all annotations related to the object specified by the class
 	 * type and the id.
 	 * 
-	 * @param type 		The type of the object.
-     * @param id		The id of the object.
-     * @param userID	The id of the user who added attachments to the object 
-     * 					or <code>-1</code> if the user is not specified.
+	 * @param ctx The security context.
+	 * @param type The type of the object.
+     * @param id The id of the object.
+     * @param userID The id of the user who added attachments to the object 
+     *               or <code>-1</code> if the user is not specified.
      * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection loadStructuredAnnotations(Class type, long id, 
-												long userID)
+	public Collection loadStructuredAnnotations(SecurityContext ctx, Class type,
+			long id, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Loads data related to the specified object.
 	 * 
-	 * @param object 	The object to handle.
-     * @param userID	The id of the user who added attachments to the object 
-     * 					or <code>-1</code> if the user is not specified.
-     * @param viewed	Pass <code>true</code> to load the rendering settings 
-	 * 					related to the objects, <code>false<code>
-	 * 					otherwise.
+	 * @param ctx The security context.
+	 * @param object The object to handle.
+     * @param userID The id of the user who added attachments to the object 
+     *               or <code>-1</code> if the user is not specified.
+     * @param viewed Pass <code>true</code> to load the rendering settings 
+	 *               related to the objects, <code>false<code> otherwise.
      * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public StructuredDataResults loadStructuredData(Object object, 
-													long userID, boolean viewed)
+	public StructuredDataResults loadStructuredData(SecurityContext ctx,
+			Object object, long userID, boolean viewed)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Loads data related to the specified objects
 	 * 
-	 * @param data 		The objects to handle.
-     * @param userID	The id of the user who added attachments to the object 
-     * 					or <code>-1</code> if the user is not specified.
-     * @param viewed	Pass <code>true</code> to load the rendering settings 
-	 * 					related to the objects, <code>false<code>
-	 * 					otherwise.
+	 * @param ctx The security context.
+	 * @param data The objects to handle.
+     * @param userID The id of the user who added attachments to the object 
+     *               or <code>-1</code> if the user is not specified.
+     * @param viewed Pass <code>true</code> to load the rendering settings 
+	 *               related to the objects, <code>false<code> otherwise.
      * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Map loadStructuredData(List<DataObject> data, long userID, 
-								boolean viewed)
+	public Map loadStructuredData(SecurityContext ctx, List<DataObject> data,
+			long userID, boolean viewed)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Annotates the specified data object and returns the annotated object.
 	 * 
+	 * @param ctx The security context.
 	 * @param toAnnotate	The object to annotate. 
 	 * 						Mustn't be <code>null</code>.
 	 * @param annotation 	The annotation to create. 
@@ -239,71 +244,75 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public DataObject annotate(DataObject toAnnotate, AnnotationData annotation)
+	public DataObject annotate(SecurityContext ctx, DataObject toAnnotate,
+			AnnotationData annotation)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Annotates the object and returns the annotated object.
 	 * 
-	 * @param type  		The type of object to annotate. 
-	 * 						Mustn't be <code>null</code>.
-	 * @param id			The id of the object to annotate. 
-	 * 						Mustn't be <code>null</code>.
-	 * @param annotation 	The annotation to create. 
-	 * 						Mustn't be <code>null</code>.
+	 * @param ctx The security context.
+	 * @param type The type of object to annotate. Mustn't be <code>null</code>.
+	 * @param id The id of the object to annotate. Mustn't be <code>null</code>.
+	 * @param annotation The annotation to create. Mustn't be <code>null</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public DataObject annotate(Class type, long id, AnnotationData annotation)
+	public DataObject annotate(SecurityContext ctx, Class type, long id,
+			AnnotationData annotation)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Removes all annotations of a given type from the specified object.
 	 * 
-	 * @param object			The object to handle. 
-	 * 							Mustn't be <code>null</code>.
-	 * @param annotationType	The type of annotation to clear.
+	 * @param ctx The security context.
+	 * @param object The object to handle. Mustn't be <code>null</code>.
+	 * @param annotationType The type of annotation to clear.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public void clearAnnotation(DataObject object, Class annotationType)
+	public void clearAnnotation(SecurityContext ctx, DataObject object,
+			Class annotationType)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Removes all annotations from the specified object.
 	 * 
-	 * @param object	The object to handle. Mustn't be <code>null</code>.
+	 * @param ctx The security context.
+	 * @param object The object to handle. Mustn't be <code>null</code>.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public void clearAnnotation(DataObject object)
+	public void clearAnnotation(SecurityContext ctx, DataObject object)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Clears the annotation related to a given type object.
 	 * 
-	 * @param type				The type of object the annotations are 
-	 * 							related to. 
-	 * @param id				The object's id.
-	 * @param annotationType	The type of annotation to delete.
+	 * @param ctx The security context.
+	 * @param type The type of object the annotations are related to. 
+	 * @param id The object's id.
+	 * @param annotationType The type of annotation to delete.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public void clearAnnotation(Class type, long id, Class annotationType)
+	public void clearAnnotation(SecurityContext ctx, Class type, long id,
+			Class annotationType)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Loads the annotation.
 	 * 
+	 * @param ctx The security context.
 	 * @param annotationID The id of the annotation.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -311,120 +320,124 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public DataObject loadAnnotation(long annotationID)
+	public DataObject loadAnnotation(SecurityContext ctx, long annotationID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Loads all annotations of a given type.
 	 * 
-	 * @param annotationType 	The type of annotation to retrieve.
-	 * @param nameSpace			The name space of the annotation 
-	 * 							or <code>null</code>.
-	 * @param userID			The id of the user the annotations are related
-	 * 							to.
-	 * @param groupID			The id of the group.
+	 * @param ctx The security context.
+	 * @param annotationType The type of annotation to retrieve.
+	 * @param nameSpace The name space of the annotation or <code>null</code>.
+	 * @param userID The id of the user the annotations are related to.
+	 * @param groupID The id of the group.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection loadAnnotations(Class annotationType, String nameSpace,
-									long userID, long groupID)
+	public Collection loadAnnotations(SecurityContext ctx, Class annotationType,
+			String nameSpace, long userID, long groupID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Saves the object, adds (resp. removes) annotations to (resp. from)
 	 * the object if any.
 	 * 
-	 * @param data		The data object to handle.
-	 * @param toAdd		Collection of annotations to add.
-	 * @param toRemove	Collection of annotations to remove. 
-	 * @param userID	The id of the user.
+	 * @param ctx The security context.
+	 * @param data The data object to handle.
+	 * @param toAdd Collection of annotations to add.
+	 * @param toRemove Collection of annotations to remove. 
+	 * @param userID The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object saveData(Collection<DataObject> data, 
-							List<AnnotationData> toAdd, 
-							List<AnnotationData> toRemove, long userID)
+	public Object saveData(SecurityContext ctx, Collection<DataObject> data,
+	 List<AnnotationData> toAdd, List<AnnotationData> toRemove, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Saves the objects contained in the specified objects, 
 	 * adds (resp. removes) annotations to(resp. from) the object if any.
 	 * 
-	 * @param data		The data object to handle.
-	 * @param toAdd		Collection of annotations to add.
-	 * @param toRemove	Collection of annotations to remove.
-	 * @param userID	The id of the user.
+	 * @param ctx The security context.
+	 * @param data The data object to handle.
+	 * @param toAdd Collection of annotations to add.
+	 * @param toRemove Collection of annotations to remove.
+	 * @param userID The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object saveBatchData(Collection<DataObject> data, 
-							List<AnnotationData> toAdd, 
-							List<AnnotationData> toRemove, long userID)
+	public Object saveBatchData(SecurityContext ctx,
+			Collection<DataObject> data, List<AnnotationData> toAdd,
+			List<AnnotationData> toRemove, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Saves the objects contained in the specified objects, 
 	 * adds (resp. removes) annotations to(resp. from) the object if any.
 	 * 
-	 * @param data		The data object to handle.
-	 * @param toAdd		Collection of annotations to add.
-	 * @param toRemove	Collection of annotations to remove.
-	 * @param userID	The id of the user.
+	 * @param ctx The security context.
+	 * @param data The data object to handle.
+	 * @param toAdd Collection of annotations to add.
+	 * @param toRemove Collection of annotations to remove.
+	 * @param userID The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object saveBatchData(TimeRefObject data, 
-							List<AnnotationData> toAdd, 
-							List<AnnotationData> toRemove, long userID)
+	public Object saveBatchData(SecurityContext ctx, TimeRefObject data, 
+		List<AnnotationData> toAdd, List<AnnotationData> toRemove, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Downloads a file previously uploaded to the server.
 	 * 
-	 * @param file		The file to write the data into.
-	 * @param fileID	The id of the file to download.
-	 * @param size		The size of the file to download
+	 * @param ctx The security context.
+	 * @param file The file to write the data into.
+	 * @param fileID The id of the file to download.
+	 * @param size The size of the file to download
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public File downloadFile(File file, long fileID, long size)
+	public File downloadFile(SecurityContext ctx, File file, long fileID,
+			long size)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Loads the ratings associated to the passed objects.
 	 * 
+	 * @param ctx The security context.
 	 * @param nodeType  The type of object.
-	 * @param nodeIds	The ids of the object.
-	 * @param userID	The user id.
+	 * @param nodeIds The ids of the object.
+	 * @param userID The user id.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Map<Long, Collection> loadRatings(Class nodeType, 
-			List<Long> nodeIds, long userID) 
-			throws DSOutOfServiceException, DSAccessException;
+	public Map<Long, Collection> loadRatings(SecurityContext ctx,
+			Class nodeType, List<Long> nodeIds, long userID) 
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Returns a sub-collection of the passed collection of nodes
 	 * annotated by the passed type of annotation.
 	 * 
+	 * @param ctx The security context.
 	 * @param nodeType
 	 * @param nodeIds
 	 * @param annotationType
@@ -436,14 +449,16 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection filterByAnnotation(Class nodeType, List<Long> nodeIds, 
-		Class annotationType, List<String> terms, long userID) 
+	public Collection filterByAnnotation(SecurityContext ctx, Class nodeType,
+		List<Long> nodeIds, Class annotationType, List<String> terms,
+		long userID) 
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Returns a sub-collection of the passed collection of nodes
 	 * annotated by the passed type of annotation.
 	 * 
+	 * @param ctx The security context.
 	 * @param nodeType
 	 * @param nodeIds
 	 * @param annotationType
@@ -455,12 +470,14 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection filterByAnnotated(Class nodeType, List<Long> nodeIds, 
-		Class annotationType, boolean annotated, long userID) 
+	public Collection filterByAnnotated(SecurityContext ctx, Class nodeType,
+		List<Long> nodeIds, Class annotationType, boolean annotated,
+		long userID) 
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * 
+	 * @param ctx The security context.
 	 * @param nodeType
 	 * @param ids
 	 * @param filter
@@ -471,27 +488,29 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection filterByAnnotation(Class nodeType, List<Long> ids, 
-										FilterContext filter, long userID)
+	public Collection filterByAnnotation(SecurityContext ctx, Class nodeType,
+			List<Long> ids, FilterContext filter, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Returns the enumeration corresponding to the specified type.
 	 * 
-	 * @param type 	The type of enumeration. 
-	 * 				One of the enumerations defined by this class.
+	 * @param ctx The security context.
+	 * @param type The type of enumeration.
+	 * One of the enumerations defined by this class.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection getEnumeration(String type)
+	public Collection getEnumeration(SecurityContext ctx, String type)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Loads the acquisition metadata for an image or a given channel.
 	 * 
+	 * @param ctx The security context.
 	 * @param refObject Either an <code>ImageData</code> or 
      * 					<code>ChannelData</code> node.
 	 * @return See above.
@@ -500,13 +519,13 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object loadAcquisitionData(Object refObject)
+	public Object loadAcquisitionData(SecurityContext ctx, Object refObject)
 		throws DSOutOfServiceException, DSAccessException;
-	
 	
 	/**
 	 * Loads the acquisition metadata for an image or a given channel.
 	 * 
+	 * @param ctx The security context.
 	 * @param refObject Either an <code>ImageAcquisitionData</code> or 
      * 					<code>ChannelAcquisitionData</code> node.
 	 * @return See above.
@@ -515,12 +534,13 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object saveAcquisitionData(Object refObject)
+	public Object saveAcquisitionData(SecurityContext ctx, Object refObject)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Saves the file back to the server.
 	 * 
+	 * @param ctx The security context.
 	 * @param fileAnnotation 	The annotation hosting the previous info.
      * @param file				The file to save.
      * @param index				One of the constants defined by this class.
@@ -532,8 +552,9 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object archivedFile(FileAnnotationData fileAnnotation, File file, int
-			index, DataObject linkTo)
+	public Object archivedFile(SecurityContext ctx,
+		FileAnnotationData fileAnnotation, File file, int index,
+		DataObject linkTo)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -541,6 +562,7 @@ public interface OmeroMetadataService
 	 * depending on the specified parameters. Returns a collection of 
 	 * <code>TagAnnotationData</code>s.
 	 * 
+	 * @param ctx The security context.
 	 * @param id The id if specified.
 	 * @param dataObject Pass <code>true</code> to load the 
 	 * 					<code>DataObject</code>s linked to the <code>Tag</code>,
@@ -556,8 +578,8 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection loadTags(Long id, boolean dataObject, boolean topLevel,
-			long userID, long groupID)
+	public Collection loadTags(SecurityContext ctx, Long id, boolean dataObject,
+		boolean topLevel, long userID, long groupID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -565,6 +587,7 @@ public interface OmeroMetadataService
 	 * one of the following values: {@link #EDITOR_PROTOCOL}, 
 	 * {@link #EDITOR_EXPERIMENT} or {@link #OTHER}.
 	 * 
+	 * @param ctx The security context.
 	 * @param userUD The user's identifier.
 	 * @param fileType One of the constants above.
 	 * @return See above.
@@ -573,7 +596,7 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public long countFileType(long userID, int fileType)
+	public long countFileType(SecurityContext ctx, long userID, int fileType)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -582,6 +605,7 @@ public interface OmeroMetadataService
 	 * one of the following values: {@link #EDITOR_PROTOCOL}, 
 	 * {@link #EDITOR_EXPERIMENT} or {@link #OTHER}.
 	 * 
+	 * @param ctx The security context.
 	 * @param fileType One of the constants above. 
 	 * @param userID The id of the user.
 	 * @return See above.
@@ -590,12 +614,13 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection loadFiles(int fileType, long userID)
+	public Collection loadFiles(SecurityContext ctx, int fileType, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Loads the instrument.
 	 * 
+	 * @param ctx The security context.
 	 * @param instrumentID The id of the instrument.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -603,13 +628,14 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object loadInstrument(long instrumentID)
+	public Object loadInstrument(SecurityContext ctx, long instrumentID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Returns a collection of tabular data corresponding to the specified
 	 * parameters.
 	 * 
+	 * @param ctx The security context.
 	 * @param parameters The parameters to handle.
 	 * @param userID     The user's identifier.
 	 * @return See above.
@@ -618,13 +644,14 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public List<TableResult> loadTabularData(TableParameters parameters, 
-			long userID)
+	public List<TableResult> loadTabularData(SecurityContext ctx,
+		TableParameters parameters, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Loads the parents of the specified annotation.
 	 * 
+	 * @param ctx The security context.
 	 * @param annotationId The annotation to handle.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -632,7 +659,8 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public List<DataObject> loadParentsOfAnnotations(long annotationId)
+	public List<DataObject> loadParentsOfAnnotations(SecurityContext ctx,
+		long annotationId)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

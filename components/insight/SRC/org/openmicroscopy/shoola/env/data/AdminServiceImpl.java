@@ -763,7 +763,7 @@ class AdminServiceImpl
 		List<DataObject> exp = new ArrayList<DataObject>();
 		exp.add(experimenter);
 		Map<DataObject, BufferedImage> map = 
-			context.getImageService().getExperimenterThumbnailSet(exp, 0);
+			context.getImageService().getExperimenterThumbnailSet(ctx, exp, 0);
 		return map.get(experimenter);
 	}
 
