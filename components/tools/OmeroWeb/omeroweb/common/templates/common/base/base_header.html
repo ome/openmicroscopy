@@ -48,35 +48,14 @@
 
 
 {% block body %}
-
-    {% block top_header %}
-        <div id="top_header">
-            {% block logo %}
-                <div id="logo">
-                    <img src="{% static "common/image/logo.png" %}" height="50" />
-                </div>
-            {% endblock %}
-            
-            <div id="util_links">
-            {% block util_links %}
-            
-            {% endblock %}
-            </div>
-            
-            <div id="tabs">
-                    {% if nav.tab_links %}
-                        {% for link in nav.tab_links %}
-                            <a href="{{ link.1 }}" class="{{ link.2 }}{% if link.3 %} current_tab{% endif %}">{{ link.0 }}</a>
-                        {% endfor %}
-                    {% endif %}
-            </div>
-            
-        </div>
-    {% endblock %}
         
         {% block middle_header %}
         <div id="middle_header">
 
+            <div id="logo">
+                <img src="{% static "common/image/ome_text_109.png" %}" height="30" />
+            </div>
+            
             <div id="middle_header_right">
                 {% block middle_header_right %}
                 {% endblock %}

@@ -9,7 +9,7 @@
     left: 10px;
     margin: 0;
     position: absolute;
-    top: 0;
+    top: 1px;
     width: 160px;
 }
 
@@ -36,25 +36,32 @@
 }
 
 #middle_header_right, #middle_header_left {
-    margin: 6px 10px;
+    margin: 4px 14px;
     position: absolute;
-    top: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    font-weight: 200;
 }
 
 #middle_header_left {
-    left: 0px;
+    left: 100px;
+    top: 1px;
 }
 #middle_header_right {
     right: 0px;
 }
 
+#middle_header_right a {
+    margin-left: 10px;
+}
+
 #middle_header_left li {
     float:left;
-    margin: 0px 5px;
+    margin: 1px 10px;
     display: block;
 }
 .menu_link {
-    font-size: 110%;
+    font-size: 16px;
 }
 
 a:hover {
@@ -67,9 +74,9 @@ a:hover {
     color: white;
     margin: 0;
     padding: 4px 0px;
-    height: 20px;
+    height: 26px;
     position: relative;
-    background: #444;
+    background: #333;
     border-bottom: 1px solid #bbb;
 }
 
@@ -77,27 +84,37 @@ a:hover {
     color: white;
 }
 
+#thin_header_right input, #thin_header_left input {
+    position: relative;
+    top: -1px;
+}
+#thin_header_right select, #thin_header_left select {
+    position: relative;
+    top: -1px;
+}
+
 #thin_header {
     margin: 0;
     padding: 4px 0px;
-    height: 15px;
+    height: 18px;
     position: relative;
-    background: url(../image/header_bg.png) repeat-x scroll left bottom #FFFFFF;
+    background: url(../image/header_bg_30.png) repeat-x scroll left bottom #eee;
     border-bottom: 1px solid #bbb;
 }
 
-#thin_header_right {
+#thin_header_right, #thin_header_left {
     margin: 2px 10px;
     position: absolute;
+    top: 3px;
+    font-size: 14px;
+}
+
+#thin_header_right {
     right: 0;
-    top: 0;
 }
 
 #thin_header_left {
-    margin: 2px 10px;
-    position: absolute;
     left: 0;
-    top: 1px;
 }
 
 .toolbar_button {
