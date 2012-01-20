@@ -10,7 +10,6 @@ set -u
 set -x
 
 source docs/hudson/functions.sh
-export OMERO_BUILD=`git_short_rev`-b$BUILD_NUMBER
 echo Building $OMERO_BRANCH
 
 ./build.py clean
@@ -22,7 +21,7 @@ echo Building $OMERO_BRANCH
 cp -f docs/styleForAPI.css /hudson/.hudson/userContent/styleForAPI.css
 
 # Log information
-echo OMERO_BUILD=$OMERO_BUILD > target/$OMERO_BRANCH.log
+echo BUILD_NUMBER=$BUILD_NUMBER > target/$OMERO_BRANCH.log
 echo OMERO_BRANCH=$OMERO_BRANCH >> target/$OMERO_BRANCH.log
 git_info > target/GIT_INFO
 env | sort >> target/GIT_INFO

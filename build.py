@@ -110,13 +110,13 @@ def choose_omero_version():
     ant. Returned as an array so that an empty value can
     be extended into the build command.
 
-    If OMERO_BULID is set, then "-Domero.version=${omero-version}-${OMERO_BUILD}"
+    If BUILD_NUMER is set, then "-Domero.version=${omero.version}-b${BUILD_NUMBER}"
     otherwise nothing.
     """
 
-    omero_build = os.environ.get("OMERO_BUILD", "")
+    omero_build = os.environ.get("BUILD_NUMBER", "")
     if omero_build:
-        omero_build = "-%s" % omero_build
+        omero_build = "-b%s" % omero_build
 
     command = [ find_java(), "omero","-q","version" ]
     err = ""
@@ -135,7 +135,7 @@ def choose_omero_version():
                     "-DEV", omero_version)
         return [ "-Domero.version=%s%s" % (omero_version, omero_build) ]
     except:
-        print "Error getting version for OMERO_BUILD=%s" % omero_build
+        print "Error getting version for BUILD_NUMBER=%s" % omero_build
         if err:
             print err
         sys.exit(1)
