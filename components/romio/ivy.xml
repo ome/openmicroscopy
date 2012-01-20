@@ -16,6 +16,7 @@
     <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;server->server;client->client"/>
     <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}" conf="build,server,client->default"/>
     <!-- Loci -->
+    <dependency org="OME" name="scifio" rev="${versions.bio-formats}"/>
     <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/>
     <dependency org="OME" name="loci-common" rev="${versions.bio-formats}"/>
     <dependency org="OME" name="metakit" rev="${versions.bio-formats}"/>
