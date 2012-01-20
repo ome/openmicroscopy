@@ -48,6 +48,9 @@ public class SecurityContext
 	/** The port to use.*/
 	private int port;
 	
+	/** The compression level. */
+	private float compression;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -79,6 +82,30 @@ public class SecurityContext
 	{
 		this.host = host;
 	}
+	
+	/** 
+	 * Returns the hostname.
+	 * 
+	 * @return See above.
+	 */
+	public String getHostName() { return host; }
+	
+	/**
+	 * Sets the compression level.
+	 * 
+	 * @param compression The value to set.
+	 */
+	public void setCompression(float compression)
+	{
+		this.compression = compression;
+	}
+	
+	/**
+	 * Returns the compression.
+	 * 
+	 * @return See above.
+	 */
+	public float getCompression() { return compression; }
 	
 	/**
 	 * Returns the identifier of the group.

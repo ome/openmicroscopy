@@ -117,8 +117,8 @@ class Connector
 	/** The ROI (Region of Interest) service. */
 	private IRoiPrx roiService;
 	
-	/** The time service. */
-	private ITimelinePrx timeService;
+	/** The Admin service. */
+	private IAdminPrx adminService;
 	
 	/** The shared resources. */
 	private SharedResourcesPrx sharedResources;
@@ -495,9 +495,12 @@ class Connector
 	RenderingEnginePrx getRenderingService()
 		throws Throwable
 	{
+		RenderingEnginePrx prx;
 		if (entryUnencrypted != null)
-			return entryUnencrypted.createRenderingEngine();
-		return entryEncrypted.createRenderingEngine();
+			prx = entryUnencrypted.createRenderingEngine();
+		else prx = entryEncrypted.createRenderingEngine();
+		prx.setCompressionLevel(context.getCompression());
+		return prx;
 	}
 
 	/**
@@ -554,8 +557,7 @@ class Connector
 	 * Returns the {@link IProjectionPrx} service.
 	 * 
 	 * @return See above.
-	 * @throws Throwable If the connection is broken, or logged in
-	 * @throws @throws Throwable Thrown if the service cannot be initialized.
+	 * @throws Throwable Thrown if the service cannot be initialized.
 	 */
 	IProjectionPrx getProjectionService()
 		throws Throwable
@@ -570,6 +572,24 @@ class Connector
 		return null;
 	}
 
+	/**
+	 * Returns the {@link IAdminPrx} service.
+	 * 
+	 * @param ctx The security context.
+	 * @return See above.
+	 * @throws Throwable Thrown if the service cannot be initialized.
+	 */
+	IAdminPrx getAdminService(SecurityContext ctx)
+		throws Throwable
+	{ 
+		if (adminService == null) {
+			adminService = entryEncrypted.getAdminService();
+			if (adminService != null)
+				services.add(adminService);
+		}
+		return adminService; 
+	}
+	
 	/** Clears the data. */
 	void clear()
 	{
@@ -589,7 +609,6 @@ class Connector
 		pixelsStore = null;
 		updateService = null;
 		scriptService = null;
-		timeService = null;
 		sharedResources = null;
 		importStore = null;
 	}
@@ -652,6 +671,21 @@ class Connector
 			if (entryUnencrypted != null)
 				entryUnencrypted.keepAllAlive(entries);
 		} catch (Exception e) {}
+	}
+
+	/**
+	 * Closes the specified proxy.
+	 * 
+	 * @param proxy The proxy to close.
+	 */
+	void close(StatefulServiceInterfacePrx proxy)
+	{
+		try {
+			if (proxy instanceof ThumbnailStorePrx) {
+				thumbnailService.close();
+				thumbnailService = null;
+			} else proxy.close();
+		} catch (Exception e) {} //ignore.
 	}
 	
 	/**
