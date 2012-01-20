@@ -61,6 +61,7 @@ import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -355,6 +356,9 @@ class OMEROGateway
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
 				ScriptObject.SETUP_PATH+"FLIM_initialise.py");
 	}
+	
+	/** The collection of connectors.*/
+	private List<Connector> connectors;
 	
 	/**
 	 * The number of thumbnails already retrieved. Resets to <code>0</code>
@@ -2039,7 +2043,7 @@ class OMEROGateway
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param port			The port used to connect.
+	 * @param port			The default port used to connect.
 	 * @param dsFactory 	A reference to the factory. Used whenever a broken 
 	 * 						link is detected to get the Login Service and try 
 	 *                  	reestablishing a valid link to <i>OMERO</i>.
@@ -2055,6 +2059,7 @@ class OMEROGateway
 		enumerations = new HashMap<String, List<EnumerationObject>>();
 		services = new HashSet<ServiceInterfacePrx>();
 		reServices = new HashMap<Long, StatefulServiceInterfacePrx>();
+		connectors = new ArrayList<Connector>();
 	}
 	
 	/**
@@ -2258,38 +2263,40 @@ class OMEROGateway
 		throws DSOutOfServiceException
 	{
 		try {
+			//login in the default group
 			compression = compressionLevel;
 			this.hostName = hostName;
 			if (port > 0) secureClient = new client(hostName, port);
 			else secureClient = new client(hostName);
-			entryEncrypted = secureClient.createSession(userName, password);
 			secureClient.setAgent(AGENT);
+			entryEncrypted = secureClient.createSession(userName, password);
+			
+			//now we register the new security context
+			
+			/*
 			if (!encrypted) {
 				unsecureClient = secureClient.createClient(false);
 				entryUnencrypted = unsecureClient.getSession();
-			}
+			}*/
 			connected = true;
 			ExperimenterData exp = getUserDetails(userName);
 			if (groupID >= 0) {
 				long defaultID = -1;
 				try {
 					defaultID = exp.getDefaultGroup().getId();
-				} catch (Exception e) {
-					// no default group
-				}
+				} catch (Exception e) {}
 				if (defaultID == groupID) return exp;
 				try {
 					changeCurrentGroup(exp, groupID);
 					exp = getUserDetails(userName);
 				} catch (Exception e) {
-					/*
-					connected = false;
-					String s = "Can't connect to OMERO. Group not valid.\n\n";
-					throw new DSOutOfServiceException(s, e);
-					*/
 				}
 			}
-			
+			SecurityContext ctx = new SecurityContext(groupID);
+			ctx.setServerInformation(hostName, port);
+			Connector connector = new Connector(ctx, secureClient, 
+					entryEncrypted, encrypted);
+			connectors.add(connector);
 			return exp;
 		} catch (Throwable e) {
 			connected = false;
@@ -2604,6 +2611,7 @@ class OMEROGateway
 	 * {@link IPojos#loadContainerHierarchy(Class, List, Map)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
 	 * 
+	 * @param ctx
 	 * @param rootType  The top-most type which will be searched for 
 	 *                  Can be <code>Project</code>. 
 	 *                  Mustn't be <code>null</code>.
@@ -2617,7 +2625,8 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#loadContainerHierarchy(Class, List, Map)
 	 */
-	Set loadContainerHierarchy(Class rootType, List rootIDs, Parameters options)
+	Set loadContainerHierarchy(
+			Class rootType, List rootIDs, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -5261,6 +5270,7 @@ class OMEROGateway
 	{
 		Collection<ServiceInterfacePrx> 
 			all = new HashSet<ServiceInterfacePrx>();
+		
 		if (services.size() > 0) all.addAll(services);
 		if (reServices.size() > 0) all.addAll(reServices.values());
 		/*
