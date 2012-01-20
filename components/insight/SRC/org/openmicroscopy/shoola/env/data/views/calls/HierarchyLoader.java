@@ -32,6 +32,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DatasetData;
@@ -77,6 +78,9 @@ public class HierarchyLoader
     /** Loads the specified tree. */
     private BatchCall   loadCall;
     
+    /** The security context.*/
+    private SecurityContext ctx;
+    
     /**
      * Creates {@link BatchCall} if the type is supported.
      * 
@@ -116,8 +120,8 @@ public class HierarchyLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                rootNodes = os.loadContainerHierarchy(rootNodeType,
-                                             rootNodeIDs, true, userID, groupID);
+                rootNodes = os.loadContainerHierarchy(ctx, rootNodeType,
+                              rootNodeIDs, true, userID, groupID);
             }
         };
     }
@@ -142,15 +146,17 @@ public class HierarchyLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
+     * @param ctx The security context.
      * @param rootNodeType  The type of the root node. Can only be one out of:
      *                      {@link ProjectData}, {@link DatasetData}.
      * @param rootNodeIDs   The identifiers of the root nodes.
      * @param userID   		The identifier of the user.
      * @param groupID   	The identifier of the group.
      */
-    public HierarchyLoader(Class rootNodeType, List<Long> rootNodeIDs, 
-    						long userID, long groupID)
+    public HierarchyLoader(SecurityContext ctx,
+    	Class rootNodeType, List<Long> rootNodeIDs, long userID, long groupID)
     {
+    	this.ctx = ctx;
     	this.userID = userID;
     	this.groupID = groupID;
         validate(rootNodeType, rootNodeIDs);

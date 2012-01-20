@@ -34,6 +34,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.data.DeleteCallback;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.data.views.ProcessBatchCall;
@@ -65,16 +66,18 @@ public class DataObjectRemover
     /**
      * Creates a {@link BatchCall} to delete the specified objects.
      * 
+     * @param ctx The security context.
      * @param values   The objects to delete.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeDeleteCall(final Collection<DeletableObject> values)
+    private BatchCall makeDeleteCall(final SecurityContext ctx,
+    		final Collection<DeletableObject> values)
     {
     	return new ProcessBatchCall("Delete the Objects") {
     		public ProcessCallback initialize() throws Exception
     		{
     			OmeroDataService os = context.getDataService();
-    			DeleteCallback cb = os.delete(values);
+    			DeleteCallback cb = os.delete(ctx, values);
     			if (cb == null) {
     				callBack = Boolean.valueOf(false);
                 	return null;
@@ -110,13 +113,15 @@ public class DataObjectRemover
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
 	 * 
+	 * @param ctx The security context.
      * @param values The collection of object to delete.
      */
-    public DataObjectRemover(Collection<DeletableObject> values)
+    public DataObjectRemover(SecurityContext ctx,
+    		Collection<DeletableObject> values)
     {
     	 if (values == null)
              throw new IllegalArgumentException("No objects to remove.");
-    	 call = makeDeleteCall(values);
+    	 call = makeDeleteCall(ctx, values);
     }
     
     /**
@@ -124,15 +129,16 @@ public class DataObjectRemover
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
 	 * 
+	 * @param ctx The security context.
      * @param value The object to delete.
      */
-    public DataObjectRemover(DeletableObject value)
+    public DataObjectRemover(SecurityContext ctx, DeletableObject value)
     {
     	if (value == null)
             throw new IllegalArgumentException("No object to remove.");
     	List<DeletableObject> l = new ArrayList<DeletableObject>(1);
     	l.add(value);
-    	call = makeDeleteCall(l);
+    	call = makeDeleteCall(ctx, l);
     }
     
 }

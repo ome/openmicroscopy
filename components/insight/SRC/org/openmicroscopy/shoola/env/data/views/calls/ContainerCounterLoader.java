@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
@@ -75,11 +76,13 @@ public class ContainerCounterLoader
      * Creates a {@link BatchCall} to retrieve the number of items per 
      * container.
      * 
+     * @param ctx The security context.
      * @param types A Map whose keys are the type of object and the values are
      * 				the identifiers of the objects.
      * @return See above
      */
-    private BatchCall makeBatchCall(final Map<Class, List<Long>> types)
+    private BatchCall makeBatchCall(final SecurityContext ctx,
+    		final Map<Class, List<Long>> types)
     {
         
         return new BatchCall("Counting items.") {
@@ -97,7 +100,8 @@ public class ContainerCounterLoader
 						LookupNames.CURRENT_USER_DETAILS);
 		        long userID = exp.getId();
 		        Map<Long, Long> m = new HashMap<Long, Long>();
-		        Map<Class, Map<Long, Long>> count = new HashMap<Class, Map<Long, Long>>();
+		        Map<Class, Map<Long, Long>> count = new HashMap<Class, 
+		        Map<Long, Long>>();
 		        while (i.hasNext()) {
 					entry = (Entry) i.next();
 					type = (Class) entry.getKey();
@@ -107,15 +111,16 @@ public class ContainerCounterLoader
 						while (j.hasNext()) {
 							id = j.next();
 							m.put(id, Long.valueOf(
-									ms.loadROIMeasurements(
+									ms.loadROIMeasurements(ctx, 
 											type, id, userID).size()));
 						}
 			        	result = m;
 			        } else if (GroupData.class.equals(type)) {
 			        	AdminService svc = context.getAdminService();
-			        	result = count.put(type, svc.countExperimenters(ids));
+			        	result = count.put(type, svc.countExperimenters(ctx,
+			        			ids));
 			        } else {
-			        	count.put(type, os.getCollectionCount(type, 
+			        	count.put(type, os.getCollectionCount(ctx, type, 
 		                		OmeroDataService.IMAGES_PROPERTY, ids));
 			        }
 				}
@@ -143,9 +148,10 @@ public class ContainerCounterLoader
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
+     * @param ctx The security context.
      * @param rootIDs	Collection of root ids. Mustn't be <code>null</code>.
      */
-    public ContainerCounterLoader(Set<DataObject> rootIDs)
+    public ContainerCounterLoader(SecurityContext ctx, Set<DataObject> rootIDs)
     {
         if (rootIDs == null) throw new NullPointerException("No root nodes.");
     	Iterator i = rootIDs.iterator();
@@ -174,7 +180,7 @@ public class ContainerCounterLoader
             ids = types.get(rootType);
             if (id != null) ids.add(id);
         }
-        loadCall = makeBatchCall(types);
+        loadCall = makeBatchCall(ctx, types);
     }
     
 }

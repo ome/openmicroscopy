@@ -35,6 +35,7 @@ import java.util.Map;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -56,19 +57,22 @@ public class ImagesImporter
 {
      
     /** The id of the user currently logged in. */
-    private long 		 			userID;
+    private long userID;
     
     /** The id of the group is logged as. */
-    private long 		 			groupID;
+    private long groupID;
     
     /** 
      * Map of result, key is the file to import, value is an object or a
      * string. 
      */
-    private Map<File, Object> 		partialResult;
+    private Map<File, Object> partialResult;
     
     /** The object hosting the information for the import. */
     private ImportableObject object;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /** 
      * Imports the file.
@@ -83,7 +87,8 @@ public class ImagesImporter
     	OmeroImageService os = context.getImageService();
     	try {
     		partialResult.put(importable.getFile(), 
-    				os.importFile(object, importable, userID, groupID, close));
+    				os.importFile(ctx, object, importable, userID, groupID,
+    					close));
 		} catch (Exception e) {
 			e.printStackTrace();
 			partialResult.put(importable.getFile(), e);
@@ -137,12 +142,14 @@ public class ImagesImporter
      * Creates a new instance. If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the call.
 	 * 
+	 * @param ctx The security context.
      * @param context  The object hosting the information for the import. 
      * 					Mustn't be <code>null</code>.
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
      */
-    public ImagesImporter(ImportableObject object, long userID, long groupID)
+    public ImagesImporter(SecurityContext ctx,
+    		ImportableObject object, long userID, long groupID)
     {
     	if (object == null || object.getFiles() == null ||
     			object.getFiles().size() == 0)
@@ -150,6 +157,7 @@ public class ImagesImporter
     	this.userID = userID;
     	this.groupID = groupID;
     	this.object = object;
+    	this.ctx = ctx;
     }
     
 }
