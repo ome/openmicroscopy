@@ -377,6 +377,17 @@ java component.
         </copy>
     </target>
 
+    <target name="release-src" description="Zip the git source into OMERO.source-${omero.version}.zip">
+        <git command="archive" output="release-src-command" failonerror="true">
+            <args>
+                <arg value="--format=zip"/>
+                <arg value="HEAD"/>
+                <arg value="-o"/>
+                <arg value="${target.dir}/OMERO.source-${omero.version}.zip"/>
+            </args>
+        </git>
+    </target>
+
     <target name="release-clients">
         <!-- This replaces the previous OMERO-trunk-clients build -->
         <mkdir dir="target/pkg"/>
