@@ -760,7 +760,10 @@ omero.version=${omero.version}
                         <arg line="--dirty"/>
                     </args>
                 </git>
-                <echo>${version.describe}-ice${versions.ice_lib}</echo>
+                <!--"((.*?)-)(v.)+(.*?)-([0-9]+)-g([^-]+)(-dirty)?" select="1\1-2\2-3\3-4\4-5\5"-->
+                <propertyregex property="version.describe.clean" input="${version.describe}"
+                    regexp="^(v.)?(.*?)(-[0-9]+)?((-)g(.*?))?$" select="\2\3\5\6"/>
+                <echo>${version.describe.clean}-ice${versions.ice_lib}</echo>
             </try>
             <catch>
                 <echo>UNKNOWN-ice${versions.ice_lib}</echo>
