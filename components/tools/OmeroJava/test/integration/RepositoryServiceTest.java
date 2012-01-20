@@ -31,7 +31,7 @@ import omero.api.IRepositoryInfoPrx;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class RepositoryServiceTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 
 	/**

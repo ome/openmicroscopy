@@ -56,7 +56,7 @@ import org.testng.annotations.Test;
  */
 @Test(groups = {"integration"})
 public class PyramidMinMaxTest 
-    extends AbstractTest
+    extends AbstractServerTest
 {
 
     /** The format tested here. */
@@ -74,7 +74,7 @@ public class PyramidMinMaxTest
 
     /**
      * Overridden to initialize the list.
-     * @see AbstractTest#setUp()
+     * @see AbstractServerTest#setUp()
      */
     @Override
     @BeforeClass
@@ -87,7 +87,7 @@ public class PyramidMinMaxTest
 
     /**
      * Overridden to delete the files.
-     * @see AbstractTest#tearDown()
+     * @see AbstractServerTest#tearDown()
      */
     @Override
     @AfterClass

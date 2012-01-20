@@ -45,7 +45,7 @@ import omero.sys.EventContext;
  */
 @Test(groups = {"delete", "integration"})
 public class DeleteServicePermissionsTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
 
     /**
