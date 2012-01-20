@@ -380,7 +380,7 @@ class OmeroDataServiceImpl
 				for (int i = 0; i < exp.length; i++) {
 					list.add(exp[i]);
 				}
-				context.getAdminService().addExperimenters(
+				context.getAdminService().addExperimenters(ctx,
 						(GroupData) parent, list);
 				return;
 			} catch (ArrayStoreException ase) {
