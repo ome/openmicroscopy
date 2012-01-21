@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.data.views.ProcessBatchCall;
@@ -54,24 +55,26 @@ public class ScriptRunner
 {
     
     /** The server call-handle to the computation. */
-    private Object		callBack;
+    private Object callBack;
     
     /** Calls to run the script. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
     
     /**
      * Creates a {@link BatchCall} to run the script.
      * 
+     * @param ctx The security context.
      * @param script The script to run. 
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeCall(final ScriptObject script)
+    private BatchCall makeCall(final SecurityContext ctx,
+    		final ScriptObject script)
     {
     	return new ProcessBatchCall("Run the script") {
     		public ProcessCallback initialize() throws Exception
     		{
     			OmeroImageService os = context.getImageService();
-    			ScriptCallback cb = os.runScript(script);
+    			ScriptCallback cb = os.runScript(ctx, script);
     			if (cb == null) {
                 	callBack = Boolean.valueOf(false);
                 	return null;
@@ -106,11 +109,12 @@ public class ScriptRunner
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param script The script to run.
      */
-    public ScriptRunner(ScriptObject script)
+    public ScriptRunner(SecurityContext ctx, ScriptObject script)
     {
-		loadCall = makeCall(script);
+		loadCall = makeCall(ctx, script);
     }
-    
+
 }
