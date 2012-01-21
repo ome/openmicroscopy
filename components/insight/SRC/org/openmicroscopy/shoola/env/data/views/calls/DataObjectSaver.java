@@ -201,8 +201,8 @@ public class DataObjectSaver
 	 * @param children	The nodes to add to the newly created 
 	 * 					<code>DataObject</code>.
      */
-    public DataObjectSaver(DataObject parent, DataObject data, 
-    						Collection children)
+    public DataObjectSaver(SecurityContext ctx,
+    		DataObject parent, DataObject data, Collection children)
     {
     	if (data == null) 
     		throw new IllegalArgumentException("No object to create.");
