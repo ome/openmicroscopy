@@ -133,6 +133,7 @@ public class DataObjectSaver
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
+     * @param ctx The security context.
      * @param userObject    The {@link DataObject} to create or update.
      *                      Mustn't be <code>null</code>.
      * @param parent     	The parent of the <code>DataObject</code>. 
@@ -140,12 +141,14 @@ public class DataObjectSaver
      * 						is no parent.
      * @param index         One of the constants defined by this class.
      */
-    public DataObjectSaver(DataObject userObject, DataObject parent, int index)
+    public DataObjectSaver(SecurityContext ctx, DataObject userObject,
+    		DataObject parent, int index)
     {
         if (userObject == null)
             throw new IllegalArgumentException("No DataObject.");
         List<DataObject> objects = new ArrayList<DataObject>();
         objects.add(userObject);
+        this.ctx = ctx;
         switch (index) {
             case CREATE:
                 saveCall = create(objects, parent, null);
