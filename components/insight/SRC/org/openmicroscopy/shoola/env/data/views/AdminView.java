@@ -33,6 +33,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -59,16 +60,18 @@ public interface AdminView
 	 * Loads the used and free disk space for the specified user if any,
 	 * pass <code>-1</code> to retrieve the whole disk space.
 	 * 
+	 * @param ctx The security context.
 	 * @param id	The id of the user or the group <code>-1</code>.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle getDiskSpace(Class type, long id, 
+	public CallHandle getDiskSpace(SecurityContext ctx, Class type, long id,
 			AgentEventListener observer);
 	
 	/**
 	 * Loads the disk space used by groups
 	 * 
+	 * @param ctx The security context.
 	 * @param type 	Either <code>ExperimenterData</code> or
 	 * 				<code>GroupData</code>.
 	 * @param ids	The identifier of the groups/users or <code>null</code> to 
@@ -76,156 +79,173 @@ public interface AdminView
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle getDiskSpace(Class type, List<Long> ids, 
-			AgentEventListener observer);
+	public CallHandle getDiskSpace(SecurityContext ctx, Class type,
+			List<Long> ids, AgentEventListener observer);
 	
 	/**
 	 * Loads the users who are administrators.
 	 * 
+	 * @param ctx The security context.
 	 * @param id	The identifier of the groups.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadAdministrators(AgentEventListener observer);
+	public CallHandle loadAdministrators(SecurityContext ctx,
+			AgentEventListener observer);
 	
 	/**
 	 * Updates the specified experimenter.
 	 * 
+	 * @param ctx The security context.
 	 * @param exp The experimenter to update. Mustn't be <code>null</code>.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle updateExperimenter(ExperimenterData exp, 
-			AgentEventListener observer);
+	public CallHandle updateExperimenter(SecurityContext ctx,
+			ExperimenterData exp, AgentEventListener observer);
 	
 	/**
 	 * Updates the specified group.
 	 * 
+	 * @param ctx The security context.
 	 * @param group The group to update. Mustn't be <code>null</code>.
 	 * @param permissions The desired permissions level or <code>-1</code>.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle updateGroup(GroupData group, int permissions,
-			AgentEventListener observer);
+	public CallHandle updateGroup(SecurityContext ctx, GroupData group,
+			int permissions, AgentEventListener observer);
 	
 	/**
 	 * Creates and returns the experimenters.
 	 * 
+	 * @param ctx The security context.
 	 * @param object The object hosting information about the experimenters
 	 * 				to create. 
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle createExperimenters(AdminObject object, 
-			AgentEventListener observer);
+	public CallHandle createExperimenters(SecurityContext ctx,
+			AdminObject object, AgentEventListener observer);
 
 	/**
 	 * Creates and returns the new group.
 	 * 
+	 * @param ctx The security context.
 	 * @param object The object hosting information about the group to create. 
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle createGroup(AdminObject object, 
+	public CallHandle createGroup(SecurityContext ctx, AdminObject object,
 			AgentEventListener observer);
 
 	/**
 	 * Modifies the password of the currently logged in user.
 	 * 
+	 * @param ctx The security context.
 	 * @param oldPassword The old password.
 	 * @param newPassword The new password.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle changePassword(String oldPassword, String newPassword, 
-			AgentEventListener observer);
+	public CallHandle changePassword(SecurityContext ctx,
+		String oldPassword, String newPassword, AgentEventListener observer);
 	
 	/**
 	 * Loads all the available groups.
 	 * 
+	 * @param ctx The security context.
 	 * @param groupID   The group identifier or <code>-1</code>.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadExperimenterGroups(long groupID,
+	public CallHandle loadExperimenterGroups(SecurityContext ctx, long groupID,
 			AgentEventListener observer);
 
 	/**
 	 * Loads the experimenters contained within the specified groups.
 	 * 
+	 * @param ctx The security context.
 	 * @param groupID   The group identifier or <code>-1</code>.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadExperimenters(long groupID,
+	public CallHandle loadExperimenters(SecurityContext ctx, long groupID,
 			AgentEventListener observer);
 	
 	/**
 	 * Deletes the specified experimenters or groups. Returns the experimenters
 	 * or groups that could not be deleted.
 	 * 
+	 * @param ctx The security context.
 	 * @param experimenters The experimenters to delete.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle deleteObjects(List<DataObject> objects,
-			AgentEventListener observer);
+	public CallHandle deleteObjects(SecurityContext ctx,
+			List<DataObject> objects, AgentEventListener observer);
 
 	/**
 	 * Updates the specified experimenters. Returns the experimenters
 	 * that could not be updated.
 	 * 
+	 * @param ctx The security context.
 	 * @param experimenters The experimenters to update.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle updateExperimenters(GroupData group,
+	public CallHandle updateExperimenters(SecurityContext ctx,
+			GroupData group,
 			Map<ExperimenterData, UserCredentials> experimenters,
 			AgentEventListener observer);
 	
 	/**
 	 * Resets the password of the experimenters.
 	 * 
+	 * @param ctx The security context.
 	 * @param object The object hosting information about the experimenters
 	 * 				to handle. 
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle resetExperimentersPassword(AdminObject object, 
-			AgentEventListener observer);
+	public CallHandle resetExperimentersPassword(SecurityContext ctx,
+			AdminObject object, AgentEventListener observer);
 
 	/**
 	 * Activates or no the passed experimenters.
 	 * 
+	 * @param ctx The security context.
 	 * @param object The object hosting information about the experimenters
 	 * 				to handle. 
-	 * @param observer	Call-back handler.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle activateExperimenters(AdminObject object, 
-			AgentEventListener observer);
+	public CallHandle activateExperimenters(SecurityContext ctx,
+			AdminObject object, AgentEventListener observer);
 
 	/**
 	 * Resets the password of the experimenters.
 	 * 
+	 * @param ctx The security context.
 	 * @param experimenter The experimenter to handle.
-	 * @param observer	Call-back handler.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadExperimenterPhoto(ExperimenterData experimenter, 
-			AgentEventListener observer);
+	public CallHandle loadExperimenterPhoto(SecurityContext ctx,
+			ExperimenterData experimenter, AgentEventListener observer);
 	
 	/**
 	 * Resets the password of the experimenters.
 	 * 
-	 * @param experimenter  The experimenter to handle.
-	 * @param photo			The photo to upload.
+	 * @param ctx The security context.
+	 * @param experimenter The experimenter to handle.
+	 * @param photo The photo to upload.
 	 * @param format The format of the file.
-	 * @param observer	Call-back handler.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle uploadExperimenterPhoto(ExperimenterData experimenter, 
-			File photo, String format, AgentEventListener observer);
+	public CallHandle uploadExperimenterPhoto(SecurityContext ctx,
+			ExperimenterData experimenter, File photo, String format, 
+			AgentEventListener observer);
 	
 }
