@@ -34,6 +34,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import pojos.ImageData;
@@ -67,13 +68,13 @@ public class BirdEyeLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer	The view this loader is for.
-     * 					Mustn't be <code>null</code>.
-     * @param image	  	The image to handle.
+     * @param viewer The view this loader is for. Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param image The image to handle.
      */
-	public BirdEyeLoader(ImViewer viewer, ImageData image)
+	public BirdEyeLoader(ImViewer viewer, SecurityContext ctx, ImageData image)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (image == null)
 			throw new IllegalArgumentException("No image to load.");
 		this.image = image;
@@ -87,8 +88,8 @@ public class BirdEyeLoader
     {
     	Set<Long> ids = new HashSet<Long>();
     	ids.add(ImViewerAgent.getUserDetails().getId());
-    	handle = mhView.loadThumbnails(image, ids, Factory.THUMB_DEFAULT_WIDTH,
-    			Factory.THUMB_DEFAULT_HEIGHT, this);
+    	handle = mhView.loadThumbnails(ctx, image, ids,
+    		Factory.THUMB_DEFAULT_WIDTH, Factory.THUMB_DEFAULT_HEIGHT, this);
     }
     
     /**
