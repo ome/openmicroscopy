@@ -34,6 +34,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ProjectData;
 
@@ -71,17 +72,17 @@ public class ProjectsLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer The viewer this loader is for. 
-     *               Mustn't be <code>null</code>.
+     * @param viewer The viewer this loader is for. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param node   The node hosting the project to browse.
      *               Mustn't be <code>null</code>.
      * @param userID The user's identifier.
-     * @param groupID The group's identifier.            
+     * @param groupID The group's identifier.
      */
-    public ProjectsLoader(TreeViewer viewer, TreeImageDisplay node, long userID,
-    		long groupID)
+    public ProjectsLoader(TreeViewer viewer, SecurityContext ctx, 
+    		TreeImageDisplay node, long userID, long groupID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (node == null)
 			throw new IllegalArgumentException("No node of reference.");
 		this.node = node;
@@ -99,8 +100,8 @@ public class ProjectsLoader
     	long id = node.getUserObjectId();
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(id);
-    	handle = hiBrwView.loadHierarchy(ProjectData.class, ids, userID, groupID,
-    			this);
+    	handle = hiBrwView.loadHierarchy(ctx, ProjectData.class, ids, userID,
+    			groupID, this);
     }
 
     /**

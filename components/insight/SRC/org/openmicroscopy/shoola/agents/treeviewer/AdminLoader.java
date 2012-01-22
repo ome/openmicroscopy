@@ -34,6 +34,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.GroupData;
@@ -65,11 +66,12 @@ public class AdminLoader
      * Creates a new instance.
      * 
      * @param viewer Reference to the Model. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param group  The node to attach the result to or <code>null</code>.
      */
-	public AdminLoader(Browser viewer, TreeImageSet group)
+	public AdminLoader(Browser viewer, SecurityContext ctx, TreeImageSet group)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		this.group = group;
 	}
 	
@@ -84,7 +86,7 @@ public class AdminLoader
     		GroupData g = (GroupData) group.getUserObject();
     		id = g.getId();
     	}
-    	handle = adminView.loadExperimenterGroups(id, this);
+    	handle = adminView.loadExperimenterGroups(ctx, id, this);
     }
 
     /**

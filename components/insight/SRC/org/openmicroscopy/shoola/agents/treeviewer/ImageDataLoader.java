@@ -32,6 +32,7 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
 
@@ -63,11 +64,13 @@ public class ImageDataLoader
      * 
      * @param viewer        The viewer this data loader is for.
      *                      Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param expNode		The node hosting the experimenter the data are for.
      */
-    public ImageDataLoader(Browser viewer, TreeImageSet expNode)
+    public ImageDataLoader(Browser viewer, SecurityContext ctx,
+    		TreeImageSet expNode)
     {
-        super(viewer);
+        super(viewer, ctx);
         this.expNode = expNode;
     } 
     
@@ -82,7 +85,7 @@ public class ImageDataLoader
     		ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
     		userID = exp.getId();
     	}
-    	handle = dmView.loadImages(userID, this);
+    	handle = dmView.loadImages(ctx, userID, this);
     }
     
     /**

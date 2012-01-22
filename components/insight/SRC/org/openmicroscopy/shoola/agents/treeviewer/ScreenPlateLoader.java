@@ -31,6 +31,7 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
 import pojos.PlateData;
@@ -95,15 +96,16 @@ public class ScreenPlateLoader
      * 
      * @param viewer  The viewer this data loader is for.
      *                Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param expNode The node hosting the experimenter the data are for.
      * 				  Mustn't be <code>null</code>.
      * @param type 	  The type of the root node.
      * @param parent  The parent the nodes are for.
      */
-	public ScreenPlateLoader(Browser viewer, TreeImageSet expNode, int type,
-									TreeImageSet parent)
+	public ScreenPlateLoader(Browser viewer, SecurityContext ctx,
+			TreeImageSet expNode, int type, TreeImageSet parent)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (expNode == null ||
         		!(expNode.getUserObject() instanceof ExperimenterData))
         	throw new IllegalArgumentException("Experimenter node not valid.");
@@ -117,13 +119,15 @@ public class ScreenPlateLoader
      * 
      * @param viewer  The viewer this data loader is for.
      *                Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param expNode The node hosting the experimenter the data are for.
      * 				  Mustn't be <code>null</code>.
      *  @param type   The type of the root node.
      */
-	public ScreenPlateLoader(Browser viewer, TreeImageSet expNode, int type)
+	public ScreenPlateLoader(Browser viewer, SecurityContext ctx,
+			TreeImageSet expNode, int type)
 	{
-		this(viewer, expNode, type, null);
+		this(viewer, ctx, expNode, type, null);
 	}
 	
 	 /**
@@ -134,7 +138,7 @@ public class ScreenPlateLoader
     {
     	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
     	if (parent == null) 
-    		handle = dmView.loadContainerHierarchy(ScreenData.class, null, 
+    		handle = dmView.loadContainerHierarchy(ctx, ScreenData.class, null,
     				false, exp.getId(), viewer.getUserGroupID(), this);
     }
 

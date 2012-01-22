@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -80,14 +81,15 @@ public class ExperimenterImagesCounter
      * 
      * @param viewer    The viewer this data loader is for.
      *                  Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param expNode	The node hosting the experimenter the data are for.
      * 					Mustn't be <code>null</code>.
      * @param nodes		The time nodes. Mustn't be <code>null</code>.
      */
-	public ExperimenterImagesCounter(Browser viewer, TreeImageSet expNode, 
-									List<TreeImageSet> nodes)
+	public ExperimenterImagesCounter(Browser viewer, SecurityContext ctx,
+			TreeImageSet expNode, List<TreeImageSet> nodes)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (expNode == null ||
 				!(expNode.getUserObject() instanceof ExperimenterData))
 			throw new IllegalArgumentException("Experimenter node not valid.");
@@ -147,7 +149,7 @@ public class ExperimenterImagesCounter
 				m.put(file.getType(), ref);
 			}
 		}
-		handle = dmView.countExperimenterImages(userID, m, this);
+		handle = dmView.countExperimenterImages(ctx, userID, m, this);
 	}
 
 	 /** 
