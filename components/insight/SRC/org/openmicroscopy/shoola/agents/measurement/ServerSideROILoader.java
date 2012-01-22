@@ -31,6 +31,7 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
@@ -69,13 +70,14 @@ public class ServerSideROILoader
      * 
      * @param viewer	The viewer this data loader is for.
      *                  Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param imageID	The id of the image the ROIs are related to.
      * @param userID	The id of the user.
      */
-	public ServerSideROILoader(MeasurementViewer viewer, long imageID, 
-								long userID)
+	public ServerSideROILoader(MeasurementViewer viewer, SecurityContext ctx,
+			long imageID, long userID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (imageID < 0) 
 			throw new IllegalArgumentException("No image specified.");
 		this.imageID = imageID;
@@ -88,7 +90,7 @@ public class ServerSideROILoader
      */
     public void load()
     {
-    	handle = idView.loadROIFromServer(imageID, userID, this);
+    	handle = idView.loadROIFromServer(ctx, imageID, userID, this);
     }
     
     /**

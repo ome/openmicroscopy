@@ -68,28 +68,28 @@ public abstract class DataTreeViewerLoader
 {
   
 	/** The TreeViewer this data loader is for. */
-	protected final TreeViewer      		viewer;
+	protected final TreeViewer viewer;
 
 	/** Convenience reference for subclasses. */
-	protected final Registry        		registry;
+	protected final Registry registry;
 
 	/** Convenience reference for subclasses. */
-	protected final DataManagerView 		dmView;
+	protected final DataManagerView dmView;
 
 	/** Convenience reference for subclasses. */
-	protected final DataHandlerView 		dhView;
+	protected final DataHandlerView dhView;
 	
     /** Convenience reference for subclasses. */
-    protected final HierarchyBrowsingView 	hiBrwView;
+    protected final HierarchyBrowsingView hiBrwView;
     
     /** Convenience reference for subclasses. */
-    protected final ImageDataView        	ivView;
+    protected final ImageDataView ivView;
 
     /** Convenience reference for subclasses. */
-    protected final MetadataHandlerView		mhView;
+    protected final MetadataHandlerView mhView;
     
     /** Convenience reference for subclasses. */
-    protected final AdminView				adminView;
+    protected final AdminView adminView;
     
     /** The security context.*/
     protected final SecurityContext ctx;
