@@ -560,6 +560,7 @@ class ImViewerControl
 	/** Uploads the script.*/
 	private void uploadScript()
 	{
+		/*
 		Map<Long, String> map;
     	Registry reg = ImViewerAgent.getRegistry();
 		try {
@@ -595,6 +596,7 @@ class ImViewerControl
 			}
 		});
     	UIUtilities.centerAndShow(dialog);
+    	*/
 	}
 	/**
 	 * Downloads the possible script.

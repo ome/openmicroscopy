@@ -434,7 +434,8 @@ class ImViewerComponent
 		int option = msg.centerMsgBox();
 		if (option == MessageBox.YES_OPTION) {
 			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-			bus.post(new ViewImage(new ViewImageObject(image), null));
+			bus.post(new ViewImage(model.getSecurityContext(),
+					new ViewImageObject(image), null));
 		}
 	}
 	
@@ -3096,8 +3097,9 @@ class ImViewerComponent
 				if (notifyUser) {
 					postViewerState(ViewerState.CLOSE);
 					ImViewerRecentObject object = new ImViewerRecentObject(
-							model.getImageID(), model.getImageTitle(),
-							getImageIcon());
+						model.getSecurityContext(),
+						model.getImageID(), model.getImageTitle(),
+						getImageIcon());
 					firePropertyChange(RECENT_VIEWER_PROPERTY, null, object);
 				}
 				
@@ -3376,7 +3378,7 @@ class ImViewerComponent
 				fireStateChange();
 		}
 	}
-	
+
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#isCompressed()
@@ -3391,6 +3393,5 @@ class ImViewerComponent
 	 * @see #toString()
 	 */
 	public String toString() { return getTitle(); }
-
 
 }
