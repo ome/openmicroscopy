@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -63,16 +64,16 @@ public class PasswordEditor
     /**
      * Creates a new instance.
      * 
-     * @param viewer		The viewer this data loader is for.
-     *                  	Mustn't be <code>null</code>.
-     * @param oldPassword	The logged in password. 
-     * 						Mustn't be <code>null</code>.
-     * @param newPassword	The new password. Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param oldPassword The logged in password. Mustn't be <code>null</code>.
+     * @param newPassword The new password. Mustn't be <code>null</code>.
      */
-	public PasswordEditor(Editor viewer, String oldPassword, 
-					String newPassword)
+	public PasswordEditor(Editor viewer, SecurityContext ctx,
+			String oldPassword, String newPassword)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (oldPassword == null)
 			throw new IllegalArgumentException("Password not valid.");
 		if (newPassword == null)
@@ -87,7 +88,7 @@ public class PasswordEditor
      */
 	public void load()
 	{
-		handle = adminView.changePassword(oldPassword, newPassword, this);
+		handle = adminView.changePassword(ctx, oldPassword, newPassword, this);
 	}
 	
 	/**
