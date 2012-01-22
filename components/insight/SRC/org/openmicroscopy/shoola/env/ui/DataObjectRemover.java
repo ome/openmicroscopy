@@ -31,6 +31,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
 
@@ -75,13 +76,15 @@ public class DataObjectRemover
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param registry	Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param objects  	The collection of objects to delete.
      * @param activity  The activity associated to this loader.
      */
 	public DataObjectRemover(UserNotifier viewer,  Registry registry,
-			List<DeletableObject> objects, ActivityComponent activity)
+		SecurityContext ctx, List<DeletableObject> objects, 
+		ActivityComponent activity)
 	{
-		super(viewer, registry, activity);
+		super(viewer, registry, ctx, activity);
 		if (objects == null || objects.size() == 0)
 			throw new IllegalArgumentException("No Objects to delete.");
 		this.objects = objects;

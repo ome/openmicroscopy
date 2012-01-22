@@ -91,6 +91,7 @@ public class ExportLoader
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param registry	Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param image		The image to export.
      * @param file		The file where to export the image.
      * @param index	 	One of the constants defined by this class.

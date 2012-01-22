@@ -244,7 +244,7 @@ public class TaskBarManager
 		try {
 			DataServicesFactory f = DataServicesFactory.getInstance(container);
 			if (f.isConnected()) {
-				f.shutdown();
+				f.shutdown(null);
 				synchConnectionButtons();
 			} else {
 				EventBus bus = container.getRegistry().getEventBus();

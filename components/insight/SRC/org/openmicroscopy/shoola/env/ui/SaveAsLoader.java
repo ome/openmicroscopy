@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.ui;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
 
@@ -75,13 +76,14 @@ public class SaveAsLoader
      * 
      * @param viewer 	Reference to the model. Mustn't be <code>null</code>.
      * @param registry	Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param param  	The parameters used to save the images.
      * @param activity 	The activity associated to this loader.
      */
 	public SaveAsLoader(UserNotifier viewer, Registry registry,
-			SaveAsParam param, ActivityComponent activity)
+			SecurityContext ctx, SaveAsParam param, ActivityComponent activity)
 	{
-		super(viewer, registry, activity);
+		super(viewer, registry, ctx, activity);
 		if (param == null)
 			throw new IllegalArgumentException("Parameters cannot be null.");
 		this.param = param;
@@ -93,7 +95,7 @@ public class SaveAsLoader
 	 */
 	public void load()
 	{
-		handle = ivView.saveAs(param, this);
+		handle = ivView.saveAs(ctx, param, this);
 	}
 
     /**
