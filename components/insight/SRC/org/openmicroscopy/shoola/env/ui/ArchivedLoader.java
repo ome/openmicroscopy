@@ -32,6 +32,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ImageData;
 
@@ -74,17 +75,19 @@ public class ArchivedLoader
 	/**
      * Creates a new instance.
      * 
-     * @param viewer		The viewer this data loader is for.
-     *               		Mustn't be <code>null</code>.
-     * @param registry		Convenience reference for subclasses.
-     * @param image			The image to export.
-     * @param folderPath	The location where to export the image.
-     * @param activity 		The activity associated to this loader.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param registry Convenience reference for subclasses.
+     * @param ctx The security context.
+     * @param image The image to export.
+     * @param folderPat The location where to export the image.
+     * @param activity The activity associated to this loader.
      */
 	public ArchivedLoader(UserNotifier viewer,  Registry registry,
-			ImageData image, String folderPath, ActivityComponent activity)
+			SecurityContext ctx, ImageData image, String folderPath,
+			ActivityComponent activity)
 	{
-		super(viewer, registry, activity);
+		super(viewer, registry, ctx, activity);
 		if (image == null)
 			throw new IllegalArgumentException("Image not valid.");
 		this.image = image;

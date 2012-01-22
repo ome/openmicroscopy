@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.ui;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
@@ -80,21 +81,27 @@ abstract class UserNotifierLoader
     /** Convenience reference to the activity. */
     protected final ActivityComponent 	activity;
     
+    /** The security context.*/
+    protected final SecurityContext ctx;
+    
     /**
      * Creates a new instance.
      * 
-     * @param viewer	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
-     * @param registry	Convenience reference for subclasses.
-     * @param activity	Convenience reference to the activity.
+     * @param viewer The viewer this data loader is for.
+     *                Mustn't be <code>null</code>.
+     * @param registry Convenience reference for subclasses.
+     * @param ctx The security context.
+     * @param activity Convenience reference to the activity.
      */
     UserNotifierLoader(UserNotifier viewer, Registry registry,
-    		ActivityComponent activity)
+		SecurityContext ctx, ActivityComponent activity)
     {
     	if (viewer == null) throw new NullPointerException("No viewer.");
     	if (registry == null) throw new NullPointerException("No registry.");
+    	if (ctx == null) throw new NullPointerException("No security context.");
     	this.activity = activity;
     	this.viewer = viewer;
+    	this.ctx = ctx;
     	this.registry = registry;
     	mhView = (MetadataHandlerView) 
      		registry.getDataServicesView(MetadataHandlerView.class);
