@@ -37,6 +37,8 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -65,7 +67,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#addExistingObjects(DataObject, Collection)
      */
-	public void addExistingObjects(DataObject parent, Collection children) 
+	public void addExistingObjects(SecurityContext ctx, DataObject parent, Collection children) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 	}
@@ -74,7 +76,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#advancedSearchFor(SearchDataContext)
      */
-	public Object advancedSearchFor(SearchDataContext context) 
+	public Object advancedSearchFor(SecurityContext ctx, SearchDataContext context) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -84,7 +86,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#annotateChildren(Set, AnnotationData)
      */
-	public List annotateChildren(Set folders, AnnotationData data) 
+	public List annotateChildren(SecurityContext ctx, Set folders, AnnotationData data) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -94,7 +96,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#changePassword(String, String)
      */
-	public Boolean changePassword(String oldPassword, String newPassword)
+	public Boolean changePassword(SecurityContext ctx, String oldPassword, String newPassword)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return Boolean.valueOf(false);
@@ -104,7 +106,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#createAnnotationFor(DataObject, AnnotationData)
      */
-	public DataObject createAnnotationFor(DataObject annotatedObject, 
+	public DataObject createAnnotationFor(SecurityContext ctx, DataObject annotatedObject,
 			AnnotationData data)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -115,7 +117,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#createAnnotationFor(Set, AnnotationData)
      */
-	public List createAnnotationFor(Set toAnnotate, AnnotationData data) 
+	public List createAnnotationFor(SecurityContext ctx, Set toAnnotate, AnnotationData data)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -125,8 +127,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#createDataObject(DataObject, DataObject, Collection)
      */
-	public DataObject createDataObject(DataObject newObject, DataObject parent, 
-			Collection children) 
+	public DataObject createDataObject(SecurityContext ctx, DataObject newObject,
+			DataObject parent, Collection children) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -136,7 +138,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#cutAndPaste(Map, Map)
      */
-	public void cutAndPaste(Map toPaste, Map toCut)
+	public void cutAndPaste(SecurityContext ctx, Map toPaste, Map toCut)
 		throws DSOutOfServiceException, DSAccessException
 	{
 	}
@@ -145,7 +147,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#deleteContainer(DataObject, boolean)
      */
-	public void deleteContainer(DataObject object, boolean content) 
+	public void deleteContainer(SecurityContext ctx, DataObject object,
+			boolean content) 
 		throws DSOutOfServiceException, DSAccessException
 	{	
 	}
@@ -154,8 +157,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#findAnnotations(Class, List, List, boolean)
      */
-	public Map findAnnotations(Class nodeType, List nodeIDs, List annotatorIDs,
-			boolean forUser) 
+	public Map findAnnotations(SecurityContext ctx, Class nodeType,
+		List nodeIDs, List annotatorIDs, boolean forUser) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -165,8 +168,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#findContainerHierarchy(Class, List, long)
      */
-	public Set findContainerHierarchy(Class rootNodeType, List leavesIDs, 
-				long userID)
+	public Set findContainerHierarchy(SecurityContext ctx, Class rootNodeType,
+			List leavesIDs, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -176,7 +179,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#findContainerPaths(Class, long, long)
      */
-	public Collection findContainerPaths(Class type, long id, long userID) 
+	public Collection findContainerPaths(SecurityContext ctx, Class type,
+			long id, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -186,7 +190,8 @@ public class NullOmeroPojoService
      * No-op implementation
      * @see OmeroDataService#getArchivedFiles(String, long)
      */
-	public Map getArchivedImage(String location, long pixelsID) 
+	public Map getArchivedImage(SecurityContext ctx, String location,
+			long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -196,7 +201,7 @@ public class NullOmeroPojoService
      * No-op implementation
      * @see OmeroDataService#getChannelsMetadata(long)
      */
-	public List getChannelsMetadata(long pixelsID) 
+	public List getChannelsMetadata(SecurityContext ctx, long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -206,8 +211,8 @@ public class NullOmeroPojoService
      * No-op implementation
      * @see OmeroDataService#getCollectionCount(Class, String, List)
      */
-	public Map getCollectionCount(Class rootNodeType, String property, 
-			List rootNodeIDs) 
+	public Map getCollectionCount(SecurityContext ctx, Class rootNodeType,
+			String property, List rootNodeIDs) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -217,7 +222,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#getExperimenterImages(long)
      */
-	public Set getExperimenterImages(long userID) 
+	public Set getExperimenterImages(SecurityContext ctx, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -227,7 +232,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#getImages(Class, List, long)
      */
-	public Set getImages(Class nodeType, List nodeIDs, long userID) 
+	public Set getImages(SecurityContext ctx, Class nodeType, List nodeIDs,
+			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -237,8 +243,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#getImagesAllPeriodCount(Timestamp, Timestamp, long)
      */
-	public List getImagesAllPeriodCount(Timestamp lowerTime, Timestamp time, 
-			long userID)
+	public List getImagesAllPeriodCount(SecurityContext ctx,
+			Timestamp lowerTime, Timestamp time, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -248,8 +254,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#getImagesPeriod(Timestamp, Timestamp, long, boolean)
      */
-	public Collection getImagesPeriod(Timestamp lowerTime, Timestamp time, long userID, 
-			boolean asDataObject)
+	public Collection getImagesPeriod(SecurityContext ctx, Timestamp lowerTime,
+		Timestamp time, long userID, boolean asDataObject)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -265,7 +271,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#getOriginalFiles(long)
      */
-	public Collection getOriginalFiles(long pixelsID) 
+	public Collection getOriginalFiles(SecurityContext ctx, long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -281,7 +287,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#getSpace(int, long)
      */
-	public long getSpace(int index, long userID)
+	public long getSpace(SecurityContext ctx, int index, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return 0;
@@ -292,8 +298,8 @@ public class NullOmeroPojoService
      * @see OmeroDataService#loadContainerHierarchy(Class, List, boolean, long,
      * long)
      */
-	public Set loadContainerHierarchy(Class rootNodeType, List rootNodeIDs, 
-			boolean withLeaves, long userID, long groupID)
+	public Set loadContainerHierarchy(SecurityContext ctx, Class rootNodeType,
+		List rootNodeIDs, boolean withLeaves, long userID, long groupID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -303,7 +309,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#loadExistingObjects(Class, List, long)
      */
-	public Set loadExistingObjects(Class nodeType, List nodeIDs, long userID) 
+	public Set loadExistingObjects(SecurityContext ctx, Class nodeType,
+			List nodeIDs, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -313,8 +320,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#loadPlateWells(long, long, long)
      */
-	public Collection loadPlateWells(long plateID, long acquisitionID,
-			long userID)
+	public Collection loadPlateWells(SecurityContext ctx, long plateID,
+			long acquisitionID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -324,8 +331,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#loadScreenPlates(Class, List, long)
      */
-	public Set loadScreenPlates(Class rootNodeType, List rootNodeIDs, 
-			long userID) 
+	public Set loadScreenPlates(SecurityContext ctx, Class rootNodeType,
+			List rootNodeIDs, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -335,7 +342,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#loadTopContainerHierarchy(Class, long)
      */
-	public Set loadTopContainerHierarchy(Class rootNodeType, long userID) 
+	public Set loadTopContainerHierarchy(SecurityContext ctx,
+			Class rootNodeType, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -345,7 +353,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#removeDataObjects(Set, DataObject)
      */
-	public Set removeDataObjects(Set children, DataObject parent)
+	public Set removeDataObjects(SecurityContext ctx, Set children,
+			DataObject parent)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -355,7 +364,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#updateAnnotationFor(Map)
      */
-	public List updateAnnotationFor(Map toUpdate) 
+	public List updateAnnotationFor(SecurityContext ctx, Map toUpdate) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -365,7 +374,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#updateDataObject(DataObject)
      */
-	public DataObject updateDataObject(DataObject object)
+	public DataObject updateDataObject(SecurityContext ctx, DataObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -375,8 +384,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#updateExperimenter(ExperimenterData, GroupData)
      */
-	public ExperimenterData updateExperimenter(ExperimenterData exp, GroupData
-			group) 
+	public ExperimenterData updateExperimenter(SecurityContext ctx,
+			ExperimenterData exp, GroupData group) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -386,7 +395,8 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#delete(Collection)
      */
-	public DeleteCallback delete(Collection<DeletableObject> objects) 
+	public DeleteCallback delete(SecurityContext ctx,
+			Collection<DeletableObject> objects) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -396,7 +406,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#getImage(long, long)
      */
-	public ImageData getImage(long imageID, long userID) 
+	public ImageData getImage(SecurityContext ctx, long imageID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -414,7 +424,7 @@ public class NullOmeroPojoService
      * No-operation implementation
      * @see OmeroDataService#getServerVersion()
      */
-	public FSFileSystemView getFSRepositories(long userID)
+	public FSFileSystemView getFSRepositories(SecurityContext ctx, long userID)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
