@@ -57,54 +57,12 @@ public class QuickFinder
 {
 
 	/** Reference to the component handling data. */ 
-	private List<FinderLoader>	finderHandlers;
+	private List<FinderLoader> finderHandlers;
 	
 	/** One of the constants defined by this class. */
-	private int					state;
+	private int state;
 	
-	/** 
-	 * Searches for the passed values.
-	 * 
-	 * @param values The value to search for.
-	 * @param sep
-	 */
-	private void fireTagsRetrieval(List values, String sep)
-	{
-		state = SEARCH;
-		QuickFinderLoader handler = new QuickFinderLoader(this, null);
-		handler.load();
-		finderHandlers.add(handler);
-	}
-	
-	/** 
-	 * Searches for the passed values.
-	 * 
-	 * @param values The value to search for.
-	 * @param sep
-	 */
-	private void fireImagesRetrieval(List values, String sep)
-	{
-		state = SEARCH;
-		QuickFinderLoader handler = new QuickFinderLoader(this, null);
-		handler.load();
-		finderHandlers.add(handler);
-	}
-	
-	/** 
-	 * Searches for the passed values.
-	 * 
-	 * @param values The value to search for.
-	 * @param sep
-	 */
-	private void fireAnnotationsRetrieval(List values, String sep)
-	{
-		state = SEARCH;
-		QuickFinderLoader handler = new QuickFinderLoader(this, null);
-		handler.load();
-		finderHandlers.add(handler);
-	}
-	
-	/** Creates a new instance. */
+	/** Creates a new instance.*/
 	public QuickFinder()
 	{
 		finderHandlers = new ArrayList<FinderLoader>();

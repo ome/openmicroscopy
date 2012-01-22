@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -50,22 +51,24 @@ public class AdvancedFinderLoader
 {
 
 	/** Collection of terms to search for. */
-	private SearchDataContext		searchContext;
+	private SearchDataContext searchContext;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  			handle;
+    private CallHandle handle;
 
 	/**
      * Creates a new instance.
      * 
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param context	The context of the search.
      * 					Mustn't be <code>null</code>.
      */
-    public AdvancedFinderLoader(Finder viewer, SearchDataContext context)
+    public AdvancedFinderLoader(Finder viewer, SecurityContext ctx,
+    		SearchDataContext context)
     {
-    	super(viewer);
+    	super(viewer, ctx);
     	if (context == null) 
     		throw new IllegalArgumentException("No scope defined.");
     	searchContext = context;
@@ -77,7 +80,7 @@ public class AdvancedFinderLoader
      */
     public void load()
     {
-    	handle = dhView.advancedSearchFor(searchContext, this);
+    	handle = dhView.advancedSearchFor(ctx, searchContext, this);
     }
 
     /**
