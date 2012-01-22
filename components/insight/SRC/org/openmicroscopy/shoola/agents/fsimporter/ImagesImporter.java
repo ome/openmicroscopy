@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
@@ -75,13 +76,14 @@ public class ImagesImporter
 	 * 
 	 * @param viewer	The Importer this data loader is for.
      * 					Mustn't be <code>null</code>.
+     * @param ctx The security context.
 	 * @param context	The context of the import.
 	 * @param loaderID  The identifier of the loader.
 	 */
-	public ImagesImporter(Importer viewer, ImportableObject context,
-			Integer loaderID)
+	public ImagesImporter(Importer viewer, SecurityContext ctx,
+			ImportableObject context, Integer loaderID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (context == null || context.getFiles() == null ||
 				context.getFiles().size() == 0)
 			throw new IllegalArgumentException("No Files to import.");
@@ -95,7 +97,8 @@ public class ImagesImporter
 	 */
 	public void load()
 	{
-		handle = ivView.importFiles(context, getCurrentUserID(), groupID, this);
+		handle = ivView.importFiles(ctx, context, getCurrentUserID(), groupID,
+				this);
 	}
 
 	/** 
