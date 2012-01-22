@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 
@@ -195,6 +196,7 @@ public class RefreshExperimenterDataLoader
      * 
      * @param viewer        The viewer this data loader is for.
      *                      Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param rootNodeType	The root node either <code>Project</code> or 
      *                      <code>Screen</code>.
      * @param expNodes		Collection of nodes hosting information about
@@ -203,11 +205,11 @@ public class RefreshExperimenterDataLoader
      * @param refNode		The node of reference.
      * @param toBrowse      The node to browse.
      */
-    public RefreshExperimenterDataLoader(Browser viewer, 
+    public RefreshExperimenterDataLoader(Browser viewer, SecurityContext ctx,
     			Class rootNodeType, Map<Long, RefreshExperimenterDef> expNodes, 
     			Class type, long id, Object refNode, DataObject toBrowse)
     {
-        super(viewer);
+        super(viewer, ctx);
         if (expNodes == null || expNodes.size() == 0)
         	throw new IllegalArgumentException("Experimenter nodes not valid.");
         checkClass(rootNodeType);
@@ -300,7 +302,7 @@ public class RefreshExperimenterDataLoader
         		}
     		}
     	}
-    	handle = dmView.refreshHierarchy(rootNodeType, m, this);
+    	handle = dmView.refreshHierarchy(ctx, rootNodeType, m, this);
     }
 
     /**

@@ -101,7 +101,7 @@ public class ArchivedLoader
     public void load()
     {
     	long id = image.getDefaultPixels().getId();
-    	handle = mhView.loadArchivedImage(id, folderPath, this);
+    	handle = mhView.loadArchivedImage(ctx, id, folderPath, this);
     }
     
     /**
