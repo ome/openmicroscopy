@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.InstrumentData;
@@ -46,7 +47,7 @@ import pojos.InstrumentData;
  * </small>
  * @since 3.0-Beta4
  */
-public class InstrumentDataLoader 	
+public class InstrumentDataLoader
 	extends EditorLoader
 {
 
@@ -59,12 +60,14 @@ public class InstrumentDataLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer	Reference to the viewer. Mustn't be <code>null</code>.
+     * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param instrumentID  The id of the instrument.
      */
-	public InstrumentDataLoader(Editor viewer, long  instrumentID)
+	public InstrumentDataLoader(Editor viewer, SecurityContext ctx,
+			long instrumentID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (instrumentID <= 0)
 			throw new IllegalArgumentException("Instrument id not valid.");
 		this.instrumentID = instrumentID;
@@ -76,7 +79,7 @@ public class InstrumentDataLoader
      */
     public void load()
     {
-    	handle = imView.loadInstrumentData(instrumentID, this);
+    	handle = imView.loadInstrumentData(ctx, instrumentID, this);
     }
     
     /** 
