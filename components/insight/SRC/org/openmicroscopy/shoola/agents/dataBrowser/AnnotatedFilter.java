@@ -37,6 +37,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.TagAnnotationData;
@@ -98,6 +99,7 @@ public class AnnotatedFilter
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param type		One of the annotation type. 
      * 					Mustn't be <code>null</code>.
      * @param annotated	Pass <code>true</code> to filter the annotated nodes,
@@ -105,10 +107,10 @@ public class AnnotatedFilter
      * @param nodes		The collection of objects to filter. 
      * 					Mustn't be <code>null</code>.
      */
-	public AnnotatedFilter(DataBrowser viewer, Class type, boolean annotated, 
-					Collection<DataObject> nodes)
+	public AnnotatedFilter(DataBrowser viewer, SecurityContext ctx, Class type,
+			boolean annotated, Collection<DataObject> nodes)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (nodes == null || nodes.size() == 0)
 			throw new IllegalArgumentException("No nodes to filter.");
 		checkType(type);
@@ -139,8 +141,8 @@ public class AnnotatedFilter
 	public void load()
 	{
 		long userID = -1;//DataBrowserAgent.getUserDetails().getId();
-		handle = mhView.filterByAnnotated(nodeType, nodeIds, annotationType, 
-				                        annotated, userID, this);
+		handle = mhView.filterByAnnotated(ctx, nodeType, nodeIds,
+				annotationType, annotated, userID, this);
 	}
 	
 	/**
