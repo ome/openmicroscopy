@@ -31,6 +31,7 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
 import pojos.TagAnnotationData;
@@ -62,10 +63,11 @@ public class TagsLoader
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      */
-	public TagsLoader(DataBrowser viewer)
+	public TagsLoader(DataBrowser viewer, SecurityContext ctx)
 	{
-		super(viewer);
+		super(viewer, ctx);
 	}
 
 	/** 
@@ -97,7 +99,7 @@ public class TagsLoader
 					userID = -1;
 		}
 		
-		handle = mhView.loadExistingAnnotations(TagAnnotationData.class,
+		handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,
 												userID, groupID, this);
 	}
 	

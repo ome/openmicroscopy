@@ -39,6 +39,7 @@ import java.util.Map.Entry;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
@@ -83,14 +84,15 @@ public class ReportLoader
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param types		The types of annotation to add to the report.
      * @param images	The images the report is for.
      * @param path		The name of the report file.
      */
-	public ReportLoader(DataBrowser viewer, List<Class> types, 
-						Collection<ImageNode> images, String path)
+	public ReportLoader(DataBrowser viewer, SecurityContext ctx, 
+			List<Class> types, Collection<ImageNode> images, String path)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (images == null || images.size() == 0)
 			throw new IllegalArgumentException("No images specified.");
 		if (path == null || path.trim().length() == 0)
@@ -122,7 +124,7 @@ public class ReportLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadStructuredData(nodes, -1, false, this);
+		handle = mhView.loadStructuredData(ctx, nodes, -1, false, this);
 	}
 	
 	/**

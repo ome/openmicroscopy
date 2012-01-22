@@ -30,6 +30,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
@@ -61,11 +62,13 @@ public class PlateSaver
 	 * 
 	 * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
 	 * @param toUpdate	 The collection of objects to update.
 	 */
-	public PlateSaver(DataBrowser viewer, List<DataObject> toUpdate)
+	public PlateSaver(DataBrowser viewer, SecurityContext ctx,
+			List<DataObject> toUpdate)
 	{
-		super(viewer);	
+		super(viewer, ctx);	
 		if (toUpdate == null || toUpdate.size() == 0) 
 			throw new IllegalArgumentException("No objects to update.");
 		this.toUpdate = toUpdate;
@@ -83,7 +86,7 @@ public class PlateSaver
 	 */
 	public void load()
 	{
-		handle = mhView.updateDataObjects(toUpdate, this);
+		handle = mhView.updateDataObjects(ctx, toUpdate, this);
 	}
 	
 	/**
