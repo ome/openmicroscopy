@@ -35,6 +35,7 @@ import java.util.Map.Entry;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
@@ -60,31 +61,32 @@ public class FileLoader
 {
 
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  		handle;
+    private CallHandle handle;
     
     /** The id of the file to load. */
-    private long 				fileID;
+    private long fileID;
     
     /** The size of the file to load. */
-    private long 				fileSize;
+    private long fileSize;
     
     /** Utility file where the raw data are loaded. */
-    private File				file;
+    private File file;
     
     /**
      * Creates a new instance.
      * 
      * @param viewer	The Editor this data loader is for.
      *                  Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param fileName	The name of the file to edit.
      * @param fileID	The id of the file to load OR 
      * 					of the fileAnnotation if fileName is <code>null</code>.
      * @param fileSize	The size of the file to load.
      */
-	public FileLoader(Editor viewer, String fileName, long fileID, 
-				long fileSize)
+	public FileLoader(Editor viewer, SecurityContext ctx, String fileName,
+			long fileID, long fileSize)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (fileID < 0)
 			throw new IllegalArgumentException("ID not valid.");
 		this.fileID = fileID;
@@ -98,7 +100,7 @@ public class FileLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadFile(file, fileID, fileSize, this);
+		handle = mhView.loadFile(ctx, file, fileID, fileSize, this);
 	}
 
 	/**
