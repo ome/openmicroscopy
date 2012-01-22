@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -88,19 +89,22 @@ public class AdvancedFinder
 {
 	
 	/** The default title of the notification message. */
-	private static final String 	TITLE = "Search";
+	private static final String TITLE = "Search";
 	
 	/** Reference to the component handling data. */ 
-	private List<FinderLoader>				finderHandlers;
+	private List<FinderLoader> finderHandlers;
 	
 	/** One of the constants defined by this class. */
-	private int								state;
+	private int state;
 	
 	/** Collection of selected users. */
-	private Map<Long, ExperimenterData>		users;
+	private Map<Long, ExperimenterData> users;
     
 	/** The collection of tags. */
-	private Collection 						tags;
+	private Collection tags;
+	
+	/** The security context.*/
+	private SecurityContext ctx;
 	
 	/**
 	 * Determines the scope of the search.
@@ -307,7 +311,7 @@ public class AdvancedFinder
 		searchContext.setExcludedAnnotators(excludedAnnotators);
 		searchContext.setCaseSensitive(ctx.isCaseSensitive());
 		searchContext.setNumberOfResults(ctx.getNumberOfResults());
-		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, 
+		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, this.ctx,
 													searchContext);
 		loader.load();
 		finderHandlers.add(loader);
@@ -376,7 +380,7 @@ public class AdvancedFinder
 	private void loadTags()
 	{
 		if (tags == null) {
-			TagsLoader loader = new TagsLoader(this);
+			TagsLoader loader = new TagsLoader(this, ctx);
 			loader.load();
 		} else setExistingTags(tags);
 	}
@@ -407,9 +411,14 @@ public class AdvancedFinder
 		setSomeValues(toAdd);
 	}
 	
-	/** Creates a new instance. */
-	AdvancedFinder()
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param ctx The security context.
+	 */
+	AdvancedFinder(SecurityContext ctx)
 	{
+		this.ctx = ctx;
 		initialize(createControls());
 		finderHandlers = new ArrayList<FinderLoader>();
 		addPropertyChangeListener(SEARCH_PROPERTY, this);

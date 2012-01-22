@@ -31,6 +31,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -57,27 +58,30 @@ public class FinderFactory
 	/**
 	 * Creates or recycles an advanced search.
 	 * 
-	 * @param ctx	Reference to the registry. Mustn't be <code>null</code>.
+	 * @param reg Reference to the registry. Mustn't be <code>null</code>.
+	 * @param ctx The security context.
 	 * @return See above.
 	 */
-	public static AdvancedFinder getAdvancedFinder(Registry ctx)
+	public static AdvancedFinder getAdvancedFinder(Registry reg,
+			SecurityContext ctx)
 	{
-		return FinderFactory.getAdvancedFinder(ctx, null);
+		return FinderFactory.getAdvancedFinder(reg, ctx, null);
 	}
 	
 	/**
 	 * Creates or recycles an advanced search.
 	 * 
-	 * @param ctx		Reference to the registry. Mustn't be <code>null</code>.
+	 * @param reg Reference to the registry. Mustn't be <code>null</code>.
+	 * @param ctx The security context.
 	 * @param refObject	Object of reference. The search is limited to that 
 	 * 					object.
 	 * @return See above.
 	 */
-	public static AdvancedFinder getAdvancedFinder(Registry ctx, 
-											DataObject refObject)
+	public static AdvancedFinder getAdvancedFinder(Registry reg,
+			SecurityContext ctx, DataObject refObject)
 	{
-		if (singleton.registry == null) singleton.registry = ctx;
-		return (AdvancedFinder) singleton.createFinder(refObject);
+		if (singleton.registry == null) singleton.registry = reg;
+		return (AdvancedFinder) singleton.createFinder(ctx, refObject);
 	}
 	
 	/**
@@ -149,15 +153,16 @@ public class FinderFactory
 	/**
 	 * Creates the finder.
 	 * 
+	 * @param ctx The security context.
 	 * @param refObject	Object of reference. The search is limited to that 
 	 * 					object.
 	 * @return See above.
 	 */
-	private Finder createFinder(DataObject refObject)
+	private Finder createFinder(SecurityContext ctx, DataObject refObject)
 	{
 		if (finder != null)
 			return finder;
-		finder = new AdvancedFinder();
+		finder = new AdvancedFinder(ctx);
 		return finder;
 	}
 	

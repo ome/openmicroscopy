@@ -50,14 +50,13 @@ public interface Finder
 	 * Bound property indicating that some results matching 
 	 * the passed criteria have been found.
 	 */
-	public static final String	RESULTS_FOUND_PROPERTY = "resultsFound";
+	public static final String RESULTS_FOUND_PROPERTY = "resultsFound";
 	
 	/** Identified the <code>DISCARD</code> state. */
-	public static final int		DISCARDED = 100;
+	public static final int DISCARDED = 100;
 	
 	/** Identified the <code>SEARCH</code> state. */
-	public static final int		SEARCH = 101;
-	
+	public static final int SEARCH = 101;
 	
 	/** Cancels any ongoing search. */
 	public void cancel();
