@@ -1244,5 +1244,5 @@ public interface ImViewer
 	
 	/** Cancels the rendering of the image.*/
 	void cancelRendering();
-	
+
 }

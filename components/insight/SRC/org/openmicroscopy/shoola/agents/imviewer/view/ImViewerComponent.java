@@ -433,7 +433,8 @@ class ImViewerComponent
 		int option = msg.centerMsgBox();
 		if (option == MessageBox.YES_OPTION) {
 			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-			bus.post(new ViewImage(new ViewImageObject(image), null));
+			bus.post(new ViewImage(model.getSecurityContext(),
+					new ViewImageObject(image), null));
 		}
 	}
 	
@@ -3086,8 +3087,9 @@ class ImViewerComponent
 				if (notifyUser) {
 					postViewerState(ViewerState.CLOSE);
 					ImViewerRecentObject object = new ImViewerRecentObject(
-							model.getImageID(), model.getImageTitle(),
-							getImageIcon());
+						model.getSecurityContext(),
+						model.getImageID(), model.getImageTitle(),
+						getImageIcon());
 					firePropertyChange(RECENT_VIEWER_PROPERTY, null, object);
 				}
 				
@@ -3350,12 +3352,11 @@ class ImViewerComponent
 			fireStateChange();
 		}
 	}
-	
+
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
 	public String toString() { return getTitle(); }
-
 
 }
