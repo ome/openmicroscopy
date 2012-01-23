@@ -255,7 +255,8 @@ class DocComponent
 	{
 		if (!(data instanceof FileAnnotationData)) return;
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new EditFileEvent((FileAnnotationData) data));
+		bus.post(new EditFileEvent(model.getSecurityContext(),
+				(FileAnnotationData) data));
 	}
 	
 	/** 
@@ -417,7 +418,8 @@ class DocComponent
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData f = (FileAnnotationData) data;
 			Registry reg = MetadataViewerAgent.getRegistry();		
-			reg.getEventBus().post(new EditFileEvent(f));
+			reg.getEventBus().post(new EditFileEvent(model.getSecurityContext(),
+					f));
 		}
 	}
 	

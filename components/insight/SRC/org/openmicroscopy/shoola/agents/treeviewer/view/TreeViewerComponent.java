@@ -691,7 +691,8 @@ class TreeViewerComponent
 				browser.activate();
 				if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
 					ExperimenterData exp = model.getUserDetails();
-					model.getMetadataViewer().setRootObject(null, exp.getId());
+					model.getMetadataViewer().setRootObject(null,
+							exp.getId(), null);
 				}
 					
 			}
@@ -808,7 +809,7 @@ class TreeViewerComponent
 			"invoked in the DISCARDED, SAVE state.");
 		}
 		view.removeAllFromWorkingPane();
-		model.getMetadataViewer().setRootObject(null, -1);
+		model.getMetadataViewer().setRootObject(null, -1, null);
 		firePropertyChange(REMOVE_EDITOR_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));
 	}
@@ -881,7 +882,7 @@ class TreeViewerComponent
 			TreeImageTimeSet time = (TreeImageTimeSet) display;
 			view.removeAllFromWorkingPane();
 			if (!time.containsImages()) {
-				metadata.setRootObject(null, -1);
+				metadata.setRootObject(null, -1, null);
 			}
 			showDataBrowser(display.getUserObject(), display, true);
 			return;
@@ -902,7 +903,8 @@ class TreeViewerComponent
 			} else {
 				ExperimenterData exp = browser.getNodeOwner(display);
 				if (exp == null) exp = model.getUserDetails();
-				metadata.setRootObject(object, exp.getId());
+				metadata.setRootObject(object, exp.getId(),
+						browser.getSecurityContext(display));
 				TreeImageDisplay p = display.getParentDisplay();
 				if (p != null) {
 					TreeImageDisplay pp = p.getParentDisplay();
@@ -918,7 +920,7 @@ class TreeViewerComponent
 		} else {
 			DataBrowser db = model.getDataViewer();
 			if (db != null) db.setSelectedNodes(new ArrayList(), null);
-			metadata.setRootObject(null, -1);
+			metadata.setRootObject(null, -1, null);
 		}
 		if (display != null && 
 			display.getUserObject() instanceof ExperimenterData &&
@@ -962,7 +964,8 @@ class TreeViewerComponent
 			if (browser != null) last = browser.getLastSelectedDisplay();
 			if (last != null) exp = browser.getNodeOwner(last);
 			if (exp == null) exp = model.getUserDetails();
-			mv.setRootObject(selected, exp.getId());
+			mv.setRootObject(selected, exp.getId(), 
+					browser.getSecurityContext(last));
 			mv.setParentRootObject(parent, null);
 			if (model.getDataViewer() != null)
 				model.getDataViewer().setApplications(
@@ -1077,7 +1080,8 @@ class TreeViewerComponent
 				parent = ((WellData) parent).getPlate();
 		}
 		mv.setParentRootObject(parent, null);
-		mv.setRootObject(selected, exp.getId());
+		mv.setRootObject(selected, exp.getId(), 
+				browser.getSecurityContext(last));
 		if (size > 0) 
 			mv.setRelatedNodes(siblings);
 
@@ -1132,7 +1136,8 @@ class TreeViewerComponent
 		if (last != null) exp = browser.getNodeOwner(last);
 		if (exp == null) exp = model.getUserDetails();
 		mv.setSelectionMode(true);
-		mv.setRootObject(selected, exp.getId());
+		mv.setRootObject(selected, exp.getId(),
+				browser.getSecurityContext(last));
 		mv.setParentRootObject(parent, null);
 	}
 	
@@ -2259,14 +2264,16 @@ class TreeViewerComponent
 		DataBrowser db = DataBrowserFactory.getSearchBrowser();
 		int newMode = view.getDisplayMode();
 		view.removeAllFromWorkingPane();
-		model.getAdvancedFinder().requestFocusOnField();
+		model.getAdvancedFinder(
+				model.getSecurityContext()).requestFocusOnField();
 		switch (newMode) {
 			case EXPLORER_MODE:
 				onSelectedDisplay();
 				break;
 			case SEARCH_MODE:
 				ExperimenterData exp = model.getUserDetails();
-				model.getMetadataViewer().setRootObject(null, exp.getId());
+				model.getMetadataViewer().setRootObject(null, exp.getId(),
+						null);
 				if (db != null) {
 					view.displayBrowser(db);
 					model.setDataViewer(db);
@@ -2284,7 +2291,7 @@ class TreeViewerComponent
 		Collection<DataObject> results = (Collection<DataObject>) result;
 		MetadataViewer metadata = model.getMetadataViewer();
 		if (metadata != null) {
-			metadata.setRootObject(null, -1);
+			metadata.setRootObject(null, -1, null);
 		}
 		if (results == null || results.size() == 0) {
 			//UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
@@ -2379,7 +2386,7 @@ class TreeViewerComponent
 	    view.removeAllFromWorkingPane();
         if (b != null) b.refreshTree(null, null);
         ExperimenterData exp = model.getUserDetails();
-        model.getMetadataViewer().setRootObject(null, exp.getId());
+        model.getMetadataViewer().setRootObject(null, exp.getId(), null);
 	}
 
 	/**
@@ -2500,7 +2507,8 @@ class TreeViewerComponent
 						exp = (ExperimenterData) parent.getUserObject();
 						if (exp == null) exp = model.getUserDetails();
 						node.setExpanded(true);
-						mv.setRootObject(node.getUserObject(), exp.getId());
+						mv.setRootObject(node.getUserObject(), exp.getId(),
+								browser.getSecurityContext(node));
 						browser.onSelectedNode(null, node, false);
 						break;
 					}
@@ -2835,7 +2843,7 @@ class TreeViewerComponent
 				browser.removeTreeNodes(finder.getNodes());
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
-				model.getMetadataViewer().setRootObject(null, -1);
+				model.getMetadataViewer().setRootObject(null, -1, null);
 				IconManager icons = IconManager.getInstance();
 				DeleteActivityParam p = new DeleteActivityParam(
 						icons.getIcon(IconManager.APPLY_22), l);
@@ -2851,7 +2859,7 @@ class TreeViewerComponent
 				model.getSelectedBrowser().removeTreeNodes(finder.getNodes());
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
-				model.getMetadataViewer().setRootObject(null, -1);
+				model.getMetadataViewer().setRootObject(null, -1, null);
 				model.fireObjectsDeletion(values);
 				fireStateChange();
 			}
@@ -2893,7 +2901,7 @@ class TreeViewerComponent
 		}
 		*/
 		//onSelectedDisplay();
-		model.getMetadataViewer().setRootObject(null, -1);
+		model.getMetadataViewer().setRootObject(null, -1, null);
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
@@ -2935,12 +2943,14 @@ class TreeViewerComponent
 				if (object instanceof FileAnnotationData) {
 					FileAnnotationData fa = 
 						(FileAnnotationData) d.getUserObject();
-					EditFileEvent evt = new EditFileEvent(fa);
+					EditFileEvent evt = new EditFileEvent(
+							browser.getSecurityContext(d), fa);
 					bus.post(evt);
 				}
 				break;
 			case NO_SELECTION:
-				bus.post(new ShowEditorEvent());
+				//TO REVIEW
+				//bus.post(new ShowEditorEvent());
 				break;
 			case NEW_WITH_SELECTION:
 				if (browser == null) return;
@@ -2978,6 +2988,7 @@ class TreeViewerComponent
 				if (name != null) {
 					name += ShowEditorEvent.EXPERIMENT_EXTENSION;
 					ShowEditorEvent event = new ShowEditorEvent(
+							browser.getSecurityContext(d),
 							(DataObject) object, name, 
 							ShowEditorEvent.EXPERIMENT);
 					bus.post(event);
@@ -3431,7 +3442,8 @@ class TreeViewerComponent
 				    view.removeAllFromWorkingPane();
 			        browser.refreshBrowser(type, id);
 			        ExperimenterData exp = model.getUserDetails();
-			        model.getMetadataViewer().setRootObject(null, exp.getId());
+			        model.getMetadataViewer().setRootObject(null, exp.getId(),
+			        		null);
 				}
 			} else {
 				/*

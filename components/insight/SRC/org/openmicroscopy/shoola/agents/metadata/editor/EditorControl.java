@@ -290,7 +290,7 @@ class EditorControl
 	private void viewProtocol(long protocolID)
 	{
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new EditFileEvent(protocolID));
+		bus.post(new EditFileEvent(model.getSecurityContext(), protocolID));
 	}
 	
 	/** Brings up the folder chooser. */

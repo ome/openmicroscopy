@@ -1447,7 +1447,8 @@ class PropertiesUI
 								new ViewImageObject(id), null));
 					break;
 				case WikiDataObject.PROTOCOL:
-					bus.post(new EditFileEvent(id));
+					bus.post(new EditFileEvent(model.getSecurityContext(),
+							id));
 					break;
 			}
 		} else if (OMEWikiComponent.WIKI_DATA_OBJECT_ONE_CLICK_PROPERTY.equals(

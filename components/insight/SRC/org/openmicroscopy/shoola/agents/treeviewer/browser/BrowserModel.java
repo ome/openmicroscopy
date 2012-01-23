@@ -769,7 +769,7 @@ class BrowserModel
 	{
 		if (node == null) return;
 		FileAnnotationData data = (FileAnnotationData) node.getUserObject();
-		EditFileEvent evt = new EditFileEvent(data);
+		EditFileEvent evt = new EditFileEvent(getSecurityContext(node), data);
 		TreeViewerAgent.getRegistry().getEventBus().post(evt);
 	}
 
@@ -966,11 +966,22 @@ class BrowserModel
 	 */
 	SecurityContext getSecurityContext(TreeImageDisplay node)
 	{
+		if (node == null) {
+			return new SecurityContext(
+					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+		}
 		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
+		if (n == null) {
+			return new SecurityContext(
+					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+		}
 		TreeImageDisplay parent = n.getParentDisplay();
 		//TO BE reviewed
-		GroupData group = (GroupData) parent.getUserObject();
-		return new SecurityContext(group.getId());
+		//parent.get
+		//GroupData group = (GroupData) parent.getUserObject();
+		//return new SecurityContext(group.getId());
+		ExperimenterData exp = (ExperimenterData) n.getUserObject();
+		return new SecurityContext(exp.getDefaultGroup().getId());
 	}
 	
 }

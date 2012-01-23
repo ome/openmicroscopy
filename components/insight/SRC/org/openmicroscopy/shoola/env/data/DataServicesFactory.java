@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -479,11 +480,13 @@ public class DataServicesFactory
         registry.bind(LookupNames.CONNECTION_SPEED, 
         		isFastConnection(uc.getSpeedLevel()));
         
-        Set<GroupData> groups;
+        Collection<GroupData> groups;
         Set<GroupData> available;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
         try {
-        	groups = omeroGateway.getAvailableGroups(null, exp);
+        	SecurityContext ctx = new SecurityContext(
+        			exp.getDefaultGroup().getId());
+        	groups = omeroGateway.getAvailableGroups(ctx, exp);
         	//Check if the current experimenter is an administrator 
         	Iterator<GroupData> i = groups.iterator();
         	GroupData g;
@@ -524,12 +527,12 @@ public class DataServicesFactory
 		} 
         //Bind user details to all agents' registry.
         List agents = (List) registry.lookup(LookupNames.AGENTS);
-		Iterator i = agents.iterator();
+		Iterator kk = agents.iterator();
 		AgentInfo agentInfo;
 		Registry reg;
 		Boolean b = (Boolean) registry.lookup(LookupNames.BINARY_AVAILABLE);
-		while (i.hasNext()) {
-			agentInfo = (AgentInfo) i.next();
+		while (kk.hasNext()) {
+			agentInfo = (AgentInfo) kk.next();
 			if (agentInfo.isActive()) {
 				reg = agentInfo.getRegistry();
 				//reg.bind(LookupNames.USER_AUTHENTICATION, ldap);

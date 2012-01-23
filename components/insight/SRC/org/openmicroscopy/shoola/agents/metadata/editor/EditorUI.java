@@ -700,7 +700,8 @@ class EditorUI
 			if (name != null && name.trim().length() > 0) {
 				name += ShowEditorEvent.EXPERIMENT_EXTENSION;
 				ShowEditorEvent event = new ShowEditorEvent(
-						(DataObject) object, name, 
+						model.getSecurityContext(),
+						(DataObject) object, name,
 						ShowEditorEvent.EXPERIMENT);
 				bus.post(event);
 			}

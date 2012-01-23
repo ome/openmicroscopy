@@ -2236,28 +2236,37 @@ class OMEROGateway
 			
 			//now we register the new security context
 			connected = true;
-			
-			SecurityContext ctx = new SecurityContext(groupID);
-			ctx.setServerInformation(hostName, port);
-			ctx.setCompression(compression);
-			Connector connector = new Connector(ctx, secureClient, 
-					entryEncrypted, encrypted);
-			connectors.add(connector);
-			ExperimenterData exp = getUserDetails(ctx, userName);
-			//To rethink
+			IAdminPrx prx = entryEncrypted.getAdminService();
+			ExperimenterData exp = (ExperimenterData) PojoMapper.asDataObject(
+					prx.lookupExperimenter(userName));
+			SecurityContext ctx;
+			Connector connector;
 			if (groupID >= 0) {
+				ctx = new SecurityContext(groupID);
+				ctx.setServerInformation(hostName, port);
+				ctx.setCompression(compression);
 				long defaultID = -1;
 				try {
 					defaultID = exp.getDefaultGroup().getId();
 				} catch (Exception e) {}
-				if (defaultID == groupID) return exp;
+				if (defaultID == groupID) {
+					connector = new Connector(ctx, secureClient, entryEncrypted,
+							encrypted);
+					connectors.add(connector);
+					return exp;
+				}
 				try {
 					changeCurrentGroup(ctx, exp, groupID);
 					exp = getUserDetails(ctx, userName);
 				} catch (Exception e) {
 				}
 			}
-			
+			ctx = new SecurityContext(exp.getDefaultGroup().getId());
+			ctx.setServerInformation(hostName, port);
+			ctx.setCompression(compression);
+			connector = new Connector(ctx, secureClient, entryEncrypted,
+					encrypted);
+			connectors.add(connector);
 			return exp;
 		} catch (Throwable e) {
 			connected = false;
