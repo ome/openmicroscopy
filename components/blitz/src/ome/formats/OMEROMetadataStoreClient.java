@@ -1852,23 +1852,8 @@ public class OMEROMetadataStoreClient
         File repositoryRoot;
         File directory;
         String filePath = null;
-        String newBasePath;
 
-        // This only works with normalised paths. Can this be assumed here?
-        // This also assumes the target file is not a tmp file!!
-        String basePath = FilenameUtils.getFullPathNoEndSeparator(target.getAbsolutePath());
-        for (File file : files)
-        {
-            if (!file.getAbsolutePath().startsWith(basePath))
-            {
-                newBasePath = FilenameUtils.getFullPathNoEndSeparator(file.getAbsolutePath());
-                if(basePath.startsWith(newBasePath))
-                {
-                    basePath = newBasePath;
-                }
-            }
-        }
-
+        String basePath = getTargetBasePath(files, target);
         try
         {
             OriginalFile ofRoot = repo.root();
@@ -1905,7 +1890,14 @@ public class OMEROMetadataStoreClient
             try
             {
                 stream = new FileInputStream(file);
-                file = new File(directory, file.getAbsolutePath());
+                if (path.startsWith(basePath)) {
+                    // part of file set
+                    file = new File(directory, file.getName());
+                } 
+                else {
+                    // original metadata ??
+                    file = new File(directory, file.getAbsolutePath());
+                }
                 repo.makeDir(file.getParent());
                 rawFileStore = repo.file(file.getAbsolutePath(), "rw");
                 int rlen = 0;
@@ -1949,6 +1941,25 @@ public class OMEROMetadataStoreClient
         return filePath;
     }
 
+    private String getTargetBasePath(List<File> files, File target) {
+        // This only works with normalised paths. Can this be assumed here?
+        // This also assumes the target file is not a tmp file!!
+        String newBasePath;
+        String basePath = FilenameUtils.getFullPathNoEndSeparator(target.getAbsolutePath());
+        for (File file : files)
+        {
+            if (!file.getAbsolutePath().startsWith(basePath))
+            {
+                newBasePath = FilenameUtils.getFullPathNoEndSeparator(file.getAbsolutePath());
+                if(basePath.startsWith(newBasePath))
+                {
+                    basePath = newBasePath;
+                }
+            }
+        }
+        return basePath;
+    }
+
     /**
      * Sets extended the properties on a pixel set.
      * @param pixelsId The pixels set identifier.
@@ -1963,8 +1974,8 @@ public class OMEROMetadataStoreClient
         {
             Map<String, String> params = new HashMap<String, String>();
             params.put("image_no", Integer.toString(series));
-            params.put("target", target.getAbsolutePath());
-            params.put("prefix",prefix);
+            params.put("target", File.separator + target.getName());
+            params.put("prefix", prefix);
             delegate.setPixelsParams(pixelsId, true, params);
         }
         catch (Exception e)
