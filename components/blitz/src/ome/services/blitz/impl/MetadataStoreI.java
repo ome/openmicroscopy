@@ -318,9 +318,9 @@ public class MetadataStoreI extends AbstractAmdServant implements
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf)
             {
-                sql.setPixelsParams(pixelsId, params);
                 if (!useOriginalFile)
                 {
+                    sql.setPixelsParams(pixelsId, params);
                     return null;
                 }
 
@@ -352,8 +352,15 @@ public class MetadataStoreI extends AbstractAmdServant implements
                         source = new File(params.get("prefix"), path);
                     }
                 }
+                // HACK!! if source is null this is an fs-lite import
+                //        as there is a built-in file name mismatch
+                //        this method should probably be rewritten 
+                if (source == null) {
+                    source = new File(params.get("prefix") + params.get("target"));
+                }
                 params.remove("target");
                 params.remove("prefix");
+                sql.setPixelsParams(pixelsId, params);
                 // We need to perform a case insensitive replacement due to the
                 // posibilitity that we're running on a case insensitive
                 // filesystem like NTFS. (See #5654)
