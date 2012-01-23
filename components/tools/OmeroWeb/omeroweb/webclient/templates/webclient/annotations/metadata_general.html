@@ -427,7 +427,7 @@
     {% include "webtest/webtest-toolbar-include.html" %}
 {% endcomment %}
 
-    <div id="annotation_tabs">
+    <div id="annotation_tabs" class="absolute_fill">
         <ul class="tabslist">
             {% if manager.tag %}
                 <li><a href="#metadata_tab">{% trans "General" %}</a></li>
@@ -767,7 +767,7 @@
         
             <!-- ANNOTATIONS -->
             <h1>{% trans "Annotations" %}</h1>
-            <table>
+            <table width="100%">
             <!-- RATING -->
             <tr>
                 <th colspan="2">{% trans "Rate" %}:</th>

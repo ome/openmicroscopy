@@ -170,14 +170,12 @@ ul.criteria li{
     overflow: auto;
 }
 
-#left_panel {
-    padding: 0px;
-}
-
 /* tabs */
-#right_panel, #left_panel {
+#annotation_tabs, #left_panel {
     border: 0;
     background: #fff;
+    padding: 0px;
+    position: absolute;
 }
 
 ul.tabslist {
