@@ -239,7 +239,7 @@ public class EditorAgent
 							new File(path), null);
 				}
 				activity.setApplicationData(app);
-				un.notifyActivity(activity);
+				un.notifyActivity(event.getSecurityContext(), activity);
 				return;
 			}
 		}

@@ -384,7 +384,8 @@ public class FileImportComponent
 				icons.getIcon(IconManager.APPLY_22), l);
 		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
 		UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(p);
+		//TODO: review
+		//un.notifyActivity(p);
 		//the row enabled
 		deleteButton.setEnabled(false);
 		errorBox.setEnabled(false);
@@ -407,6 +408,7 @@ public class FileImportComponent
 			 */
 			public void mousePressed(MouseEvent e)
 			{ 
+				/*
 				if (e.getClickCount() == 1) {
 					if (image instanceof ThumbnailData) {
 						ThumbnailData data = (ThumbnailData) image;
@@ -427,7 +429,7 @@ public class FileImportComponent
 					} else if (image instanceof PlateData) {
 						firePropertyChange(BROWSE_PROPERTY, null, image);
 					}
-				}
+				}*/
 			}
 		};
 		

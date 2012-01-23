@@ -86,6 +86,7 @@ class ThumbnailLabel
 	/** Posts an event to view the object. */
 	private void view()
 	{
+		/* TODO: review
 		EventBus bus = ImporterAgent.getRegistry().getEventBus();
 		if (data instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) data;
@@ -98,6 +99,7 @@ class ThumbnailLabel
 		} else if (data instanceof PlateData) {
 			firePropertyChange(BROWSE_PLATE_PROPERTY, null, data);
 		}
+		*/
 	}
 	
 	/** Rolls over the node. */

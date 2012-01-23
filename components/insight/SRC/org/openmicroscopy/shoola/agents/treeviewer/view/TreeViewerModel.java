@@ -1383,4 +1383,18 @@ class TreeViewerModel
 		return browser.getSecurityContext(browser.getLastSelectedDisplay());
 	}
 	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above
+	 */
+	SecurityContext getSecurityContext(TreeImageDisplay node)
+	{
+		Browser browser = getSelectedBrowser();
+		if (browser == null) 
+			return new SecurityContext(
+					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+		return browser.getSecurityContext(node);
+	}
+
 }

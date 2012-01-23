@@ -151,7 +151,7 @@ class MetadataViewerComponent
 		MovieActivityParam activity = new MovieActivityParam(parameters, img);
 		IconManager icons = IconManager.getInstance();
 		activity.setIcon(icons.getIcon(IconManager.MOVIE_22));
-		un.notifyActivity(activity);
+		un.notifyActivity(model.getSecurityContext(), activity);
 	}
 
 	/**
@@ -173,7 +173,7 @@ class MetadataViewerComponent
 		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
 		UserNotifier un = 
 			TreeViewerAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(p);
+		un.notifyActivity(model.getSecurityContext(), p);
 	}
 	
 	/**
@@ -774,7 +774,7 @@ class MetadataViewerComponent
 			
 			DownloadActivityParam activity = new DownloadActivityParam(f,
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
-			un.notifyActivity(activity);
+			un.notifyActivity(model.getSecurityContext(), activity);
 			//un.notifyDownload(data, folder);
 		}
 		firePropertyChange(CREATING_MOVIE_PROPERTY, Boolean.valueOf(true), 
@@ -938,7 +938,7 @@ class MetadataViewerComponent
 			
 			DownloadActivityParam activity = new DownloadActivityParam(f,
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
-			un.notifyActivity(activity);
+			un.notifyActivity(model.getSecurityContext(), activity);
 		}
 		firePropertyChange(ANALYSE_PROPERTY, Boolean.valueOf(true), 
 				Boolean.valueOf(false));

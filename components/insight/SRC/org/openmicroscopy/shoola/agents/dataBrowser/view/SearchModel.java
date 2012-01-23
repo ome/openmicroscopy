@@ -40,6 +40,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.DataObject;
 import pojos.ImageData;
 
@@ -66,11 +68,12 @@ class SearchModel
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param results The results to display.
 	 */
-	SearchModel(Collection<DataObject> results)
+	SearchModel(SecurityContext ctx, Collection<DataObject> results)
 	{
-		super();
+		super(ctx);
 		if (results  == null) 
 			throw new IllegalArgumentException("No results.");
 		this.results = results;
@@ -119,7 +122,7 @@ class SearchModel
 				}
 			}
 		}
-		return new ThumbnailLoader(component, sorter.sort(imgs));
+		return new ThumbnailLoader(component, ctx, sorter.sort(imgs));
 	}
 
 	/**

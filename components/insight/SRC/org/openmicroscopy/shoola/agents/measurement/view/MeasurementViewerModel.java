@@ -1753,7 +1753,7 @@ class MeasurementViewerModel
 		p.setImageID(imageID);
 		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
 		UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(p);
+		un.notifyActivity(getSecurityContext(), p);
 	}
 	
     /**

@@ -646,5 +646,5 @@ public interface MetadataViewer
 	 * @return See above.
 	 */
 	SecurityContext getSecurityContext();
-	
+
 }
