@@ -970,18 +970,19 @@ class BrowserModel
 			return new SecurityContext(
 					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
 		}
+		if (node.getUserObject() instanceof ExperimenterData) {
+			TreeImageDisplay parent = node.getParentDisplay();
+			GroupData group = (GroupData) parent.getUserObject();
+			return new SecurityContext(group.getId());
+		}
 		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
 		if (n == null) {
 			return new SecurityContext(
 					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
 		}
 		TreeImageDisplay parent = n.getParentDisplay();
-		//TO BE reviewed
-		//parent.get
-		//GroupData group = (GroupData) parent.getUserObject();
-		//return new SecurityContext(group.getId());
-		ExperimenterData exp = (ExperimenterData) n.getUserObject();
-		return new SecurityContext(exp.getDefaultGroup().getId());
+		GroupData group = (GroupData) parent.getUserObject();
+		return new SecurityContext(group.getId());
 	}
 	
 }

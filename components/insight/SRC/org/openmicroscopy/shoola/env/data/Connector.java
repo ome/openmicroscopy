@@ -702,4 +702,11 @@ class Connector
 		return ctx.getGroupID() == context.getGroupID();
 	}
 
+	/**
+	 * Returns the secured client.
+	 * 
+	 * @return See above.
+	 */
+	client getClient() { return secureClient; }
+
 }

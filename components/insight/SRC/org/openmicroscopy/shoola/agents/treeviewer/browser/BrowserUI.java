@@ -410,9 +410,11 @@ class BrowserUI
      * Creates an experimenter node hosting the passed experimenter.
      * 
      * @param exp	The experimenter to add.
+     * @param groupNode The node to attach the experimenter to.
      * @return See above.
      */
-    private TreeImageSet createExperimenterNode(ExperimenterData exp)
+    private TreeImageSet createExperimenterNode(ExperimenterData exp,
+    		TreeImageDisplay groupNode)
     {
     	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
     	TreeImageSet node = new TreeImageSet(exp);
@@ -429,9 +431,11 @@ class BrowserUI
 			default:
 				buildEmptyNode(node);
 		}
-    	TreeImageDisplay root = getTreeRoot();
-    	root.addChildDisplay(node);
-    	tm.insertNodeInto(node, root, root.getChildCount());
+    	//TreeImageDisplay root = getTreeRoot();
+    	//root.addChildDisplay(node);
+    	//tm.insertNodeInto(node, root, root.getChildCount());
+    	groupNode.addChildDisplay(node);
+    	tm.insertNodeInto(node, groupNode, groupNode.getChildCount());
     	return node;
     }
     
@@ -782,6 +786,33 @@ class BrowserUI
 		}
     }
     
+    private List<TreeImageSet> createGroups(GroupData defaultGroup)
+    {
+    	TreeImageDisplay root = getTreeRoot();
+    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+    	//root.addChildDisplay(node);
+    	//tm.insertNodeInto(node, root, root.getChildCount());
+    	
+    	List<TreeImageSet> l = new ArrayList<TreeImageSet>();
+    	Set groups = TreeViewerAgent.getAvailableUserGroups();
+    	Iterator i = groups.iterator();
+    	GroupData group;
+    	TreeImageSet n = new TreeImageSet(defaultGroup);
+    	l.add(n);
+    	root.addChildDisplay(n);
+    	tm.insertNodeInto(n, root, root.getChildCount());
+    	while (i.hasNext()) {
+			group = (GroupData) i.next();
+			if (group.getId() != defaultGroup.getId()) {
+				n = new TreeImageSet(group);
+				l.add(n);
+				root.addChildDisplay(n);
+				tm.insertNodeInto(n, root, root.getChildCount());
+			}
+		}
+    	return l;
+    }
+    
     /** 
      * Helper method to create the trees hosting the display. 
      * 
@@ -803,7 +834,15 @@ class BrowserUI
         treeDisplay.setShowsRootHandles(true);
         TreeImageSet root = new TreeImageSet("");
         treeDisplay.setModel(new DefaultTreeModel(root));
-        TreeImageSet node = createExperimenterNode(exp);
+        List<TreeImageSet> groups = createGroups(exp.getDefaultGroup());
+        Iterator<TreeImageSet> i = groups.iterator();
+        TreeImageSet n, node = null;
+        while (i.hasNext()) {
+			//TreeImageSet treeImageSet = (TreeImageSet) i.next();
+			n = createExperimenterNode(exp, i.next());
+			if (node == null) node = n;
+		}
+        //TreeImageSet node = createExperimenterNode(exp);
         treeDisplay.collapsePath(new TreePath(node.getPath()));
         //Add Listeners
         //treeDisplay.requestFocus();
@@ -1885,11 +1924,13 @@ class BrowserUI
 	 */
 	void addExperimenter(ExperimenterData experimenter, boolean load)
 	{
+		/*
 		TreeImageSet node = createExperimenterNode(experimenter);
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
 		dtm.reload();
 		if (load)
-			treeDisplay.expandPath(new TreePath(node.getPath()));	
+			treeDisplay.expandPath(new TreePath(node.getPath()));
+			*/
 	}
 
 	/**
@@ -1931,7 +1972,7 @@ class BrowserUI
 		TreeImageDisplay root = getTreeRoot();
 		root.removeAllChildren();
 		root.removeAllChildrenDisplay();
-		createExperimenterNode(TreeViewerAgent.getUserDetails());
+		//createExperimenterNode(TreeViewerAgent.getUserDetails());
 		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
 		tm.reload();
 	}

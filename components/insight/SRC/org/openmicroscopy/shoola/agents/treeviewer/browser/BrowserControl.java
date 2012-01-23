@@ -273,21 +273,27 @@ class BrowserControl
         	if (display.getNumberOfItems() == 0) return;
         }
         
-        view.loadAction(display);
+       
         if ((display instanceof TreeImageTimeSet) ||  
         	(display instanceof TreeFileSet)) {
+        	view.loadAction(display);
         	model.loadExperimenterData(BrowserFactory.getDataOwner(display), 
         			display);
         	return;
         }
         if ((ho instanceof DatasetData) || (ho instanceof TagAnnotationData) 
         		) {//|| (ho instanceof PlateData)) {
+        	view.loadAction(display);
         	model.loadExperimenterData(BrowserFactory.getDataOwner(display), 
         			display);
         } else if (ho instanceof ExperimenterData) {
+        	 view.loadAction(display);
         	model.loadExperimenterData(display, null);
         } else if (ho instanceof GroupData) {
-        	model.loadExperimenterData(display, display); 
+        	if (browserType == Browser.ADMIN_EXPLORER) {
+        		view.loadAction(display);
+        		model.loadExperimenterData(display, display);
+        	}
         }
     }
     
