@@ -75,7 +75,7 @@ public class ImporterAgent
 {
 
     /** Reference to the registry. */
-    private static Registry         registry; 
+    private static Registry registry; 
     
     /** The selected browser type.*/
     private int browserType;

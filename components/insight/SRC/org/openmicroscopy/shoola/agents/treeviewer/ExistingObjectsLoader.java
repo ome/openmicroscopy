@@ -25,10 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -87,7 +84,7 @@ public class ExistingObjectsLoader
      * @param ctx The security context.
      * @param ho The object the nodes has to be added to.
      */ 
-    public ExistingObjectsLoader(SecurityContext ctx, TreeViewer viewer,
+    public ExistingObjectsLoader(TreeViewer viewer, SecurityContext ctx,
     		DataObject ho)
     {
         super(viewer, ctx);
