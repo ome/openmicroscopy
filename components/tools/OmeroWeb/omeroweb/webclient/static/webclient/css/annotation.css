@@ -67,21 +67,6 @@ div.lnfiles{
     padding: 0 10px;
     background-color: #fff;
 }
-/* tabs */
-#annotation_tabs {
-    margin: 5px 0 0 ;
-    background:none repeat scroll 0 0 #F3F3F3;
-    border: 0;
-}
-
-#annotation_tabs ul.tabslist {
-    position:relative;
-    float:left;
-/*    width:350px;*/
-    padding:0;
-    margin: 0px;
-    list-style:none;
-}
 
 /* comment display page */
 #comment_wrapper {
