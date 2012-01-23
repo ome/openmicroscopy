@@ -267,7 +267,8 @@ class EditorControl
 	private void viewImage(long imageID)
 	{
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new ViewImage(new ViewImageObject(imageID), null));
+		bus.post(new ViewImage(model.getSecurityContext(),
+				new ViewImageObject(imageID), null));
 	}
 
 	/**
@@ -746,7 +747,7 @@ class EditorControl
 				if (img != null) {
 					ViewImageObject vio = new ViewImageObject(img);
 					EditorAgent.getRegistry().getEventBus().post(
-							new ViewImage(vio, null));
+						new ViewImage(model.getSecurityContext(), vio, null));
 				}
 		}
 	}

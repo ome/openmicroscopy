@@ -87,6 +87,7 @@ import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -401,7 +402,8 @@ class EditorModel
     	if (refObject instanceof ExperimenterData) {
     		ExperimenterData exp = (ExperimenterData) refObject;
     		if (usersPhoto == null || !usersPhoto.containsKey(exp.getId())) {
-    			UserPhotoLoader loader = new UserPhotoLoader(component, exp);
+    			UserPhotoLoader loader = new UserPhotoLoader(component,
+    					parent.getSecurityContext(), exp);
         		loader.load();
     		}
     	}
@@ -1507,7 +1509,8 @@ class EditorModel
 			}
 		}
 		if (exist) return;
-		TagsLoader loader = new TagsLoader(component);
+		TagsLoader loader = new TagsLoader(component,
+				parent.getSecurityContext());
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1529,7 +1532,8 @@ class EditorModel
 			}
 		}
 		if (exist) return;
-		AttachmentsLoader loader = new AttachmentsLoader(component);
+		AttachmentsLoader loader = new AttachmentsLoader(component,
+				parent.getSecurityContext());
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1565,6 +1569,7 @@ class EditorModel
 		try {
 			PixelsData pixs = data.getDefaultPixels();
 			ChannelDataLoader loader = new ChannelDataLoader(component, 
+					parent.getSecurityContext(),
 					pixs.getId(), parent.getUserID());
 			loader.load();
 			loaders.add(loader);
@@ -1795,7 +1800,8 @@ class EditorModel
 	 */
 	void loadDiskSpace(Class type, long id)
 	{
-		DiskSpaceLoader loader = new DiskSpaceLoader(component, type, id);
+		DiskSpaceLoader loader = new DiskSpaceLoader(component,
+				parent.getSecurityContext(), type, id);
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1819,12 +1825,13 @@ class EditorModel
 	/**
 	 * Fires an asynchronous call to modify the password.
 	 * 
-	 * @param old		The old password.
-	 * @param confirm	The new password.
+	 * @param old The old password.
+	 * @param confirm The new password.
 	 */
 	void changePassword(String old, String confirm)
 	{
-		EditorLoader loader = new PasswordEditor(component, old, confirm);
+		EditorLoader loader = new PasswordEditor(component,
+				parent.getSecurityContext(), old, confirm);
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1884,7 +1891,7 @@ class EditorModel
 	void fireImageEnumerationsLoading()
 	{
 		EnumerationLoader loader = new EnumerationLoader(component, 
-					EnumerationLoader.IMAGE);
+				parent.getSecurityContext(), EnumerationLoader.IMAGE);
 		loader.load();
 	}
 	
@@ -1892,7 +1899,7 @@ class EditorModel
 	void fireChannelEnumerationsLoading()
 	{
 		EnumerationLoader loader = new EnumerationLoader(component, 
-				EnumerationLoader.CHANNEL);
+				parent.getSecurityContext(), EnumerationLoader.CHANNEL);
 		loader.load();
 	}
 	
@@ -1908,7 +1915,8 @@ class EditorModel
 		}
 		if (data == null) return;
 		AcquisitionDataLoader 
-			loader = new AcquisitionDataLoader(component, data); 
+			loader = new AcquisitionDataLoader(component, 
+					parent.getSecurityContext(), data); 
 		loader.load();
 	}
 	
@@ -1920,7 +1928,8 @@ class EditorModel
 	void  fireChannelAcquisitionDataLoading(ChannelData channel)
 	{
 		AcquisitionDataLoader 
-			loader = new AcquisitionDataLoader(component, channel); 
+			loader = new AcquisitionDataLoader(component, 
+					parent.getSecurityContext(), channel); 
 		loader.load();
 	}
 	
@@ -1932,7 +1941,7 @@ class EditorModel
 	void fireInstrumentDataLoading(long instrumentID)
 	{
 		InstrumentDataLoader loader = new InstrumentDataLoader(component, 
-				instrumentID);
+				parent.getSecurityContext(), instrumentID);
 		loader.load();
 	}
 	
@@ -1957,7 +1966,7 @@ class EditorModel
 	}
 
     /**
-     * Sets the acquisition data for the specifed channel.
+     * Sets the acquisition data for the specified channel.
      * 
      * @param index The index of the channel.
      * @param data  The value to set.
@@ -2184,7 +2193,8 @@ class EditorModel
 		if (!(ref instanceof ImageData)) return;
 		ImageData img = (ImageData) ref;
 		PlaneInfoLoader loader = new PlaneInfoLoader(component, 
-				img.getDefaultPixels().getId(), channel, z);
+				parent.getSecurityContext(), img.getDefaultPixels().getId(),
+				channel, z);
 		loader.load();
 	}
 
@@ -2231,7 +2241,7 @@ class EditorModel
 		if (isRendererLoaded() && index == RenderingControlLoader.LOAD) 
 			return false;
 		RenderingControlLoader loader = new RenderingControlLoader(component, 
-				pixelsID, index);
+				parent.getSecurityContext(), pixelsID, index);
 		loader.load();
 		return true;
 	}
@@ -2286,7 +2296,8 @@ class EditorModel
 	 */
 	void loadFile(FileAnnotationData data, Object uiView)
 	{
-		FileLoader loader = new FileLoader(component, data, uiView);
+		FileLoader loader = new FileLoader(component,
+				parent.getSecurityContext(), data, uiView);
 		loader.load();
 	}
 	
@@ -2298,7 +2309,8 @@ class EditorModel
 	void loadFiles(Map<FileAnnotationData, Object> files)
 	{
 		if (!MetadataViewerAgent.isBinaryAvailable()) return;
-		FileLoader loader = new FileLoader(component, files);
+		FileLoader loader = new FileLoader(component,
+				parent.getSecurityContext(), files);
 		loader.load();
 	}
 	
@@ -2488,7 +2500,8 @@ class EditorModel
 		ImageData img = getImage();
 		if (img == null) return;
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		ROILoader loader = new ROILoader(component, img.getId(), userID, index);
+		ROILoader loader = new ROILoader(component, parent.getSecurityContext(),
+				img.getId(), userID, index);
 		loader.load();
 	}
 	
@@ -2543,7 +2556,8 @@ class EditorModel
 	 */
 	void loadScript(long scriptID)
 	{
-		ScriptLoader loader = new ScriptLoader(component, scriptID);
+		ScriptLoader loader = new ScriptLoader(component,
+				parent.getSecurityContext(), scriptID);
 		loader.load();
 		loaders.add(loader);
 	}
@@ -2574,7 +2588,8 @@ class EditorModel
 	/** Loads the scripts. */
 	void loadScripts()
 	{
-		ScriptsLoader loader = new ScriptsLoader(component, false);
+		ScriptsLoader loader = new ScriptsLoader(component,
+				parent.getSecurityContext(), false);
 		loader.load();
 		loaders.add(loader);
 	}
@@ -2635,8 +2650,8 @@ class EditorModel
     	if (refObject instanceof ExperimenterData) {
     		//ExperimenterData exp = (ExperimenterData) refObject;
     		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-    		UserPhotoUploader loader = new UserPhotoUploader(component, exp,
-    				photo, format);
+    		UserPhotoUploader loader = new UserPhotoUploader(component,
+    				parent.getSecurityContext(), exp, photo, format);
     		loader.load();
     	}
     }
@@ -2650,7 +2665,9 @@ class EditorModel
     			if (usersPhoto != null) usersPhoto.remove(exp.getId());
     			OmeroMetadataService svc = 
     				MetadataViewerAgent.getRegistry().getMetadataService();
-    			Collection photos = svc.loadAnnotations(FileAnnotationData.class,
+    			Collection photos = svc.loadAnnotations(
+    					parent.getSecurityContext(), 
+    					FileAnnotationData.class,
     					FileAnnotationData.EXPERIMENTER_PHOTO_NS, exp.getId(),
     					-1);
     			if (photos == null || photos.size() == 0) return;
@@ -2685,6 +2702,7 @@ class EditorModel
      */
     private List<ScriptObject> getScriptsWithUI()
     {
+    	/*
     	if (scriptsWithUI != null) return scriptsWithUI;
     	try {
     		OmeroImageService svc = 
@@ -2697,6 +2715,7 @@ class EditorModel
 			msg.print(e);
 			MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
 		}
+		*/
     	return new ArrayList<ScriptObject>();
     }
     
@@ -2726,6 +2745,7 @@ class EditorModel
      */
     GroupData loadGroup(long groupID)
     {
+    	/*
     	try {
 			AdminService svc = 
 				MetadataViewerAgent.getRegistry().getAdminService();
@@ -2739,6 +2759,7 @@ class EditorModel
 		} catch (Exception e) {
 			//ignore
 		}
+		*/
 		return null;
     }
     
@@ -2752,7 +2773,7 @@ class EditorModel
     	if (resultsLoader == null)
     		resultsLoader = new HashMap<AnalysisResultsItem, EditorLoader>();
     	AnalysisResultsFileLoader loader = new AnalysisResultsFileLoader(
-    			component, analysis);
+    			component, parent.getSecurityContext(), analysis);
     	resultsLoader.put(analysis, loader);
     	loader.load();
     }
@@ -2903,7 +2924,7 @@ class EditorModel
 			PixelsData data = img.getDefaultPixels();
 			b = 
 			MetadataViewerAgent.getRegistry().getImageService().isLargeImage(
-					data.getId());
+					parent.getSecurityContext(), data.getId());
 		} catch (Exception e) {}
 		if (b != null) return b.booleanValue();
 		return false;
@@ -2940,5 +2961,12 @@ class EditorModel
 		if (usersPhoto == null) return null;
 		return usersPhoto.get(expId);
 	}
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext() { return parent.getSecurityContext(); }
 	
 }

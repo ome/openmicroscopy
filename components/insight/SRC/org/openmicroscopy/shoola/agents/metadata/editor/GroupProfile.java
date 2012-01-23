@@ -233,6 +233,7 @@ class GroupProfile
 		GroupData data = (GroupData) model.getRefObject();
 		String v = namePane.getText();
 		v = v.trim();
+		/*
 		if (!data.getName().equals(v)) {
 			AdminService svc = 
 				MetadataViewerAgent.getRegistry().getAdminService();
@@ -249,6 +250,7 @@ class GroupProfile
 
 			data.setName(v);
 		}
+		*/
 		//check description
 		v = descriptionPane.getText();
 		v = v.trim();

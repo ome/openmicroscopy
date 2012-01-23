@@ -268,9 +268,12 @@ class RendererModel
 	void discard() 
 	{
 		if (rndControl == null) return;
+		//TODO: review that.
+		/*
 		OmeroImageService svr = 
 			MetadataViewerAgent.getRegistry().getImageService();
 		svr.shutDown(rndControl.getPixelsID());
+		*/
 	}
 
 	/**
