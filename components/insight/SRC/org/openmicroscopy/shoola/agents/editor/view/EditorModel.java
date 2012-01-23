@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.agents.editor.model.CPEexport;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.IOUtil;
@@ -76,16 +77,16 @@ class EditorModel
 {
 
 	/** Holds one of the state flags defined by {@link Editor}. */
-	private int					state;
+	private int state;
 	
 	/** The name of the file to edit. */
-	private String  			fileName;
+	private String fileName;
 	
 	/** The annotation object hosting information about the file. */
-	private FileAnnotationData 	fileAnnotation;
+	private FileAnnotationData fileAnnotation;
 	
 	/** The id of the file to edit. Will not be set if editing local file */
-	private long 				fileID;
+	private long fileID;
 	
 	/** 
 	 * The ID of the annotation for the file on the server, as returned by
@@ -94,32 +95,35 @@ class EditorModel
 	 * {@link #EditorModel(long)} constructor has been used, before 
 	 * {@link #setFileAnnotationData(FileAnnotationData)} has been called. 
 	 */
-	private long 				annotationID;
+	private long annotationID;
 	
 	/**  A string that defines the type of file we're editing. eg protocol */
-	private String				nameSpace;
+	private String nameSpace;
 	
 	/** The file retrieved either from the DB or local machine. */
-	private File				fileToEdit;
+	private File fileToEdit;
 
 	/**	The browser component */
-	private Browser 			browser;
+	private Browser browser;
 	
 	/** The <code>DataObject</code> to link the editor file to. */
-	private DataObject			parent;
+	private DataObject parent;
 	
 	/** Either {@link Editor#PROTOCOL} or {@link Editor#EXPERIMENT}. */
-	private int					type;
+	private int type;
 	
 	/** 
 	 * Will either be a data loader or <code>null</code> depending on the 
 	 * current state. 
 	 */
-	private EditorLoader		currentLoader;
+	private EditorLoader currentLoader;
 	
 	/** Reference to the component that embeds this model. */
-	private Editor				component;
+	private Editor component;
 
+	/** The security context.*/
+	private SecurityContext ctx;
+	
 	/**
 	 * Saves the {@link TreeModel} from the {@link Browser} as an XML file.
 	 * Returns <code>true</code> if the file can be parsed, <code>false</code>
@@ -140,25 +144,29 @@ class EditorModel
 	/** 
 	 * Creates a new instance and sets the state to {@link Editor#NEW}.
 	 * 
+	 * @param ctx The security context.
 	 * @param fileAnnotationData  The annotation hosting the file to edit.
 	 */
-	EditorModel(FileAnnotationData fileAnnotationData)
+	EditorModel(SecurityContext ctx, FileAnnotationData fileAnnotationData)
 	{
 		state = Editor.NEW;
 		if (fileAnnotationData == null)
 			throw new IllegalArgumentException("No file annotation specified.");
 		setFileAnnotationData(fileAnnotationData);
+		this.ctx = ctx;
 		type = Editor.PROTOCOL;
 	}
 	
 	/** 
 	 * Creates a new instance and sets the state to {@link Editor#NEW}.
 	 * 
+	 * @param ctx The security context.
 	 * @param annotationID	The id of the original file to edit.
 	 */
-	EditorModel(long annotationID)
+	EditorModel(SecurityContext ctx, long annotationID)
 	{
 		state = Editor.NEW;
+		this.ctx = ctx;
 		this.annotationID = annotationID;
 		
 		// this sets the fileID with the annotationID so that when 
@@ -172,24 +180,29 @@ class EditorModel
 	 * {@link #fileSize} and {@link #fileID} are not set.
 	 * File is not opened. To do this, call {@link Editor#setFileToEdit(File)}
 	 * 
+	 * @param ctx The security context.
 	 * @param file The file to open. Sets the {@link #fileName} to the 
 	 * 			   name of this file but does not open file. 
 	 */
-	EditorModel(File file) 
+	EditorModel(SecurityContext ctx, File file) 
 	{
 		if (file == null) throw new NullPointerException("No file.");
 		state = Editor.NEW;
+		this.ctx = ctx;
 		fileName = file.getName();
 		type = Editor.PROTOCOL;
 	}
 	
 	/**
 	 * Creates a new instance and sets the state to {@link Editor#NEW}.
-	 * The {@link #fileSize} and {@link #fileID} are not set. 
+	 * The {@link #fileSize} and {@link #fileID} are not set.
+	 * 
+	 * @param ctx The security context.
 	 */
-	EditorModel() 
+	EditorModel(SecurityContext ctx) 
 	{
 		state = Editor.NEW;
+		this.ctx = ctx;
 		fileName = EditorFactory.BLANK_MODEL;
 		type = Editor.PROTOCOL;
 	}
@@ -198,14 +211,16 @@ class EditorModel
 	 * Creates a new instance and sets the state to {@link Editor#NEW}.
 	 * The {@link #fileSize} and {@link #fileID} are not set. 
 	 * 
+	 * @param ctx The security context.
 	 * @param parent The object to link the file to.
 	 * @param name	 The name of the file.
 	 * @param type   Either {@link Editor#PROTOCOL} or 
 	 * 				 {@link Editor#EXPERIMENT}.
 	 */
-	EditorModel(DataObject parent, String name, int type)
+	EditorModel(SecurityContext ctx, DataObject parent, String name, int type)
 	{
 		state = Editor.NEW;
+		this.ctx = ctx;
 		if (name == null || name.length() == 0) 
 			name = EditorFactory.BLANK_MODEL;
 		fileName = name;
@@ -225,7 +240,7 @@ class EditorModel
 	void initialize(Editor component)
 	{ 
 		this.component = component; 
-		browser = BrowserFactory.createBrowser(type);
+		browser = BrowserFactory.createBrowser(ctx, type);
 	}
 	
 	/**
@@ -290,7 +305,7 @@ class EditorModel
 		
 		// fileID can be annotationID if fileName is null 
 		// E.g. if EditorModel(long annotationID) was the constructor. 
-		currentLoader = new FileLoader(component, fileName, fileID, size);
+		currentLoader = new FileLoader(component, ctx, fileName, fileID, size);
 		currentLoader.load();
 		state = Editor.LOADING;
 	}
@@ -477,7 +492,7 @@ class EditorModel
 		if (description != null) data.setDescription(description);
 		
 		if (asynch) {
-			currentLoader = new FileSaver(component, file, data, fileType, 
+			currentLoader = new FileSaver(component, ctx, file, data, fileType,
 					linkTo);
 			currentLoader.load();
 			state = Editor.SAVING;
@@ -485,7 +500,7 @@ class EditorModel
 			OmeroMetadataService svc = 
 				EditorAgent.getRegistry().getMetadataService();
 			try {
-				svc.archivedFile(fileAnnotation, file, fileType, linkTo);
+				svc.archivedFile(ctx, fileAnnotation, file, fileType, linkTo);
 			} catch (Exception e) {
 				LogMessage msg = new LogMessage();
 				msg.print("State: "+state);
@@ -605,5 +620,11 @@ class EditorModel
 		return EditorUtil.isUserOwner(fileAnnotation, userID);
 	}
 	
+	/** 
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext() { return ctx; }
 
 }

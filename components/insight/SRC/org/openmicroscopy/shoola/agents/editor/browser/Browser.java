@@ -31,6 +31,7 @@ import javax.swing.tree.TreeModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.preview.AnnotationHandler;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 
@@ -191,4 +192,12 @@ public interface Browser
 	 */
 	public void deleteExperimentInfo();
 
+	/**
+	 * Loads the file annotation.
+	 * 
+	 * @param fileID The fileID you want the annotation for. 
+	 * @param handler The handler used when the annotation is returned.
+	 */
+	void getFileAnnotation(long fileID, AnnotationHandler handler);
+	
 }

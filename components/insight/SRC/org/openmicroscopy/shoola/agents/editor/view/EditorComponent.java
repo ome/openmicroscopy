@@ -332,7 +332,8 @@ class EditorComponent
 	public void newBlankFile()
 	{
 		// gets a new editor
-		Editor editor = EditorFactory.getNewBlankEditor();
+		Editor editor = EditorFactory.getNewBlankEditor(
+				model.getSecurityContext());
 		
 		// primes the editor to open new file and activates the editor
 		if (editor != null) {
