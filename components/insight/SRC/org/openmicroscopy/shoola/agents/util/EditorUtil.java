@@ -48,6 +48,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import omero.RDouble;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -69,6 +70,7 @@ import pojos.DichroicData;
 import pojos.ExperimenterData;
 import pojos.FilterData;
 import pojos.FilterSetData;
+import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
@@ -80,6 +82,7 @@ import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
@@ -2278,5 +2281,59 @@ public class EditorUtil
 		else if (LightSourceData.LIGHT_EMITTING_DIODE.equals(kind))
 			return EMITTING_DIODE_TYPE;
 		return "Light Source";
+	}
+	
+    /**
+     * Returns the node hosting the experimenter passing a child node.
+     * 
+     * @param node The child node.
+     * @return See above.
+     */
+	public static TreeImageDisplay getDataOwner(TreeImageDisplay node)
+    {
+    	if (node == null) return null;
+    	TreeImageDisplay parent = node.getParentDisplay();
+    	Object ho;
+    	if (parent == null) {
+    		ho = node.getUserObject();
+    		if (ho instanceof ExperimenterData)
+    			return node;
+    		return null;
+    	}
+    	ho = parent.getUserObject();
+    	if (ho instanceof ExperimenterData) return parent;
+    	return getDataOwner(parent);
+    }
+	
+	/**
+	 * Returns <code>true</code> if the node can be transfered,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param target The target of the D&D action.
+	 * @param src    The node to transfer.
+	 * @return See above.
+	 */
+	public static boolean isTransferable(Object target, Object src)
+	{
+		if (target instanceof ProjectData && src instanceof DatasetData)
+			return true;
+		else if (target instanceof DatasetData && src instanceof ImageData)
+			return true;
+		else if (target instanceof ScreenData && src instanceof PlateData)
+			return true;
+		else if (target instanceof GroupData && src instanceof ExperimenterData)
+			return true;
+		else if (target instanceof TagAnnotationData
+				&& src instanceof TagAnnotationData) {
+			TagAnnotationData tagSet = (TagAnnotationData) target;
+			TagAnnotationData tag = (TagAnnotationData) src;
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+					tagSet.getNameSpace())) {
+				return !(TagAnnotationData.INSIGHT_TAGSET_NS.equals(
+						tag.getNameSpace()));
+			}
+			return false;
+		}
+		return false;
 	}
 }

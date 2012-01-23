@@ -4,8 +4,6 @@
 
                       OPEN MICROSCOPY ENVIRONMENT (OME)
 
-                                 OMERO.server
-
                                     Legal
 
 
@@ -15,12 +13,11 @@
   Preamble
   --------
 
-  Within this document, the term 'third-party software' shall refer to
-  the set of all the files which are contained in the omero Subversion
-  module and which are listed in each 'Artifacts' entry within the
-  'Third-Party Software Licenses' section of this document.  The term
-  'OMERO.server' or, equivalently, 'our software' shall refer to any
-  other file contained in the shoola-omero Subversion module.
+  Within this document, the term 'third-party software' shall refer to the set
+  of all the files which are contained in the source repository and which are
+  listed in each 'Artifacts' entry within the 'Third-Party Software Licenses'
+  section of this document.  The term 'OME' or, equivalently, 'our software'
+  shall refer to any other file contained in the repository.
 
 
 
@@ -28,7 +25,7 @@
   -------
 
   This document states which licenses apply to which files in the
-  omero Subversion module.  It also gives credit to other projects and
+  source repository.  It also gives credit to other projects and
   developers that provided us with their valuable software.
 
 
@@ -56,7 +53,7 @@
 		'ant-*' means all the files whose name starts with 'ant-'.
 		Unless otherwise specified, all artifacts are to be found under
                 lib/repository. If specified directory pathnames are given relative to
-		the root of the SVN module.
+		the root of the git repository.
   Project:      The name of the project the artifacts belong to and a brief
 		(optional) description.
   Web Site:     The project's Web site address.
@@ -64,12 +61,19 @@
   License File: The file, within this directory, that contains the license.
 
 
+  //
+  // Follows the list, alphabetized (case-insenitively) by primary artifact:
+  //
 
-  Follows the list, alphabetized (case-insenitively) by primary artifact:
 
+  Artifacts:    ai_path-*.jar
+  Project:      AI Path
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl.txt
 
 
   Artifacts:    ant-*.jar ivy-*.jar
+                As well as junit-frames.xsl, and junit-noframes.xsl files under components/insight/build/tools
   Project:      The Apache Ant Project.  Ant is a Java-based build tool. (Ivy is a subproject
                 of Ant for managing dependencies)
   Web Site:     http://ant.apache.org/
@@ -91,12 +95,15 @@
   License File: apache-v2.0.txt
 
 
-http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/server/apacheds-server-unit/1.5.5/apacheds-server-unit-1.5.5.jar
-  Artifacts:    batik-*.jar
-  Project:      The Apache Batik SVG Toolkit.
-  Web Site:     http://xml.apache.org/batik/
-  License:      Apache Software License, Version 1.1
-  License File: apache-v1.1.txt
+  Artifacts:    axis-client-*.jar
+  Project:      Apache Axis is an implementation of the SOAP
+                ("Simple Object Access Protocol") submission to W3C.
+                This project is a follow-on to the Apache SOAP project.
+                We do not use this software directly but required by the ontology lookup
+                service.
+  Web Site:     http://ws.apache.org/axis/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
 
 
   Artifacts:    asm-*.jar
@@ -104,6 +111,13 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://asm.ow2.org
   License:      BSD
   License File: asm.txt
+
+
+  Artifacts:    batik-*.jar
+  Project:      The Apache Batik SVG Toolkit.
+  Web Site:     http://xml.apache.org/batik/
+  License:      Apache Software License, Version 1.1
+  License File: apache-v1.1.txt
 
 
   Artifacts:    backport-util-concurrent-*.jar
@@ -151,9 +165,9 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   License File: apache-v2.0.txt
 
 
-  Artifacts:    django-lib-*.*
+  Artifacts:    Django-*
   Project:      Django, a high-level Python Web framework
-  Web Site:     htttp://djangoproject.com
+  Web Site:     http://djangoproject.com
   License:      BSD
   License File: bsd.txt
 
@@ -208,6 +222,12 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://geronimo.apache.org
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
+
+
+  Artifacts:    gicentreUtils-*.jar
+  Project:      giCentreUtils
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl.txt
 
 
   Artifacts:    grib-*.jar
@@ -300,6 +320,21 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   License File: lgpl-v2.1.txt
 
 
+  Artifacts:    jaxrpc-*.jar
+  Project:      JAX-RPC Reference Implementation Project.
+                We do not use this software directly but required by the Apache Axis project
+  Web Site:     https://jax-rpc.dev.java.net/
+  License:      Common Development and Distribution License, Version 1.0
+
+
+  Artifacts:    jcommon-*.jar
+  Project:      The JCommon library.  We don't use this software directly,
+                but required by the JFreeChart library.
+  Web Site:     http://www.jfree.org/jcommon/index.php
+  License:      Lesser General Public License (LGPL)
+  License File: lgpl.txt
+
+
   Artifacts:    jdepend-*.jar, jdepend2dot.xsl
   Project:      JDepends, travers Java class file directories and generates design quality metrics
                 for each Java package.
@@ -308,12 +343,35 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   License File: jdepend.txt
 
 
+  Artifacts:    jhotdraw-*.jar
+  Project:      The JHotDraw project. A two-dimensional graphics framework for
+                structured drawing editors
+  Web Site:     http://sourceforge.net/projects/jhotdraw
+  License:      Lesser General Public License (LGPL)
+  License File: lgpl.txt
+
+
+  Artifacts:    jfreechar-*.jar
+  Project:      The JFreeChart project. Used to display professional quality charts.
+  Web Site:     http://www.jfree.org/jfreechart/
+  License:      Lesser General Public License (LGPL)
+  License File: lgpl.txt
+
+
   Artifacts:    jmock-*.jar
   Project:      jMock, a library that supports test-driven development of Java
                 code with mock objects.
   Web Site:     http://jmock.org
   License:      BSD
   License File: jmock.txt
+
+
+  Artifacts:    jogl-*.jar and gluegen-rt.jar
+                As well as the native libraries under lib/native:
+                linux-native, linux64-native, osx-native, win-native and win64-native.
+  Project:      OpenGL Project a 2D/3D graphics API for High Performance Graphics.
+  Web Site:     http://www.opengl.org/
+  License:      No license for API
 
 
   Artifacts:    jsr107cache-*.jar
@@ -373,6 +431,13 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   License File: lgpl-v2.1.txt
 
 
+  Artifacts:    nanoxml-*.jar
+  Project:      NanoXML is a small XML parser for Java. NanoXML comes in three different components
+  Web Site:     http://devkix.com/nanoxml.php
+  License:      zlib/libpng License
+  License File: zlib-libpng.txt
+
+
   Artifacts:    nsisant-*.jar
   Project:      NsisAnt - An Ant Task used to compile NSIS scripts
   Web Site:     http://nsisant.sourceforge.net/
@@ -380,9 +445,18 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   License File: gpl.txt
 
 
+  Artifacts:    ols-client-*.jar
+  Project:      The Ontology Lookup service. A spin-off the PRIDE project.
+                Provides a web service interface to query multiple ontologies from a single
+                location with a unified output format.
+  Web Site:     http://www.ebi.ac.uk/ontology-lookup/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    PDFBox-*.jar
   Project:      Apache PDFBox - Java PDF Library
-  Web Site:      http://incubator.apache.org/pdfbox
+  Web Site:     http://incubator.apache.org/pdfbox
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
 
@@ -392,6 +466,13 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://perf4j.codehaus.org
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
+
+
+  Artifacts:    physics-*.jar
+  Project:      TRAER.PHYSICS 3.0
+  Web Site:     http://murderandcreate.com/physics/
+  License:      Public Domain.
+                Use this code for whatever you want, just send me a link jeff@traer.cc
 
 
   Artifacts:    poi-*.jar
@@ -405,6 +486,20 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://jdbc.postgresql.org
   License:      BSD
   License File: postgresql.txt
+
+
+  Artifacts:    processing-core-*.jar
+  Project:      Processing is an open source programming language and environment for people who want to create images, animations, and interactions.
+  Web Site:     http://processing.org/
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+
+
+  Artifacts:    processing-controlP5-*.jar
+  Project:      controlp5, a gui library for the programming environment processing
+  Web Site:     http://www.sojamo.de/libraries/controlP5/
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
 
 
   Artifacts:    libquaqua-unknown.jnilib, quaqua-filechooser-only-unknown.jar
@@ -428,6 +523,14 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Website:      http://reportng.uncommons.org
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
+
+
+  Artifacts:    saaj-*.jar
+  Project:      SAAJ Standard Implementation Project.
+                We do not use this software directly but required by the Apache Axis project
+  Web Site:     https://saaj.dev.java.net/
+  License:      General Public License (GPL), Version 2
+  License File: gpl.txt
 
 
   Artifacts:    scons-local-*.zip
@@ -459,16 +562,21 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
 
 
   Artifacts:    swingx-*.jar
-  Project:      swingx, Swing Component Extensions
-  Web Site:     http://swingx.dev.java.net
+  Project:      The Swing labs project.
+                SwingLabs is an Open Source laboratory for exploring new ways to make
+                Swing applications easier to write, with improved performance and
+                greater visual appeal.
+  Web Site:     http://swinglabs.org/
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
 
 
   Artifacts:    TableLayout-*.jar
+  Project:      TableLayout Project is layout manager
   Web Site:     http://java.sun.com/products/jfc/tsc/articles/tablelayout/
   License:      Sun License
   License File: tablelayout.txt
+
 
   Artifacts:    testng-*.jar
   Project:      TestNG, a testing framework inspired by JUnit and NUnit but introducing
@@ -496,6 +604,7 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://www.jgoodies.com/freeware/forms/index.html
   License:      BSD
   License File: bsd.txt
+
 
 
   //
@@ -723,14 +832,15 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://www.everaldo.com/crystal/
   License:      Lesser General Public License
   License File: crystalclear.txt
-  
-  
+
+
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/applet/OpenAstexViewer.java
   Project:      Open Astex Viewer
   Web Site:     http://www.openastexviewer.net/web/
   License:      GNU GENERAL PUBLIC LICENSE Version 3.
   License File: lgpl-3.0.txt
-  
+
+
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/media/js/3rdparty/raphael-min.js
   Project:      Raphael javascript library
   Web Site:     http://raphaeljs.com/
@@ -756,3 +866,87 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   //
   components/server/src/ome/tools/hibernate/ListAsSQLArrayUserType.java
   components/server/src/ome/tools/hibernate/SqlArray.java
+
+
+  //
+  // Build-time artifacts under components/insight/build/tools
+  //
+
+  Artifacts:    avalon-*.jar
+  Project:      The Apache Avalon Framework.  We don't use this software directly,
+		but it is required by the FOP library.
+  Web Site:     http://avalon.apache.org/
+  License:      Apache Software License, Version 1.1
+  License File: apache-v1.1.txt
+
+
+  Artifacts:    bsf-*.jar
+  Project:      The Bean Scripting Framework (BSF).  It provides scripting language
+		support within Java applications.  We use it to add scripting
+		capabilities to Ant.
+  Web Site:     http://jakarta.apache.org/bsf/
+  License:      Apache Software License, Version 1.1
+  License File: apache-v1.1.txt
+
+
+  Artifacts:    fop-*.jar
+  Project:      The Formatting Objects Processor (FOP).  FOP is a print formatter
+		driven by XSL formatting objects (XSL-FO).  It provides our build system
+		with pdf generation capabilities.
+  Web Site:     http://xml.apache.org/fop/
+  License:      Apache Software License, Version 1.1
+  License File: apache-v1.1.txt
+
+
+  Artifacts:    rhino-*.jar
+  Project:      The Rhino JavaScript Engine.  It provides JavaScript support to
+		the BSF library.
+  Web Site:     http://www.mozilla.org/rhino/
+  License:      Netscape Public License (NPL), Version 1.1
+  License File: npl-1_1.txt
+
+
+  Artifacts:    xalan-*
+  Project:      The Xalan-Java Project.  An XSLT processor which is used by Ant.
+  Web Site:     http://xml.apache.org/xalan-j/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
+  //
+  // Graphic artifacts under components/insight/SRC
+  //
+
+  Artifacts:    crystal_*
+  Project:      Crystal.  We are using a few of their icons.
+  Web Site:     http://www.everaldo.com/crystal
+  License:      Lesser General Public License (LGPL)
+  License File: lgpl.txt
+
+
+  Artifacts:    eclipse_*
+  Project:      The Eclipse project. We are using a few of their icons.
+  Web Site:     http://www.eclipse.org/
+  License:      Common Public License (CPL) v1.0
+  License File: cpl-v10.html
+
+
+  Artifacts:    nuvola_*
+  Project:      The Nuvola icon theme. It provides most of the icons in OMERO.insight.
+  Web Site:     http://www.icon-king.com/
+  License:      Lesser General Public License (LGPL)
+  License File: lgpl.txt
+
+
+  Artifacts:    openOffice_*
+  Project:      Ximian.  We are using a few of their icons that they designed for
+		Open Office.
+  Web Site:     http://www.novell.com/linux/ximian.html
+  License:      Lesser General Public License (LGPL)
+  License File: lgpl.txt
+
+
+  Artifacts:    tango_*
+  Project:      Tango. We are using a few of their icons.
+  Web Site:     http://tango.freedesktop.org/Tango_Desktop_Project
+  License:      Public Domain.

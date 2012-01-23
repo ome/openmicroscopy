@@ -108,6 +108,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             if (event instanceof ImportEvent.DEBUG_SEND) {
                 ImportEvent.DEBUG_SEND ev = (ImportEvent.DEBUG_SEND) event;
                 sendFiles = ev.sendFiles;
+                sendLogs = ev.sendLogs;
 
                 Runnable run = new Runnable() {
                     public void run() {

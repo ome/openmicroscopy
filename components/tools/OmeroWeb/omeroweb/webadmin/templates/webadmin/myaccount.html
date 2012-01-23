@@ -1,7 +1,5 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
 
 {% comment %}
 <!--
@@ -25,16 +23,18 @@
 
 {% block title %}{% trans "My account" %}{% endblock %}
 
-{% block css %}
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block jscript %}
+{% block script %}
+    {{ block.super }}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.imgareaselect.js" %}"></script>
+    <script type="text/javascript" src="{% static "webadmin/javascript/jquery.imgareaselect.js" %}"></script>
     
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
     
     <script type="text/javascript">
     
@@ -60,13 +60,14 @@
     
     $(document).ready(function () { 
         
-        $("#groupTable").tablesorter( {sortList: [[1,0]]} ); 
-
+        $("#groupTable").tablesorter( {
+            //sortList: [[1,0]]
+            headers: {0: { sorter: 'digit' } }
+            } );
         $('input#id_search').quicksearch('table#groupTable tbody tr', {
             'delay': 300,
             'loader': 'span.loading'
         });
-        
         
         {% if edit_mode %}
         $('#save_thumb').click(function() {
@@ -101,49 +102,51 @@
     
 {% endblock %}
 
-{% block content %}
-<div>
-<h1>{% trans "My account" %}</h1>
+{% block center_details %}
+{{ block.super }}
+    <div>
+        <div class="float_left">
+            <h1>{% trans "My account" %}</h1>
 
-<p>{% trans "Fields marked with and asterisk (*) are mandatory." %}</p>
-<br/>
-
-<div class="myform">
-<form action="{% url wamyaccount "save" %}" method="POST">
-<table>
-  <tbody>
-    {% for field in form %}
-    <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
-    {% endfor %}
-    {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>
-    {% else %}<tr><td class="form">Password: </td><td colspan="2"><a href="{% url wamanagechangepasswordid eventContext.userId %}">change password</a></td></tr>
-    {% endif %}
-  </tbody>
-  <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-</table>
-</form>
-</div>
-
-<div class="photo">
-    {% if edit_mode %}
-    
-    <img src="{% url wamyphoto %}" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
-    <div style="border:1px #999999 solid; float:left; position:relative; overflow:hidden; width:100px; height:100px;">
-        <img src="{% url wamyphoto %}" style="position: relative;" alt="Thumbnail Preview" />
+            <p>{% trans "Fields marked with and asterisk (*) are mandatory." %}</p>
+            <br/>
+            
+            <form action="{% url wamyaccount "save" %}" method="POST">
+            <table>
+              <tbody>
+                {% for field in form %}
+                <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
+                {% endfor %}
+                {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>
+                {% else %}<tr><td class="form">Password: </td><td colspan="2"><a href="{% url wamanagechangepasswordid eventContext.userId %}">change password</a></td></tr>
+                {% endif %}
+              </tbody>
+              <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+            </table>
+            </form>
     </div>
-    <div class="clear"> </div>
-    <h1><form name="thumbnail" action="{% url wamyaccount "crop" %}" method="post">
-        <input type="hidden" name="x1" value="" id="x1" />
-        <input type="hidden" name="y1" value="" id="y1" />
-        <input type="hidden" name="x2" value="" id="x2" />
-        <input type="hidden" name="y2" value="" id="y2" />
-        <input type="submit" name="Cancel" value="Cancel" onclick="history.back();return false" />
-        <input type="submit" name="upload_thumbnail" value="Crop" id="save_thumb" />
-    </form></h1>
+    
+    <div class="float_right">
+        <h1>My avatar</h1>
+        
+    {% if edit_mode %}
+        <img src="{% url wamyphoto %}" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
+        <div style="border:1px #999999 solid; float:left; position:relative; overflow:hidden; width:100px; height:100px;">
+            <img src="{% url wamyphoto %}" style="position: relative;" alt="Thumbnail Preview" />
+        </div>
+        <div class="clear"> </div>
+        <h1><form name="thumbnail" action="{% url wamyaccount "crop" %}" method="post">
+            <input type="hidden" name="x1" value="" id="x1" />
+            <input type="hidden" name="y1" value="" id="y1" />
+            <input type="hidden" name="x2" value="" id="x2" />
+            <input type="hidden" name="y2" value="" id="y2" />
+            <input type="submit" name="Cancel" value="Cancel" onclick="history.back();return false" />
+            <input type="submit" name="upload_thumbnail" value="Crop" id="save_thumb" />
+        </form></h1>
     {% else %}
         <p><center>
             {% if photo_size %}
-            <img src="{% url wamyphoto %}" width="150" height="150" class="imgzoom"/>
+            <img src="{% url wamyphoto %}" width="100" height="100" class="imgzoom"/>
             <br/>Original size: ({{ photo_size.0.0 }}, {{ photo_size.0.1 }}) {{ photo_size.1|filesizeformat }}
             <br/><a href="{% url wamyaccount "editphoto" %}">Crop this picture.</a>
             {% else %}
@@ -152,59 +155,60 @@
             {% endif %}
         </center></p>
     {% endif %}
-
-    <h1>Upload your photo</h1>
-    <div class="body">
-      <p>
-        <form enctype="multipart/form-data" method="post" action="{% url wamyaccount "upload" %}">
-            <table>
-              <tbody>
-                {% for field in form_file %}
-                <tr><td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td></tr>
-                <tr><td class="input">{{ field }}</td><td>{{ field.help_text|safe }}</td></tr>
-                {% endfor %}
-              </tbody>
-              <tr><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Upload' %}" /></td></tr>
-            </table>
-        </form>
-      </p>
+    
+        <div>
+          <p>
+            <form enctype="multipart/form-data" method="post" action="{% url wamyaccount "upload" %}">
+                <table>
+                  <tbody>
+                    {% for field in form_file %}
+                    <tr><td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td></tr>
+                    <tr><td class="input">{{ field }}</td><td>{{ field.help_text|safe }}</td></tr>
+                    {% endfor %}
+                  </tbody>
+                  <tr><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Upload' %}" /></td></tr>
+                </table>
+            </form>
+          </p>
+        </div>
     </div>
-</div>
 
-{% if myaccount.groupsCount %}
-<div class="clear"></div>
-<div>
-    <h1>{% trans "Owned Groups" %}</h1><br/>
+    <div class="clear"></div>
     
-    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
     
-    <table id="groupTable" class="tablesorter"> 
-        <thead> 
-            <tr> 
-                <th class="action">{% trans "Actions" %}</th> 
-                <th class="link">{% trans "Name" %}</th> 
-                <th class="link">{% trans "Permissions" %}</th> 
-                <th class="desc">{% trans "Description" %}</th>
-            </tr> 
-        </thead> 
-        <tbody>
-        {% for dict in myaccount.groups %}
-            <tr>
-                <td class="action">
-                    {% if not dict.locked %}
-                        <a href="{% url wamanagegroupownerid "edit" dict.group.id %}"><img src="{% url webstatic "images/edit.png" %}" alt="edit" title="edit"></a>
-                    {% endif %}                    
-                </td>
-                <td class="link">{{ dict.group.name }}</td>
-                <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
-                <td class="desc">{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
-            </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    {% if myaccount.groupsCount %}
+    <div>
+        <h1>{% trans "Owned Groups" %}</h1><br/>
+    
+        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "common/image/spinner.gif" %}"></span></form>
+    
+        <table id="groupTable" class="tablesorter"> 
+            <thead> 
+                <tr> 
+                    <th class="action">{% trans "Actions" %}</th> 
+                    <th class="link">{% trans "Name" %}</th> 
+                    <th class="link">{% trans "Permissions" %}</th> 
+                    <th class="desc">{% trans "Description" %}</th>
+                </tr> 
+            </thead> 
+            <tbody>
+            {% for dict in myaccount.groups %}
+                <tr>
+                    <td class="action">
+                        {% if not dict.locked %}
+                            <a href="{% url wamanagegroupownerid "edit" dict.group.id %}"><img src="{% static "webadmin/image/edit.png" %}" alt="edit" title="edit"></a>
+                        {% endif %}                    
+                    </td>
+                    <td class="link">{{ dict.group.name }}</td>
+                    <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
+                    <td class="desc">{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
 
-</div>
-{% endif %}
+    </div>
+    {% endif %}
 
 </div>
 {% endblock %}

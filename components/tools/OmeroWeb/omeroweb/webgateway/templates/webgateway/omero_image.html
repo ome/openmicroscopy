@@ -20,44 +20,45 @@
 
 {% block extra_css %}
 {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/jquery-plugin-postit.css" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/jquery-plugin-rangewidget.css" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/farbtastic.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/jquery-plugin-colorbtn.css" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/JQuerySpinBtn.css" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/jquery-ui-1.7.2.custom.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/omero_image.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/panojs.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/jquery-plugin-postit.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/jquery-plugin-rangewidget.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/3rdparty/farbtastic.css" %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/jquery-plugin-colorbtn.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/3rdparty/JQuerySpinBtn.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/3rdparty/jquery-ui-1.7.2.custom.css" %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/omero_image.css" %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/3rdparty/panojs.css" %}" media="all" />
 {% endblock %}
 
 {% block extra_js %}
 {{ block.super }}
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/jquery-ui-1.7.2.custom.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-smartdialog.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/JQuerySpinBtn.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-colorbtn.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-postit.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/jqDnR.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/jquery.selectboxes.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-rangewidget.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/farbtastic.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/gs_utils.js"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/jquery-ui-1.7.2.custom.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-smartdialog.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/JQuerySpinBtn.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-colorbtn.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-postit.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/jqDnR.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/jquery.selectboxes.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-rangewidget.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/farbtastic.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/gs_utils.js" %}"></script>
     <!-- for display of ROIs over the image -->
-    <script type="text/javascript" src="/appmedia/webgateway/js/roi_display-plugin.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/raphael.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/scale.raphael.js"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/roi_display-plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/raphael.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/scale.raphael.js" %}"></script>
 
     <!-- big images -->
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/utils.js"></script>    
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/PanoJS.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/controls.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/pyramid_Bisque.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/pyramid_imgcnv.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/pyramid_Zoomify.js"></script>        
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_thumbnail.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_info.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_svg.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_roi.js"></script>
+
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/utils.js" %}"></script>    
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/PanoJS.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/controls.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/pyramid_Bisque.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/pyramid_imgcnv.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/pyramid_Zoomify.js" %}"></script>        
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/control_thumbnail.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/control_info.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/control_svg.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/control_roi.js" %}"></script>
     
 {% endblock %}
 
@@ -420,11 +421,11 @@
     $('#wblitz-z-count').html(viewport.getZCount());
 
     if(viewport.loadedImg.rdefs.invertAxis) {
-      $('#z-axis-legend').attr('src', '/appmedia/webgateway/img/t_axis_revert.gif');
-      $('#t-axis-legend').attr('src', '/appmedia/webgateway/img/z_axis_revert.gif');
+      $('#z-axis-legend').attr('src', '{% static "webgateway/img/t_axis_revert.gif" %}');
+      $('#t-axis-legend').attr('src', '{% static "webgateway/img/z_axis_revert.gif" %}');
     } else {
-      $('#z-axis-legend').attr('src', '/appmedia/webgateway/img/z_axis.gif');
-      $('#t-axis-legend').attr('src', '/appmedia/webgateway/img/t_axis.gif');
+      $('#z-axis-legend').attr('src', '{% static "webgateway/img/z_axis.gif" %}');
+      $('#t-axis-legend').attr('src', '{% static "webgateway/img/t_axis.gif" %}');
     };
 
     if (viewport.hasLinePlot() || $('#wblitz-lp-enable').attr('checked')) {
@@ -492,15 +493,16 @@
           color_picker += "<div class='color_picker_option' color='" + colours[c] + "' style='background: " + colours[c] + "'> </div>";
       }
       var toggle_roi_thumbs = "<input type='checkbox' id='toggle_roi_thumbs' title='Show ROI Previews' />";
+      var toggle_shape_text = "<input type='checkbox' id='toggle_shape_text' checked='true' title='Show/Hide ROI text labels' />";
       
       // thead for whole table:
-      var roi_html = "<thead><tr>";
+      var roi_html = "<thead id='roi_table_head'><tr>";
       roi_html += "<th></th>";
       roi_html += "<th></th>"; // first shape (count)
       roi_html += "<th>ID</th>";
       roi_html += "<th>Z</th>"; // no Z for ROI
       roi_html += "<th>T</th>"; // no T for ROI
-      roi_html += "<th>Text</th>";
+      roi_html += "<th>" + toggle_shape_text + " Text</th>";
       roi_html += "<th title='Pick colour of ROI outlines'><div style='white-space:nowrap;'>" + toggle_roi_thumbs + "Preview</div>"+ color_picker + "</th>";
       roi_html += "</tr></thead>";
       $roi_table.append($(roi_html));
@@ -509,9 +511,15 @@
           var shape_icons = {'Line':'line16.png', 'Ellipse':'ellipse16.png', 'Polygon':'polygon16.png', 'Rectangle':'rectangle16.png',
             'Point':'point16.png', 'Label':'text16.png', 'PolyLine':'line16.png'}
           if (type in shape_icons) {
-              return "/appmedia/webgateway/img/" + shape_icons[type];
+              return '{% static "webgateway/img/" %}' + shape_icons[type];
           }
           return "";
+      }
+      var truncate_length = 30;
+      truncate_text = function(text_string) {
+          if (text_string.length < truncate_length)
+              return text_string
+          return text_string.substring(0,truncate_length) + "...";
       }
       // populate table. Cols are: ID, Z, T, Shape, text
       for (var r=0; r<json.length; r++) {
@@ -552,7 +560,7 @@
               shapesHtml += "<td class='shape_cell'>" + shape['id'] + "</td>"
               shapesHtml += "<td class='shape_cell'>" + (shape['theZ']+1) + "</td>";
               shapesHtml += "<td class='shape_cell'>" + (shape['theT']+1) + "</td>";
-              shapesHtml += "<td class='shape_cell'>" + text + "</td>";
+              shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text) + "</p></td>";
               shapesHtml += "<td class='shape_cell'>" + shapeThumbHtml + "</td>";
               shapesHtml += "</tr>";
               if (firstShape == null) firstShape = shape['type'];
@@ -562,12 +570,12 @@
           
           // new tbody for each ROI
           var roi_html = "<thead><tr class='roi_row'>";
-          roi_html += "<th><img class='expand_arrow' src='/appmedia/webgateway/img/arrowRight_grey.png' /></th>";
+          roi_html += "<th><img class='expand_arrow' src='{% static "webgateway/img/arrowRight_grey.png" %}' /></th>";
           roi_html += "<th align='left'> &nbsp<img class='roi_icon' src='"+ get_shape_icon_src(firstShape) + "' /> (" + shapes.length + ")</th>"; // first shape (count)
           roi_html += "<th>" + roi['id'] + "</th>";
-          roi_html += "<th> "+ (minZ+1) + ((maxZ != minZ) && ("-"+(maxZ+1)) || ("")) +" </th>"; // no Z for ROI
-          roi_html += "<th> "+ (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || ("")) +" </th>"; // no T for ROI
-          roi_html += "<th>"+ firstText +"</th>";
+          roi_html += "<th style='white-space: nowrap'> "+ (minZ+1) + ((maxZ != minZ) && ("-"+(maxZ+1)) || ("")) +" </th>"; // no Z for ROI
+          roi_html += "<th style='white-space: nowrap'> "+ (minT+1) + ((maxT != minT) && ("-"+(maxT+1)) || ("")) +" </th>"; // no T for ROI
+          roi_html += "<th class='shape_text' title=\""+ firstText +"\"><p>"+ truncate_text(firstText) +"</p></th>";
           roi_html += "<th>"+ roiThumbHtml +"</th>";
           roi_html += "</tr></thead>";
           
@@ -614,7 +622,7 @@
         $roi_table.find('tbody').children().children().css('background-color', '');// all rows white...
         $row.children().css('background-color', '#d0d0ff');      // ...show this row blue
         $row.parent().show();   // show this 'tbody' set of shapes
-        var arrow_src = '/appmedia/webgateway/img/arrowDown_grey.png';
+        var arrow_src = '{% static "webgateway/img/arrowDown_grey.png" %}';
         $row.parent().prev('thead').find('img.expand_arrow').attr('src', arrow_src);
     }
     
@@ -830,7 +838,7 @@
             Link to this page:
           </td>
           <td class="left">
-            <img class="popclose" src="/appmedia/webgateway/img/close.gif" alt="close" />
+            <img class="popclose" src="{% static "webgateway/img/close.gif" %}" alt="close" />
           </td>
         </tr>
         <tr>
@@ -843,7 +851,7 @@
     <div id="roi_table_postit" class="postit">
         <h1>ROIs</h1>
         <div id='roi_table_div'>
-            <table id='roi_small_table' border='0' cellpadding='0' cellspacing='1'></table>
+            <table id='roi_small_table' cellpadding='0' cellspacing='0'></table>
         </div>
     </div>
     
@@ -893,7 +901,7 @@
     <div id="rdef-postit" class="postit" style="width: 480px">
       <h1> Rendering Details </h1>
         <div id="rdef-active-area">
-        <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="/appmedia/webgateway/img/question.png" alt="Show help on channel window ranges" /></a>
+        <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="{% static "webgateway/img/question.png" %}" alt="Show help on channel window ranges" /></a>
         <label for="rd-wblitz-rmodel">Render as Color</label>
         <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this);" />
         <table cellspacing="0">
@@ -1035,8 +1043,8 @@
             
         <!-- Image Viewport -->
         <div id="weblitz-viewport"></div>
-        <img id="z-axis-legend" src="/appmedia/webgateway/img/z_axis.gif" />
-        <img id="t-axis-legend" src="/appmedia/webgateway/img/t_axis.gif" />
+        <img id="z-axis-legend" src="{% static "webgateway/img/z_axis.gif" %}" />
+        <img id="t-axis-legend" src="{% static "webgateway/img/t_axis.gif" %}" />
         <div class="figure-box-holder">
         </div>
       </div>
@@ -1051,7 +1059,7 @@
 {% block content_script %}
   $(document).ready(function () {
     /* Prepare the viewport */
-    viewport = $.WeblitzViewport($('#weblitz-viewport'), '{{ viewport_server }}',{% block viewport_opts %}null{% endblock %});
+    viewport = $.WeblitzViewport($('#weblitz-viewport'), '{{ viewport_server }}',{% block viewport_opts %}{'mediaroot': '{{ STATIC_URL }}' }{% endblock %});
     viewport.bind('imageLoad', _refresh_cb);
 
     /* Prepare the Zoom spin button */
@@ -1176,9 +1184,9 @@
     var toggle_th = function($roiThead) {
         $roiThead.next().toggle(0, function(){
             var vis = $roiThead.next().is(':visible');
-            var arrow_src = '/appmedia/webgateway/img/arrowRight_grey.png';
+            var arrow_src = '{% static "webgateway/img/arrowRight_grey.png" %}';
             if (vis) {
-                arrow_src = '/appmedia/webgateway/img/arrowDown_grey.png';
+                arrow_src = '{% static "webgateway/img/arrowDown_grey.png" %}';
             }
             $roiThead.find('img.expand_arrow').attr('src', arrow_src);
         });
@@ -1190,7 +1198,7 @@
         var vpb = viewport.viewportimg.get(0).getBigImageContainer();
         if (vpb!= null && viewport.loadedImg.tiles) {
             var scale = vpb.currentScale();
-            vpb.recenter({x:selected_xy['x']*scale ,y:selected_xy['y']*scale}, true);
+            vpb.recenter({x:selected_xy['x']*scale ,y:selected_xy['y']*scale}, true, true);
         }
         var z = parseInt( $shapeRow.find('td:nth-child(4)').text() );
         var t = parseInt( $shapeRow.find('td:nth-child(5)').text() );
@@ -1203,9 +1211,17 @@
         if ($target.attr('id') == "toggle_roi_thumbs") {
             update_roi_thumbs();
             return true;
+        } else if ($target.attr('id') == "toggle_shape_text") {
+            var show_labels = ($("#toggle_shape_text").attr('checked') == true);
+            viewport.viewportimg.get(0).show_labels(show_labels);
+            return true;
         } else if ($target.hasClass('shape_cell')) {
             // a shape td click selects the shape.
             var $shapeRow = $target.parent();
+            handleShapeRowClick($shapeRow);
+        } else if ($target.parent().hasClass('shape_cell')) {
+            // a shape <p> click selects the shape.
+            var $shapeRow = $target.parent().parent();
             handleShapeRowClick($shapeRow);
         } else if ($target.hasClass('shape_icon')) {
             // need to get to the row
@@ -1213,8 +1229,16 @@
             handleShapeRowClick($shapeRow);
         } else if ($target.get(0).nodeName.toLowerCase() == 'th'){
             // a ROI (th) click toggles the ROI-shapes 'tbody' below
-            var $roiThead = $target.parent().parent();
-            toggle_th($roiThead);
+            if ($target.parent().hasClass('roi_row')) {
+                var $roiThead = $target.parent().parent();
+                toggle_th($roiThead);
+            }
+        } else if ($target.parent().get(0).nodeName.toLowerCase() == "th"){
+            // a ROI (th <p>) click toggles the ROI-shapes 'tbody' below
+            if ($target.parent().parent().hasClass('roi_row')) {
+                var $roiThead = $target.parent().parent().parent();
+                toggle_th($roiThead);
+            }
         } else if ($target.hasClass('color_picker_option')) {
             // change the colour of lines drawn on roi_thumbs
             var line_color = $target.attr('color').substring(1);  // '#f00' -> 'f00'

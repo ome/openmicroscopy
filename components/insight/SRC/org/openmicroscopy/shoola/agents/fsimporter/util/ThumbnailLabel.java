@@ -78,8 +78,7 @@ class ThumbnailLabel
 	static final String	IMAGE_LABEL_TOOLTIP = "Click to view the image.";
 	
 	/** The text displayed in the tool tip when the plate has been imported. */
-	static final String	PLATE_LABEL_TOOLTIP = 
-		"Double-Click to browse the plate.";
+	static final String	PLATE_LABEL_TOOLTIP = "Click to browse the plate.";
 	
 	/** The thumbnail or the image to host. */
 	private Object data;

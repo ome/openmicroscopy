@@ -990,7 +990,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         c = 0;
         z = 0;
         PixelData data = delegate().getTile(z, c, t, x, y, w, h);
-        data.setOrder(ByteOrder.LITTLE_ENDIAN);
+        data.setOrder(byteOrder);
         return data;
     }
 

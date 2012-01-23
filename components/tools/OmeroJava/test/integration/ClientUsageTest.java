@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
  */
 @Test(groups = "integration")
 public class ClientUsageTest 
-	extends AbstractTest
+	extends AbstractServerTest
 {
  
     /**

@@ -1,6 +1,6 @@
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+
+
 
 {% comment %}
 <!--
@@ -23,15 +23,14 @@
 {% endcomment %}
 
     
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/weblitz-plateview.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/weblitz-plateview.css" %}" media="all" />
     
-    <script type="text/javascript" src="/appmedia/webgateway/js/weblitz-plateview.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-viewportImage.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-gs_slider.js"></script>
-    <script type="text/javascript" src="/appmedia/webgateway/js/gs_utils.js"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/weblitz-plateview.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-viewportImage.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-gs_slider.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/gs_utils.js" %}"></script>
 
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery.ui.selectable.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
 
     <script type="text/javascript">
 
@@ -47,18 +46,18 @@
                     aq = datatree.data.ui.last_selected;
                     pl = datatree._get_parent(aq);
                     
-                    cm_var['content_details']['url'] = '/webclient/load_data/'+pl.attr('rel')+'/'+pl.attr('id').split("-")[1]+'/'+aq.attr('rel')+'/'+aq.attr('id').split("-")[1]+'/?index='+field;
+                    cm_var['content_details']['url'] = '{% url load_data %}'+pl.attr('rel')+'/'+pl.attr('id').split("-")[1]+'/'+aq.attr('rel')+'/'+aq.attr('id').split("-")[1]+'/?index='+field;
                     cm_var['content_details']['rel'] = pl.attr('id');
-                    cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+aq.attr('rel')+'/'+aq.attr('id').split("-")[1]+'/';
+                    cm_var['metadata_details']['iframe'] = '{% url load_metadata_details %}'+aq.attr('rel')+'/'+aq.attr('id').split("-")[1]+'/';
                 } else {
                     pl = datatree.data.ui.last_selected;
                     
-                    cm_var['content_details']['url'] = '/webclient/load_data/'+pl.attr('rel')+'/'+pl.attr('id').split("-")[1]+'/?index='+field;
+                    cm_var['content_details']['url'] = '{% url load_data %}'+pl.attr('rel')+'/'+pl.attr('id').split("-")[1]+'/?index='+field;
                     cm_var['content_details']['rel'] = pl.attr('id');
-                    cm_var['metadata_details']['iframe'] = '/webclient/metadata_details/'+pl.attr('rel')+'/'+pl.attr('id').split("-")[1]+'/';
+                    cm_var['metadata_details']['iframe'] = '{% url load_metadata_details %}'+pl.attr('rel')+'/'+pl.attr('id').split("-")[1]+'/';
                 }
                 loadMetadataPanel(cm_var.metadata_details.iframe);
-                $("div#content_details").html('<p>Loading data... please wait <img src ="/appmedia/omeroweb/images/spinner.gif"/></p>');
+                $("div#content_details").html('<p>Loading data... please wait <img src ="{% static "common/image/spinner.gif" %}"/></p>');
                 $("div#content_details").attr('rel', cm_var.content_details.rel);
                 $("div#content_details").load(cm_var.content_details.url);
                 
@@ -109,20 +108,20 @@
         }
         
         $(document).ready(function() {
-            wpv = $.WeblitzPlateview($('#spw'), {baseurl: '/webclient'});
+            wpv = $.WeblitzPlateview($('#spw'), {baseurl: '/webclient', useParentPrefix: false});
             wpv.self.bind('thumbLoad', function (ev, pelm, elm) {
                 elm.bind('click', function(event){
                     handleClickSelection(event);
                     var $selected = $('td.ui-selected', wpv.self);
                     if ($selected.length > 1) {
-                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
+                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% static "common/image/knotes16.png" %}"/> Batch Annotate</a></p>');
                         $("#batchAnnotate").click(function() {
                             multipleAnnotation($selected, {{ index }});
                             return false;
                         });
                     } else {
                         $selected.each(function(i){
-                            loadMetadataPanel('/webclient/metadata_details/well/'+$(this).attr('id').split('-')[1]+'/');
+                            loadMetadataPanel('{% url load_metadata_details %}well/'+$(this).attr('id').split('-')[1]+'/');
                         });
                     }
                 }).bind('dblclick', function(){
@@ -136,14 +135,14 @@
                 stop: function(){  
                     var $selected = $('td.ui-selected', this);
                     if ($selected.length > 1) {
-                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% url webstatic "images/knotes16.png" %}"/> Batch Annotate</a></p>');
+                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% static "common/image/knotes16.png" %}"/> Batch Annotate</a></p>');
                         $("#batchAnnotate").click(function() {
                             multipleAnnotation($selected, {{ index }});
                             return false;
                         });
                     } else {
                         $selected.each(function(i){
-                            loadMetadataPanel('/webclient/metadata_details/well/'+$(this).attr('id').split('-')[1]+'/');
+                            loadMetadataPanel('{% url load_metadata_details %}well/'+$(this).attr('id').split('-')[1]+'/');
                         });
                     }
                 },

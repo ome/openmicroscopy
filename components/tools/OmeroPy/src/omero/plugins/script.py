@@ -299,8 +299,14 @@ class ScriptControl(BaseControl):
         client = self.ctx.conn(args)
         scriptSvc = client.sf.getScriptService()
         script_id, ofile = self._file(args, client)
+        txt = None
         try:
             txt = client.sf.getScriptService().getScriptText(script_id)
+            if not txt:
+                self.ctx.err("No text for script: %s" % script_id)
+                self.ctx.err("Does this file appear in the script list?")
+                self.ctx.err("If not, try 'replace'")
+                return
             from omero.util.temp_files import create_path
             from omero.util import edit_path
             p = create_path()
@@ -384,7 +390,6 @@ class ScriptControl(BaseControl):
         self.ctx.out("\t***  done ***")
 
     def list(self, args):
-        import omero_api_IScript_ice
         client = self.ctx.conn(args)
         sf = client.sf
         svc = sf.getScriptService()
@@ -406,7 +411,6 @@ class ScriptControl(BaseControl):
         client = self.ctx.conn(args)
         script_id, ofile = self._file(args, client)
         import omero
-        import omero_api_IScript_ice
         svc = client.sf.getScriptService()
 
         try:
@@ -558,7 +562,6 @@ class ScriptControl(BaseControl):
             self.ctx.die(123, "Usage: <original file id>")
 
         ofile = long(args.args[0])
-        import omero_api_IScript_ice
         client = self.ctx.conn(args)
         try:
             client.sf.getScriptService().deleteScript(ofile)

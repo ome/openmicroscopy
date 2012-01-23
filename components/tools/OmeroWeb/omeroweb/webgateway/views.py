@@ -1095,6 +1095,14 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             if len(imgs) == 0:
                 raise Http404
         name = '%s-%s' % (obj.getParent().getName(), obj.getName())
+    elif ctx == 'w':
+        obj = _conn.getObject("Well", cid)
+        if obj is None:
+            raise Http404
+        imgs.extend([x.getImage() for x in obj.listChildren()])
+        plate = obj.getParent()
+        coord = "%s%s" % (plate.getRowLabels()[obj.row],plate.getColumnLabels()[obj.column])
+        name = '%s-%s-%s' % (plate.getParent().getName(), plate.getName(), coord)
     else:
         obj = _conn.getObject("Image", cid)
         if obj is None:
@@ -1110,12 +1118,17 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
         tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, imgs[0])
         if tiff_data is None:
-            tiff_data = imgs[0].exportOmeTiff()
+            try:
+                tiff_data = imgs[0].exportOmeTiff()
+            except:
+                logger.debug('Failed to export image (2)', exc_info=True)
+                tiff_data = None
             if tiff_data is None:
+                webgateway_tempfile.abort(fpath)
                 raise Http404
             webgateway_cache.setOmeTiffImage(request, server_id, imgs[0], tiff_data)
         if fobj is None:
-            rsp = HttpResponse(tiff_data, mimetype='application/x-ome-tiff')
+            rsp = HttpResponse(tiff_data, mimetype='image/tiff')
             rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % (str(obj.getId()) + '-'+obj.getName())
             rsp['Content-Length'] = len(tiff_data)
             return rsp
@@ -1569,27 +1582,36 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
         return HttpResponseServerError('""', mimetype='application/javascript')
     grid = []
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
+    thumbsize = int(request.REQUEST.get('size', 64))
+    logger.debug(thumbsize)
+
     def urlprefix(iid):
-        return reverse(prefix, args=(iid,64))
+        return reverse(prefix, args=(iid,thumbsize))
     xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
-    plate.setGridSizeConstraints(8,12)
-    for row in plate.getWellGrid(field):
-        tr = []
-        for e in row:
-            if e:
-                i = e.getImage()
-                if i:
-                    t = i.simpleMarshal(xtra=xtra)
-                    t['wellId'] = e.getId()
-                    t['field'] = field
-                    tr.append(t)
-                    continue
-            tr.append(None)
-        grid.append(tr)
-        #grid.append(map(lambda x: x is not None and x.simpleMarshal(xtra=xtra) or None, [( x and x.getImage() ) for x in row]))
-    return {'grid': grid,
-            'collabels': plate.getColumnLabels(),
-            'rowlabels': plate.getRowLabels()}
+
+    rv = webgateway_cache.getJson(request, server_id, plate, 'plategrid-%d-%d' % (field, thumbsize))
+    if rv is None:
+        plate.setGridSizeConstraints(8,12)
+        for row in plate.getWellGrid(field):
+            tr = []
+            for e in row:
+                if e:
+                    i = e.getImage()
+                    if i:
+                        t = i.simpleMarshal(xtra=xtra)
+                        t['wellId'] = e.getId()
+                        t['field'] = field
+                        tr.append(t)
+                        continue
+                tr.append(None)
+            grid.append(tr)
+        rv = {'grid': grid,
+              'collabels': plate.getColumnLabels(),
+              'rowlabels': plate.getRowLabels()}
+        webgateway_cache.setJson(request, server_id, plate, simplejson.dumps(rv), 'plategrid-%d-%d' % (field, thumbsize))
+    else:
+        rv = simplejson.loads(rv)
+    return rv
 
 @jsonp
 def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
@@ -2057,8 +2079,10 @@ def get_rois_json(request, imageId, server_id=None):
         """
         converts a bin int number into css colour, E.g. -1006567680 to '#00ff00'
         """
+        alpha = rgbint // 256 // 256 // 256 % 256
+        alpha = float(alpha) / 256
         r,g,b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
-        return "#%02x%02x%02x" % (r,g,b)    # format hex
+        return "#%02x%02x%02x" % (r,g,b) , alpha
             
     rois = []
     roiService = _conn.getRoiService()
@@ -2134,9 +2158,9 @@ def get_rois_json(request, imageId, server_id=None):
                 if t and t != 'none':
                     shape['transform'] = t
             if s.getFillColor() and s.getFillColor().getValue():
-                shape['fillColor'] = rgb_int2css(s.getFillColor().getValue())
+                shape['fillColor'], shape['fillAlpha'] = rgb_int2css(s.getFillColor().getValue())
             if s.getStrokeColor() and s.getStrokeColor().getValue():
-                shape['strokeColor'] = rgb_int2css(s.getStrokeColor().getValue())
+                shape['strokeColor'], shape['strokeAlpha'] = rgb_int2css(s.getStrokeColor().getValue())
             if s.getStrokeWidth() and s.getStrokeWidth().getValue():
                 shape['strokeWidth'] = s.getStrokeWidth().getValue()
             shapes.append(shape)

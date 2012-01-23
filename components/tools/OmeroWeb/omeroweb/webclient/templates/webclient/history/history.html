@@ -1,8 +1,6 @@
 {% extends "webclient/base/base_container.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+
 
 {% comment %}
 <!--
@@ -25,32 +23,21 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/calendar.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webclient/css/calendar.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block jscript %}
-
-{% endblock %}
 
 {% block script %}
-
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
-    
+    {{ block.super }}
+    <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function() 
             {
-                var h = $(window).height()-200;
-                $("div#history_calendar").css('height', h+31);
-                $("div#metadata_details").css('height', h+31);
-                $("div#metadata_details iframe").attr('height', h+31);
-                $("div#content_details").css('height', h+31);
-                
-                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% static "common/image/spinner.gif" %}"/></p>');
                 $("div#history_calendar").load('{% url load_calendar %}?experimenter={{ nav.experimenter }}');
         })
     </script>
@@ -58,7 +45,7 @@
 
 {% block left %}
 
-<div id="history_calendar" style="overflow: auto;"> </div>
+<div id="history_calendar" class="padding"> </div>
 
 {% endblock %}
 

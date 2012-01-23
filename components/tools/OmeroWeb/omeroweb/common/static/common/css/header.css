@@ -1,0 +1,56 @@
+#top_header {
+    background: #fff;
+    position: relative;
+    height:75px;
+}
+
+#logo {
+    background: url(../image/logo.png) no-repeat scroll left bottom transparent;
+    height: 73px;
+    left: 25px;
+    margin: 0;
+    position: absolute;
+    top: 0;
+    width: 160px;
+}
+
+#menu {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+}
+#navigation li {
+    float:right;
+    display: block;
+    margin: 10px;
+    font-size: 110%;
+}
+
+a:hover {
+    border: medium none;
+    color: #1B7BC7;
+    text-decoration: underline;
+}
+
+#thin_header {
+    margin: 0;
+    padding: 4px 0px;
+    height: 17px;
+    position: relative;
+    background: url(../image/header_bg.png) repeat-x scroll left bottom #FFFFFF;
+    border-bottom: 1px solid #bbb;
+}
+
+#header_right {
+    margin: 6px 10px;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+#header_left {
+    margin: 6px 10px;
+    position: absolute;
+    left: 0;
+    top: 0;
+}

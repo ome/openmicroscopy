@@ -81,6 +81,7 @@ DECLARATION BLOCK:
 [$ice] \#include <omero/model/IObject.ice>
 [$ice] \#include <omero/RTypes.ice>
 [$ice] \#include <omero/System.ice>
+[$ice] \#include <omero/Collections.ice>
 #if( $type.superclass )
 #set( $parent = $type.superclass.replaceFirst(".*ome.model..+?[.]","") )
 [$ice] \#include <omero/model/${parent}.ice>
@@ -144,9 +145,10 @@ DECLARATION BLOCK:
 
 Note how the whitespace for the python definitions is important.
 [$pyc] import Ice
+[$pyc] import IceImport
 [$pyc] import omero
-[$pyc] import omero_model_DetailsI
-[$pyc] import omero_model_${Pojo}_ice
+[$pyc] IceImport.load("omero_model_DetailsI")
+[$pyc] IceImport.load("omero_model_${Pojo}_ice")
 [$pyc] from omero.rtypes import rlong
 [$pyc] _omero = Ice.openModule("omero")
 [$pyc] _omero_model = Ice.openModule("omero.model")

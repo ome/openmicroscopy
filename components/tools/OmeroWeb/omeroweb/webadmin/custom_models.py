@@ -23,15 +23,57 @@
 
 from django.utils.encoding import smart_unicode, force_unicode
 
-class Server(object):
+class IterRegistry(type):
+    def __new__(cls, name, bases, attr):
+        attr['_registry'] = {}
+        attr['_frozen'] = False
+        return type.__new__(cls, name, bases, attr)
     
-    def __init__ (self, pk, host, port, server=None):
-        self.id = pk
+    def __iter__(cls):
+        return iter(cls._registry.values())
+
+class ServerBase(object):
+    __metaclass__ = IterRegistry
+    _next_id = 1
+
+    def __init__(self, host, port, server=None):
+        if hasattr(self, 'host') or hasattr(self, 'port'):
+            return
+        self.id = type(self)._next_id
         self.host = host
         self.port = port
-        self.server = None
-        if server is not None and server != '':
-            self.server = server
+        self.server = (server is not None and server != '') and server or None
+        type(self)._registry[self.id] = self
+        type(self)._next_id += 1
+
+    def __new__(cls, host, port, server=None):
+        for key in cls._registry:
+            val = cls._registry[key]
+            if val.host == host and val.port == port:
+                return cls._registry[key]
+        
+        if cls._frozen:
+            raise TypeError('No more instances allowed')
+        else:
+            return object.__new__(cls)
+
+    @classmethod
+    def instance(cls, pk):
+        if cls._registry.has_key(pk):
+            return cls._registry[pk]
+        return None
+
+    @classmethod
+    def freeze(cls):
+        cls._frozen = True
+
+    @classmethod
+    def reset(cls):
+        cls._registry = {}
+        cls._frozen = False
+        cls._next_id = 1
+
+class Server(ServerBase):
 
     def __repr__(self):
         """
@@ -40,42 +82,26 @@ class Server(object):
         return """["%s", %s, "%s"]""" % (self.host, self.port, self.server)
 
     def __str__(self):
-        if hasattr(self, '__unicode__'):
-            return force_unicode(self).encode('utf-8')
-        return '%s object' % (self.__class__.__name__)
-    
-    def __unicode__(self):
-        return str(self.id)   
-    
+        return force_unicode(self).encode('utf-8')
 
-class ServerObjects(object):
+    def __unicode__(self):
+        return str(self.id)
     
-    def __init__ (self, glist):
-        self.blitz_list = list()
-        i = 1
-        for s in glist:
-            self.blitz_list.append(Server(pk=i, host=s[0], port=s[1], server=s[2]))
-            i+=1
-    
-    def get(self, pk):
+    @classmethod
+    def get(cls, pk):
+        r = None
         try:
             pk = int(pk)
         except:
             pass
         else:
-            for b in self.blitz_list:
-                if b.id == pk:
-                    return b
-        return None
-    
-    def find(self, server_host):
-        for b in self.blitz_list:
-            if b.host == server_host:
-                return b
-        return None
-    
-    def all(self):
-        return self.blitz_list
+            if cls._registry.has_key(pk):
+                r = cls._registry[pk]
+        return r
 
-    def __repr__(self):
-        return repr(self.blitz_list)
+    @classmethod
+    def find(cls, server_host):
+        for s in cls._registry.values():
+            if unicode(s.host) == unicode(server_host):
+                return s
+        return None

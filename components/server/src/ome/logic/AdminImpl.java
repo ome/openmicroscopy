@@ -1103,7 +1103,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 } else {
                     String passwd = passwordUtil.generateRandomPasswd();
                     sendEmail(e, passwd);
-                    changeUserPassword(e.getOmeName(), passwd);
+                    // changeUserPassword checks adminOrPiOfUser
+                    // Skipping that. See #7327
+                    _changePassword(e.getOmeName(), passwd);
                 }
             }
         });
@@ -1134,9 +1136,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                             + ex.getMessage()
                             + ". "
                             + "Password was not changed because email could not be sent "
-                            + "to the "
+                            + "to user:"
                             + e.getOmeName()
-                            + ". Please turn on the debuge "
+                            + ". Please turn on the debug "
                             + "mode in omero.properties by the: omero.resetpassword.mail.debug=true");
         }
         return true;

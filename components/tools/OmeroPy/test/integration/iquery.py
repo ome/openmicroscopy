@@ -11,7 +11,6 @@
 import unittest, time
 import integration.library as lib
 import omero
-import omero_Constants_ice
 from omero.rtypes import *
 
 class TestQuery(lib.ITest):

@@ -1,8 +1,5 @@
 {% extends "webclient/base/base_container.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
 
 {% comment %}
 <!--
@@ -25,29 +22,24 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
-{% endblock %}
-
-{% block jscript %}
-
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.cookie.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.hotkeys.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.jstree.js" %}"></script>
-
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/container.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block script %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.cookie.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.hotkeys.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.js" %}"></script>
     
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
     <script type="text/javascript">
         $(function() 
             {
-                var h = $(window).height()-200;
-                $("div#tree_details").css('height', h);
-                $("div#metadata_details").css('height', h+31);
-                $("div#metadata_details iframe").attr('height', h+31);
-                $("div#content_details").css('height', h+31);
+                //var h = $(window).height()-200;
                 
                 var buttonsShowHide = function(selected) { 
                     var toolbar_config = new Object();
@@ -129,7 +121,7 @@
                                 "experimenter" : {
                                     "valid_children" : [ "tagset", "tagset-locked", "tag", "tag-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/personal16.png" %}'
+                                        "image" : '{% static "webclient/image/personal16.png" %}'
                                     },
                                     "create_node" : true,
                                     "start_drag" : false,
@@ -139,7 +131,7 @@
                                 "tagset" : {
                                     "valid_children" : [ "tag", "tag-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/knotesred16.png" %}'
+                                        "image" : '{% static "webclient/image/knotesred16.png" %}'
                                     },
                                     "create_node" : true,
                                     "start_drag" : false,
@@ -149,7 +141,7 @@
                                 "tagset-locked" : {
                                     "valid_children" : [ "tag", "tag-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/knotesred_locked16.png" %}'
+                                        "image" : '{% static "webclient/image/knotesred_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -159,7 +151,7 @@
                                 "tag" : {
                                     "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/knotes16.png" %}'
+                                        "image" : '{% static "common/image/knotes16.png" %}'
                                     },
                                     "create_node" : true,
                                     "start_drag" : true,
@@ -170,7 +162,7 @@
                                 "tag-locked" : {
                                     "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/knotes_locked16.png" %}'
+                                        "image" : '{% static "webclient/image/knotes_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -180,7 +172,7 @@
                                 "project" : {
                                     "valid_children" : [ "dataset", "dataset-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/folder16.png" %}'
+                                        "image" : '{% static "webclient/image/folder16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -190,7 +182,7 @@
                                 "project-locked" : {
                                     "valid_children" : [ "dataset", "dataset-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/folder_locked16.png" %}'
+                                        "image" : '{% static "webclient/image/folder_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -200,7 +192,7 @@
                                 "dataset" : {
                                     "valid_children" : [ "image", "image-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/folder_image16.png" %}'
+                                        "image" : '{% static "webclient/image/folder_image16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -210,7 +202,7 @@
                                 "dataset-locked" : {
                                     "valid_children" : [ "image", "image-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/folder_image_locked16.png" %}'
+                                        "image" : '{% static "webclient/image/folder_image_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -220,7 +212,7 @@
                                 "image" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/image16.png" %}'
+                                        "image" : '{% static "webclient/image/image16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -230,7 +222,7 @@
                                 "image-locked" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/image_locked16.png" %}'
+                                        "image" : '{% static "webclient/image/image_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -240,7 +232,7 @@
                                 "screen" : {
                                     "valid_children" : [ "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/folder_screen16.png" %}'
+                                        "image" : '{% static "webclient/image/folder_screen16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -250,7 +242,7 @@
                                 "screen-locked" : {
                                     "valid_children" : [ "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/folder_screen_locked16.png" %}'
+                                        "image" : '{% static "webclient/image/folder_screen_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -260,7 +252,7 @@
                                 "plate" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/folder_plate16.png" %}'
+                                        "image" : '{% static "webclient/image/folder_plate16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -270,7 +262,7 @@
                                 "plate-locked" : {
                                     "valid_children" : "none",
                                     "icon" : {
-                                        "image" : '{% url webstatic "images/folder_plate_locked16.png" %}'
+                                        "image" : '{% static "webclient/image/folder_plate_locked16.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -319,12 +311,12 @@
                     var selected = data.inst.get_selected();
                     buttonsShowHide(selected);
                     if (selected.attr("rel").replace("-locked","") === "tag") {
-                        loadOtherPanels(data.inst, '{% url load_data_by_tag %}');
+                        loadOtherPanels(data.inst, '{% url webindex %}');
                     } else {
                         if (selected.attr("rel").replace("-locked","") === "image" && selected.parent().parent().attr("rel").replace("-locked","") === "tag") {
-                            loadOtherPanels(data.inst, '{% url load_data_by_tag %}');
+                            loadOtherPanels(data.inst, '{% url webindex %}');
                         } else {
-                            loadOtherPanels(data.inst, '{% url load_data %}');
+                            loadOtherPanels(data.inst, '{% url webindex %}');
                         }
                     }
                     syncPanels(selected);
@@ -379,9 +371,13 @@
         $("#buttons input").click(function () {
             switch(this.id) {
                 case "deleteButton":
-                    if (confirm("Delete permanently selected object(-s)? You will NOT be able to access this object any more.")) {
-                        $("#dataTree").jstree('remove', $.jstree._focused().get_selected());
-                    }                    
+                    var confirm_delete = confirm_dialog('Delete selected Tags?',
+                        function() {
+                            if(confirm_delete.data("clicked_button") == "OK") {
+                                $("#dataTree").jstree('remove', $.jstree._focused().get_selected());
+                            }
+                        }
+                    );
                     break;
                 case "refreshButton":
                     $("#dataTree").jstree("refresh");
@@ -399,16 +395,12 @@
 
     <div class="toolbar">
         <div id="buttons" class="align_left">
-            <input id="refreshButton" class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
-            <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "userdata" %}'"> | 
-            <input id="deleteButton" class="button button-disabled" type="image" src="{% url webstatic "images/cancel16.png" %}" alt="Delete" title="Delete" /> 
+            <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
+            <input class="button" type="image" src="{% static "webclient/image/view_tree16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "userdata" %}'"> | 
+            <input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/cancel16.png" %}" alt="Delete" title="Delete" /> 
         </div>
     </div>
-    
-    
 
-</div>
-<div class="clear"> </div>
 
 <div id="tree_details">
     <div class="dataTree" id="dataTree"></div>

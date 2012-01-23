@@ -7,9 +7,11 @@
 """
 
 import omero
+import IceImport
 if omero.__import_style__ is None:
     omero.__import_style__ = "min"
-    import omero_API_ice
-    import omero_ServicesF_ice
-    import omero_Constants_ice
+    IceImport.load("omero_API_ice")
+    IceImport.load("omero_ServicesF_ice")
+    IceImport.load("omero_Constants_ice")
+    IceImport.load("Glacier2_Router_ice")
     import omero.rtypes

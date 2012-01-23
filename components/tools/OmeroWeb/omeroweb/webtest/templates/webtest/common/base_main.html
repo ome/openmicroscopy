@@ -1,0 +1,46 @@
+{% extends "common/base/base_main.html" %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% block title %}
+Extends "common/base/base_main.html"
+{% endblock %}
+
+
+{% block nav_links %}
+    <li><a href="#">Link</a></li>
+    <li><a href="#">One</a></li>
+    <li><a href="#">Two</a></li>
+{% endblock %}
+
+
+{% block content %}
+<h1>block content</h1>
+
+<p>
+    This page extends "common/base/base_main.html" and makes the following changes:
+    <ul>
+        <li>Adds links to the 'nav_links' block (main top links)</li>
+        <li>Adds this text to the 'content' block</li>
+    </ul>
+</p>
+
+{% endblock %}

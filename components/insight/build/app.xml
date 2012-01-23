@@ -51,8 +51,8 @@
   <patternset id="app.sources">
     <include name="**/*.java"/>
   </patternset>
-  <fileset id="app.libs" dir="${base.lib.dir}" includes="*.jar"/>
-  <fileset id="app.libs.opengl" dir="${base.lib.dir}" includes="*.jar"/>
+  <fileset id="app.libs" dir="${base.runtimelib.dir}" includes="*.jar"/>
+  <fileset id="app.libs.opengl" dir="${base.runtimelib.dir}" includes="*.jar"/>
   <fileset id="app.resources" dir="${base.src.dir}" excludes="**/*.java"/>
   <fileset id="app.config" dir="${base.config.dir}"/> 
   <path id="app.compile.classpath">
@@ -86,10 +86,8 @@
     <mkdir dir="${app.compiled.dir}"/>
     <mkdir dir="${app.config.dir}"/>
     <mkdir dir="${app.lib.dir}"/> 
-    <condition property="dist.bundle.version"
-               value="${omero.version}-${dist.environment.OMERO_BUILD}">
-      <isset property="dist.environment.OMERO_BUILD"/>
-    </condition>
+    <!-- No longer necessary to take environment.OMERO_BUILD
+    since this is already a part of omero.version -->
     <condition property="dist.bundle.version"
                value="${omero.version}">
       <not>

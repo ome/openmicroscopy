@@ -59,7 +59,6 @@
         <target name="retrieve" unless="retrieve.done">
                 <property name="retrieve.done" value="true"/>
                 <installIvy/>
-		<installIvy/>
 		<ivy:retrieve settingsRef="ivy.${ant.project.name}" pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
 	</target>
 
@@ -68,11 +67,14 @@
 		<defineClasspath/>
                 <defineVariables/>
 		<makeDirectories/>
-		<copyResource file="${root.dir}/lib/log4j-build.xml"/>
 		<copyResource file="${root.dir}/etc/local.properties"/>
 		<copyResource file="${root.dir}/etc/hibernate.properties"/>
-		<copyResource file="${root.dir}/etc/log4j.xml"/>
 		<copyResource file="${root.dir}/etc/omero.properties"/>
+                <!-- Handling log4j*xml separately -->
+                <copy file="${root.dir}/lib/log4j-build.xml" tofile="${resrc.dest}/log4j.xml" failonerror="true" />
+                <copy file="${root.dir}/lib/log4j-build.xml" tofile="${classes.dir}/log4j.xml" failonerror="true" />
+                <!-- See #2187 for more information-->
+
 		<echo file="${classes.dir}/omero.properties" append="true">
 omero.version=${omero.version}
 		</echo>
@@ -183,7 +185,7 @@ omero.version=${omero.version}
 			<jvmarg value="-Xmx${javac.maxmem}"/>
 			<jvmarg value="-XX:MaxPermSize=256m"/>
 			<jvmarg value="-Demma.coverage.out.file=${target.dir}/coverage.emma" />
-			<jvmarg value="-Dlog4j.configuration=log4j-build.xml"/>
+			<jvmarg value="-Dlog4j.configuration=log4j.xml"/>
 			<jvmarg value="-Domero.db.name=${omero.db.name}"/>
 			<jvmarg value="-Domero.db.host=${omero.db.host}"/>
 			<jvmarg value="-Domero.db.port=${omero.db.port}"/>
@@ -320,6 +322,7 @@ omero.version=${omero.version}
 			<fileset dir="${classes.dir}">
 				<exclude name="local.properties"/>
 				<exclude name="log4j.xml"/>
+				<exclude name="log4j-build.xml"/>
 			</fileset>
 		</jar>
 	</target>

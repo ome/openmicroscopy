@@ -70,7 +70,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
-import ome.conditions.ResourceError;
+import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
@@ -487,7 +487,7 @@ class OMEROGateway
 				e instanceof ConnectionLostException)
 				index = DataServicesFactory.LOST_CONNECTION;
 			connected = false;
-			dsFactory.sessionExpiredExit(index);
+			dsFactory.sessionExpiredExit(index, cause);
 		}
 	}
 
@@ -5485,14 +5485,28 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
+			
 			List results = null;
 			Set<DataObject> wells = new HashSet<DataObject>();
 			Iterator i;
 			IQueryPrx service = getQueryService();
 			if (service == null) service = getQueryService();
-			StringBuilder sb = new StringBuilder();
+			//if no acquisition set. First try to see if we have a id.
 			ParametersI param = new ParametersI();
 			param.addLong("plateID", plateID);
+			StringBuilder sb;
+			if (acquisitionID < 0) {
+				sb = new StringBuilder();
+				sb.append("select pa from PlateAcquisition as pa ");
+				sb.append("where pa.plate.id = :plateID");
+				results = service.findAllByQuery(sb.toString(), param);
+				if (results != null && results.size() > 0)
+					acquisitionID = 
+						((PlateAcquisition) results.get(0)).getId().getValue();
+			}
+			
+			sb = new StringBuilder();
+			
 			sb.append("select well from Well as well ");
 			sb.append("left outer join fetch well.plate as pt ");
 			sb.append("left outer join fetch well.wellSamples as ws ");

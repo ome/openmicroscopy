@@ -52,7 +52,7 @@ import omero.model.Pixels;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class RawPixelsStoreTest
-    extends AbstractTest
+    extends AbstractServerTest
 {
     private RawPixelsStorePrx svc;
 

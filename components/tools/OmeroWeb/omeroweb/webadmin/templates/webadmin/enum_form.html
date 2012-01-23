@@ -1,7 +1,5 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
 
 {% comment %}
 <!--
@@ -31,10 +29,11 @@
 {% endif %}
 {% endblock %}
 
-{% block content %}
+{% block center_details %}
+{{ block.super }}
 <div>
 {% ifequal action "new" %}
-    <h2>{% trans "Add new entry to " %} <strong>{{ controller.klass }}</strong></h2>
+    <h1>{% trans "Add new entry to " %} <strong>{{ controller.klass }}</strong></h1>
     
     <form action="{% url wamanageenum "new" controller.klass %}" method="POST">
     <table>
@@ -50,15 +49,15 @@
     
 {% else %}
 
-<p><img src="{% url webstatic "images/add.png" %}" alt="add" title="add"> <a href="{% url wamanageenum "new" controller.klass %}">{% trans "Add new entry" %}</a></p>
+<h1>{% trans "Edit" %} {{ controller.klass }}</h1>
 
-    <h2>{% trans "Edit" %} <strong>{{ controller.klass }}</strong></h2>
+<div class="add_button"><img src="{% static "webadmin/image/add.png" %}" alt="add" title="add"> <a href="{% url wamanageenum "new" controller.klass %}">{% trans "Add new entry" %}</a></div>
     
     <form action="{% url wamanageenum "save" controller.klass %}" method="POST">
     <table>
       <tbody>
         {% for field in form %}
-        <tr><td class="form"><a href="{% url wamanageenum "delete" controller.klass field.name %}"><img src="{% url webstatic "images/del.png" %}" alt="delete" title="delete"></a> {{ field.label_tag }}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
+        <tr><td class="form"><a href="{% url wamanageenum "delete" controller.klass field.name %}"><img src="{% static "webadmin/image/del.png" %}" alt="delete" title="delete"></a> {{ field.label_tag }}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
         {% endfor %}
       </tbody>
       <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>

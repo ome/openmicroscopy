@@ -1,7 +1,7 @@
-{% extends "webclient/base/base_frame.html" %}
+{% extends "common/base/base_frame.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+
+
 
 {% comment %}
 <!--
@@ -24,22 +24,20 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/autocomplete.css" %}" type="text/css" media="screen"/>
-{% endblock %}
-
-{% block jscript %}
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.autocomplete.js" %}"></script>
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
-    
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/googiespell.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/annotation.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/autocomplete.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block script %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.autocomplete.js" %}"></script>
+    
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/AJS.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/googiespell.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/googiespell/cookiesupport.js" %}"></script>
 
 <!--<script type="text/javascript">
     $(document).ready(function() 
@@ -92,7 +90,7 @@
     
 {% endblock %}
 
-{% block content %}
+{% block body %}
 
 {% if form_comment %}
 <div class="comment">

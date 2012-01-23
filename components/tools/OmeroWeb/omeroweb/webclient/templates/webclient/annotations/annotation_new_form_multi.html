@@ -1,7 +1,8 @@
-{% extends "webclient/base/base_frame.html" %}
+{% extends "common/base/base_frame.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+{% load common_tags %}
+
+
 
 {% comment %}
 <!--
@@ -24,29 +25,22 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/autocomplete.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/annotation.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/autocomplete.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
 
-{% endblock %}
-
-{% block jscript %}
-
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.autocomplete.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
-    
 {% endblock %}
 
 {% block script %}
-
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+    {{ block.super }}
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.autocomplete.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
+    
+    <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function() 
@@ -58,7 +52,7 @@
     
 {% endblock %}
 
-{% block content %}
+{% block body %}
 
 {% comment %}
     <!-- Example toolbar of links to webtest pages. Remove comments to activate -->
@@ -133,11 +127,7 @@
     </table>
     <input type="submit" value="{% trans 'Save' %}" />
     </form>
-    
-    <script type="text/javascript">
-        var googie_spell = new GoogieSpell("static_core/googiespell/", "{% url spellchecker %}"+"?lang=");
-        googie_spell.decorateTextarea("id_content", null, "600px");
-    </script>
+
     {% endif %}
 </div>
 

@@ -10,7 +10,7 @@
 
 import unittest, os, subprocess, StringIO
 from path import path
-from omero.cli import Context, BaseControl, CLI
+from omero.cli import Context, BaseControl, CLI, NonZeroReturnCode
 from omero.plugins.sessions import SessionsControl
 from omero.plugins.export import ExportControl
 from omero.util.temp_files import create_path
@@ -42,9 +42,14 @@ class MockExporter(object):
         pass
 
     def __getattr__(self, key):
+        if key == "generateTiff":
+            return self.generateTiff
         return self.all
 
-class TestScript(unittest.TestCase):
+    def generateTiff(self, *args):
+        return 1
+
+class TestExport(unittest.TestCase):
 
     def setUp(self):
         self.cli = MockCLI()
@@ -57,6 +62,19 @@ class TestScript(unittest.TestCase):
 
     def testSimpleExport(self):
         self.invoke("x -f %s Image:3" % self.p)
+
+    def testStdOutExport(self):
+        """
+        "-f -" should export to stdout. See ticket:7106
+        """
+        self.invoke("x -f - Image:3")
+
+    def testNoStdOutExportForDatasets(self):
+        try:
+            self.invoke("x -f - --iterate Dataset:3")
+            self.fail("ZeroReturnCode??")
+        except NonZeroReturnCode:
+            pass
 
 if __name__ == '__main__':
     unittest.main()

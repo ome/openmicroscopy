@@ -1,7 +1,6 @@
 {% extends "webclient/base/base.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+
 
 {% comment %}
 <!--
@@ -24,31 +23,24 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/index.css" %}" type="text/css" media="screen"/>
-    
-{% endblock %}
-
-{% block jscript %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webclient/css/index.css" %}" type="text/css" media="screen"/>
 
 {% endblock %}
 
 {% block script %}
+    {{ block.super }}
+    
     <script type="text/javascript">
         $(document).ready(function() 
             {
-                var h = $(window).height()-200;
-                $("div#import_details").css('height', h+31);
-                $("div#metadata_details").css('height', h+31);
-                $("#right_panel").show();
-                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                
-                $("div#import_details").html('<p>Loading imported images... please wait <img src="{% url webstatic "images/spinner.gif" %}"/></p>');
+                $("div#import_details").html('<p>Loading imported images... please wait <img src="{% static "common/image/spinner.gif" %}"/></p>');
                 $("div#import_details").load("{% url index_last_imports %}");
 
-                $("div#tag_details").html('<p>Loading tag cloud... please wait <img src="{% url webstatic "images/spinner.gif" %}"/></p>');
+                $("div#tag_details").html('<p>Loading tag cloud... please wait <img src="{% static "common/image/spinner.gif" %}"/></p>');
                 $("div#tag_details").load("{% url index_tag_cloud %}");
 
-                $("div#most_recent_details").html('<h1>Most recents:</h1><p>Loading data... please wait <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                $("div#most_recent_details").html('<h1>Most recents:</h1><p>Loading data... please wait <img src ="{% static "common/image/spinner.gif" %}"/></p>');
                 $("div#most_recent_details").load("{% url index_most_recent %}");
         })
     </script>

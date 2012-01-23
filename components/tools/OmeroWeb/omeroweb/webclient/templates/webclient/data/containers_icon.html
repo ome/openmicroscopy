@@ -1,7 +1,5 @@
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+
 
 {% comment %}
 <!--
@@ -23,8 +21,6 @@
 -->
 {% endcomment %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery.ui.selectable.js" %}"></script>
-    
     <script type="text/javascript">
         $(document).ready(function(){
             
@@ -161,7 +157,7 @@
 {% if manager.containers.images %}
 
     <div id="toolbar" class="toolbar_noborder" rel="icon">
-        <input onclick="changeView('table',{{ manager.paging.page|default:"1" }});" class="button" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table"></div>
+        <input onclick="changeView('table',{{ manager.paging.page|default:"1" }});" class="button" type="image" src="{% static "webclient/image/view_detailed16.png" %}" alt="Change view to table" title="Change view to table"></div>
     <div class="clear"> </div>
         
     <ul id="dataIcons">

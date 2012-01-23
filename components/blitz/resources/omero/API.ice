@@ -13,6 +13,7 @@
 #include <omero/ModelF.ice>
 #include <omero/ServicesF.ice>
 #include <omero/System.ice>
+#include <omero/Collections.ice>
 #include <Glacier2/Session.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
@@ -273,7 +274,7 @@ module omero {
 	     *
 	     * Specifically, the bit representing the 0-based index will be 1:
 	     *
-	     *        if (retval & 1<<idx == 1<<idx) { // not alive }
+	     *        if (retval & 1&lt;&lt;idx == 1&lt;&lt;idx) { // not alive }
 	     *
 	     * Except for fatal server or session errors, this method should never
 	     * throw an exception.

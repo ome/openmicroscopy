@@ -142,11 +142,11 @@ class BrowserControl
         actionsMap.put(SORT_DATE, new SortByDateAction(model));
         actionsMap.put(PARTIAL_NAME, new ShowNameAction(model));
         actionsMap.put(DELETE, new BrowserDeleteAction(model));
-        actionsMap.put(NEW_CONTAINER, new BrowserManageAction(model, 
+        actionsMap.put(NEW_CONTAINER, new BrowserManageAction(model,
         		BrowserManageAction.NEW_CONTAINERS));
-        actionsMap.put(NEW_ADMIN, new BrowserManageAction(model, 
+        actionsMap.put(NEW_ADMIN, new BrowserManageAction(model,
         		BrowserManageAction.NEW_ADMIN));
-        actionsMap.put(NEW_TAG, new BrowserManageAction(model, 
+        actionsMap.put(NEW_TAG, new BrowserManageAction(model,
         		BrowserManageAction.NEW_TAGS));
         actionsMap.put(IMPORT, new BrowserImportAction(model));
         actionsMap.put(REFRESH, new BrowserRefreshAction(model));
@@ -183,6 +183,33 @@ class BrowserControl
         model.addChangeListener(this);
     }
 
+    /**
+     * Selects the specified nodes.
+     * 
+     * @param nodes The nodes to select.
+     */
+    void selectNodes(List nodes, Class ref)
+    {
+    	if (nodes == null || nodes.size() == 0) return;
+    	//make sure we have node of the same type.
+    	Iterator i = nodes.iterator();
+    	TreeImageDisplay n;
+    	List<TreeImageDisplay> values = new ArrayList<TreeImageDisplay>();
+    	Object o;
+    	while (i.hasNext()) {
+			n = (TreeImageDisplay) i.next();
+			o = n.getUserObject();
+			if (o.getClass().equals(ref))
+				values.add(n);
+		}
+    	if (values == null || values.size() == 0) return;
+    	TreeImageDisplay[] array = values.toArray(
+    			new TreeImageDisplay[values.size()]);
+    	model.setSelectedDisplay(array[0]);
+    	model.setSelectedDisplays(array, false);
+    	view.setFoundNode(array);
+    }
+    
     /**
      * Invokes the right-click is selected.
      */
@@ -313,11 +340,14 @@ class BrowserControl
         }
      	//more than one node selected.
     	TreeImageDisplay previous = model.getLastSelectedDisplay();
-    	Object ho = previous.getUserObject();
-    	Class ref = ho.getClass();
-    	
+        Class ref = null;
+        Object ho = null;
+        if (previous != null) {
+        	ho = previous.getUserObject();
+        	ref = ho.getClass();
+        }
+        
     	List<TreeImageDisplay> l = new ArrayList<TreeImageDisplay>();
-    	
     	TagAnnotationData tag;
     	String ns = null;
     	if (TagAnnotationData.class.equals(ref)) {

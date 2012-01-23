@@ -75,6 +75,7 @@
   </bean>
 
   <bean name="sessionManager" class="ome.services.sessions.SessionManagerImpl"
+    depends-on="dbPatchCheck"
     init-method="init"><!-- Init called to add root login method. -->
     <property name="uuid"            ref="uuid"/>
     <property name="principalHolder" ref="principalHolder"/>

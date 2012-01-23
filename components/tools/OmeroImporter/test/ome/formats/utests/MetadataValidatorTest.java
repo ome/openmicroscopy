@@ -125,7 +125,7 @@ public class MetadataValidatorTest
     public void setUp(String target) throws Exception
     {
         log.info("METADATA VALIDATOR TARGET: " + target);
-        sf = new TestServiceFactory();
+        sf = new TestServiceFactory().proxy();
         config = new ImportConfig();
         // Let the user know at what level we're logging
         log.info(String.format(

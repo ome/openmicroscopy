@@ -1,0 +1,95 @@
+{% extends "common/base/base_header.html" %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% block title %}
+Extends "common/base/base_header.html"
+{% endblock %}
+
+
+{% block link %}
+    {{ block.super }}
+    <style type="text/css">
+        #content {
+            top: 80px;
+        }
+    </style>
+{% endblock %}
+
+
+{% block middle_header_right %}
+    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
+    {% include "webclient/base/menu.html" %}
+    <li><a href="{% url common 'base_header' %}">base_header</a></li>
+{% endblock %}
+
+{% block thin_header %}{% endblock %}
+
+{% block content %}
+    <h1>block content</h1>
+    
+    <p>
+        This page extends "common/base/base_header.html" and makes the following changes:
+        <ul>
+            <li>Includes "webclient/base/menu.html" links within the 'nav_links' block (main top links)</li>
+            <li>Over-writes the 'thin_header' block to remove the thin header</li>
+            <li>Over-writes the 'footer' block (and 'footer_css') to remove footer and it's css</li>
+            <li>Adds this text to the 'content' block</li>
+        </ul>
+    </p>
+    
+    Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+      All rights reserved.
+
+      This program is free software: you can redistribute it and/or modify
+      it under the terms of the GNU Affero General Public License as
+      published by the Free Software Foundation, either version 3 of the
+      License, or (at your option) any later version.
+
+      This program is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU Affero General Public License for more details.
+
+      You should have received a copy of the GNU Affero General Public License
+      along with this program.  If not, see <http://www.gnu.org/licenses/>.
+      
+      Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+        All rights reserved.
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU Affero General Public License as
+        published by the Free Software Foundation, either version 3 of the
+        License, or (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU Affero General Public License for more details.
+
+        You should have received a copy of the GNU Affero General Public License
+        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    
+{% endblock %}
+
+
+{% block footer_css %}{% endblock %}
+{% block footer %}{% endblock %}

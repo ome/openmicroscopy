@@ -37,11 +37,8 @@ Initialises the namespace and keywords for the FLIM script, /scripts/omero/analy
 # OMERO Imports 
 import omero.clients
 import omero.scripts as scripts
-import omero_api_Gateway_ice
-import omero_api_IScript_ice
 import omero.util.pixelstypetopython as pixelstypetopython
 from omero.rtypes import *
-import omero_Constants_ice
 from omero.util.OmeroPopo import EllipseData as EllipseData
 from omero.util.OmeroPopo import RectData as RectData
 from omero.util.OmeroPopo import MaskData as MaskData

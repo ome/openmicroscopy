@@ -12,7 +12,7 @@ import unittest, os, subprocess, StringIO, exceptions
 import Ice
 import Glacier2
 import omero
-import omero_Constants_ice
+import omero.all
 import omero_ext.uuid as uuid # see ticket:3774
 
 from path import path

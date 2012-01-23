@@ -1,6 +1,5 @@
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+{% load common_tags %}
 
 {% comment %}
 <!--
@@ -75,14 +74,14 @@
         <div id="queue">
             <a href="#" onClick="launchActivities();" class="align_left">ACTIVITIES:</a>
             <div id="jobstatus">0 job(s)</div>
-            <img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/>
+            <img src="{% static "common/image/spinner.gif" %}" id="progress" style="display: none;"/>
         </div>
         {% endifnotequal %}
-        <div style="float:left">
+        <div class="header_chooser">
             {% for field in form_active_group %} {% trans "group" %}: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
         </div>
         {% if form_users %}
-        <div style="float:left; padding: 0px 10px">
+        <div class="header_chooser">
             {% for field in form_users %}{{ field }}{% endfor %}&nbsp;&nbsp;&nbsp;
         </div>
         {% endif %}

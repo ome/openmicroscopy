@@ -7,6 +7,7 @@
 package ome.server.utests;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import ome.services.util.Executor;
@@ -29,10 +30,17 @@ public class DummyExecutor implements Executor {
 
     org.hibernate.Session session;
     ServiceFactory sf;
+    ExecutorService service;
 
     public DummyExecutor(org.hibernate.Session session, ServiceFactory sf) {
+        this(session, sf, null);
+    }
+
+    public DummyExecutor(org.hibernate.Session session, ServiceFactory sf,
+        ExecutorService service) {
         this.session = session;
         this.sf = sf;
+        this.service = service;
     }
 
     public Object execute(Principal p, Work work) {
@@ -45,6 +53,10 @@ public class DummyExecutor implements Executor {
 
     public <T> T get(Future<T> future) {
         throw new UnsupportedOperationException();
+    }
+
+    public ExecutorService getService() {
+        return service;
     }
 
     public Object executeSql(SqlWork work) {
