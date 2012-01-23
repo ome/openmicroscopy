@@ -46,7 +46,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImageLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImagesCounter;
-import org.openmicroscopy.shoola.agents.treeviewer.FilesChecker;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.ScreenPlateLoader;
@@ -383,10 +382,19 @@ class BrowserModel
             state = Browser.READY;
             return;
         }
-        //state = Browser.COUNTING_ITEMS;
-        //TODO: to be reviewed.
-        //numberLoader = new ContainerCounterLoader(component, containers, nodes);
-        //numberLoader.load();
+        state = Browser.COUNTING_ITEMS;
+        TreeImageSet n, node = null;
+        Iterator<TreeImageSet> i = nodes.iterator();
+        while (i.hasNext()) {
+			n = i.next();
+			if (node == null) {
+				node = n;
+				break;
+			}
+		}
+        numberLoader = new ContainerCounterLoader(component,
+        		getSecurityContext(node), containers, nodes);
+        numberLoader.load();
     }
 
     /**
@@ -723,34 +731,6 @@ class BrowserModel
 	{ 
 		if (node == null) return;
 		Object object = node.getUserObject();
-		//if ((object instanceof ImageData) || (object instanceof PlateData)) {
-			/*
-			ImageData image = (ImageData) node.getUserObject();
-			TreeImageDisplay pNode = node.getParentDisplay();
-			DataObject pObject = null;
-			DataObject gpObject = null;
-			if (pNode != null) {
-				Object p = pNode.getUserObject();
-				if (p instanceof DataObject)
-					pObject = (DataObject) p;
-				TreeImageDisplay gpNode = pNode.getParentDisplay();
-				if (gpNode != null) {
-					p = gpNode.getUserObject();
-					if (p instanceof DataObject) {
-						if (!((p instanceof ExperimenterData) ||
-								(p instanceof GroupData)))
-							gpObject = (DataObject) p;
-					}
-						
-				}
-			}
-			Rectangle r = parent.getUI().getBounds();
-			ViewImage evt = new ViewImage(image, r);
-	    	evt.setContext(pObject, gpObject);
-			TreeViewerAgent.getRegistry().getEventBus().post(evt);
-			*/
-			//parent.browse(node, true);
-		//}
 		if (object instanceof ImageData) parent.browse(node, null, true);
 		else if (object instanceof PlateData) {
 			if (!node.hasChildrenDisplay() || 
@@ -882,31 +862,6 @@ class BrowserModel
 			DeleteCmd c = new DeleteCmd(component);
 			c.execute();
 		}
-	}
-	
-	/**
-	 * Returns <code>true</code> if the image file format is supported,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param path The path to the file.
-	 * @return See above.
-	 */
-	boolean isSupportedImageFormat(String path)
-	{
-		/*
-		if (path == null) return false;
-		if (path.endsWith(OmeroImageService.ZIP_EXTENSION)) return true;
-    	
-		List<FileFilter> filters = parent.getSupportedFormats();
-		Iterator<FileFilter> i = filters.iterator();
-		FileFilter filter;
-		while (i.hasNext()) {
-			filter = i.next();
-			if (filter.accept(new File(path))) return true;
-		}
-		return false;
-		*/
-		return false;
 	}
 	
 	/**
