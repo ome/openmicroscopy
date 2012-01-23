@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.ui;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
@@ -69,12 +70,13 @@ public class MovieActivity
      * @param viewer		The viewer this data loader is for.
      *               		Mustn't be <code>null</code>.
      * @param registry		Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param parameters  	The parameters used to create a movie.
      */
 	public MovieActivity(UserNotifier viewer,  Registry registry,
-			MovieActivityParam	parameters)
+			SecurityContext ctx, MovieActivityParam parameters)
 	{
-		super(viewer, registry);
+		super(viewer, registry, ctx);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
@@ -90,7 +92,8 @@ public class MovieActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		loader = new MovieCreator(viewer,  registry, parameters.getParameters(), 
+		loader = new MovieCreator(viewer,  registry, ctx,
+				parameters.getParameters(), 
 				parameters.getChannels(), parameters.getImage(), this);
 		return loader;
 	}

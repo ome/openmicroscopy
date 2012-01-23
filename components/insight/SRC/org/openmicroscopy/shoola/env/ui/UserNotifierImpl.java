@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
@@ -342,9 +343,9 @@ public class UserNotifierImpl
 	
 	/** 
 	 * Implemented as specified by {@link UserNotifier}. 
-	 * @see UserNotifier#notifyActivity(Object)
+	 * @see UserNotifier#notifyActivity(SecurityContext, Object)
 	 */ 
-	public void notifyActivity(Object activity)
+	public void notifyActivity(SecurityContext ctx, Object activity)
 	{
 		if (activity == null) return;
 		ActivityComponent comp = null;
@@ -353,13 +354,13 @@ public class UserNotifierImpl
 		boolean startActivity = true;
 		if (activity instanceof MovieActivityParam) {
 			MovieActivityParam p = (MovieActivityParam) activity;
-			comp = new MovieActivity(this, manager.getRegistry(), p);
+			comp = new MovieActivity(this, manager.getRegistry(), ctx, p);
 		} else if (activity instanceof ExportActivityParam) {
 			if (manager.hasRunningActivityOfType(ExportActivity.class)) {
 				startActivity = false;
 			}
 			ExportActivityParam p = (ExportActivityParam) activity;
-			comp = new ExportActivity(this, manager.getRegistry(), p);
+			comp = new ExportActivity(this, manager.getRegistry(), ctx, p);
 		} else if (activity instanceof DownloadActivityParam) {
 			DownloadActivityParam p = (DownloadActivityParam) activity;
 			register = (p.getApplicationData() == null);
@@ -368,35 +369,36 @@ public class UserNotifierImpl
 					return;
 				uiRegister = p.isUIRegister();
 			}
-			comp = new DownloadActivity(this, manager.getRegistry(), p);
+			comp = new DownloadActivity(this, manager.getRegistry(), ctx, p);
 		} else if (activity instanceof FigureActivityParam) {
 			FigureActivityParam p = (FigureActivityParam) activity;
-			comp = new FigureActivity(this, manager.getRegistry(), p);
+			comp = new FigureActivity(this, manager.getRegistry(), ctx, p);
 		} else if (activity instanceof AnalysisActivityParam) {
 			AnalysisActivityParam p = (AnalysisActivityParam) activity;
-			comp = new AnalysisActivity(this, manager.getRegistry(), p);
+			comp = new AnalysisActivity(this, manager.getRegistry(), ctx, p);
 		} else if (activity instanceof ScriptActivityParam) {
 			ScriptActivityParam p = (ScriptActivityParam) activity;
-			comp = new ScriptActivity(this, manager.getRegistry(),
+			comp = new ScriptActivity(this, manager.getRegistry(), ctx,
 					p.getScript(), p.getIndex());
 		} else if (activity instanceof DownloadArchivedActivityParam) {
 			DownloadArchivedActivityParam p = 
 				(DownloadArchivedActivityParam) activity;
 			comp = new DownloadArchivedActivity(this, manager.getRegistry(),
-					p);
+					ctx, p);
 		} else if (activity instanceof DeleteActivityParam) {
 			DeleteActivityParam p = (DeleteActivityParam) activity;
-			comp = new DeleteActivity(this, manager.getRegistry(),
+			comp = new DeleteActivity(this, manager.getRegistry(), ctx,
 					p);
 			uiRegister = p.isUIRegister();
 		} else if (activity instanceof OpenActivityParam) {
 			OpenActivityParam p = (OpenActivityParam) activity;
-			comp = new OpenObjectActivity(this, manager.getRegistry(), p);
+			comp = new OpenObjectActivity(this, manager.getRegistry(), ctx, p);
 		} else if (activity instanceof DownloadAndZipParam) {
 			DownloadAndZipParam p = (DownloadAndZipParam) activity;
 			if (!canWriteInFolder(p.getFolder()))
 				return;
-			comp = new DownloadAndZipActivity(this, manager.getRegistry(), p);
+			comp = new DownloadAndZipActivity(this, manager.getRegistry(), ctx,
+					p);
 		} else if (activity instanceof SaveAsParam) {
 			SaveAsParam p = (SaveAsParam) activity;
 			File folder = p.getFolder();
@@ -406,7 +408,7 @@ public class UserNotifierImpl
 			}
 			if (!canWriteInFolder(folder))
 				return;
-			comp = new SaveAsActivity(this, manager.getRegistry(), p);
+			comp = new SaveAsActivity(this, manager.getRegistry(), ctx, p);
 		}
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();

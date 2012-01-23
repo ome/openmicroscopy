@@ -30,6 +30,8 @@ package org.openmicroscopy.shoola.env.ui;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -68,15 +70,16 @@ public class FigureActivity
     /**
      * Creates a new instance.
      * 
-     * @param viewer		The viewer this data loader is for.
-     *               		Mustn't be <code>null</code>.
-     * @param registry		Convenience reference for subclasses.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param registry Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param parameters  	The parameters used to create a figure.
      */
 	public FigureActivity(UserNotifier viewer, Registry registry,
-			FigureActivityParam	parameters)
+			SecurityContext ctx, FigureActivityParam	parameters)
 	{
-		super(viewer, registry);
+		super(viewer, registry, ctx);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
@@ -89,7 +92,8 @@ public class FigureActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		loader = new FigureCreator(viewer,  registry, parameters.getParameters(), 
+		loader = new FigureCreator(viewer,  registry, ctx, 
+				parameters.getParameters(), 
 				parameters.getIds(), parameters.getObjectType(), this);
 		return loader;
 	}
