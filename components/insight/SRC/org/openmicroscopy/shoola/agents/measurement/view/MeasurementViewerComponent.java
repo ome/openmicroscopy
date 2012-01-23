@@ -101,13 +101,13 @@ class MeasurementViewerComponent
 {
 	
 	/** The Model sub-component. */
-    private MeasurementViewerModel 		model;
+    private MeasurementViewerModel model;
 	
     /** The Control sub-component. */
-    private MeasurementViewerControl	controller;
+    private MeasurementViewerControl controller;
     
     /** The View sub-component. */
-    private MeasurementViewerUI          view;
+    private MeasurementViewerUI view;
     
     /**
      * Posts an event to indicating to add or remove the component 
@@ -120,7 +120,8 @@ class MeasurementViewerComponent
     {
     	MeasurementToolLoaded response = 
 			new MeasurementToolLoaded(
-					MeasurementViewerFactory.getRequest(model.getPixelsID()), 
+					MeasurementViewerFactory.getRequest(model.getPixelsID()),
+					model.getSecurityContext(),
 					model.getDrawingView(), index);
 		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
 		bus.post(response);
