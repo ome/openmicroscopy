@@ -883,7 +883,7 @@ class DocComponent
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
 			//Check Name space
 			activity.setLegend(fa.getDescription());
-			un.notifyActivity(activity);
+			un.notifyActivity(model.getSecurityContext(), activity);
 			//un.notifyDownload((FileAnnotationData) data, folder);
 		}
 	}

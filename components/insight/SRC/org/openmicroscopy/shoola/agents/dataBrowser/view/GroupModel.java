@@ -39,6 +39,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -63,13 +65,15 @@ class GroupModel
 
 	/**
 	 * Creates a new instance.
-	 * 
+	 *
+	 * @param ctx The security context.
 	 * @param parent	The parent of the experimenters.
 	 * @param datasets 	The collection to experimenters the model is for.
 	 */
-	GroupModel(Object parent, Collection<ExperimenterData> experimenters)
+	GroupModel(SecurityContext ctx, Object parent,
+			Collection<ExperimenterData> experimenters)
 	{
-		super();
+		super(ctx);
 		if (experimenters  == null) 
 			throw new IllegalArgumentException("No experimenters.");
 		this.parent = parent;
@@ -132,7 +136,7 @@ class GroupModel
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return new ThumbnailLoader(component, sorter.sort(imgs), 
+		return new ThumbnailLoader(component, ctx, sorter.sort(imgs), 
 				ThumbnailLoader.EXPERIMENTER);
 	}
 	

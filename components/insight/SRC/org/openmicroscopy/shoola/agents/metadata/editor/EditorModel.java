@@ -241,7 +241,7 @@ class EditorModel
 		
 		DownloadActivityParam activity = new DownloadActivityParam(f,
 				folder, icons.getIcon(IconManager.DOWNLOAD_22));
-		un.notifyActivity(activity);
+		un.notifyActivity(getSecurityContext(), activity);
 		
 		Collection l = parent.getRelatedNodes();
 		if (l == null) return;
@@ -267,7 +267,7 @@ class EditorModel
 							icons.getIcon(IconManager.DOWNLOAD_22));
 				}
 				activity.setFileName(fa.getFileName());
-				un.notifyActivity(activity);
+				un.notifyActivity(getSecurityContext(), activity);
 			}
 		}
 	}
@@ -309,7 +309,7 @@ class EditorModel
 				img = i.next();
 				p = new DownloadArchivedActivityParam(path, img, 
 						icons.getIcon(IconManager.DOWNLOAD_22));
-				un.notifyActivity(p);
+				un.notifyActivity(getSecurityContext(), p);
 			}
 		}
 	}
@@ -2682,7 +2682,7 @@ class EditorModel
 	    		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
 	    		UserNotifier un = 
 	    			TreeViewerAgent.getRegistry().getUserNotifier();
-	    		un.notifyActivity(p);
+	    		un.notifyActivity(getSecurityContext(), p);
 			} catch (Exception e) {
 				// TODO: handle exception
 			}
@@ -2877,7 +2877,7 @@ class EditorModel
 			p.setIcon(icons.getIcon(IconManager.SAVE_AS_22));
 			UserNotifier un =
 				MetadataViewerAgent.getRegistry().getUserNotifier();
-			un.notifyActivity(p);
+			un.notifyActivity(getSecurityContext(), p);
 		}
 	}
 	

@@ -402,7 +402,8 @@ class TreeViewerControl
 							folder, icons.getIcon(IconManager.DOWNLOAD_22));
 					UserNotifier un = 
 						TreeViewerAgent.getRegistry().getUserNotifier();
-					un.notifyActivity(activity);
+					//TODO:review
+					//un.notifyActivity(activity);
 				}
 			}
 		});
@@ -804,13 +805,13 @@ class TreeViewerControl
 					script.getScriptID(), 
 					DownloadActivityParam.ORIGINAL_FILE, f, null);
 			activity.setApplicationData(new ApplicationData(""));
-			un.notifyActivity(activity);
+			//un.notifyActivity(activity);
 		} else if (index == ScriptActivityParam.DOWNLOAD) {
 			downloadScript(new ScriptActivityParam(script,
 					ScriptActivityParam.DOWNLOAD));
 		} else {
-			un.notifyActivity(new ScriptActivityParam(script,
-					ScriptActivityParam.RUN));
+			//un.notifyActivity(new ScriptActivityParam(script,
+			//		ScriptActivityParam.RUN));
 		}
 	}
 	
@@ -1176,7 +1177,8 @@ class TreeViewerControl
 			activity = new FigureActivityParam(object, ids, klass,
 					FigureActivityParam.SPLIT_VIEW_FIGURE);
 			activity.setIcon(icon);
-			un.notifyActivity(activity);
+			//TODO:review
+			//un.notifyActivity(activity);
 		} else if (MetadataViewer.HANDLE_SCRIPT_PROPERTY.equals(name)) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			ScriptActivityParam p = (ScriptActivityParam) pce.getNewValue();
@@ -1193,11 +1195,13 @@ class TreeViewerControl
 						p.getScript().getScriptID(), 
 						DownloadActivityParam.ORIGINAL_FILE, f, null);
 				activity.setApplicationData(new ApplicationData(""));
-				un.notifyActivity(activity);
+				//TODO:review
+				//un.notifyActivity(activity);
 			} else if (index == ScriptActivityParam.DOWNLOAD) {
 				downloadScript(p);
 			} else {
-				un.notifyActivity(pce.getNewValue());
+				//TODO:review
+				//un.notifyActivity(pce.getNewValue());
 			}
 		} else if (OpenWithDialog.OPEN_DOCUMENT_PROPERTY.equals(name)) {
 			ApplicationData data = (ApplicationData) pce.getNewValue();

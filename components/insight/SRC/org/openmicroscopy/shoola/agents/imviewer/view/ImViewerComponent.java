@@ -83,6 +83,7 @@ import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -3380,6 +3381,16 @@ class ImViewerComponent
 		}
 	}
 
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	public SecurityContext getSecurityContext()
+	{ 
+		return model.getSecurityContext();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#isCompressed()

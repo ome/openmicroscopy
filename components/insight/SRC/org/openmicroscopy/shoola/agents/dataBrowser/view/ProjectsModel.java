@@ -35,6 +35,8 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.ProjectData;
 
 /** 
@@ -54,6 +56,16 @@ class ProjectsModel
 	extends DataBrowserModel
 {
 
+	/**
+	 * Creates a new instance.
+	 * 
+	 *  @param ctx The security context.
+	 */
+	ProjectsModel(SecurityContext ctx)
+	{
+		super(ctx);
+	}
+	
 	protected DataBrowserLoader createDataLoader(boolean refresh, 
 			Collection ids)
 	{

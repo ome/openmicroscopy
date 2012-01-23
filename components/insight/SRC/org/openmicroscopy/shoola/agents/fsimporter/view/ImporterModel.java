@@ -39,6 +39,8 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.DataObject;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -82,6 +84,9 @@ class ImporterModel
 
 	/** The id of the user currently logged in.*/
 	private long 					experimenterId;
+	
+	/** The security context.*/
+	private SecurityContext ctx; //to be initialized.
 	
 	/** Initializes the model.*/
 	private void initialize()
@@ -227,7 +232,8 @@ class ImporterModel
 	void fireImportData(ImportableObject data, int loaderID)
 	{
 		if (data == null) return;
-		ImagesImporter loader = new ImagesImporter(component, data, loaderID);
+		ImagesImporter loader = new ImagesImporter(component, ctx, data, 
+				loaderID);
 		loaders.put(loaderID, loader);
 		loader.load();
 		state = Importer.IMPORTING;
@@ -266,14 +272,14 @@ class ImporterModel
 	void fireTagsLoading()
 	{
 		if (tags != null) return; //already loading tags
-		TagsLoader loader = new TagsLoader(component);
+		TagsLoader loader = new TagsLoader(component, ctx);
 		loader.load();
 	}
 	
 	/** Starts an asynchronous call to load the available disk space. */
 	void fireDiskSpaceLoading()
 	{
-		DiskSpaceLoader loader = new DiskSpaceLoader(component);
+		DiskSpaceLoader loader = new DiskSpaceLoader(component, ctx);
 		loader.load();
 	}
 	
@@ -287,7 +293,8 @@ class ImporterModel
 	{
 		if (!(ProjectData.class.equals(rootType) ||
 			ScreenData.class.equals(rootType))) return;
-		DataLoader loader = new DataLoader(component, rootType, refreshImport);
+		DataLoader loader = new DataLoader(component, ctx, rootType,
+				refreshImport);
 		loader.load();
 		state = Importer.LOADING_CONTAINER;
 	}
@@ -300,8 +307,8 @@ class ImporterModel
 	 */
 	void fireDataCreation(DataObject child, DataObject parent)
 	{
-		DataObjectCreator loader = new DataObjectCreator(component, child,
-				parent);
+		DataObjectCreator loader = new DataObjectCreator(component, ctx, 
+				child, parent);
 		loader.load();
 		//state = Importer.CREATING_CONTAINER;
 	}

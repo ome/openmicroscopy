@@ -716,7 +716,7 @@ class EditorComponent
 		IconManager icons = IconManager.getInstance();
 		param.setIcon(icons.getIcon(IconManager.EXPORT_22));
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(param);
+		un.notifyActivity(model.getSecurityContext(), param);
 	}
 
 	/** 

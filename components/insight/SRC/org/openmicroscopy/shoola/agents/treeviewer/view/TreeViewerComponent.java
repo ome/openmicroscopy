@@ -101,6 +101,7 @@ import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
@@ -108,6 +109,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -210,7 +212,7 @@ class TreeViewerComponent
 		if (override)
 			activity.setFileName(fa.getFileName());
 		activity.setApplicationData(data);
-		un.notifyActivity(activity);
+		un.notifyActivity(model.getSecurityContext(), activity);
 	}
 	
 	/** 
@@ -1973,19 +1975,23 @@ class TreeViewerComponent
 		DataBrowser db = null;
 		if (parentObject instanceof TagAnnotationData) {
 			db = DataBrowserFactory.getTagsBrowser(
+					model.getSecurityContext(parent),
 					(TagAnnotationData) parentObject, leaves, false);
 		} else if (parentObject instanceof GroupData) {
 			db = DataBrowserFactory.getGroupsBrowser(
-					(GroupData) parentObject, leaves);
+					model.getSecurityContext(parent), (GroupData) parentObject,
+					leaves);
 		} else if (parentObject instanceof FileData) {
 			FileData f = (FileData) parentObject;
 			if (!f.isHidden()) {
 				if (f.isDirectory() || f instanceof MultiImageData) 
 					db = DataBrowserFactory.getFSFolderBrowser(
+							model.getSecurityContext(parent),
 							(FileData) parentObject, leaves);
 			}
 		} else {
-			db = DataBrowserFactory.getDataBrowser(grandParentObject, 
+			db = DataBrowserFactory.getDataBrowser(
+					model.getSecurityContext(parent), grandParentObject, 
 					parentObject, leaves, parent);
 			if (parent instanceof TreeImageTimeSet) {
 				ExperimenterData exp = getSelectedBrowser().getNodeOwner(parent);
@@ -2076,7 +2082,8 @@ class TreeViewerComponent
 				}
 				model.setState(READY);
 				fireStateChange();
-				db = DataBrowserFactory.getDataBrowser(project, set);
+				db = DataBrowserFactory.getDataBrowser(
+						model.getSecurityContext(), project, set);
 			} else if (node instanceof TagAnnotationData) {
 				tag = (TagAnnotationData) node;
 				set = tag.getDataObjects();//tag.getTags();
@@ -2124,7 +2131,8 @@ class TreeViewerComponent
 				}
 				model.setState(READY);
 				fireStateChange();
-				db = DataBrowserFactory.getTagsBrowser(tag, set, true);
+				db = DataBrowserFactory.getTagsBrowser(
+						model.getSecurityContext(), tag, set, true);
 			}
 		}
 		if (db != null) {
@@ -2300,7 +2308,8 @@ class TreeViewerComponent
 			return;
 		}
 		//Need to recycle the search browser.
-		DataBrowser db = DataBrowserFactory.getSearchBrowser(results);
+		DataBrowser db = DataBrowserFactory.getSearchBrowser(
+				model.getSecurityContext(), results);
 		if (db != null && view.getDisplayMode() == SEARCH_MODE) {
 			db.setExperimenter(TreeViewerAgent.getUserDetails());
 			db.addPropertyChangeListener(controller);
@@ -2408,7 +2417,8 @@ class TreeViewerComponent
 		Browser browser = model.getSelectedBrowser();
 		if (browser != null) 
 			exp = browser.getNodeOwner(parent);
-		DataBrowser db = DataBrowserFactory.getDataBrowser(grandParentObject,
+		DataBrowser db = DataBrowserFactory.getDataBrowser(
+				model.getSecurityContext(parent), grandParentObject,
 				parentObject, leaves, parent);
 		db.setExperimenter(exp);
 		db.addPropertyChangeListener(controller);
@@ -2459,7 +2469,8 @@ class TreeViewerComponent
 					}
 				}
 				
-				db = DataBrowserFactory.getWellsDataBrowser(m, parentObject, 
+				db = DataBrowserFactory.getWellsDataBrowser(
+						model.getSecurityContext(parent), m, parentObject, 
 						(Set) entry.getValue(), withThumbnails);
 			}
 		}
@@ -2548,7 +2559,8 @@ class TreeViewerComponent
 							leaves.add(o.getUserObject());
 						}
 						
-						DataBrowser db = DataBrowserFactory.getDataBrowser(null,
+						DataBrowser db = DataBrowserFactory.getDataBrowser(
+								model.getSecurityContext(node), null,
 								parent.getUserObject(), leaves, parent);
 						if (db == null) return;
 						db.addPropertyChangeListener(controller);
@@ -2850,7 +2862,7 @@ class TreeViewerComponent
 				p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
 				UserNotifier un = 
 					TreeViewerAgent.getRegistry().getUserNotifier();
-				un.notifyActivity(p);
+				un.notifyActivity(model.getSecurityContext(), p);
 			} 
 			if (values != null) {
 				NodesFinder finder = new NodesFinder(klass, ids);
@@ -3130,7 +3142,7 @@ class TreeViewerComponent
 			activity = new DownloadActivityParam(file,
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
 			activity.setApplicationData(data);
-			un.notifyActivity(activity);
+			un.notifyActivity(model.getSecurityContext(), activity);
 		}
 	}
 
@@ -3152,13 +3164,14 @@ class TreeViewerComponent
 			Object object;
 			OpenActivityParam activity;
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			SecurityContext ctx = model.getSecurityContext();
 			while (i.hasNext()) {
 				object = i.next();
 				if (object instanceof ImageData || 
 					object instanceof FileAnnotationData) {
 					activity = new OpenActivityParam(data, (DataObject) object, 
 							dir);
-					un.notifyActivity(activity);
+					un.notifyActivity(ctx, activity);
 				}
 			}
 			return;

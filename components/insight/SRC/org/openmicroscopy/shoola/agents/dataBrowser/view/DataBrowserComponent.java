@@ -1565,7 +1565,7 @@ class DataBrowserComponent
 					data = (DataObject) go;
 				object.setContext((DataObject) parent, data);
 			}
-			bus.post(new ViewImage(object, null));
+			bus.post(new ViewImage(model.getSecurityContext(), object, null));
 		}
 	}
 	

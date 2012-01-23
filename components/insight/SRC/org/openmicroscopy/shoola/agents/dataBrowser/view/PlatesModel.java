@@ -38,6 +38,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.PlateData;
 
 /**
@@ -60,12 +62,13 @@ class PlatesModel
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param parent	The parent of the plates.
 	 * @param datasets 	The collection to plates the model is for.
 	 */
-	PlatesModel(Object parent, Set<PlateData> plates)
+	PlatesModel(SecurityContext ctx, Object parent, Set<PlateData> plates)
 	{
-		super();
+		super(ctx);
 		if (plates  == null) 
 			throw new IllegalArgumentException("No plates.");
 		this.parent = parent;
