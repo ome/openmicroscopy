@@ -6,10 +6,6 @@ img.thumbnail {
     margin-right: 5px;
     border: 1px solid #bbb;
 }
-#annotation_form {
-    max-width: 350px;
-    margin: 0;
-}
 
 select.existing {
     width: 300px;

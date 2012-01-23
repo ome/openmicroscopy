@@ -1,4 +1,4 @@
-{% extends "common/base/base_html.html" %}
+
 {% load i18n %}
 {% load common_filters %}
 {% load common_tags %}
@@ -24,12 +24,8 @@
 -->
 {% endcomment %}
 
-{% block link %}
-    <!-- overwrite body.css -->
-{% endblock %}
-
-{% block script %}
-
+<html>
+    <head>
     <script type="text/javascript">
         
         jQuery.fn.hide_if_empty = function() {
@@ -422,20 +418,16 @@
             });
             
     </script>
-    
-{% endblock %}
+</head>
 
-{% block body %}
+<body>
 
 {% comment %}
     <!-- Example toolbar of links to webtest pages. Remove comments to activate -->
     {% include "webtest/webtest-toolbar-include.html" %}
 {% endcomment %}
 
-<div style="clear:both"></div>
-
-<div id="annotation_form" >
-    <div id="annotation_tabs" class="ui-tabs">
+    <div id="annotation_tabs">
         <ul class="tabslist">
             {% if manager.tag %}
                 <li><a href="#metadata_tab">{% trans "General" %}</a></li>
@@ -1020,5 +1012,4 @@
     </div>
     
     
-</div>
-{% endblock %}
+</body>

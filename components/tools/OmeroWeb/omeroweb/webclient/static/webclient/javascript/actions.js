@@ -175,40 +175,13 @@ var multipleAnnotation = function(selected, index, prefix){
 
 var loadMetadataPanel = function(src, html) {
     
-    var $metadataPanel = $("#metadata_details");
-    //var iframe = $("div#metadata_details").find('iframe');
-    //var description = $("div#metadata_description");
-
-    //$("#right_panel").show();
-    //$("#swapMeta").html('<img tabindex="0" src="../../static/common/image/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+    var $metadataPanel = $("#right_panel");
 
     if (src!=null) {
-        //description.hide();
-        //iframe.show();
         $metadataPanel.load(src);
     } else {
-        //iframe.hide();
-        //description.show();
         $metadataPanel.html(html);
     }
-
-/*
-    if (iframe.length > 0) {
-        if (html!=null) {
-            iframe.attr('src', "");
-            iframe.hide();
-            description.html(html);
-        } else  {
-            description.empty();
-            iframe.attr('src', src);
-            iframe.show();
-        }
-    } else {
-        var h = $(window).height()-200;
-        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details" frameborder="0"></iframe>');
-        $('iframe#metadata_details').load();
-    }
-    */
 };
 
 var refreshCenterPanel = function() {
@@ -290,7 +263,7 @@ function doPagination(view, page) {
         $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
         if(rel[0].indexOf("orphaned")<0) {
             src = '/webclient/metadata_details/'+rel[0]+'/'+rel[1]+'/';
-            loadMetadata(src);
+            loadMetadataPanel(src);
         }
     });
     return false;
@@ -314,20 +287,12 @@ function makeShare(prefix) {
     }
     
     src = prefix+'?'+productListQuery+'';
-    loadMetadata(src);
+    loadMetadataPanel(src);
     return false;
 }
 
 function makeDiscussion() {
     src = '/webclient/basket/todiscuss/';
-    loadMetadata(src);
+    loadMetadataPanel(src);
     return false;
-}
-
-function loadMetadata(src) {
-    var h = $(window).height()-200;
-    $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="../../static/common/image/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-    $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details" frameborder="0"></iframe>');
-    $('iframe#metadata_details').load();
 }

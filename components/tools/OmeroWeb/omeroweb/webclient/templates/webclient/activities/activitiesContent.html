@@ -58,7 +58,7 @@
                                 <div class="message">
                                 {% for iid in j.did %}
                                     {% ifequal j.status "failed" %}
-                                        <a onclick="loadMetadata('{% url load_metadata_details j.dtype iid %}');">{{ j.dtype }} {{ iid }}</a>,
+                                        <a onclick="loadMetadataPanel('{% url load_metadata_details j.dtype iid %}');">{{ j.dtype }} {{ iid }}</a>,
                                     {% else %}
                                         {{ j.dtype }} {{ iid }},
                                     {% endifequal %}
@@ -71,7 +71,7 @@
                                 </div>
                                 <div class="message">
                                 {% ifequal j.status "failed" %}
-                                    <a onclick="loadMetadata('{% url load_metadata_details j.dtype j.did %}');">{{ j.dtype }} {{ j.did }}</a>
+                                    <a onclick="loadMetadataPanel('{% url load_metadata_details j.dtype j.did %}');">{{ j.dtype }} {{ j.did }}</a>
                                 {% else %}
                                     {{ j.dtype }} {{ j.did }}
                                 {% endifequal %}

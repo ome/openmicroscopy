@@ -169,19 +169,15 @@ ul.criteria li{
     top:0px; bottom:0px; left:0px; right:0px;
     overflow: auto;
 }
-#metadata_details {
-    overflow: auto;
-    position: absolute;
-    top:0px; bottom:0px; left:0px; right:0px;
-}
 
 #left_panel {
     padding: 0px;
 }
 
 /* tabs */
-#annotation_tabs, #left_panel {
+#right_panel, #left_panel {
     border: 0;
+    background: #fff;
 }
 
 ul.tabslist {
