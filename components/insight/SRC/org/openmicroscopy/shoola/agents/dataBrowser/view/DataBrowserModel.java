@@ -57,7 +57,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
-import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutUtils;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisitor;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -196,7 +195,8 @@ abstract class DataBrowserModel
     DataBrowserModel(SecurityContext ctx)
     {
     	sorter = new ViewerSorter();
-    	state = DataBrowser.NEW; 
+    	state = DataBrowser.NEW;
+    	this.ctx = ctx;
     }
     
     /**
