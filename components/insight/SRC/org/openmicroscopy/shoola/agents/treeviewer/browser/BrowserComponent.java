@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -1469,6 +1470,15 @@ class BrowserComponent
 		return (ExperimenterData) n.getUserObject();
 	}
 
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getSecurityContext(TreeImageDisplay)
+	 */
+	public SecurityContext getSecurityContext(TreeImageDisplay node)
+	{
+		return model.getSecurityContext(node);
+	}
+	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getClickComponent()

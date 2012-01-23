@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
@@ -194,6 +195,8 @@ class TreeViewerModel
     private List<ScriptObject> getScriptsWithUI()
     {
     	if (scriptsWithUI != null) return scriptsWithUI;
+    	/*
+    	 * TODO:Review
     	try {
     		OmeroImageService svc = 
     			TreeViewerAgent.getRegistry().getImageService();
@@ -205,6 +208,7 @@ class TreeViewerModel
 			msg.print(e);
 			MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
 		}
+		*/
     	return new ArrayList<ScriptObject>();
     }
     
@@ -482,7 +486,8 @@ class TreeViewerModel
 	void fireObjectsDeletion(List<DataObject> values)
 	{
 		state = TreeViewer.SAVE;
-		currentLoader = new DataObjectRemover(component, values);
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new DataObjectRemover(component, ctx, values);
 		currentLoader.load();
 	}
 	
@@ -527,7 +532,8 @@ class TreeViewerModel
 	void fireDataExistingObjectsLoader(DataObject ho)
 	{
 		state = TreeViewer.LOADING_DATA;
-		currentLoader = new ExistingObjectsLoader(component, ho);
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new ExistingObjectsLoader(component, ctx, ho);
 		currentLoader.load();
 	}
 
@@ -542,8 +548,9 @@ class TreeViewerModel
 		TreeImageDisplay parent = selectedBrowser.getLastSelectedDisplay();
 		if (parent == null) return;
 		Object po = parent.getUserObject();
+		SecurityContext ctx = getSecurityContext();
 		if ((po instanceof ProjectData) || ((po instanceof DatasetData))) {
-			currentLoader = new ExistingObjectsSaver(component, 
+			currentLoader = new ExistingObjectsSaver(component, ctx,
 					(DataObject) po, children);
 			currentLoader.load();
 		}
@@ -580,13 +587,14 @@ class TreeViewerModel
 	boolean paste(TreeImageDisplay[] parents)
 	{
 		Map map = buildCopyMap(parents);
+		SecurityContext ctx = getSecurityContext();
 		if (map == null) return false;
 		if (copyIndex == TreeViewer.COPY_AND_PASTE)
-			currentLoader = new DataObjectUpdater(component, map, 
+			currentLoader = new DataObjectUpdater(component,ctx,  map,
 					DataObjectUpdater.COPY_AND_PASTE);
 		else if (copyIndex == TreeViewer.CUT_AND_PASTE) {
 			Map toRemove = buildCutMap(nodesToCopy);
-			currentLoader = new DataObjectUpdater(component, map, toRemove,
+			currentLoader = new DataObjectUpdater(component, ctx, map, toRemove,
 					DataObjectUpdater.CUT_AND_PASTE);
 		}
 		currentLoader.load();
@@ -606,8 +614,9 @@ class TreeViewerModel
 		if (copyIndex != TreeViewer.CUT_AND_PASTE) return false;
 		if (nodesToCopy == null || nodesToCopy.length == 0) return false;
 		Map toRemove = buildCutMap(nodesToCopy);
-		currentLoader = new DataObjectUpdater(component, new HashMap(), toRemove,
-				DataObjectUpdater.CUT);
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new DataObjectUpdater(component, ctx,
+				new HashMap(), toRemove, DataObjectUpdater.CUT);
 		currentLoader.load();
 		state = TreeViewer.SAVE;
 		return true;
@@ -690,7 +699,8 @@ class TreeViewerModel
 		}
 		if (toKeep.size() == 0) return;
 		state = TreeViewer.SETTINGS_RND;
-		currentLoader = new RndSettingsSaver(component, klass, toKeep, 
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new RndSettingsSaver(component, ctx, klass, toKeep, 
 								refImage.getDefaultPixels().getId());
 		currentLoader.load();
 	}
@@ -703,7 +713,8 @@ class TreeViewerModel
 	void firePasteRenderingSettings(TimeRefObject ref)
 	{
 		state = TreeViewer.SETTINGS_RND;
-		currentLoader = new RndSettingsSaver(component, ref, 
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new RndSettingsSaver(component, ctx, ref, 
 				refImage.getDefaultPixels().getId());
 		currentLoader.load();
 	}
@@ -717,7 +728,8 @@ class TreeViewerModel
 	void fireResetRenderingSettings(List<Long> ids, Class klass)
 	{
 		state = TreeViewer.SETTINGS_RND;
-		currentLoader = new RndSettingsSaver(component, klass, ids, 
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new RndSettingsSaver(component, ctx, klass, ids, 
 											RndSettingsSaver.RESET);
 		currentLoader.load();
 	}
@@ -730,7 +742,8 @@ class TreeViewerModel
 	void fireResetRenderingSettings(TimeRefObject ref)
 	{
 		state = TreeViewer.SETTINGS_RND;
-		currentLoader = new RndSettingsSaver(component, ref, 
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new RndSettingsSaver(component, ctx, ref, 
 										RndSettingsSaver.RESET);
 		currentLoader.load();
 	}
@@ -744,7 +757,8 @@ class TreeViewerModel
 	void fireSetMinMax(List<Long> ids, Class klass)
 	{
 		state = TreeViewer.SETTINGS_RND;
-		currentLoader = new RndSettingsSaver(component, klass, ids, 
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new RndSettingsSaver(component, ctx, klass, ids, 
 										RndSettingsSaver.SET_MIN_MAX);
 		currentLoader.load();
 	}
@@ -758,7 +772,8 @@ class TreeViewerModel
 	void fireSetOwnerRenderingSettings(List<Long> ids, Class klass)
 	{
 		state = TreeViewer.SETTINGS_RND;
-		currentLoader = new RndSettingsSaver(component, klass, ids, 
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new RndSettingsSaver(component, ctx, klass, ids, 
 										RndSettingsSaver.SET_OWNER);
 		currentLoader.load();
 	}
@@ -771,7 +786,8 @@ class TreeViewerModel
 	void fireSetOriginalRenderingSettings(TimeRefObject ref)
 	{
 		state = TreeViewer.SETTINGS_RND;
-		currentLoader = new RndSettingsSaver(component, ref, 
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new RndSettingsSaver(component, ctx, ref, 
 											RndSettingsSaver.SET_MIN_MAX);
 		currentLoader.load();
 	}
@@ -785,7 +801,8 @@ class TreeViewerModel
 	void fireSetOwnerRenderingSettings(TimeRefObject ref)
 	{
 		state = TreeViewer.SETTINGS_RND;
-		currentLoader = new RndSettingsSaver(component, ref, 
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new RndSettingsSaver(component, ctx, ref, 
 											RndSettingsSaver.SET_MIN_MAX);
 		currentLoader.load();
 	}
@@ -822,7 +839,8 @@ class TreeViewerModel
 	            }
 	        }
 		}
-		currentLoader = new DataObjectCreator(component, object, data);
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new DataObjectCreator(component, ctx, object, data);
 		currentLoader.load();
 	}
 	
@@ -845,9 +863,11 @@ class TreeViewerModel
 	 */
 	AdvancedFinder getAdvancedFinder()
 	{ 
+		/* TODO:review
 		if (advancedFinder == null)
 			advancedFinder = FinderFactory.getAdvancedFinder(
 							TreeViewerAgent.getRegistry());
+							*/
 		return advancedFinder; 
 	}
 
@@ -860,7 +880,8 @@ class TreeViewerModel
 	{
 		state = TreeViewer.LOADING_DATA;
 		ExperimenterData exp = getSelectedBrowser().getNodeOwner(node);
-		currentLoader = new ProjectsLoader(component, node, exp.getId(), 
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new ProjectsLoader(component, ctx, node, exp.getId(),
 				getUserGroupID());
 		currentLoader.load();
 	}
@@ -879,7 +900,9 @@ class TreeViewerModel
 		Iterator<TreeImageDisplay> i = nodes.iterator();
 		while (i.hasNext())
 			plates.add((TreeImageSet) i.next());
-		currentLoader = new PlateWellsLoader(component, plates, withThumbnails);
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new PlateWellsLoader(component, ctx, plates,
+				withThumbnails);
 		currentLoader.load();
 	}
 	
@@ -891,7 +914,8 @@ class TreeViewerModel
 	void browseTimeInterval(TreeImageTimeSet node)
 	{
 		state = TreeViewer.LOADING_DATA;
-		currentLoader = new TimeIntervalsLoader(component, node);
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new TimeIntervalsLoader(component, ctx, node);
 		currentLoader.load();
 	}
 	
@@ -905,7 +929,9 @@ class TreeViewerModel
 		state = TreeViewer.LOADING_DATA;
 		ExperimenterData exp = getSelectedBrowser().getNodeOwner(node);
 		if (exp == null) exp = TreeViewerAgent.getUserDetails();
-		currentLoader = new TagHierarchyLoader(component, node, exp.getId());
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new TagHierarchyLoader(component, ctx,
+				node, exp.getId());
 		currentLoader.load();
 	}
 
@@ -1034,7 +1060,8 @@ class TreeViewerModel
 				}
 			}
 		}
-		OriginalFileLoader loader = new OriginalFileLoader(component, ids, 
+		SecurityContext ctx = getSecurityContext();
+		OriginalFileLoader loader = new OriginalFileLoader(component, ctx, ids, 
 				folder, application);
 		loader.load();
 	}
@@ -1168,7 +1195,8 @@ class TreeViewerModel
 	 */
 	void fireAdmin(AdminObject object)
 	{
-		currentLoader = new AdminCreator(component, object);
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new AdminCreator(component, ctx, object);
 		currentLoader.load();
 	}
 
@@ -1200,8 +1228,10 @@ class TreeViewerModel
 	 */
 	void loadParentOf(FileAnnotationData data)
 	{
+		/*TODO: review
 		ParentLoader loader = new ParentLoader(component, data);
 		loader.load();
+		*/
 	}
 	
 	/**
@@ -1212,9 +1242,10 @@ class TreeViewerModel
 	 */
 	void fireDataSaving(DataObject data, Collection children)
 	{
-		if (data instanceof DatasetData) {	
-			DataObjectCreator loader = new DataObjectCreator(component, data, 
-					null, children);
+		if (data instanceof DatasetData) {
+			SecurityContext ctx = getSecurityContext();
+			DataObjectCreator loader = new DataObjectCreator(component, ctx,
+					data, null, children);
 			loader.load();
 		}
 	}
@@ -1236,8 +1267,10 @@ class TreeViewerModel
 	 */
 	void loadScripts(Point location)
 	{
+		/* TODO: review
 		ScriptsLoader loader = new ScriptsLoader(component, false, location);
 		loader.load();
+		*/
 	}
 	
 	/**
@@ -1281,8 +1314,10 @@ class TreeViewerModel
 	 */
 	void loadScript(long scriptID)
 	{
-		ScriptLoader loader = new ScriptLoader(component, scriptID);
+		/* TO REVIEW
+		ScriptLoader loader = new ScriptLoader(component, ctx, scriptID);
 		loader.load();
+		*/
 	}
 	
 	/**
@@ -1329,10 +1364,22 @@ class TreeViewerModel
 		TreeImageDisplay[] parents = new TreeImageDisplay[1];
 		parents[0] = target;
 		Map map = buildCopyMap(parents);
-		currentLoader = new DataObjectUpdater(component, map, toRemove,
+		SecurityContext ctx = getSecurityContext();
+		currentLoader = new DataObjectUpdater(component, ctx, map, toRemove,
 				DataObjectUpdater.CUT_AND_PASTE);
 		currentLoader.load();
 		state = TreeViewer.SAVE;
 	}
 
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above
+	 */
+	SecurityContext getSecurityContext()
+	{
+		Browser browser = getSelectedBrowser();
+		return browser.getSecurityContext(browser.getLastSelectedDisplay());
+	}
+	
 }

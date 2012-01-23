@@ -2629,7 +2629,8 @@ class TreeViewerComponent
 				}
 			}
 			vo.setContext(po, gpo);
-			ViewImage evt = new ViewImage(vo, view.getBounds());
+			ViewImage evt = new ViewImage(model.getSecurityContext(), vo,
+					view.getBounds());
 			evt.setSeparateWindow(model.isFullScreen());
 			bus.post(evt);
 		} else if (node instanceof TreeImageTimeSet) {
@@ -3087,10 +3088,12 @@ class TreeViewerComponent
 		if (notArchived.size() > 0) {
 			image = notArchived.get(0);
 			try {
+				//TODO: review
+				
 				File f = new File(
 						folder.getAbsolutePath()+File.separator+image.getName()+".ome.tiff");
 				TreeViewerAgent.getRegistry().getImageService().exportImageAsOMETiff(
-						image.getId(), f);
+						model.getSecurityContext(), image.getId(), f);
 				TreeViewerAgent.getRegistry().getUserNotifier().openApplication(
 						data, f.getAbsolutePath());
 			} catch (Exception e) {
@@ -3213,6 +3216,8 @@ class TreeViewerComponent
 	public Map<Long, String> getScriptsAsString()
 	{
 		Registry reg = TreeViewerAgent.getRegistry();
+		//TODO: review
+		/*
 		try {
 			//TODO: asynchronous call instead
 			return reg.getImageService().getScriptsAsString();
@@ -3223,6 +3228,7 @@ class TreeViewerComponent
 	        msg.print(e);
 	        reg.getLogger().error(this, msg);
 		}
+		*/
 		return new HashMap<Long, String>();
 	}
 

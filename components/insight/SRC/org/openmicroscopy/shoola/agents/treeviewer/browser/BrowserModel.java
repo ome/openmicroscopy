@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -337,24 +338,25 @@ class BrowserModel
     void fireLeavesLoading(TreeImageDisplay expNode, TreeImageDisplay node)
     {
     	state = Browser.LOADING_LEAVES;
+    	SecurityContext ctx = getSecurityContext(expNode);
     	if (node instanceof TreeImageTimeSet || node instanceof TreeFileSet) {
-    		currentLoader = new ExperimenterImageLoader(component, 
+    		currentLoader = new ExperimenterImageLoader(component, ctx,
 					(TreeImageSet) expNode, (TreeImageSet) node);
     		 currentLoader.load();
     	} else {
     		Object ho = node.getUserObject();
             if (ho instanceof DatasetData)  {
-        		currentLoader = new ExperimenterDataLoader(component, 
+        		currentLoader = new ExperimenterDataLoader(component, ctx,
         				ExperimenterDataLoader.DATASET, 
         				(TreeImageSet) expNode, (TreeImageSet) node);
         		 currentLoader.load();
         	} else if (ho instanceof TagAnnotationData) {
-        		currentLoader = new ExperimenterDataLoader(component, 
+        		currentLoader = new ExperimenterDataLoader(component, ctx,
         				ExperimenterDataLoader.TAG, 
         				(TreeImageSet) expNode, (TreeImageSet) node);
         		currentLoader.load();
         	} else if (ho instanceof GroupData) {
-        		currentLoader = new AdminLoader(component, 
+        		currentLoader = new AdminLoader(component, ctx,
         				(TreeImageSet) expNode);
         		currentLoader.load();
             } else if (ho instanceof FileData) {
@@ -382,8 +384,9 @@ class BrowserModel
             return;
         }
         //state = Browser.COUNTING_ITEMS;
-        numberLoader = new ContainerCounterLoader(component, containers, nodes);
-        numberLoader.load();
+        //TODO: to be reviewed.
+        //numberLoader = new ContainerCounterLoader(component, containers, nodes);
+        //numberLoader.load();
     }
 
     /**
@@ -548,11 +551,12 @@ class BrowserModel
 	void fireExperimenterDataLoading(TreeImageSet expNode)
 	{
 		int index = -1;
+		SecurityContext ctx = getSecurityContext(expNode);
 		if (browserType == Browser.ADMIN_EXPLORER) {
 			state = Browser.LOADING_DATA;
 			//Depending on user roles.
 			if (TreeViewerAgent.isAdministrator()) {
-				currentLoader = new AdminLoader(component, null);
+				currentLoader = new AdminLoader(component, ctx, null);
 				currentLoader.load();
 				return;
 			} else {
@@ -562,7 +566,7 @@ class BrowserModel
 			
 		}
 		if (browserType == Browser.SCREENS_EXPLORER) {
-			currentLoader = new ScreenPlateLoader(component, expNode, 
+			currentLoader = new ScreenPlateLoader(component, ctx, expNode, 
 												ScreenPlateLoader.SCREEN);
 	        currentLoader.load();
 			state = Browser.LOADING_DATA;
@@ -585,7 +589,8 @@ class BrowserModel
 				//index = ExperimenterDataLoader.FILE;
 		}
 		if (index == -1) return;
-		currentLoader = new ExperimenterDataLoader(component, index, expNode);
+		currentLoader = new ExperimenterDataLoader(component, ctx, index,
+				expNode);
         currentLoader.load();
         state = Browser.LOADING_DATA;
 	}
@@ -624,9 +629,12 @@ class BrowserModel
 		}
         state = Browser.LOADING_DATA;
         if (klass == null) return;
+        //TODO: review the logic.
+        /*
         currentLoader = new RefreshExperimenterDataLoader(component, klass,
         					nodes, type, id, refNode, toBrowse);
-        currentLoader.load();   
+        currentLoader.load();
+        */
     }
 
     /**
@@ -637,6 +645,7 @@ class BrowserModel
      */
 	void fireCountExperimenterImages(TreeImageSet expNode)
 	{
+		SecurityContext ctx = getSecurityContext(expNode);
 		List<TreeImageSet> n = expNode.getChildrenDisplay();
 		Iterator i = n.iterator();
 		Set<Integer> indexes = new HashSet<Integer>();
@@ -665,7 +674,8 @@ class BrowserModel
 		if (containersManagerWithIndexes == null)
 			containersManagerWithIndexes = new ContainersManager(indexes);
 		state = Browser.COUNTING_ITEMS;
-        numberLoader = new ExperimenterImagesCounter(component, expNode, n);
+        numberLoader = new ExperimenterImagesCounter(component, ctx,
+        		expNode, n);
         numberLoader.load();  
 	}
 	
@@ -858,19 +868,6 @@ class BrowserModel
 		return importedImages.get(name) != null;
 	}
 
-	/**
-	 * Starts an asynchronous call to check if the files hosted by the 
-	 * passed nodes can be imported.
-	 * 
-	 * @param nodes The nodes to handle.
-	 */
-	void fireFilesCheck(List<TreeImageNode> nodes)
-	{
-		if (nodes == null || nodes.size() == 0) return;
-		FilesChecker loader = new FilesChecker(component, nodes);
-		loader.load();
-	}
-
 	/** Creates a {@link DeleteCmd} command to execute the action. */
 	void delete()
 	{
@@ -959,6 +956,21 @@ class BrowserModel
 			int transferAction)
 	{
 		parent.transfer(target, nodes, transferAction);
+	}
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @param node The node to handle.
+	 * @return See above
+	 */
+	SecurityContext getSecurityContext(TreeImageDisplay node)
+	{
+		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
+		TreeImageDisplay parent = n.getParentDisplay();
+		//TO BE reviewed
+		GroupData group = (GroupData) parent.getUserObject();
+		return new SecurityContext(group.getId());
 	}
 	
 }
