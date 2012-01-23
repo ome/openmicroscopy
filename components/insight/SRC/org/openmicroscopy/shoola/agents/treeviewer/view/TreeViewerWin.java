@@ -259,7 +259,8 @@ class TreeViewerWin
             	browser = browsers.get(Browser.ADMIN_EXPLORER);
                 container.add(new TaskPaneBrowser(browser));
             }
-            AdvancedFinder finder = model.getAdvancedFinder();
+            AdvancedFinder finder = model.getAdvancedFinder(
+            		model.getSecurityContext());
     		finder.addPropertyChangeListener(controller);
     		container.add(new TaskPaneBrowser(new JScrollPane(finder)));
     		JScrollPane s = new JScrollPane(container);
@@ -877,7 +878,8 @@ class TreeViewerWin
         		displayMode = TreeViewer.SEARCH_MODE;
         	splitPane.setDividerLocation(splitPane.getDividerLocation());
         	if (finderScrollPane == null) {
-        		AdvancedFinder finder = model.getAdvancedFinder();
+        		AdvancedFinder finder = model.getAdvancedFinder(
+        				model.getSecurityContext());
         		finder.addPropertyChangeListener(controller);
         		finderScrollPane = new JScrollPane(finder);
         	}

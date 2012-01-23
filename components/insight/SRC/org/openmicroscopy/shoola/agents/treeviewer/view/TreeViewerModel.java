@@ -858,15 +858,14 @@ class TreeViewerModel
 	/**
 	 * Creates the advanced finder.
 	 * 
+	 * @param ctx The security context.
 	 * @return See above.
 	 */
-	AdvancedFinder getAdvancedFinder()
+	AdvancedFinder getAdvancedFinder(SecurityContext ctx)
 	{ 
-		/* TODO:review
 		if (advancedFinder == null)
 			advancedFinder = FinderFactory.getAdvancedFinder(
-							TreeViewerAgent.getRegistry());
-							*/
+							TreeViewerAgent.getRegistry(), ctx);
 		return advancedFinder; 
 	}
 
@@ -1378,6 +1377,9 @@ class TreeViewerModel
 	SecurityContext getSecurityContext()
 	{
 		Browser browser = getSelectedBrowser();
+		if (browser == null) 
+			return new SecurityContext(
+					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
 		return browser.getSecurityContext(browser.getLastSelectedDisplay());
 	}
 	
