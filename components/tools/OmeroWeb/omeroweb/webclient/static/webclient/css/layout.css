@@ -175,6 +175,10 @@ ul.criteria li{
     top:0px; bottom:0px; left:0px; right:0px;
 }
 
+#left_panel {
+    padding: 0px;
+}
+
 .panel_tabs {
     padding: 2px 10px;
     position: absolute;
@@ -182,14 +186,12 @@ ul.criteria li{
     height: 23px;
 }
 
-.panel_tabs a {
-    border: solid #ccc 1px;
-    border-bottom: solid gray 0px;
-    padding: 2px 3px;
-    border-radius: 4px 4px 0px 0px;
-    position: relative;
-    bottom: -5px;
-    background: #f3f3f3;
+#panel_tabs ul {
+    position:relative;
+    float:left;
+    padding:0;
+    margin: 0px;
+    list-style:none;
 }
 
 .toolbar {
@@ -197,14 +199,13 @@ ul.criteria li{
     height:17px;
     padding:3px;
     background-color:#fff;
-    top:23px; left:0px; right:0px; 
-    border-top: 1px solid #bbb;
+    top:0px; left:0px; right:0px; 
     border-bottom: 1px solid #bbb;
 }
 
 #tree_details {
     position: absolute;
-    top:52px; left:0px; right:0px; bottom:0px;
+    top:26px; left:0px; right:0px; bottom:0px;
     background-color:#fff;
     border-bottom: 1px solid #bbb;
     overflow: auto;
