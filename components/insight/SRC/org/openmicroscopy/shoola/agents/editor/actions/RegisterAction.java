@@ -72,8 +72,9 @@ public class RegisterAction
 	 * @see AbstractAction#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent evt) {
-		EventBus bus = EditorAgent.getRegistry().getEventBus();
-		bus.post(new ShowEditorEvent());
+		//TODO
+		//EventBus bus = EditorAgent.getRegistry().getEventBus();
+		//bus.post(new ShowEditorEvent());
 	}
 
 }

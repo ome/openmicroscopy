@@ -482,7 +482,8 @@ class ImViewerComponent
 		double f = 
 			model.getZoomFactor()*model.getOriginalRatio();
 		if (model.isBigImage()) f = view.getBigImageMagnificationFactor();
-		MeasurementTool request = new MeasurementTool(model.getImageID(), 
+		MeasurementTool request = new MeasurementTool(
+				model.getSecurityContext(), model.getImageID(), 
 				model.getPixelsData(), model.getImageName(), 
 				model.getDefaultZ(), model.getDefaultT(),
 				model.getActiveChannelsColorMap(),f, 

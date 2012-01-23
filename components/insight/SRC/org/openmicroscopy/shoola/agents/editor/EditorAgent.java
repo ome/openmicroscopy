@@ -165,14 +165,16 @@ public class EditorAgent
 	public static Editor openLocalFile(File file)
 	{
 		
-		if (file == null)		return null;
-		if (!file.exists())		return null;
+		if (file == null) return null;
+		if (!file.exists()) return null;
 		
 		// gets a blank editor (one that has been created with a 'blank' model), 
 		// OR an existing editor if one has the same 
 		// file ID (will be 0 if editor file is local) and same file name, OR
 		// creates a new editor model and editor with this new file. 
-		Editor editor = EditorFactory.getEditor(file);
+		
+		//TODO: review that call
+		Editor editor = EditorFactory.getEditor(null, file);
 	
 		// activates the editor
 		// if the editor is 'blank' or has just been created (above), 
@@ -205,7 +207,8 @@ public class EditorAgent
 		FileAnnotationData data = event.getFileAnnotation();
 		if (data == null) {
 			if (event.getFileAnnotationID() > 0)
-				editor = EditorFactory.getEditor(event.getFileAnnotationID());
+				editor = EditorFactory.getEditor(event.getSecurityContext(),
+						event.getFileAnnotationID());
 		} else {
 			if (data.getId() <= 0) return;
 			String name = data.getFileName();
@@ -215,7 +218,8 @@ public class EditorAgent
 				FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns) ||
 				FileAnnotationData.COMPANION_FILE_NS.equals(ns) ||
 				EditorUtil.isEditorFile(name))
-				editor = EditorFactory.getEditor(data);
+				editor = EditorFactory.getEditor(event.getSecurityContext(),
+						data);
 			else {
 				ApplicationData app = new ApplicationData("");
 				UserNotifier un = getRegistry().getUserNotifier();
@@ -254,18 +258,19 @@ public class EditorAgent
 		AutosaveRecovery autosaveRecovery = new AutosaveRecovery();
 		Editor editor = null;
 		if (evt == null) {
-			editor = EditorFactory.getEditor();
+			editor = EditorFactory.getEditor(null);
 			if (editor != null) editor.activate();
 			autosaveRecovery.checkForRecoveredFiles();	// now check
 			return;
 		}
 		if (evt.getParent() == null)
-			editor = EditorFactory.getEditor();
+			editor = EditorFactory.getEditor(evt.getSecurityContext());
 		else {
 			int editorType = Editor.PROTOCOL;
 			if (evt.getType() == ShowEditorEvent.EXPERIMENT)
 				editorType = Editor.EXPERIMENT;
-			editor = EditorFactory.getEditor(evt.getParent(), evt.getName(), 
+			editor = EditorFactory.getEditor(evt.getSecurityContext(),
+					evt.getParent(), evt.getName(), 
 					editorType);
 		}
 		autosaveRecovery.checkForRecoveredFiles();	// now check
