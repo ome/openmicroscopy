@@ -268,7 +268,7 @@ class BrowserModel
      * Loads the file annotation.
      * 
      * @param fileID The id of the file to load.
-     * @param handler
+     * @param handler The handler used when the annotation is returned.
      */
     void getFileAnnotation(long fileID, AnnotationHandler handler)
     {
