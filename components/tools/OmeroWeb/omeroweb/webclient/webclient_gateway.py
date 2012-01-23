@@ -1875,6 +1875,13 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         return False
     
     def getExpireDate(self):
+        """
+        Gets the end date for the share
+        
+        @return:    End Date-time
+        @rtype:     datetime object
+        """
+        
         #workaround for problem of year 2038
         try:
             d = self.started+self.timeToLive
@@ -1894,24 +1901,6 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         """
         
         return datetime.fromtimestamp(self.getStarted()/1000)
-        
-    def getExpirationDate(self):
-        """
-        Gets the end date for the share
-        
-        @return:    End Date-time
-        @rtype:     datetime object
-        """
-        
-        try:
-            d = self.started+self.timeToLive
-            #workaround for problem of year 2038 - BUT E.g. 2012 date is over this value
-            #if d > 2051222400:
-            #    return datetime(2035, 1, 1, 0, 0, 0)            
-            return datetime.fromtimestamp(d / 1000)
-        except:
-            logger.info(traceback.format_exc())
-        return None
     
     def isExpired(self):
         """

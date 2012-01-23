@@ -1940,14 +1940,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             manager.getComments(o_id)
             experimenters = list(conn.getExperimenters())
             experimenters.sort(key=lambda x: x.getOmeName().lower())
-            if manager.share.getExpirationDate() is not None:
-                form = ShareForm(initial={'message': manager.share.message, 'expiration': manager.share.getExpirationDate().strftime("%Y-%m-%d"), \
-                                        'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
-                                        'experimenters': experimenters}) #'guests': share.guestsInShare,
-            else:
-                form = ShareForm(initial={'message': manager.share.message, 'expiration': "", \
-                                        'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
-                                        'experimenters': experimenters}) #'guests': share.guestsInShare,
+            initial={'message': manager.share.message, 'expiration': "", \
+                                    'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
+                                    'experimenters': experimenters}
+            if manager.share.getExpireDate() is not None:
+                initial['expiration'] = manager.share.getExpireDate().strftime("%Y-%m-%d")
+            form = ShareForm(initial=initial) #'guests': share.guestsInShare,
             context = {'url':url, 'nav':request.session['nav'], 'eContext': manager.eContext, 'share':manager, 'form':form}
         elif hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
