@@ -1443,7 +1443,8 @@ class PropertiesUI
 			switch (object.getIndex()) {
 				case WikiDataObject.IMAGE:
 					if (id > 0) 
-						bus.post(new ViewImage(new ViewImageObject(id), null));
+						bus.post(new ViewImage(model.getSecurityContext(),
+								new ViewImageObject(id), null));
 					break;
 				case WikiDataObject.PROTOCOL:
 					bus.post(new EditFileEvent(id));

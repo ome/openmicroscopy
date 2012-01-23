@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
@@ -274,8 +275,9 @@ public interface MetadataViewer
 	 * 
 	 * @param root The object to set.
 	 * @param userID The id of the user.
+	 * @param ctx The security context.
 	 */
-	public void setRootObject(Object root, long userID);
+	public void setRootObject(Object root, long userID, SecurityContext ctx);
 
 	/**
 	 * Loads the parent containers of the object hosted by the passed node.
@@ -637,4 +639,12 @@ public interface MetadataViewer
 	
 	/** Refreshes the view. */
 	void refresh();
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext();
+	
 }
