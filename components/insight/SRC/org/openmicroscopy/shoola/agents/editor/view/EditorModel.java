@@ -248,7 +248,7 @@ class EditorModel
 	 * 
 	 * @return One of the flags defined by the {@link Editor} interface.  
 	 */
-	int getState() { return state; }    
+	int getState() { return state; }
 
 	/**
 	 * Sets the object in the {@link Editor#DISCARDED} state.
