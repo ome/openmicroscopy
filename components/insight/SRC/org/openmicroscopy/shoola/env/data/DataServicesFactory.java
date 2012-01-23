@@ -308,6 +308,17 @@ public class DataServicesFactory
 		//exitApplication();
     }
     
+    /**
+     * Returns the credentials.
+     * 
+     * @return See above.
+     */
+    UserCredentials getCredentials()
+    {
+    	return (UserCredentials) 
+    		registry.lookup(LookupNames.USER_CREDENTIALS);
+    }
+    
 	/** 
 	 * Brings up a dialog indicating that the session has expired and
 	 * quits the application.

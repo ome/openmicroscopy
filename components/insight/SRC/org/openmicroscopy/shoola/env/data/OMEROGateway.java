@@ -81,7 +81,6 @@ import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
-import omero.ClientError;
 import omero.ConcurrencyException;
 import omero.InternalException;
 import omero.LockTimeout;
@@ -387,13 +386,13 @@ class OMEROGateway
 	 * The Blitz client object, this is the entry point to the 
 	 * OMERO Server using a secure connection. 
 	 */
-	private client secureClient;
+	//private client secureClient;
 
 	/** 
 	 * The Blitz client object, this is the entry point to the 
 	 * OMERO Server using non secure data transfer
 	 */
-	private client unsecureClient;
+	//private client unsecureClient;
 	
 	/** Map hosting the enumeration required for metadata. */
 	private Map<String, List<EnumerationObject>> enumerations;
@@ -403,6 +402,9 @@ class OMEROGateway
 	
 	/** Keep track of the file system view. */
 	private Map<Long, FSFileSystemView>				fsViews;
+	
+	/** Flag indicating if the connection is encrypted or not.*/
+	private boolean encrypted;
 	
 	/** 
 	 * Checks if the session is still alive.
@@ -506,9 +508,10 @@ class OMEROGateway
 		ScriptCallback cb = null;
 		try {
 	         IScriptPrx svc = getScriptService(ctx);
+	         Connector c = getConnector(ctx);
 	         //scriptID, parameters, timeout (5s if null)
 	         ScriptProcessPrx prx = svc.runScript(scriptID, parameters, null);
-	         cb = new ScriptCallback(scriptID, secureClient, prx);
+	         cb = new ScriptCallback(scriptID, c.getClient(), prx);
 		} catch (Exception e) {
 			throw new ProcessException("Cannot run script with ID:"+scriptID, 
 					e);
@@ -1389,12 +1392,27 @@ class OMEROGateway
 	 * @return
 	 */
 	private Connector getConnector(SecurityContext ctx)
+		throws DSAccessException, DSOutOfServiceException
 	{
 		Iterator<Connector> i = connectors.iterator();
 		Connector c;
 		while (i.hasNext()) {
 			c = i.next();
 			if (c.isSame(ctx)) return c;
+		}
+		//We are going to create a connector and activate a session.
+		try {
+			UserCredentials uc = dsFactory.getCredentials();
+			client client = new client(uc.getHostName(), port);
+			ServiceFactoryPrx prx = client.createSession(uc.getUserName(), 
+					uc.getPassword());
+			prx.setSecurityContext(
+					new ExperimenterGroupI(ctx.getGroupID(), false));
+			c = new Connector(ctx, client, prx, encrypted);
+			connectors.add(c);
+			return c;
+		} catch (Throwable e) {
+			handleException(e, "Cannot create a connector");
 		}
 		return null;
 	}
@@ -2253,10 +2271,13 @@ class OMEROGateway
 	{
 		try {
 			//login in the default group
+			this.encrypted = encrypted;
+			client secureClient;
 			if (port > 0) secureClient = new client(hostName, port);
 			else secureClient = new client(hostName);
 			secureClient.setAgent(AGENT);
 			entryEncrypted = secureClient.createSession(userName, password);
+			
 			
 			//now we register the new security context
 			connected = true;
@@ -2481,6 +2502,7 @@ class OMEROGateway
 		boolean b = entryUnencrypted != null;
 		//sList
 		clear();
+		/*
 		try {
 			//first to rejoin the session.
 			connected = true;
@@ -2524,7 +2546,7 @@ class OMEROGateway
 		} catch (Exception e) {
 			return false;
 		}
-
+*/
 		return connected;
 	}
 	
@@ -2532,6 +2554,7 @@ class OMEROGateway
 	void logout()
 	{
 		connected = false;
+		/*TODO: review
 		try {
 			shutDownServices(true);
 			clear();
@@ -2554,6 +2577,7 @@ class OMEROGateway
 			unsecureClient = null;
 			entryUnencrypted = null;
 		}
+		*/
 	}
 	
 	/**
@@ -2588,7 +2612,7 @@ class OMEROGateway
 			IContainerPrx service = getPojosService(ctx);
 			return PojoMapper.asDataObjects(
 					service.loadContainerHierarchy(
-					convertPojos(rootType).getName(), rootIDs, options));
+							convertPojos(rootType).getName(), rootIDs, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot load hierarchy for " + rootType+".");
 		}
@@ -3119,8 +3143,7 @@ class OMEROGateway
 			return service.getThumbnail(omero.rtypes.rint(sizeX), 
 					omero.rtypes.rint(sizeY));
 		} catch (Throwable t) {
-			Connector c = getConnector(ctx);
-			if (c != null) c.close(service);
+			closeService(ctx, service);
 			if (t instanceof ServerError) {
 				throw new DSOutOfServiceException(
 						"Thumbnail service null for pixelsID: "+pixelsID, t);
@@ -3153,8 +3176,7 @@ class OMEROGateway
 			return service.getThumbnailByLongestSide(
 					omero.rtypes.rint(maxLength));
 		} catch (Throwable t) {
-			Connector c = getConnector(ctx);
-			if (c != null) c.close(service);
+			closeService(ctx, service);
 			if (t instanceof ServerError) {
 				throw new DSOutOfServiceException(
 						"Thumbnail service null for pixelsID: "+pixelsID, t);
@@ -3190,8 +3212,7 @@ class OMEROGateway
 			return service.getThumbnailByLongestSideSet(
 					omero.rtypes.rint(maxLength), pixelsID);
 		} catch (Throwable t) {
-			Connector c = getConnector(ctx);
-			if (c != null) c.close(service);
+			closeService(ctx, service);
 			if (t instanceof ServerError) {
 				throw new DSOutOfServiceException(
 						"Thumbnail service null for pixelsID: "+pixelsID, t);
@@ -3800,8 +3821,13 @@ class OMEROGateway
 	private void closeService(SecurityContext ctx,
 			StatefulServiceInterfacePrx svc)
 	{
-		Connector c = getConnector(ctx);
-		if (c != null) c.close(svc);
+		try {
+			Connector c = getConnector(ctx);
+			if (c != null) c.close(svc);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
 	}
 	
 	/** 
@@ -7821,8 +7847,9 @@ class OMEROGateway
 		try {
 	         IDeletePrx svc = getDeleteService(ctx);
 	         //scriptID, parameters, timeout (5s if null)
+	         Connector c = getConnector(ctx);
 	         DeleteHandlePrx prx = svc.queueDelete(commands);
-	         cb = new DeleteCallback(secureClient, prx);
+	         cb = new DeleteCallback(c.getClient(), prx);
 		} catch (Exception e) {
 			throw new ProcessException("Cannot delete the speficied objects.", 
 					e);
@@ -7865,8 +7892,12 @@ class OMEROGateway
 	 */
 	void closeImport(SecurityContext ctx)
 	{
-		Connector c = getConnector(ctx);
-		if (c != null) c.closeImport();
+		try {
+			Connector c = getConnector(ctx);
+			if (c != null) c.closeImport();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 	
 	/**
