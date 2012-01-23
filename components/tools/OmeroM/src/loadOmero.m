@@ -147,7 +147,7 @@ if (nargout >=1 )
     if nargin > 0
         client = javaObject('omero.client', varargin{:});
     else
-        client = javaObject('omero.client', p);
+        client = javaObject('omero.client', props);
     end
 end
 
