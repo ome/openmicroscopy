@@ -96,7 +96,7 @@ public class DataObjectRemover
      */
     public void load()
     {
-    	handle = dmView.delete(objects, this);
+    	handle = dmView.delete(ctx, objects, this);
     }
     
     /**

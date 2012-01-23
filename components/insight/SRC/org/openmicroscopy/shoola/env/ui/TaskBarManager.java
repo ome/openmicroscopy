@@ -335,7 +335,7 @@ public class TaskBarManager
 	{
 		if (evt == null) return;
 		//Do we have data to save.
-		
+		/*
 		CheckoutBox box = new CheckoutBox(view, SWITCH_GROUP_TITLE, 
 				SWITCH_GROUP_TEXT, getInstancesToSave());
 		if (box.centerMsgBox() == MessageBox.YES_OPTION) {
@@ -364,6 +364,7 @@ public class TaskBarManager
 					evt.getGroupID());
 			loader.load();
 		}
+		*/
 	}
 	
 	/**

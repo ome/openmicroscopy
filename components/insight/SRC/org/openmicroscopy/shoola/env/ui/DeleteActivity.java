@@ -36,6 +36,7 @@ import javax.swing.Icon;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 /** 
  * Activity to delete data.
@@ -121,12 +122,13 @@ public class DeleteActivity
      * @param viewer		The viewer this data loader is for.
      *               		Mustn't be <code>null</code>.
      * @param registry		Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param parameters  	The parameters used to delete.
      */
 	public DeleteActivity(UserNotifier viewer, Registry registry,
-			DeleteActivityParam parameters)
+			SecurityContext ctx, DeleteActivityParam parameters)
 	{
-		super(viewer, registry);
+		super(viewer, registry, ctx);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
@@ -155,7 +157,7 @@ public class DeleteActivity
 	protected UserNotifierLoader createLoader()
 	{
 		List<DeletableObject> objects = parameters.getObjects();
-		loader = new DataObjectRemover(viewer,  registry, objects, this);
+		loader = new DataObjectRemover(viewer,  registry, ctx,  objects, this);
 		return loader;
 	}
 

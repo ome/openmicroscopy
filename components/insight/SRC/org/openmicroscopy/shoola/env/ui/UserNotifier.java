@@ -31,6 +31,7 @@ import javax.swing.Icon;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 
 /** 
@@ -157,9 +158,10 @@ public interface UserNotifier
     /**
      * Notifies the user of an activity such as movie creation.
      * 
+     * @param ctx The security context.
      * @param activity The activity to register.
      */
-    public void notifyActivity(Object activity);
+    public void notifyActivity(SecurityContext ctx, Object activity);
     
     /**
      * Opens the specified application.
