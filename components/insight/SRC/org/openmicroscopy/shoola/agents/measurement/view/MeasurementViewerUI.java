@@ -1569,6 +1569,7 @@ class MeasurementViewerUI
 	void onAnalysed(boolean analyse)
 	{
 		graphPane.onAnalysed(analyse);
+		intensityView.onAnalysed(analyse);
 		toolBar.onAnalysed(analyse);
 	}
 	
