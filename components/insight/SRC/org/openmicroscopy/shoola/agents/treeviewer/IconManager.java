@@ -532,7 +532,7 @@ public class IconManager
     
     /** The 48x48 <code>Analysis</code> icon. */
     public static final int         ANALYSIS_48 = 159;
-
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
