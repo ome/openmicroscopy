@@ -169,10 +169,10 @@ public interface ImViewer
 	public static final int     LOADING_TILES = 15;
 	
 	/** Flag to denote the <i>Loading the RE</i> state. */
-	public static final int     LOADING_RND = 16;
+	public static final int     LOADING_RND = 17;
 	
 	/** Flag to denote the <i>Loading the Bird eye view</i> state. */
-	public static final int     LOADING_BIRD_EYE_VIEW = 17;
+	public static final int     LOADING_BIRD_EYE_VIEW = 18;
 	
 	/** Bound property name indicating that a new z-section is selected. */
 	public final static String  Z_SELECTED_PROPERTY = "zSelected";

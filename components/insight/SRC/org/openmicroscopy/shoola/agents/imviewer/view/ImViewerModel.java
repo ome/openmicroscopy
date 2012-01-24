@@ -665,11 +665,15 @@ class ImViewerModel
 		state = ImViewer.DISCARDED;
 		if (imageIcon != null) imageIcon.flush();
 		browser.discard();
+		if (metadataViewer != null && metadataViewer.getRenderer() != null) {
+			metadataViewer.getRenderer().discard();
+		}
+			
 		if (image == null) return;
 		//Shut down the service
-		OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
-		long pixelsID = getImage().getDefaultPixels().getId();
-		svr.shutDown(pixelsID);
+		//OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
+		//long pixelsID = getImage().getDefaultPixels().getId();
+		//svr.shutDown(pixelsID);
 		Iterator i = loaders.keySet().iterator();
 		Integer index;
 		while (i.hasNext()) {
@@ -1130,7 +1134,16 @@ class ImViewerModel
 	boolean isBigImage()
 	{
 		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return false;
+		if (rnd == null) {
+			try {
+				Boolean 
+				b = ImViewerAgent.getRegistry().getImageService().isLargeImage(
+						getImage().getDefaultPixels().getId());
+				if (b != null) return b.booleanValue();
+			} catch (Exception e) {} //ingore
+			
+			return false;
+		}
 		return rnd.isBigImage();
 	}
 	

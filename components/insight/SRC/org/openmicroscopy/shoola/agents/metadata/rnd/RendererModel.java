@@ -271,6 +271,7 @@ class RendererModel
 		OmeroImageService svr = 
 			MetadataViewerAgent.getRegistry().getImageService();
 		svr.shutDown(rndControl.getPixelsID());
+		rndControl = null;
 	}
 
 	/**

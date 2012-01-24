@@ -2862,6 +2862,7 @@ class ImViewerComponent
 	public void onRndLoaded(boolean reload)
 	{
 		//if (model.isNumerousChannel()) model.setForLifetime();
+		if (model.getState() == DISCARDED) return;
 		model.onRndLoaded();
 		if (!reload) {
 			if (model.isBigImage()) {
