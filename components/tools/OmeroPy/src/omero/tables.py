@@ -633,7 +633,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     def read(self, colNumbers, start, stop, current = None):
         self.logger.info("%s.read(%s, %s, %s)", self, colNumbers, start, stop)
         if start == 0L and stop == 0L:
-            stop = self.getNumberOfRows()
+            stop = None
         try:
             return self.storage.read(self.stamp, colNumbers, start, stop, current)
         except tables.HDF5ExtError, err:
