@@ -3384,6 +3384,7 @@ class TreeViewerComponent
 			}
 			firePropertyChange(GROUP_CHANGED_PROPERTY, oldGroup, 
 					model.getUserGroupID());
+			view.createTitle();
 		}
 	}
 	
