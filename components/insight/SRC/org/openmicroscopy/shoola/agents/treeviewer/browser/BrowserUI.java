@@ -799,6 +799,7 @@ class BrowserUI
     	Iterator i = groups.iterator();
     	GroupData group;
     	TreeImageSet n = new TreeImageSet(defaultGroup);
+    	TreeViewerTranslator.formatToolTipFor(n);
     	l.add(n);
     	root.addChildDisplay(n);
     	tm.insertNodeInto(n, root, root.getChildCount());
@@ -806,6 +807,7 @@ class BrowserUI
 			group = (GroupData) i.next();
 			if (group.getId() != defaultGroup.getId()) {
 				n = new TreeImageSet(group);
+				TreeViewerTranslator.formatToolTipFor(n);
 				l.add(n);
 				root.addChildDisplay(n);
 				tm.insertNodeInto(n, root, root.getChildCount());
