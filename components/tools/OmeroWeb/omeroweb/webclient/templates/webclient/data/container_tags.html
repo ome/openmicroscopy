@@ -40,7 +40,7 @@
         $(function() 
             {
 
-                $("#left_panel").tabs({
+                $("#left_panel_tabs").tabs({
                     select: function(event, ui) {
                         var url = $.data(ui.tab, 'load.tabs');
                         if( url ) {
@@ -404,14 +404,14 @@
 
 
 {% block left %}
-
+<div id="left_panel_tabs" class="absolute_fill">
     <ul class="tabslist">
         <li><a href="{% url load_template 'userdata' %}">{% trans "Projects+Screens" %}</a></li>
         <li><a href="#Tags" title="Tags">{% trans "Tags" %}</a></li>
         <li><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>
     </ul>
 
-    <div id="Tags" style="position:absolute; top:26px; bottom:0px; left:0px; right:0px">
+    <div id="Tags">
         <div class="toolbar">
             <div id="buttons" class="align_left">
                 <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> | 
@@ -424,7 +424,7 @@
             <div class="dataTree" id="dataTree"></div>
         </div>
     </div>
-
+</div>
 {% endblock %}
 
 {% block center %}

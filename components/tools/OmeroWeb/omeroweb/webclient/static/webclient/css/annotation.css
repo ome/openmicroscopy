@@ -1,7 +1,5 @@
 #annotation_tab, #metadata_tab, #preview_tab {
     padding: 5px;
-    position: absolute;
-    top: 23px; right: 0px; bottom: 0px; left: 0px;
     overflow: auto;
 }
 

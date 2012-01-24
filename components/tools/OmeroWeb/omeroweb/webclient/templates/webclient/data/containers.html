@@ -69,7 +69,7 @@
 
         $(function() 
             {
-                $("#left_panel").tabs({
+                $("#left_panel_tabs").tabs({
                     select: function(event, ui) {
                         var url = $.data(ui.tab, 'load.tabs');
                         if( url ) {
@@ -772,6 +772,7 @@
 
 {% block left %}
 
+    <div id="left_panel_tabs" class="absolute_fill">
         <ul class="tabslist">
         <li><a href="#Projects" title="Projects">{% trans "Projects+Screens" %}</a></li>
         <li><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
@@ -780,7 +781,7 @@
 
 
             <!-- toolbar above tree -->
-        <div id="Projects" style="position:absolute; top:26px; bottom:0px; left:0px; right:0px">
+        <div id="Projects">
             <div class="toolbar">
                 <div id="buttons" class="align_left">
                     <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
@@ -821,6 +822,7 @@
             </fieldset>
             </form>
         </div>
+    </div>
 {% endblock %}
 
 {% block center %}

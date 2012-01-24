@@ -171,10 +171,11 @@ ul.criteria li{
 }
 
 /* tabs */
-#annotation_tabs, #left_panel {
+#annotation_tabs, #left_panel_tabs {
     border: 0;
     background: #fff;
     padding: 0px;
+    padding-top:5px;
     position: absolute;
 }
 
@@ -193,7 +194,9 @@ ul.tabslist {
 
 #tree_details {
     position: absolute;
-    top:26px; left:0px; right:0px; bottom:0px;
+    top:24px;
+    left:0px; right:0px; bottom:0px;
+    padding-top: 3px;
     background-color:#fff;
     border-bottom: 1px solid #bbb;
     overflow: auto;
