@@ -323,4 +323,26 @@
         </constructor-arg>
     </bean>
 
+    <!-- Adding annotation link delete support. Could be more generic #7301 -->
+    <bean parent="delSpec" name="/AnnotationAnnotationLink"> <constructor-arg> <list> <value>/AnnotationAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/ChannelAnnotationLink"> <constructor-arg> <list> <value>/ChannelAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/DatasetAnnotationLink"> <constructor-arg> <list> <value>/DatasetAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/ExperimenterAnnotationLink"> <constructor-arg> <list> <value>/ExperimenterAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/ExperimenterGroupAnnotationLink"> <constructor-arg> <list> <value>/ExperimenterGroupAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/ImageAnnotationLink"> <constructor-arg> <list> <value>/ImageAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/NamespaceAnnotationLink"> <constructor-arg> <list> <value>/NamespaceAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/NodeAnnotationLink"> <constructor-arg> <list> <value>/NodeAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/OriginalfileAnnotationLink"> <constructor-arg> <list> <value>/OriginalfileAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/PixelsAnnotationLink"> <constructor-arg> <list> <value>/PixelsAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/PlaneinfoAnnotationLink"> <constructor-arg> <list> <value>/PlaneinfoAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/PlateAcquisitionAnnotationLink"> <constructor-arg> <list> <value>/PlateAcquisitionAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/PlateAnnotationLink"> <constructor-arg> <list> <value>/PlateAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/ProjectAnnotationLink"> <constructor-arg> <list> <value>/ProjectAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/ReagentAnnotationLink"> <constructor-arg> <list> <value>/ReagentAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/RoiAnnotationLink"> <constructor-arg> <list> <value>/RoiAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/ScreenAnnotationLink"> <constructor-arg> <list> <value>/ScreenAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/SessionAnnotationLink"> <constructor-arg> <list> <value>/SessionAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/WellAnnotationLink"> <constructor-arg> <list> <value>/WellAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/WellSampleAnnotationLink"> <constructor-arg> <list> <value>/WellSampleAnnotationLink</value> </list> </constructor-arg> </bean>
+
 </beans>

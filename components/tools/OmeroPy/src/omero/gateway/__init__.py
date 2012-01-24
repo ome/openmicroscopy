@@ -698,10 +698,20 @@ class BlitzObjectWrapper (object):
         @param ns:      Namespace
         @type ns:       String
         """
+        dcs = []
         for al in self._getAnnotationLinks(ns=ns):
-            update = self._conn.getUpdateService()
-            update.deleteObject(al)
-        self._obj.unloadAnnotationLinks()        
+            dcs.append(omero.api.delete.DeleteCommand(
+                "/%s" % al.ice_id().split("::")[-1], # This could be refactored
+                al.id.val, None))
+
+        # Using queueDelete rather than deleteObjects since we need
+        # spec/id pairs rather than spec+id_list as arguments
+        handle = self._conn.getDeleteService().queueDelete(dcs)
+        callback = omero.callbacks.DeleteCallbackI(self._conn.c, handle)
+        # Maximum wait time 5 seconds, will raise a LockTimeout if the
+        # delete has not finished by then.
+        callback.loop(10, 500)
+        self._obj.unloadAnnotationLinks()
 
     def removeAnnotations (self, ns):
         """
