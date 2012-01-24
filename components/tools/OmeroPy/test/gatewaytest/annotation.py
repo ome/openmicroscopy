@@ -206,6 +206,29 @@ class AnnotationsTest (lib.GTest):
         self.gateway.deleteObjectDirect(ann._obj.file)    # then the file
         self.assertEqual(self.gateway.getObject("Annotation", annId), None)
 
+    def testUnlinkAnnotation (self):
+        """ Tests the use of unlinkAnnotations. See #7301 """
+
+        # Setup test dataset
+        dataset = self.TESTIMG.getParent()
+        self.assertNotEqual(dataset, None)
+
+        # Make really sure there are no annotations
+        dataset.removeAnnotations(self.TESTANN_NS)
+        self.assertEqual(dataset.getAnnotation(self.TESTANN_NS), None)
+        dataset.removeAnnotations(self.TESTANN_NS)
+        self.assertEqual(dataset.getAnnotation(self.TESTANN_NS), None)
+
+        # Add an annotation
+        ann = omero.gateway.CommentAnnotationWrapper(self.gateway)
+        ann.setNs(self.TESTANN_NS)
+        dataset.linkAnnotation(ann)
+        self.assertEqual(dataset.getAnnotation(self.TESTANN_NS).getNs(),
+                self.TESTANN_NS)
+
+        # Unlink annotations
+        dataset.unlinkAnnotations(self.TESTANN_NS)
+        self.assertEqual(dataset.getAnnotation(self.TESTANN_NS), None)
 
 if __name__ == '__main__':
     unittest.main()
