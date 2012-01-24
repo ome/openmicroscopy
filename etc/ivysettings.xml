@@ -15,6 +15,7 @@
 
   <properties file="${ivy.settings.dir}/local.properties.example"/>
   <properties file="${ivy.settings.dir}/local.properties"/>
+  <properties file="${ivy.settings.dir}/../target/omero.version"/>
   <settings defaultResolver="${omero.resolver}"/>
   <caches defaultCacheDir="${ivy.settings.dir}/../lib/cache"/>
   <resolvers>
@@ -22,7 +23,7 @@
     <!-- Main resolver which has as its first resolver the location
     where all our jars will be published -->
     <chain name="omero-resolver" returnFirst="true">
-      <filesystem name="main">
+      <filesystem name="main" checkmodified="true" changingMatcher="regexp" changingPattern=".*DEV.*">
         <artifact pattern="${ivy.settings.dir}/../target/repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../target/repository/[module]-[revision].ivy"/>
       </filesystem>
@@ -49,7 +50,7 @@
 
    <!-- Resolver for all the test jars which should not be shipped -->
     <chain name="test-resolver" returnFirst="true">
-      <filesystem name="test">
+      <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*DEV.*">
         <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].ivy"/>
       </filesystem>
