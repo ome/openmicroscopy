@@ -149,26 +149,18 @@ class BrowserComponent
         setSelectedDisplay(display);
         Object ho = display.getUserObject();
         if ((ho instanceof ProjectData) || (ho instanceof ScreenData))
-        	display.setChildrenLoaded(Boolean.TRUE);
+        	display.setChildrenLoaded(Boolean.valueOf(true));
         else if (ho instanceof TagAnnotationData) { 
         	TagAnnotationData tag = (TagAnnotationData) ho;
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
-        		display.setChildrenLoaded(Boolean.TRUE);
-        	else display.setChildrenLoaded(Boolean.FALSE);
+        		display.setChildrenLoaded(Boolean.valueOf(true));
+        	else display.setChildrenLoaded(Boolean.valueOf(false));
         } else {
-        	display.setChildrenLoaded(Boolean.FALSE);
+        	display.setChildrenLoaded(Boolean.valueOf(false));
         }
         view.createNodes(nodes, display, parentDisplay);
         //Object o = display.getUserObject();
-        countItems(null);
-        /*
-        if (o instanceof DatasetData) {// || o instanceof TagAnnotationData) {
-        	Set<DataObject> ids = new HashSet<DataObject>();
-        	ids.add((DataObject) o);
-        	//countItems(ids);
-        	
-        	//model.fireContainerCountLoading(ids);
-        }*/
+        countItems(null, display);
     }
     
     /**
@@ -218,8 +210,9 @@ class BrowserComponent
 	 * Retrieves the nodes to count the value for.
 	 *
 	 * @param rootType The type of node to track.
+	 * @param node The node to visit.
 	 */
-	private void countItems(List<Class> rootType)
+	private void countItems(List<Class> rootType, TreeImageDisplay node)
 	{
 		if (rootType == null) {
 			int type = model.getBrowserType();
@@ -239,11 +232,24 @@ class BrowserComponent
 			return;
 		}
 		ContainerFinder finder = new ContainerFinder(rootType);
-		accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
-		Set<DataObject> items = finder.getContainers();
-		Set<TreeImageSet> nodes = finder.getContainerNodes();
-		if (items.size() == 0 && nodes.size() == 0) return;
-		model.fireContainerCountLoading(items, nodes);
+		Set<DataObject> items;
+		Set<TreeImageSet> nodes;
+		if (node != null) {
+			node.accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+			finder.getContainers();
+			items = finder.getContainers();
+			nodes = finder.getContainerNodes();
+			if (items.size() == 0 && nodes.size() == 0) return;
+			model.fireContainerCountLoading(items, nodes, node);
+		} else {
+			//
+			TreeImageDisplay root = view.getTreeRoot();
+			List l = root.getChildrenDisplay();
+			Iterator i = l.iterator();
+			while (i.hasNext()) {
+				countItems(rootType, (TreeImageDisplay) i.next());
+			}
+		}
 	}
 	
 	/** 
@@ -261,11 +267,11 @@ class BrowserComponent
 		}
 		if (types.size() == 0) return;
 		ContainerFinder finder = new ContainerFinder(types);
-		accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+		node.accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 		Set<DataObject> items = finder.getContainers();
 		Set<TreeImageSet> nodes = finder.getContainerNodes();
 		if (items.size() == 0 && nodes.size() == 0) return;
-		model.fireContainerCountLoading(items, nodes);
+		model.fireContainerCountLoading(items, nodes, node);
 	}
 
 	/**
@@ -468,10 +474,9 @@ class BrowserComponent
         }
         ExperimenterData exp = (ExperimenterData) ho;
         long userID = exp.getId();
-        long groupID = exp.getDefaultGroup().getId();
-        
+       
         Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, userID, 
-                                                                groupID);
+                                                                -1);
         view.setLeavesViews(visLeaves, parent);
         
         model.setState(READY);
@@ -483,7 +488,7 @@ class BrowserComponent
         		parent instanceof TreeFileSet) {
         	List<Class> types = new ArrayList<Class>();
         	types.add(TagAnnotationData.class);
-        	countItems(types);
+        	countItems(types, expNode);
         }
         Object p = null;
         if (parent != null && 
@@ -992,7 +997,7 @@ class BrowserComponent
         //long groupID = model.getUserGroupID();
         //view.setViews(TreeViewerTranslator.refreshHierarchy(nodes,
         //            expandedTopNodes, userID, groupID)); 
-        countItems(null);
+        countItems(null, null);
         model.getParentModel().setStatus(false, "", true);
         PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
@@ -1107,7 +1112,7 @@ class BrowserComponent
         view.setExperimenterData(convertedNodes, expNode);
         model.setState(READY);
         
-        countItems(null);
+        countItems(null, expNode);
         countExperimenterDataInFolders();
         model.getParentModel().setStatus(false, "", true);
         //Visit the tree and
@@ -1296,7 +1301,7 @@ class BrowserComponent
 		if (nodes == null || nodes.size() == 0) {
 			model.setSelectedDisplay(null, true);
 			model.setState(READY);
-			countItems(null);
+			countItems(null, null);
 			if (model.getBrowserType() == TAGS_EXPLORER)
 				countExperimenterDataInFolders();
 			model.getParentModel().setStatus(false, "", true);
@@ -1371,9 +1376,9 @@ class BrowserComponent
 			List<Class> types = new ArrayList<Class>();
 			types.add(TagAnnotationData.class);
 			types.add(DatasetData.class);
-			countItems(types);
+			countItems(types, null);
 			countExperimenterDataInFolders();
-		} else countItems(null);
+		} else countItems(null, null);
 			
 		model.getParentModel().setStatus(false, "", true);
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
@@ -1739,7 +1744,7 @@ class BrowserComponent
         	throw new IllegalArgumentException("Experimenter node not valid.");
         model.setRepositories(systemView);
     	view.loadFileSystem(expNode);
-        countItems(null);
+        countItems(null, expNode);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
 	}
@@ -1761,7 +1766,7 @@ class BrowserComponent
 		Set nodes = TreeViewerTranslator.transformGroups(groups);
 		view.setGroups(nodes, expanded);
 		model.setState(READY);
-		countItems(null);
+		countItems(null, null);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
 	}

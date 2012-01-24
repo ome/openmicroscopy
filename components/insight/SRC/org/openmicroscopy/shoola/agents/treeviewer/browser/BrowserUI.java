@@ -794,7 +794,8 @@ class BrowserUI
     	//tm.insertNodeInto(node, root, root.getChildCount());
     	
     	List<TreeImageSet> l = new ArrayList<TreeImageSet>();
-    	Set groups = TreeViewerAgent.getAvailableUserGroups();
+    	List groups = sorter.sort(TreeViewerAgent.getAvailableUserGroups());
+    	//sort the group first.
     	Iterator i = groups.iterator();
     	GroupData group;
     	TreeImageSet n = new TreeImageSet(defaultGroup);

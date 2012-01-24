@@ -376,24 +376,16 @@ class BrowserModel
      * @param containers The collection of <code>DataObject</code>s.
      * @param nodes      The corresponding nodes.
      */
-    void fireContainerCountLoading(Set containers, Set<TreeImageSet> nodes)
+    void fireContainerCountLoading(Set containers, Set<TreeImageSet> nodes, 
+    		TreeImageDisplay refNode)
     {
         if (containers == null || containers.size() == 0) {
             state = Browser.READY;
             return;
         }
         state = Browser.COUNTING_ITEMS;
-        TreeImageSet n, node = null;
-        Iterator<TreeImageSet> i = nodes.iterator();
-        while (i.hasNext()) {
-			n = i.next();
-			if (node == null) {
-				node = n;
-				break;
-			}
-		}
         numberLoader = new ContainerCounterLoader(component,
-        		getSecurityContext(node), containers, nodes);
+        		getSecurityContext(refNode), containers, nodes);
         numberLoader.load();
     }
 
