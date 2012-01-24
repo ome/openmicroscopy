@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -57,12 +58,12 @@ public class ParentVisitor
 {
 	
 	/** Map hosting the data objects owned by users displayed.*/
-	private Map<Long, List<TreeImageDisplay>> data;
+	private Map<Long, Map<Long, List<TreeImageDisplay>>> data;
 	
 	/** Creates a new instance.*/
 	public ParentVisitor()
 	{
-		data = new HashMap<Long, List<TreeImageDisplay>>();
+		data = new HashMap<Long, Map<Long, List<TreeImageDisplay>>>();
 	}
 	
     /**
@@ -84,12 +85,27 @@ public class ParentVisitor
            Object ho = parent.getUserObject();
            if (ho instanceof ExperimenterData) {
         	   ExperimenterData exp = (ExperimenterData) ho;
+        	   TreeImageDisplay gp = parent.getParentDisplay();
+        	   GroupData hgp = (GroupData) gp.getUserObject();
+        	   Map<Long, List<TreeImageDisplay>> m = data.get(hgp.getId());
+        	   if (m == null) {
+        		   m = new HashMap<Long, List<TreeImageDisplay>>();
+        		   data.put(hgp.getId(), m);
+        	   }
+        	   List<TreeImageDisplay> l = m.get(exp.getId());
+        	   if (l == null) {
+        		   l = new ArrayList<TreeImageDisplay>();
+        		   m.put(exp.getId(), l);
+        	   }
+        	   l.add(node);
+        	   /*
         	   List<TreeImageDisplay> l = data.get(exp.getId());
         	   if (l == null) {
         		   l = new ArrayList<TreeImageDisplay>();
         		   data.put(exp.getId(), l);
         	   }
         	   l.add(node);
+        	   */
            }
         }
     }
@@ -99,6 +115,9 @@ public class ParentVisitor
 	 * 
 	 * @return See above.
 	 */
-	public Map<Long, List<TreeImageDisplay>> getData() { return data; }
+	public Map<Long, Map<Long, List<TreeImageDisplay>>> getData()
+	{ 
+		return data; 
+	}
 
 }

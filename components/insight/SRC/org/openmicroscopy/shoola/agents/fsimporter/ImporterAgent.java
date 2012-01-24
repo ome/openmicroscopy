@@ -199,8 +199,9 @@ public class ImporterAgent
     {
     	if (evt == null) return;
     	Importer importer = ImporterFactory.getImporter();
-    	Map<Long, List<TreeImageDisplay>> map = evt.getData();
+    	Map<Long, Map<Long, List<TreeImageDisplay>>> map = evt.getData();
     	if (map == null || map.size() == 0) return;
+    	/* TODO review.
     	List<TreeImageDisplay> l = map.get(getUserDetails().getId());
     	objects = l;
     	if (importer != null && objects != null) {
@@ -211,6 +212,7 @@ public class ImporterAgent
 			}
     		importer.setContainers(values, true, browserType);
     	}
+    	*/
     }
     
     /** Registers the agent with the tool bar.*/
