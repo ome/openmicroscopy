@@ -398,15 +398,18 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
                 .getManagedServerContext().getBean("contextSource");
         Hashtable<String, String> env = new Hashtable<String, String>(5, 0.75f);
         try {
+
+            // See discussion on anonymous bind in LdapPasswordProvider
+            if (username == null || username.equals("") ||
+                    password == null || password.equals("")) {
+                throw new SecurityViolation(
+                        "Refused to authenticate without username and password!");
+            }
+
             env = (Hashtable<String, String>) ctx.getReadOnlyContext()
                     .getEnvironment();
-
-            if (username != null && !username.equals("")) {
-                env.put(Context.SECURITY_PRINCIPAL, username);
-                if (password != null) {
-                    env.put(Context.SECURITY_CREDENTIALS, password);
-                }
-            }
+            env.put(Context.SECURITY_PRINCIPAL, username);
+            env.put(Context.SECURITY_CREDENTIALS, password);
             new InitialLdapContext(env, null);
         } catch (AuthenticationException authEx) {
             throw new SecurityViolation("Authentication falilure! "

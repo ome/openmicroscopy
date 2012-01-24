@@ -87,6 +87,29 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
 
         Long id = PasswordUtil.userId(jdbc, user);
 
+        // Note: LDAP simple authentication defaults to anonymous
+        // binding if the password is blank:
+        //
+        // 5.1.2. Unauthenticated Authentication Mechanism of Simple Bind
+        //
+        //  An LDAP client may use the unauthenticated authentication mechanism
+        //  of the simple Bind method to establish an anonymous authorization
+        //  state by sending a Bind request with a name value (a distinguished
+        //  name in LDAP string form [RFC4514] of non-zero length) and specifying
+        //  the simple authentication choice containing a password value of zero
+        //  length.
+        //
+        //  Since an anonymous bind proves nothing about the validity of this
+        //  user, we disable all attempts to login with an empty password.
+        //
+        //  The same check takes place in LdapImpl.isAuthContext method.
+        //
+        if (password == null || password.equals("")) {
+            log.warn("Empty password for user: " + user);
+            return false;
+        }
+
+
         // Unknown user. First try to create.
         if (null == id) {
             try {
