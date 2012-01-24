@@ -383,7 +383,7 @@ class BrowserModel
             state = Browser.READY;
             return;
         }
-        state = Browser.COUNTING_ITEMS;
+        //state = Browser.COUNTING_ITEMS;
         numberLoader = new ContainerCounterLoader(component,
         		getSecurityContext(refNode), containers, nodes);
         numberLoader.load();

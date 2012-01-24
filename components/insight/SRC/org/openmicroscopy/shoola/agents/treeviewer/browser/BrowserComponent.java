@@ -1119,6 +1119,7 @@ class BrowserComponent
         switch(model.getBrowserType()) {
         	case Browser.PROJECTS_EXPLORER:
         	case Browser.SCREENS_EXPLORER:
+        		//TODO: review that code to indicate the context.
         		ParentVisitor visitor = new ParentVisitor();
         		accept(visitor, ParentVisitor.TREEIMAGE_SET_ONLY);
         		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
