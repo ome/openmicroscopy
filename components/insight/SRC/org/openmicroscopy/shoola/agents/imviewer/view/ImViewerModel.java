@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
@@ -93,6 +94,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.WellData;
@@ -659,8 +661,23 @@ class ImViewerModel
 	 */
 	String getImageTitle()
 	{
-		return "[ID: "+getImageID()+"] "+
-				EditorUtil.getPartialName(getImageName());
+		//Determine the name of the group.
+		Set groups = (Set) ImViewerAgent.getRegistry().lookup(
+				LookupNames.USER_GROUP_DETAILS);
+		Iterator i = groups.iterator();
+		GroupData group;
+		StringBuffer buffer = new StringBuffer();
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			if (group.getId() == ctx.getGroupID()) {
+				buffer.append("Group: ");
+				buffer.append(group.getName());
+				break;
+			}
+		}
+		buffer.append(" [ID: "+getImageID()+"] ");
+		buffer.append(EditorUtil.getPartialName(getImageName()));
+		return buffer.toString();
 	}
 	
 	/**
