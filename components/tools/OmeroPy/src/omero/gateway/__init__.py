@@ -1549,9 +1549,9 @@ class _BlitzGateway (object):
         
         if self.host is not None:
             if self.port is not None:
-                self.c = omero.client(host=str(self.host), port=int(self.port))#, pmap=['--Ice.Config='+','.join(self.ice_config)])
+                self.c = omero.client(host=str(self.host), port=int(self.port), args=['--Ice.Config='+','.join(self.ice_config)])#, pmap=['--Ice.Config='+','.join(self.ice_config)])
             else:
-                self.c = omero.client(host=str(self.host))
+                self.c = omero.client(host=str(self.host), args=['--Ice.Config='+','.join(self.ice_config)])
         else:
             self.c = omero.client(args=['--Ice.Config='+','.join(self.ice_config)])
   
