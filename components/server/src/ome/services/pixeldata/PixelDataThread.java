@@ -137,7 +137,7 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
 
             for (int i = 0; i < numThreads; i++) {
                 ecs.submit(new Callable<Object>(){
-                    @Override
+                    /* Java5 does not support - @Override */
                     public Object call()
                         throws Exception
                     {
