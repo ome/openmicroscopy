@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ParentVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -370,7 +371,8 @@ class BrowserComponent
         int state = model.getState();
         switch (state) {
             case NEW:
-            	view.loadExperimenterData();
+            	TreeImageDisplay node = getLoggedExperimenterNode();
+            	view.expandNode(node, true);
                 break;
             case READY:
             	refreshBrowser(); //do we want to automatically refresh?
@@ -816,7 +818,7 @@ class BrowserComponent
         Object o = object;
         List nodes = null;
         TreeImageDisplay parentDisplay = null;
-        TreeImageDisplay loggedUser = view.getLoggedExperimenterNode();
+        TreeImageDisplay loggedUser = getLoggedExperimenterNode();
         if (op == TreeViewer.CREATE_OBJECT) {
             TreeImageDisplay node = getLastSelectedDisplay();
             if ((object instanceof ProjectData) ||
@@ -872,7 +874,7 @@ class BrowserComponent
 		} else if (data instanceof TagAnnotationData) {
 			if (type != TAGS_EXPLORER) return;
 		}
-		TreeImageDisplay loggedUser = view.getLoggedExperimenterNode();
+		TreeImageDisplay loggedUser = getLoggedExperimenterNode();
 		List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>(1);
         nodes.add(loggedUser);
         long userID = model.getUserID();
@@ -1206,7 +1208,13 @@ class BrowserComponent
      */
 	public TreeImageDisplay getLoggedExperimenterNode()
 	{
-		return view.getLoggedExperimenterNode();
+		SecurityContext ctx = model.getSecurityContext(null);
+		ExperimenterVisitor visitor = new ExperimenterVisitor(this, 
+				model.getUserID(), ctx.getGroupID());
+		accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+		List<TreeImageDisplay> nodes = visitor.getNodes();
+		if (nodes.size() != 1) return null;
+		return nodes.get(0);
 	}
 	
 	/**
@@ -1224,7 +1232,7 @@ class BrowserComponent
 	        	//ignore
 	    	return;
 		}
-		TreeImageDisplay node = view.getLoggedExperimenterNode();
+		TreeImageDisplay node = getLoggedExperimenterNode();
 		if (node == null) return;
 		Object ho = node.getUserObject();
 		if (!(ho instanceof ExperimenterData)) return;
@@ -1722,7 +1730,8 @@ class BrowserComponent
 		view.reActivate();
 		if (!model.isSelected()) return;
 		//Reload data.
-		view.loadExperimenterData();
+		TreeImageDisplay node = getLoggedExperimenterNode();
+    	view.expandNode(node, true);
 	}
 
 	/**

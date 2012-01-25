@@ -73,6 +73,7 @@ import javax.swing.tree.TreePath;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -89,6 +90,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.dnd.ObjectToTransfer;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -1600,16 +1602,8 @@ class BrowserUI
 					while (j.hasNext()) {
 						setExpandedParent((TreeImageDisplay) j.next(), true);
 					}
-				}	        	
+				}
 		}
-    }
-    
-    /** Loads the children of the currently logged in experimenter. */
-    void loadExperimenterData()
-    {
-    	TreeImageDisplay root = getTreeRoot();
-    	TreeImageDisplay child = (TreeImageDisplay) root.getFirstChild();
-        treeDisplay.expandPath(new TreePath(child.getPath()));
     }
 
     /** 
@@ -2022,17 +2016,6 @@ class BrowserUI
 		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
 		tm.reload();
 	}
-	
-	/**
-	 * Returns the node hosting the logged in user.
-	 * 
-	 * @return See above.
-	 */
-	TreeImageDisplay getLoggedExperimenterNode()
-	{
-		TreeImageDisplay root = getTreeRoot();
-		return (TreeImageDisplay) root.getChildAt(0);
-	}
 
 	/** Refreshes the experimenter data. */
 	void refreshExperimenter()
@@ -2136,19 +2119,33 @@ class BrowserUI
 	/** Expands the node corresponding to the user currently logged in. */
 	void expandUser()
 	{
+		SecurityContext ctx = model.getSecurityContext(
+				model.getLastSelectedDisplay());
+		long groupId = ctx.getGroupID();
 		TreeImageDisplay root = getTreeRoot();
-		TreeImageDisplay element;
-		Object ho;
+		List<TreeImageDisplay> nodesToKeep;
+		List l = root.getChildrenDisplay();
+		if (l == null || l.size() == 0) return;
+		Iterator j = l.iterator();
+		TreeImageDisplay element, n, node;
+		Object ho, h;
 		ExperimenterData exp;
 		long id = model.getUserID();
-		for (int i = 0; i < root.getChildCount(); i++) {
-			element = (TreeImageDisplay) root.getChildAt(i);
-			ho = element.getUserObject();
-			if (ho instanceof ExperimenterData) {
-				exp = (ExperimenterData) ho;
-				if (exp.getId() == id && !element.isExpanded()) {
-					expandNode(element);
-					break;
+		while (j.hasNext()) {
+			node = null;
+			element = (TreeImageDisplay) j.next();
+			h = element.getUserObject();
+			if (h instanceof GroupData && ((GroupData) h).getId() == groupId) {
+				for (int i = 0; i < element.getChildCount(); i++) {
+					n = (TreeImageDisplay) element.getChildAt(i);
+					ho = n.getUserObject();
+					if (ho instanceof ExperimenterData) {
+						exp = (ExperimenterData) ho;
+						if (exp.getId() == id && !n.isExpanded()) {
+							expandNode(element);
+							break;
+						}
+					}
 				}
 			}
 		}
@@ -2163,6 +2160,7 @@ class BrowserUI
     void expandNode(TreeImageDisplay node, boolean withListener)
     {
     	 //First remove listener otherwise an event is fired.
+    	if (node == null) return;
     	node.setExpanded(true);
     	if (withListener) {
     		treeDisplay.expandPath(new TreePath(node.getPath()));
