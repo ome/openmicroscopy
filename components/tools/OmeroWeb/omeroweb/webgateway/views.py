@@ -64,6 +64,9 @@ logger = logging.getLogger(__name__)
 
 logger.debug("INIT")
 
+def _safestr (s):
+    return unicode(s).encode('utf-8')
+
 def _session_logout (request, server_id, force_key=None):
     """
     Remove reference to old sUuid key and old blitz connection.
@@ -304,15 +307,6 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     if host is None or port is None:
         return None
 
-    #blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
-    #request.session['server'] = blitz.id
-    #request.session['host'] = blitz.host
-    #request.session['port'] = blitz.port
-    #request.session['username'] = smart_str(request.REQUEST.get('username'))
-    #request.session['password'] = smart_str(request.REQUEST.get('password'))
-    #request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
-
-    
     browsersession_connection_key = 'cuuid#%s'%server_id
     browsersession_key = request.session.session_key
     blitz_session = None
@@ -320,8 +314,6 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     ## TODO: stop storing username and password, right now we need it for shares
     username = request.session.get('username', r.get('username', None))
     passwd = request.session.get('password', r.get('password', None))
-#    host = request.session.get('host', r.get('host', None))
-#    port = request.session.get('port', r.get('port', None))
     secure = request.session.get('ssl', r.get('ssl', False))
     logger.debug(':: (session) %s %s %s' % (str(request.session.get('username', None)),
                                             str(request.session.get('host', None)),
@@ -329,10 +321,9 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     logger.debug(':: (request) %s %s %s' % (str(r.get('username', None)),
                                             str(r.get('host', None)),
                                             str(r.get('port', None))))
-    #logger.debug(':: %s %s :: %s' % (str(username), str(passwd), str(browsersession_connection_key)))
+    #logger.debug(':: %s %s :: %s' % (_safestr(username), _safestr(passwd), str(browsersession_connection_key)))
+    logger.debug(':: server_id=%s, with_session=%s, retry=%s, force_key=%s, group=%s, try_super=%s, useragent=%s' % (server_id, with_session, retry, force_key, group, try_super, useragent))
 
-#    if r.has_key('logout'):
-#        logger.debug('logout required by HTTP GET or POST')
     if r.has_key('bsession'):
         blitz_session = r['bsession']
         request.session[browsersession_connection_key] = blitz_session
