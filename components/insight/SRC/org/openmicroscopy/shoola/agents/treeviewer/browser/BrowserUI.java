@@ -1922,11 +1922,18 @@ class BrowserUI
 	 * Adds a new experimenter to the tree.
 	 * 
 	 * @param experimenter  The experimenter to add.
+	 * @param groupNode The node to add the experimenter to.
 	 * @param load			Pass <code>true</code> to load the data,
 	 * 						<code>false</code> otherwise.
 	 */
-	void addExperimenter(ExperimenterData experimenter, boolean load)
+	void addExperimenter(ExperimenterData experimenter,
+			TreeImageDisplay groupNode, boolean load)
 	{
+		TreeImageSet node = createExperimenterNode(experimenter, groupNode);
+		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+		dtm.reload();
+		if (load)
+			treeDisplay.expandPath(new TreePath(node.getPath()));
 		/*
 		TreeImageSet node = createExperimenterNode(experimenter);
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
