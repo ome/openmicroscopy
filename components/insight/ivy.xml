@@ -58,7 +58,8 @@
     <dependency org="insight" name="swingx" rev="${versions.swingx}"/>
     <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>
     <dependency org="insight" name="wsdl4j" rev="${versions.wsdl4j}"/>
-
+    <dependency org="insight" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
+    
     <!-- Loci -->
     <!-- TODO: copied from OmeroImporter -->
     <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/>
