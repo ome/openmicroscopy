@@ -66,6 +66,7 @@ public class ImportContainer
     private List<String> bfImageNames;
 
     private Boolean archive;
+    private Boolean fslite;
     private Double[] userPixels;
     private String customImageName;
     private String customImageDescription;
@@ -85,6 +86,7 @@ public class ImportContainer
 		this.file = file;
 		this.projectID = projectID;
 		this.target = target;
+		this.fslite = false; // for now. should be in constructors?
 		this.archive = archive;
 		this.userPixels = userPixels;
 		this.reader = reader;
@@ -363,6 +365,15 @@ public class ImportContainer
     public void setUserPixels(Double[] userPixels)
     {
         this.userPixels = userPixels;
+    }
+
+    public void setFslite(boolean fslite)
+    {
+        this.fslite = fslite;
+    }
+
+    public boolean getFslite() {
+        return this.fslite;
     }
 
     public void setArchive(boolean archive)
