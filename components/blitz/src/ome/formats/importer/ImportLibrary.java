@@ -580,7 +580,7 @@ public class ImportLibrary implements IObservable
             }
             boolean saveSha1 = false;
             // If we're metadata only, we don't want to perform any pixel I/O.
-            if (!fslite && !isMetadataOnly && !container.getMetadataOnly())
+            if (!isMetadataOnly && !container.getMetadataOnly())
             {
                 boolean success = false;
                 try
