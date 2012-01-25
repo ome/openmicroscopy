@@ -1136,6 +1136,9 @@ class BrowserComponent
 	{
 		if (experimenter == null)
 			throw new IllegalArgumentException("Experimenter cannot be null.");
+		TreeImageDisplay groupNode = model.getLastSelectedDisplay();
+		if (groupNode == null || !(groupNode.getUserObject()
+				instanceof GroupData)) return;
 		//Make sure the user is not already display
 		List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>(1);
 		nodes.add(new TreeImageSet(experimenter));
@@ -1144,7 +1147,7 @@ class BrowserComponent
 		
 		if (visitor.getFoundNodes().size() > 0) return;
 		setSelectedDisplay(null);
-		view.addExperimenter(experimenter, load);
+		view.addExperimenter(experimenter, groupNode, load);
 	}
 
 	/**

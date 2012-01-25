@@ -233,6 +233,7 @@ class ToolBar
         scriptButton = b;
         bar.add(b);
         index = bar.getComponentCount()-1;
+        /*
         bar.add(new JSeparator(JSeparator.VERTICAL));
         a = controller.getAction(TreeViewerControl.SWITCH_USER);
         b = new JButton(a);
@@ -248,6 +249,7 @@ class ToolBar
             b.addMouseListener((PersonalManagementAction) a);
             bar.add(b);
         }
+        */
         return bar;
     }
     

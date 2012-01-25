@@ -45,6 +45,7 @@ import javax.swing.border.BevelBorder;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -102,6 +103,9 @@ class PopupMenu
 	/** Button to refresh the experimenter data. */
 	private JMenuItem			refreshExperimenterElement;
 
+	/** Button to add experimenter node from the display. */
+	private JMenuItem			addExperimenterElement;
+	
 	/** Button to refresh the tree data. */
 	private JMenuItem			refreshTreeElement;
 
@@ -260,6 +264,11 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.REMOVE_FROM_DISPLAY);
 				removeExperimenterElement = new JMenuItem(a);
 				initMenuItem(removeExperimenterElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.SWITCH_USER);
+				addExperimenterElement = new JMenuItem(a);
+				addExperimenterElement.addMouseListener((SwitchUserAction) a);
+				initMenuItem(addExperimenterElement, a.getActionName());
+				
 				a = controller.getAction(
 						TreeViewerControl.REFRESH_EXPERIMENTER);
 				refreshExperimenterElement = new JMenuItem(a);
@@ -434,6 +443,7 @@ class PopupMenu
 				add(setMinMaxElement);
 				add(setOwnerRndElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(addExperimenterElement);
 				add(refreshExperimenterElement);
 				add(removeExperimenterElement);
 				break;
