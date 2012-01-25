@@ -799,7 +799,25 @@ class BlitzObjectWrapper (object):
  
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper._wrap(self._conn, e)
-    
+
+    def _linkObject (self, obj, lnkobjtype):
+        """
+        Saves the object to DB if needed - setting the permissions manually.
+        Creates the object link and saves it, setting permissions manually.
+        TODO: Can't set permissions manually in 4.2 - Assumes world & group writable
+        
+        @param obj:     The object to link
+        @type obj:      L{BlitzObjectWrapper}
+        """
+        if not obj.getId():
+            # Not yet in db, save it
+            obj = obj.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(obj._obj))
+        lnk = getattr(omero.model, lnkobjtype)()
+        lnk.setParent(self._obj.__class__(self._obj.id, False))
+        lnk.setChild(obj._obj.__class__(obj._obj.id, False))
+        self._conn.getUpdateService().saveObject(lnk)
+        return obj
+        
     def _linkAnnotation (self, ann):
         """
         Saves the annotation to DB if needed - setting the permissions manually.
@@ -809,18 +827,7 @@ class BlitzObjectWrapper (object):
         @param ann:     The annotation object
         @type ann:      L{AnnotationWrapper}
         """
-        if not ann.getId():
-            # Not yet in db, save it
-            ann = ann.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(ann._obj))
-        #else:
-        #    ann.save()
-        lnktype = "%sAnnotationLinkI" % self.OMERO_CLASS
-        lnk = getattr(omero.model, lnktype)()
-        lnk.setParent(self._obj.__class__(self._obj.id, False))
-        lnk.setChild(ann._obj.__class__(ann._obj.id, False))
-        self._conn.getUpdateService().saveObject(lnk)
-        return ann
-
+        return self._linkObject(ann, "%sAnnotationLinkI" % self.OMERO_CLASS)
 
     def linkAnnotation (self, ann, sameOwner=True):
         """
