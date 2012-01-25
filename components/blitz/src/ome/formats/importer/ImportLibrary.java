@@ -399,6 +399,16 @@ public class ImportLibrary implements IObservable
 
     /**
      * Perform various specific operations on big image formats.
+     * @param container The current import container we're to handle.
+     * @return Rewritten container after files have been copied to repository.
+     */
+    private ImportContainer handleFsliteImport(ImportContainer container)
+    {
+        return container;
+    }
+
+    /**
+     * Perform various specific operations on big image formats.
      * @param reader The base reader currently being used.
      * @param container The current import container we're to handle.
      */
@@ -551,6 +561,9 @@ public class ImportLibrary implements IObservable
                         + useMetadataFile);
                 metadataFiles = store.setArchive(archive, useMetadataFile);
             }
+            if (fslite) {
+                container = handleFsliteImport(container);
+            }
             List<Pixels> pixList = importMetadata(index, container);
             List<Long> plateIds = new ArrayList<Long>();
             Image image = pixList.get(0).getImage();
@@ -567,7 +580,7 @@ public class ImportLibrary implements IObservable
             }
             boolean saveSha1 = false;
             // If we're metadata only, we don't want to perform any pixel I/O.
-            if (!isMetadataOnly && !container.getMetadataOnly())
+            if (!fslite && !isMetadataOnly && !container.getMetadataOnly())
             {
                 boolean success = false;
                 try
@@ -694,9 +707,8 @@ public class ImportLibrary implements IObservable
             {
                 notifyObservers(new ImportEvent.IMPORT_ARCHIVING(
                         index, null, userSpecifiedTarget, null, 0, null));
+                    store.writeFilesToFileStore(fileNameList, originalFileMap);
             }
-            String prefix = store.writeFilesToFileStore(
-                    fileNameList, originalFileMap, container.getFile());
             // If we're in metadata only mode and archiving is on we need to
             // tell the server which Pixels set matches up to which series.
             if ((isMetadataOnly || container.getMetadataOnly()) && archive)
@@ -704,8 +716,7 @@ public class ImportLibrary implements IObservable
                 int series = 0;
                 for (Long pixelsId : pixelsIds)
                 {
-                    store.setPixelsParams(pixelsId, series,
-                                          container.getFile(), prefix);
+                    store.setPixelsParams(pixelsId, series);
                     series++;
                 }
             }
