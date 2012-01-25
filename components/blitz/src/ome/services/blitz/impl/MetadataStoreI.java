@@ -318,9 +318,9 @@ public class MetadataStoreI extends AbstractAmdServant implements
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf)
             {
+                sql.setPixelsParams(pixelsId, params);
                 if (!useOriginalFile)
                 {
-                    sql.setPixelsParams(pixelsId, params);
                     return null;
                 }
 
@@ -334,48 +334,37 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             "Pixels:%d has no linked original files!",
                             pixelsId));
                 }
-                File source = null;
+                OriginalFile source = null;
                 for (OriginalFile file : files)
                 {
-                    File potentialSource =
-                        new File(file.getPath(), file.getName());
-                    String path = potentialSource.getAbsolutePath();
-                    if (path.equals(params.get("target")))
+                    if (file.getMimetype().equals(format.getValue()))
                     {
                         if (source != null)
                         {
                             throw new ResourceError(String.format(
                                     "Pixels:%d has at least two source " +
-                                    "original files with path %s and %d",
-                                    pixelsId, path));
+                                    "original files %d and %d", pixelsId,
+                                    source.getId(), file.getId()));
                         }
-                        source = new File(params.get("prefix"), path);
+                        source = file;
                     }
                 }
-                // HACK!! if source is null this is an fs-lite import
-                //        as there is a built-in file name mismatch
-                //        this method should probably be rewritten 
-                if (source == null) {
-                    source = new File(params.get("prefix") + params.get("target"));
-                }
-                params.remove("target");
-                params.remove("prefix");
-                sql.setPixelsParams(pixelsId, params);
+                File file = new File(filesService.getFilesPath(source.getId()));
                 // We need to perform a case insensitive replacement due to the
                 // posibilitity that we're running on a case insensitive
                 // filesystem like NTFS. (See #5654)
                 Pattern p = Pattern.compile(
                         Pattern.quote(omeroDataDir), Pattern.CASE_INSENSITIVE);
-                String parent = source.getParent();
+                String parent = file.getParent();
                 if (log.isDebugEnabled())
                 {
                     log.debug(String.format(
                             "omero.data.dir: '%s' file.absolutePath: '%s' " +
                             "parent: '%s'", omeroDataDir,
-                            source.getAbsolutePath(), parent));
+                            file.getAbsolutePath(), parent));
                 }
                 String path = p.matcher(parent).replaceFirst("");
-                sql.setPixelsNamePathRepo(pixelsId, source.getName(),
+                sql.setPixelsNamePathRepo(pixelsId, file.getName(),
                                           path, null);
                 return null;
             }
