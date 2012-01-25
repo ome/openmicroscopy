@@ -450,9 +450,9 @@ public class ImportLibrary implements IObservable
         //    || format.equals("Tagged Image File Format")
         //    || format.equals("JPEG"))
         //{
-            log.info("Big image, enabling metadata only and archiving.");
-            container.setMetadataOnly(true);
-            container.setArchive(true);
+        //    log.info("Big image, enabling metadata only and archiving.");
+        //    container.setMetadataOnly(true);
+        //    container.setArchive(true);
         //}
     }
 
@@ -519,12 +519,14 @@ public class ImportLibrary implements IObservable
             // above may modify the container.
             boolean archive = container.getArchive();
             boolean useMetadataFile = container.getUseMetadataFile();
+            boolean fslite = container.getFslite();
             if (log.isInfoEnabled())
             {
                 log.info("File format: " + format);
                 log.info("Base reader: " + baseReader.getClass().getName());
                 log.info("Metadata only import? " + isMetadataOnly);
                 log.info("Archiving enabled? " + archive);
+                log.info("FS-lite import? " + fslite);
                 log.info("Container metadata only import? " +
                          container.getMetadataOnly());
             }

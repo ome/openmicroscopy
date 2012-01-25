@@ -43,6 +43,7 @@ class ImportControl(BaseControl):
         parser.add_argument("-a", dest="java_a", action="store_true", help="Archive original files (**)")
         parser.add_argument("-f", dest="java_f", action="store_true", help="Display used files (**)")
         parser.add_argument("-c", dest="java_c", action="store_true", help="Continue importing after errors (**)")
+        parser.add_argument("-z", dest="java_z", action="store_true", help="Use fs-lite import (**)")
         parser.add_argument("-l", dest="java_l", help="Use the list of readers rather than the default (**)", metavar="READER_FILE")
         parser.add_argument("-d", dest="java_d", help="OMERO dataset Id to import image into (**)", metavar="DATASET_ID")
         parser.add_argument("-r", dest="java_r", help="OMERO screen Id to import plate into (**)", metavar="SCREEN_ID")
@@ -100,6 +101,7 @@ class ImportControl(BaseControl):
                 "java_a": "-a",
                 "java_f": "-f",
                 "java_c": "-c",
+                "java_z": "-z",
                 "java_l": "-l",
                 "java_d": "-d",
                 "java_r": "-r",
