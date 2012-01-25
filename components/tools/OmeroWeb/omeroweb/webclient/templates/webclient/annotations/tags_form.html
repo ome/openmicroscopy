@@ -30,8 +30,27 @@
 
 <div>
     <p>Select the Tags to add, or Create new Tags</p>
+
     <h1>{% trans "Available Tags" %}:</h1>
     <table>
+        <tr>
+            <td>{{ form_tags.tags }}{% if form_tags.tags.field.required %}*{% endif %}</td>
+        </tr>
+    </table>
+
+    <h1>{% trans "New Tag" %}:</h1>
+    <table>
+        <tr>
+            <td>{{ form_tags.tag }}</td>
+        </tr>
+        <tr>
+            <td>Description:</td>
+        </tr>
+        <tr>
+            <td>{{ form_tags.description }}</td>
+        </tr>
+
+        <!-- hidden fields used to specify the objects we're tagging -->
         <tr class="hiddenField"><td>{{ form_tags.image }}</td></tr>
         <tr class="hiddenField"><td>{{ form_tags.dataset }}</td></tr>
         <tr class="hiddenField"><td>{{ form_tags.project }}</td></tr>
@@ -39,21 +58,6 @@
         <tr class="hiddenField"><td>{{ form_tags.plate }}</td></tr>
         <tr class="hiddenField"><td>{{ form_tags.acquisition }}</td></tr>
         <tr class="hiddenField"><td>{{ form_tags.well }}</td></tr>
-
-        
-        <tr>
-            <td>{{ form_tags.tag }}</td>
-        </tr>
-        <tr>
-            <td>{{ form_tags.description }}</td>
-        </tr>
-    </table>
-    
-    <h1>{% trans "New Tag" %}:</h1>
-    <table>
-        <tr>
-            <td>{{ form_tags.tags }}{% if form_tags.tags.field.required %}*{% endif %}</td>
-        </tr>
     </table>
 
 </div>
