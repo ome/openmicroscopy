@@ -98,8 +98,8 @@ a:hover {
     padding: 4px 0px;
     height: 18px;
     position: relative;
-    background: url(../image/header_bg_30.png) repeat-x scroll left bottom #eee;
-    border-bottom: 1px solid #bbb;
+    background: url(../image/header_bg_30.png) repeat-x scroll left bottom #e5e5e5;
+    border-bottom: solid 1px #bbb;
 }
 
 #thin_header_right, #thin_header_left {
