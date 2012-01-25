@@ -5249,7 +5249,11 @@ class OMEROGateway
 	/** Keeps the services alive. */
 	void keepSessionAlive()
 	{
-		//TODO: review the method.
+		Iterator<Connector>  i = connectors.iterator();
+		Connector c;
+		while (i.hasNext()) {
+			i.next().keepSessionAlive();
+		}
 		/*
 		Collection<ServiceInterfacePrx> 
 			all = new HashSet<ServiceInterfacePrx>();
