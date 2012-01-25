@@ -2557,6 +2557,7 @@ class ImViewerModel
 			if (w >= h) ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/w;
 			else ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/h;
 		}
+		if (ratio < BirdEyeLoader.MIN_RATIO) ratio = BirdEyeLoader.MIN_RATIO;
 		state = ImViewer.LOADING_BIRD_EYE_VIEW;
 		BirdEyeLoader loader = new BirdEyeLoader(component, getImage(), pDef,
 				ratio);
