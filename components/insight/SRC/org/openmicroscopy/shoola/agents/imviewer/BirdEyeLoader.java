@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 //Java imports
 import java.awt.image.BufferedImage;
-import java.util.HashSet;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -121,9 +119,10 @@ public class BirdEyeLoader
      * Notifies the user that an error has occurred.
      * @see DataBrowserLoader#handleException(Throwable)
      */
-    public void handleException(Throwable exc) 
+    public void handleException(Throwable exc)
     {
         String s = "Bird Eye Retrieval Failure: ";
+        if (viewer.getState() == ImViewer.DISCARDED) return;
         registry.getLogger().error(this, s+exc);
         registry.getUserNotifier().notifyError(s, s, exc);
     }

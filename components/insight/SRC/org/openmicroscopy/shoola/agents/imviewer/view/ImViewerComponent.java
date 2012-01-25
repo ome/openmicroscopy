@@ -3232,7 +3232,7 @@ class ImViewerComponent
 			buildView();
 			renderXYPlane();
 		}
-		model.getBrowser().setBirdEyeView(image);
+		model.setBirdEyeView(image);
 	}
 	
 	/** 

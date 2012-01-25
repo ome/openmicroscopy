@@ -138,6 +138,9 @@ class ImViewerModel
 	/** Index of the <code>ImageLoader</code> loader. */
 	private static final int	IMAGE = 2;
 	
+	/** Index of the <code>ImageLoader</code> loader. */
+	private static final int	BIRD_EYE_BVIEW = 3;
+	
 	/** The image to view. */
 	private DataObject 					image; 
 
@@ -2562,6 +2565,7 @@ class ImViewerModel
 		BirdEyeLoader loader = new BirdEyeLoader(component, getImage(), pDef,
 				ratio);
 		loader.load();
+		loaders.put(BIRD_EYE_BVIEW, loader);
 		/*
 		if (image != null) {
 			BufferedImage newImage;
@@ -2751,4 +2755,15 @@ class ImViewerModel
 		}
 	}
 	
+	/**
+	 * Sets the image for the bird eye view.
+	 * 
+	 * @param image The image to set.
+	 */
+	void setBirdEyeView(BufferedImage image)
+	{
+		loaders.remove(BIRD_EYE_BVIEW);
+		getBrowser().setBirdEyeView(image);
+	}
+
 }
