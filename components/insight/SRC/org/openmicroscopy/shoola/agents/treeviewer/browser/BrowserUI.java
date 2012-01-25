@@ -1950,7 +1950,42 @@ class BrowserUI
 	 */
 	void removeExperimenter(ExperimenterData exp)
 	{
+		if (model.getBrowserType() == Browser.ADMIN_EXPLORER) return;
+		
 		TreeImageDisplay root = getTreeRoot();
+		List<TreeImageDisplay> nodesToKeep;
+		List l = root.getChildrenDisplay();
+		if (l == null || l.size() == 0) return;
+		Iterator j = l.iterator();
+		TreeImageDisplay element, n, node;
+		Object ho;
+		ExperimenterData expElement;
+		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+		Iterator k;
+		while (j.hasNext()) {
+			node = null;
+			element = (TreeImageDisplay) j.next();
+			nodesToKeep = new ArrayList<TreeImageDisplay>();
+			for (int i = 0; i < element.getChildCount(); i++) {
+				n = (TreeImageDisplay) element.getChildAt(i);
+				ho = n.getUserObject();
+				if (ho instanceof ExperimenterData) {
+					expElement = (ExperimenterData) ho;
+					if (expElement.getId() == exp.getId())
+						node = n;
+					else nodesToKeep.add(n);
+				}
+			}
+			if (node != null) element.removeChildDisplay(node);
+			k = nodesToKeep.iterator();
+			element.removeAllChildren();
+			while (k.hasNext()) {
+				tm.insertNodeInto((TreeImageSet) k.next(), element,
+								element.getChildCount());
+			}
+		}
+		tm.reload();
+		/*
 		List<TreeImageDisplay> nodesToKeep = new ArrayList<TreeImageDisplay>();
 		TreeImageDisplay element, node = null;
 		Object ho;
@@ -1974,6 +2009,7 @@ class BrowserUI
 							root.getChildCount());
 		}
 		tm.reload();
+		*/
 	}
 
 	/** Reactivates the tree. */
