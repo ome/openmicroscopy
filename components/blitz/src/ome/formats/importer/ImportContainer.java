@@ -67,6 +67,7 @@ public class ImportContainer
 
     private Boolean archive;
     private Boolean fslite;
+    private Boolean dropbox;
     private Double[] userPixels;
     private String customImageName;
     private String customImageDescription;
@@ -365,6 +366,15 @@ public class ImportContainer
     public void setUserPixels(Double[] userPixels)
     {
         this.userPixels = userPixels;
+    }
+
+    public void setDropbox(boolean dropbox)
+    {
+        this.dropbox = dropbox;
+    }
+
+    public boolean getDropbox() {
+        return this.dropbox;
     }
 
     public void setFslite(boolean fslite)
