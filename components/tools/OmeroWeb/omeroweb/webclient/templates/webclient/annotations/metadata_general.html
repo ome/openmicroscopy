@@ -953,32 +953,34 @@
         {% endif %}
 
         {% if manager.tag %}
-        {% if manager.tag.isOwned %}<div id="tagname-{{ manager.tag.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="tagname-{{ manager.tag.id }}-name" style="word-wrap: break-word;">{{ manager.tag.getValue }}</p></h1></div>{% else %}<p style="word-wrap: break-word;">{{ manager.tag.getValue }}</p>{% endif %}
+            <div id="annotation_tab">
+                {% if manager.tag.isOwned %}<div id="tagname-{{ manager.tag.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="tagname-{{ manager.tag.id }}-name" style="word-wrap: break-word;">{{ manager.tag.getValue }}</p></h1></div>{% else %}<p style="word-wrap: break-word;">{{ manager.tag.getValue }}</p>{% endif %}
         
-        <h2 id='tag_id'>Tag ID: {{ manager.tag.id }}</h2>   
+                <h2 id='tag_id'>Tag ID: {{ manager.tag.id }}</h2>   
 
-        <div class="description">
-            {% if manager.tag.isOwned %}<div id="tagdescription-{{ manager.tag.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="tagdescription-{{ manager.tag.id }}-description">{{ manager.tag.description|default_if_none:""}}</span><p></div>{% else %}<span id='tag_desc'>{{ manager.tag.description|default_if_none:""|linebreaks }}</span>{% endif %}
-        </div>
+                <div class="description">
+                    {% if manager.tag.isOwned %}<div id="tagdescription-{{ manager.tag.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="tagdescription-{{ manager.tag.id }}-description">{{ manager.tag.description|default_if_none:""}}</span><p></div>{% else %}<span id='tag_desc'>{{ manager.tag.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                </div>
         
-        <table>
-            {% if not manager.tag.isOwned %}
-            <tr>
-                <th>Owner:</th>
-                <td id='owner_fullname'>{{ manager.tag.getOwner.getFullName }}</td>
-            </tr>
-            {% endif %}
-            <tr>
-                <th>Creation Date:</th>
-                <td id='creation_date'>{{ manager.tag.getDate|date:"Y-m-d H:i:s" }}</td>
-            </tr>
-            <tr>
-                <th>Image Count:</th>
-                {% if False %}
-                <td id='child_count'>{{ manager.tag.countChildren }} {% plural manager.tag.countChildren 'tag' 'tags' %}</td>
-                {% endif %}
-            </tr>
-        </table>
+                <table>
+                    {% if not manager.tag.isOwned %}
+                    <tr>
+                        <th>Owner:</th>
+                        <td id='owner_fullname'>{{ manager.tag.getOwner.getFullName }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <th>Creation Date:</th>
+                        <td id='creation_date'>{{ manager.tag.getDate|date:"Y-m-d H:i:s" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Image Count:</th>
+                        {% if False %}
+                        <td id='child_count'>{{ manager.tag.countChildren }} {% plural manager.tag.countChildren 'tag' 'tags' %}</td>
+                        {% endif %}
+                    </tr>
+                </table>
+            </div>
         {% endif %}
     </div>
     

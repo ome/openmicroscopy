@@ -188,19 +188,21 @@
 {% block body %}
 
 <h1>Batch Annotate:</h1>
+
+<!-- hidden form for choosing new or existing Tags in dialog - load form via AJAX when we show dialog -->
+<form id='add_tags_form' title="Tags Selection" action="{% url annotate_tags %}" method="post" style="display:none">
+</form>
+
 <table>
             <!-- TAGS -->               
             <tr>
-                <th>{% trans "Tag" %}:</th>
+                <th width="60">{% trans "Tag" %}:</th>
                 <td style="vertical-align: middle">
                     <a id="launch_tags_form" href="{% url annotate_tags %}?{{ obj_string }}">
                         <!-- link for loading tags we can add to this object. Loaded by AJAX into form below & displayed as dialog -->
                         <img src="{% static 'webclient/image/plus_11.png' %}" alt="e" title="Add Tags."/>
                     </a>
                 </td>
-                <!-- hidden form for choosing new or existing Tags in dialog - load form via AJAX when we show dialog -->
-                <form id='add_tags_form' title="Tags Selection" action="{% url annotate_tags %}" method="post" style="display:none">
-                </form>
                 <!-- display existing Tags -->
                 <td>
                     <div id="tags_container" class="lntags">
