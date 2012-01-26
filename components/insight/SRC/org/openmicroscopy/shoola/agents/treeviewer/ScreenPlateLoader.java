@@ -139,7 +139,7 @@ public class ScreenPlateLoader
     	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
     	if (parent == null) 
     		handle = dmView.loadContainerHierarchy(ctx, ScreenData.class, null,
-    				false, exp.getId(), viewer.getUserGroupID(), this);
+    				false, exp.getId(), ctx.getGroupID(), this);
     }
 
     /**

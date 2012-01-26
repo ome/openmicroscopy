@@ -81,12 +81,11 @@ public class SwitchUserAction
     {
     	Collection l = group.getExperimenters();
     	if (l == null) return;
-    	int level = model.getSelectedGroupPermissions();
+    	int level = model.getGroupPermissions(group);
     	boolean b = false;
 		if (level == AdminObject.PERMISSIONS_PRIVATE) {
-			if (model.isLeaderOfSelectedGroup()) {
+			if (model.isLeaderOfGroup(group))
 				b = l.size() > 1;
-			}
 		} else {
 			b = l.size() > 1;
 		}
@@ -132,17 +131,8 @@ public class SwitchUserAction
     	}
     	if (browser.getState() == Browser.READY) {
     		//boolean enabled = false;
-    		GroupData group = model.getSelectedGroup();
-    		if (group == null) {
-    			setEnabled(false);
-    			return;
-    		}
-    		handleGroupSelection(group);
-    		/*
-    		if (enabled) {
-    			onDisplayChange(browser.getLastSelectedDisplay());
-    		} else setEnabled(false);
-    		*/
+    		TreeImageDisplay display = browser.getLastSelectedDisplay();
+    		onDisplayChange(display);
     	} else setEnabled(false);
     }
     

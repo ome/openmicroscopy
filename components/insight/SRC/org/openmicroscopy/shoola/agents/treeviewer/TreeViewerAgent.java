@@ -272,15 +272,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) {
         	viewer.onActivityProcessed(evt.getActivity(), evt.isFinished());
         }
@@ -307,15 +299,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null)
         	viewer.findDataObject(evt.getDataType(), evt.getID(), 
         			evt.isSelectTab());
@@ -354,15 +338,7 @@ public class TreeViewerAgent
     		ExperimenterData exp = (ExperimenterData) registry.lookup(
     				LookupNames.CURRENT_USER_DETAILS);
     		if (exp == null) return;
-        	GroupData gp = null;
-        	try {
-        		gp = exp.getDefaultGroup();
-    		} catch (Exception e) {
-    			//No default group
-    		}
-    		long id = -1;
-			if (gp != null) id = gp.getId();
-			TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+			TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
 			if (viewer != null)  {
 				viewer.browseContainer(data, null);
 			}
@@ -385,15 +361,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) 
         	viewer.setImporting(evt.isImporting(), evt.getContainers(), 
         			evt.isToRefresh());
@@ -412,15 +380,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) 
         	viewer.browseContainer(evt.getData(), evt.getNode());
     }
@@ -438,15 +398,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) 
         	viewer.indicateToRefresh(evt.getObjects(), evt.getRefresh());
     }
@@ -476,15 +428,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) viewer.activate();
     }
 

@@ -399,13 +399,6 @@ public interface Browser
     public void refreshTree(Object refNode, DataObject toBrowse);
     
     /**
-     * The id of the root level.
-     * 
-     * @return See above.
-     */
-    public long getRootID();
-    
-    /**
      * Sets the number of items contained in the specified container.
      * 
      * @param containerID The id of the container.
@@ -730,13 +723,6 @@ public interface Browser
 	 * @param result
 	 */
 	void setExperimenters(TreeImageSet node, List result);
-	
-	/** 
-	 * Returns the id to the group selected for the current user.
-	 * 
-	 * @return See above.
-	 */
-	long getUserGroupID();
 	
 	/**
 	 * Returns <code>true</code> if the user currently logged in is the

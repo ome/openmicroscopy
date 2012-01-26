@@ -66,9 +66,6 @@ public class ProjectsLoader
     /** The user's identifier. */
     private long 				userID;
     
-    /** The group's identifier. */
-    private long 				groupID;
-    
     /**
      * Creates a new instance.
      * 
@@ -80,14 +77,13 @@ public class ProjectsLoader
      * @param groupID The group's identifier.
      */
     public ProjectsLoader(TreeViewer viewer, SecurityContext ctx, 
-    		TreeImageDisplay node, long userID, long groupID)
+    		TreeImageDisplay node, long userID)
 	{
 		super(viewer, ctx);
 		if (node == null)
 			throw new IllegalArgumentException("No node of reference.");
 		this.node = node;
 		this.userID = userID;
-		this.groupID = groupID;
 	}
 	
 	 /**
@@ -101,7 +97,7 @@ public class ProjectsLoader
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(id);
     	handle = hiBrwView.loadHierarchy(ctx, ProjectData.class, ids, userID,
-    			groupID, this);
+    			ctx.getGroupID(), this);
     }
 
     /**

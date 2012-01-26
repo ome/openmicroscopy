@@ -194,24 +194,22 @@ public class ExperimenterDataLoader
     		}
     		boolean top = type == TAG_SET;
     		handle = dmView.loadTags(ctx, id, withImages, top, exp.getId(), 
-    				viewer.getUserGroupID(), this);
+    				ctx.getGroupID(), this);
     	} else if (FileAnnotationData.class.equals(rootNodeType)) {
     		handle = mhView.loadExistingAnnotations(ctx,
-    				rootNodeType, exp.getId(), viewer.getUserGroupID(), this);
+    				rootNodeType, exp.getId(), ctx.getGroupID(), this);
     	} else {
     		if (viewer.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
     			handle = dmView.loadRepositories(ctx, exp.getId(), this);
     		} else {
     			if (parent == null) {
             		handle = dmView.loadContainerHierarchy(ctx,
-            				rootNodeType, null,
-            				withImages, exp.getId(), viewer.getUserGroupID(),
-            				this);	
+            				rootNodeType, null, withImages, exp.getId(),
+            				ctx.getGroupID(), this);	
             	} else {
             		handle = dmView.loadContainerHierarchy(ctx, rootNodeType,
             				Arrays.asList(parent.getUserObjectId()),
-            				withImages, exp.getId(), viewer.getUserGroupID(), 
-            				this);
+            				withImages, exp.getId(), ctx.getGroupID(), this);
             	}
     		}
     	}

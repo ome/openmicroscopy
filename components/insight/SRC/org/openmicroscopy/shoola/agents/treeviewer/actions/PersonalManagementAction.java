@@ -87,7 +87,7 @@ public class PersonalManagementAction
     /** Sets the name, description and the icon depending on the permissions. */
     private void setPermissions()
     {
-    	GroupData group = model.getSelectedGroup();
+    	GroupData group = null;//model.getSelectedGroup();
     	String name = "";
     	String desc = DESCRIPTION;
     	Icon icon = icons.getIcon(IconManager.UP_DOWN_9_12);

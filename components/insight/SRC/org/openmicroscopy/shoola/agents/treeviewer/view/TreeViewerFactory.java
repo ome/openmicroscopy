@@ -193,14 +193,12 @@ public class TreeViewerFactory
 	/**
 	 * Returns the {@link TreeViewer}.
 	 * 
-	 * @param exp	    	The experiment the TreeViewer is for.
-	 * @param userGroupID 	The id to the group selected for the current user.
+	 * @param exp The experiment the TreeViewer is for.
 	 * @return See above.
 	 */
-	public static TreeViewer getTreeViewer(ExperimenterData exp, 
-			long userGroupID)
+	public static TreeViewer getTreeViewer(ExperimenterData exp)
 	{
-		TreeViewerModel model = new TreeViewerModel(exp, userGroupID);
+		TreeViewerModel model = new TreeViewerModel(exp);
 		return singleton.getTreeViewer(model, null);
 	}
 
@@ -276,16 +274,15 @@ public class TreeViewerFactory
 	/**
 	 * Returns the {@link TreeViewer}.
 	 * 
-	 * @param exp	    	The experiment the TreeViewer is for.
-	 * @param userGroupID 	The id to the group selected for the current user.
-	 * @param bounds    	The bounds of the component invoking a new
-	 * 						{@link TreeViewer}. 
+	 * @param exp The experiment the TreeViewer is for.
+	 * @param bounds The bounds of the component invoking a new 
+	 * {@link TreeViewer}. 
 	 * @return See above.
 	 */
 	public static TreeViewer getTreeViewer(ExperimenterData exp, 
-			long userGroupID, Rectangle bounds)
+			Rectangle bounds)
 	{
-		TreeViewerModel model = new TreeViewerModel(exp, userGroupID);
+		TreeViewerModel model = new TreeViewerModel(exp);
 		return singleton.getTreeViewer(model, bounds);
 	}
 
@@ -378,10 +375,8 @@ public class TreeViewerFactory
 		TreeViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (TreeViewerComponent) v.next();
-			if (model.isSameDisplay(comp.getModel())) {
-				comp.setRecycled(true);
-				return comp;
-			}
+			comp.setRecycled(true);
+			return comp;
 		}
 		//if (viewer != null) return viewer;
 		readExternalApplications();

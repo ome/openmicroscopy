@@ -130,12 +130,6 @@ class TreeViewerModel
 	/** The currently selected {@link Browser}. */
 	private Browser             	selectedBrowser;
 
-	/** The ID of the root. */
-	private long                    rootID;
-
-	/** The id of the selected group of the current user. */
-	private long					userGroupID;
-
 	/** The currently selected experimenter. */
 	private ExperimenterData		experimenter;
 
@@ -351,14 +345,12 @@ class TreeViewerModel
 	/**
 	 * Creates a new instance and sets the state to {@link TreeViewer#NEW}.
 	 * 
-	 * @param exp			The experimenter this manager is for. 
-	 * @param userGroupID 	The id to the group selected for the current user.
+	 * @param exp The experimenter this manager is for.
 	 */
-	protected TreeViewerModel(ExperimenterData exp, long userGroupID)
+	protected TreeViewerModel(ExperimenterData exp)
 	{
 		initialize();
 		this.experimenter = exp;
-		setHierarchyRoot(exp.getId(), userGroupID);
 	}
 
 	/**
@@ -371,34 +363,6 @@ class TreeViewerModel
 	{ 
 		this.component = component; 
 		createBrowsers();
-	}
-
-	/**
-	 * Sets the root of the retrieved hierarchies. 
-	 * 
-	 * @param rootID    	The Id of the root. By default it is the 
-	 * 						id of the current user.
-	 * @param userGroupID 	The id to the group selected for the current user.
-	 */
-	void setHierarchyRoot(long rootID, long userGroupID)
-	{
-		this.rootID = rootID;
-		this.userGroupID = userGroupID;
-	}
-
-	/**
-	 * Compares another model to this one to tell if they would result in
-	 * having the same display.
-	 *  
-	 * @param other The other model to compare.
-	 * @return <code>true</code> if <code>other</code> would lead to a viewer
-	 *          with the same display as the one in which this model belongs;
-	 *          <code>false</code> otherwise.
-	 */
-	boolean isSameDisplay(TreeViewerModel other)
-	{
-		if (other == null) return false;
-		return ((other.rootID == rootID) && (other.userGroupID == userGroupID));
 	}
 
 	/**
@@ -416,13 +380,6 @@ class TreeViewerModel
 	 * @param b The value to set.
 	 */
 	void setRecycled(boolean b) { recycled = b; }
-
-	/** 
-	 * Returns the id to the group selected for the current user.
-	 * 
-	 * @return See above.
-	 */
-	long getUserGroupID() { return userGroupID; }
 
 	/**
 	 * Sets the currently selected {@link Browser}.
@@ -880,8 +837,7 @@ class TreeViewerModel
 		state = TreeViewer.LOADING_DATA;
 		ExperimenterData exp = getSelectedBrowser().getNodeOwner(node);
 		SecurityContext ctx = getSecurityContext();
-		currentLoader = new ProjectsLoader(component, ctx, node, exp.getId(),
-				getUserGroupID());
+		currentLoader = new ProjectsLoader(component, ctx, node, exp.getId());
 		currentLoader.load();
 	}
 	
@@ -994,43 +950,6 @@ class TreeViewerModel
 	 * @return See above.
 	 */
 	DataBrowser getDataViewer() { return dataViewer; }
-
-	/**
-	 * Returns <code>true</code> if the multiple users flag is turned on,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isMultiUser()
-	{
-		Boolean b = (Boolean) TreeViewerAgent.getRegistry().lookup(
-				TreeViewerAgent.MULTI_USER);
-		if (!b) return false;
-		
-		ExperimenterData exp = getExperimenter();
-		/*
-		ExperimenterData exp = getExperimenter();
-		Map<Long, Boolean> map = exp.isLeader();
-		if (map.containsKey(userGroupID)) {
-			b = map.get(userGroupID);
-			if (b) return true;
-		}
-		*/
-		//Now we check the status of the group.
-		List<GroupData> l = exp.getGroups();
-		GroupData group;
-		Iterator<GroupData> i = l.iterator();
-		PermissionData permission;
-		while (i.hasNext()) {
-			group = i.next();
-			//Check status of that group
-			if (group.getId() == userGroupID) {
-				permission = group.getPermissions();
-				return (permission.isGroupRead() && permission.isGroupWrite());
-			}
-		}
-		return false;
-	}
 
 	/**
 	 * Starts an asynchronous call to download the images.
@@ -1155,36 +1074,6 @@ class TreeViewerModel
 	boolean isAdministrator()
 	{
 		return TreeViewerAgent.isAdministrator();
-	}
-	
-	/**
-	 * Sets the id of the currently selected group.
-	 * 
-	 * @param groupID The value to set.
-	 */
-	void setGroupId(long groupID)
-	{
-		this.userGroupID = groupID;
-	}
-	
-	/**
-	 * Returns <code>true</code> if the currently logged in user is 
-	 * a leader of the selected group, <code>false</code>.
-	 * 
-	 * @return See above.
-	 */
-	boolean isLeaderOfSelectedGroup()
-	{
-		Set groups = TreeViewerAgent.getGroupsLeaderOf();
-		if (groups.size() == 0) return false;
-		Iterator i = groups.iterator();
-		GroupData group;
-		while (i.hasNext()) {
-			group = (GroupData) i.next();
-			if (group.getId() == userGroupID)
-				return true;
-		}
-		return false;
 	}
 	
 	/**
