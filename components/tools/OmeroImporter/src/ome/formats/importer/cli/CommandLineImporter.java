@@ -194,6 +194,7 @@ public class CommandLineImporter {
                                         + "Optional arguments:\n"
                                         + "  -c\tContinue importing after errors\n"
                                         + "  -a\tArchive the original file on the server\n"
+                                        + "  -y\tUse FS-lite to import from dropbox\n"
                                         + "  -z\tUse FS-lite to import the file\n"
                                         + "  -l\tUse the list of readers rather than the default\n"
                                         + "  -d\tOMERO dataset Id to import image into\n"
@@ -304,7 +305,7 @@ public class CommandLineImporter {
             new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT,
                         null, 12);
 
-        Getopt g = new Getopt(APP_NAME, args, "acfzl:s:u:w:d:r:k:x:n:p:h",
+        Getopt g = new Getopt(APP_NAME, args, "acfyzl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
                                 plateName, plateDescription, noThumbnails,
                                 agent, annotationNamespace, annotationText,
@@ -415,6 +416,10 @@ public class CommandLineImporter {
             }
             case 'a': {
                 config.archiveImage.set(true);
+                break;
+            }
+            case 'y': {
+                config.dropboxImport.set(true);
                 break;
             }
             case 'z': {

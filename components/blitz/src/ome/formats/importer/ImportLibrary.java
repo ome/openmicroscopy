@@ -532,6 +532,7 @@ public class ImportLibrary implements IObservable
             boolean archive = container.getArchive();
             boolean useMetadataFile = container.getUseMetadataFile();
             boolean fslite = container.getFslite();
+            boolean dropbox = container.getDropbox();
             if (log.isInfoEnabled())
             {
                 log.info("File format: " + format);
@@ -539,6 +540,7 @@ public class ImportLibrary implements IObservable
                 log.info("Metadata only import? " + isMetadataOnly);
                 log.info("Archiving enabled? " + archive);
                 log.info("FS-lite import? " + fslite);
+                log.info("Dropbox import? " + dropbox);
                 log.info("Container metadata only import? " +
                          container.getMetadataOnly());
             }
@@ -582,7 +584,7 @@ public class ImportLibrary implements IObservable
             }
             boolean saveSha1 = false;
             // If we're metadata only, we don't want to perform any pixel I/O.
-            if (!fslite && !isMetadataOnly && !container.getMetadataOnly())
+            if (!fslite && !dropbox && !isMetadataOnly && !container.getMetadataOnly())
             {
                 boolean success = false;
                 try
@@ -722,7 +724,7 @@ public class ImportLibrary implements IObservable
                     series++;
                 }
             }
-            if (fslite)
+            if (fslite || dropbox)
             {
                 String targetName = container.getFile().getAbsolutePath();
                 int series = 0;
