@@ -34,6 +34,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -85,8 +86,10 @@ public class RemoveExperimenterNode
                 if (browser.getSelectedDisplays().length > 1) {
                     setEnabled(false);
                 } else {
+                	ExperimenterData loggedIn = 
+                		TreeViewerAgent.getUserDetails();
                 	ExperimenterData exp = (ExperimenterData) ho;
-                	setEnabled(exp.getId() != browser.getRootID());
+                	setEnabled(exp.getId() != loggedIn.getId());
                 }
             } else setEnabled(false);
         }

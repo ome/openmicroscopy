@@ -726,19 +726,6 @@ class BrowserComponent
         view.sortNodes(sortType);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
-    
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getRootID()
-     */
-    public long getRootID()
-    {
-        if (model.getState() == DISCARDED)
-		    throw new IllegalStateException(
-                    "This method can't only be invoked in the DISCARDED " +
-                    "state.");
-        return model.getRootID();
-    }
 
     /**
      * Implemented as specified by the {@link Browser} interface.
@@ -901,13 +888,12 @@ class BrowserComponent
         else if (op == TreeViewer.REMOVE_OBJECT) removeNodes(nodes);
         else if (op == TreeViewer.CREATE_OBJECT) {
             long userID = model.getUserID();
-            long groupID = model.getUserGroupID();
             //Get the user node.
             if (parentDisplay == null)
             	parentDisplay = getLastSelectedDisplay();
             TreeImageDisplay newNode = 
             		TreeViewerTranslator.transformDataObject(object, userID, 
-            								groupID);
+            								-1);
            
             createNodes(nodes, newNode, parentDisplay);
         }     
@@ -931,10 +917,9 @@ class BrowserComponent
         nodes.add(loggedUser);
         long userID = model.getUserID();
         //long model.get
-        long groupID = model.getUserGroupID();
         createNodes(nodes, 
                 TreeViewerTranslator.transformDataObject(data, userID, 
-                        groupID), loggedUser);
+                        -1), loggedUser);
         setSelectedNode();
 	}
 	
@@ -1928,18 +1913,6 @@ class BrowserComponent
 		fireStateChange();
 	}
 
-	/**
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#getUserGroupID()
-	 */
-	public long getUserGroupID()
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED state.");
-		return model.getUserGroupID();
-	}
-	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#isObjectWritable(Object)

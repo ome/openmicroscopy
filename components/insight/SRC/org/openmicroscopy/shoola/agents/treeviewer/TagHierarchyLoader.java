@@ -91,7 +91,7 @@ public class TagHierarchyLoader
     public void load()
     {
     	handle = dmView.loadTags(ctx, node.getUserObjectId(), true, false,
-    			userID, viewer.getUserGroupID(), this);
+    			userID, ctx.getGroupID(), this);
     }
 
     /**

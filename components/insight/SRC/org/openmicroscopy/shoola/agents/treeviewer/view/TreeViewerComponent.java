@@ -103,7 +103,6 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -1661,18 +1660,6 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#getUserGroupID()
-	 */
-	public long getUserGroupID()
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED state.");
-		return model.getUserGroupID();
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#retrieveUserGroups(Point)
 	 */
 	public void retrieveUserGroups(Point location)
@@ -2033,7 +2020,6 @@ class TreeViewerComponent
 		Set set, dataObjects;
 		DatasetData d;
 		long userID = model.getExperimenter().getId();
-		long groupID = model.getUserGroupID();
 		Iterator k;
 		
 		Map<Long, TreeImageDisplay> m = new HashMap<Long, TreeImageDisplay>();
@@ -2069,7 +2055,7 @@ class TreeViewerComponent
 							while (k.hasNext()) {
 								value.addChildDisplay(
 										TreeViewerTranslator.transformDataObject(
-										 (ImageData) k.next(), userID, groupID));
+										 (ImageData) k.next(), userID, -1));
 							}
 						}
 						value.setChildrenLoaded(true);
@@ -2097,7 +2083,7 @@ class TreeViewerComponent
 								while (k.hasNext()) {
 									value.addChildDisplay(
 									 TreeViewerTranslator.transformDataObject(
-										(ImageData) k.next(), userID, groupID)
+										(ImageData) k.next(), userID, -1)
 											);
 								}
 							}
@@ -2114,9 +2100,7 @@ class TreeViewerComponent
 									while (k.hasNext()) {
 										value.addChildDisplay(
 										 TreeViewerTranslator.transformDataObject(
-												 (ImageData) k.next(), 
-												 userID, groupID)
-												);
+										   (ImageData) k.next(), userID, -1));
 									}
 								}
 								value.setChildrenLoaded(true);
@@ -3198,8 +3182,8 @@ class TreeViewerComponent
 		if (model.getState() != READY) return;
 		if (group == null) return;
 		ExperimenterData exp = TreeViewerAgent.getUserDetails();
-		long oldId = model.getUserGroupID();
-		if (group.getId() == oldId) return;
+		//long oldId = model.getUserGroupID();
+		//if (group.getId() == oldId) return;
 		Registry reg = TreeViewerAgent.getRegistry();
 		reg.getEventBus().post(new SwitchUserGroup(exp, group.getId()));
 	}
@@ -3249,16 +3233,6 @@ class TreeViewerComponent
 		}
 		*/
 		return new HashMap<Long, String>();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#uploadScript(ScriptObject)
-	 */
-	public boolean isLeaderOfSelectedGroup()
-	{
-		if (model.getState() == DISCARDED) return false;
-		return model.isLeaderOfSelectedGroup();
 	}
 
 	/** 
@@ -3313,11 +3287,10 @@ class TreeViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#getSelectedGroupPermissions()
+	 * @see TreeViewer#getGroupPermissions(GroupData)
 	 */
-	public int getSelectedGroupPermissions()
+	public int getGroupPermissions(GroupData group)
 	{
-		GroupData group = getSelectedGroup();
 		int level = AdminObject.PERMISSIONS_PRIVATE;
 		if (group != null) {
 			PermissionData data = group.getPermissions();
@@ -3332,25 +3305,6 @@ class TreeViewerComponent
 			}
 		}
 		return level;
-	}
-	
-	/** 
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#getSelectedGroup()
-	 */
-	public GroupData getSelectedGroup()
-	{
-		Set m = TreeViewerAgent.getAvailableUserGroups();
-		Iterator i = m.iterator();
-		long id = model.getUserGroupID();
-		GroupData group = null;
-		while (i.hasNext()) {
-			group = (GroupData) i.next();
-			if (group.getId() == id) {
-				return group;
-			}
-		}
-		return null;
 	}
 
 	/** 
@@ -3392,13 +3346,13 @@ class TreeViewerComponent
 	 */
 	public void onGroupSwitched(boolean success)
 	{
+		/*
 		ExperimenterData exp = TreeViewerAgent.getUserDetails();
 		GroupData group = exp.getDefaultGroup();
 		long oldGroup = model.getUserGroupID();
 		if (success) {
 			model.setRndSettings(null);
 			model.setNodesToCopy(null, -1);
-			model.setGroupId(group.getId());
 			view.removeAllFromWorkingPane();
 			model.setDataViewer(null);
 			model.getMetadataViewer().onGroupSwitched(success);
@@ -3415,6 +3369,7 @@ class TreeViewerComponent
 			firePropertyChange(GROUP_CHANGED_PROPERTY, oldGroup, 
 					model.getUserGroupID());
 		}
+		*/
 	}
 	
 	/** 
