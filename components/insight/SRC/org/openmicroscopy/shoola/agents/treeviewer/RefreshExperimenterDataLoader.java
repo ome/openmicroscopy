@@ -85,7 +85,7 @@ public class RefreshExperimenterDataLoader
     private Class								rootNodeType;
     
     /** Collection of {@link RefreshExperimenterDef} objects. */
-    private Map<Long, RefreshExperimenterDef>	expNodes;
+    private Map<SecurityContext, RefreshExperimenterDef>	expNodes;
     
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  						handle;
@@ -97,7 +97,7 @@ public class RefreshExperimenterDataLoader
     private DataObject 							toBrowse;
     
     /** The smart folder for tags.*/
-    private Map<Long, TreeImageSet>				smartFolders;
+    private Map<SecurityContext, TreeImageSet> smartFolders;
     
     /**
      * Controls if the passed class is supported.
@@ -121,9 +121,9 @@ public class RefreshExperimenterDataLoader
      * @param expId		The user's id.
      * @param result	The result of the call for the passed user.
      */
-    private void setExperimenterResult(long expId, Object result)
+    private void setExperimenterResult(SecurityContext ctx, Object result)
     {
-    	RefreshExperimenterDef node = expNodes.get(expId);
+    	RefreshExperimenterDef node = expNodes.get(ctx);
     	Map<Object, Object> map;
     	Map expandedNodes = node.getExpandedTopNodes();
         if (expandedNodes == null || expandedNodes.size() == 0
@@ -139,7 +139,7 @@ public class RefreshExperimenterDataLoader
             	parent = j.next();
             	if (parent instanceof TimeRefObject) { //for tag support.
             		if (smartFolders != null) {
-            			display = smartFolders.get(expId);
+            			display = smartFolders.get(ctx);
             			if (display != null) {
             				display.removeAllChildren();
             				display.removeAllChildrenDisplay();
@@ -206,7 +206,8 @@ public class RefreshExperimenterDataLoader
      * @param toBrowse      The node to browse.
      */
     public RefreshExperimenterDataLoader(Browser viewer, SecurityContext ctx,
-    			Class rootNodeType, Map<Long, RefreshExperimenterDef> expNodes, 
+    			Class rootNodeType, 
+    			Map<SecurityContext, RefreshExperimenterDef> expNodes, 
     			Class type, long id, Object refNode, DataObject toBrowse)
     {
         super(viewer, ctx);
@@ -236,14 +237,18 @@ public class RefreshExperimenterDataLoader
     	List<TimeRefObject> times;
     	Iterator j;
     	TreeImageSet node;
-    	Map<Long, List> m = new HashMap<Long, List>(expNodes.size());
+    	Map<SecurityContext, List> 
+    		m = new HashMap<SecurityContext, List>(expNodes.size());
+    	SecurityContext ctx;
     	if (ImageData.class.equals(rootNodeType) || 
     			FileAnnotationData.class.equals(rootNodeType)) {
     		TreeImageTimeSet time;
     		TreeFileSet file;
     		while (i.hasNext()) {
     			entry = (Entry) i.next();
-        		userID = (Long) entry.getKey();
+    			ctx = (SecurityContext) entry.getKey();
+        		//userID = (Long) entry.getKey();
+    			userID = ctx.getExperimenter();
         		def = (RefreshExperimenterDef) entry.getValue();
         		nodes = def.getExpandedNodes();
         		j = nodes.iterator();
@@ -263,7 +268,7 @@ public class RefreshExperimenterDataLoader
         			}
         			if (ref != null) times.add(ref);
 				}
-    			m.put(userID, times);
+    			m.put(ctx, times);
     		}
     	} else {
     		List l;
@@ -272,12 +277,13 @@ public class RefreshExperimenterDataLoader
     		Object ob;
         	while (i.hasNext()) {
         		entry = (Entry) i.next();
-        		userID = (Long) entry.getKey();
+        		ctx = (SecurityContext) entry.getKey();
+        		userID = ctx.getExperimenter();
         		def = (RefreshExperimenterDef) entry.getValue();
         		if (GroupData.class.equals(rootNodeType)) {
         			l = (List) def.getExpandedTopNodes().get(GroupData.class);
         			if (l == null) l = new ArrayList();
-        			m.put(userID, l);
+        			m.put(ctx, l);
         		} else {
         			if (TagAnnotationData.class.equals(rootNodeType)) {
         				l  = def.getExpandedNodes();
@@ -293,16 +299,16 @@ public class RefreshExperimenterDataLoader
 								nl.add(ref);
 								if (smartFolders == null) 
 									smartFolders = new 
-										HashMap<Long, TreeImageSet>();
-								smartFolders.put(userID, (TreeImageSet) ob);
+										HashMap<SecurityContext, TreeImageSet>();
+								smartFolders.put(ctx, (TreeImageSet) ob);
 							} else nl.add(ob);
 						}
-        				m.put(userID, nl);
-        			} else m.put(userID, def.getExpandedNodes());
+        				m.put(ctx, nl);
+        			} else m.put(ctx, def.getExpandedNodes());
         		}
     		}
     	}
-    	handle = dmView.refreshHierarchy(ctx, rootNodeType, m, this);
+    	handle = dmView.refreshHierarchy(rootNodeType, m, this);
     }
 
     /**
@@ -346,10 +352,11 @@ public class RefreshExperimenterDataLoader
             	formatSmartFolderResult(expId, (List) entry.getValue());
     		}
         } else {
+        	SecurityContext ctx;
         	while (i.hasNext()) {
         		entry = (Entry) i.next();
-            	expId = (Long) entry.getKey();
-            	setExperimenterResult(expId, entry.getValue());
+        		ctx = (SecurityContext) entry.getKey();
+            	setExperimenterResult(ctx, entry.getValue());
     		}
         }
         viewer.setRefreshExperimenterData(expNodes, type, id);

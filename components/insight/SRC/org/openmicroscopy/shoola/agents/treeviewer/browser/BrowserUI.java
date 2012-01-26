@@ -1485,7 +1485,7 @@ class BrowserUI
      * @param newNode       The node to add to the parent.
      * @param parentDisplay The selected parent.
      */
-    void createNodes(List nodes, TreeImageDisplay newNode, 
+    void createNodes(List nodes, TreeImageDisplay newNode,
                     TreeImageDisplay parentDisplay)
     {
         if (parentDisplay == null) parentDisplay = getTreeRoot();
@@ -2017,19 +2017,6 @@ class BrowserUI
 		tm.reload();
 	}
 
-	/** Refreshes the experimenter data. */
-	void refreshExperimenter()
-	{
-		TreeImageDisplay root = getTreeRoot();
-		TreeImageDisplay element = (TreeImageDisplay) root.getChildAt(0);
-		Object ho = element.getUserObject();
-		if (ho instanceof ExperimenterData) {
-			element.setUserObject(model.getUserDetails());
-			DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
-			tm.reload(element);
-		}
-	}
-
 	/**
 	 * Sets the nodes selecting via other views.
 	 * 
@@ -2116,41 +2103,6 @@ class BrowserUI
 		tm.reload(node);
 	}
 	
-	/** Expands the node corresponding to the user currently logged in. */
-	void expandUser()
-	{
-		SecurityContext ctx = model.getSecurityContext(
-				model.getLastSelectedDisplay());
-		long groupId = ctx.getGroupID();
-		TreeImageDisplay root = getTreeRoot();
-		List<TreeImageDisplay> nodesToKeep;
-		List l = root.getChildrenDisplay();
-		if (l == null || l.size() == 0) return;
-		Iterator j = l.iterator();
-		TreeImageDisplay element, n, node;
-		Object ho, h;
-		ExperimenterData exp;
-		long id = model.getUserID();
-		while (j.hasNext()) {
-			node = null;
-			element = (TreeImageDisplay) j.next();
-			h = element.getUserObject();
-			if (h instanceof GroupData && ((GroupData) h).getId() == groupId) {
-				for (int i = 0; i < element.getChildCount(); i++) {
-					n = (TreeImageDisplay) element.getChildAt(i);
-					ho = n.getUserObject();
-					if (ho instanceof ExperimenterData) {
-						exp = (ExperimenterData) ho;
-						if (exp.getId() == id && !n.isExpanded()) {
-							expandNode(element);
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-	
 	/**
      * Expands the specified node. To avoid loop, we first need to 
      * remove the <code>TreeExpansionListener</code>.
@@ -2195,33 +2147,6 @@ class BrowserUI
     	revalidate();
     	repaint();
     }
-    
-    /**
-     * Returns the nodes corresponding to the passed user.
-     * 
-     * @param userID The id of the user.
-     * @return See above.
-     */
-    List<TreeImageDisplay> getNodesForUser(long userID)
-    {
-    	TreeImageDisplay root = getTreeRoot();
-		TreeImageDisplay element;
-		Object ho;
-		ExperimenterData exp;
-		long id = model.getUserID();
-		for (int i = 0; i < root.getChildCount(); i++) {
-			element = (TreeImageDisplay) root.getChildAt(i);
-			ho = element.getUserObject();
-			if (ho instanceof ExperimenterData) {
-				exp = (ExperimenterData) ho;
-				if (exp.getId() == id) {
-					return element.getChildrenDisplay();
-				}
-			}
-		}
-		return null;
-    }
-
 
     /**
      * Reacts to the D&D properties.

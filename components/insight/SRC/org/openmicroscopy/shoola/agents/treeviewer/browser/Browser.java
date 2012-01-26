@@ -313,9 +313,11 @@ public interface Browser
      * Returns the nodes linked to the specified user.
      * 
      * @param userID The identifier of the user.
+     * @param node The selected node.
      * @return See above.
      */
-    public List<TreeImageDisplay> getNodesForUser(long userID);
+    public List<TreeImageDisplay> getNodesForUser(long userID, TreeImageDisplay
+			node);
     
     /** 
      * Collapses the specified node. 
@@ -546,8 +548,9 @@ public interface Browser
 	 * @param type The type of data object to select or <code>null</code>.
 	 * @param id   The identifier of the data object.
 	 */
-	public void setRefreshExperimenterData(Map<Long, RefreshExperimenterDef> 
-					def, Class type, long id);
+	public void setRefreshExperimenterData(
+			Map<SecurityContext, RefreshExperimenterDef> def, Class type,
+			long id);
 
 	/** Refreshes the data used by the currently logged in user. */
 	public void refreshLoggedExperimenterData();

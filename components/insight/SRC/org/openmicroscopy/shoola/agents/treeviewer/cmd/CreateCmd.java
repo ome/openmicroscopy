@@ -176,7 +176,7 @@ public class CreateCmd
         	}
         	event = new LoadImporter(display, type);
         	long id = TreeViewerAgent.getUserDetails().getId();
-        	event.setObjects(browser.getNodesForUser(id));
+        	event.setObjects(browser.getNodesForUser(id, display));
         	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
         	bus.post(event);
         } else {
