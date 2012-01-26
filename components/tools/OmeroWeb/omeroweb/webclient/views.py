@@ -103,7 +103,7 @@ from omeroweb.webgateway import views as webgateway_views
 
 from omeroweb.feedback.views import handlerInternalError
 
-logger = logging.getLogger('views-web')
+logger = logging.getLogger(__name__)
 
 connectors = {}
 share_connectors = {}
