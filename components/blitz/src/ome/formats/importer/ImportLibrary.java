@@ -404,6 +404,22 @@ public class ImportLibrary implements IObservable
      */
     private ImportContainer handleFsliteImport(ImportContainer container)
     {
+        String[] usedFiles = container.getUsedFiles();
+        File target = container.getFile();
+        log.info("Main file: " + target.getAbsolutePath());
+        log.info("Used files before:");
+        List<File> files = new ArrayList<File>();
+        for (String f : usedFiles) {
+            log.info(f);
+            files.add(new File(f));
+        }
+        usedFiles = store.writeFilesToFileStore(files, target);
+        log.info("Used files after:");
+        for (String f : usedFiles) {
+            log.info(f);
+        }
+        container.setUsedFiles(usedFiles);
+        container.setFile(new File(usedFiles[0]));
         return container;
     }
 
@@ -450,20 +466,6 @@ public class ImportLibrary implements IObservable
         {
             log.debug("FS lite disabled for: " + readerName);
         }
-        //if (format.equals("Aperio SVS")
-        //    || format.equals("Trestle")
-        //    || format.equals("Animated PNG")
-        //    || format.equals("JPEG-2000")
-        //    || format.equals("Hamamatsu VMS")
-        //    || format.equals("Hamamatsu NDPI")
-        //    || format.equals("CellSens VSI")
-        //    || format.equals("Tagged Image File Format")
-        //    || format.equals("JPEG"))
-        //{
-        //    log.info("Big image, enabling metadata only and archiving.");
-        //    container.setMetadataOnly(true);
-        //    container.setArchive(true);
-        //}
     }
 
     /**
@@ -580,7 +582,7 @@ public class ImportLibrary implements IObservable
             }
             boolean saveSha1 = false;
             // If we're metadata only, we don't want to perform any pixel I/O.
-            if (!isMetadataOnly && !container.getMetadataOnly())
+            if (!fslite && !isMetadataOnly && !container.getMetadataOnly())
             {
                 boolean success = false;
                 try
@@ -717,6 +719,16 @@ public class ImportLibrary implements IObservable
                 for (Long pixelsId : pixelsIds)
                 {
                     store.setPixelsParams(pixelsId, series);
+                    series++;
+                }
+            }
+            if (fslite)
+            {
+                String targetName = container.getFile().getAbsolutePath();
+                int series = 0;
+                for (Long pixelsId : pixelsIds)
+                {
+                    store.setPixelsParams(pixelsId, series, targetName);
                     series++;
                 }
             }

@@ -1923,9 +1923,7 @@ public class OMEROMetadataStoreClient
      * @param target The <code>setId()</code> target.
      * @returns The prefix file path that was calculated by the server.
      */
-    public String writeFilesToFileStore(
-		List<File> files, Map<String, OriginalFile> originalFileMap,
-		File target)
+    public String[] writeFilesToFileStore(List<File> files, File target)
     {
         // Lookup each source file in our hash map and write it to the
         // correct original file object server side.
@@ -1934,6 +1932,7 @@ public class OMEROMetadataStoreClient
         File repositoryRoot;
         File directory;
         String filePath = null;
+        List<String> usedFiles = new ArrayList<String>();
 
         String basePath = getTargetBasePath(files, target);
         try
@@ -1943,7 +1942,6 @@ public class OMEROMetadataStoreClient
                             ofRoot.getName().getValue());
 
             log.debug("Target: " + target.getAbsolutePath());
-            log.debug("Keys: " + Arrays.toString(originalFileMap.keySet().toArray()));
             filePath = repo.getCurrentRepoDir(basePath);
             directory = new File(filePath);
             repo.makeDir(directory.getAbsolutePath());
@@ -1956,18 +1954,6 @@ public class OMEROMetadataStoreClient
         for (File file : files)
         {
             String path = file.getAbsolutePath();
-            OriginalFile originalFile = originalFileMap.get(path);
-            if (originalFile == null)
-            {
-                originalFile = byUUID(path, originalFileMap);
-            }
-            if (originalFile == null)
-            {
-                log.warn("Cannot lookup original file with path: "
-                         + file.getAbsolutePath());
-                continue;
-            }
-
             FileInputStream stream = null;
             try
             {
@@ -1990,6 +1976,7 @@ public class OMEROMetadataStoreClient
                     rawFileStore.write(buf, offset, rlen);
                     offset += rlen;
                 }
+                usedFiles.add(file.getAbsolutePath());
                 // FIXME: This is for testing only. See #6349
                 try 
                 {
@@ -2020,7 +2007,7 @@ public class OMEROMetadataStoreClient
                 }
             }
         }
-        return filePath;
+        return usedFiles.toArray(new String[usedFiles.size()]);
     }
 
     private String getTargetBasePath(List<File> files, File target) {
@@ -2049,21 +2036,19 @@ public class OMEROMetadataStoreClient
      * @param target The <code>setId()</code> target.
      * @param prefix Prefix within the binary repository for all files.
      */
-    public void setPixelsParams(long pixelsId, int series, File target,
-                                String prefix)
+    public void setPixelsParams(long pixelsId, int series, String targetName)
     {
         try
         {
             Map<String, String> params = new HashMap<String, String>();
             params.put("image_no", Integer.toString(series));
-            params.put("target", File.separator + target.getName());
-            params.put("prefix", prefix);
+            params.put("target", targetName);
             delegate.setPixelsParams(pixelsId, true, params);
         }
         catch (Exception e)
         {
             log.error("Server error setting extended properties for Pixels:" +
-                      pixelsId);
+                      pixelsId + " Target file:" + targetName);
         }
     }
 
