@@ -67,9 +67,9 @@ var loadOtherPanels = function(inst, prefix) {
                         if(pr.attr('rel').replace("-locked", "")==="share" && pr.attr('id')!==crel) {
                             cm_var['content_details']['rel'] = pr.attr('id');
                             cm_var['content_details']['url'] = prefix+'load_data/'+pr.attr('id').split("-")[1]+'/?view=icon';
-                        } else if (pr.attr('rel').replace("-locked", "")!=="tag") {
+                        } else if (pr.attr('rel').replace("-locked", "")=="tag") {
                             cm_var['content_details']['rel'] = pr.attr('id');
-                            cm_var['content_details']['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
+                            cm_var['content_details']['url'] = prefix+'load_tags/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
                         } else if (pr.attr('rel').replace("-locked", "")!=="orphaned") {
                             cm_var['content_details']['rel'] = pr.attr('id');
                             cm_var['content_details']['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
