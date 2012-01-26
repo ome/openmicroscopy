@@ -325,6 +325,7 @@ public class PixelsServicesFactory
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
+		System.err.println("shut down");
 		RenderingControlProxy proxy = (RenderingControlProxy) 
 			singleton.rndSvcProxies.get(pixelsID);
 		Integer count = singleton.rndSvcProxiesCount.get(pixelsID);
@@ -484,7 +485,10 @@ public class PixelsServicesFactory
 			"initialized for the specified pixels set.");
 		if (asTexture) return proxy.renderAsTexture(pDef);
 		int level = proxy.getSelectedResolutionLevel();
-		if (largeImage) proxy.setSelectedResolutionLevel(0);
+		if (largeImage) {
+			proxy.setCompression(RenderingControl.LOW);
+			proxy.setSelectedResolutionLevel(0);
+		}
 		Object o = proxy.render(pDef);
 		if (largeImage) proxy.setSelectedResolutionLevel(level);
 		return o;
