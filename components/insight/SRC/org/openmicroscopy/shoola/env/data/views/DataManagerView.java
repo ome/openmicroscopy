@@ -213,15 +213,14 @@ public interface DataManagerView
 	/**
 	 * Reloads the hierarchy currently displayed.
 	 * 
-	 * @param ctx The security context.
 	 * @param rootNodeType	The type of the root node. Can either be 
 	 *                      <code>ProjectData</code>
 	 * @param m The user and the nodes to refresh.
 	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle refreshHierarchy(SecurityContext ctx, Class rootNodeType,
-			Map<Long, List> m, AgentEventListener observer);
+	public CallHandle refreshHierarchy(Class rootNodeType,
+			Map<SecurityContext, List> m, AgentEventListener observer);
 
 	/**
 	 * Retrieves the images imported by the specified user during various

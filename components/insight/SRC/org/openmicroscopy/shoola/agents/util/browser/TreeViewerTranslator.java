@@ -831,21 +831,34 @@ public class TreeViewerTranslator
 		TreeImageSet n;
 		while (i.hasNext()) {
 			g = (GroupData) i.next();
-			n = new TreeImageSet(g);
-			l = g.getExperimenters();
-			if (l != null && l.size() > 0) {
-				n.setChildrenLoaded(Boolean.valueOf(true));
-				j = l.iterator();
-				while (j.hasNext()) 
-					n.addChildDisplay(new TreeImageNode(j.next()));
-				n.setNumberItems(l.size());
-			} else n.setNumberItems(0);
-        	formatToolTipFor(n);
-			nodes.add(n);
+			n = transformGroup(g);
+			if (n != null) nodes.add(n);
 		}
 		return nodes;
 	}
     
+	/**
+	 * Transforms the specified group into its corresponding UI entity.
+	 * 
+	 * @param group The group to transform
+	 * @return See above.
+	 */
+	public static TreeImageSet transformGroup(GroupData group)
+	{
+		if (group == null) return null;
+		TreeImageSet n = new TreeImageSet(group);
+		Collection l = group.getExperimenters();
+		if (l != null && l.size() > 0) {
+			n.setChildrenLoaded(Boolean.valueOf(true));
+			Iterator j = l.iterator();
+			while (j.hasNext()) 
+				n.addChildDisplay(new TreeImageNode(j.next()));
+			n.setNumberItems(l.size());
+		} else n.setNumberItems(0);
+    	formatToolTipFor(n);
+    	return n;
+ 	}
+	
 	/**
 	 * Transforms the passed collection.
 	 * 

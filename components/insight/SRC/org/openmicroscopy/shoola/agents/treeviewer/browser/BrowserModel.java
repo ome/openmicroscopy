@@ -604,7 +604,8 @@ class BrowserModel
      * @param refNode  The node to hosting the data object to browse.
      * @param toBrowse The data object to browse.
      */
-    void loadRefreshExperimenterData(Map<Long, RefreshExperimenterDef> nodes, 
+    void loadRefreshExperimenterData(
+    		Map<SecurityContext, RefreshExperimenterDef> nodes, 
     		Class type, long id, Object refNode, DataObject toBrowse)
     {
         Class klass = null;
@@ -629,12 +630,10 @@ class BrowserModel
 		}
         state = Browser.LOADING_DATA;
         if (klass == null) return;
-        //TODO: review the logic.
-        /*
-        currentLoader = new RefreshExperimenterDataLoader(component, klass,
+        currentLoader = new RefreshExperimenterDataLoader(component, 
+        		getSecurityContext(null), klass,
         					nodes, type, id, refNode, toBrowse);
         currentLoader.load();
-        */
     }
 
     /**

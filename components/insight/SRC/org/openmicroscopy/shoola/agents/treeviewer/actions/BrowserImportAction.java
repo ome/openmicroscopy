@@ -164,7 +164,7 @@ public class BrowserImportAction
     	}
     	event = new LoadImporter(display, type);
     	long id = TreeViewerAgent.getUserDetails().getId();
-    	event.setObjects(model.getNodesForUser(id));
+    	event.setObjects(model.getNodesForUser(id, display));
     	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
     	bus.post(event);
     }

@@ -42,6 +42,9 @@ public class SecurityContext
 	/** The identifier of the group.*/
 	private long groupID;
 	
+	/** The experimenterID if required.*/
+	private long experimenterID;
+	
 	/** The name of the server.*/
 	private String host;
 	
@@ -59,7 +62,25 @@ public class SecurityContext
 	public SecurityContext(long groupID)
 	{
 		this.groupID = groupID;
+		experimenterID = -1;
 	}
+	
+	/**
+	 * Sets the experimenter ID.
+	 * 
+	 * @param experimenterID The id of the experimenter.
+	 */
+	public void setExperimenter(long experimenterID)
+	{
+		this.experimenterID = experimenterID;
+	}
+	
+	/**
+	 * Returns the id of the experimenter.
+	 * 
+	 * @return See above.
+	 */
+	public long getExperimenter() { return experimenterID; }
 	
 	/**
 	 * Sets the information used to connect to the correct server.

@@ -197,12 +197,12 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#refreshHierarchy(SecurityContext, Class, Map, AgentEventListener)
+	 * @see DataManagerView#refreshHierarchy(Class, Map, AgentEventListener)
 	 */
-	public CallHandle refreshHierarchy(SecurityContext ctx, Class rootNodeType,
-			Map<Long, List> m, AgentEventListener observer)
+	public CallHandle refreshHierarchy(Class rootNodeType,
+			Map<SecurityContext, List> m, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new DMRefreshLoader(ctx, rootNodeType, m);
+		BatchCallTree cmd = new DMRefreshLoader(rootNodeType, m);
 		return cmd.exec(observer);
 	}
 
