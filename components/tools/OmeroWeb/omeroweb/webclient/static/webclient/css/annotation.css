@@ -1,3 +1,8 @@
+#annotation_tab, #metadata_tab, #preview_tab {
+    padding: 10px;
+    overflow: auto;
+}
+
 img.pencil {
     float: left;
     padding: 8px 5px 0 0;
@@ -5,10 +10,6 @@ img.pencil {
 img.thumbnail {
     margin-right: 5px;
     border: 1px solid #bbb;
-}
-#annotation_form {
-    max-width: 350px;
-    margin: 0;
 }
 
 select.existing {
@@ -66,21 +67,6 @@ div.lnfiles{
     border: 1px solid #bbb;
     padding: 0 10px;
     background-color: #fff;
-}
-/* tabs */
-#annotation_tabs {
-    margin: 5px 0 0 ;
-    background:none repeat scroll 0 0 #F3F3F3;
-    border: 0;
-}
-
-#annotation_tabs ul.tabslist {
-    position:relative;
-    float:left;
-/*    width:350px;*/
-    padding:0;
-    margin: 0px;
-    list-style:none;
 }
 
 /* comment display page */

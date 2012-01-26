@@ -39,7 +39,18 @@
     <script type="text/javascript">
         $(function() 
             {
-                //var h = $(window).height()-200;
+
+                $("#left_panel_tabs").tabs({
+                    select: function(event, ui) {
+                        var url = $.data(ui.tab, 'load.tabs');
+                        if( url ) {
+                            location.href = url;
+                            return false;
+                        }
+                        return true;
+                    }
+                }).tabs("select", 1);
+
                 
                 var buttonsShowHide = function(selected) { 
                     var toolbar_config = new Object();
@@ -393,25 +404,27 @@
 
 
 {% block left %}
+<div id="left_panel_tabs" class="absolute_fill">
+    <ul class="tabslist">
+        <li><a href="{% url load_template 'userdata' %}">{% trans "Projects+Screens" %}</a></li>
+        <li><a href="#Tags" title="Tags">{% trans "Tags" %}</a></li>
+        <li><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>
+    </ul>
 
-    <div class="panel_tabs">
-        <a href="{% url load_template 'userdata' %}">{% trans "Projects+Screens" %}</a>
-        <a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a>
-        <a href="{% url load_template 'public' %}">{% trans "Public" %}</a>
-    </div>
+    <div id="Tags">
+        <div class="toolbar">
+            <div id="buttons" class="align_left">
+                <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> | 
+                <input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/cancel16.png" %}" alt="Delete" title="Delete" /> 
+            </div>
+        </div>
 
-    <div class="toolbar">
-        <div id="buttons" class="align_left">
-            <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> | 
-            <input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/cancel16.png" %}" alt="Delete" title="Delete" /> 
+
+        <div id="tree_details">
+            <div class="dataTree" id="dataTree"></div>
         </div>
     </div>
-
-
-<div id="tree_details">
-    <div class="dataTree" id="dataTree"></div>
 </div>
-
 {% endblock %}
 
 {% block center %}

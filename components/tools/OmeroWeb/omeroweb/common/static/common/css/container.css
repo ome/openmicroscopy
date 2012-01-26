@@ -1,3 +1,19 @@
+/* left and right panels that go under tabs */
+#Projects, #Tags, #Public, #annotation_tab, #metadata_tab, #preview_tab {
+    position:absolute;
+    top:28px;
+    bottom:0px; left:0px; right:0px;
+}
+
+/* overwrite content and thin_header styles */
+#content {
+    background: #e5e5e5;
+}
+#thin_header {
+    border-bottom: 1px solid #E5E5E5;
+}
+
+
 img {
     border: 0px;
     padding: 0px;
@@ -15,85 +31,97 @@ table.contentWrapper {
 #left_panel {
     background-color: #ffffff;
     position:absolute;
-    left:0px; top:0px; bottom:0px;
+    left:0px; top:0px; bottom:0px;right:0px;
     width:350px;
     overflow: auto;
+    border: solid #bbb 1px;
+    border-left: none;
+    border-radius: 0px 4px 4px 0px;
 }
 #center_panel {
     background-color: #ffffff;
     position:absolute;
-    left:20px; right:20px; top:0px; bottom:0px;
+    left:5px; right:5px; top:0px; bottom:0px;
     overflow: auto;
+    border: solid #bbb 1px;
+    border-radius: 4px;
 }
 #right_panel {
-    background-color: #f3f3f3;
+    background-color: #ffffff;
     position:absolute;
-    width:370px;
+    width:369px;
     right:0px; top:0px; bottom:0px;
     overflow: auto;
-}
-
-.collapsibletrayhandle-right {
-    background:#F3F3F3 url(../image/tray_right_shadow.png) repeat-y scroll left top;
-}
-.collapsibletrayhandle-left {
-    background:#fff url(../image/tray_left_shadow.png) repeat-y scroll left top;
+    border: solid #bbb 1px;
+    border-radius: 4px 0px 0px 4px;
+    border-right: none;
 }
 
 #trayhandle_left {
-    position:absolute; top:0px; left:0px; bottom:0px;
-    width:20px;
+    position:absolute;
+    top:0px; left:0px; bottom:0px;
+    width:5px;
+    background:transparent url(../image/drag_handle_5.png) no-repeat left center scroll;
 }
 #trayhandle_right {
     position:absolute;
     top:0px; right:0px; bottom:0px;
-    width:20px;
+    width:5px;
+    background:transparent url(../image/drag_handle_5.png) no-repeat left center scroll;
 }
 #center_container {
     position:absolute;
-    left:350px; right:370px; top:0px; bottom:0px;
+    left:351px; right:370px; top:0px; bottom:0px;
+    border: none;
+    background: #e5e5e5;
 }
 
 #lhid_trayhandle_icon_right {
     cursor:pointer;
     position:relative;
+    top: 5px;
+    height:13px;
+    width:5px;
 }
 
 #lhid_trayhandle_icon_left {
     cursor:pointer;
     position:relative;
+    top: 5px;
+    height:13px;
+    width:5px;
 }
 
 .expanded-left {
-    background:transparent url(../image/tray_left_button.png) no-repeat scroll;
-    height:24px;
-    width:16px;
+    background:transparent url(../image/tray_collapse_left.png) no-repeat scroll;
 }
 .expanded-right {
-    background:transparent url(../image/tray_right_button.png) no-repeat scroll;
-    height:24px;
-    width:16px;
+    background:transparent url(../image/tray_collapse_left.png) no-repeat scroll;
 }
 .collapsed-left {
-    background:transparent url(../image/tray_left_expand_button.png) no-repeat scroll;
-    height:24px;
-    width:16px;
+    background:transparent url(../image/tray_collapse_right.png) no-repeat scroll;
 }
 .collapsed-right {
-    background:transparent url(../image/tray_right_expand_button.png) no-repeat scroll;
-    height:24px;
-    width:16px;
+    background:transparent url(../image/tray_collapse_right.png) no-repeat scroll;
 }
 
 #dragLeft {
     cursor: e-resize;
     position:absolute;
     bottom:0px;
-    background:transparent url(../image/drag_handle.png) no-repeat scroll;
+    top: 20px;
+    left: 0px;
+    right: 0px;
 }
 #dragRight {
-    cursor: e-resize;
+    cursor: w-resize;
     position:absolute;
     bottom:0px;
-    background:transparent url(../image/drag_handle.png) no-repeat scroll;
+    top: 20px;
+    left: 0px;
+    right: 0px;
+}
+
+#footer {
+    border-top: none;
 }

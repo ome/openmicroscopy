@@ -3,7 +3,6 @@ html {
 }
 
 body {
-    background-color: #F3F3F3;
     color: #555555;
     font-family: Arial,Verdana,Lucida,Helvetica,sans-serif;
     font-size: 13px;
@@ -19,7 +18,6 @@ body {
     right:0px;
     left:0px;
     bottom:0px;
-    background: white;
     overflow:auto;
 }
 
@@ -129,3 +127,9 @@ label {
 
 /* used by the dialog in popup.js */
 .ui-dialog-titlebar { background: gray; color: white }
+
+.absolute_fill {
+    position: absolute;
+    top: 0px; bottom: 0px; left: 0px; right: 0px;
+    overflow: auto;
+}

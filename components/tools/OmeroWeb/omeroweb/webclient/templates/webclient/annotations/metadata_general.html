@@ -1,4 +1,4 @@
-{% extends "common/base/base_html.html" %}
+
 {% load i18n %}
 {% load common_filters %}
 {% load common_tags %}
@@ -24,12 +24,8 @@
 -->
 {% endcomment %}
 
-{% block link %}
-    <!-- overwrite body.css -->
-{% endblock %}
-
-{% block script %}
-
+<html>
+    <head>
     <script type="text/javascript">
         
         jQuery.fn.hide_if_empty = function() {
@@ -92,31 +88,7 @@
                 var preview_load = false;
                 var hierarchy_load = false;
                 
-                $('#annotation_tabs').tabs();
-                
-                $('#acquisition').click(function() {
-                    $("#metadata_spinner").show();
-                    var $tab = $("#metadata_tab");
-                    var href = $("#acquisition-link").attr('href');
-                    if (!acquisition_load) {
-                        $tab.load(href, function() {
-                            acquisition_loaded();
-                        });
-                        acquisition_load = true;
-                    }
-                });
-                
-                $('#preview').click(function() {
-                    $("#preview_spinner").show();
-                    var $tab = $("#preview_tab");
-                    var href = $("#preview-link").attr('href');
-                    if (!preview_load) {
-                        $tab.load(href, function() {
-                            preview_loaded();
-                        });
-                        preview_load = true;
-                    }
-                });
+                $('#annotation_tabs').tabs({cache : true});
                 
                 $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
                     track: true, 
@@ -422,28 +394,28 @@
             });
             
     </script>
-    
-{% endblock %}
+</head>
 
-{% block body %}
+<body>
 
 {% comment %}
     <!-- Example toolbar of links to webtest pages. Remove comments to activate -->
     {% include "webtest/webtest-toolbar-include.html" %}
 {% endcomment %}
 
-<div style="clear:both"></div>
-
-<div id="annotation_form" >
-    <div id="annotation_tabs" class="ui-tabs">
+    <div id="annotation_tabs" class="absolute_fill">
         <ul class="tabslist">
             {% if manager.tag %}
                 <li><a href="#metadata_tab">{% trans "General" %}</a></li>
             {% else %}
                 <li><a href="#annotation_tab">{% trans "General" %}</a></li>
-                {% if manager.image or manager.well %}
-                    <li><a id='acquisition' href="#metadata_tab">{% trans "Acquisition" %}</a></li>                
-                    <li><a id='preview' href="#preview_tab">{% trans "Preview" %}</a></li>
+                {% if manager.image %}
+                    <li><a id='acquisition' title="metadata tab" href="{% url load_metadata_acquisition 'image' manager.image.id %}">{% trans "Acquisition" %}</a></li>                
+                    <li><a id='preview' title="preview tab" href="{% url load_metadata_preview manager.image.id %}">{% trans "Preview" %}</a></li>
+                {% endif %}
+                {% if manager.well %}
+                    <li><a id='acquisition' title="metadata tab" href="{% url load_metadata_acquisition 'image' manager.well.getWellSample.image.id %}">{% trans "Acquisition" %}</a></li>                
+                    <li><a id='preview' title="preview tab" href="{% url load_metadata_preview manager.well.getWellSample.image.id %}">{% trans "Preview" %}</a></li>
                 {% endif %}
             {% endif %}
         </ul>
@@ -467,7 +439,6 @@
         {% if manager.image %}
         <!-- VIEWER "Preview"-->
         <div id="preview_tab">
-            <a id="preview-link" href="{% url load_metadata_preview manager.image.id %}" style='display:none'>Preview</a>
             <img id="preview_spinner" src="{% static "common/image/spinner.gif" %}" style='display:none'/>
         </div>
         {% endif %}
@@ -482,18 +453,10 @@
         
         <!-- METADATA "Acquisition" TAB  - only show for images -->
         {% if manager.image %}
-        <div id="metadata_tab">
-            <!-- content is loaded by ajax when this tab is first displayed -->
-            <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.image.id %}" style='display:none' >Acquisition</a>
-            <img id="metadata_spinner" src="{% static "common/image/spinner.gif" %}" style='display:none'/>
-        </div>
+        <div id="metadata_tab"></div>
         {% endif %}
         {% if manager.well %}
-        <div id="metadata_tab">
-            <!-- content is loaded by ajax when this tab is first displayed -->
-            <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.well.getWellSample.image.id %}" style='display:none' >Acquisition</a>
-            <img id="metadata_spinner" src="{% static "common/image/spinner.gif" %}" style='display:none'/>
-        </div>
+        <div id="metadata_tab"></div>
         {% endif %}
                 
         
@@ -775,7 +738,7 @@
         
             <!-- ANNOTATIONS -->
             <h1>{% trans "Annotations" %}</h1>
-            <table>
+            <table width="100%">
             <!-- RATING -->
             <tr>
                 <th colspan="2">{% trans "Rate" %}:</th>
@@ -1020,5 +983,4 @@
     </div>
     
     
-</div>
-{% endblock %}
+</body>

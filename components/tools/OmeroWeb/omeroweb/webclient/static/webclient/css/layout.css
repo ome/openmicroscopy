@@ -169,27 +169,18 @@ ul.criteria li{
     top:0px; bottom:0px; left:0px; right:0px;
     overflow: auto;
 }
-#metadata_details {
-    overflow: auto;
+
+/* tabs */
+#annotation_tabs, #left_panel_tabs {
+    border: 0;
+    background: #fff;
+    padding: 0px;
+    padding-top:5px;
     position: absolute;
-    top:0px; bottom:0px; left:0px; right:0px;
 }
 
-.panel_tabs {
-    padding: 2px 10px;
-    position: absolute;
-    top:0px; left:0px; right:0px;
-    height: 23px;
-}
-
-.panel_tabs a {
-    border: solid #ccc 1px;
-    border-bottom: solid gray 0px;
-    padding: 2px 3px;
-    border-radius: 4px 4px 0px 0px;
-    position: relative;
-    bottom: -5px;
-    background: #f3f3f3;
+ul.tabslist {
+    border-bottom: solid 1px #bbb;
 }
 
 .toolbar {
@@ -197,16 +188,16 @@ ul.criteria li{
     height:17px;
     padding:3px;
     background-color:#fff;
-    top:23px; left:0px; right:0px; 
-    border-top: 1px solid #bbb;
+    top:0px; left:0px; right:0px; 
     border-bottom: 1px solid #bbb;
 }
 
 #tree_details {
     position: absolute;
-    top:52px; left:0px; right:0px; bottom:0px;
+    top:24px;
+    left:0px; right:0px; bottom:0px;
+    padding-top: 3px;
     background-color:#fff;
-    border-bottom: 1px solid #bbb;
     overflow: auto;
 }
 
