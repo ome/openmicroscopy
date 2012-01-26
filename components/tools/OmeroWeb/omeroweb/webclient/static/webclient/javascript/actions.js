@@ -50,7 +50,7 @@ var loadOtherPanels = function(inst, prefix) {
                     var plate = inst._get_parent(selected).attr('id').replace("-", "/");
                     cm_var['content_details']['rel'] = oid;
                     cm_var['content_details']['url'] = prefix+'load_data/'+plate+'/'+orel+'/'+oid.split("-")[1]+'/';
-                } else if($.inArray(orel, ["dataset", "tag"]) > -1 && oid!==crel) {
+                } else if($.inArray(orel, ["dataset"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
                     cm_var['content_details']['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
                     
