@@ -6,6 +6,7 @@
 # this file to etc/local.properties and manually
 # editing it.
 #
+omero.version=UNKNOWN
 omero.rootpass=ome
 omero.db.profile=psql
 
