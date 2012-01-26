@@ -120,4 +120,5 @@ a:hover {
 .toolbar_button {
     float: left;
     position: relative;
+    top: -1px;
 }

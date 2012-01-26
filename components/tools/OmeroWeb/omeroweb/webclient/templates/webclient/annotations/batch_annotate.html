@@ -30,7 +30,10 @@
 
 {% block script %}
 
-    <script type="text/javascript">        
+    <script type="text/javascript">
+        var show_batch_msg = function(text) {
+            $("#batch_ann_msg").text(text).show().delay(1200).fadeOut(1000);
+        }
         $(document).ready(function() 
             {
                 $("#comments_container").hide_if_empty();
@@ -39,6 +42,7 @@
 
                 // handle submit of Add Comment form
                 $("#add_comment_form").submit(function() {
+                    $("#comment_spinner").show();
                     var $form = $(this);
                     var add_comment_url = $form.attr('action');
                     var postData = $form.serialize();
@@ -52,10 +56,12 @@
                         data:postData,
                         contentType:'html',
                         success: function(html){
+                            $("#comment_spinner").hide();
                             var $comment = $(html)
                             $('#comments_container').prepend( $comment ).show();
                             $(".removeComment", $comment).hide();
                             textArea.val('');
+                            show_batch_msg("Comment added to Objects");
                         },
                         error: function(html) {
                             alert("Internal server error. Cannot add comment.");
@@ -103,12 +109,17 @@
                     }
                 });
                 $('#add_tags_form').ajaxForm({
-                    success: function(data) {
+                    beforeSubmit: function(data) {
+                        $("#tagann_spinner").show();
                         $("#add_tags_form").dialog( "close" );
+                    },
+                    success: function(data) {
+                        $("#tagann_spinner").hide();
                         // update the list of tags
                         var $tag = $(data);
                         $("#tags_container").prepend($tag).show();
                         $(".removeTag", $tag).hide();
+                        show_batch_msg("Tags added to Objects");
                     }
                 });
 
@@ -129,25 +140,35 @@
                 });
                 // set-up the form to use AJAX. (requires jquery.form.js plugin)
                 $('#upload_file_form').ajaxForm({
+                    beforeSubmit: function(data) {
+                        $("#fileann_spinner").show();
+                    },
                     success: function(data) {
-                        // update the list of file annotations and bind actions
+                        $("#fileann_spinner").hide();
+                        // update the list of file annotations and hide actions
                         var $fileann = $(data)
                         $("#fileanns_container").prepend( $fileann ).show();
                         $(".deleteFile", $fileann).hide();
                         $(".removeFile", $fileann).hide();
+                        show_batch_msg("File uploaded and attached to Objects");
                     }
                 });
 
 
                 // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
                 $('#batch_attachments_form').ajaxForm({
-                    success: function(data) {
+                    beforeSubmit: function(data) {
                         $("#batch_attachments_form").dialog( "close" );
-                        // update the list of file annotations and bind actions
+                        $("#fileann_spinner").show();
+                    },
+                    success: function(data) {
+                        $("#fileann_spinner").hide();
+                        // update the list of file annotations and hide actions
                         var $fileanns = $(data)
                         $("#fileanns_container").prepend( $fileanns ).show();
                         $("#fileanns_container .deleteFile").hide();
                         $("#fileanns_container .removeFile").hide();
+                        show_batch_msg("File Annotation(s) added to Objects");
                     }
                 });
                 // prepare dialog for choosing file to attach...
@@ -187,6 +208,10 @@
 
 {% block body %}
 
+<div style="padding: 0px 5px; position:relative">
+    
+    <div id="batch_ann_msg"></div>  <!-- hidden div to show success messages etc -->
+    
 <h1>Batch Annotate:</h1>
 
 <!-- hidden form for choosing new or existing Tags in dialog - load form via AJAX when we show dialog -->
@@ -202,6 +227,7 @@
                         <!-- link for loading tags we can add to this object. Loaded by AJAX into form below & displayed as dialog -->
                         <img src="{% static 'webclient/image/plus_11.png' %}" alt="e" title="Add Tags."/>
                     </a>
+                    <img id='tagann_spinner' src="{% static "common/image/spinner.gif" %}" style="display:none"/>
                 </td>
                 <!-- display existing Tags -->
                 <td>
@@ -240,6 +266,7 @@
                     <form id="batch_attachments_form" title="Select Attachments" action="{% url annotate_file %}" method="post">
                     </form>
                     
+                    <img id='fileann_spinner' src="{% static "common/image/spinner.gif" %}" style="display:none"/>
                 </td>
                 <!-- display existing file annotations -->
                 <td>
@@ -267,7 +294,10 @@
                             <td>{{ form_comment.comment }}</td>
                         </tr>
                         <tr>
-                            <td><input type="submit" value="{% trans 'Add Comment' %}" /></td>
+                            <td>
+                                <input type="submit" value="{% trans 'Add Comment' %}" />
+                                <img id='comment_spinner' src="{% static "common/image/spinner.gif" %}" style="display:none"/>
+                            </td>
                         </tr>
                     </table>
                     </form>
@@ -282,4 +312,5 @@
             </tr>            
 </table>            
 
+</div>
 {% endblock %}

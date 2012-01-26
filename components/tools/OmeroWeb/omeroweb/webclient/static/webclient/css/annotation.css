@@ -204,3 +204,14 @@ div.plane_info table div {
     color: #1B7BC7;
     cursor: pointer;
 }
+
+#batch_ann_msg {
+    position:absolute;
+    z-index:10;
+    top:10px; right:10px; 
+    background: #ffb;
+    width:200px;
+    padding:10px;
+    border: solid #ddd 1px;
+    display: none;
+}
