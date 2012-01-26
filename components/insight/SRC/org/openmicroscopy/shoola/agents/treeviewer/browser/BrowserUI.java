@@ -29,11 +29,14 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.dnd.DnDConstants;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,6 +57,7 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.TreeExpansionEvent;
@@ -63,7 +67,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
 
 //Third-party libraries
 
@@ -83,6 +86,8 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
+import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
+import org.openmicroscopy.shoola.agents.util.dnd.ObjectToTransfer;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
@@ -112,6 +117,7 @@ import pojos.TagAnnotationData;
  */
 class BrowserUI
     extends JPanel
+    implements PropertyChangeListener
 {
     
 	/** The text of the dummy default node. */
@@ -312,6 +318,9 @@ class BrowserUI
         							tee.getPath().getLastPathComponent();
         node.setExpanded(expanded);
         controller.onNodeNavigation(node, expanded);
+        treeDisplay.clearSelection();
+        treeDisplay.setSelectionPath(new TreePath(node.getPath()));
+		treeDisplay.repaint();
     }
     
     /**
@@ -655,6 +664,123 @@ class BrowserUI
     	//if (!ctrl) 
     	controller.onClick(added);
     }
+
+    /** 
+     * Handles multi-selection using <codeCtrl-A</code> or <code>Meta-A</code>.
+     */
+    private void handleMultiSelection()
+    {
+    	TreeImageDisplay[] nodes = model.getSelectedDisplays();
+		if (nodes == null || nodes.length == 0) return;
+		TreeImageDisplay n = nodes[0];
+		Object o = n.getUserObject();
+		TreeImageDisplay p;
+		if (o instanceof ImageData) {
+			p = n.getParentDisplay();
+			controller.selectNodes(p.getChildrenDisplay(), ImageData.class);
+		} else if (o instanceof DatasetData) {
+			if (n.isExpanded()) {
+				controller.selectNodes(n.getChildrenDisplay(), ImageData.class);
+			} else {
+				p = n.getParentDisplay();
+				controller.selectNodes(p.getChildrenDisplay(),
+						DatasetData.class);
+			}
+		} else if (o instanceof ProjectData) {
+			if (n.isExpanded()) {
+				controller.selectNodes(n.getChildrenDisplay(),
+						DatasetData.class);
+			} else {
+				p = n.getParentDisplay();
+				controller.selectNodes(p.getChildrenDisplay(),
+						ProjectData.class);
+			}
+		} else if (o instanceof ScreenData) {
+			if (n.isExpanded()) {
+				controller.selectNodes(
+						n.getChildrenDisplay(),
+						PlateData.class);
+			} else {
+				p = n.getParentDisplay();
+				controller.selectNodes(p.getChildrenDisplay(),
+						ScreenData.class);
+			}
+		} else if (o instanceof PlateData) {
+			if (n.isExpanded()) {
+				controller.selectNodes(
+						n.getChildrenDisplay(),
+						PlateAcquisitionData.class);
+			} else {
+				p = n.getParentDisplay();
+				controller.selectNodes(p.getChildrenDisplay(),
+						PlateData.class);
+			}
+		} else if (o instanceof TagAnnotationData) {
+			TagAnnotationData tag = (TagAnnotationData) o;
+			String ns = tag.getNameSpace();
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+				//dealing with a tag set.
+				if (n.isExpanded()) {
+					controller.selectNodes(n.getChildrenDisplay(),
+							TagAnnotationData.class);
+				} else {
+					p = n.getParentDisplay();
+					List l = p.getChildrenDisplay();
+					Iterator i = l.iterator();
+					List values = new ArrayList();
+					TreeImageDisplay node;
+					Object data;
+					while (i.hasNext()) {
+						node = (TreeImageDisplay) i.next();
+						data = node.getUserObject();
+						if (data instanceof TagAnnotationData) {
+							tag = (TagAnnotationData) data;
+							ns = tag.getNameSpace();
+							if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
+								values.add(node);
+						}
+					}
+					controller.selectNodes(values, TagAnnotationData.class);
+				}
+			} else { //tag
+				if (n.isExpanded()) {
+					controller.selectNodes(n.getChildrenDisplay(),
+							ImageData.class);
+				} else {
+					p = n.getParentDisplay();
+					List l = p.getChildrenDisplay();
+					Iterator i = l.iterator();
+					List values = new ArrayList();
+					TreeImageDisplay node;
+					Object data;
+					while (i.hasNext()) {
+						node = (TreeImageDisplay) i.next();
+						data = node.getUserObject();
+						if (data instanceof TagAnnotationData) {
+							tag = (TagAnnotationData) data;
+							ns = tag.getNameSpace();
+							if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
+								values.add(node);
+						}
+					}
+					controller.selectNodes(values, TagAnnotationData.class);
+				}
+			}
+		} else if (o instanceof FileAnnotationData) {
+			p = n.getParentDisplay();
+			controller.selectNodes(p.getChildrenDisplay(),
+					FileAnnotationData.class);
+		} else if (n instanceof TreeImageTimeSet) {
+			TreeImageTimeSet time = (TreeImageTimeSet) n;
+			if (time.containsImages()) {
+				controller.selectNodes(n.getChildrenDisplay(),
+						ImageData.class);
+			}
+		} else if (n instanceof TreeFileSet) {
+			controller.selectNodes(n.getChildrenDisplay(),
+					FileAnnotationData.class);
+		}
+    }
     
     /** 
      * Helper method to create the trees hosting the display. 
@@ -663,16 +789,18 @@ class BrowserUI
      */
     private void createTrees(ExperimenterData exp)
     {
-        treeDisplay = new JTree();
+        treeDisplay = new DnDTree(model.getUserID(),
+        		TreeViewerAgent.isAdministrator());
+        treeDisplay.addPropertyChangeListener(this);
+        String key = "meta pressed A";
+        if (UIUtilities.isWindowsOS()) key = "ctrl pressed A";
+        KeyStroke ks = KeyStroke.getKeyStroke(key);
+        treeDisplay.getInputMap().put(ks, "none");
         treeDisplay.setVisible(true);
         treeDisplay.setRootVisible(false);
         ToolTipManager.sharedInstance().registerComponent(treeDisplay);
         treeDisplay.setCellRenderer(new TreeCellRenderer());
         treeDisplay.setShowsRootHandles(true);
-        //treeDisplay.putClientProperty("JTree.lineStyle", "Angled");
-        treeDisplay.getSelectionModel().setSelectionMode(
-                TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
-        
         TreeImageSet root = new TreeImageSet("");
         treeDisplay.setModel(new DefaultTreeModel(root));
         TreeImageSet node = createExperimenterNode(exp);
@@ -742,6 +870,7 @@ class BrowserUI
             }
         };
         treeDisplay.addTreeSelectionListener(selectionListener);
+        //remove standard behaviour
         treeDisplay.addKeyListener(new KeyAdapter() {
 	
 			public void keyPressed(KeyEvent e)
@@ -767,7 +896,13 @@ class BrowserUI
 						break;
 					case KeyEvent.VK_META:
 						if (UIUtilities.isMacOS()) ctrl = true;
-				}
+						break;
+					case KeyEvent.VK_A:
+						if (UIUtilities.isWindowsOS() && e.isControlDown() ||
+							!UIUtilities.isWindowsOS() && e.isMetaDown()) {
+							handleMultiSelection();
+						}
+					}
 			}
 			
 			public void keyReleased(KeyEvent e)
@@ -1632,9 +1767,20 @@ class BrowserUI
 		List<TreeImageSet> toKeep = new ArrayList<TreeImageSet>();
 		int number;
 		int total;
+		DefaultMutableTreeNode childNode;
+		List<DefaultMutableTreeNode> remove = 
+			new ArrayList<DefaultMutableTreeNode>();
 		for (int j = 0; j < n; j++) {
-			node = (TreeImageSet) expNode.getChildAt(j);
-			if (node instanceof TreeImageTimeSet) {
+			childNode = (DefaultMutableTreeNode) expNode.getChildAt(j);
+			Object o = childNode.getUserObject();
+			if (o instanceof String) {
+				String s = (String) o;
+				if (EMPTY_MSG.equals(s)) {
+					remove.add(childNode);
+				}
+			}
+			if (childNode instanceof TreeImageTimeSet) {
+				node = (TreeImageTimeSet) childNode;
 				if (((TreeImageTimeSet) node).getType() == index) {
 					if (value instanceof Integer) {
 						//Check if the number is 0
@@ -1645,8 +1791,7 @@ class BrowserUI
 							buildEmptyNode(node);
 							node.setChildrenLoaded(Boolean.valueOf(false));
 						}
-					}
-					else if (value instanceof List) {
+					} else if (value instanceof List) {
 						l = (List) value;
 						total = 0;
 						i = node.getChildrenDisplay().iterator();
@@ -1672,12 +1817,21 @@ class BrowserUI
 					}
 					dtm.reload(node);
 				}
-			} else if (node instanceof TreeFileSet) {
+			} else if (childNode instanceof TreeFileSet) {
+				node = (TreeFileSet) childNode;
 				if (((TreeFileSet) node).getType() == index) {
 					if (value instanceof Long) 
 						node.setNumberItems((Long) value);
 				}
 			}
+		}
+		if (remove.size() > 0) {
+			Iterator<DefaultMutableTreeNode> j = remove.iterator();
+			while (j.hasNext()) {
+				expNode.remove(j.next());
+				dtm.reload(expNode);
+			}
+			
 		}
 	}
 		
@@ -1982,5 +2136,24 @@ class BrowserUI
 		}
 		return null;
     }
+
+
+    /**
+     * Reacts to the D&D properties.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (DnDTree.DRAGGED_PROPERTY.equals(name)) {
+			ObjectToTransfer transfer = (ObjectToTransfer) evt.getNewValue();
+			int action = TreeViewer.CUT_AND_PASTE;
+			if (transfer.getDropAction() == DnDConstants.ACTION_COPY)
+				action = TreeViewer.COPY_AND_PASTE;
+			//check the node
+			model.transfer(transfer.getTarget(), transfer.getNodes(),
+					action);
+		}
+	}
 
 }

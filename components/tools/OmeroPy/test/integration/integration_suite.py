@@ -42,6 +42,7 @@ def additional_tests():
     suite.addTest(load("integration.gateway"))
     suite.addTest(load("integration.icontainer"))
     suite.addTest(load("integration.ildap"))
+    suite.addTest(load("integration.imetadata"))
     suite.addTest(load("integration.iquery"))
     suite.addTest(load("integration.isession"))
     suite.addTest(load("integration.ishare"))
@@ -65,6 +66,8 @@ def additional_tests():
     suite.addTest(load("integration.tickets2000"))
     suite.addTest(load("integration.tickets3000"))
     suite.addTest(load("integration.tickets4000"))
+    suite.addTest(load("integration.tickets5000"))
+    suite.addTest(load("integration.tickets6000"))
 
     suite.addTest(load("clitest.integration_suite._additional_tests"))
     suite.addTest(load("gatewaytest.suite._additional_tests"))

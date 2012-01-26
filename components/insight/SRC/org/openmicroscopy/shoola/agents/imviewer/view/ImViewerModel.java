@@ -663,6 +663,8 @@ class ImViewerModel
 	void discard()
 	{
 		state = ImViewer.DISCARDED;
+		if (imageIcon != null) imageIcon.flush();
+		browser.discard();
 		if (image == null) return;
 		//Shut down the service
 		OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();

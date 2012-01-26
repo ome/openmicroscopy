@@ -64,12 +64,12 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -114,7 +114,8 @@ import pojos.WellSampleData;
  * @since OME3.0
  */
 class EditorControl
-	implements ActionListener, ChangeListener, PropertyChangeListener, MouseListener
+	implements ActionListener, ChangeListener, PropertyChangeListener,
+	MouseListener
 {
 
 	/** Bound property indicating that the save status has been modified. */
@@ -478,8 +479,10 @@ class EditorControl
 	{
 		if (e.getSource() instanceof JTabbedPane) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			if (pane.getSelectedIndex() == EditorUI.RND_INDEX)
-				model.loadRenderingControl(RenderingControlLoader.LOAD);
+			if (view.checkIfTabEnabled(pane.getSelectedIndex())) {
+				if (pane.getSelectedIndex() == EditorUI.RND_INDEX)
+					model.loadRenderingControl(RenderingControlLoader.LOAD);
+			}
 		}
 	}
 	
@@ -665,6 +668,7 @@ class EditorControl
 		}
 		
 		int index = Integer.parseInt(e.getActionCommand());
+		
 		switch (index) {
 			case ADD_LOCAL_DOCS:
 				selectFileToAttach();

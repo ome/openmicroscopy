@@ -6,7 +6,7 @@
  */
 package integration.delete;
 
-import integration.AbstractTest;
+import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 import omero.api.delete.DeleteCommand;
 import omero.model.Annotation;
@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  * @since 4.2.1
  */
 @Test(groups = { "delete", "integration", "ticket:2615" })
-public class HierarchyDeleteTest extends AbstractTest {
+public class HierarchyDeleteTest extends AbstractServerTest {
 
     private final static omero.RString t3031 = omero.rtypes.rstring("#3031");
 

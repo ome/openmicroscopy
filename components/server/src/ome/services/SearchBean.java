@@ -668,6 +668,12 @@ public class SearchBean extends AbstractStatefulBean implements Search {
         }
     }
 
+    public void addParameters(Parameters params) {
+        synchronized (values) {
+            values.copy(params);
+        }
+    }
+
     /**
      * Synchronized helper collection for maintaining {@link SearchAction}
      * instances. Also knows how to do logical joins (union, etc.)

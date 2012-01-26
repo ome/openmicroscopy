@@ -132,6 +132,10 @@ class TestPrefs(unittest.TestCase):
         self.assertStdout(["A=C"])
         self.assertStderr(["Duplicate property: A (B => B)"])
 
+    def testLoadDoesNotExist(self):
+        # ticket:7273
+        self.assertRaises(NonZeroReturnCode, self.invoke, "load THIS_FILE_SHOULD_NOT_EXIST")
+
     def testDrop(self):
         self.invoke("def x")
         self.invoke("def")

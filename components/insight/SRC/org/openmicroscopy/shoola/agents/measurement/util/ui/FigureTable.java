@@ -61,6 +61,8 @@ public class FigureTable
 	/** The model for the table. */
 	private FigureTableModel tableModel;
 	
+	private TableCellRenderer renderer;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -89,7 +91,8 @@ public class FigureTable
 	 */
 	public TableCellRenderer getCellRenderer(int row, int column) 
 	{
-        return new InspectorCellRenderer();
+		if (renderer == null) renderer = new InspectorCellRenderer();
+        return renderer;
     }
 
 	/**

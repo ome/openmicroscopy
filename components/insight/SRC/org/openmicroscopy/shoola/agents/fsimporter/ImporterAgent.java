@@ -24,15 +24,25 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import javax.swing.JButton;
+import javax.swing.JMenuItem;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
+import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ExperimenterLoadedDataEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -43,6 +53,7 @@ import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -65,6 +76,12 @@ public class ImporterAgent
 
     /** Reference to the registry. */
     private static Registry         registry; 
+    
+    /** The selected browser type.*/
+    private int browserType;
+    
+    /** The objects displayed.*/
+    private List<TreeImageDisplay> objects;
     
     /**
      * Helper method. 
@@ -107,6 +124,23 @@ public class ImporterAgent
 	}
     
 	/**
+	 * Returns the default value from the configuration file.
+	 * 
+	 * @return See above.
+	 */
+	private int getDefaultBrowser()
+	{
+		Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env == null) return BrowserSelectionEvent.PROJECT_TYPE;
+    	switch (env.getDefaultHierarchy()) {
+    		case LookupNames.HCS_ENTRY:
+    			return BrowserSelectionEvent.SCREEN_TYPE;
+    		default:
+    			return 	BrowserSelectionEvent.PROJECT_TYPE;
+    	}
+	}
+	
+	/**
 	 * Handles the {@link LoadImporter} event.
 	 * 
 	 * @param evt The event to handle.
@@ -116,16 +150,19 @@ public class ImporterAgent
     	if (evt == null) return;
     	Importer importer = ImporterFactory.getImporter();
     	if (importer != null) {
-    		int type = evt.getType();
+    		int t;
     		switch (evt.getType()) {
-				case LoadImporter.PROJECT_TYPE:
-					type = Importer.PROJECT_TYPE;
+				case BrowserSelectionEvent.PROJECT_TYPE:
+				case BrowserSelectionEvent.SCREEN_TYPE:
+					t = evt.getType();
 					break;
-				case LoadImporter.SCREEN_TYPE:
-					type = Importer.SCREEN_TYPE;
+					default:
+					if (browserType == BrowserSelectionEvent.PROJECT_TYPE ||
+							browserType == BrowserSelectionEvent.SCREEN_TYPE)
+						t = browserType;
+					else t = getDefaultBrowser();
 			}
-    		importer.activate(type, evt.getSelectedContainer(), 
-    				evt.getObjects());
+    		importer.activate(t, evt.getSelectedContainer(), evt.getObjects());
     	}
     }
 
@@ -152,6 +189,57 @@ public class ImporterAgent
     	ImporterFactory.onReconnected();
     }
     
+    /**
+     * Handles the fact that data were loaded.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleExperimenterLoadedDataEvent(
+    		ExperimenterLoadedDataEvent evt)
+    {
+    	if (evt == null) return;
+    	Importer importer = ImporterFactory.getImporter();
+    	Map<Long, List<TreeImageDisplay>> map = evt.getData();
+    	if (map == null || map.size() == 0) return;
+    	List<TreeImageDisplay> l = map.get(getUserDetails().getId());
+    	objects = l;
+    	if (importer != null && objects != null) {
+    		Iterator<TreeImageDisplay> i = objects.iterator();
+    		List<Object> values = new ArrayList<Object>();
+    		while (i.hasNext()) {
+				values.add(i.next().getUserObject());
+			}
+    		importer.setContainers(values, true, browserType);
+    	}
+    }
+    
+    /** Registers the agent with the tool bar.*/
+	private void register()
+	{
+		String description = "Open the Importer.";
+		TaskBar tb = registry.getTaskBar();
+		IconManager icons = IconManager.getInstance();
+		JButton b = new JButton(icons.getIcon(IconManager.IMPORT));
+		b.setToolTipText(description);
+		ActionListener l = new ActionListener() {
+			
+			/** Posts an event to start the agent.*/
+			public void actionPerformed(ActionEvent e) {
+				EventBus bus = registry.getEventBus();
+				LoadImporter event = new LoadImporter(null, browserType);
+				event.setObjects(objects);
+				bus.post(event);
+			}
+		};
+		b.addActionListener(l);
+		tb.addToToolBar(TaskBar.AGENTS, b);
+		JMenuItem item = new JMenuItem(icons.getIcon(IconManager.IMPORT));
+		item.setText("Import...");
+		item.setToolTipText(description);
+		item.addActionListener(l);
+		tb.addToMenu(TaskBar.FILE_MENU, item);
+	}
+	
 	/** Creates a new instance. */
 	public ImporterAgent() {}
 	
@@ -208,6 +296,10 @@ public class ImporterAgent
         bus.register(this, LoadImporter.class);
         bus.register(this, UserGroupSwitched.class);
         bus.register(this, ReconnectedEvent.class);
+        bus.register(this, BrowserSelectionEvent.class);
+        bus.register(this, ExperimenterLoadedDataEvent.class);
+        browserType = getDefaultBrowser();
+        register();
     }
 
     /**
@@ -247,6 +339,12 @@ public class ImporterAgent
 			handleUserGroupSwitched((UserGroupSwitched) e);
     	else if (e instanceof ReconnectedEvent)
 			handleReconnectedEvent((ReconnectedEvent) e);
+    	else if (e instanceof BrowserSelectionEvent) {
+    		BrowserSelectionEvent evt = (BrowserSelectionEvent) e;
+    		browserType = evt.getType();
+    	} else if (e instanceof ExperimenterLoadedDataEvent) {
+    		handleExperimenterLoadedDataEvent((ExperimenterLoadedDataEvent) e);
+    	}
     }
 
 }

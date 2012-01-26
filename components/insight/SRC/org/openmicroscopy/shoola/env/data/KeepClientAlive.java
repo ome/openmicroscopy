@@ -75,7 +75,7 @@ class KeepClientAlive
         	try {
         		DataServicesFactory f = 
         			DataServicesFactory.getInstance(container);
-            	if (f.isConnected()) f.sessionExpiredExit(index);
+            	if (f.isConnected()) f.sessionExpiredExit(index, t);
 			} catch (Exception e) {}
         }
 	}

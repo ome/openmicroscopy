@@ -10,6 +10,7 @@
   </publications>
   <dependencies>
     <dependency name="blitz" rev="${omero.version}" changing="true" conf="build,server->server"/>
+    <dependency name="insight" rev="${omero.version}" changing="true" conf="build,client->client"/>
     <dependency name="OmeroImporter" rev="${omero.version}" changing="true" conf="build,client->client"/>
   </dependencies>
 </ivy-module>

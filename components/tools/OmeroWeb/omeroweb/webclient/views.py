@@ -2254,7 +2254,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         try:
             for key,ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
-                    handle = manager.deleteObjects(key, ids, child, anns)
+                    handle = manager.deleteObjects(key.title(), ids, child, anns)
                     dMap = {'job_type': 'delete', 'start_time': datetime.datetime.now(),'status':'in progress', 'derrors':handle.errors(),
                         'dreport':_formatReport(handle), 'dtype':key}
                     if len(ids) > 1:

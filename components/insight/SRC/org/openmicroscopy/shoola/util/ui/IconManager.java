@@ -524,11 +524,14 @@ public class IconManager
     /** The <code>Upload Script</code> icon. */
     public static final int	 UPLOAD_SCRIPT = 152;
     
+    /** The <code>No entry</code> icon. */
+    public static final int	 NO_ENTRY = 153;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 152;
+    private static int      MAX_ID = 153;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -689,7 +692,7 @@ public class IconManager
         relPaths[ERROR_32] = "nuvola_no32.png";
         relPaths[UPLOAD_SCRIPT_48] = "nuvola_script_add48.png";
         relPaths[UPLOAD_SCRIPT] = "nuvola_script_add16.png";
-
+        relPaths[NO_ENTRY] = "crystal_agt_action_fail16.png";
     }
 	
 	/**

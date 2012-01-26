@@ -110,6 +110,8 @@ ice_config = getenv('ICE_CONFIG');
 if strcmp(ice_config, '')
   % Then in the current directory.
   if exist('ice.config','file')
+      ice_config = fullfile('.', 'ice.config');
+  elseif exist(fullfile(findOmero, 'ice.config'), 'file')
       ice_config = fullfile(findOmero, 'ice.config');
   end
 else
@@ -122,16 +124,30 @@ end
 % If one or more return values are specified, then load some useful
 % objects and return them.
 if (nargout >=1 )
+    props = java.util.Properties();
+    for n = 1:length(varargin)
+        if strcmp(varargin{n}.class, 'java.util.Properties')
+            props = varargin{n};
+        end
+    end
+
+    % If we've found ice_config and there's no other
+    % Ice.Config property set, then set it.
+    if 0==strcmp(ice_config, '')
+        if strcmp(char(props.getProperty('Ice.Config')), '')
+            props.setProperty('Ice.Config', ice_config);
+        end
+    end
+
+    % If no properties in varargins but ice_config set
+    % then ice_config is not set. This is difficult to
+    % handle because we don't know what's in the varargin
+    % in order to pick the proper constructor (ticket:6892)
+
     if nargin > 0
         client = javaObject('omero.client', varargin{:});
     else
-        if strcmp(ice_config, '')
-            client = omero.client();
-        else
-            args = javaArray('java.lang.String',1);
-            args(1) = java.lang.String(['--Ice.Config=',ice_config]);
-            client = omero.client(args);
-        end
+        client = javaObject('omero.client', p);
     end
 end
 

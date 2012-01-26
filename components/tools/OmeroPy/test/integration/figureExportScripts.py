@@ -22,7 +22,6 @@ from omero.rtypes import *
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_PermissionsI import PermissionsI
-import omero_api_IRoi_ice
 import omero.util.script_utils as scriptUtil
 import omero_ext.uuid as uuid # see ticket:3774
 from omero import ApiUsageException

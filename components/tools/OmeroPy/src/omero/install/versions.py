@@ -44,7 +44,9 @@ def needs_upgrade(client_version, server_version, verbose = False):
 
         rv = (client_split < server_split)
         if verbose:
-            LOG.info("User=%-20s Local=%-20s Upgrade? %s", client_version, server_version, rv)
+            LOG.info("Client=%20s (%-5s)  v.  Server=%20s (%-5s) Upgrade? %s", \
+                    client_version, ".".join(client_split), \
+                    server_version, ".".join(server_split), rv)
         return rv
 
     except:
@@ -81,6 +83,13 @@ if __name__ == "__main__":
         needs_upgrade("4.1.1-Foo", "4.2.0-Dev", True)
         needs_upgrade("4.1.1-Foo", "4.2", True)
         needs_upgrade("4.1.1-Foo", "5.0", True)
+        needs_upgrade("v.4.1.1-Foo", "5.0", True)
+        # Additions post git-describe
+        needs_upgrade("v.4.1.1-Foo", "5.0", True)
+        needs_upgrade("v4.1.1-Foo", "5.0", True)
+        needs_upgrade("Beta-v4.1.1-Foo", "5.0", True)
+        needs_upgrade("A1-4.1.1-Foo", "5.0", True)
+        needs_upgrade("A1-v4.1.1-Foo", "5.0", True)
     else:
         try:
 	    rv = int(needs_upgrade(args[0], args[1], True))

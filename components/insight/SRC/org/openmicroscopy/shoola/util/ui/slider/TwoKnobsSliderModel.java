@@ -106,6 +106,9 @@ class TwoKnobsSliderModel
 	/** The partial max is for example the maximum value plus the increment. */
 	private int							partialMax;
 
+	/** Indicates that overlap is allowed.*/
+	private boolean						overlap;
+	
 	/** Creates labels for the minimum and maximum values. */
 	private void createEndLabels()
 	{
@@ -262,7 +265,12 @@ class TwoKnobsSliderModel
 	 */
 	void setStartValue(int startValue)
 	{ 
-		if (startValue >= endValue) return;
+		if (overlap) {
+			if (startValue > endValue) return;
+		} else {
+			if (startValue >= endValue) return;
+		}
+		
 			//throw new IllegalArgumentException("Start value not valid.");
 		if (startValue < absoluteMin) startValue = absoluteMin;
 		if (startValue <= partialMin) partialMin = startValue;
@@ -277,7 +285,11 @@ class TwoKnobsSliderModel
 	 */
 	void setEndValue(int endValue)
 	{ 
-		if (endValue <= startValue) return;
+		if (overlap) {
+			if (endValue < startValue) return;
+		} else {
+			if (endValue <= startValue) return;
+		}
 			//throw new IllegalArgumentException("End value not valid.");
 		if (endValue > absoluteMax) endValue = absoluteMax;
 		if (endValue >= partialMax) partialMax = endValue;
@@ -437,4 +449,20 @@ class TwoKnobsSliderModel
 	 */
 	void setOrientation(int v) { orientation = v; }
   
+	/**
+	 * Returns <code>true</code> if we allow to have <code>start == end</code>,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean allowOverlap() { return overlap; }
+	
+	/**
+	 * Sets the flag indicating that we allow to have <code>start == end</code>.
+	 * 
+	 * @param overlap Pass <code>true</code> to allow <code>start == end</code>,
+	 * <code>false</code> otherwise.
+	 */
+	void setOverlap(boolean overlap) { this.overlap = overlap; }
+
 }

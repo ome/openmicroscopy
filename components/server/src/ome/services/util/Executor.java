@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import ome.conditions.InternalException;
@@ -117,6 +118,12 @@ public interface Executor extends ApplicationContextAware {
      * {@link InternalException}.
      */
     public <T> T get(final Future<T> future);
+
+    /**
+     * Returns the {@link ExecutorService} assigned to this instance.
+     * Used by {@link #submit(Callable)} and {@link #get(Future)}.
+     */
+    public ExecutorService getService();
 
     /**
      * Executes a {@link SqlWork} wrapped with a transaction. Since
@@ -395,6 +402,10 @@ public interface Executor extends ApplicationContextAware {
                                     + e1.getMessage());
                 }
             }
+        }
+
+        public ExecutorService getService() {
+            return service;
         }
 
         /**

@@ -7,6 +7,7 @@
 
 package ome.services.pixeldata;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,12 +31,15 @@ public class PersistentEventLogLoader extends ome.services.eventlogs.PersistentE
      */
     protected long lowestEntityId = -1;
 
+    protected final int numThreads;
+
     protected List<long[]> dataPerUser = null;
-    
-    public PersistentEventLogLoader(String repo) {
+
+    public PersistentEventLogLoader(String repo, int numThreads) {
         this.repo = repo;
+        this.numThreads = numThreads;
     }
-    
+
     @Override
     public void initialize() {
         // no-op
@@ -60,12 +64,25 @@ public class PersistentEventLogLoader extends ome.services.eventlogs.PersistentE
                         "Locating next PIXELSDATA EventLog repo:%s > id:%d",
                         repo, current_id));
             }
-            dataPerUser = sql.nextPixelsDataLogForRepo(repo, current_id);
-            if (log.isDebugEnabled()) {
-                for (long[] data : dataPerUser) {
+
+            // Taking a multiple of the numThreads that takes a few as possible
+            // from the second row.
+            dataPerUser = new ArrayList<long[]>();
+            List<long[]> tmp = sql.nextPixelsDataLogForRepo(repo, current_id, numThreads);
+
+            while (tmp.size() > 0) {
+                long[] data = tmp.remove(0);
+                if (dataPerUser.size() < numThreads) {
+                    dataPerUser.add(data); // If we haven't covered the threads, take it
                     log.debug("Data: " + Arrays.toString(data));
+                } else if (data[3] == 1) {
+                    dataPerUser.add(data); // If this is the first per user, take it.
+                    log.debug("Data: " + Arrays.toString(data));
+                } else {
+                    log.debug("Skip: " + Arrays.toString(data));
                 }
             }
+
             if (available()) {
                 return pop();
             }
@@ -88,6 +105,7 @@ public class PersistentEventLogLoader extends ome.services.eventlogs.PersistentE
         final long experimenter = data[0];
         final long eventLog = data[1];
         final long pixels = data[2];
+        final long row = data[3];
 
         if (log.isDebugEnabled()) {
             log.debug(String.format("Handling pixels id:%d for user id:%d",

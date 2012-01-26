@@ -18,8 +18,10 @@
     <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/><!-- for DBEnumCheck -->
     <dependency org="java-image-scaling" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <!-- Ice -->
+    <dependency org="omero" name="omero-shares" rev="${versions.ice}"/>
     <dependency org="omero" name="ice" rev="${versions.ice}"/>
     <dependency org="omero" name="ice-db" rev="${versions.ice}"/>
+    <dependency org="omero" name="ice-freeze" rev="${versions.ice}"/>
     <!-- j2ee replacements : jta, jndi, etc. -->
     <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4"/>
     <dependency org="btm" name="btm" rev="${versions.btm}"/>

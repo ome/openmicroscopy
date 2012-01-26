@@ -430,4 +430,7 @@ public interface Browser
 	 */
 	void setViewLocation(double rx, double ry);
 
+	/** Discards the browser.*/
+	void discard();
+
 }

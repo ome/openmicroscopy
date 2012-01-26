@@ -311,12 +311,19 @@ public class DataServicesFactory
 	 * quits the application.
 	 * 
 	 * @param index One of the connection constants defined by the gateway.
+	 * @param exc The exception to register.
 	 */
-	public void sessionExpiredExit(int index)
+	public void sessionExpiredExit(int index, Throwable exc)
 	{
 		if (connectionDialog != null) return;
 		String message;
 		UserNotifier un = registry.getUserNotifier();
+		if (exc != null) {
+			LogMessage msg = new LogMessage();
+			msg.print("Session Expired");
+			msg.print(exc);
+			registry.getLogger().debug(this, msg);
+		}
 		switch (index) {
 			case LOST_CONNECTION:
 				message = "The connection has been lost. \nDo you want " +

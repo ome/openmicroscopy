@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.io.File;
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ import pojos.WellSampleData;
  * @since 3.0-Beta4
  */
 class GeneralPaneUI 
-	extends JScrollPane
+	extends JPanel//JScrollPane
 {
 
 	/** The default text. */
@@ -123,6 +124,9 @@ class GeneralPaneUI
 
 	/** The container hosting the <code>JXTaskPane</code>. */
 	private JXTaskPaneContainer 		container;
+	
+	/** The tool bar.*/
+	private ToolBar toolbar;
 	
 	/**;
 	 * Loads or cancels any on-going loading of containers hosting
@@ -185,11 +189,15 @@ class GeneralPaneUI
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
+		setLayout(new BorderLayout(0, 0));
 		container.add(propertiesTaskPane);
 		container.add(annotationTaskPane);
-		JViewport viewport = getViewport();
+		JScrollPane pane = new JScrollPane();
+		JViewport viewport = pane.getViewport();
 		viewport.add(container);
 		viewport.setBackground(UIUtilities.BACKGROUND_COLOR);
+		add(toolbar, BorderLayout.NORTH);
+    	add(pane, BorderLayout.CENTER);
 	}
 	
 	/** 
@@ -247,8 +255,10 @@ class GeneralPaneUI
 	 * 						Mustn't be <code>null</code>.
 	 * @param controller	Reference to the Control. 
 	 * 						Mustn't be <code>null</code>.
+	 * @param tooBar 		The tool Bar
 	 */
-	GeneralPaneUI(EditorUI view, EditorModel model, EditorControl controller)
+	GeneralPaneUI(EditorUI view, EditorModel model, EditorControl controller, 
+			ToolBar toolBar)
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
@@ -258,6 +268,7 @@ class GeneralPaneUI
 			throw new IllegalArgumentException("No view.");
 		this.model = model;
 		this.controller = controller;
+		this.toolbar = toolBar;
 		this.view = view;
 		initComponents();
 		init = false;
@@ -327,8 +338,10 @@ class GeneralPaneUI
 			protocolTaskPane.add(n);
 			container.add(protocolTaskPane);
 		}
-		
-		
+		container.remove(propertiesTaskPane);
+		if (!multi) {
+			container.add(propertiesTaskPane, 0); //first index
+		}
 		if (h > 0) {
 			container.add(browserTaskPane);
 			if (!browserTaskPane.isCollapsed())

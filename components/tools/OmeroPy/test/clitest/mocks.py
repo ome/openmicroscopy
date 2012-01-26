@@ -10,6 +10,7 @@
 
 import exceptions
 import subprocess
+import logging
 
 from omero.cli import CLI
 from omero.cli import Context
@@ -18,10 +19,13 @@ from omero.cli import NonZeroReturnCode
 
 from omero_ext import mox
 
+LOG = logging.getLogger("climocks")
+
 
 class MockCLI(CLI):
 
     def __init__(self, *args, **kwargs):
+        self.__expect = []
         self.__output = []
         self.__error = []
         self.__popen = []
@@ -33,6 +37,21 @@ class MockCLI(CLI):
     # Overrides
     #
 
+    def input(self, *args, **kwargs):
+        key = args[0]
+
+        for I, T in enumerate(self.__expect):
+            K, V = T
+            if key == K:
+                self.__expect.pop(I)
+                return V
+
+        # Not found
+        msg = """Couldn't find key: "%s". Options: %s""" % \
+                (key, [x[0] for x in self.__expect])
+        print msg
+        raise Exception(msg)
+
     def out(self, *args):
         self.__output.append(args[0])
 
@@ -40,6 +59,7 @@ class MockCLI(CLI):
         self.__error.append(args[0])
 
     def call(self, args):
+        LOG.debug("call:%s" % args)
         rv = self.__call.pop(0)
         if rv != 0:
             raise NonZeroReturnCode(rv)
@@ -49,11 +69,15 @@ class MockCLI(CLI):
         assert False
 
     def popen(self, *args, **kwargs):
+        LOG.debug("popen:%s {%s}" % (args, kwargs))
         return self.__popen.pop(0)
 
     #
     # Test methods
     #
+
+    def expect(self, key, value):
+        self.__expect.append((key, value))
 
     def assertEquals(self, a, b):
         if a != b:

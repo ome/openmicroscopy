@@ -54,6 +54,9 @@ class LoggerImpl
     implements Logger
 {
     
+	/** The absolute pathname of the log file.*/
+	private String absFile;
+	
     /**
      * Returns the <i>Log4j</i> logger for the specified object.
      * 
@@ -77,6 +80,7 @@ class LoggerImpl
      */
     LoggerImpl(Properties config, String absFile)
     {
+    	this.absFile = absFile;
 		config.put("log4j.appender.BASE.File", absFile);
 		PropertyConfigurator.configure(config);
     }
@@ -165,10 +169,16 @@ class LoggerImpl
 	/**
      * Implemented as specified by {@link Logger}.
      * @see Logger#warn(Object, LogMessage)
-     */     
+     */
 	public void warn(Object c, LogMessage msg)
 	{
 		getAdaptee(c).warn(msg == null ? null : msg.toString());
 	}
-  
+
+	/**
+     * Implemented as specified by {@link Logger}.
+     * @see Logger#getLogFile()
+     */
+	public String getLogFile() { return absFile; }
+
 }

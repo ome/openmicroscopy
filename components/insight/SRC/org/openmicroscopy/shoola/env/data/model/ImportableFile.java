@@ -187,5 +187,29 @@ public class ImportableFile
 	 * @param refNode The node to set.
 	 */
 	public void setRefNode(Object refNode) { this.refNode = refNode; }
-		
+	
+	/**
+	 * Sets the file.
+	 * 
+	 * @param file The value to set.
+	 */
+	public void setFile(File file) { this.file = file; }
+	
+	/**
+	 * Returns a copy of the object.
+	 * 
+	 * @return See above.
+	 */
+	public ImportableFile copy()
+	{
+		ImportableFile newObject = new ImportableFile(this.file, this.archived,
+				this.folderAsContainer);
+		newObject.dataset = this.dataset;
+		newObject.parent = this.parent;
+		newObject.file = this.file;
+		newObject.refNode = this.refNode;
+		newObject.status = new StatusLabel();
+		return newObject;
+	}
+
 }

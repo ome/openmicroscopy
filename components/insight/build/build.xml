@@ -52,30 +52,30 @@
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * The following properties define the mappings to the artifacts relevant
-   * to the build.  These artifacts are contained in the local SVN repository
+   * to the build.  These artifacts are contained in the local git repository
    * hosting this build file.  Here's a short description of contents of the 
-   * SVN dirs that are relevant to the build:
+   * git dirs that are relevant to the build:
    *   + root dir: Contains the license file.
    *   + build: Contains this master build file and all its children.
    *   + config: Container and agents configuration files.
    *   + docgen: Documentation artifacts used to build actual documents.
    *   + launch: Scripts for launching the app and install instructions.
-   *   + LIB: All jars required by the app.  Its test sub-dir contains 
-   *          additional jars required by the test code.
    *   + SRC: All java source files and app resources.
    *   + TEST: All test code and relative resources.  
    *
    * NOTE: The root namespace for properties defined in the master build file
    *       is 'base'.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <property name="native.lib.dir" location="${basedir}/../../lib/"/>
   <property name="base.build.dir" location="build"/> 
   <property name="base.config.dir" location="config"/>
   <property name="base.launch.dir" location="launch"/> 
-  <property name="base.lib.dir" location="LIB"/>
+  <property name="base.lib.dir" location="target/libs"/>
+  <property name="base.runtimelib.dir" location="target/libs/runtime"/>
   <property name="base.src.dir" location="SRC"/>
   <property name="base.test.dir" location="TEST"/> 
   <property name="base.test.lib.dir" location="${base.lib.dir}/test"/>
-  <property name="base.licensefile" location="legal/gpl.txt"/>
+  <property name="base.licensefile" location="../../lib/licenses/gpl.txt"/>
   <property name="base.docgen.index.file"   location="docgen/index.html"/> 
   <property name="base.docgen.insight_index.file"   location="docgen/insight_index.html"/> 
   <property name="base.userdocs.index.file" 
@@ -105,6 +105,24 @@
    * properties defined by others and all child files check for the needed
    * external properties at import time.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <path id="insight.tools.path">
+      <fileset dir="${base.build.dir}/../../../lib/repository">
+            <include name="ant-contrib-*.jar"/>
+            <include name="bsf*.jar"/>
+            <include name="jarbundler*.jar"/>
+            <include name="rhino*.jar"/>
+      </fileset>
+  </path>
+
+  <mkdir dir="${base.lib.dir}"/>
+  <mkdir dir="${base.runtimelib.dir}"/>
+  <mkdir dir="${base.test.lib.dir}"/>
+
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties"
+           classpathref="insight.tools.path"/>
+  <taskdef resource="net/sf/antcontrib/antlib.xml"
+           classpathref="insight.tools.path"/>
+
   <typedef file="${base.build.dir}/lib.xml"/>
   <import file="${base.build.dir}/app.xml"/>
   <import file="${base.build.dir}/test.xml"/> 

@@ -78,14 +78,14 @@ public interface OmeroImageService
 	
 	/** Identifies the <code>Maximum intensity</code> projection. */
 	public static final int	MAX_INTENSITY = 
-									ProjectionType.MAXIMUMINTENSITY.value();
+									ProjectionType.MAXIMUMINTENSITY.ordinal();
 	
 	/** Identifies the <code>Mean intensity</code> projection. */
 	public static final int	MEAN_INTENSITY = 
-								ProjectionType.MEANINTENSITY.value();
+								ProjectionType.MEANINTENSITY.ordinal();
 	
 	/** Identifies the <code>Sum intensity</code> projection. */
-	public static final int	SUM_INTENSITY = ProjectionType.SUMINTENSITY.value();
+	public static final int	SUM_INTENSITY = ProjectionType.SUMINTENSITY.ordinal();
 	
 	/** Identifies the type used to store pixel values. */
 	public static final String INT_8 = "int8";

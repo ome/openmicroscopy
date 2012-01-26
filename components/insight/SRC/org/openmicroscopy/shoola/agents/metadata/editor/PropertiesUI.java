@@ -743,30 +743,17 @@ class PropertiesUI
     private JPanel buildProperties()
     {
     	Object refObject = model.getRefObject();
-        boolean view = false;
         if (refObject instanceof ImageData) {
         	ImageData img = (ImageData) refObject;
         	try {
         		img.getDefaultPixels();
-        		view = true;
     		} catch (Exception e) {}
         } else if (refObject instanceof WellSampleData) {
         	ImageData img = ((WellSampleData) refObject).getImage();
         	if (img != null && img.getId() > 0) {
         		img.getDefaultPixels();
-        		view = true;
         	}
         }
-        JButton button = null;
-        if (view) {
-        	IconManager icons = IconManager.getInstance();
-        	button = new JButton(icons.getIcon(IconManager.VIEW));
-        	button.setToolTipText("Open the Image Viewer");
-        	button.setActionCommand(""+EditorControl.VIEW_IMAGE);
-        	button.addActionListener(controller);
-        	UIUtilities.unifiedButtonLookAndFeel(button);
-        }
-        
         JPanel p = new JPanel();
         p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -774,7 +761,7 @@ class PropertiesUI
         JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         int w = editName.getIcon().getIconWidth()+4;
-        p.add(layoutEditablefield(button, l));
+        p.add(layoutEditablefield(null, l));
         l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
@@ -964,9 +951,10 @@ class PropertiesUI
 		if (parent instanceof WellData) {
 			WellData well = (WellData) parent;
 			PlateData plate = well.getPlate();
-			String text = "Plate: "; 
-			text += plate.getName();
-			parentLabel.setText(text);
+			String text = plate.getName();
+			String s = UIUtilities.formatPartialName(text);
+			parentLabel.setText("Plate: "+s);
+			parentLabel.setToolTipText(text);
 			parentLabel.repaint();
 			text = "Well "+getWellLabel(well, plate.getColumnSequenceIndex(), 
 					plate.getRowSequenceIndex());
@@ -1267,6 +1255,7 @@ class PropertiesUI
 		value = OMEWikiComponent.prepare(value.trim(), true);
 		if (DEFAULT_DESCRIPTION_TEXT.equals(name) && 
 				DEFAULT_DESCRIPTION_TEXT.equals(value)) return false;
+		
 		return !(name.equals(value));
 	}
 	
@@ -1352,6 +1341,7 @@ class PropertiesUI
 	{
 		Object src = e.getSource();
 		if (src == namePane) {
+			/*
 			editField(namePanel, namePane, editName, false);
 			String text = namePane.getText();
 			editName.setEnabled(true);
@@ -1360,7 +1350,18 @@ class PropertiesUI
 				namePane.setText(modifiedName);
 				namePane.getDocument().addDocumentListener(this);
 			}
+			*/
 			//namePane.setCaretPosition(0);
+			String text = namePane.getText();
+			editName.setEnabled(true);
+			namePane.setEditable(false);
+			if (text == null || text.trim().length() == 0) {
+				namePane.getDocument().removeDocumentListener(this);
+				namePane.setText(modifiedName);
+				namePane.getDocument().addDocumentListener(this);
+				firePropertyChange(EditorControl.SAVE_PROPERTY, 
+						Boolean.valueOf(false), Boolean.valueOf(true));
+			}
 		} else if (src == descriptionPane) {
 			/*
 			editField(descriptionPanel, descriptionPane, editDescription, 

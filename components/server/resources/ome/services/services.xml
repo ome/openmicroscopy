@@ -152,6 +152,7 @@
     <constructor-arg ref="omeroSessionFactory"/>
     <constructor-arg ref="executorInterceptors"/>
     <constructor-arg ref="simpleSqlAction"/>
+    <constructor-arg ref="taskExecutor"/>
   </bean>
 
   <bean id="queryFactory" class="ome.services.query.QueryFactory">
