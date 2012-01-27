@@ -542,137 +542,13 @@ class BaseContainer(BaseController):
         if description is not None and description != "" :
             sc.description = rstring(str(description))
         return self.conn.saveAndReturnId(sc)
-    
-    # Comment annotation
-    """ TODO: not used now - remove?
-    def createCommentAnnotation(self, otype, content):
 
-        otype = str(otype).lower()
-        if not otype in ("project", "dataset", "image", "screen", "plate", "acquisition", "well"):
-            raise AttributeError("Object type must be: project, dataset, image, screen, plate, acquisition, well. ")
-        if otype == 'well':
-            otype = 'Image'
-            selfobject = self.well.getWellSample().image()
-        elif otype == 'acquisition':
-            otype = 'PlateAcquisition'
-            selfobject = self.acquisition
-        else:
-            selfobject = getattr(self, otype)
-            otype = otype.title()
-            
-        ann = omero.model.CommentAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = getattr(omero.model, otype+"AnnotationLinkI")()
-        l_ann.setParent(selfobject._obj)
-        l_ann.setChild(ann)
-        #blitzObj = self.conn.saveAndReturnObject(l_ann)    # TODO: Can't use this since it returns an unloaded object
-        #return = blitzObj.getChild()                       # It works if we remove res.unload()  in webclient_gateway
-        link_obj = self.conn.getUpdateService().saveAndReturnObject(l_ann)
-        return self.conn.getObject("CommentAnnotation", link_obj.child.getId().getValue())
-    
-    # Tag annotation 
-    def createTagAnnotationOnly(self, tag, desc):
-        ann = None
-        try:
-            ann = self.conn.findTag(tag, desc)._obj
-        except:
-            pass
-        if ann is None:
-            ann = omero.model.TagAnnotationI()
-            ann.textValue = rstring(str(tag))
-            ann.setDescription(rstring(str(desc)))
-            self.conn.saveObject(ann)
-    
-    def createTagAnnotation(self, otype, tag, desc):
-        otype = str(otype).lower()
-        if not otype in ("project", "dataset", "image", "screen", "plate", "acquisition", "well"):
-            raise AttributeError("Object type must be: project, dataset, image, screen, plate, acquisition, well. ")
-        if otype == 'well':
-            otype = 'Image'
-            selfobject = self.well.getWellSample().image()
-        elif otype == 'acquisition':
-            otype = 'PlateAcquisition'
-            selfobject = self.acquisition
-        else:
-            selfobject = getattr(self, otype)
-            otype = otype.title()
-        
-        ann = None
-        try:
-            ann = self.conn.findTag(tag, desc)._obj
-        except:
-            pass
-        t_ann = None
-        if ann is None:
-            ann = omero.model.TagAnnotationI()
-            ann.textValue = rstring(str(tag))
-            ann.setDescription(rstring(str(desc)))            
-            t_ann = getattr(omero.model, otype+"AnnotationLinkI")()
-            t_ann.setParent(selfobject._obj)
-            t_ann.setChild(ann)
-        else:
-            # Tag exists - check it isn't already linked to parent by this user
-            params = omero.sys.Parameters()
-            params.theFilter = omero.sys.Filter()
-            params.theFilter.ownerId = rlong(self.conn.getUser().id) # linked by current user
-            links = self.conn.getAnnotationLinks(otype, parent_ids=[selfobject.id], ann_ids=[ann.id.val], params=params)
-            links = list(links)
-            if len(links) == 0:     # current user has not already tagged this object
-                t_ann = getattr(omero.model, otype+"AnnotationLinkI")()
-                t_ann.setParent(selfobject._obj)
-                t_ann.setChild(ann)
-        if t_ann is None: return
-        link_obj = self.conn.getUpdateService().saveAndReturnObject(t_ann)
-        # need to retrieve Tags with link loaded - should only be 1 link to this tag
-        links = self.conn.getAnnotationLinks (otype, parent_ids=[selfobject.getId()], ann_ids=[link_obj.child.getId().getValue()])
-        fa_link = links.next()  # get first item in generator
-        fa = fa_link.getAnnotation()
-        return fa
-    """
+
     def checkMimetype(self, file_type):
         if file_type is None or len(file_type) == 0:
             file_type = "application/octet-stream"
         return file_type
-    
-    """
-    def createFileAnnotation(self, otype, newFile):
-        otype = str(otype).lower()
-        if not otype in ("project", "dataset", "image", "screen", "plate", "acquisition", "well"):
-            raise AttributeError("Object type must be: project, dataset, image, screen, plate, acquisition, well. ")
-        if otype == 'well':
-            otype = 'Image'
-            selfobject = self.well.getWellSample().image()
-        elif otype == 'acquisition':
-            otype = 'PlateAcquisition'
-            selfobject = self.acquisition
-        else:
-            selfobject = getattr(self, otype)
-            otype = otype.title()
-            
-        format = self.checkMimetype(newFile.content_type)
-        
-        oFile = omero.model.OriginalFileI()
-        oFile.setName(rstring(smart_str(newFile.name)));
-        oFile.setPath(rstring(smart_str(newFile.name)));
-        oFile.setSize(rlong(long(newFile.size)));
-        oFile.setSha1(rstring("pending"));
-        oFile.setMimetype(rstring(str(format)));
-        
-        ofid = self.conn.saveAndReturnId(oFile);
-        of = self.conn.saveAndReturnFile(newFile, ofid)
-        
-        fa = omero.model.FileAnnotationI()
-        fa.setFile(of)
-        l_ia = getattr(omero.model, otype+"AnnotationLinkI")()
-        l_ia.setParent(selfobject._obj)
-        l_ia.setChild(fa)
-        link_obj = self.conn.getUpdateService().saveAndReturnObject(l_ia)
-        # need to retrieve Annotation with link loaded - should only be 1 link to this annotation
-        links = self.conn.getAnnotationLinks (otype, ann_ids=[link_obj.child.getId().getValue()])
-        fa_link = links.next()  # get first item in generator
-        fa = fa_link.getAnnotation()
-        return fa
-    """
+
 
     def createCommentAnnotations(self, content, oids, well_index=0):
         ann = omero.model.CommentAnnotationI()
@@ -703,6 +579,13 @@ class BaseContainer(BaseController):
 
     
     def createTagAnnotations(self, tag, desc, oids, well_index=0):
+        """
+        Creates a new tag (with description) OR uses existing tag with the specified name if found.
+        Links the tag to the specified objects.
+        @param tag:         Tag text/name
+        @param desc:        Tag description
+        @param oids:        Dict of Objects and IDs. E.g. {"Image": [1,2,3], "Dataset", [6]}
+        """
         ann = None
         try:
             ann = self.conn.findTag(tag, desc)
@@ -733,17 +616,27 @@ class BaseContainer(BaseController):
                     l_ann.setParent(obj._obj)
                     l_ann.setChild(ann._obj)
                     new_links.append(l_ann)
+
         if len(new_links) > 0 :
-            self.conn.saveArray(new_links)
+            # If we retrieved an existing Tag above, link may already exist...
+            try:
+                self.conn.saveArray(new_links)
+            except omero.ValidationException, x:
+                for l in new_links:
+                    try:
+                        self.conn.saveObject(l)
+                    except:
+                        pass
         # if we only annotated a single object, return file-anns with link loaded
         if len(parent_objs) == 1:
             parent = parent_objs[0]
             links = self.conn.getAnnotationLinks (parent.OMERO_CLASS, parent_ids=[parent.getId()], ann_ids=[ann.id])
             lnk = links.next()
             return lnk.getAnnotation()
-        # Each annotation will have several new links - Just return the annotations
+        # Each tag will have several new links - Just return the tag
         return ann
-    
+
+
     def createFileAnnotations(self, newFile, oids, well_index=0):
         format = self.checkMimetype(newFile.content_type)
         
@@ -791,49 +684,15 @@ class BaseContainer(BaseController):
             return fa
         return self.conn.getObject("FileAnnotation", fa.getId())
 
-    
-    # Create links
-    """ TODO: not used? remove?
-    def createAnnotationLinks(self, otype, atype, ann_ids):
-        
-        atype = str(atype).lower()
-        if not atype in ("tag", "comment", "file"):
-            raise AttributeError("Object type must be: tag, comment, file.")
-        if otype == 'well':
-            otype = 'Image'
-            selfobject = self.well.getWellSample().image()
-        elif otype == 'acquisition':
-            otype = 'PlateAcquisition'
-            selfobject = self.acquisition
-        else:
-            selfobject = getattr(self, otype)
-            otype = otype.title()
-            
-        new_links = list()
-        for a in self.conn.getObjects("Annotation", ann_ids):
-            ann = getattr(omero.model, otype+"AnnotationLinkI")()
-            ann.setParent(selfobject._obj)
-            ann.setChild(a._obj)
-            new_links.append(ann)
-        
-        failed = 0
-        try:
-            self.conn.saveArray(new_links)
-        except omero.ValidationException, x:
-            for l in new_links:
-                try:
-                    self.conn.saveObject(l)
-                except:
-                    failed+=1
-
-        # need to retrieve Annotations with links loaded
-        links = self.conn.getAnnotationLinks (otype, parent_ids=[selfobject.getId()], ann_ids=ids)
-        fas = [fa_link.getAnnotation() for fa_link in links]
-        return fas
-    """
 
     def createAnnotationsLinks(self, atype, tids, oids, well_index=0):
-        #TODO: check if link already exist !!!
+        """
+        Links existing annotations to 1 or more objects
+        
+        @param atype:       Annotation type E.g. "tag", "file"
+        @param tids:        Annotation IDs
+        @param oids:        Dict of Objects and IDs. E.g. {"Image": [1,2,3], "Dataset", [6]}
+        """
         atype = str(atype).lower()
         if not atype.lower() in ("tag", "comment", "file"):
             raise AttributeError("Object type must be: tag, comment, file.")
@@ -943,21 +802,8 @@ class BaseContainer(BaseController):
         else:
             container.description = None
         self.conn.saveObject(container)
-    """
-    def saveCommentAnnotation(self, content):
-        ann = self.comment._obj
-        ann.textValue = rstring(str(content))
-        self.conn.saveObject(ann)
-    
-    def saveTagAnnotation(self, tag, description=None):
-        ann = self.tag._obj
-        ann.textValue = rstring(str(tag))
-        if description is not None and description != "" :
-            ann.description = rstring(str(description))
-        else:
-            ann.description = None
-        self.conn.saveObject(ann)
-    """
+
+
     def move(self, parent, destination):
         if self.project is not None:
             return 'Cannot move project.'
