@@ -3226,13 +3226,14 @@ class ImViewerComponent
 	 */
 	public void setBirdEyeView(BufferedImage image)
 	{
-		if (model.getState() != LOADING_BIRD_EYE_VIEW) 
-			return;
-		if (!view.isVisible()) {
-			buildView();
-			renderXYPlane();
+		switch (model.getState()) {
+			case LOADING_BIRD_EYE_VIEW:
+				if (!view.isVisible()) {
+					buildView();
+					renderXYPlane();
+				}
+				model.setBirdEyeView(image);
 		}
-		model.setBirdEyeView(image);
 	}
 	
 	/** 
@@ -3360,15 +3361,19 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case LOADING_RND:
-				if (model.isBigImage()) discard();
-				else {
+				if (model.isBigImage()) {
+					model.cancelBirdEyeView(); 
+					view.dispose();
+				} else {
 					model.cancelRendering();
 					view.getLoadingWindow().setVisible(false);
 					fireStateChange();
 				}
 				break;
 			case LOADING_BIRD_EYE_VIEW:
-				discard();
+				model.cancelBirdEyeView(); 
+				view.dispose();
+				fireStateChange();
 		}
 	}
 	

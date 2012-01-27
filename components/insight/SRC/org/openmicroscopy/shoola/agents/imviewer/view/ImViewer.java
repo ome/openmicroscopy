@@ -174,6 +174,9 @@ public interface ImViewer
 	/** Flag to denote the <i>Loading the Bird eye view</i> state. */
 	public static final int     LOADING_BIRD_EYE_VIEW = 18;
 	
+	/** Flag to denote the <i>Discarded</i> state. */
+	public static final int     CANCELLED = 19;
+	
 	/** Bound property name indicating that a new z-section is selected. */
 	public final static String  Z_SELECTED_PROPERTY = "zSelected";
 

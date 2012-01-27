@@ -70,6 +70,9 @@ public class BirdEyeLoader
     /** The ratio by which to scale the image down.*/
     private double ratio;
 	
+    /** Flag indicating that this loader has been cancelled.*/
+    private boolean cancelled;
+    
     /**
      * Creates a new instance.
      * 
@@ -105,15 +108,25 @@ public class BirdEyeLoader
      * Cancels the ongoing data retrieval.
      * @see DataLoader#cancel()
      */
-    public void cancel() { handle.cancel(); }
+    public void cancel()
+    {
+    	cancelled = true;
+    	handle.cancel();
+    }
     
     /**
-     * Does nothing as the asynchronous call returns <code>null</code>.
-     * The actual pay-load (tile) is delivered progressively
-     * during the updates.
+     * Throws an exception b/c not possible to load the bird eye view.
      * @see DataLoader#handleNullResult()
      */
-    public void handleNullResult() {}
+    public void handleNullResult()
+    {
+    	handleException(new Exception("No bird eye view."));
+    }
+    
+    /**
+     * Notifies the user that the data retrieval has been cancelled.
+     */
+    public void handleCancellation() {}
     
     /**
      * Notifies the user that an error has occurred.
@@ -124,7 +137,9 @@ public class BirdEyeLoader
         String s = "Bird Eye Retrieval Failure: ";
         if (viewer.getState() == ImViewer.DISCARDED) return;
         registry.getLogger().error(this, s+exc);
-        registry.getUserNotifier().notifyError(s, s, exc);
+        if (viewer.getState() == ImViewer.CANCELLED)
+        	if (cancelled) viewer.discard();
+        else registry.getUserNotifier().notifyError(s, s, exc);
     }
     
     /** 
@@ -133,7 +148,7 @@ public class BirdEyeLoader
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
+        if (viewer.getState() == ImViewer.DISCARDED || cancelled) return;
         BufferedImage image = (BufferedImage) result;
         if (image != null && ratio != 1)
         	image = Factory.magnifyImage(ratio, image);

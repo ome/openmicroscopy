@@ -894,6 +894,8 @@ class ImViewerControl
 				if (!window.isVisible())
 					UIUtilities.centerAndShow(window);
 				break;
+			case ImViewer.CANCELLED:
+				view.getLoadingWindow().setVisible(false);
 			case ImViewer.LOADING_IMAGE:
 				if (historyState == ImViewer.LOADING_METADATA)
 					view.getLoadingWindow().setVisible(false);

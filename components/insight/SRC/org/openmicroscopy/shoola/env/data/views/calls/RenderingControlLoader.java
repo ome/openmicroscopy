@@ -64,6 +64,9 @@ public class RenderingControlLoader
 	/** Indicates to reload the rendering engine. */
 	public static final int RESET = 2;
 	
+	/** Indicates to reload the rendering engine. */
+	public static final int SHUTDOWN = 3;
+	
 	/** Result of the call. */
 	private Object    	result;
 
@@ -94,8 +97,11 @@ public class RenderingControlLoader
 						break;
 					case RESET:
 						result = rds.resetRenderingService(pixelsID);
+						break;
+					case SHUTDOWN:
+						rds.shutDown(pixelsID);
 				}
-				if (result == null) {
+				if (result == null && index != SHUTDOWN) {
 					throw new DSOutOfServiceException("Cannot start the " +
 							"rendering engine for pixelsID "+pixelsID);
 				}

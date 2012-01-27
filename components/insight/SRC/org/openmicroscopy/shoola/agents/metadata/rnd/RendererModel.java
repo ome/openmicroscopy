@@ -39,6 +39,7 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.RenderingControlShutDown;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -268,9 +269,9 @@ class RendererModel
 	void discard() 
 	{
 		if (rndControl == null) return;
-		OmeroImageService svr = 
-			MetadataViewerAgent.getRegistry().getImageService();
-		svr.shutDown(rndControl.getPixelsID());
+		RenderingControlShutDown loader = 
+			new RenderingControlShutDown(rndControl.getPixelsID());
+		loader.load();
 		rndControl = null;
 	}
 

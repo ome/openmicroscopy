@@ -659,6 +659,18 @@ class ImViewerModel
 	 */
 	int getState() { return state; }
 
+	/** Cancels the bird eye view loading.*/
+	void cancelBirdEyeView()
+	{
+		state = ImViewer.CANCELLED;
+		DataLoader loader = loaders.get(BIRD_EYE_BVIEW);
+		if (loader != null) {
+			loader.cancel();
+			loaders.remove(BIRD_EYE_BVIEW);
+		}
+		discard();
+	}
+	
 	/**
 	 * Sets the object in the {@link ImViewer#DISCARDED} state.
 	 * Any ongoing data loading will be canceled.
@@ -667,22 +679,24 @@ class ImViewerModel
 	{
 		state = ImViewer.DISCARDED;
 		if (imageIcon != null) imageIcon.flush();
-		browser.discard();
-		if (metadataViewer != null && metadataViewer.getRenderer() != null) {
-			metadataViewer.getRenderer().discard();
-		}
-			
-		if (image == null) return;
-		//Shut down the service
-		//OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
-		//long pixelsID = getImage().getDefaultPixels().getId();
-		//svr.shutDown(pixelsID);
+		//
 		Iterator i = loaders.keySet().iterator();
 		Integer index;
 		while (i.hasNext()) {
 			index =  (Integer) i.next();
 			(loaders.get(index)).cancel();
 		}
+		browser.discard();
+		if (metadataViewer != null && metadataViewer.getRenderer() != null) {
+			metadataViewer.getRenderer().discard();
+		}
+			
+		//if (image == null) return;
+		//Shut down the service
+		//OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
+		//long pixelsID = getImage().getDefaultPixels().getId();
+		//svr.shutDown(pixelsID);
+		
 		if (player == null) return;
 		player.setPlayerState(Player.STOP);
 		player = null;

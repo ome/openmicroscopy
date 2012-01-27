@@ -325,7 +325,6 @@ public class PixelsServicesFactory
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
-		System.err.println("shut down");
 		RenderingControlProxy proxy = (RenderingControlProxy) 
 			singleton.rndSvcProxies.get(pixelsID);
 		Integer count = singleton.rndSvcProxiesCount.get(pixelsID);
