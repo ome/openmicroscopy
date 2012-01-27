@@ -96,13 +96,7 @@ class ImporterModel
 		state = Importer.NEW;
 		loaders = new HashMap<Integer, ImagesImporter>();
 	}
-	
-	/** Creates a new instance.*/
-	ImporterModel()
-	{
-		initialize();
-	}
-	
+
 	/** 
 	 * Creates a new instance.
 	 *
@@ -122,6 +116,7 @@ class ImporterModel
 	void setGroupId(long groupId)
 	{ 
 		this.groupId = groupId;
+		ctx = new SecurityContext(groupId);
 		experimenterId = ImporterAgent.getUserDetails().getId();
 	}
 	

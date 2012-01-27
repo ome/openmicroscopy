@@ -63,7 +63,8 @@ public class PersonalManagementAction
 {
 
 	/** The description of the action. */
-    private static final String DESCRIPTION = "Select your current group.";
+    private static final String DESCRIPTION = "Select the group " +
+    		"you wish to import the data to.";
     
     /** The location of the mouse pressed. */
     private Point point;
