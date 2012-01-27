@@ -57,7 +57,7 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
 
 from omero.gateway import TagAnnotationWrapper, ExperimenterWrapper, \
                 ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper, \
-                OmeroGatewaySafeCallWrapper
+                OmeroGatewaySafeCallWrapper, CommentAnnotationWrapper
 
 from omero.sys import ParametersI
 
@@ -1284,6 +1284,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                     logger.error("Email was sent")
                 except:
                     logger.error(traceback.format_exc())
+        return CommentAnnotationWrapper(self, new_cm)
                 
     def removeImage(self, share_id, image_id):
         sh = self.getShareService()

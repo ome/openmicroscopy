@@ -2014,8 +2014,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 logger.debug("Create share comment: %s" % (str(form_sharecomments.cleaned_data)))
                 comment = form_sharecomments.cleaned_data['comment']
                 host = request.build_absolute_uri(reverse("load_template", args=["public"]))
-                manager.addComment(host, request.session['server'], comment)
-                return HttpResponseRedirect(url)
+                textAnn = manager.addComment(host, request.session['server'], comment)
+                template = "webclient/annotations/comment.html"
+                context = {'tann': textAnn}
             else:
                 template = "webclient/annotations/annotation_new_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 
