@@ -136,6 +136,19 @@ public class TreeViewerAgent
 	}
 	
 	/**
+	 * Returns <code>true</code> if the binary data are available, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isBinaryAvailable()
+	{
+		Boolean b = (Boolean) registry.lookup(LookupNames.BINARY_AVAILABLE);
+		if (b == null) return true;
+		return b.booleanValue();
+	}
+	
+	/**
 	 * Returns the collection of groups the current user is the leader of.
 	 * 
 	 * @return See above.

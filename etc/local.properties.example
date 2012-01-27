@@ -6,6 +6,7 @@
 # this file to etc/local.properties and manually
 # editing it.
 #
+omero.version=UNKNOWN
 omero.rootpass=ome
 omero.db.profile=psql
 
@@ -25,8 +26,9 @@ javadoc.maxmem=500000000
 exe4j.home=/opt/exe4j
 
 # Which version of Ice this build of OMERO is
-# compatible with.
-ice.compatibility=3.4
+# compatible with. If "auto" is set (the default)
+# then either version of Ice will be accepted.
+ice.compatibility=auto
 
 # This will be set by antlib/resources/global.xml
 # to a best guess if not specified either first

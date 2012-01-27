@@ -855,6 +855,29 @@ class ImporterUIElement
 	}
 	
 	/**
+	 * Returns the collection of files that could not be imported.
+	 * 
+	 * @return See above.
+	 */
+	List<FileImportComponent> getFilesToReimport()
+	{
+		List<FileImportComponent> list = new ArrayList<FileImportComponent>();
+		Entry entry;
+		Iterator i = components.entrySet().iterator();
+		FileImportComponent fc;
+		File f;
+		List<FileImportComponent> l;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			fc = (FileImportComponent) entry.getValue();
+			l = fc.getReImport();
+			if (l != null && l.size() > 0)
+				list.addAll(l);
+		}
+		return list;
+	}
+	
+	/**
 	 * Returns the object to import.
 	 * 
 	 * @return See above.
@@ -918,6 +941,26 @@ class ImporterUIElement
 		return false;
 	}
 
+	/**
+	 * Returns <code>true</code> if files to reimport, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasFailuresToReimport()
+	{
+		Entry entry;
+		Iterator i = components.entrySet().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			fc = (FileImportComponent) entry.getValue();
+			if (fc.hasFailuresToReimport()) 
+				return true;
+		}
+		return false;
+	}
+	
 	/** Indicates that the import has been cancel. */
 	void cancelLoading()
 	{
@@ -1045,4 +1088,11 @@ class ImporterUIElement
 		}
 	}
 
+	/**
+	 * Returns a copy of the importable object.
+	 * 
+	 * @return See above.
+	 */
+	ImportableObject getImportableObject() { return object.copy(); }
+	
 }

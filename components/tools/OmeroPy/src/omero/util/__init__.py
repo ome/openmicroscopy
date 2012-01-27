@@ -676,8 +676,9 @@ class Environment:
         else:
             self.env = {}
         for arg in args:
-            if os.environ.has_key(arg):
+            if arg in os.environ:
                 self.env[arg] = os.environ[arg]
+
     def __call__(self):
         """
         Returns the environment map when called.

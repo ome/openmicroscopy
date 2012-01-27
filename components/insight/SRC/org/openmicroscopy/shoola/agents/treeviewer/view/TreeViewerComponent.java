@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
+import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -81,6 +82,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -159,6 +161,32 @@ class TreeViewerComponent
 	
 	/** The dialog presenting the list of available users. */
 	private UserManagerDialog	switchUserDialog;
+	
+	/** The dialog displaying the selected script.*/
+	private ScriptingDialog     scriptDialog;
+	
+	/**
+	 * Returns the name corresponding the specified object.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	private String getObjectType(Object object)
+	{
+		if (object instanceof DatasetData) return "dataset";
+		else if (object instanceof ProjectData) return "project";
+		else if (object instanceof GroupData) return "group";
+		else if (object instanceof ScreenData) return "screen";
+		else if (object instanceof PlateData) return "plate";
+		else if (object instanceof ImageData) return "image";
+		else if (object instanceof TagAnnotationData) {
+			TagAnnotationData tag = (TagAnnotationData) object;
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
+				return "tagSet";
+			return "tag";
+		}
+		return "item";
+	}
 	
 	/**
 	 * Downloads the files.
@@ -391,7 +419,18 @@ class TreeViewerComponent
         			return;
         		}
         	}
-        	db = DataBrowserFactory.getDataBrowser(object);
+        	Object p = object;
+        	if (object instanceof PlateData) {
+        		PlateData plate = (PlateData) object;
+        		Set<PlateAcquisitionData> set = plate.getPlateAcquisitions();
+        		if (set != null && set.size() == 1) {
+        			Iterator<PlateAcquisitionData> k = set.iterator();
+        			while (k.hasNext()) {
+						p = k.next();
+					}
+        		}
+        	}
+        	db = DataBrowserFactory.getDataBrowser(p);
         	if (db != null) {
         		db.setComponentTitle("");
         		if (visible) {
@@ -659,6 +698,11 @@ class TreeViewerComponent
 			model.getMetadataViewer().setSelectionMode(false);
 			firePropertyChange(SELECTED_BROWSER_PROPERTY, oldBrowser, browser);
 		}
+		Browser b = model.getSelectedBrowser();
+		int t = -1;
+		if (b != null) t = b.getBrowserType();
+		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+		bus.post(new BrowserSelectionEvent(t));
 		view.updateMenuItems();
 	}
 
@@ -884,6 +928,93 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setSelectedNodes(Object)
+	 */
+	public void setSelectedNodes(Object nodes)
+	{
+		if (nodes == null) return;
+		if (!(nodes instanceof List)) return;
+		List l = (List) nodes;
+		int n = l.size();
+		List selection = (List) l.get(0);
+		Object parent = null;
+		if (n == 1) parent = l.get(1);
+		if (selection == null || selection.size() == 0) return;
+		MetadataViewer mv = model.getMetadataViewer();
+		if (hasDataToSave()) {
+			MessageBox dialog = new MessageBox(view, "Save data", 
+					"Do you want to save the modified " +
+					"data \n before selecting a new item?");
+			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
+			else mv.clearDataToSave();
+		}
+		Object selected = selection.get(0);
+		if (view.getDisplayMode() != SEARCH_MODE) {
+			Browser browser = model.getSelectedBrowser();
+			browser.onSelectedNode(parent, selection, selection.size() > 0);
+		}
+		int size = selection.size();
+		if (size == 1) {
+			Browser browser = model.getSelectedBrowser();
+			ExperimenterData exp = null;
+			TreeImageDisplay last = null;
+			if (browser != null) last = browser.getLastSelectedDisplay();
+			if (last != null) exp = browser.getNodeOwner(last);
+			if (exp == null) exp = model.getUserDetails();
+			mv.setRootObject(selected, exp.getId());
+			mv.setParentRootObject(parent, null);
+			if (model.getDataViewer() != null)
+				model.getDataViewer().setApplications(
+					TreeViewerFactory.getApplications(
+							model.getObjectMimeType(selected)));
+			if (!model.isFullScreen()) {
+				//Browser browser = model.getSelectedBrowser();
+				browse(browser.getLastSelectedDisplay(), null, false);
+			}
+			//Notifies actions.
+			firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false), 
+					Boolean.valueOf(true));
+			return;
+		}
+		List result = new ArrayList();
+		selection.remove(0);
+		result.add(selection);
+		result.add(selected);
+		result.add(parent);
+		setSelectedNode(result);
+		/*
+		int size = selection.size();
+		
+		Browser browser = model.getSelectedBrowser();
+		ExperimenterData exp = null;
+		TreeImageDisplay last = null;
+		if (browser != null) last = browser.getLastSelectedDisplay();
+		if (last != null) exp = browser.getNodeOwner(last);
+		if (exp == null) exp = model.getUserDetails();
+		mv.setRootObject(selected, exp.getId());
+		mv.setParentRootObject(parent, null);
+		
+		if (size > 1) {
+			//mv.setSelectionMode(false);
+			mv.setRelatedNodes(selection.subList(1, size-1));
+		}
+
+		if (model.getDataViewer() != null)
+			model.getDataViewer().setApplications(
+				TreeViewerFactory.getApplications(
+						model.getObjectMimeType(selected)));
+		if (!model.isFullScreen()) {
+			//Browser browser = model.getSelectedBrowser();
+			browse(browser.getLastSelectedDisplay(), null, false);
+		}
+		//Notifies actions.
+		firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
+				*/
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setSelectedNode(Object)
 	 */
 	public void setSelectedNode(Object object)
@@ -933,8 +1064,6 @@ class TreeViewerComponent
 			Browser browser = model.getSelectedBrowser();
 			browser.onSelectedNode(parent, selected, size > 0);
 		}
-		size = siblings.size();
-		
 		mv.setSelectionMode(size == 0);
 		Browser browser = model.getSelectedBrowser();
 		ExperimenterData exp = null;
@@ -1379,6 +1508,14 @@ class TreeViewerComponent
 			case CREATE_MENU_ADMIN:
 			case PERSONAL_MENU:
 			case CREATE_MENU_SCREENS:
+				break;
+			case AVAILABLE_SCRIPTS_MENU:
+				if (model.getAvailableScripts() == null) {
+					model.loadScripts(p);
+					firePropertyChange(SCRIPTS_LOADING_PROPERTY,
+							Boolean.valueOf(false), Boolean.valueOf(true));
+					return;
+				}
 				break;
 			default:
 				throw new IllegalArgumentException("Menu not supported.");
@@ -3538,7 +3675,139 @@ class TreeViewerComponent
 			}
 			model.fireDataSaving(data, images);
 		}
-		
 	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setAvailableScripts(List, Point)
+	 */
+	public void setAvailableScripts(List scripts, Point location)
+	{
+		if (model.getState() == DISCARDED) return;
+		model.setAvailableScripts(scripts);
+		firePropertyChange(SCRIPTS_LOADED_PROPERTY,
+				Boolean.valueOf(false), Boolean.valueOf(true));
+		if (location != null)
+			view.showMenu(AVAILABLE_SCRIPTS_MENU, null, location);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#loadScript(long)
+	 */
+	public void loadScript(long scriptID)
+	{
+		if (scriptID < 0) return;
+		model.loadScript(scriptID);
+		firePropertyChange(SCRIPTS_LOADING_PROPERTY, 
+				Boolean.valueOf(false), Boolean.valueOf(true));
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setScript(ScriptObject)
+	 */
+	public void setScript(ScriptObject script)
+	{
+		firePropertyChange(SCRIPTS_LOADED_PROPERTY, 
+				Boolean.valueOf(false), Boolean.valueOf(true));
+		if (script == null) return;
+		model.setScript(script);
+		Browser browser = model.getSelectedBrowser();
+		List<DataObject> objects;
+		if (browser == null) objects = new ArrayList<DataObject>();
+		else objects = browser.getSelectedDataObjects();
+
+		//setStatus(false);
+		if (scriptDialog == null) {
+			scriptDialog = new ScriptingDialog(view, 
+					model.getScript(script.getScriptID()), objects, 
+					TreeViewerAgent.isBinaryAvailable());
+			scriptDialog.addPropertyChangeListener(controller);
+			UIUtilities.centerAndShow(scriptDialog);
+		} else {
+			scriptDialog.reset(model.getScript(script.getScriptID()), objects);
+			if (!scriptDialog.isVisible())
+				UIUtilities.centerAndShow(scriptDialog);
+		}
+	}
+
 	
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#transfer(TreeImageDisplay, List, int)
+	 */
+	public void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes,
+			int transferAction)
+	{
+		if (target == null || nodes == null || nodes.size() == 0) return;
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
+		Object ot = target.getUserObject();
+		Object os;
+		if (nodes.size() == 1) { //check if src = destination
+			TreeImageDisplay src = nodes.get(0);
+			if (src == target) {
+				browser.rejectTransfer();
+				return;
+			}
+		}
+		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+		if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+			if (!(ot instanceof GroupData) ||
+					!TreeViewerAgent.isAdministrator()) {
+				un.notifyInfo("DnD", "Only administrator can perform" +
+						"such action.");
+				browser.rejectTransfer();
+				return;
+			}
+		}
+		if (!isUserOwner(ot)) {
+			un.notifyInfo("DnD", 
+					"You must be the owner of the container.");
+			browser.rejectTransfer();
+			return;
+		}
+		List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
+		Iterator<TreeImageDisplay> i = nodes.iterator();
+		TreeImageDisplay n;
+		
+		int count = 0;
+		String child;
+		String parent;
+		os = null;
+		int childCount = 0;
+		while (i.hasNext()) {
+			n = i.next();
+			os = n.getUserObject();
+			if (target.contains(n)) {
+				childCount++;
+			} else {
+				if (EditorUtil.isTransferable(ot, os)) {
+					count++;
+					if (ot instanceof GroupData) {
+						if (TreeViewerAgent.isAdministrator())
+							list.add(n);
+					} else {
+						if (isUserOwner(os)) list.add(n);
+					}
+				}
+			}
+		}
+		if (childCount == nodes.size()) {
+			browser.rejectTransfer();
+			return;
+		}
+		if (list.size() == 0) {
+			String s = "";
+			if (nodes.size() > 1) s = "s";
+			un.notifyInfo("DnD", 
+			"The "+getObjectType(os)+s+" cannot be moved to the selected "+
+				getObjectType(ot)+".");
+			browser.rejectTransfer();
+			return;
+		}
+		model.transfer(target, list);
+	}
+
 }

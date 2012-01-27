@@ -244,6 +244,7 @@ class WellsModel
 		this.parent = parent;
 		wellNodes = sortByRow(DataBrowserTranslator.transformHierarchy(wells, 
 				DataBrowserAgent.getUserDetails().getId(), 0));
+
 		PlateData plate = (PlateData) parent;
 		columnSequenceIndex = plate.getColumnSequenceIndex();
 		rowSequenceIndex = plate.getRowSequenceIndex();

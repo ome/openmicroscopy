@@ -26,8 +26,8 @@
   <bean id="dbPatchCheck"
      class="ome.services.util.DBPatchCheck"
      init-method="start" lazy-init="false">
-     <constructor-arg ref="internal-ome.api.IConfig"/>
-     <constructor-arg ref="executor"/>
+     <constructor-arg ref="simpleSqlAction"/>
+     <constructor-arg ref="preferenceContext"/>
   </bean>
 
   <bean id="namespaceCheck"

@@ -9,8 +9,12 @@ package ome.security.basic;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.conditions.SessionTimeoutException;
 import ome.logic.HardWiredInterceptor;
 import ome.security.MethodSecurity;
+import ome.services.sessions.stats.DelegatingStats;
+import ome.services.sessions.stats.PerThreadStats;
+import ome.services.sessions.stats.SessionStats;
 import ome.system.Principal;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -71,15 +75,23 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
 
         Principal p = getPrincipal(mi);
         boolean hp = hasPassword(mi);
+        boolean close = "close".equals(mi.getMethod().getName());
 
-        if (!"close".equals(mi.getMethod().getName())
-                && methodSecurity.isActive()) {
+        if (!close  && methodSecurity.isActive()) {
 
             methodSecurity.checkMethod(mi.getThis(), mi.getMethod(), p, hp);
         }
 
         try {
-            login(mi, p);
+            try {
+                login(mi, p);
+            } catch (SessionTimeoutException ste) {
+                if (!close) {
+                    throw ste;
+                }
+                log.warn("SessionTimeoutException on close:" + p);
+                principalHolder.login(new CloseOnNoSessionContext());
+            }
             return mi.proceed();
         } finally {
             logout();
@@ -112,5 +124,14 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
             log.error("SecuritySystem is still active on logout. " + size
                     + " logins remaining in thread.");
         }
+    }
+
+    public static class CloseOnNoSessionContext extends BasicEventContext {
+
+        public CloseOnNoSessionContext()
+        {
+            super(new Principal(""), new DelegatingStats());
+        }
+
     }
 }

@@ -49,12 +49,6 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
 public class LoadImporter 
 	extends RequestEvent
 {
-
-	/** Indicates that the type is for project. */
-	public static final int		PROJECT_TYPE = 0;
-	
-	/** Indicates that the type is for Screening data. */
-	public static final int		SCREEN_TYPE = 1;
 	
 	/** The currently selected container or <code>null</code>. */
 	private TreeImageDisplay selectedContainer;

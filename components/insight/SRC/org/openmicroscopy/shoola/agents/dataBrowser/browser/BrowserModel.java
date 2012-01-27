@@ -44,6 +44,7 @@ import javax.swing.JScrollPane;
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -771,6 +772,29 @@ class BrowserModel
 	    		node.setHighlight(colors.getSelectedHighLight(node, n == 0));
 	    	} else onNodeSelected(node, oldValue);
 	    }
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setSelectedDisplays(List)
+	 */
+	public void setSelectedDisplays(List<ImageDisplay> nodes)
+	{
+		if (nodes == null || nodes.size() == 0) return;
+		if (nodes.size() == 1) {
+			setSelectedDisplay(nodes.get(0), false, true);
+		} else {
+			thumbSelected = false;
+		    this.multiSelection = true;
+		    Set<ImageDisplay> oldValue = 
+		    	new HashSet<ImageDisplay>(selectedDisplays.size());
+		    Iterator<ImageDisplay> i = selectedDisplays.iterator();
+		    while (i.hasNext())
+		    	oldValue.add(i.next());
+		    selectedDisplays = nodes;
+		    firePropertyChange(SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY,
+	    			oldValue, nodes);
+		}
 	}
 	
 	/**

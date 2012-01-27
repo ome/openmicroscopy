@@ -426,7 +426,7 @@ class SlideShowView
 		while (i.hasNext()) {
 			node = i.next();
 			node.setListenToBorder(false);
-			node.addMouseListenerToComponents(this);
+			node.addListenerToComponents(this);
 			nodesMap.put(node, index);
 			p.add(node);
 			index++;

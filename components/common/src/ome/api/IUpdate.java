@@ -79,7 +79,15 @@ public interface IUpdate extends ServiceInterface {
      * Deletes a single entity. Unlike the other IUpdate methods, deleteObject
      * does not propagate to related entities (e.g. foreign key relationships)
      * and so calls to deleteObject must be properly ordered.
-     * 
+     *
+     * For example, if you would like to delete a FileAnnotation along with
+     * the linked OriginalFile, it is necessary to first call
+     * deleteObject(OriginalFile) and then deleteObject(FileAnnotation).
+     *
+     * Instead, you may look to use the more advanced method provided in
+     * {@link ome.api.IDelete} which provide support for deleting entire
+     * graphs of objects in the correct order.
+     *
      * @param row
      *            a persistent {@link IObject{ to be deleted.
      * @throws ValidationException

@@ -271,11 +271,7 @@ class BirdEyeViewComponent
 	{
 		return new Rectangle(bx, by, w, h);
 	}
-	
-	void setViewLocation(double rx, double ry) {
-		
-	}
-	
+
 	/**
 	 * Sets the location of the selection rectangle.
 	 * 

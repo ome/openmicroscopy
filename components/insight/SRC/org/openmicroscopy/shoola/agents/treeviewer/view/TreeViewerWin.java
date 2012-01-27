@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -403,15 +404,26 @@ class TreeViewerWin
      */
     private JMenu createFileMenu()
     {
-        JMenu menu = new JMenu("File");
-        menu.setMnemonic(KeyEvent.VK_F);
+    	TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
+    	JMenu menu = tb.getMenu(TaskBar.FILE_MENU);
+    	Component[] comps = menu.getPopupMenu().getComponents();
+    	menu.removeAll();
+        //JMenu menu = new JMenu("File");
+        //menu.setMnemonic(KeyEvent.VK_F);
+        
         menu.add(createNewMenu());
+        if (comps != null) {
+        	for (int i = 0; i < comps.length; i++) {
+        		menu.add(comps[i]);
+			}
+        }
         TreeViewerAction a = controller.getAction(
         		TreeViewerControl.SWITCH_USER);
         JMenuItem item = new JMenuItem(a);
         //menu.add(item);
         item.setText(a.getActionName());
         //menu.add(createRootMenu());
+        /*
         a = controller.getAction(TreeViewerControl.EDITOR_NO_SELECTION);
         item = new JMenuItem(a);
         menu.add(item);
@@ -420,6 +432,7 @@ class TreeViewerWin
         item = new JMenuItem(a);
         menu.add(item);
         item.setText(a.getActionName());
+        */
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         a = controller.getAction(TreeViewerControl.BROWSE);
         item = new JMenuItem(a);
@@ -916,6 +929,9 @@ class TreeViewerWin
                 break;
             case TreeViewer.PERSONAL_MENU:
             	toolBar.showPersonalMenu(c, p);
+            	break;
+            case TreeViewer.AVAILABLE_SCRIPTS_MENU:
+            	toolBar.showAvailableScriptsMenu(c, p);
         }  
     }
     
@@ -1080,6 +1096,28 @@ class TreeViewerWin
 	 */
 	String getObjectMimeType() { return model.getObjectMimeType(); }
 	
+	/**
+	 * Returns the script corresponding to the specified name.
+	 * 
+	 * @param value The name of the script.
+	 * @return See above
+	 */
+	ScriptObject getScriptFromName(String name)
+	{
+		return model.getScriptFromName(name);
+	}
+	
+	/** 
+	 * Invokes when loadings scripts.
+	 * 
+	 * @param loading Passes <code>true</code> if there is an on-going loading.
+	 *                <code>false</code> otherwise.
+	 */
+	void setScriptsLoadingStatus(boolean loading)
+	{
+		toolBar.setScriptsLoadingStatus(loading);
+	}
+	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {
@@ -1088,5 +1126,7 @@ class TreeViewerWin
         UIUtilities.incrementRelativeToAndShow(invokerBounds, this);
         invokerBounds = null;
     }
+
+
 
 }

@@ -6,15 +6,6 @@
 # Common functions used throughout the hudson scripts
 #
 
-git_short_rev() {
-    git rev-parse HEAD | cut -b1-8
-}
-
-git_zip() {
-    FILE=$1
-    git archive --format=zip HEAD -o $FILE
-}
-
 git_info() {
     HEAD=`git rev-parse HEAD`
     git log --max-count=1 $HEAD

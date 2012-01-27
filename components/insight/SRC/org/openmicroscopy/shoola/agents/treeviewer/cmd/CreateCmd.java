@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
+import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -168,10 +169,10 @@ public class CreateCmd
         	TreeImageDisplay display = null;
         	if (withParent) display = browser.getLastSelectedDisplay();
         	LoadImporter event = null;
-        	int type = LoadImporter.PROJECT_TYPE;
+        	int type = BrowserSelectionEvent.PROJECT_TYPE;
         	switch (browser.getBrowserType()) {
 				case Browser.SCREENS_EXPLORER:
-					type = LoadImporter.SCREEN_TYPE;
+					type = BrowserSelectionEvent.SCREEN_TYPE;
         	}
         	event = new LoadImporter(display, type);
         	long id = TreeViewerAgent.getUserDetails().getId();

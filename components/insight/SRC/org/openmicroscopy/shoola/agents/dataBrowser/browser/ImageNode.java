@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -32,12 +33,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.WellSampleData;
@@ -58,7 +58,7 @@ import pojos.WellSampleData;
  * </small>
  * @since OME3.0
  */
-public class ImageNode     
+public class ImageNode
 	extends ImageDisplay
 {
     
@@ -172,6 +172,25 @@ public class ImageNode
     	 //addMouseListener(listener);
     	 if (canvas != null) canvas.addMouseListener(listener);
     }
+    
+    /**
+     * Adds the specified listener to the components.
+     * 
+     * @param listener The listener to handle.
+     */
+	public void addListenerToComponents(Object listener)
+	{
+		if (listener == null) return;
+		if (listener instanceof MouseListener) {
+			getTitleBar().addMouseListener((MouseListener) listener);
+			if (canvas != null)
+				canvas.addMouseListener((MouseListener) listener);
+		} else if (listener instanceof KeyListener) {
+			getTitleBar().addKeyListener((KeyListener) listener);
+			if (canvas != null)
+				canvas.addKeyListener((KeyListener) listener);
+		}
+	}
 
     /**
      * Spits out a runtime exception because it's not possible to add a

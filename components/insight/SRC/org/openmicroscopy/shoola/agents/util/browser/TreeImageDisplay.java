@@ -663,4 +663,12 @@ public abstract class TreeImageDisplay
      */
     public abstract TreeImageDisplay copy();
     
+    /**
+     * Tells if the passed node is already a child of the node.
+     * 
+     * @return 	Returns <code>true</code> if it is a child,
+     *          <code>false</code> otherwise.
+     */
+    public abstract boolean contains(TreeImageDisplay node);
+
 }
