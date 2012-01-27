@@ -66,7 +66,7 @@
             
             // if we've got no jobs still running, stop checking
             if ((typeof inprogress == 'undefined') || (inprogress.length == 0)) {
-                if (i != undefined) clearInterval(i);
+                if (i) clearInterval(i);
                 showJobCount(0);
                 return;
             }
@@ -115,7 +115,7 @@
         var i = setInterval(function (){
                 activitiesUpdate(i);
         }, 5000);
-        activitiesUpdate(i);
+        activitiesUpdate();
     }
     $(document).ready(function() {
         showJobCount(0);
