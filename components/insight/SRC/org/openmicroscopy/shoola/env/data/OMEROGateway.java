@@ -948,29 +948,6 @@ class OMEROGateway
 			throw fsa;
 		}
 	}
-	
-	/**
-	 * Returns the message corresponding to the error thrown while importing the
-	 * files.
-	 * 
-	 * @param t The exception to handle.
-	 * @return See above.
-	 */
-	private String getImportFailureMessage(Throwable t)
-	{
-		String message;
-		Throwable cause = t.getCause();
-		if (cause instanceof FormatException) {
-			message = cause.getMessage();
-			cause.printStackTrace();
-			if (message == null) return null;
-			if (message.contains("ome-xml.jar"))
-				return "Missing ome-xml.jar required to read OME-TIFF files";
-			String[] s = message.split(":");
-			if (s.length > 0) return s[0];
-		}
-		return null;
-	}
 
 	/**
 	 * Utility method to print the error message
@@ -6458,7 +6435,7 @@ class OMEROGateway
 			}
 		} catch (Throwable e) {
 			closeImport();
-			throw new ImportException(getImportFailureMessage(e), e);
+			throw new ImportException(e);
 		} finally {
 			if (omsc != null && close) {
 				closeImport();
@@ -6494,7 +6471,7 @@ class OMEROGateway
 			return candidates;
 			//return candidates.getPaths();
 		} catch (Throwable e) {
-			throw new ImportException(getImportFailureMessage(e), e);
+			throw new ImportException(e);
 		}
 	}
 	

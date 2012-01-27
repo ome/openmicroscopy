@@ -682,7 +682,7 @@ class MeasurementViewerComponent
 			case ANALYSE_SHAPE:
 				return;
 		}
-		if(!validShapeList(shapeList))
+		if (!validShapeList(shapeList))
 			return;
 		
 		if (model.getActiveChannels().size() == 0) {
