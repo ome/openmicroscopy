@@ -29,8 +29,9 @@ def _formatReport(delete_handle):
     delete_reports = delete_handle.report()
     for report in delete_reports:
         if report.error or report.warning:
-            return "Operation could not be completed successfully"
-
+            logger.error('Format report: %r' % {'error':report.error, 'warning':report.warning})
+            if report.error:
+                return "Operation could not be completed successfully"
     # Might want to take advantage of other feedback here
 
 def _purgeCallback(request):
