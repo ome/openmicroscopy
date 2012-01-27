@@ -89,6 +89,16 @@ public interface ImageDataView
                         AgentEventListener observer);
     
     /**
+     * Shuts down the rendering proxy associated to the pixels set.
+     * 
+     * @param pixelsID  The id of the pixels set.
+     * @param observer  Call-back handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle shutDownRenderingControl(long pixelsID,
+                        AgentEventListener observer);
+    
+    /**
      * Renders the specified plane.
      * 
      * @param pixelsID  The id of the pixels set.

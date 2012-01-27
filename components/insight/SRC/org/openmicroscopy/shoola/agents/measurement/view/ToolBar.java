@@ -23,8 +23,6 @@
 package org.openmicroscopy.shoola.agents.measurement.view;
 
 
-
-
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
@@ -496,6 +494,17 @@ class ToolBar
 
 	/** Adds the workflows. */
 	void addedWorkflow() { workflowPanel.addedWorkflow(); }
+	
+ 	/**
+ 	 * Indicates any on-going analysis.
+ 	 * 
+ 	 * @param analyse Passes <code>true</code> when analyzing,
+ 	 * <code>false</code> otherwise.
+ 	 */
+	void onAnalysed(boolean analyse)
+	{
+		assistantButton.setEnabled(!analyse);
+	}
 	
 	/**
 	 * Sets the selected flag of the source of the event to 

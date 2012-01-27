@@ -31,6 +31,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -501,12 +502,17 @@ public class ImViewerFactory
 	 */
 	public void stateChanged(ChangeEvent ce)
 	{
-		ImViewerComponent comp = (ImViewerComponent) ce.getSource(); 
-		if (comp.getState() == ImViewer.DISCARDED) {
-			viewers.remove(comp);
-			List<Long> ids = new ArrayList<Long>();
-			ids.add(comp.getModel().getImageID());
-			removeRecentViewers(ids);
+		ImViewerComponent comp = (ImViewerComponent) ce.getSource();
+		switch (comp.getState()) {
+			case ImViewer.DISCARDED:
+			case ImViewer.CANCELLED:
+				viewers.remove(comp);
+				removeRecentViewers(
+						Arrays.asList(comp.getModel().getImageID()));
+				break;
+	
+			default:
+				break;
 		}
 	}
 

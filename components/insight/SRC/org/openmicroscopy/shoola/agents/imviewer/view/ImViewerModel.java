@@ -138,6 +138,9 @@ class ImViewerModel
 	/** Index of the <code>ImageLoader</code> loader. */
 	private static final int	IMAGE = 2;
 	
+	/** Index of the <code>ImageLoader</code> loader. */
+	private static final int	BIRD_EYE_BVIEW = 3;
+	
 	/** The image to view. */
 	private DataObject 					image; 
 
@@ -537,7 +540,7 @@ class ImViewerModel
 		initialize(bounds, separateWindow);
 		numberOfRows = 1;
 		numberOfColumns = 1;
-		initializeMetadataViewer();
+		//initializeMetadataViewer();
 		if (getImage().getDefaultPixels() != null) {
 			currentPixelsID = getImage().getDefaultPixels().getId();
 		}
@@ -656,6 +659,18 @@ class ImViewerModel
 	 */
 	int getState() { return state; }
 
+	/** Cancels the bird eye view loading.*/
+	void cancelBirdEyeView()
+	{
+		state = ImViewer.CANCELLED;
+		DataLoader loader = loaders.get(BIRD_EYE_BVIEW);
+		if (loader != null) {
+			loader.cancel();
+			loaders.remove(BIRD_EYE_BVIEW);
+		}
+		discard();
+	}
+	
 	/**
 	 * Sets the object in the {@link ImViewer#DISCARDED} state.
 	 * Any ongoing data loading will be canceled.
@@ -664,18 +679,24 @@ class ImViewerModel
 	{
 		state = ImViewer.DISCARDED;
 		if (imageIcon != null) imageIcon.flush();
-		browser.discard();
-		if (image == null) return;
-		//Shut down the service
-		OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
-		long pixelsID = getImage().getDefaultPixels().getId();
-		svr.shutDown(pixelsID);
+		//
 		Iterator i = loaders.keySet().iterator();
 		Integer index;
 		while (i.hasNext()) {
 			index =  (Integer) i.next();
 			(loaders.get(index)).cancel();
 		}
+		browser.discard();
+		if (metadataViewer != null && metadataViewer.getRenderer() != null) {
+			metadataViewer.getRenderer().discard();
+		}
+			
+		//if (image == null) return;
+		//Shut down the service
+		//OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
+		//long pixelsID = getImage().getDefaultPixels().getId();
+		//svr.shutDown(pixelsID);
+		
 		if (player == null) return;
 		player.setPlayerState(Player.STOP);
 		player = null;
@@ -1130,7 +1151,16 @@ class ImViewerModel
 	boolean isBigImage()
 	{
 		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return false;
+		if (rnd == null) {
+			try {
+				Boolean 
+				b = ImViewerAgent.getRegistry().getImageService().isLargeImage(
+						getImage().getDefaultPixels().getId());
+				if (b != null) return b.booleanValue();
+			} catch (Exception e) {} //ingore
+			
+			return false;
+		}
 		return rnd.isBigImage();
 	}
 	
@@ -2043,6 +2073,7 @@ class ImViewerModel
 	 */
 	void setImageData(ImageData image)
 	{
+		state = ImViewer.LOADING_RND;
 		this.image = image;
 		initializeMetadataViewer();
 		currentPixelsID = image.getDefaultPixels().getId();
@@ -2532,8 +2563,8 @@ class ImViewerModel
 			n++;
 		}
 		pDef.region = new RegionDef(0, 0, tiledImageSizeX, tiledImageSizeY);
-		rnd.setSelectedResolutionLevel(0);
-		BufferedImage image = rnd.renderPlane(pDef);
+		//rnd.setSelectedResolutionLevel(0);
+		//BufferedImage image = rnd.renderPlane(pDef);
 		double ratio = 1;
 		w = tiledImageSizeX;
 		h = tiledImageSizeY;
@@ -2543,6 +2574,13 @@ class ImViewerModel
 			if (w >= h) ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/w;
 			else ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/h;
 		}
+		if (ratio < BirdEyeLoader.MIN_RATIO) ratio = BirdEyeLoader.MIN_RATIO;
+		state = ImViewer.LOADING_BIRD_EYE_VIEW;
+		BirdEyeLoader loader = new BirdEyeLoader(component, getImage(), pDef,
+				ratio);
+		loader.load();
+		loaders.put(BIRD_EYE_BVIEW, loader);
+		/*
 		if (image != null) {
 			BufferedImage newImage;
 			if (ratio != 1) newImage = Factory.magnifyImage(ratio, image);
@@ -2552,7 +2590,8 @@ class ImViewerModel
 			BirdEyeLoader loader = new BirdEyeLoader(component, getImage());
 			loader.load();
 		}
-		rnd.setSelectedResolutionLevel(level);
+		*/
+		//rnd.setSelectedResolutionLevel(level);
 	}
 
 	/**
@@ -2730,4 +2769,15 @@ class ImViewerModel
 		}
 	}
 	
+	/**
+	 * Sets the image for the bird eye view.
+	 * 
+	 * @param image The image to set.
+	 */
+	void setBirdEyeView(BufferedImage image)
+	{
+		loaders.remove(BIRD_EYE_BVIEW);
+		getBrowser().setBirdEyeView(image);
+	}
+
 }

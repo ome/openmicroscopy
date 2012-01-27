@@ -25,10 +25,12 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 //Third-party libraries
+import loci.formats.FormatException;
 import loci.formats.UnsupportedCompressionException;
 
 //Application-internal dependencies
@@ -52,7 +54,41 @@ public class ImportException
 	
 	/** Indicates that the compression is not supported.*/
 	public static int COMPRESSION = 0;
-
+	
+	/** Indicates that a library is missing.*/
+	public static int MISSING_LIBRARY = 1;
+	
+	/** Indicates that a library is missing.*/
+	public static int FILE_ON_TAPE = 2;
+	
+	/** The status associated to the exception.*/
+	private int status;
+	
+	/**
+	 * Returns the message corresponding to the error thrown while importing the
+	 * files.
+	 * 
+	 * @param t The exception to handle.
+	 * @return See above.
+	 */
+	public static String getImportFailureMessage(Throwable t)
+	{
+		String message;
+		Throwable cause = t.getCause();
+		if (cause instanceof FormatException) {
+			message = cause.getMessage();
+			cause.printStackTrace();
+			if (message == null) return null;
+			if (message.contains("ome-xml.jar"))
+				return "Missing ome-xml.jar required to read OME-TIFF files";
+			String[] s = message.split(":");
+			if (s.length > 0) return s[0];
+		} else if (cause instanceof IOException) {
+			
+		}
+		return null;
+	}
+	
 	/**
 	 * Constructs a new exception with the specified detail message.
 	 * 
@@ -62,7 +98,20 @@ public class ImportException
 	 */
 	public ImportException(String message)
 	{
-		super(message);
+		this(message, null);
+	}
+	
+	/**
+	 * Constructs a new exception with the specified detail message and cause.
+	 * 
+	 * @param message		Short explanation of the problem.
+	 * @param cause			The exception that caused this one to be risen.
+	 * @param readerType 	The type of reader used while trying to import an 
+	 * 						image.
+	 */
+	public ImportException(Throwable cause) 
+	{
+		this(getImportFailureMessage(cause), cause);
 	}
 	
 	/**
@@ -76,6 +125,7 @@ public class ImportException
 	public ImportException(String message, Throwable cause) 
 	{
 		super(message, cause);
+		status = -1;
 	}
 	
 	/**
@@ -88,8 +138,20 @@ public class ImportException
 		Throwable cause = getCause();
 		if (cause instanceof UnsupportedCompressionException) {
 			return COMPRESSION;
+		} else if (cause instanceof FormatException) {
+			return MISSING_LIBRARY;
+		} else if (cause instanceof IOException) {
+			String message = cause.getMessage();
+			if (message.contains(
+					"The specified network name is no longer available"))
+				return FILE_ON_TAPE;
+		} else if (cause.getCause() instanceof IOException) {
+			String message = cause.getCause().getMessage();
+			if (message.contains(
+					"The specified network name is no longer available"))
+				return FILE_ON_TAPE;
 		}
-		return -1;
+		return status;
 	}
 	
 	/**
