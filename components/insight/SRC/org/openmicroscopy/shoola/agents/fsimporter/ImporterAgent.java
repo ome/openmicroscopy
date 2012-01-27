@@ -81,7 +81,7 @@ public class ImporterAgent
     private int browserType;
     
     /** The objects displayed.*/
-    private List<TreeImageDisplay> objects;
+    private Map<Long, Map<Long, List<TreeImageDisplay>>> objects;
     
     /**
      * Helper method. 
@@ -148,7 +148,8 @@ public class ImporterAgent
     private void handleLoadImporter(LoadImporter evt)
     {
     	if (evt == null) return;
-    	Importer importer = ImporterFactory.getImporter();
+    	long groupId = evt.getGroup();
+    	Importer importer = ImporterFactory.getImporter(groupId);
     	if (importer != null) {
     		int t;
     		switch (evt.getType()) {
@@ -162,7 +163,12 @@ public class ImporterAgent
 						t = browserType;
 					else t = getDefaultBrowser();
 			}
-    		importer.activate(t, evt.getSelectedContainer(), evt.getObjects());
+    		//
+    		//objects = evt.getObjects();
+    		Map<Long, List<TreeImageDisplay>> data = objects.get(groupId);
+        	List<TreeImageDisplay> l = null;
+        	if (data != null) l = data.get(getUserDetails().getId());
+    		importer.activate(t, evt.getSelectedContainer(), l);
     	}
     }
 
@@ -190,6 +196,26 @@ public class ImporterAgent
     }
     
     /**
+     * Returns the containers if available for the specified group.
+     * 
+     * @param groupId The id of the group.
+     */
+    private List<Object> handleContainers(long groupId)
+    {
+    	if (objects == null) return null;
+    	Map<Long, List<TreeImageDisplay>> data = objects.get(groupId);
+    	if (data == null) return null;
+    	List<TreeImageDisplay> l = data.get(getUserDetails().getId());
+    	if (l == null) return null;
+    	Iterator<TreeImageDisplay> i = l.iterator();
+		List<Object> values = new ArrayList<Object>();
+		while (i.hasNext()) {
+			values.add(i.next().getUserObject());
+		}
+		return values;
+    }
+    
+    /**
      * Handles the fact that data were loaded.
      * 
      * @param evt The event to handle.
@@ -198,21 +224,16 @@ public class ImporterAgent
     		ExperimenterLoadedDataEvent evt)
     {
     	if (evt == null) return;
-    	Importer importer = ImporterFactory.getImporter();
+    	
     	Map<Long, Map<Long, List<TreeImageDisplay>>> map = evt.getData();
-    	if (map == null || map.size() == 0) return;
-    	/* TODO review.
-    	List<TreeImageDisplay> l = map.get(getUserDetails().getId());
-    	objects = l;
-    	if (importer != null && objects != null) {
-    		Iterator<TreeImageDisplay> i = objects.iterator();
-    		List<Object> values = new ArrayList<Object>();
-    		while (i.hasNext()) {
-				values.add(i.next().getUserObject());
-			}
-    		importer.setContainers(values, true, browserType);
-    	}
-    	*/
+    	objects = map;
+    	if (!ImporterFactory.doesImporterExist()) return;
+    	Importer importer = ImporterFactory.getImporter(-1);
+    	if (importer == null || map == null || map.size() == 0) return;
+    	GroupData group = importer.getSelectedGroup();
+    	if (group == null) return;
+    	importer.setContainers(handleContainers(group.getId()),
+    			true, browserType);
     }
     
     /** Registers the agent with the tool bar.*/
@@ -228,7 +249,19 @@ public class ImporterAgent
 			/** Posts an event to start the agent.*/
 			public void actionPerformed(ActionEvent e) {
 				EventBus bus = registry.getEventBus();
+				ExperimenterData exp = (ExperimenterData) registry.lookup(
+		    			LookupNames.CURRENT_USER_DETAILS);
+		    	if (exp == null) return;
+		    	GroupData gp = null;
+		    	try {
+		    		gp = exp.getDefaultGroup();
+		    	} catch (Exception ex) {
+		    		//No default group
+		    	}
+		    	long id = -1;
+		    	if (gp != null) id = gp.getId();
 				LoadImporter event = new LoadImporter(null, browserType);
+				event.setGroup(id);
 				event.setObjects(objects);
 				bus.post(event);
 			}
@@ -311,7 +344,7 @@ public class ImporterAgent
     public boolean canTerminate()
     { 
     	if (!ImporterFactory.doesImporterExist()) return true;
-    	Importer importer = ImporterFactory.getImporter();
+    	Importer importer = ImporterFactory.getImporter(-1);
     	if (importer == null) return true;
     	return !importer.hasOnGoingImport();
     }

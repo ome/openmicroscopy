@@ -699,8 +699,15 @@ class ImporterComponent
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		long oldId = model.getGroupId();
 		if (group.getId() == oldId) return;
+		/*
 		Registry reg = ImporterAgent.getRegistry();
 		reg.getEventBus().post(new SwitchUserGroup(exp, group.getId()));
+		*/
+		//Load data for
+		
+		model.setGroupId(group.getId());
+		refreshContainers(chooser.getType());
+		firePropertyChange(CHANGED_GROUP_PROPERTY, oldId, group.getId());
 	}
 
 	/** 

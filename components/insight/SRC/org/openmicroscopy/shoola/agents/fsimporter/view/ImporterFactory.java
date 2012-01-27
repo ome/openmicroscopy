@@ -63,18 +63,7 @@ public class ImporterFactory
 	
 	/** The sole instance. */
 	private static final ImporterFactory  singleton = new ImporterFactory();
-	
-	/**
-	 * Returns a {@link Importer}.
-	 *  
-	 * @return See above.
-	 */
-	public static Importer getImporter()
-	{
-		ImporterModel model = new ImporterModel();
-		return singleton.getImporter(model);
-	}
-	
+
 	/**
 	 * Returns <code>true</code> if the importer already exists,
 	 * <code>false</code> otherwise.

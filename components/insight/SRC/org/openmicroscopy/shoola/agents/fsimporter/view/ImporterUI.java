@@ -225,8 +225,8 @@ class ImporterUI
         	GroupSelectionAction a;
         	JCheckBoxMenuItem item;
         	ButtonGroup buttonGroup = new ButtonGroup();
-        	ExperimenterData exp = ImporterAgent.getUserDetails();
-        	long id = exp.getDefaultGroup().getId();
+        	//ExperimenterData exp = ImporterAgent.getUserDetails();
+        	long id = model.getGroupId();//exp.getDefaultGroup().getId();
         	while (i.hasNext()) {
 				a = i.next();
 				item = new JCheckBoxMenuItem(a);
@@ -399,7 +399,8 @@ class ImporterUI
 	void addComponent(ImportDialog chooser)
 	{
 		if (chooser == null) return;
-		if (model.isMaster()) chooser.addToolBar(buildToolBar());
+		//if (model.isMaster()) chooser.addToolBar(buildToolBar());
+		chooser.addToolBar(buildToolBar());
 		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
 		//if in debug mode insert the debug section
 		Boolean b = (Boolean) 
