@@ -446,12 +446,14 @@ public class DataServicesFactory
     	
         //Check if client and server are compatible.
         String version = omeroGateway.getServerVersion();
+        /* TODO: review version handling.
         if (!checkClientServerCompatibility(version, clientVersion)) {
         	compatible = false;
         	notifyIncompatibility(clientVersion, version, uc.getHostName());
         	omeroGateway.logout();
         	return;
         }
+        */
         
         //Register into log file.
         Map<String, String> info = ProxyUtil.collectOsInfoAndJavaVersion();
