@@ -1,7 +1,7 @@
 Validator
 ---------
 
-Copyright (C) 2007-2011 University of Dundee & Open Microscopy Environment.
+Copyright (C) 2007-2012 University of Dundee & Open Microscopy Environment.
 All Rights Reserved.
 
 ---------
