@@ -1006,16 +1006,18 @@ class OmeroImageServiceImpl
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#importFile(SecurityContext, ImportableObject,
+	 * @see OmeroImageService#importFile(ImportableObject,
 	 * ImportableFile, long, long, boolean)
 	 */
-	public Object importFile(SecurityContext ctx, ImportableObject object,
+	public Object importFile(ImportableObject object,
 		ImportableFile importable, long userID, long groupID, boolean close) 
 		throws ImportException
 	{
 		if (importable == null || importable.getFile() == null)
 			throw new IllegalArgumentException("No images to import.");
 		StatusLabel status = importable.getStatus();
+		SecurityContext ctx = 
+			new SecurityContext(importable.getGroup().getId());
 		if (status.isMarkedAsCancel()) {
 			gateway.closeImport(ctx);
 			return Boolean.valueOf(false);

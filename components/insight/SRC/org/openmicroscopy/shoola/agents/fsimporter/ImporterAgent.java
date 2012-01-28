@@ -232,8 +232,9 @@ public class ImporterAgent
     	if (importer == null || map == null || map.size() == 0) return;
     	GroupData group = importer.getSelectedGroup();
     	if (group == null) return;
-    	importer.setContainers(handleContainers(group.getId()),
-    			true, browserType);
+    	List<Object> l = handleContainers(group.getId());
+    	if (l == null || l.size() == 0) return;
+    	importer.setContainers(l, true, browserType);
     }
     
     /** Registers the agent with the tool bar.*/

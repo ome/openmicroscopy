@@ -126,7 +126,6 @@ public abstract class DataImporterLoader
 	protected DataImporterLoader(Importer viewer, SecurityContext ctx)
 	{
 		if (viewer == null) throw new NullPointerException("No viewer.");
-        if (ctx == null) throw new NullPointerException("No security context.");
         this.viewer = viewer;
         this.ctx = ctx;
 		registry = ImporterAgent.getRegistry();

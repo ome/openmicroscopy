@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.util.ui.MultilineHeaderSelectionRenderer;
 import org.openmicroscopy.shoola.util.ui.TooltipTableHeader;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
+import pojos.GroupData;
 
 /**
  * Component displaying the files to import.
@@ -494,6 +495,7 @@ class FileSelectionTable
 			}
 			importable.setLocation(dne.getParent(), dataset);
 			importable.setRefNode(dne.getRefNode());
+			importable.setGroup(element.getGroup());
 			files.add(importable);
 		}
 		return files;
@@ -544,8 +546,9 @@ class FileSelectionTable
 	 * @param files The files to add.
 	 * @param fad 	Pass <code>true</code> to indicate to mark the folder as
 	 * 				a dataset, <code>false</code> otherwise.
+	 * @param group The group where to import the file.
 	 */
-	void addFiles(List<File> files, boolean fad)
+	void addFiles(List<File> files, boolean fad, GroupData group)
 	{
 		if (files == null || files.size() == 0) return;
 		addButton.setEnabled(false);
@@ -571,7 +574,7 @@ class FileSelectionTable
 		while (i.hasNext()) {
 			f = i.next();
 			if (!inQueue.contains(f.getAbsolutePath())) {
-				element = new FileElement(f, model.getType());
+				element = new FileElement(f, model.getType(), group);
 				element.setName(f.getName());
 				value = null;
 				v = false;

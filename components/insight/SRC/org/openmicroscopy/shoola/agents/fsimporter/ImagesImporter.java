@@ -80,10 +80,10 @@ public class ImagesImporter
 	 * @param context	The context of the import.
 	 * @param loaderID  The identifier of the loader.
 	 */
-	public ImagesImporter(Importer viewer, SecurityContext ctx,
+	public ImagesImporter(Importer viewer,
 			ImportableObject context, Integer loaderID)
 	{
-		super(viewer, ctx);
+		super(viewer, null);
 		if (context == null || context.getFiles() == null ||
 				context.getFiles().size() == 0)
 			throw new IllegalArgumentException("No Files to import.");
@@ -97,8 +97,7 @@ public class ImagesImporter
 	 */
 	public void load()
 	{
-		handle = ivView.importFiles(ctx, context, getCurrentUserID(), groupID,
-				this);
+		handle = ivView.importFiles(context, getCurrentUserID(), groupID, this);
 	}
 
 	/** 
