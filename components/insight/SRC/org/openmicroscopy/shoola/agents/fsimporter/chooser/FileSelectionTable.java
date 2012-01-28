@@ -110,13 +110,18 @@ class FileSelectionTable
 	static final int		CONTAINER_INDEX = 2;
 	
 	/** 
+	 * The index of the column indicating the group where to import data.
+	 */
+	static final int		GROUP_INDEX = 3;
+	
+	/** 
 	 * The index of the column indicating to use the folder
 	 * as a dataset. 
 	 */
-	static final int		FOLDER_AS_CONTAINER_INDEX = 3;
+	static final int		FOLDER_AS_CONTAINER_INDEX = 4;
 	
 	/** The index of the column indicating to archive the file. */
-	private static final int		ARCHIVED_INDEX = 4;
+	private static final int		ARCHIVED_INDEX = 5;
 	
 	/** The columns of the table. */
 	private static final Vector<String> COLUMNS;
@@ -139,21 +144,24 @@ class FileSelectionTable
 	/** The text displayed to use the folder as container. */
 	private static final String FAD_TEXT = "Folder as\nDataset";
 	
-	/** The text displayed to archived the files. */
+	/** Indicate to archive or not the files. */
 	private static final String ARCHIVED_TEXT = "Archive";
 	
-	/** The text displayed to select the files. */
+	/** Indicate to select the files. */
 	private static final String FILE_TEXT = "File or\nFolder";
 	
-	/** The text displayed to indicate the size of the file or folder. */
+	/** The text indicating the size of the file or folder. */
 	private static final String SIZE_TEXT = "Size";
 	
 	/** 
-	 * The text displayed where to import the data to if importing
+	 * The text displaying where to import the data to if importing
 	 * to Project/Dataset or Screen.
 	 */
 	private static final String CONTAINER_PROJECT_TEXT = 
 		"Project/Dataset\nor Screen";
+	
+	/** The group where the files will be imported.*/
+	private static final String GROUP_TEXT = "Group";
 	
 	/** 
 	 * The text displayed where to import the data to if importing
@@ -162,11 +170,12 @@ class FileSelectionTable
 	private static final String CONTAINER_SCREEN_TEXT = "Screen";
 	
 	static {
-		int n = 5;
+		int n = 6;
 		COLUMNS = new Vector<String>(n);
 		COLUMNS.add(FILE_TEXT);
 		COLUMNS.add(SIZE_TEXT);
 		COLUMNS.add(CONTAINER_PROJECT_TEXT);
+		COLUMNS.add(GROUP_TEXT);
 		COLUMNS.add(FAD_TEXT);
 		COLUMNS.add(ARCHIVED_TEXT);
 		COLUMNS_TOOLTIP = new String[n];
@@ -174,15 +183,17 @@ class FileSelectionTable
 		COLUMNS_TOOLTIP[SIZE_INDEX] = "Size of File or Folder.";
 		COLUMNS_TOOLTIP[CONTAINER_INDEX] = 
 			"The container where to import the data.";
+		COLUMNS_TOOLTIP[GROUP_INDEX] = "The group where to import data.";
 		COLUMNS_TOOLTIP[FOLDER_AS_CONTAINER_INDEX] = 
 			"Convert the folder as dataset.";
 		COLUMNS_TOOLTIP[ARCHIVED_INDEX] = "Archive the data.";
 		
-		n = 4;
+		n = 5;
 		COLUMNS_NO_FOLDER_AS_CONTAINER = new Vector<String>(n);
 		COLUMNS_NO_FOLDER_AS_CONTAINER.add(FILE_TEXT);
 		COLUMNS_NO_FOLDER_AS_CONTAINER.add(SIZE_TEXT);
 		COLUMNS_NO_FOLDER_AS_CONTAINER.add(CONTAINER_PROJECT_TEXT);
+		COLUMNS_NO_FOLDER_AS_CONTAINER.add(GROUP_TEXT);
 		COLUMNS_NO_FOLDER_AS_CONTAINER.add(ARCHIVED_TEXT);
 		
 		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP = new String[n];
@@ -192,6 +203,8 @@ class FileSelectionTable
 			COLUMNS_TOOLTIP[SIZE_INDEX];
 		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP[CONTAINER_INDEX] = 
 			COLUMNS_TOOLTIP[CONTAINER_INDEX];
+		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP[GROUP_INDEX] = 
+			COLUMNS_TOOLTIP[GROUP_INDEX];
 		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP[ARCHIVED_INDEX-1] = 
 			COLUMNS_TOOLTIP[ARCHIVED_INDEX];
 	}
@@ -234,11 +247,14 @@ class FileSelectionTable
 		tc.setCellRenderer(new FileTableRenderer()); 
 		
 		tc = tcm.getColumn(CONTAINER_INDEX);
+		tc.setCellRenderer(new FileTableRenderer());
+		
+		tc = tcm.getColumn(GROUP_INDEX);
 		tc.setCellRenderer(new FileTableRenderer()); 
 		
 		tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
-		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
-		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
+		tc.setCellEditor(table.getDefaultEditor(Boolean.class));
+		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
 		tc.setCellRenderer(new FileTableRenderer());
 		tc.setResizable(false);
 
@@ -263,6 +279,8 @@ class FileSelectionTable
 		tc = tcm.getColumn(FILE_INDEX);
 		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
 		tc = tcm.getColumn(CONTAINER_INDEX);
+		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
+		tc = tcm.getColumn(GROUP_INDEX);
 		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
 		if (n == COLUMNS.size()) {
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
@@ -595,7 +613,7 @@ class FileSelectionTable
 					}
 					dtm.addRow(new Object[] {element, 
 							element.getFileLengthAsString(),
-							new DataNodeElement(node, value),
+							new DataNodeElement(node, value), group.getName(),
 							Boolean.valueOf(v), Boolean.valueOf(a)});
 				} else dtm.addRow(new Object[] {element, 
 						element.getFileLengthAsString(),

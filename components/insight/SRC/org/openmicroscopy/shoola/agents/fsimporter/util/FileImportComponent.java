@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -81,6 +82,7 @@ import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -226,7 +228,7 @@ public class FileImportComponent
 
 	/** The component displaying the result. */
 	private JLabel			resultLabel;
-
+	
 	/** The component displaying the imported image. */
 	private ThumbnailLabel	imageLabel;
 	
@@ -319,6 +321,12 @@ public class FileImportComponent
 	
 	/** Flag indicating that the file should be reimported.*/
 	private boolean toReImport;
+	
+	/** The group in which to import the file.*/
+	private GroupData group;
+	
+	/** The component displaying the group where the file is imported. */
+	private JLabel groupLabel;
 	
 	/** Displays the error box at the specified location.
 	 * 
@@ -418,14 +426,15 @@ public class FileImportComponent
 			 */
 			public void mousePressed(MouseEvent e)
 			{ 
-				/*
 				if (e.getClickCount() == 1) {
 					if (image instanceof ThumbnailData) {
 						ThumbnailData data = (ThumbnailData) image;
 						EventBus bus = 
 							ImporterAgent.getRegistry().getEventBus();
 						if (data.getImage() != null) {
-							bus.post(new ViewImage(new ViewImageObject(
+							bus.post(new ViewImage(
+									new SecurityContext(group.getId()),
+									new ViewImageObject(
 									data.getImage()), null));
 						}
 					} else if (image instanceof ImageData) {
@@ -433,13 +442,15 @@ public class FileImportComponent
 						EventBus bus = 
 							ImporterAgent.getRegistry().getEventBus();
 						if (data != null) {
-							bus.post(new ViewImage(new ViewImageObject(
+							bus.post(new ViewImage(
+									new SecurityContext(group.getId()),
+									new ViewImageObject(
 									data), null));
 						}
 					} else if (image instanceof PlateData) {
 						firePropertyChange(BROWSE_PROPERTY, null, image);
 					}
-				}*/
+				}
 			}
 		};
 		
@@ -477,6 +488,8 @@ public class FileImportComponent
 		
 		containerLabel = new JLabel();
 		containerLabel.setVisible(false);
+		groupLabel = new JLabel("Group: "+group.getName());
+		groupLabel.setVisible(false);
 		
 		namePane = new JPanel();
 		namePane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
@@ -550,6 +563,7 @@ public class FileImportComponent
 		add(Box.createHorizontalStrut(15));
 		add(containerLabel);
 		add(browseButton);
+		add(groupLabel);
 		add(reimportedLabel);
 	}
 	
@@ -616,7 +630,7 @@ public class FileImportComponent
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			f = (File) entry.getKey();
-			c = new FileImportComponent(f, folderAsContainer, browsable);
+			c = new FileImportComponent(f, folderAsContainer, browsable, group);
 			if (f.isFile()) {
 				c.setLocation(data, d, node);
 				c.setParent(this);
@@ -658,13 +672,17 @@ public class FileImportComponent
 	 * 							has to be used as a container, 
 	 * 							<code>false</code> otherwise.
 	 * @param browsable Flag indicating that the container can be browsed or not.
+	 * @param group The group in which to import the file.
 	 */
 	public FileImportComponent(File file, boolean folderAsContainer, boolean
-			browsable)
+			browsable, GroupData group)
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file specified.");
+		if (group == null)
+			throw new IllegalArgumentException("No group specified.");
 		this.file = file;
+		this.group = group;
 		importCount = 0;
 		this.browsable = browsable;
 		this.folderAsContainer = folderAsContainer;
@@ -828,9 +846,11 @@ public class FileImportComponent
 					browseButton.setVisible(showContainerLabel);
 					containerLabel.setVisible(showContainerLabel);
 				}
+				groupLabel.setVisible(true);
 			}
 		} else if (image instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) image;
+			groupLabel.setVisible(true);
 			if (thumbnail.isValidImage()) {
 				imageLabel.setData(thumbnail);
 				
@@ -866,6 +886,7 @@ public class FileImportComponent
 				resultLabel.setVisible(true);
 				errorButton.setVisible(false);
 				errorBox.setVisible(false);
+				groupLabel.setVisible(true);
 				/*
 				errorButton.setToolTipText(
 						UIUtilities.formatExceptionForToolTip(
@@ -881,6 +902,7 @@ public class FileImportComponent
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
 			statusLabel.setVisible(false);
+			groupLabel.setVisible(true);
 			if (browsable) {
 				resultLabel.setText(BROWSE_TEXT);
 				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
@@ -899,6 +921,7 @@ public class FileImportComponent
 			}
 		} else if (image instanceof List) {
 			statusLabel.setVisible(false);
+			groupLabel.setVisible(true);
 			List list = (List) image;
 			int m = list.size();
 			imageLabel.setData(list.get(0));

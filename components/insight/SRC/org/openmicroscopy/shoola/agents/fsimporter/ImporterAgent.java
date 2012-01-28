@@ -297,7 +297,7 @@ public class ImporterAgent
     	}
     	long id = -1;
     	if (gp != null) id = gp.getId();
-    	Importer importer = ImporterFactory.getImporter(id);
+    	Importer importer = ImporterFactory.getImporter(id, true);
     	if (importer != null) {
     		Environment env = (Environment) registry.lookup(LookupNames.ENV);
     		int type = Importer.PROJECT_TYPE;
