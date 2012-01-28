@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -69,6 +67,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
@@ -87,7 +86,6 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ExperimenterData;
 
 /** 
  * The {@link Importer}'s View. Displays the on-going import and the finished

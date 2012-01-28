@@ -88,6 +88,9 @@ class ImporterModel
 	/** The security context.*/
 	private SecurityContext ctx; //to be initialized.
 	
+	/** Returns <code>true</code> if it is opened as a standalone app.*/
+	private boolean master;
+	
 	/** Initializes the model.*/
 	private void initialize()
 	{
@@ -100,10 +103,23 @@ class ImporterModel
 	/** 
 	 * Creates a new instance.
 	 *
-	 * @param groupID 	The id to the group selected for the current user.
+	 * @param groupID The id to the group selected for the current user.
 	 */
 	ImporterModel(long groupId)
 	{
+		this(groupId, false);
+	}
+	
+	/** 
+	 * Creates a new instance.
+	 *
+	 * @param groupID The id to the group selected for the current user.
+	 * @param master Pass <code>true</code> if the importer is used a stand-alone
+	 * application, <code>false</code> otherwise.
+	 */
+	ImporterModel(long groupId, boolean master)
+	{
+		this.master = master;
 		initialize();
 		setGroupId(groupId);
 	}
@@ -140,7 +156,7 @@ class ImporterModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isMaster() { return groupId >= 0; }
+	boolean isMaster() { return master; }
 	
 	/**
 	 * Called by the <code>FSImporter</code> after creation to allow this
