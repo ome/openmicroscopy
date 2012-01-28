@@ -482,7 +482,6 @@ public interface OmeroImageService
 	/**
 	 * Imports the collection of images into the specified container.
 	 *  
-	 * @param ctx The security context.
 	 * @param object The object hosting the information about the file to import.
 	 * @param importable The file to import. Mustn't be <code>null</code>.
 	 * @param userID The id of the user.
@@ -492,7 +491,7 @@ public interface OmeroImageService
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
-	public Object importFile(SecurityContext ctx, ImportableObject object,
+	public Object importFile(ImportableObject object,
 		ImportableFile importable, long userID, long groupID, boolean close)
 		throws ImportException;
 	

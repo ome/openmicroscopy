@@ -71,9 +71,6 @@ public class ImagesImporter
     /** The object hosting the information for the import. */
     private ImportableObject object;
     
-    /** The security context.*/
-    private SecurityContext ctx;
-    
     /** 
      * Imports the file.
      * 
@@ -87,7 +84,7 @@ public class ImagesImporter
     	OmeroImageService os = context.getImageService();
     	try {
     		partialResult.put(importable.getFile(), 
-    				os.importFile(ctx, object, importable, userID, groupID,
+    				os.importFile(object, importable, userID, groupID,
     					close));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -148,8 +145,7 @@ public class ImagesImporter
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
      */
-    public ImagesImporter(SecurityContext ctx,
-    		ImportableObject object, long userID, long groupID)
+    public ImagesImporter(ImportableObject object, long userID, long groupID)
     {
     	if (object == null || object.getFiles() == null ||
     			object.getFiles().size() == 0)
@@ -157,7 +153,6 @@ public class ImagesImporter
     	this.userID = userID;
     	this.groupID = groupID;
     	this.object = object;
-    	this.ctx = ctx;
     }
     
 }

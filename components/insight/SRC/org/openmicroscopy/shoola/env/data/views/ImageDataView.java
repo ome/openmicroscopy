@@ -275,7 +275,6 @@ public interface ImageDataView
 	/**
 	 * Imports the collection of images into the specified container.
 	 *  
-	 *  @param ctx The security context.
 	 * @param context   The container where to import the images into or 
 	 * 					<code>null</code>.
 	 * @param userID	The id of the user.
@@ -283,7 +282,7 @@ public interface ImageDataView
 	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle importFiles(SecurityContext ctx, ImportableObject context,
+	public CallHandle importFiles(ImportableObject context,
 			long userID, long groupID, AgentEventListener observer);
 
 	/**

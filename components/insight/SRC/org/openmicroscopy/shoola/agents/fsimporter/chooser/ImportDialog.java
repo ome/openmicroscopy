@@ -101,6 +101,7 @@ import org.openmicroscopy.shoola.util.ui.filechooser.GenericFileChooser;
 
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.GroupData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -405,6 +406,9 @@ public class ImportDialog
 	/** The number of items before adding new elements to the tool bar.*/
 	private int			tbItems;
 	
+	/** The selected group.*/
+	private GroupData group;
+	
 	/** 
 	 * Creates the dataset.
 	 * 
@@ -567,7 +571,8 @@ public class ImportDialog
 			checkFile(files[i], l);
 		}
 		chooser.setSelectedFile(new File("."));
-		table.addFiles(l, isParentFolderAsDataset());//fadBox.isSelected());
+		
+		table.addFiles(l, isParentFolderAsDataset(), group);//fadBox.isSelected());
 		importButton.setEnabled(table.hasFilesToImport());
 	}
 
@@ -2368,7 +2373,14 @@ public class ImportDialog
 	 * @return See above.
 	 */
 	public boolean reloadHierarchies() { return reload; }
-
+	
+	/**
+	 * Sets the selected group.
+	 * 
+	 * @param group The group to set.
+	 */
+	public void setSelectedGroup(GroupData group) { this.group = group; }
+	
 	/**
 	 * Reacts to property fired by the table.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

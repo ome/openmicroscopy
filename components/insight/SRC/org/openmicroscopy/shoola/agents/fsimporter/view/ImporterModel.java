@@ -227,8 +227,7 @@ class ImporterModel
 	void fireImportData(ImportableObject data, int loaderID)
 	{
 		if (data == null) return;
-		ImagesImporter loader = new ImagesImporter(component, ctx, data, 
-				loaderID);
+		ImagesImporter loader = new ImagesImporter(component, data, loaderID);
 		loaders.put(loaderID, loader);
 		loader.load();
 		state = Importer.IMPORTING;

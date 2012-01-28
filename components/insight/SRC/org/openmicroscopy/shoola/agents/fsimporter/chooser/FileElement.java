@@ -35,6 +35,8 @@ import org.apache.commons.io.FileUtils;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.GroupData;
+
 /**
  * Hosts information about the file to import.
  *
@@ -69,6 +71,9 @@ class FileElement
 	/** The type when the file was added.*/
 	private int type;
 	
+	/** The group where the file will be imported.*/
+	private GroupData group;
+	
 	/**
 	 * Determines the length of the directory depending on the actual
 	 * level reached and the scanning depth.
@@ -98,12 +103,16 @@ class FileElement
 	 * 
 	 * @param file The file to import.
 	 * @param type The type of container when the file was added.
+	 * @param group The group where to import the data.
 	 */
-	FileElement(File file, int type)
+	FileElement(File file, int type, GroupData group)
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file set");
+		if (group == null)
+			throw new IllegalArgumentException("No Group set");
 		this.file = file;
+		this.group = group;
 		length = -1;
 		this.type = type;
 		if (type == Importer.SCREEN_TYPE)
@@ -227,6 +236,13 @@ class FileElement
 	 * @return See above.
 	 */
 	public File getFile() { return file; }
+	
+	/**
+	 * Returns the group.
+	 * 
+	 * @return See above.
+	 */
+	public GroupData getGroup() { return group; }
 	
 	/** 
 	 * Overridden to return the name to give to the imported file.
