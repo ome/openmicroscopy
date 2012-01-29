@@ -55,7 +55,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -369,9 +368,9 @@ class BrowserModel
             return;
         }
         //state = Browser.COUNTING_ITEMS;
-        numberLoader = new ContainerCounterLoader(component,
+        ContainerCounterLoader loader = new ContainerCounterLoader(component,
         		getSecurityContext(refNode), containers, nodes);
-        numberLoader.load();
+        loader.load();
     }
 
     /**
@@ -897,6 +896,10 @@ class BrowserModel
 		if (node.getUserObject() instanceof ExperimenterData) {
 			TreeImageDisplay parent = node.getParentDisplay();
 			GroupData group = (GroupData) parent.getUserObject();
+			return new SecurityContext(group.getId());
+		}
+		if (node.getUserObject() instanceof GroupData) {
+			GroupData group = (GroupData) node.getUserObject();
 			return new SecurityContext(group.getId());
 		}
 		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
