@@ -273,24 +273,12 @@ public interface DataManagerView
 	/**
 	 * Deletes the passed collection.
 	 * 
-	 * @param ctx The security context.
 	 * @param values	The collection of object to delete.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle delete(SecurityContext ctx,
-			Collection<DeletableObject> values, AgentEventListener observer);
-	
-	/**
-	 * Deletes the passed object.
-	 * 
-	 * @param ctx The security context.
-	 * @param value		The object to delete.
-	 * @param observer	Call-back handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle delete(SecurityContext ctx, DeletableObject value,
-			AgentEventListener observer);
+	public CallHandle delete(Map<SecurityContext, Collection<DeletableObject>>
+	values, AgentEventListener observer);
 
 	/**
 	 * Controls if the passed files can be imported.

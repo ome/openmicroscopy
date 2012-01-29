@@ -23,7 +23,12 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -34,6 +39,8 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
+
+import pojos.DataObject;
 
 /** 
  * Deletes a collection of objects.
@@ -53,13 +60,36 @@ public class DataObjectRemover
 {
 
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  			handle;
+    private CallHandle handle;
 
     /** The call-back returned by the server. */
-    private ProcessCallback 		callBack;
+    private List<ProcessCallback> callBacks;
     
     /** The collection of objects to delete. */
-    private List<DeletableObject> objects;
+    private Map<SecurityContext, Collection<DeletableObject>> objects;
+
+    /** The number of callbacks.*/
+    private int number;
+    
+	/**
+     * Returns the SecurityContext if already added or <code>null</code>.
+     * 
+     * @param map The map to check.
+     * @param id The group's identifier.
+     * @return See above.
+     */
+    private SecurityContext getKey(
+    	Map<SecurityContext, Collection<DeletableObject>> map, long id)
+    {
+    	Iterator<SecurityContext> i = map.keySet().iterator();
+    	SecurityContext ctx;
+    	while (i.hasNext()) {
+			ctx = i.next();
+			if (ctx.getGroupID() == id)
+				return ctx;
+		}
+    	return null;
+    }
     
     /**
      * Notifies that an error occurred.
@@ -76,18 +106,39 @@ public class DataObjectRemover
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param registry	Convenience reference for subclasses.
-     * @param ctx The security context.
      * @param objects  	The collection of objects to delete.
      * @param activity  The activity associated to this loader.
      */
 	public DataObjectRemover(UserNotifier viewer,  Registry registry,
-		SecurityContext ctx, List<DeletableObject> objects, 
+		List<DeletableObject> objects, 
 		ActivityComponent activity)
 	{
-		super(viewer, registry, ctx, activity);
+		super(viewer, registry, null, activity);
 		if (objects == null || objects.size() == 0)
 			throw new IllegalArgumentException("No Objects to delete.");
-		this.objects = objects;
+		callBacks = new ArrayList<ProcessCallback>();
+		Map<SecurityContext, Collection<DeletableObject>>
+    	map = new HashMap<SecurityContext, Collection<DeletableObject>>();
+    	Iterator<DeletableObject> i = objects.iterator();
+    	DeletableObject o;
+    	DataObject ho;
+    	long groupId;
+    	SecurityContext ctx;
+    	Collection<DeletableObject> l;
+    	while (i.hasNext()) {
+			o = i.next();
+			ho = o.getObjectToDelete();
+			groupId = ho.getGroupId();
+			ctx = getKey(map, groupId);
+			if (ctx == null) {
+				l = new ArrayList<DeletableObject>();
+				ctx = new SecurityContext(groupId);
+				map.put(ctx, l);
+			}
+			l = map.get(ctx);
+			l.add(o);
+		}
+    	this.objects = map;
 	}
 	
 	/**
@@ -96,7 +147,7 @@ public class DataObjectRemover
      */
     public void load()
     {
-    	handle = dmView.delete(ctx, objects, this);
+    	handle = dmView.delete(objects, this);
     }
     
     /**
@@ -106,10 +157,14 @@ public class DataObjectRemover
     public void cancel()
     { 
     	try {
-    		if (callBack != null) {
-    			callBack.cancel();
-        		activity.onActivityCancelled();
-    		}
+    		Iterator<ProcessCallback> i = callBacks.iterator();
+    		ProcessCallback callback;
+    		while (i.hasNext()) {
+    			callback = i.next();
+    			if (callback != null)
+    				callback.cancel();
+			}
+    		activity.onActivityCancelled();
 		} catch (Exception e) {
 			handleException(e);
 		}
@@ -129,9 +184,12 @@ public class DataObjectRemover
         		if (!b.booleanValue())
         			onException(MESSAGE_RUN, null); 
         	} else {
-        		callBack = (ProcessCallback) o;
+        		ProcessCallback callBack = (ProcessCallback) o;
             	callBack.setAdapter(this);
-            	activity.onCallBackSet();
+            	callBacks.add(callBack);
+            	number++;
+            	if (number == objects.size())
+            		activity.onCallBackSet();
         	}
         }
     }

@@ -98,7 +98,6 @@ abstract class UserNotifierLoader
     {
     	if (viewer == null) throw new NullPointerException("No viewer.");
     	if (registry == null) throw new NullPointerException("No registry.");
-    	if (ctx == null) throw new NullPointerException("No security context.");
     	this.activity = activity;
     	this.viewer = viewer;
     	this.ctx = ctx;

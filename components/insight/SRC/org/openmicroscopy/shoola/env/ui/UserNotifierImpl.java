@@ -81,7 +81,7 @@ public class UserNotifierImpl
 	/** Default title for the warning dialog. */	
 	private static final String     DEFAULT_WARNING_TITLE = "Warning";
 											
-	/** Default title for the info dialog. */														    
+	/** Default title for the info dialog. */
     private static final String     DEFAULT_INFO_TITLE = "Information";
     
     /**
@@ -387,8 +387,7 @@ public class UserNotifierImpl
 					ctx, p);
 		} else if (activity instanceof DeleteActivityParam) {
 			DeleteActivityParam p = (DeleteActivityParam) activity;
-			comp = new DeleteActivity(this, manager.getRegistry(), ctx,
-					p);
+			comp = new DeleteActivity(this, manager.getRegistry(), p);
 			uiRegister = p.isUIRegister();
 		} else if (activity instanceof OpenActivityParam) {
 			OpenActivityParam p = (OpenActivityParam) activity;
