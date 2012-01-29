@@ -287,12 +287,18 @@ class BrowserControl
         	model.loadExperimenterData(BrowserFactory.getDataOwner(display), 
         			display);
         } else if (ho instanceof ExperimenterData) {
-        	 view.loadAction(display);
+        	view.loadAction(display);
         	model.loadExperimenterData(display, null);
         } else if (ho instanceof GroupData) {
         	if (browserType == Browser.ADMIN_EXPLORER) {
         		view.loadAction(display);
         		model.loadExperimenterData(display, display);
+        	} else {
+        		//Load the data of the logged in user.
+        		List l = display.getChildrenDisplay();
+        		if (l != null & l.size() > 0) {
+            		view.expandNode((TreeImageDisplay) l.get(0), true);
+        		}
         	}
         }
     }

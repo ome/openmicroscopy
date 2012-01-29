@@ -1718,11 +1718,24 @@ class BrowserUI
         while (i.hasNext()) 
 			setExpandedParent((TreeImageDisplay) i.next(), true);
         TreeImageDisplay root = getTreeRoot();
-		TreeImageDisplay element;
+		TreeImageDisplay element, child;
+		Object ho;
+		List children;
 		for (int j = 0; j < root.getChildCount(); j++) {
 			element = (TreeImageDisplay) root.getChildAt(j);
-			if (element.getUserObject() instanceof ExperimenterData) {
-				if (element.isExpanded()) expandNode(element);
+			ho = element.getUserObject();
+			if (ho instanceof GroupData && element.isExpanded()) {
+				expandNode(element);
+				children = element.getChildrenDisplay();
+				if (children != null) {
+					i = children.iterator();
+					while (i.hasNext()) {
+						child = (TreeImageDisplay) i.next();
+						if (child.getUserObject() instanceof ExperimenterData
+								&& child.isExpanded())
+							expandNode(child);
+					}
+				}
 			}
 		}
 	}
