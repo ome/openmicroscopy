@@ -425,6 +425,7 @@ class BrowserComponent
         switch (state) {
             case NEW:
             	TreeImageDisplay node = getLoggedExperimenterNode();
+            	node.getParentDisplay().setExpanded(true);
             	view.expandNode(node, true);
                 break;
             case READY:
@@ -1348,6 +1349,7 @@ class BrowserComponent
 				}
 	    	}
 		}
+	    if (m.size() == 0) return;
 	    model.loadRefreshExperimenterData(m, null, -1, refNode, toBrowse);
 		fireStateChange();
     }
