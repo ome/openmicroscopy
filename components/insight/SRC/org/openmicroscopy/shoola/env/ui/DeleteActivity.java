@@ -122,13 +122,12 @@ public class DeleteActivity
      * @param viewer		The viewer this data loader is for.
      *               		Mustn't be <code>null</code>.
      * @param registry		Convenience reference for subclasses.
-     * @param ctx The security context.
      * @param parameters  	The parameters used to delete.
      */
 	public DeleteActivity(UserNotifier viewer, Registry registry,
-			SecurityContext ctx, DeleteActivityParam parameters)
+			DeleteActivityParam parameters)
 	{
-		super(viewer, registry, ctx);
+		super(viewer, registry, null);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
@@ -157,7 +156,7 @@ public class DeleteActivity
 	protected UserNotifierLoader createLoader()
 	{
 		List<DeletableObject> objects = parameters.getObjects();
-		loader = new DataObjectRemover(viewer,  registry, ctx,  objects, this);
+		loader = new DataObjectRemover(viewer,  registry, objects, this);
 		return loader;
 	}
 

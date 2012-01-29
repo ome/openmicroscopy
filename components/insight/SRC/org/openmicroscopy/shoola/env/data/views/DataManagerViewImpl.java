@@ -246,23 +246,12 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#delete(SecurityContext, Collection, AgentEventListener)
+	 * @see DataManagerView#delete(Map, AgentEventListener)
 	 */
-	public CallHandle delete(SecurityContext ctx,
-			Collection<DeletableObject> values, AgentEventListener observer)
+	public CallHandle delete(Map<SecurityContext, Collection<DeletableObject>>
+	 values, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new DataObjectRemover(ctx, values);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#delete(SecurityContext, DeletableObject, AgentEventListener)
-	 */
-	public CallHandle delete(SecurityContext ctx, DeletableObject value,
-			AgentEventListener observer) 
-	{
-		BatchCallTree cmd = new DataObjectRemover(ctx, value);
+		BatchCallTree cmd = new DataObjectRemover(values);
 		return cmd.exec(observer);
 	}
 

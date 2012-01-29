@@ -26,7 +26,11 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -39,6 +43,11 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.data.views.ProcessBatchCall;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
+
+import pojos.DataObject;
+import pojos.ExperimenterData;
+import pojos.FileData;
+import pojos.ImageData;
 
 /** 
  * Command to delete the passed objects.
@@ -57,11 +66,11 @@ public class DataObjectRemover
 	extends BatchCallTree
 {
 
-	/** The call. */
-	private BatchCall       call;
-
 	/** The server call-handle to the computation. */
 	private Object		callBack;
+	
+	/** The objects to delete.*/
+	private Map<SecurityContext, Collection<DeletableObject>> map;
     
     /**
      * Creates a {@link BatchCall} to delete the specified objects.
@@ -93,7 +102,20 @@ public class DataObjectRemover
      * Adds the {@link #call} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
-    protected void buildTree() { add(call); }
+    protected void buildTree()
+    {
+    	String description = "Deleting";
+    	Entry entry;
+    	Iterator i = map.entrySet().iterator();
+    	while (i.hasNext()) {
+			entry = (Entry) i.next();
+			final Collection<DeletableObject> l = 
+				(Collection<DeletableObject>) entry.getValue();
+			final SecurityContext ctx = (SecurityContext) entry.getKey();
+			add(makeDeleteCall(ctx, l));
+		}
+    	//add(call);
+    }
 
     /**
      * Returns the server call-handle to the computation.
@@ -113,32 +135,15 @@ public class DataObjectRemover
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
 	 * 
-	 * @param ctx The security context.
      * @param values The collection of object to delete.
      */
-    public DataObjectRemover(SecurityContext ctx,
-    		Collection<DeletableObject> values)
+    public DataObjectRemover(Map<SecurityContext, Collection<DeletableObject>>
+     values)
     {
-    	 if (values == null)
-             throw new IllegalArgumentException("No objects to remove.");
-    	 call = makeDeleteCall(ctx, values);
+    	if (values == null)
+    		throw new IllegalArgumentException("No objects to remove.");
+    	this.map = values;
+    	//call = makeDeleteCall(ctx, values);
     }
-    
-    /**
-     * Creates a new instance.
-     * If bad arguments are passed, we throw a runtime
-	 * exception so to fail early and in the caller's thread.
-	 * 
-	 * @param ctx The security context.
-     * @param value The object to delete.
-     */
-    public DataObjectRemover(SecurityContext ctx, DeletableObject value)
-    {
-    	if (value == null)
-            throw new IllegalArgumentException("No object to remove.");
-    	List<DeletableObject> l = new ArrayList<DeletableObject>(1);
-    	l.add(value);
-    	call = makeDeleteCall(ctx, l);
-    }
-    
+
 }

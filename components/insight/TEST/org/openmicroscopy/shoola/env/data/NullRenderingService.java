@@ -281,7 +281,7 @@ public class NullRenderingService
      * @see OmeroImageService#importImage(ImportableObject, ImportableFile, 
      * long, long, boolean)
      */
-	public Object importFile(SecurityContext ctx, ImportableObject object,
+	public Object importFile(ImportableObject object,
 			ImportableFile file, long userID, long groupID, boolean close) 
 		throws ImportException
 	{
