@@ -291,7 +291,6 @@ class BrowserComponent
 		Set<TreeImageSet> nodes;
 		if (node != null) {
 			node.accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
-			finder.getContainers();
 			items = finder.getContainers();
 			nodes = finder.getContainerNodes();
 			if (items.size() == 0 && nodes.size() == 0) return;
@@ -1442,15 +1441,27 @@ class BrowserComponent
 		
 		model.setSelectedDisplay(null, true);
 		model.setState(READY);
-		
-		if (model.getBrowserType() == TAGS_EXPLORER) {
-			List<Class> types = new ArrayList<Class>();
-			types.add(TagAnnotationData.class);
-			types.add(DatasetData.class);
-			countItems(types, null);
-			countExperimenterDataInFolders();
-		} else countItems(null, null);
-			
+		switch (model.getBrowserType()) {
+			case TAGS_EXPLORER:
+				List<Class> types = new ArrayList<Class>();
+				types.add(TagAnnotationData.class);
+				types.add(DatasetData.class);
+				countItems(types, null);
+				countExperimenterDataInFolders();
+				break;
+			case ADMIN_EXPLORER:
+				countItems(null, null);
+				break;
+			default:
+				TreeImageDisplay root = view.getTreeRoot();
+				TreeImageSet groupNode;
+				for (int k = 0; k < root.getChildCount(); k++) {
+					groupNode = (TreeImageSet) root.getChildAt(k);
+					if (groupNode.isExpanded()) {
+						countItems(null, groupNode);
+					}
+				}
+		}	
 		model.getParentModel().setStatus(false, "", true);
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
