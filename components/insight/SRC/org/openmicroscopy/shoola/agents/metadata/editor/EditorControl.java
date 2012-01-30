@@ -585,8 +585,8 @@ class EditorControl
 		} else if (MetadataViewer.CLOSE_RENDERER_PROPERTY.equals(name)) {
 			view.discardRenderer(evt.getNewValue());
 		} else if (ScriptingDialog.RUN_SELECTED_SCRIPT_PROPERTY.equals(name)) {
-			view.manageScript((ScriptObject) evt.getNewValue(), 
-					MetadataViewer.RUN);
+			//view.manageScript((ScriptObject) evt.getNewValue(), 
+			//		MetadataViewer.RUN);
 		} else if (ScriptingDialog.DOWNLOAD_SELECTED_SCRIPT_PROPERTY.equals(
 				name)) {
 			Object value = evt.getNewValue();

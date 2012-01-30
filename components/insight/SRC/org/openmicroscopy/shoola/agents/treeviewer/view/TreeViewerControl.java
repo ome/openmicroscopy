@@ -129,6 +129,7 @@ import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
@@ -380,6 +381,7 @@ class TreeViewerControl
 	 */
 	private void downloadScript(ScriptActivityParam param)
 	{
+		
 		FileChooser chooser = new FileChooser(view, FileChooser.SAVE, 
 				"Download", "Select where to download the file.", null, 
 				true);
@@ -402,8 +404,9 @@ class TreeViewerControl
 							folder, icons.getIcon(IconManager.DOWNLOAD_22));
 					UserNotifier un = 
 						TreeViewerAgent.getRegistry().getUserNotifier();
-					//TODO:review
-					//un.notifyActivity(activity);
+					SecurityContext ctx = new SecurityContext(
+					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+					un.notifyActivity(ctx, activity);
 				}
 			}
 		});
@@ -793,6 +796,8 @@ class TreeViewerControl
 	{
 		if (script == null) return;
 		
+		SecurityContext ctx = new SecurityContext(
+				TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 		if (index == ScriptActivityParam.VIEW) {
 			Environment env = (Environment) 
@@ -805,7 +810,7 @@ class TreeViewerControl
 					script.getScriptID(), 
 					DownloadActivityParam.ORIGINAL_FILE, f, null);
 			activity.setApplicationData(new ApplicationData(""));
-			//un.notifyActivity(activity);
+			un.notifyActivity(ctx, activity);
 		} else if (index == ScriptActivityParam.DOWNLOAD) {
 			downloadScript(new ScriptActivityParam(script,
 					ScriptActivityParam.DOWNLOAD));
@@ -1180,6 +1185,7 @@ class TreeViewerControl
 			//TODO:review
 			//un.notifyActivity(activity);
 		} else if (MetadataViewer.HANDLE_SCRIPT_PROPERTY.equals(name)) {
+			/*
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			ScriptActivityParam p = (ScriptActivityParam) pce.getNewValue();
 			int index = p.getIndex();
@@ -1202,7 +1208,7 @@ class TreeViewerControl
 			} else {
 				//TODO:review
 				//un.notifyActivity(pce.getNewValue());
-			}
+			}*/
 		} else if (OpenWithDialog.OPEN_DOCUMENT_PROPERTY.equals(name)) {
 			ApplicationData data = (ApplicationData) pce.getNewValue();
 			//Register 
@@ -1250,11 +1256,11 @@ class TreeViewerControl
 				}
 			}
 		} else if (DataBrowser.SET__OWNER_RND_SETTINGS_PROPERTY.equals(name)) {
-			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
+			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model,
 					PasteRndSettingsCmd.SET_OWNER);
 			cmd.execute();
 		} else if (ScriptingDialog.RUN_SELECTED_SCRIPT_PROPERTY.equals(name)) {
-			handleScript((ScriptObject) pce.getNewValue(), 
+			handleScript((ScriptObject) pce.getNewValue(),
 					ScriptActivityParam.RUN);
 		} else if (ScriptingDialog.DOWNLOAD_SELECTED_SCRIPT_PROPERTY.equals(
 				name)) {
