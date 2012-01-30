@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.UpdateVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
@@ -3462,6 +3463,7 @@ class TreeViewerComponent
 	{
 		TreeImageDisplay node;
 		Browser browser = null;
+		Set<Long> groupIds = new HashSet<Long>();
 		if (containers != null && containers.size() > 0) {
 			NodesFinder finder = new NodesFinder(containers);
 			DataObject ho = containers.get(0);
@@ -3473,60 +3475,39 @@ class TreeViewerComponent
 				browser.accept(finder);
 			}
 			Set<TreeImageDisplay> nodes = finder.getNodes();
-			//mark 
+			//mark
 			if (browser != null && nodes != null && nodes.size() > 0) {
 				Iterator<TreeImageDisplay> i = nodes.iterator();
 				TreeImageDisplay parent;
+				Object object;
 				while (i.hasNext()) {
 					node = i.next();
 					node.setToRefresh(true);
+					object = node.getUserObject();
+					if (object instanceof DataObject) {
+						groupIds.add(((DataObject) object).getGroupId());
+					}
 					parent = node.getParentDisplay();
 					if (parent != null && !parent.isExpanded())
 						browser.expand(parent);
 				}
-				browser.getUI().repaint();
-			}
-			/*
-			if (browser == null) return;
-			Set<TreeImageDisplay> nodes = finder.getNodes();
-			//mark 
-			if (nodes != null && nodes.size() > 0) {
-				Iterator<TreeImageDisplay> i = nodes.iterator();
-				TreeImageDisplay parent;
-				while (i.hasNext()) {
-					node = i.next();
-					node.setToRefresh(true);
-					parent = node.getParentDisplay();
-					if (parent != null && !parent.isExpanded())
-						browser.expand(parent);
+				ExperimenterData exp = TreeViewerAgent.getUserDetails();
+				ExperimenterVisitor v = new ExperimenterVisitor(browser, 
+						exp.getId(), groupIds);
+				browser.accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+				List<TreeImageDisplay> l = v.getNodes();
+				if (l != null) {
+					Iterator<TreeImageDisplay> j = l.iterator();
+					while (j.hasNext()) {
+						node = j.next();
+						node.setExpanded(true);
+						node.setToRefresh(refreshTree);
+					}
 				}
 				browser.getUI().repaint();
-			} else {
-				node = browser.getLoggedExperimenterNode();
-				if (node != null) {
-					node.setToRefresh(refreshTree);
-					browser.getUI().repaint();
-				}
-			}
-			node = browser.getLoggedExperimenterNode();
-			if (node != null) {
-				node.setToRefresh(refreshTree);
-				browser.getUI().repaint();
-			}
-			*/
-		} 
-		/*else {
-			browser = model.getSelectedBrowser();
-			if (browser != null) {
-				node = browser.getLoggedExperimenterNode();
-				if (node != null) {
-					node.setExpanded(true);
-					node.setToRefresh(refreshTree);
-					browser.getUI().repaint();
-				}
 			}
 		}
-		*/
+		/*
 		if (browser == null) browser = model.getSelectedBrowser();
 		if (browser != null) {
 			node = browser.getLoggedExperimenterNode();
@@ -3535,7 +3516,7 @@ class TreeViewerComponent
 				node.setToRefresh(refreshTree);
 				browser.getUI().repaint();
 			}
-		}
+		}*/
 	}
 	
 	/** 
