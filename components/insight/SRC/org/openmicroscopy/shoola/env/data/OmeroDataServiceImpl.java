@@ -341,6 +341,7 @@ class OmeroDataServiceImpl
 	{
 		if (object == null) 
 			throw new DSAccessException("No object to update.");
+		ctx = gateway.checkContext(ctx, object);
 		if (object instanceof ExperimenterData) 
 			return updateExperimenter(ctx, (ExperimenterData) object, null);
 		if (!object.isLoaded()) return object;
@@ -364,6 +365,7 @@ class OmeroDataServiceImpl
 			Collection children)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		ctx = gateway.checkContext(ctx, parent);
 		if (parent instanceof ProjectData) {
 			try {
 				children.toArray(new DatasetData[] {});
@@ -426,12 +428,17 @@ class OmeroDataServiceImpl
 		List<IObject> objects = new ArrayList<IObject>();
 		IObject ioParent = parent.asIObject();
 		IObject ioChild;
-		Iterator child = children.iterator();
-		while (child.hasNext()) {
-			ioChild = ((DataObject) child.next()).asIObject();
-			//First make sure that the child is not linked to the parent.
-			if (gateway.findLink(ctx, ioParent, ioChild) == null)
-				objects.add(ModelMapper.linkParentToChild(ioChild, ioParent));
+		Iterator i = children.iterator();
+		DataObject child;
+		while (i.hasNext()) {
+			child = (DataObject) i.next();
+			if (child.getGroupId() == ctx.getGroupID()) {
+				ioChild = child.asIObject();
+				//First make sure that the child is not linked to the parent.
+				if (gateway.findLink(ctx, ioParent, ioChild) == null)
+					objects.add(
+							ModelMapper.linkParentToChild(ioChild, ioParent));
+			}
 		}
 		if (objects.size() != 0)
 			gateway.createObjects(ctx, objects);
@@ -509,9 +516,9 @@ class OmeroDataServiceImpl
 			ExperimenterData exp, GroupData group) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		//ADD control
 		if (exp == null) 
 			throw new DSAccessException("No object to update.");
+		ctx = gateway.checkContext(ctx, exp);
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
 		ExperimenterData user = 
@@ -754,9 +761,18 @@ class OmeroDataServiceImpl
 			Collection<DeletableObject> objects) 
 		throws DSOutOfServiceException, DSAccessException, ProcessException
 	{
-		if (objects == null || objects.size() == 0) return null;
+		if (objects == null || objects.size() == 0 || ctx == null) return null;
 		Iterator<DeletableObject> i = objects.iterator();
 		DeletableObject object;
+		List<DeletableObject> l = new ArrayList<DeletableObject>();
+		while (i.hasNext()) {
+			object = i.next();
+			if (object.getObjectToDelete().getGroupId() == ctx.getGroupID()) {
+				l.add(object);
+			}
+		}
+		if (l.size() == 0) return null;
+		i = l.iterator();
 		List<DeleteCommand> commands = new ArrayList<DeleteCommand>();
 		DeleteCommand cmd;
 		Map<String, String> options;
