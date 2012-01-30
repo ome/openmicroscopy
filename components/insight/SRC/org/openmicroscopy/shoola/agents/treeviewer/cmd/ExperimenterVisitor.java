@@ -25,18 +25,17 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -57,8 +56,8 @@ public class ExperimenterVisitor
 	/** The id of the user to find or <code>-1</code>.*/
 	private long userID;
 	
-	/** The id of the user to find or <code>-1</code>.*/
-	private long groupID;
+	/** The ids of the group to find or <code>-1</code>.*/
+	private Collection<Long> groupIDs;
 	
 	/**
 	 * Creates a new instance.
@@ -72,7 +71,26 @@ public class ExperimenterVisitor
 	{
 		super(model);
 		this.userID = userID;
-		this.groupID = groupID;
+		groupIDs = new ArrayList<Long>();
+		if (groupID >= 0) groupIDs.add(groupID);
+		nodes = new ArrayList<TreeImageDisplay>();
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model Reference to the {@link Browser}.
+	 *              Mustn't be <code>null</code>.
+	 * @param userID The id of the user.
+	 * @param groupID The id of the group.
+	 */
+	public ExperimenterVisitor(Browser model, long userID,
+			Collection<Long> groupIDs)
+	{
+		super(model);
+		this.userID = userID;
+		if (groupIDs == null) groupIDs = new ArrayList<Long>();
+		this.groupIDs = groupIDs;
 		nodes = new ArrayList<TreeImageDisplay>();
 	}
 	
@@ -102,16 +120,15 @@ public class ExperimenterVisitor
     		if (userID < 0) nodes.add(node);
     		else {
     			if (userID == ((ExperimenterData) ho).getId()) {
-    				if (groupID < 0) nodes.add(node);
+    				if (groupIDs.size() == 0) nodes.add(node);
     				else {
     					TreeImageDisplay parent = node.getParentDisplay();
         				Object pho = parent.getUserObject();
         				if (pho instanceof GroupData && 
-        						groupID == ((GroupData) pho).getId())
+        						groupIDs.contains(((GroupData) pho).getId()))
         				nodes.add(node);
     				}
     			}
-    			
     		}
     	}
     }
