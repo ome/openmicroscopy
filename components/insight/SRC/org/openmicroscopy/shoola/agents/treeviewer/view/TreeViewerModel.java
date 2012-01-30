@@ -1112,10 +1112,9 @@ class TreeViewerModel
 	 */
 	void loadParentOf(FileAnnotationData data)
 	{
-		/*TODO: review
-		ParentLoader loader = new ParentLoader(component, data);
+		SecurityContext ctx = new SecurityContext(data.getGroupId());
+		ParentLoader loader = new ParentLoader(component, ctx, data);
 		loader.load();
-		*/
 	}
 	
 	/**
