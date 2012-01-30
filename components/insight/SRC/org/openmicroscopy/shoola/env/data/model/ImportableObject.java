@@ -35,17 +35,10 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
-import loci.formats.FormatReader;
-import loci.formats.in.BDReader;
-import loci.formats.in.CellWorxReader;
-import loci.formats.in.CellomicsReader;
-import loci.formats.in.FlexReader;
-import loci.formats.in.InCellReader;
-import loci.formats.in.MIASReader;
-import loci.formats.in.MetamorphTiffReader;
+import loci.formats.FormatTools;
+import loci.formats.IFormatReader;
+import loci.formats.ImageReader;
 import loci.formats.in.OMEXMLReader;
-import loci.formats.in.ScanrReader;
-import loci.formats.in.ScreenReader;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
@@ -111,39 +104,18 @@ public class ImportableObject
 				UIUtilities.D_M_Y_FORMAT);
 		HCS_FILES_EXTENSION = new HashSet<String>();
 		HCS_DOMAIN = new ArrayList<String>();
-		FormatReader reader = new BDReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new CellomicsReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new CellWorxReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new FlexReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		//reader = new InCell3000Reader();
-		//populateExtensions(reader.getSuffixes());
-		//HCS_DOMAIN.add(reader.getFormat());
-		reader = new InCellReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new MetamorphTiffReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new MIASReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new ScanrReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new ScreenReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new OMEXMLReader();
+
+    IFormatReader[] allReaders = new ImageReader().getReaders();
+    for (IFormatReader reader : allReaders) {
+      if (Arrays.asList(reader.getDomains()).contains(FormatTools.HCS_DOMAIN)) {
+        populateExtensions(reader.getSuffixes());
+        HCS_DOMAIN.add(reader.getFormat());
+      }
+    }
+
+		IFormatReader reader = new OMEXMLReader();
 		OME_SUFFIXES = (List<String>) Arrays.asList(reader.getSuffixes());
-		
+
 		ARBITRARY_FILES_EXTENSION = new ArrayList<String>();
 		ARBITRARY_FILES_EXTENSION.add("text");
 		ARBITRARY_FILES_EXTENSION.add("txt");
