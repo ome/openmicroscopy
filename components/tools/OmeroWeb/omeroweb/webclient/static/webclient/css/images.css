@@ -1,5 +1,23 @@
-/* table */
-
+/*
+ * Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+ 
+ 
 /* icons */
 #dataIcons {
     list-style-type: none;
@@ -37,49 +55,12 @@ em {
     display: none;
 }
 
-div.cloud {
-    border: 1px solid #bbb;
-    background-color: #fff;
-    position: relative;
-    display: none;
-    top: -100;
-}
-
-#hierarchy {
-    max-height: 150px;
-    overflow-y: auto;
-}
-.loadMoreData {
-    font-size: 12px;
-    font-weight: normal;
-    font-style: italic;
-}
-
-.tag {
-    width: 100%;
-}
-
 .miniview {
     /* This is for the miniviewer in image_details */
     width: 300px;
     height: 300px;
     position: relative;
 }
-.miniview_desc {
-    margin: 0 0 20px 20px;
-}
-.miniplateview {
-    /* This is for the miniviewer in image_details */
-    margin-top:10px;
-}
-.miniplateview_desc {
-    margin: 0;
-    padding: 0 20px;
-}
-
-.disabled-metadata {
-}
-
 
 div.paging {
     font-size: 12px;

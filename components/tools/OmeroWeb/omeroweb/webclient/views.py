@@ -79,9 +79,7 @@ from forms import ShareForm, BasketShareForm, ShareCommentForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataObjectiveSettingsForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
-                    TagListForm, FilesAnnotationForm, TagFilterForm, \
-                    MultiAnnotationForm, \
-                    WellIndexForm
+                    FilesAnnotationForm, WellIndexForm
 
 from controller import BaseController
 from controller.index import BaseIndex
@@ -3334,6 +3332,7 @@ def script_run(request, scriptId, **kwargs):
 
 GOOGLE_URL = "www.google.com"
 def spellchecker(request):
+    """ Spellchecker functionality - Not used currently """
     if request.method == 'POST':
         lang = request.GET.get("lang", "en")
         data = request.raw_post_data

@@ -1,17 +1,27 @@
-html.noscroll {
-    overflow: hidden;
-}
-
-.header_chooser {
+/*
+ * Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+ 
+ .header_chooser {
     float:left;
     position:relative;
     top:0px;
     padding:0px 5px;
-}
-
-body.zoom {
-    width: 100%;
-    background: no-repeat;
 }
 
 .error {
@@ -21,15 +31,6 @@ body.zoom {
 .disabled {
     background: #dcdcdc;
     color: #777777;
-}
-
-#content_zoom {
-    margin: 10px;
-}
-
-#path {
-    position: relative;
-    padding:0;
 }
 
 .toolbar_noborder {
@@ -49,19 +50,6 @@ body.zoom {
 }
 .padding {
     padding: 10px;
-}
-#view_grey  {
-    height:20px;
-    padding:5px;
-    background-color:#f3f3f3;
-    width: 100%;    
-}
-
-#actionWrapper {
-    position: absolute;
-    padding: 0;
-    top: 0;
-    left: 0;
 }
 
 #queue, #baskets {
@@ -88,25 +76,6 @@ body.zoom {
     padding: 2px;
 }
 
-.tree {
-    overflow: auto;
-    min-width:400px;
-}
-
-img.action {
-    padding-left: 3px;
-    padding-right: 3px;
-}
-
-iframe {
-    border:0;
-    position: absolute;
-    top:0px; bottom:0px; left:0px; right:0px;
-    overflow: auto;
-    height: 100%;
-}
-
-
 input.button {
     border: 0;
     background-color: transparent;
@@ -117,8 +86,6 @@ input.button-disabled {
     cursor:default !important;
 }
 
-
-
 ul.criteria li{
     list-style: none;
     float: left;
@@ -126,24 +93,6 @@ ul.criteria li{
     margin-right: 5px;
 }
 
-.separate70 {
-    clear: both;
-    height: 70px;
-    margin: 0px;
-    padding: 0px;
-}
-.separate50 {
-    clear: both;
-    height: 50px;
-    margin: 0px;
-    padding: 0px;
-}
-.separate30 {
-    clear: both;
-    height: 30px;
-    margin: 0px;
-    padding: 0px;
-}
 .hide {
     display: none !important;
 }
@@ -283,4 +232,16 @@ float: right;
 }
 #basket_panel_link {
     float: right;
+}
+
+.quote {
+    background-color:   #eee;
+    font-family:        monospace;
+    font-style:         italic;
+    border:             1px dotted #333;
+    font-size:          95%;
+    margin:             15px 20px 15px 20px;
+    padding:            6px;
+    width:              85%;
+    overflow:           auto;
 }
