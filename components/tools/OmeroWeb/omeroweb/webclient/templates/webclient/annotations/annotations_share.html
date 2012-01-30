@@ -122,32 +122,32 @@
                 });
             });
 
-
-            function deleteItem(productType, productId) {
-                if ((productType == 'file' || productType == 'tag' || productType == 'comment') && productId > 0){
-                    var confirm_del = confirm_dialog('Delete '+ productType + '?',
-                        function() {
-                            if(confirm_del.data("clicked_button") == "OK") {
-                                $.ajax({
-                                    type: "POST",
-                                    url: "/webclient/action/delete/"+productType+"/"+productId+"/", //this.href,
-                                    data: productListQuery,
-                                    contentType:'html',
-                                    success: function(responce){
-                                        if(responce.match(/(Error: ([A-z]+))/gi)) {
-                                            alert(responce)
-                                        } else {
-                                            window.location = "{{ url }}";
-                                        }
-                                    },
-                                    error: function(responce) {
-                                        alert("Internal server error. Cannot delete object.");
+            
+            // Delete the Comment, by ID
+            function deleteShareComment(commentId) {
+                var confirm_del = confirm_dialog('Delete Comment?',
+                    function() {
+                        if(confirm_del.data("clicked_button") == "OK") {
+                            $.ajax({
+                                type: "POST",
+                                url: "/webclient/action/delete/comment/"+commentId+"/", //this.href,
+                                contentType:'html',
+                                success: function(responce){
+                                    if(responce.match(/(Error: ([A-z]+))/gi)) {
+                                        alert(responce)
+                                    } else {
+                                        $("#share_comment-"+commentId).remove();
                                     }
-                                });
-                            }
+                                },
+                                error: function(responce) {
+                                    alert("Internal server error. Cannot delete object.");
+                                }
+                            });
                         }
-                    );
-                } 
+                    }
+                );
+                
+                return false;
             }
             
     </script>
@@ -261,18 +261,7 @@
                     <td colspan="3">
                         <div id="share_comments_container" class="lncomments">
                             {% for cm in manager.comments %}
-                            <div class="ann_comment_wrapper">
-                                <div class="avatar"><img src="{% url avatar cm.getOwner.id %}" alt="{{ cm.getOwner.getFullName }}" title="{{ cm.getOwner.getFullName }}" width="20" height="20" /></div>
-                                <div>
-                                    <span class="ann_comment_header">{{ cm.getOwner.getFullName }} {% trans "at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }}</span>
-                                    {% if cm.canDelete %}
-                                        <input class="button" type="image" src="{% static "webclient/image/cancel12.png" %}" alt="Delete" title="Delete" onclick="deleteItem('comment', '{{ cm.id }}');" />
-                                    {% endif %}
-                                    <div class='commentText'>
-                                    {{ cm.textValue|sharewikify|safe|linebreaks }}
-                                    </div>
-                                </div>
-                            </div>
+                                {% include "webclient/annotations/share_comment.html" %}
                             {% endfor %}
                         </div>
                     </td>
