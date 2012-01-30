@@ -80,7 +80,7 @@ def login (alias, pw=None):
 
 class UserEntry (object):
     def __init__ (self, name, passwd, firstname='', middlename='', lastname='', email='',
-                  groupname=None, groupperms='rw----', admin=False):
+                  groupname=None, groupperms='rw----', groupowner=False, admin=False):
         self.name = name
         self.passwd = passwd
         self.firstname = firstname
@@ -90,6 +90,7 @@ class UserEntry (object):
         self.admin = admin
         self.groupname = groupname
         self.groupperms = groupperms
+        self.groupowner = groupowner
 
     def fullname (self):
         return '%s %s' % (self.firstname, self.lastname)
@@ -127,7 +128,7 @@ class UserEntry (object):
             g = a.lookupGroup(groupname)
         return g
 
-    def create (self, client):
+    def create (self, client, password):
         a = client.getAdminService()
         try:
             a.lookupExperimenter(self.name)
@@ -146,16 +147,18 @@ class UserEntry (object):
         u.setLastName(omero.gateway.omero_type(self.lastname))
         u.setEmail(omero.gateway.omero_type(self.email))
         a.createUser(u, g.getName().val)
+        u = a.lookupExperimenter(self.name)
         if self.admin:
-            u = a.lookupExperimenter(self.name)
             a.addGroups(u,(a.lookupGroup("system"),))
-        client.c.sf.setSecurityPassword(ROOT.passwd) # See #3202
+        client.c.sf.setSecurityPassword(password) # See #3202
         a.changeUserPassword(u.getOmeName().val, omero.gateway.omero_type(self.passwd))
+        if self.groupowner:
+            a.setGroupOwner(g, u)
         return True
 
-    def changePassword (self, client, password):
+    def changePassword (self, client, password, rootpass):
         a = client.getAdminService()
-        client.c.sf.setSecurityPassword(ROOT.passwd) # See #3202
+        client.c.sf.setSecurityPassword(rootpass) # See #3202
         a.changeUserPassword(self.name, omero.gateway.omero_type(password))
 
     @staticmethod
