@@ -41,7 +41,6 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
@@ -87,7 +86,6 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
-import pojos.PermissionData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -189,20 +187,18 @@ class TreeViewerModel
     private List<ScriptObject> getScriptsWithUI()
     {
     	if (scriptsWithUI != null) return scriptsWithUI;
-    	/*
-    	 * TODO:Review
     	try {
     		OmeroImageService svc = 
     			TreeViewerAgent.getRegistry().getImageService();
-    		scriptsWithUI = svc.loadAvailableScriptsWithUI();
+    		scriptsWithUI = svc.loadAvailableScriptsWithUI(
+    				getSecurityContext(null));
     		return scriptsWithUI;
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 			msg.print("Scripts with UI");
 			msg.print(e);
-			MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+			TreeViewerAgent.getRegistry().getLogger().error(this, msg);
 		}
-		*/
     	return new ArrayList<ScriptObject>();
     }
     
@@ -1149,16 +1145,16 @@ class TreeViewerModel
 		return scripts.get(scriptID);
 	}
 	
-	/** Loads the scripts.
+	/**
+	 * Loads the scripts.
 	 * 
 	 * @param location The location of the mouse.
 	 */
 	void loadScripts(Point location)
 	{
-		/* TODO: review
-		ScriptsLoader loader = new ScriptsLoader(component, false, location);
+		ScriptsLoader loader = new ScriptsLoader(component,
+				getSecurityContext(null), false, location);
 		loader.load();
-		*/
 	}
 	
 	/**
@@ -1202,10 +1198,9 @@ class TreeViewerModel
 	 */
 	void loadScript(long scriptID)
 	{
-		/* TO REVIEW
-		ScriptLoader loader = new ScriptLoader(component, ctx, scriptID);
+		ScriptLoader loader = new ScriptLoader(component,
+				getSecurityContext(null), scriptID);
 		loader.load();
-		*/
 	}
 	
 	/**

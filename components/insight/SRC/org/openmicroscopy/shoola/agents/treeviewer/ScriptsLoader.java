@@ -34,11 +34,9 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.ProcessException;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.log.LogMessage;
 
 /** 
  * Loads the scripts. This class calls the <code>loadScripts</code> 
@@ -64,6 +62,9 @@ public class ScriptsLoader
     /** The location of the mouse click.*/
     private Point location;
     
+    /** Flag indicating to load the scripts with a given UI.*/
+    private boolean ui;
+    
     /**
      * Creates a new instance.
      * 
@@ -80,6 +81,14 @@ public class ScriptsLoader
     	this.all = all;
     	this.location = location;
     }
+    
+    /**
+     * Indicates to load the scripts with a UI.
+     * 
+     * @param ui Pass <code>true</code> to load scripts with UI,
+     *           <code>false</code> otherwise.
+     */
+    public void setUI(boolean ui) { this.ui = ui; }
     
     /** 
      * Loads the scripts.
