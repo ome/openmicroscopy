@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -786,7 +787,7 @@ class OmeroMetadataServiceImpl
 		}
 		return results;
 	}
-	
+
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#annotate(SecurityContext, DataObject, AnnotationData)
@@ -797,6 +798,7 @@ class OmeroMetadataServiceImpl
 	{
 		if (toAnnotate == null)
 			throw new IllegalArgumentException("DataObject cannot be null");
+		ctx = gateway.checkContext(ctx, toAnnotate);
 		return annotate(ctx, toAnnotate.getClass(), toAnnotate.getId(),
 				annotation);
 	}
@@ -947,6 +949,7 @@ class OmeroMetadataServiceImpl
 	{
 		if (object == null)
 			throw new IllegalArgumentException("No object specified.");
+		ctx = gateway.checkContext(ctx, object);
 		clearAnnotation(ctx, object.getClass(), object.getId(),
 				annotationType);
 	}
@@ -960,6 +963,7 @@ class OmeroMetadataServiceImpl
 	{
 		if (object == null)
 			throw new IllegalArgumentException("No object specified.");
+		ctx = gateway.checkContext(ctx, object);
 		clearAnnotation(ctx, object.getClass(), object.getId(), null);
 	}
 
@@ -1696,10 +1700,11 @@ class OmeroMetadataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (refObject instanceof ImageData) {
+			ctx = gateway.checkContext(ctx, (ImageData) refObject);
 			return gateway.loadImageAcquisitionData(ctx,
 					((ImageData) refObject).getId());
-			
 		} else if (refObject instanceof ChannelData) {
+			ctx = gateway.checkContext(ctx, (ChannelData) refObject);
 			Channel c = ((ChannelData) refObject).asChannel();
 			if (c.getLogicalChannel() == null) return null;
 			long id = c.getLogicalChannel().getId().getValue();
@@ -1728,14 +1733,16 @@ class OmeroMetadataServiceImpl
 	{
 		if (refObject instanceof ImageAcquisitionData) {
 			ImageAcquisitionData data = (ImageAcquisitionData) refObject;
+			ctx = gateway.checkContext(ctx, data);
 			saveImageAcquisitionData(ctx, data);
-			
 			return null;//loadAcquisitionData(data.asImage());
 		} else if (refObject instanceof ChannelData) {
 			ChannelData data = (ChannelData) refObject;
+			ctx = gateway.checkContext(ctx, data);
 			saveChannelData(ctx, data);
 		} else if (refObject instanceof ChannelAcquisitionData) {
 			ChannelAcquisitionData data = (ChannelAcquisitionData) refObject;
+			ctx = gateway.checkContext(ctx, data);
 			saveChannelAcquisitionData(ctx, data);
 		}
 		return null;
@@ -1762,6 +1769,8 @@ class OmeroMetadataServiceImpl
 				ns = FileAnnotationData.EDITOR_EXPERIMENT_NS;
 				break;
 		}
+		if (fileAnnotation == null) return null;
+		ctx = gateway.checkContext(ctx, fileAnnotation);
 		//Upload the file back to the server
 		long id = fileAnnotation.getId();
 		long originalID = fileAnnotation.getFileID();
@@ -1906,9 +1915,8 @@ class OmeroMetadataServiceImpl
 			throws DSOutOfServiceException, DSAccessException
 	{
 		//Tmp code
-		List<Long> ids = new ArrayList<Long>(1);
-		ids.add(annotationID);
-		Set<DataObject> set = gateway.loadAnnotation(ctx, ids);
+		Set<DataObject> set = gateway.loadAnnotation(ctx, 
+				Arrays.asList(annotationID));
 		if (set.size() != 1) return null;
 		Iterator<DataObject> i = set.iterator();
 		while (i.hasNext()) {

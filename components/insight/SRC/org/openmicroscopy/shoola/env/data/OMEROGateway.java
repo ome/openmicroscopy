@@ -7933,4 +7933,21 @@ class OMEROGateway
 		}
 	}
 
+	/**
+	 * Checks that the specified context and the object match, if they don't
+	 * creates and returns a matching context.
+	 * 
+	 * @param ctx The context to handle.
+	 * @param ho The context to handle.
+	 * @return See above.
+	 */
+	SecurityContext checkContext(SecurityContext ctx, DataObject ho)
+	{
+		if (ctx == null && ho.getId() >= 0)
+			return new SecurityContext(ho.getGroupId());
+		if (ho.getId() < 0) return ctx;
+		if (ho.getGroupId() == ctx.getGroupID()) return ctx;
+		return new SecurityContext(ho.getGroupId());
+	}
+
 }
