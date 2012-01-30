@@ -25,11 +25,11 @@ function [client,session,gateway]=loadOmero(varargin)
 %   c = loadOmero('localhost,'14064');
 %
 %   % Via a Properties object
-%   p = java.util.Properties();
-%   p.setProperty('omero.host', 'example.com');
-%   p.setProperty('omero.user', 'me');
-%   p.setProperty('omero.pass', 'super_secret!');
-%   c = loadOmero(p);
+%   props = java.util.Properties();
+%   props.setProperty('omero.host', 'example.com');
+%   props.setProperty('omero.user', 'me');
+%   props.setProperty('omero.pass', 'super_secret!');
+%   c = loadOmero(props);
 %
 %   % Via File array
 %   fs = javaArray('java.io.File', 2)
