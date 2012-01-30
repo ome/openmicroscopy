@@ -12,51 +12,35 @@
 #thin_header {
     border-bottom: 1px solid #E5E5E5;
 }
-
-
-img {
-    border: 0px;
-    padding: 0px;
-    margin: 0px;
-    vertical-align: middle;
+#footer {
+    border-top: none;
 }
 
-table.contentWrapper {
-    width: 100%; 
-    background: #f3f3f3;
-    table-layout:fixed;
-    height:100%;
-}
-
-#left_panel {
+/** three main columns of the container layout **/
+#left_panel, #center_panel, #right_panel {
     background-color: #ffffff;
     position:absolute;
-    left:0px; top:0px; bottom:0px;right:0px;
-    width:350px;
     overflow: auto;
     border: solid #bbb 1px;
+}
+#left_panel {
+    left:0px; top:0px; bottom:0px;right:0px;
+    width:350px;
     border-left: none;
     border-radius: 0px 4px 4px 0px;
 }
 #center_panel {
-    background-color: #ffffff;
-    position:absolute;
     left:5px; right:5px; top:0px; bottom:0px;
-    overflow: auto;
-    border: solid #bbb 1px;
     border-radius: 4px;
 }
 #right_panel {
-    background-color: #ffffff;
-    position:absolute;
     width:369px;
     right:0px; top:0px; bottom:0px;
-    overflow: auto;
-    border: solid #bbb 1px;
     border-radius: 4px 0px 0px 4px;
     border-right: none;
 }
 
+/** the center panel includes the draggable re-size handles either side **/
 #trayhandle_left {
     position:absolute;
     top:0px; left:0px; bottom:0px;
@@ -120,8 +104,4 @@ table.contentWrapper {
     top: 20px;
     left: 0px;
     right: 0px;
-}
-
-#footer {
-    border-top: none;
 }

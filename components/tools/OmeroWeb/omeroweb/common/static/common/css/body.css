@@ -12,19 +12,14 @@ body {
     position: relative;
 }
 
-#content {
-    position:absolute;
-    top:62px;
-    right:0px;
-    left:0px;
-    bottom:0px;
-    overflow:auto;
-}
-
 a:hover, a:link, a:visited {
     border: medium none;
     color: #1B7BC7;
     text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 h1 {
@@ -45,6 +40,9 @@ p {
 
 img {
     border: 0px;
+    padding: 0px;
+    margin: 0px;
+    vertical-align: middle;
 }
 
 table {
@@ -59,11 +57,6 @@ th {
 td {
     vertical-align:top;
     text-align: left;
-}
-
-form table {
-    border: 0px;
-    table-layout: auto;
 }
 
 form td {

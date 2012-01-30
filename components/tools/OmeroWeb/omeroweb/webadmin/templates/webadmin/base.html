@@ -62,12 +62,6 @@
 {% endblock %}
 
 
-{% block util_links %}
-    <a href="{% url load_template 'help' %}">{% trans "Help" %}</a> &nbsp
-    {% include "webclient/base/logout.html" %}
-{% endblock %}
-
-
 {% block thin_header_right %}
     {{ info.today }}
 {% endblock %}
