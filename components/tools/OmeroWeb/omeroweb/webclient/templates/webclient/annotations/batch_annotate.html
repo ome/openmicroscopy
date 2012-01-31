@@ -32,7 +32,12 @@
 
     <script type="text/javascript">
         var show_batch_msg = function(text) {
-            $("#batch_ann_msg").text(text).show().delay(1200).fadeOut(1000);
+            $("#batch_ann_msg").html(text).show().delay(1200).fadeOut(1000);
+        }
+        var show_batch_error = function(text) {
+            $("#batch_ann_error").html(text + "<div><u>Click to Close</u></div>").show().click(function(){
+                $(this).hide();
+            })
         }
         $(document).ready(function() 
             {
@@ -42,14 +47,15 @@
 
                 // handle submit of Add Comment form
                 $("#add_comment_form").submit(function() {
-                    $("#comment_spinner").show();
                     var $form = $(this);
                     var add_comment_url = $form.attr('action');
                     var postData = $form.serialize();
                     var textArea = $('textarea', $form);
                     if (textArea.val().trim().length == 0) {
+                        show_batch_msg("Comment field was empty");
                         return false;
                     }
+                    $("#comment_spinner").show();
                     $.ajax({
                         type: "POST",
                         url: add_comment_url,
@@ -64,7 +70,8 @@
                             show_batch_msg("Comment added to Objects");
                         },
                         error: function(html) {
-                            alert("Internal server error. Cannot add comment.");
+                            $("#comment_spinner").hide();
+                            show_batch_error(html);
                         }
                     });
                     return false;
@@ -120,6 +127,10 @@
                         $("#tags_container").prepend($tag).show();
                         $(".removeTag", $tag).hide();
                         show_batch_msg("Tags added to Objects");
+                    },
+                    error: function(data) {
+                        $("#tagann_spinner").hide();
+                        show_batch_error(data.response);
                     }
                 });
 
@@ -169,6 +180,10 @@
                         $("#fileanns_container .deleteFile").hide();
                         $("#fileanns_container .removeFile").hide();
                         show_batch_msg("File Annotation(s) added to Objects");
+                    },
+                    error: function(data){
+                        $("#fileann_spinner").hide();
+                        show_batch_error(data.response);
                     }
                 });
                 // prepare dialog for choosing file to attach...
@@ -210,8 +225,11 @@
 
 <div style="padding: 0px 5px; position:relative">
     
-    <div id="batch_ann_msg"></div>  <!-- hidden div to show success messages etc -->
-    
+    <div id="batch_ann_msg_container">
+        <div id="batch_ann_msg"></div>  <!-- hidden div to show success messages etc -->
+        <div id="batch_ann_error" title="Click to close"></div>
+    </div>
+
 <h1>Batch Annotate:</h1>
 
 <!-- hidden form for choosing new or existing Tags in dialog - load form via AJAX when we show dialog -->

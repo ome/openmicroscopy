@@ -426,13 +426,27 @@ div.plane_info table div {
     cursor: pointer;
 }
 
-#batch_ann_msg {
+
+/** Containers for displaying messages on batch annotation panel **/
+
+#batch_ann_msg_container {
     position:absolute;
     z-index:10;
     top:10px; right:10px; 
     background: #ffb;
     width:200px;
+}
+
+#batch_ann_msg, #batch_ann_error {
+    background: #ffb;
     padding:10px;
     border: solid #ddd 1px;
     display: none;
+}
+#batch_ann_msg, {
+    background: #ffb;
+}
+#batch_ann_error {
+    background: #fbb;
+    cursor: pointer;
 }

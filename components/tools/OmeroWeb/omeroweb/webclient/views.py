@@ -1556,7 +1556,7 @@ def annotate_file(request, conn, **kwargs):
             template = "webclient/annotations/fileanns.html"
             context = {'fileanns':linked_files}
         else:
-            return HttpResponse(str(form_file.errors))      # TODO: handle invalid form error
+            return HttpResponse("<div>No Files chosen</div>")
 
     else:
         form_file = FilesAnnotationForm(initial=initial)
@@ -1651,6 +1651,8 @@ def annotate_tags(request, conn, **kwargs):
             if tag is not None and tag != "":
                 new_tag = manager.createTagAnnotations(tag, description, oids, well_index=index)
                 linked_tags.append(new_tag)
+            if len(linked_tags) == 0:
+                return HttpResponse("<div>No Tags Added</div>")
             template = "webclient/annotations/tags.html"
             context = {'tags':linked_tags}
         else:
