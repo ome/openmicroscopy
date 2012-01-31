@@ -149,9 +149,28 @@ var confirm_dialog = function(dialog_text, callback, title, button_labels, width
 };
 
 
+/** 
+ * Helper for $.ajax to handle timeouts etc.
+ * Usage: instead of calling $.ajax(config) you should call ajax_json_helper(config)
+ * We add our own 'error' handler to the config dictionary then call $.ajax
+ * If the $.ajax returns an error, our handler calls login_dialog, passing 
+ * the $.ajax(config) method to be called when we have logged in.
+**/
+var ajax_json_helper = function(config) {
+    
+    config['error'] = function(data) {
+        
+        //console.log('not connected');
+        login_dialog("/webclient/login", function() {
+            $.ajax(config);
+        });
+    }
+    $.ajax(config);
+}
+
 /*
  * A dialog for logging-in on the fly (without redirect to login page)
- * On 'Connect' we post username & password to login url and on callback, the specified function is called
+ * On clicking 'Connect' we post username & password to login url and on callback, the callback function is called
  */
 var login_dialog = function(login_url, callback) {
 
@@ -190,8 +209,37 @@ var login_dialog = function(login_url, callback) {
     return $dialog;
 };
 
-
+/** 
+ * Helper to handle jQuery load() errors (E.g. timeout)
+ * In this case we simply refresh (will redirect to login page)
+**/
 $.fn.load_helper = function(url, login_url, callback) {
+    return this.each(function(){
+
+        var self = $(this);
+        
+        $.ajax({
+            type: "GET",
+            url: url,
+            contentType:'html',
+            success: function(html){
+                self.html(html);
+                if (typeof callback != 'undefined') callback();
+            },
+            error: function(response) {
+                // refresh - will redirect to login page
+                window.location.reload();
+            }
+        });
+    });
+}
+
+/** 
+ * Alternative helper to handle jQuery load() errors (E.g. timeout)
+ * NOT USED - Experimental
+ * We attempt to login with dialog, then load on success. 
+**/
+$.fn.load_helper_login = function(url, login_url, callback) {
     return this.each(function(){
 
         var self = $(this);
