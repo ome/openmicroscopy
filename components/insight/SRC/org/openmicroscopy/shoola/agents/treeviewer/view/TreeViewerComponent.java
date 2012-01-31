@@ -1082,8 +1082,16 @@ class TreeViewerComponent
 				parent = ((WellData) parent).getPlate();
 		}
 		mv.setParentRootObject(parent, null);
-		mv.setRootObject(selected, exp.getId(), 
-				browser.getSecurityContext(last));
+		if (browser == null) {
+			if (selected instanceof DataObject) {
+				SecurityContext ctx = new SecurityContext(
+						((DataObject) selected).getGroupId());
+				mv.setRootObject(selected, exp.getId(), ctx);
+			}
+		} else {
+			mv.setRootObject(selected, exp.getId(),
+					browser.getSecurityContext(last));
+		}
 		if (size > 0) 
 			mv.setRelatedNodes(siblings);
 
