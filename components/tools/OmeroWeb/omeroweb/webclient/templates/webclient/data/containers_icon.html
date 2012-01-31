@@ -22,7 +22,25 @@
 {% endcomment %}
 
     <script type="text/javascript">
+
+        var handleRemove = function (e, data) {
+            var content_id = $("#content_details").attr("rel");     // content, E.g. 'dataset-123'
+            data.rslt.obj.each(function() {
+                // if we're removing the current dataset...
+                if (content_id == $(this).attr('id')) {
+                    $("#content_details").remove();
+                } else if ($(this).attr('id').split("-")[0] == "image") {
+                    // else, remove image
+                    var imgId = $(this).attr('id').split("-")[1];
+                    $("ul#dataIcons li [id='" + imgId + "']").parent().remove();
+                }
+            });
+        };
+        
         $(document).ready(function(){
+            
+            // when the jstree removes objects from the tree, handle each object...
+            $("#dataTree").bind("remove.jstree", handleRemove);     // NB: this binds repeatedly each time this page loads
             
             var datatree = $.jstree._focused();
             
@@ -46,7 +64,7 @@
                 var thumbs = $("#dataIcons img");
                 var primaryIndex = -1;
                 var lastSelected = datatree.data.ui.last_selected;
-                if (lastSelected) {
+                if (lastSelected && (lastSelected.length > 0)) {
                     primaryIndex = thumbs.index($('#'+lastSelected.attr('id').split('-')[1]).children().get(0));
                 }
                 var selIndex = thumbs.index(event.target);
