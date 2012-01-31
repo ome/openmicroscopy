@@ -27,7 +27,10 @@ package org.openmicroscopy.shoola.agents.util.finder;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
@@ -98,8 +101,16 @@ public class AdvancedFinderLoader
         int percDone = fe.getPercentDone();
         if (percDone == 0) return;
         Object r = fe.getPartialResult();
-        if (r != null)
-         viewer.setResult(r);
+        if (r != null) {
+        	Map m = (Map) r;
+        	Entry entry;
+        	Iterator i= m.entrySet().iterator();
+        	while (i.hasNext()) {
+				entry = (Entry) i.next();
+				viewer.setResult((SecurityContext) entry.getKey(),
+						entry.getValue());
+			}
+        }
     }
     
     /**

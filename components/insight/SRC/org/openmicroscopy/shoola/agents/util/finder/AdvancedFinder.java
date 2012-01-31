@@ -496,9 +496,9 @@ public class AdvancedFinder
 	
 	/** 
 	 * Implemented as specified by {@link Finder} I/F
-	 * @see Finder#setResult(Object)
+	 * @see Finder#setResult(SecurityContext, Object)
 	 */
-	public void setResult(Object result)
+	public void setResult(SecurityContext ctx, Object result)
 	{
 		setSearchEnabled(false);
 		JPanel p = new JPanel();
