@@ -152,18 +152,7 @@
                     return false;
                 })
                 {% endif %}
-                
-                var ajax_json_helper = function(config) {
-                    
-                    config['error'] = function(data) {
-                        
-                        //console.log('not connected');
-                        login_dialog("{% url weblogin %}", function() {
-                            $.ajax(config);
-                        });
-                    }
-                    $.ajax(config);
-                }
+
 
                 // handle deleting of Tag, File, Comment
                 // on successful delete via AJAX, the parent .domClass is hidden
