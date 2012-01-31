@@ -56,6 +56,7 @@ params:
 import omero.scripts as scripts
 import omero.util.script_utils as scriptUtil
 import omero
+import omero.min # Constants etc.
 import getopt, sys, os, subprocess
 import numpy
 import omero.util.pixelstypetopython as pixelstypetopython
@@ -66,8 +67,6 @@ try:
     from PIL import Image, ImageDraw # see ticket:2597
 except ImportError:
     import Image, ImageDraw # see ticket:2597
-
-import omero_Constants_ice
 
 COLOURS = scriptUtil.COLOURS;
 COLOURS.update(scriptUtil.EXTRA_COLOURS)    # name:(rgba) map
