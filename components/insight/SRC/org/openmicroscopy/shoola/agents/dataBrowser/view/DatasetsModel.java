@@ -100,9 +100,7 @@ class DatasetsModel
 							img.getDefaultPixels();
 							ids.add(img.getId());
 							numberOfImages++;
-						} catch (Exception e) {
-							
-						}
+						} catch (Exception e) {}
 					}
 				}
 			}
