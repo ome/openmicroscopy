@@ -35,9 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
-import omero.model.PlateAcquisition;
-
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -101,14 +98,13 @@ public class DataBrowserFactory
 	/**
 	 * Creates a browser to display the results.
 	 * 
-	 * @param ctx The security context.
 	 * @param result The value to set.
 	 * @return See above.
 	 */
-	public static final DataBrowser getSearchBrowser(SecurityContext ctx,
-			Collection<DataObject> result)
+	public static final DataBrowser getSearchBrowser(
+			Map<SecurityContext, Collection<DataObject>> result)
 	{
-		return singleton.createSearchDataBrowser(ctx, result);
+		return singleton.createSearchDataBrowser(result);
 	}
 
 	/**
@@ -581,14 +577,13 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed result.
 	 * 
-	 * @param ctx The security context.
-	 * @param result	The result of the search.
+	 * @param result The result of the search.
 	 * @return See above.
 	 */
 	private DataBrowser createSearchDataBrowser(
-			SecurityContext ctx, Collection<DataObject> result)
+			Map<SecurityContext, Collection<DataObject>> result)
 	{
-		DataBrowserModel model = new SearchModel(ctx, result);
+		DataBrowserModel model = new SearchModel(result);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();

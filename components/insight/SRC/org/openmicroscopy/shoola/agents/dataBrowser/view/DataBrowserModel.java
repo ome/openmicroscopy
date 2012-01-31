@@ -131,7 +131,7 @@ abstract class DataBrowserModel
 	static final int	FS_FOLDER = 9;
 	
 	/** Holds one of the state flags defined by {@link DataBrowser}. */
-    private int					state;
+    protected int state;
     
     /** Maps an image id to the list of thumbnail providers for that image. */
     private ThumbnailsManager   thumbsManager;

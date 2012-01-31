@@ -38,6 +38,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
@@ -279,6 +280,7 @@ public class SearchComponent
 		add(buildStatusBar(), key+i);
 		resultPane = new JPanel();
 		resultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		resultPane.setLayout(new BoxLayout(resultPane, BoxLayout.Y_AXIS));
 		JPanel sep = new SeparatorPane();
 		sep.setBackground(UIUtilities.BACKGROUND_COLOR);
 		i++;
@@ -540,9 +542,29 @@ public class SearchComponent
 	public void displayResult(JComponent result)
 	{
 		remove(resultPane);
-		resultPane = result;
-		resultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		add(resultPane, "0, 4");
+		if (result != null) {
+			resultPane = result;
+			resultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+			add(resultPane, "0, 4");
+		}
+		repaint();
+	}
+	
+	/**
+	 * Adds the specified component to the result display.
+	 * 
+	 * @param result The component to add.
+	 * @param clear Pass <code>true</code> to remove the previous components,
+	 *              <code>false</code> otherwise.
+	 */
+	public void addResult(JComponent result, boolean clear)
+	{
+		if (clear) resultPane.removeAll();
+		if (result == null) return;
+		resultPane.add(result);
+		resultPane.add(new JSeparator());
+		result.setBackground(UIUtilities.BACKGROUND_COLOR);
+		revalidate();
 		repaint();
 	}
 	
