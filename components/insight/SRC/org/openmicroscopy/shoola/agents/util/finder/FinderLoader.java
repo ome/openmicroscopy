@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.util.finder;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.List;
+
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
@@ -90,7 +92,7 @@ public abstract class FinderLoader
     protected final MetadataHandlerView mhView;
     
     /** The security context.*/
-    protected final SecurityContext ctx;
+    protected final List<SecurityContext> ctx;
     
     /** 
      * Checks if the passed type is supported and returns the 
@@ -134,10 +136,11 @@ public abstract class FinderLoader
      *               	Mustn't be <code>null</code>.
      * @param ctx The security context.
      */
-    protected FinderLoader(Finder viewer, SecurityContext ctx)
+    protected FinderLoader(Finder viewer, List<SecurityContext> ctx)
     {
         if (viewer == null) throw new NullPointerException("No viewer.");
-        if (ctx == null) throw new NullPointerException("No security context.");
+        if (ctx == null || ctx.size() ==0)
+        	throw new NullPointerException("No security context.");
         this.registry = FinderFactory.getRegistry();
         this.viewer = viewer;
         this.ctx = ctx;

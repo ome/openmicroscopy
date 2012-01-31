@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 //Java imports
 import java.util.Collection;
+import java.util.List;
 
 //Third-party libraries
 
@@ -63,7 +64,7 @@ public class TagsLoader
      *               Mustn't be <code>null</code>.
      *  @param ctx The security context.
      */
-    public TagsLoader(Finder viewer, SecurityContext ctx)
+    public TagsLoader(Finder viewer, List<SecurityContext> ctx)
     {
     	super(viewer, ctx);
     }
@@ -88,8 +89,8 @@ public class TagsLoader
 					userID = -1;
 		}
 		
-		handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,
-												userID, groupID, this);
+		//handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,
+			//									userID, groupID, this);
     }
 
     /**

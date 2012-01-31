@@ -24,6 +24,9 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 
 //Java imports
+import java.util.Collection;
+import java.util.List;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -35,6 +38,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Factory to create {@link Finder}.
@@ -59,29 +63,29 @@ public class FinderFactory
 	 * Creates or recycles an advanced search.
 	 * 
 	 * @param reg Reference to the registry. Mustn't be <code>null</code>.
-	 * @param ctx The security context.
+	 * @param groups The available groups.
 	 * @return See above.
 	 */
 	public static AdvancedFinder getAdvancedFinder(Registry reg,
-			SecurityContext ctx)
+			Collection<GroupData> groups)
 	{
-		return FinderFactory.getAdvancedFinder(reg, ctx, null);
+		return FinderFactory.getAdvancedFinder(reg, groups, null);
 	}
 	
 	/**
 	 * Creates or recycles an advanced search.
 	 * 
 	 * @param reg Reference to the registry. Mustn't be <code>null</code>.
-	 * @param ctx The security context.
+	 * @param groups The available groups.
 	 * @param refObject	Object of reference. The search is limited to that 
 	 * 					object.
 	 * @return See above.
 	 */
 	public static AdvancedFinder getAdvancedFinder(Registry reg,
-			SecurityContext ctx, DataObject refObject)
+			Collection<GroupData> groups, DataObject refObject)
 	{
 		if (singleton.registry == null) singleton.registry = reg;
-		return (AdvancedFinder) singleton.createFinder(ctx, refObject);
+		return (AdvancedFinder) singleton.createFinder(groups, refObject);
 	}
 	
 	/**
@@ -153,16 +157,17 @@ public class FinderFactory
 	/**
 	 * Creates the finder.
 	 * 
-	 * @param ctx The security context.
+	 * @param groups The available groups.
 	 * @param refObject	Object of reference. The search is limited to that 
 	 * 					object.
 	 * @return See above.
 	 */
-	private Finder createFinder(SecurityContext ctx, DataObject refObject)
+	private Finder createFinder(Collection<GroupData> groups,
+			DataObject refObject)
 	{
 		if (finder != null)
 			return finder;
-		finder = new AdvancedFinder(ctx);
+		finder = new AdvancedFinder(groups);
 		return finder;
 	}
 	

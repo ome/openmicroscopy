@@ -819,7 +819,8 @@ class TreeViewerModel
 	{ 
 		if (advancedFinder == null)
 			advancedFinder = FinderFactory.getAdvancedFinder(
-							TreeViewerAgent.getRegistry(), ctx);
+							TreeViewerAgent.getRegistry(),
+							TreeViewerAgent.getAvailableUserGroups());
 		return advancedFinder; 
 	}
 

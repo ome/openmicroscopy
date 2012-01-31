@@ -4733,7 +4733,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Object searchByTime(SecurityContext ctx, SearchDataContext context)
+	Set searchByTime(SecurityContext ctx, SearchDataContext context)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);

@@ -27,6 +27,11 @@ package org.openmicroscopy.shoola.agents.util.finder;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.List;
+
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -65,7 +70,7 @@ public class AdvancedFinderLoader
      * @param context	The context of the search.
      * 					Mustn't be <code>null</code>.
      */
-    public AdvancedFinderLoader(Finder viewer, SecurityContext ctx,
+    public AdvancedFinderLoader(Finder viewer, List<SecurityContext> ctx,
     		SearchDataContext context)
     {
     	super(viewer, ctx);
@@ -83,6 +88,28 @@ public class AdvancedFinderLoader
     	handle = dhView.advancedSearchFor(ctx, searchContext, this);
     }
 
+    /** 
+     * Feeds the results of the search as they arrive.
+     * @see FinderLoader#update(DSCallFeedbackEvent)
+     */
+    public void update(DSCallFeedbackEvent fe) 
+    {
+    	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
+        int percDone = fe.getPercentDone();
+        if (percDone == 0) return;
+        Object r = fe.getPartialResult();
+        if (r != null)
+         viewer.setResult(r);
+    }
+    
+    /**
+     * Does nothing as the asynchronous call returns <code>null</code>.
+     * The actual pay-load (result) is delivered progressively
+     * during the updates.
+     * @see DataBrowserLoader#handleNullResult()
+     */
+    public void handleNullResult() {}
+    
     /**
      * Cancels the ongoing data retrieval.
      * @see FinderLoader#cancel()
@@ -93,10 +120,12 @@ public class AdvancedFinderLoader
      * Feeds the result back to the viewer. 
      * @see FinderLoader#handleResult(Object)
      */
+    /*
     public void handleResult(Object result)
     {
     	if (viewer.getState() == Finder.DISCARDED) return;  //Async cancel.
-        viewer.setResult(result);
+        //viewer.setResult(result);
     }
+    */
 
 }

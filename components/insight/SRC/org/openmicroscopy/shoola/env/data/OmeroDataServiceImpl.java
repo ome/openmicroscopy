@@ -591,13 +591,14 @@ class OmeroDataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#advancedSearchFor(SecurityContext, 
-	 * SearchDataContext)
+	 * @see OmeroDataService#advancedSearchFor(List, SearchDataContext)
 	 */
 	public Object advancedSearchFor(SecurityContext ctx,
 			SearchDataContext context) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+		if (ctx == null)
+			throw new IllegalArgumentException("No scontext defined.");
 		if (context == null)
 			throw new IllegalArgumentException("No search context defined.");
 		if (!context.isValid())

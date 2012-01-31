@@ -51,6 +51,7 @@ import javax.swing.JPanel;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
@@ -66,9 +67,13 @@ import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellData;
 
 /** 
  * The class actually managing the search.
@@ -103,8 +108,8 @@ public class AdvancedFinder
 	/** The collection of tags. */
 	private Collection tags;
 	
-	/** The security context.*/
-	private SecurityContext ctx;
+	/** The available groups.*/
+	private Collection<GroupData> groups;
 	
 	/**
 	 * Determines the scope of the search.
@@ -143,13 +148,12 @@ public class AdvancedFinder
 	private Class convertType(int value)
 	{
 		switch (value) {
-			case SearchContext.DATASETS:
-				return DatasetData.class;
-			case SearchContext.PROJECTS:
-				return ProjectData.class;
-			case SearchContext.IMAGES:
-				return ImageData.class;
-			
+			case SearchContext.DATASETS: return DatasetData.class;
+			case SearchContext.PROJECTS: return ProjectData.class;
+			case SearchContext.IMAGES: return ImageData.class;
+			case SearchContext.SCREENS: return ScreenData.class;
+			case SearchContext.PLATES: return PlateData.class;
+			case SearchContext.WELLS: return WellData.class;
 			default:
 				return null;
 		}
@@ -311,8 +315,15 @@ public class AdvancedFinder
 		searchContext.setExcludedAnnotators(excludedAnnotators);
 		searchContext.setCaseSensitive(ctx.isCaseSensitive());
 		searchContext.setNumberOfResults(ctx.getNumberOfResults());
-		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, this.ctx,
-													searchContext);
+		
+		List<Long> groups = ctx.getSelectedGroups();
+		List<SecurityContext> l = new ArrayList<SecurityContext>();
+		Iterator<Long> j = groups.iterator();
+		while (j.hasNext()) {
+			l.add(new SecurityContext(j.next()));
+		}
+		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, l,
+				searchContext);
 		loader.load();
 		finderHandlers.add(loader);
 		state = Finder.SEARCH;
@@ -380,7 +391,12 @@ public class AdvancedFinder
 	private void loadTags()
 	{
 		if (tags == null) {
-			TagsLoader loader = new TagsLoader(this, ctx);
+			List<SecurityContext> l = new ArrayList<SecurityContext>();
+			Iterator<GroupData> i = groups.iterator();
+			while (i.hasNext()) {
+				l.add(new SecurityContext(i.next().getId()));
+			}
+			TagsLoader loader = new TagsLoader(this, l);
 			loader.load();
 		} else setExistingTags(tags);
 	}
@@ -412,14 +428,16 @@ public class AdvancedFinder
 	}
 	
 	/** 
-	 * Creates a new instance. 
+	 * Creates a new instance.
 	 * 
-	 * @param ctx The security context.
+	 * @param groups The available groups.
 	 */
-	AdvancedFinder(SecurityContext ctx)
+	AdvancedFinder(Collection<GroupData> groups)
 	{
-		this.ctx = ctx;
-		initialize(createControls());
+		//sort
+		ViewerSorter sorter = new ViewerSorter();
+		List<GroupData> l = sorter.sort(groups);
+		initialize(createControls(), l);
 		finderHandlers = new ArrayList<FinderLoader>();
 		addPropertyChangeListener(SEARCH_PROPERTY, this);
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);

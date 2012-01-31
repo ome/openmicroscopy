@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 
 //Java imports
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -34,6 +35,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -287,9 +289,59 @@ class SearchPanel
 	/** The collection of buttons to add. */
 	private List<JButton>			controls;
 	
+	/** The box displaying the groups.*/
+	private JComboBox groupsBox;
+	
+	/** The box displaying the groups.*/
+	private List<JComboBox> groupsBoxes;
+	
+	/**
+	 * Returns the selected groups.
+	 * 
+	 * @return See above.
+	 */
+	private Collection<GroupContext> getGroups() 
+	{
+		if (groupsBox == null) return model.getGroups();
+		GroupContext ctx = (GroupContext) groupsBox.getSelectedItem();
+		if (ctx.getId() < 0) return model.getGroups();
+		List<GroupContext> groups = new ArrayList<GroupContext>();
+		groups.add(ctx);
+		Iterator<JComboBox> i = groupsBoxes.iterator();
+		JComboBox box;
+		while (i.hasNext()) {
+			box = i.next();
+			ctx = (GroupContext) box.getSelectedItem();
+			if (ctx.getId() < 0) return model.getGroups();
+			if (!groups.contains(ctx)) groups.add(ctx);
+		}
+		return groups;
+	}
+	
+	/**
+	 * Creates a <code>JComboBox</code> with the available groups.
+	 * 
+	 * @return See above.
+	 */
+	private JComboBox createBox()
+	{
+		List<GroupContext> groups = model.getGroups();
+		Object[] values = new Object[groups.size()+1];
+		values[0] = new GroupContext("All your groups", -1);
+		int j = 1;
+		Iterator<GroupContext> i = groups.iterator();
+		while (i.hasNext()) {
+			values[j] = i.next();
+			j++;
+		}
+		return new JComboBox(values);
+	}
+	
 	/** Initializes the components composing the display.  */
 	private void initComponents()
 	{
+		groupsBoxes = new ArrayList<JComboBox>();
+		groupsBox = createBox();
 		otherOwners = new LinkedHashMap<Long, String>();
 		otherOwnersPanel = new JPanel();
 		otherOwnersPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -646,11 +698,20 @@ class SearchPanel
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
         //c.insets = new Insets(3, 3, 3, 3);
+        //c.gridx = 0;
+        c.gridy = 0;
+        JPanel row = new JPanel();
+        row.setLayout(new FlowLayout(FlowLayout.LEFT));
+        row.setBackground(UIUtilities.BACKGROUND_COLOR);
+        row.add(new JLabel("Search in Group:"));
+        row.add(groupsBox);
+        p.add(row, c);
         List<SearchObject> nodes = model.getNodes();
 		SearchObject n;
 		int m = nodes.size();
 		JCheckBox box;
 		c.weightx = 1.0;
+		c.gridy = 1;
 		List<Integer> ctxNodes = null;
 		SearchContext ctx = model.getSearchContext();
 		if (ctx != null) ctxNodes = ctx.getContext();
@@ -677,7 +738,7 @@ class SearchPanel
 				scopes.put(n.getIndex(), box);
 			}
 		}
-
+		c.gridy++;
 		//UIUtilities.setBoldTitledBorder(SCOPE_TITLE, p);
 		return p;
 	}
@@ -1347,7 +1408,23 @@ class SearchPanel
 		revalidate();
 		repaint();
 	}
-
+	
+	/**
+	 * Returns the selected groups.
+	 * 
+	 * @return See above.
+	 */
+	List<Long> getSelectedGroups()
+	{
+		Collection<GroupContext> l = getGroups();
+		Iterator<GroupContext> i = l.iterator();
+		List<Long> ids = new ArrayList<Long>(l.size());
+		while (i.hasNext()) {
+			ids.add(i.next().getId());
+		}
+		return ids;
+	}
+	
 	/**
 	 * Removes the user from the display.
 	 * @see ActionListener#actionPerformed(ActionEvent)
