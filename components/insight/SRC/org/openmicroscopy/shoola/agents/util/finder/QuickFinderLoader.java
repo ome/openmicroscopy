@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 
 //Java imports
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -71,7 +72,7 @@ public class QuickFinderLoader
      *  @param ctx The security context.
      * @param context The context of the search. 
      */
-    public QuickFinderLoader(QuickFinder viewer, SecurityContext ctx, 
+    public QuickFinderLoader(QuickFinder viewer, List<SecurityContext> ctx, 
     		SearchDataContext context)
     {
     	super(viewer, ctx);

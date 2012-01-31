@@ -169,10 +169,10 @@ public class DataHandlerViewImpl
 	
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#advancedSearchFor(SecurityContext, SearchDataContext,
+	 * @see DataHandlerView#advancedSearchFor(List, SearchDataContext,
 	 * 										AgentEventListener)
 	 */
-	public CallHandle advancedSearchFor(SecurityContext ctx,
+	public CallHandle advancedSearchFor(List<SecurityContext> ctx,
 			SearchDataContext context, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ObjectFinder(ctx, context);

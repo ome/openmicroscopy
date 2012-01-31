@@ -24,11 +24,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -43,11 +40,6 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.data.views.ProcessBatchCall;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
-
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.FileData;
-import pojos.ImageData;
 
 /** 
  * Command to delete the passed objects.
@@ -104,7 +96,6 @@ public class DataObjectRemover
      */
     protected void buildTree()
     {
-    	String description = "Deleting";
     	Entry entry;
     	Iterator i = map.entrySet().iterator();
     	while (i.hasNext()) {
@@ -114,7 +105,6 @@ public class DataObjectRemover
 			final SecurityContext ctx = (SecurityContext) entry.getKey();
 			add(makeDeleteCall(ctx, l));
 		}
-    	//add(call);
     }
 
     /**
