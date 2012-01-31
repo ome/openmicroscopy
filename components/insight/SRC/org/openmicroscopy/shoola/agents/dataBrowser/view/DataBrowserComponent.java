@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -1545,6 +1546,18 @@ class DataBrowserComponent
 		Object go;
 		ViewImageObject object;
 		if (uo instanceof ImageData) {
+			if (model instanceof SearchModel) {
+				ImageData img = (ImageData) uo;
+				SecurityContext ctx = new SecurityContext(img.getGroupId());
+				object = new ViewImageObject(img);
+				go =  view.getParentOfNodes();
+				if (go instanceof DataObject) 
+					data = (DataObject) go;
+				object.setContext(data, null);
+				bus.post(new ViewImage(ctx, object, null));
+			} else {
+				firePropertyChange(VIEW_IMAGE_NODE_PROPERTY, null, uo);
+			}
 			/*
 			object = new ViewImageObject((ImageData) uo);
 			go =  view.getParentOfNodes();
@@ -1554,11 +1567,12 @@ class DataBrowserComponent
 			bus.post(new ViewImage(object, null));
 			if (go instanceof DataObject) data = (DataObject) go;
 			*/
-			firePropertyChange(VIEW_IMAGE_NODE_PROPERTY, null, uo);
+			
 		} else if (uo instanceof WellSampleData) {
 			object = new ViewImageObject((WellSampleData) uo);
 			WellSampleNode wsn = (WellSampleNode) node;
 			Object parent = wsn.getParentObject();
+			
 			if (parent instanceof DataObject) {
 				go =  view.getGrandParentOfNodes();
 				if (go instanceof DataObject)
