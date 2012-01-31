@@ -245,3 +245,194 @@ float: right;
     width:              85%;
     overflow:           auto;
 }
+
+/* icons */
+#dataIcons {
+    list-style-type: none;
+    margin: 0; 
+    padding: 2px; 
+    top: 0; 
+    left: 0;
+    position: relative;
+}
+
+#dataIcons li {
+    border: 0px;
+    float: left;
+    text-align: center;
+    height: 85px;
+    width: 85px;
+    padding: 5px; 
+}
+
+#dataIcons img, #dataIcons .readonly img, #dataIcons .linkonly img {
+    border: 1px solid #fff;
+    padding: 2px; 
+}
+
+#dataIcons .ui-selecting img{ border: 1px dashed #555; padding: 2px; background-color:#ccc; }
+#dataIcons .ui-selected img{ border: 1px dashed #555; padding: 2px; background-color:#ccc; }
+
+em {
+    background-color: #fff;
+    border: 1px solid #bbb;
+    position: absolute;
+    left: 0px;
+    padding: 5px;
+    z-index: 2;
+    display: none;
+}
+
+.miniview {
+    /* This is for the miniviewer in image_details */
+    width: 300px;
+    height: 300px;
+    position: relative;
+}
+
+div.paging {
+    font-size: 12px;
+    text-align: center;
+    margin: 0;
+    padding: 10px 0px 30px 0px;
+}
+div.paging input.button_pagination {
+    border: 0;
+    background-color: transparent;
+    color: #1b7bc7;
+    padding: 0;
+}
+
+#spw {
+    width: 100%;
+}
+
+#spw table {
+    background:#fff none repeat scroll 0 0;
+    width: 0;
+    table-layout: auto;
+}
+#spw table td {
+    padding: 1px;
+    border: 1px solid #ccc;
+    width: 25px;
+}
+#spw table td.well {
+    background: #eee;
+}
+
+#spw table td.ui-selecting { border: 1px dashed #555; padding: 1px; background-color:#ccc;}
+#spw table td.ui-selected { border: 1px dashed #555; padding: 1px; background-color:#ccc;}
+
+#index table {
+    background:#fff none repeat scroll 0 0;
+    width: 0;
+}
+
+
+/** Annotation Styles **/
+
+#annotation_tab, #metadata_tab, #preview_tab {
+    padding: 10px;
+    overflow: auto;
+}
+
+img.pencil {
+    float: left;
+    padding: 8px 5px 0 0;
+}
+img.thumbnail {
+    margin-right: 5px;
+    border: 1px solid #bbb;
+}
+
+select.existing {
+    width: 300px;
+}
+
+div.description {
+    min-height:60px;
+    overflow: auto;
+    border: 1px solid #bbb;
+    padding: 5px;
+    background-color: #fff;
+}
+div.lncomments{
+    overflow: auto;
+    border: 1px solid #bbb;
+    padding: 10px;
+    background-color: #fff;
+}
+div.lntags{
+    overflow: auto;
+    border: 1px solid #bbb;
+    padding: 0 10px;
+    background-color: #fff;
+}
+div.lnfiles{
+    overflow: auto;
+    border: 1px solid #bbb;
+    padding: 0 10px;
+    background-color: #fff;
+}
+
+.ann_comment_wrapper {
+    width: 100%;
+}
+.ann_comment_wrapper div.avatar {
+    float: left;
+    width:25px; 
+}
+
+.ann_comment_wrapper .ann_comment_header{
+    font-weight: bold;
+}
+
+table.metadata_details {
+    width: 100%;
+}
+table.metadata_details td{
+    border-bottom: 1px dotted #bbb;
+}
+
+div.plane_info {
+    width:100%;
+    overflow: auto;
+    background: white;
+    border: solid #ccc 1px;
+}
+
+div.plane_info table div {
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    padding: 1px 4px
+}
+
+.can-collapse {
+    background:transparent url(/static/common/image/table/desc-big.gif) no-repeat scroll bottom right;
+    border: 1px solid #bbb;
+    background-color: #fff;
+    cursor:pointer;
+    padding: 5px;
+    margin:5px 0;
+}
+.defclosed,.closed{
+    background:transparent url(/static/common/image/table/asc-big.gif) no-repeat scroll top right;
+    background-color: #fff;
+}
+
+.show_xml {
+    color: #1B7BC7;
+    cursor: pointer;
+}
+
+#batch_ann_msg {
+    position:absolute;
+    z-index:10;
+    top:10px; right:10px; 
+    background: #ffb;
+    width:200px;
+    padding:10px;
+    border: solid #ddd 1px;
+    display: none;
+}

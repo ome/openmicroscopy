@@ -21,12 +21,6 @@
 -->
 {% endcomment %}
 
-{% block link %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/container.css" %}" type="text/css" media="screen"/>
-{% endblock %}
-
 {% block script %}
     {{ block.super }}
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.cookie.js" %}"></script>
