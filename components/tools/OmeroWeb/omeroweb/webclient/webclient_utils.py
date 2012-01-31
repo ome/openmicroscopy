@@ -20,6 +20,9 @@
 
 import settings
 import logging
+
+from django.utils.datastructures import SortedDict
+
 logger = logging.getLogger('utils')
 
 def _formatReport(delete_handle):
@@ -42,8 +45,12 @@ def _purgeCallback(request):
             del request.session['callback'][cbString]
 
 def string_to_dict(string):
-    kwargs = {}
-    if string:
+    """
+    Converts string e.g. path=project=51|dataset=502|image=607:selected to
+    dictionary that keeps its keys in the order in which they're inserted.
+    """
+    kwargs = SortedDict()
+    if string is not None and len(string) > 0:
         string = str(string)
         if '|' not in string:
             # ensure at least one ','

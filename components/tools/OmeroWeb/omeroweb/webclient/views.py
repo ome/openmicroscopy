@@ -536,7 +536,10 @@ def load_template(request, menu, **kwargs):
                     init['initially_select'] = k+"-"+i.replace(":selected", "")     # E.g. image-607
                 else:
                     init['initially_open'].append(k+"-"+i)          # E.g. ['project-51', 'dataset-502']
-    
+        if init['initially_select'] is None:
+            sdict = string_to_dict(request.REQUEST.get('path'))
+            k = sdict.keys()[-1]
+            init['initially_select'] = k+"-"+sdict[k]
     try:
         manager = BaseContainer(conn)
     except AttributeError, x:
