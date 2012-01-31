@@ -15,8 +15,8 @@ type hierarchy which know how to convert themselves
 to PyTables types.
 """
 
-import omero, Ice
-import omero_Tables_ice
+import omero, Ice, IceImport
+IceImport.load("omero_Tables_ice")
 
 try:
     import numpy

@@ -470,15 +470,27 @@ Examples:
 
         return self.ctx.rv
 
+    def wait_for_icedb(self, args, config):
+        """
+        Since the stop and start are separately protected by
+        the lock on config.xml, we need to wait for some time
+        to hopefully let the icegridnode process release the
+        file locks.
+        """
+        self.ctx.sleep(1)  # put in sleep to try to prevent "db locked" (#7325)
+
     @with_config
     def restart(self, args, config):
         if not self.stop(args, config):
             self.ctx.die(54, "Failed to shutdown")
+        self.wait_for_icedb(args, config)
         self.start(args, config)
 
     @with_config
     def restartasync(self, args, config):
-        self.stop(args, config)
+        if not self.stop(args, config):
+            self.ctx.die(54, "Failed to shutdown")
+        self.wait_for_icedb(args, config)
         self.startasync(args, config)
 
     def waitup(self, args):
