@@ -84,7 +84,7 @@ public interface Finder
 	/**
 	 * Sets the results of the search.
 	 * 
-	 * @param ctx T
+	 * @param ctx The security context.
 	 * @param result The value to set.
 	 */
 	public void setResult(SecurityContext ctx, Object result);

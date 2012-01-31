@@ -97,7 +97,7 @@ public class AdvancedFinder
 	private static final String TITLE = "Search";
 	
 	/** Reference to the component handling data. */ 
-	private List<FinderLoader> finderHandlers;
+	private FinderLoader loader;
 	
 	/** One of the constants defined by this class. */
 	private int state;
@@ -110,6 +110,30 @@ public class AdvancedFinder
 	
 	/** The available groups.*/
 	private Collection<GroupData> groups;
+	
+	/** Host the result per group.*/
+	private Map<SecurityContext, Set> results;
+	
+	/** The total number of groups to search.*/
+	private int total;
+	
+	/**
+	 * Returns the name of the group corresponding to the security context.
+	 * 
+	 * @param ctx The context to handle.
+	 * @return See above
+	 */
+	private String getGroupName(SecurityContext ctx)
+	{
+		Iterator<GroupData> i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = i.next();
+			if (g.getId() == ctx.getGroupID())
+				return g.getName();
+		}
+		return null;
+	}
 	
 	/**
 	 * Determines the scope of the search.
@@ -322,10 +346,10 @@ public class AdvancedFinder
 		while (j.hasNext()) {
 			l.add(new SecurityContext(j.next()));
 		}
-		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, l,
-				searchContext);
+		total = l.size();
+		results.clear();
+		loader = new AdvancedFinderLoader(this, l, searchContext);
 		loader.load();
-		finderHandlers.add(loader);
 		state = Finder.SEARCH;
 		setSearchEnabled(true);
 	}
@@ -435,14 +459,15 @@ public class AdvancedFinder
 	AdvancedFinder(Collection<GroupData> groups)
 	{
 		//sort
+		this.groups = groups;
 		ViewerSorter sorter = new ViewerSorter();
 		List<GroupData> l = sorter.sort(groups);
 		initialize(createControls(), l);
-		finderHandlers = new ArrayList<FinderLoader>();
 		addPropertyChangeListener(SEARCH_PROPERTY, this);
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
 		addPropertyChangeListener(OWNER_PROPERTY, this);
 		users = new HashMap<Long, ExperimenterData>();
+		results = new HashMap<SecurityContext, Set>();
 	}
 
 	/**
@@ -461,9 +486,8 @@ public class AdvancedFinder
 	 */
 	public void cancel()
 	{
-		Iterator i = finderHandlers.iterator();
-		while (i.hasNext())
-			((FinderLoader) i.next()).cancel();
+		if (loader != null) loader.cancel();
+		results.clear();
 		state = DISCARDED;
 	}
 	
@@ -504,7 +528,9 @@ public class AdvancedFinder
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		
+		String group = getGroupName(ctx);
+		if (group != null)
+			p.add(UIUtilities.setTextFont("Group: "+group));
 		Map map = (Map) result;
 
 		//Format UI component
@@ -553,10 +579,11 @@ public class AdvancedFinder
 				}
 			}
 			
-			displayResult(UIUtilities.buildComponentPanel(p));
+			addResult(UIUtilities.buildComponentPanel(p), results.size() == 0);
 		}
-		
-		firePropertyChange(RESULTS_FOUND_PROPERTY, null, nodes);
+		results.put(ctx, nodes);
+		if (results.size() == total)
+			firePropertyChange(RESULTS_FOUND_PROPERTY, null, results);
 	}
 	
 	/** 

@@ -2281,7 +2281,8 @@ class TreeViewerComponent
 	 */
 	public void setSearchResult(Object result)
 	{
-		Collection<DataObject> results = (Collection<DataObject>) result;
+		Map<SecurityContext, Collection<DataObject>>
+		results = (Map<SecurityContext, Collection<DataObject>>) result;
 		MetadataViewer metadata = model.getMetadataViewer();
 		if (metadata != null) {
 			metadata.setRootObject(null, -1, null);
@@ -2293,8 +2294,7 @@ class TreeViewerComponent
 			return;
 		}
 		//Need to recycle the search browser.
-		DataBrowser db = DataBrowserFactory.getSearchBrowser(
-				model.getSecurityContext(), results);
+		DataBrowser db = DataBrowserFactory.getSearchBrowser(results);
 		if (db != null && view.getDisplayMode() == SEARCH_MODE) {
 			db.setExperimenter(TreeViewerAgent.getUserDetails());
 			db.addPropertyChangeListener(controller);
