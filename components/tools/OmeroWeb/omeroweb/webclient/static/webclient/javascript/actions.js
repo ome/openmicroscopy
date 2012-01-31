@@ -178,7 +178,7 @@ var loadMetadataPanel = function(src, html) {
     var $metadataPanel = $("#right_panel");
 
     if (src!=null) {
-        $metadataPanel.load(src);
+        $metadataPanel.load_helper(src);
     } else {
         $metadataPanel.html(html);
     }
