@@ -1076,8 +1076,17 @@ class TreeViewerComponent
 		if (browser != null) last = browser.getLastSelectedDisplay();
 		if (last != null) exp = browser.getNodeOwner(last);
 		if (exp == null) exp = model.getUserDetails();
-		mv.setRootObject(selected, exp.getId(),
-				browser.getSecurityContext(last));
+		if (browser == null) {
+			if (selected instanceof DataObject) {
+				SecurityContext ctx = new SecurityContext(
+						((DataObject) selected).getGroupId());
+				mv.setRootObject(selected, exp.getId(), ctx);
+			}
+		} else {
+			mv.setRootObject(selected, exp.getId(),
+					browser.getSecurityContext(last));
+		}
+		
 		mv.setParentRootObject(parent, null);
 		if (size > 0) 
 			mv.setRelatedNodes(siblings);
