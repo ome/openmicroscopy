@@ -31,8 +31,10 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
@@ -83,7 +85,10 @@ public class ObjectFinder
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.advancedSearchFor(ctx, searchContext);
+                Map<SecurityContext, Object> r = new HashMap<SecurityContext, 
+                Object>();
+                r.put(ctx, os.advancedSearchFor(ctx, searchContext));
+                result = r;
             }
         };
     }

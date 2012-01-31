@@ -29,6 +29,7 @@ import java.util.Collection;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 /** 
  * Interface that every finder should implement
@@ -83,9 +84,10 @@ public interface Finder
 	/**
 	 * Sets the results of the search.
 	 * 
+	 * @param ctx T
 	 * @param result The value to set.
 	 */
-	public void setResult(Object result);
+	public void setResult(SecurityContext ctx, Object result);
 
 	/** 
 	 * Sets the collection of tags. 
