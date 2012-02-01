@@ -25,32 +25,7 @@
         var script_url = $(this).attr('href');
         if (script_url == "#") return false;
 
-        var datatree = $.jstree._focused();
-
-        var ids = new Array();
-        var Data_Type = null;
-        var selected = datatree.data.ui.selected;
-        if (selected.size() == 1) {
-            var klass = selected.attr('rel');
-            if (klass == 'plate' || klass == 'acquisition') {
-                var plateSelected = $('#spw .ui-selected img');
-                if (plateSelected.size() > 0) {
-                    selected = plateSelected;
-                }
-            }
-        }
-        selected.each(function() {
-            var dtype = this.id.split("-")[0];
-            if (Data_Type == undefined) {
-                Data_Type = dtype;
-                ids.push(this.id.split("-")[1]);
-            } else if (Data_Type == dtype) {
-                // need to be sure our IDs are all of the same dtype
-                ids.push(this.id.split("-")[1]);
-            }
-        });
-        Data_Type = Data_Type.charAt(0).toUpperCase() + Data_Type.slice(1); // capitalise
-        script_url += "?Data_Type="+ Data_Type +"&IDs="+ ids.join();
+        script_url += "?"+ get_tree_selection();
         openCenteredWindow(script_url);
         return false;
     }

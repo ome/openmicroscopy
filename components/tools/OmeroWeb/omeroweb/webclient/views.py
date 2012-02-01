@@ -3168,10 +3168,14 @@ def script_ui(request, scriptId, **kwargs):
         if key == "Data_Type": Data_TypeParam = i
     inputs.sort(key=lambda i: i["grouping"])
 
-    # if we have Data_Type param that has a "default" and "options" - check they match...
-    if Data_TypeParam is not None and "default" in Data_TypeParam and "options" in Data_TypeParam:
-        if Data_TypeParam["default"] not in Data_TypeParam["options"]:
-            IDsParam["default"] = ""        # ... if not, don't set IDs
+    # if we have Data_Type param - use the request parameters to populate IDs
+    if Data_TypeParam is not None and IDsParam is not None and "options" in Data_TypeParam:
+        IDsParam["default"] = ""
+        for dtype in Data_TypeParam["options"]:
+            if request.REQUEST.get(dtype, None) is not None:
+                Data_TypeParam["default"] = dtype
+                IDsParam["default"] = request.REQUEST.get(dtype, "")
+                break       # only use the first match
 
     # try to determine hierarchies in the groupings - ONLY handle 1 hierarchy level now (not recursive!)
     for i in range(len(inputs)):
