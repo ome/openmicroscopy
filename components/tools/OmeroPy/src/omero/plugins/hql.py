@@ -158,8 +158,6 @@ To quit, enter 'q' or just enter.
             return cache[id(object)]
 
         from omero.rtypes import unwrap
-        import omero_model_Details_ice
-        import omero_model_IObject_ice
         from omero.model import IObject
         from omero.model import Details
         from omero.rtypes import RObjectI

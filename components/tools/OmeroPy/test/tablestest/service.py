@@ -223,6 +223,20 @@ class TestTables(lib.ITest):
         table.addData([lc])
         self.assertEquals([0],table.getWhereList('(lc==var)',{"var":rlong(1)},0,0,0))
 
+    def test4000TableRead(self):
+        """
+        Tests that empty or zero (ice default) values for stop
+        are translated appropriately.
+        """
+        grid = self.client.sf.sharedResources()
+        table = grid.newTable(1, "/test")
+        self.assert_( table )
+
+        lc = omero.columns.LongColumnI('lc', 'desc', [123])
+        table.initialize([lc])
+        table.addData([lc])
+        self.assertEquals([123], table.read([0], 0, 0).columns[0].values)
+
 def test_suite():
     return 1
 

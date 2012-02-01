@@ -161,7 +161,7 @@ class ExecCommand
         try {
             observer.onStart();
             while (!task.isDone()) {
-                if (executor.isInterrupted()) throw new InterruptedException(); 
+                if (executor.isInterrupted()) throw new InterruptedException();
                 partialResult = task.doStep();
                 if (executor.isInterrupted()) throw new InterruptedException();
                 assembler.add(partialResult);
@@ -169,7 +169,7 @@ class ExecCommand
             }
             result = assembler.assemble();
             observer.onEnd(result);
-        } catch (InterruptedException ie) { 
+        } catch (InterruptedException ie) {
             observer.onCancel();
         } catch (Throwable t) {
             abortCause = t;
@@ -217,9 +217,11 @@ class ExecCommand
     {
         if (flowObs != null) flowObs.update(LOCK_ACQUIRED_BY_LEAVE_EXECUTING);
         //Never clear interrupted status of executor.
-        boolean cancelled = executor.isInterrupted();  
-        executor = null;
-        state = (cancelled ? CANCELLED : FINISHED);
+        if (executor != null) {
+        	boolean cancelled = executor.isInterrupted();
+            executor = null;
+            state = (cancelled ? CANCELLED : FINISHED);
+        } else  state = FINISHED;
     }
     
     /**
@@ -254,7 +256,7 @@ class ExecCommand
                 observer.onCancel();  //Trail call to avoid problems if exc.
                 break;
             case EXECUTING:
-                executor.interrupt();
+            	executor.interrupt();
                 //Depending on current state of run loop the above may
                 //either result in a transition to CANCELLED or FINISHED.
                 break;

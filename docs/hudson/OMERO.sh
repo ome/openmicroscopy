@@ -18,9 +18,6 @@ echo Building $OMERO_BRANCH
 ./build.py release-zip
 ./build.py release-src
 
-# publish the current CSS file into http://hudson.openmicroscopy.org.uk/userContent
-cp -f docs/styleForAPI.css /hudson/.hudson/userContent/styleForAPI.css
-
 # Log information
 echo BUILD_NUMBER=$BUILD_NUMBER > target/$OMERO_BRANCH.log
 echo OMERO_BRANCH=$OMERO_BRANCH >> target/$OMERO_BRANCH.log

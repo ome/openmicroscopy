@@ -305,6 +305,9 @@ public class TreeCellRenderer
     /** Indicates if the node is selected or not.*/
     private boolean selected;
     
+    /** The location of the text.*/
+    private int xText;
+    
     /**
      * Sets the icon and the text corresponding to the user's object.
      * 
@@ -480,6 +483,7 @@ public class TreeCellRenderer
     public TreeCellRenderer(boolean b)
     {
         numberChildrenVisible = b;
+        selected = false;
         filter = new EditorFileFilter();
         draggedColor = new Color(backgroundSelectionColor.getRed(),
 				backgroundSelectionColor.getGreen(),
@@ -544,11 +548,13 @@ public class TreeCellRenderer
         if (getIcon() != null) w += getIcon().getIconWidth();
         else w += SIZE.width;
         w += getIconTextGap();
+        xText = w;
         if (ho instanceof ImageData)
         	w += fm.stringWidth(node.getNodeName());
         else if (node instanceof TreeFileSet)
         	w +=  fm.stringWidth(getText())+40;
         else w += fm.stringWidth(getText());
+        
         setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
         setEnabled(node.isSelectable());
         return this;
@@ -562,13 +568,16 @@ public class TreeCellRenderer
     {
     	//super.paintComponent(g);
     	if (isTargetNode) {
-			g.setColor(draggedColor);
 			if (!droppedAllowed) {
 				if (selected) g.setColor(backgroundSelectionColor);
 				else g.setColor(backgroundNonSelectionColor);
-			}
-			g.fillRect(0, 0, getSize().width, getSize().height);
+				
+			} else g.setColor(draggedColor);
+			g.fillRect(xText, 0, getSize().width, getSize().height);
 		}
+    	selected = false;
+    	isTargetNode = false;
+    	droppedAllowed = false;
     	super.paintComponent(g);
 	}
   

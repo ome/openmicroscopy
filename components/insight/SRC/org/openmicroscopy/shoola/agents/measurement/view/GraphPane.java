@@ -26,8 +26,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,6 +39,8 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
@@ -74,7 +76,7 @@ import pojos.ChannelData;
  */
 class GraphPane
 	extends JPanel 
-	implements TabPaneInterface
+	implements TabPaneInterface, PropertyChangeListener, ChangeListener
 {
 	
 	/** Ready state. */
@@ -218,13 +220,12 @@ class GraphPane
 				tSlider.getValue()-1);
 		if (coord.equals(thisCoord)) return;
 		if (!pixelStats.containsKey(thisCoord)) return;
-	
 		state = ANALYSING;
 		buildGraphsAndDisplay();
 		formatPlane();
-		state = READY;
 		if (shape != null)
 			view.selectFigure(shape.getFigure());
+		state = READY;
 	}
 	
 	/** Initializes the component composing the display. */
@@ -235,14 +236,6 @@ class GraphPane
 		zSlider.setPaintTicks(false);
 		zSlider.setPaintLabels(false);
 		zSlider.setMajorTickSpacing(1);
-		MouseAdapter ma = new MouseAdapter()
-		{
-			public void mouseReleased(MouseEvent e)
-			{
-				handleSliderReleased();
-			}
-		};
-		zSlider.addMouseListener(ma);
 		zSlider.setShowArrows(true);
 		zSlider.setVisible(false);
 		zSlider.setEndLabel("Z");		
@@ -254,11 +247,14 @@ class GraphPane
 		tSlider.setPaintLabels(false);
 		tSlider.setMajorTickSpacing(1);
 		tSlider.setSnapToTicks(true);
-		tSlider.addMouseListener(ma);
 		tSlider.setShowArrows(true);
 		tSlider.setVisible(false);
 		tSlider.setEndLabel("T");
 		tSlider.setShowEndLabel(true);
+		zSlider.addPropertyChangeListener(this);
+		tSlider.addPropertyChangeListener(this);
+		zSlider.addChangeListener(this);
+		tSlider.addChangeListener(this);
 		mainPanel = new JPanel();
 	}
 	
@@ -533,4 +529,43 @@ class GraphPane
 		buildGraphsAndDisplay();
 	}
 	
+ 	/**
+ 	 * Indicates any on-going analysis.
+ 	 * 
+ 	 * @param analyse Passes <code>true</code> when analyzing,
+ 	 * <code>false</code> otherwise.
+ 	 */
+	void onAnalysed(boolean analyse)
+	{
+		zSlider.setEnabled(!analyse);
+		tSlider.setEnabled(!analyse);
+	}
+
+	/**
+	 * Reacts to changes made by slider.
+	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 */
+	public void stateChanged(ChangeEvent evt) {
+		Object src = evt.getSource();
+		if (src == zSlider || src == tSlider) {
+			formatPlane();
+			OneKnobSlider slider = (OneKnobSlider) src;
+			if (!slider.isDragging()) {
+				handleSliderReleased();
+			}
+		}
+	}
+
+	/**
+	 * Listens to property fired by {@link #zSlider} or {@link #tSlider}.
+	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (OneKnobSlider.ONE_KNOB_RELEASED_PROPERTY.equals(name)) {
+			handleSliderReleased();
+		}
+	}
+
 }
