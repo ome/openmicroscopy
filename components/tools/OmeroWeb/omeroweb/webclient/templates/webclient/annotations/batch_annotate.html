@@ -135,37 +135,6 @@
                 });
 
 
-                // Choose to upload a local file...
-                $("#choose_local_document").click(function(event) {
-                    $("#upload_file_form input[type=file]").click();    // 'click' the hidden file field to launch file chooser
-                    return false;
-                });
-                // handle the file chooser closing: submit the form if we have a value
-                $('#upload_file_form input[type=file]').bind('change focus', function() {
-                    var value = $(this).val();
-                    var $form = $("#upload_file_form");
-                    if (value.trim().length > 0) {
-                        $form.submit();
-                    }
-                    return false;
-                });
-                // set-up the form to use AJAX. (requires jquery.form.js plugin)
-                $('#upload_file_form').ajaxForm({
-                    beforeSubmit: function(data) {
-                        $("#fileann_spinner").show();
-                    },
-                    success: function(data) {
-                        $("#fileann_spinner").hide();
-                        // update the list of file annotations and hide actions
-                        var $fileann = $(data)
-                        $("#fileanns_container").prepend( $fileann ).show();
-                        $(".deleteFile", $fileann).hide();
-                        $(".removeFile", $fileann).hide();
-                        show_batch_msg("File uploaded and attached to Objects");
-                    }
-                });
-
-
                 // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
                 $('#batch_attachments_form').ajaxForm({
                     beforeSubmit: function(data) {
@@ -205,7 +174,7 @@
                     }
                 });
                 // show dialog for choosing file to attach...
-                $("#choose_uploaded_document").click(function() {
+                $("#choose_file_anns").click(function() {
                     // show dialog first, then do the AJAX call to load files...
                     var attach_form = $( "#batch_attachments_form" );
                     attach_form.dialog( "open" );
@@ -259,26 +228,9 @@
                 <th>{% trans "Attach" %}:</th>
                 <td style="vertical-align: middle">
                     
-                    <span class="dropdown_menu">
-                        <span class="menu_launch">
-                            <img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attach an existing file."/>
-                        </span>
-                        <ul class="dropdown_menu_options">
-                            <li><a id="choose_local_document" href="#">Local document...</a></li>
-                            <li>
-                                <a id="choose_uploaded_document" href="{% url annotate_file %}?{{ obj_string }}">
-                                    Uploaded document...
-                                </a>
-                            </li>
-                        </ul>
-                    </span>
-                    
-                    <!-- hidden form for choosing file to upload. Activated & submitted by js -->
-                    <form id='upload_file_form' style="display:none" action="{% url annotate_new_file %}" method="post">
-                    {% for field in form_file %}
-                        {{ field }}
-                    {% endfor %}
-                    </form>
+                    <a id="choose_file_anns" href="{% url annotate_file %}?{{ obj_string }}">
+                        <img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attach an existing file."/>
+                    </a>
                     
                     <!-- hidden form for choosing uploaded file in dialog - load form via AJAX when we show dialog -->
                     <form id="batch_attachments_form" title="Select Attachments" action="{% url annotate_file %}" method="post">

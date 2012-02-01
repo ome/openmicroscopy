@@ -190,16 +190,10 @@ class FilesAnnotationForm(BaseAnnotationForm):
     
     def __init__(self, *args, **kwargs):
         super(FilesAnnotationForm, self).__init__(*args, **kwargs)
-        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':8, 'class':'existing'}))
-
-
-class UploadFileAnnotationForm(BaseAnnotationForm):
-
-    annotation_file  = forms.FileField(required=False)
+        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':8, 'class':'existing'}), required=False)
     
-    def clean_annotation_file(self):
-        if self.cleaned_data['annotation_file'] is None:
-            raise forms.ValidationError('This field is required.')
+    annotation_file = forms.FileField(required=False)
+
 
 class CommentAnnotationForm(BaseAnnotationForm):
     comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}))

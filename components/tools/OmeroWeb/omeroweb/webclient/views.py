@@ -75,7 +75,7 @@ from webclient_utils import _formatReport, _purgeCallback
 from forms import ShareForm, BasketShareForm, ShareCommentForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
                     CommentAnnotationForm, TagsAnnotationForm, \
-                    UploadFileAnnotationForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
+                    UsersForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataObjectiveSettingsForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
@@ -1107,7 +1107,6 @@ def load_metadata_details(request, c_type, c_id, conn, share_id=None, **kwargs):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'index':index}
-    context['form_file'] = UploadFileAnnotationForm(initial=initial)
     t = template_loader.get_template(template)
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
@@ -1450,7 +1449,6 @@ def batch_annotate(request, conn, **kwargs):
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
     
     form_comment = CommentAnnotationForm(initial=initial)
-    form_file = UploadFileAnnotationForm(initial=initial)
 
     obj_ids = []
     for key in oids:
@@ -1458,7 +1456,7 @@ def batch_annotate(request, conn, **kwargs):
     obj_string = "&".join(obj_ids)
     
     template = "webclient/annotations/batch_annotate.html"
-    context = {'form_comment':form_comment, 'form_file':form_file, 'obj_string':obj_string}
+    context = {'form_comment':form_comment, 'obj_string':obj_string}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1467,39 +1465,10 @@ def batch_annotate(request, conn, **kwargs):
 
 
 @isUserConnected
-def annotate_new_file(request, conn, **kwargs):
-    """ This handles the submission of Files to upload, creating File Annotation linked to one or more objects """
-
-    index = int(request.REQUEST.get('index', 0))
-    oids = getObjects(request, conn)
-    # TODO: This seems a bit silly: Mapping from 'image' -> 'images' etc. 
-    initial = {'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
-    
-    manager = BaseContainer(conn)
-
-    # Handle form submission...
-    if request.method == 'POST':
-        form_multi = UploadFileAnnotationForm(initial=initial, data=request.REQUEST.copy(), files=request.FILES)
-        if form_multi.is_valid():
-            # In each case below, we pass the {'object_type': [ids]} map
-            fileupload = request.FILES['annotation_file']
-            if fileupload is not None and fileupload != "":
-                fileann = manager.createFileAnnotations(fileupload, oids, well_index=index)
-                template = "webclient/annotations/fileann.html"
-                context = {'fileann': fileann}
-
-                t = template_loader.get_template(template)
-                c = Context(request,context)
-                logger.debug('TEMPLATE: '+template)
-                return HttpResponse(t.render(c))
-
-
-@isUserConnected
 def annotate_file(request, conn, **kwargs):
     """ 
-    On 'POST', This handles attaching an existing file-annotation to one or more objects 
-    Otherwise it generates the form for choosing file-annotations
+    On 'POST', This handles attaching an existing file-annotation(s) and/or upload of a new file to one or more objects 
+    Otherwise it generates the form for choosing file-annotations & local files.
     """
     index = int(request.REQUEST.get('index', 0))
     oids = getObjects(request, conn)
@@ -1538,16 +1507,23 @@ def annotate_file(request, conn, **kwargs):
     if request.method == 'POST':
         # handle form submission
         form_file = FilesAnnotationForm(initial=initial, data=request.REQUEST.copy())
-        # Link existing files...
         if form_file.is_valid():
+            # Link existing files...
             linked_files = []
             files = form_file.cleaned_data['files']
             if files is not None and len(files)>0:
                 linked_files = manager.createAnnotationsLinks('file', files, oids, well_index=index)
+            # upload new file
+            fileupload = 'annotation_file' in request.FILES and request.FILES['annotation_file'] or None
+            if fileupload is not None and fileupload != "":
+                upload = manager.createFileAnnotations(fileupload, oids, well_index=index)
+                linked_files.append(upload)
+            if len(linked_files) == 0:
+                return HttpResponse("<div>No Files chosen</div>")
             template = "webclient/annotations/fileanns.html"
             context = {'fileanns':linked_files}
         else:
-            return HttpResponse("<div>No Files chosen</div>")
+            return HttpResponse(form_file.errors)
 
     else:
         form_file = FilesAnnotationForm(initial=initial)
