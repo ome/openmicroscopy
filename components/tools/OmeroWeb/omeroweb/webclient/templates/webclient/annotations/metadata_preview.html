@@ -21,8 +21,6 @@
 -->
 {% endcomment %}
 
-<html>
-    <head>
     <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
 
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/3rdparty/panojs.css" %}" media="all" />
@@ -49,7 +47,7 @@
 
 
     <script type="text/javascript">
-        var preview_loaded = function() {
+        $(document).ready(function() {
             {% if manager.getShareId %}
             var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}{{ manager.getShareId }}", {'mediaroot': '{{ STATIC_URL }}' } );
             viewport.load({{ imageId }}, null, location.search);
@@ -57,14 +55,9 @@
             var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}", {'mediaroot': '{{ STATIC_URL }}' } );
             viewport.load({{ manager.image.id }});
             {% endif %}
-        }
-        $(document).ready(function() {
-            preview_loaded();
         });
     </script>
-    
-</head>
-<body>
+
 
 <!-- VIEWER "Preview"-->
 
@@ -74,5 +67,3 @@
 
     <div class="miniview" id="viewport"></div>
 
-
-</body>

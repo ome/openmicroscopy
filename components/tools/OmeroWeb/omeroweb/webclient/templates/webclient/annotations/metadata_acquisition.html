@@ -22,12 +22,8 @@
 -->
 {% endcomment %}
 
-<html>
-
-<head>
     <script type="text/javascript">
-        var acquisition_loaded = function() 
-            {
+        $(document).ready(function(){
                 // hide any unset fields. 
                 var invalidRows = $(".metadata_details input:not([value])").parent().parent();
                 invalidRows.hide();
@@ -76,16 +72,9 @@
                   $(this).removeClass('defclose').toggleClass('closed').next().hide();
                 });
 
-            }
-        
-        $(document).ready(function(){
-            acquisition_loaded();
-        });
+            });
     </script>
-    
-</head>
 
-<body>
     <!-- METADATA "Acquisition" TAB -->
 
             
@@ -352,6 +341,3 @@
             {% endfor %}
 
         {% endif %}
-
-</body>
-</html>
