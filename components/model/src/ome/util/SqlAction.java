@@ -473,7 +473,7 @@ public interface SqlAction {
 
         public String configValue(String key) {
             try {
-                return _jdbc().queryForObject(_lookup("config_value"), //$NON-NLS-1$
+                return _jdbc().queryForObject(_lookup("config_value_select"), //$NON-NLS-1$
                         String.class, key);
             } catch (EmptyResultDataAccessException erdae) {
                 return null;
