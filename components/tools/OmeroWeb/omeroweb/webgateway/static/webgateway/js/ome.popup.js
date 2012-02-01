@@ -213,7 +213,7 @@ var login_dialog = function(login_url, callback) {
  * Helper to handle jQuery load() errors (E.g. timeout)
  * In this case we simply refresh (will redirect to login page)
 **/
-$.fn.load_helper = function(url, login_url, callback) {
+$.fn.load_helper = function(url, callback) {
     return this.each(function(){
 
         var self = $(this);
