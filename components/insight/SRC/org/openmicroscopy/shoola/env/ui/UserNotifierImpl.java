@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
+import org.openmicroscopy.shoola.env.data.model.TransferableActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
@@ -408,6 +409,9 @@ public class UserNotifierImpl
 			if (!canWriteInFolder(folder))
 				return;
 			comp = new SaveAsActivity(this, manager.getRegistry(), ctx, p);
+		} else if (activity instanceof TransferableActivityParam) {
+			TransferableActivityParam p = (TransferableActivityParam) activity;
+			comp = new DataTransferActivity(this, manager.getRegistry(), p);
 		}
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();
