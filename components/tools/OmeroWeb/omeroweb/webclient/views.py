@@ -55,7 +55,7 @@ from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
 from django.core import template_loader
 from django.core.cache import cache
-from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError
+from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError, HttpResponseForbidden
 from django.shortcuts import render_to_response
 from django.template import RequestContext as Context
 from django.utils import simplejson
@@ -141,13 +141,12 @@ def isUserConnected (f):
             conn = getBlitzConnection(request, useragent="OMERO.web")
         except Exception, x:
             logger.error(traceback.format_exc())
-        
         if conn is None:
             # TODO: Should be changed to use HttpRequest.is_ajax()
             # http://docs.djangoproject.com/en/dev/ref/request-response/
             # Thu  6 Jan 2011 09:57:27 GMT -- callan at blackcat dot ca
             if request.is_ajax():
-                return HttpResponseServerError(reverse("weblogin"))
+                return HttpResponseForbidden("Could not get connection to OMERO");
             _session_logout(request, request.REQUEST.get('server', None))
             if server is not None:
                 return HttpLoginRedirect(reverse("weblogin")+(("?url=%s&server=%s") % (url,server)))

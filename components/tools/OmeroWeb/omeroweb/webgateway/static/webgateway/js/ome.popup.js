@@ -222,13 +222,20 @@ $.fn.load_helper = function(url, callback) {
             type: "GET",
             url: url,
             contentType:'html',
-            success: function(html){
+            success: function(html, textStatus, xhr){
                 self.html(html);
                 if (typeof callback != 'undefined') callback();
             },
-            error: function(response) {
-                // refresh - will redirect to login page
-                window.location.reload();
+            error: function(xhr, textStatus) {
+                if (xhr.status == 404) {
+                    console.log("Handle 404");
+                } else if (xhr.status == 403) {
+                    // Denied (E.g. session timeout) Refresh - will redirect to login page
+                    window.location.reload();
+                } else if (xhr.status == 500) {
+                    console.log("500 - Handle error submission/feedback");
+                    console.log(textStatus, xhr);
+                }
             }
         });
     });
