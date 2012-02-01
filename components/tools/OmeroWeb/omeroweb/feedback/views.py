@@ -140,6 +140,11 @@ def handler500(request):
         
     error500 = "%s\n\n%s" % (as_string, request_repr)
         
+    
+    if request.is_ajax():
+        json_data = simplejson.dumps(tags)
+        return HttpResponse(json_data, mimetype='application/javascript')
+    
     return custom_server_error(request, error500)
 
 def handler404(request):
