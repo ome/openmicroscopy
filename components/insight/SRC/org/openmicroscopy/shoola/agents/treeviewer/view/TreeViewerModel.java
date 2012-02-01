@@ -1244,9 +1244,12 @@ class TreeViewerModel
 				new TreeImageDisplay[0]);
 		copyIndex = TreeViewer.CUT_AND_PASTE;
 		Map toRemove = buildCutMap(nodesToCopy);
-		TreeImageDisplay[] parents = new TreeImageDisplay[1];
-		parents[0] = target;
-		Map map = buildCopyMap(parents);
+		Map map = new HashMap();
+		if (target != null) {
+			TreeImageDisplay[] parents = new TreeImageDisplay[1];
+			parents[0] = target;
+			map = buildCopyMap(parents);
+		}
 		SecurityContext ctx = getSecurityContext();
 		currentLoader = new DataObjectUpdater(component, ctx, map, toRemove,
 				DataObjectUpdater.CUT_AND_PASTE);
@@ -1280,6 +1283,20 @@ class TreeViewerModel
 			return new SecurityContext(
 					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
 		return browser.getSecurityContext(node);
+	}
+
+	/**
+	 * Starts an asynchronous call to move the selected elements to the
+	 * specified group.
+	 * 
+	 * @param groupID The id of the group.
+	 * @param list The list of objects to move.
+	 */
+	void changeGroup(long groupID, List<TreeImageDisplay> list)
+	{
+		if (groupID < 0) return;
+		if (list.size() == 0) return;
+		
 	}
 
 }

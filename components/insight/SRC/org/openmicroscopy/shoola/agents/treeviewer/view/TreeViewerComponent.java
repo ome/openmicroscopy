@@ -3743,12 +3743,14 @@ class TreeViewerComponent
 				return;
 			}
 		}
-		if (!isUserOwner(ot)) {
+		if (!isUserOwner(ot) && !(ot instanceof ExperimenterData ||
+				ot instanceof GroupData)) {
 			un.notifyInfo("DnD", 
 					"You must be the owner of the container.");
 			browser.rejectTransfer();
 			return;
 		}
+		TreeImageDisplay p = target.getParentDisplay();
 		List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
 		Iterator<TreeImageDisplay> i = nodes.iterator();
 		TreeImageDisplay n;
@@ -3758,19 +3760,34 @@ class TreeViewerComponent
 		String parent;
 		os = null;
 		int childCount = 0;
+		long userID = TreeViewerAgent.getUserDetails().getId();
+		boolean administrator = TreeViewerAgent.isAdministrator();
+		ExperimenterData exp;
+		long gId;
 		while (i.hasNext()) {
 			n = i.next();
 			os = n.getUserObject();
 			if (target.contains(n)) {
 				childCount++;
 			} else {
-				if (EditorUtil.isTransferable(ot, os)) {
+				if (EditorUtil.isTransferable(ot, os, userID)) {
 					count++;
 					if (ot instanceof GroupData) {
-						if (TreeViewerAgent.isAdministrator())
-							list.add(n);
+						if (os instanceof ExperimenterData &&
+								administrator) list.add(n);
+						else {
+							if (isUserOwner(os)) list.add(n);
+						}
 					} else {
-						if (isUserOwner(os)) list.add(n);
+						if (ot instanceof ExperimenterData) {
+							exp = (ExperimenterData) ot;
+							if (exp.getId() == userID) {
+								target = null;
+								list.add(n);
+							}
+						} else {
+							if (isUserOwner(os)) list.add(n);
+						}
 					}
 				}
 			}
@@ -3779,6 +3796,8 @@ class TreeViewerComponent
 			browser.rejectTransfer();
 			return;
 		}
+		
+		
 		if (list.size() == 0) {
 			String s = "";
 			if (nodes.size() > 1) s = "s";
@@ -3788,7 +3807,24 @@ class TreeViewerComponent
 			browser.rejectTransfer();
 			return;
 		}
-		model.transfer(target, list);
+		DataObject otData = (DataObject) ot;
+		long groupID = -1;
+		if (ot instanceof ExperimenterData) {
+			Object po = p.getUserObject();
+			if (po instanceof GroupData) {
+				groupID = ((GroupData) po).getId();
+			}
+		} else groupID = otData.getGroupId();
+		DataObject c = (DataObject) list.get(0).getUserObject();
+		if (c.getId() == groupID ||
+				browser.getBrowserType() == Browser.ADMIN_EXPLORER)
+			model.transfer(target, list);
+		else {
+			MessageBox box = new MessageBox(view, "Change group", "Are you " +
+					"you want to move the selected group?");
+			if (box.centerMsgBox() == MessageBox.YES_OPTION)
+			    model.changeGroup(groupID, list);
+		}
 	}
 
 }
