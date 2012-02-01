@@ -26,3 +26,8 @@
     {% if eContext.context.isAdmin %}
     <li class="menu_link admin"><a href="{% url waindex %}" title="Web-Admin: Edit users and groups">{% trans "Admin" %}</a></li>
     {% endif %}
+    
+    <!-- Handle links from settings -->
+    {% for link in nav.top_links %}
+        <li class="menu_link"><a href="{{ link.link }}">{{ link.label }}</a></li>
+    {% endfor %}
