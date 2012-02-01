@@ -1,11 +1,12 @@
 /*
- * org.openmicroscopy.shoola.env.ui.DataObjectRemover
+ * org.openmicroscopy.shoola.env.ui.DataObjectTransfer 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,10 +23,10 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
+
 //Java imports
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,27 +36,20 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.TransferableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
 
-import pojos.DataObject;
 
 /** 
- * Deletes a collection of objects.
+ * Moves data between groups.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since 3.0-Beta4
+ * @since Beta4.4
  */
-public class DataObjectRemover 
+public class DataObjectTransfer
 	extends UserNotifierLoader
 {
 
@@ -65,31 +59,11 @@ public class DataObjectRemover
     /** The call-back returned by the server. */
     private List<ProcessCallback> callBacks;
     
-    /** The collection of objects to delete. */
-    private Map<SecurityContext, Collection<DeletableObject>> objects;
+    /** The object to transfer. */
+    private TransferableObject object;
 
     /** The number of callbacks.*/
     private int number;
-    
-	/**
-     * Returns the SecurityContext if already added or <code>null</code>.
-     * 
-     * @param map The map to check.
-     * @param id The group's identifier.
-     * @return See above.
-     */
-    private SecurityContext getKey(
-    	Map<SecurityContext, Collection<DeletableObject>> map, long id)
-    {
-    	Iterator<SecurityContext> i = map.keySet().iterator();
-    	SecurityContext ctx;
-    	while (i.hasNext()) {
-			ctx = i.next();
-			if (ctx.getGroupID() == id)
-				return ctx;
-		}
-    	return null;
-    }
     
     /**
      * Notifies that an error occurred.
@@ -97,7 +71,7 @@ public class DataObjectRemover
      */
     protected void onException(String message, Throwable ex)
     { 
-    	activity.notifyError("Unable to delete the object", message, ex);
+    	activity.notifyError("Unable to transfer the objects", message, ex);
     }
     
     /**
@@ -106,48 +80,26 @@ public class DataObjectRemover
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param registry	Convenience reference for subclasses.
-     * @param objects  	The collection of objects to delete.
+     * @param object  	The objects to transfer.
      * @param activity  The activity associated to this loader.
      */
-	public DataObjectRemover(UserNotifier viewer, Registry registry,
-		List<DeletableObject> objects, 
-		ActivityComponent activity)
+	public DataObjectTransfer(UserNotifier viewer, Registry registry,
+			TransferableObject object, ActivityComponent activity)
 	{
 		super(viewer, registry, null, activity);
-		if (objects == null || objects.size() == 0)
-			throw new IllegalArgumentException("No Objects to delete.");
+		if (object == null)
+			throw new IllegalArgumentException("No Objects to transfer.");
 		callBacks = new ArrayList<ProcessCallback>();
-		Map<SecurityContext, Collection<DeletableObject>>
-    	map = new HashMap<SecurityContext, Collection<DeletableObject>>();
-    	Iterator<DeletableObject> i = objects.iterator();
-    	DeletableObject o;
-    	DataObject ho;
-    	long groupId;
-    	SecurityContext ctx;
-    	Collection<DeletableObject> l;
-    	while (i.hasNext()) {
-			o = i.next();
-			ho = o.getObjectToDelete();
-			groupId = ho.getGroupId();
-			ctx = getKey(map, groupId);
-			if (ctx == null) {
-				l = new ArrayList<DeletableObject>();
-				ctx = new SecurityContext(groupId);
-				map.put(ctx, l);
-			}
-			l = map.get(ctx);
-			l.add(o);
-		}
-    	this.objects = map;
+    	this.object = object;
 	}
 	
 	/**
-     * Deletes the object.
+     * Transfers the objects.
      * @see UserNotifierLoader#load()
      */
     public void load()
     {
-    	handle = dmView.delete(objects, this);
+    	handle = dmView.changeGroup(object, this);
     }
     
     /**
@@ -188,7 +140,7 @@ public class DataObjectRemover
             	callBack.setAdapter(this);
             	callBacks.add(callBack);
             	number++;
-            	if (number == objects.size())
+            	if (number == object.getSource().size())
             		activity.onCallBackSet();
         	}
         }
@@ -205,5 +157,5 @@ public class DataObjectRemover
     		activity.endActivity(result);
     	} 
     }
-    
+
 }

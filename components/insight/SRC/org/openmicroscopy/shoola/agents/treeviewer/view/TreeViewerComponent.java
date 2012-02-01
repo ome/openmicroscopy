@@ -102,6 +102,7 @@ import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.model.TransferableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
@@ -3816,14 +3817,32 @@ class TreeViewerComponent
 			}
 		} else groupID = otData.getGroupId();
 		DataObject c = (DataObject) list.get(0).getUserObject();
+		//to review
 		if (c.getId() == groupID ||
 				browser.getBrowserType() == Browser.ADMIN_EXPLORER)
 			model.transfer(target, list);
 		else {
+			if (groupID == -1) return;
 			MessageBox box = new MessageBox(view, "Change group", "Are you " +
-					"you want to move the selected group?");
-			if (box.centerMsgBox() == MessageBox.YES_OPTION)
-			    model.changeGroup(groupID, list);
+					"you want to move the selected items to another group?");
+			if (box.centerMsgBox() != MessageBox.YES_OPTION) return;
+			SecurityContext ctx = new SecurityContext(groupID);
+			otData = null;
+			if (target != null && !(ot instanceof GroupData)) {
+				otData = (DataObject) ot;
+			}
+			List<DataObject> elements = new ArrayList<DataObject>();
+			i = list.iterator();
+			while (i.hasNext()) {
+				n = i.next();
+				os = n.getUserObject();
+				if (os instanceof DataObject &&
+					!(os instanceof ExperimenterData ||
+						os instanceof GroupData)) {
+					elements.add((DataObject) os);
+				}
+			}
+			if (elements.size() == 0) return;
 		}
 	}
 

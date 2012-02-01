@@ -1285,18 +1285,4 @@ class TreeViewerModel
 		return browser.getSecurityContext(node);
 	}
 
-	/**
-	 * Starts an asynchronous call to move the selected elements to the
-	 * specified group.
-	 * 
-	 * @param groupID The id of the group.
-	 * @param list The list of objects to move.
-	 */
-	void changeGroup(long groupID, List<TreeImageDisplay> list)
-	{
-		if (groupID < 0) return;
-		if (list.size() == 0) return;
-		
-	}
-
 }

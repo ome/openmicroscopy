@@ -36,8 +36,11 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.model.TransferableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.ui.DataObjectTransfer;
+
 import pojos.DataObject;
 import pojos.ImageData;
 
@@ -311,5 +314,15 @@ public interface DataManagerView
 	 */
 	public CallHandle loadParentsOfAnnotation(SecurityContext ctx,
 			long annotationId, AgentEventListener observer);
+
+	/**
+	 * Moves the passed collection to another group.
+	 * 
+	 * @param object The objects to transfer.
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle changeGroup(TransferableObject object,
+			AgentEventListener observer);
 	
 }

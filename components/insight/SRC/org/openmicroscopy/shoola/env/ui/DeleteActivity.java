@@ -36,7 +36,6 @@ import javax.swing.Icon;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 /** 
  * Activity to delete data.
@@ -156,7 +155,7 @@ public class DeleteActivity
 	protected UserNotifierLoader createLoader()
 	{
 		List<DeletableObject> objects = parameters.getObjects();
-		loader = new DataObjectRemover(viewer,  registry, objects, this);
+		loader = new DataObjectRemover(viewer, registry, objects, this);
 		return loader;
 	}
 

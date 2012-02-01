@@ -856,9 +856,22 @@ class OmeroDataServiceImpl
 	 * @see OmeroDataService#getFSRepositories(SecurityContext, long)
 	 */
 	public FSFileSystemView getFSRepositories(SecurityContext ctx, long userID)
-			throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.getFSRepositories(ctx, userID);
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#transfer(SecurityContext, DataObject, 
+	 * SecurityContext, List)
+	 */
+	public TransferCallback transfer(SecurityContext target,
+		DataObject targetNode, SecurityContext ctx, List<DataObject> objects)
+		throws DSOutOfServiceException, DSAccessException, ProcessException
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }
