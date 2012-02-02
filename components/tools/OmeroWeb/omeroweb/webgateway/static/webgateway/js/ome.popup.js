@@ -149,27 +149,75 @@ var confirm_dialog = function(dialog_text, callback, title, button_labels, width
 };
 
 
-/** 
- * Helper for $.ajax to handle timeouts etc.
- * Usage: instead of calling $.ajax(config) you should call ajax_json_helper(config)
- * We add our own 'error' handler to the config dictionary then call $.ajax
- * If the $.ajax returns an error, our handler calls login_dialog, passing 
- * the $.ajax(config) method to be called when we have logged in.
-**/
-var ajax_json_helper = function(config) {
-    
-    config['error'] = function(data) {
-        
-        //console.log('not connected');
-        login_dialog("/webclient/login", function() {
-            $.ajax(config);
-        });
+/*
+ * A dialog for sending feedback. 
+ * Loads and submits the feedback form at "/feedback/feedback"
+ */
+var feedback_dialog = function(error) {
+
+    var $feedback_dialog = $("#feedback_dialog");
+    if ($feedback_dialog.length > 0) {       // get rid of any old dialogs
+        $feedback_dialog.remove();
     }
-    $.ajax(config);
-}
+    $feedback_dialog = $("<div id='feedback_dialog'></div>");
+    $('body').append($feedback_dialog);
+
+    $feedback_dialog.attr("title", "Send Feedback").hide();
+    $feedback_dialog.load("/feedback/feedback #form-500", function() {
+        $("textarea[name=error]", $feedback_dialog).val(error);
+        $("input[type=submit]", $feedback_dialog).hide();
+        $("form", $feedback_dialog).ajaxForm({
+            success: function(data) {
+                $feedback_dialog.html(data);
+                $feedback_dialog.dialog("option", "buttons", {
+                    "Close": function() {
+                        $( this ).dialog( "close" );
+                    }
+                });
+            }
+        });
+    });
+
+    $feedback_dialog.dialog({
+        resizable: true,
+        height: 500,
+        width: 700,
+        modal: true,
+        buttons: {
+            "Cancel": function() {
+                $( this ).dialog( "close" );
+            },
+            "Send": function() {
+                $("form", $feedback_dialog).submit();
+            }
+        }
+    });
+    return $feedback_dialog;
+};
+
+/** 
+ * Handle jQuery load() errors (E.g. timeout)
+ * In this case we simply refresh (will redirect to login page)
+**/
+$(document).ready(function(){
+    $("body").ajaxError(function(e, req, settings, exception) {
+        if (req.status == 404) {
+            confirm_dialog("404 Error: page not found", null, "404 Error", ["OK"]);
+        } else if (req.status == 403) {
+            // Denied (E.g. session timeout) Refresh - will redirect to login page
+            window.location.reload();
+        } else if (req.status == 500) {
+            // Our 500 handler returns only the stack-trace if request.is_json()
+            var error = req.responseText;
+            feedback_dialog(error);
+        }
+    });
+});
+
 
 /*
- * A dialog for logging-in on the fly (without redirect to login page)
+ * NB: This code is NOT USED currently. Experimental.
+ * A dialog for logging-in on the fly (without redirect to login page).
  * On clicking 'Connect' we post username & password to login url and on callback, the callback function is called
  */
 var login_dialog = function(login_url, callback) {
@@ -208,62 +256,3 @@ var login_dialog = function(login_url, callback) {
 
     return $dialog;
 };
-
-/** 
- * Helper to handle jQuery load() errors (E.g. timeout)
- * In this case we simply refresh (will redirect to login page)
-**/
-$.fn.load_helper = function(url, callback) {
-    return this.each(function(){
-
-        var self = $(this);
-        
-        $.ajax({
-            type: "GET",
-            url: url,
-            contentType:'html',
-            success: function(html, textStatus, xhr){
-                self.html(html);
-                if (typeof callback != 'undefined') callback();
-            },
-            error: function(xhr, textStatus) {
-                if (xhr.status == 404) {
-                    console.log("Handle 404");
-                } else if (xhr.status == 403) {
-                    // Denied (E.g. session timeout) Refresh - will redirect to login page
-                    window.location.reload();
-                } else if (xhr.status == 500) {
-                    console.log("500 - Handle error submission/feedback");
-                    console.log(textStatus, xhr);
-                }
-            }
-        });
-    });
-}
-
-/** 
- * Alternative helper to handle jQuery load() errors (E.g. timeout)
- * NOT USED - Experimental
- * We attempt to login with dialog, then load on success. 
-**/
-$.fn.load_helper_login = function(url, login_url, callback) {
-    return this.each(function(){
-
-        var self = $(this);
-        
-        $.ajax({
-            type: "GET",
-            url: url,
-            contentType:'html',
-            success: function(html){
-                self.html(html);
-                if (typeof callback != 'undefined') callback();
-            },
-            error: function(response) {
-                login_dialog(login_url, function(){
-                    self.load(url, callback);
-                });
-            }
-        });
-    });
-}
