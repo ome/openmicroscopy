@@ -27,8 +27,12 @@ import logging
 
 from django.http import Http404
 
+from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
+
+class Http403(exception):
+    pass
 
 class login_required(object):
     """
@@ -96,6 +100,60 @@ class login_required(object):
             if not conn.isOwner():
                 raise Http404
 
+    def get_connection(self, server_id, request, useragent):
+        """
+        Prepares a Blitz connection wrapper (from L{omero.gateway}) for
+        use with a view function.
+        """
+        # TODO: Handle previous try_super logic; is it still needed?
+        # TODO: Move anonymous connection creation logic to settings usage
+
+        session = request.session
+        request = request.REQUEST
+        if server_id is None:
+            # If no server id is passed, the db entry will not be used and
+            # instead we'll depend on the request.session and request.REQUEST
+            # values
+            with_session = True
+            server_id = request.session.get('server', None)
+            if server_id is None:
+                return None
+    
+        connector = session.get('connector', None)
+        if connector is None:
+            # We have no current connector, create one and attempt to
+            # create a connection based on the credentials we have available
+            # in the current request.
+            is_secure = request.get('ssl', False)
+            connector = Connector(server_id, is_secure)
+            try:
+                omero_session_key = request.get('bsession')
+            except KeyError:
+                # We do not have an OMERO session key in the current request.
+                pass
+            else:
+                # We have an OMERO session key in the current request use it
+                # to try join an existing connection / OMERO session.
+                connector.omero_session_key = omero_session_key
+                connection = connector.join_connection()
+                session['connector'] = connector
+                connection.user.logIn()
+                return connection
+
+            try:
+                username = request.get('username')
+                password = request.get('password')
+            except KeyError:
+                # We do not have an OMERO session or a username and password
+                # in the current request, raise an error.
+                raise Http403
+            # We have a username and password in the current request, use them
+            # to try and create a new connection / OMERO session.
+            connection = connector.create_connection(username, password)
+            session['connector'] = connector
+            connection.user.logIn()
+            return connector.create_connection(username, password)
+
     def __call__(ctx, f):
         """
         Tries to prepare a logged in connection , then calls function and
@@ -106,17 +164,20 @@ class login_required(object):
             if url is None or len(url) == 0:
                 url = request.get_full_path()
 
-            conn = None
+            conn = kwargs.get('_conn', None)
             error = None
-            try:
-                # Lazy import due to the potential usage of the decorator in
-                # the omeroweb.webgateway.views package.
-                from omeroweb.webgateway.views import getBlitzConnection
-                conn = getBlitzConnection(request, useragent=ctx.useragent)
-            except Exception, x:
-                logger.error('Error retrieving connection.', exc_info=True)
-                error = str(x)
-            
+            server_id = kwargs.get('server_id', None)
+            # Short circuit connection retrieval when a connection was
+            # provided to us via '_conn'. This is useful when in testing
+            # mode or when stacking view functions/methods.
+            if conn is not None:
+                try:
+                    conn = self.get_connection(
+                            server_id, request, useragent=ctx.useragent)
+                except Exception, x:
+                    logger.error('Error retrieving connection.', exc_info=True)
+                    error = str(x)
+
             if conn is None:
                 return ctx.on_not_logged_in(request, url, error)
             else:
