@@ -268,6 +268,11 @@ class MetadataViewerModel
 	{ 
 		this.refObject = refObject;
 		this.ctx = ctx;
+		if (ctx == null && refObject instanceof DataObject) {
+			DataObject data = (DataObject) refObject;
+			if (data.getId() >= 0)
+				this.ctx = new SecurityContext(data.getGroupId());
+		}
 		browser.setRootObject(refObject);
 		editor.setRootObject(refObject);
 		data = null;
