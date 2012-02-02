@@ -1651,7 +1651,7 @@ class TreeViewerComponent
 		if (elements.size() == 1) { //check if cut and paste
 			TreeImageDisplay parent;
 			for (int j = 0; j < parents.length; j++) {
-				n = nodes[j];
+				n = parents[j];
 				os = n.getUserObject();
 				if (os instanceof ExperimenterData) {
 					parent = n.getParentDisplay();
@@ -1678,7 +1678,7 @@ class TreeViewerComponent
 			if (ids.size() == 1) { //check if it is a Paste in the group
 				i = elements.keySet().iterator();
 				while (i.hasNext()) {
-					if (i.next() == ids.get(0)) {
+					if (i.next().longValue() == ids.get(0).longValue()) {
 						boolean b = model.paste(parents);
 						if (!b) {
 							un.notifyInfo("Paste", 
@@ -2965,12 +2965,12 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#hasDataToCopy()
+	 * @see TreeViewer#getDataToCopy()
 	 */
-	public Class hasDataToCopy()
+	public List<DataObject> getDataToCopy()
 	{
 		if (model.getState() == DISCARDED) return null;
-		return model.getDataToCopyType();
+		return model.getDataToCopy();
 	}
 	
 	/**

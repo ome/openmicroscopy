@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 import java.awt.Point;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -539,6 +540,11 @@ class TreeViewerModel
 	 */
 	boolean paste(TreeImageDisplay[] parents)
 	{
+		//Check if array contains Experimenter data
+		if (parents[0].getUserObject() instanceof ExperimenterData) {
+			copyIndex = TreeViewer.CUT_AND_PASTE;
+			return cut();
+		}
 		Map map = buildCopyMap(parents);
 		SecurityContext ctx = getSecurityContext();
 		if (map == null) return false;
@@ -931,6 +937,23 @@ class TreeViewerModel
 		return ho.getClass();
 	}
 
+	/**
+	 * Returns the objects to copy.
+	 * 
+	 * @return See above.
+	 */
+	List<DataObject> getDataToCopy()
+	{
+		TreeImageDisplay[] nodes = getNodesToCopy();
+		if (nodes == null || nodes.length == 0) return null;
+		List<DataObject> l = new ArrayList<DataObject>();
+		for (int i = 0; i < nodes.length; i++) {
+			if (nodes[i].getUserObject() instanceof DataObject)
+				l.add((DataObject) nodes[i].getUserObject());
+		}
+		return l;
+	}
+	
 	/**
 	 * Sets the {@link DataBrowser}.
 	 * 

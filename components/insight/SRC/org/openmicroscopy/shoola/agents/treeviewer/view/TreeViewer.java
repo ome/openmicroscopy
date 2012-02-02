@@ -802,12 +802,11 @@ public interface TreeViewer
 	public void deleteObjects(List nodes);
 
 	/**
-	 * Returns the type of objects to copy or <code>null</code> if no objects
-	 * selected.
+	 * Returns the objects to copy or <code>null</code>.
 	 * 
 	 * @return See above.
 	 */
-	public Class hasDataToCopy();
+	public List<DataObject> getDataToCopy();
 
 	/** 
 	 * Refreshes the view when nodes have been deleted. A collection of nodes
