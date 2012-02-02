@@ -260,7 +260,7 @@ public class EditorAgent
 			}
 		}
 		if (editor != null)
-			editor.activate();		// starts file downloading
+			editor.activate();// starts file downloading
 	}
 	
 	/**

@@ -3040,9 +3040,8 @@ class TreeViewerComponent
 				if (object instanceof FileAnnotationData) {
 					FileAnnotationData fa = 
 						(FileAnnotationData) d.getUserObject();
-					EditFileEvent evt = new EditFileEvent(
-							browser.getSecurityContext(d), fa);
-					bus.post(evt);
+					bus.post( new EditFileEvent(
+							browser.getSecurityContext(d), fa));
 				}
 				break;
 			case NO_SELECTION:
