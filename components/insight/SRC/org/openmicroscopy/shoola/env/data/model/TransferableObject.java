@@ -25,15 +25,16 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.List;
-import java.util.Map;
 
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-
 /** 
  * Hosts information necessary to transfer objects between groups.
  *
@@ -48,7 +49,7 @@ public class TransferableObject
 	private SecurityContext targetContext;
 	
 	/** The destination of the change group action.*/
-	private pojos.DataObject target;
+	private List<pojos.DataObject> target;
 	
 	/** The elements to move.*/
 	private Map<SecurityContext, List<pojos.DataObject>> source;
@@ -66,6 +67,27 @@ public class TransferableObject
 	 */
 	public TransferableObject(SecurityContext targetContext, 
 			pojos.DataObject target, 
+			Map<SecurityContext, List<pojos.DataObject>> source)
+	{
+		if (targetContext == null)
+			throw new IllegalArgumentException("No context specified.");
+		if (source == null || source.size() == 0)
+			throw new IllegalArgumentException("No elements to move.");
+		this.targetContext = targetContext;
+		this.target = Arrays.asList(target);
+		this.source = source;
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param targetContext Information about the destination group.
+	 * Mustn't be <code>null</code>.
+	 * @param target The object where to move data into or <code>null</code>.
+	 * @param source The elements to move. Mustn't be <code>null</code>.
+	 */
+	public TransferableObject(SecurityContext targetContext, 
+			List<pojos.DataObject> target, 
 			Map<SecurityContext, List<pojos.DataObject>> source)
 	{
 		if (targetContext == null)
@@ -103,7 +125,7 @@ public class TransferableObject
 	 * 
 	 * @return See above.
 	 */
-	public pojos.DataObject getTarget() { return target; }
+	public List<pojos.DataObject> getTarget() { return target; }
 	
 	
 	/**
