@@ -430,4 +430,16 @@ public class NullOmeroPojoService
 		return null;
 	}
 
+	/**
+     * No-operation implementation
+     * @see OmeroDataService#transfer(SecurityContext, List, SecurityContext, List)
+     */
+	public TransferCallback transfer(SecurityContext target,
+			List<DataObject> targetNode, SecurityContext ctx,
+			List<DataObject> objects) throws DSOutOfServiceException,
+			DSAccessException, ProcessException
+	{
+		return null;
+	}
+
 }
