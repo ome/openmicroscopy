@@ -28,7 +28,7 @@ import logging
 from django.http import Http404
 
 
-logger = logging.getLogger('omeroweb.decorators')
+logger = logging.getLogger(__name__)
 
 class login_required(object):
     """
