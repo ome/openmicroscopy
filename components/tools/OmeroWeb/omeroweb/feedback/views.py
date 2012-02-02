@@ -79,6 +79,8 @@ def send_feedback(request):
             finally:
                 fileObj.close()
 
+        if request.is_ajax():
+            return HttpResponse("<h2>Thanks for your feedback</h2>");
         return HttpResponseRedirect(reverse("fthanks"))
         
     context = {'form':form, 'error':error}
@@ -141,9 +143,9 @@ def handler500(request):
     error500 = "%s\n\n%s" % (as_string, request_repr)
         
     
+    # If AJAX, let the ajax error handling deal with the error
     if request.is_ajax():
-        json_data = simplejson.dumps(tags)
-        return HttpResponse(json_data, mimetype='application/javascript')
+        raise
     
     return custom_server_error(request, error500)
 
