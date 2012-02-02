@@ -424,6 +424,10 @@ class BrowserComponent
         int state = model.getState();
         switch (state) {
             case NEW:
+            	if (model.getBrowserType() == ADMIN_EXPLORER) {
+            		model.fireExperimenterDataLoading(null);
+            		return;
+            	}
             	TreeImageDisplay node = getLoggedExperimenterNode();
             	node.getParentDisplay().setExpanded(true);
             	view.expandNode(node, true);
