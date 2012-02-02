@@ -153,6 +153,9 @@ class BrowserModel
     /** Reference to the component that embeds this model. */
     protected Browser           	component; 
     
+    /** The security context for the administrator.*/
+    private SecurityContext adminContext;
+    
     /** 
      * Checks if the specified browser is valid.
      * 
@@ -180,7 +183,7 @@ class BrowserModel
      * @param browserType   The browser's type. One of the type defined by
      *                      the {@link Browser}.
      * @param parent        Reference to the parent. 
-     * @param experimenter  The experimenter this browser is for.                  
+     * @param experimenter  The experimenter this browser is for.
      */
     protected BrowserModel(int browserType, TreeViewer parent)
     { 
@@ -192,6 +195,7 @@ class BrowserModel
         foundNodeIndex = -1;
         selectedNodes = new ArrayList<TreeImageDisplay>();
         displayed = true;
+        adminContext = TreeViewerAgent.getAdminContext();
     }
 
     /**
@@ -339,6 +343,7 @@ class BrowserModel
         				(TreeImageSet) expNode, (TreeImageSet) node);
         		currentLoader.load();
         	} else if (ho instanceof GroupData) {
+        		if (TreeViewerAgent.isAdministrator()) ctx = adminContext;
         		currentLoader = new AdminLoader(component, ctx,
         				(TreeImageSet) expNode);
         		currentLoader.load();
@@ -368,8 +373,11 @@ class BrowserModel
             return;
         }
         //state = Browser.COUNTING_ITEMS;
+        SecurityContext ctx = getSecurityContext(refNode);
+        if (TreeViewerAgent.isAdministrator())
+        	ctx = adminContext;
         ContainerCounterLoader loader = new ContainerCounterLoader(component,
-        		getSecurityContext(refNode), containers, nodes);
+        		ctx, containers, nodes);
         loader.load();
     }
 
@@ -528,20 +536,18 @@ class BrowserModel
 	void fireExperimenterDataLoading(TreeImageSet expNode)
 	{
 		int index = -1;
-		SecurityContext ctx = getSecurityContext(expNode);
 		if (browserType == Browser.ADMIN_EXPLORER) {
 			state = Browser.LOADING_DATA;
 			//Depending on user roles.
 			if (TreeViewerAgent.isAdministrator()) {
-				currentLoader = new AdminLoader(component, ctx, null);
+				currentLoader = new AdminLoader(component, adminContext, null);
 				currentLoader.load();
-				return;
 			} else {
 				component.setGroups(TreeViewerAgent.getGroupsLeaderOf(), null);
-				return;
 			}
-			
+			return;
 		}
+		SecurityContext ctx = getSecurityContext(expNode);
 		if (browserType == Browser.SCREENS_EXPLORER) {
 			currentLoader = new ScreenPlateLoader(component, ctx, expNode, 
 												ScreenPlateLoader.SCREEN);

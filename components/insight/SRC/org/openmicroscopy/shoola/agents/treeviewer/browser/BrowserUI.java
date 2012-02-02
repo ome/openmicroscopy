@@ -839,16 +839,16 @@ class BrowserUI
         treeDisplay.setShowsRootHandles(true);
         TreeImageSet root = new TreeImageSet("");
         treeDisplay.setModel(new DefaultTreeModel(root));
-        List<TreeImageSet> groups = createGroups(exp.getDefaultGroup());
-        Iterator<TreeImageSet> i = groups.iterator();
-        TreeImageSet n, node = null;
-        while (i.hasNext()) {
-			//TreeImageSet treeImageSet = (TreeImageSet) i.next();
-			n = createExperimenterNode(exp, i.next());
-			if (node == null) node = n;
-		}
-        //TreeImageSet node = createExperimenterNode(exp);
-        treeDisplay.collapsePath(new TreePath(node.getPath()));
+        if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
+        	List<TreeImageSet> groups = createGroups(exp.getDefaultGroup());
+            Iterator<TreeImageSet> i = groups.iterator();
+            TreeImageSet n, node = null;
+            while (i.hasNext()) {
+    			n = createExperimenterNode(exp, i.next());
+    			if (node == null) node = n;
+    		}
+            treeDisplay.collapsePath(new TreePath(node.getPath()));
+        }
         //Add Listeners
         //treeDisplay.requestFocus();
         treeDisplay.addMouseListener(new MouseAdapter() {
@@ -1752,7 +1752,7 @@ class BrowserUI
 		TreeImageDisplay root = getTreeRoot();
 		root.removeAllChildren();
 		root.removeAllChildrenDisplay();
-		root.setChildrenLoaded(Boolean.TRUE);
+		root.setChildrenLoaded(Boolean.valueOf(true));
 		root.setExpanded(true);
 		dtm.reload();
         if (nodes.size() != 0) {

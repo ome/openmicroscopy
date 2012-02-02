@@ -180,6 +180,9 @@ class TreeViewerModel
     /** Scripts with a UI. */
 	private List<ScriptObject> scriptsWithUI;
 	
+	/** The security context for the administrator.*/
+    private SecurityContext adminContext;
+    
     /**
      * Returns the collection of scripts with a UI, mainly the figure scripts.
      * 
@@ -487,6 +490,9 @@ class TreeViewerModel
 	{
 		state = TreeViewer.LOADING_DATA;
 		SecurityContext ctx = getSecurityContext();
+		if (TreeViewerAgent.isAdministrator()) 
+			ctx = adminContext;
+		//if (TreeViewerAgent.isAdministrator()) ctx = adminC
 		currentLoader = new ExistingObjectsLoader(component, ctx, ho);
 		currentLoader.load();
 	}
@@ -1104,6 +1110,8 @@ class TreeViewerModel
 	void fireAdmin(AdminObject object)
 	{
 		SecurityContext ctx = getSecurityContext();
+		if (TreeViewerAgent.isAdministrator())
+			ctx = adminContext;
 		currentLoader = new AdminCreator(component, ctx, object);
 		currentLoader.load();
 	}
