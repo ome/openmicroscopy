@@ -91,7 +91,7 @@ public class ContainersLoader
 	public ContainersLoader(MetadataViewer viewer, SecurityContext ctx,
 			Class type, long id)
 	{
-		super(viewer, null);
+		super(viewer, ctx);
 		this.type = type;
 		this.id = id;
 	}
