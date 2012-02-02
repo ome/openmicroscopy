@@ -372,6 +372,9 @@ class EditorModel
 						"original file will erase the original XML format.");
 				// must avoid overwriting the original file...
 				// 'Save' won't work. 
+				if (fileID > 0) { //try to read a file downloaded
+					file.delete();
+				}
 				fileToEdit = null;
 				setFileAnnotationData(null);
 				
