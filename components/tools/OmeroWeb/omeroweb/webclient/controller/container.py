@@ -469,51 +469,65 @@ class BaseContainer(BaseController):
     def getTagsByObject(self):
         eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
         
+        def sort_tags(tag_gen):
+            tag_anns = list(tag_gen)
+            try:
+                tag_anns.sort(key=lambda x: x.getValue().lower())
+            except: pass
+            return tag_anns
+
         if self.image is not None:
-            return list(self.image.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return sort_tags(self.image.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.dataset is not None:
-            return list(self.dataset.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return sort_tags(self.dataset.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.project is not None:
-            return list(self.project.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return sort_tags(self.project.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.well is not None:
-            return list(self.well.getWellSample().image().listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return sort_tags(self.well.getWellSample().image().listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.plate is not None:
-            return list(self.plate.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return sort_tags(self.plate.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.screen is not None:
-            return list(self.screen.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return sort_tags(self.screen.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         else:
             eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
             if eid is not None:
                 params = omero.sys.Parameters()
                 params.theFilter = omero.sys.Filter()
                 params.theFilter.ownerId = omero.rtypes.rlong(eid)
-                return list(self.conn.getObjects("TagAnnotation", params=params))
-            return list(self.conn.getObjects("TagAnnotation"))
+                return sort_tags(self.conn.getObjects("TagAnnotation", params=params))
+            return sort_tags(self.conn.getObjects("TagAnnotation"))
     
     def getFilesByObject(self):
         eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
         ns = [omero.constants.namespaces.NSCOMPANIONFILE, omero.constants.namespaces.NSEXPERIMENTERPHOTO]
         
+        def sort_file_anns(file_ann_gen):
+            file_anns = list(file_ann_gen)
+            try:
+                file_anns.sort(key=lambda x: x.getFile().getName().lower())
+            except: pass
+            return file_anns
+        
         if self.image is not None:
-            return list(self.image.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+            return sort_file_anns(self.image.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.dataset is not None:
-            return list(self.dataset.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+            return sort_file_anns(self.dataset.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.project is not None:
-            return list(self.project.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+            return sort_file_anns(self.project.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.well is not None:
-            return list(self.well.getWellSample().image().listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+            return sort_file_anns(self.well.getWellSample().image().listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.plate is not None:
-            return list(self.plate.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+            return sort_file_anns(self.plate.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.screen is not None:
-            return list(self.screen.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+            return sort_file_anns(self.screen.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         else:
             eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
             if eid is not None:
                 params = omero.sys.Parameters()
                 params.theFilter = omero.sys.Filter()
                 params.theFilter.ownerId = omero.rtypes.rlong(eid)
-                return list(self.conn.listFileAnnotations(params=params))
-            return list(self.conn.listFileAnnotations())
+                return sort_file_anns(self.conn.listFileAnnotations(params=params))
+            return sort_file_anns(self.conn.listFileAnnotations())
     ####################################################################
     # Creation
     
