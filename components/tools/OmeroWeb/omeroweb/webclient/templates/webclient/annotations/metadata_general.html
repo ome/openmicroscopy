@@ -161,7 +161,7 @@
                     var confirm_remove = confirm_dialog('Remove '+ dType + '?',
                         function() {
                             if(confirm_remove.data("clicked_button") == "OK") {
-                                ajax_json_helper({
+                                $.ajax({
                                     type: "POST",
                                     url: url,
                                     data: {'parent':parentId},
@@ -175,9 +175,6 @@
                                             $parent.remove();
                                             $annContainer.hide_if_empty();
                                         }
-                                    },
-                                    error: function(response) {
-                                        alert("Internal server error. Cannot remove object.");
                                     }
                                 });
                             }
