@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.editor;
 //Java imports
 import java.io.File;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 
@@ -50,6 +52,7 @@ import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -94,6 +97,16 @@ public class EditorAgent
 	{ 
 		return (ExperimenterData) registry.lookup(
 								LookupNames.CURRENT_USER_DETAILS);
+	}
+	
+	/**
+	 * Returns the available user groups.
+	 * 
+	 * @return See above.
+	 */
+	public static Set getAvailableUserGroups()
+	{
+		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 	}
 	
 	/**
@@ -173,8 +186,11 @@ public class EditorAgent
 		// file ID (will be 0 if editor file is local) and same file name, OR
 		// creates a new editor model and editor with this new file. 
 		
-		//TODO: review that call
-		Editor editor = EditorFactory.getEditor(null, file);
+		ExperimenterData exp = getUserDetails();
+		SecurityContext ctx = null;
+		if (exp != null) 
+			ctx = new SecurityContext(exp.getDefaultGroup().getId());
+		Editor editor = EditorFactory.getEditor(ctx, file);
 	
 		// activates the editor
 		// if the editor is 'blank' or has just been created (above), 

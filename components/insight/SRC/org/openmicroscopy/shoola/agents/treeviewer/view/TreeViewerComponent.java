@@ -3046,8 +3046,9 @@ class TreeViewerComponent
 				}
 				break;
 			case NO_SELECTION:
-				//TO REVIEW
-				//bus.post(new ShowEditorEvent());
+				ExperimenterData exp = model.getUserDetails();
+				bus.post(new ShowEditorEvent(
+						new SecurityContext(exp.getDefaultGroup().getId())));
 				break;
 			case NEW_WITH_SELECTION:
 				if (browser == null) return;

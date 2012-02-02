@@ -24,9 +24,10 @@ package org.openmicroscopy.shoola.agents.editor.view;
 
 
 //Java imports
+import java.awt.Component;
+import java.awt.Point;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -36,6 +37,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 
 /** 
  * Defines the interface provided by the editor component.
@@ -84,6 +86,9 @@ public interface Editor
 
 	/** Flag to denote the <i>Saving</i> state. */
 	public static final int     SAVING = 5;
+	
+	/** Identifies the group menu. */
+	public static final int     GROUP_MENU = 100;
 	
 	/**
 	 * Starts the data loading process when the current state is {@link #NEW} 
@@ -243,5 +248,30 @@ public interface Editor
 	 * @return See above.
 	 */
     public JFrame getUI();
+
+    /**
+     * Returns the group corresponding to the security context.
+     * 
+     * @return See above.
+     */
+	public GroupData getSelectedGroup();
     
+	/**
+	 * Brings up the menu on top of the specified component at 
+	 * the specified location.
+	 * 
+	 * @param menuID The id of the menu.
+	 * @param invoker The component that requested the pop-up menu.
+	 * @param loc The point at which to display the menu, relative to the
+	 *            <code>component</code>'s coordinates.
+	 */
+	public void showMenu(int menuID, Component c, Point p);
+
+	/**
+	 * Sets the group to used if the file is saved back to the server.
+	 * 
+	 * @param groupID The id of the group.
+	 */
+	void setUserGroup(long groupID);
+
 }
