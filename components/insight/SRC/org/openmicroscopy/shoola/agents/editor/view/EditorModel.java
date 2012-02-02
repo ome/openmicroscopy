@@ -627,4 +627,15 @@ class EditorModel
 	 */
 	SecurityContext getSecurityContext() { return ctx; }
 
+	/**
+	 * Sets the security context.
+	 * 
+	 * @param groupId The id of the group.
+	 */
+	void setSecurityContext(long groupId)
+	{
+		if (ctx.getGroupID() != groupId)
+			ctx = new SecurityContext(groupId);
+	}
+	
 }

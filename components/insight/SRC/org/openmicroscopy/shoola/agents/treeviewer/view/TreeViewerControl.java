@@ -778,7 +778,6 @@ class TreeViewerControl
 		ViewerSorter sorter = new ViewerSorter();
 		Iterator i = sorter.sort(m).iterator();
 		GroupData group;
-		GroupSelectionAction action;
 		while (i.hasNext()) {
 			group = (GroupData) i.next();
 			l.add(new GroupSelectionAction(model, group));
