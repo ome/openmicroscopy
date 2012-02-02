@@ -177,8 +177,7 @@ var loadMetadataPanel = function(src, html) {
     
     var $metadataPanel = $("#right_panel");
     if (src!=null) {
-        // This does the same as .load(src), but errors are handled by refreshing page
-        $metadataPanel.load_helper(src);
+        $metadataPanel.load(src);
     } else {
         $metadataPanel.html(html);
     }
