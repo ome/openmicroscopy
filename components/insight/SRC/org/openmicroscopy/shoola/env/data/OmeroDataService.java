@@ -443,7 +443,7 @@ public interface OmeroDataService
 	 * same types. Returns a handle to monitor the status of the transfer.
 	 * 
 	 * @param target The context of the target.
-	 * @param targetNode The element to transfer the data into.
+	 * @param targetNode The elements to transfer the data into.
 	 * @param ctx The security context.
 	 * @param objects The collection of objects to transfer.
 	 * @return See above.
@@ -453,7 +453,8 @@ public interface OmeroDataService
 	 * @throws ProcessException If an error occurred while starting the process.
 	 */
 	public TransferCallback transfer(SecurityContext target,
-		DataObject targetNode, SecurityContext ctx, List<DataObject> objects)
+		List<DataObject> targetNode, SecurityContext ctx, 
+		List<DataObject> objects)
 		throws DSOutOfServiceException, DSAccessException, ProcessException;
 	
 }

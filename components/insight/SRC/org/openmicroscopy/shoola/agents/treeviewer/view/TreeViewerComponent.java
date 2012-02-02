@@ -102,6 +102,7 @@ import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.model.TransferableActivityParam;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -1619,12 +1620,102 @@ class TreeViewerComponent
 			return;	
 		}
 		TreeImageDisplay[] nodes = model.getNodesToCopy();
-		if (nodes == null || nodes.length == 0) return; 
-		boolean b = model.paste(parents);
-		if (!b) {
-			un.notifyInfo("Paste action", "The nodes to copy cannot " +
-			"be added to the selected nodes."); 
-		} else fireStateChange();
+		if (nodes == null || nodes.length == 0) return;
+		//check to transfer data.
+		Map<Long, List<DataObject>> elements = 
+			new HashMap<Long, List<DataObject>>();
+		long gid;
+		List<DataObject> l;
+		TreeImageDisplay n;
+		Object os;
+		for (int j = 0; j < nodes.length; j++) {
+			n = nodes[j];
+			os = n.getUserObject();
+			if (os instanceof DataObject &&
+				!(os instanceof ExperimenterData ||
+					os instanceof GroupData)) {
+				gid = ((DataObject) os).getGroupId();
+				if (!elements.containsKey(gid)) {
+					elements.put(gid, new ArrayList<DataObject>());
+				}
+				l = elements.get(gid);
+				l.add((DataObject) os);
+			}
+		}
+		if (elements.size() == 0) return;
+		Iterator<Long> i;
+		List<Long> ids = new ArrayList<Long>();
+		Map<Long, List<DataObject>> 
+			parentMap = new HashMap<Long, List<DataObject>>();
+		List<DataObject> list;
+		if (elements.size() == 1) { //check if cut and paste
+			TreeImageDisplay parent;
+			for (int j = 0; j < parents.length; j++) {
+				n = nodes[j];
+				os = n.getUserObject();
+				if (os instanceof ExperimenterData) {
+					parent = n.getParentDisplay();
+					if (parent.getUserObject() instanceof GroupData) {
+						gid = parent.getUserObjectId();
+						if (!parentMap.containsKey(gid)) {
+							parentMap.put(gid, new ArrayList<DataObject>());
+						}
+						if (!ids.contains(gid))
+							ids.add(gid);
+					}
+				} else if (os instanceof DataObject) {
+					gid = ((DataObject) os).getGroupId();
+					if (!parentMap.containsKey(gid)) {
+						parentMap.put(gid, new ArrayList<DataObject>());
+					}
+					list = parentMap.get(gid);
+					if (!(os instanceof GroupData))
+						list.add((DataObject) os);
+					if (!ids.contains(gid))
+						ids.add(gid);
+				}
+			}
+			if (ids.size() == 1) { //check if it is a Paste in the group
+				i = elements.keySet().iterator();
+				while (i.hasNext()) {
+					if (i.next() == ids.get(0)) {
+						boolean b = model.paste(parents);
+						if (!b) {
+							un.notifyInfo("Paste", 
+							"The nodes to copy cannot be added to the " +
+							"selected nodes."); 
+						} else fireStateChange();
+						return;
+					}
+				}
+			}
+		}
+		MessageBox box = new MessageBox(view, "Change group", "Are you " +
+		"you want to move the selected items to another group?");
+		if (box.centerMsgBox() != MessageBox.YES_OPTION) return;
+		//if we are here moving data.
+		i = elements.keySet().iterator();
+		Map<SecurityContext, List<DataObject>> trans = 
+			new HashMap<SecurityContext, List<DataObject>>();
+		while (i.hasNext()) {
+			gid = i.next();
+			trans.put(new SecurityContext(gid), elements.get(gid));
+		}
+		IconManager icons = IconManager.getInstance();
+		TransferableActivityParam param;
+		Entry entry;
+		Iterator k = parentMap.entrySet().iterator();
+		TransferableObject t;
+		while (k.hasNext()) {
+			entry = (Entry) k.next();
+			t = new TransferableObject(
+					new SecurityContext((Long) entry.getKey()), 
+					(List<DataObject>) entry.getValue(), trans);
+			param = new TransferableActivityParam(
+					icons.getIcon(IconManager.APPLY_22), t);
+			param.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+			un.notifyActivity(model.getSecurityContext(), param);
+		}
 	}
 
 	/**
@@ -3765,6 +3856,8 @@ class TreeViewerComponent
 		boolean administrator = TreeViewerAgent.isAdministrator();
 		ExperimenterData exp;
 		long gId;
+		List<Long> groupIds = new ArrayList<Long>();
+		DataObject data;
 		while (i.hasNext()) {
 			n = i.next();
 			os = n.getUserObject();
@@ -3775,9 +3868,15 @@ class TreeViewerComponent
 					count++;
 					if (ot instanceof GroupData) {
 						if (os instanceof ExperimenterData &&
-								administrator) list.add(n);
-						else {
-							if (isUserOwner(os)) list.add(n);
+								administrator) {
+							list.add(n);
+						} else {
+							if (isUserOwner(os)) {
+								data = (DataObject) os;
+								if (!groupIds.contains(data.getGroupId()))
+									groupIds.add(data.getGroupId());
+								list.add(n);
+							}
 						}
 					} else {
 						if (ot instanceof ExperimenterData) {
@@ -3787,7 +3886,12 @@ class TreeViewerComponent
 								list.add(n);
 							}
 						} else {
-							if (isUserOwner(os)) list.add(n);
+							if (isUserOwner(os)) {
+								list.add(n);
+								data = (DataObject) os;
+								if (!groupIds.contains(data.getGroupId()))
+									groupIds.add(data.getGroupId());
+							}
 						}
 					}
 				}
@@ -3816,10 +3920,10 @@ class TreeViewerComponent
 				groupID = ((GroupData) po).getId();
 			}
 		} else groupID = otData.getGroupId();
-		DataObject c = (DataObject) list.get(0).getUserObject();
 		//to review
-		if (c.getId() == groupID ||
-				browser.getBrowserType() == Browser.ADMIN_EXPLORER)
+		if (browser.getBrowserType() == Browser.ADMIN_EXPLORER)
+			model.transfer(target, list);
+		else if (groupIds.size() == 1 && groupIds.get(0) == groupID)
 			model.transfer(target, list);
 		else {
 			if (groupID == -1) return;
@@ -3831,18 +3935,42 @@ class TreeViewerComponent
 			if (target != null && !(ot instanceof GroupData)) {
 				otData = (DataObject) ot;
 			}
-			List<DataObject> elements = new ArrayList<DataObject>();
+			
+			Map<Long, List<DataObject>> elements = 
+				new HashMap<Long, List<DataObject>>();
 			i = list.iterator();
+			long gid;
+			List<DataObject> l;
 			while (i.hasNext()) {
 				n = i.next();
 				os = n.getUserObject();
 				if (os instanceof DataObject &&
 					!(os instanceof ExperimenterData ||
 						os instanceof GroupData)) {
-					elements.add((DataObject) os);
+					gid = ((DataObject) os).getGroupId();
+					if (!elements.containsKey(gid)) {
+						elements.put(gid, new ArrayList<DataObject>());
+					}
+					l = elements.get(gid);
+					l.add((DataObject) os);
 				}
 			}
 			if (elements.size() == 0) return;
+			Iterator<Long> j = elements.keySet().iterator();
+			Map<SecurityContext, List<DataObject>> trans = 
+				new HashMap<SecurityContext, List<DataObject>>();
+			while (j.hasNext()) {
+				gid = j.next();
+				trans.put(new SecurityContext(gid), elements.get(gid));
+			}
+			if (target == null) otData = null;
+			TransferableObject t = new TransferableObject(
+					new SecurityContext(groupID), otData, trans);
+			IconManager icons = IconManager.getInstance();
+			TransferableActivityParam param = new TransferableActivityParam(
+					icons.getIcon(IconManager.APPLY_22), t);
+			param.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+			un.notifyActivity(model.getSecurityContext(), param);
 		}
 	}
 
