@@ -156,7 +156,7 @@ class login_required(object):
 
     def __call__(ctx, f):
         """
-        Tries to prepare a logged in connection , then calls function and
+        Tries to prepare a logged in connection, then calls function and
         returns the result.
         """
         def wrapped(request, *args, **kwargs):
