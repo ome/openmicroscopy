@@ -173,21 +173,42 @@ def isUserConnected (f):
 
 def navHelper(request, conn):
     
-    from django.conf import settings
-    top_links = settings.TOP_LINKS
-    links = []
-    for tl in top_links:
-        try:
-            label = tl[0]
-            link_id = tl[1]
-            link = reverse(link_id)
-            links.append( {"label":label, "link":link} )
-        except:
-            logger.error("Failed to reverse() tab_link: %s" % tl)
     if request.session.get('nav') is None:
         request.session['nav'] = {}
-    request.session['nav']['top_links'] = links
-    request.session.modified = True
+
+    if "top_links" not in request.session['nav']:
+        top_links = settings.TOP_LINKS
+        links = []
+        for tl in top_links:
+            try:
+                label = tl[0]
+                link_id = tl[1]
+                link = reverse(link_id)
+                links.append( {"label":label, "url":link} )
+            except:
+                logger.debug("Failed to reverse() tab_link: %s" % tl)
+        request.session['nav']['top_links'] = links
+        request.session.modified = True
+
+    if "toolbar_links" not in request.session['nav']:
+        toolbar_links = settings.TOOLBAR_LINKS
+        tb_links = []
+        for tl in toolbar_links:
+            try:
+                icon = tl[0]
+                link_text = None
+                if "/" not in icon:     # if this is not a path to Image - must be label
+                    link_text = icon    # This will be used as text instead of icon
+                    icon = ""
+                link_name = tl[1]
+                title = len(tl) > 2 and tl[2] or ""
+                link_id = len(tl) > 3 and tl[3] or ""
+                link = reverse(link_name)
+                tb_links.append( {"icon":icon, "url":link, "title":title, "id":link_id, "link_text":link_text } )
+            except:
+                logger.debug("Failed to reverse() toolbar_link: %s" % tl)
+        request.session['nav']['toolbar_links'] = tb_links
+        request.session.modified = True
 
 
 def sessionHelper(request):

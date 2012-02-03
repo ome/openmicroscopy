@@ -112,6 +112,7 @@
     float: left;
     position: relative;
     top: -1px;
+    padding: 0 4px;
 }
 
 #content {

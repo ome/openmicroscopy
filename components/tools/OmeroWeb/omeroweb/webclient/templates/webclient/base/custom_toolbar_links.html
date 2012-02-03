@@ -18,16 +18,22 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 {% endcomment %}
-
-    <li class="menu_link home"><a href="{% url webindex %}" title="Home">{% trans "Home" %}</a></li>
-    <li class="menu_link userdata usertags basket status"><a href="{% url load_template "userdata" %}" title="Browse Data via Projects, Tags etc">{% trans "Data" %}</a></li>
-    <li class="menu_link history"><a href="{% url load_template "history" %}" title="History">{% trans "History" %}</a></li>
-    <li class="menu_link search"><a href="{% url load_template "search" %}" title="Search">{% trans "Search" %}</a></li>
-    {% if eContext.context.isAdmin %}
-    <li class="menu_link admin"><a href="{% url waindex %}" title="Web-Admin: Edit users and groups">{% trans "Admin" %}</a></li>
-    {% endif %}
+    
+    <script>
+        $(document).ready(function(){
+            $(".custom_toolbar_link").click(openScriptWindow);
+        });
+    </script>
     
     <!-- Handle links from settings -->
-    {% for link in nav.top_links %}
-        <li class="menu_link"><a href="{{ link.url }}">{{ link.label }}</a></li>
+    {% for link in nav.toolbar_links %}
+    <div class="toolbar_button">
+        <a href="{{ link.url }}" title="{{ link.title }}" id="{{ link.id }}" class="custom_toolbar_link">
+            {% if link.link_text %}
+                {{ link.link_text }}
+            {% else %}
+                <img src="{% static link.icon %}" />
+            {% endif %}
+        </a>
+    </div>
     {% endfor %}

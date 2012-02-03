@@ -230,6 +230,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', parse_paths],
     # Add links to the top header: links are ['Link Text', 'url_name'], where the url is reverse("url_name")
     "omero.web.ui.top_links": ["TOP_LINKS", '[]', json.loads],  # E.g. '[["Webtest", "webtest_index"]]'
+    # Add links to the tool-bar: links are ['path/to/images/icon.png', 'url_name', 'title', 'id'], where the url is reverse("url_name"). 'id' is optional
+    # E.g. '[["webtest/img/figure_icon-16.png", "webtest_render_channel_overlay", "Channel Overlay", "channel_overlay_link"]]'
+    "omero.web.ui.toolbar_links": ["TOOLBAR_LINKS", '[]', json.loads],
     
     
     # sharing no longer use this variable. replaced by request.build_absolute_uri
