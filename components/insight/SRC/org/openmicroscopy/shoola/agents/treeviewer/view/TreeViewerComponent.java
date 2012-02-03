@@ -3479,6 +3479,28 @@ class TreeViewerComponent
 		*/
 	}
 	
+	/**
+	 * Invokes when reconnected to the server.
+	 */
+	void onReconnected()
+	{
+		model.setRndSettings(null);
+		model.setNodesToCopy(null, -1);
+		view.removeAllFromWorkingPane();
+		model.setDataViewer(null);
+		model.getMetadataViewer().onGroupSwitched(true);
+		//model.resetMetadataViewer();
+		Map<Integer, Browser> browsers = model.getBrowsers();
+		Entry entry;
+		Browser browser;
+		Iterator i = browsers.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			browser = (Browser) entry.getValue();
+			browser.reActivate();
+		}
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#findDataObject(Class, int, boolean)

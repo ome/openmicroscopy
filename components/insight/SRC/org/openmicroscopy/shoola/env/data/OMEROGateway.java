@@ -80,6 +80,7 @@ import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
+import omero.ClientError;
 import omero.ConcurrencyException;
 import omero.InternalException;
 import omero.LockTimeout;
@@ -2475,9 +2476,34 @@ class OMEROGateway
 	 */
 	boolean reconnect(String userName, String password)
 	{
-		boolean b = entryUnencrypted != null;
 		//sList
 		clear();
+		Iterator<Connector> i;
+		try {
+			i = connectors.iterator();
+			while (i.hasNext()) {
+				i.next().close();
+			}
+		} catch (Throwable t) {
+			Throwable cause = t.getCause();
+			connected = false;
+			//joining the session did not work so trying to create a session
+			if (cause instanceof ConnectionLostException ||
+					t instanceof ConnectionLostException || 
+					cause instanceof ClientError ||
+					t instanceof ClientError) {
+				try {
+					connected = true;
+					i = connectors.iterator();
+					while (i.hasNext()) {
+						i.next().reconnect(userName, password);
+					}
+				} catch (Throwable e) {
+					connected = false;
+				}
+			}
+		}
+		
 		/*
 		try {
 			//first to rejoin the session.
@@ -2530,30 +2556,18 @@ class OMEROGateway
 	void logout()
 	{
 		connected = false;
-		/*TODO: review
+		shutDownServices(true);
 		try {
-			shutDownServices(true);
-			clear();
-			secureClient.closeSession();
-			secureClient = null;
-			entryEncrypted = null;
-		} catch (Exception e) {
-			//session already dead.
+			Iterator<Connector> i = connectors.iterator();
+			while (i.hasNext()) {
+				i.next().close();
+			}
+			connectors.clear();
+		} catch (Throwable e) {
+			connectors.clear();
 		} finally {
-			secureClient = null;
-			entryEncrypted = null;
+			connectors.clear();
 		}
-		try {
-			if (unsecureClient != null) unsecureClient.closeSession();
-			unsecureClient = null;
-			entryUnencrypted = null;
-		} catch (Exception e) {
-			// TODO: handle exception
-		} finally {
-			unsecureClient = null;
-			entryUnencrypted = null;
-		}
-		*/
 	}
 	
 	/**

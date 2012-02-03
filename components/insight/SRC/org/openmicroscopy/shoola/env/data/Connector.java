@@ -613,6 +613,32 @@ class Connector
 		importStore = null;
 	}
 	
+	/** Closes the session.*/
+	void close()
+		throws Throwable
+	{
+		secureClient.closeSession();
+	}
+	
+	/** 
+	 * Tries to reconnect to the server. Returns <code>true</code>
+	 * if it was possible to reconnect, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param userName The user name to be used for login.
+	 * @param password The password to be used for login.
+	 * @return See above.
+	 */
+	void reconnect(String name, String password)
+		throws Throwable
+	{
+		entryEncrypted =  secureClient.createSession(name, password);
+		if (entryUnencrypted != null) {
+			unsecureClient = secureClient.createClient(false);
+			entryUnencrypted = unsecureClient.getSession();
+		}
+	}
+	
 	/** Closes the services initialized by the importer.*/
 	void closeImport()
 	{

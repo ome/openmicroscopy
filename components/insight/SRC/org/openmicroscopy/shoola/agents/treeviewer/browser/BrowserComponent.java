@@ -1812,7 +1812,7 @@ class BrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#removeTreeNodes(List)
+	 * @see Browser#reActivate()
 	 */
 	public void reActivate()
 	{
