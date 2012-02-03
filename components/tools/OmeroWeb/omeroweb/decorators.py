@@ -114,7 +114,6 @@ class login_required(object):
             # If no server id is passed, the db entry will not be used and
             # instead we'll depend on the request.session and request.REQUEST
             # values
-            with_session = True
             server_id = request.session.get('server', None)
             if server_id is None:
                 return None
@@ -174,6 +173,10 @@ class login_required(object):
                 try:
                     conn = self.get_connection(
                             server_id, request, useragent=ctx.useragent)
+                except Http403:
+                    # An authentication error should go all the way up the
+                    # stack.
+                    raise
                 except Exception, x:
                     logger.error('Error retrieving connection.', exc_info=True)
                     error = str(x)
