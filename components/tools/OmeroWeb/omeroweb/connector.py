@@ -22,6 +22,7 @@
 import logging
 
 from omero import client_wrapper
+from omeroweb.webadmin.custom_models import Server
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +38,8 @@ class Connector(object):
         self.omero_session_key = None
 
     def lookup_host_and_port(self):
-        # TODO: Needs to lookup the host and port in settings
-        return ('localhost', 4064)
+        server = Server.get(self.server_id)
+        return (server.host, server.port)
 
     def create_gateway(self, username=None, password=None):
         host, port = self.lookup_host_and_port()
