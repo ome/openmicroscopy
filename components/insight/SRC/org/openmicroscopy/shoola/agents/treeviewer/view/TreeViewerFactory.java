@@ -272,6 +272,19 @@ public class TreeViewerFactory
 	}
 	
 	/**
+	 * Notifies the model that the user is reconnected.
+	 */
+	public static void onReconnected()
+	{
+		Iterator v = singleton.viewers.iterator();
+		TreeViewerComponent comp;
+		while (v.hasNext()) {
+			comp = (TreeViewerComponent) v.next();
+			comp.onReconnected();
+		}
+	}
+	
+	/**
 	 * Returns the {@link TreeViewer}.
 	 * 
 	 * @param exp The experiment the TreeViewer is for.

@@ -154,7 +154,7 @@ class BrowserModel
     protected Browser           	component; 
     
     /** The security context for the administrator.*/
-    private SecurityContext adminContext;
+    //private SecurityContext adminContext;
     
     /** 
      * Checks if the specified browser is valid.
@@ -195,7 +195,7 @@ class BrowserModel
         foundNodeIndex = -1;
         selectedNodes = new ArrayList<TreeImageDisplay>();
         displayed = true;
-        adminContext = TreeViewerAgent.getAdminContext();
+        //adminContext = TreeViewerAgent.getAdminContext();
     }
 
     /**
@@ -343,7 +343,8 @@ class BrowserModel
         				(TreeImageSet) expNode, (TreeImageSet) node);
         		currentLoader.load();
         	} else if (ho instanceof GroupData) {
-        		if (TreeViewerAgent.isAdministrator()) ctx = adminContext;
+        		if (TreeViewerAgent.isAdministrator()) 
+        			ctx = TreeViewerAgent.getAdminContext();;
         		currentLoader = new AdminLoader(component, ctx,
         				(TreeImageSet) expNode);
         		currentLoader.load();
@@ -375,7 +376,7 @@ class BrowserModel
         //state = Browser.COUNTING_ITEMS;
         SecurityContext ctx = getSecurityContext(refNode);
         if (TreeViewerAgent.isAdministrator())
-        	ctx = adminContext;
+        	ctx = TreeViewerAgent.getAdminContext();;
         ContainerCounterLoader loader = new ContainerCounterLoader(component,
         		ctx, containers, nodes);
         loader.load();
@@ -540,7 +541,8 @@ class BrowserModel
 			state = Browser.LOADING_DATA;
 			//Depending on user roles.
 			if (TreeViewerAgent.isAdministrator()) {
-				currentLoader = new AdminLoader(component, adminContext, null);
+				currentLoader = new AdminLoader(component, 
+						TreeViewerAgent.getAdminContext(), null);
 				currentLoader.load();
 			} else {
 				component.setGroups(TreeViewerAgent.getGroupsLeaderOf(), null);

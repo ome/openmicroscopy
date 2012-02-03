@@ -2025,7 +2025,19 @@ class BrowserUI
 		TreeImageDisplay root = getTreeRoot();
 		root.removeAllChildren();
 		root.removeAllChildrenDisplay();
-		//createExperimenterNode(TreeViewerAgent.getUserDetails());
+		if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
+			ExperimenterData exp = TreeViewerAgent.getUserDetails();
+        	List<TreeImageSet> groups = createGroups(exp.getDefaultGroup());
+            Iterator<TreeImageSet> i = groups.iterator();
+            TreeImageSet n, node = null;
+            while (i.hasNext()) {
+    			n = createExperimenterNode(exp, i.next());
+    			if (node == null) node = n;
+    		}
+            treeDisplay.removeTreeExpansionListener(listener);
+            treeDisplay.collapsePath(new TreePath(node.getPath()));
+            treeDisplay.addTreeExpansionListener(listener);
+        }
 		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
 		tm.reload();
 	}
