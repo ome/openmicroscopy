@@ -119,39 +119,43 @@ class login_required(object):
                 return None
     
         connector = session.get('connector', None)
-        if connector is None:
-            # We have no current connector, create one and attempt to
-            # create a connection based on the credentials we have available
-            # in the current request.
-            is_secure = request.get('ssl', False)
-            connector = Connector(server_id, is_secure)
-            try:
-                omero_session_key = request.get('bsession')
-            except KeyError:
-                # We do not have an OMERO session key in the current request.
-                pass
-            else:
-                # We have an OMERO session key in the current request use it
-                # to try join an existing connection / OMERO session.
-                connector.omero_session_key = omero_session_key
-                connection = connector.join_connection()
-                session['connector'] = connector
-                connection.user.logIn()
-                return connection
+        if connector is not None:
+            # We have a connector, attempt to use it to join an existing
+            # connection / OMERO session.
+            return connector.join_connection()
 
-            try:
-                username = request.get('username')
-                password = request.get('password')
-            except KeyError:
-                # We do not have an OMERO session or a username and password
-                # in the current request, raise an error.
-                raise Http403
-            # We have a username and password in the current request, use them
-            # to try and create a new connection / OMERO session.
-            connection = connector.create_connection(username, password)
+        # We have no current connector, create one and attempt to
+        # create a connection based on the credentials we have available
+        # in the current request.
+        is_secure = request.get('ssl', False)
+        connector = Connector(server_id, is_secure)
+        try:
+            omero_session_key = request.get('bsession')
+        except KeyError:
+            # We do not have an OMERO session key in the current request.
+            pass
+        else:
+            # We have an OMERO session key in the current request use it
+            # to try join an existing connection / OMERO session.
+            connector.omero_session_key = omero_session_key
+            connection = connector.join_connection()
             session['connector'] = connector
             connection.user.logIn()
-            return connector.create_connection(username, password)
+            return connection
+
+        try:
+            username = request.get('username')
+            password = request.get('password')
+        except KeyError:
+            # We do not have an OMERO session or a username and password
+            # in the current request, raise an error.
+            raise Http403
+        # We have a username and password in the current request, use them
+        # to try and create a new connection / OMERO session.
+        connection = connector.create_connection(username, password)
+        session['connector'] = connector
+        connection.user.logIn()
+        return connector.create_connection(username, password)
 
     def __call__(ctx, f):
         """
