@@ -465,6 +465,7 @@ class EditorUI
 			return userUI.hasDataToSave();
 		else if (ref instanceof GroupData)
 			return groupUI.hasDataToSave();
+			
 		boolean b = generalPane.hasDataToSave();
 		if (b) return b;
 		//Check metadata.
@@ -476,6 +477,7 @@ class EditorUI
 	{
 		saved = false;
 		userUI.clearData();
+		groupUI.clearData();
 		generalPane.clearData();
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		tabPane.repaint();

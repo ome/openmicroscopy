@@ -2967,4 +2967,25 @@ class EditorModel
 	 */
 	SecurityContext getSecurityContext() { return parent.getSecurityContext(); }
 	
+	/**
+	 * Returns <code>true</code> if the name of the group already exists,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The group to handle.
+	 * @param name The name to check.
+	 * @return
+	 */
+	boolean doesGroupExist(GroupData data, String name)
+	{
+		if (data == null) return false;
+		AdminService svc = MetadataViewerAgent.getRegistry().getAdminService();
+		try {
+			GroupData g = svc.lookupGroup(getSecurityContext(), name);
+			if (g != null && data.getId() != g.getId()) {
+				return true;
+			}
+		} catch (Exception e) {}
+		return false;
+	}
+	
 }
