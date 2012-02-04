@@ -3814,6 +3814,25 @@ class TreeViewerComponent
 		else objects = browser.getSelectedDataObjects();
 
 		//setStatus(false);
+		//Check if the objects are in the same group.
+		Iterator<DataObject> i = objects.iterator();
+		List<Long> ids = new ArrayList<Long>();
+		DataObject object;
+		long id = -1;
+		while (i.hasNext()) {
+			object = i.next();
+			if (!(object instanceof ExperimenterData ||
+					object instanceof GroupData)) {
+				id = object.getGroupId();
+				if (!ids.contains(id) && id != -1)
+					ids.add(id);
+			}
+		}
+		if (ids.size() > 1) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Run Script", ScriptingDialog.WARNING);
+			return;
+		}
 		if (scriptDialog == null) {
 			scriptDialog = new ScriptingDialog(view, 
 					model.getScript(script.getScriptID()), objects, 
