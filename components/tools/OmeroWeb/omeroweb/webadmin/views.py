@@ -762,10 +762,7 @@ def my_account(request, action=None, **kwargs):
     myaccount.getMyDetails()
     myaccount.getOwnedGroups()
     
-    edit_mode = False
-    photo_size = None
     form = None
-    form_file = UploadPhotoForm()    
     
     if action == "save":
         if request.method != 'POST':
@@ -839,7 +836,7 @@ def manage_avatar(request, action=None, **kwargs):
             if form_file.is_valid():
                 controller = BaseUploadFile(conn)
                 controller.attach_photo(request.FILES['photo'])
-                return HttpResponseRedirect(reverse("wamyaccount"))
+                return HttpResponseRedirect(reverse(viewname="wamanageavatar", args=[eventContext['userId']]))
     elif action == "crop": 
         x1 = long(request.REQUEST.get('x1'))
         x2 = long(request.REQUEST.get('x2'))
@@ -853,6 +850,7 @@ def manage_avatar(request, action=None, **kwargs):
         if photo_size is not None:
             edit_mode = True
     elif action == "deletephoto":
+        conn.deleteExperimenterPhoto()
         return HttpResponseRedirect(reverse("wamyaccount"))
     
     photo_size = conn.getExperimenterPhotoSize()

@@ -55,7 +55,7 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, \
                         LaserI
 
-from omero.gateway import TagAnnotationWrapper, ExperimenterWrapper, \
+from omero.gateway import FileAnnotationWrapper, TagAnnotationWrapper, ExperimenterWrapper, \
                 ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper, \
                 OmeroGatewaySafeCallWrapper
 
@@ -603,18 +603,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @rtype          Boolean
         """
         
-        photo = None
         meta = self.getMetadataService()
         try:
             if oid is None:
-                ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])[0]
+                ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])
             else:
-                ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
-            if ann is not None:
+                ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])
+            if len(ann) > 0:
                 return True
             else:
                 return False
         except:
+            logger.error(traceback.format_exc())
             return False
     
     def getExperimenterPhoto(self, oid=None):
@@ -681,6 +681,26 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 return (im.size, ann.file.size.val)
         except:
             return None
+    
+    def deleteExperimenterPhoto(self, oid=None):
+        ann = None
+        meta = self.getMetadataService()
+        try:
+            if oid is None:
+                ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])[0]
+            else:
+                ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
+        except:
+            logger.error(traceback.format_exc())
+            raise IOError("Photo does not exist.")
+        else:
+            exp = self.getUser()
+            links = exp._getAnnotationLinks()
+            # there should be only one ExperimenterAnnotationLink 
+            # but if there is more then one all of them should be deleted.
+            for l in links:
+                self.deleteObjectDirect(l)
+            self.deleteObjects("/Annotation", [ann.id.val])
     
     def cropExperimenterPhoto(self, box, oid=None):
         """
