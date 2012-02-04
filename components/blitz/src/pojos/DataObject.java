@@ -399,6 +399,7 @@ public abstract class DataObject {
     public long getGroupId() {
     	Details d = getDetails();
     	if (d == null) return -1;
+    	if (d.getGroup() == null) return -1;
     	return d.getGroup().getId().getValue();
     }
     // ~ VIEWS
