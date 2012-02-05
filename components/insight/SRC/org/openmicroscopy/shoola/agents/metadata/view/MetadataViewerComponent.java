@@ -593,6 +593,8 @@ class MetadataViewerComponent
 		//model.setSelectionMode(false);
 		//setRootObject(model.getRefObject(), model.getUserID());
 		model.setRelatedNodes(nodes);
+		firePropertyChange(RELATED_NODES_PROPERTY, Boolean.valueOf(false),
+				Boolean.valueOf(true));
 	}
 
 	/** 
