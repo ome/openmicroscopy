@@ -23,11 +23,10 @@
  */
 package org.openmicroscopy.shoola.util.filter.file;
 
-import java.io.File;
-
-import javax.swing.filechooser.FileFilter;
 
 //Java imports
+import java.io.File;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
