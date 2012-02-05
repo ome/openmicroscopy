@@ -932,5 +932,11 @@ class EditorUI
 		tabPane.setSelectedIndex(GENERAL_INDEX);
 		return false;
 	}
-	
+
+	/** Updates the UI when the related nodes have been set.*/
+	void onRelatedNodesSet()
+	{
+		generalPane.onRelatedNodesSet();
+	}
+
 }

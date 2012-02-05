@@ -25,6 +25,10 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -35,9 +39,13 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Action to launch the available tags.
@@ -97,9 +105,21 @@ public class TaggingAction
         } 
         Object ho = selectedDisplay.getUserObject(); 
 
-        if ((ho instanceof DatasetData) || (ho instanceof ProjectData) ||
-        	(ho instanceof ImageData)) {
-        	setEnabled(model.isObjectWritable(ho));
+        if (ho instanceof DatasetData || ho instanceof ProjectData ||
+        	ho instanceof ImageData || ho instanceof ScreenData ||
+			ho instanceof PlateData) {
+        	if (model.isObjectWritable(ho)) {
+        		List selected = browser.getSelectedDataObjects();
+        		List<Long> ids = new ArrayList<Long>();
+        		Iterator i = selected.iterator();
+        		DataObject data;
+        		while (i.hasNext()) {
+					data = (DataObject) i.next();
+					if (!ids.contains(data.getGroupId()))
+						ids.add(data.getGroupId());
+				}
+        		setEnabled(ids.size() == 1);
+        	} else setEnabled(false);
         } else setEnabled(false);
     }
     

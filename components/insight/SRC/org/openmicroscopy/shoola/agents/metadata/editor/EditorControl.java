@@ -584,6 +584,8 @@ class EditorControl
 			figureDialog = null;
 		} else if (MetadataViewer.CLOSE_RENDERER_PROPERTY.equals(name)) {
 			view.discardRenderer(evt.getNewValue());
+		} else if (MetadataViewer.RELATED_NODES_PROPERTY.equals(name)) {
+			view.onRelatedNodesSet();
 		} else if (ScriptingDialog.RUN_SELECTED_SCRIPT_PROPERTY.equals(name)) {
 			//view.manageScript((ScriptObject) evt.getNewValue(), 
 			//		MetadataViewer.RUN);

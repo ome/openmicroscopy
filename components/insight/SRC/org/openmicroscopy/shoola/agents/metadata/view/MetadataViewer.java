@@ -172,6 +172,11 @@ public interface MetadataViewer
 	/** Bound property indicating to reset password. */
 	public static final String	RESET_PASSWORD_PROPERTY = "resetPassword";
 	
+	/**
+	 * Bound property indicating the related nodes have been set.
+	 */
+	public static final String	RELATED_NODES_PROPERTY = "relatedNodes";
+	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
 

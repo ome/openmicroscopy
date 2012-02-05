@@ -920,12 +920,23 @@ class AnnotationDataUI
 		rating.setEnabled(enabled);
 		addTagsButton.setEnabled(enabled);
 		addDocsButton.setEnabled(enabled);
-		unrateButton.setEnabled(enabled);
 		removeTagsButton.setEnabled(enabled);
 		removeDocsButton.setEnabled(enabled);
+		unrateButton.setEnabled(enabled);
 		buildGUI();
 	}
 
+	/** Updates the UI when the related nodes have been set.*/
+	void onRelatedNodesSet()
+	{
+		if (!addTagsButton.isEnabled()) return;
+		boolean b = model.isAnnotationAllowed();
+		addTagsButton.setEnabled(b);
+		addDocsButton.setEnabled(b);
+		removeTagsButton.setEnabled(b);
+		removeDocsButton.setEnabled(b);
+	}
+	
 	/**
 	 * Returns <code>true</code> if the passed value corresponds to
 	 * a name space for <code>Editor</code>.

@@ -650,6 +650,34 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns <code>true</code> if the annotation can be added, should
+	 * only be invoked for tagging or adding attachments, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isAnnotationAllowed()
+	{
+		if (!isWritable()) return false;
+		if (!isMultiSelection()) return true;
+		//multi selection.
+		List l = parent.getRelatedNodes();
+		if (l == null) return false;
+		Iterator i = l.iterator();
+		DataObject data;
+		List<Long> ids = new ArrayList<Long>();
+		while (i.hasNext()) {
+			data = (DataObject) i.next();
+			if (!(data instanceof GroupData || 
+					data instanceof ExperimenterData)) {
+				if (!ids.contains(data.getGroupId()))
+					ids.add(data.getGroupId());
+			}
+		}
+		return ids.size() <= 1;
+	}
+	
+	/**
 	 * Returns <code>true</code> if the group's name is valid, 
 	 * <code>false</code> otherwise.
 	 * 
