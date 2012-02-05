@@ -150,9 +150,6 @@ var addToBasket = function(selected, prefix) {
             } else {
                 calculateCartTotal(responce);
             }
-        },
-        error: function(responce) {
-            alert("Internal server error. Cannot add to basket.")
         }
     });
 };
