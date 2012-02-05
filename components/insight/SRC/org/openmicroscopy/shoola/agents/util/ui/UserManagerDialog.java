@@ -186,8 +186,10 @@ public class UserManagerDialog
 		Iterator i = l.iterator();
 		ExperimenterData exp;
 		List<Long> ids = new ArrayList<Long>();
-		model.add(index, "Leaders");
-		index++;
+		if (l.size() > 0) {
+			model.add(index, "Leaders");
+			index++;
+		}
 		while (i.hasNext()) {
 			exp = (ExperimenterData) i.next();
 			if (exp.getId() != loggedUser.getId()) {
