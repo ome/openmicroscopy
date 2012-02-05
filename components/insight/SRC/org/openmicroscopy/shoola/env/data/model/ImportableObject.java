@@ -105,13 +105,17 @@ public class ImportableObject
 		HCS_FILES_EXTENSION = new HashSet<String>();
 		HCS_DOMAIN = new ArrayList<String>();
 
-    IFormatReader[] allReaders = new ImageReader().getReaders();
-    for (IFormatReader reader : allReaders) {
-      if (Arrays.asList(reader.getDomains()).contains(FormatTools.HCS_DOMAIN)) {
-        populateExtensions(reader.getSuffixes());
-        HCS_DOMAIN.add(reader.getFormat());
-      }
-    }
+		IFormatReader[] allReaders = new ImageReader().getReaders();
+		try {
+			for (IFormatReader reader : allReaders) {
+				if (Arrays.asList(reader.getPossibleDomains("")).contains(
+						FormatTools.HCS_DOMAIN)) {
+					populateExtensions(reader.getSuffixes());
+					HCS_DOMAIN.add(reader.getFormat());
+				}
+			}
+		} catch (Exception e) {}
+		
 
 		IFormatReader reader = new OMEXMLReader();
 		OME_SUFFIXES = (List<String>) Arrays.asList(reader.getSuffixes());
