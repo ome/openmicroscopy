@@ -34,7 +34,7 @@ import array
 import math
 
 import logging
-logger = logging.getLogger('blitz_gateway')
+logger = logging.getLogger(__name__)
 
 try:
     import Image, ImageDraw, ImageFont
