@@ -56,7 +56,7 @@ var loadOtherPanels = function(inst, prefix) {
                     
                 } else if($.inArray(orel, ["share"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
-                    cm_var['content_details']['url'] = prefix+'load_data/'+oid.split("-")[1]+'/?view=icon';
+                    cm_var['content_details']['url'] = prefix+'load_public/'+oid.split("-")[1]+'/?view=icon';
                     
                 } else if($.inArray(orel, ["tag"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
@@ -66,7 +66,7 @@ var loadOtherPanels = function(inst, prefix) {
                     if (pr.length>0 && pr.attr('id')!==crel) {
                         if(pr.attr('rel').replace("-locked", "")==="share" && pr.attr('id')!==crel) {
                             cm_var['content_details']['rel'] = pr.attr('id');
-                            cm_var['content_details']['url'] = prefix+'load_data/'+pr.attr('id').split("-")[1]+'/?view=icon';
+                            cm_var['content_details']['url'] = prefix+'load_public/'+pr.attr('id').split("-")[1]+'/?view=icon';
                         } else if (pr.attr('rel').replace("-locked", "")=="tag") {
                             cm_var['content_details']['rel'] = pr.attr('id');
                             cm_var['content_details']['url'] = prefix+'load_tags/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
