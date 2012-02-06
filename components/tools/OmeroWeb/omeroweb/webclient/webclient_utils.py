@@ -20,7 +20,7 @@
 
 import settings
 import logging
-logger = logging.getLogger('utils')
+logger = logging.getLogger(__name__)
 
 def _formatReport(delete_handle):
     """
