@@ -201,18 +201,14 @@ def leave_none_unset(s):
 CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.public.user": ["PUBLIC_USER", None, leave_none_unset],
     "omero.web.public.password": ["PUBLIC_PASSWORD", None, leave_none_unset],
-    "omero.web.database_engine": ["DATABASE_ENGINE", None, leave_none_unset],
-    "omero.web.database_host": ["DATABASE_HOST", None, leave_none_unset],
-    "omero.web.database_name": ["DATABASE_NAME", None, leave_none_unset],
-    "omero.web.database_password": ["DATABASE_PASSWORD", None, leave_none_unset],
-    "omero.web.database_port": ["DATABASE_PORT", None, leave_none_unset],
-    "omero.web.database_user": ["DATABASE_USER", None, leave_none_unset],
+    "omero.web.databases": ["DATABASES", '{}', json.loads],
     "omero.web.admins": ["ADMINS", '[]', json.loads],
     "omero.web.application_server": ["APPLICATION_SERVER", DEFAULT_SERVER_TYPE, check_server_type],
     "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
     "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
     "omero.web.static_url": ["STATIC_URL", "/static/", str],
-    "omero.web.cache_backend": ["CACHE_BACKEND", None, leave_none_unset],
+    "omero.web.staticfile_dirs": ["STATICFILES_DIRS", '[]', json.loads],
+    "omero.web.caches": ["CACHES", '{}', json.loads],
     "omero.web.webgateway_cache": ["WEBGATEWAY_CACHE", None, leave_none_unset],
     "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
     "omero.web.debug": ["DEBUG", "false", parse_boolean],
@@ -232,10 +228,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],
     "omero.web.open_astex_max_voxels": ["OPEN_ASTEX_MAX_VOXELS", 27000000, int],  # 300 x 300 x 300
     "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', parse_paths],
-    
-    # sharing no longer use this variable. replaced by request.build_absolute_uri
-    # after testing this line should be removed.
-    # "omero.web.application_host": ["APPLICATION_HOST", None, remove_slash], 
     
 }
 
@@ -280,6 +272,8 @@ for key in sorted(CUSTOM_SETTINGS_MAPPINGS):
     global_value = globals().get(global_name, None)
     if global_name.isupper():
         logger.debug(cleanse_setting(global_name, global_value))
+
+SITE_ID = 1
 
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
