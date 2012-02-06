@@ -49,8 +49,7 @@ else:
     OMERO_HOME = os.path.join(os.path.dirname(__file__), '..', '..', '..')
     OMERO_HOME = os.path.normpath(OMERO_HOME)
 
-LOGFILE = ('OMEROweb.log')
-LOGLEVEL = logging.INFO
+
 LOGDIR = os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/')
 
 if not os.path.isdir(LOGDIR):
@@ -60,8 +59,67 @@ if not os.path.isdir(LOGDIR):
         exctype, value = sys.exc_info()[:2]
         raise exctype, value
 
-import logconfig
-logger = logconfig.get_logger(os.path.join(LOGDIR, LOGFILE), LOGLEVEL)
+# DEBUG: Never deploy a site into production with DEBUG turned on.
+# Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
+# FORMAT: 2010-01-01 00:00:00,000 INFO  [omeroweb.webadmin.webadmin_utils        ] (proc.1308 ) getGuestConnection:20 Open connection is not available
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s %(levelname)5.5s [%(name)40.40s] (proc.%(process)5.5d) %(funcName)s:%(lineno)d %(message)s'
+        },
+    },
+    'handlers': {
+        'default': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGDIR, 'OMEROweb.log').replace('\\','/'),
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'standard',
+        },  
+        'request_handler': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGDIR, 'OMEROweb_request.log').replace('\\','/'),
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'standard',
+        },
+        'null': {
+            'level':'DEBUG',
+            'class':'django.utils.log.NullHandler',
+        },
+        'console':{
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter': 'standard'
+        },
+    },
+    'loggers': {
+        'django.request': { # Stop SQL debug from logging to main logger
+            'handlers': ['request_handler'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'django': {
+            'handlers': ['null'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
+        '': {
+            'handlers': ['default'],
+            'level': 'DEBUG',
+            'propagate': True
+        }
+    }
+}
+
+logger = logging.getLogger(__name__)
+
 
 # Load custom settings from etc/grid/config.xml
 # Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
@@ -181,6 +239,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     
 }
 
+
 for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
 
     global_name, default_value, mapping = values
@@ -199,6 +258,11 @@ for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
     except LeaveUnset:
         pass
 
+if not DEBUG:
+    LOGGING['loggers']['django.request']['level'] = 'INFO'
+    LOGGING['loggers']['django']['level'] = 'INFO'
+    LOGGING['loggers']['']['level'] = 'INFO'
+
 # TEMPLATE_DEBUG: A boolean that turns on/off template debug mode. If this is True, the fancy 
 # error page will display a detailed report for any TemplateSyntaxError. This report contains 
 # the relevant snippet of the template, with the appropriate line highlighted.
@@ -208,21 +272,14 @@ for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
 #    handler500 = "omeroweb.feedback.views.handler500"
 TEMPLATE_DEBUG = DEBUG
 
-# DEBUG: Never deploy a site into production with DEBUG turned on.
-# Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
-if DEBUG:
-    LOGLEVEL = logging.DEBUG
-    logger.setLevel(LOGLEVEL)
-
+from django.views.debug import cleanse_setting
 for key in sorted(CUSTOM_SETTINGS_MAPPINGS):
     values = CUSTOM_SETTINGS_MAPPINGS[key]
     global_name, default_value, mapping, using_default = values
     source = using_default and "default" or key
-    global_value = globals().get(global_name, "(unset)")
-    if global_name.lower().find("password") < 0:
-        logger.debug("%s = %r (source:%s)", global_name, global_value, source)
-    else:
-        logger.debug("%s = '***' (source:%s)", global_name, source)
+    global_value = globals().get(global_name, None)
+    if global_name.isupper():
+        logger.debug(cleanse_setting(global_name, global_value))
 
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE

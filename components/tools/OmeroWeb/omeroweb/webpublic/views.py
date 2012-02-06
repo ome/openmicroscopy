@@ -28,7 +28,7 @@ import logging
 import traceback
 import omero
 
-logger = logging.getLogger('webpublic')
+logger = logging.getLogger(__name__)
 useragent = "OMERO.webpublic"
 
 class UrlValidationError(Exception):

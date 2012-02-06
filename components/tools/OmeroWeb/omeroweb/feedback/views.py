@@ -45,7 +45,7 @@ from django.core.urlresolvers import reverse
 from omeroweb.feedback.sendfeedback import SendFeedback
 from omeroweb.feedback.forms import ErrorForm, CommentForm
 
-logger = logging.getLogger('views-feedback')
+logger = logging.getLogger(__name__)
 
 ###############################################################################
 def thanks(request):
@@ -143,17 +143,11 @@ def handler500(request):
     return custom_server_error(request, error500)
 
 def handler404(request):
-    logger.error('handler404: Page not found')
-    as_string = '\n'.join(traceback.format_exception(*sys.exc_info()))
-    logger.error(as_string)
-    
-    try:
-        request_repr = repr(request)
-    except:
-        request_repr = "Request repr() unavailable"
-        
-    error404 = "%s\n\n%s" % (as_string, request_repr)
-    
+    logger.warning('Not Found: %s' % request.path,
+                extra={
+                    'status_code': 404,
+                    'request': request
+                })
     return page_not_found(request, "404.html")
 
 def handlerInternalError(error):
