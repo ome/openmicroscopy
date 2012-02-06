@@ -2426,8 +2426,10 @@ class _BlitzGateway (object):
         @return:            Generator yielding wrapped objects.
         """
 
-        if parent_type not in ["Project", "Dataset", "Image", "Screen", "Plate"]:
-            raise AttributeError("Can only get Annotations on 'Project', 'Dataset', 'Image', 'Screen', 'Plate'")
+        if parent_type.lower() not in KNOWN_WRAPPERS:
+            wrapper_types = ", ".join(KNOWN_WRAPPERS.keys())
+            err_msg = "getAnnotationLinks() does not support type: '%s'. Must be one of: %s" % (parent_type, wrapper_types)
+            raise AttributeError(err_msg)
         wrapper = KNOWN_WRAPPERS.get(parent_type.lower(), None)
 
         query = "select annLink from %sAnnotationLink as annLink join fetch annLink.details.owner as owner " \
