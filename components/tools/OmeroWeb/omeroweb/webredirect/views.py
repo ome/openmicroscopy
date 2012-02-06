@@ -34,7 +34,7 @@ import settings
 import logging
 import traceback
 
-logger = logging.getLogger('webredirect')
+logger = logging.getLogger(__name__)
 
 def index(request, **kwargs):
     if request.REQUEST.get('path', None) is not None:

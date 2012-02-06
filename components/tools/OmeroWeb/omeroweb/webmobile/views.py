@@ -13,7 +13,7 @@ import omero
 from webclient.webclient_gateway import OmeroWebGateway
 import webmobile_util
 
-logger = logging.getLogger('webmobilewebmobile')
+logger = logging.getLogger(__name__)
     
     
 def isUserConnected (f):
