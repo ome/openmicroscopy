@@ -24,7 +24,7 @@ import ConfigParser
 
 import omero
 import omero.clients
-from omero.util.decorators import timeit, TimeIt
+from omero.util.decorators import timeit, TimeIt, setsessiongroup
 import Ice
 import Glacier2
 
@@ -674,6 +674,7 @@ class BlitzObjectWrapper (object):
             self._obj._annotationLinksSeq = links
 
     # _listAnnotationLinks
+    @setsessiongroup
     def _getAnnotationLinks (self, ns=None):
         """
         Checks links are loaded and returns a list of Annotation Links filtered by 
@@ -1235,7 +1236,7 @@ class _BlitzGateway (object):
         self.extra_config = extra_config
         self.ice_config = [self.ICE_CONFIG]
         self.ice_config.extend(extra_config)
-        self.ice_config = map(lambda x: str(x), filter(None, self.ice_config))
+        self.ice_config = map(lambda x: os.path.abspath(str(x)), filter(None, self.ice_config))
 
         self.host = host
         self.port = port
@@ -1538,6 +1539,10 @@ class _BlitzGateway (object):
         Creates new omero.client object using self.host or self.ice_config (if host is None)
         Also tries to setAgent for the client
         """
+        logger.debug(self.host)
+        logger.debug(self.port)
+        logger.debug(self.ice_config)
+        
         if self.host is not None:
             if self.port is not None:
                 self.c = omero.client(host=str(self.host), port=int(self.port))#, pmap=['--Ice.Config='+','.join(self.ice_config)])
@@ -1647,7 +1652,7 @@ class _BlitzGateway (object):
             self._connected = True
             logger.info('created connection (uuid=%s)' % str(self._sessionUuid))
         except Ice.SyscallException: #pragma: no cover
-            logger.debug('This one is a SyscallException')
+            logger.debug('This one is a SyscallException', exc_info=True)
             raise
         except Ice.LocalException, x: #pragma: no cover
             logger.debug("connect(): " + traceback.format_exc())
@@ -2063,41 +2068,43 @@ class _BlitzGateway (object):
     #############################
     # Top level object fetchers #
 
-    def listProjects (self, eid=None, only_owned=False):
+    def listProjects (self, eid=None, allgroups=False):
         """
         List every Project controlled by the security system.
 
         @param eid:         Filters Projects by owner ID
-        @param only_owned:  Short-cut for filtering Projects by current user
+        @param allgroups:    List across all groups user can read if true
         @rtype:             L{ProjectWrapper} list
         """
 
         params = omero.sys.Parameters()
         params.theFilter = omero.sys.Filter()
-        if only_owned:
-            params.theFilter.ownerId = rlong(self._userid)
-        elif eid is not None:
+        #if only_owned:
+        #    params.theFilter.ownerId = rlong(self._userid)
+        #elif
+        if eid is not None:
             params.theFilter.ownerId = rlong(eid)
 
-        return self.getObjects("Project", params=params)
+        return self.getObjects("Project", params=params, allgroups=allgroups)
 
-    def listScreens(self, eid=None, only_owned=False):
+    def listScreens(self, eid=None, allgroups=False):
         """
         List every Screens controlled by the security system.
 
         @param eid:         Filters Screens by owner ID
-        @param only_owned:  Short-cut for filtering Screens by current user
+        @param allgroups:    List across all groups user can read if true
         @rtype:             L{ProjectWrapper} list
         """
 
         params = omero.sys.Parameters()
         params.theFilter = omero.sys.Filter()
-        if only_owned:
-            params.theFilter.ownerId = rlong(self._userid)
-        elif eid is not None:
+        #if only_owned:
+        #    params.theFilter.ownerId = rlong(self._userid)
+        #elif
+        if eid is not None:
             params.theFilter.ownerId = rlong(eid)
 
-        return self.getObjects("Screen", params=params)
+        return self.getObjects("Screen", params=params, allgroups=allgroups)
     
     #################################################
     ## IAdmin
@@ -2347,7 +2354,7 @@ class _BlitzGateway (object):
     ###########################
     # Specific Object Getters #
 
-    def getObject (self, obj_type, oid=None, params=None, attributes=None):
+    def getObject (self, obj_type, oid=None, params=None, attributes=None, allgroups=False):
         """
         Retrieve single Object by type E.g. "Image" or None if not found.
         If more than one object found, raises ome.conditions.ApiUsageException
@@ -2359,15 +2366,20 @@ class _BlitzGateway (object):
         @type ids:          List of Long
         @param params:      omero.sys.Parameters, can be used for pagination, filtering etc.
         @param attributes:  Map of key-value pairs to filter results by. Key must be attribute of obj_type. E.g. 'name', 'ns'
+        @param allgroups:    List across all groups user can read if true
         @return:
         """
         oids = (oid!=None) and [oid] or None
         query, params, wrapper = self.buildQuery(obj_type, oids, params, attributes)
-        result = self.getQueryService().findByQuery(query, params)
+        if allgroups:
+            xtra = {'omero.group': '-1'}
+        else:
+            xtra = None
+        result = self.getQueryService().findByQuery(query, params, xtra)
         if result is not None:
             return wrapper(self, result)
 
-    def getObjects (self, obj_type, ids=None, params=None, attributes=None):
+    def getObjects (self, obj_type, ids=None, params=None, attributes=None, allgroups=False):
         """
         Retrieve Objects by type E.g. "Image"
         Returns generator of appropriate L{BlitzObjectWrapper} type. E.g. L{ImageWrapper}.
@@ -2383,7 +2395,11 @@ class _BlitzGateway (object):
         @return:            Generator of L{BlitzObjectWrapper} subclasses
         """
         query, params, wrapper = self.buildQuery(obj_type, ids, params, attributes)
-        result = self.getQueryService().findAllByQuery(query, params)
+        if allgroups:
+            xtra = {'omero.group': '-1'}
+        else:
+            xtra = None
+        result = self.getQueryService().findAllByQuery(query, params, xtra)
         for r in result:
             yield wrapper(self, r)
 
@@ -5302,6 +5318,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     def __del__ (self):
         self._re and self._re.untaint()
 
+    @setsessiongroup
     def __loadedHotSwap__ (self):
         self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None)[0]
     
@@ -5344,6 +5361,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
         if rdefns is None:
             return
+        ann = self.getAnnotation(rdefns)
         rdid = ann.getValue()
         if rdid is None:
             return

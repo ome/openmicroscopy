@@ -119,3 +119,15 @@ def timeit (func):
         return rv
     return TimeIt()(func)
 
+def setsessiongroup (func):
+    """
+    For BlitzObjectWrapper class derivate functions, sets the session group to match
+    the object group.
+    """
+    def wrapped (self, *args, **kwargs):
+        self._conn.setGroupForSession(self.getDetails().getGroup().getId())
+        try:
+            return func(self, *args, **kwargs)
+        finally:
+            self._conn.revertGroupForSession()
+    return wrapped
