@@ -679,6 +679,7 @@ class BlitzObjectWrapper (object):
             self._obj._annotationLinksSeq = links
 
     # _listAnnotationLinks
+    @setsessiongroup
     def _getAnnotationLinks (self, ns=None):
         """
         Checks links are loaded and returns a list of Annotation Links filtered by 
@@ -2073,11 +2074,12 @@ class _BlitzGateway (object):
     #############################
     # Top level object fetchers #
 
-    def listProjects (self, eid=None):
+    def listProjects (self, eid=None, allgroups=False):
         """
         List every Project controlled by the security system.
 
         @param eid:         Filters Projects by owner ID
+        @param allgroups:    List across all groups user can read if true
         @rtype:             L{ProjectWrapper} list
         """
 
@@ -2089,13 +2091,14 @@ class _BlitzGateway (object):
         if eid is not None:
             params.theFilter.ownerId = rlong(eid)
 
-        return self.getObjects("Project", params=params)
+        return self.getObjects("Project", params=params, allgroups=allgroups)
 
-    def listScreens(self, eid=None):
+    def listScreens(self, eid=None, allgroups=False):
         """
         List every Screens controlled by the security system.
 
         @param eid:         Filters Screens by owner ID
+        @param allgroups:    List across all groups user can read if true
         @rtype:             L{ProjectWrapper} list
         """
 
@@ -2107,7 +2110,7 @@ class _BlitzGateway (object):
         if eid is not None:
             params.theFilter.ownerId = rlong(eid)
 
-        return self.getObjects("Screen", params=params)
+        return self.getObjects("Screen", params=params, allgroups=allgroups)
     
     #################################################
     ## IAdmin
@@ -2357,7 +2360,7 @@ class _BlitzGateway (object):
     ###########################
     # Specific Object Getters #
 
-    def getObject (self, obj_type, oid=None, params=None, attributes=None):
+    def getObject (self, obj_type, oid=None, params=None, attributes=None, allgroups=False):
         """
         Retrieve single Object by type E.g. "Image" or None if not found.
         If more than one object found, raises ome.conditions.ApiUsageException
@@ -2369,15 +2372,20 @@ class _BlitzGateway (object):
         @type ids:          List of Long
         @param params:      omero.sys.Parameters, can be used for pagination, filtering etc.
         @param attributes:  Map of key-value pairs to filter results by. Key must be attribute of obj_type. E.g. 'name', 'ns'
+        @param allgroups:    List across all groups user can read if true
         @return:
         """
         oids = (oid!=None) and [oid] or None
         query, params, wrapper = self.buildQuery(obj_type, oids, params, attributes)
-        result = self.getQueryService().findByQuery(query, params, self.CONFIG['SERVICE_OPTS'])
+        if allgroups:
+            xtra = {'omero.group': '-1'}
+        else:
+            xtra = None
+        result = self.getQueryService().findByQuery(query, params, xtra)
         if result is not None:
             return wrapper(self, result)
 
-    def getObjects (self, obj_type, ids=None, params=None, attributes=None):
+    def getObjects (self, obj_type, ids=None, params=None, attributes=None, allgroups=False):
         """
         Retrieve Objects by type E.g. "Image"
         Returns generator of appropriate L{BlitzObjectWrapper} type. E.g. L{ImageWrapper}.
@@ -2393,7 +2401,11 @@ class _BlitzGateway (object):
         @return:            Generator of L{BlitzObjectWrapper} subclasses
         """
         query, params, wrapper = self.buildQuery(obj_type, ids, params, attributes)
-        result = self.getQueryService().findAllByQuery(query, params, self.CONFIG['SERVICE_OPTS'])
+        if allgroups:
+            xtra = {'omero.group': '-1'}
+        else:
+            xtra = None
+        result = self.getQueryService().findAllByQuery(query, params, xtra)
         for r in result:
             yield wrapper(self, r)
 
@@ -5312,6 +5324,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     def __del__ (self):
         self._re and self._re.untaint()
 
+    @setsessiongroup
     def __loadedHotSwap__ (self):
         self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None, {'omero.group': '-1'})[0]
     
@@ -5355,7 +5368,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         if rdefns is None:
             return
         ann = self.getAnnotation(rdefns)
-        rdid = ann and ann.getValue() or None
+        rdid = ann.getValue()
         if rdid is None:
             return
         logger.debug('_getRDef: %s' % (str(rdid)))

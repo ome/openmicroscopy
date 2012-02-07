@@ -125,10 +125,9 @@ def setsessiongroup (func):
     the object group.
     """
     def wrapped (self, *args, **kwargs):
-        rev = self._conn.setGroupForSession(self.getDetails().getGroup().getId())
+        self._conn.setGroupForSession(self.getDetails().getGroup().getId())
         try:
             return func(self, *args, **kwargs)
         finally:
-            if rev:
-                self._conn.revertGroupForSession()
+            self._conn.revertGroupForSession()
     return wrapped
