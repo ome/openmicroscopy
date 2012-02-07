@@ -32,7 +32,7 @@ class Connector(object):
     and its status with respect to OMERO.web.
     """
 
-    def __init__(self, server_id, is_secure, useragent=useragent):
+    def __init__(self, server_id, is_secure, useragent):
         self.server_id = server_id
         self.is_secure = is_secure
         self.omero_session_key = None
