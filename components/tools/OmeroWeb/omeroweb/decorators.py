@@ -114,7 +114,7 @@ class login_required(object):
             # If no server id is passed, the db entry will not be used and
             # instead we'll depend on the request.session and request.REQUEST
             # values
-            server_id = request.session.get('server', None)
+            server_id = session.get('server', None)
             if server_id is None:
                 return None
     
