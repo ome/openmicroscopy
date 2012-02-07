@@ -119,6 +119,7 @@ class login_required(object):
                 return None
     
         connector = session.get('connector', None)
+        logger.debug('Django session connector: %r' % connector)
         if connector is not None:
             # We have a connector, attempt to use it to join an existing
             # connection / OMERO session.
@@ -128,6 +129,7 @@ class login_required(object):
         # create a connection based on the credentials we have available
         # in the current request.
         is_secure = request.get('ssl', False)
+        logger.debug('Is SSL? %s' % is_secure)
         connector = Connector(server_id, is_secure, useragent)
         try:
             omero_session_key = request.get('bsession')
@@ -137,6 +139,8 @@ class login_required(object):
         else:
             # We have an OMERO session key in the current request use it
             # to try join an existing connection / OMERO session.
+            logger.debug('Have OMERO session key %s, attempting to join...' % \
+                    omero_session_key)
             connector.omero_session_key = omero_session_key
             connection = connector.join_connection()
             session['connector'] = connector
@@ -152,11 +156,15 @@ class login_required(object):
             password = request.get('password')
         except KeyError:
             if not settings.PUBLIC_ENABLED:
+                logger.debug('No username or password in request, raising ' \
+                             'HTTP 403')
                 # We do not have an OMERO session or a username and password
                 # in the current request, raise an error.
                 raise Http403
             # If OMERO.webpublic is enabled, pick up a username and
             # password from configuration.
+            logger.debug('OMERO.webpublic enabled, attempting to login with ' \
+                         'configuration supplied credentials.')
             connector = Connector(server_id, is_secure, useragent)
             username = settings.PUBLIC_USER
             password = settings.PUBLIC_PASSWORD
@@ -186,6 +194,7 @@ class login_required(object):
             # provided to us via '_conn'. This is useful when in testing
             # mode or when stacking view functions/methods.
             if conn is None:
+                logger.debug('Connection not provided, attempting to get one.')
                 try:
                     conn = ctx.get_connection(
                             server_id, request, useragent=ctx.useragent)
