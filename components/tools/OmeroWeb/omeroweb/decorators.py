@@ -128,7 +128,7 @@ class login_required(object):
         # create a connection based on the credentials we have available
         # in the current request.
         is_secure = request.get('ssl', False)
-        connector = Connector(server_id, is_secure)
+        connector = Connector(server_id, is_secure, useragent)
         try:
             omero_session_key = request.get('bsession')
         except KeyError:
@@ -157,7 +157,7 @@ class login_required(object):
                 raise Http403
             # If OMERO.webpublic is enabled, pick up a username and
             # password from configuration.
-            connector = Connector(server_id, is_secure)
+            connector = Connector(server_id, is_secure, useragent)
             username = settings.PUBLIC_USER
             password = settings.PUBLIC_PASSWORD
         # We have a username and password in the current request, or
