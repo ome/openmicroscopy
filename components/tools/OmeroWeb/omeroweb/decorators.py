@@ -185,7 +185,7 @@ class login_required(object):
             # Short circuit connection retrieval when a connection was
             # provided to us via '_conn'. This is useful when in testing
             # mode or when stacking view functions/methods.
-            if conn is not None:
+            if conn is None:
                 try:
                     conn = self.get_connection(
                             server_id, request, useragent=ctx.useragent)
