@@ -200,6 +200,8 @@ def leave_none_unset(s):
 
 CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads],
+    "omero.web.public.enabled": ["PUBLIC_ENABLED", "false", parse_boolean],
+    "omero.web.public.root": ["PUBLIC_ROOT", "/", str],
     "omero.web.public.user": ["PUBLIC_USER", None, leave_none_unset],
     "omero.web.public.password": ["PUBLIC_PASSWORD", None, leave_none_unset],
     "omero.web.databases": ["DATABASES", '{}', json.loads],

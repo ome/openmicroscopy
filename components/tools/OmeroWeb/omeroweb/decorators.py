@@ -26,6 +26,7 @@ Decorators for use with OMERO.web applications.
 import logging
 
 from django.http import Http404
+from django.conf import settings
 
 from omeroweb.connector import Connector
 
@@ -106,7 +107,6 @@ class login_required(object):
         use with a view function.
         """
         # TODO: Handle previous try_super logic; is it still needed?
-        # TODO: Move anonymous connection creation logic to settings usage
 
         session = request.session
         request = request.REQUEST
@@ -143,15 +143,26 @@ class login_required(object):
             connection.user.logIn()
             return connection
 
+        username = None
+        password = None
         try:
             username = request.get('username')
             password = request.get('password')
         except KeyError:
             # We do not have an OMERO session or a username and password
             # in the current request, raise an error.
-            raise Http403
-        # We have a username and password in the current request, use them
-        # to try and create a new connection / OMERO session.
+            if settings.PUBLIC_ENABLED:
+                # If OMERO.webpublic is enabled, pick up a username and
+                # password from configuration.
+                connector = Connector(server_id, is_secure)
+                username = settings.PUBLIC_USER
+                password = settings.PUBLIC_PASSWORD
+            else:
+                raise Http403
+        # We have a username and password in the current request, or
+        # OMERO.webpublic is enabled and has provided us with a username
+        # and password via configureation. Use them to try and create a
+        # new connection / OMERO session.
         connection = connector.create_connection(username, password)
         session['connector'] = connector
         connection.user.logIn()
