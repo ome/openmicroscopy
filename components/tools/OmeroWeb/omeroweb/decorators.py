@@ -143,22 +143,23 @@ class login_required(object):
             connection.user.logIn()
             return connection
 
+        # An OMERO session is not available, we're either trying to service
+        # a request to a login page or an anonymous request.
         username = None
         password = None
         try:
             username = request.get('username')
             password = request.get('password')
         except KeyError:
-            # We do not have an OMERO session or a username and password
-            # in the current request, raise an error.
-            if settings.PUBLIC_ENABLED:
-                # If OMERO.webpublic is enabled, pick up a username and
-                # password from configuration.
-                connector = Connector(server_id, is_secure)
-                username = settings.PUBLIC_USER
-                password = settings.PUBLIC_PASSWORD
-            else:
+            if not settings.PUBLIC_ENABLED:
+                # We do not have an OMERO session or a username and password
+                # in the current request, raise an error.
                 raise Http403
+            # If OMERO.webpublic is enabled, pick up a username and
+            # password from configuration.
+            connector = Connector(server_id, is_secure)
+            username = settings.PUBLIC_USER
+            password = settings.PUBLIC_PASSWORD
         # We have a username and password in the current request, or
         # OMERO.webpublic is enabled and has provided us with a username
         # and password via configureation. Use them to try and create a
