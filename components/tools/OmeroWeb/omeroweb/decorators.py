@@ -187,7 +187,7 @@ class login_required(object):
             # mode or when stacking view functions/methods.
             if conn is None:
                 try:
-                    conn = self.get_connection(
+                    conn = ctx.get_connection(
                             server_id, request, useragent=ctx.useragent)
                 except Http403:
                     # An authentication error should go all the way up the
