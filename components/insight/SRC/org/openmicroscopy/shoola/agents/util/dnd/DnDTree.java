@@ -32,12 +32,14 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.dnd.Autoscroll;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.DragGestureListener;
@@ -141,6 +143,44 @@ public class DnDTree
 	
 	/** The location of the drop.*/
 	private int dropLocation;
+	
+	/**
+	 * Auto-scrolls when dragging nodes.
+	 * 
+	 * @param tree The component to handle.
+	 * @param p The location of the cursor.
+	 */
+	private void autoscroll(JTree tree, Point p)
+	{
+		Insets insets = getAutoscrollInsets();
+		Rectangle outer = tree.getVisibleRect();
+		Rectangle inner = new Rectangle(
+				outer.x+insets.left,
+				outer.y+insets.top,
+				outer.width-(insets.left+insets.right),
+				outer.height-(insets.top+insets.bottom));
+		if (!inner.contains(p)) {
+			Rectangle scrollRect = new Rectangle(p.x-insets.left,
+					p.y-insets.top, insets.left+insets.right,
+					insets.top+insets.bottom);
+			tree.scrollRectToVisible(scrollRect);
+		}
+	}
+
+	/**
+	 * Returns the insets when auto-scrolling.
+	 * 
+	 * @return See above.
+	 */
+	private Insets getAutoscrollInsets()
+	{
+		int margin = 12;
+		Rectangle outer = getBounds();
+		Rectangle inner = getParent().getBounds();
+		return new Insets(inner.y-outer.y+margin, inner.x-outer.x+margin,
+		outer.height-inner.height-inner.y+outer.y+margin,
+		outer.width-inner.width-inner.x+outer.x+margin);
+	}
 	
 	/** 
 	 * Sets the cursor depending on the selected node.
@@ -397,6 +437,8 @@ public class DnDTree
 		TreePath path = getPathForLocation(dragPoint.x, dragPoint.y);
 		if (path == null) dropTargetNode = null; 
 		else dropTargetNode = (TreeNode) path.getLastPathComponent();
+		JTree tree = (JTree) dtde.getDropTargetContext().getComponent();
+		autoscroll(tree, dragPoint);
 		repaint();
 	}
 	
@@ -593,4 +635,5 @@ public class DnDTree
 	 * {@link DropTargetListener#dragExit(DropTargetDragEvent)}
 	 */
 	public void dragExit(DropTargetEvent dte) {}
+
 }
