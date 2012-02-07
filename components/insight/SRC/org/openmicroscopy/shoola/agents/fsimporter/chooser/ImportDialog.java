@@ -191,6 +191,9 @@ public class ImportDialog
 	private static final String MESSAGE_LOCATION = "Select where to import " +
 			"the data";
 
+	/** The message to display in the header. */
+	private static final String MESSAGE_GROUP = "Group";
+	
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
 	
@@ -408,6 +411,9 @@ public class ImportDialog
 	
 	/** The selected group.*/
 	private GroupData group;
+	
+	/** The component used to select the group.*/
+	private JComponent groupSelection;
 	
 	/** 
 	 * Creates the dataset.
@@ -1619,6 +1625,13 @@ public class ImportDialog
 		locationPane.add(row);
 		locationPane.add(Box.createVerticalStrut(2));
 		locationPane.add(new JSeparator());
+		if (groupSelection != null) {
+			row = createRow(null);
+			row.add(UIUtilities.setTextFont(MESSAGE_GROUP));
+			row.add(groupSelection);
+			locationPane.add(row);
+			locationPane.add(Box.createVerticalStrut(2));
+		}
 		row = createRow(null);
 		row.add(UIUtilities.setTextFont(message));
 		row.add(parentsBox);
@@ -2321,7 +2334,9 @@ public class ImportDialog
 	public void addToolBar(JComponent bar)
 	{
 		if (bar == null) return;
-		toolBar.add(bar);
+		groupSelection = bar;
+		buildLocationPane();
+		//toolBar.add(bar);
 		//invoke when master
 		cancelButton.setVisible(false);
 	}
