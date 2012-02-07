@@ -32,7 +32,7 @@ from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
 
-class Http403(exception):
+class Http403(Exception):
     pass
 
 class login_required(object):
