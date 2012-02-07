@@ -25,8 +25,10 @@ Decorators for use with OMERO.web applications.
 
 import logging
 
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.conf import settings
+from django.utils.http import urlencode
+from django.core.urlresolvers import reverse
 
 from omeroweb.connector import Connector
 
@@ -52,6 +54,11 @@ class login_required(object):
         self.isAdmin = isAdmin
         self.isGroupOwner = isGroupOwner
 
+    def get_login_url(self):
+        """The URL that should be redirected to if not logged in."""
+        return reverse('weblogin')
+    login_url = property(get_login_url)
+
     def prepare_share_connection(self, request, share_id):
         """Prepares the share connection if we have a valid share ID."""
         if share_id is None:
@@ -68,7 +75,10 @@ class login_required(object):
 
     def on_not_logged_in(self, request, url, error=None):
         """Called whenever the user is not logged in."""
-        raise Http404
+        if request.is_ajax():
+            raise Http403
+        args = {'url': url}
+        return HttpResponseRedirect('%s?%s' % (self.login_url, urlencode(args)))
 
     def on_logged_in(self, request):
         """Called whenever the users is successfully logged in."""
