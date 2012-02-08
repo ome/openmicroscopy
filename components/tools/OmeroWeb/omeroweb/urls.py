@@ -46,7 +46,6 @@ urlpatterns = patterns('',
     #(r'(?i)^webemdb/', include('omeroweb.webemdb.urls')),
     (r'(?i)^m/', include('omeroweb.webmobile.urls')),
     (r'(?i)^url/', include('omeroweb.webredirect.urls')),
-    (r'(?i)^common/', include('omeroweb.common.urls')),
 )
 
 urlpatterns += staticfiles_urlpatterns()

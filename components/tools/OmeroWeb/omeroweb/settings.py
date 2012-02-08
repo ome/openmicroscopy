@@ -341,7 +341,6 @@ INSTALLED_APPS = (
     'omeroweb.webmobile',
     'omeroweb.webpublic',
     'omeroweb.webredirect',
-    'omeroweb.common',
     
 )
 
