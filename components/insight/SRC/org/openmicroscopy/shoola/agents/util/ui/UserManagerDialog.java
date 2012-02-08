@@ -308,19 +308,23 @@ public class UserManagerDialog
 	/** 
 	 * Builds the main component of this dialog.
 	 * 
+	 * @param group The selected group if any.
 	 * @return See above.
 	 */
-	private JPanel buildContent()
+	private JPanel buildContent(GroupData group)
 	{
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, 5, TableLayout.FILL}}; //rows
 		JPanel content = new JPanel();
 		content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 		content.setLayout(new TableLayout(tl));
-		//content.add( UIUtilities.setTextFont("Groups"), "0, 0, LEFT, TOP");
-		//content.add(groups, "1, 0");
-		content.add(UIUtilities.setTextFont("Experimenters "), "0, 2, LEFT, TOP");
-		content.add(new JScrollPane(users), "1, 2");
+		if (group != null) {
+			content.add(UIUtilities.setTextFont(
+				"Select from: "+group.getName()), "0, 0, 1, 0");
+		}
+		//content.add(UIUtilities.setTextFont("Experimenters "),
+		//		"0, 2, LEFT, TOP");
+		content.add(new JScrollPane(users), "0, 2, 1, 2");
 		return content;
 	}
 	
@@ -346,35 +350,38 @@ public class UserManagerDialog
 	/** 
 	 * Builds and lays out the UI. 
 	 * 
-	 * @param icon		The icon displayed in the title panel.
+	 * @param group The selected group.
+	 * @param icon The icon displayed in the title panel.
 	 */
-	private void buildGUI(Icon icon)
+	private void buildGUI(GroupData group, Icon icon)
 	{
 		TitlePanel titlePanel = new TitlePanel(TITLE, TEXT, icon);
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
 		c.add(titlePanel, BorderLayout.NORTH);
-		c.add(buildContent(), BorderLayout.CENTER);
+		c.add(buildContent(group), BorderLayout.CENTER);
 		c.add(buildToolBar(), BorderLayout.SOUTH);
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param parent		The parent of this dialog.
-	 * @param loggedUser	The user currently logged in.
-	 * @param groups		The groups the user is a member of.
-	 * @param userIcon 		The icon representing an user.
-	 * @param icon			The icon displayed in the title panel.
+	 * @param parent The parent of this dialog.
+	 * @param loggedUser The user currently logged in.
+	 * @param groups The groups the user is a member of.
+	 * @param selected The selected group.
+	 * @param userIcon The icon representing an user.
+	 * @param icon The icon displayed in the title panel.
 	 */
 	public UserManagerDialog(JFrame parent, ExperimenterData loggedUser, 
-							Set groups, Icon userIcon, Icon icon)
+							Set groups, GroupData selected,
+							Icon userIcon, Icon icon)
 	{
 		super(parent);
 		setProperties();
 		this.loggedUser = loggedUser;
 		initComponents(groups, userIcon);
-		buildGUI(icon);
+		buildGUI(selected, icon);
 	}
 
 	

@@ -92,7 +92,6 @@ import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
-import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -228,7 +227,8 @@ class TreeViewerComponent
 		JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
 		IconManager icons = IconManager.getInstance();
 		switchUserDialog = new UserManagerDialog(f, model.getUserDetails(), 
-				groups, icons.getIcon(IconManager.OWNER), 
+				groups, model.getSelectedGroup(),
+				icons.getIcon(IconManager.OWNER),
 				icons.getIcon(IconManager.OWNER_48));
 		switchUserDialog.addPropertyChangeListener(controller);
 		switchUserDialog.setDefaultSize();
@@ -3288,10 +3288,11 @@ class TreeViewerComponent
 		if (model.getState() != READY) return;
 		if (group == null) return;
 		ExperimenterData exp = TreeViewerAgent.getUserDetails();
+		//Check if the group is not already displayed.
 		//long oldId = model.getUserGroupID();
 		//if (group.getId() == oldId) return;
-		Registry reg = TreeViewerAgent.getRegistry();
-		reg.getEventBus().post(new SwitchUserGroup(exp, group.getId()));
+		//Registry reg = TreeViewerAgent.getRegistry();
+		//reg.getEventBus().post(new SwitchUserGroup(exp, group.getId()));
 	}
 
 	/** 
@@ -3846,7 +3847,6 @@ class TreeViewerComponent
 		}
 	}
 
-	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#transfer(TreeImageDisplay, List, int)
@@ -4013,6 +4013,16 @@ class TreeViewerComponent
 			param.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
 			un.notifyActivity(model.getSecurityContext(), param);
 		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#getSelectedGroup()
+	 */
+	public GroupData getSelectedGroup()
+	{ 
+		if (model.getState() == DISCARDED) return null;
+		return model.getSelectedGroup();
 	}
 
 }

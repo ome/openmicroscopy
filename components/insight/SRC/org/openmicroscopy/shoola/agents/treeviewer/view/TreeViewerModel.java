@@ -182,6 +182,9 @@ class TreeViewerModel
 	/** The security context for the administrator.*/
     private SecurityContext adminContext;
     
+    /** The id of the group the currently selected node is in.*/
+    private long selectedGroupId;
+    
     /**
      * Returns the collection of scripts with a UI, mainly the figure scripts.
      * 
@@ -332,14 +335,6 @@ class TreeViewerModel
 		importing = false;
 		sorter = new ViewerSorter();
 	}
-	
-	/**
-	 * Creates a new instance and sets the state to {@link TreeViewer#NEW}.
-	 */
-	protected TreeViewerModel()
-	{
-		initialize();
-	}
 
 	/**
 	 * Creates a new instance and sets the state to {@link TreeViewer#NEW}.
@@ -350,6 +345,7 @@ class TreeViewerModel
 	{
 		initialize();
 		this.experimenter = exp;
+		selectedGroupId = exp.getDefaultGroup().getId();
 	}
 
 	/**
@@ -1315,4 +1311,23 @@ class TreeViewerModel
 		return browser.getSecurityContext(node);
 	}
 
+	/**
+	 * Returns the group the currently selected node belongs to or the default
+	 * group if no node selected.
+	 * 
+	 * @return See above.
+	 */
+	GroupData getSelectedGroup()
+	{
+		Set set = TreeViewerAgent.getAvailableUserGroups();
+		Iterator i = set.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getId() == selectedGroupId)
+				return g;
+		}
+		return null;
+	}
+	
 }

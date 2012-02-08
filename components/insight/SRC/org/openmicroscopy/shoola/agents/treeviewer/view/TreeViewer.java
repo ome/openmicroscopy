@@ -1053,4 +1053,11 @@ public interface TreeViewer
 	 */
 	void setSelectedNodes(Object nodes);
 
+	/**
+	 * Returns the selected group.
+	 * 
+	 * @return See above.
+	 */
+	GroupData getSelectedGroup();
+
 }

@@ -79,6 +79,10 @@ public class SwitchUserAction
      */
     private void handleGroupSelection(GroupData group)
     {
+    	if (group == null) {
+    		setEnabled(false);
+    		return;
+    	}
     	Collection l = group.getExperimenters();
     	if (l == null) return;
     	int level = model.getGroupPermissions(group);
@@ -102,6 +106,8 @@ public class SwitchUserAction
         	setEnabled(false);
             return;
         }
+        handleGroupSelection(model.getSelectedGroup());
+        /*
         Browser browser = model.getSelectedBrowser();
         if (browser == null) {
         	setEnabled(false);
@@ -116,6 +122,7 @@ public class SwitchUserAction
         } else {
         	setEnabled(false);
         }
+        */
     }
     
     /** 
