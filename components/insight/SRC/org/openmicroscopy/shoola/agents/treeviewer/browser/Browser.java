@@ -575,7 +575,7 @@ public interface Browser
 	 * @return See above.
 	 */
 	ExperimenterData getNodeOwner(TreeImageDisplay node);
-	
+
 	/** 
 	 * Sets the node the user wished to save before being prompt with
 	 * the Save data message box.

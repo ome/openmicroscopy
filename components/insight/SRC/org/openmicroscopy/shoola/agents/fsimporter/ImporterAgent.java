@@ -39,6 +39,7 @@ import javax.swing.JMenuItem;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ExperimenterLoadedDataEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
@@ -82,6 +83,9 @@ public class ImporterAgent
     
     /** The objects displayed.*/
     private Map<Long, Map<Long, List<TreeImageDisplay>>> objects;
+    
+    /** The group id if set.*/
+    private long groupId;
     
     /**
      * Helper method. 
@@ -261,8 +265,9 @@ public class ImporterAgent
 		    	}
 		    	long id = -1;
 		    	if (gp != null) id = gp.getId();
+		    	if (groupId == -1) groupId = id;
 				LoadImporter event = new LoadImporter(null, browserType);
-				event.setGroup(id);
+				event.setGroup(groupId);
 				event.setObjects(objects);
 				bus.post(event);
 			}
@@ -334,7 +339,9 @@ public class ImporterAgent
         bus.register(this, ReconnectedEvent.class);
         bus.register(this, BrowserSelectionEvent.class);
         bus.register(this, ExperimenterLoadedDataEvent.class);
+        bus.register(this, ChangeUserGroupEvent.class);
         browserType = getDefaultBrowser();
+        groupId = -1;
         register();
     }
 
@@ -380,6 +387,9 @@ public class ImporterAgent
     		browserType = evt.getType();
     	} else if (e instanceof ExperimenterLoadedDataEvent) {
     		handleExperimenterLoadedDataEvent((ExperimenterLoadedDataEvent) e);
+    	} else if (e instanceof ChangeUserGroupEvent) {
+    		ChangeUserGroupEvent evt = (ChangeUserGroupEvent) e;
+    		groupId = evt.getGroupID();
     	}
     }
 

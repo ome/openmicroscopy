@@ -24,10 +24,11 @@ package org.openmicroscopy.shoola.agents.editor;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 
@@ -42,6 +43,8 @@ import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;
 import org.openmicroscopy.shoola.agents.events.editor.CopyEvent;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
+import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
@@ -60,6 +63,7 @@ import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 
 /** 
  * The Editor agent. 
@@ -79,7 +83,10 @@ public class EditorAgent
 {
 	
 	/** Reference to the registry. */
-    private static Registry         registry; 
+    private static Registry registry; 
+    
+    /** The group id if set.*/
+    private long groupId;
     
     /**
      * Helper method. 
@@ -331,12 +338,35 @@ public class EditorAgent
 	private void register()
 	{
 		TaskBar tb = registry.getTaskBar();
-		RegisterAction a = new RegisterAction();
-		//register with tool bar
-		JButton b = new JButton(a);
+		IconManager icons = IconManager.getInstance();
+		JButton b = new JButton(icons.getIcon(IconManager.EDITOR));
+		b.setToolTipText(RegisterAction.DESCRIPTION);
+		ActionListener l = new ActionListener() {
+			
+			/** Posts an event to start the agent.*/
+			public void actionPerformed(ActionEvent e) {
+				EventBus bus = registry.getEventBus();
+				ExperimenterData exp = (ExperimenterData) registry.lookup(
+		    			LookupNames.CURRENT_USER_DETAILS);
+		    	if (exp == null) return;
+		    	GroupData gp = null;
+		    	try {
+		    		gp = exp.getDefaultGroup();
+		    	} catch (Exception ex) {
+		    		//No default group
+		    	}
+		    	long id = -1;
+		    	if (gp != null) id = gp.getId();
+		    	if (groupId == -1) groupId = id;
+		    	bus.post(new ShowEditorEvent(new SecurityContext(groupId)));
+			}
+		};
+		b.addActionListener(l);
 		tb.addToToolBar(TaskBar.AGENTS, b);
 		//register with File menu
-		JMenuItem item = new JMenuItem(a);
+		JMenuItem item = new JMenuItem(icons.getIcon(IconManager.EDITOR));
+		item.setToolTipText(RegisterAction.DESCRIPTION);
+		item.addActionListener(l);
 		item.setText(RegisterAction.NAME);
 		tb.addToMenu(TaskBar.FILE_MENU, item);
 	}
@@ -373,6 +403,7 @@ public class EditorAgent
         bus.register(this, CopyEvent.class);
         bus.register(this, UserGroupSwitched.class);
         bus.register(this, ReconnectedEvent.class);
+        bus.register(this, ChangeUserGroupEvent.class);
         //Register itself for the toolbar.
         register();
     }
@@ -424,6 +455,10 @@ public class EditorAgent
 			handleUserGroupSwitched((UserGroupSwitched) e);
        else if (e instanceof ReconnectedEvent)
 			handleReconnectedEvent((ReconnectedEvent) e);
+       else if (e instanceof ChangeUserGroupEvent) {
+    	   ChangeUserGroupEvent evt = (ChangeUserGroupEvent) e;
+    	   groupId = evt.getGroupID();
+       }
     }
 
 }

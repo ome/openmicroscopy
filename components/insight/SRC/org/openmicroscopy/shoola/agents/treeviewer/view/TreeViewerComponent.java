@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -168,6 +169,41 @@ class TreeViewerComponent
 	
 	/** The dialog displaying the selected script.*/
 	private ScriptingDialog     scriptDialog;
+	
+	/** 
+	 * Notifies the change of group.
+	 * 
+	 * @param oldId The previous group id.
+	 */
+	private void notifyChangeGroup(long oldId)
+	{
+		long id = model.getSelectedGroupId();
+		ChangeUserGroupEvent evt = new ChangeUserGroupEvent(id, oldId);
+		TreeViewerAgent.getRegistry().getEventBus().post(evt);
+		firePropertyChange(GROUP_CHANGED_PROPERTY, oldId, id);
+	}
+	
+	/**
+	 * Returns the group the specified node belongs to.
+	 * 
+	 * @param node The node to handle.
+	 * @return See above.
+	 */
+	private GroupData getContext(TreeImageDisplay node)
+    {
+    	if (node == null) return null;
+    	TreeImageDisplay parent = node.getParentDisplay();
+    	Object ho;
+    	if (parent == null) {
+    		ho = node.getUserObject();
+    		if (ho instanceof GroupData)
+    			return (GroupData) ho;
+    		return null;
+    	}
+    	ho = parent.getUserObject();
+    	if (ho instanceof GroupData) return (GroupData) ho;
+    	return getContext(parent);
+    }
 	
 	/**
 	 * Returns the name corresponding the specified object.
@@ -876,6 +912,13 @@ class TreeViewerComponent
 		if (browser == null) return;
 		TreeImageDisplay display = browser.getLastSelectedDisplay();
 		
+		//Update the group.
+		GroupData group = getContext(display);
+		if (group != null) {
+			long oldId = model.getSelectedGroupId();
+			model.setSelectedGroupId(group.getId());
+			notifyChangeGroup(oldId);
+		}
 		MetadataViewer metadata = model.getMetadataViewer();
 		TreeImageDisplay[] selection = browser.getSelectedDisplays();
 		
@@ -3294,14 +3337,14 @@ class TreeViewerComponent
 		browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
 		if (v.getNodes().size() != 0) return;
 		//Add the group to the display and set it as the default group.
+		long gid = model.getSelectedGroupId();
 		model.setSelectedGroupId(group.getId());
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Iterator<Browser> i = browsers.values().iterator();
 		while (i.hasNext()) {
 			i.next().addGroup(group);
 		}
-		firePropertyChange(GROUP_CHANGED_PROPERTY, Boolean.valueOf(false),
-				Boolean.valueOf(true));
+		notifyChangeGroup(gid);
 		//Check if the group is not already displayed.
 		//long oldId = model.getUserGroupID();
 		//if (group.getId() == oldId) return;
@@ -4070,9 +4113,9 @@ class TreeViewerComponent
 		while (j.hasNext()) {
 			g = (GroupData) j.next().getUserObject();
 			if (g.getId() != group.getId()) {
+				long gid = model.getSelectedGroupId();
 				model.setSelectedGroupId(g.getId());
-				firePropertyChange(GROUP_CHANGED_PROPERTY,
-						Boolean.valueOf(false), Boolean.valueOf(true));
+				notifyChangeGroup(gid);
 				break;
 			}
 		}
