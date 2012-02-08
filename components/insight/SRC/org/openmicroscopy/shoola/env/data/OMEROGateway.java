@@ -45,7 +45,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 //Third-party libraries
-import loci.formats.FormatException;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
