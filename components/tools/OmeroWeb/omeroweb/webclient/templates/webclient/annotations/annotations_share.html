@@ -61,9 +61,6 @@
                                 removeItem(event, "ann_comment_wrapper");
                             });
                             textArea.val('');
-                        },
-                        error: function(html) {
-                            alert("Internal server error. Cannot add comment.");
                         }
                     });
                     return false;
@@ -139,9 +136,6 @@
                                     } else {
                                         $("#share_comment-"+commentId).remove();
                                     }
-                                },
-                                error: function(responce) {
-                                    alert("Internal server error. Cannot delete object.");
                                 }
                             });
                         }

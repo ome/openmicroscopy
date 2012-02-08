@@ -243,10 +243,6 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
             cache:false,
             success: function(responce){
                 $($('#id_'+metadata_type).parent().find('img')).remove()
-            },
-            error: function(responce) {
-                $($('#id_'+metadata_type).parent().find('img')).remove()
-                alert("Cannot save new value for '"+metadata_type+"'.")
             }
         });
     }
