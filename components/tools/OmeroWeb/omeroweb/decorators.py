@@ -156,7 +156,6 @@ class login_required(object):
             connector.omero_session_key = omero_session_key
             connection = connector.join_connection()
             session['connector'] = connector
-            connection.user.logIn()
             return connection
 
         # An OMERO session is not available, we're either trying to service
@@ -187,7 +186,6 @@ class login_required(object):
         logger.debug('Creating connection with username and password...')
         connection = connector.create_connection(username, password)
         session['connector'] = connector
-        connection.user.logIn()
         return connection
 
     def __call__(ctx, f):
