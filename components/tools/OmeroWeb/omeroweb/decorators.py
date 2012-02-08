@@ -188,7 +188,7 @@ class login_required(object):
         connection = connector.create_connection(username, password)
         session['connector'] = connector
         connection.user.logIn()
-        return connector.create_connection(username, password)
+        return connection
 
     def __call__(ctx, f):
         """
