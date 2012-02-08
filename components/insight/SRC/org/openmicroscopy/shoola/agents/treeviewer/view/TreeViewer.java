@@ -1060,4 +1060,7 @@ public interface TreeViewer
 	 */
 	GroupData getSelectedGroup();
 
+	/** Remove group.*/
+	void removeGroup();
+
 }

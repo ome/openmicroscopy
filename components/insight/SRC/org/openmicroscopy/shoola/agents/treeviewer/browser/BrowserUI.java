@@ -1984,7 +1984,6 @@ class BrowserUI
 	void removeExperimenter(ExperimenterData exp)
 	{
 		if (model.getBrowserType() == Browser.ADMIN_EXPLORER) return;
-		
 		TreeImageDisplay root = getTreeRoot();
 		List<TreeImageDisplay> nodesToKeep;
 		List l = root.getChildrenDisplay();
@@ -2045,6 +2044,46 @@ class BrowserUI
 		*/
 	}
 
+	/**
+	 * Removes the specified group from the tree.
+	 * 
+	 * @param group The data to remove.
+	 */
+	void removeGroup(GroupData group)
+	{
+		if (model.getBrowserType() == Browser.ADMIN_EXPLORER) return;
+		TreeImageDisplay root = getTreeRoot();
+		List<TreeImageDisplay> nodesToKeep;
+		List l = root.getChildrenDisplay();
+		if (l == null || l.size() == 0) return;
+		Iterator j = l.iterator();
+		TreeImageDisplay element, n, node;
+		Object ho;
+		ExperimenterData expElement;
+		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+		Iterator k;
+		GroupData g;
+		nodesToKeep = new ArrayList<TreeImageDisplay>();
+		node = null;
+		while (j.hasNext()) {
+			element = (TreeImageDisplay) j.next();
+			if (element.getUserObject() instanceof GroupData) {
+				g = (GroupData) element.getUserObject();
+				if (g.getId() == group.getId()) node = element;
+				else nodesToKeep.add(element);
+			}
+		}
+		
+		if (node != null) root.removeChildDisplay(node);
+		k = nodesToKeep.iterator();
+		root.removeAllChildren();
+		while (k.hasNext()) {
+			tm.insertNodeInto((TreeImageSet) k.next(), root,
+							root.getChildCount());
+		}
+		tm.reload();
+	}
+	
 	/** Reactivates the tree. */
 	void reActivate()
 	{

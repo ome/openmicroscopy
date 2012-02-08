@@ -1129,6 +1129,4 @@ class TreeViewerWin
         invokerBounds = null;
     }
 
-
-
 }

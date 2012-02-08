@@ -1848,8 +1848,7 @@ class TreeViewerComponent
 	 */
 	public void removeExperimenterData()
 	{
-		//TODO: Check state
-
+		if (model.getState() == DISCARDED) return;
 		Browser browser = model.getSelectedBrowser();
 		TreeImageDisplay expNode = browser.getLastSelectedDisplay();
 		Object uo = expNode.getUserObject();
@@ -4038,6 +4037,45 @@ class TreeViewerComponent
 	{ 
 		if (model.getState() == DISCARDED) return null;
 		return model.getSelectedGroup();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#removeGroup()
+	 */
+	public void removeGroup()
+	{
+		if (model.getState() == DISCARDED) return;
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
+		TreeImageDisplay node = browser.getLastSelectedDisplay();
+		if (node == null || !(node.getUserObject() instanceof GroupData))
+			return;
+		ExperimenterVisitor v = new ExperimenterVisitor(browser, -1);
+		browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
+		//do not remove the last group.
+		List<TreeImageDisplay> groups = v.getNodes();
+		if (groups.size() == 1) return;
+		GroupData group = (GroupData) node.getUserObject();
+		Map<Integer, Browser> browsers = model.getBrowsers();
+		Iterator i = browsers.entrySet().iterator();
+		Entry entry;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			browser = (Browser) entry.getValue();
+			browser.removeGroup(group);
+		}
+		Iterator<TreeImageDisplay> j = groups.iterator();
+		GroupData g;
+		while (j.hasNext()) {
+			g = (GroupData) j.next().getUserObject();
+			if (g.getId() != group.getId()) {
+				model.setSelectedGroupId(g.getId());
+				firePropertyChange(GROUP_CHANGED_PROPERTY,
+						Boolean.valueOf(false), Boolean.valueOf(true));
+				break;
+			}
+		}
 	}
 
 }

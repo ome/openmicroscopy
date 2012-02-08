@@ -1,17 +1,18 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNode 
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveGroupNode 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License along
@@ -21,10 +22,6 @@
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
-
-
-
-
 
 //Java imports
 import java.awt.event.ActionEvent;
@@ -39,31 +36,25 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
- * Removes the selected experimenter from the display.
+ * Remove a group from the display.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME3.0
+ * @since Beta4.4
  */
-public class RemoveExperimenterNode 
+public class RemoveGroupNode
 	extends TreeViewerAction
 {
 
 	/** The name of the action. */
-	private static final String NAME = "Remove User";
+	private static final String NAME = "Remove Group";
 	
 	/** The description of the action. */
 	private static final String DESCRIPTION = "Remove the data of the" +
-			"selected user from the display.";
+			"selected group from the display.";
 	
 	/**
      * Sets the action enabled depending on the browser's type and 
@@ -79,17 +70,14 @@ public class RemoveExperimenterNode
             return;
         }
         Object ho = selectedDisplay.getUserObject();
-        if (ho == null || !(ho instanceof ExperimenterData)) setEnabled(false);
+        if (ho == null || !(ho instanceof GroupData)) setEnabled(false);
         else {
             Browser browser = model.getSelectedBrowser();
             if (browser != null) {
                 if (browser.getSelectedDisplays().length > 1) {
                     setEnabled(false);
                 } else {
-                	ExperimenterData loggedIn = 
-                		TreeViewerAgent.getUserDetails();
-                	ExperimenterData exp = (ExperimenterData) ho;
-                	setEnabled(exp.getId() != loggedIn.getId());
+                	setEnabled(true);
                 }
             } else setEnabled(false);
         }
@@ -100,7 +88,7 @@ public class RemoveExperimenterNode
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-	public RemoveExperimenterNode(TreeViewer model)
+	public RemoveGroupNode(TreeViewer model)
 	{
 		super(model);
 		name = NAME;
@@ -111,13 +99,9 @@ public class RemoveExperimenterNode
 	}
 	
 	/**
-     * Removes the selected node hosting the data of an experimenter
-     * other than the currently logged in user from the display.
+     * Removes the selected node a group.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    {
-        model.removeExperimenterData();
-    }
+    public void actionPerformed(ActionEvent e) { model.removeGroup(); }
 
 }

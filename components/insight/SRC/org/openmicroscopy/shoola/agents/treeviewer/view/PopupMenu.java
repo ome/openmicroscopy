@@ -176,7 +176,7 @@ class PopupMenu
 	private JMenuItem			newExperimentElement;
 	
 	/** Button to send feedback. */
-	private JMenuItem			sendFeedbackElement;	
+	private JMenuItem			sendFeedbackElement;
 	
 	/** Reference to the Control. */
 	private TreeViewerControl   controller;
@@ -192,6 +192,9 @@ class PopupMenu
 	
 	/** Button to activate or not user. */
     private JCheckBoxMenuItem   activatedUser;
+    
+    /** Button to remove group from the display. */
+	private JMenuItem removeGroupElement;
     
 	/**
 	 * Sets the defaults of the specified menu item.
@@ -264,6 +267,10 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.REMOVE_FROM_DISPLAY);
 				removeExperimenterElement = new JMenuItem(a);
 				initMenuItem(removeExperimenterElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.REMOVE_GROUP);
+				removeGroupElement = new JMenuItem(a);
+				initMenuItem(removeGroupElement, a.getActionName());
+				
 				a = controller.getAction(TreeViewerControl.SWITCH_USER);
 				addExperimenterElement = new JMenuItem(a);
 				addExperimenterElement.addMouseListener((SwitchUserAction) a);
@@ -443,6 +450,7 @@ class PopupMenu
 				add(setMinMaxElement);
 				add(setOwnerRndElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(removeGroupElement);
 				add(addExperimenterElement);
 				add(refreshExperimenterElement);
 				add(removeExperimenterElement);

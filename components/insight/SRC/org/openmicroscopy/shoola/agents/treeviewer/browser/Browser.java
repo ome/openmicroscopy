@@ -798,8 +798,15 @@ public interface Browser
 	/**
 	 * Adds the specified group to the tree.
 	 * 
-	 * @param group The selected group
+	 * @param group The selected group.
 	 */
 	void addGroup(GroupData group);
+
+	/**
+	 * Removes the specified group from the display
+	 * 
+	 * @param group The group to remove.
+	 */
+	void removeGroup(GroupData group);
 
 }

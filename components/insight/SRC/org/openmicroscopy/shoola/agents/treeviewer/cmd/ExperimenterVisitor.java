@@ -150,8 +150,14 @@ public class ExperimenterVisitor
     			}
     		}
     	} else if (ho instanceof GroupData) {
-    		if (groupOnly && groupIDs.contains(((GroupData) ho).getId()))
-    			nodes.add(node);
+    		if (groupOnly) {
+    			if (groupIDs.contains(((GroupData) ho).getId()))
+    				nodes.add(node);
+    			else {
+    				if (groupIDs.size() == 0)
+    					nodes.add(node);
+    			}
+    		}
     	}
     }
 }
