@@ -84,6 +84,7 @@ class Connector(object):
             connection = self.create_gateway()
             connection.connect(sUuid=self.omero_session_key)
             self.prepare_gateway(connection)
+            return connection
         except:
             logger.debug('Cannot create a new connection.', exc_info=True)
             return None
