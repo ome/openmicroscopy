@@ -109,5 +109,53 @@ class TestChgrp(lib.ITest):
         self.assertEqual(img.details.group.id.val, gid)
 
 
+    def testChgrpPDI(self):
+        """
+        Tests chgrp for a Project, Dataset, Image hierarchy
+        """
+        # One user in two groups
+        client, exp = self.new_client_and_user()
+        grp = self.new_group([exp])
+        gid = grp.id.val
+        client.sf.getAdminService().getEventContext() # Reset session
+        update = client.sf.getUpdateService()
+        query = client.sf.getQueryService()
+
+        # Data Setup (image in the P/D hierarchy)
+        img = self.new_image()
+        img = update.saveAndReturnObject(img)
+        project = omero.model.ProjectI()
+        project.setName(rstring("chgrp-test"))
+        project = update.saveAndReturnObject(project)
+        dataset = omero.model.DatasetI()
+        dataset.setName(rstring("chgrp-test"))
+        dataset = update.saveAndReturnObject(dataset)
+        links = []
+        link = omero.model.DatasetImageLinkI()
+        link.setChild(img)
+        link.setParent(dataset)
+        links.append(link)
+        l = omero.model.ProjectDatasetLinkI()
+        l.setChild(dataset)
+        l.setParent(project)
+        links.append(l)
+        update.saveAndReturnArray(links)
+
+        # Move Project to new group
+        chgrp = omero.cmd.Chgrp(type="/Project", id=project.id.val, options=None, grp=gid)
+        self.doChange(chgrp, client)
+
+        # Change our context to new group...
+        admin = client.sf.getAdminService()
+        admin.setDefaultGroup(exp, omero.model.ExperimenterGroupI(gid, False))
+        self.set_context(client, gid)
+        # ...check image
+        img = client.sf.getQueryService().get("Image", img.id.val)
+        self.assertEqual(img.details.group.id.val, gid)
+        # check Project
+        prj = client.sf.getQueryService().get("Project", project.id.val)
+        self.assertEqual(prj.details.group.id.val, gid)
+
+
 if __name__ == '__main__':
     unittest.main()
