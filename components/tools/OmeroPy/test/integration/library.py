@@ -133,19 +133,27 @@ class ITest(unittest.TestCase):
                 user, name = self.user_and_name(exp)
                 admin.addGroups(user, [group])
 
+    def set_context(self, client, gid):
+        rv = client.getStatefulServices()
+        for prx in rv:
+            prx.close()
+        client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
+
     def new_image(self, name = ""):
         img = omero.model.ImageI()
         img.name = rstring(name)
         img.acquisitionDate = rtime(0)
         return img
 
-    def import_image(self, filename = None):
+    def import_image(self, filename = None, client = None):
         if filename is None:
             filename = self.OmeroPy / ".." / ".." / ".." / "components" / "common" / "test" / "tinyTest.d3d.dv"
+        if client is None:
+            client = self.client
 
-        server = self.client.getProperty("omero.host")
-        port = self.client.getProperty("omero.port")
-        key = self.client.getSessionId()
+        server = client.getProperty("omero.host")
+        port = client.getProperty("omero.port")
+        key = client.getSessionId()
 
         # Search up until we find "OmeroPy"
         dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
