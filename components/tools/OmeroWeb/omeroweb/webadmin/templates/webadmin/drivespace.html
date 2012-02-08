@@ -97,10 +97,6 @@
                         $("#status").html('loading...');
                         $("#progress").show();
                         
-                    },  
-                    error: function(xhr, msg){
-                        alert("{% trans 'Could not load piechart. Please contact Administrator.' %}");
-                        usage = false;
                     }
                 });
             };
