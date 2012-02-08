@@ -822,6 +822,25 @@ class BrowserUI
     	return l;
     }
     
+    /**
+     * Creates the group node.
+     * 
+     * @param group The group to add.
+     * @return See above.
+     */
+    private TreeImageSet createGroup(GroupData group)
+    {
+    	TreeImageDisplay root = getTreeRoot();
+    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+    	//root.addChildDisplay(node);
+    	//tm.insertNodeInto(node, root, root.getChildCount());
+    	TreeImageSet n = new TreeImageSet(group);
+    	TreeViewerTranslator.formatToolTipFor(n);
+    	root.addChildDisplay(n);
+    	tm.insertNodeInto(n, root, root.getChildCount());
+    	return n;
+    }
+    
     /** 
      * Helper method to create the trees hosting the display. 
      * 
@@ -844,13 +863,16 @@ class BrowserUI
         TreeImageSet root = new TreeImageSet("");
         treeDisplay.setModel(new DefaultTreeModel(root));
         if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
+        	/*
         	List<TreeImageSet> groups = createGroups(exp.getDefaultGroup());
             Iterator<TreeImageSet> i = groups.iterator();
             TreeImageSet n, node = null;
             while (i.hasNext()) {
     			n = createExperimenterNode(exp, i.next());
     			if (node == null) node = n;
-    		}
+    		}*/
+        	TreeImageSet node = createGroup(model.getSelectedGroup());
+        	node = createExperimenterNode(exp, node);
             treeDisplay.collapsePath(new TreePath(node.getPath()));
         }
         //Add Listeners
@@ -2177,6 +2199,30 @@ class BrowserUI
     	repaint();
     }
 
+    /**
+	 * Adds the specified group to the tree.
+	 * 
+	 * @param group The group to add.
+	 */
+	void addGroup(GroupData group)
+	{
+		if (group == null) return;
+		//Collapses previous group.
+		List children = getTreeRoot().getChildrenDisplay();
+		Iterator i = children.iterator();
+		TreeImageDisplay n;
+		while (i.hasNext()) {
+			n = (TreeImageDisplay) i.next();
+			n.setExpanded(false);
+			collapsePath(n);
+		}
+		ExperimenterData exp = model.getUserDetails();
+		TreeImageSet node = createGroup(model.getSelectedGroup());
+    	node = createExperimenterNode(exp, node);
+    	if (model.isSelected()) expandNode(node, true);
+        //treeDisplay.collapsePath(new TreePath(node.getPath()));
+	}
+	
     /**
      * Reacts to the D&D properties.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

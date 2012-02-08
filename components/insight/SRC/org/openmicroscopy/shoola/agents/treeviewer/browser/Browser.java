@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 
 /** 
@@ -794,4 +795,11 @@ public interface Browser
 	 */
 	SecurityContext getSecurityContext(TreeImageDisplay node);
 	
+	/**
+	 * Adds the specified group to the tree.
+	 * 
+	 * @param group The selected group
+	 */
+	void addGroup(GroupData group);
+
 }

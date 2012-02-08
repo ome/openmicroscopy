@@ -920,4 +920,11 @@ class BrowserModel
 		return new SecurityContext(group.getId());
 	}
 	
+	/**
+	 * Returns the selected group.
+	 * 
+	 * @return See above.
+	 */
+	GroupData getSelectedGroup() { return parent.getSelectedGroup(); }
+
 }
