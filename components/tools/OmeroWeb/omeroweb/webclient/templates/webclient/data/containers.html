@@ -648,7 +648,6 @@
                       },
                       error: function(response) {
                           $.jstree.rollback(data.rlbk);
-                          alert("Internal server error. Cannot create object.");
                       }
                     });
                 })
@@ -696,7 +695,6 @@
                             },
                             error: function(response) {
                                 $.jstree.rollback(data.rlbk);
-                                alert("Internal server error. "+response);
                             }
                         });
                     });

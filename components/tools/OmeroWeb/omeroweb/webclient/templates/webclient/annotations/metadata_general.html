@@ -211,9 +211,6 @@
                                 removeItem(event, "ann_comment_wrapper");
                             });
                             textArea.val('');
-                        },
-                        error: function(html) {
-                            alert("Internal server error. Cannot add comment.");
                         }
                     });
                     return false;
@@ -255,9 +252,6 @@
                                             $annContainer.hide_if_empty();
                                             window.parent.refreshActivities();
                                         }
-                                    },
-                                    error: function(response) {
-                                        alert("Internal server error. Cannot delete object.");
                                     }
                                 });
                             }
