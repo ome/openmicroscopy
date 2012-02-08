@@ -1562,7 +1562,7 @@ class BrowserComponent
 		if (n == null) return model.getUserDetails();
 		return (ExperimenterData) n.getUserObject();
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getSecurityContext(TreeImageDisplay)

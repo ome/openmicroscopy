@@ -58,7 +58,7 @@ public class RegisterAction
 	public static final String NAME = "Editor...";
 	
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Open the Editor.";
+	public static final String DESCRIPTION = "Open the Editor.";
 	
 	/**
 	 * Creates a new instance.
