@@ -38,6 +38,17 @@ class Connector(object):
         self.omero_session_key = None
         self.useragent = useragent
 
+    def set_server_id(self, server_id):
+        self._server_id = server_id
+        self.server = None
+        if server_id is not None:
+            self.server = Server.get(server_id)
+
+    def get_server_id(self):
+        if self.server is not None:
+            return self.server.id
+    server_id = property(get_server_id, set_server_id)
+
     def lookup_host_and_port(self):
         server = Server.get(self.server_id)
         return (server.host, server.port)
