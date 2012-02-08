@@ -76,8 +76,10 @@ class login_required(object):
     def on_not_logged_in(self, request, url, error=None):
         """Called whenever the user is not logged in."""
         if request.is_ajax():
+            logger.debug('Request is Ajax, returning HTTP 403.')
             raise Http403
         args = {'url': url}
+        logger.debug('Request is not Ajax, redirecting to %s' % self.login_url)
         return HttpResponseRedirect('%s?%s' % (self.login_url, urlencode(args)))
 
     def on_logged_in(self, request):
@@ -182,6 +184,7 @@ class login_required(object):
         # OMERO.webpublic is enabled and has provided us with a username
         # and password via configureation. Use them to try and create a
         # new connection / OMERO session.
+        logger.debug('Creating connection with username and password...')
         connection = connector.create_connection(username, password)
         session['connector'] = connector
         connection.user.logIn()
