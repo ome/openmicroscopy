@@ -19,11 +19,11 @@ COLLAB = 'rwrw--'
 
 import gatewaytest.library as lib
 
-class ChrgpTest (lib.GTest):
+class ChgrpTest (lib.GTest):
 
     def setUp (self):
         """ This is called at the start of tests """
-        super(ChrgpTest, self).setUp()
+        super(ChgrpTest, self).setUp()
         self.loginAsAuthor()
         self.image = self.getTestImage()
 
@@ -55,23 +55,88 @@ class ChrgpTest (lib.GTest):
         """
         Create a new group with the User as member. Test move the Image to new group.
         """
-        
+
         image = self.image
         ctx = self.gateway.getAdminService().getEventContext()
         uuid = ctx.sessionUuid
-        
+
         self.loginAsAdmin()
         gid = self.gateway.createGroup("chgrp-test-%s" % uuid, member_Ids=[ctx.userId], perms=COLLAB)
         self.loginAsAuthor()
-
         self.assertNotEqual(None, self.gateway.getObject("Image", image.id))
+
+        # Do the Chgrp
         rsp = self.doChange("Image", image.getId(), gid)
-        
+
         # Image should no-longer be available in current group
         self.assertEqual(None, self.gateway.getObject("Image", image.id), "Image should not be available in original group")
-        
+
         # Switch to new group - confirm that image is there.
         self.gateway.setGroupForSession(gid)
+        img = self.gateway.getObject("Image", image.id)
+        self.assertNotEqual(None, img, "Image should be available in new group")
+        self.assertEqual(img.getDetails().getGroup().id, gid, "Image group.id should match new group")
+
+
+    def testDatasetChgrp(self):
+        """
+        Create a new group with the User as member. Test move the Dataset/Image to new group.
+        """
+        image = self.image
+        dataset = image.getParent()
+        ctx = self.gateway.getAdminService().getEventContext()
+        uuid = ctx.sessionUuid
+
+        self.loginAsAdmin()
+        gid = self.gateway.createGroup("chgrp-test-%s" % uuid, member_Ids=[ctx.userId], perms=PRIVATE)
+        self.loginAsAuthor()
+        self.assertNotEqual(None, self.gateway.getObject("Image", image.id))
+
+        # Do the Chgrp
+        rsp = self.doChange("Dataset", dataset.getId(), gid)
+
+        # Dataset should no-longer be available in current group
+        self.assertEqual(None, self.gateway.getObject("Dataset", dataset.id), "Dataset should not be available in original group")
+
+        # Switch to new group - confirm that Project, Dataset, Image is there.
+        self.gateway.setGroupForSession(gid)
+        ds = self.gateway.getObject("Dataset", dataset.id)
+        self.assertNotEqual(None, ds, "Dataset should be available in new group")
+
+        img = self.gateway.getObject("Image", image.id)
+        self.assertNotEqual(None, img, "Image should be available in new group")
+        self.assertEqual(img.getDetails().getGroup().id, gid, "Image group.id should match new group")
+
+
+    def testPDIChgrp(self):
+        """
+        Create a new group with the User as member. Test move the Project/Dataset/Image to new group.
+        """
+        image = self.image
+        dataset = image.getParent()
+        project = dataset.getParent()
+        ctx = self.gateway.getAdminService().getEventContext()
+        uuid = ctx.sessionUuid
+
+        self.loginAsAdmin()
+        gid = self.gateway.createGroup("chgrp-test-%s" % uuid, member_Ids=[ctx.userId], perms=COLLAB)
+        self.loginAsAuthor()
+        self.assertNotEqual(None, self.gateway.getObject("Image", image.id))
+
+        # Do the Chgrp
+        rsp = self.doChange("Project", project.getId(), gid)
+
+        # Image should no-longer be available in current group
+        self.assertEqual(None, self.gateway.getObject("Image", image.id), "Image should not be available in original group")
+
+        # Switch to new group - confirm that Project, Dataset, Image is there.
+        self.gateway.setGroupForSession(gid)
+        prj = self.gateway.getObject("Project", project.id)
+        self.assertNotEqual(None, prj, "Project should be available in new group")
+
+        ds = self.gateway.getObject("Dataset", dataset.id)
+        self.assertNotEqual(None, ds, "Dataset should be available in new group")
+
         img = self.gateway.getObject("Image", image.id)
         self.assertNotEqual(None, img, "Image should be available in new group")
         self.assertEqual(img.getDetails().getGroup().id, gid, "Image group.id should match new group")
