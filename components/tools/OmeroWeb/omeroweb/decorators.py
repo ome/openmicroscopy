@@ -122,13 +122,6 @@ class login_required(object):
 
         session = request.session
         request = request.REQUEST
-        if server_id is None:
-            # If no server id is passed, the db entry will not be used and
-            # instead we'll depend on the request.session and request.REQUEST
-            # values
-            server_id = session.get('server', None)
-            if server_id is None:
-                return None
     
         connector = session.get('connector', None)
         logger.debug('Django session connector: %r' % connector)
@@ -136,6 +129,15 @@ class login_required(object):
             # We have a connector, attempt to use it to join an existing
             # connection / OMERO session.
             return connector.join_connection()
+
+        if server_id is None:
+            # If no server id is passed, the db entry will not be used and
+            # instead we'll depend on the request.session and request.REQUEST
+            # values
+            server_id = session.get('server', None)
+            logger.debug('No Server ID available.')
+            if server_id is None:
+                return None
 
         # We have no current connector, create one and attempt to
         # create a connection based on the credentials we have available
