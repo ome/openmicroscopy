@@ -25,6 +25,8 @@ import ConfigParser
 import omero
 import omero.clients
 from omero.util.decorators import timeit, TimeIt
+from omero.cmd import Chgrp
+from omero.callbacks import CmdCallbackI
 import Ice
 import Glacier2
 
@@ -2937,6 +2939,36 @@ class _BlitzGateway (object):
                 graph_spec, long(oid), op))
         handle = self.getDeleteService().queueDelete(dcs)
         return handle
+
+
+    def chgrpObject(self, graph_spec, obj_id, group_id):
+        """
+        Change the Group for a specified object using queue.
+
+        @param graph_spec:      String to indicate the object type or graph
+                                specification. Examples include:
+                                 * '/Image'
+                                 * '/Project'   # will move contents too.
+                                 * NB: Also supports 'Image' etc for convenience
+        @param obj_id:          ID for the object to move.
+        @param group_id:        The group to move the data to.
+        """
+
+        if not graph_spec.startswith('/'):
+            graph_spec = '/%s' % graph_spec
+            logger.debug('chgrp Received object type, using "%s"' % graph_spec)
+
+        chgrp = omero.cmd.Chgrp(type=graph_spec, id=obj_id, options=None, grp=group_id)
+
+        prx = self.c.sf.submit(chgrp)
+        cb = CmdCallbackI(self.c, prx)
+        cb.loop(20, 500)
+
+        if prx.getResponse() is None:
+            logger.debug("chgrp proxy no response with graph_spec: '%s', id: %s, gid: %s. proxy: %s)" % (graph_spec, obj_id, group_id, prx))
+
+        return prx
+
 
     ###################
     # Searching stuff #
