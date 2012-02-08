@@ -355,8 +355,7 @@ class ToolBar
         	GroupSelectionAction a;
         	JCheckBoxMenuItem item;
         	ButtonGroup buttonGroup = new ButtonGroup();
-        	ExperimenterData exp = TreeViewerAgent.getUserDetails();
-        	long id = exp.getDefaultGroup().getId();
+        	long id = model.getSelectedGroupId();
         	while (i.hasNext()) {
 				a = i.next();
 				item = new JCheckBoxMenuItem(a);

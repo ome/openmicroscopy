@@ -91,6 +91,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.PersonalManagementAct
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshExperimenterData;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNode;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveGroupNode;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RunScriptAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
@@ -356,6 +357,9 @@ class TreeViewerControl
 	/** Identifies the <code>Available scripts/code>. */
 	static final Integer    AVAILABLE_SCRIPTS = Integer.valueOf(70);
 	
+	/** Identifies the <code>Remove the group/code>. */
+	static final Integer    REMOVE_GROUP = Integer.valueOf(71);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -546,6 +550,7 @@ class TreeViewerControl
 				new CreateObjectWithChildren(model, 
 						CreateObjectWithChildren.DATASET));
 		actionsMap.put(AVAILABLE_SCRIPTS, new RunScriptAction(model));
+		actionsMap.put(REMOVE_GROUP, new RemoveGroupNode(model));
 	}
 
 	/** 

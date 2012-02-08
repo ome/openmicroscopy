@@ -2072,4 +2072,14 @@ class BrowserComponent
 		view.addGroup(group);
 	}
 
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#removeGroup(GroupData)
+     */
+	public void removeGroup(GroupData group)
+	{
+		if (group == null) return;
+		view.removeGroup(group);
+	}
+
 }
