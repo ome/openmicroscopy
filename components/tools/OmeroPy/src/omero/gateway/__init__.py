@@ -2151,7 +2151,39 @@ class _BlitzGateway (object):
                 pass
             else:
                 yield ExperimenterGroupWrapper(self, e)
- 
+
+
+    def createGroup(self, name, owner_Ids=None, member_Ids=None, perms=None, description=None):
+        """
+        Creates a new ExperimenterGroup. Must have Admin permissions to call this.
+        
+        @param name:        New group name
+        @param owner_Ids:   Option to add existing Experimenters as group owners
+        @param member_Ids:  Option to add existing Experimenters as group members
+        @param perms:       New group permissions. E.g. 'rw----' (private), 'rwr---'(read-only), 'rwrw--'
+        @param description: Group description
+        """
+        admin_serv = self.getAdminService()
+
+        group = omero.model.ExperimenterGroupI()
+        group.name = rstring(str(name))
+        group.description = (description!="" and description is not None) and rstring(str(description)) or None
+        if perms is not None:
+            group.details.permissions = omero.model.PermissionsI(perms)
+
+        gr_id = admin_serv.createGroup(group)
+
+        if owner_Ids is not None:
+            group_owners = [owner._obj for owner in self.getObjects("Experimenter", owner_Ids)]
+            admin_serv.addGroupOwners(omero.model.ExperimenterGroupI(gr_id, False), group_owners)
+
+        if member_Ids is not None:
+            group_members = [member._obj for member in self.getObjects("Experimenter", member_Ids)]
+            for user in group_members:
+                admin_serv.addGroups(user, [omero.model.ExperimenterGroupI(gr_id, False)])
+
+        return gr_id
+
     # EXPERIMENTERS
 
     def findExperimenters (self, start=''):
