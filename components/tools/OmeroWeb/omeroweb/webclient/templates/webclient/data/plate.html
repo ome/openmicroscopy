@@ -121,7 +121,7 @@
                         });
                     } else {
                         $selected.each(function(i){
-                            loadMetadataPanel('{% url load_metadata_details %}well/'+$(this).attr('id').split('-')[1]+'/');
+                            loadMetadataPanel('{% url load_metadata_details %}well/'+$(this).attr('id').split('-')[1]+'/?index={{ index }}');
                         });
                     }
                 }).bind('dblclick', function(){
@@ -142,7 +142,7 @@
                         });
                     } else {
                         $selected.each(function(i){
-                            loadMetadataPanel('{% url load_metadata_details %}well/'+$(this).attr('id').split('-')[1]+'/');
+                            loadMetadataPanel('{% url load_metadata_details %}well/'+$(this).attr('id').split('-')[1]+'/?index={{ index }}');
                         });
                     }
                 },
