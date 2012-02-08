@@ -49,12 +49,13 @@ class Connector(object):
                 useragent=self.useragent)
 
     def prepare_gateway(self, connection):
-        connection.server_id = server_id
+        connection.server_id = self.server_id
         # Lazy import due to the potential usage of the decorator in
         # the omeroweb.webgateway.views package.
         # TODO: UserProxy needs to be moved to this package or similar
         from omeroweb.webgateway.views import UserProxy
         connection.user = UserProxy(connection)
+        connection.user.logIn()
         # TODO: Properly handle activating the weblitz_cache
 
     def create_connection(self, username, password):
