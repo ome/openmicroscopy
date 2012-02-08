@@ -2061,4 +2061,15 @@ class BrowserComponent
 		}
 	}
 
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#addGroup(GroupData)
+     */
+	public void addGroup(GroupData group)
+	{
+		if (group == null)
+			throw new IllegalArgumentException("Group cannot be null.");
+		view.addGroup(group);
+	}
+
 }

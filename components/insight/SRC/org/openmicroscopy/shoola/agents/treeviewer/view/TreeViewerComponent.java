@@ -3288,6 +3288,21 @@ class TreeViewerComponent
 		if (model.getState() != READY) return;
 		if (group == null) return;
 		ExperimenterData exp = TreeViewerAgent.getUserDetails();
+		if (group.getId() == model.getSelectedGroupId()) return;
+		//Scan browser and check if group is there.
+		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+		ExperimenterVisitor v = new ExperimenterVisitor(browser, group.getId());
+		browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
+		if (v.getNodes().size() != 0) return;
+		//Add the group to the display and set it as the default group.
+		model.setSelectedGroupId(group.getId());
+		Map<Integer, Browser> browsers = model.getBrowsers();
+		Iterator<Browser> i = browsers.values().iterator();
+		while (i.hasNext()) {
+			i.next().addGroup(group);
+		}
+		firePropertyChange(GROUP_CHANGED_PROPERTY, Boolean.valueOf(false),
+				Boolean.valueOf(true));
 		//Check if the group is not already displayed.
 		//long oldId = model.getUserGroupID();
 		//if (group.getId() == oldId) return;

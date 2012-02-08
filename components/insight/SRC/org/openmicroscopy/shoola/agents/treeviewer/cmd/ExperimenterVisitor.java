@@ -59,6 +59,25 @@ public class ExperimenterVisitor
 	/** The ids of the group to find or <code>-1</code>.*/
 	private Collection<Long> groupIDs;
 	
+	/** Flag indicating to check only the group.*/
+	private boolean groupOnly;
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model Reference to the {@link Browser}.
+	 *              Mustn't be <code>null</code>.
+	 * @param groupID The id of the group.
+	 */
+	public ExperimenterVisitor(Browser model, long groupID)
+	{
+		super(model);
+		groupOnly = true;
+		groupIDs = new ArrayList<Long>();
+		if (groupID >= 0) groupIDs.add(groupID);
+		nodes = new ArrayList<TreeImageDisplay>();
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -116,7 +135,7 @@ public class ExperimenterVisitor
     public void visit(TreeImageSet node)
     {
     	Object ho = node.getUserObject();
-    	if (ho instanceof ExperimenterData) {
+    	if (ho instanceof ExperimenterData && !groupOnly) {
     		if (userID < 0) nodes.add(node);
     		else {
     			if (userID == ((ExperimenterData) ho).getId()) {
@@ -130,6 +149,9 @@ public class ExperimenterVisitor
     				}
     			}
     		}
+    	} else if (ho instanceof GroupData) {
+    		if (groupOnly && groupIDs.contains(((GroupData) ho).getId()))
+    			nodes.add(node);
     	}
     }
 }

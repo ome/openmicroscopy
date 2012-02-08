@@ -1330,4 +1330,21 @@ class TreeViewerModel
 		return null;
 	}
 	
+	/**
+	 * Returns the id of the group.
+	 * 
+	 * @return See above.
+	 */
+	long getSelectedGroupId() { return selectedGroupId; }
+
+	/**
+	 * Sets the selected group.
+	 * 
+	 * @param selectedGroupId The identifier of the group.
+	 */
+	void setSelectedGroupId(long selectedGroupId)
+	{
+		this.selectedGroupId = selectedGroupId;
+	}
+
 }
