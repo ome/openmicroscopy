@@ -63,6 +63,7 @@ class Connector(object):
             connection = self.create_gateway(username, password)
             connection.connect()
             self.prepare_gateway(connection)
+            return connection
         except:
             logger.debug('Cannot create a new connection.', exc_info=True)
             return None
