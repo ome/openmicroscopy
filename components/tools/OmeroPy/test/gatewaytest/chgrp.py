@@ -98,7 +98,7 @@ class ChgrpTest (lib.GTest):
         # Dataset should no-longer be available in current group
         self.assertEqual(None, self.gateway.getObject("Dataset", dataset.id), "Dataset should not be available in original group")
 
-        # Switch to new group - confirm that Project, Dataset, Image is there.
+        # Switch to new group - confirm that Dataset, Image is there.
         self.gateway.setGroupForSession(gid)
         ds = self.gateway.getObject("Dataset", dataset.id)
         self.assertNotEqual(None, ds, "Dataset should be available in new group")
@@ -141,6 +141,57 @@ class ChgrpTest (lib.GTest):
         self.assertNotEqual(None, img, "Image should be available in new group")
         self.assertEqual(img.getDetails().getGroup().id, gid, "Image group.id should match new group")
 
+
+    def testTwoDatasetsChgrp(self):
+        """
+        Create a new group with the User as member. Image has 2 Dataset Parents.
+        Test move one Dataset to new group. Image does not move. Move 2nd Dataset - Image moves.
+        """
+        image = self.image
+        dataset = image.getParent()
+        orig_gid = dataset.getDetails().getGroup().id
+        print "Original Group", orig_gid
+        update = self.gateway.getUpdateService()
+
+        new_ds = omero.model.DatasetI()
+        new_ds.name = rstring("chgrp-parent2")
+        new_ds = update.saveAndReturnObject(new_ds)
+        link = omero.model.DatasetImageLinkI()
+        link.setParent(new_ds)
+        link.setChild(image._obj)
+        update.saveObject(link)
+
+        ctx = self.gateway.getAdminService().getEventContext()
+        uuid = ctx.sessionUuid
+
+        self.loginAsAdmin()
+        gid = self.gateway.createGroup("chgrp-test-%s" % uuid, member_Ids=[ctx.userId])
+        self.loginAsAuthor()
+        self.assertNotEqual(None, self.gateway.getObject("Dataset", dataset.id))
+
+        # Do the Chgrp with one of the parents
+        rsp = self.doChange("Dataset", new_ds.id.val, gid)
+
+        # Dataset should no-longer be available in current group
+        self.assertEqual(None, self.gateway.getObject("Dataset", new_ds.id.val), "Dataset should not be available in original group")
+        self.assertNotEqual(None, self.gateway.getObject("Dataset", dataset.getId()), "Other Dataset should still be in original group")
+        # But Image should
+        img = self.gateway.getObject("Image", image.id)
+        self.assertNotEqual(None, img, "Image should still be available in original group")
+
+        # Do the Chgrp with the OTHER parent
+        self.gateway.setGroupForSession(orig_gid)
+        rsp = self.doChange("Dataset", dataset.id, gid)
+
+        # Confirm that Dataset AND Image is now in new group
+        self.gateway.setGroupForSession(gid)
+        ctx = self.gateway.getAdminService().getEventContext()
+        ds = self.gateway.getObject("Dataset", dataset.id)
+        self.assertNotEqual(None, ds, "Dataset should now be available in new group")
+
+        img = self.gateway.getObject("Image", image.id)
+        self.assertNotEqual(None, img, "Image should now be available in new group")
+        self.assertEqual(img.getDetails().getGroup().id, gid, "Image group.id should match new group")
 
 if __name__ == '__main__':
     unittest.main()
