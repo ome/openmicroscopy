@@ -320,14 +320,7 @@ TEMPLATE_LOADERS = (
 # paths should use Unix-style forward slashes, even on Windows.
 # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates". Always use 
 # forward slashes, even on Windows. Don't forget to use absolute paths, not relative paths.
-TEMPLATE_DIRS = (
-    os.path.join(os.path.join(os.path.dirname(__file__), 'feedback'), 'templates').replace('\\','/'),
-    os.path.join(os.path.join(os.path.dirname(__file__), 'webadmin'), 'templates').replace('\\','/'),
-    os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'templates').replace('\\','/'),
-    #os.path.join(os.path.join(os.path.dirname(__file__), 'webemdb'), 'templates').replace('\\','/'),
-    os.path.join(os.path.join(os.path.dirname(__file__), 'webmobile'), 'templates').replace('\\','/'),
-    os.path.join(os.path.join(os.path.dirname(__file__), 'webpublic'), 'templates').replace('\\','/'),
-)
+# TEMPLATE_DIRS = ()
 
 # INSTALLED_APPS: A tuple of strings designating all applications that are enabled in this Django 
 # installation. Each string should be a full Python path to a Python package that contains 
