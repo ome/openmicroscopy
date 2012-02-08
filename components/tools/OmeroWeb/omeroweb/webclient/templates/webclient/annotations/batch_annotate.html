@@ -71,7 +71,6 @@
                         },
                         error: function(html) {
                             $("#comment_spinner").hide();
-                            show_batch_error(html);
                         }
                     });
                     return false;
@@ -130,7 +129,6 @@
                     },
                     error: function(data) {
                         $("#tagann_spinner").hide();
-                        show_batch_error(data.response);
                     }
                 });
 
@@ -152,7 +150,6 @@
                     },
                     error: function(data){
                         $("#fileann_spinner").hide();
-                        show_batch_error(data.response);
                     }
                 });
                 // prepare dialog for choosing file to attach...
