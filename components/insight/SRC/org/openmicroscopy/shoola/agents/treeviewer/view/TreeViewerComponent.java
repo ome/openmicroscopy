@@ -3547,6 +3547,8 @@ class TreeViewerComponent
 		model.setNodesToCopy(null, -1);
 		view.removeAllFromWorkingPane();
 		model.setDataViewer(null);
+		ExperimenterData exp = model.getUserDetails();
+		model.setSelectedGroupId(exp.getDefaultGroup().getId());
 		model.getMetadataViewer().onGroupSwitched(true);
 		//model.resetMetadataViewer();
 		Map<Integer, Browser> browsers = model.getBrowsers();

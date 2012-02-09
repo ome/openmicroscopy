@@ -2090,7 +2090,7 @@ class BrowserUI
         	if (model.isSingleGroup()) node = root;
         	else node = createGroup(model.getSelectedGroup());
         	node = createExperimenterNode(exp, node);
-            treeDisplay.collapsePath(new TreePath(node.getPath()));
+            if (model.isSelected()) expandNode(node, true);
         }
 		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
 		tm.reload();
