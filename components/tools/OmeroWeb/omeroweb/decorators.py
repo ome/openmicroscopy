@@ -125,10 +125,11 @@ class login_required(object):
     
         connector = session.get('connector', None)
         logger.debug('Django session connector: %r' % connector)
+        logger.debug('Django session: %r' % (session.keys()))
         if connector is not None:
             # We have a connector, attempt to use it to join an existing
             # connection / OMERO session.
-            return connector.join_connection()
+            return connector.join_connection(useragent)
 
         if server_id is None:
             # If no server id is passed, the db entry will not be used and
@@ -144,7 +145,7 @@ class login_required(object):
         # in the current request.
         is_secure = request.get('ssl', False)
         logger.debug('Is SSL? %s' % is_secure)
-        connector = Connector(server_id, is_secure, useragent)
+        connector = Connector(server_id, is_secure)
         try:
             omero_session_key = request.get('bsession')
         except KeyError:
@@ -156,7 +157,7 @@ class login_required(object):
             logger.debug('Have OMERO session key %s, attempting to join...' % \
                     omero_session_key)
             connector.omero_session_key = omero_session_key
-            connection = connector.join_connection()
+            connection = connector.join_connection(useragent)
             session['connector'] = connector
             return connection
 
@@ -178,7 +179,6 @@ class login_required(object):
             # password from configuration.
             logger.debug('OMERO.webpublic enabled, attempting to login with ' \
                          'configuration supplied credentials.')
-            connector = Connector(server_id, is_secure, useragent)
             username = settings.PUBLIC_USER
             password = settings.PUBLIC_PASSWORD
         # We have a username and password in the current request, or
@@ -186,7 +186,7 @@ class login_required(object):
         # and password via configureation. Use them to try and create a
         # new connection / OMERO session.
         logger.debug('Creating connection with username and password...')
-        connection = connector.create_connection(username, password)
+        connection = connector.create_connection(useragent, username, password)
         session['connector'] = connector
         return connection
 
