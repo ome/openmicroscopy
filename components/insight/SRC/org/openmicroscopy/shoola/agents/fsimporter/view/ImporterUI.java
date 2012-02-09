@@ -458,7 +458,7 @@ class ImporterUI
 		if (object == null) return null;
 		int n = tabs.getComponentCount();
 		String title = "Import #"+total;
-		ImporterUIElement element = new ImporterUIElement(controller,
+		ImporterUIElement element = new ImporterUIElement(controller, model,
 				uiElementID, n, title, object);
 		//IconManager icons = IconManager.getInstance();
 		tabs.insertTab(title, element.getImportIcon(), element, "", total);
@@ -667,7 +667,7 @@ class ImporterUI
     JComponent buildToolBar()
     {
         Set set = ImporterAgent.getAvailableUserGroups();
-        if (set == null || set.size() == 0) return null;
+        if (set == null || set.size() <= 1) return null;
         
     	ImporterAction a = controller.getAction(ImporterControl.GROUP_BUTTON);
     	a.setEnabled(set.size() > 1);

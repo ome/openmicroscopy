@@ -164,6 +164,9 @@ class ImporterUIElement
 	/** Reference to the controller. */
 	private ImporterControl controller;
 	
+	/** Reference to the controller. */
+	private ImporterModel model;
+	
 	/** The components displaying the components. */
 	private Map<JLabel, Object> containerComponents;
 	
@@ -385,11 +388,12 @@ class ImporterUIElement
 		}
 		JLabel l;
 		int count = 0;
+		boolean single = model.isSingleGroup();
 		while (i.hasNext()) {
 			importable = i.next();
 			f = (File) importable.getFile();
 			c = new FileImportComponent(f, importable.isFolderAsContainer(),
-					!controller.isMaster(), importable.getGroup());
+					!controller.isMaster(), importable.getGroup(), single);
 			c.setLocation(importable.getParent(), importable.getDataset(), 
 					importable.getRefNode());
 			c.setType(type);
@@ -689,20 +693,24 @@ class ImporterUIElement
 	 * Creates a new instance.
 	 * 
 	 * @param controller Reference to the control. Mustn't be <code>null</code>.
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
 	 * @param id The identifier of the component.
 	 * @param index The index of the component.
 	 * @param name The name of the component.
 	 * @param object the object to handle. Mustn't be <code>null</code>.
 	 */
-	ImporterUIElement(ImporterControl controller, int id, int index, 
-			String name, ImportableObject object)
+	ImporterUIElement(ImporterControl controller, ImporterModel model,
+			int id, int index, String name, ImportableObject object)
 	{
 		super(index, name, DESCRIPTION);
 		if (object == null) 
 			throw new IllegalArgumentException("No object specified.");
 		if (controller == null)
-			throw new IllegalArgumentException("No controller."); 
+			throw new IllegalArgumentException("No Control.");
+		if (model == null)
+			throw new IllegalArgumentException("No Model."); 
 		this.controller = controller;
+		this.model = model;
 		this.id = id;
 		this.object = object;
 		initialize();

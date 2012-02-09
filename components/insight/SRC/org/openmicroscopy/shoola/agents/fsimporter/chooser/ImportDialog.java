@@ -577,8 +577,7 @@ public class ImportDialog
 			checkFile(files[i], l);
 		}
 		chooser.setSelectedFile(new File("."));
-		
-		table.addFiles(l, isParentFolderAsDataset(), group);//fadBox.isSelected());
+		table.addFiles(l, isParentFolderAsDataset(), group);
 		importButton.setEnabled(table.hasFilesToImport());
 	}
 
@@ -811,24 +810,6 @@ public class ImportDialog
 	 */
 	private void initComponents(FileFilter[] filters)
 	{
-		/*
-		List<String> tips = new ArrayList<String>();
-		tips.add("If selected, when adding images to queue, ");
-    	tips.add("the folder containing the images will be ");
-    	tips.add("marked to be turned into dataset.");
-    	folderAsDatasetBox = new JCheckBox();
-    	folderAsDatasetBox.setToolTipText(UIUtilities.formatToolTipText(tips));
-    	folderAsDatasetBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	folderAsDatasetBox.setText("New Dataset from folder's name");
-    	folderAsDatasetBox.addChangeListener(new ChangeListener() {
-			
-			public void stateChanged(ChangeEvent e) {
-				boolean b = !folderAsDatasetBox.isSelected();
-				datasetsBox.setEnabled(b);
-				addButton.setEnabled(b);
-			}
-		});
-    	*/
     	canvas = new QuotaCanvas();
 		sizeImportLabel = new JLabel();
 		//sizeImportLabel.setText(UIUtilities.formatFileSize(0));
@@ -850,30 +831,6 @@ public class ImportDialog
     	}
     	b = (Boolean) ImporterAgent.getRegistry().lookup(
     			FOLDER_AS_DATASET);
-    	
-    	/*
-    	fadBox = new JCheckBox("Folder As Dataset");
-    	tips = new ArrayList<String>();
-    	tips.add("If selected, folders added to the import queue ");
-    	tips.add("will be marked to be turned into dataset.");
-    	fadBox.setToolTipText(UIUtilities.formatToolTipText(tips));
-    	//fadBox.setVisible(type != Importer.SCREEN_TYPE);
-    	fadBox.setBackground(UIUtilities.BACKGROUND);
-    	fadBox.setSelected(true);
-    	fadBox.addChangeListener(new ChangeListener() {
-			
-			public void stateChanged(ChangeEvent e) {
-				//
-				int n = handleFilesSelection(chooser.getSelectedFiles());
-				if (n == 0) {
-					datasetsBox.setEnabled(true);
-					folderAsDatasetBox.setEnabled(true);
-				} 
-			}
-		});
-		if (b != null) fadBox.setSelected(b.booleanValue());
-		*/
-    	
     	if (!isFastConnection()) //slow connection
     		showThumbnails.setSelected(false);
 		reference = null;
@@ -886,16 +843,6 @@ public class ImportDialog
 		};
 		parentsBox.addActionListener(parentsBoxListener);
 		datasetsBox = new JComboBox();
-		/*
-		datasetsBoxListener = new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				DataNode node = (DataNode) datasetsBox.getSelectedItem();
-				folderAsDatasetBox.setSelected(node != null && 
-						node.isDefaultNode());
-			}
-		};
-		*/
 		sorter = new ViewerSorter();
 		datasets = new ArrayList<DataNode>();
 		addProjectButton = new JButton("New...");
@@ -2039,8 +1986,6 @@ public class ImportDialog
     	initComponents(filters);
     	installListeners();
     	buildGUI();
-    	//Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    	//setSize(7*(screenSize.width/10), 7*(screenSize.height/10));
     }
 
     /** 
@@ -2049,6 +1994,18 @@ public class ImportDialog
      * @return See above.
      */
     public int getType() { return type; }
+    
+    /**
+     * Returns <code>true</code> if only one group for the user,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isSingleGroup()
+    { 
+    	Set l = ImporterAgent.getAvailableUserGroups();
+    	return (l.size() <= 1);
+    }
     
     /** Display the size of files to add. */
     void onSelectionChanged()

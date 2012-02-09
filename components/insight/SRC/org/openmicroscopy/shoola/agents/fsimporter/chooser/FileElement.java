@@ -109,8 +109,6 @@ class FileElement
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file set");
-		if (group == null)
-			throw new IllegalArgumentException("No Group set");
 		this.file = file;
 		this.group = group;
 		length = -1;
