@@ -863,15 +863,9 @@ class BrowserUI
         TreeImageSet root = new TreeImageSet("");
         treeDisplay.setModel(new DefaultTreeModel(root));
         if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
-        	/*
-        	List<TreeImageSet> groups = createGroups(exp.getDefaultGroup());
-            Iterator<TreeImageSet> i = groups.iterator();
-            TreeImageSet n, node = null;
-            while (i.hasNext()) {
-    			n = createExperimenterNode(exp, i.next());
-    			if (node == null) node = n;
-    		}*/
-        	TreeImageSet node = createGroup(model.getSelectedGroup());
+        	TreeImageSet node;
+        	if (model.isSingleGroup()) node = root;
+        	else node = createGroup(model.getSelectedGroup());
         	node = createExperimenterNode(exp, node);
             treeDisplay.collapsePath(new TreePath(node.getPath()));
         }
@@ -2259,7 +2253,6 @@ class BrowserUI
 		TreeImageSet node = createGroup(model.getSelectedGroup());
     	node = createExperimenterNode(exp, node);
     	if (model.isSelected()) expandNode(node, true);
-        //treeDisplay.collapsePath(new TreePath(node.getPath()));
 	}
 	
     /**

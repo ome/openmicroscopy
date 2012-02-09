@@ -429,7 +429,8 @@ class BrowserComponent
             		return;
             	}
             	TreeImageDisplay node = getLoggedExperimenterNode();
-            	node.getParentDisplay().setExpanded(true);
+            	if (model.isSingleGroup()) node.setExpanded(true);
+            	else node.getParentDisplay().setExpanded(true);
             	view.expandNode(node, true);
                 break;
             case READY:
@@ -1254,8 +1255,10 @@ class BrowserComponent
 	public TreeImageDisplay getLoggedExperimenterNode()
 	{
 		SecurityContext ctx = model.getSecurityContext(null);
+		long id = ctx.getGroupID();
+		if (model.isSingleGroup()) id = -1;
 		ExperimenterVisitor visitor = new ExperimenterVisitor(this, 
-				model.getUserID(), ctx.getGroupID());
+				model.getUserID(), id);
 		accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 		List<TreeImageDisplay> nodes = visitor.getNodes();
 		if (nodes.size() != 1) return null;

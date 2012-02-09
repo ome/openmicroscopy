@@ -897,7 +897,7 @@ class BrowserModel
 	 */
 	SecurityContext getSecurityContext(TreeImageDisplay node)
 	{
-		if (node == null) {
+		if (node == null || isSingleGroup()) {
 			return new SecurityContext(
 					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
 		}
@@ -911,7 +911,7 @@ class BrowserModel
 			return new SecurityContext(group.getId());
 		}
 		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
-		if (n == null) {
+		if (n == null || isSingleGroup()) {
 			return new SecurityContext(
 					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
 		}
@@ -926,5 +926,17 @@ class BrowserModel
 	 * @return See above.
 	 */
 	GroupData getSelectedGroup() { return parent.getSelectedGroup(); }
+	
+	/**
+	 * Returns <code>true</code> if the user belongs to one group only,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above
+	 */
+	boolean isSingleGroup()
+	{
+		Set l = TreeViewerAgent.getAvailableUserGroups();
+		return l.size() <= 1;
+	}
 
 }
