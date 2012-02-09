@@ -12,6 +12,7 @@ import unittest
 from omero.rtypes import *
 from omero.cmd import Chgrp, State, ERR, OK
 from omero.callbacks import CmdCallbackI
+from omero.gateway import BlitzGateway
 
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
@@ -28,12 +29,18 @@ class ChgrpTest (lib.GTest):
         self.image = self.getTestImage()
 
 
-    def doChange(self, obj_type, obj_id, group_id, test_should_pass=True):
+    def doChange(self, obj_type, obj_id, group_id, test_should_pass=True, return_complete=True):
         """
         Performs the change-group action, waits on completion and checks that the 
         result is not an error.
         """
         prx = self.gateway.chgrpObject(obj_type, obj_id, group_id)
+        
+        if not return_complete:
+            return prx
+        
+        cb = CmdCallbackI(self.gateway.c, prx)
+        cb.loop(20, 500)
 
         self.assertNotEqual(prx.getResponse(), None)
 
@@ -191,6 +198,47 @@ class ChgrpTest (lib.GTest):
 
         img = self.gateway.getObject("Image", image.id)
         self.assertNotEqual(None, img, "Image should now be available in new group")
+        self.assertEqual(img.getDetails().getGroup().id, gid, "Image group.id should match new group")
+
+
+    def testChgrpAsync(self):
+        """
+        Try to "race condition" reproduce bugs seen in web
+        """
+        image = self.image
+        ctx = self.gateway.getAdminService().getEventContext()
+        uuid = ctx.sessionUuid
+
+        self.loginAsAdmin()
+        gid = self.gateway.createGroup("chgrp-test-%s" % uuid, member_Ids=[ctx.userId], perms=COLLAB)
+        self.loginAsAuthor()
+        print ctx.groupId
+        original_group = ctx.groupId
+        self.assertNotEqual(None, self.gateway.getObject("Image", image.id))
+
+        # Do the Chgrp
+        rsp = self.doChange("Image", image.getId(), gid, return_complete=False)
+        
+        while rsp.getResponse() is None:
+            # while waiting, try various things to reproduce race condition seen in web.
+            img = self.gateway.getObject("Image", image.id)
+            if img is None:
+                print "NO Image"
+            else:
+                print img.getDetails().getGroup().id
+            c = BlitzGateway()
+            print c.connect(sUuid=uuid)
+            #self.gateway.setGroupForSession(gid)
+        
+        print rsp.getResponse()
+
+        # Image should no-longer be available in current group
+        self.assertEqual(None, self.gateway.getObject("Image", image.id), "Image should not be available in original group")
+
+        # Switch to new group - confirm that image is there.
+        self.gateway.setGroupForSession(gid)
+        img = self.gateway.getObject("Image", image.id)
+        self.assertNotEqual(None, img, "Image should be available in new group")
         self.assertEqual(img.getDetails().getGroup().id, gid, "Image group.id should match new group")
 
 if __name__ == '__main__':
