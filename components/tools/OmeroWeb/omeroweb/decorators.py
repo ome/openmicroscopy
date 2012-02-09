@@ -128,13 +128,15 @@ class login_required(object):
         if connector is not None:
             # We have a connector, attempt to use it to join an existing
             # connection / OMERO session.
-            return connector.join_connection(self.useragent)
+            connection = connector.join_connection(self.useragent)
+            if connection is not None:
+                return connection
 
         if server_id is None:
             # If no server id is passed, the db entry will not be used and
             # instead we'll depend on the request.session and request.REQUEST
             # values
-            server_id = session.get('server', None)
+            server_id = request.get('server', session.get('server'))
             logger.debug('No Server ID available.')
             if server_id is None:
                 return None
@@ -146,7 +148,7 @@ class login_required(object):
         logger.debug('Is SSL? %s' % is_secure)
         connector = Connector(server_id, is_secure)
         try:
-            omero_session_key = request.get('bsession')
+            omero_session_key = request['bsession']
         except KeyError:
             # We do not have an OMERO session key in the current request.
             pass
