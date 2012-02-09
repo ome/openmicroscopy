@@ -322,7 +322,6 @@ class ImageEntry (ObjectEntry):
         host = dataset._conn.c.ic.getProperties().getProperty('omero.host') or 'localhost'
         port = dataset._conn.c.ic.getProperties().getProperty('omero.port') or '4063'
 
-
         exe = path(".") / ".." / "bin" /"omero" # Running from dist
         if not exe.exists():
             exe = path(".") / ".." / ".."/ ".." / "dist" / "bin" / "omero" # Running from OmeroPy
@@ -337,6 +336,7 @@ class ImageEntry (ObjectEntry):
         #print session
         exe += ' -s %s -k %s -p %s import -d %i -n' % (host, session, port, dataset.getId())
         exe = exe.split() + [self.name, fpath]
+        print ' '.join(exe)
         try:
             p = subprocess.Popen(exe,  shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except OSError:
@@ -391,8 +391,8 @@ def bootstrap ():
     # Create users
     client = loginAsRoot()
     for k, u in USERS.items():
-        if not u.create(client):
-            u.changePassword(client, u.passwd)
+        if not u.create(client, ROOT.passwd):
+            u.changePassword(client, u.passwd, ROOT.passwd)
     for k, p in PROJECTS.items():
         p = p.create()
         p._conn.seppuku()
