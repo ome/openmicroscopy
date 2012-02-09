@@ -2993,12 +2993,6 @@ class _BlitzGateway (object):
         chgrp = omero.cmd.Chgrp(type=graph_spec, id=obj_id, options=None, grp=group_id)
 
         prx = self.c.sf.submit(chgrp)
-        cb = CmdCallbackI(self.c, prx)
-        cb.loop(20, 500)
-
-        if prx.getResponse() is None:
-            logger.debug("chgrp proxy no response with graph_spec: '%s', id: %s, gid: %s. proxy: %s)" % (graph_spec, obj_id, group_id, prx))
-
         return prx
 
 
