@@ -79,7 +79,9 @@ class SearchControl(HqlControl):
                     if not search.hasNext():
                         self.ctx.die(433, "No results found.")
                     while search.hasNext():
-                        self.display([search.results()])
+                        results = search.results()
+                        results = [[x] for x in results]
+                        self.display(results)
                 except omero.ApiUsageException, aue:
                     self.ctx.die(434, aue.message)
 
