@@ -101,6 +101,9 @@ from omeroweb.webgateway import views as webgateway_views
 
 from omeroweb.feedback.views import handlerInternalError
 
+from omeroweb.webclient.decorators import login_required
+from omeroweb.connector import Connector
+
 logger = logging.getLogger(__name__)
 
 connectors = {}
@@ -238,28 +241,22 @@ def login(request):
     If we can't connect, the login page is returned with appropriate error messages.
     """
     request.session.modified = True
-    if request.REQUEST.get('server'):
-        blitz = Server.get(pk=request.REQUEST.get('server'))
-        request.session['server'] = blitz.id
-        request.session['host'] = blitz.host
-        request.session['port'] = blitz.port
-        request.session['username'] = smart_str(request.REQUEST.get('username',None))
-        request.session['password'] = smart_str(request.REQUEST.get('password',None))
-        request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
-        request.session['shares'] = dict()
-        request.session['imageInBasket'] = set()
-        blitz_host = "%s:%s" % (blitz.host, blitz.port)
-        request.session['nav']={"error": None, "blitz": blitz_host, "menu": "start", "view": "icon", "basket": 0, "experimenter":None, 'callback':dict()}
-        
-    error = request.REQUEST.get('error')
-    
+    username = request.REQUEST.get('username')
+    password = request.REQUEST.get('password')
+    server_id = request.REQUEST.get('server')
+    is_secure = request.REQUEST.get('ssl', False)
+    connector = Connector(server_id, is_secure)
+
     conn = None
+    error = None
     # TODO: version check should be done on the low level, see #5983
-    if _checkVersion(request.session.get('host'), request.session.get('port')):
-        try:
-            conn = getBlitzConnection(request, useragent="OMERO.web")
-        except Exception, x:
-            error = x.__class__.__name__
+    if server_id is not None and username is not None and password is not None \
+            and _checkVersion(*connector.lookup_host_and_port()):
+        conn = connector.create_connection('OMERO.web', username, password)
+        if conn is not None:
+            request.session['connector'] = connector
+        else:
+            error = 'Login failed.'
     
     if conn is not None:
         upgradeCheck()
@@ -286,9 +283,8 @@ def login(request):
         if request.method == 'POST':
             form = LoginForm(data=request.REQUEST.copy())
         else:
-            blitz = Server.get(request.session.get('server'))
-            if blitz is not None:
-                initial = {'server': unicode(blitz.id)}
+            if server_id is not None:
+                initial = {'server': unicode(connector.server_id)}
                 form = LoginForm(initial=initial)
             else:
                 form = LoginForm()
@@ -302,7 +298,7 @@ def login(request):
         rsp = t.render(c)
         return HttpResponse(rsp)
 
-@isUserConnected
+@login_required()
 def index(request, **kwargs):
     """
     The webclient home page. 
@@ -343,7 +339,7 @@ def index(request, **kwargs):
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@isUserConnected
+@login_required()
 def index_context(request, **kwargs):
     """ NOT USED? TODO: remove this, url and template """
 
@@ -364,7 +360,7 @@ def index_context(request, **kwargs):
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@isUserConnected
+@login_required()
 def index_last_imports(request, **kwargs):
     """
     Gets the most recent imports - Used in an AJAX call by home page.
@@ -386,7 +382,7 @@ def index_last_imports(request, **kwargs):
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@isUserConnected
+@login_required()
 def index_most_recent(request, **kwargs):
     """ Gets the most recent 'shares' and 'share' comments. Used by the homepage via AJAX call """
 
@@ -407,7 +403,7 @@ def index_most_recent(request, **kwargs):
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@isUserConnected
+@login_required()
 def index_tag_cloud(request, **kwargs):
     """ Gets the most used Tags. Used by the homepage via AJAX call """
 
@@ -428,7 +424,7 @@ def index_tag_cloud(request, **kwargs):
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@isUserConnected
+@login_required()
 def change_active_group(request, **kwargs):
     """
     Changes the active group of the OMERO connection, using conn.changeActiveGroup() with 'active_group' from request.REQUEST.
@@ -502,7 +498,7 @@ def _session_logout (request, server_id):
     except:
         logger.error(traceback.format_exc())
     
-@isUserConnected
+@login_required()
 def logout(request, **kwargs):
     """ Logout of the session and redirects to the homepage (will redirect to login first) """
     _session_logout(request, request.session.get('server'))
@@ -511,7 +507,7 @@ def logout(request, **kwargs):
 
 
 ###########################################################################
-@isUserConnected
+@login_required()
 def load_template(request, menu, **kwargs):
     """
     This view handles most of the top-level pages, as specified by 'menu' E.g. userdata, usertags, history, search etc.
@@ -615,7 +611,7 @@ def load_template(request, menu, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-@isUserConnected
+@login_required()
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kwargs):
     """
     This loads data for the tree, via AJAX calls. 
@@ -741,7 +737,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-@isUserConnected
+@login_required()
 def load_searching(request, form=None, **kwargs):
     """
     Handles AJAX calls to search 
@@ -833,7 +829,7 @@ def load_searching(request, form=None, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-@isUserConnected
+@login_required()
 def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
     """ 
     Loads data for the tag tree and center panel.
@@ -933,7 +929,7 @@ def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-@isUserConnected
+@login_required()
 def autocomplete_tags(request, **kwargs):
     """ Autocomplete for tag. Not used now? TODO: remove this? """
 
@@ -950,7 +946,7 @@ def autocomplete_tags(request, **kwargs):
     json_data = simplejson.dumps(tags)
     return HttpResponse(json_data, mimetype='application/javascript')
 
-@isUserConnected
+@login_required()
 def open_astex_viewer(request, obj_type, obj_id, **kwargs):
     """
     Opens the Open Astex Viewer applet, to display volume masks in a couple of formats:
@@ -1045,7 +1041,7 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
         "data_storage_mode": data_storage_mode,'pixelRange':pixelRange}, context_instance=Context(request))
 
 
-@isUserConnected
+@login_required()
 def load_metadata_details(request, c_type, c_id, conn, share_id=None, **kwargs):
     """
     This page is the right-hand panel 'general metadata', first tab only.
@@ -1129,7 +1125,7 @@ def load_metadata_details(request, c_type, c_id, conn, share_id=None, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-@isUserConnected
+@login_required()
 def load_metadata_preview(request, imageId, share_id=None, **kwargs):
     """
     This is the image 'Preview' tab for the right-hand panel. 
@@ -1178,7 +1174,7 @@ def load_metadata_preview(request, imageId, share_id=None, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-@isUserConnected
+@login_required()
 def load_metadata_hierarchy(request, c_type, c_id, **kwargs):
     """
     This loads the ancestors of the specified object and displays them in a static tree.
@@ -1227,7 +1223,7 @@ def load_metadata_hierarchy(request, c_type, c_id, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-@isUserConnected
+@login_required()
 def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):  
     """
     The acquisition tab of the right-hand panel. Only loaded for images.
@@ -1652,8 +1648,7 @@ def annotate_tags(request, conn, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-
-@isUserConnected
+@login_required()
 def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     """
     Handles many different actions on various objects.
@@ -1975,7 +1970,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-@isUserConnected
+@login_required()
 def get_original_file(request, fileId, **kwargs):
     """ Returns the specified original file as an http response. Used for displaying text or png/jpeg etc files in browser """
 
@@ -2000,7 +1995,7 @@ def get_original_file(request, fileId, **kwargs):
     return rsp
 
 
-@isUserConnected
+@login_required()
 def image_as_map(request, imageId, **kwargs):
     """ Converts OMERO image into mrc.map file (using tiltpicker utils) and returns the file """
 
@@ -2081,7 +2076,7 @@ def image_as_map(request, imageId, **kwargs):
     return rsp
 
 
-@isUserConnected
+@login_required()
 def archived_files(request, iid, **kwargs):
     """
     Downloads the archived file(s) as a single file or as a zip (if more than one file)
@@ -2153,7 +2148,7 @@ def archived_files(request, iid, **kwargs):
     rsp['Content-Type'] = 'application/force-download'
     return rsp
 
-@isUserConnected
+@login_required()
 def download_annotation(request, action, iid, **kwargs):
     """ Returns the file annotation as an http response for download """
 
@@ -2174,7 +2169,7 @@ def download_annotation(request, action, iid, **kwargs):
     rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
     return rsp
 
-@isUserConnected
+@login_required()
 def load_public(request, share_id=None, **kwargs):
     """ Loads data for the tree in the 'public' main page. """
 
@@ -2251,7 +2246,7 @@ def load_public(request, share_id=None, **kwargs):
 ##################################################################
 # Basket
 
-@isUserConnected
+@login_required()
 def basket_action (request, action=None, **kwargs):
     """
     Various actions for creating a 'share' or 'discussion' (no images).
@@ -2349,7 +2344,7 @@ def basket_action (request, action=None, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-@isUserConnected
+@login_required()
 def empty_basket(request, **kwargs):
     """ Empty the basket of images """
 
@@ -2368,7 +2363,7 @@ def empty_basket(request, **kwargs):
     #request.session['datasetInBasket'] = list()
     return HttpResponseRedirect(reverse("basket_action"))
 
-@isUserConnected
+@login_required()
 def update_basket(request, **kwargs):
     """ Add or remove images to the set in the basket """
 
@@ -2433,7 +2428,7 @@ def update_basket(request, **kwargs):
     else:
         return handlerInternalError("Request method error in Basket.")
 
-@isUserConnected
+@login_required()
 def help(request, **kwargs):
     """ Displays help page. Includes the choosers for changing current group and current user. """
 
@@ -2463,7 +2458,7 @@ def help(request, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-@isUserConnected
+@login_required()
 def load_calendar(request, year=None, month=None, **kwargs):
     """ 
     Loads the calendar which is displayed in the left panel of the history page. 
@@ -2494,7 +2489,7 @@ def load_calendar(request, year=None, month=None, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-@isUserConnected
+@login_required()
 def load_history(request, year, month, day, **kwargs):
     """ The data for a particular date that is loaded into the center panel """
 
@@ -2589,7 +2584,7 @@ def getObjectUrl(conn, obj):
 
 ######################
 # Activities window & Progressbar
-@isUserConnected
+@login_required()
 def activities(request, **kwargs):
     """
     Refresh callbacks (delete, scripts etc) and provide json to update Activities window & Progressbar.
@@ -2746,7 +2741,7 @@ def activities(request, **kwargs):
     return HttpResponse(t.render(c))
 
 
-@isUserConnected
+@login_required()
 def activities_update (request, action, **kwargs):
     """
     If the above 'action' == 'clean' then we clear jobs from request.session['callback']
@@ -2775,7 +2770,7 @@ def activities_update (request, action, **kwargs):
 ####################################################################################
 # User Photo
 
-@isUserConnected
+@login_required()
 def avatar(request, oid=None, **kwargs):
     """ Returns the experimenter's photo """
 
@@ -2792,7 +2787,7 @@ def avatar(request, oid=None, **kwargs):
 ####################################################################################
 # Bird's eye view
 
-@isUserConnected
+@login_required()
 def render_birds_eye_view (request, iid, size=200, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
 
@@ -2818,7 +2813,7 @@ def render_birds_eye_view (request, iid, size=200, share_id=None, **kwargs):
 ####################################################################################
 # Rendering
 
-@isUserConnected
+@login_required()
 def render_thumbnail (request, iid, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
 
@@ -2841,7 +2836,7 @@ def render_thumbnail (request, iid, share_id=None, **kwargs):
 
     return webgateway_views.render_thumbnail(request, iid, w=80, _conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
 
-@isUserConnected
+@login_required()
 def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
 
@@ -2864,7 +2859,7 @@ def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
     
     return webgateway_views.render_thumbnail(request, iid, w=size, _conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
 
-@isUserConnected
+@login_required()
 def render_image (request, iid, z, t, share_id=None, **kwargs):
     """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
         Many options are available from the request dict.
@@ -2889,7 +2884,7 @@ def render_image (request, iid, z, t, share_id=None, **kwargs):
 
     return webgateway_views.render_image(request, iid, z, t, _conn=conn, **kwargs)
 
-@isUserConnected
+@login_required()
 def render_image_region (request, iid, z, t, server_id=None, share_id=None, _conn=None, **kwargs):
     """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
         Many options are available from the request dict.
@@ -2914,7 +2909,7 @@ def render_image_region (request, iid, z, t, server_id=None, share_id=None, _con
 
     return webgateway_views.render_image_region(request, iid, z, t, server_id=None, _conn=conn, **kwargs)
 
-@isUserConnected
+@login_required()
 def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs):
     """ This view is responsible for showing well data within plate """
     
@@ -2934,7 +2929,7 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
     
     return webgateway_views.plateGrid_json(request, pid, field=field, server_id=None, _conn=None, **kwargs)
 
-@isUserConnected
+@login_required()
 def image_viewer (request, iid, share_id=None, **kwargs):
     """ This view is responsible for showing pixel data as images. Delegates to webgateway, using share connection if appropriate """
     
@@ -2960,7 +2955,7 @@ def image_viewer (request, iid, share_id=None, **kwargs):
     return webgateway_views.full_viewer(request, iid, _conn=conn, **kwargs)
 
 
-@isUserConnected
+@login_required()
 def imageData_json (request, iid, share_id=None, **kwargs):
     """ Get a dict with image information. Delegates to webgateway, using share connection if appropriate """
     conn = None
@@ -2982,7 +2977,7 @@ def imageData_json (request, iid, share_id=None, **kwargs):
 
     return HttpResponse(webgateway_views.imageData_json(request, iid=iid, _conn=conn, **kwargs), mimetype='application/javascript')
 
-@isUserConnected
+@login_required()
 def render_row_plot (request, iid, z, t, y, share_id=None, w=1, **kwargs):
     """ Plot of intenisty for a row of pixels. Delegates to webgateway, using share connection if appropriate """
     conn = None
@@ -3005,7 +3000,7 @@ def render_row_plot (request, iid, z, t, y, share_id=None, w=1, **kwargs):
 
     return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, _conn=conn, **kwargs)
 
-@isUserConnected
+@login_required()
 def render_col_plot (request, iid, z, t, x, share_id=None, w=1, **kwargs):
     """ Plot of intenisty for a row of pixels. Delegates to webgateway, using share connection if appropriate """
     conn = None
@@ -3028,7 +3023,7 @@ def render_col_plot (request, iid, z, t, x, share_id=None, w=1, **kwargs):
 
     return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, _conn=conn, **kwargs)
 
-@isUserConnected
+@login_required()
 def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
     """ Jpeg of each channel as a separate panel. Delegates to webgateway, using share connection if appropriate """
 
@@ -3054,7 +3049,7 @@ def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
 
 
 # scripting service....
-@isUserConnected
+@login_required()
 def list_scripts (request, **kwargs):
     """ List the available scripts - Just officical scripts for now """
 
@@ -3095,7 +3090,7 @@ def list_scripts (request, **kwargs):
 
     return render_to_response("webclient/scripts/list_scripts.html", {'scriptMenu': scriptList})
 
-@isUserConnected
+@login_required()
 def script_ui(request, scriptId, **kwargs):
     """
     Generates an html form for the parameters of a defined script.
@@ -3192,7 +3187,7 @@ def script_ui(request, scriptId, **kwargs):
     return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData, 'scriptId': scriptId}, 
         context_instance=Context(request))
 
-@isUserConnected
+@login_required()
 def script_run(request, scriptId, **kwargs):
     """
     Runs a script using values in a POST
