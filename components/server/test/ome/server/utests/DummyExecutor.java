@@ -76,12 +76,4 @@ public class DummyExecutor implements Executor {
         throw new UnsupportedOperationException();
     }
 
-    public void setCallGroup(long gid) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void resetCallGroup() {
-        throw new UnsupportedOperationException();
-    }
-
 }

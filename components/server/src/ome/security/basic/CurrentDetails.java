@@ -68,8 +68,6 @@ public class CurrentDetails implements PrincipalHolder {
 
     private final ThreadLocal<LinkedList<BasicEventContext>> contexts = new ThreadLocal<LinkedList<BasicEventContext>>();
 
-    private final ThreadLocal<Map<String, String>> callContext = new ThreadLocal<Map<String, String>>();
-
     /**
      * Default constructor. Should only be used for testing, since the stats
      * used will not be correct.
@@ -95,51 +93,7 @@ public class CurrentDetails implements PrincipalHolder {
     // =================================================================
 
     public Map<String, String> setContext(Map<String, String> ctx) {
-        Map<String, String> rv = callContext.get();
-        callContext.set(ctx);
-        return rv;
-    }
-
-    public Long getCallGroup() {
-        Map<String, String> ctx = callContext.get();
-        if (ctx != null && ctx.containsKey("omero.group")) {
-            String s = ctx.get("omero.group");
-            try {
-                return Long.valueOf(ctx.get("omero.group"));
-            } catch (Exception e) {
-                log.debug("Ignoring invalid omero.group context: " + s);
-                return null;
-            }
-        }
-        return null;
-    }
-
-    public void setCallGroup(Long id) {
-        Map<String, String> ctx = callContext.get();
-        if (ctx == null) {
-            ctx = new HashMap<String, String>();
-            callContext.set(ctx);
-        }
-
-        String old = ctx.get("omero.group.old");
-        String curr = ctx.get("omero.group");
-        if (old != null) {
-            throw new RuntimeException("Recursive call! " +
-                    String.format("Old: %s Current: %s New: %s",
-                            old, curr, id));
-        }
-
-        ctx.put("omero.group.old", curr);
-        ctx.put("omero.group", "" + id);
-    }
-
-    public void resetCallGroup() {
-        Map<String, String> ctx = callContext.get();
-        if (ctx != null) {
-            String old = ctx.get("omero.group.old");
-            ctx.remove("omero.group.old");
-            ctx.put("omero.group", old);
-        }
+        return list().getLast().setCallContext(ctx);
     }
 
     // PrincipalHolder methods

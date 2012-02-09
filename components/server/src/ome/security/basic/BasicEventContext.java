@@ -8,9 +8,13 @@
 package ome.security.basic;
 
 // Java imports
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import ome.model.IObject;
 import ome.model.internal.Permissions;
@@ -31,6 +35,8 @@ import ome.system.SimpleEventContext;
  * Not-thread-safe. Intended to be held by a {@link ThreadLocal}
  */
 class BasicEventContext extends SimpleEventContext {
+
+    private final static Log log = LogFactory.getLog(BasicEventContext.class);
 
     // Additions beyond simple event context
     // =========================================================================
@@ -57,6 +63,8 @@ class BasicEventContext extends SimpleEventContext {
 
     private ExperimenterGroup group;
 
+    private Map<String, String> callContext;
+
     public BasicEventContext(Principal p, SessionStats stats) {
         if (p == null || stats == null) {
             throw new RuntimeException("Principal and stats canot be null.");
@@ -77,6 +85,43 @@ class BasicEventContext extends SimpleEventContext {
      */
     void copyContext(EventContext ec) {
         super.copy(ec);
+    }
+
+    // Call Context (ticket:3529)
+    // =========================================================================
+
+    static Long parseId(Map<String, String> ctx, String key) {
+        Long rv = null;
+        if (ctx != null && ctx.containsKey(key)) {
+            String s = ctx.get(key);
+            try {
+                rv = Long.valueOf(ctx.get(key));
+                log.debug("Using call requested group: " + key + "=" + s);
+            } catch (Exception e) {
+                log.warn("Ignoring invalid requested group: " + key + "=" + s);
+            }
+        }
+        return rv;
+    }
+
+    public Map<String, String> getCallContext() {
+        return callContext;
+    }
+
+    public Map<String, String> setCallContext(Map<String, String> ctx) {
+        Map<String, String> rv = callContext;
+        callContext = ctx;
+        Long gid = parseId(ctx, "omero.group");
+        if (gid != null) {
+            this.cgId = gid;
+        }
+
+        Long sid = parseId(ctx, "omero.share");
+        if (sid != null) {
+            this.shareId = sid;
+        }
+
+        return rv;
     }
 
     // ~ Setters for superclass state

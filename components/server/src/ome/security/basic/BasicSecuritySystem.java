@@ -591,14 +591,21 @@ public class BasicSecuritySystem implements SecuritySystem,
 
                 BasicEventContext c = cd.current();
                 boolean wasAdmin = c.isCurrentUserAdmin();
+                ExperimenterGroup oldGroup = c.getGroup();
 
                 try {
                     c.setAdmin(true);
+                    if (group != null) {
+                        c.setGroup(group);
+                    }
                     disable(MergeEventListener.MERGE_EVENT);
                     enableReadFilter(session);
                     action.runAsAdmin();
                 } finally {
                     c.setAdmin(wasAdmin);
+                    if (group != null) {
+                        c.setGroup(oldGroup);
+                    }
                     enable(MergeEventListener.MERGE_EVENT);
                     enableReadFilter(session); // Now as non-admin
                 }
