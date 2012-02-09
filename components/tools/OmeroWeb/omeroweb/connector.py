@@ -54,8 +54,7 @@ class Connector(object):
         from omeroweb.webgateway.views import UserProxy
         connection.user = UserProxy(connection)
         connection.user.logIn()
-        ec = connection.getAdminService().getEventContext()
-        self.omero_session_key = ec.sessionUuid
+        self.omero_session_key = connection._sessionUuid
         # TODO: Properly handle activating the weblitz_cache
 
     def create_connection(self, useragent, username, password):
