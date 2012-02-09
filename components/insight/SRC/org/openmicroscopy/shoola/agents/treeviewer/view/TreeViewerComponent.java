@@ -1392,7 +1392,8 @@ class TreeViewerComponent
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			browser = (Browser) entry.getValue();
-			browser.addExperimenter(experimenter, browser == selected);
+			browser.addExperimenter(experimenter, userGroupID,
+					browser == selected);
 		}
 	}
 
