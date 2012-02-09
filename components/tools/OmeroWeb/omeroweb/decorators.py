@@ -113,7 +113,7 @@ class login_required(object):
             if not conn.isOwner():
                 raise Http404
 
-    def get_connection(self, server_id, request, useragent):
+    def get_connection(self, server_id, request):
         """
         Prepares a Blitz connection wrapper (from L{omero.gateway}) for
         use with a view function.
@@ -129,7 +129,7 @@ class login_required(object):
         if connector is not None:
             # We have a connector, attempt to use it to join an existing
             # connection / OMERO session.
-            return connector.join_connection(useragent)
+            return connector.join_connection(self.useragent)
 
         if server_id is None:
             # If no server id is passed, the db entry will not be used and
@@ -157,7 +157,7 @@ class login_required(object):
             logger.debug('Have OMERO session key %s, attempting to join...' % \
                     omero_session_key)
             connector.omero_session_key = omero_session_key
-            connection = connector.join_connection(useragent)
+            connection = connector.join_connection(self.useragent)
             session['connector'] = connector
             return connection
 
@@ -186,7 +186,8 @@ class login_required(object):
         # and password via configureation. Use them to try and create a
         # new connection / OMERO session.
         logger.debug('Creating connection with username and password...')
-        connection = connector.create_connection(useragent, username, password)
+        connection = connector.create_connection(
+                self.useragent, username, password)
         session['connector'] = connector
         return connection
 
@@ -209,8 +210,7 @@ class login_required(object):
             if conn is None:
                 logger.debug('Connection not provided, attempting to get one.')
                 try:
-                    conn = ctx.get_connection(
-                            server_id, request, useragent=ctx.useragent)
+                    conn = ctx.get_connection(server_id, request)
                 except Http403:
                     # An authentication error should go all the way up the
                     # stack.
