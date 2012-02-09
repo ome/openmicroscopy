@@ -32,32 +32,19 @@ class Connector(object):
     and its status with respect to OMERO.web.
     """
 
-    def __init__(self, server_id, is_secure, useragent):
+    def __init__(self, server_id, is_secure):
         self.server_id = server_id
         self.is_secure = is_secure
-        self.omero_session_key = None
-        self.useragent = useragent
-
-    def set_server_id(self, server_id):
-        self._server_id = server_id
-        self.server = None
-        if server_id is not None:
-            self.server = Server.get(server_id)
-
-    def get_server_id(self):
-        if self.server is not None:
-            return self.server.id
-    server_id = property(get_server_id, set_server_id)
 
     def lookup_host_and_port(self):
         server = Server.get(self.server_id)
         return (server.host, server.port)
 
-    def create_gateway(self, username=None, password=None):
+    def create_gateway(self, useragent, username=None, password=None):
         host, port = self.lookup_host_and_port()
         return client_wrapper(
                 username, password, host=host, port=port, secure=self.is_secure,
-                useragent=self.useragent)
+                useragent=useragent)
 
     def prepare_gateway(self, connection):
         connection.server_id = self.server_id
@@ -71,9 +58,9 @@ class Connector(object):
         self.omero_session_key = ec.sessionUuid
         # TODO: Properly handle activating the weblitz_cache
 
-    def create_connection(self, username, password):
+    def create_connection(self, useragent, username, password):
         try:
-            connection = self.create_gateway(username, password)
+            connection = self.create_gateway(useragent, username, password)
             connection.connect()
             self.prepare_gateway(connection)
             return connection
@@ -81,9 +68,9 @@ class Connector(object):
             logger.debug('Cannot create a new connection.', exc_info=True)
             return None
 
-    def join_connection(self):
+    def join_connection(self, useragent):
         try:
-            connection = self.create_gateway()
+            connection = self.create_gateway(useragent)
             connection.connect(sUuid=self.omero_session_key)
             self.prepare_gateway(connection)
             return connection
