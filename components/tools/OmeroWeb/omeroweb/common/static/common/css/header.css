@@ -203,6 +203,7 @@
     left:351px; right:370px; top:0px; bottom:0px;
     border: none;
     background: #e5e5e5;
+    z-index:10;
 }
 
 #lhid_trayhandle_icon_right {

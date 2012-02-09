@@ -101,14 +101,15 @@ $(document).ready(function()
         .bind("dragstart", function(event, ui) {
             // note the starting position and original width
             $(this).data("drag_start_x", event.pageX);
-            var lp_width = parseInt($("#left_panel").css('width'));
+            var lp_width = $("#left_panel").width();
             $(this).data("lp_width", lp_width);
+            $(this).data("cp_width", $("#center_panel").width());
             $("#swapTree").children('img').removeClass("collapsed-left").addClass("expanded-left");     // show 'expanded'
         })
         .bind("drag", function(event, ui) {
             var moved = event.pageX - $(this).data("drag_start_x");
             var new_width = $(this).data("lp_width") + moved;
-            if (new_width > 0) {
+            if ((moved < $(this).data("cp_width")) && (new_width > 0)) {
                 $("#left_panel").css('width', new_width+"px");
                 $("#center_container").css('left', new_width+1+"px");   // border 1px
             }
@@ -122,14 +123,15 @@ $(document).ready(function()
         .bind("dragstart", function(event, ui) {
             // note the starting position and original width
             $(this).data("drag_start_x", event.pageX);
-            var rp_width = parseInt($("#right_panel").css('width'));
+            var rp_width = $("#right_panel").width();
             $(this).data("rp_width", rp_width);
+            $(this).data("cp_width", $("#center_panel").width());
             $("#swapMeta").children('img').removeClass("expanded-right").addClass("collapsed-right");   // show 'expanded'
         })
         .bind("drag", function(event, ui) {
             var moved = event.pageX - $(this).data("drag_start_x");
             var new_width = $(this).data("rp_width") - moved;
-            if (new_width > 0) {
+            if (((moved*-1) < $(this).data("cp_width")) && (new_width > 0)) {
                 $("#right_panel").css('width', new_width+"px");
                 $("#center_container").css('right', new_width+1 +"px"); // border 1px
             }
