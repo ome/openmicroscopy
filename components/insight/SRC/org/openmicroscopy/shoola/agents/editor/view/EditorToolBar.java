@@ -131,8 +131,7 @@ class EditorToolBar
 		setGroupInformation();
 		return bar;
 	}
-	
-	
+
 	/**
 	 * Convenience method for getting an {@link Action} from the 
 	 * {@link #controller}, creating a {@link CustomButton} and adding
@@ -155,7 +154,8 @@ class EditorToolBar
     	toolBars.setBorder(null);
         toolBars.setLayout(new BoxLayout(toolBars, BoxLayout.X_AXIS));
         toolBars.add(createBar());
-        if (!view.isStandalone())
+        Set l = EditorAgent.getAvailableUserGroups();
+        if (!view.isStandalone() && l.size() > 1)
         	toolBars.add(createManagementBar());
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(toolBars);

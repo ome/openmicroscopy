@@ -27,6 +27,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -323,4 +325,15 @@ class ImporterModel
 		//state = Importer.CREATING_CONTAINER;
 	}
 	
+    /**
+     * Returns <code>true</code> if only one group for the user,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isSingleGroup()
+    { 
+    	Set l = ImporterAgent.getAvailableUserGroups();
+    	return (l.size() <= 1);
+    }
 }

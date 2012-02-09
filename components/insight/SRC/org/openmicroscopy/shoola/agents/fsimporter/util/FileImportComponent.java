@@ -318,6 +318,9 @@ public class FileImportComponent
 	/** The component displaying the group where the file is imported. */
 	private JLabel groupLabel;
 	
+	/** Flag indicating the the user is member of one group only.*/
+	private boolean singleGroup;
+	
 	/** Displays the error box at the specified location.
 	 * 
 	 * @param p The location where to show the box.
@@ -620,7 +623,8 @@ public class FileImportComponent
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			f = (File) entry.getKey();
-			c = new FileImportComponent(f, folderAsContainer, browsable, group);
+			c = new FileImportComponent(f, folderAsContainer, browsable, group,
+					singleGroup);
 			if (f.isFile()) {
 				c.setLocation(data, d, node);
 				c.setParent(this);
@@ -663,9 +667,11 @@ public class FileImportComponent
 	 * 							<code>false</code> otherwise.
 	 * @param browsable Flag indicating that the container can be browsed or not.
 	 * @param group The group in which to import the file.
+	 * @param singleGroup Passes <code>true</code> if the user is member of 
+	 * only one group, <code>false</code> otherwise.
 	 */
 	public FileImportComponent(File file, boolean folderAsContainer, boolean
-			browsable, GroupData group)
+			browsable, GroupData group, boolean singleGroup)
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file specified.");
@@ -673,6 +679,7 @@ public class FileImportComponent
 			throw new IllegalArgumentException("No group specified.");
 		this.file = file;
 		this.group = group;
+		this.singleGroup = singleGroup;
 		importCount = 0;
 		this.browsable = browsable;
 		this.folderAsContainer = folderAsContainer;
@@ -836,11 +843,11 @@ public class FileImportComponent
 					browseButton.setVisible(showContainerLabel);
 					containerLabel.setVisible(showContainerLabel);
 				}
-				groupLabel.setVisible(true);
+				groupLabel.setVisible(!singleGroup);
 			}
 		} else if (image instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) image;
-			groupLabel.setVisible(true);
+			groupLabel.setVisible(!singleGroup);
 			if (thumbnail.isValidImage()) {
 				imageLabel.setData(thumbnail);
 				
@@ -876,7 +883,7 @@ public class FileImportComponent
 				resultLabel.setVisible(true);
 				errorButton.setVisible(false);
 				errorBox.setVisible(false);
-				groupLabel.setVisible(true);
+				groupLabel.setVisible(!singleGroup);
 				/*
 				errorButton.setToolTipText(
 						UIUtilities.formatExceptionForToolTip(
@@ -892,7 +899,7 @@ public class FileImportComponent
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
 			statusLabel.setVisible(false);
-			groupLabel.setVisible(true);
+			groupLabel.setVisible(!singleGroup);
 			if (browsable) {
 				resultLabel.setText(BROWSE_TEXT);
 				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
@@ -911,7 +918,7 @@ public class FileImportComponent
 			}
 		} else if (image instanceof List) {
 			statusLabel.setVisible(false);
-			groupLabel.setVisible(true);
+			groupLabel.setVisible(!singleGroup);
 			List list = (List) image;
 			int m = list.size();
 			imageLabel.setData(list.get(0));

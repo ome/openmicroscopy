@@ -83,7 +83,8 @@ public class TooltipTableHeader
 		} catch (Exception ex) {
 			retStr = "";
 		}
-		if (retStr.length() < 1) retStr = super.getToolTipText(e);
+		if (retStr == null || retStr.length() < 1)
+			retStr = super.getToolTipText(e);
 		return retStr;
 	}
 	
