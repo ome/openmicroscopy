@@ -104,7 +104,7 @@ public class BasicACLVoter implements ACLVoter {
             c.getLeaderOfGroupsList().contains(c.getCurrentGroupId());
         return securityFilter.passesFilter(d,
                 c.getGroup().getId(), c.getOwner().getId(),
-                nonPrivate, adminOrPi, isShare);
+                nonPrivate, adminOrPi, isShare, c.getMemberOfGroupsList());
     }
 
     public void throwLoadViolation(IObject iObject) throws SecurityViolation {

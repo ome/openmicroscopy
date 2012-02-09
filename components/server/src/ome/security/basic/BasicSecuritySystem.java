@@ -9,6 +9,8 @@ package ome.security.basic;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import ome.annotations.RevisionDate;
@@ -213,26 +215,44 @@ public class BasicSecuritySystem implements SecuritySystem,
         checkReady("enableReadFilter");
         // beware
         // http://opensource.atlassian.com/projects/hibernate/browse/HHH-1932
-        EventContext ec = getEventContext();
-        Session sess = (Session) session;
-        Filter filter = sess.enableFilter(SecurityFilter.filterName);
+        final EventContext ec = getEventContext();
+        final Session sess = (Session) session;
+        final Filter filter = sess.enableFilter(SecurityFilter.filterName);
 
-        Long shareId = ec.getCurrentShareId();
-        int share01 = shareId != null ? 1 : 0;
+        final Long groupId = ec.getCurrentGroupId();
+        final Long shareId = ec.getCurrentShareId();
+        int share01 = shareId != null ? 1 : 0; // non-final; "ticket:3529" below
 
-        int admin01 = (ec.isCurrentUserAdmin() ||
+        final int admin01 = (ec.isCurrentUserAdmin() ||
                 ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId()))
                 ? 1 : 0;
 
-        int nonpriv01 = (ec.getCurrentGroupPermissions().isGranted(Role.GROUP, Right.READ)
+        final int nonpriv01 = (ec.getCurrentGroupPermissions().isGranted(Role.GROUP, Right.READ)
                 || ec.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.READ))
                 ? 1 : 0;
+
+        // ticket:3529 - if the group id is less than zero, then we assume that
+        // SELECTs should return more than a single group.
+        Collection<Long> groups = null;
+        if (groupId < 0) { // Special marker
+            if (ec.isCurrentUserAdmin()) {
+                // Admin is considered to be in every group
+                share01 = 1;
+                groups = Collections.singletonList(-1L);
+            } else {
+                // Non-admin are only in their groups.
+                groups = ec.getMemberOfGroupsList();
+            }
+        } else {
+            // Group is a real value, pass only one.
+            groups = Collections.singletonList(groupId);
+        }
 
         filter.setParameter(SecurityFilter.is_share, share01); // ticket:2219, not checking -1 here.
         filter.setParameter(SecurityFilter.is_adminorpi, admin01);
         filter.setParameter(SecurityFilter.is_nonprivate, nonpriv01);
-        filter.setParameter(SecurityFilter.current_group, ec.getCurrentGroupId());
         filter.setParameter(SecurityFilter.current_user, ec.getCurrentUserId());
+        filter.setParameterList(SecurityFilter.current_groups, groups);
     }
 
     public void  updateReadFilter(Session session) {
@@ -340,6 +360,7 @@ public class BasicSecuritySystem implements SecuritySystem,
 
         // Refill current details
         cd.copy(ec);
+        ec = cd.getCurrentEventContext(); // Replace with callContext
 
         // Experimenter
         Experimenter exp;
@@ -359,23 +380,28 @@ public class BasicSecuritySystem implements SecuritySystem,
             }
         }
 
-        // Active group
+        // Active group - starting with #3529, the current group and the current
+        // share values should be definitive as setting the context on
+        // BasicEventContext will automatically update the global values. For
+        // security reasons, we need only guarantee that non-admins are
+        // actually members of the noted groups.
+        //
+        // Joined with public group block (ticket:1940)
         ExperimenterGroup grp;
-        Long groupId = cd.getCallGroup();
         Long shareId = ec.getCurrentShareId();
-        if (groupId == null) {
-            groupId = ec.getCurrentGroupId();
-        } else {
-            if (groupId >= 0) {
-                log.debug("Using call-requested group: " + groupId);
-            } else {
-                // ticket:2950
-                if (!isAdmin) {
-                    throw new SecurityViolation("Only administrators can use negative groups!");
+        Long groupId = ec.getCurrentGroupId();
+        if (groupId >= 0) { // negative groupId means all member groups
+            // tickets:2950, 1940, 3529
+            if (!isAdmin && !ec.getMemberOfGroupsList().contains(groupId)) {
+                // Only force loading the group if we would otherwise throw an exception.
+                // The extra performance hit on READ is just the price of browsing
+                // public data
+                ExperimenterGroup publicGroup = admin.groupProxy(groupId);
+                if (!publicGroup.getDetails().getPermissions().isGranted(Role.WORLD, Right.READ)) {
+                    throw new SecurityViolation(String.format(
+                        "User %s is not a member of group %s and cannot login",
+                                ec.getCurrentUserId(), groupId));
                 }
-                log.info("Setting share id to -1");
-                shareId = -1L;
-                groupId = ec.getCurrentGroupId();
             }
         }
 
@@ -393,18 +419,6 @@ public class BasicSecuritySystem implements SecuritySystem,
             sess = sf.getQueryService().get(ome.model.meta.Session.class, sessionId);
         }
 
-        // public groups (ticket:1940)
-        if (!isAdmin && !ec.getMemberOfGroupsList().contains(grp.getId())) {
-            // Only force loading the group if we would otherwise throw an exception.
-            // The extra performance hit on READ is just the price of browsing
-            // public data
-            ExperimenterGroup publicGroup = admin.groupProxy(groupId);
-            if (!publicGroup.getDetails().getPermissions().isGranted(Role.WORLD, Right.READ)) {
-                throw new SecurityViolation(String.format(
-                    "User %s is not a member of group %s and cannot login",
-                            ec.getCurrentUserId(), grp.getId()));
-            }
-        }
         tokenHolder.setToken(grp.getGraphHolder());
 
         // In order to less frequently access the ThreadLocal in CurrentDetails

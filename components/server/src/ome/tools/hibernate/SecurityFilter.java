@@ -9,20 +9,19 @@ package ome.tools.hibernate;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
 
 import ome.conditions.InternalException;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.security.basic.OmeroInterceptor;
 import ome.system.Roles;
-
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
 
 /**
  * overrides {@link FilterDefinitionFactoryBean} in order to construct our
@@ -48,7 +47,7 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
 
     static public final String is_nonprivate = "is_nonprivate";
 
-    static public final String current_group = "current_group";
+    static public final String current_groups = "current_groups";
 
     static public final String current_user = "current_user";
 
@@ -61,23 +60,23 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
         parameterTypes.put(is_share, "int");
         parameterTypes.put(is_adminorpi, "int");
         parameterTypes.put(is_nonprivate, "int");
-        parameterTypes.put(current_group, "long");
+        parameterTypes.put(current_groups, "long");
         parameterTypes.put(current_user, "long");
         return parameterTypes;
     }
 
     static {
-        // This can't be done statically because we need the securitySystem.
         defaultFilterCondition = "(\n"
                 // Should handle hidden groups at the top-level
                 // ticket:1784 - Allowing system objects to be read.
-                + "\n  ( group_id = :current_group AND "
+                + "\n  ( group_id in (:current_groups) AND "
                 + "\n     ( 1 = :is_nonprivate OR "
                 + "\n       1 = :is_adminorpi OR "
                 + "\n       owner_id = :current_user"
                 + "\n     )"
                 + "\n  ) OR"
                 + "\n  group_id = %s OR " // ticket:1794
+                // Will need to add something about world readable here.
                 + "\n 1 = :is_share"
                 + "\n)\n";
     }
@@ -121,7 +120,8 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
      */
     public boolean passesFilter(Details d,
             Long currentGroupId, Long currentUserId,
-            boolean nonPrivate, boolean adminOrPi, boolean share) {
+            boolean nonPrivate, boolean adminOrPi, boolean share,
+            List<Long> memberOfGroups) {
         if (d == null || d.getPermissions() == null) {
             throw new InternalException("Details/Permissions null! "
                     + "Security system failure -- refusing to continue. "
@@ -145,7 +145,16 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
             return true;
         }
 
-        if (!currentGroupId.equals(g)) {
+        // ticket:3529 - if we're querying for multi groups, then allow
+        // admins to read anything, and prevent other non-group members
+        // from doing anything.
+        if (currentGroupId < 0) {
+            if (adminOrPi) {
+                return true;
+            } else if (!memberOfGroups.contains(g)) {
+                return false;
+            }
+        } else if (!currentGroupId.equals(g)) {
             return false;
         }
 
@@ -162,27 +171,6 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
         }
 
         return false;
-    }
-
-    // ~ Helpers
-    // =========================================================================
-
-    protected static String isGranted(Role role, Right right) {
-        String bit = "" + Permissions.bit(role, right);
-        String isGranted = String
-                .format(
-                        "(cast(permissions as bit(64)) & cast(%s as bit(64))) = cast(%s as bit(64))",
-                        bit, bit);
-        return isGranted;
-    }
-
-    protected static String isSet(Flag flag) {
-        String bit = "" + Permissions.bit(flag);
-        String isGranted = String
-                .format(
-                        "(cast(permissions as bit(64)) & cast(%s as bit(64))) = cast(%s as bit(64))",
-                        bit, bit);
-        return isGranted;
     }
 
 }

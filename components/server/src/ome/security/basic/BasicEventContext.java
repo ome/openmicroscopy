@@ -85,6 +85,7 @@ class BasicEventContext extends SimpleEventContext {
      */
     void copyContext(EventContext ec) {
         super.copy(ec);
+        setCallContext(callContext); // Re-apply values.
     }
 
     // Call Context (ticket:3529)
@@ -113,12 +114,12 @@ class BasicEventContext extends SimpleEventContext {
         callContext = ctx;
         Long gid = parseId(ctx, "omero.group");
         if (gid != null) {
-            this.cgId = gid;
+            setGroup(new ExperimenterGroup(gid, false));
         }
 
         Long sid = parseId(ctx, "omero.share");
         if (sid != null) {
-            this.shareId = sid;
+            setShareId(sid);
         }
 
         return rv;
