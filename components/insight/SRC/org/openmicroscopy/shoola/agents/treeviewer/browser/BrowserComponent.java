@@ -141,33 +141,55 @@ class BrowserComponent
 	    List children;
 	    long gid;
 	    SecurityContext ctx;
-	    for (int i = 0; i < n; i++) {
-	    	groupNode = (TreeImageSet) root.getChildAt(i);
-	    	if (groupNode.isExpanded()) {
-	    		gid = groupNode.getUserObjectId();
-		    	children = groupNode.getChildrenDisplay();
-		    	j = children.iterator();
-		    	while (j.hasNext()) {
-					expNode = (TreeImageSet) j.next();
-					if (expNode.isChildrenLoaded() && 
-							ids.contains(expNode.getUserObjectId())) {
-						expNode.accept(v, 
-								TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
-				    	foundNodes = v.getFoundNodes();
-				    	topNodes = v.getExpandedTopNodes();
-				    	//reset the flag 
-				    	if (type == Browser.IMAGES_EXPLORER)
-				    		countExperimenterImages(expNode);
-				    	def = new RefreshExperimenterDef(expNode, 
-				    			v.getFoundNodes(),
-								v.getExpandedTopNodes());
-				    	ctx = new SecurityContext(gid);
-						ctx.setExperimenter(expNode.getUserObjectId());
-						m.put(ctx, def);
+	    if (model.isSingleGroup()) {
+	    	gid = model.getUserDetails().getDefaultGroup().getId();
+	    	for (int i = 0; i < n; i++) {
+	    		expNode = (TreeImageSet) root.getChildAt(i);
+		    	if (expNode.isExpanded() && expNode.isChildrenLoaded()) {
+		    		expNode.accept(v, 
+							TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+			    	foundNodes = v.getFoundNodes();
+			    	topNodes = v.getExpandedTopNodes();
+			    	//reset the flag 
+			    	if (type == Browser.IMAGES_EXPLORER)
+			    		countExperimenterImages(expNode);
+			    	def = new RefreshExperimenterDef(expNode, 
+			    			v.getFoundNodes(),
+							v.getExpandedTopNodes());
+			    	ctx = new SecurityContext(gid);
+					ctx.setExperimenter(expNode.getUserObjectId());
+					m.put(ctx, def);
+		    	}
+			}
+	    } else {
+	    	for (int i = 0; i < n; i++) {
+		    	groupNode = (TreeImageSet) root.getChildAt(i);
+		    	if (groupNode.isExpanded()) {
+		    		gid = groupNode.getUserObjectId();
+			    	children = groupNode.getChildrenDisplay();
+			    	j = children.iterator();
+			    	while (j.hasNext()) {
+						expNode = (TreeImageSet) j.next();
+						if (expNode.isChildrenLoaded() && 
+								ids.contains(expNode.getUserObjectId())) {
+							expNode.accept(v, 
+									TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+					    	foundNodes = v.getFoundNodes();
+					    	topNodes = v.getExpandedTopNodes();
+					    	//reset the flag 
+					    	if (type == Browser.IMAGES_EXPLORER)
+					    		countExperimenterImages(expNode);
+					    	def = new RefreshExperimenterDef(expNode, 
+					    			v.getFoundNodes(),
+									v.getExpandedTopNodes());
+					    	ctx = new SecurityContext(gid);
+							ctx.setExperimenter(expNode.getUserObjectId());
+							m.put(ctx, def);
+						}
 					}
-				}
-	    	}
-		}
+		    	}
+			}
+	    }
 	    model.loadRefreshExperimenterData(m, null, -1, null, null);
 		fireStateChange();
 	}
@@ -1176,15 +1198,24 @@ class BrowserComponent
 	
 	/**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#addExperimenter(ExperimenterData, boolean)
+     * @see Browser#addExperimenter(ExperimenterData, long, boolean)
      */
-	public void addExperimenter(ExperimenterData experimenter, boolean load)
+	public void addExperimenter(ExperimenterData experimenter, long groupID,
+			boolean load)
 	{
 		if (experimenter == null)
 			throw new IllegalArgumentException("Experimenter cannot be null.");
-		TreeImageDisplay groupNode = model.getLastSelectedDisplay();
-		if (groupNode == null || !(groupNode.getUserObject()
-				instanceof GroupData)) return;
+		if (model.getBrowserType() == ADMIN_EXPLORER) return;
+		TreeImageDisplay node = model.getLastSelectedDisplay();
+		if (model.isSingleGroup()) node = view.getTreeRoot();
+		else {
+			//Find the group
+			ExperimenterVisitor v = new ExperimenterVisitor(this, groupID);
+			List<TreeImageDisplay> list = v.getNodes();
+			if (list.size() == 0) return;
+			node = list.get(0);
+		}
+		
 		//Make sure the user is not already display
 		List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>(1);
 		nodes.add(new TreeImageSet(experimenter));
@@ -1193,7 +1224,7 @@ class BrowserComponent
 		
 		if (visitor.getFoundNodes().size() > 0) return;
 		setSelectedDisplay(null);
-		view.addExperimenter(experimenter, groupNode, load);
+		view.addExperimenter(experimenter, node, load);
 	}
 
 	/**
@@ -1330,32 +1361,55 @@ class BrowserComponent
 	    List children;
 	    long gid;
 	    SecurityContext ctx;
-	    for (int i = 0; i < n; i++) {
-	    	groupNode = (TreeImageSet) root.getChildAt(i);
-	    	if (groupNode.isExpanded()) {
-	    		gid = groupNode.getUserObjectId();
-		    	children = groupNode.getChildrenDisplay();
-		    	j = children.iterator();
-		    	while (j.hasNext()) {
-					expNode = (TreeImageSet) j.next();
-					if (expNode.isChildrenLoaded()) {
-						expNode.accept(v, 
-								TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
-				    	foundNodes = v.getFoundNodes();
-				    	topNodes = v.getExpandedTopNodes();
-				    	//reset the flag 
-				    	if (type == Browser.IMAGES_EXPLORER)
-				    		countExperimenterImages(expNode);
-				    	def = new RefreshExperimenterDef(expNode, 
-				    			v.getFoundNodes(),
-								v.getExpandedTopNodes());
-				    	ctx = new SecurityContext(gid);
-						ctx.setExperimenter(expNode.getUserObjectId());
-						m.put(ctx, def);
+	    if (model.isSingleGroup()) {
+	    	gid = model.getUserDetails().getDefaultGroup().getId();
+	    	for (int i = 0; i < n; i++) {
+	    		expNode = (TreeImageSet) root.getChildAt(i);
+		    	if (expNode.isExpanded() && expNode.isChildrenLoaded()) {
+		    		expNode.accept(v, 
+							TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+			    	foundNodes = v.getFoundNodes();
+			    	topNodes = v.getExpandedTopNodes();
+			    	//reset the flag 
+			    	if (type == Browser.IMAGES_EXPLORER)
+			    		countExperimenterImages(expNode);
+			    	def = new RefreshExperimenterDef(expNode, 
+			    			v.getFoundNodes(),
+							v.getExpandedTopNodes());
+			    	ctx = new SecurityContext(gid);
+					ctx.setExperimenter(expNode.getUserObjectId());
+					m.put(ctx, def);
+		    	}
+			}
+	    } else {
+	    	for (int i = 0; i < n; i++) {
+		    	groupNode = (TreeImageSet) root.getChildAt(i);
+		    	if (groupNode.isExpanded()) {
+		    		gid = groupNode.getUserObjectId();
+			    	children = groupNode.getChildrenDisplay();
+			    	j = children.iterator();
+			    	while (j.hasNext()) {
+						expNode = (TreeImageSet) j.next();
+						if (expNode.isChildrenLoaded()) {
+							expNode.accept(v, 
+									TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+					    	foundNodes = v.getFoundNodes();
+					    	topNodes = v.getExpandedTopNodes();
+					    	//reset the flag 
+					    	if (type == Browser.IMAGES_EXPLORER)
+					    		countExperimenterImages(expNode);
+					    	def = new RefreshExperimenterDef(expNode, 
+					    			v.getFoundNodes(),
+									v.getExpandedTopNodes());
+					    	ctx = new SecurityContext(gid);
+							ctx.setExperimenter(expNode.getUserObjectId());
+							m.put(ctx, def);
+						}
 					}
-				}
-	    	}
-		}
+		    	}
+			}
+	    }
+	    
 	    if (m.size() == 0) return;
 	    model.loadRefreshExperimenterData(m, null, -1, refNode, toBrowse);
 		fireStateChange();

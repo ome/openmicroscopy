@@ -518,12 +518,14 @@ public interface Browser
 	/** 
 	 * Adds the passed experimenter to the display.
 	 * 
-	 * @param experimenter 	The experimenter to add. 
-	 * 						Mustn't be <code>null</code>.
-	 * @param load			Pass <code>true</code> to load the data,
-	 * 						<code>false</code> otherwise.
+	 * @param experimenter The experimenter to add. Mustn't be <code>null</code>.
+	 * @param groupID The identifier of the group the experimenter has to be
+	 * added.
+	 * @param load Pass <code>true</code> to load the data,
+	 * <code>false</code> otherwise.
 	 */
-	public void addExperimenter(ExperimenterData experimenter, boolean load);
+	public void addExperimenter(ExperimenterData experimenter, long groupID,
+			boolean load);
 
 	/**
 	 * Removes the experimenter's data from the display.
