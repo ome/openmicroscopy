@@ -50,30 +50,10 @@ class login_required(omeroweb.decorators.login_required):
         """
         super(login_required, self).__init__(useragent, isAdmin, isGroupOwner)
 
-    def get_login_url(self):
-        """The URL that should be redirected to if not logged in."""
-        return reverse('weblogin')
-    login_url = property(get_login_url)
-
     def on_share_connection_prepared(self, request):
         """Called whenever a share connection is successfully prepared."""
         super(login_required, self).on_share_connection_prepared(request)
         self.prepare_session(request)
-
-    def on_not_logged_in(self, request, url, error=None):
-        """Called whenever the user is not logged in."""
-        path = string_to_dict(request.REQUEST.get('path'))
-        server_id = request.REQUEST.get('server')
-        server = path.get('server', server_id)
-        if request.is_ajax():
-            return HttpResponseServerError(self.login_url)
-        self.cleanup_session(request, server_id)
-        args = {'url': url}
-        if server is not None:
-            args['server'] = server
-        if error is not None:
-            args['error'] = error
-        return HttpLoginRedirect('%s?%s' % (self.login_url, urlencode(args)))
 
     def prepare_session(self, request):
         """Prepares various session variables."""
@@ -88,34 +68,11 @@ class login_required(omeroweb.decorators.login_required):
             request.session['imageInBasket'] = set()
             changes = True
         if request.session.get('nav') is None:
-            if request.session.get('server') is not None:
-                blitz = Server.get(pk=request.session.get('server'))
-            elif request.session.get('host') is not None:
-                blitz = Server.get(host=request.session.get('host'))
-            blitz = '%s:%s' % (blitz.host, blitz.port)
+            connector = request.session['connector']
+            blitz = '%s:%s' % connector.lookup_host_and_port()
             request.session['nav'] = {'blitz': blitz, 'menu': 'mydata',
                     'view': 'tree', 'basket': 0,'experimenter': None}
             changes = True
         if changes:
             request.session.modified = True
-
-    def cleanup_session(self, request, server_id):
-        """
-        Cleans up session variables and performs L{omero.gateway.BlitzGateway}
-        logout semantics.
-        """
-        webgateway_views._session_logout(request, server_id)
-        try:
-            for key in request.session.get('shares', list()):
-                session_key = 'S:%s#%s#%s' % \
-                        (request.session.session_key,server_id, key)
-                webgateway_views._session_logout(
-                        request,server_id, force_key=session_key)
-            for k in request.session:
-                try:
-                    del request.session[k]      
-                except KeyError:
-                    pass
-        except:
-            logger.error('Error performing session logout.', exc_info=True)
 
