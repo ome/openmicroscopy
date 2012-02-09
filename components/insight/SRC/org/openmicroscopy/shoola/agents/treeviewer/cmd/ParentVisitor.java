@@ -37,8 +37,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
-
-import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -86,11 +84,17 @@ public class ParentVisitor
            if (ho instanceof ExperimenterData) {
         	   ExperimenterData exp = (ExperimenterData) ho;
         	   TreeImageDisplay gp = parent.getParentDisplay();
-        	   GroupData hgp = (GroupData) gp.getUserObject();
-        	   Map<Long, List<TreeImageDisplay>> m = data.get(hgp.getId());
+        	   long gid;
+        	   if (gp.getUserObject() instanceof GroupData) {
+        		   GroupData hgp = (GroupData) gp.getUserObject();
+            	   gid = hgp.getId();
+        	   } else {
+        		   gid = exp.getDefaultGroup().getId();
+        	   }
+        	   Map<Long, List<TreeImageDisplay>> m = data.get(gid);
         	   if (m == null) {
         		   m = new HashMap<Long, List<TreeImageDisplay>>();
-        		   data.put(hgp.getId(), m);
+        		   data.put(gid, m);
         	   }
         	   List<TreeImageDisplay> l = m.get(exp.getId());
         	   if (l == null) {
