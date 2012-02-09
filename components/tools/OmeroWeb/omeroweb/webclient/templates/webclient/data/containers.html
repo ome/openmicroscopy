@@ -41,6 +41,10 @@
         String.prototype.capitalize = function() {
             return this.charAt(0).toUpperCase() + this.slice(1);
         }
+        
+        var handleChgrp = function() {
+            $("#chgrp-form").dialog('open');
+        }
 
         var handleDelete = function() {
             var selected = $.jstree._focused().get_selected();
@@ -140,6 +144,37 @@
                         }
                         return true;
                     }
+                });
+
+
+                $("#chgrp-form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 210,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "OK": function() {
+                            $("#chgrp-form").submit();
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                $("#chgrp-form").submit(function(e){
+                    $("#chgrp-form").dialog("close");
+                    var selected = $.jstree._focused().get_selected();
+                    var postData = $(this).serialize();
+                    console.log('group_id', postData);  // don't send if this is undefined.
+                    var actionUrl= $(this).attr('action') + "?" + get_tree_selection(); // E.g. ?Dataset=34,56$Image=12
+                    $.post(actionUrl, postData, function(data){
+                        //refreshActivities();
+                        $("#dataTree").jstree('remove', selected);
+                        
+                    });
+                    
+                    return false
                 });
 
 
@@ -504,6 +539,12 @@
                                 "action": handleDelete
                             };
                             
+                            config["chgrp"] = {
+                                "label" : "Move to Group...",
+                                "icon"  : '{% static "webclient/image/cancel16.png" %}',
+                                "action": handleChgrp
+                            };
+                            
                             config["basket"] = {
                                 "label" : "Add to Basket",
                                 "icon"  : '{% static "webclient/image/basket16.png" %}',                                    
@@ -824,6 +865,17 @@
             </fieldset>
             </form>
         </div>
+
+        <!-- hidden form for chgrp -->
+        <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}">
+            <p>Choose group to move data</p>
+            <select name='group_id'>
+                {% for grp in eContext.allGroups %}
+                    <option value="{{ grp.id }}">{{ grp.name }}</option>
+                {% endfor %}
+            </select>
+        </form>
+
     </div>
 {% endblock %}
 

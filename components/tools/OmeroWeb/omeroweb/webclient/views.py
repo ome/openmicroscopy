@@ -3192,6 +3192,43 @@ def script_ui(request, scriptId, **kwargs):
     return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData, 'scriptId': scriptId}, 
         context_instance=Context(request))
 
+
+@isUserConnected
+def chgrp(request, conn, **kwargs):
+    """
+    Moves data to a new group, using the chgrp queue.
+    Handles submission of chgrp form: all data in POST.
+    Adds the callback handle to the request.session['callback']['jobId']
+    """
+    
+    group_id = request.POST.get('group_id', None)
+    if group_id is None:
+        raise AttributeError("chgrp: No group_id specified")
+    group_id = long(group_id)
+
+    print "group_id", group_id
+
+    dtypes = ["Project", "Dataset", "Image"]
+    for dtype in dtypes:
+        oids = request.REQUEST.get(dtype, None)
+        if oids is not None:
+            for obj_id in oids.split(","):
+                obj_id = long(obj_id)
+                print "chgrp to group:", group_id, dtype, obj_id
+                logger.debug("chgrp to group:%s %s-%s" % (group_id, dtype, obj_id))
+                handle = conn.chgrpObject(dtype, obj_id, group_id)
+                print handle
+                jobId = str(handle)
+                request.session['callback'][jobId] = {
+                    'job_type': "chgrp",
+                    'job_name': "Change group",
+                    'start_time': datetime.datetime.now(),
+                    'status':'in progress'}
+                request.session.modified = True
+
+    return HttpResponse("OK")
+
+
 @isUserConnected
 def script_run(request, scriptId, **kwargs):
     """
