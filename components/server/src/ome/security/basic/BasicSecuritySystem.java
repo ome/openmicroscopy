@@ -573,11 +573,19 @@ public class BasicSecuritySystem implements SecuritySystem,
     }
 
     /**
+     * Calls {@link #runAsAdmin(AdminAction)} with a null-group id.
+     */
+    public void runAsAdmin(final AdminAction action) {
+        runAsAdmin(null, action);
+    }
+
+    /**
      * merge event is disabled for {@link #runAsAdmin(AdminAction)} because
      * passing detached (client-side) entities to this method is particularly
      * dangerous.
      */
-    public void runAsAdmin(final AdminAction action) {
+    public void runAsAdmin(final ExperimenterGroup group, final AdminAction action) {
+
         Assert.notNull(action);
 
         // Need to check here so that no exception is thrown

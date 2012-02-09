@@ -20,6 +20,7 @@ import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Token;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLEventListener;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
@@ -129,6 +130,10 @@ public class SharingSecuritySystem implements SecuritySystem {
             throws ApiUsageException, SecurityViolation {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    public void runAsAdmin(ExperimenterGroup group, AdminAction action) {
+
     }
 
     public void runAsAdmin(AdminAction action) {

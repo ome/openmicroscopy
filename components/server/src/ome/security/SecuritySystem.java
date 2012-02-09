@@ -20,6 +20,7 @@ import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Token;
+import ome.model.meta.ExperimenterGroup;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -243,10 +244,20 @@ public interface SecuritySystem {
      * handled. The merging of detached entity graphs should be disabled for the
      * extent of the execution.
      * 
+     * Due to the addition of the group permission system, we also permit
+     * setting the group on the call so that the administrator can work within
+     * all groups. A value of null will not change the current group.
+     *
      * Note: the {@link ome.api.IUpdate} save methods should not be used, since
      * they also accept detached entities, which could pose security risks.
      * Instead load an entity from the database via {@link ome.api.IQuery},
      * make changes, and save the changes with {@link ome.api.IUpdate#flush()}.
+     */
+    void runAsAdmin(ExperimenterGroup group, AdminAction action);
+
+    /**
+     * Calls {@link #runAsAdmin(ExperimenterGroup, AdminAction)} with a
+     * null group.
      */
     void runAsAdmin(AdminAction action);
 
