@@ -125,7 +125,6 @@ class login_required(object):
     
         connector = session.get('connector', None)
         logger.debug('Django session connector: %r' % connector)
-        logger.debug('Django session: %r' % (session.keys()))
         if connector is not None:
             # We have a connector, attempt to use it to join an existing
             # connection / OMERO session.
