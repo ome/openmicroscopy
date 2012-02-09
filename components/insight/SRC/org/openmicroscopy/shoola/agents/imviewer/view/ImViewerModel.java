@@ -661,19 +661,11 @@ class ImViewerModel
 	 */
 	String getImageTitle()
 	{
-		//Determine the name of the group.
-		Set groups = (Set) ImViewerAgent.getRegistry().lookup(
-				LookupNames.USER_GROUP_DETAILS);
-		Iterator i = groups.iterator();
-		GroupData group;
+		GroupData group = getSelectedGroup();
 		StringBuffer buffer = new StringBuffer();
-		while (i.hasNext()) {
-			group = (GroupData) i.next();
-			if (group.getId() == ctx.getGroupID()) {
-				buffer.append("Group: ");
-				buffer.append(group.getName());
-				break;
-			}
+		if (group != null) {
+			buffer.append("Group: ");
+			buffer.append(group.getName());
 		}
 		buffer.append(" [ID: "+getImageID()+"] ");
 		buffer.append(EditorUtil.getPartialName(getImageName()));
@@ -2841,4 +2833,25 @@ class ImViewerModel
      */
     SecurityContext getSecurityContext() { return ctx; }
 
+    /**
+     * Returns the group the image belongs to.
+     * 
+     * @return See above.
+     */
+    GroupData getSelectedGroup()
+    {
+    	Set set = (Set) ImViewerAgent.getRegistry().lookup(
+    			LookupNames.USER_GROUP_DETAILS);
+    	if (set == null || set.size() <= 1)
+    		return null;
+    	Iterator i = set.iterator();
+    	GroupData g;
+    	while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getId() == ctx.getGroupID())
+				return g;
+		}
+    	return null;
+    }
+    
 }
