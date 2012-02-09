@@ -187,7 +187,7 @@ public class UserManagerDialog
 		ExperimenterData exp;
 		List<Long> ids = new ArrayList<Long>();
 		if (l.size() > 0) {
-			model.add(index, "Leaders");
+			model.add(index, "Group's owners");
 			index++;
 		}
 		while (i.hasNext()) {
