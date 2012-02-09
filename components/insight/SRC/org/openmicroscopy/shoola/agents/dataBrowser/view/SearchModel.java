@@ -107,15 +107,22 @@ class SearchModel
 		SecurityContext ctx;
 		GroupData g;
 		Collection<DataObject> objects;
+		boolean singleGroup = isSingleGroup();
 		while (i.hasNext()) {
 			e = (Entry) i.next();
 			ctx = (SecurityContext) e.getKey();
-			g = getGroup(ctx.getGroupID());
+			
 			objects = (Collection<DataObject>) e.getValue();
 			numberOfImages += objects.size();
-			if (g != null && objects != null && objects.size() > 0)
-			    vis.add(DataBrowserTranslator.transformObjects(objects, userID,
-			    		g));
+			if (singleGroup) {
+				 vis.addAll(DataBrowserTranslator.transformObjects(objects,
+				    		userID, ctx.getGroupID()));
+			} else {
+				g = getGroup(ctx.getGroupID());
+				if (g != null && objects != null && objects.size() > 0)
+				    vis.add(DataBrowserTranslator.transformObjects(objects,
+				    		userID, g));
+			}
 		}
 		browser = BrowserFactory.createBrowser(vis);
 	}

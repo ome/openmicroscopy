@@ -529,7 +529,7 @@ public class AdvancedFinder
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		String group = getGroupName(ctx);
-		if (group != null)
+		if (group != null && groups.size() > 1)
 			p.add(UIUtilities.setTextFont("Group: "+group));
 		Map map = (Map) result;
 

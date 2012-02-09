@@ -700,12 +700,14 @@ class SearchPanel
         //c.insets = new Insets(3, 3, 3, 3);
         //c.gridx = 0;
         c.gridy = 0;
-        JPanel row = new JPanel();
-        row.setLayout(new FlowLayout(FlowLayout.LEFT));
-        row.setBackground(UIUtilities.BACKGROUND_COLOR);
-        row.add(new JLabel("Search in Group:"));
-        row.add(groupsBox);
-        p.add(row, c);
+        if (model.getGroups().size() > 1) {
+        	JPanel row = new JPanel();
+            row.setLayout(new FlowLayout(FlowLayout.LEFT));
+            row.setBackground(UIUtilities.BACKGROUND_COLOR);
+            row.add(new JLabel("Search in Group:"));
+            row.add(groupsBox);
+            p.add(row, c);
+        }
         List<SearchObject> nodes = model.getNodes();
 		SearchObject n;
 		int m = nodes.size();
