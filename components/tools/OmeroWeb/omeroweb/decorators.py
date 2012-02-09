@@ -131,6 +131,9 @@ class login_required(object):
             connection = connector.join_connection(self.useragent)
             if connection is not None:
                 return connection
+            # Fall through, we the session we've been asked to join may
+            # be invalid and we may have other credentials as request
+            # variables.
 
         if server_id is None:
             # If no server id is passed, the db entry will not be used and
