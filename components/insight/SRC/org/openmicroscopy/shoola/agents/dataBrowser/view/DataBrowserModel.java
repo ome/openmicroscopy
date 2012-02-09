@@ -804,6 +804,19 @@ abstract class DataBrowserModel
 	 * @return See above.
 	 */
 	SecurityContext getSecurityContext() { return ctx; }
+	
+	/**
+	 * Returns <code>true</code> if the user belongs to only one group,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isSingleGroup()
+	{
+		Set l = DataBrowserAgent.getAvailableUserGroups();
+		return l.size() <= 1;
+	}
+	
     /**
      * Creates a data loader that can retrieve the hierarchy objects needed
      * by this model.
