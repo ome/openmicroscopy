@@ -802,7 +802,7 @@ public interface Browser
 	 * 
 	 * @param group The selected group.
 	 */
-	void addGroup(GroupData group);
+	void setUserGroup(GroupData group, boolean add);
 
 	/**
 	 * Removes the specified group from the display

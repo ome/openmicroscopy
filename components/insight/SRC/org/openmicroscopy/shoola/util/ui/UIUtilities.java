@@ -546,7 +546,7 @@ public class UIUtilities
 	public static void showOnScreen(Component window, Point location) 
 	{
 		if (window == null) return;
-		if (location == null) centerOnScreen(window);
+		if (location == null) centerAndShow(window);
 		else {
 			window.setLocation(location);
 			window.setVisible(true);

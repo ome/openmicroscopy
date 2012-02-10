@@ -63,7 +63,7 @@ public class SwitchUserAction
 {
 
 	/** The name of the action. */
-	private static final String NAME = "Add User...";
+	public static final String NAME = "Add User...";
 	
 	/** The description of the action. */
 	private static final String DESCRIPTION = "Select another " +
@@ -174,8 +174,10 @@ public class SwitchUserAction
      */
     public void actionPerformed(ActionEvent e)
     { 
-    	SwingUtilities.convertPointToScreen(point, 
-			((Component) e.getSource()));
+    	if (point != null) {
+    		SwingUtilities.convertPointToScreen(point, 
+    				((Component) e.getSource()));
+    	}
     	model.retrieveUserGroups(point);
     }
     
