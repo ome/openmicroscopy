@@ -1198,19 +1198,21 @@ class BrowserComponent
 	
 	/**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#addExperimenter(ExperimenterData, long, boolean)
+     * @see Browser#addExperimenter(ExperimenterData, long)
      */
-	public void addExperimenter(ExperimenterData experimenter, long groupID,
-			boolean load)
+	public void addExperimenter(ExperimenterData experimenter, long groupID)
 	{
 		if (experimenter == null)
 			throw new IllegalArgumentException("Experimenter cannot be null.");
 		if (model.getBrowserType() == ADMIN_EXPLORER) return;
 		TreeImageDisplay node = model.getLastSelectedDisplay();
-		if (model.isSingleGroup()) node = view.getTreeRoot();
-		else {
+		if (model.isSingleGroup()) {
+			node = view.getTreeRoot();
+		} else {
 			//Find the group
+			System.err.println("group:"+groupID);
 			ExperimenterVisitor v = new ExperimenterVisitor(this, groupID);
+			accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 			List<TreeImageDisplay> list = v.getNodes();
 			if (list.size() == 0) return;
 			node = list.get(0);
@@ -1220,11 +1222,11 @@ class BrowserComponent
 		List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>(1);
 		nodes.add(new TreeImageSet(experimenter));
 		SimilarNodesVisitor visitor = new SimilarNodesVisitor(nodes);
-		accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+		node.accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 		
 		if (visitor.getFoundNodes().size() > 0) return;
 		setSelectedDisplay(null);
-		view.addExperimenter(experimenter, node, load);
+		view.addExperimenter(experimenter, node);
 	}
 
 	/**

@@ -1388,12 +1388,11 @@ class TreeViewerComponent
 		Iterator i = browsers.entrySet().iterator();
 		Browser browser;
 		Entry entry;
-		Browser selected = model.getSelectedBrowser();
+		userGroupID = model.getSelectedGroupId();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			browser = (Browser) entry.getValue();
-			browser.addExperimenter(experimenter, userGroupID,
-					browser == selected);
+			browser.addExperimenter(experimenter, userGroupID);
 		}
 	}
 
