@@ -69,6 +69,13 @@ public class CurrentDetails implements PrincipalHolder {
     private final ThreadLocal<LinkedList<BasicEventContext>> contexts = new ThreadLocal<LinkedList<BasicEventContext>>();
 
     /**
+     * Call context set on the current details before login occurred. If this
+     * is the case, then it will get consumed and
+     */
+    private final ThreadLocal<Map<String, String>> delayedCallContext
+        = new ThreadLocal<Map<String, String>>();
+
+    /**
      * Default constructor. Should only be used for testing, since the stats
      * used will not be correct.
      */
@@ -93,7 +100,19 @@ public class CurrentDetails implements PrincipalHolder {
     // =================================================================
 
     public Map<String, String> setContext(Map<String, String> ctx) {
-        return list().getLast().setCallContext(ctx);
+        LinkedList<BasicEventContext> list = list();
+        if (list.size() == 0) {
+            delayedCallContext.set(ctx);
+            return null;
+        } else {
+            return list.getLast().setCallContext(ctx);
+        }
+    }
+
+    protected void checkDelayedCallContext(BasicEventContext bec) {
+        Map<String, String> ctx = delayedCallContext.get();
+        delayedCallContext.set(null);
+        bec.setCallContext(ctx);
     }
 
     // PrincipalHolder methods
@@ -125,6 +144,7 @@ public class CurrentDetails implements PrincipalHolder {
         if (log.isDebugEnabled()) {
             log.debug("Logging in :" + bec);
         }
+        checkDelayedCallContext(bec);
         list().add(bec);
         bec.getStats().methodIn();
     }
