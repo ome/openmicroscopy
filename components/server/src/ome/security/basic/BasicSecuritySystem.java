@@ -672,6 +672,25 @@ public class BasicSecuritySystem implements SecuritySystem,
         return getEventContext(false);
     }
 
+    /**
+     * Returns the Id of the currently logged in user.
+     * Returns owner of the share while in share
+     * @return See above.
+     */
+    public Long getEffectiveUID() {
+        final EventContext ec = getEventContext();
+        final Long shareId = ec.getCurrentShareId();
+        if (shareId != null) {
+            if (shareId < 0) {
+                return null;
+            }
+            ome.model.meta.Session s = sf.getQueryService().get(
+                    ome.model.meta.Session.class, shareId);
+            return s.getOwner().getId();
+        }
+        return ec.getCurrentUserId();
+    }
+
     // ~ Helpers
     // =========================================================================
 

@@ -88,6 +88,10 @@ public class SecuritySystemHolder implements SecuritySystem {
         return choose().getEventContext(refresh);
     }
 
+    public Long getEffectiveUID() {
+        return choose().getEffectiveUID();
+    }
+
     public Roles getSecurityRoles() {
         return choose().getSecurityRoles();
     }

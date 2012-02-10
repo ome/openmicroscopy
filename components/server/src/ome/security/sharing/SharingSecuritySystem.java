@@ -25,6 +25,7 @@ import ome.security.ACLEventListener;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
+import ome.security.basic.BasicSecuritySystem;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -45,14 +46,18 @@ import ome.system.Roles;
 @RevisionNumber("$Revision$")
 public class SharingSecuritySystem implements SecuritySystem {
 
+    private final BasicSecuritySystem delegate;
+
+    public SharingSecuritySystem(BasicSecuritySystem delegate) {
+        this.delegate = delegate;
+    }
+
     public Details checkManagedDetails(IObject object, Details trustedDetails)
             throws ApiUsageException, SecurityViolation {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public void invalidateEventContext() {
-        // TODO Auto-generated method stub
 
     }
 
@@ -79,6 +84,10 @@ public class SharingSecuritySystem implements SecuritySystem {
     public EventContext getEventContext(boolean refresh) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    public Long getEffectiveUID() {
+        return delegate.getEffectiveUID();
     }
 
     public Roles getSecurityRoles() {

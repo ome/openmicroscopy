@@ -75,6 +75,37 @@ public interface SecuritySystem {
     EventContext getEventContext();
 
     /**
+     * Returns UID based on whether a share is active, etc. This is the UID
+     * value that should be used for writing data.
+     *
+     * The return value <em>may be</em> null if the user is currently querying
+     * across multiple contents. In this case another method for
+     * choosing the UID must be chosen, for example by taking the UID of
+     * another element under consideration.
+     *
+     * For example,
+     * <pre>
+     * Annotation toSave = ...;
+     * if (toSave.getDetails().getOwner() == null) // No owner need to find one.
+     * {
+     *     Long uid = sec.getEffectiveUID();
+     *     if (uid != null)
+     *     {
+     *         toSave.getDetails().setOwner(new Experimenter(uid, false));
+     *     }
+     *     else
+     *     {
+     *         toSave.getDetails().setOwner(
+     *            image.getDetails().getOwner()); // may be null.
+     *     }
+     * }
+     * image.linkAnnotation(toSave);
+     * etc.
+     * <pre>
+     */
+    Long getEffectiveUID();
+
+    /**
      * If refresh is false, returns the current {@link EventContext} stored
      * in the session. Otherwise, reloads the context to have the most
      * up-to-date information.

@@ -12,9 +12,11 @@ import java.util.Map;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
+import ome.api.ThumbnailStore;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.core.Image;
+import ome.model.core.Pixels;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.basic.CurrentDetails;
@@ -33,6 +35,9 @@ public class AllGroupsTest extends PermissionsTest {
     public void resetLoginAop() {
         loginAop.callContext = null;
     }
+
+    // Simples reads
+    // =========================================================================
 
     public void testAdminAllGroups() {
         setup(Permissions.GROUP_READABLE);
@@ -60,6 +65,31 @@ public class AllGroupsTest extends PermissionsTest {
         assertCanLoad(img);
     }
 
+    // Thumbnail usage
+    // =========================================================================
+
+    public void testThumbInAllShares() {
+        setup(Permissions.GROUP_READABLE);
+        assertThumb(sharectx(-1L));
+    }
+
+    public void testThumbInAllGroups() {
+        setup(Permissions.GROUP_READABLE);
+        assertThumb(grpctx(-1L));
+    }
+
+    protected void assertThumb(Map<String, String> ctx) {
+        Pixels pix = makePixels();
+
+        ThumbnailStore tb = factory.createThumbnailService();
+        loginAop.callContext = ctx;
+
+        if (!tb.setPixelsId(pix.getId())) {
+            tb.resetDefaults();
+            tb.setPixelsId(pix.getId());
+        }
+        tb.getThumbnail(64, 64);
+    }
 
     // Helpers
     // =========================================================================
@@ -71,6 +101,13 @@ public class AllGroupsTest extends PermissionsTest {
     Map<String, String> grpctx(long id) {
        HashMap<String, String> map = new HashMap<String, String>();
        map.put("omero.group", ""+id);
+       return map;
+    }
+
+
+    Map<String, String> sharectx(long id) {
+       HashMap<String, String> map = new HashMap<String, String>();
+       map.put("omero.share", ""+id);
        return map;
     }
 
