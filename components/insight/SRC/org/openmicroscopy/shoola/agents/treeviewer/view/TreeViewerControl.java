@@ -773,19 +773,19 @@ class TreeViewerControl
 	/**
 	 * Returns the list of group the user is a member of.
 	 * 
+	 * @param add Passes <code>true</code> to add the group to the display,
+	 * <code>false</code> to switch.
 	 * @return See above.
 	 */
-	List<GroupSelectionAction> getUserGroupAction()
+	List<GroupSelectionAction> getUserGroupAction(boolean add)
 	{
 		List<GroupSelectionAction> l = new ArrayList<GroupSelectionAction>();
 		Set m = TreeViewerAgent.getAvailableUserGroups();
 		if (m == null || m.size() == 0) return l;
 		ViewerSorter sorter = new ViewerSorter();
 		Iterator i = sorter.sort(m).iterator();
-		GroupData group;
 		while (i.hasNext()) {
-			group = (GroupData) i.next();
-			l.add(new GroupSelectionAction(model, group));
+			l.add(new GroupSelectionAction(model, (GroupData) i.next(), add));
 		}
 		return l;
 	}
@@ -1294,6 +1294,8 @@ class TreeViewerControl
 				DataBrowser.SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY.equals(
 						name)) {
 			model.setSelectedNodes(pce.getNewValue());
+		} else if (TreeViewer.GROUP_CHANGED_PROPERTY.equals(name)) {
+			view.setPermissions();
 		}
 	}
 	

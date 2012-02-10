@@ -887,12 +887,12 @@ public interface TreeViewer
 	void openWith(ApplicationData data);
 
 	/**
-	 * Sets the default group for the currently selected user and updates the 
-	 * view.
+	 * Adds the group to the display if not already displayed
 	 * 
 	 * @param group The group to set.
+	 * @param add Pass <code>true</code> to add, <code>false</code> otherwise.
 	 */
-	void setUserGroup(GroupData group);
+	void setUserGroup(GroupData group, boolean add);
 
 	/** Opens the image in a separate window or in the main viewer. */
 	void setFullScreen();

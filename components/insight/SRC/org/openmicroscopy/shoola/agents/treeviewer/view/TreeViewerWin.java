@@ -1120,6 +1120,9 @@ class TreeViewerWin
 		toolBar.setScriptsLoadingStatus(loading);
 	}
 	
+	/** Indicates the group context.*/
+	void setPermissions() { toolBar.setPermissions(); }
+	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {

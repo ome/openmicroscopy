@@ -3324,9 +3324,9 @@ class TreeViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setUserGroup(GroupData)
+	 * @see TreeViewer#setUserGroup(GroupData, boolean)
 	 */
-	public void setUserGroup(GroupData group)
+	public void setUserGroup(GroupData group, boolean add)
 	{
 		if (model.getState() != READY) return;
 		if (group == null) return;
@@ -3334,16 +3334,21 @@ class TreeViewerComponent
 		if (group.getId() == model.getSelectedGroupId()) return;
 		//Scan browser and check if group is there.
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
-		ExperimenterVisitor v = new ExperimenterVisitor(browser, group.getId());
-		browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
-		if (v.getNodes().size() != 0) return;
+		if (browser == null) return;
+		if (add) {
+			ExperimenterVisitor v = new ExperimenterVisitor(browser, 
+					group.getId());
+			browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
+			if (v.getNodes().size() != 0) return;
+		}
+		
 		//Add the group to the display and set it as the default group.
 		long gid = model.getSelectedGroupId();
 		model.setSelectedGroupId(group.getId());
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Iterator<Browser> i = browsers.values().iterator();
 		while (i.hasNext()) {
-			i.next().addGroup(group);
+			i.next().setUserGroup(group, add);
 		}
 		notifyChangeGroup(gid);
 		//Check if the group is not already displayed.

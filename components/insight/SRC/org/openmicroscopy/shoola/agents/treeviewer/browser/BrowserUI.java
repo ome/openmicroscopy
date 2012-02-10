@@ -2260,23 +2260,34 @@ class BrowserUI
 	 * Adds the specified group to the tree.
 	 * 
 	 * @param group The group to add.
+	 * @param add Pass <code>true</code> to add, <code>false</code> otherwise.
 	 */
-	void addGroup(GroupData group)
+	void setUserGroup(GroupData group, boolean add)
 	{
 		if (group == null) return;
-		//Collapses previous group.
-		List children = getTreeRoot().getChildrenDisplay();
-		Iterator i = children.iterator();
-		TreeImageDisplay n;
-		while (i.hasNext()) {
-			n = (TreeImageDisplay) i.next();
-			n.setExpanded(false);
-			collapsePath(n);
-		}
 		ExperimenterData exp = model.getUserDetails();
-		TreeImageSet node = createGroup(model.getSelectedGroup());
-    	node = createExperimenterNode(exp, node);
-    	if (model.isSelected()) expandNode(node, true);
+		TreeImageSet node;
+		TreeImageDisplay root = getTreeRoot();
+		if (add) {
+			//Collapses previous group.
+			List children = root.getChildrenDisplay();
+			Iterator i = children.iterator();
+			TreeImageDisplay n;
+			while (i.hasNext()) {
+				n = (TreeImageDisplay) i.next();
+				n.setExpanded(false);
+				collapsePath(n);
+			}
+			node = createGroup(model.getSelectedGroup());
+	    	node = createExperimenterNode(exp, node);
+	    	if (model.isSelected()) expandNode(node, true);
+		} else {
+			root.removeAllChildren();
+			root.removeAllChildrenDisplay();
+			node = createGroup(model.getSelectedGroup());
+	    	node = createExperimenterNode(exp, node);
+	    	if (model.isSelected()) expandNode(node, true);
+		}
 	}
 	
     /**
