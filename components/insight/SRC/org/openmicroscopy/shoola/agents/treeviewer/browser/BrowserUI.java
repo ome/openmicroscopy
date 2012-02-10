@@ -787,6 +787,41 @@ class BrowserUI
     }
     
     /**
+	 * Builds the top nodes of the tree.
+	 * 
+	 * @param exp The experimenter to attach.
+	 * @return See above.
+	 */
+	private TreeImageDisplay buildTreeNodes(ExperimenterData exp)
+	{
+		TreeImageDisplay root = getTreeRoot();
+		TreeImageDisplay node = null;
+    	if (model.isSingleGroup()) {
+    		node = root;
+    		node = createExperimenterNode(exp, node);
+    	} else {
+    		if (TreeViewerAgent.isMultiGroups()) {
+    			GroupData group = model.getSelectedGroup();
+    			List<TreeImageSet> nodes = createGroups(group);
+    			Iterator<TreeImageSet> i = nodes.iterator();
+    			TreeImageSet n;
+    			GroupData g;
+    			while (i.hasNext()) {
+					n = i.next();
+					g = (GroupData) n.getUserObject();
+					n = createExperimenterNode(exp, n);
+					if (g.getId() == group.getId())
+						node = n;
+				}
+    		} else {
+    			node = createGroup(model.getSelectedGroup());
+    			node = createExperimenterNode(exp, node);
+    		}
+    	}
+    	return node;
+	}
+
+    /**
      * Creates the group nodes.
      * 
      * @param defaultGroup The default group
@@ -863,11 +898,9 @@ class BrowserUI
         TreeImageSet root = new TreeImageSet("");
         treeDisplay.setModel(new DefaultTreeModel(root));
         if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
-        	TreeImageSet node;
-        	if (model.isSingleGroup()) node = root;
-        	else node = createGroup(model.getSelectedGroup());
-        	node = createExperimenterNode(exp, node);
-            treeDisplay.collapsePath(new TreePath(node.getPath()));
+        	TreeImageDisplay node = buildTreeNodes(exp);
+        	if (node != null)
+            	treeDisplay.collapsePath(new TreePath(node.getPath()));
         }
         //Add Listeners
         //treeDisplay.requestFocus();
@@ -2085,12 +2118,9 @@ class BrowserUI
 		root.removeAllChildren();
 		root.removeAllChildrenDisplay();
 		if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
-			TreeImageDisplay node;
 			ExperimenterData exp = TreeViewerAgent.getUserDetails();
-        	if (model.isSingleGroup()) node = root;
-        	else node = createGroup(model.getSelectedGroup());
-        	node = createExperimenterNode(exp, node);
-            if (model.isSelected()) expandNode(node, true);
+			TreeImageDisplay node = buildTreeNodes(exp);
+            if (model.isSelected() && node != null) expandNode(node, true);
         }
 		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
 		tm.reload();

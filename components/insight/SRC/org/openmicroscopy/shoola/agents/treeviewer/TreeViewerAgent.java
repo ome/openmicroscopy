@@ -227,6 +227,19 @@ public class TreeViewerAgent
 		return false;
 	}
 	
+    /**
+     * Returns <code>true</code> if all groups are displayed at the same time
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isMultiGroups()
+    {
+    	Boolean b = (Boolean) registry.lookup("MutliGroup");
+		if (b == null) return false;
+		return b.booleanValue();
+    }
+    
 	/**
 	 * Returns the default hierarchy i.e. P/D, HCS etc.
 	 * 
