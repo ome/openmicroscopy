@@ -387,7 +387,8 @@ public class BasicSecuritySystem implements SecuritySystem,
         // actually members of the noted groups.
         //
         // Joined with public group block (ticket:1940)
-        ExperimenterGroup grp;
+        ExperimenterGroup callGroup = null;
+        ExperimenterGroup eventGroup = null;
         Long shareId = ec.getCurrentShareId();
         Long groupId = ec.getCurrentGroupId();
         if (groupId >= 0) { // negative groupId means all member groups
@@ -396,8 +397,8 @@ public class BasicSecuritySystem implements SecuritySystem,
                 // Only force loading the group if we would otherwise throw an exception.
                 // The extra performance hit on READ is just the price of browsing
                 // public data
-                ExperimenterGroup publicGroup = admin.groupProxy(groupId);
-                if (!publicGroup.getDetails().getPermissions().isGranted(Role.WORLD, Right.READ)) {
+                callGroup = admin.groupProxy(groupId);
+                if (!callGroup.getDetails().getPermissions().isGranted(Role.WORLD, Right.READ)) {
                     throw new SecurityViolation(String.format(
                         "User %s is not a member of group %s and cannot login",
                                 ec.getCurrentUserId(), groupId));
@@ -405,10 +406,27 @@ public class BasicSecuritySystem implements SecuritySystem,
             }
         }
 
+        // Handle eventGroup
+        long eventGroupId = groupId;
+        if (groupId < 0) {
+            List<Long> memList = ec.getMemberOfGroupsList();
+            eventGroupId = memList.get(0);
+            if (eventGroupId == roles.getUserGroupId() && memList.size() > 1) {
+                eventGroupId = memList.get(1);
+            }
+            log.debug("Choice for event group: " + eventGroupId);
+        }
+
         if (isReadOnly) {
-            grp = new ExperimenterGroup(groupId, false);
+            callGroup = new ExperimenterGroup(groupId, false);
+            eventGroup = new ExperimenterGroup(eventGroupId, false);
         } else {
-            grp = admin.groupProxy(groupId);
+            if (groupId < 0L) {
+                callGroup = new ExperimenterGroup(groupId, false);
+            } else if (callGroup == null) {
+                callGroup = admin.groupProxy(groupId);
+            }
+            eventGroup = admin.groupProxy(eventGroupId);
         }
 
         long sessionId = ec.getCurrentSessionId().longValue();
@@ -419,11 +437,11 @@ public class BasicSecuritySystem implements SecuritySystem,
             sess = sf.getQueryService().get(ome.model.meta.Session.class, sessionId);
         }
 
-        tokenHolder.setToken(grp.getGraphHolder());
+        tokenHolder.setToken(callGroup.getGraphHolder());
 
         // In order to less frequently access the ThreadLocal in CurrentDetails
         // All properities are now set in one shot, except for Event.
-        cd.setValues(exp, grp, isAdmin, isReadOnly, shareId);
+        cd.setValues(exp, callGroup, isAdmin, isReadOnly, shareId);
 
         // Event
         String t = p.getEventType();
@@ -438,9 +456,11 @@ public class BasicSecuritySystem implements SecuritySystem,
         // If this event is not read only, then lets save this event to prevent
         // flushing issues later.
         if (!isReadOnly) {
+            if (event.getExperimenterGroup().getId() < 0) {
+                event.setExperimenterGroup(eventGroup);
+            }
             cd.updateEvent(update.saveAndReturnObject(event)); // TODO use merge
         }
-
     }
 
     private Principal clearAndCheckPrincipal() {

@@ -152,10 +152,10 @@ public class OmeroInterceptor implements Interceptor {
             IObject iobj = (IObject) entity;
             int idx = HibernateUtils.detailsIndex(propertyNames);
 
-            evaluateLinkages(iobj);
+            Details d = evaluateLinkages(iobj);
 
             // Get a new details based on the current context
-            Details d = newTransientDetails(iobj);
+            d = newTransientDetails(iobj, d);
             state[idx] = d;
         }
 
@@ -177,9 +177,10 @@ public class OmeroInterceptor implements Interceptor {
             IObject iobj = (IObject) entity;
             int idx = HibernateUtils.detailsIndex(propertyNames);
 
-            evaluateLinkages(iobj);
+            Details newDetails = evaluateLinkages(iobj);
 
-            altered |= resetDetails(iobj, currentState, previousState, idx);
+            altered |= resetDetails(iobj, currentState, previousState, idx,
+                    newDetails);
 
         }
         return altered;
@@ -304,7 +305,7 @@ public class OmeroInterceptor implements Interceptor {
      *            the index of Details in the state arrays.
      */
     protected boolean resetDetails(IObject entity, Object[] currentState,
-            Object[] previousState, int idx) {
+            Object[] previousState, int idx, Details newDetails) {
 
         if (previousState == null) {
             log.warn(String.format("Null previousState for %s(loaded=%s). Details=%s",
@@ -313,7 +314,7 @@ public class OmeroInterceptor implements Interceptor {
         }
 
         final Details previous = (Details) previousState[idx];
-        final Details result = checkManagedDetails(entity, previous);
+        final Details result = checkManagedDetails(entity, previous, newDetails);
 
         if (previous != result) {
             currentState[idx] = result;
@@ -347,7 +348,9 @@ public class OmeroInterceptor implements Interceptor {
 
     /**
      * Checks the details of the objects which the given object links to in
-     * order to guarantee that linkages are valid.
+     * order to guarantee that linkages are valid. In the case of a non-specific
+     * UID or GID, then the Details object returned by this method can be used
+     * as the basis for unknown user/group.
      *
      * This method is called during
      * {@link OmeroInterceptor#onSave(Object, java.io.Serializable, Object[], String[], org.hibernate.type.Type[])
@@ -360,13 +363,16 @@ public class OmeroInterceptor implements Interceptor {
      *            new or updated entity which may reference other entities which
      *            then require locking. Nulls are tolerated but do nothing.
      */
-    public void evaluateLinkages(IObject iObject) {
+    public Details evaluateLinkages(IObject iObject) {
 
-        if (iObject == null ||
-                sysTypes.isSystemType(iObject.getClass()) ||
-                sysTypes.isInSystemGroup(iObject.getDetails())
-                ) {
-            return;
+        if (iObject == null) {
+            return null;
+        }
+
+        final Details rv = iObject.getDetails().newInstance();
+        if (sysTypes.isSystemType(iObject.getClass()) ||
+                sysTypes.isInSystemGroup(iObject.getDetails())) {
+            return rv;
         }
 
         IObject[] candidates = em.getLockCandidates(iObject);
@@ -386,7 +392,9 @@ public class OmeroInterceptor implements Interceptor {
                     continue;
                 }
 
-                if (d != null && d.getGroup() != null &&
+                if (currentUser.getGroup().getId() < 0) {
+                    rv.setGroup(d.getGroup());
+                } else if (d != null && d.getGroup() != null &&
                         !HibernateUtils.idEqual(d.getGroup(),
                         currentUser.getGroup())) {
                     throw new GroupSecurityViolation(String.format(
@@ -427,7 +435,7 @@ public class OmeroInterceptor implements Interceptor {
                 }
             }
         }
-
+        return rv;
     }
 
     // TODO is this natural? perhaps permissions don't belong in details
@@ -441,101 +449,111 @@ public class OmeroInterceptor implements Interceptor {
         if (obj == null) {
             throw new ApiUsageException("Argument cannot be null.");
         }
+        final Details newDetails = obj.getDetails().newInstance();
+        return newTransientDetails(obj, newDetails);
+    }
+
+    /**
+     * Like {@link #newTransientDetails(IObject)} but allows passing in a
+     * newDetails object with possibly pre-set values.
+     *
+     * @param obj
+     * @return
+     * @see #evaluateLinkages(IObject)
+     */
+    protected Details newTransientDetails(final IObject obj,
+            final Details newDetails) {
 
         if (tokenHolder.hasPrivilegedToken(obj)) {
             return obj.getDetails(); // EARLY EXIT
         }
 
         final Details source = obj.getDetails();
-        final Details newDetails = source.newInstance();
         final BasicEventContext bec = currentUser.current();
 
-        newDetails.copy(currentUser.createDetails());
+        // Allow values to be passed in.
+        newDetails.copyWhereUnset(currentUser.createDetails());
 
-        if (source != null) {
-
-            // OWNER
-            // users *aren't* allowed to set the owner of an item.
-            if (source.getOwner() != null
-                    && !newDetails.getOwner().getId().equals(
-                            source.getOwner().getId())) {
-                // but this is root
-                if (bec.isCurrentUserAdmin()) {
-                    newDetails.setOwner(source.getOwner());
-                } else {
-                    throw new SecurityViolation(String.format(
-                            "You are not authorized to set the Experimenter"
-                                    + " for %s to %s", obj, source.getOwner()));
-                }
-
+        // OWNER
+        // users *aren't* allowed to set the owner of an item.
+        if (source.getOwner() != null
+                && !newDetails.getOwner().getId().equals(
+                        source.getOwner().getId())) {
+            // but this is root
+            if (bec.isCurrentUserAdmin()) {
+                newDetails.setOwner(source.getOwner());
+            } else {
+                throw new SecurityViolation(String.format(
+                        "You are not authorized to set the Experimenter"
+                                + " for %s to %s", obj, source.getOwner()));
             }
-
-            // GROUP
-            // users are only allowed to set to the current group
-            if (source.getGroup() != null && source.getGroup().getId() != null) {
-
-                // ticket:1434
-                if (bec.getCurrentGroupId().equals(source.getGroup().getId())) {
-                    newDetails.setGroup(source.getGroup());
-                }
-
-                // ticket:1794
-                else if (bec.isCurrentUserAdmin() &&
-                        Long.valueOf(roles.getUserGroupId())
-                        .equals(source.getGroup().getId())) {
-                    newDetails.setGroup(source.getGroup());
-                }
-
-                // oops. boom!
-                else {
-                    throw new SecurityViolation(String.format(
-                            "You are not authorized to set the ExperimenterGroup"
-                                    + " for %s to %s", obj, source.getGroup()));
-                }
-            }
-
-
-            // PERMISSIONS: ticket:1434 and #1731 and #1779 (systypes)
-            // before 4.2, users were allowed to manually set the permissions
-            // on an object, and even set a umask to be applied. for the initial
-            // 4.2 version, however, we are disallowing manually setting
-            // permissions so that all objects will match group permissions.
-            // Doing this after the setting of newDetails.group in case the
-            // user is logged into user or system.
-            if (source.getPermissions() != null) {
-
-                Permissions groupPerms = currentUser.getCurrentEventContext()
-                    .getCurrentGroupPermissions();
-
-                boolean isInSysGrp = sysTypes.isInSystemGroup(newDetails);
-                boolean isInUsrGrp = sysTypes.isInUserGroup(newDetails);
-                if (groupPerms.identical(source.getPermissions())) {
-                    // ok. weird that they're set. probably an instance
-                    // of a managed object being passed in as with
-                    // ticket:2055
-                } else if (!sysTypes.isSystemType(obj.getClass())) {
-                    if (isInSysGrp) {
-                        // allow admin to do what they want. is this right?
-                    } else if (isInUsrGrp) {
-                        // similarly, allow whatever in user group for the moment.
-                    } else {
-                        throw new PermissionMismatchGroupSecurityViolation(
-                        "Manually setting permissions currently disallowed");
-                    }
-                }
-                // Above didn't throw, so set permissions.
-                newDetails.setPermissions(source.getPermissions());
-            }
-
-            // EXTERNALINFO
-            // useres _are_ allowed to set the external info on a new object.
-            // subsequent operations, however, will not be able to edit this
-            // value.
-            newDetails.setExternalInfo(source.getExternalInfo());
-
-            // CREATION/UPDATEVENT : currently ignore what users do
 
         }
+
+        // GROUP
+        // users are only allowed to set0 to the current group
+        if (source.getGroup() != null && source.getGroup().getId() != null) {
+
+            // ticket:1434
+            if (bec.getCurrentGroupId().equals(source.getGroup().getId())) {
+                newDetails.setGroup(source.getGroup());
+            }
+
+            // ticket:1794
+            else if (bec.isCurrentUserAdmin() &&
+                    Long.valueOf(roles.getUserGroupId())
+                    .equals(source.getGroup().getId())) {
+                newDetails.setGroup(source.getGroup());
+            }
+
+            // oops. boom!
+            else {
+                throw new SecurityViolation(String.format(
+                        "You are not authorized to set the ExperimenterGroup"
+                                + " for %s to %s", obj, source.getGroup()));
+            }
+        }
+
+
+        // PERMISSIONS: ticket:1434 and #1731 and #1779 (systypes)
+        // before 4.2, users were allowed to manually set the permissions
+        // on an object, and even set a umask to be applied. for the initial
+        // 4.2 version, however, we are disallowing manually setting
+        // permissions so that all objects will match group permissions.
+        // Doing this after the setting of newDetails.group in case the
+        // user is logged into user or system.
+        if (source.getPermissions() != null) {
+
+            Permissions groupPerms = currentUser.getCurrentEventContext()
+                .getCurrentGroupPermissions();
+
+            boolean isInSysGrp = sysTypes.isInSystemGroup(newDetails);
+            boolean isInUsrGrp = sysTypes.isInUserGroup(newDetails);
+            if (groupPerms.identical(source.getPermissions())) {
+                // ok. weird that they're set. probably an instance
+                // of a managed object being passed in as with
+                // ticket:2055
+            } else if (!sysTypes.isSystemType(obj.getClass())) {
+                if (isInSysGrp) {
+                    // allow admin to do what they want. is this right?
+                } else if (isInUsrGrp) {
+                    // similarly, allow whatever in user group for the moment.
+                } else {
+                    throw new PermissionMismatchGroupSecurityViolation(
+                    "Manually setting permissions currently disallowed");
+                }
+            }
+            // Above didn't throw, so set permissions.
+            newDetails.setPermissions(source.getPermissions());
+        }
+
+        // EXTERNALINFO
+        // useres _are_ allowed to set the external info on a new object.
+        // subsequent operations, however, will not be able to edit this
+        // value.
+        newDetails.setExternalInfo(source.getExternalInfo());
+
+        // CREATION/UPDATEVENT : currently ignore what users do
 
         return newDetails;
 
@@ -546,6 +564,23 @@ public class OmeroInterceptor implements Interceptor {
      */
     public Details checkManagedDetails(final IObject iobj,
             final Details previousDetails) {
+
+        if (iobj == null) {
+            throw new ApiUsageException("Argument cannot be null.");
+        }
+
+        return checkManagedDetails(iobj, previousDetails,
+                iobj.getDetails().newInstance());
+    }
+
+    /**
+     * Like {@link #checkManagedDetails(IObject, Details, Details)} but allows
+     * passing in a specific {@link Details} instance.
+     * @see SecuritySystem#checkManagedDetails(IObject, Details)
+     * @see #evaluateLinkages(IObject)
+     */
+    protected Details checkManagedDetails(final IObject iobj,
+            final Details previousDetails, /* not final */Details newDetails) {
 
         if (iobj == null) {
             throw new ApiUsageException("Argument cannot be null.");
@@ -576,8 +611,7 @@ public class OmeroInterceptor implements Interceptor {
         boolean altered = false;
 
         final Details currentDetails = iobj.getDetails();
-        /* not final! */Details newDetails = currentDetails.newInstance();
-        newDetails.copy(currentUser.createDetails());
+        newDetails.copyWhereUnset(currentUser.createDetails());
 
         // This happens if all fields of details are null (which can't happen)
         // And is so uninteresting for all of our checks. The object can't be
