@@ -68,6 +68,7 @@ public class AllGroupsTest extends PermissionsTest {
     // Thumbnail usage
     // =========================================================================
 
+    @Test(enabled = false) // Not yet supported.
     public void testThumbInAllShares() {
         setup(Permissions.GROUP_READABLE);
         assertThumb(sharectx(-1L));
