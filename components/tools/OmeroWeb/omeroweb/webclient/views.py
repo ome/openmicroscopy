@@ -2607,7 +2607,7 @@ def activities(request, **kwargs):
     failure = 0
     _purgeCallback(request)
 
-    rv = {}
+
     # test each callback for failure, errors, completion, results etc
     for cbString in request.session.get('callback').keys():
         job_type = request.session['callback'][cbString]['job_type']
@@ -2616,8 +2616,24 @@ def activities(request, **kwargs):
         if status == "failed":
             failure+=1
 
+        # update chgrp
+        if job_type == 'chgrp':
+            if status not in ("failed", "finished"):
+                prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                #cb = CmdCallbackI(conn.c, prx)
+                #cb.loop(20, 500)
+                rsp = prx.getResponse()
+                if rsp is not None:
+                    if isinstance(rsp, omero.cmd.ERR):
+                        request.session['callback'][cbString]['status'] = "failed"
+                        rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
+                        request.session['callback'][cbString]['results'] = "%s %s" % (rsp.name, rsp_params)
+                    elif isinstance(rsp, omero.cmd.OK):
+                        request.session['callback'][cbString]['status'] = "finished"
+                        request.session['callback'][cbString]['results'] = "Moved OK"
+
         # update delete
-        if job_type == 'delete':
+        elif job_type == 'delete':
             if status not in ("failed", "finished"):
                 try:
                     handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
@@ -2658,9 +2674,6 @@ def activities(request, **kwargs):
                     request.session['callback'][cbString]['dreport'] = str(x)
                     failure+=1
                 request.session.modified = True
-            # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
-            rv[cbString] = copy.copy(request.session['callback'][cbString])
-            rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
 
         # update scripts
         elif job_type == 'script':
@@ -2710,12 +2723,16 @@ def activities(request, **kwargs):
                 else:
                     in_progress+=1
 
-            # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
-            rv[cbString] = copy.copy(request.session['callback'][cbString])
-            rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
-
+    # having updated the request.session, we can now prepare the data for http response
+    rv = {}
+    for cbString in request.session.get('callback').keys():
+        # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
+        rv[cbString] = copy.copy(request.session['callback'][cbString])
     
+    # return json (not used now, but still an option)
     if 'template' in kwargs and kwargs['template'] == 'json':
+        for cbString in request.session.get('callback').keys():
+            rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
         rv['inprogress'] = in_progress
         rv['failure'] = failure
         rv['jobs'] = len(request.session['callback'])
@@ -3206,7 +3223,7 @@ def chgrp(request, conn, **kwargs):
         raise AttributeError("chgrp: No group_id specified")
     group_id = long(group_id)
 
-    print "group_id", group_id
+    group = conn.getObject("ExperimenterGroup", group_id)
 
     dtypes = ["Project", "Dataset", "Image"]
     for dtype in dtypes:
@@ -3214,13 +3231,14 @@ def chgrp(request, conn, **kwargs):
         if oids is not None:
             for obj_id in oids.split(","):
                 obj_id = long(obj_id)
-                print "chgrp to group:", group_id, dtype, obj_id
                 logger.debug("chgrp to group:%s %s-%s" % (group_id, dtype, obj_id))
                 handle = conn.chgrpObject(dtype, obj_id, group_id)
-                print handle
                 jobId = str(handle)
                 request.session['callback'][jobId] = {
                     'job_type': "chgrp",
+                    'group': group.getName(),
+                    'dtype': dtype,
+                    'obj_id': obj_id,
                     'job_name': "Change group",
                     'start_time': datetime.datetime.now(),
                     'status':'in progress'}

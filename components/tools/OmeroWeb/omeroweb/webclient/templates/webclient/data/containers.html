@@ -133,6 +133,7 @@
             }
         }
 
+        // Stuff to do on load...
         $(function() 
             {
                 $("#left_panel_tabs").tabs({
@@ -150,7 +151,7 @@
                 $("#chgrp-form").dialog({
                     autoOpen: false,
                     resizable: true,
-                    height: 210,
+                    height: 310,
                     width:420,
                     modal: true,
                     buttons: {
@@ -162,20 +163,28 @@
                         }
                     }
                 });
+                // handle chgrp 
                 $("#chgrp-form").submit(function(e){
                     $("#chgrp-form").dialog("close");
                     var selected = $.jstree._focused().get_selected();
                     var postData = $(this).serialize();
-                    console.log('group_id', postData);  // don't send if this is undefined.
+                    if ($(".group_option input[checked=true]", $(this)).length < 1) return false;   // no group chosen
                     var actionUrl= $(this).attr('action') + "?" + get_tree_selection(); // E.g. ?Dataset=34,56$Image=12
                     $.post(actionUrl, postData, function(data){
-                        //refreshActivities();
+                        showActivities();
                         $("#dataTree").jstree('remove', selected);
                         
                     });
                     
                     return false
                 });
+                // chgrp form behavior
+                $("#chgrp-form .group_option").click(function(){
+                    $("#chgrp-form .group_option").removeClass('selected');
+                    $(this).addClass('selected');
+                    $("input[type='radio']", $(this)).attr('checked', true);
+                });
+                $("#chgrp-form .group_option :first").click();  // select first option
 
 
                 var buttonsShowHide = function(selected, inst) {
@@ -868,12 +877,33 @@
 
         <!-- hidden form for chgrp -->
         <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}">
-            <p>Choose group to move data</p>
-            <select name='group_id'>
+            {% if eContext.allGroups|length_is:"1" %}
+                <p>
+                    You are only in a single group.<br>
+                    You cannot move data to another group.
+                </p>
+            {% else %}
+                <p>Choose group to move data</p>
+
+                <div class="gray_border">
                 {% for grp in eContext.allGroups %}
-                    <option value="{{ grp.id }}">{{ grp.name }}</option>
+                    {% ifnotequal grp.id eContext.context.groupId %}
+                        <div class='group_option'>
+                            <input type="radio" name="group_id" value="{{ grp.id }}" style="display:none"/>
+                            <img
+                            {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static "webclient/image/nuvola_ledorange16.png" %}"
+                            {% else %}
+                                {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/nuvola_ledorange_readOnly16.png" %}"
+                                {% else %}
+                                    src="{% static "webclient/image/nuvola_ledred16.png" %}"
+                                {% endif %}
+                            {% endif %} />
+                            {{ grp.name }}
+                        </div>
+                    {% endifnotequal %}
                 {% endfor %}
-            </select>
+                </div>
+            {% endif %}
         </form>
 
     </div>

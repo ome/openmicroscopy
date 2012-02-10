@@ -173,12 +173,11 @@ ul.tabslist {
 }
 #activities_panel .message {
     width: 200px;
+    color: #666;
+    font-size: 85%;
 }
 #activities_panel .activity_title {
     font-weight:bold;
-}
-#activities_panel .message {
-    color: #666;
 }
 
 .info_panel tr.even {
@@ -462,4 +461,12 @@ width: 250px;
 #batch_ann_error {
     background: #fbb;
     cursor: pointer;
+}
+
+/** Chgrp form **/
+#chgrp-form .selected {
+    background: #ddf;
+}
+#chgrp-form .group_option {
+    padding: 5px;
 }

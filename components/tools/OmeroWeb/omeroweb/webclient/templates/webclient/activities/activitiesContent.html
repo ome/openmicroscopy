@@ -40,6 +40,32 @@
             {% endifequal %}
 
             {% for j in jobs %}
+                <!-- Chgrp jobs -->
+                {% ifequal j.job_type "chgrp" %}
+                    <tr id="{{ j.id }}">
+                        <td width="25px">
+                            {% ifequal j.status "in progress" %}<img class="icon" src="{% static "common/image/spinner.gif" %}" />
+                            {% else %} <img class="icon" src="{% static "webclient/image/nuvola_apply22.png" %}" />
+                            {% endifequal %}
+                        </td>
+                        <td width="50%">
+                            <div class="activity_title">
+                                Move Group:
+                                <span class="status">{{ j.status }}</span>
+                            </div>
+                            <div class="message">
+                                Move {{ j.dtype }} {{ j.obj_id }} to Group {{ j.group }}
+                            </div>
+                        </td>
+                        <td class="action">
+                                {{ j.results }}
+                        </td>
+                        <td width="16px">
+                            <img id="{{ j.key }}" title="Remove from list" src="{% static "webclient/image/nuvola_cancel16.png" %}" class="remove" />
+                        </td>
+                        <td width="40px">{{ j.start_time|date:"H:i" }}</td>
+                    </tr>
+                {% endifequal %}
 
                 <!-- Delete jobs -->
                 {% ifequal j.job_type "delete" %}
