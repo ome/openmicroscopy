@@ -549,9 +549,14 @@ def load_template(request, menu, **kwargs):
     s = conn.groupSummary()
     leaders = s["leaders"]
     members = s["colleagues"]
+    users = []
     leaders.sort(key=lambda x: x.getOmeName().lower())
+    if len(leaders) > 0:
+        users.append( ("Owners", leaders) )
     members.sort(key=lambda x: x.getOmeName().lower())
-    users = ( ("Leaders", leaders), ("Members", members) )
+    if len(members) > 0:
+        users.append( ("Members", members) )
+    users = tuple(users)
     empty_label = None #"*%s (%s)" % (conn.getUser().getFullName(), conn.getUser().omeName)
     if len(users) > 0:
         if request.REQUEST.get('experimenter') is not None and len(request.REQUEST.get('experimenter'))>0:
