@@ -558,8 +558,8 @@ def load_template(request, menu, **kwargs):
     
     
     # search support
-    if menu == "search":
-        init['query'] = request.REQUEST.get('search_query')
+    if menu == "search" and request.REQUEST.get('search_query'):
+        init['query'] = str(request.REQUEST.get('search_query')).replace(" ", "%20")
     
     
     try:
