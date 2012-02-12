@@ -160,7 +160,7 @@ class BlitzObjectWrapper (object):
         if hasattr(obj, 'id') and obj.id is not None:
             self._oid = obj.id.val
             if not self._obj.loaded:
-                self._obj = self._conn.getQueryService().get(self._obj.__class__.__name__, self._oid)
+                self._obj = self._conn.getQueryService().get(self._obj.__class__.__name__, self._oid, self._conn.CONFIG['SERVICE_OPTS'])
         self.__prepare__ (**kwargs)
 
     def __eq__ (self, a):
@@ -272,10 +272,10 @@ class BlitzObjectWrapper (object):
         p = self.getParent()
         # p._obj.__class__ == p._obj.__class__ ImageWrapper(omero.model.DatasetI())
         if p.OMERO_CLASS == newParent.OMERO_CLASS:
-            link = self._conn.getQueryService().findAllByQuery("select l from %s as l where l.parent.id=%i and l.child.id=%i" % (p.LINK_CLASS, p.id, self.id), None)
+            link = self._conn.getQueryService().findAllByQuery("select l from %s as l where l.parent.id=%i and l.child.id=%i" % (p.LINK_CLASS, p.id, self.id), None, self._conn.CONFIG['SERVICE_OPTS'])
             if len(link):
                 link[0].parent = newParent._obj
-                self._conn.getUpdateService().saveObject(link[0])
+                self._conn.getUpdateService().saveObject(link[0], self._conn.CONFIG['SERVICE_OPTS'])
                 return True
             logger.debug("## query didn't return objects: 'select l from %s as l where l.parent.id=%i and l.child.id=%i'" % (p.LINK_CLASS, p.id, self.id))
         else:
@@ -578,12 +578,14 @@ class BlitzObjectWrapper (object):
         parentw = self._getParentWrappers()
         param = omero.sys.Parameters() # TODO: What can I use this for?
         parentnodes = []
+        print self._conn.CONFIG
         for pwc in parentw:
             pwck = pwc()
             if withlinks:
                 parentnodes.extend([(pwc(self._conn, pwck.LINK_PARENT(x), self._cache), BlitzObjectWrapper(self._conn, x)) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.CONFIG['SERVICE_OPTS'])])
             else:
-                parentnodes.extend([pwc(self._conn, pwck.LINK_PARENT(x), self._cache) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.CONFIG['SERVICE_OPTS'])])
+                t =  self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.CONFIG['SERVICE_OPTS'])
+                parentnodes.extend([pwc(self._conn, pwck.LINK_PARENT(x), self._cache) for x in t])
         return parentnodes
 
     def getAncestry (self):
@@ -1125,9 +1127,9 @@ class BlitzObjectWrapper (object):
             if self._obj.details.creationEvent._time is not None:
                 self._creationDate = self._obj.details.creationEvent._time.val
             else:
-                self._creationDate = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
+                self._creationDate = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val, self._conn.CONFIG['SERVICE_OPTS']).time.val
         except:
-            self._creationDate = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
+            self._creationDate = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val, self._conn.CONFIG['SERVICE_OPTS']).time.val
         return datetime.fromtimestamp(self._creationDate/1000)
         
 
@@ -1143,9 +1145,9 @@ class BlitzObjectWrapper (object):
             if self._obj.details.updateEvent.time is not None:
                 t = self._obj.details.updateEvent.time.val
             else:
-                t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val).time.val
+                t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val, self._conn.CONFIG['SERVICE_OPTS']).time.val
         except:
-            t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val).time.val
+            t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val, self._conn.CONFIG['SERVICE_OPTS']).time.val
         return datetime.fromtimestamp(t/1000)
 
 
@@ -5063,7 +5065,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         
         if self._re is None:
             return False
-        return self._re.isActive(self._idx)
+        return self._re.isActive(self._idx, self._conn.CONFIG['SERVICE_OPTS'])
 
     def getLogicalChannel (self):
         """
@@ -5140,7 +5142,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         
         if self._re is None:
             return None
-        return ColorHolder.fromRGBA(*self._re.getRGBA(self._idx))
+        return ColorHolder.fromRGBA(*self._re.getRGBA(self._idx, self._conn.CONFIG['SERVICE_OPTS']))
 
     def getWindowStart (self):
         """
@@ -5150,7 +5152,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         @rtype:     int
         """
         
-        return int(self._re.getChannelWindowStart(self._idx))
+        return int(self._re.getChannelWindowStart(self._idx, self._conn.CONFIG['SERVICE_OPTS']))
 
     def setWindowStart (self, val):
         self.setWindow(val, self.getWindowEnd())
@@ -5163,13 +5165,13 @@ class _ChannelWrapper (BlitzObjectWrapper):
         @rtype:     int
         """
         
-        return int(self._re.getChannelWindowEnd(self._idx))
+        return int(self._re.getChannelWindowEnd(self._idx, self._conn.CONFIG['SERVICE_OPTS']))
 
     def setWindowEnd (self, val):
         self.setWindow(self.getWindowStart(), val)
 
     def setWindow (self, minval, maxval):
-        self._re.setChannelWindow(self._idx, float(minval), float(maxval))
+        self._re.setChannelWindow(self._idx, float(minval), float(maxval), self._conn.CONFIG['SERVICE_OPTS'])
 
     def getWindowMin (self):
         """
@@ -5307,7 +5309,6 @@ class _ImageWrapper (BlitzObjectWrapper):
     def __del__ (self):
         self._re and self._re.untaint()
 
-    #@setsessiongroup
     def __loadedHotSwap__ (self):
         self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None, {'omero.group': '-1'})[0]
     
@@ -5351,7 +5352,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         if rdefns is None:
             return
         ann = self.getAnnotation(rdefns)
-        rdid = ann.getValue()
+        rdid = ann and ann.getValue() or None
         if rdid is None:
             return
         logger.debug('_getRDef: %s' % (str(rdid)))
@@ -5387,15 +5388,15 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         pid = self.getPrimaryPixels().id
         re = self._conn.createRenderingEngine()
-        re.lookupPixels(pid)
+        re.lookupPixels(pid, self._conn.CONFIG['SERVICE_OPTS'])
         rdid = self._getRDef()
         if rdid is None:
-            if not re.lookupRenderingDef(pid):
-                re.resetDefaults()
-                re.lookupRenderingDef(pid)
-                self._onResetDefaults(re.getRenderingDefId())
+            if not re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS']):
+                re.resetDefaults(self._conn.CONFIG['SERVICE_OPTS'])
+                re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS'])
+                self._onResetDefaults(re.getRenderingDefId(self._conn.CONFIG['SERVICE_OPTS']))
         else:
-            re.loadRenderingDef(rdid)
+            re.loadRenderingDef(rdid, self._conn.CONFIG['SERVICE_OPTS'])
         re.load()
         return re
 
@@ -5595,24 +5596,24 @@ class _ImageWrapper (BlitzObjectWrapper):
         rdid = self._getRDef()
         logger.debug(self.getDetails().getGroup().getName())
         logger.debug(str(self._conn.getEventContext()))
-        has_rendering_settings = tb.setPixelsId(pid)
+        has_rendering_settings = tb.setPixelsId(pid, self._conn.CONFIG['SERVICE_OPTS'])
         logger.debug("tb.setPixelsId(%d) = %s " % (pid, str(has_rendering_settings)))
         if rdid is None:
             if not has_rendering_settings:
                 try:
-                    tb.resetDefaults()      # E.g. May throw Missing Pyramid Exception
+                    tb.resetDefaults(self._conn.CONFIG['SERVICE_OPTS'])      # E.g. May throw Missing Pyramid Exception
                 except omero.ConcurrencyException, ce:
                     logger.info( "ConcurrencyException: resetDefaults() failed in _prepareTB with backOff: %s" % ce.backOff)
                     return tb
-                tb.setPixelsId(pid)
+                tb.setPixelsId(pid, self._conn.CONFIG['SERVICE_OPTS'])
                 try:
-                    rdid = tb.getRenderingDefId()
+                    rdid = tb.getRenderingDefId(self._conn.CONFIG['SERVICE_OPTS'])
                 except omero.ApiUsageException:         # E.g. No rendering def (because of missing pyramid!)
                     logger.info( "ApiUsageException: getRenderingDefId() failed in _prepareTB")
                     return tb
                 self._onResetDefaults(rdid)
         else:
-            tb.setRenderingDefId(rdid)
+            tb.setRenderingDefId(rdid, self._conn.CONFIG['SERVICE_OPTS'])
         return tb
 
     def loadOriginalMetadata(self):
@@ -5746,6 +5747,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             args = map(lambda x: rint(x), size)
             if pos is not None:
                 args = list(pos) + args
+            args += [self._conn.CONFIG['SERVICE_OPTS']]
             rv = thumb(*args)
             tb.close()      # close every time to prevent stale state
             return rv
@@ -5766,8 +5768,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
-        rp.setPixelsId(pixels_id, True)
-        pmax = 2 ** (8 * rp.getByteWidth())
+        rp.setPixelsId(pixels_id, True, self._conn.CONFIG['SERVICE_OPTS'])
+        pmax = 2 ** (8 * rp.getByteWidth(), self._conn.CONFIG['SERVICE_OPTS'])
         if rp.isSigned():
             return (-(pmax / 2), pmax / 2 - 1)
         else:
@@ -5789,7 +5791,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @rtype:     List of L{ChannelWrapper}
         """
         if self._re is not None:
-            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(self._re.getPixels().iterateChannels())]
+            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(self._re.getPixels(self._conn.CONFIG['SERVICE_OPTS']).iterateChannels())]
         else:       # E.g. ConcurrencyException (no rendering engine): load channels by hand, use pixels to order channels
             pid = self.getPixelsId()
             params = omero.sys.Parameters()
@@ -5811,14 +5813,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
 
         for c in range(len(self.getChannels())):
-            self._re.setActive(c, (c+1) in channels)
+            self._re.setActive(c, (c+1) in channels, self._conn.CONFIG['SERVICE_OPTS'])
             if (c+1) in channels:
                 if windows is not None and windows[c][0] is not None and windows[c][1] is not None:
-                    self._re.setChannelWindow(c, *windows[c])
+                    self._re.setChannelWindow(c, *(windows[c] + [self._conn.CONFIG['SERVICE_OPTS']]))
                 if colors is not None and colors[c]:
                     rgba = splitHTMLColor(colors[c])
                     if rgba:
-                        self._re.setRGBA(c, *rgba)
+                        self._re.setRGBA(c, *(rgba + [self._conn.CONFIG['SERVICE_OPTS']]))
         return True
 
     def getProjections (self):

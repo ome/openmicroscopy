@@ -592,7 +592,7 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, _conn=None, 
     jpeg_data = webgateway_cache.getThumb(request, server_id, user_id, iid, size)
     if jpeg_data is None:
         prevent_cache = False
-        img = blitzcon.getObject("Image", iid, allgroups=True)
+        img = blitzcon.getObject("Image", iid)
         if img is None:
             logger.debug("(b)Image %s not found..." % (str(iid)))
             if _defcb:
