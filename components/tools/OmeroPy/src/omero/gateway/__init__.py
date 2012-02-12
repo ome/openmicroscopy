@@ -582,12 +582,14 @@ class BlitzObjectWrapper (object):
         parentw = self._getParentWrappers()
         param = omero.sys.Parameters() # TODO: What can I use this for?
         parentnodes = []
+        print self._conn.CONFIG
         for pwc in parentw:
             pwck = pwc()
             if withlinks:
                 parentnodes.extend([(pwc(self._conn, pwck.LINK_PARENT(x), self._cache), BlitzObjectWrapper(self._conn, x)) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.CONFIG['SERVICE_OPTS'])])
             else:
-                parentnodes.extend([pwc(self._conn, pwck.LINK_PARENT(x), self._cache) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.CONFIG['SERVICE_OPTS'])])
+                t =  self._conn.getQueryService().findAllByQuery("from %s as c where c.%s.id=%i" % (pwck.LINK_CLASS, pwck.LINK_CHILD, self._oid), param, self._conn.CONFIG['SERVICE_OPTS'])
+                parentnodes.extend([pwc(self._conn, pwck.LINK_PARENT(x), self._cache) for x in t])
         return parentnodes
 
     def getAncestry (self):
@@ -5311,7 +5313,6 @@ class _ImageWrapper (BlitzObjectWrapper):
     def __del__ (self):
         self._re and self._re.untaint()
 
-    #@setsessiongroup
     def __loadedHotSwap__ (self):
         self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None, {'omero.group': '-1'})[0]
     
@@ -5355,7 +5356,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         if rdefns is None:
             return
         ann = self.getAnnotation(rdefns)
-        rdid = ann.getValue()
+        rdid = ann and ann.getValue() or None
         if rdid is None:
             return
         logger.debug('_getRDef: %s' % (str(rdid)))
@@ -5395,9 +5396,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         rdid = self._getRDef()
         if rdid is None:
             if not re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS']):
-                sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
-                sopts['omero.group'] = str(self.getDetails().getGroup().getId())
-                re.resetDefaults(sopts)
+                re.resetDefaults(self._conn.CONFIG['SERVICE_OPTS'])
                 re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS'])
                 self._onResetDefaults(re.getRenderingDefId(self._conn.CONFIG['SERVICE_OPTS']))
         else:
@@ -5601,14 +5600,12 @@ class _ImageWrapper (BlitzObjectWrapper):
         rdid = self._getRDef()
         logger.debug(self.getDetails().getGroup().getName())
         logger.debug(str(self._conn.getEventContext()))
-        has_rendering_settings = tb.setPixelsId(pid)
+        has_rendering_settings = tb.setPixelsId(pid, self._conn.CONFIG['SERVICE_OPTS'])
         logger.debug("tb.setPixelsId(%d) = %s " % (pid, str(has_rendering_settings)))
         if rdid is None:
             if not has_rendering_settings:
                 try:
-                    sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
-                    sopts['omero.group'] = str(self.getDetails().getGroup().getId())
-                    tb.resetDefaults(sopts)      # E.g. May throw Missing Pyramid Exception
+                    tb.resetDefaults(self._conn.CONFIG['SERVICE_OPTS'])      # E.g. May throw Missing Pyramid Exception
                 except omero.ConcurrencyException, ce:
                     logger.info( "ConcurrencyException: resetDefaults() failed in _prepareTB with backOff: %s" % ce.backOff)
                     return tb
@@ -5776,7 +5773,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
         rp.setPixelsId(pixels_id, True, self._conn.CONFIG['SERVICE_OPTS'])
-        pmax = 2 ** (8 * rp.getByteWidth())
+        pmax = 2 ** (8 * rp.getByteWidth(), self._conn.CONFIG['SERVICE_OPTS'])
         if rp.isSigned():
             return (-(pmax / 2), pmax / 2 - 1)
         else:
