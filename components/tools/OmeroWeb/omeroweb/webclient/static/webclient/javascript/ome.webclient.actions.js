@@ -3,6 +3,8 @@ var multi_key = function() {
     else return "ctrl";
 };
 
+
+// this is only called if the number of selected items is 0 or 1.
 var loadOtherPanels = function(inst, prefix) {
     var selected = inst.get_selected();
     if(selected.length > 0) {
@@ -174,6 +176,9 @@ var multipleAnnotation = function(selected, index, prefix){
 };
 
 var loadMetadataPanel = function(src, html) {
+    
+    console.log("NOT SUPPORTED! loadMetadataPanel()", src, html);
+    return
     
     var $metadataPanel = $("#right_panel");
 

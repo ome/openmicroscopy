@@ -937,6 +937,108 @@
         });
     });
     </script>
+    
+    <script type="text/javascript">
+    
+    // handle js tree selection changes, loading content into right-hand panels as needed
+    $(function () {
+        
+        $("#annotation_tabs").tabs();
+
+        var update_metadata_tabs = function() {
+            var datatree = $.jstree._focused();
+            var selected = datatree.data.ui.selected;
+            
+            var $metadata_general = $("#metadata_general");
+            var $metadata_acquisition = $("#metadata_acquisition");
+            var $metadata_preview = $("#metadata_preview");
+            var prefix = '{% url webindex %}';
+            
+            if(selected.length == 0) {
+                return
+            }
+            if (selected.length > 1) {
+                // handle batch annotation...
+                $metadata_general.html("Batch annotation...");
+            } else {
+                var url = null;
+                var oid = selected.attr('id');
+                var orel = selected.attr('rel').replace("-locked", "");
+                if (typeof oid =="undefined" || oid==false) return
+                
+                // handle loading of GENERAL tab
+                if ($metadata_general.is(":visible")) {
+                    // orphaned
+                    if (oid.indexOf("orphaned")>=0) {
+                        $metadata_general.html('<p>This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container.</p>');
+                        return;
+                    // experimenter
+                    } else if (oid.indexOf("experimenter")>=0) {
+                        $metadata_general.html('<p>'+selected.children().eq(1).text()+'</p>');
+                    // everything else
+                    } else {
+                        if(orel=="image") {
+                            var pr = selected.parent().parent();
+                            if (pr.length>0 && pr.attr('rel').replace("-locked", "")==="share") {
+                                url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/'+pr.attr("id").split("-")[1]+'/';
+                            } else {
+                                url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
+                            }
+                        } else {
+                            url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
+                        }
+                    }
+                    if (url !== null) {
+                        $metadata_general.load(url);
+                    }
+                }
+                
+                // handle loading of Acquisition metadata
+                if ($metadata_acquisition.is(":visible")) {
+                    
+                    if(orel=="image") {
+                        var pr = selected.parent().parent();
+                        if (pr.length>0 && pr.attr('rel').replace("-locked", "")==="share") {
+                            url = prefix+'metadata_acquisition/'+orel+'/'+oid.split("-")[1]+'/'+pr.attr("id").split("-")[1]+'/';
+                        } else {
+                            url = prefix+'metadata_acquisition/'+orel+'/'+oid.split("-")[1]+'/';
+                        }
+                        $metadata_acquisition.load(url);
+                    } else {
+                        $metadata_acquisition.empty();
+                    }
+                } else {
+                    $metadata_acquisition.empty();
+                }
+                
+                // handle loading of Image Preview
+                if ($metadata_preview.is(":visible")) {
+                    
+                    if(orel=="image") {
+                        var pr = selected.parent().parent();
+                        if (pr.length>0 && pr.attr('rel').replace("-locked", "")==="share") {
+                            url = prefix+'metadata_preview/'+oid.split("-")[1]+'/'+pr.attr("id").split("-")[1]+'/';
+                        } else {
+                            url = prefix+'metadata_preview/'+oid.split("-")[1]+'/';
+                        }
+                        $metadata_preview.load(url);
+                    } else {
+                        $metadata_preview.empty();
+                    }
+                } else {
+                    $metadata_preview.empty();
+                }
+                
+                
+            }
+        }
+
+        // update tabs when tree selection changes or tabs switch
+        $("#annotation_tabs").bind( "tabsshow", update_metadata_tabs);
+        $("#dataTree").bind("select_node.jstree", update_metadata_tabs);
+            
+    });
+    </script>
 {% endblock %}
 
 
@@ -1031,4 +1133,20 @@
 
 <div id="content_details"> </div>
 
+{% endblock %}
+
+
+{% block right %}
+<div>
+    <div id="annotation_tabs" class="absolute_fill">
+        <ul class="tabslist">
+            <li><a href="#metadata_general">{% trans "General" %}</a></li>
+            <li><a href='#metadata_acquisition' title="Metadata tab">{% trans "Acquisition" %}</a></li>                
+            <li><a href='#metadata_preview' title="Preview tab">{% trans "Preview" %}</a></li>
+        </ul>
+        <div id="metadata_general">Load Metadata General Here</div>
+        <div id="metadata_acquisition">Load Metadata Acquisition Here</div>
+        <div id="metadata_preview">Load Metadata Preview Here</div>
+    </div>
+</div>
 {% endblock %}
