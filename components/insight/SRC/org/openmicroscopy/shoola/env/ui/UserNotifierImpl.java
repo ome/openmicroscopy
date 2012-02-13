@@ -213,11 +213,13 @@ public class UserNotifierImpl
 	 * 
 	 * @param nodes The nodes to handle.
 	 * @param listener The listener to register.
+	 * @param ctx The security context.
 	 * @return See above
 	 */
-	void notifySaving(List<Object> nodes, PropertyChangeListener listener)
+	void notifySaving(List<Object> nodes, PropertyChangeListener listener,
+			SecurityContext ctx)
 	{
-		dialog = new ChangesDialog(SHARED_FRAME, nodes);
+		dialog = new ChangesDialog(SHARED_FRAME, nodes, ctx);
 		dialog.addPropertyChangeListener(this);
 		if (listener != null) dialog.addPropertyChangeListener(listener);
 		UIUtilities.centerAndShow(dialog);

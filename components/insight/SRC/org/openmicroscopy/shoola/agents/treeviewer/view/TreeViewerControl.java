@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
@@ -131,9 +133,12 @@ import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
+import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import pojos.DataObject;
@@ -574,6 +579,13 @@ class TreeViewerControl
 	 */
 	private void attachListeners()
 	{
+		if (UIUtilities.isMacOS()) {
+			try {
+				MacOSMenuHandler handler = new MacOSMenuHandler(view);
+				handler.initialize();
+				view.addPropertyChangeListener(this);
+			} catch (Throwable e) {}
+        }
 		Map browsers = model.getBrowsers();
 		Iterator i = browsers.values().iterator();
 		Browser browser;
@@ -1296,6 +1308,11 @@ class TreeViewerControl
 			model.setSelectedNodes(pce.getNewValue());
 		} else if (TreeViewer.GROUP_CHANGED_PROPERTY.equals(name)) {
 			view.setPermissions();
+		} else if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {
+			Action a = getAction(EXIT);
+			ActionEvent event = 
+				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
+			a.actionPerformed(event);
 		}
 	}
 	

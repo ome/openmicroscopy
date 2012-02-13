@@ -224,17 +224,16 @@ class AdminServiceImpl
 			ExperimenterData exp, long groupID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (exp == null) 
-			throw new DSAccessException("No object to update.");
+		UserCredentials uc = (UserCredentials) 
+		context.lookup(LookupNames.USER_CREDENTIALS);
+		if (exp == null) {
+			exp = gateway.getUserDetails(ctx, uc.getUserName());
+		}
 		if (groupID < 0)
 			throw new DSAccessException("No group specified.");
 		if (exp.getDefaultGroup().getId() != groupID) {
-			UserCredentials uc = (UserCredentials) 
-			context.lookup(LookupNames.USER_CREDENTIALS);
 			gateway.changeCurrentGroup(ctx, exp, groupID);
 		}
-		UserCredentials uc = (UserCredentials) 
-			context.lookup(LookupNames.USER_CREDENTIALS);
 		ExperimenterData data = gateway.getUserDetails(ctx, uc.getUserName());
 		
 		context.bind(LookupNames.CURRENT_USER_DETAILS, data);
