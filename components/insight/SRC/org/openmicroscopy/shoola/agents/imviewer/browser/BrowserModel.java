@@ -30,7 +30,6 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -321,10 +320,10 @@ class BrowserModel
     		BufferedImage img;
         	while (i.hasNext()) {
         		img = (BufferedImage) i.next();
-        		gridImages.add(Factory.magnifyImage(gridRatio, img));
+        		gridImages.add(Factory.magnifyImage(img, gridRatio, 0));
         		if (b) originalGridImages.add(img);
     		}
-        	combinedImage = Factory.magnifyImage(gridRatio, renderedImage);
+        	combinedImage = Factory.magnifyImage(renderedImage, gridRatio, 0);
     	}
     }
 
@@ -401,7 +400,7 @@ class BrowserModel
 			case 1:
 			case 2:
 			case 3:
-				if (isImageMappedRGB(l)) {
+				if (isImageMappedRGB(l) && !parent.isCompressed()) {
 					//if (combinedImage == null)
 					if (combinedImage != null) combinedImage.flush();
 					combinedImage = Factory.magnifyImage(gridRatio, 
@@ -435,28 +434,6 @@ class BrowserModel
 							gridImages.add(null);
 						}
 					}
-		        	/*
-		    		for (int i = 0; i < maxC; i++) {
-						if (parent.isChannelActive(i)) {
-							if (parent.isChannelRed(i)) { 
-								gridImages.add(createBandImage(buf, w, h, 
-										Factory.RED_MASK, Factory.BLANK_MASK,
-										Factory.BLANK_MASK));
-							} else if (parent.isChannelGreen(i)) {
-								gridImages.add(createBandImage(buf, w, h,
-										Factory.BLANK_MASK, Factory.GREEN_MASK, 
-										Factory.BLANK_MASK));
-							} else if (parent.isChannelBlue(i)) {
-								gridImages.add(createBandImage(buf, w, h, 
-										Factory.BLANK_MASK, Factory.BLANK_MASK, 
-										Factory.BLUE_MASK));
-							}
-						} else {
-							gridImages.add(null);
-						}
-					}
-					*/
-		    		
 				} else {
 					retrieveGridImages();
 				}

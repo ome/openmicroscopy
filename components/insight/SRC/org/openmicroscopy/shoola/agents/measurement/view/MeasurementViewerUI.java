@@ -92,6 +92,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
+import com.sun.org.apache.bcel.internal.classfile.Code;
+
 /** 
  * The {@link MeasurementViewer} view.
  *
@@ -1556,6 +1558,19 @@ class MeasurementViewerUI
 			}
 		}
 		model.getDrawingView().repaint();
+	}
+	
+ 	/**
+ 	 * Indicates any on-going analysis.
+ 	 * 
+ 	 * @param analyse Passes <code>true</code> when analyzing,
+ 	 * <code>false</code> otherwise.
+ 	 */
+	void onAnalysed(boolean analyse)
+	{
+		graphPane.onAnalysed(analyse);
+		intensityView.onAnalysed(analyse);
+		toolBar.onAnalysed(analyse);
 	}
 	
     /** 

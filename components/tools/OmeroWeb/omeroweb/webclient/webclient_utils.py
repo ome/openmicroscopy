@@ -23,7 +23,7 @@ import logging
 
 from django.utils.datastructures import SortedDict
 
-logger = logging.getLogger('utils')
+logger = logging.getLogger(__name__)
 
 def _formatReport(delete_handle):
     """

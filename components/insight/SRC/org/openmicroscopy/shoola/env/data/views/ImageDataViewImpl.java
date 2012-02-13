@@ -475,5 +475,17 @@ class ImageDataViewImpl
 		BatchCallTree cmd = new TileLoader(pixelsID, pDef, tiles, asTexture);
 		return cmd.exec(observer);
 	}
+	
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#shutDownRenderingControl(long, AgentEventListener)
+     */
+	public CallHandle shutDownRenderingControl(long pixelsID,
+            AgentEventListener observer)
+	{
+		BatchCallTree cmd = new RenderingControlLoader(pixelsID,
+				RenderingControlLoader.SHUTDOWN);
+        return cmd.exec(observer);
+	}
 
 }

@@ -23,13 +23,13 @@
  */
 package org.openmicroscopy.shoola.env.data.events;
 
-import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
  * Event indicating that it was possible to reconnect.

@@ -109,6 +109,10 @@
     <replace file="${app.config.dir}/about.xml"
         token="@DATE@"
         value="${about.time}"/>
+    <replace dir="${app.config.dir}"
+        token="@OMERO_DISPLAY_VERSION@"
+        value="${omero.display_version}"/>
+
     <copy todir="${app.lib.dir}">
       <fileset refid="app.libs"/>
     </copy> 

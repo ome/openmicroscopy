@@ -329,6 +329,7 @@
                 <attribute name="target"/>
                 <sequential>
                 <subant verbose="on" buildpathref="@{buildpathref}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}" failonerror="true" target="@{target}">
+                        <property name="omero.version" value="${omero.version}"/>
                         <property name="multi.test.with.fail" value="${test.with.fail}"/>
                         <property name="multi.test.skip" value="${test.skip}"/>
                         <property name="multi.generate.skip" value="${generate.skip}"/>
@@ -346,6 +347,10 @@
 
         <macrodef name="installIvy">
             <sequential>
+            <!-- Necessary to store version in a file for etc/ivysettings.xml to
+            read in, since there's no clean way to pass properties -->
+            <mkdir dir="${omero.home}/target"/>
+            <echo file="${omero.home}/target/omero.version">omero.version=${omero.version}</echo>
             <classloader name="ivy.loader">
                 <classpath id="ivy.classpath">
                     <fileset dir="${omero.home}/lib/repository" includes="ivy*.jar"/>
@@ -529,9 +534,14 @@
             <attribute name = "command" />
             <attribute name = "dir" default = "${env.PWD}" />
             <attribute name = "output" />
+            <attribute name = "failonerror" default = "false" />
             <element name = "args" optional = "true" />
             <sequential>
-                <exec executable = "git" dir = "@{dir}" outputproperty = "@{output}">
+                <exec executable = "git" dir = "@{dir}"
+                    outputproperty = "@{output}"
+                    errorproperty = "@{output}.err"
+                    resultproperty = "@{output}.rc"
+                    failonerror = "@{failonerror}">
                     <arg value = "@{command}" />
                     <args/>
                 </exec>

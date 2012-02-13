@@ -32,7 +32,7 @@ from django import template
 
 register = template.Library()
 
-logger = logging.getLogger('common_tags')
+logger = logging.getLogger(__name__)
 
 # makes settings available in template
 @register.tag

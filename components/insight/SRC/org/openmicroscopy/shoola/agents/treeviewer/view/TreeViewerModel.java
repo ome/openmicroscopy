@@ -632,8 +632,9 @@ class TreeViewerModel
 	 */
 	ExperimenterData getExperimenter()
 	{
-		if (experimenter == null) experimenter = getUserDetails();
-		return experimenter;
+		//if (experimenter == null) experimenter = getUserDetails();
+		//return experimenter;
+		return getUserDetails();
 	}
 
 	/**

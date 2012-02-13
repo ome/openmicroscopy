@@ -42,7 +42,7 @@ from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
                         GroupModelMultipleChoiceField, GroupModelChoiceField
 
 
-logger = logging.getLogger('forms-web')
+logger = logging.getLogger(__name__)
              
 ##################################################################
 # Static values

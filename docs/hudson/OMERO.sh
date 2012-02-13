@@ -10,20 +10,16 @@ set -u
 set -x
 
 source docs/hudson/functions.sh
-export OMERO_BUILD=`git_short_rev`-b$BUILD_NUMBER
 echo Building $OMERO_BRANCH
 
 ./build.py clean
 ./build.py build-default
 ./build.py release-docs
 ./build.py release-zip
-
-# publish the current CSS file into http://hudson.openmicroscopy.org.uk/userContent
-cp -f docs/styleForAPI.css /hudson/.hudson/userContent/styleForAPI.css
+./build.py release-src
 
 # Log information
-echo OMERO_BUILD=$OMERO_BUILD > target/$OMERO_BRANCH.log
+echo BUILD_NUMBER=$BUILD_NUMBER > target/$OMERO_BRANCH.log
 echo OMERO_BRANCH=$OMERO_BRANCH >> target/$OMERO_BRANCH.log
 git_info > target/GIT_INFO
 env | sort >> target/GIT_INFO
-git_zip target/OMERO.source-$OMERO_BUILD.zip

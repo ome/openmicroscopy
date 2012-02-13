@@ -103,7 +103,7 @@ from omeroweb.webgateway import views as webgateway_views
 
 from omeroweb.feedback.views import handlerInternalError
 
-logger = logging.getLogger('views-web')
+logger = logging.getLogger(__name__)
 
 connectors = {}
 share_connectors = {}
@@ -554,9 +554,11 @@ def load_template(request, menu, **kwargs):
     empty_label = "*%s (%s)" % (conn.getUser().getFullName(), conn.getUser().omeName)
     if len(users) > 0:
         if request.REQUEST.get('experimenter') is not None and len(request.REQUEST.get('experimenter'))>0:
-            filter_user_id = request.REQUEST.get('experimenter', None)
-            request.session.get('nav')['experimenter'] = filter_user_id
-            form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
+            form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu}, data=request.REQUEST.copy())
+            if form_users.is_valid():
+                filter_user_id = request.REQUEST.get('experimenter', None)
+                request.session.get('nav')['experimenter'] = filter_user_id
+                form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
         else:
             if request.REQUEST.get('experimenter') == "":
                 request.session.get('nav')['experimenter'] = None
@@ -1924,7 +1926,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         try:
             for key,ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
-                    handle = manager.deleteObjects(key, ids, child, anns)
+                    handle = manager.deleteObjects(key.title(), ids, child, anns)
                     dMap = {'job_type': 'delete', 'start_time': datetime.datetime.now(),'status':'in progress', 'derrors':handle.errors(),
                         'dreport':_formatReport(handle), 'dtype':key}
                     if len(ids) > 1:

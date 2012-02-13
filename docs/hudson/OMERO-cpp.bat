@@ -2,7 +2,6 @@
 call "C:\Program Files\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
 if errorlevel 1 exit /b 1
 
-set OMERO_BUILD=r%SVN_REVISION%-d%BUILD_NUMBER%
 set OMERO_CONFIG=%JOB_NAME%
 set ICE_HOME=c:\Ice-3.3.1-VC90
 set CXXFLAGS=/DBOOST_TEST_SOURCE
