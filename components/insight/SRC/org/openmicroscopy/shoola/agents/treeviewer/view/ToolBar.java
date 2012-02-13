@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -45,7 +44,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.GroupLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -59,7 +57,6 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.EmptyBorder;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
@@ -69,7 +66,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.PersonalManagementAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RunScriptAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
