@@ -1092,11 +1092,12 @@ def load_metadata_details(request, c_type, c_id, conn, share_id=None, **kwargs):
             manager.getComments(c_id)
             form_comment = ShareCommentForm()
         else:
-            template = "webclient/annotations/metadata_general.html"
             if conn_share is not None:
                 # We are using a share connection to view Images etc
+                template = "webclient/annotations/annotations_share.html"
                 manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
             else:
+                template = "webclient/annotations/metadata_general.html"
                 manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
                 manager.annotationList()
                 form_comment = CommentAnnotationForm(initial=initial)
@@ -1109,6 +1110,7 @@ def load_metadata_details(request, c_type, c_id, conn, share_id=None, **kwargs):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'index':index}
+    context['share_id'] = share_id
     t = template_loader.get_template(template)
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
