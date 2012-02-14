@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.processing.graph;
 //Java imports
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -82,11 +83,10 @@ public class XMLMapper
 		{
 			XMLElement elementNode = queue.removeFirst();
 			addNode(elementNode);
-			/*
-			Vector v = elementNode.getChildren();
+			@SuppressWarnings("unchecked")
+			List<XMLElement> v = elementNode.getChildren();
 			for(int i = 0 ; i < v.size() ; i++)
-				queue.addLast((XMLElement) v.get(i));
-				*/
+				queue.addLast(v.get(i));
 		}
 	}
 	
