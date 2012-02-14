@@ -7,8 +7,13 @@ package ome.services.blitz.test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import junit.framework.TestCase;
 import ome.formats.MockedOMEROImportFixture;
@@ -24,6 +29,7 @@ import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.impl.ShareI;
 import ome.services.blitz.impl.UpdateI;
 import ome.services.blitz.util.BlitzExecutor;
+import ome.services.scheduler.ThreadPool;
 import ome.services.sessions.SessionManager;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
@@ -38,12 +44,16 @@ import omero.model.Pixels;
 import omero.sys.EventContext;
 import omero.util.TempFileManager;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 @Test(groups = "integration")
 public abstract class AbstractServantTest extends TestCase {
+
+    private final static AtomicReference<File> tinyHolder =
+        new AtomicReference<File>();
 
     protected ManagedContextFixture user, root;
     protected SessionManager sm;
@@ -266,8 +276,8 @@ public abstract class AbstractServantTest extends TestCase {
             ServiceFactory _sf = new InterceptingServiceFactory(this.sf, user.login);
 
             MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(_sf, "");
-            List<Pixels> list = fixture.fullImport(ResourceUtils
-                    .getFile("classpath:tinyTest.d3d.dv"), "tinyTest");
+            File tinyTest = getTinyFileName();
+            List<Pixels> list = fixture.fullImport(tinyTest, "tinyTest");
             pixels = list.get(0).getId().getValue();
             return pixels;
         }
@@ -275,8 +285,40 @@ public abstract class AbstractServantTest extends TestCase {
 
     protected long makeImage() throws Exception, FileNotFoundException {
         long pixels = makePixels();
-        ServiceFactory _sf = new InterceptingServiceFactory(this.sf, user.login);
-        return user_sf.getQueryService().findByQuery("select i from Image i join i.pixels p " +
-			"where p.id = " + pixels, null).getId().getValue();
+        ServiceFactory sf = new InterceptingServiceFactory(this.sf, user.login);
+        return sf.getQueryService().findByQuery("select i from Image i join i.pixels p " +
+        "where p.id = " + pixels, null).getId();
+    }
+
+    /**
+     * Since in some cases the tinyTest.d3d.dv file is in a jar and
+     * not a regular file, we may need to copy it to a temporary file
+     * which gets destroyed
+     * @return
+     */
+    protected File getTinyFileName() throws IOException {
+        File f = tinyHolder.get();
+        if (f == null) {
+            String tt = "classpath:tinyTest.d3d.dv";
+            try {
+                f = ResourceUtils.getFile(tt);
+                tinyHolder.compareAndSet(null, f);
+            } catch (FileNotFoundException fnfe) {
+                URL url = ResourceUtils.getURL(tt);
+                InputStream is = url.openStream();
+                f = File.createTempFile("tinyTest", ".dv");
+                FileOutputStream fos = new FileOutputStream(f);
+                IOUtils.copy(is, fos);
+                fos.close();
+                if (tinyHolder.compareAndSet(null, f)) {
+                    f.deleteOnExit();
+                } else {
+                    // Value was updated in another thread.
+                    f.delete();
+                    f = tinyHolder.get();
+                }
+            }
+        }
+        return f;
     }
 }
