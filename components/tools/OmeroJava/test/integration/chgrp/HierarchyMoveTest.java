@@ -61,7 +61,7 @@ import org.testng.annotations.Test;
 
 import pojos.FileAnnotationData;
 
-import integration.AbstractTest;
+import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 /**
@@ -76,7 +76,7 @@ import integration.DeleteServiceTest;
  * @since 3.0-Beta4
  */
 public class HierarchyMoveTest
-	extends AbstractTest
+	extends AbstractServerTest
 {
 
     /**

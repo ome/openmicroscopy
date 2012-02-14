@@ -6,7 +6,7 @@
  */
 package integration.chgrp;
 
-import integration.AbstractTest;
+import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ import org.testng.annotations.Test;
  * @since 3.0-Beta4
  */
 public class RenderingSettingsMoveTest
-	extends AbstractTest
+	extends AbstractServerTest
 {
 
 	/**
