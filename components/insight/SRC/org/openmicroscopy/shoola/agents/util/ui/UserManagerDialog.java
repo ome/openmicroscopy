@@ -32,8 +32,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.BorderFactory;
@@ -41,7 +39,6 @@ import javax.swing.Box;
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -49,8 +46,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.WindowConstants;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout; 
@@ -125,22 +120,19 @@ public class UserManagerDialog
 	
 	/** Button to apply the selection. */
 	private JButton						apply;
-
-	/** The box hosting the groups. */
-	private JComboBox					groupsBox;
 	
 	/** The component hosting the users for a given group. */
 	private JList						users;
 	
-	/** The current user. */
-	private ExperimenterData			loggedUser;
-	
 	/** Helper class uses to sort elements. */
 	private ViewerSorter				sorter;
 	
-	/** Map of ordered elements. */
-	private Map<GroupData, Object[]>	orderedMap;
-
+	/** The experimenter currently logged in.*/
+	private ExperimenterData loggedUser;
+	
+	/** The group currently selected.*/
+	private GroupData group;
+	
 	/** Closes and disposes. */
 	private void cancel()
 	{
@@ -153,14 +145,13 @@ public class UserManagerDialog
 	{
 		Map<Long, ExperimenterData> 
 		r = new HashMap<Long, ExperimenterData>(1);
-		GroupData g = (GroupData) groupsBox.getSelectedItem();
 		Object user = users.getSelectedValue();
 		if (user == null) {
 			firePropertyChange(NO_USER_SWITCH_PROPERTY, Boolean.valueOf(false), 
 					Boolean.valueOf(true));
 			return;
 		}
-		r.put(g.getId(), (ExperimenterData) user);
+		r.put(group.getId(), (ExperimenterData) user);
 		firePropertyChange(USER_SWITCH_PROPERTY, null, r);
 		cancel();
 	}
@@ -211,29 +202,17 @@ public class UserManagerDialog
 		cancel.addActionListener(this);
 		apply.setActionCommand(""+APPLY);
 		apply.addActionListener(this);
-		groupsBox.setActionCommand(""+GROUPS);
-		groupsBox.addActionListener(this);
-		users.getSelectionModel().addListSelectionListener(
-				new ListSelectionListener() {
-		
-			public void valueChanged(ListSelectionEvent e) {
-				ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-				apply.setEnabled(!lsm.isSelectionEmpty());
-			}
-		
-		});
 	}
 	
 	/** 
 	 * Initializes the UI components. 
 	 * 
-	 * @param groups		The groups the user is a member of.
+	 * @param experimenters The experimenters to display
 	 * @param userIcon	The icon used to represent an user.
 	 */
-	private void initComponents(Set groups, Icon userIcon)
+	private void initComponents(Set experimenters, Icon userIcon)
 	{
 		sorter = new ViewerSorter();
-		orderedMap = new LinkedHashMap<GroupData, Object[]>();
 		cancel = new JButton("Cancel");
 		cancel.setToolTipText(
 				UIUtilities.formatToolTipText(CANCEL_DESCRIPTION));
@@ -242,48 +221,14 @@ public class UserManagerDialog
 		apply.setToolTipText(
 				UIUtilities.formatToolTipText(APPLY_DESCRIPTION));
 		getRootPane().setDefaultButton(apply);
-		GroupData defaultGroup = loggedUser.getDefaultGroup();
-		long groupID = defaultGroup.getId();
-		//Build the array for box.
-		//Iterator i = map.keySet().iterator();
-		//Remove not visible group
-		GroupData g;
-		GroupData[] objects = new GroupData[groups.size()];
-		int selectedIndex = 0;
-		int index = 0;
-		Object[] children;
-		GroupData selectedGroup = defaultGroup;
-		//sort
-		
-		Iterator i = sorter.sort(groups).iterator();
-	
-		while (i.hasNext()) {
-			g = (GroupData) i.next();
-			objects[index] = g;
-			if (g.getId() == groupID) {
-				selectedIndex = index;
-				selectedGroup = g;
-			}
-			children = sorter.sortAsArray(g.getExperimenters());
-			orderedMap.put(g, children);
-			index++;
-		}
-		
-		//sort by name
-		groupsBox = new JComboBox(objects);
-		groupsBox.setRenderer(new GroupsRenderer());
-		
-		
+
 		DefaultListModel model = new DefaultListModel();
 		users = new JList(model);
-		fillList(orderedMap.get(selectedGroup));
+		fillList(sorter.sortAsArray(experimenters));
 		users.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		users.setLayoutOrientation(JList.VERTICAL);
 		users.setCellRenderer(new UserListRenderer(userIcon));	
 		attachListeners();
-		if (objects.length != 0)
-			groupsBox.setSelectedIndex(selectedIndex);
-		
 	}
 	
 	/** 
@@ -361,6 +306,7 @@ public class UserManagerDialog
 		super(parent);
 		setProperties();
 		this.loggedUser = loggedUser;
+		group = selected;
 		initComponents(groups, userIcon);
 		buildGUI(selected, icon);
 	}
@@ -385,12 +331,7 @@ public class UserManagerDialog
 				break;
 			case APPLY:
 				apply();
-				break;
-			case GROUPS:
-				DefaultListModel model = (DefaultListModel) users.getModel();
-				model.clear();
-				fillList(orderedMap.get(groupsBox.getSelectedItem()));
 		}
 	}
-	
+
 }
