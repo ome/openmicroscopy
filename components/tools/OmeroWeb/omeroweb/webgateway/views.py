@@ -1545,10 +1545,15 @@ def imageMarshal (image, key=None):
                            'invertAxis': image.isInvertedAxis()}
         except TypeError:
             # Will happen if an image has bad or missing pixel data
+            logger.error('imageMarshal', exc_info=True)
             rv['pixel_range'] = (0, 0)
             rv['channels'] = ()
             rv['split_channel'] = ()
-            rv['rdefs'] = {'model': 'color', 'projection': image.getProjection(), 'invertAxis': image.isInvertedAxis()}
+            rv['rdefs'] = {'model': 'color',
+                           'projection': image.getProjection(),
+                           'defaultZ': 0,
+                           'defaultT': 0,
+                           'invertAxis': image.isInvertedAxis()}
     except AttributeError:
         rv = None
         raise
