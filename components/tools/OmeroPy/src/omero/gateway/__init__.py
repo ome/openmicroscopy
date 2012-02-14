@@ -5596,10 +5596,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         
         pid = self.getPrimaryPixels().id
-        tb = self._conn.createThumbnailStore()
         rdid = self._getRDef()
-        logger.debug(self.getDetails().getGroup().getName())
-        logger.debug(str(self._conn.getEventContext()))
+        tb = self._conn.createThumbnailStore()
         has_rendering_settings = tb.setPixelsId(pid, self._conn.CONFIG['SERVICE_OPTS'])
         logger.debug("tb.setPixelsId(%d) = %s " % (pid, str(has_rendering_settings)))
         if rdid is None:
@@ -5773,7 +5771,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
         rp.setPixelsId(pixels_id, True, self._conn.CONFIG['SERVICE_OPTS'])
-        pmax = 2 ** (8 * rp.getByteWidth(), self._conn.CONFIG['SERVICE_OPTS'])
+        pmax = 2 ** (8 * rp.getByteWidth())
         if rp.isSigned():
             return (-(pmax / 2), pmax / 2 - 1)
         else:
