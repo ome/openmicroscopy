@@ -260,15 +260,7 @@ class TreeViewerComponent
 	 */
 	private void displayUserGroups(Set groups, Point location)
 	{
-		JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
-		IconManager icons = IconManager.getInstance();
-		switchUserDialog = new UserManagerDialog(f, model.getUserDetails(), 
-				groups, model.getSelectedGroup(),
-				icons.getIcon(IconManager.OWNER),
-				icons.getIcon(IconManager.OWNER_48));
-		switchUserDialog.addPropertyChangeListener(controller);
-		switchUserDialog.setDefaultSize();
-		UIUtilities.showOnScreen(switchUserDialog, location);
+		
 	}
 	
 	/**
@@ -1816,7 +1808,26 @@ class TreeViewerComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
-		displayUserGroups(TreeViewerAgent.getAvailableUserGroups(), location);
+		JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
+		IconManager icons = IconManager.getInstance();
+		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Iterator i = groups.iterator();
+		GroupData group = model.getSelectedGroup();
+		GroupData g;
+		Set experimenters = null;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getId() == group.getId()) {
+				experimenters = g.getExperimenters();
+			}
+		}
+		if (experimenters == null) return;
+		switchUserDialog = new UserManagerDialog(f, model.getUserDetails(), 
+				experimenters, group, icons.getIcon(IconManager.OWNER),
+				icons.getIcon(IconManager.OWNER_48));
+		switchUserDialog.addPropertyChangeListener(controller);
+		switchUserDialog.setDefaultSize();
+		UIUtilities.showOnScreen(switchUserDialog, location);
 	}
 
 	/**
