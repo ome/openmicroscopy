@@ -42,7 +42,7 @@
 {% block script %}
 {{ block.super }}
 
-    <script type="text/javascript" src="{% static "common/javascript/nav.js" %}"></script> <!-- handles expand  / collapse columns -->
+    <script type="text/javascript" src="{% static "webgateway/js/ome.nav.js" %}"></script> <!-- handles expand  / collapse columns -->
     
     <script type="text/javascript">
     {% if nav.error %}
@@ -63,14 +63,14 @@
 </div>
 <div id="center_container">
     <div id="trayhandle_left">
-        <div id="swapTree"><img id="lhid_trayhandle_icon_left" class="expanded-left" src="{% static "common/image/spacer.gif" %}"></div>
+        <div id="swapTree"><img id="lhid_trayhandle_icon_left" class="expanded-left" src="{% static "webgateway/img/spacer.gif" %}"></div>
         <div id="dragLeft"></div>
     </div>
     <div id="center_panel">
         {% block center %}{% endblock %}
     </div>
     <div id="trayhandle_right">
-        <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="collapsed-right" src="{% static "common/image/spacer.gif" %}"></div>
+        <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="collapsed-right" src="{% static "webgateway/img/spacer.gif" %}"></div>
         <div id="dragRight"></div>
     </div>
 </div>

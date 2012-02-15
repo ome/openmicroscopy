@@ -25,7 +25,7 @@
     {{ block.super }}
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.cookie.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.hotkeys.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jquery.jstree.js" %}"></script>
     
     <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
     <script type="text/javascript">
@@ -154,7 +154,7 @@
                                 "tag" : {
                                     "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{% static "common/image/knotes16.png" %}'
+                                        "image" : '{% static "webgateway/img/knotes16.png" %}'
                                     },
                                     "create_node" : true,
                                     "start_drag" : true,

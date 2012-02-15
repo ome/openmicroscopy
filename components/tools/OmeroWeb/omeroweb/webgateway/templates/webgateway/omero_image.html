@@ -20,45 +20,45 @@
 
 {% block extra_css %}
 {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/jquery-plugin-postit.css" %}" />
-    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/jquery-plugin-rangewidget.css" %}" />
-    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/3rdparty/farbtastic.css" %}" media="all" />
-    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/jquery-plugin-colorbtn.css" %}" />
-    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/3rdparty/JQuerySpinBtn.css" %}" />
-    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/3rdparty/jquery-ui-1.7.2.custom.css" %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.postit.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.rangewidget.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/farbtastic/farbtastic.css" %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.colorbtn.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/JQuerySpinBtn.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/trash/jquery-ui-1.7.2.custom.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/omero_image.css" %}" media="all" />
-    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/3rdparty/panojs.css" %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/panojs/panojs.css" %}" media="all" />
 {% endblock %}
 
 {% block extra_js %}
 {{ block.super }}
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/jquery-ui-1.7.2.custom.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-smartdialog.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/JQuerySpinBtn.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-colorbtn.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-postit.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/jqDnR.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/jquery.selectboxes.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-rangewidget.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/farbtastic.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/gs_utils.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/trash/jquery-ui-1.7.2.custom.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.smartdialog.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/JQuerySpinBtn.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.colorbtn.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.postit.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jqDnR.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.selectboxes.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.rangewidget.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/farbtastic/farbtastic.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js" %}"></script>
     <!-- for display of ROIs over the image -->
-    <script type="text/javascript" src="{% static "webgateway/js/roi_display-plugin.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/raphael.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/scale.raphael.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.roidisplay.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/raphael/raphael.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/raphael/scale.raphael.js" %}"></script>
 
     <!-- big images -->
 
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/utils.js" %}"></script>    
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/PanoJS.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/controls.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/pyramid_Bisque.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/pyramid_imgcnv.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/pyramid_Zoomify.js" %}"></script>        
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/control_thumbnail.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/control_info.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/control_svg.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/3rdparty/panojs/control_roi.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/utils.js" %}"></script>    
+    <script type="text/javascript" src="{% static "3rdparty/panojs/PanoJS.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/controls.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Bisque.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_imgcnv.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Zoomify.js" %}"></script>        
+    <script type="text/javascript" src="{% static "webgateway/js/ome.panojs.control_thumbnail.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/control_info.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/control_svg.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/control_roi.js" %}"></script>
     
 {% endblock %}
 

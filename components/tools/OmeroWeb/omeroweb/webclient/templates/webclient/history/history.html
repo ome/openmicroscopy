@@ -25,7 +25,8 @@
 {% block link %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static "webclient/css/calendar.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
+    
 {% endblock %}
 
 
@@ -36,7 +37,7 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {
-                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% static "common/image/spinner.gif" %}"/></p>');
+                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
                 $("div#history_calendar").load('{% url load_calendar %}?experimenter={{ nav.experimenter }}');
         })
     </script>

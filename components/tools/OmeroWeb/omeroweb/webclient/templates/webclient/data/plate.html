@@ -26,9 +26,9 @@
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/weblitz-plateview.css" %}" media="all" />
     
     <script type="text/javascript" src="{% static "webgateway/js/weblitz-plateview.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-viewportImage.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.viewportImage.js" %}"></script>
     <script type="text/javascript" src="{% static "webgateway/js/jquery-plugin-gs_slider.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/gs_utils.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js" %}"></script>
 
     <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
 
@@ -57,7 +57,7 @@
                     cm_var['metadata_details']['iframe'] = '{% url load_metadata_details %}'+pl.attr('rel')+'/'+pl.attr('id').split("-")[1]+'/';
                 }
                 loadMetadataPanel(cm_var.metadata_details.iframe);
-                $("div#content_details").html('<p>Loading data... please wait <img src ="{% static "common/image/spinner.gif" %}"/></p>');
+                $("div#content_details").html('<p>Loading data... please wait <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
                 $("div#content_details").attr('rel', cm_var.content_details.rel);
                 $("div#content_details").load(cm_var.content_details.url);
                 
