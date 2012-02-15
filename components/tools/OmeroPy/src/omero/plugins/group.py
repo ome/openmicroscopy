@@ -169,7 +169,6 @@ class GroupControl(BaseControl):
 
     def insert(self, args):
         import omero
-        print args
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
         grp = a.getGroup(args.GROUP)
