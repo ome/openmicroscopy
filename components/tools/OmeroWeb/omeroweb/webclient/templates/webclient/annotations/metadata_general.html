@@ -37,6 +37,22 @@
                   return this;
                 };
 
+                jQuery.fn.tooltip_init = function() {
+                    $(this).tooltip({
+                        bodyHandler: function() {
+                                return $(this).parent().children("span").html();
+                            },
+                        track: true,
+                        delay: 0,
+                        showURL: false,
+                        fixPNG: true,
+                        showBody: " - ",
+                        top: 10,
+                        left: -100
+                    });
+                  return this;
+                };
+
                 $("#comments_container").hide_if_empty();
                 $("#fileanns_container").hide_if_empty();
                 $("#tags_container").hide_if_empty();
@@ -113,18 +129,7 @@
                     left: -100 
                 });
                 $(".tooltip").parent().children("span").hide(); // hide tool tip source
-                $(".tooltip").tooltip({
-                    bodyHandler: function() {
-                            return $(this).parent().children("span").html();
-                        },
-                    track: true,
-                    delay: 0,
-                    showURL: false,
-                    fixPNG: true,
-                    showBody: " - ",
-                    top: 10,
-                    left: -100
-                });
+                $(".tooltip").tooltip_init();
 
                 $(".show_xml").next().hide();   // hide any XML annotation blocks
                 // display in a new window      
@@ -311,6 +316,7 @@
                         $(".removeTag", $tag).click(function(event) {
                             removeItem(event, "tag_annotation_wrapper");
                         });
+                        $(".tooltip", $tag).tooltip_init();
                     }
                 });
 
@@ -332,6 +338,7 @@
                         $(".removeFile", $fileanns).click(function(event) {
                             removeItem(event, "file_ann_wrapper");
                         });
+                        $(".tooltip", $fileanns).tooltip_init();
                     },
                     error: function(data){
                         $("#fileann_spinner").hide();
