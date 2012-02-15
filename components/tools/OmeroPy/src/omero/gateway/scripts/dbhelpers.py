@@ -40,6 +40,9 @@ def loginAsRoot ():
     refreshConfig()
     return login(ROOT)
 
+def loginAsPublic ():
+    return login(settings.PUBLIC_USER, settings.PUBLIC_PASSWORD)
+
 def login (alias, pw=None):
     if isinstance(alias, UserEntry):
         return alias.login()

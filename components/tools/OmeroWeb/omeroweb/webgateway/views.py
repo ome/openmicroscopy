@@ -46,6 +46,8 @@ except: #pragma: nocover
         logger.error('No PIL installed')
     
 
+import settings
+
 #from models import StoredConnection
 
 from webgateway_cache import webgateway_cache, CacheBase, webgateway_tempfile
@@ -206,6 +208,9 @@ def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=N
     @rtype:             L{omero.gateway.BlitzGateway}
     """
     try:
+        if anonymous:
+            username = settings.PUBLIC_USER
+            passwd = settings.PUBLIC_PASSWORD
         blitzcon = client_wrapper(username, passwd, host=host, port=port, group=None, try_super=try_super, secure=secure, anonymous=anonymous, useragent=useragent)
         blitzcon.connect(sUuid=sUuid)
         blitzcon.server_id = server_id
@@ -390,6 +395,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                 ####
                 # Have a blitzcon, but it doesn't connect.
                 if username:
+                    _session_logout(request, server_id)
                     logger.debug('connection failed with provided login information, bail out')
                     return None
                 logger.debug('Failed connection, logging out')
@@ -431,9 +437,10 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         #_session_logout(request, server_id)
         #return blitzcon
         return getBlitzConnection(request, server_id, with_session, retry=False, group=group, try_super=try_super, useragent=useragent)
-    if blitzcon and ckey.startswith('C:') and not blitzcon.isConnected():
+    if blitzcon and ckey.startswith('C:') and not (blitzcon.isConnected() and blitzcon.keepAlive()):
         logger.info("Something killed the base connection, recreating")
         del connectors[ckey]
+        return getBlitzConnection(request, server_id, with_session, retry=False, group=group, try_super=try_super, useragent=useragent)
         return None
         #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored, useragent=useragent)
     if r.has_key('logout') and not ckey.startswith('C:'):
