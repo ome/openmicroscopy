@@ -1834,9 +1834,9 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     pks = None
     try:
         if opts['ctx'] == 'imgs':
-            sr = _conn.searchObjects(["image"], opts['search'])
+            sr = _conn.searchObjects(["image"], opts['search'], _conn.CONFIG['SERVICE_OPTS'])
         else:
-            sr = _conn.searchObjects(None, opts['search'])  # searches P/D/I
+            sr = _conn.searchObjects(None, opts['search'], _conn.CONFIG['SERVICE_OPTS'])  # searches P/D/I
     except ApiUsageException:
         return HttpResponseServerError('"parse exception"', mimetype='application/javascript')
     def marshal ():

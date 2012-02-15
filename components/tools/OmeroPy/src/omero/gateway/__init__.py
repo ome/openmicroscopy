@@ -3530,7 +3530,7 @@ class _OriginalFileWrapper (BlitzObjectWrapper):
         """
 
         store = self._conn.createRawFileStore()
-        store.setFileId(self._obj.id.val)
+        store.setFileId(self._obj.id.val, self._conn.CONFIG['SERVICE_OPTS'])
         size = self._obj.size.val
         if size <= buf:
             yield store.read(0,long(size))
@@ -4285,7 +4285,7 @@ class _PlateWrapper (BlitzObjectWrapper):
         
         fields = None
         try:
-            res = [r for r in unwrap(q.projection(sql, p))[0] if r != None]
+            res = [r for r in unwrap(q.projection(sql, p, self._conn.CONFIG['SERVICE_OPTS']))[0] if r != None]
             if len(res) == 2:
                 fields = tuple(res)
         except:
@@ -6797,7 +6797,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             params = omero.sys.Parameters()
             params.map = {"pid": rlong(pid)}
             query = "select count(link.id) from PixelsOriginalFileMap as link where link.child.id=:pid"
-            count = self._conn.getQueryService().projection(query, params)
+            count = self._conn.getQueryService().projection(query, params, self._conn.CONFIG['SERVICE_OPTS'])
             self._archivedFileCount = count[0][0]._val
         return self._archivedFileCount
 
