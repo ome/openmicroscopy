@@ -170,6 +170,25 @@ class TreeViewerComponent
 	/** The dialog displaying the selected script.*/
 	private ScriptingDialog     scriptDialog;
 	
+	/**
+	 * Moves the objects.
+	 * 
+	 * @param ctx The group to move the data to.
+	 * @param target The target object.
+	 * @param trans The objects to transfer.
+	 */
+	private void moveData(SecurityContext ctx, DataObject target,
+			Map<SecurityContext, List<DataObject>> trans)
+	{
+		TransferableObject t = new TransferableObject(ctx, target, trans);
+		IconManager icons = IconManager.getInstance();
+		TransferableActivityParam param = new TransferableActivityParam(
+				icons.getIcon(IconManager.APPLY_22), t);
+		param.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(model.getSecurityContext(), param);
+	}
+	
 	/** 
 	 * Notifies the change of group.
 	 * 
@@ -251,17 +270,26 @@ class TreeViewerComponent
 		activity.setApplicationData(data);
 		un.notifyActivity(model.getSecurityContext(), activity);
 	}
-	
-	/** 
-	 * Displays the user groups.
-	 * 
-	 * @param groups The groups the current user is a member of.
-	 * @param location The location of the mouse pressed.
-	 */
-	private void displayUserGroups(Set groups, Point location)
-	{
-		
-	}
+
+	/**
+     * Returns the SecurityContext if already added or <code>null</code>.
+     * 
+     * @param map The map to check.
+     * @param id The group's identifier.
+     * @return See above.
+     */
+    private SecurityContext getKey(
+    	Map<SecurityContext, List<DataObject>> map, long id)
+    {
+    	Iterator<SecurityContext> i = map.keySet().iterator();
+    	SecurityContext ctx;
+    	while (i.hasNext()) {
+			ctx = i.next();
+			if (ctx.getGroupID() == id)
+				return ctx;
+		}
+    	return null;
+    }
 	
 	/**
 	 * Displays the data browser corresponding to the passed node.
@@ -4080,16 +4108,10 @@ class TreeViewerComponent
 				trans.put(new SecurityContext(gid), elements.get(gid));
 			}
 			if (target == null) otData = null;
-			TransferableObject t = new TransferableObject(
-					new SecurityContext(groupID), otData, trans);
-			IconManager icons = IconManager.getInstance();
-			TransferableActivityParam param = new TransferableActivityParam(
-					icons.getIcon(IconManager.APPLY_22), t);
-			param.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
-			un.notifyActivity(model.getSecurityContext(), param);
+			moveData(new SecurityContext(groupID), otData, trans);
 		}
 	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#getSelectedGroup()
@@ -4128,14 +4150,55 @@ class TreeViewerComponent
 		}
 		Iterator<TreeImageDisplay> j = groups.iterator();
 		GroupData g;
+		long gid;
 		while (j.hasNext()) {
 			g = (GroupData) j.next().getUserObject();
 			if (g.getId() != group.getId()) {
-				long gid = model.getSelectedGroupId();
+				gid = model.getSelectedGroupId();
 				model.setSelectedGroupId(g.getId());
 				notifyChangeGroup(gid);
 				break;
 			}
+		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#moveTo(GroupData)
+	 */
+	public void moveTo(GroupData group)
+	{
+		if (group == null) 
+			throw new IllegalArgumentException("No group to move data to.");
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
+		List<DataObject> nodes = browser.getSelectedDataObjects();
+		if (nodes == null || nodes.size() == 0) return;
+		Map<SecurityContext, List<DataObject>> 
+		map = new HashMap<SecurityContext, List<DataObject>>();
+		Iterator<DataObject> i = nodes.iterator();
+		boolean b = false;
+		DataObject data;
+		SecurityContext ctx;
+		long gid;
+		List<DataObject> l;
+		while (i.hasNext()) {
+			data = i.next();
+			b = (data instanceof ProjectData || data instanceof ScreenData);
+			gid = data.getGroupId();
+			ctx = getKey(map, gid);
+			if (ctx == null) {
+				l = new ArrayList<DataObject>();
+				ctx = new SecurityContext(gid);
+				map.put(ctx, l);
+			}
+			l = map.get(ctx);
+			l.add(data);
+		}
+		if (b) { //move The data
+			moveData(new SecurityContext(group.getId()), null, map);
+		} else { //load the collection for the specified group
+			
 		}
 	}
 

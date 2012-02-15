@@ -1063,4 +1063,11 @@ public interface TreeViewer
 	/** Remove group.*/
 	void removeGroup();
 
+	/** 
+	 * Move the selected data to the specified group.
+	 * 
+	 * @param group The data to move.
+	 */
+	void moveTo(GroupData group);
+
 }
