@@ -2043,7 +2043,7 @@ def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
              'viewport_server': kwargs.get('viewport_server', '/webgateway'),
              'object': 'image:%i' % int(iid)}
 
-        template = kwargs.get('template', "webgateway/omero_image.html")
+        template = kwargs.get('template', "webgateway/viewport/omero_image.html")
         t = template_loader.get_template(template)
         c = Context(request,d)
         rsp = t.render(c)
@@ -2184,7 +2184,7 @@ def test (request):
     
     context = {}
 
-    t = template_loader.get_template('webgateway/omero_image.html')
+    t = template_loader.get_template('webgateway/viewport/omero_image.html')
     c = Context(request,context)
     return HttpResponse(t.render(c))
 
