@@ -5496,6 +5496,28 @@ class _ImageWrapper (BlitzObjectWrapper):
             logger.debug(traceback.format_exc())
             return None
 
+    def getPlate(self):
+        """
+        If the image is in a Plate/Well hierarchy, returns the parent Plate, otherwise None
+
+        @return:    Plate
+        @rtype:     L{PlateWrapper}
+        """
+
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["oid"] = omero.rtypes.rlong(self.getId())
+        query = "select well from Well as well "\
+                "join fetch well.details.creationEvent "\
+                "join fetch well.details.owner join fetch well.details.group " \
+                "join fetch well.plate as pt "\
+                "left outer join fetch well.wellSamples as ws " \
+                "left outer join fetch ws.image as img "\
+                "where ws.image.id = :oid"
+        q = self._conn.getQueryService()
+        for well in q.findAllByQuery(query, params):
+            return PlateWrapper(self._conn, well.plate)
+
     def getObjectiveSettings (self):
         """
         Gets the Ojbective Settings of the Image, or None
