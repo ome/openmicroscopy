@@ -45,6 +45,7 @@ import javax.swing.border.BevelBorder;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction;
@@ -419,6 +420,23 @@ class PopupMenu
 		}
 	}
 
+	/**
+	 * Creates a menu if the various groups the data can be moved to.
+	 * 
+	 * @return See above.
+	 */
+	private JMenu createMoveToMenu()
+	{
+		List<MoveToAction> actions = controller.getMoveAction();
+		if (actions.size() <= 1) return null;
+		JMenu menu = new JMenu(MoveToAction.NAME);
+		Iterator<MoveToAction> i = actions.iterator();
+		while (i.hasNext()) {
+			menu.add(new JMenuItem(i.next()));
+		}
+		return menu;
+	}
+	
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
 	{
@@ -439,6 +457,8 @@ class PopupMenu
 				add(cutElement);
 				add(copyElement);
 				add(pasteElement);
+				JMenu m = createMoveToMenu();
+				if (m != null) add(m);
 				add(deleteElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(tagElement);

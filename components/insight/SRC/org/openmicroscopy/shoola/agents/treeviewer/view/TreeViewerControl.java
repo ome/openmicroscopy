@@ -87,6 +87,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.MetadataVisibilityAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasswordResetAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PersonalManagementAction;
@@ -133,8 +134,6 @@ import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
@@ -382,6 +381,9 @@ class TreeViewerControl
 
 	/** The loading window. */
 	private LoadingWindow   				loadingWindow;
+	
+	/** One per group.*/
+	private List<MoveToAction> moveActions;
 	
 	/**
 	 * Downloads the possible script.
@@ -720,6 +722,25 @@ class TreeViewerControl
 		return l;
 	}
 
+	/**
+	 * Returns the actions used to move data between groups. 
+	 * 
+	 * @return See abo.ve
+	 */
+	List<MoveToAction> getMoveAction()
+	{
+		if (moveActions != null) return moveActions;
+		Set l = TreeViewerAgent.getAvailableUserGroups();
+		ViewerSorter sorter = new ViewerSorter();
+		List values = sorter.sort(l);
+		moveActions = new ArrayList<MoveToAction>(l.size());
+		Iterator i = values.iterator();
+		while (i.hasNext()) {
+			moveActions.add(new MoveToAction(model, (GroupData) i.next()));
+		}
+		return moveActions;
+	}
+	
 	/**
 	 * Returns the {@link ChangeListener} attached to the tab pane,
 	 * or creates one if none initialized.
