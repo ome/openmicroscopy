@@ -392,7 +392,6 @@ class TreeViewerControl
 	 */
 	private void downloadScript(ScriptActivityParam param)
 	{
-		
 		FileChooser chooser = new FileChooser(view, FileChooser.SAVE, 
 				"Download", "Select where to download the file.", null, 
 				true);

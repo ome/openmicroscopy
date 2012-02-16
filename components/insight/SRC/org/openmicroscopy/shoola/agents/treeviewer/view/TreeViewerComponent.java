@@ -183,8 +183,8 @@ class TreeViewerComponent
 		TransferableObject t = new TransferableObject(ctx, target, trans);
 		IconManager icons = IconManager.getInstance();
 		TransferableActivityParam param = new TransferableActivityParam(
-				icons.getIcon(IconManager.APPLY_22), t);
-		param.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+				icons.getIcon(IconManager.MOVE_22), t);
+		param.setFailureIcon(icons.getIcon(IconManager.MOVE_FAILED_22));
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 		un.notifyActivity(model.getSecurityContext(), param);
 	}
@@ -4164,15 +4164,13 @@ class TreeViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#moveTo(GroupData)
+	 * @see TreeViewer#moveTo(GroupData, List)
 	 */
-	public void moveTo(GroupData group)
+	public void moveTo(GroupData group, List<DataObject> nodes)
 	{
 		if (group == null) 
 			throw new IllegalArgumentException("No group to move data to.");
-		Browser browser = model.getSelectedBrowser();
-		if (browser == null) return;
-		List<DataObject> nodes = browser.getSelectedDataObjects();
+		
 		if (nodes == null || nodes.size() == 0) return;
 		Map<SecurityContext, List<DataObject>> 
 		map = new HashMap<SecurityContext, List<DataObject>>();
