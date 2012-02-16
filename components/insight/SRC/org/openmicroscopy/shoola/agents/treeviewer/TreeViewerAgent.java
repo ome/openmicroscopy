@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.MoveToEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -450,6 +451,20 @@ public class TreeViewerAgent
     }
     
     /**
+     * Indicates to move the data.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleMoveToEvent(MoveToEvent evt)
+    {
+    	ExperimenterData exp = (ExperimenterData) registry.lookup(
+    			LookupNames.CURRENT_USER_DETAILS);
+    	if (exp == null) return;
+    	TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+    	if (viewer != null) viewer.moveTo(evt.getGroup(), evt.getObjects());
+    }
+    
+    /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
      */
@@ -492,6 +507,7 @@ public class TreeViewerAgent
         bus.register(this, NodeToRefreshEvent.class);
         bus.register(this, ViewObjectEvent.class);
         bus.register(this, ReconnectedEvent.class);
+        bus.register(this, MoveToEvent.class);
     }
 
     /**
@@ -546,6 +562,8 @@ public class TreeViewerAgent
 			handleNodeToRefreshEvent((NodeToRefreshEvent) e);
 		else if (e instanceof ReconnectedEvent)
 			handleReconnectedEvent((ReconnectedEvent) e);
+		else if (e instanceof MoveToEvent)
+			handleMoveToEvent((MoveToEvent) e);
 	}
 
 }

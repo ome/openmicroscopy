@@ -1068,6 +1068,6 @@ public interface TreeViewer
 	 * 
 	 * @param group The data to move.
 	 */
-	void moveTo(GroupData group);
+	void moveTo(GroupData group, List<DataObject> nodes);
 
 }

@@ -21,12 +21,14 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.actions;
+package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 
 
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.List;
+
 import javax.swing.Action;
 import javax.swing.Icon;
 
@@ -34,12 +36,15 @@ import javax.swing.Icon;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.events.treeviewer.MoveToEvent;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DataObject;
 import pojos.GroupData;
 
 /** 
@@ -50,7 +55,7 @@ import pojos.GroupData;
  * @since Beta4.4
  */
 public class MoveToAction
-	extends TreeViewerAction
+	extends DataBrowserAction
 {
 
 	/** The name of the action.*/
@@ -72,7 +77,7 @@ public class MoveToAction
 		IconManager im = IconManager.getInstance();
 		Icon icon = im.getIcon(IconManager.PERSONAL);
         int level = 
-        	TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+        	DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel(
         			group);
         String desc = "";
         switch (level) {
@@ -107,15 +112,14 @@ public class MoveToAction
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 * @param group The selected group.
 	 */
-	public MoveToAction(TreeViewer model, GroupData group)
+	public MoveToAction(DataBrowser model, GroupData group)
 	{
 		super(model);
 		if (group == null)
 			throw new IllegalArgumentException("No group.");
 		this.group = group;
 		setEnabled(true);
-		name = group.getName()+"...";
-		putValue(Action.NAME, name);
+		putValue(Action.NAME, group.getName()+"...");
 		setPermissions();
 	}
 
@@ -125,9 +129,11 @@ public class MoveToAction
      */
     public void actionPerformed(ActionEvent e)
     {
-    	Browser browser = model.getSelectedBrowser();
-		if (browser == null) return;
-    	model.moveTo(group, browser.getSelectedDataObjects());
+    	Browser b = model.getBrowser();
+    	if (b == null) return;
+    	MoveToEvent evt = new MoveToEvent(group, (List<DataObject>) 
+    			b.getSelectedDataObjects());
+    	DataBrowserAgent.getRegistry().getEventBus().post(evt);
     }
 
 }
