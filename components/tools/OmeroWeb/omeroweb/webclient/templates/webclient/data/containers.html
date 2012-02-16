@@ -943,16 +943,21 @@
     // handle js tree selection changes, loading content into right-hand panels as needed
     $(function () {
         
-        $("#annotation_tabs").tabs();
+        $("#annotation_tabs").tabs({cache: true});
 
         var update_metadata_tabs = function() {
             var datatree = $.jstree._focused();
             var selected = datatree.data.ui.selected;
             
             var $metadata_general = $("#metadata_general");
-            var $metadata_acquisition = $("#metadata_acquisition");
-            var $metadata_preview = $("#metadata_preview");
+            var $metadata_acquisition = $("#metadata_tab");
+            var $metadata_preview = $("#preview_tab");
             var prefix = '{% url webindex %}';
+            
+            console.log("visible", "empty");
+            console.log($metadata_general.is(":visible"), $metadata_general.is(":empty"));
+            console.log($metadata_acquisition.is(":visible"), $metadata_acquisition.is(":empty"));
+            console.log($metadata_preview.is(":visible"), $metadata_preview.is(":empty"));
             
             if(selected.length == 0) {
                 return
@@ -964,14 +969,15 @@
                 var url = null;
                 var oid = selected.attr('id');
                 var orel = selected.attr('rel').replace("-locked", "");
+                console.log(oid, orel);
                 if (typeof oid =="undefined" || oid==false) return
                 
                 // handle loading of GENERAL tab
-                if ($metadata_general.is(":visible")) {
+                if ($metadata_general.is(":visible") && $metadata_general.is(":empty")) {
                     // orphaned
                     if (oid.indexOf("orphaned")>=0) {
                         $metadata_general.html('<p>This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container.</p>');
-                        return;
+                        //return;
                     // experimenter
                     } else if (oid.indexOf("experimenter")>=0) {
                         $metadata_general.html('<p>'+selected.children().eq(1).text()+'</p>');
@@ -994,7 +1000,7 @@
                 }
                 
                 // handle loading of Acquisition metadata
-                if ($metadata_acquisition.is(":visible")) {
+                if ($metadata_acquisition.is(":visible") && $metadata_acquisition.is(":empty")) {
                     
                     if(orel=="image") {
                         var pr = selected.parent().parent();
@@ -1007,12 +1013,10 @@
                     } else {
                         $metadata_acquisition.empty();
                     }
-                } else {
-                    $metadata_acquisition.empty();
                 }
                 
                 // handle loading of Image Preview
-                if ($metadata_preview.is(":visible")) {
+                if ($metadata_preview.is(":visible") && $metadata_preview.is(":empty")) {
                     
                     if(orel=="image") {
                         var pr = selected.parent().parent();
@@ -1025,8 +1029,6 @@
                     } else {
                         $metadata_preview.empty();
                     }
-                } else {
-                    $metadata_preview.empty();
                 }
                 
                 
@@ -1035,7 +1037,13 @@
 
         // update tabs when tree selection changes or tabs switch
         $("#annotation_tabs").bind( "tabsshow", update_metadata_tabs);
-        $("#dataTree").bind("select_node.jstree", update_metadata_tabs);
+        $("#dataTree").bind("select_node.jstree", function() {
+            // clear contents of all panels
+            $("#metadata_general").empty();
+            $("#metadata_tab").empty();
+            $("#preview_tab").empty();
+            update_metadata_tabs();     // update
+        });
             
     });
     </script>
@@ -1141,12 +1149,12 @@
     <div id="annotation_tabs" class="absolute_fill">
         <ul class="tabslist">
             <li><a href="#metadata_general">{% trans "General" %}</a></li>
-            <li><a href='#metadata_acquisition' title="Metadata tab">{% trans "Acquisition" %}</a></li>                
-            <li><a href='#metadata_preview' title="Preview tab">{% trans "Preview" %}</a></li>
+            <li><a href='#metadata_tab'>{% trans "Acquisition" %}</a></li>
+            <li><a href='#preview_tab'>{% trans "Preview" %}</a></li>
         </ul>
-        <div id="metadata_general">Load Metadata General Here</div>
-        <div id="metadata_acquisition">Load Metadata Acquisition Here</div>
-        <div id="metadata_preview">Load Metadata Preview Here</div>
+        <div id="metadata_general"></div>
+        <div id="metadata_tab"></div>
+        <div id="preview_tab"></div>
     </div>
 </div>
 {% endblock %}
