@@ -4180,21 +4180,29 @@ class TreeViewerComponent
 		SecurityContext ctx;
 		long gid;
 		List<DataObject> l;
+		long refgid = group.getId();
 		while (i.hasNext()) {
 			data = i.next();
 			b = (data instanceof ProjectData || data instanceof ScreenData);
 			gid = data.getGroupId();
-			ctx = getKey(map, gid);
-			if (ctx == null) {
-				l = new ArrayList<DataObject>();
-				ctx = new SecurityContext(gid);
-				map.put(ctx, l);
+			if (gid != refgid) {
+				ctx = getKey(map, gid);
+				if (ctx == null) {
+					l = new ArrayList<DataObject>();
+					ctx = new SecurityContext(gid);
+					map.put(ctx, l);
+				}
+				l = map.get(ctx);
+				l.add(data);
 			}
-			l = map.get(ctx);
-			l.add(data);
+		}
+		if (map.size() == 0) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Move Data ", "No data to move to "+group.getName());
+			return;
 		}
 		if (b) { //move The data
-			moveData(new SecurityContext(group.getId()), null, map);
+			moveData(new SecurityContext(refgid), null, map);
 		} else { //load the collection for the specified group
 			
 		}
