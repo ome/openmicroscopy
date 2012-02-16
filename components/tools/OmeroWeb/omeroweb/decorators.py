@@ -130,10 +130,13 @@ class login_required(object):
             # connection / OMERO session.
             connection = connector.join_connection(self.useragent)
             if connection is not None:
+                logger.debug('Connector valid, session successfully joined.')
                 return connection
             # Fall through, we the session we've been asked to join may
             # be invalid and we may have other credentials as request
             # variables.
+            logger.debug('Connector is no longer valid, destroying...')
+            del session['connector']
 
         if server_id is None:
             # If no server id is passed, the db entry will not be used and
