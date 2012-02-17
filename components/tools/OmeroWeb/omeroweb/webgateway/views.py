@@ -2018,14 +2018,11 @@ def full_viewer (request, iid, conn=None, **kwargs):
         raise Http404
     return HttpResponse(rsp)
 
-def get_rois_json(request, imageId, server_id=None):
+@login_required()
+def get_rois_json(request, imageId, conn=conn):
     """
     Returns json data of the ROIs in the specified image. 
     """
-    conn = getBlitzConnection(request, server_id=server_id, with_session=False, useragent="OMERO.webgateway")
-    if conn is None or not conn.isConnected():
-        raise Http404
-    
     def stringToSvg(string):
         """
         Method for converting the string returned from omero.model.ShapeI.getPoints()
