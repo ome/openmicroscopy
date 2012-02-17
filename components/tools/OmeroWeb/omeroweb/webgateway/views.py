@@ -1337,7 +1337,8 @@ def jsonp (f):
 #    return wrap
 
 @debug
-def render_row_plot (request, iid, z, t, y, server_id=None, conn=None, w=1, **kwargs):
+@login_required()
+def render_row_plot (request, iid, z, t, y, conn=None, w=1, **kwargs):
     """
     Renders the line plot for the image with id {{iid}} at {{z}} and {{t}} as gif with transparent background.
     Many options are available from the request dict.
@@ -1349,7 +1350,6 @@ def render_row_plot (request, iid, z, t, y, server_id=None, conn=None, w=1, **kw
     @param z:           Z index
     @param t:           T index
     @param y:           Y position of row to measure
-    @param server_id:
     @param conn:        L{omero.gateway.BlitzGateway} connection
     @param w:           Line width
     @return:            http response wrapping a gif
@@ -1357,7 +1357,7 @@ def render_row_plot (request, iid, z, t, y, server_id=None, conn=None, w=1, **kw
     
     if not w:
         w = 1
-    pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
+    pi = _get_prepared_image(request, iid, conn=conn)
     if pi is None:
         raise Http404
     img, compress_quality = pi
