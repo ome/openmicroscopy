@@ -1949,13 +1949,13 @@ def copy_image_rdef_json (request, conn=None, _internal=False, **kwargs):
 #    return HttpResponse(json_data, mimetype='application/javascript')
 
 @jsonp
-def reset_image_rdef_json (request, iid, server_id=None, conn=None, **kwargs):
+@login_required()
+def reset_image_rdef_json (request, iid, conn=None, **kwargs):
     """
     Try to remove all rendering defs the logged in user has for this image.
     
     @param request:     http request
     @param iid:         Image ID
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway}
     @return:            json 'true', or 'false' if failed
     """
@@ -1968,6 +1968,7 @@ def reset_image_rdef_json (request, iid, server_id=None, conn=None, **kwargs):
 #    if blitzcon is None or not blitzcon.isConnected():
 #        img = None
 #    else:
+    server_id = request.session['connector'].server_id
     img = conn.getObject("Image", iid)
 
     if img is not None and img.resetRDefs():
