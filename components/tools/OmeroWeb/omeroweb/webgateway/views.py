@@ -873,7 +873,7 @@ def _get_signature_from_request (request):
     rv = r.get('m','_') + r.get('p','_')+r.get('c','_')+r.get('q', '_')
     return rv
 
-def _get_prepared_image (request, iid, server_id=None, conn=None, with_session=True, saveDefs=False, retry=True):
+def _get_prepared_image (request, iid, conn=None, saveDefs=False, retry=True):
     """
     Fetches the Image object for image 'iid' and prepares it according to the request query, setting the channels,
     rendering model and projection arguments. The compression level is parsed and returned too.
@@ -881,21 +881,14 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, with_session=T
     
     @param request:     http request
     @param iid:         Image ID
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway} connection
-    @param with_session:    If true, attempt to use existing session
     @param saveDefs:    Try to save the rendering settings, default z and t. 
     @param retry:       Try an extra attempt at this method
     @return:            Tuple (L{omero.gateway.ImageWrapper} image, quality)
     """
     r = request.REQUEST
-    logger.debug('Preparing Image:%r with_session=%r saveDefs=%r ' \
-                 'retry=%r request=%r' % (iid, with_session, saveDefs, retry,
-                 r))
-    if conn is None:
-        conn = getBlitzConnection(request, server_id=server_id, with_session=with_session, useragent="OMERO.webgateway")
-    if conn is None or not conn.isConnected():
-        return HttpResponseServerError('""', mimetype='application/javascript')
+    logger.debug('Preparing Image:%r saveDefs=%r ' \
+                 'retry=%r request=%r' % (iid, saveDefs, retry, r))
     img = conn.getObject("Image", iid)
     if r.has_key('c'):
         logger.debug("c="+r['c'])
@@ -923,7 +916,7 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, with_session=T
                 if x.message.find('Session is dirty') >= 0:
                     if retry:
                         # retry once, to get around "Session is dirty" exceptions
-                        return _get_prepared_image(request, iid=iid, server_id=server_id, conn=conn, with_session=with_session, saveDefs=saveDefs, retry=False)
+                        return _get_prepared_image(request, iid=iid, saveDefs=saveDefs, retry=False)
                     logger.debug("Session is dirty, bailing out")
                     raise
             else:
