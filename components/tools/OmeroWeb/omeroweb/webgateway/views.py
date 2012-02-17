@@ -1847,14 +1847,14 @@ def save_image_rdef_json (request, iid, conn=None, **kwargs):
         json_data = '%s(%s)' % (r['callback'], json_data)
     return HttpResponse(json_data, mimetype='application/javascript')
 
-def list_compatible_imgs_json (request, server_id, iid, conn=None, **kwargs):
+@login_required()
+def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
     """
     Lists the images on the same project that would be viable targets for copying rendering settings.
     TODO: change method to:
     list_compatible_imgs_json (request, iid, server_id=None, conn=None, **kwargs):
     
     @param request:     http request
-    @param server_id:   
     @param iid:         Image ID
     @param conn:        L{omero.gateway.BlitzGateway}
     @return:            json list of image IDs
@@ -1863,13 +1863,9 @@ def list_compatible_imgs_json (request, server_id, iid, conn=None, **kwargs):
     json_data = 'false'
     r = request.REQUEST
     if conn is None:
-        blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
-    else:
-        blitzcon = conn
-    if blitzcon is None or not blitzcon.isConnected():
         img = None
     else:
-        img = blitzcon.getObject("Image", iid)
+        img = conn.getObject("Image", iid)
 
     if img is not None:
         # List all images in project
