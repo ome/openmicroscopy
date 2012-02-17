@@ -415,6 +415,13 @@ $.fn.viewportImage = function(options) {
     }
     
     this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, href, thref, init_cx, init_cy) {
+        
+        InfoControl.prototype.viewerZoomed = function(e) {
+            var sz = this.viewer.imageSize();
+            if (this.dom_info) 
+                this.dom_info.innerHTML = 'Scale: '+ e.scale*100 +'%';
+        }
+        
         var myPyramid = new BisqueISPyramid( imagewidth, imageheight, xtilesize, ytilesize);
         var myProvider = new PanoJS.TileUrlProvider('','','');
         myProvider.assembleUrl = function(xIndex, yIndex, zoom) {
@@ -439,8 +446,10 @@ $.fn.viewportImage = function(options) {
                 imageWidth      : myPyramid.width,
                 imageHeight     : myPyramid.height,
                 initialZoom     : init_zoom,
-                staticBaseURL   : mediaroot+'/3rdparty/panojs/',
-                loadingTile     : 'blank.gif'//'progress.gif'
+                staticBaseURL   : mediaroot+'3rdparty/panojs/images/',
+                blankTile       : mediaroot+'3rdparty/panojs/images/blank.gif',
+                loadingTile     : mediaroot+'3rdparty/panojs/images/blank.gif',
+
             });
             
             viewerBean.mouseReleasedHandler = function(e) {
