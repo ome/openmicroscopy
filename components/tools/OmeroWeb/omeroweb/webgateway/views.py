@@ -555,17 +555,18 @@ def render_birds_eye_view (request, iid, size=None,
     img, compress_quality = img
     return HttpResponse(img.renderBirdsEyeView(size), mimetype='image/jpeg')
 
-def render_thumbnail (request, iid, server_id=None, w=None, h=None, conn=None, _defcb=None, **kwargs):
+@login_required()
+def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kwargs):
     """ 
     Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image 'iid' 
     
     @param request:     http request
     @param iid:         Image ID
-    @param server_id:   Optional, used for getting connection if needed etc
     @param w:           Thumbnail max width. 64 by default
     @param h:           Thumbnail max height
     @return:            http response containing jpeg
     """
+    server_id = request.session['connector'].server_id
     if w is None:
         size = (64,)
     else:
@@ -573,18 +574,11 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, conn=None, _
             size = (int(w),)
         else:
             size = (int(w), int(h))
-    if conn is None:
-        blitzcon = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
-    else:
-        blitzcon = conn
-    if blitzcon is None or not blitzcon.isConnected():
-        logger.debug("failed connect, HTTP404")
-        raise Http404
-    user_id = blitzcon.getEventContext().userId
+    user_id = conn.getEventContext().userId
     jpeg_data = webgateway_cache.getThumb(request, server_id, user_id, iid, size)
     if jpeg_data is None:
         prevent_cache = False
-        img = blitzcon.getObject("Image", iid)
+        img = conn.getObject("Image", iid)
         if img is None:
             logger.debug("(b)Image %s not found..." % (str(iid)))
             if _defcb:
