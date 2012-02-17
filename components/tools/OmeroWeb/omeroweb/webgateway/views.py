@@ -1171,7 +1171,8 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
             raise
         return HttpResponseRedirect(settings.STATIC_URL + 'webgateway/tfiles/' + rpath)
 
-def render_movie (request, iid, axis, pos, server_id=None, conn=None, **kwargs):
+@login_required()
+def render_movie (request, iid, axis, pos, conn=None, **kwargs):
     """ 
     Renders a movie from the image with id iid
     
@@ -1179,11 +1180,10 @@ def render_movie (request, iid, axis, pos, server_id=None, conn=None, **kwargs):
     @param iid:         Image ID
     @param axis:        Movie frames are along 'z' or 't' dimension. String
     @param pos:         The T index (for z axis) or Z index (for t axis)
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway} connection
     @return:            http response wrapping the file, or redirect to temp file
     """
-    
+    server_id = request.session['connector'].server_id
     try:
         # Prepare a filename we'll use for temp cache, and check if file is already there
         opts = {}
