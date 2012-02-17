@@ -650,6 +650,27 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns <code>true</code> if the selected objects belong to several
+	 * groups, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isAcrossGroups()
+	{
+		List<DataObject> l = getSelectedObjects();
+		if (l.size() <= 1) return false;
+		List<Long> ids = new ArrayList<Long>();
+		Iterator<DataObject> i = l.iterator();
+		DataObject data;
+		while (i.hasNext()) {
+			data = i.next();
+			if (!ids.contains(data.getGroupId())) 
+				ids.add(data.getGroupId());
+		}
+		return ids.size() > 1;
+	}
+	
+	/**
 	 * Returns <code>true</code> if the annotation can be added, should
 	 * only be invoked for tagging or adding attachments, <code>false</code>
 	 * otherwise.

@@ -354,7 +354,11 @@ class TextualAnnotationsUI
 			setAreaText(DEFAULT_TEXT_COMMENT, true);
 		}
 		
-		commentArea.setEnabled(model.isWritable());
+		boolean enabled = model.isWritable();
+		if (enabled && model.isMultiSelection()) {
+			enabled = model.isAcrossGroups();
+		}
+		commentArea.setEnabled(enabled);
 		if (hasPrevious) {
 			TextualAnnotationData data = (TextualAnnotationData) list.get(0);
 			String text = data.getText();

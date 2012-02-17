@@ -917,6 +917,9 @@ class AnnotationDataUI
 		filterButton.setEnabled(count > 0);
 		//Allow to handle annotation.
 		boolean enabled = model.isWritable();
+		if (enabled && model.isMultiSelection()) {
+			enabled = model.isAcrossGroups();
+		}
 		rating.setEnabled(enabled);
 		addTagsButton.setEnabled(enabled);
 		addDocsButton.setEnabled(enabled);
