@@ -1759,7 +1759,8 @@ def searchOptFromRequest (request):
 
 @TimeIt(logging.INFO)
 @jsonp
-def search_json (request, server_id=None, conn=None, **kwargs):
+@login_required()
+def search_json (request, conn=None, **kwargs):
     """
     Search for objects in blitz.
     Returns json encoded list of marshalled objects found by the search query
@@ -1774,11 +1775,11 @@ def search_json (request, server_id=None, conn=None, **kwargs):
         - parents:
     
     @param request:     http request
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway}
     @return:            json search results
     TODO: cache
     """
+    server_id = request.session['connector'].server_id
     opts = searchOptFromRequest(request)
     rv = []
     logger.debug("searchObjects(%s)" % (opts['search']))
