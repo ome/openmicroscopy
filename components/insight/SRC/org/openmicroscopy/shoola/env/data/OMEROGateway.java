@@ -2264,21 +2264,26 @@ class OMEROGateway
 			SecurityContext ctx;
 			Connector connector;
 			if (groupID >= 0) {
-				ctx = new SecurityContext(groupID);
-				ctx.setServerInformation(hostName, port);
-				ctx.setCompression(compression);
 				long defaultID = -1;
 				try {
 					defaultID = exp.getDefaultGroup().getId();
 				} catch (Exception e) {}
-				if (defaultID == groupID) {
+				ctx = new SecurityContext(defaultID);
+				ctx.setServerInformation(hostName, port);
+				ctx.setCompression(compression);
+				connector = new Connector(ctx, secureClient, entryEncrypted,
+						encrypted);
+				connectors.add(connector);
+				if (defaultID == groupID) return exp;
+				try {
+					changeCurrentGroup(ctx, exp, groupID);
+					connectors.remove(connector);
+					ctx = new SecurityContext(groupID);
+					ctx.setServerInformation(hostName, port);
+					ctx.setCompression(compression);
 					connector = new Connector(ctx, secureClient, entryEncrypted,
 							encrypted);
 					connectors.add(connector);
-					return exp;
-				}
-				try {
-					changeCurrentGroup(ctx, exp, groupID);
 					exp = getUserDetails(ctx, userName);
 				} catch (Exception e) {
 				}
