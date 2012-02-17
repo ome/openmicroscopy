@@ -1679,13 +1679,13 @@ def listDatasets_json (request, pid, conn=None, **kwargs):
     return [x.simpleMarshal(xtra={'childCount':0}) for x in project.listChildren()]
 
 @jsonp
-def datasetDetail_json (request, did, server_id=None, conn=None, **kwargs):
+@login_required()
+def datasetDetail_json (request, did, conn=None, **kwargs):
     """
     return json encoded details for a dataset
     TODO: cache
     """
-    blitzcon = conn
-    ds = blitzcon.getObject("Dataset", did)
+    ds = conn.getObject("Dataset", did)
     return ds.simpleMarshal()
 
 @jsonp
