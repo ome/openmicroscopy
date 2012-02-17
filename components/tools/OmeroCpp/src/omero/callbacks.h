@@ -17,6 +17,7 @@
 #include <omero/RTypesI.h>
 #include <omero/Scripts.h>
 #include <omero/api/IDelete.h>
+#include <omero/cmd/API.h>
 #include <omero/util/concurrency.h>
 
 #ifndef OMERO_API
@@ -124,6 +125,51 @@ namespace omero {
 
         typedef IceUtil::Handle<DeleteCallbackI> DeleteCallbackIPtr;
 
+
+        /*
+         * Callback used for waiting until omero::cmd::HandlePrx will return
+         * a non-empty Response. The block(long) method will wait the given number of
+         * milliseconds and then return the number of errors if any or None
+         * if the delete is not yet complete.
+         *
+         * Example usage:
+         *
+         *     CmdCallbackI cb(client, handle);
+         *     omero::cmd::ResponsePtr rsp;
+         *     while (!rsp) {
+         *         rsp = cb.block(500);
+         *     }
+         *  or
+         *
+         *     ResponsePtr rsp = cb.loop(5, 500);
+         *
+         */
+        class OMERO_API CmdCallbackI : virtual public IceUtil::Shared {
+
+        // Preventing copy-construction and assigning by value.
+        private:
+            CmdCallbackI& operator=(const CmdCallbackI& rv);
+            CmdCallbackI(CmdCallbackI&);
+            // State
+            omero::util::concurrency::Event event;
+            Ice::ObjectAdapterPtr adapter;
+            bool poll;
+	protected:
+            /**
+             * Proxy passed to this instance on creation. Can be used by subclasses
+             * freely. The object will not be nulled, but may be closed server-side.
+             */
+            omero::cmd::HandlePrx handle;
+	    virtual ~CmdCallbackI();
+        public:
+            CmdCallbackI(const Ice::ObjectAdapterPtr& adapter, const omero::cmd::HandlePrx handle);
+            virtual omero::cmd::ResponsePtr block(long ms);
+            virtual omero::cmd::ResponsePtr loop(int loops, long ms);
+            virtual void finished(const omero::cmd::StatusPtr& status, const omero::cmd::ResponsePtr& response);
+        };
+
+
+        typedef IceUtil::Handle<CmdCallbackI> CmdCallbackIPtr;
 
     };
 };

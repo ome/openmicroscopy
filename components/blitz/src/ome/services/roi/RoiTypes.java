@@ -31,6 +31,8 @@ import omero.model.SmartPolygonI;
 import omero.model.SmartPolylineI;
 import omero.model.SmartRectI;
 import omero.model.SmartTextI;
+import omero.util.ObjectFactoryRegistry;
+import omero.util.ObjectFactoryRegistry.ObjectFactory;
 
 /**
  * Intelligent server-side representations of the {@link Roi} and {@link Shape}
@@ -42,118 +44,97 @@ public abstract class RoiTypes {
     // Object factories
     // =========================================================================
 
-    public final static Map<Class, ObjectFactory> ObjectFactories;
+    public static class RoiTypesObjectFactoryRegistry extends ObjectFactoryRegistry {
 
-    public static abstract class ObjectFactory implements Ice.ObjectFactory {
+        @Override
+        public Map<String, ObjectFactory> createFactories() {
+            Map<String, ObjectFactory> factories = new HashMap<String, ObjectFactory>();
 
-        private final String id;
+            factories.put(SmartEllipseI.ice_staticId(), new ObjectFactory(Ellipse.ice_staticId()) {
 
-        public ObjectFactory(String id) {
-            this.id = id;
+                @Override
+                public Ellipse create(String name) {
+                    return new SmartEllipseI();
+                }
+
+            });
+
+            factories.put(SmartLineI.ice_staticId(), new ObjectFactory(Line.ice_staticId()) {
+
+                @Override
+                public Line create(String name) {
+                    return new SmartLineI();
+                }
+
+            });
+
+            factories.put(SmartMaskI.ice_staticId(), new ObjectFactory(Mask.ice_staticId()) {
+
+                @Override
+                public Mask create(String name) {
+                    return new SmartMaskI();
+                }
+
+            });
+
+            factories.put(SmartPathI.ice_staticId(), new ObjectFactory(Path.ice_staticId()) {
+
+                @Override
+                public Path create(String name) {
+                    return new SmartPathI();
+                }
+
+            });
+
+            factories.put(SmartPointI.ice_staticId(), new ObjectFactory(Point.ice_staticId()) {
+
+                @Override
+                public Point create(String name) {
+                    return new SmartPointI();
+                }
+
+            });
+
+            factories.put(SmartPolygonI.ice_staticId(), new ObjectFactory(Polygon.ice_staticId()) {
+
+                @Override
+                public Polygon create(String name) {
+                    return new SmartPolygonI();
+                }
+
+            });
+
+            factories.put(SmartPolylineI.ice_staticId(),
+                    new ObjectFactory(Polyline.ice_staticId()) {
+
+                        @Override
+                        public Polyline create(String name){
+                            return new SmartPolylineI();
+                        }
+
+                    });
+
+            factories.put(SmartRectI.ice_staticId(), new ObjectFactory(Rect.ice_staticId()) {
+
+                @Override
+                public Rect create(String name) {
+                    return new SmartRectI();
+                }
+
+            });
+
+            factories.put(SmartTextI.ice_staticId(), new ObjectFactory(Label.ice_staticId()) {
+
+                @Override
+                public Label create(String name) {
+                    return new SmartTextI();
+                }
+
+            });
+
+            return factories;
         }
 
-        public abstract Shape shape();
-
-        public void register(Ice.Communicator ic) {
-            ic.addObjectFactory(this, id);
-        }
-
-        public Ice.Object create(String arg0) {
-            return shape();
-        }
-
-        public void destroy() {
-            // noop
-        }
-
-    }
-
-    static {
-        Map<Class, ObjectFactory> factories = new HashMap<Class, ObjectFactory>();
-
-        factories.put(SmartEllipseI.class, new ObjectFactory(Ellipse.ice_staticId()) {
-
-            @Override
-            public Ellipse shape() {
-                return new SmartEllipseI();
-            }
-
-        });
-
-        factories.put(SmartLineI.class, new ObjectFactory(Line.ice_staticId()) {
-
-            @Override
-            public Line shape() {
-                return new SmartLineI();
-            }
-
-        });
-
-        factories.put(SmartMaskI.class, new ObjectFactory(Mask.ice_staticId()) {
-
-            @Override
-            public Mask shape() {
-                return new SmartMaskI();
-            }
-
-        });
-
-        factories.put(SmartPathI.class, new ObjectFactory(Path.ice_staticId()) {
-
-            @Override
-            public Path shape() {
-                return new SmartPathI();
-            }
-
-        });
-
-        factories.put(SmartPointI.class, new ObjectFactory(Point.ice_staticId()) {
-
-            @Override
-            public Point shape() {
-                return new SmartPointI();
-            }
-
-        });
-
-        factories.put(SmartPolygonI.class, new ObjectFactory(Polygon.ice_staticId()) {
-
-            @Override
-            public Polygon shape() {
-                return new SmartPolygonI();
-            }
-
-        });
-
-        factories.put(SmartPolylineI.class,
-                new ObjectFactory(Polyline.ice_staticId()) {
-
-                    @Override
-                    public Polyline shape() {
-                        return new SmartPolylineI();
-                    }
-
-                });
-
-        factories.put(SmartRectI.class, new ObjectFactory(Rect.ice_staticId()) {
-
-            @Override
-            public Rect shape() {
-                return new SmartRectI();
-            }
-
-        });
-        
-        factories.put(SmartTextI.class, new ObjectFactory(Label.ice_staticId()) {
-
-            @Override
-            public Label shape() {
-                return new SmartTextI();
-            }
-
-        });
-
-        ObjectFactories = factories;
     }
 
 }

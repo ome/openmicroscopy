@@ -102,7 +102,7 @@ public class RenderingEngineI extends AbstractPyramidServant implements
     
 	public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
 		this.sf = sf;
-		this.roiService = sf.getRoiService();
+		this.roiService = sf.getRoiService(null);
 	}
 
     // Interface methods

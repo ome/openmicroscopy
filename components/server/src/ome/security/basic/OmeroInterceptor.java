@@ -359,10 +359,6 @@ public class OmeroInterceptor implements Interceptor {
      * @param iObject
      *            new or updated entity which may reference other entities which
      *            then require locking. Nulls are tolerated but do nothing.
-     * @param ownerId
-     *            the id of the current owner. May be null in which case, the
-     *            current owner id will most likely be replaced. (If not, then
-     *            a security exception will be raised later)
      */
     public void evaluateLinkages(IObject iObject) {
 
