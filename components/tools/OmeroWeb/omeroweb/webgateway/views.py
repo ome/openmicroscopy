@@ -533,7 +533,8 @@ def getImgDetailsFromReq (request, as_string=False):
         return "&".join(["%s=%s" % (x[0], x[1]) for x in rv.items()])
     return rv
 
-def render_birds_eye_view (request, iid, server_id=None, size=None,
+@login_required()
+def render_birds_eye_view (request, iid, size=None,
                            conn=None, **kwargs):
     """
     Returns an HttpResponse wrapped jpeg with the rendered bird's eye view
@@ -543,18 +544,11 @@ def render_birds_eye_view (request, iid, server_id=None, size=None,
 
     @param request:     http request
     @param iid:         Image ID
+    @param conn:        L{omero.gateway.BlitzGateway} connection
     @param size:        Maximum size of the longest side of the resulting bird's eye view.
-    @param server_id:   Optional, used for getting connection if needed etc
     @return:            http response containing jpeg
     """
-    if conn is None:
-        blitzcon = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
-    else:
-        blitzcon = conn
-    if blitzcon is None or not blitzcon.isConnected():
-        logger.debug("failed connect, HTTP404")
-        raise Http404
-    img = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
+    img = _get_prepared_image(request, iid, conn=conn, server_id=server_id)
     if img is None:
         logger.debug("(b)Image %s not found..." % (str(iid)))
         raise Http404
