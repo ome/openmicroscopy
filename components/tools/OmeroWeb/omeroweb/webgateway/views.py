@@ -604,16 +604,13 @@ def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kw
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
-
-def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, conn=None, **kwargs):
+@login_required()
+def render_roi_thumbnail (request, roiId, w=None, h=None, conn=None, **kwargs):
     """
     For the given ROI, choose the shape to render (first time-point, mid z-section) then render 
     a region around that shape, scale to width and height (or default size) and draw the
     shape on to the region
     """
-    if conn is None:
-        conn = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
-
     # need to find the z indices of the first shape in T
     roiResult = conn.getRoiService().findByRoi(long(roiId), None)
     if roiResult is None or roiResult.rois is None:
