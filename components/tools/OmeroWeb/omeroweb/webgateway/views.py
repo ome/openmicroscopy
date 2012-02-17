@@ -1570,9 +1570,11 @@ def wellData_json (request, conn=None, _internal=False, **kwargs):
     return rv
 
 @jsonp
-def plateGrid_json (request, pid, field=0, server_id=None, conn=None, **kwargs):
+@login_required()
+def plateGrid_json (request, pid, field=0, conn=None, **kwargs):
     """
     """
+    server_id = request.session['connector'].server_id
     plate = conn.getObject('plate', long(pid))
     try:
         field = long(field or 0)
