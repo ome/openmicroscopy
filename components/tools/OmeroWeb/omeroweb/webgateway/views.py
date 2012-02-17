@@ -1372,7 +1372,8 @@ def render_row_plot (request, iid, z, t, y, conn=None, w=1, **kwargs):
     return rsp
 
 @debug
-def render_col_plot (request, iid, z, t, x, w=1, server_id=None, conn=None, **kwargs):
+@login_required()
+def render_col_plot (request, iid, z, t, x, w=1, conn=None, **kwargs):
     """ 
     Renders the line plot for the image with id {{iid}} at {{z}} and {{t}} as gif with transparent background.
     Many options are available from the request dict.
@@ -1384,7 +1385,6 @@ def render_col_plot (request, iid, z, t, x, w=1, server_id=None, conn=None, **kw
     @param z:           Z index
     @param t:           T index
     @param x:           X position of column to measure
-    @param server_id:
     @param conn:        L{omero.gateway.BlitzGateway} connection
     @param w:           Line width
     @return:            http response wrapping a gif
@@ -1392,7 +1392,7 @@ def render_col_plot (request, iid, z, t, x, w=1, server_id=None, conn=None, **kw
     
     if not w:
         w = 1
-    pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
+    pi = _get_prepared_image(request, iid, conn=conn)
     if pi is None:
         raise Http404
     img, compress_quality = pi
