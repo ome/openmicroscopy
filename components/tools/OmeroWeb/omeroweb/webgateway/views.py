@@ -906,7 +906,8 @@ def _get_prepared_image (request, iid, conn=None, saveDefs=False, retry=True):
                 raise
     return (img, compress_quality)
 
-def render_image_region(request, iid, z, t, server_id=None, conn=None, **kwargs):
+@login_required()
+def render_image_region(request, iid, z, t, conn=None, **kwargs):
     """
     Returns a jpeg of the OMERO image, rendering only a region specified in query string as
     region=x,y,width,height. E.g. region=0,512,256,256 
@@ -916,18 +917,17 @@ def render_image_region(request, iid, z, t, server_id=None, conn=None, **kwargs)
     @param iid:         image ID
     @param z:           Z index
     @param t:           T index
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway} connection
     @return:            http response wrapping jpeg
     """
-    
+    server_id = request.session['connector'].server_id
     # if the region=x,y,w,h is not parsed correctly to give 4 ints then we simply provide whole image plane. 
     # alternatively, could return a 404?    
     #if h == None:
     #    return render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs)
     
     USE_SESSION = False
-    pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn, with_session=USE_SESSION)
+    pi = _get_prepared_image(request, iid, conn=conn)
     
     if pi is None:
         raise Http404
