@@ -209,50 +209,69 @@ class GroupModelMultipleChoiceField(GroupModelChoiceField):
 class ExperimenterQuerySetIterator(object):
     def __init__(self, queryset, empty_label):
         self.queryset = queryset
+        
         self.empty_label = empty_label
+        
+        self.rendered_set = []
+        if self.empty_label is not None:
+            self.rendered_set.append( (u"", self.empty_label) )
+
+        # queryset may be a list of Experimenters 'exp_list' OR may be (  ("Leaders", exp_list), ("Members", exp_list)  )
+        for obj in queryset:
+            if hasattr(obj, 'id'):
+                self.rendered_set.append(self.render(obj))
+            else:
+                subset = [self.render(m) for m in obj[1]]
+                self.rendered_set.append( (obj[0], subset) )
 
     def __iter__(self):
-        if self.empty_label is not None:
-            yield (u"", self.empty_label)
-        for obj in self.queryset:
-            try:
-                # lastName = obj.details.owner.lastName.val if hasattr(obj.details.owner.lastName, 'val') else ""
-                # firstName = obj.details.owner.firstName.val if hasattr(obj.details.owner.firstName, 'val') else ""
-                # middleName = obj.details.owner.middleName.val if hasattr(obj.details.owner.middleName, 'val') else ""
-                if hasattr(obj, 'getFullName'):
-                    name = "%s (%s)" % (obj.getFullName(), obj.omeName)
-                else:
-                    omeName = None
-                    if hasattr(obj.omeName, 'val'):
-                        omeName = obj.omeName.val
-                    lastName = None
-                    if hasattr(obj.lastName, 'val'):
-                        lastName = obj.lastName.val
-                    firstName = None
-                    if hasattr(obj.firstName, 'val'):
-                        firstName = obj.firstName.val
-                    middleName = None
-                    if hasattr(obj.middleName, 'val'):
-                        middleName = obj.middleName.val
-                    
-                    if middleName != '' and middleName is not None:
-                        name = "%s %s. %s (%s)" % (firstName, middleName[:1], lastName, omeName)
-                    else:
-                        name = "%s %s (%s)" % (firstName, lastName, omeName)
+        for obj in self.rendered_set:
+            yield obj
 
 
-                l = len(name)
-                if l > 50:
-                    name = name[:50] + "..."
-            except:
-                name = _("Unknown")
-            
-            if hasattr(obj.id, 'val'):
-                oid = obj.id.val
+    def render(self, obj):
+        try:
+            # lastName = obj.details.owner.lastName.val if hasattr(obj.details.owner.lastName, 'val') else ""
+            # firstName = obj.details.owner.firstName.val if hasattr(obj.details.owner.firstName, 'val') else ""
+            # middleName = obj.details.owner.middleName.val if hasattr(obj.details.owner.middleName, 'val') else ""
+            if hasattr(obj, 'getFullName'):
+                name = "%s (%s)" % (obj.getFullName(), obj.omeName)
             else:
-                oid = obj.id
+                omeName = None
+                if hasattr(obj.omeName, 'val'):
+                    omeName = obj.omeName.val
+                lastName = None
+                if hasattr(obj.lastName, 'val'):
+                    lastName = obj.lastName.val
+                firstName = None
+                if hasattr(obj.firstName, 'val'):
+                    firstName = obj.firstName.val
+                middleName = None
+                if hasattr(obj.middleName, 'val'):
+                    middleName = obj.middleName.val
+                
+                if middleName != '' and middleName is not None:
+                    name = "%s%s %s. %s (%s)" % (myself, firstName, middleName[:1], lastName, omeName)
+                else:
+                    name = "%s%s %s (%s)" % (myself, firstName, lastName, omeName)
 
-            yield (smart_unicode(oid), smart_unicode(name))
+
+            l = len(name)
+            if l > 50:
+                name = name[:50] + "..."
+        except:
+            name = _("Unknown")
+
+        if obj.is_self():
+            name = "* %s" % name
+        if hasattr(obj.id, 'val'):
+            oid = obj.id.val
+        else:
+            oid = obj.id
+        return (smart_unicode(oid), smart_unicode(name))
+    
+                
+            
 
 class ExperimenterModelChoiceField(ModelChoiceField):
     
