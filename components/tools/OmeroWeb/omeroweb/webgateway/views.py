@@ -922,7 +922,6 @@ def _get_signature_from_request (request):
     rv = r.get('m','_') + r.get('p','_')+r.get('c','_')+r.get('q', '_')
     return rv
 
-@serverid
 def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False, retry=True):
     """
     Fetches the Image object for image 'iid' and prepares it according to the request query, setting the channels,
@@ -931,9 +930,7 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False
     
     @param request:     http request
     @param iid:         Image ID
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway} connection
-    @param with_session:    If true, attempt to use existing session
     @param saveDefs:    Try to save the rendering settings, default z and t. 
     @param retry:       Try an extra attempt at this method
     @return:            Tuple (L{omero.gateway.ImageWrapper} image, quality)
@@ -941,11 +938,7 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False
     r = request.REQUEST
     logger.debug('Preparing Image:%r saveDefs=%r ' \
                  'retry=%r request=%r conn=%s' % (iid, saveDefs, retry,
-                 r, str(_conn)))
-    if conn is None:
-        conn = getBlitzConnection(request, server_id=server_id, useragent="OMERO.webgateway")
-    if conn is None or not _conn.isConnected():
-        return HttpResponseServerError('""', mimetype='application/javascript')
+                 r, str(conn)))
     img = conn.getObject("Image", iid)
     if r.has_key('c'):
         logger.debug("c="+r['c'])
