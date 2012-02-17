@@ -863,11 +863,11 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#transfer(SecurityContext, List, SecurityContext, 
+	 * @see OmeroDataService#transfer(SecurityContext, SecurityContext, List,
 	 * List)
 	 */
-	public TransferCallback transfer(SecurityContext target,
-		List<DataObject> targetNode, SecurityContext ctx, 
+	public TransferCallback transfer(SecurityContext ctx, 
+			SecurityContext target, List<DataObject> targetNode,
 		List<DataObject> objects)
 		throws DSOutOfServiceException, DSAccessException, ProcessException
 	{
