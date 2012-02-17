@@ -1064,7 +1064,8 @@ def render_image (request, iid, z, t, conn=None, **kwargs):
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
-def render_ome_tiff (request, ctx, cid, server_id=None, conn=None, **kwargs):
+@login_required()
+def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
     """
     Renders the OME-TIFF representation of the image(s) with id cid in ctx (i)mage,
     (d)ataset, or (p)roject.
@@ -1072,14 +1073,10 @@ def render_ome_tiff (request, ctx, cid, server_id=None, conn=None, **kwargs):
     @param request:     http request
     @param ctx:         'p' or 'd' or 'i'
     @param cid:         Project, Dataset or Image ID
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway} connection
     @return:            http response wrapping the tiff (or zip for multiple files), or redirect to temp file/zip
     """
-    if conn is None:
-        conn = getBlitzConnection(request, server_id=server_id, with_session=False, useragent="OMERO.webgateway")
-    if conn is None or not conn.isConnected():
-        return HttpResponseServerError('""', mimetype='application/javascript')
+    server_id = request.session['connector'].server_id
     imgs = []
     if ctx == 'p':
         obj = conn.getObject("Project", cid)
