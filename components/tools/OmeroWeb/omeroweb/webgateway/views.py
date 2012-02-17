@@ -1706,20 +1706,19 @@ def listProjects_json (request, conn=None, **kwargs):
     return rv
 
 @jsonp
-def projectDetail_json (request, pid, server_id=None, conn=None, **kwargs):
+@login_required()
+def projectDetail_json (request, pid, conn=None, **kwargs):
     """
     grab details from one specific project
     TODO: cache
     
     @param request:     http request
     @param pid:         Project ID
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway}
     @return:            project details as dict.
     """
     
-    blitzcon = conn
-    pr = blitzcon.getObject("Project", pid)
+    pr = conn.getObject("Project", pid)
     rv = pr.simpleMarshal()
     return rv
 
