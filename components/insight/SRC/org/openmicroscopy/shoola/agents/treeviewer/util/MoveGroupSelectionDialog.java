@@ -99,7 +99,7 @@ public class MoveGroupSelectionDialog
 	private static final String TEXT = "Select where to move the data into ";
 	
 	/** The default size of the busy image.*/
-	private static final Dimension SIZE = new Dimension(48, 48);
+	private static final Dimension SIZE = new Dimension(32, 32);
 	
 	/** The group to move the data to.*/
 	private GroupData group;
