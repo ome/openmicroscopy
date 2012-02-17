@@ -208,11 +208,11 @@ class login_required(object):
             if url is None or len(url) == 0:
                 url = request.get_full_path()
 
-            conn = kwargs.get('_conn', None)
+            conn = kwargs.get('conn', None)
             error = None
             server_id = kwargs.get('server_id', None)
             # Short circuit connection retrieval when a connection was
-            # provided to us via '_conn'. This is useful when in testing
+            # provided to us via 'conn'. This is useful when in testing
             # mode or when stacking view functions/methods.
             if conn is None:
                 logger.debug('Connection not provided, attempting to get one.')
