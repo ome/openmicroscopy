@@ -532,14 +532,6 @@ def getImgDetailsFromReq (request, as_string=False):
         return "&".join(["%s=%s" % (x[0], x[1]) for x in rv.items()])
     return rv
 
-def serverid (func):
-    def handler (request, *args, **kwargs):
-        if not kwargs.has_key('server_id'):
-            kwargs['server_id'] = request.session.get('server', None)
-        return func(request, *args, **kwargs)
-    return handler
-
-@serverid
 def render_birds_eye_view (request, iid, server_id=None, size=None,
                            conn=None, **kwargs):
     """
@@ -568,7 +560,6 @@ def render_birds_eye_view (request, iid, server_id=None, size=None,
     img, compress_quality = img
     return HttpResponse(img.renderBirdsEyeView(size), mimetype='image/jpeg')
 
-@serverid
 def render_thumbnail (request, iid, server_id=None, w=None, h=None, conn=None, _defcb=None, **kwargs):
     """ 
     Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image 'iid' 
@@ -625,7 +616,6 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, conn=None, _
     return rsp
 
 
-@serverid
 def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, conn=None, **kwargs):
     """
     For the given ROI, choose the shape to render (first time-point, mid z-section) then render 
@@ -670,7 +660,6 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, conn=N
     return get_shape_thumbnail (request, conn, image, s, compress_quality)
 
 
-@serverid
 def render_shape_thumbnail (request, shapeId, server_id=None, w=None, h=None, conn=None, **kwargs):
     """
     For the given Shape, redner a region around that shape, scale to width and height (or default size) and draw the
@@ -991,7 +980,6 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False
                 raise
     return (img, compress_quality)
 
-@serverid
 def render_image_region(request, iid, z, t, server_id=None, conn=None, **kwargs):
     """
     Returns a jpeg of the OMERO image, rendering only a region specified in query string as
@@ -1062,7 +1050,6 @@ def render_image_region(request, iid, z, t, server_id=None, conn=None, **kwargs)
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp    
     
-@serverid
 def render_image (request, iid, z, t, server_id=None, conn=None, **kwargs):
     """ 
     Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
@@ -1101,7 +1088,6 @@ def render_image (request, iid, z, t, server_id=None, conn=None, **kwargs):
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
-@serverid
 def render_ome_tiff (request, ctx, cid, server_id=None, conn=None, **kwargs):
     """
     Renders the OME-TIFF representation of the image(s) with id cid in ctx (i)mage,
@@ -1212,7 +1198,6 @@ def render_ome_tiff (request, ctx, cid, server_id=None, conn=None, **kwargs):
             raise
         return HttpResponseRedirect(settings.STATIC_URL + 'webgateway/tfiles/' + rpath)
 
-@serverid
 def render_movie (request, iid, axis, pos, server_id=None, conn=None, **kwargs):
     """ 
     Renders a movie from the image with id iid
@@ -1280,7 +1265,6 @@ def render_movie (request, iid, axis, pos, server_id=None, conn=None, **kwargs):
         logger.debug(traceback.format_exc())
         raise
         
-@serverid    
 def render_split_channel (request, iid, z, t, server_id=None, conn=None, **kwargs):
     """
     Renders a split channel view of the image with id {{iid}} at {{z}} and {{t}} as jpeg.
@@ -1385,7 +1369,6 @@ def jsonp (f):
 #    return wrap
 
 @debug
-@serverid
 def render_row_plot (request, iid, z, t, y, server_id=None, conn=None, w=1, **kwargs):
     """
     Renders the line plot for the image with id {{iid}} at {{z}} and {{t}} as gif with transparent background.
@@ -1421,7 +1404,6 @@ def render_row_plot (request, iid, z, t, y, server_id=None, conn=None, w=1, **kw
     return rsp
 
 @debug
-@serverid
 def render_col_plot (request, iid, z, t, x, w=1, server_id=None, conn=None, **kwargs):
     """ 
     Renders the line plot for the image with id {{iid}} at {{z}} and {{t}} as gif with transparent background.
@@ -1875,7 +1857,6 @@ def search_json (request, server_id=None, conn=None, **kwargs):
     logger.debug(rv)
     return rv
 
-@serverid
 def save_image_rdef_json (request, iid, server_id=None, **kwargs):
     """
     Requests that the rendering defs passed in the request be set as the default for this image.
@@ -1901,7 +1882,6 @@ def save_image_rdef_json (request, iid, server_id=None, **kwargs):
         json_data = '%s(%s)' % (r['callback'], json_data)
     return HttpResponse(json_data, mimetype='application/javascript')
 
-@serverid
 def list_compatible_imgs_json (request, server_id, iid, conn=None, **kwargs):
     """
     Lists the images on the same project that would be viable targets for copying rendering settings.
@@ -1957,7 +1937,6 @@ def list_compatible_imgs_json (request, server_id, iid, conn=None, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @jsonp
-@serverid
 def copy_image_rdef_json (request, server_id=None, conn=None, _internal=False, **kwargs):
     """
     Copy the rendering settings from one image to a list of images.
@@ -2008,7 +1987,6 @@ def copy_image_rdef_json (request, server_id=None, conn=None, _internal=False, *
 #        json_data = '%s(%s)' % (r['callback'], json_data)
 #    return HttpResponse(json_data, mimetype='application/javascript')
 
-@serverid
 @jsonp
 def reset_image_rdef_json (request, iid, server_id=None, conn=None, **kwargs):
     """
@@ -2045,7 +2023,6 @@ def reset_image_rdef_json (request, iid, server_id=None, conn=None, **kwargs):
 #        json_data = '%s(%s)' % (r['callback'], json_data)
 #    return HttpResponse(json_data, mimetype='application/javascript')
 
-@serverid
 def full_viewer (request, iid, server_id=None, conn=None, **kwargs):
     """
     This view is responsible for showing the omero_image template
@@ -2083,7 +2060,6 @@ def full_viewer (request, iid, server_id=None, conn=None, **kwargs):
         raise Http404
     return HttpResponse(rsp)
 
-@serverid
 def get_rois_json(request, imageId, server_id=None):
     """
     Returns json data of the ROIs in the specified image. 
