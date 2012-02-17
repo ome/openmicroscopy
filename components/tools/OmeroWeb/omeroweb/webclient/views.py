@@ -2831,7 +2831,7 @@ def render_birds_eye_view (request, iid, size=200, share_id=None, **kwargs):
     if conn is None:
         raise Exception("Connection not available")
 
-    return webgateway_views.render_birds_eye_view(request, iid, size=size, _conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
+    return webgateway_views.render_birds_eye_view(request, iid, size=size, conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
 
 ####################################################################################
 # Rendering
@@ -2857,7 +2857,7 @@ def render_thumbnail (request, iid, share_id=None, **kwargs):
     if conn is None:
         raise Exception("Connection not available")
 
-    return webgateway_views.render_thumbnail(request, iid, w=80, _conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
+    return webgateway_views.render_thumbnail(request, iid, w=80, conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
 
 @login_required()
 def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
@@ -2880,7 +2880,7 @@ def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
     if conn is None:
         raise Exception("Connection not available")
     
-    return webgateway_views.render_thumbnail(request, iid, w=size, _conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
+    return webgateway_views.render_thumbnail(request, iid, w=size, conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
 
 @login_required()
 def render_image (request, iid, z, t, share_id=None, **kwargs):
@@ -2905,10 +2905,10 @@ def render_image (request, iid, z, t, share_id=None, **kwargs):
     if conn is None:
         raise Exception("Connection not available")
 
-    return webgateway_views.render_image(request, iid, z, t, _conn=conn, **kwargs)
+    return webgateway_views.render_image(request, iid, z, t, conn=conn, **kwargs)
 
 @login_required()
-def render_image_region (request, iid, z, t, server_id=None, share_id=None, _conn=None, **kwargs):
+def render_image_region (request, iid, z, t, server_id=None, share_id=None, conn=None, **kwargs):
     """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
         Many options are available from the request dict.
     I am assuming a single Pixels object on image with imageId='iid'. May be wrong """
@@ -2930,10 +2930,10 @@ def render_image_region (request, iid, z, t, server_id=None, share_id=None, _con
     if conn is None:
         raise Exception("Connection not available")
 
-    return webgateway_views.render_image_region(request, iid, z, t, server_id=None, _conn=conn, **kwargs)
+    return webgateway_views.render_image_region(request, iid, z, t, server_id=None, conn=conn, **kwargs)
 
 @login_required()
-def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs):
+def plateGrid_json (request, pid, field=0, server_id=None, conn=None, **kwargs):
     """ This view is responsible for showing well data within plate """
     
     conn = None
@@ -2950,7 +2950,7 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
         return reverse('render_thumbnail', args=(iid,))
     kwargs['urlprefix'] = urlprefix
     
-    return webgateway_views.plateGrid_json(request, pid, field=field, server_id=None, _conn=None, **kwargs)
+    return webgateway_views.plateGrid_json(request, pid, field=field, server_id=None, conn=None, **kwargs)
 
 @login_required()
 def image_viewer (request, iid, share_id=None, **kwargs):
@@ -2975,7 +2975,7 @@ def image_viewer (request, iid, share_id=None, **kwargs):
     if conn is None:
         raise Exception("Connection not available")
 
-    return webgateway_views.full_viewer(request, iid, _conn=conn, **kwargs)
+    return webgateway_views.full_viewer(request, iid, conn=conn, **kwargs)
 
 
 @login_required()
@@ -2998,7 +2998,7 @@ def imageData_json (request, iid, share_id=None, **kwargs):
     if conn is None:
         raise Exception("Connection not available")
 
-    return HttpResponse(webgateway_views.imageData_json(request, iid=iid, _conn=conn, **kwargs), mimetype='application/javascript')
+    return HttpResponse(webgateway_views.imageData_json(request, iid=iid, conn=conn, **kwargs), mimetype='application/javascript')
 
 @login_required()
 def render_row_plot (request, iid, z, t, y, share_id=None, w=1, **kwargs):
@@ -3021,7 +3021,7 @@ def render_row_plot (request, iid, z, t, y, share_id=None, w=1, **kwargs):
         raise Exception("Connection not available")
     img = conn.getObject("Image", iid)
 
-    return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, _conn=conn, **kwargs)
+    return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, conn=conn, **kwargs)
 
 @login_required()
 def render_col_plot (request, iid, z, t, x, share_id=None, w=1, **kwargs):
@@ -3044,7 +3044,7 @@ def render_col_plot (request, iid, z, t, x, share_id=None, w=1, **kwargs):
         raise Exception("Connection not available")
     img = conn.getObject("Image", iid)
 
-    return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, _conn=conn, **kwargs)
+    return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, conn=conn, **kwargs)
 
 @login_required()
 def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
@@ -3068,7 +3068,7 @@ def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
         raise Exception("Connection not available")
     img = conn.getObject("Image", iid)
 
-    return webgateway_views.render_split_channel(request, iid, z, t, _conn=conn, **kwargs)
+    return webgateway_views.render_split_channel(request, iid, z, t, conn=conn, **kwargs)
 
 
 # scripting service....
