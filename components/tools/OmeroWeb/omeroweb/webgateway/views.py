@@ -1979,7 +1979,7 @@ def full_viewer (request, iid, conn=None, **kwargs):
     return HttpResponse(rsp)
 
 @login_required()
-def get_rois_json(request, imageId, conn=conn):
+def get_rois_json(request, imageId, conn=None):
     """
     Returns json data of the ROIs in the specified image. 
     """
