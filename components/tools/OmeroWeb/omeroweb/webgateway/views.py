@@ -596,15 +596,12 @@ def render_roi_thumbnail (request, roiId, w=None, h=None, conn=None, **kwargs):
 
     return get_shape_thumbnail (request, conn, image, s, compress_quality)
 
-
-def render_shape_thumbnail (request, shapeId, server_id=None, w=None, h=None, conn=None, **kwargs):
+@login_required()
+def render_shape_thumbnail (request, shapeId, w=None, h=None, conn=None, **kwargs):
     """
     For the given Shape, redner a region around that shape, scale to width and height (or default size) and draw the
     shape on to the region. 
     """
-    if conn is None:
-        conn = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
-
     # need to find the z indices of the first shape in T
     params = omero.sys.Parameters()
     params.map = {'id':rlong(shapeId)}
@@ -615,7 +612,7 @@ def render_shape_thumbnail (request, shapeId, server_id=None, w=None, h=None, co
 
     imageId = shape.roi.image.id.val
 
-    pi = _get_prepared_image(request, imageId, server_id=server_id, conn=conn, with_session=False)
+    pi = _get_prepared_image(request, imageId, conn=conn)
     if pi is None:
         raise Http404
     image, compress_quality = pi
