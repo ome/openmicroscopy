@@ -1546,21 +1546,20 @@ def imageData_json (request, conn=None, _internal=False, **kwargs):
     return rv
 
 @jsonp
-def wellData_json (request, server_id=None, conn=None, _internal=False, **kwargs):
+@login_required()
+def wellData_json (request, conn=None, _internal=False, **kwargs):
     """
     Get a dict with image information
     TODO: cache
     
     @param request:     http request
-    @param server_id:
     @param conn:        L{omero.gateway.BlitzGateway}
     @param _internal:   TODO: ? 
     @return:            Dict
     """
     
     wid = kwargs['wid']
-    blitzcon = conn
-    well = blitzcon.getObject("Well", wid)
+    well = conn.getObject("Well", wid)
     if well is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
