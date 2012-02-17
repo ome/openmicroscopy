@@ -1238,7 +1238,8 @@ def render_movie (request, iid, axis, pos, conn=None, **kwargs):
         logger.debug(traceback.format_exc())
         raise
         
-def render_split_channel (request, iid, z, t, server_id=None, conn=None, **kwargs):
+@login_required()
+def render_split_channel (request, iid, z, t, conn=None, **kwargs):
     """
     Renders a split channel view of the image with id {{iid}} at {{z}} and {{t}} as jpeg.
     Many options are available from the request dict.
@@ -1248,11 +1249,10 @@ def render_split_channel (request, iid, z, t, server_id=None, conn=None, **kwarg
     @param iid:         Image ID
     @param z:           Z index
     @param t:           T index
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway} connection
     @return:            http response wrapping a jpeg
     """
-    
+    server_id = request.session['connector'].server_id
     pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
     if pi is None:
         raise Http404
