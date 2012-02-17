@@ -2152,7 +2152,8 @@ def test (request):
     return HttpResponse(t.render(c))
 
 @jsonp
-def su (request, user, server_id=None, conn=None, **kwargs):
+@login_required(isAdmin=True)
+def su (request, user, conn=None, **kwargs):
     """
     If current user is admin, switch the session to a new connection owned by 'user'
     (puts the new session ID in the request.session)
@@ -2160,26 +2161,17 @@ def su (request, user, server_id=None, conn=None, **kwargs):
     
     @param request:     http request.
     @param user:        Username of new connection owner
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway}
     @param **kwargs:    Can be used to specify the html 'template' for rendering
     @return:            Boolean
     """
-    if not conn.canBeAdmin():
-        return False
     conn.setGroupNameForSession('system')
-    if server_id is None:
-        # If no server id is passed, the db entry will not be used and instead we'll depend on the
-        # request.session and request.REQUEST values
-        try:
-            server_id = request.session['server']
-        except KeyError:
-            return None
-    browsersession_connection_key = 'cuuid#%s'%server_id
-    c = conn.suConn(user,
-                     ttl=conn.getSessionService().getSession(conn._sessionUuid).getTimeToIdle().val)
+    connector = request.session['connector']
+    connector = Connector(connector.server_id, connector.is_secure)
+    session = conn.getSessionService().getSession(conn._sessionUuid)
+    ttl = session.getTimeToIdle().val
+    connector.omero_session_key = conn.suConn(user, ttl=ttl)._sessionUuid
+    request.session['connector'] = connector
     conn.revertGroupForSession()
-    _conn.seppuku()
-    logger.debug(browsersession_connection_key)
-    request.session[browsersession_connection_key] = c._sessionUuid
+    conn.seppuku()
     return True
