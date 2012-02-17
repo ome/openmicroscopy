@@ -1026,7 +1026,8 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp    
     
-def render_image (request, iid, z, t, server_id=None, conn=None, **kwargs):
+@login_required()
+def render_image (request, iid, z, t, conn=None, **kwargs):
     """ 
     Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
     Many options are available from the request dict. See L{getImgDetailsFromReq} for list.
@@ -1036,11 +1037,10 @@ def render_image (request, iid, z, t, server_id=None, conn=None, **kwargs):
     @param iid:         image ID
     @param z:           Z index
     @param t:           T index
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway} connection
     @return:            http response wrapping jpeg
     """
-    
+    server_id = request.session['connector'].server_id
     pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
     if pi is None:
         raise Http404
