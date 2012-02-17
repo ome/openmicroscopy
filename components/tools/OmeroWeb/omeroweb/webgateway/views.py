@@ -1525,13 +1525,13 @@ def imageMarshal (image, key=None):
     return rv
 
 @jsonp
-def imageData_json (request, server_id=None, conn=None, _internal=False, **kwargs):
+@login_required()
+def imageData_json (request, conn=None, _internal=False, **kwargs):
     """
     Get a dict with image information
     TODO: cache
     
     @param request:     http request
-    @param server_id:
     @param conn:        L{omero.gateway.BlitzGateway}
     @param _internal:   TODO: ? 
     @return:            Dict
@@ -1539,8 +1539,7 @@ def imageData_json (request, server_id=None, conn=None, _internal=False, **kwarg
     
     iid = kwargs['iid']
     key = kwargs.get('key', None)
-    blitzcon = conn
-    image = blitzcon.getObject("Image", iid)
+    image = conn.getObject("Image", iid)
     if image is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
     rv = imageMarshal(image, key)
