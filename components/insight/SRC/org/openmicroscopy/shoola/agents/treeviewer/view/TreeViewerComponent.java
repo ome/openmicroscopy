@@ -46,7 +46,6 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
@@ -73,6 +72,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.MoveGroupSelectionDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.NotDeletedObjectDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
 import org.openmicroscopy.shoola.agents.util.browser.ContainerFinder;
@@ -169,7 +169,7 @@ class TreeViewerComponent
 	
 	/** The dialog displaying the selected script.*/
 	private ScriptingDialog     scriptDialog;
-	
+
 	/**
 	 * Moves the objects.
 	 * 
@@ -4175,7 +4175,7 @@ class TreeViewerComponent
 		Map<SecurityContext, List<DataObject>> 
 		map = new HashMap<SecurityContext, List<DataObject>>();
 		Iterator<DataObject> i = nodes.iterator();
-		boolean b = false;
+		Class b = null;
 		DataObject data;
 		SecurityContext ctx;
 		long gid;
@@ -4183,7 +4183,8 @@ class TreeViewerComponent
 		long refgid = group.getId();
 		while (i.hasNext()) {
 			data = i.next();
-			b = (data instanceof ProjectData || data instanceof ScreenData);
+			if (data instanceof ProjectData || data instanceof ScreenData)
+				b = data.getClass();
 			gid = data.getGroupId();
 			if (gid != refgid) {
 				ctx = getKey(map, gid);
@@ -4201,10 +4202,15 @@ class TreeViewerComponent
 			un.notifyInfo("Move Data ", "No data to move to "+group.getName());
 			return;
 		}
-		if (b) { //move The data
-			moveData(new SecurityContext(refgid), null, map);
+		ctx = new SecurityContext(refgid);
+		if (b != null) { //move The data
+			moveData(ctx, null, map);
 		} else { //load the collection for the specified group
-			
+			ExperimenterData exp = TreeViewerAgent.getUserDetails();
+			MoveGroupSelectionDialog dialog = new MoveGroupSelectionDialog(view,
+					exp.getId(), group,  map);
+			UIUtilities.centerAndShow(dialog);
+			model.fireMoveDataLoading(ctx, dialog, b);
 		}
 	}
 

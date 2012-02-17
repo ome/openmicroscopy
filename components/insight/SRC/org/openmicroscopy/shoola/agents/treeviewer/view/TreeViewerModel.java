@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataObjectUpdater;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsSaver;
+import org.openmicroscopy.shoola.agents.treeviewer.MoveDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.OriginalFileLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ParentLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.PlateWellsLoader;
@@ -64,6 +65,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
+import org.openmicroscopy.shoola.agents.treeviewer.util.MoveGroupSelectionDialog;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
@@ -1345,6 +1347,20 @@ class TreeViewerModel
 	void setSelectedGroupId(long selectedGroupId)
 	{
 		this.selectedGroupId = selectedGroupId;
+	}
+
+	/**
+	 * Loads the data.
+	 * 
+	 * @param ctx The security context.
+	 * @param dialog The dialog where to display the result.
+	 * @param type The node type.
+	 */
+	void fireMoveDataLoading(SecurityContext ctx,
+			MoveGroupSelectionDialog dialog, Class type)
+	{
+		MoveDataLoader loader = new MoveDataLoader(component, ctx, type, dialog);
+		loader.load();
 	}
 
 }
