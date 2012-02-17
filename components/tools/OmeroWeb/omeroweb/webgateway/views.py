@@ -1845,7 +1845,8 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @jsonp
-def copy_image_rdef_json (request, server_id=None, conn=None, _internal=False, **kwargs):
+@login_required()
+def copy_image_rdef_json (request, conn=None, _internal=False, **kwargs):
     """
     Copy the rendering settings from one image to a list of images.
     Images are specified in request by 'fromid' and list of 'toids'
@@ -1871,23 +1872,22 @@ def copy_image_rdef_json (request, server_id=None, conn=None, _internal=False, *
 #        if _conn is None:
 #            blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
 #        else:
-        blitzcon = conn
             
-        fromimg = blitzcon.getObject("Image", fromid)
+        fromimg = conn.getObject("Image", fromid)
         details = fromimg.getDetails()
         frompid = fromimg.getPixelsId()
         newConn = None
-        if blitzcon.isAdmin():
+        if conn.isAdmin():
             p = omero.sys.Principal()
             p.name = details.getOwner().omeName
             p.group = details.getGroup().name
             p.eventType = "User"
             # This connection will have a 20 minute timeout
-            newConnId = blitzcon.getSessionService().createSessionWithTimeout(p, 1200000)
-            newConn = blitzcon.clone()
+            newConnId = conn.getSessionService().createSessionWithTimeout(p, 1200000)
+            newConn = conn.clone()
             newConn.connect(sUuid=newConnId.getUuid().val)
         elif fromimg.isEditable():
-            newConn = blitzcon
+            newConn = conn
             newConn.setGroupForSession(details.getGroup().getId())
 
         if newConn is not None and newConn.isConnected():
