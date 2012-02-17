@@ -73,8 +73,8 @@ public class DataObjectTransfer extends BatchCallTree
     		public ProcessCallback initialize() throws Exception
     		{
     			OmeroDataService os = context.getDataService();
-    			TransferCallback cb = os.transfer(value.getTargetContext(),
-    					value.getTarget(), ctx, values);
+    			TransferCallback cb = os.transfer(ctx, value.getTargetContext(),
+    					value.getTarget(), values);
     			if (cb == null) {
     				callBack = Boolean.valueOf(false);
                 	return null;

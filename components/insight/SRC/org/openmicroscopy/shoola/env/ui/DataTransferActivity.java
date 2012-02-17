@@ -45,17 +45,17 @@ public class DataTransferActivity
 {
 
 	/** The description of the activity. */
-	private static final String		DESCRIPTION_START = "Transferring data to ";
+	private static final String		DESCRIPTION_START = "Moving data to ";
 		
 	/** The description of the activity when finished. */
-	private static final String		DESCRIPTION_END = "Transfer completed";
+	private static final String		DESCRIPTION_END = "Moved completed";
 	
 	/** The description of the activity when error occurred. */
 	private static final String		DESCRIPTION_ERROR =
 		"Unable to transfer data";
 	
 	/** The description of the activity when cancelled. */
-	private static final String		DESCRIPTION_CANCEL = "Transfer cancelled";
+	private static final String		DESCRIPTION_CANCEL = "Move cancelled";
 	
 	/** The parameters hosting information about the transfer. */
     private TransferableActivityParam parameters;
@@ -80,7 +80,7 @@ public class DataTransferActivity
 		int n = parameters.getNumber();
 		String end = "";
 		if (n > 1) end = "s";
-		messageLabel.setText("tranfer "+n+" object"+end);
+		messageLabel.setText("move "+n+" object"+end);
 	}
 	
 	/**

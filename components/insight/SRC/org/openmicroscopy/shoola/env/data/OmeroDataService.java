@@ -442,9 +442,9 @@ public interface OmeroDataService
 	 * Transfers the collection of objects. The objects should all be of the 
 	 * same types. Returns a handle to monitor the status of the transfer.
 	 * 
-	 * @param target The context of the target.
-	 * @param targetNode The elements to transfer the data into.
 	 * @param ctx The security context.
+	 * @param target The context of the target.
+	 * @param targetNode The elements to transfer the data to.
 	 * @param objects The collection of objects to transfer.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -452,9 +452,9 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 * @throws ProcessException If an error occurred while starting the process.
 	 */
-	public TransferCallback transfer(SecurityContext target,
-		List<DataObject> targetNode, SecurityContext ctx, 
+	public TransferCallback transfer( SecurityContext ctx,
+			SecurityContext target, List<DataObject> targetNode, 
 		List<DataObject> objects)
 		throws DSOutOfServiceException, DSAccessException, ProcessException;
-	
+
 }
