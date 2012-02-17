@@ -1638,20 +1638,19 @@ def listImages_json (request, did, conn=None, **kwargs):
     return map(lambda x: x.simpleMarshal(xtra=xtra), dataset.listChildren())
 
 @jsonp
-def listWellImages_json (request, did, server_id=None, conn=None, **kwargs):
+@login_required()
+def listWellImages_json (request, did, conn=None, **kwargs):
     """
     lists all Images in a Well, as json
     TODO: cache
     
     @param request:     http request
     @param did:         Well ID
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway}
     @return:            list of image json. 
     """
     
-    blitzcon = conn
-    well = blitzcon.getObject("Well", did)
+    well = conn.getObject("Well", did)
     if well is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
