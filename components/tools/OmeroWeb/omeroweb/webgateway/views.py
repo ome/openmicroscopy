@@ -1660,20 +1660,19 @@ def listWellImages_json (request, did, conn=None, **kwargs):
     return map(lambda x: x.getImage() and x.getImage().simpleMarshal(xtra=xtra), well.listChildren())
 
 @jsonp
-def listDatasets_json (request, pid, server_id=None, conn=None, **kwargs):
+@login_required()
+def listDatasets_json (request, pid, conn=None, **kwargs):
     """
     lists all Datasets in a Project, as json
     TODO: cache
     
     @param request:     http request
     @param pid:         Project ID
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway}
     @return:            list of dataset json.
     """
     
-    blitzcon = conn
-    project = blitzcon.getObject("Project", pid)
+    project = conn.getObject("Project", pid)
     rv = []
     if project is None:
         return HttpResponse('[]', mimetype='application/javascript')
