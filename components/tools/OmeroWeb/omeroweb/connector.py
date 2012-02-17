@@ -60,20 +60,20 @@ class Connector(object):
     def create_connection(self, useragent, username, password):
         try:
             connection = self.create_gateway(useragent, username, password)
-            connection.connect()
-            self.prepare_gateway(connection)
-            return connection
+            if connection.connect():
+                self.prepare_gateway(connection)
+                return connection
         except:
             logger.debug('Cannot create a new connection.', exc_info=True)
-            return None
+        return None
 
     def join_connection(self, useragent):
         try:
             connection = self.create_gateway(useragent)
-            connection.connect(sUuid=self.omero_session_key)
-            self.prepare_gateway(connection)
-            return connection
+            if connection.connect(sUuid=self.omero_session_key):
+                self.prepare_gateway(connection)
+                return connection
         except:
             logger.debug('Cannot create a new connection.', exc_info=True)
-            return None
+        return None
 
