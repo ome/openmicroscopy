@@ -1304,11 +1304,6 @@ def jsonp (f):
                 server_id = request.session.get('server', None)
             kwargs['server_id'] = server_id
             conn = kwargs.get('conn', None)
-            if conn is None:
-                blitzcon = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
-                kwargs['conn'] = blitzcon
-            if kwargs['conn'] is None or not kwargs['conn'].isConnected():
-                return HttpResponseServerError('"failed connection"', mimetype='application/javascript')
             rv = f(request, *args, **kwargs)
             if conn is not None and kwargs.get('_internal', False):
                 return rv
