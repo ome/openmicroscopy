@@ -541,7 +541,7 @@ def serverid (func):
 
 @serverid
 def render_birds_eye_view (request, iid, server_id=None, size=None,
-                           _conn=None, **kwargs):
+                           conn=None, **kwargs):
     """
     Returns an HttpResponse wrapped jpeg with the rendered bird's eye view
     for image 'iid'. Rendering settings can be specified in the request
@@ -554,14 +554,14 @@ def render_birds_eye_view (request, iid, server_id=None, size=None,
     @param server_id:   Optional, used for getting connection if needed etc
     @return:            http response containing jpeg
     """
-    if _conn is None:
+    if conn is None:
         blitzcon = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
     else:
-        blitzcon = _conn
+        blitzcon = conn
     if blitzcon is None or not blitzcon.isConnected():
         logger.debug("failed connect, HTTP404")
         raise Http404
-    img = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn)
+    img = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
     if img is None:
         logger.debug("(b)Image %s not found..." % (str(iid)))
         raise Http404
@@ -569,7 +569,7 @@ def render_birds_eye_view (request, iid, server_id=None, size=None,
     return HttpResponse(img.renderBirdsEyeView(size), mimetype='image/jpeg')
 
 @serverid
-def render_thumbnail (request, iid, server_id=None, w=None, h=None, _conn=None, _defcb=None, **kwargs):
+def render_thumbnail (request, iid, server_id=None, w=None, h=None, conn=None, _defcb=None, **kwargs):
     """ 
     Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image 'iid' 
     
@@ -587,10 +587,10 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, _conn=None, 
             size = (int(w),)
         else:
             size = (int(w), int(h))
-    if _conn is None:
+    if conn is None:
         blitzcon = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
     else:
-        blitzcon = _conn
+        blitzcon = conn
     if blitzcon is None or not blitzcon.isConnected():
         logger.debug("failed connect, HTTP404")
         raise Http404
@@ -626,17 +626,17 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, _conn=None, 
 
 
 @serverid
-def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=None, **kwargs):
+def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, conn=None, **kwargs):
     """
     For the given ROI, choose the shape to render (first time-point, mid z-section) then render 
     a region around that shape, scale to width and height (or default size) and draw the
     shape on to the region
     """
-    if _conn is None:
-        _conn = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
+    if conn is None:
+        conn = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
 
     # need to find the z indices of the first shape in T
-    roiResult = _conn.getRoiService().findByRoi(long(roiId), None)
+    roiResult = conn.getRoiService().findByRoi(long(roiId), None)
     if roiResult is None or roiResult.rois is None:
         raise Http404
     zz = set()
@@ -661,40 +661,40 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
     midZ = zList[len(zList)/2]
     s = shapes[(midZ, minT)]
     
-    pi = _get_prepared_image(request, imageId, server_id=server_id, _conn=_conn)
+    pi = _get_prepared_image(request, imageId, server_id=server_id, conn=conn)
     
     if pi is None:
         raise Http404
     image, compress_quality = pi
 
-    return get_shape_thumbnail (request, _conn, image, s, compress_quality)
+    return get_shape_thumbnail (request, conn, image, s, compress_quality)
 
 
 @serverid
-def render_shape_thumbnail (request, shapeId, server_id=None, w=None, h=None, _conn=None, **kwargs):
+def render_shape_thumbnail (request, shapeId, server_id=None, w=None, h=None, conn=None, **kwargs):
     """
     For the given Shape, redner a region around that shape, scale to width and height (or default size) and draw the
     shape on to the region. 
     """
-    if _conn is None:
-        _conn = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
+    if conn is None:
+        conn = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
 
     # need to find the z indices of the first shape in T
     params = omero.sys.Parameters()
     params.map = {'id':rlong(shapeId)}
-    shape = _conn.getQueryService().findByQuery("select s from Shape s join fetch s.roi where s.id = :id", params)
+    shape = conn.getQueryService().findByQuery("select s from Shape s join fetch s.roi where s.id = :id", params)
 
     if shape is None:
         raise Http404
 
     imageId = shape.roi.image.id.val
 
-    pi = _get_prepared_image(request, imageId, server_id=server_id, _conn=_conn)
+    pi = _get_prepared_image(request, imageId, server_id=server_id, conn=conn)
     if pi is None:
         raise Http404
     image, compress_quality = pi
 
-    return get_shape_thumbnail (request, _conn, image, shape, compress_quality)
+    return get_shape_thumbnail (request, conn, image, shape, compress_quality)
 
 
 def get_shape_thumbnail (request, conn, image, s, compress_quality):
@@ -934,7 +934,7 @@ def _get_signature_from_request (request):
     return rv
 
 @serverid
-def _get_prepared_image (request, iid, server_id=None, _conn=None, saveDefs=False, retry=True):
+def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False, retry=True):
     """
     Fetches the Image object for image 'iid' and prepares it according to the request query, setting the channels,
     rendering model and projection arguments. The compression level is parsed and returned too.
@@ -943,7 +943,7 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, saveDefs=Fals
     @param request:     http request
     @param iid:         Image ID
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @param conn:        L{omero.gateway.BlitzGateway} connection
     @param with_session:    If true, attempt to use existing session
     @param saveDefs:    Try to save the rendering settings, default z and t. 
     @param retry:       Try an extra attempt at this method
@@ -953,11 +953,11 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, saveDefs=Fals
     logger.debug('Preparing Image:%r saveDefs=%r ' \
                  'retry=%r request=%r conn=%s' % (iid, saveDefs, retry,
                  r, str(_conn)))
-    if _conn is None:
-        _conn = getBlitzConnection(request, server_id=server_id, useragent="OMERO.webgateway")
-    if _conn is None or not _conn.isConnected():
+    if conn is None:
+        conn = getBlitzConnection(request, server_id=server_id, useragent="OMERO.webgateway")
+    if conn is None or not _conn.isConnected():
         return HttpResponseServerError('""', mimetype='application/javascript')
-    img = _conn.getObject("Image", iid)
+    img = conn.getObject("Image", iid)
     if r.has_key('c'):
         logger.debug("c="+r['c'])
         channels, windows, colors =  _split_channel_info(r['c'])
@@ -984,7 +984,7 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, saveDefs=Fals
                 if x.message.find('Session is dirty') >= 0:
                     if retry:
                         # retry once, to get around "Session is dirty" exceptions
-                        return _get_prepared_image(request, iid=iid, server_id=server_id, _conn=_conn, saveDefs=saveDefs, retry=False)
+                        return _get_prepared_image(request, iid=iid, server_id=server_id, conn=conn, saveDefs=saveDefs, retry=False)
                     logger.debug("Session is dirty, bailing out")
                     raise
             else:
@@ -992,7 +992,7 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, saveDefs=Fals
     return (img, compress_quality)
 
 @serverid
-def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs):
+def render_image_region(request, iid, z, t, server_id=None, conn=None, **kwargs):
     """
     Returns a jpeg of the OMERO image, rendering only a region specified in query string as
     region=x,y,width,height. E.g. region=0,512,256,256 
@@ -1003,7 +1003,7 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
     @param z:           Z index
     @param t:           T index
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @param conn:        L{omero.gateway.BlitzGateway} connection
     @return:            http response wrapping jpeg
     """
     
@@ -1011,7 +1011,7 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
     # alternatively, could return a 404?    
     #if h == None:
     #    return render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs)
-    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn)
+    pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
     
     if pi is None:
         raise Http404
@@ -1063,7 +1063,7 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
     return rsp    
     
 @serverid
-def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
+def render_image (request, iid, z, t, server_id=None, conn=None, **kwargs):
     """ 
     Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
     Many options are available from the request dict. See L{getImgDetailsFromReq} for list.
@@ -1074,11 +1074,11 @@ def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
     @param z:           Z index
     @param t:           T index
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @param conn:        L{omero.gateway.BlitzGateway} connection
     @return:            http response wrapping jpeg
     """
     
-    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn)
+    pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
     if pi is None:
         raise Http404
     img, compress_quality = pi
@@ -1102,7 +1102,7 @@ def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
     return rsp
 
 @serverid
-def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
+def render_ome_tiff (request, ctx, cid, server_id=None, conn=None, **kwargs):
     """
     Renders the OME-TIFF representation of the image(s) with id cid in ctx (i)mage,
     (d)ataset, or (p)roject.
@@ -1111,23 +1111,23 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
     @param ctx:         'p' or 'd' or 'i'
     @param cid:         Project, Dataset or Image ID
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @param conn:        L{omero.gateway.BlitzGateway} connection
     @return:            http response wrapping the tiff (or zip for multiple files), or redirect to temp file/zip
     """
-    if _conn is None:
-        _conn = getBlitzConnection(request, server_id=server_id, with_session=False, useragent="OMERO.webgateway")
-    if _conn is None or not _conn.isConnected():
+    if conn is None:
+        conn = getBlitzConnection(request, server_id=server_id, with_session=False, useragent="OMERO.webgateway")
+    if conn is None or not conn.isConnected():
         return HttpResponseServerError('""', mimetype='application/javascript')
     imgs = []
     if ctx == 'p':
-        obj = _conn.getObject("Project", cid)
+        obj = conn.getObject("Project", cid)
         if obj is None:
             raise Http404
         for d in obj.listChildren():
             imgs.extend(list(d.listChildren()))
         name = obj.getName()
     elif ctx == 'd':
-        obj = _conn.getObject("Dataset", cid)
+        obj = conn.getObject("Dataset", cid)
         if obj is None:
             raise Http404
         imgs.extend(list(obj.listChildren()))
@@ -1141,7 +1141,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
                 raise Http404
         name = '%s-%s' % (obj.getParent().getName(), obj.getName())
     elif ctx == 'w':
-        obj = _conn.getObject("Well", cid)
+        obj = conn.getObject("Well", cid)
         if obj is None:
             raise Http404
         imgs.extend([x.getImage() for x in obj.listChildren()])
@@ -1149,7 +1149,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
         coord = "%s%s" % (plate.getRowLabels()[obj.row],plate.getColumnLabels()[obj.column])
         name = '%s-%s-%s' % (plate.getParent().getName(), plate.getName(), coord)
     else:
-        obj = _conn.getObject("Image", cid)
+        obj = conn.getObject("Image", cid)
         if obj is None:
             raise Http404
         imgs.append(obj)
@@ -1213,7 +1213,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
         return HttpResponseRedirect(settings.STATIC_URL + 'webgateway/tfiles/' + rpath)
 
 @serverid
-def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs):
+def render_movie (request, iid, axis, pos, server_id=None, conn=None, **kwargs):
     """ 
     Renders a movie from the image with id iid
     
@@ -1222,7 +1222,7 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
     @param axis:        Movie frames are along 'z' or 't' dimension. String
     @param pos:         The T index (for z axis) or Z index (for t axis)
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @param conn:        L{omero.gateway.BlitzGateway} connection
     @return:            http response wrapping the file, or redirect to temp file
     """
     
@@ -1237,7 +1237,7 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
                                   request.REQUEST.get('format', 'quicktime'))
         
         pos = int(pos)
-        pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn)
+        pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
         if pi is None:
             raise Http404
         img, compress_quality = pi
@@ -1281,7 +1281,7 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
         raise
         
 @serverid    
-def render_split_channel (request, iid, z, t, server_id=None, _conn=None, **kwargs):
+def render_split_channel (request, iid, z, t, server_id=None, conn=None, **kwargs):
     """
     Renders a split channel view of the image with id {{iid}} at {{z}} and {{t}} as jpeg.
     Many options are available from the request dict.
@@ -1292,11 +1292,11 @@ def render_split_channel (request, iid, z, t, server_id=None, _conn=None, **kwar
     @param z:           Z index
     @param t:           T index
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @param conn:        L{omero.gateway.BlitzGateway} connection
     @return:            http response wrapping a jpeg
     """
     
-    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn)
+    pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
     if pi is None:
         raise Http404
     img, compress_quality = pi
@@ -1346,14 +1346,14 @@ def jsonp (f):
             if server_id is None:
                 server_id = request.session.get('server', None)
             kwargs['server_id'] = server_id
-            _conn = kwargs.get('_conn', None)
-            if _conn is None:
+            conn = kwargs.get('conn', None)
+            if conn is None:
                 blitzcon = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
-                kwargs['_conn'] = blitzcon
-            if kwargs['_conn'] is None or not kwargs['_conn'].isConnected():
+                kwargs['conn'] = blitzcon
+            if kwargs['conn'] is None or not kwargs['conn'].isConnected():
                 return HttpResponseServerError('"failed connection"', mimetype='application/javascript')
             rv = f(request, *args, **kwargs)
-            if _conn is not None and kwargs.get('_internal', False):
+            if conn is not None and kwargs.get('_internal', False):
                 return rv
             if isinstance(rv, HttpResponseServerError):
                 return rv
@@ -1361,7 +1361,7 @@ def jsonp (f):
             c = request.REQUEST.get('callback', None)
             if c is not None and not kwargs.get('_internal', False):
                 rv = '%s(%s)' % (c, rv)
-            if _conn is not None or kwargs.get('_internal', False):
+            if conn is not None or kwargs.get('_internal', False):
                 return rv
             return HttpResponse(rv, mimetype='application/javascript')
         except omero.ServerError:
@@ -1386,7 +1386,7 @@ def jsonp (f):
 
 @debug
 @serverid
-def render_row_plot (request, iid, z, t, y, server_id=None, _conn=None, w=1, **kwargs):
+def render_row_plot (request, iid, z, t, y, server_id=None, conn=None, w=1, **kwargs):
     """
     Renders the line plot for the image with id {{iid}} at {{z}} and {{t}} as gif with transparent background.
     Many options are available from the request dict.
@@ -1399,14 +1399,14 @@ def render_row_plot (request, iid, z, t, y, server_id=None, _conn=None, w=1, **k
     @param t:           T index
     @param y:           Y position of row to measure
     @param server_id:
-    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @param conn:        L{omero.gateway.BlitzGateway} connection
     @param w:           Line width
     @return:            http response wrapping a gif
     """
     
     if not w:
         w = 1
-    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn)
+    pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
     if pi is None:
         raise Http404
     img, compress_quality = pi
@@ -1422,7 +1422,7 @@ def render_row_plot (request, iid, z, t, y, server_id=None, _conn=None, w=1, **k
 
 @debug
 @serverid
-def render_col_plot (request, iid, z, t, x, w=1, server_id=None, _conn=None, **kwargs):
+def render_col_plot (request, iid, z, t, x, w=1, server_id=None, conn=None, **kwargs):
     """ 
     Renders the line plot for the image with id {{iid}} at {{z}} and {{t}} as gif with transparent background.
     Many options are available from the request dict.
@@ -1435,14 +1435,14 @@ def render_col_plot (request, iid, z, t, x, w=1, server_id=None, _conn=None, **k
     @param t:           T index
     @param x:           X position of column to measure
     @param server_id:
-    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @param conn:        L{omero.gateway.BlitzGateway} connection
     @param w:           Line width
     @return:            http response wrapping a gif
     """
     
     if not w:
         w = 1
-    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn)
+    pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
     if pi is None:
         raise Http404
     img, compress_quality = pi
@@ -1575,21 +1575,21 @@ def imageMarshal (image, key=None):
     return rv
 
 @jsonp
-def imageData_json (request, server_id=None, _conn=None, _internal=False, **kwargs):
+def imageData_json (request, server_id=None, conn=None, _internal=False, **kwargs):
     """
     Get a dict with image information
     TODO: cache
     
     @param request:     http request
     @param server_id:
-    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param conn:        L{omero.gateway.BlitzGateway}
     @param _internal:   TODO: ? 
     @return:            Dict
     """
     
     iid = kwargs['iid']
     key = kwargs.get('key', None)
-    blitzcon = _conn
+    blitzcon = conn
     image = blitzcon.getObject("Image", iid)
     if image is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
@@ -1597,20 +1597,20 @@ def imageData_json (request, server_id=None, _conn=None, _internal=False, **kwar
     return rv
 
 @jsonp
-def wellData_json (request, server_id=None, _conn=None, _internal=False, **kwargs):
+def wellData_json (request, server_id=None, conn=None, _internal=False, **kwargs):
     """
     Get a dict with image information
     TODO: cache
     
     @param request:     http request
     @param server_id:
-    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param conn:        L{omero.gateway.BlitzGateway}
     @param _internal:   TODO: ? 
     @return:            Dict
     """
     
     wid = kwargs['wid']
-    blitzcon = _conn
+    blitzcon = conn
     well = blitzcon.getObject("Well", wid)
     if well is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
@@ -1622,10 +1622,10 @@ def wellData_json (request, server_id=None, _conn=None, _internal=False, **kwarg
     return rv
 
 @jsonp
-def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs):
+def plateGrid_json (request, pid, field=0, server_id=None, conn=None, **kwargs):
     """
     """
-    plate = _conn.getObject('plate', long(pid))
+    plate = conn.getObject('plate', long(pid))
     try:
         field = long(field or 0)
     except ValueError:
@@ -1666,7 +1666,7 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
     return rv
 
 @jsonp
-def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
+def listImages_json (request, did, server_id=None, conn=None, **kwargs):
     """
     lists all Images in a Dataset, as json
     TODO: cache
@@ -1674,11 +1674,11 @@ def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
     @param request:     http request
     @param did:         Dataset ID
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param conn:        L{omero.gateway.BlitzGateway}
     @return:            list of image json. 
     """
     
-    blitzcon = _conn
+    blitzcon = conn
     dataset = blitzcon.getObject("Dataset", did)
     if dataset is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
@@ -1689,7 +1689,7 @@ def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
     return map(lambda x: x.simpleMarshal(xtra=xtra), dataset.listChildren())
 
 @jsonp
-def listWellImages_json (request, did, server_id=None, _conn=None, **kwargs):
+def listWellImages_json (request, did, server_id=None, conn=None, **kwargs):
     """
     lists all Images in a Well, as json
     TODO: cache
@@ -1697,11 +1697,11 @@ def listWellImages_json (request, did, server_id=None, _conn=None, **kwargs):
     @param request:     http request
     @param did:         Well ID
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param conn:        L{omero.gateway.BlitzGateway}
     @return:            list of image json. 
     """
     
-    blitzcon = _conn
+    blitzcon = conn
     well = blitzcon.getObject("Well", did)
     if well is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
@@ -1712,7 +1712,7 @@ def listWellImages_json (request, did, server_id=None, _conn=None, **kwargs):
     return map(lambda x: x.getImage() and x.getImage().simpleMarshal(xtra=xtra), well.listChildren())
 
 @jsonp
-def listDatasets_json (request, pid, server_id=None, _conn=None, **kwargs):
+def listDatasets_json (request, pid, server_id=None, conn=None, **kwargs):
     """
     lists all Datasets in a Project, as json
     TODO: cache
@@ -1720,11 +1720,11 @@ def listDatasets_json (request, pid, server_id=None, _conn=None, **kwargs):
     @param request:     http request
     @param pid:         Project ID
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param conn:        L{omero.gateway.BlitzGateway}
     @return:            list of dataset json.
     """
     
-    blitzcon = _conn
+    blitzcon = conn
     project = blitzcon.getObject("Project", pid)
     rv = []
     if project is None:
@@ -1732,35 +1732,35 @@ def listDatasets_json (request, pid, server_id=None, _conn=None, **kwargs):
     return [x.simpleMarshal(xtra={'childCount':0}) for x in project.listChildren()]
 
 @jsonp
-def datasetDetail_json (request, did, server_id=None, _conn=None, **kwargs):
+def datasetDetail_json (request, did, server_id=None, conn=None, **kwargs):
     """
     return json encoded details for a dataset
     TODO: cache
     """
-    blitzcon = _conn
+    blitzcon = conn
     ds = blitzcon.getObject("Dataset", did)
     return ds.simpleMarshal()
 
 @jsonp
-def listProjects_json (request, server_id=None, _conn=None, **kwargs):
+def listProjects_json (request, server_id=None, conn=None, **kwargs):
     """
     lists all Projects, as json
     TODO: cache
     
     @param request:     http request
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param conn:        L{omero.gateway.BlitzGateway}
     @return:            list of project json.
     """
     
-    blitzcon = _conn
+    blitzcon = conn
     rv = []
     for pr in blitzcon.listProjects():
         rv.append( {'id': pr.id, 'name': pr.name, 'description': pr.description or ''} )
     return rv
 
 @jsonp
-def projectDetail_json (request, pid, server_id=None, _conn=None, **kwargs):
+def projectDetail_json (request, pid, server_id=None, conn=None, **kwargs):
     """
     grab details from one specific project
     TODO: cache
@@ -1768,11 +1768,11 @@ def projectDetail_json (request, pid, server_id=None, _conn=None, **kwargs):
     @param request:     http request
     @param pid:         Project ID
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param conn:        L{omero.gateway.BlitzGateway}
     @return:            project details as dict.
     """
     
-    blitzcon = _conn
+    blitzcon = conn
     pr = blitzcon.getObject("Project", pid)
     rv = pr.simpleMarshal()
     return rv
@@ -1815,7 +1815,7 @@ def searchOptFromRequest (request):
 
 @TimeIt(logging.INFO)
 @jsonp
-def search_json (request, server_id=None, _conn=None, **kwargs):
+def search_json (request, server_id=None, conn=None, **kwargs):
     """
     Search for objects in blitz.
     Returns json encoded list of marshalled objects found by the search query
@@ -1831,7 +1831,7 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     
     @param request:     http request
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param conn:        L{omero.gateway.BlitzGateway}
     @return:            json search results
     TODO: cache
     """
@@ -1845,9 +1845,9 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     pks = None
     try:
         if opts['ctx'] == 'imgs':
-            sr = _conn.searchObjects(["image"], opts['search'], _conn.CONFIG['SERVICE_OPTS'])
+            sr = conn.searchObjects(["image"], opts['search'], conn.CONFIG['SERVICE_OPTS'])
         else:
-            sr = _conn.searchObjects(None, opts['search'], _conn.CONFIG['SERVICE_OPTS'])  # searches P/D/I
+            sr = conn.searchObjects(None, opts['search'], conn.CONFIG['SERVICE_OPTS'])  # searches P/D/I
     except ApiUsageException:
         return HttpResponseServerError('"parse exception"', mimetype='application/javascript')
     def marshal ():
@@ -1862,7 +1862,7 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
                 e = sr[i]
             #for e in sr:
                 try:
-                    rv.append(imageData_json(request, server_id, iid=e.id, key=opts['key'], _conn=_conn, _internal=True))
+                    rv.append(imageData_json(request, server_id, iid=e.id, key=opts['key'], conn=conn, _internal=True))
                 except AttributeError, x:
                     logger.debug('(iid %i) ignoring Attribute Error: %s' % (e.id, str(x)))
                     pass
@@ -1902,25 +1902,25 @@ def save_image_rdef_json (request, iid, server_id=None, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @serverid
-def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
+def list_compatible_imgs_json (request, server_id, iid, conn=None, **kwargs):
     """
     Lists the images on the same project that would be viable targets for copying rendering settings.
     TODO: change method to:
-    list_compatible_imgs_json (request, iid, server_id=None, _conn=None, **kwargs):
+    list_compatible_imgs_json (request, iid, server_id=None, conn=None, **kwargs):
     
     @param request:     http request
     @param server_id:   
     @param iid:         Image ID
-    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param conn:        L{omero.gateway.BlitzGateway}
     @return:            json list of image IDs
     """
     
     json_data = 'false'
     r = request.REQUEST
-    if _conn is None:
+    if conn is None:
         blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
     else:
-        blitzcon = _conn
+        blitzcon = conn
     if blitzcon is None or not blitzcon.isConnected():
         img = None
     else:
@@ -1958,7 +1958,7 @@ def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
 
 @jsonp
 @serverid
-def copy_image_rdef_json (request, server_id=None, _conn=None, _internal=False, **kwargs):
+def copy_image_rdef_json (request, server_id=None, conn=None, _internal=False, **kwargs):
     """
     Copy the rendering settings from one image to a list of images.
     Images are specified in request by 'fromid' and list of 'toids'
@@ -1967,7 +1967,7 @@ def copy_image_rdef_json (request, server_id=None, _conn=None, _internal=False, 
     
     @param request:     http request
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param conn:        L{omero.gateway.BlitzGateway}
     @return:            json dict of Boolean:[Image-IDs]
     """
     
@@ -1984,7 +1984,7 @@ def copy_image_rdef_json (request, server_id=None, _conn=None, _internal=False, 
 #        if _conn is None:
 #            blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
 #        else:
-        blitzcon = _conn
+        blitzcon = conn
             
         fromimg = blitzcon.getObject("Image", fromid)
         frompid = fromimg.getPixelsId()
@@ -2010,14 +2010,14 @@ def copy_image_rdef_json (request, server_id=None, _conn=None, _internal=False, 
 
 @serverid
 @jsonp
-def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
+def reset_image_rdef_json (request, iid, server_id=None, conn=None, **kwargs):
     """
     Try to remove all rendering defs the logged in user has for this image.
     
     @param request:     http request
     @param iid:         Image ID
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param conn:        L{omero.gateway.BlitzGateway}
     @return:            json 'true', or 'false' if failed
     """
 #    if _conn is None:
@@ -2029,10 +2029,10 @@ def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
 #    if blitzcon is None or not blitzcon.isConnected():
 #        img = None
 #    else:
-    img = _conn.getObject("Image", iid)
+    img = conn.getObject("Image", iid)
 
     if img is not None and img.resetRDefs():
-        user_id = _conn.getEventContext().userId
+        user_id = conn.getEventContext().userId
         webgateway_cache.invalidateObject(server_id, user_id, img)
         return True
         json_data = 'true'
@@ -2046,7 +2046,7 @@ def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
 #    return HttpResponse(json_data, mimetype='application/javascript')
 
 @serverid
-def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
+def full_viewer (request, iid, server_id=None, conn=None, **kwargs):
     """
     This view is responsible for showing the omero_image template
     Image rendering options in request are used in the display page. See L{getImgDetailsFromReq}.
@@ -2054,22 +2054,22 @@ def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
     @param request:     http request.
     @param iid:         Image ID
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param conn:        L{omero.gateway.BlitzGateway}
     @param **kwargs:    Can be used to specify the html 'template' for rendering
     @return:            html page of image and metadata
     """
     
     rid = getImgDetailsFromReq(request)
     try:
-        if _conn is None:
-            _conn = getBlitzConnection(request, server_id=server_id, useragent="OMERO.webgateway")
-        if _conn is None or not _conn.isConnected():
+        if conn is None:
+            conn = getBlitzConnection(request, server_id=server_id, useragent="OMERO.webgateway")
+        if conn is None or not conn.isConnected():
             raise Http404
-        image = _conn.getObject("Image", iid)
+        image = conn.getObject("Image", iid)
         if image is None:
             logger.debug("(a)Image %s not found..." % (str(iid)))
             raise Http404
-        d = {'blitzcon': _conn,
+        d = {'blitzcon': conn,
              'image': image,
              'opts': rid,
              'viewport_server': kwargs.get('viewport_server', '/webgateway'),
@@ -2088,8 +2088,8 @@ def get_rois_json(request, imageId, server_id=None):
     """
     Returns json data of the ROIs in the specified image. 
     """
-    _conn = getBlitzConnection(request, server_id=server_id, with_session=False, useragent="OMERO.webgateway")
-    if _conn is None or not _conn.isConnected():
+    conn = getBlitzConnection(request, server_id=server_id, with_session=False, useragent="OMERO.webgateway")
+    if conn is None or not conn.isConnected():
         raise Http404
     
     def stringToSvg(string):
@@ -2117,7 +2117,7 @@ def get_rois_json(request, imageId, server_id=None):
         return "#%02x%02x%02x" % (r,g,b) , alpha
             
     rois = []
-    roiService = _conn.getRoiService()
+    roiService = conn.getRoiService()
     #rois = webfigure_utils.getRoiShapes(roiService, long(imageId))  # gets a whole json list of ROIs
     result = roiService.findByImage(long(imageId), None)
     
@@ -2221,7 +2221,7 @@ def test (request):
     return HttpResponse(t.render(c))
 
 @jsonp
-def su (request, user, server_id=None, _conn=None, **kwargs):
+def su (request, user, server_id=None, conn=None, **kwargs):
     """
     If current user is admin, switch the session to a new connection owned by 'user'
     (puts the new session ID in the request.session)
@@ -2230,13 +2230,13 @@ def su (request, user, server_id=None, _conn=None, **kwargs):
     @param request:     http request.
     @param user:        Username of new connection owner
     @param server_id:   
-    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param conn:        L{omero.gateway.BlitzGateway}
     @param **kwargs:    Can be used to specify the html 'template' for rendering
     @return:            Boolean
     """
-    if not _conn.canBeAdmin():
+    if not conn.canBeAdmin():
         return False
-    _conn.setGroupNameForSession('system')
+    conn.setGroupNameForSession('system')
     if server_id is None:
         # If no server id is passed, the db entry will not be used and instead we'll depend on the
         # request.session and request.REQUEST values
@@ -2245,9 +2245,9 @@ def su (request, user, server_id=None, _conn=None, **kwargs):
         except KeyError:
             return None
     browsersession_connection_key = 'cuuid#%s'%server_id
-    c = _conn.suConn(user,
-                     ttl=_conn.getSessionService().getSession(_conn._sessionUuid).getTimeToIdle().val)
-    _conn.revertGroupForSession()
+    c = conn.suConn(user,
+                     ttl=conn.getSessionService().getSession(conn._sessionUuid).getTimeToIdle().val)
+    conn.revertGroupForSession()
     _conn.seppuku()
     logger.debug(browsersession_connection_key)
     request.session[browsersession_connection_key] = c._sessionUuid
