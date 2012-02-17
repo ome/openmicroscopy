@@ -1821,7 +1821,8 @@ def search_json (request, conn=None, **kwargs):
     logger.debug(rv)
     return rv
 
-def save_image_rdef_json (request, iid, server_id=None, **kwargs):
+@login_required()
+def save_image_rdef_json (request, iid, conn=None, **kwargs):
     """
     Requests that the rendering defs passed in the request be set as the default for this image.
     Rendering defs in request listed at L{getImgDetailsFromReq}
@@ -1829,12 +1830,12 @@ def save_image_rdef_json (request, iid, server_id=None, **kwargs):
     
     @param request:     http request
     @param iid:         Image ID
-    @param server_id:   
+    @param conn:        L{omero.gateway.BlitzGateway}
     @return:            http response 'true' or 'false'
     """
-    
+    server_id = request.session['connector'].server_id
     r = request.REQUEST
-    pi = _get_prepared_image(request, iid, server_id=server_id, saveDefs=True)
+    pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn, saveDefs=True)
     if pi is None:
         json_data = 'false'
     else:
