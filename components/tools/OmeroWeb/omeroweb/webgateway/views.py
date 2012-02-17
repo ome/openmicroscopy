@@ -1616,20 +1616,19 @@ def plateGrid_json (request, pid, field=0, conn=None, **kwargs):
     return rv
 
 @jsonp
-def listImages_json (request, did, server_id=None, conn=None, **kwargs):
+@login_required()
+def listImages_json (request, did, conn=None, **kwargs):
     """
     lists all Images in a Dataset, as json
     TODO: cache
     
     @param request:     http request
     @param did:         Dataset ID
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway}
     @return:            list of image json. 
     """
     
-    blitzcon = conn
-    dataset = blitzcon.getObject("Dataset", did)
+    dataset = conn.getObject("Dataset", did)
     if dataset is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
