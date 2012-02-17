@@ -1985,14 +1985,14 @@ def reset_image_rdef_json (request, iid, conn=None, **kwargs):
 #        json_data = '%s(%s)' % (r['callback'], json_data)
 #    return HttpResponse(json_data, mimetype='application/javascript')
 
-def full_viewer (request, iid, server_id=None, conn=None, **kwargs):
+@login_required()
+def full_viewer (request, iid, conn=None, **kwargs):
     """
     This view is responsible for showing the omero_image template
     Image rendering options in request are used in the display page. See L{getImgDetailsFromReq}.
     
     @param request:     http request.
     @param iid:         Image ID
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway}
     @param **kwargs:    Can be used to specify the html 'template' for rendering
     @return:            html page of image and metadata
@@ -2000,10 +2000,6 @@ def full_viewer (request, iid, server_id=None, conn=None, **kwargs):
     
     rid = getImgDetailsFromReq(request)
     try:
-        if conn is None:
-            conn = getBlitzConnection(request, server_id=server_id, useragent="OMERO.webgateway")
-        if conn is None or not conn.isConnected():
-            raise Http404
         image = conn.getObject("Image", iid)
         if image is None:
             logger.debug("(a)Image %s not found..." % (str(iid)))
