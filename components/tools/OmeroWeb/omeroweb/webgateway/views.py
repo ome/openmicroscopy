@@ -1689,20 +1689,19 @@ def datasetDetail_json (request, did, conn=None, **kwargs):
     return ds.simpleMarshal()
 
 @jsonp
-def listProjects_json (request, server_id=None, conn=None, **kwargs):
+@login_required()
+def listProjects_json (request, conn=None, **kwargs):
     """
     lists all Projects, as json
     TODO: cache
     
     @param request:     http request
-    @param server_id:   
     @param conn:        L{omero.gateway.BlitzGateway}
     @return:            list of project json.
     """
     
-    blitzcon = conn
     rv = []
-    for pr in blitzcon.listProjects():
+    for pr in conn.listProjects():
         rv.append( {'id': pr.id, 'name': pr.name, 'description': pr.description or ''} )
     return rv
 
