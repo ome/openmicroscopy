@@ -21,6 +21,8 @@ import java.util.Set;
 
 import omero.model.IObject;
 import omero.util.IceMapper;
+import omero.util.ObjectFactoryRegistry;
+import omero.util.ObjectFactoryRegistry.ObjectFactory;
 import Ice.Current;
 
 /**
@@ -913,30 +915,6 @@ public abstract class rtypes {
 
     }
 
-    public static abstract class ObjectFactory implements Ice.ObjectFactory {
-
-        private final String id;
-
-        public ObjectFactory(String id) {
-            this.id = id;
-        }
-
-        public abstract RType rtype();
-
-        public void register(Ice.Communicator ic) {
-            ic.addObjectFactory(this, id);
-        }
-
-        public Ice.Object create(String arg0) {
-            return rtype();
-        }
-
-        public void destroy() {
-            // noop
-        }
-
-    }
-
     // Shared state (flyweight)
     // =========================================================================
 
@@ -956,115 +934,117 @@ public abstract class rtypes {
 
     private final static omero.RObject rnullobject = new RObjectI(null);
 
-    // Object factories
+    // ObjectFactoryRegistry
     // =========================================================================
 
-    public final static Map<Class, ObjectFactory> ObjectFactories;
+    public static class RTypeObjectFactoryRegistry extends ObjectFactoryRegistry {
 
-    static {
-        Map<Class, ObjectFactory> factories = new HashMap<Class, ObjectFactory>();
-        factories.put(RBool.class, new ObjectFactory(RBool.ice_staticId()) {
+        @Override
+        public Map<String, ObjectFactory> createFactories() {
+            Map<String, ObjectFactory> factories = new HashMap<String, ObjectFactory>();
+            factories.put(RBool.ice_staticId(), new ObjectFactory(RBool.ice_staticId()) {
 
-            @Override
-            public RType rtype() {
-                return new RBoolI(false);
-            }
+                @Override
+                public RType create(String name) {
+                    return new RBoolI(false);
+                }
 
-        });
-        factories.put(RDouble.class, new ObjectFactory(RDouble.ice_staticId()) {
-            @Override
-            public RType rtype() {
-                return new RDoubleI(0.0);
-            }
-        });
-        factories.put(RFloat.class, new ObjectFactory(RFloat.ice_staticId()) {
+            });
+            factories.put(RDouble.ice_staticId(), new ObjectFactory(RDouble.ice_staticId()) {
+                @Override
+                public RType create(String name) {
+                    return new RDoubleI(0.0);
+                }
+            });
+            factories.put(RFloat.ice_staticId(), new ObjectFactory(RFloat.ice_staticId()) {
 
-            @Override
-            public RType rtype() {
-                return new RFloatI(0.0f);
-            }
-        });
-        factories.put(RInt.class, new ObjectFactory(RInt.ice_staticId()) {
+                @Override
+                public RType create(String name) {
+                    return new RFloatI(0.0f);
+                }
+            });
+            factories.put(RInt.ice_staticId(), new ObjectFactory(RInt.ice_staticId()) {
 
-            @Override
-            public RType rtype() {
-                return new RIntI(0);
-            }
-        });
-        factories.put(RLong.class, new ObjectFactory(RLong.ice_staticId()) {
+                @Override
+                public RType create(String name) {
+                    return new RIntI(0);
+                }
+            });
+            factories.put(RLong.ice_staticId(), new ObjectFactory(RLong.ice_staticId()) {
 
-            @Override
-            public RType rtype() {
-                return new RLongI(0L);
-            }
-        });
-        factories.put(RTime.class, new ObjectFactory(RTime.ice_staticId()) {
+                @Override
+                public RType create(String name) {
+                    return new RLongI(0L);
+                }
+            });
+            factories.put(RTime.ice_staticId(), new ObjectFactory(RTime.ice_staticId()) {
 
-            @Override
-            public RType rtype() {
-                return new RTimeI(0L);
-            }
-        });
-        factories.put(RClass.class, new ObjectFactory(RClass.ice_staticId()) {
+                @Override
+                public RType create(String name) {
+                    return new RTimeI(0L);
+                }
+            });
+            factories.put(RClass.ice_staticId(), new ObjectFactory(RClass.ice_staticId()) {
 
-            @Override
-            public RType rtype() {
-                return new RClassI("");
-            }
-        });
-        factories.put(RString.class, new ObjectFactory(RString.ice_staticId()) {
+                @Override
+                public RType create(String name) {
+                    return new RClassI("");
+                }
+            });
+            factories.put(RString.ice_staticId(), new ObjectFactory(RString.ice_staticId()) {
 
-            @Override
-            public RType rtype() {
-                return new RStringI("");
-            }
-        });
-        factories.put(RInternal.class, new ObjectFactory(RInternal
-                .ice_staticId()) {
+                @Override
+                public RType create(String name) {
+                    return new RStringI("");
+                }
+            });
+            factories.put(RInternal.ice_staticId(), new ObjectFactory(RInternal
+                    .ice_staticId()) {
 
-            @Override
-            public RType rtype() {
-                return new RInternalI(null);
-            }
-        });
-        factories.put(RObject.class,
-                new ObjectFactory(RObjectI.ice_staticId()) {
+                @Override
+                public RType create(String name) {
+                    return new RInternalI(null);
+                }
+            });
+            factories.put(RObject.ice_staticId(),
+                    new ObjectFactory(RObjectI.ice_staticId()) {
 
-                    @Override
-                    public RType rtype() {
-                        return new RObjectI(null);
-                    }
-                });
-        factories.put(RArray.class, new ObjectFactory(RArray.ice_staticId()) {
+                        @Override
+                        public RType create(String name) {
+                            return new RObjectI(null);
+                        }
+                    });
+            factories.put(RArray.ice_staticId(), new ObjectFactory(RArray.ice_staticId()) {
 
-            @Override
-            public RType rtype() {
-                return new RArrayI();
-            }
-        });
-        factories.put(RList.class, new ObjectFactory(RList.ice_staticId()) {
+                @Override
+                public RType create(String name) {
+                    return new RArrayI();
+                }
+            });
+            factories.put(RList.ice_staticId(), new ObjectFactory(RList.ice_staticId()) {
 
-            @Override
-            public RType rtype() {
-                return new RListI();
-            }
-        });
-        factories.put(RSet.class, new ObjectFactory(RSet.ice_staticId()) {
+                @Override
+                public RType create(String name) {
+                    return new RListI();
+                }
+            });
+            factories.put(RSet.ice_staticId(), new ObjectFactory(RSet.ice_staticId()) {
 
-            @Override
-            public RType rtype() {
-                return new RSetI();
-            }
-        });
-        factories.put(RMap.class, new ObjectFactory(RMap.ice_staticId()) {
+                @Override
+                public RType create(String name) {
+                    return new RSetI();
+                }
+            });
+            factories.put(RMap.ice_staticId(), new ObjectFactory(RMap.ice_staticId()) {
 
-            @Override
-            public RType rtype() {
-                return new RMapI(null);
-            }
-        });
+                @Override
+                public RType create(String name) {
+                    return new RMapI(null);
+                }
+            });
 
-        ObjectFactories = factories;
+            return factories;
+        }
     }
 
 }

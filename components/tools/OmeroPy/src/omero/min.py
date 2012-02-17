@@ -10,8 +10,16 @@ import omero
 import IceImport
 if omero.__import_style__ is None:
     omero.__import_style__ = "min"
-    IceImport.load("omero_API_ice")
-    IceImport.load("omero_ServicesF_ice")
-    IceImport.load("omero_Constants_ice")
-    IceImport.load("Glacier2_Router_ice")
-    import omero.rtypes
+
+# New Command API
+IceImport.load("omero_cmd_API_ice")
+IceImport.load("omero_cmd_Basic_ice")
+IceImport.load("omero_cmd_Graphs_ice")
+
+# Previous ServiceFactory API
+IceImport.load("omero_API_ice")
+IceImport.load("omero_ServicesF_ice")
+IceImport.load("omero_Constants_ice")
+
+IceImport.load("Glacier2_Router_ice")
+import omero.rtypes

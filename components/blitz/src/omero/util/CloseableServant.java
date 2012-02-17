@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.services.blitz.impl;
+package omero.util;
 
 /**
  * Marker interface which distinguishes a servant which wants to have

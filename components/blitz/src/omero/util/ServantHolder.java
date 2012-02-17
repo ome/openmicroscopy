@@ -6,7 +6,7 @@
  *
  */
 
-package ome.services.blitz.util;
+package omero.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,18 +14,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import ome.services.blitz.impl.ServiceFactoryI;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Manager for all active servants in a single {@link ServiceFactoryI}.
- * 
+ * Manager for all active servants in a single session.
+ *
  * To reduce the need of using {@link Ice.Util#stringToIdentity(String)} and
  * {@link Ice.Util#identityToString(Ice.Identity)} the servant tries to make the
  * two usages equivalent.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
  */
@@ -46,7 +44,7 @@ public class ServantHolder {
 
     /**
      * Acquires the given lock or if necessary creates a new one.
-     * 
+     *
      * @param key
      */
     public void acquireLock(String key) {

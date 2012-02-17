@@ -20,7 +20,6 @@ import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
 import ome.model.meta.Session;
 import ome.parameters.Parameters;
-import ome.services.blitz.impl.CloseableServant;
 import ome.services.procs.Processor;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
@@ -35,6 +34,7 @@ import omero.ValidationException;
 import omero.model.Job;
 import omero.model.OriginalFileI;
 import omero.model.ParseJob;
+import omero.util.CloseableServant;
 import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;

@@ -328,4 +328,18 @@
     </constructor-arg>
   </bean>
 
+  <!-- CMD objects.
+  ==============================================================================
+  -->
+
+  <bean id="::omero::cmd::Handle" class="omero.cmd.HandleI" singleton="false">
+      <constructor-arg value="${omero.threads.cancel_timeout}"/>
+  </bean>
+
+  <bean class="omero.cmd.RequestObjectFactoryRegistry">
+      <constructor-arg ref="extendedMetadata"/>
+      <constructor-arg ref="roles"/>
+      <property name="iceCommunicator" ref="Ice.Communicator"/>
+  </bean>
+
 </beans>
