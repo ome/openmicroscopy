@@ -1010,8 +1010,6 @@
                             url = prefix+'metadata_acquisition/'+orel+'/'+oid.split("-")[1]+'/';
                         }
                         $metadata_acquisition.load(url);
-                    } else {
-                        $metadata_acquisition.empty();
                     }
                 }
                 
@@ -1026,8 +1024,6 @@
                             url = prefix+'metadata_preview/'+oid.split("-")[1]+'/';
                         }
                         $metadata_preview.load(url);
-                    } else {
-                        $metadata_preview.empty();
                     }
                 }
                 
@@ -1037,14 +1033,35 @@
 
         // update tabs when tree selection changes or tabs switch
         $("#annotation_tabs").bind( "tabsshow", update_metadata_tabs);
+
+        // on change of selection in tree, update which tabs are enabled
         $("#dataTree").bind("select_node.jstree", function() {
+            var datatree = $.jstree._focused();
+            var selected = datatree.data.ui.selected;
+
             // clear contents of all panels
             $("#metadata_general").empty();
             $("#metadata_tab").empty();
             $("#preview_tab").empty();
+
+            if (selected.length > 1) {
+                // handle batch annotation...
+                $metadata_general.html("Batch annotation...");
+            } else {
+                var oid = selected.attr('id');
+                var orel = selected.attr('rel').replace("-locked", "");
+                if(orel=="image") {
+                    $("#annotation_tabs").tabs( "option","disabled", []); // enable all
+                } else {
+                    //$("#annotation_tabs").tabs( "select" , 0);
+                    $("#annotation_tabs").tabs( "option","disabled", [1, 2]);
+                    $("#annotation_tabs").tabs( "select" , 0);
+                }
+            }
+
             update_metadata_tabs();     // update
         });
-            
+
     });
     </script>
 {% endblock %}
