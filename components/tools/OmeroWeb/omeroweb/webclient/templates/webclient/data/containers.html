@@ -767,7 +767,7 @@
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
                     var selected = data.inst.get_selected();
                     if (selected.length > 1) {
-                        multipleAnnotation(selected, null, '{% url batch_annotate %}');
+                        //multipleAnnotation(selected, null, '{% url batch_annotate %}');
                         // if any non-images are selected, clear the centre panel
                         if (selected.filter('li:not([id|=image])').length > 0) {
                             $("div#content_details").empty();
@@ -958,7 +958,13 @@
             }
             if (selected.length > 1) {
                 // handle batch annotation...
-                $metadata_general.html("Batch annotation...");
+                var productListQuery = new Array(); 
+                selected.each( function(i){
+                    productListQuery[i] = $(this).attr('id').replace("-","=");
+                });
+                var query = '{% url batch_annotate %}'+"?"+productListQuery.join("&")
+                $metadata_general.load(query);
+                
             } else {
                 $("#annotation_tabs").tabs("enable", 0);    // always want metadata_general enabled
                 var url = null;
@@ -1001,7 +1007,6 @@
         // on change of selection in tree, update which tabs are enabled
         $("#dataTree").bind("select_node.jstree", function() {
 
-            console.log($("#annotation_tabs").length);
             $("#annotation_tabs").tabs( "option","disabled", [0, 1, 2] ); // disable all tabs.
 
             // clear contents of panel
