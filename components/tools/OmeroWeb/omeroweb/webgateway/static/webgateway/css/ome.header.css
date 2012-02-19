@@ -149,6 +149,12 @@
     bottom:0px; left:0px; right:0px;
 }
 
+.tab_content {
+    position:absolute;
+    top:28px;
+    bottom:0px; left:0px; right:0px;
+}
+
 /* overwrite content and thin_header styles */
 #content {
     background: #e5e5e5;

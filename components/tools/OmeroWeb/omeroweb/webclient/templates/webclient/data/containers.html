@@ -945,19 +945,13 @@
         
         $("#annotation_tabs").tabs({cache: true});
 
-        var update_metadata_tabs = function() {
+        var update_metadata_general_tab = function() {
             var datatree = $.jstree._focused();
             var selected = datatree.data.ui.selected;
             
             var $metadata_general = $("#metadata_general");
             var $metadata_acquisition = $("#metadata_tab");
-            var $metadata_preview = $("#preview_tab");
             var prefix = '{% url webindex %}';
-            
-            console.log("visible", "empty");
-            console.log($metadata_general.is(":visible"), $metadata_general.is(":empty"));
-            console.log($metadata_acquisition.is(":visible"), $metadata_acquisition.is(":empty"));
-            console.log($metadata_preview.is(":visible"), $metadata_preview.is(":empty"));
             
             if(selected.length == 0) {
                 return
@@ -966,10 +960,10 @@
                 // handle batch annotation...
                 $metadata_general.html("Batch annotation...");
             } else {
+                $("#annotation_tabs").tabs("enable", 0);    // always want metadata_general enabled
                 var url = null;
                 var oid = selected.attr('id');
                 var orel = selected.attr('rel').replace("-locked", "");
-                console.log(oid, orel);
                 if (typeof oid =="undefined" || oid==false) return
                 
                 // handle loading of GENERAL tab
@@ -998,72 +992,31 @@
                         $metadata_general.load(url);
                     }
                 }
-                
-                // handle loading of Acquisition metadata
-                if ($metadata_acquisition.is(":visible") && $metadata_acquisition.is(":empty")) {
-                    
-                    if(orel=="image") {
-                        var pr = selected.parent().parent();
-                        if (pr.length>0 && pr.attr('rel').replace("-locked", "")==="share") {
-                            url = prefix+'metadata_acquisition/'+orel+'/'+oid.split("-")[1]+'/'+pr.attr("id").split("-")[1]+'/';
-                        } else {
-                            url = prefix+'metadata_acquisition/'+orel+'/'+oid.split("-")[1]+'/';
-                        }
-                        $metadata_acquisition.load(url);
-                    }
-                }
-                
-                // handle loading of Image Preview
-                if ($metadata_preview.is(":visible") && $metadata_preview.is(":empty")) {
-                    
-                    if(orel=="image") {
-                        var pr = selected.parent().parent();
-                        if (pr.length>0 && pr.attr('rel').replace("-locked", "")==="share") {
-                            url = prefix+'metadata_preview/'+oid.split("-")[1]+'/'+pr.attr("id").split("-")[1]+'/';
-                        } else {
-                            url = prefix+'metadata_preview/'+oid.split("-")[1]+'/';
-                        }
-                        $metadata_preview.load(url);
-                    }
-                }
-                
-                
             }
         }
 
         // update tabs when tree selection changes or tabs switch
-        $("#annotation_tabs").bind( "tabsshow", update_metadata_tabs);
+        $("#annotation_tabs").bind( "tabsshow", update_metadata_general_tab);
 
         // on change of selection in tree, update which tabs are enabled
         $("#dataTree").bind("select_node.jstree", function() {
-            var datatree = $.jstree._focused();
-            var selected = datatree.data.ui.selected;
 
-            // clear contents of all panels
+            console.log($("#annotation_tabs").length);
+            $("#annotation_tabs").tabs( "option","disabled", [0, 1, 2] ); // disable all tabs.
+
+            // clear contents of panel
             $("#metadata_general").empty();
-            $("#metadata_tab").empty();
-            $("#preview_tab").empty();
 
-            if (selected.length > 1) {
-                // handle batch annotation...
-                $metadata_general.html("Batch annotation...");
-            } else {
-                var oid = selected.attr('id');
-                var orel = selected.attr('rel').replace("-locked", "");
-                if(orel=="image") {
-                    $("#annotation_tabs").tabs( "option","disabled", []); // enable all
-                } else {
-                    //$("#annotation_tabs").tabs( "select" , 0);
-                    $("#annotation_tabs").tabs( "option","disabled", [1, 2]);
-                    $("#annotation_tabs").tabs( "select" , 0);
-                }
-            }
-
-            update_metadata_tabs();     // update
+            update_metadata_general_tab();     // update
         });
 
     });
     </script>
+
+    <!-- scripts for tabs -->
+    {% include "webclient/data/includes/preview_tab_init.html" %}
+    {% include "webclient/data/includes/acquisition_tab_init.html" %}
+
 {% endblock %}
 
 
@@ -1167,11 +1120,11 @@
         <ul class="tabslist">
             <li><a href="#metadata_general">{% trans "General" %}</a></li>
             <li><a href='#metadata_tab'>{% trans "Acquisition" %}</a></li>
-            <li><a href='#preview_tab'>{% trans "Preview" %}</a></li>
+            <li><a href="#preview_tab">{% trans "Preview" %}</a></li>
         </ul>
         <div id="metadata_general"></div>
-        <div id="metadata_tab"></div>
-        <div id="preview_tab"></div>
+        <div id="metadata_tab" class="tab_content" style="padding:10px"></div>
+        <div id="preview_tab" class="tab_content" style="padding:10px"></div>
     </div>
 </div>
 {% endblock %}
