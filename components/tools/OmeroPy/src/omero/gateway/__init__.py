@@ -334,7 +334,9 @@ class BlitzObjectWrapper (object):
         
         @rtype:     None
         """
-        self._obj = self._conn.getUpdateService().saveAndReturnObject(self._obj)
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'])
+        sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+        self._obj = self._conn.getUpdateService().saveAndReturnObject(self._obj, sopts)
 
     def saveAs (self, details):
         """ 
@@ -2896,7 +2898,7 @@ class _BlitzGateway (object):
         @type obj:      IObject"""
         
         u = self.getUpdateService() 
-        u.deleteObject(obj)
+        u.deleteObject(obj, self.CONFIG['SERVICE_OPTS'])
 
     def getAvailableDeleteCommands(self):
         """
@@ -2973,7 +2975,7 @@ class _BlitzGateway (object):
         for oid in obj_ids:
             dcs.append(omero.api.delete.DeleteCommand(
                 graph_spec, long(oid), op))
-        handle = self.getDeleteService().queueDelete(dcs)
+        handle = self.getDeleteService().queueDelete(dcs, self.CONFIG['SERVICE_OPTS'])
         return handle
 
     ###################
@@ -6786,7 +6788,9 @@ class _ImageWrapper (BlitzObjectWrapper):
             ann.setNs(ns)
             ann.setValue('&'.join(['='.join(map(str, x)) for x in opts.items()]))
             self.linkAnnotation(ann)
-        self._re.saveCurrentSettings()
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'])
+        sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+        self._re.saveCurrentSettings(sopts)
         return True
 
     def countArchivedFiles (self):
