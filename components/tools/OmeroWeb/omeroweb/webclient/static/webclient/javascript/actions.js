@@ -50,13 +50,13 @@ var loadOtherPanels = function(inst, prefix) {
                     var plate = inst._get_parent(selected).attr('id').replace("-", "/");
                     cm_var['content_details']['rel'] = oid;
                     cm_var['content_details']['url'] = prefix+'load_data/'+plate+'/'+orel+'/'+oid.split("-")[1]+'/';
-                } else if($.inArray(orel, ["dataset", "tag"]) > -1 && oid!==crel) {
+                } else if($.inArray(orel, ["dataset"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
                     cm_var['content_details']['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
                     
                 } else if($.inArray(orel, ["share"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
-                    cm_var['content_details']['url'] = prefix+'load_data/'+oid.split("-")[1]+'/?view=icon';
+                    cm_var['content_details']['url'] = prefix+'load_public/'+oid.split("-")[1]+'/?view=icon';
                     
                 } else if($.inArray(orel, ["tag"]) > -1 && oid!==crel) {
                     cm_var['content_details']['rel'] = oid;
@@ -66,10 +66,10 @@ var loadOtherPanels = function(inst, prefix) {
                     if (pr.length>0 && pr.attr('id')!==crel) {
                         if(pr.attr('rel').replace("-locked", "")==="share" && pr.attr('id')!==crel) {
                             cm_var['content_details']['rel'] = pr.attr('id');
-                            cm_var['content_details']['url'] = prefix+'load_data/'+pr.attr('id').split("-")[1]+'/?view=icon';
-                        } else if (pr.attr('rel').replace("-locked", "")!=="tag") {
+                            cm_var['content_details']['url'] = prefix+'load_public/'+pr.attr('id').split("-")[1]+'/?view=icon';
+                        } else if (pr.attr('rel').replace("-locked", "")=="tag") {
                             cm_var['content_details']['rel'] = pr.attr('id');
-                            cm_var['content_details']['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
+                            cm_var['content_details']['url'] = prefix+'load_tags/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
                         } else if (pr.attr('rel').replace("-locked", "")!=="orphaned") {
                             cm_var['content_details']['rel'] = pr.attr('id');
                             cm_var['content_details']['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
@@ -129,10 +129,6 @@ var syncPanels = function(get_selected) {
     });
 }
 
-var calculateCartTotal = function(total){
-    $('#cartTotal').html(total); 
-};
-
 var addToBasket = function(selected, prefix) {
     var productListQuery = new Array("action=add");
     if (selected != null && selected.length > 0) {
@@ -167,7 +163,7 @@ var multipleAnnotation = function(selected, index, prefix){
         selected.each( function(i){
             productListQuery[i] = $(this).attr('id').replace("-","=");
         });
-        var query = prefix+"metadata_details/multiaction/annotatemany/?"+productListQuery.join("&")
+        var query = prefix+"?"+productListQuery.join("&")
         if (index != null && index > -1) {
             query += "&index="+index;
         }
@@ -178,34 +174,13 @@ var multipleAnnotation = function(selected, index, prefix){
 };
 
 var loadMetadataPanel = function(src, html) {
-    var iframe = $("div#metadata_details").find('iframe');
-    var description = $("div#metadata_description");
-
-    $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="../../static/common/image/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+    
+    var $metadataPanel = $("#right_panel");
 
     if (src!=null) {
-        description.hide();
-        iframe.show();
+        $metadataPanel.load(src);
     } else {
-        iframe.hide();
-        description.show();
-    }
-
-    if (iframe.length > 0) {
-        if (html!=null) {
-            iframe.attr('src', "");
-            iframe.hide();
-            description.html(html);
-        } else  {
-            description.empty();
-            iframe.attr('src', src);
-            iframe.show();
-        }
-    } else {
-        var h = $(window).height()-200;
-        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details" frameborder="0"></iframe>');
-        $('iframe#metadata_details').load();
+        $metadataPanel.html(html);
     }
 };
 
@@ -288,7 +263,7 @@ function doPagination(view, page) {
         $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
         if(rel[0].indexOf("orphaned")<0) {
             src = '/webclient/metadata_details/'+rel[0]+'/'+rel[1]+'/';
-            loadMetadata(src);
+            loadMetadataPanel(src);
         }
     });
     return false;
@@ -312,20 +287,12 @@ function makeShare(prefix) {
     }
     
     src = prefix+'?'+productListQuery+'';
-    loadMetadata(src);
+    loadMetadataPanel(src);
     return false;
 }
 
 function makeDiscussion() {
     src = '/webclient/basket/todiscuss/';
-    loadMetadata(src);
+    loadMetadataPanel(src);
     return false;
-}
-
-function loadMetadata(src) {
-    var h = $(window).height()-200;
-    $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="../../static/common/image/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-    $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details" frameborder="0"></iframe>');
-    $('iframe#metadata_details').load();
 }

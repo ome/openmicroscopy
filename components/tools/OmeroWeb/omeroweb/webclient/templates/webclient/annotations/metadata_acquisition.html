@@ -22,24 +22,8 @@
 -->
 {% endcomment %}
 
-{% block link %}
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/annotation.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/autocomplete.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
-{% endblock %}
-
-{% block script %}
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.autocomplete.js" %}"></script>
-    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
-    
     <script type="text/javascript">
-        var acquisition_loaded = function() 
-            {
+        $(document).ready(function(){
                 // hide any unset fields. 
                 var invalidRows = $(".metadata_details input:not([value])").parent().parent();
                 invalidRows.hide();
@@ -78,8 +62,6 @@
                     'delay': 300,
                     'loader': 'span.loading_series'
                 });
-                
-                $("#annotation_tabs").tabs();
 
                 
                 $('.can-collapse').click(function () {
@@ -90,16 +72,11 @@
                   $(this).removeClass('defclose').toggleClass('closed').next().hide();
                 });
 
-            }
-
+            });
     </script>
-    
-{% endblock %}
-
-{% block content %}
 
     <!-- METADATA "Acquisition" TAB -->
-    <div id="metadata_tab">
+
             
         {% if manager.well or manager.image%}
             
@@ -364,6 +341,3 @@
             {% endfor %}
 
         {% endif %}
-    </div>
-
-{% endblock %}

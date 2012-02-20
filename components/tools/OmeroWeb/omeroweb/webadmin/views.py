@@ -69,7 +69,7 @@ from controller.drivespace import BaseDriveSpace, usersData
 from controller.uploadfile import BaseUploadFile
 from controller.enums import BaseEnums
 
-from omeroweb.webclient.views import _session_logout
+from omeroweb.webclient.views import _session_logout, navHelper
 from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck, getGuestConnection
 from omeroweb.webgateway.views import getBlitzConnection
 
@@ -105,6 +105,7 @@ def isAdminConnected (f):
         if not conn.isAdmin():
             return page_not_found(request, "404.html")
         kwargs["conn"] = conn
+        navHelper(request, conn)
         return f(request, *args, **kwargs)
 
     return wrapped
@@ -134,6 +135,7 @@ def isOwnerConnected (f):
             if not conn.isOwner():
                 return page_not_found(request, "404.html")
         kwargs["conn"] = conn
+        navHelper(request, conn)
         return f(request, *args, **kwargs)
 
     return wrapped
@@ -158,6 +160,7 @@ def isUserConnected (f):
         
         kwargs["conn"] = conn
         kwargs["url"] = url
+        navHelper(request, conn)
         return f(request, *args, **kwargs)
     
     return wrapped
@@ -209,6 +212,7 @@ def forgotten_password(request, **kwargs):
         form = ForgottonPasswordForm()
     
     context = {'error':error, 'form':form}    
+    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -270,6 +274,7 @@ def login(request):
             else:
                 form = LoginForm()
         context = {'version': omero_version, 'error':error, 'form':form}
+        context['nav'] = request.session['nav']
         t = template_loader.get_template(template)
         c = Context(request, context)
         rsp = t.render(c)
@@ -318,7 +323,7 @@ def experimenters(request, **kwargs):
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = BaseExperimenters(conn)
     
-    context = {'info':info, 'eventContext':eventContext, 'controller':controller}
+    context = {'nav':request.session['nav'], 'info':info, 'eventContext':eventContext, 'controller':controller}
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -443,6 +448,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
     else:
         return HttpResponseRedirect(reverse("waexperimenters"))
     
+    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -490,6 +496,8 @@ def manage_password(request, eid, **kwargs):
                     return HttpResponseRedirect(reverse("wamyaccount"))
                 
     context = {'info':info, 'error':error, 'eventContext':eventContext, 'password_form':password_form, 'eid': eid}
+    context['nav'] = request.session['nav']
+    
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -515,6 +523,7 @@ def groups(request, **kwargs):
     controller = BaseGroups(conn)
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
+    context['nav'] = request.session['nav']
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -602,6 +611,7 @@ def manage_group(request, action, gid=None, **kwargs):
     else:
         return HttpResponseRedirect(reverse("wagroups"))
     
+    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -641,6 +651,7 @@ def manage_group_owner(request, action, gid, **kwargs):
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
     
+    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -662,6 +673,7 @@ def ldap(request, **kwargs):
     controller = None
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
+    context['nav'] = request.session['nav']
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -815,6 +827,7 @@ def my_account(request, action=None, **kwargs):
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
         
     context = {'info':info, 'eventContext':eventContext, 'form':form, 'form_file':form_file, 'ldapAuth': myaccount.ldapAuth, 'edit_mode':edit_mode, 'photo_size':photo_size, 'myaccount':myaccount}
+    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))
@@ -845,6 +858,7 @@ def drivespace(request, **kwargs):
     controller = BaseDriveSpace(conn)
         
     context = {'info':info, 'eventContext':eventContext, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace }}
+    context['nav'] = request.session['nav']
     
     t = template_loader.get_template(template)
     c = Context(request, context)

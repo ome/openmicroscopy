@@ -1,4 +1,4 @@
-{% extends "common/base/base_frame.html" %}
+{% extends "common/base/base_html.html" %}
 {% load i18n %}
 {% load common_tags %}
 {% load wikitags %}
@@ -25,22 +25,11 @@
 {% endcomment %}
 
 {% block link %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/annotation.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/autocomplete.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
-    
+    <!-- overwrite body.css -->
 {% endblock %}
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.autocomplete.js" %}"></script>
-    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
 
     <script type="text/javascript">
         $(document).ready(function() 
@@ -49,29 +38,36 @@
                 var acquisition_load = false;
                 var preview_load = false;
                 
-                $('#annotation_tabs').tabs();
-                
-                $('#acquisition').click(function() {
-                    var $tab = $("#metadata_tab");
-                    var href = $("#acquisition-link").attr('href');
-                    if (!acquisition_load) {
-                        $tab.load(href, function() {
-                            acquisition_loaded();
-                        });
-                        acquisition_load = true;
+                $('#annotation_tabs').tabs({cache : true});
+
+                // handle submit of Add Comment form
+                $("#share_comment_form").submit(function() {
+                    var $form = $(this);
+                    var add_comment_url = $form.attr('action');
+                    var postData = $form.serialize();
+                    var textArea = $('textarea', $form);
+                    if (textArea.val().trim().length == 0) {
+                        return false;
                     }
+                    $.ajax({
+                        type: "POST",
+                        url: add_comment_url,
+                        data:postData,
+                        contentType:'html',
+                        success: function(html){
+                            var $comment = $(html)
+                            $('#share_comments_container').prepend( $comment ).show();
+                            $(".removeComment", $comment).click(function(event) {
+                                removeItem(event, "ann_comment_wrapper");
+                            });
+                            textArea.val('');
+                        },
+                        error: function(html) {
+                            alert("Internal server error. Cannot add comment.");
+                        }
+                    });
+                    return false;
                 });
-                
-                $('#preview').click(function() {
-                    var $tab = $("#preview_tab");
-                    var href = $("#preview-link").attr('href');
-                    if (!preview_load) {
-                        $tab.load(href, function() {
-                            preview_loaded();
-                        });
-                        preview_load = true;
-                    }
-                });                
                 
                 $(".tooltip").parent().children("span").hide(); // hide tool tip source
                 $(".tooltip").tooltip({
@@ -87,34 +83,72 @@
                     left: -100
                 });
                 
+                
+                // Edit share: launch dialog with edit-share form
+                $("#edit_share").click(function(){
+                    var edit_share_url = $(this).attr('href');
+                    $("#edit_share_form").dialog("open");
+                    // load form via AJAX...
+                    $("#edit_share_form").load(edit_share_url, function(){
+                        $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
+                    });
+                    return false;
+                });
+                // set-up the edit-share form to use dialog
+                $("#edit_share_form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 410,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "Accept": function() {
+                            // simply submit the form (AJAX handling set-up below)
+                            $("#edit_share_form").submit();
+                            $( this ).dialog( "close" );
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                $('#edit_share_form').ajaxForm({
+                    success: function(data) {
+                        $("#edit_share_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
+                        // update the UI  - only available if the owner is editing share
+                        {% if manager.share.id %}
+                        loadMetadataPanel("{% url load_metadata_details c_type='share' c_id=manager.share.id %}");
+                        {% endif %}
+                    }
+                });
             });
 
-
-            function deleteItem(productType, productId) {
-                if ((productType == 'file' || productType == 'tag' || productType == 'comment') && productId > 0){
-                    var confirm_del = confirm_dialog('Delete '+ productType + '?',
-                        function() {
-                            if(confirm_del.data("clicked_button") == "OK") {
-                                $.ajax({
-                                    type: "POST",
-                                    url: "/webclient/action/delete/"+productType+"/"+productId+"/", //this.href,
-                                    data: productListQuery,
-                                    contentType:'html',
-                                    success: function(responce){
-                                        if(responce.match(/(Error: ([A-z]+))/gi)) {
-                                            alert(responce)
-                                        } else {
-                                            window.location = "{{ url }}";
-                                        }
-                                    },
-                                    error: function(responce) {
-                                        alert("Internal server error. Cannot delete object.");
+            
+            // Delete the Comment, by ID
+            function deleteShareComment(commentId) {
+                var confirm_del = confirm_dialog('Delete Comment?',
+                    function() {
+                        if(confirm_del.data("clicked_button") == "OK") {
+                            $.ajax({
+                                type: "POST",
+                                url: "/webclient/action/delete/comment/"+commentId+"/", //this.href,
+                                contentType:'html',
+                                success: function(responce){
+                                    if(responce.match(/(Error: ([A-z]+))/gi)) {
+                                        alert(responce)
+                                    } else {
+                                        $("#share_comment-"+commentId).remove();
                                     }
-                                });
-                            }
+                                },
+                                error: function(responce) {
+                                    alert("Internal server error. Cannot delete object.");
+                                }
+                            });
                         }
-                    );
-                } 
+                    }
+                );
+                
+                return false;
             }
             
     </script>
@@ -129,38 +163,33 @@
 {% endcomment %}
 
 
-<div id="annotation_form" >
-    <div id="annotation_tabs" class="ui-tabs">
-        <ul>
+
+    <div id="annotation_tabs" class="absolute_fill">
+        <ul class="tabslist">
             <li><a href="#annotation_tab">{% trans "General" %}</a></li>
             {% if manager.image %}
-                <li><a id='acquisition' href="#metadata_tab">{% trans "Acquisition" %}</a></li>                
-                <li><a id='preview' href="#preview_tab">{% trans "Preview" %}</a></li>
+                <li><a title="metadata tab" id='acquisition' href="{% if manager.getShareId %}{% url load_metadata_acquisition 'image' manager.image.id manager.getShareId %}
+                {% else %}{% url load_metadata_acquisition 'image' manager.image.id share_id %}{% endif %}">{% trans "Acquisition" %}</a></li>                
+                <li><a title="preview tab" id='preview' href="{% if manager.getShareId %}{% url load_metadata_preview manager.image.id manager.getShareId %}
+                {% else %}{% url load_metadata_preview manager.image.id share_id %}{% endif %}">{% trans "Preview" %}</a></li>
             {% endif %}
         </ul>
         <div class="clear"></div>        
         
         {% if manager.image %}
         <!-- VIEWER "Preview"-->
-        <div id="preview_tab">
-            <a id="preview-link" href="{% if manager.getShareId %}{% url load_metadata_preview manager.image.id manager.getShareId %}{% else %}{% url load_metadata_preview manager.image.id %}{% endif %}" style='display:none'>Preview</a>
-            <img src="{% static "common/image/spinner.gif" %}"/>
-        </div>
-        {% endif %}    
+        <div id="preview_tab"></div>
+        {% endif %}
         
         <!-- METADATA "Acquisition" TAB  - only show for images -->
         {% if manager.image %}
-        <div id="metadata_tab">
-            <!-- content is loaded by ajax when this tab is first displayed -->
-            <a id="acquisition-link" href="{% if manager.getShareId %}{% url load_metadata_acquisition 'image' manager.image.id manager.getShareId %}{% else %}{% url load_metadata_acquisition 'image' manager.image.id %}{% endif %}" style='display:none' >Acquisition</a>
-            <img src="{% static "common/image/spinner.gif" %}"/>
-        </div>
+        <div id="metadata_tab"></div>
         {% endif %}
-        
         
         {% if not manager.tag %}
         <!-- ANNOTATIONS "General" -->
         <div id="annotation_tab">
+            
             {% if manager.image %}            
             <h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>
             
@@ -217,9 +246,18 @@
                 </tr>
             </table>
             {% endif %}
-    
+
             {% if manager.share %}
-                <h1>{{ manager.share.getShareType }} {{ manager.share.id }} {% if manager.share.isOwned %}<a href="{% url manage_action_containers "edit" "share" manager.share.id %}?url={{url}}"><img src="{% static "webclient/image/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</h1>
+                <!-- hidden form for editing Share - load form via AJAX when we show dialog -->
+                <form id='edit_share_form' title="Edit Share" action="{% url manage_action_containers 'save' 'share' manager.share.id %}" 
+                    method="post" style="display:none">
+                </form>
+                <h1>{{ manager.share.getShareType }} {{ manager.share.id }}
+                    {% if manager.share.isOwned %}
+                        <a id="edit_share" href="{% url manage_action_containers 'edit' 'share' manager.share.id %}">
+                            <img src="{% static 'webclient/image/color_line16.png' %}" alt="e" title="Edit Share"/>
+                        </a>
+                    {% endif %}</h1>
                 
                 <div class="description">
                     {{ manager.share.message|default_if_none:""|sharewikify|safe|linebreaks }}
@@ -259,10 +297,9 @@
                         </td>
                     </tr>
                 </table>
-            {% endif %}
+            
         
             <!-- ANNOTATIONS -->
-            {% if manager.share %}
             <h1>{% trans "Annotations" %}</h1>
             
             <table>
@@ -274,7 +311,8 @@
                         {% if manager.share.isExpired %}
                             This {{ manager.share.getShareType|lower }} has expired and you no longer can make any comments.
                         {% else %}
-                            <form action="{% url manage_action_containers "save" "sharecomment" manager.share.id %}?url={{url}}" method="post">
+                            <form id="share_comment_form" 
+                                action="{% url manage_action_containers 'save' 'sharecomment' manager.share.id %}?url={{url}}" method="post">
                             <table>
                                 {% for field in form_comment %}
                                     <tr>
@@ -293,25 +331,10 @@
                 </tr>
                 <tr>
                     <td colspan="3">
-                        <div class="lncomments">
-                        {% if manager.comments %}
+                        <div id="share_comments_container" class="lncomments">
                             {% for cm in manager.comments %}
-                            <div class="ann_comment_wrapper">
-                                <div class="avatar"><img src="{% url avatar cm.getOwner.id %}" alt="{{ cm.getOwner.getFullName }}" title="{{ cm.getOwner.getFullName }}" width="20" height="20" /></div>
-                                <div>
-                                    <span class="ann_comment_header">{{ cm.getOwner.getFullName }} {% trans "at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }}</span>
-                                    {% if cm.canDelete %}
-                                        <input class="button" type="image" src="{% static "webclient/image/cancel12.png" %}" alt="Delete" title="Delete" onclick="deleteItem('comment', '{{ cm.id }}');" />
-                                    {% endif %}
-                                    <div class='commentText'>
-                                    {{ cm.textValue|sharewikify|safe|linebreaks }}
-                                    </div>
-                                </div>
-                            </div>
+                                {% include "webclient/annotations/share_comment.html" %}
                             {% endfor %}
-                        {% else %}
-                            {% trans "No comments." %}                        
-                        {% endif %}
                         </div>
                     </td>
                 </tr>            
@@ -326,5 +349,5 @@
     </div>
     
     
-</div>
+
 {% endblock %}

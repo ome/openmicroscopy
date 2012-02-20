@@ -1,9 +1,28 @@
+/*
+ * Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+ 
+
 html {
     height: 100%;
 }
 
 body {
-    background-color: #F3F3F3;
     color: #555555;
     font-family: Arial,Verdana,Lucida,Helvetica,sans-serif;
     font-size: 13px;
@@ -13,20 +32,14 @@ body {
     position: relative;
 }
 
-#content {
-    position:absolute;
-    top:102px;
-    right:0px;
-    left:0px;
-    bottom:0px;
-    background: white;
-    overflow:auto;
-}
-
 a:hover, a:link, a:visited {
     border: medium none;
     color: #1B7BC7;
     text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 h1 {
@@ -47,6 +60,9 @@ p {
 
 img {
     border: 0px;
+    padding: 0px;
+    margin: 0px;
+    vertical-align: middle;
 }
 
 table {
@@ -63,11 +79,6 @@ td {
     text-align: left;
 }
 
-form table {
-    border: 0px;
-    table-layout: auto;
-}
-
 form td {
     padding: 2px;
 }
@@ -76,11 +87,17 @@ form th {
     border: 0px;
 }
 
-input {
-    margin: 0;
+input[type="text"]{
     border: 1px solid #bbb;
     background-color: #fff;
 }
+input{
+    margin: 0;
+    font-size: 12px;
+    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
+    color: #444;
+}
+
 select {
     margin: 0;
     background-color: #fff;
@@ -116,5 +133,16 @@ label {
     padding: 0px;
 }
 
+/* hidden div to specify which parent tab is 'current' */
+#parent_id {
+    display: none;
+}
+
 /* used by the dialog in popup.js */
 .ui-dialog-titlebar { background: gray; color: white }
+
+.absolute_fill {
+    position: absolute;
+    top: 0px; bottom: 0px; left: 0px; right: 0px;
+    overflow: auto;
+}
