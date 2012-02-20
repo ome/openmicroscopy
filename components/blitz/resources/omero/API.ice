@@ -9,6 +9,7 @@
 #ifndef OMERO_API_ICE
 #define OMERO_API_ICE
 
+#include <omero/cmd/API.ice>
 #include <omero/ServerErrors.ice>
 #include <omero/ModelF.ice>
 #include <omero/ServicesF.ice>
@@ -91,7 +92,7 @@ module omero {
          * of service proxies to the server. Most services implement [ServiceInterface]
          * or its subinterface [StatefulServiceInterface]. </p>
 	 **/
-	interface ServiceFactory extends Glacier2::Session
+	interface ServiceFactory extends omero::cmd::Session
 	{
 
             // Security context

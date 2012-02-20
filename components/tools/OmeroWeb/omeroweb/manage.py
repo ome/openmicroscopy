@@ -27,8 +27,6 @@ import logging
 
 from django.core.management import execute_manager
 
-logger = logging.getLogger('manage')
-
 try:
     import settings # Assumed to be in the same directory.
 except ImportError:
@@ -37,7 +35,7 @@ except ImportError:
     sys.exit(1)
 
 if __name__ == "__main__":
-    logger = logging.getLogger()
+    logger = logging.getLogger(__name__)
     logger.info("Application Starting...")
     
     execute_manager(settings)

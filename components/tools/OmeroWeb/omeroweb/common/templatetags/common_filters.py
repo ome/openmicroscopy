@@ -33,7 +33,7 @@ from django import template
 
 register = template.Library()
 
-logger = logging.getLogger('common_filters')
+logger = logging.getLogger(__name__)
 
 
 @register.filter

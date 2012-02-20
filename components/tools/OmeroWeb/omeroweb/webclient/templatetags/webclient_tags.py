@@ -33,7 +33,7 @@ from django.templatetags.static import PrefixNode
 
 register = template.Library()
 
-logger = logging.getLogger('webclient_tags')
+logger = logging.getLogger(__name__)
 
 @register.tag()
 def get_static_webclient_prefix(parser, token):

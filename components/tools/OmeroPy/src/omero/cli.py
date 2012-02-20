@@ -21,8 +21,9 @@ See LICENSE for details.
 """
 
 sys = __import__("sys")
+cmd = __import__("cmd")
 
-import cmd, string, re, os, subprocess, socket, exceptions, traceback, glob, platform, time
+import string, re, os, subprocess, socket, exceptions, traceback, glob, platform, time
 import shlex
 from exceptions import Exception as Exc
 from threading import Thread, Lock
