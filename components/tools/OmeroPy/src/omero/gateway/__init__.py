@@ -5362,7 +5362,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         rdid = ann and ann.getValue() or None
         if rdid is None:
             return
-        logger.debug('_getRDef: %s' % (str(rdid)))
+        logger.debug('_getRDef: %s, annid=%d' % (str(rdid), ann.getId()))
         logger.debug('now load render options: %s' % str(self._loadRenderOptions()))
         self.loadRenderOptions()
         return rdid
@@ -5605,6 +5605,13 @@ class _ImageWrapper (BlitzObjectWrapper):
         tb = self._conn.createThumbnailStore()
         has_rendering_settings = tb.setPixelsId(pid, self._conn.CONFIG['SERVICE_OPTS'])
         logger.debug("tb.setPixelsId(%d) = %s " % (pid, str(has_rendering_settings)))
+        if rdid is not None:
+            try:
+                tb.setRenderingDefId(rdid)
+            except omero.ValidationException:
+                # The annotation exists, but not the rendering def?
+                logger.error('IMG %d, defrdef == %d but object does not exist?' % (self.getId(), rdid))
+                rdid = None
         if rdid is None:
             if not has_rendering_settings:
                 try:
