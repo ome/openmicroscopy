@@ -465,7 +465,10 @@
                     // the UI plugin - it handles selecting/deselecting/hovering nodes
                     "ui" : {
                         "select_limit" : -1,
-                        "select_multiple_modifier": multi_key(),
+                        "select_multiple_modifier": function() {
+                            if (navigator.appVersion.indexOf("Mac")!=-1) return "meta";
+                            else return "ctrl";
+                        },
                         "selected_parent_close": "select_parent",
                         "select_prev_on_delete": false,
                         "initially_select" : [ {% if init.initially_select %}"{{ init.initially_select }}"{% else %}"experimenter-0"{% endif %}  ],
