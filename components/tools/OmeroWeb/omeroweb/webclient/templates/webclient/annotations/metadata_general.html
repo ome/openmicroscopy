@@ -388,30 +388,6 @@
             {% endif %}
         </div>
 
-        
-        {% if manager.image %}
-        <!-- VIEWER "Preview"-->
-        <div id="preview_tab">
-            <img id="preview_spinner" src="{% static "webgateway/img/spinner.gif" %}" style='display:none'/>
-        </div>
-        {% endif %}
-        {% if manager.well %}
-        <!-- VIEWER "Preview" -->
-        <div id="preview_tab">
-            <a id="preview-link" href="{% url load_metadata_preview manager.well.getWellSample.image.id %}" style='display:none'>Preview</a>
-            <img id="preview_spinner" src="{% static "webgateway/img/spinner.gif" %}" style='display:none'/>
-        </div>
-        {% endif %}
-        
-        
-        <!-- METADATA "Acquisition" TAB  - only show for images -->
-        {% if manager.image %}
-        <div id="metadata_tab"></div>
-        {% endif %}
-        {% if manager.well %}
-        <div id="metadata_tab"></div>
-        {% endif %}
-                
 
         {% if not manager.tag %}
         <!-- ANNOTATIONS "General" -->
