@@ -334,10 +334,8 @@ class BlitzObjectWrapper (object):
         
         @rtype:     None
         """
-        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
-        if self.getDetails() and self.getDetails().getGroup():
-            # This is a save for an object that already exists, make sure group matches
-            sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'])
+        sopts['omero.group'] = str(self.getDetails().getGroup().getId())
         self._obj = self._conn.getUpdateService().saveAndReturnObject(self._obj, sopts)
 
     def saveAs (self, details):
@@ -6794,7 +6792,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             ann.setNs(ns)
             ann.setValue('&'.join(['='.join(map(str, x)) for x in opts.items()]))
             self.linkAnnotation(ann)
-        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'])
         sopts['omero.group'] = str(self.getDetails().getGroup().getId())
         self._re.saveCurrentSettings(sopts)
         return True
