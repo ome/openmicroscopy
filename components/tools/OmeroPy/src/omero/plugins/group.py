@@ -43,7 +43,7 @@ class GroupControl(BaseControl):
 
         insert = parser.add(sub, self.insert, "Insert one or more users into a group")
         insert.add_argument("GROUP", metavar="group", type=long, help = "ID of the group which is to have users added")
-        insert.add_argument("user", type=long, nargs="+", help = "ID of user to be inserted")
+        insert.add_argument("USER", type=long, nargs="+", help = "ID of user to be inserted")
 
     def parse_perms(self, args):
         perms = getattr(args, "perms", None)
@@ -169,11 +169,12 @@ class GroupControl(BaseControl):
 
     def insert(self, args):
         import omero
+        print args
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
         grp = a.getGroup(args.GROUP)
-        self.addusersbyid(c, grp, args.user)
-        self.ctx.out("Added %s users to %s" % (len(args.user), args.GROUP))
+        self.addusersbyid(c, grp, args.USER)
+        self.ctx.out("Added %s users to %s" % (len(args.USER), args.GROUP))
 
     def addusersbyid(self, c, group, users):
         import omero
