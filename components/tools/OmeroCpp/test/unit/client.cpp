@@ -13,15 +13,15 @@ BOOST_AUTO_TEST_CASE( UnconfiguredClient )
 {
   Fixture f;
   int argc = 1;
-  char* argv[] = {"--omero.host=localhost", 0};
-  omero::client(argc,argv);
+  char* argv[] = {(char*)"--omero.host=localhost", 0};
+  omero::client(argc, argv);
 }
 
 BOOST_AUTO_TEST_CASE( ClientWithInitializationData )
 {
   Fixture f;
   int argc = 0;
-  char** argv = new char*[0];
+  char** argv = {0};
   Ice::InitializationData id;
   id.properties = Ice::createProperties();
   id.properties->setProperty("omero.host","localhost");

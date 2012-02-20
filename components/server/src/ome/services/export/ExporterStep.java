@@ -13,11 +13,14 @@ import java.util.Set;
 import ome.model.IObject;
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphException;
+import ome.services.graphs.GraphOpts;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphStep;
+import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 
 /**
  * Marker action used during export.
@@ -32,6 +35,12 @@ public class ExporterStep extends GraphStep {
     public ExporterStep(int idx, List<GraphStep> stack,
             GraphSpec spec, GraphEntry entry, long[] ids) {
         super(idx, stack, spec, entry, ids);
+    }
+
+    @Override
+    public void action(Callback cb, Session session, SqlAction sql, GraphOpts opts)
+            throws GraphException {
+        throw new UnsupportedOperationException("NYI");
     }
 
     @Override

@@ -26,7 +26,7 @@ import random
 import math
 from numpy import zeros     # numpy for doing local projections
 
-logger = logging.getLogger('webemdb')
+logger = logging.getLogger(__name__)
 
 PUBLICATION_NAMESPACE = "openmicroscopy.org/omero/emdb/publication"
 RESOLUTION_NAMESPACE = "openmicroscopy.org/omero/emdb/resolutionByAuthor"  

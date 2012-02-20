@@ -24,10 +24,7 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webclient/css/container.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block script %}
@@ -89,7 +86,16 @@
                     $("div#content_details").load('{% url load_searching "form" %}?'+url);
                     return false;
                 });
-                
+
+
+            {% if init.query %}
+                $("div#content_details").load('{% url load_searching "form" %}?query={{ init.query }}');
+                var query_string = "{{ init.query }}";
+                query_string = query_string.replace("%20", " ");
+                $("input[name='query']").val(query_string);
+            {% endif %}
+
+
                 $("#batch_search_button").click(function() {
                     var batch_query = $("textarea[name='batch_query']").val();
                     if (batch_query == "") {
@@ -116,7 +122,6 @@
 {% endblock %}
 
 {% block left %}
-
 <div id="searching" class="padding">
     <div>
         <p>{% trans "Searching feature enables you to search within the images, datasets, projects, plates and screens stored on the server. It supports single and multiple character wildcard searches." %}</p>
@@ -217,15 +222,5 @@
 {% block center %}
 
 <div id="content_details"> </div>
-
-{% endblock %}
-
-
-{% block right %}
-
-<div id="metadata_details">
-    <div id="metadata_description"></div>
-    <iframe width="370" name="metadata_details" frameborder="0"></iframe>
-</div>
 
 {% endblock %}

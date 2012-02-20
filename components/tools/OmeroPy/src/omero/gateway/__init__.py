@@ -34,7 +34,7 @@ import array
 import math
 
 import logging
-logger = logging.getLogger('blitz_gateway')
+logger = logging.getLogger(__name__)
 
 try:
     import Image, ImageDraw, ImageFont
@@ -2203,6 +2203,33 @@ class _BlitzGateway (object):
                 if d.child.id.val != self.getEventContext().userId:
                     yield ExperimenterWrapper(self, d.child)
 
+    def groupSummary(self, gid=None, exclude_self=False):
+        """
+        Returns lists of 'leaders' and 'members' of the specified group (default is current group)
+        as a dict with those keys.
+
+        @return:    {'leaders': list L{ExperimenterWrapper}, 'colleagues': list L{ExperimenterWrapper}}
+        @rtype:     dict
+        """
+
+        if gid is None:
+            gid = self.getEventContext().groupId
+        userId = None
+        if exclude_self:
+            userId = self.getEventContext().userId
+        colleagues = []
+        leaders = []
+        default = self.getObject("ExperimenterGroup", gid)
+        if not default.isPrivate() or default.isLeader():
+            for d in default.copyGroupExperimenterMap():
+                if d.child.id.val == userId:
+                    continue
+                if d.owner.val:
+                    leaders.append(ExperimenterWrapper(self, d.child))
+                else:
+                    colleagues.append(ExperimenterWrapper(self, d.child))
+        return {"leaders": leaders, "colleagues": colleagues}
+
     def listStaffs(self):
         """
         Look up users who are members of groups lead by the current user.
@@ -2426,8 +2453,10 @@ class _BlitzGateway (object):
         @return:            Generator yielding wrapped objects.
         """
 
-        if parent_type not in ["Project", "Dataset", "Image", "Screen", "Plate"]:
-            raise AttributeError("Can only get Annotations on 'Project', 'Dataset', 'Image', 'Screen', 'Plate'")
+        if parent_type.lower() not in KNOWN_WRAPPERS:
+            wrapper_types = ", ".join(KNOWN_WRAPPERS.keys())
+            err_msg = "getAnnotationLinks() does not support type: '%s'. Must be one of: %s" % (parent_type, wrapper_types)
+            raise AttributeError(err_msg)
         wrapper = KNOWN_WRAPPERS.get(parent_type.lower(), None)
 
         query = "select annLink from %sAnnotationLink as annLink join fetch annLink.details.owner as owner " \
@@ -3369,7 +3398,7 @@ class _AnnotationLinkWrapper (BlitzObjectWrapper):
     """
 
     def getAnnotation(self):
-        return AnnotationWrapper._wrap(self._conn, self.child)
+        return AnnotationWrapper._wrap(self._conn, self.child, self._obj)
 
 AnnotationLinkWrapper = _AnnotationLinkWrapper
                 
@@ -3408,7 +3437,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
         """
         
         try:
-            if self._obj.ns is not None and self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self._obj.file.name.val.startswith("original_metadata"):
+            if self._obj.ns is not None and self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self.getFile().getName() == omero.constants.annotation.file.ORIGINALMETADATA:
                 return True
         except:
             logger.info(traceback.format_exc())
@@ -4028,6 +4057,10 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
             if ob.parent.name.val == "guest":
                 return True
         return False
+
+    def is_self(self):
+        """ Returns True if this Experimenter is the current user """
+        return self.getId() == self._conn.getEventContext().userId
     
 ExperimenterWrapper = _ExperimenterWrapper
 

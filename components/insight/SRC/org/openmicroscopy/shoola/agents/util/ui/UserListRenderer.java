@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.util.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -62,16 +64,22 @@ class UserListRenderer
 	private static final Border BORDER = new EmptyBorder(5, 5, 5, 5);
 	
 	/** Background color of the even rows. */
-	private static final Color	BACKGROUND = Color.WHITE;
+	private static final Color BACKGROUND = Color.WHITE;
 	
 	/** Background color of the add rows. */
-	private static final Color	BACKGROUND_ONE = new Color(236, 243, 254);
+	private static final Color BACKGROUND_ONE = new Color(236, 243, 254);
 	
 	/** Gap between icon and text. */
-	private static final int	GAP = 20;
+	private static final int GAP = 20;
 	
     /** Reference to the icon used to represent a user. */
-    private Icon         userIcon;
+    private Icon userIcon;
+    
+    /** The font to set when the value is a string.*/
+    private Font font;
+    
+    /** The font to set when the value is a string.*/
+    private Font defaultFont;
     
 	/** 
 	 * Creates a new instance. 
@@ -82,10 +90,13 @@ class UserListRenderer
 	{
 		setOpaque(true);
 		this.userIcon = userIcon;
+		defaultFont = getFont();
+		font = defaultFont.deriveFont(Font.BOLD | Font.ITALIC,
+				defaultFont.getSize()-2);
 	}
 	
 	/**
-	 * Overridden to set boder and color.
+	 * Overridden to set border and color.
 	 * 
 	 * @see javax.swing.ListCellRenderer#getListCellRendererComponent
 	 *      (javax.swing.JList, java.lang.Object, int, boolean, boolean)
@@ -93,22 +104,29 @@ class UserListRenderer
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean hasFocus) 
     {
-    	setVerticalAlignment(SwingConstants.CENTER);
-    	setIcon(userIcon);
-		setIconTextGap(GAP);
-    	if (value instanceof String) setText((String) value);
-    	else if (value instanceof ExperimenterData) {
+    	if (value instanceof String) {
+    		setFont(font);
+    		setIcon(null);
+    		setText((String) value);
+    		setForeground(list.getForeground());
+			setBackground(BACKGROUND);
+    	} else if (value instanceof ExperimenterData) {
+    		setVerticalAlignment(SwingConstants.CENTER);
+    		setFont(defaultFont);
+    		setIcon(userIcon);
+    		setIconTextGap(GAP);
     		ExperimenterData data = (ExperimenterData) value;
     		setText(data.getFirstName()+" "+data.getLastName());
+    		if (isSelected) {
+        		setForeground(list.getSelectionForeground());
+                setBackground(list.getSelectionBackground());
+        	} else {
+        		 setForeground(list.getForeground());
+        		 if (index%2 == 0) setBackground(BACKGROUND);
+                 else setBackground(BACKGROUND_ONE);
+        	}
     	}
-    	if (isSelected) {
-    		setForeground(list.getSelectionForeground());
-            setBackground(list.getSelectionBackground());
-    	} else {
-    		 setForeground(list.getForeground());
-    		 if (index%2 == 0) setBackground(BACKGROUND);
-             else setBackground(BACKGROUND_ONE);
-    	}
+    	
     	setBorder(BORDER);
     	return this;
     }

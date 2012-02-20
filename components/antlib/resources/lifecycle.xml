@@ -78,6 +78,9 @@
 		<echo file="${classes.dir}/omero.properties" append="true">
 omero.version=${omero.version}
 		</echo>
+		<echo file="${resrc.dest}/omero.properties" append="true">
+omero.version=${omero.version}
+		</echo>
                 <for list="${classes.dir},${resrc.dest}" param="dir">
                   <sequential>
                     <if><not><isfileselected file="@{dir}/hibernate.properties">

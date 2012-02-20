@@ -14,7 +14,6 @@ import java.util.concurrent.Callable;
 import ome.api.RawFileStore;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.ServiceFactoryAware;
-import ome.services.blitz.util.TieAware;
 import ome.services.util.Executor;
 import ome.util.SqlAction;
 import omero.ServerError;
@@ -32,6 +31,7 @@ import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
 import omero.model.OriginalFile;
 import omero.util.IceMapper;
+import omero.util.TieAware;
 
 import org.springframework.transaction.annotation.Transactional;
 

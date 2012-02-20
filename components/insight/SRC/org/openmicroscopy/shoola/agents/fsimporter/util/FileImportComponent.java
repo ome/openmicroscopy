@@ -177,6 +177,9 @@ public class FileImportComponent
 		"Missing Library";
 	
 	/** Text to indicate that the file is not accessible. */
+	private static final String NO_SPACE_ERROR_TEXT = "No more space on Disk";
+	
+	/** Text to indicate that the file is not accessible. */
 	private static final String FILE_ON_TAPE_ERROR_TEXT = "File on Tape";
 	
 	/** Tool tip text to indicate to browse the container. */
@@ -978,6 +981,11 @@ public class FileImportComponent
 					} else if (s == ImportException.FILE_ON_TAPE) {
 						resultLabel.setVisible(true);
 						resultLabel.setText(FILE_ON_TAPE_ERROR_TEXT);
+						resultLabel.setToolTipText(
+								UIUtilities.formatExceptionForToolTip(ie));
+					} else if (s == ImportException.NO_SPACE) {
+						resultLabel.setVisible(true);
+						resultLabel.setText(NO_SPACE_ERROR_TEXT);
 						resultLabel.setToolTipText(
 								UIUtilities.formatExceptionForToolTip(ie));
 					} else {

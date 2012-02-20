@@ -57,6 +57,44 @@ function openCenteredWindow(url) {
 
 
 /*
+ *  Returns a string representing the currently selected items in the $.jstree.
+ * E.g.     "Image=23,34,98&Dataset=678"
+**/
+function get_tree_selection() {
+    var datatree = $.jstree._focused();
+
+    var ids = new Array();
+    var Data_Type = null;
+    var selected = datatree.data.ui.selected;
+    if (selected.size() == 1) {
+        var klass = selected.attr('rel');
+        if (klass == 'plate' || klass == 'acquisition') {
+            var plateSelected = $('#spw .ui-selected img');
+            if (plateSelected.size() > 0) {
+                selected = plateSelected;
+            }
+        }
+    }
+    var selected_ids = {}
+    selected.each(function() {
+        var dtype = this.id.split("-")[0];
+        var data_type = dtype.charAt(0).toUpperCase() + dtype.slice(1); // capitalise
+        var data_id = this.id.split("-")[1];
+        if (data_type in selected_ids) {
+            selected_ids[data_type] += ","+data_id;
+        } else {
+            selected_ids[data_type] = data_id
+        }
+    });
+    var ids_list = []
+    for (key in selected_ids){
+        ids_list.push(key+"="+selected_ids[key]);
+    }
+    return ids_list.join("&");
+}
+
+
+/*
  * Confirm dialog using jquery-ui dialog. http://jqueryui.com/demos/dialog/
  * This code provides a short-cut that doens't need html elements on the page
  * Basic usage (text only - Default buttons are 'OK' and 'Cancel'):

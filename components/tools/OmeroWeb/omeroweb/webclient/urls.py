@@ -34,6 +34,7 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^$', views.index, name="webindex" ),
     # render main template
     url( r'^(?P<menu>((?i)userdata|public|history|search|help|usertags))/$', views.load_template, name="load_template" ),
+    url( r'^userdata/$', views.load_template, {'menu':'userdata'}, name="userdata" ),
 
     url( r'^context/$', views.index_context, name="index_context" ),
     url( r'^last_imports/$', views.index_last_imports, name="index_last_imports" ),
@@ -48,10 +49,12 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^basket/empty/$', views.empty_basket, name="empty_basket"),
     url( r'^basket/update/$', views.update_basket, name="update_basket"),
     url( r'^basket/(?:(?P<action>[a-zA-Z]+)/)?$', views.basket_action, name="basket_action"),
+    url( r'^basket_content/$', views.basket_action, {'template':'webclient/basket/basketContent.html'}, name="basket_content"),
     
-    # update, display processes, E.g. delete queues, scripts etc.
-    url( r'^progress/', views.progress, name="progress"),
-    url( r'^status/(?:(?P<action>[a-zA-Z]+)/)?$', views.status_action, name="status"),
+    # update, display activities, E.g. delete queues, scripts etc.
+    url( r'^activities/', views.activities, name="activities"),
+    url( r'^activities_json/', views.activities, {'template':'json'}, name="activities_json"),
+    url( r'^activities_update/(?:(?P<action>clean)/)?$', views.activities_update, name="activities_update"),
     
     # loading data    
     url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well|orphaned))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|acquisition|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
@@ -71,9 +74,13 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^metadata_acquisition/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_acquisition, name="load_metadata_acquisition" ),
     url( r'^metadata_preview/(?P<imageId>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_preview, name="load_metadata_preview" ),
     url( r'^metadata_hierarchy/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_hierarchy, name="load_metadata_hierarchy" ),
-    url( r'^metadata_details/multiaction/(?:(?P<action>[a-zA-Z]+)/)?$', views.manage_annotation_multi, name="manage_annotation_multi" ),
+    #url( r'^metadata_details/multiaction/(?:(?P<action>[a-zA-Z]+)/)?$', views.manage_annotation_multi, name="manage_annotation_multi" ),
     
     url( r'^action/(?P<action>[a-zA-Z]+)/(?:(?P<o_type>[a-zA-Z]+)/)?(?:(?P<o_id>[0-9]+)/)?$', views.manage_action_containers, name="manage_action_containers" ),
+    url( r'^batch_annotate/$', views.batch_annotate, name="batch_annotate" ),
+    url( r'^annotate_tags/$', views.annotate_tags, name="annotate_tags" ),
+    url( r'^annotate_comment/$', views.annotate_comment, name="annotate_comment" ),
+    url( r'^annotate_file/$', views.annotate_file, name="annotate_file" ),
     url( r'^annotation/(?P<action>[a-zA-Z]+)/(?P<iid>[0-9]+)/$', views.download_annotation, name="download_annotation" ),
     url( r'^archived_files/download/(?P<iid>[0-9]+)/$', views.archived_files, name="archived_files" ),
     

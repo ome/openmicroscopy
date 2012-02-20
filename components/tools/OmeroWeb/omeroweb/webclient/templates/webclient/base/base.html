@@ -25,24 +25,37 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webclient/css/images.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 
-{% block nav_links %}
+{% block script %}
+    {{ block.super }}
+    <!-- The following are required by the right-hand panel, E.g. annotations/metadata_general.html -->
+    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
+{% endblock %}
+
+
+{% block middle_header_right %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-    {% include "webclient/base/menu.html" %}
-{% endblock %}
-
-
-{% block header_left %}
-    {% include "webclient/base/header.html" %}
-{% endblock %}
-
-
-{% block header_right %}
+    <a href="{% url wamyaccount 'edit' %}" title="Edit Account"> {{ eContext.user.getFullName }}</a>
+    <a href="{% url load_template 'help' %}">{% trans "Help" %}</a>
     {% include "webclient/base/logout.html" %}
+{% endblock %}
+
+
+{% block middle_header_left %}
+    {% include "webclient/base/menu.html" %}
+    {% include "webclient/base/basket_info.html" %}
+    {% include "webclient/base/activities_info.html" %}
+{% endblock %}
+
+
+{% block thin_header_right %}
+    {% include "webclient/base/search_field.html" %}
 {% endblock %}
 
 

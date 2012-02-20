@@ -122,7 +122,7 @@ def slice_py(env, where, dir):
 # all necessary files.
 #
 methods = [slice_java, slice_cpp, slice_py]
-directories = ["omero", "omero/model", "omero/api"]
+directories = ["omero", "omero/model", "omero/api", "omero/cmd"]
 where = [generated, resources]
 
 

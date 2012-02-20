@@ -17,6 +17,7 @@ echo Building $OMERO_BRANCH
 ./build.py release-docs
 ./build.py release-zip
 ./build.py release-src
+./build.py release-clients
 
 # Log information
 echo BUILD_NUMBER=$BUILD_NUMBER > target/$OMERO_BRANCH.log

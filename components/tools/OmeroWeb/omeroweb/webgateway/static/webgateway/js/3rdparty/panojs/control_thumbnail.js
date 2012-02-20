@@ -84,6 +84,7 @@ ThumbnailControl.prototype.init = function() {
   this.thumbscale = this.tw / this.viewer.imageSize().width;
 
   this.viewer.notifyViewerZoomed();
+  this.viewer.notifyViewerMoved();
 }
 
 ThumbnailControl.prototype.createDOMElements = function() {
@@ -170,6 +171,7 @@ ThumbnailControl.prototype.toggleMinimize = function(e) {
 }
 
 ThumbnailControl.prototype.viewerMoved = function(e) {
+    if (this.dom_image.onload) return
     if (!this.dom_roi || typeof this.dom_roi == 'undefined') return;
     var img_x = -1.0 * (e.x / this.scale);
     var img_y = -1.0 * (e.y / this.scale);  
@@ -182,13 +184,13 @@ ThumbnailControl.prototype.viewerMoved = function(e) {
 
     this.dom_roi.style.left = tx + 'px';
     this.dom_roi.style.top  = ty + 'px';   
-    this.dom_roi.style.width = Math.min(w*this.thumbscale-2, this.tw-tx-PanoJS.CONTROL_THUMBNAIL_BORDER) + 'px';
-    this.dom_roi.style.height = Math.min(h*this.thumbscale-2, this.th-ty-PanoJS.CONTROL_THUMBNAIL_BORDER) + 'px';
+    this.dom_roi.style.width = trim(1, w*this.thumbscale-2, this.tw-tx-PanoJS.CONTROL_THUMBNAIL_BORDER) + 'px';
+    this.dom_roi.style.height = trim(1, h*this.thumbscale-2, this.th-ty-PanoJS.CONTROL_THUMBNAIL_BORDER) + 'px';
     
     this.dom_roi_prev.style.left = tx + 'px';
     this.dom_roi_prev.style.top  = ty + 'px';   
-    this.dom_roi_prev.style.width = Math.min(w*this.thumbscale-2, this.tw-tx-PanoJS.CONTROL_THUMBNAIL_BORDER) + 'px';
-    this.dom_roi_prev.style.height = Math.min(h*this.thumbscale-2, this.th-ty-PanoJS.CONTROL_THUMBNAIL_BORDER) + 'px';    
+    this.dom_roi_prev.style.width = trim(1, w*this.thumbscale-2, this.tw-tx-PanoJS.CONTROL_THUMBNAIL_BORDER) + 'px';
+    this.dom_roi_prev.style.height = trim(1, h*this.thumbscale-2, this.th-ty-PanoJS.CONTROL_THUMBNAIL_BORDER) + 'px';
 }
 
 ThumbnailControl.prototype.viewerZoomed = function(e) {

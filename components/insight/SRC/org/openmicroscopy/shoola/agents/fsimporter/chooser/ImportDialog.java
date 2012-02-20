@@ -93,6 +93,7 @@ import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.util.filter.file.HCSFilter;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -354,8 +355,11 @@ public class ImportDialog
 	/** The collection of general filters. */
 	private List<FileFilter> 			generalFilters;
 	
-	/** The combine filter. */
+	/** The combined filter. */
 	private FileFilter					combinedFilter;
+
+	/** The combined filter for HCS. */
+	private FileFilter					combinedHCSFilter;
 	
 	/** The component displaying the available and used disk space. */
 	private JPanel						diskSpacePane;
@@ -1030,12 +1034,16 @@ public class ImportDialog
 					*/
 				}
 			}
+			Set<String> set = ImportableObject.HCS_FILES_EXTENSION;
+			combinedHCSFilter = new HCSFilter((String[]) set.toArray(
+					new String[set.size()]));
 			Iterator<FileFilter> j;
 			if (type == Importer.SCREEN_TYPE) {
+				chooser.addChoosableFileFilter(combinedHCSFilter);
 				j = hcsFilters.iterator();
 				while (j.hasNext())
 					chooser.addChoosableFileFilter(j.next());
-				chooser.setFileFilter(hcsFilters.get(0));
+				chooser.setFileFilter(combinedHCSFilter);
 			} else {
 				chooser.addChoosableFileFilter(combinedFilter);
 				j = generalFilters.iterator();
@@ -2196,10 +2204,11 @@ public class ImportDialog
 			Iterator<FileFilter> j;
 			if (type == Importer.SCREEN_TYPE) {
 				j = hcsFilters.iterator();
+				chooser.addChoosableFileFilter(combinedHCSFilter);
 				while (j.hasNext()) {
 					chooser.addChoosableFileFilter(j.next());
 				}
-				chooser.setFileFilter(hcsFilters.get(0));
+				chooser.setFileFilter(combinedHCSFilter);
 			} else {
 				chooser.addChoosableFileFilter(combinedFilter);
 				j = generalFilters.iterator();

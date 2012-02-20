@@ -10,12 +10,10 @@ import Ice, IceImport
 import omero
 if omero.__import_style__ is None:
     omero.__import_style__ = "all"
-    import omero.rtypes
+    import omero.min
     import omero.callbacks
     IceImport.load("omero_System_ice")
     IceImport.load("omero_Collections_ice")
-    IceImport.load("omero_ServicesF_ice")
-    IceImport.load("omero_API_ice")
     IceImport.load("omero_Repositories_ice")
     IceImport.load("omero_SharedResources_ice")
     IceImport.load("omero_Scripts_ice")
@@ -47,6 +45,5 @@ if omero.__import_style__ is None:
     IceImport.load("omero_api_RenderingEngine_ice")
     IceImport.load("omero_api_Search_ice")
     IceImport.load("omero_api_ThumbnailStore_ice")
-    IceImport.load("omero_Constants_ice")
     import omero_sys_ParametersI
     import omero_model_PermissionsI
