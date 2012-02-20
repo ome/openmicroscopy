@@ -74,14 +74,12 @@ from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpL
 from webclient_utils import _formatReport, _purgeCallback
 from forms import ShareForm, BasketShareForm, ShareCommentForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
-                    CommentAnnotationForm, TagAnnotationForm, \
-                    UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
+                    CommentAnnotationForm, TagsAnnotationForm, \
+                    UsersForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataObjectiveSettingsForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
-                    TagListForm, FileListForm, TagFilterForm, \
-                    MultiAnnotationForm, \
-                    WellIndexForm
+                    FilesAnnotationForm, WellIndexForm
 
 from controller import BaseController
 from controller.index import BaseIndex
@@ -164,12 +162,33 @@ def isUserConnected (f):
                     logger.error(traceback.format_exc())
         
         sessionHelper(request)
+        navHelper(request, conn)
         kwargs["error"] = request.REQUEST.get('error')
         kwargs["conn"] = conn
         kwargs["conn_share"] = conn_share
         kwargs["url"] = url
         return f(request, *args, **kwargs)
     return wrapped
+
+
+def navHelper(request, conn):
+    
+    from django.conf import settings
+    top_links = settings.TOP_LINKS
+    links = []
+    for tl in top_links:
+        try:
+            label = tl[0]
+            link_id = tl[1]
+            link = reverse(link_id)
+            links.append( {"label":label, "link":link} )
+        except:
+            logger.error("Failed to reverse() tab_link: %s" % tl)
+    if request.session.get('nav') is None:
+        request.session['nav'] = {}
+    request.session['nav']['top_links'] = links
+    request.session.modified = True
+
 
 def sessionHelper(request):
     """
@@ -536,10 +555,18 @@ def load_template(request, menu, **kwargs):
                     init['initially_select'] = k+"-"+i.replace(":selected", "")     # E.g. image-607
                 else:
                     init['initially_open'].append(k+"-"+i)          # E.g. ['project-51', 'dataset-502']
+
         if init['initially_select'] is None:
             sdict = string_to_dict(request.REQUEST.get('path'))
             k = sdict.keys()[-1]
             init['initially_select'] = k+"-"+sdict[k]
+
+
+    # search support
+    if menu == "search" and request.REQUEST.get('search_query'):
+        init['query'] = str(request.REQUEST.get('search_query')).replace(" ", "%20")
+
+
     try:
         manager = BaseContainer(conn)
     except AttributeError, x:
@@ -761,7 +788,6 @@ def load_searching(request, form=None, **kwargs):
     # form = 'form' if we are searching. Get query from request...
     if form is not None: 
         query_search = request.REQUEST.get('query').replace("+", " ")
-        print "".replace("+", " ")
         template = "webclient/search/search_details.html"
 
         onlyTypes = list()
@@ -779,7 +805,11 @@ def load_searching(request, form=None, **kwargs):
         date = request.REQUEST.get('dateperiodinput', None)
         if date is not None:
             date = smart_str(date)
-        
+
+        # by default, if user has not specified any types:
+        if len(onlyTypes) == 0:
+            onlyTypes = ['images']
+
         # search is carried out and results are stored in manager.containers.images etc.
         manager.search(query_search, onlyTypes, date)
     else:
@@ -1016,18 +1046,12 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
 
 
 @isUserConnected
-def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
+def load_metadata_details(request, c_type, c_id, conn, share_id=None, **kwargs):
     """
     This page is the right-hand panel 'general metadata', first tab only.
     Shown for Projects, Datasets, Images, Screens, Plates, Wells, Tags etc.
     The data and annotations are loaded by the manager. Display of appropriate data is handled by the template.
     """
-    conn = None
-    try:
-        conn = kwargs["conn"]        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     conn_share = None
     try:
@@ -1048,6 +1072,30 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
     except:
         index = 0
 
+    # we only expect a single object, but forms can take multiple objects
+    images = c_type == "image" and list(conn.getObjects("Image", [c_id])) or list()
+    datasets = c_type == "dataset" and list(conn.getObjects("Dataset", [c_id])) or list()
+    projects = c_type == "project" and list(conn.getObjects("Project", [c_id])) or list()
+    screens = c_type == "screen" and list(conn.getObjects("Screen", [c_id])) or list()
+    plates = c_type == "plate" and list(conn.getObjects("Plate", [c_id])) or list()
+    acquisitions = c_type == "acquisition" and list(conn.getObjects("PlateAcquisition", [c_id])) or list()
+    wells = list()
+    if c_type == "well":
+        for w in conn.getObjects("Well", [c_id]):
+            w.index=index
+            wells.append(w)
+
+    # we simply set up the annotation form, passing the objects to be annotated.
+    selected = {'images':c_type == "image" and [c_id] or [],
+        'datasets':c_type == "dataset" and [c_id] or [],
+        'projects':c_type == "project" and [c_id] or [],
+        'screens':c_type == "screen" and [c_id] or [],
+        'plates':c_type == "plate" and [c_id] or [],
+        'acquisitions':c_type == "acquisition" and [c_id] or [],
+        'wells':c_type == "well" and [c_id] or []}
+
+    initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}
+    
     form_comment = None
     try:
         if c_type in ("share", "discussion"):
@@ -1058,14 +1106,15 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
             form_comment = ShareCommentForm()
         else:
             if conn_share is not None:
+                # We are using a share connection to view Images etc
                 template = "webclient/annotations/annotations_share.html"
                 manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
             else:
-                #template = "webclient/annotations/annotations.html"
                 template = "webclient/annotations/metadata_general.html"
                 manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
                 manager.annotationList()
-                form_comment = CommentAnnotationForm()
+                form_comment = CommentAnnotationForm(initial=initial)
+                
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(x)    
@@ -1074,7 +1123,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'index':index}
-
+    context['share_id'] = share_id
     t = template_loader.get_template(template)
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
@@ -1364,116 +1413,255 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
 ###########################################################################
 # ACTIONS
 
-@isUserConnected
-def manage_annotation_multi(request, action=None, **kwargs):   
-    """
-    Handles setup OR sumbission of batch annotation form.
-    """
-    template = "webclient/annotations/annotation_new_form_multi.html"
-     
-    conn = None
-    try:
-        conn = kwargs["conn"]
-        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    # check menu
-    menu = request.REQUEST.get("menu")
-    if menu is not None:
-        request.session['nav']['menu'] = menu
-    else:
-        menu = request.session['nav']['menu']
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    try:
-        index = int(request.REQUEST['index'])
-    except:
-        index = None
-    
-    try:
-        manager = BaseContainer(conn, index=index)
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(x)
+# Annotation in the right-hand panel is handled the same way for single objects (metadata_general.html)
+# AND for batch annotation (batch_annotate.html) by 4 forms:
+# Comment (this is loaded in the initial page)
+# Tags (the empty form is in the initial page but fields are loaded via AJAX)
+# Local File (this is loaded in the initial page)
+# Existing File (the empty form is in the initial page but field is loaded via AJAX)
+#
+# In each case, the form itself contains hidden fields to specify the object(s) being annotated
+# All forms inherit from a single form that has these fields.
 
-    oids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate'), 'well':request.REQUEST.getlist('well')}
-
+def getObjects(request, conn):
+    """ 
+    Prepare objects for use in the annotation forms. 
+    These objects are required by the form superclass to populate hidden fields, so we know what we're annotating on submission
+    """
     images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
     datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
     projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
     screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
     plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
-    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
+    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and \
+            list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
     wells = list()
     if len(request.REQUEST.getlist('well')) > 0:
         for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
             w.index=index
             wells.append(w)
+    return {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+
+def getIds(request):
+    """ Used by forms to indicate the currently selected objects prepared above """
+    selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), \
+            'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), \
+            'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), \
+            'wells':request.REQUEST.getlist('well')}
+    return selected
+
+
+@isUserConnected
+def batch_annotate(request, conn, **kwargs):
+    """
+    This page gives a form for batch annotation. 
+    Local File form and Comment form are loaded. Other forms are loaded via AJAX
+    """
+
+    index = int(request.REQUEST.get('index', 0))
+
+    oids = getObjects(request, conn)
+    selected = getIds(request)
+    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
     
-    oids = {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+    form_comment = CommentAnnotationForm(initial=initial)
+
+    obj_ids = []
+    for key in oids:
+        obj_ids += ["%s=%s"%(key,o.id) for o in oids[key]]
+    obj_string = "&".join(obj_ids)
     
-    count = {'images':len(images), 'datasets':len(datasets), 'projects':len(projects), 'screens':len(screens), 'plates':len(plates), 'wells':len(wells)}
+    template = "webclient/annotations/batch_annotate.html"
+    context = {'form_comment':form_comment, 'obj_string':obj_string}
     
-    form_multi = None
-    if action == "annotatemany":
-        # we simply set up the annotation form, passing the objects to be annotated.
-        selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), 'wells':request.REQUEST.getlist('well')}
-        form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells})
-    else:
-        # Handle form submission...
-        if request.method == 'POST':
-            form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}, data=request.REQUEST.copy(), files=request.FILES)
-            if form_multi.is_valid():
-                
-                # In each case below, we pass the {'object_type': [ids]} map
-                content = form_multi.cleaned_data['content']
-                if content is not None and content != "":
-                    manager.createCommentAnnotations(content, oids)
-                
-                tag = form_multi.cleaned_data['tag']
-                description = form_multi.cleaned_data['description']
-                if tag is not None and tag != "":
-                    manager.createTagAnnotations(tag, description, oids)
-                
-                tags = request.REQUEST.getlist('tags')
-                if tags is not None and len(tags) > 0:
-                    manager.createAnnotationsLinks('tag', tags, oids)
-                
-                files = request.REQUEST.getlist('files')
-                if files is not None and len(files) > 0:
-                    manager.createAnnotationsLinks('file', files, oids)
-                
-                f = request.FILES.get('annotation_file')
-                if f is not None:
-                    manager.createFileAnnotations(f, oids)
-                
-                return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu]))
-            
-    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count, 'oids':oids, 'index':index}
-            
     t = template_loader.get_template(template)
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
+
+
+@isUserConnected
+def annotate_file(request, conn, **kwargs):
+    """ 
+    On 'POST', This handles attaching an existing file-annotation(s) and/or upload of a new file to one or more objects 
+    Otherwise it generates the form for choosing file-annotations & local files.
+    """
+    index = int(request.REQUEST.get('index', 0))
+    oids = getObjects(request, conn)
+    selected = getIds(request)
+    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
+    
+    obj_count = sum( [len(selected[types]) for types in selected] )
+    
+    # Get appropriate manager, either to list available Tags to add to single object, or list ALL Tags (multiple objects)
+    manager = None
+    if obj_count == 1:
+        for t in selected:
+            if len(selected[t]) > 0:
+                o_type = t[:-1]         # "images" -> "image"
+                o_id = selected[t][0]
+                break
+        if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
+            if o_type == 'tagset': o_type = 'tag' # TODO: this should be handled by the BaseContainer
+            kw = {'index':index}
+            if o_type is not None and o_id > 0:
+                kw[str(o_type)] = long(o_id)
+            try:
+                manager = BaseContainer(conn, **kw)
+            except AttributeError, x:
+                logger.error(traceback.format_exc())
+                return handlerInternalError(x)
+        elif o_type in ("share", "sharecomment"):
+            manager = BaseShare(conn, None, o_id)
+    if manager is None:
+        manager = BaseContainer(conn)
+    
+    files = manager.getFilesByObject()
+    initial['files'] = files
+
+    if request.method == 'POST':
+        # handle form submission
+        form_file = FilesAnnotationForm(initial=initial, data=request.REQUEST.copy())
+        if form_file.is_valid():
+            # Link existing files...
+            linked_files = []
+            files = form_file.cleaned_data['files']
+            if files is not None and len(files)>0:
+                linked_files = manager.createAnnotationsLinks('file', files, oids, well_index=index)
+            # upload new file
+            fileupload = 'annotation_file' in request.FILES and request.FILES['annotation_file'] or None
+            if fileupload is not None and fileupload != "":
+                upload = manager.createFileAnnotations(fileupload, oids, well_index=index)
+                linked_files.append(upload)
+            if len(linked_files) == 0:
+                return HttpResponse("<div>No Files chosen</div>")
+            template = "webclient/annotations/fileanns.html"
+            context = {'fileanns':linked_files}
+        else:
+            return HttpResponse(form_file.errors)
+
+    else:
+        form_file = FilesAnnotationForm(initial=initial)
+        context = {'form_file': form_file}
+        template = "webclient/annotations/files_form.html"
+    
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+    
+@isUserConnected
+def annotate_comment(request, conn, **kwargs):
+    """ Handle adding Comments to one or more objects """
+
+    index = int(request.REQUEST.get('index', 0))
+    oids = getObjects(request, conn)
+    selected = getIds(request)
+    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
+
+    manager = BaseContainer(conn)
+
+    # Handle form submission...
+    if request.method == 'POST':
+        form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
+        if form_multi.is_valid():
+            # In each case below, we pass the {'object_type': [ids]} map
+            content = form_multi.cleaned_data['comment']
+            if content is not None and content != "":
+                textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
+                template = "webclient/annotations/comment.html"
+                context = {'tann': textAnn}
+                
+                t = template_loader.get_template(template)
+                c = Context(request,context)
+                logger.debug('TEMPLATE: '+template)
+                return HttpResponse(t.render(c))
+        else:
+            return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
+
+
+@isUserConnected
+def annotate_tags(request, conn, **kwargs):
+    """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
+
+    index = int(request.REQUEST.get('index', 0))
+    oids = getObjects(request, conn)
+    selected = getIds(request)
+    obj_count = sum( [len(selected[types]) for types in selected] )
+
+    # Get appropriate manager, either to list available Tags to add to single object, or list ALL Tags (multiple objects)
+    manager = None
+    if obj_count == 1:
+        for t in selected:
+            if len(selected[t]) > 0:
+                o_type = t[:-1]         # "images" -> "image"
+                o_id = selected[t][0]
+                break
+        if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
+            if o_type == 'tagset': o_type = 'tag' # TODO: this should be handled by the BaseContainer
+            kw = {'index':index}
+            if o_type is not None and o_id > 0:
+                kw[str(o_type)] = long(o_id)
+            try:
+                manager = BaseContainer(conn, **kw)
+            except AttributeError, x:
+                logger.error(traceback.format_exc())
+                return handlerInternalError(x)
+        elif o_type in ("share", "sharecomment"):
+            manager = BaseShare(conn, None, o_id)
+
+    if manager is None:
+        manager = BaseContainer(conn)
+
+    tags = manager.getTagsByObject()
+    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
+    initial['tags'] = tags
+
+    if request.method == 'POST':
+        # handle form submission
+        form_tags = TagsAnnotationForm(initial=initial, data=request.REQUEST.copy())
+        # Create new tags or Link existing tags...
+        if form_tags.is_valid():
+            tag = form_tags.cleaned_data['tag']
+            description = form_tags.cleaned_data['description']
+            tags = form_tags.cleaned_data['tags']
+            linked_tags = []
+            if tags is not None and len(tags)>0:
+                linked_tags = manager.createAnnotationsLinks('tag', tags, oids, well_index=index)
+            if tag is not None and tag != "":
+                new_tag = manager.createTagAnnotations(tag, description, oids, well_index=index)
+                linked_tags.append(new_tag)
+            if len(linked_tags) == 0:
+                return HttpResponse("<div>No Tags Added</div>")
+            template = "webclient/annotations/tags.html"
+            context = {'tags':linked_tags}
+        else:
+            return HttpResponse(str(form_tags.errors))      # TODO: handle invalid form error
+
+    else:
+        form_tags = TagsAnnotationForm(initial=initial)
+        context = {'form_tags': form_tags}
+        template = "webclient/annotations/tags_form.html"
+    
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+
 
 @isUserConnected
 def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     """
     Handles many different actions on various objects.
     
-    @param action:      "new", "newcomment", "newtagonly", "newtag", "newfile", "newsharecomment",  (these prepare forms for annotation etc.)
-                            "addnewcontainer", "addnew", (create new P/D, Screen etc.)
-                            "edit", "save",
-                            "editname", "savename", "editdescription", "savedescription",  (used as GET and POST for in-line editing)
-                            "paste", "move", "remove", "removefromshare", 
-                            "addcomment", "addtag", "addtagonly", "addfile", "usefile", "delete", "deletemany"
+    @param action:      "addnewcontainer", (creates a new Project, Dataset, Screen)
+                        "editname", "savename", "editdescription", "savedescription",  (used as GET and POST for in-line editing)
+                        "paste", "move", "remove", "removefromshare", (tree P/D/I moving etc)
+                        "delete", "deletemany"      (delete objects)
     @param o_type:      "dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset","share", "sharecomment"
     """
     template = None
@@ -1521,42 +1709,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         manager = BaseContainer(conn)
         
     form = None
-    if action == 'new':
-        # form to create new Project, Dataset or Screen. - TODO: not used now?
-        template = "webclient/data/container_new.html"
-        form = ContainerForm()
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
-    elif action == 'newcomment':
-        # form for Comment - TODO: not used now?
-        template = "webclient/annotations/annotation_new_form.html"
-        form_comment = CommentAnnotationForm()
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'index':index}
-    elif action == 'newtagonly':
-        # form only allows creating new tag. TODO: not used now?
-        template = "webclient/annotations/annotation_new_form.html"
-        form_tag = TagAnnotationForm()
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
-    elif action == 'newtag':
-        # form allows creating new tag AND adding existing tags
-        template = "webclient/annotations/annotation_new_form.html"
-        form_tag = TagAnnotationForm()
-        form_tags = TagListForm(initial={'tags':manager.getTagsByObject()})
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'form_tags':form_tags, 'index':index}
-    elif action == 'newfile':
-        # form for attaching new file (upload) or existing one.
-        template = "webclient/annotations/annotation_new_form.html"
-        form_file = UploadFileForm()
-        form_files = FileListForm(initial={'files':manager.getFilesByObject()})
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'form_files':form_files, 'index':index}
-    elif action == 'newsharecomment':
-        # TODO: not used now?
-        template = "webclient/annotations/annotation_new_form.html"
-        if manager.share.isExpired():
-            form_sharecomments = None
-        else:
-            form_sharecomments = ShareCommentForm()
-        context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}  
-    elif action == 'addnewcontainer':
+    if action == 'addnewcontainer':
         # Used within the jsTree to add a new Project, Dataset etc under a specified parent OR top-level
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
@@ -1598,33 +1751,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponse( json, mimetype='application/javascript')
         else:
             return HttpResponseServerError("Object does not exist")
-    elif action == 'addnew':
-        # Handles submission from 'container_new.html'. TODO: not used now?
-        if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["action", "new"]))
-        if o_type == "project" and o_id > 0:
-            form = ContainerForm(data=request.REQUEST.copy())
-            if form.is_valid():
-                logger.debug("Create new dataset: %s" % (str(form.cleaned_data)))
-                name = form.cleaned_data['name']
-                description = form.cleaned_data['description']
-                manager.createDataset(name, description)
-                return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
-            else:
-                template = "webclient/data/container_new.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
-        else:
-            if request.REQUEST.get('folder_type') in ("project", "screen", "dataset"):
-                form = ContainerForm(data=request.REQUEST.copy())
-                if form.is_valid():
-                    logger.debug("Create new folder: %s" % (str(form.cleaned_data)))
-                    name = form.cleaned_data['name']
-                    description = form.cleaned_data['description']
-                    getattr(manager, "create"+request.REQUEST.get('folder_type').capitalize())(name, description)
-                    return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
-                else:
-                    template = "webclient/data/container_new.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
     elif action == 'edit':
         # form for editing an Object. E.g. Project etc. TODO: not used now? 
         if o_type == "share" and o_id > 0:
@@ -1633,14 +1759,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             manager.getComments(o_id)
             experimenters = list(conn.getExperimenters())
             experimenters.sort(key=lambda x: x.getOmeName().lower())
-            if manager.share.getExpirationDate() is not None:
-                form = ShareForm(initial={'message': manager.share.message, 'expiration': manager.share.getExpirationDate().strftime("%Y-%m-%d"), \
-                                        'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
-                                        'experimenters': experimenters}) #'guests': share.guestsInShare,
-            else:
-                form = ShareForm(initial={'message': manager.share.message, 'expiration': "", \
-                                        'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
-                                        'experimenters': experimenters}) #'guests': share.guestsInShare,
+            initial={'message': manager.share.message, 'expiration': "", \
+                                    'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
+                                    'experimenters': experimenters}
+            if manager.share.getExpireDate() is not None:
+                initial['expiration'] = manager.share.getExpireDate().strftime("%Y-%m-%d")
+            form = ShareForm(initial=initial) #'guests': share.guestsInShare,
             context = {'url':url, 'nav':request.session['nav'], 'eContext': manager.eContext, 'share':manager, 'form':form}
         elif hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
@@ -1650,41 +1774,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     elif action == 'save':
         # Handles submission of the 'edit' form above. TODO: not used now?
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))        
-        if o_type in ("project", "dataset", "image", "screen", "plate", "well"):
-            if hasattr(manager, o_type) and o_id > 0:
-                form = ContainerForm(data=request.REQUEST.copy())
-                if form.is_valid():
-                    logger.debug("Update: %s" % (str(form.cleaned_data)))
-                    name = form.cleaned_data['name']
-                    description = form.cleaned_data['description']               
-                    getattr(manager, "update"+o_type.capitalize())(name, description)
-                    return HttpResponseRedirect(url)
-                else:
-                    template = "webclient/data/container_form.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type == 'comment':
-            form = CommentAnnotationForm(data=request.REQUEST.copy())
-            if form.is_valid():
-                logger.debug("Save Comment: %s" % (str(form.cleaned_data)))
-                content = form.cleaned_data['content']
-                manager.saveCommentAnnotation(content)
-                return HttpResponseRedirect(url)
-            else:
-                template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'index':index}
-        elif o_type == 'tag':
-            form = TagAnnotationForm(data=request.REQUEST.copy())
-            if form.is_valid():
-                logger.debug("Save Tag: %s" % (str(form.cleaned_data)))
-                tag = form.cleaned_data['tag']
-                description = form.cleaned_data['description']
-                manager.saveTagAnnotation(tag, description)
-                return HttpResponseRedirect(url)
-            else:
-                template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'index':index}
-        elif o_type == "share":
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
+        if o_type == "share":
             experimenters = list(conn.getExperimenters())
             experimenters.sort(key=lambda x: x.getOmeName().lower())
             form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
@@ -1697,7 +1788,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 enable = toBoolean(form.cleaned_data['enable'])
                 host = request.build_absolute_uri(reverse("load_template", args=["public"]))
                 manager.updateShareOrDiscussion(host, request.session.get('server'), message, members, enable, expiration)
-                return HttpResponseRedirect(url)
+                return HttpResponse("DONE")
             else:
                 template = "webclient/public/share_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'share':manager, 'form':form}
@@ -1707,11 +1798,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 logger.debug("Create share comment: %s" % (str(form_sharecomments.cleaned_data)))
                 comment = form_sharecomments.cleaned_data['comment']
                 host = request.build_absolute_uri(reverse("load_template", args=["public"]))
-                manager.addComment(host, request.session['server'], comment)
-                return HttpResponseRedirect(url)
+                textAnn = manager.addComment(host, request.session['server'], comment)
+                template = "webclient/annotations/share_comment.html"
+                context = {'cm': textAnn}
             else:
                 template = "webclient/annotations/annotation_new_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}
+                context = {'nav':request.session['nav'], 'url':url, 
+                        'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}
     elif action == 'editname':
         # start editing 'name' in-line
         if hasattr(manager, o_type) and o_id > 0:
@@ -1833,82 +1926,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         rdict = {'bad':'false' }
         json = simplejson.dumps(rdict, ensure_ascii=False)
         return HttpResponse( json, mimetype='application/javascript')
-    elif action == 'addcomment':
-        # Handles Adding of comment to Project etc. in the 'metadata_general' page
-        if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("load_metadata_details", args=[o_type, o_id]))
-        form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
-        if form_comment.is_valid() and o_type is not None and o_id > 0:
-            content = form_comment.cleaned_data['content']
-            manager.createCommentAnnotation(o_type, content)    
-            return HttpResponseRedirect(url)
-        else:
-            template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'index':index}
-    elif action == 'addtag':
-        # Handles creation of a new tag from the 'newtag' form above
-        if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["newtag", o_type, o_id]))
-        form_tag = TagAnnotationForm(data=request.REQUEST.copy())
-        if form_tag.is_valid() and o_type is not None and o_id > 0:
-            tag = form_tag.cleaned_data['tag']
-            desc = form_tag.cleaned_data['description']
-            manager.createTagAnnotation(o_type, tag, desc)
-            return HttpResponseRedirect(url)
-        else:
-            template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'index':index}
-    elif action == 'addtagonly':
-        # Creates a new tag. Submitted from the 'newtagonly' form above. TODO: not used now?
-        if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["newtagonly"]))
-        form_tag = TagAnnotationForm(data=request.REQUEST.copy())
-        if form_tag.is_valid():
-            tag = form_tag.cleaned_data['tag']
-            desc = form_tag.cleaned_data['description']            
-            manager.createTagAnnotationOnly(tag, desc)
-            return HttpJavascriptRedirect(reverse("load_template", args=["usertags"])) 
-        else:
-            template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
-    elif action == 'usetag':
-        # Adds an existing tag to object. Submitted from the 'newtag' form above.
-        if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["usetag", o_type, o_id]))
-        tag_list = manager.getTagsByObject()
-        form_tags = TagListForm(data=request.REQUEST.copy(), initial={'tags':tag_list})
-        if form_tags.is_valid() and o_type is not None and o_id > 0:
-            tags = form_tags.cleaned_data['tags']
-            manager.createAnnotationLinks(o_type, 'tag', tags)    
-            return HttpResponseRedirect(url)
-        else:
-            template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tags':form_tags, 'index':index}
-    elif action == 'addfile':
-        # Uploads a new file, to attach as file annotation
-        if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["newfile", o_type, o_id]))
-        form_file = UploadFileForm(request.REQUEST.copy(), request.FILES)
-        if form_file.is_valid() and o_type is not None and o_id > 0:
-            f = request.FILES['annotation_file']
-            manager.createFileAnnotation(o_type, f)
-            return HttpResponseRedirect(url)
-        else:
-            template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'index':index}
-    elif action == 'usefile':
-        # Attatches an existing file.
-        if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["usefile", o_type, o_id]))
-        file_list = manager.getFilesByObject()
-        form_files = FileListForm(data=request.REQUEST.copy(), initial={'files':file_list})
-        if form_files.is_valid() and o_type is not None and o_id > 0:
-            files = request.POST.getlist('files')
-            manager.createAnnotationLinks(o_type, 'file', files)    
-            return HttpResponseRedirect(url)
-        else:
-            template = "webclient/annotations/annotation_new_form.html"
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files, 'index':index}
     elif action == 'delete':
         # Handles delete of a file attached to object.
         child = toBoolean(request.REQUEST.get('child'))
@@ -2318,7 +2335,7 @@ def basket_action (request, action=None, **kwargs):
             template = "webclient/basket/basket_discussion_action.html"
             context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
     else:
-        template = "webclient/basket/basket.html"
+        template = kwargs.get("template", "webclient/basket/basket.html")
         
         basket = BaseBasket(conn)
         basket.load_basket(request)
@@ -2573,7 +2590,7 @@ def getObjectUrl(conn, obj):
 ######################
 # Activities window & Progressbar
 @isUserConnected
-def progress(request, **kwargs):
+def activities(request, **kwargs):
     """
     Refresh callbacks (delete, scripts etc) and provide json to update Activities window & Progressbar.
     The returned json contains details for ALL callbacks in web session, regardless of their status.
@@ -2697,26 +2714,46 @@ def progress(request, **kwargs):
             rv[cbString] = copy.copy(request.session['callback'][cbString])
             rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
 
-    rv['inprogress'] = in_progress
-    rv['failure'] = failure
-    rv['jobs'] = len(request.session['callback'])
+    
+    if 'template' in kwargs and kwargs['template'] == 'json':
+        rv['inprogress'] = in_progress
+        rv['failure'] = failure
+        rv['jobs'] = len(request.session['callback'])
+        return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript') # json
+        
+    jobs = []
+    for key, data in rv.items():
+        # E.g. key: ProcessCallback/39f77932-c447-40d8-8f99-910b5a531a25 -t:tcp -h 10.211.55.2 -p 54727:tcp -h 10.37.129.2 -p 54727:tcp -h 10.12.2.21 -p 54727
+        # create id we can use as html id, E.g. 39f77932-c447-40d8-8f99-910b5a531a25
+        if len(key.split(" ")) > 0:
+            htmlId = key.split(" ")[0]
+            if len(htmlId.split("/")) > 1:
+                htmlId = htmlId.split("/")[1]
+        rv[key]['id'] = htmlId
+        rv[key]['key'] = key
+        jobs.append(rv[key])
 
-    return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript') # json
+    jobs.sort(key=lambda x:x['start_time'], reverse=True)
+    context = {'sizeOfJobs':len(request.session['callback']),
+            'jobs':jobs,
+            'inprogress':in_progress,
+            'failure':failure}
+
+    template = "webclient/activities/activitiesContent.html"
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
 
 
 @isUserConnected
-def status_action (request, action=None, **kwargs):
+def activities_update (request, action, **kwargs):
     """
-    Opens the Activites window, using data from jobs in the request.session['callback'].
-    Once this window is open, AJAX calls are used to poll the request.session['callback'] and update the page
-
     If the above 'action' == 'clean' then we clear jobs from request.session['callback']
     either a single job (if 'jobKey' is specified in POST) or all jobs (apart from those in progress)
     """
 
     request.session.modified = True
-
-    request.session['nav']['menu'] = 'status'
 
     if action == "clean":
         if 'jobKey' in request.POST:
@@ -2735,53 +2772,6 @@ def status_action (request, action=None, **kwargs):
                     del request.session['callback'][key]
         return HttpResponseRedirect(reverse("status"))
 
-    elif action == "update":
-        # try to update the 'attribute' of the job with 'new_value' (or None)
-        if 'jobKey' in request.POST:
-            jobId = request.POST.get('jobKey')
-            rv = {'updated':False}
-            if jobId in request.session['callback']:
-                if 'attribute' in request.POST:
-                    attribute = request.POST.get('attribute')
-                    new_value = request.POST.get('new_value', None)
-                    request.session['callback'][jobId][attribute] = new_value
-                    request.session.modified = True
-                    rv['updated'] = True
-            return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript')
-
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    template = "webclient/status/statusWindow.html"
-    if request.REQUEST.get('content_only'):
-        template = "webclient/status/activitiesContent.html"
-
-    _purgeCallback(request)
-
-    jobs = []
-    for key, data in request.session['callback'].items():
-        # E.g. key: ProcessCallback/39f77932-c447-40d8-8f99-910b5a531a25 -t:tcp -h 10.211.55.2 -p 54727:tcp -h 10.37.129.2 -p 54727:tcp -h 10.12.2.21 -p 54727
-        # create id we can use as html id, E.g. 39f77932-c447-40d8-8f99-910b5a531a25
-        data['id'] = key
-        if len(key.split(" ")) > 0:
-            data['id'] = key.split(" ")[0]
-            if len(data['id'].split("/")) > 1:
-                data['id'] = data['id'].split("/")[1]
-        data['key'] = key
-        jobs.append(data)
-
-    jobs.sort(key=lambda x:x['start_time'], reverse=True)
-    context = {'sizeOfJobs':len(request.session['callback']), 'jobs':jobs }
-
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
-            
 ####################################################################################
 # User Photo
 
@@ -3171,10 +3161,14 @@ def script_ui(request, scriptId, **kwargs):
         if key == "Data_Type": Data_TypeParam = i
     inputs.sort(key=lambda i: i["grouping"])
 
-    # if we have Data_Type param that has a "default" and "options" - check they match...
-    if Data_TypeParam is not None and "default" in Data_TypeParam and "options" in Data_TypeParam:
-        if Data_TypeParam["default"] not in Data_TypeParam["options"]:
-            IDsParam["default"] = ""        # ... if not, don't set IDs
+    # if we have Data_Type param - use the request parameters to populate IDs
+    if Data_TypeParam is not None and IDsParam is not None and "options" in Data_TypeParam:
+        IDsParam["default"] = ""
+        for dtype in Data_TypeParam["options"]:
+            if request.REQUEST.get(dtype, None) is not None:
+                Data_TypeParam["default"] = dtype
+                IDsParam["default"] = request.REQUEST.get(dtype, "")
+                break       # only use the first match
 
     # try to determine hierarchies in the groupings - ONLY handle 1 hierarchy level now (not recursive!)
     for i in range(len(inputs)):
@@ -3328,6 +3322,7 @@ def script_run(request, scriptId, **kwargs):
 
 GOOGLE_URL = "www.google.com"
 def spellchecker(request):
+    """ Spellchecker functionality - Not used currently """
     if request.method == 'POST':
         lang = request.GET.get("lang", "en")
         data = request.raw_post_data

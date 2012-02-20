@@ -1,17 +1,27 @@
-html.noscroll {
-    overflow: hidden;
-}
-
-.header_chooser {
+/*
+ * Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+ 
+ .header_chooser {
     float:left;
     position:relative;
-    top:-2px;
+    top:0px;
     padding:0px 5px;
-}
-
-body.zoom {
-    width: 100%;
-    background: no-repeat;
 }
 
 .error {
@@ -21,15 +31,6 @@ body.zoom {
 .disabled {
     background: #dcdcdc;
     color: #777777;
-}
-
-#content_zoom {
-    margin: 10px;
-}
-
-#path {
-    position: relative;
-    padding:0;
 }
 
 .toolbar_noborder {
@@ -50,51 +51,30 @@ body.zoom {
 .padding {
     padding: 10px;
 }
-#view_grey  {
-    height:20px;
-    padding:5px;
-    background-color:#f3f3f3;
-    width: 100%;    
-}
 
-#actionWrapper {
-    position: absolute;
-    padding: 0;
-    top: 0;
-    left: 0;
+#queue, #baskets {
+    position: relative;
+    margin: 0 5px;
+    float:left;
+    top: -1px;
 }
 #baskets {
-    margin: 0 5px;
-    float:left;
+    padding-left: 15px;
 }
-#queue, #jobstatus {
-    margin: 0 5px;
-    float:left;
+#jobstatus, #cartTotal {
+    font-size: 80%;
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    padding: 1px 2px;
+    background: red;
+    border-radius: 4px;
 }
 
 #dataTable img {
     /*border: 1px solid white;*/
     padding: 2px;
 }
-
-.tree {
-    overflow: auto;
-    min-width:400px;
-}
-
-img.action {
-    padding-left: 3px;
-    padding-right: 3px;
-}
-
-iframe {
-    border:0;
-    position: absolute;
-    top:26px; bottom:0px; left:0px; right:0px;
-    overflow: auto;
-    height: 100%;
-}
-
 
 input.button {
     border: 0;
@@ -106,8 +86,6 @@ input.button-disabled {
     cursor:default !important;
 }
 
-
-
 ul.criteria li{
     list-style: none;
     float: left;
@@ -115,24 +93,6 @@ ul.criteria li{
     margin-right: 5px;
 }
 
-.separate70 {
-    clear: both;
-    height: 70px;
-    margin: 0px;
-    padding: 0px;
-}
-.separate50 {
-    clear: both;
-    height: 50px;
-    margin: 0px;
-    padding: 0px;
-}
-.separate30 {
-    clear: both;
-    height: 30px;
-    margin: 0px;
-    padding: 0px;
-}
 .hide {
     display: none !important;
 }
@@ -158,16 +118,24 @@ ul.criteria li{
     top:0px; bottom:0px; left:0px; right:0px;
     overflow: auto;
 }
-#metadata_details {
-    overflow: auto;
+
+/* tabs */
+#annotation_tabs, #left_panel_tabs {
+    border: 0;
+    background: #fff;
+    padding: 0px;
+    padding-top:5px;
     position: absolute;
-    top:0px; bottom:0px; left:0px; right:0px;
+}
+
+ul.tabslist {
+    border-bottom: solid 1px #bbb;
 }
 
 .toolbar {
     position: absolute;
-    height:20px;
-    padding:5px;
+    height:17px;
+    padding:3px;
     background-color:#fff;
     top:0px; left:0px; right:0px; 
     border-bottom: 1px solid #bbb;
@@ -175,12 +143,323 @@ ul.criteria li{
 
 #tree_details {
     position: absolute;
-    top:31px; left:0px; right:0px; bottom:0px;
+    top:24px;
+    left:0px; right:0px; bottom:0px;
+    padding-top: 3px;
     background-color:#fff;
-    border-bottom: 1px solid #bbb;
     overflow: auto;
 }
 
 .hiddenField {
     display: none;
+}
+
+.info_panel {
+    color: #000;
+    position: absolute;
+    top: 18px;
+    z-index: 20;
+    background: #fff;
+    border: solid 1px #444444;
+    max-height: 500px;
+    overflow: auto;
+    min-width: 500px;
+}
+.info_panel h3 {
+    padding: 5px 5px;
+    margin: 0px;
+    font-weight: normal;
+    border-bottom: solid gray 1px;
+}
+#activities_panel .message {
+    width: 200px;
+}
+#activities_panel .activity_title {
+    font-weight:bold;
+}
+#activities_panel .message {
+    color: #666;
+}
+
+.info_panel tr.even {
+  background-color: #eef;
+}
+.info_panel tr.odd {
+  background-color: #fff;
+}
+
+#activities_panel tr.hidden {
+    display: none;
+}
+
+#activities_panel a, #basket_panel a {
+    text-decoration: none;
+    color: #00f;
+}
+#activities_panel td {
+    word-wrap: break-word;
+}
+#activities_panel .key {
+    color: gray;
+}
+.dropdown_menu {
+    position: relative;
+    list-style:none;
+    cursor: pointer;
+}
+.menu_launch {
+    color: blue;
+}
+.dropdown_menu_options {
+    visibility: hidden;
+    position: absolute; top: 100%; left: 25%; z-index:50;
+    margin: 0; padding: 0; list-style:none; border:solid gray 1px;
+    background: white;
+}
+.dropdown_menu_options li {
+    padding: 3px 5px;
+    min-width: 100px;
+    white-space:nowrap;
+}
+.dropdown_menu_options li:hover {
+    background: #eef;
+}
+#activities_panel .script_error {
+    color: red;
+}
+#activities_spinner, #basket_spinner {
+float: right;
+}
+#basket_panel_link {
+    float: right;
+}
+
+.quote {
+    background-color:   #eee;
+    font-family:        monospace;
+    font-style:         italic;
+    border:             1px dotted #333;
+    font-size:          95%;
+    margin:             15px 20px 15px 20px;
+    padding:            6px;
+    width:              85%;
+    overflow:           auto;
+}
+
+/* icons */
+#dataIcons {
+    list-style-type: none;
+    margin: 0; 
+    padding: 2px; 
+    top: 0; 
+    left: 0;
+    position: relative;
+}
+
+#dataIcons li {
+    border: 0px;
+    float: left;
+    text-align: center;
+    height: 85px;
+    width: 85px;
+    padding: 5px; 
+}
+
+#dataIcons img, #dataIcons .readonly img, #dataIcons .linkonly img {
+    border: 1px solid #fff;
+    padding: 2px; 
+}
+
+#dataIcons .ui-selecting img{ border: 1px dashed #555; padding: 2px; background-color:#ccc; }
+#dataIcons .ui-selected img{ border: 1px dashed #555; padding: 2px; background-color:#ccc; }
+
+em {
+    background-color: #fff;
+    border: 1px solid #bbb;
+    position: absolute;
+    left: 0px;
+    padding: 5px;
+    z-index: 2;
+    display: none;
+}
+
+.miniview {
+    /* This is for the miniviewer in image_details */
+    width: 300px;
+    height: 300px;
+    position: relative;
+}
+
+div.paging {
+    font-size: 12px;
+    text-align: center;
+    margin: 0;
+    padding: 10px 0px 30px 0px;
+}
+div.paging input.button_pagination {
+    border: 0;
+    background-color: transparent;
+    color: #1b7bc7;
+    padding: 0;
+}
+
+#spw {
+    width: 100%;
+}
+
+#spw table {
+    background:#fff none repeat scroll 0 0;
+    width: 0;
+    table-layout: auto;
+}
+#spw table td {
+    padding: 1px;
+    border: 1px solid #ccc;
+    width: 25px;
+}
+#spw table td.well {
+    background: #eee;
+}
+
+#spw table td.ui-selecting { border: 1px dashed #555; padding: 1px; background-color:#ccc;}
+#spw table td.ui-selected { border: 1px dashed #555; padding: 1px; background-color:#ccc;}
+
+#index table {
+    background:#fff none repeat scroll 0 0;
+    width: 0;
+}
+
+
+/** Annotation Styles **/
+
+#annotation_tab, #metadata_tab, #preview_tab {
+    padding: 10px;
+    overflow: auto;
+}
+
+img.pencil {
+    float: left;
+    padding: 8px 5px 0 0;
+}
+img.thumbnail {
+    margin-right: 5px;
+    border: 1px solid #bbb;
+}
+
+select.existing {
+    width: 300px;
+}
+
+div.description {
+    min-height:60px;
+    overflow: auto;
+    border: 1px solid #bbb;
+    padding: 5px;
+    background-color: #fff;
+}
+div.lncomments{
+    overflow: auto;
+    border: 1px solid #bbb;
+    padding: 10px;
+    background-color: #fff;
+}
+div.lntags{
+    overflow: auto;
+    border: 1px solid #bbb;
+    padding: 0 10px;
+    background-color: #fff;
+}
+div.lnfiles{
+    overflow: auto;
+    border: 1px solid #bbb;
+    padding: 0 10px;
+    background-color: #fff;
+}
+
+.ann_comment_wrapper {
+    width: 100%;
+}
+.ann_comment_wrapper div.avatar {
+    float: left;
+    width:25px; 
+}
+
+.ann_comment_wrapper .ann_comment_header{
+    font-weight: bold;
+}
+
+table.metadata_details {
+    width: 100%;
+}
+table.metadata_details td{
+    border-bottom: 1px dotted #bbb;
+}
+
+div.plane_info {
+    width:100%;
+    overflow: auto;
+    background: white;
+    border: solid #ccc 1px;
+}
+
+div.plane_info table div {
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    padding: 1px 4px
+}
+
+.can-collapse {
+    background:transparent url(/static/common/image/table/desc-big.gif) no-repeat scroll bottom right;
+    border: 1px solid #bbb;
+    background-color: #fff;
+    cursor:pointer;
+    padding: 5px;
+    margin:5px 0;
+}
+.defclosed,.closed{
+    background:transparent url(/static/common/image/table/asc-big.gif) no-repeat scroll top right;
+    background-color: #fff;
+}
+
+.show_xml {
+    color: #1B7BC7;
+    cursor: pointer;
+}
+
+/** tooltip **/
+
+#tooltip {
+position: absolute;
+z-index: 3000;
+border: 1px solid #c3c3c3;
+background-color: #fffecb;
+padding: 5px;
+opacity: 0.85;
+width: 250px;
+}
+#tooltip h3, #tooltip div { margin: 0; }
+
+
+/** Containers for displaying messages on batch annotation panel **/
+
+#batch_ann_msg_container {
+    position:absolute;
+    z-index:10;
+    top:10px; right:10px; 
+    background: #ffb;
+    width:200px;
+}
+
+#batch_ann_msg, #batch_ann_error {
+    background: #ffb;
+    padding:10px;
+    border: solid #ddd 1px;
+    display: none;
+}
+#batch_ann_msg, {
+    background: #ffb;
+}
+#batch_ann_error {
+    background: #fbb;
+    cursor: pointer;
 }

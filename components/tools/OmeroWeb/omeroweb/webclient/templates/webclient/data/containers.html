@@ -31,13 +31,11 @@
 -->
 {% endcomment %}
 
-
 {% block script %}
     {{ block.super }}
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.cookie.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.hotkeys.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.js" %}"></script>   
-    
     <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
     <script type="text/javascript">
         String.prototype.capitalize = function() {
@@ -133,8 +131,18 @@
 
         $(function() 
             {
-                //var h = $(window).height()-200;
-                
+                $("#left_panel_tabs").tabs({
+                    select: function(event, ui) {
+                        var url = $.data(ui.tab, 'load.tabs');
+                        if( url ) {
+                            location.href = url;
+                            return false;
+                        }
+                        return true;
+                    }
+                });
+
+
                 var buttonsShowHide = function(selected, inst) {
                     var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
                     
@@ -591,11 +599,8 @@
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
                     var selected = data.inst.get_selected();
                     if (selected.length > 1) {
-                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% static "common/image/knotes16.png" %}"/> Batch Annotate</a></p>');
-                        $("#batchAnnotate").click(function() {
-                            multipleAnnotation(selected, null, '{% url webindex %}');
-                            return false;
-                        });
+                        multipleAnnotation(selected, null, '{% url batch_annotate %}');
+                        // if any non-images are selected, clear the centre panel
                         if (selected.filter('li:not([id|=image])').length > 0) {
                             $("div#content_details").empty();
                             $("div#content_details").removeAttr('rel');
@@ -766,49 +771,60 @@
     </script>
 {% endblock %}
 
-{% block left %}
-    <!-- hidden form for delete dialogs -->
-    <div id="delete-dialog-form" title="Delete">
-        <p>Are you sure you want to delete the selected <span id="delete_type">Images</span>?</p>
-        <p>If yes:</p>
-        <form>
-        <fieldset style="border: 0px solid white">
-            <div id="delete_contents_form"> <!-- we can hide this if we're deleting Images -->
-                <input type="checkbox" name="delete_content" id="delete_content" />
-                Also delete contents?
-                <hr style="color:#eee"/>
-            </div>
-            <input type="checkbox" name="delete_anns" id="delete_anns" />
-            Also delete any Annotations that become 'orphans'?<br/>
-        </fieldset>
-        </form>
-    </div>
 
-    <!-- toolbar above tree -->
-    <div class="toolbar">
-        <div id="buttons" class="align_left">
-            <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
-            <input class="button" type="image" src="{% static "webclient/image/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'"> | 
+{% block left %}
+
+    <div id="left_panel_tabs" class="absolute_fill">
+        <ul class="tabslist">
+        <li><a href="#Projects" title="Projects">{% trans "Projects+Screens" %}</a></li>
+        <li><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
+        <li><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>
+        </ul>
+
+
+            <!-- toolbar above tree -->
+        <div id="Projects">
+            <div class="toolbar">
+                <div id="buttons" class="align_left">
+                    <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
+                    |
+                    <input id="addprojectButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder16.png" %}" alt="Create new project" title="Create new Project" /> 
+                    <input id="adddatasetButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_image16.png" %}" alt="Create new dataset" title="Create new Dataset" /> 
+                    <input id="addscreenButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_screen16.png" %}" alt="Create new screen" title="Create new Screen" /> |
             
-            <input id="addprojectButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder16.png" %}" alt="Create new project" title="Create new Project" /> 
-            <input id="adddatasetButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_image16.png" %}" alt="Create new dataset" title="Create new Dataset" /> 
-            <input id="addscreenButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_screen16.png" %}" alt="Create new screen" title="Create new Screen" /> |
-            
-            <input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" /> 
-            <input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/cut16.png" %}" alt="Cut" title="Cut" /> 
-            <input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/eclipse_paste_edit16.png" %}" alt="Paste" title="Paste" /> 
-            <input id="unlinkButton" class="button button-disabled" type="image" src="{% static "webclient/image/minus_15.png" %}" alt="Remove" title="Remove" />
-            <input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/cancel16.png" %}" alt="Delete" title="Delete" /> 
-            <input id="basketButton" class="button button-disabled" type="image" src="{% static "webclient/image/basket16.png" %}" alt="Add to basket" title="Add to basket">
+                    <input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" /> 
+                    <input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/cut16.png" %}" alt="Cut" title="Cut" /> 
+                    <input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/eclipse_paste_edit16.png" %}" alt="Paste" title="Paste" /> 
+                    <input id="unlinkButton" class="button button-disabled" type="image" src="{% static "webclient/image/minus_15.png" %}" alt="Remove" title="Remove" />
+                    <input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/cancel16.png" %}" alt="Delete" title="Delete" /> 
+                    <input id="basketButton" class="button button-disabled" type="image" src="{% static "webclient/image/basket16.png" %}" alt="Add to basket" title="Add to basket">
+                </div>
+            </div>
+
+            <div class="clear"> </div>
+
+            <div id="tree_details">
+                <div class="dataTree" id="dataTree"></div>
+            </div>
+        </div>
+
+        <!-- hidden form for delete dialogs -->
+        <div id="delete-dialog-form" title="Delete">
+            <p>Are you sure you want to delete the selected <span id="delete_type">Images</span>?</p>
+            <p>If yes:</p>
+            <form>
+            <fieldset style="border: 0px solid white">
+                <div id="delete_contents_form"> <!-- we can hide this if we're deleting Images -->
+                    <input type="checkbox" name="delete_content" id="delete_content" />
+                    Also delete contents?
+                    <hr style="color:#eee"/>
+                </div>
+                <input type="checkbox" name="delete_anns" id="delete_anns" />
+                Also delete any Annotations that become 'orphans'?<br/>
+            </fieldset>
+            </form>
         </div>
     </div>
-
-<div class="clear"> </div>
-
-<div id="tree_details">
-    <div class="dataTree" id="dataTree"></div>
-</div>
-
 {% endblock %}
 
 {% block center %}
@@ -816,118 +832,3 @@
 <div id="content_details"> </div>
 
 {% endblock %}
-
-
-{% block right %}
-
-<script type="text/javascript">
-
-    function openScriptWindow(event) {
-        // open script url, providing Data_Type and IDs params in request
-        var script_url = $(this).attr('href');
-        if (script_url == "#") return false;
-
-        var datatree = $.jstree._focused();
-
-        var ids = new Array();
-        var Data_Type = null;
-        var selected = datatree.data.ui.selected;
-        if (selected.size() == 1) {
-            var klass = selected.attr('rel');
-            if (klass == 'plate' || klass == 'acquisition') {
-                var plateSelected = $('#spw .ui-selected img');
-                if (plateSelected.size() > 0) {
-                    selected = plateSelected;
-                }
-            }
-        }
-        selected.each(function() {
-            var dtype = this.id.split("-")[0];
-            if (Data_Type == undefined) {
-                Data_Type = dtype;
-                ids.push(this.id.split("-")[1]);
-            } else if (Data_Type == dtype) {
-                // need to be sure our IDs are all of the same dtype
-                ids.push(this.id.split("-")[1]);
-            }
-        });
-        Data_Type = Data_Type.charAt(0).toUpperCase() + Data_Type.slice(1); // capitalise
-        script_url += "?Data_Type="+ Data_Type +"&IDs="+ ids.join();
-        openCenteredWindow(script_url);
-        return false;
-    }
-
-    $(document).ready(function(){
-
-        // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
-        // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
-        $("#scriptButton").click(function(e){
-            if ($("#scriptList li").length == 0){  // if none loaded yet...
-                var $scriptLink = $(this).hide();
-                var $scriptSpinner = $("#scriptSpinner").show();
-                var script_list_url = $(this).attr('href');
-                $("#scriptList").load(script_list_url, function(){
-                    // Now show the menu and add ">>" to any <li> with child <ul>
-                    $('ul.sub_menu').css('visibility', 'visible');
-                    $("ul.sub_menu li:has(ul)").find("a:first").append(" &raquo; ");
-                    // bind links to openPopup
-                    $("ul.sub_menu a").click(openScriptWindow);
-                    $scriptLink.show();
-                    $scriptSpinner.hide();
-                });
-            } else {
-                $('ul.sub_menu').css('visibility', 'visible');
-            }
-            e.preventDefault();
-            return false;
-        });
-        // on hover-out, hide drop-down menus
-        $("#scriptList").hover(function(){}, function(){
-            $(this).css('visibility', 'hidden');
-        });
-
-    });
-
-</script>
-
-<style type="text/css">
-    /* Styles for Drop-down menu - based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/ */
-    .dropdown                   { font-weight: bold; float: left; zoom: 1; position: relative; }
-    .dropdown li a              { display: block; padding: 4px 8px; border-right: 1px solid #333; color: #222; }
-    .dropdown li:last-child a   { border-right: none; } /* Doesn't work in IE */
-    .dropdown li.hover,
-    .dropdown li:hover          { background: #ddf; color: black; position: relative; }
-    .dropdown li.hover a        { color: black; }
-
-    .dropdown ul                { width: 170px; visibility: hidden; position: absolute; top: 100%; left: 0; z-index:50;
-                                    margin: 0; padding: 0; list-style:none; border:solid black 1px;}
-    .dropdown ul li             { font-weight: normal; background: #fff; color: #000; border-bottom: 1px solid #eee; float: none; }
-    .dropdown ul li a           { border-right: none; width: 100%; display: inline-block; } /* IE 6 & 7 Needs Inline Block */
-
-    ul.sub_menu li ul           { left: 100%; top: 0;}
-    ul.sub_menu li:hover > ul   { visibility: visible;}
-</style>
-
-<div id="metadata_details">
-
-    <div id="toolbar-right" class="dropdown" style="padding-top: 7px">
-        <!-- Script launcher -->
-        <a id="scriptButton" href="{% url list_scripts %}">
-            <img src="{% static "webclient/image/nuvola_script-run16.png" %}" />
-        </a>
-        <img id="scriptSpinner" style="display:none" src="{% static "common/image/spinner.gif" %}" />
-        <ul id="scriptList" class="sub_menu">
-            <!-- script list-items loaded here by AJAX -->
-        </ul>
-    </div>
-    <div style="clear:both"></div>
-
-    <div id="metadata_description"></div>
-    <iframe width="370" name="metadata_details" frameborder="0"></iframe>
-</div>
-
-
-{% endblock %}
-
-
-

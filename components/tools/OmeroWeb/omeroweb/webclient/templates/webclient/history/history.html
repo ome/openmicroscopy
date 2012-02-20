@@ -26,7 +26,6 @@
     {{ block.super }}
     <link rel="stylesheet" href="{% static "webclient/css/calendar.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webclient/css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 
@@ -44,7 +43,6 @@
 {% endblock %}
 
 {% block left %}
-
 <div id="history_calendar" class="padding"> </div>
 
 {% endblock %}
@@ -52,15 +50,5 @@
 {% block center %}
 
 <div id="content_details" style="overflow: auto;"> </div>
-
-{% endblock %}
-
-
-{% block right %}
-
-<div id="metadata_details">
-    <div id="metadata_description"></div>
-    <iframe width="370" name="metadata_details" frameborder="0"></iframe>
-</div>
 
 {% endblock %}

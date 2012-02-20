@@ -102,8 +102,16 @@
     
 {% endblock %}
 
+
+{% block thin_header_right %}
+    <a href="{% url wadrivespace %}">{% trans "Drive Space" %}</a> | 
+    {{ block.super }}
+{% endblock %}
+
+
 {% block center_details %}
 {{ block.super }}
+    <div id='parent_id'>webclient</div>
     <div>
         <div class="float_left">
             <h1>{% trans "My account" %}</h1>

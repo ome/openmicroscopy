@@ -73,11 +73,7 @@
                 distance: 2,
                 stop: function(){  
                     var selected = $('tr.ui-selected', this);
-                    loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% static "common/image/knotes16.png" %}"/> Batch Annotate</a></p>');
-                    $("#batchAnnotate").click(function() {
-                        multipleAnnotation(selected, null, '{% url webindex %}');
-                        return false;
-                    });
+                    multipleAnnotation(selected, null, '{% url batch_annotate %}');
                 },
                 start: function(){
                 }

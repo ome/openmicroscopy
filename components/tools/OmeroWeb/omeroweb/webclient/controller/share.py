@@ -126,7 +126,7 @@ class BaseShare(BaseController):
         self.conn.updateShareOrDiscussion(host, int(blitz_id), self.share.id, message, add_mem, rm_mem, enable, expiration_date)
     
     def addComment(self, host, blitz_id, comment):
-        self.conn.addComment(host, int(blitz_id), self.share.id, comment)
+        return self.conn.addComment(host, int(blitz_id), self.share.id, comment)
 
     def getShares(self):
         sh_list = list(self.conn.getOwnShares())
@@ -147,7 +147,7 @@ class BaseShare(BaseController):
 
     def getComments(self, share_id):
         self.comments = list(self.conn.getComments(share_id))
-        self.comments.sort(key=lambda x: x.creationEventDate())
+        self.comments.sort(key=lambda x: x.creationEventDate(), reverse=True)
         self.cmSize = len(self.comments)
 
     def removeImage(self, image_id):

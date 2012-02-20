@@ -1,4 +1,4 @@
-{% extends "common/base/base_frame.html" %}
+{% extends "common/base/base_html.html" %}
 {% load i18n %}
 
 {% comment %}
@@ -22,19 +22,10 @@
 {% endcomment %}
 
 {% block link %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
     
-    <link rel="stylesheet" href="{% static "webclient/css/tooltip.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block script %}
-    {{ block.super }}
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
-    
-    <script type="text/javascript" src="{% static "webclient/javascript/ui/jquery.ui.datepicker.js" %}"></script>
-
-    <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
     <script>
       $(document).ready(function(){
           $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});

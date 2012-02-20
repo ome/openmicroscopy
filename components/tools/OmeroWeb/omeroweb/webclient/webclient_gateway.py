@@ -57,7 +57,7 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
 
 from omero.gateway import TagAnnotationWrapper, ExperimenterWrapper, \
                 ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper, \
-                OmeroGatewaySafeCallWrapper
+                OmeroGatewaySafeCallWrapper, CommentAnnotationWrapper
 
 from omero.sys import ParametersI
 
@@ -1284,6 +1284,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                     logger.error("Email was sent")
                 except:
                     logger.error(traceback.format_exc())
+        return CommentAnnotationWrapper(self, new_cm)
                 
     def removeImage(self, share_id, image_id):
         sh = self.getShareService()
@@ -1873,6 +1874,13 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         return False
     
     def getExpireDate(self):
+        """
+        Gets the end date for the share
+        
+        @return:    End Date-time
+        @rtype:     datetime object
+        """
+        
         #workaround for problem of year 2038
         try:
             d = self.started+self.timeToLive
@@ -1892,24 +1900,6 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         """
         
         return datetime.fromtimestamp(self.getStarted()/1000)
-        
-    def getExpirationDate(self):
-        """
-        Gets the end date for the share
-        
-        @return:    End Date-time
-        @rtype:     datetime object
-        """
-        
-        #workaround for problem of year 2038
-        try:
-            d = self.started+self.timeToLive
-            if d > 2051222400:
-                return datetime(2035, 1, 1, 0, 0, 0)            
-            return datetime.fromtimestamp(d / 1000)
-        except:
-            logger.info(traceback.format_exc())
-        return None
     
     def isExpired(self):
         """

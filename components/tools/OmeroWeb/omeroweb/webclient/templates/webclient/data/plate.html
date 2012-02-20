@@ -114,11 +114,7 @@
                     handleClickSelection(event);
                     var $selected = $('td.ui-selected', wpv.self);
                     if ($selected.length > 1) {
-                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% static "common/image/knotes16.png" %}"/> Batch Annotate</a></p>');
-                        $("#batchAnnotate").click(function() {
-                            multipleAnnotation($selected, {{ index }});
-                            return false;
-                        });
+                        multipleAnnotation($selected, null, '{% url batch_annotate %}');
                     } else {
                         $selected.each(function(i){
                             loadMetadataPanel('{% url load_metadata_details %}well/'+$(this).attr('id').split('-')[1]+'/?index={{ index }}');
@@ -135,11 +131,7 @@
                 stop: function(){  
                     var $selected = $('td.ui-selected', this);
                     if ($selected.length > 1) {
-                        loadMetadataPanel(null,'<p>Multiple objects selected: <br /><a href="#" id="batchAnnotate"><img src="{% static "common/image/knotes16.png" %}"/> Batch Annotate</a></p>');
-                        $("#batchAnnotate").click(function() {
-                            multipleAnnotation($selected, {{ index }});
-                            return false;
-                        });
+                        multipleAnnotation($selected, null, '{% url batch_annotate %}');
                     } else {
                         $selected.each(function(i){
                             loadMetadataPanel('{% url load_metadata_details %}well/'+$(this).attr('id').split('-')[1]+'/?index={{ index }}');
