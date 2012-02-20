@@ -871,8 +871,11 @@ class OmeroDataServiceImpl
 		List<DataObject> objects)
 		throws DSOutOfServiceException, DSAccessException, ProcessException
 	{
-		// TODO Auto-generated method stub
+		if (target == null)
+			throw new IllegalArgumentException("No target specified.");
+		if (objects == null || objects.size() == 0)
+			throw new IllegalArgumentException("No object to move.");
 		return null;
 	}
-	
+
 }
