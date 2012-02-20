@@ -37,6 +37,7 @@
     <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jquery.jstree.js" %}"></script>   
     <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
+
     <script type="text/javascript">
         String.prototype.capitalize = function() {
             return this.charAt(0).toUpperCase() + this.slice(1);
@@ -765,19 +766,6 @@
                 })
                 .bind("select_node.jstree", function (e, data) {
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
-                    var selected = data.inst.get_selected();
-                    if (selected.length > 1) {
-                        //multipleAnnotation(selected, null, '{% url batch_annotate %}');
-                        // if any non-images are selected, clear the centre panel
-                        if (selected.filter('li:not([id|=image])').length > 0) {
-                            $("div#content_details").empty();
-                            $("div#content_details").removeAttr('rel');
-                        }
-                    } else {
-                        loadOtherPanels(data.inst, '{% url webindex %}');
-                    }
-                    syncPanels(selected);
-                    
                 })
                 .bind("deselect_node.jstree", function (e, data) {
                     var selected = data.inst.get_selected();
@@ -890,7 +878,10 @@
             });
             
     </script>
-    
+
+    <!-- include code to handle middle panel selection -->
+    {% include "webclient/data/includes/thumbnail_tab_init.html" %}
+
     <script type="text/javascript">
     
     $(function () {
