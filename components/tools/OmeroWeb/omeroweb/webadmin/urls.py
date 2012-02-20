@@ -50,6 +50,7 @@ urlpatterns = patterns('',
     url( r'^drivespace/$', views.drivespace, name="wadrivespace"),
     url( r'^load_drivespace/$', views.load_drivespace, name="waloaddrivespace"),
 
+    url( r'^change_avatar/(?P<eid>[0-9]+)/(?:(?P<action>[a-z]+)/)?$', views.manage_avatar, name="wamanageavatar"),
     url( r'^myphoto/$', views.myphoto, name="wamyphoto"),
 
 )

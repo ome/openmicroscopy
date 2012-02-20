@@ -76,7 +76,7 @@ class BaseExperimenter(BaseController):
     defaultGroup = None
     otherGroups = None
     ldapAuth = None
-    
+    hasAvatar = False
     groups = None
     
     def __init__(self, conn, eid=None):
@@ -103,6 +103,7 @@ class BaseExperimenter(BaseController):
                     self.otherGroups.append(gem.parent.id.val)
                     self.others.append(gem.parent)
                     self.default.append((gem.parent.id.val, gem.parent.name.val))
+        self.hasAvatar = self.conn.hasExperimenterPhoto()
         self.groups = list(self.conn.getObjects("ExperimenterGroup"))
         self.groups.sort(key=lambda x: x.getName().lower())
     
