@@ -31,6 +31,7 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -65,14 +66,16 @@ public class DataLoader
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer 	The Importer this data loader is for.
-     * 					Mustn't be <code>null</code>.
-	 * @param rootType	Either Project or Screen.
+	 * @param viewer The Importer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+	 * @param rootType Either Project or Screen.
 	 * @param refreshImport Flag indicating to refresh the on-going import.
 	 */
-	public DataLoader(Importer viewer, Class rootType, boolean refreshImport)
+	public DataLoader(Importer viewer, SecurityContext ctx, Class rootType,
+			boolean refreshImport)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (!(ProjectData.class.equals(rootType) || 
 				ScreenData.class.equals(rootType)))
 			throw new IllegalArgumentException("Type not supported.");
@@ -86,7 +89,7 @@ public class DataLoader
 	 */
 	public void load()
 	{
-		handle = dmView.loadContainerHierarchy(rootType, null, false,
+		handle = dmView.loadContainerHierarchy(ctx, rootType, null, false,
 				getCurrentUserID(), groupID, this);	
 	}
 	

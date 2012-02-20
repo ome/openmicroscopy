@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.data.views.ProcessBatchCall;
@@ -54,24 +55,26 @@ public class SaveAsLoader
 {
 
     /** Loads the specified tree. */
-    private BatchCall	loadCall;
+    private BatchCall loadCall;
 
     /** The server call-handle to the computation. */
-    private Object		callBack;
+    private Object callBack;
     
     /**
      * Creates a {@link BatchCall} to save the images locally.
      * 
+     * @param ctx The security context.
      * @param param The parameters to create the movie.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final SaveAsParam param)
+    private BatchCall makeBatchCall(final SecurityContext ctx,
+    		final SaveAsParam param)
     {
         return new ProcessBatchCall("Saving images locally: ") {
             public ProcessCallback initialize() throws Exception
             {
                 OmeroImageService os = context.getImageService();
-                ScriptCallback cb = os.saveAs(param);
+                ScriptCallback cb = os.saveAs(ctx, param);
                 if (cb == null) {
                 	callBack = Boolean.valueOf(false);
                 	return null;
@@ -107,13 +110,14 @@ public class SaveAsLoader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param parameters The parameters to handle.
      */
-    public SaveAsLoader(SaveAsParam parameters)
+    public SaveAsLoader(SecurityContext ctx, SaveAsParam parameters)
     {
     	if (parameters == null)
     		throw new IllegalArgumentException("No parameters specified.");
-    	loadCall = makeBatchCall(parameters);
+    	loadCall = makeBatchCall(ctx, parameters);
     }
     
 }

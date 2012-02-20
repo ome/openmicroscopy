@@ -36,6 +36,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 
@@ -70,11 +71,13 @@ public class FilesChecker
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
-     * @param nodes	 The collection of nodes to handles.
+     * @param ctx The security context.
+     * @param nodes The collection of nodes to handles.
      */
-	public FilesChecker(Browser viewer, List<TreeImageNode> nodes)
+	public FilesChecker(Browser viewer, SecurityContext ctx,
+			List<TreeImageNode> nodes)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (nodes == null)
 			throw new IllegalArgumentException("No nodes specified.");
 		this.nodes = nodes;

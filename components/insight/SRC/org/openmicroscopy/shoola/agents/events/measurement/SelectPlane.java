@@ -47,13 +47,13 @@ public class SelectPlane
 {
 	
 	/** The ID of the pixels set. */
-    private long        pixelsID;
+    private long pixelsID;
     
 	/** The currently selected z-section. */
-    private int			defaultZ;
+    private int defaultZ;
     
     /** The currently selected timepoint. */
-    private int			defaultT;
+    private int defaultT;
     
     /* The bounds of the ROI for big image.*/
     private Rectangle	bounds;

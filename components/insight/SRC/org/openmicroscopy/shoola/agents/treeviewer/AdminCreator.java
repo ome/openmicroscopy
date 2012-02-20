@@ -38,6 +38,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -72,11 +73,13 @@ public class AdminCreator
      * Creates a new instance.
      * 
      * @param viewer Reference to the Model. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param object The object hosting details about object to create.
      */
-	public AdminCreator(TreeViewer viewer, AdminObject object)
+	public AdminCreator(TreeViewer viewer, SecurityContext ctx, 
+			AdminObject object)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (object == null)
 			throw new IllegalArgumentException("No object");
 		this.object = object;
@@ -90,16 +93,16 @@ public class AdminCreator
     {
     	switch (object.getIndex()) {
 			case AdminObject.CREATE_GROUP:
-				handle = adminView.createGroup(object, this);
+				handle = adminView.createGroup(ctx, object, this);
 				break;
 			case AdminObject.CREATE_EXPERIMENTER:
-				handle = adminView.createExperimenters(object, this);
+				handle = adminView.createExperimenters(ctx,object, this);
 				break;
 			case AdminObject.RESET_PASSWORD:
-				handle = adminView.resetExperimentersPassword(object, this);
+				handle = adminView.resetExperimentersPassword(ctx, object, this);
 				break;
 			case AdminObject.ACTIVATE_USER:
-				handle = adminView.activateExperimenters(object, this);
+				handle = adminView.activateExperimenters(ctx, object, this);
 				break;
 			case AdminObject.ADD_EXPERIMENTER_TO_GROUP:
 				long userID = getCurrentUserID();
@@ -139,7 +142,7 @@ public class AdminCreator
 				m.put(group, toAdd);
 				Map m1 = new HashMap();
 				m1.put(group, toRemove);
-				handle = dmView.addExistingObjects(m, m1, this);
+				handle = dmView.addExistingObjects(ctx, m, m1, this);
 		}
     }
 

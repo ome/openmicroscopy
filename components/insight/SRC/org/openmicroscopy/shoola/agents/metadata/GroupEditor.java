@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.GroupData;
 
@@ -65,10 +66,12 @@ public class GroupEditor
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param group	 The group to update. Mustn't be <code>null</code>.
      * @param permissions The desired permissions level or <code>-1</code>.
      */
-    public GroupEditor(MetadataViewer viewer, GroupData group, int permissions)
+    public GroupEditor(MetadataViewer viewer, SecurityContext ctx,
+    		GroupData group, int permissions)
     {
     	super(viewer, null);
     	if (group == null)
@@ -83,7 +86,7 @@ public class GroupEditor
 	 */
 	public void load()
 	{
-		handle = adminView.updateGroup(group, permissions, this);
+		handle = adminView.updateGroup(ctx, group, permissions, this);
 	}
 	
 	/** 

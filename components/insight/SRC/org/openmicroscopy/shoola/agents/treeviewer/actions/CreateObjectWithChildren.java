@@ -66,7 +66,7 @@ public class CreateObjectWithChildren
 	/** 
 	 * Name of the action if the selected node is a <code>Dataset</code>.
 	 */
-	private static final String NAME_DATASET = "New Dataset...";
+	private static final String NAME_DATASET = "New Dataset From Selection...";
 	
 	/** 
 	 * Description of the action if the selected node is a <code>Dataset</code>.

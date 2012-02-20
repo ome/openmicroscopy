@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.rnd.data;
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 import pojos.PixelsData;
@@ -178,15 +179,17 @@ public class DataSink
 	/**
 	 * Factory method to fetch plane data and create an object to access it.
 	 * 
-	 * @param z			The z-section at which data is to be fetched.
-	 * @param t			The timepoint at which data is to be fetched.
-	 * @param w			The wavelength at which data is to be fetched.
-	 * @param strategy	To transform bytes into pixels values.
+	 * @param ctx The security context.
+	 * @param z The z-section at which data is to be fetched.
+	 * @param t The timepoint at which data is to be fetched.
+	 * @param w The wavelength at which data is to be fetched.
+	 * @param strategy To transform bytes into pixels values.
 	 * @return A plane 2D object that encapsulates the actual plane pixels.
 	 * @throws DataSourceException If an error occurs while retrieving the
 	 *                              plane data from the pixels source.
 	 */
-	private Plane2D createPlane(int z, int t, int w, BytesConverter strategy)
+	private Plane2D createPlane(SecurityContext ctx, int z, int t, int w,
+			BytesConverter strategy)
 		throws DataSourceException
 	{
 		//Retrieve data
@@ -197,7 +200,7 @@ public class DataSink
 		byte[] data = null; 
 		try {
 			OmeroImageService service = context.getImageService();
-			data = service.getPlane(source.getId(), z, t, w);
+			data = service.getPlane(ctx, source.getId(), z, t, w);
 		} catch (Exception e) {
 			String p = "("+z+", "+t+", "+w+")";
 			throw new DataSourceException("Cannot retrieve the plane "+p, e);
@@ -213,17 +216,18 @@ public class DataSink
 	/**
 	 * Extracts a 2D plane from the pixels set this object is working for.
 	 * 
-	 * @param z			The z-section at which data is to be fetched.
-	 * @param t			The timepoint at which data is to be fetched.
-	 * @param w			The wavelength at which data is to be fetched.
+	 * @param ctx The security context.
+	 * @param z The z-section at which data is to be fetched.
+	 * @param t The timepoint at which data is to be fetched.
+	 * @param w The wavelength at which data is to be fetched.
 	 * @return A plane 2D object that encapsulates the actual plane pixels.
 	 * @throws DataSourceException If an error occurs while retrieving the
 	 *                              plane data from the pixels source.
 	 */
-	public Plane2D getPlane(int z, int t, int w)
+	public Plane2D getPlane(SecurityContext ctx, int z, int t, int w)
 		throws DataSourceException
 	{
-		return createPlane(z, t, w, strategy);
+		return createPlane(ctx, z, t, w, strategy);
 	}
 
 	/**

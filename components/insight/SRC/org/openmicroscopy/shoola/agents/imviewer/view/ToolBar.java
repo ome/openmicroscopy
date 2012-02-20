@@ -43,12 +43,16 @@ import javax.swing.JToolBar;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivityImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.GroupData;
 
 
 /** 
@@ -153,6 +157,32 @@ class ToolBar
 	/** The index of the Metadata component. */
 	private static final int		METADATA_INDEX = 1;
 	
+    /**
+     * Returns the icon corresponding to the permissions of the group.
+     * 
+     * @param g The group to handle.
+     * @return See above.
+     */
+    private Icon getPermissionsIcon(GroupData g)
+    {
+    	int level = 
+    		ImViewerAgent.getRegistry().getAdminService().getPermissionLevel(g);
+    	IconManager icons = IconManager.getInstance();
+    	switch (level) {
+	    	case AdminObject.PERMISSIONS_PRIVATE:
+	    		return icons.getIcon(IconManager.PRIVATE_GROUP);
+	    	case AdminObject.PERMISSIONS_GROUP_READ:
+	    		return icons.getIcon(IconManager.READ_GROUP);
+	    	case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+	    		return icons.getIcon(IconManager.READ_LINK_GROUP);
+	    	case AdminObject.PERMISSIONS_PUBLIC_READ:
+	    		return icons.getIcon(IconManager.PUBLIC_GROUP);
+	    	case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+	    		return icons.getIcon(IconManager.PUBLIC_GROUP);
+		}
+    	return null;
+    }
+    
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
     {
@@ -306,6 +336,15 @@ class ToolBar
     	bars.setBorder(null);
     	bars.add(bar);
     	if (p != null) bars.add(p);
+    	GroupData g = view.getSelectedGroup();
+    	if (g != null) {
+    		p = new JPanel();
+    		l = new JLabel(g.getName());
+    		l.setIcon(getPermissionsIcon(g));
+    		//indicate color using icon
+    		p.add(l);
+    		bars.add(p);
+    	}
     	//add(UIUtilities.buildComponentPanel(bar));
     	add(UIUtilities.buildComponentPanel(bars));
     	add(UIUtilities.buildComponentPanelRight(busyLabel));

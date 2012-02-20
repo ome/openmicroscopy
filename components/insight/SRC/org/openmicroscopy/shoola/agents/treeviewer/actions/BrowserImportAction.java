@@ -163,8 +163,9 @@ public class BrowserImportAction
 				type = BrowserSelectionEvent.SCREEN_TYPE;
     	}
     	event = new LoadImporter(display, type);
-    	long id = TreeViewerAgent.getUserDetails().getId();
-    	event.setObjects(model.getNodesForUser(id));
+    	event.setGroup(model.getSecurityContext(display).getGroupID());
+    	//long id = TreeViewerAgent.getUserDetails().getId();
+    	//event.setObjects(model.getNodesForUser(id, display));
     	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
     	bus.post(event);
     }

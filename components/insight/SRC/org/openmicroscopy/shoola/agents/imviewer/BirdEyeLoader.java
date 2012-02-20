@@ -29,8 +29,8 @@ import java.awt.image.BufferedImage;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import pojos.ImageData;
@@ -78,13 +78,14 @@ public class BirdEyeLoader
      * 
      * @param viewer	The view this loader is for.
      * 					Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param image	  	The image to handle.
      * @param ratio     The ratio by with to scale the image.
      */
-	public BirdEyeLoader(ImViewer viewer, ImageData image, 
+	public BirdEyeLoader(ImViewer viewer, SecurityContext ctx, ImageData image, 
 			PlaneDef plane, double ratio)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (image == null)
 			throw new IllegalArgumentException("No image to load.");
 		this.image = image;
@@ -100,7 +101,7 @@ public class BirdEyeLoader
      */
     public void load()
     {
-    	handle = ivView.render(image.getDefaultPixels().getId(),
+    	handle = ivView.render(ctx, image.getDefaultPixels().getId(),
 				plane, false, true, this);
     }
     
@@ -125,12 +126,13 @@ public class BirdEyeLoader
     
     /**
      * Notifies the user that the data retrieval has been cancelled.
+     * @see DataLoader#handleCancellation()
      */
     public void handleCancellation() {}
     
     /**
      * Notifies the user that an error has occurred.
-     * @see DataBrowserLoader#handleException(Throwable)
+     * @see DataLoader#handleException(Throwable)
      */
     public void handleException(Throwable exc)
     {

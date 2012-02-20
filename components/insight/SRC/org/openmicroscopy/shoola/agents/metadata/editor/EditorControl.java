@@ -267,7 +267,8 @@ class EditorControl
 	private void viewImage(long imageID)
 	{
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new ViewImage(new ViewImageObject(imageID), null));
+		bus.post(new ViewImage(model.getSecurityContext(),
+				new ViewImageObject(imageID), null));
 	}
 
 	/**
@@ -289,7 +290,7 @@ class EditorControl
 	private void viewProtocol(long protocolID)
 	{
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new EditFileEvent(protocolID));
+		bus.post(new EditFileEvent(model.getSecurityContext(), protocolID));
 	}
 	
 	/** Brings up the folder chooser. */
@@ -583,9 +584,11 @@ class EditorControl
 			figureDialog = null;
 		} else if (MetadataViewer.CLOSE_RENDERER_PROPERTY.equals(name)) {
 			view.discardRenderer(evt.getNewValue());
+		} else if (MetadataViewer.RELATED_NODES_PROPERTY.equals(name)) {
+			view.onRelatedNodesSet();
 		} else if (ScriptingDialog.RUN_SELECTED_SCRIPT_PROPERTY.equals(name)) {
-			view.manageScript((ScriptObject) evt.getNewValue(), 
-					MetadataViewer.RUN);
+			//view.manageScript((ScriptObject) evt.getNewValue(), 
+			//		MetadataViewer.RUN);
 		} else if (ScriptingDialog.DOWNLOAD_SELECTED_SCRIPT_PROPERTY.equals(
 				name)) {
 			Object value = evt.getNewValue();
@@ -746,7 +749,7 @@ class EditorControl
 				if (img != null) {
 					ViewImageObject vio = new ViewImageObject(img);
 					EditorAgent.getRegistry().getEventBus().post(
-							new ViewImage(vio, null));
+						new ViewImage(model.getSecurityContext(), vio, null));
 				}
 		}
 	}

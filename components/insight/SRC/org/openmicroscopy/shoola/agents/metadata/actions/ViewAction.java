@@ -58,7 +58,7 @@ public class ViewAction
 {
 
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Launch the viewer.";
+	private static final String DESCRIPTION = "Open the viewer.";
 	
 	/**
 	 * Creates a new instance.
@@ -81,10 +81,13 @@ public class ViewAction
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
+		//TODO review that action.
+		/*
 		ImageData image = model.getRefImage();
 		if (image == null) return;
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
 		bus.post(new ViewImage(new ViewImageObject(image), null));
+		*/
 	}
 	
 }

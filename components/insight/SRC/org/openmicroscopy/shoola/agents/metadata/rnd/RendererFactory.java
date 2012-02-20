@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import pojos.ImageData;
 
@@ -52,16 +53,17 @@ public class RendererFactory
     /**
      * Creates a new {@link Renderer}.
      * 
+     * @param ctx The security context.
      * @param rndControl    Reference to the component that controls the
      *                      rendering settings. Mustn't be <code>null</code>.
-     * @param image			The image the component is for.                    
+     * @param image			The image the component is for.
      * @param rndIndex		The index of the renderer.
      * @return See above.
      */
-    public static Renderer createRenderer(RenderingControl rndControl, 
-    		ImageData image, int rndIndex)
+    public static Renderer createRenderer(SecurityContext ctx,
+    		RenderingControl rndControl, ImageData image, int rndIndex)
     {
-        RendererModel model = new RendererModel(rndControl, rndIndex);
+        RendererModel model = new RendererModel(ctx, rndControl, rndIndex);
         model.setImage(image);
         RendererComponent rnd = new RendererComponent(model);
         rnd.initialize();

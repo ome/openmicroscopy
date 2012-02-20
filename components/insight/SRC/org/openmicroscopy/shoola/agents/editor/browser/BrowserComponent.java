@@ -33,6 +33,7 @@ import javax.swing.tree.TreeModel;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.preview.AnnotationHandler;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /**  
@@ -211,6 +212,15 @@ public class BrowserComponent
 	public void deleteExperimentInfo() 
 	{
 		controller.deleteExperimentInfo(model.getTreeModel());
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getFileAnnotation(long, AnnotationHandler)
+	 */
+	public void getFileAnnotation(long fileID, AnnotationHandler handler)
+	{
+		model.getFileAnnotation(fileID, handler);
 	}
 	
 }

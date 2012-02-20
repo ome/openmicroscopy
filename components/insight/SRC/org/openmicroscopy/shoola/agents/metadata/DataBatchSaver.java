@@ -32,6 +32,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -50,7 +51,7 @@ import pojos.DataObject;
  * </small>
  * @since OME3.0
  */
-public class DataBatchSaver 	
+public class DataBatchSaver
 	extends MetadataLoader
 {
 
@@ -72,15 +73,17 @@ public class DataBatchSaver
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer		The viewer this data loader is for.
-     *                 		Mustn't be <code>null</code>.
-     * @param data			The objects the data are related to.
-	 * 						Mustn't be <code>null</code>.
-	 * @param toAdd			The collection of annotations to add.
-	 * @param toRemove		The collection of annotations to remove.
+	 * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param data The objects the data are related to.
+	 *             Mustn't be <code>null</code>.
+	 * @param toAdd The collection of annotations to add.
+	 * @param toRemove The collection of annotations to remove.
 	 */
-	public DataBatchSaver(MetadataViewer viewer, Collection<DataObject> data,
-				List<AnnotationData> toAdd, List<AnnotationData> toRemove)
+	public DataBatchSaver(MetadataViewer viewer, SecurityContext ctx,
+		Collection<DataObject> data, List<AnnotationData> toAdd,
+		List<AnnotationData> toRemove)
 	{
 		super(viewer, null);
 		if (data == null)
@@ -93,15 +96,17 @@ public class DataBatchSaver
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer		The viewer this data loader is for.
-     *                 		Mustn't be <code>null</code>.
+	 * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param timeRefObject The object hosting the time period.
 	 * 						Mustn't be <code>null</code>.
 	 * @param toAdd			The collection of annotations to add.
 	 * @param toRemove		The collection of annotations to remove.
 	 */
-	public DataBatchSaver(MetadataViewer viewer, TimeRefObject timeRefObject,
-				List<AnnotationData> toAdd, List<AnnotationData> toRemove)
+	public DataBatchSaver(MetadataViewer viewer, SecurityContext ctx,
+		TimeRefObject timeRefObject, List<AnnotationData> toAdd,
+		List<AnnotationData> toRemove)
 	{
 		super(viewer, null);
 		if (timeRefObject == null)
@@ -119,10 +124,11 @@ public class DataBatchSaver
 	{
 		long userID = MetadataViewerAgent.getUserDetails().getId();
 		if (timeRefObject != null)
-			handle = mhView.saveBatchData(timeRefObject, toAdd, toRemove, 
+			handle = mhView.saveBatchData(ctx, timeRefObject, toAdd, toRemove,
 					userID, this);
 		else
-			handle = mhView.saveBatchData(data, toAdd, toRemove, userID, this);
+			handle = mhView.saveBatchData(ctx, data, toAdd, toRemove, userID,
+					this);
 	}
 	
 	/** 

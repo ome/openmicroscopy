@@ -32,6 +32,7 @@ import java.io.File;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 
@@ -58,45 +59,46 @@ public class FileSaver
 {
 
 	/** Identifies that the file is of type protocol. */
-	public static final int		PROTOCOL = MetadataHandlerView.EDITOR_PROTOCOL;
+	public static final int PROTOCOL = MetadataHandlerView.EDITOR_PROTOCOL;
 	
 	/** Identifies that the file is of type experiment. */
-	public static final int		EXPERIMENT = 
+	public static final int EXPERIMENT = 
 									MetadataHandlerView.EDITOR_EXPERIMENT;
 	
 	/** Identifies that the file is of type other. */
-	public static final int		OTHER = MetadataHandlerView.OTHER;
+	public static final int OTHER = MetadataHandlerView.OTHER;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  		handle;
+    private CallHandle handle;
     
     /** Utility file where the raw data are loaded. */
-    private File				file;
+    private File file;
     
     /** The fileAnnotation data. */
-    private FileAnnotationData	fileAnnotationData;
+    private FileAnnotationData fileAnnotationData;
     
     /** One of the constants defined by this class. */
-    private int 				index;
+    private int index;
     
     /** The <code>DataObject</code> to link the file annotation to. */
-    private DataObject			linkTo;
+    private DataObject linkTo;
     
 	/**
      * Creates a new instance.
      * 
      * @param viewer The Editor this data loader is for.
      * 				 Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param file	 The file to save back to the server.
      * @param data	 The id of the file if previously saved, or
      * 				 <code>-1</code> if not previously saved.
      * @param index  One of the constants defined by this class.
      * @param linkTo The <code></code>
      */
-	public FileSaver(Editor viewer, File file, FileAnnotationData data, 
-			int index, DataObject linkTo)
+	public FileSaver(Editor viewer, SecurityContext ctx, File file,
+		FileAnnotationData data, int index, DataObject linkTo)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (file == null)
 			throw new IllegalArgumentException("No file to save.");
 		if (data == null) 
@@ -121,7 +123,8 @@ public class FileSaver
 	 */
 	public void load()
 	{
-		handle = mhView.saveFile(fileAnnotationData, file, index, linkTo, this);
+		handle = mhView.saveFile(ctx, fileAnnotationData, file, index, linkTo,
+				this);
 	}
 
 	/**

@@ -32,6 +32,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder;
@@ -59,143 +60,144 @@ public class DataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#loadImages(Timestamp, Timestamp, long, 
+	 * @see DataHandlerView#loadImages(SecurityContext, Timestamp, Timestamp, long, 
 	 * 								AgentEventListener)
 	 */
-	public CallHandle loadImages(Timestamp startTime, Timestamp endTime, 
-								long userID, AgentEventListener observer)
+	public CallHandle loadImages(SecurityContext ctx, Timestamp startTime,
+			Timestamp endTime, long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ImagesLoader(startTime, endTime, userID);
+		BatchCallTree cmd = new ImagesLoader(ctx, startTime, endTime, userID);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#pasteRndSettings(long, Class, List, 
+	 * @see DataHandlerView#pasteRndSettings(SecurityContext, long, Class, List, 
 	 * 										AgentEventListener)
 	 */
-	public CallHandle pasteRndSettings(long pixelsID, Class rootNodeType, 
+	public CallHandle pasteRndSettings(SecurityContext ctx, long pixelsID,
+			Class rootNodeType, List<Long> ids, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new RenderingSettingsSaver(ctx, pixelsID,
+				rootNodeType, ids);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#pasteRndSettings(SecurityContext, long, TimeRefObject, 
+	 * 										AgentEventListener)
+	 */
+	public CallHandle pasteRndSettings(SecurityContext ctx, long pixelsID,
+			TimeRefObject ref, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new RenderingSettingsSaver(ctx, pixelsID, ref);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#resetRndSettings(SecurityContext, Class, List, AgentEventListener)
+	 */
+	public CallHandle resetRndSettings(SecurityContext ctx, Class rootNodeType,
 			List<Long> ids, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsSaver(pixelsID, rootNodeType, 
-								ids);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#pasteRndSettings(long, TimeRefObject, 
-	 * 										AgentEventListener)
-	 */
-	public CallHandle pasteRndSettings(long pixelsID, TimeRefObject ref, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new RenderingSettingsSaver(pixelsID, ref);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#resetRndSettings(Class, List, AgentEventListener)
-	 */
-	public CallHandle resetRndSettings(Class rootNodeType, List<Long> ids, 
-										AgentEventListener observer)
-	{
-		BatchCallTree cmd = new RenderingSettingsSaver(rootNodeType, ids, 
+		BatchCallTree cmd = new RenderingSettingsSaver(ctx, rootNodeType, ids,
 								RenderingSettingsSaver.RESET);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#resetRndSettings(TimeRefObject, AgentEventListener)
+	 * @see DataHandlerView#resetRndSettings(SecurityContext, TimeRefObject, AgentEventListener)
 	 */
-	public CallHandle resetRndSettings(TimeRefObject ref, 
+	public CallHandle resetRndSettings(SecurityContext ctx, TimeRefObject ref,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsSaver(ref, 
+		BatchCallTree cmd = new RenderingSettingsSaver(ctx, ref,
 									RenderingSettingsSaver.RESET);
 		return cmd.exec(observer);
 	}
 	
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#setMinMaxSettings(Class, List, AgentEventListener)
+	 * @see DataHandlerView#setMinMaxSettings(SecurityContext, Class, List, AgentEventListener)
 	 */
-	public CallHandle setMinMaxSettings(Class rootNodeType, List<Long> ids, 
-										AgentEventListener observer)
+	public CallHandle setMinMaxSettings(SecurityContext ctx, Class rootNodeType,
+			List<Long> ids, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsSaver(rootNodeType, ids, 
+		BatchCallTree cmd = new RenderingSettingsSaver(ctx, rootNodeType, ids,
 									RenderingSettingsSaver.SET_MIN_MAX);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#setMinMaxSettings(TimeRefObject, AgentEventListener)
+	 * @see DataHandlerView#setMinMaxSettings(SecurityContext, TimeRefObject, AgentEventListener)
 	 */
-	public CallHandle setMinMaxSettings(TimeRefObject ref, 
+	public CallHandle setMinMaxSettings(SecurityContext ctx, TimeRefObject ref,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsSaver(ref, 
+		BatchCallTree cmd = new RenderingSettingsSaver(ctx, ref,
 								RenderingSettingsSaver.SET_MIN_MAX);
 		return cmd.exec(observer);
 	}
 	
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#setOwnerRndSettings(Class, List, AgentEventListener)
+	 * @see DataHandlerView#setOwnerRndSettings(SecurityContext, Class, List, AgentEventListener)
 	 */
-	public CallHandle setOwnerRndSettings(Class rootNodeType, List<Long> ids, 
-										AgentEventListener observer)
+	public CallHandle setOwnerRndSettings(SecurityContext ctx,
+			Class rootNodeType, List<Long> ids, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsSaver(rootNodeType, ids, 
+		BatchCallTree cmd = new RenderingSettingsSaver(ctx, rootNodeType, ids,
 									RenderingSettingsSaver.SET_OWNER);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#setOwnerRndSettings(TimeRefObject, AgentEventListener)
+	 * @see DataHandlerView#setOwnerRndSettings(SecurityContext, TimeRefObject, AgentEventListener)
 	 */
-	public CallHandle setOwnerRndSettings(TimeRefObject ref, 
-			AgentEventListener observer)
+	public CallHandle setOwnerRndSettings(SecurityContext ctx,
+			TimeRefObject ref, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsSaver(ref, 
+		BatchCallTree cmd = new RenderingSettingsSaver(ctx, ref,
 								RenderingSettingsSaver.SET_OWNER);
 		return cmd.exec(observer);
 	}
 	
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#advancedSearchFor(SearchDataContext,
+	 * @see DataHandlerView#advancedSearchFor(List, SearchDataContext,
 	 * 										AgentEventListener)
 	 */
-	public CallHandle advancedSearchFor(SearchDataContext context, 
-										AgentEventListener observer)
+	public CallHandle advancedSearchFor(List<SecurityContext> ctx,
+			SearchDataContext context, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ObjectFinder(context);
+		BatchCallTree cmd = new ObjectFinder(ctx, context);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#loadFiles(int, long, AgentEventListener)
+	 * @see DataHandlerView#loadFiles(SecurityContext, int, long, AgentEventListener)
 	 */
-	public CallHandle loadFiles(int type, long userID,
+	public CallHandle loadFiles(SecurityContext ctx, int type, long userID,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new FilesLoader(type, userID);
+		BatchCallTree cmd = new FilesLoader(ctx, type, userID);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#switchUserGroup(ExperimenterData, long, 
+	 * @see DataHandlerView#switchUserGroup(SecurityContext, ExperimenterData, long, 
 	 * AgentEventListener)
 	 */
-	public CallHandle switchUserGroup(ExperimenterData experimenter, 
-			long groupID, AgentEventListener observer)
+	public CallHandle switchUserGroup(SecurityContext ctx,
+		ExperimenterData experimenter, long groupID,
+		AgentEventListener observer)
 	{
 		BatchCallTree cmd = new SwitchUserGroupLoader(experimenter, groupID);
 		return cmd.exec(observer);

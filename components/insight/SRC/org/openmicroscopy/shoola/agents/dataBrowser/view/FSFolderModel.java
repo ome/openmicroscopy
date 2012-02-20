@@ -38,6 +38,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.MultiImageData;
@@ -62,12 +64,14 @@ class FSFolderModel
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param parent	The parent of the experimenters.
 	 * @param datasets 	The collection to experimenters the model is for.
 	 */
-	FSFolderModel(Object parent, Collection<DataObject> files)
+	FSFolderModel(SecurityContext ctx, Object parent,
+			Collection<DataObject> files)
 	{
-		super();
+		super(ctx);
 		if (files  == null) 
 			throw new IllegalArgumentException("No files.");
 		this.parent = parent;
@@ -151,7 +155,7 @@ class FSFolderModel
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return new ThumbnailLoader(component, sorter.sort(imgs), 
+		return new ThumbnailLoader(component, ctx, sorter.sort(imgs), 
 				ThumbnailLoader.FS_FILE);
 	}
 	

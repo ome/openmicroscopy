@@ -33,6 +33,7 @@ import java.util.Collection;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -69,14 +70,15 @@ public class OriginalFileLoader
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param pixelsID	The collection of the pixels set to handle.
      * @param folder	The folder where to save the files.
      * @param data	 	The third party application or <code>null</code>.
      */
-    public OriginalFileLoader(TreeViewer viewer, Collection<Long> pixelsID, 
-    		File folder, ApplicationData data)
+    public OriginalFileLoader(TreeViewer viewer, SecurityContext ctx,
+    		Collection<Long> pixelsID, File folder, ApplicationData data)
     {
-    	 super(viewer);
+    	 super(viewer, ctx);
     	 this.pixelsID = pixelsID;
     	 this.folder = folder;
     	 this.data = data;
@@ -88,7 +90,7 @@ public class OriginalFileLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadOriginalFiles(pixelsID, this);
+		handle = mhView.loadOriginalFiles(ctx, pixelsID, this);
 	}
 	
 	/** 

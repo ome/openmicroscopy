@@ -57,7 +57,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
-import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutUtils;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisitor;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -66,6 +65,8 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -130,7 +131,7 @@ abstract class DataBrowserModel
 	static final int	FS_FOLDER = 9;
 	
 	/** Holds one of the state flags defined by {@link DataBrowser}. */
-    private int					state;
+    protected int state;
     
     /** Maps an image id to the list of thumbnail providers for that image. */
     private ThumbnailsManager   thumbsManager;
@@ -183,11 +184,19 @@ abstract class DataBrowserModel
     /** The grandparent of the node. Used as back pointer. */
     protected Object 			grandParent;
     
-    /** Creates a new instance. */
-    DataBrowserModel()
+    /** The security context.*/
+    protected SecurityContext ctx;
+    
+    /** 
+     * Creates a new instance.
+     * 
+     * @param ctx The security context.
+     */
+    DataBrowserModel(SecurityContext ctx)
     {
     	sorter = new ViewerSorter();
-    	state = DataBrowser.NEW; 
+    	state = DataBrowser.NEW;
+    	this.ctx = ctx;
     }
     
     /**
@@ -431,7 +440,7 @@ abstract class DataBrowserModel
 	void fireFilteringByRate(int rate, Set nodes)
 	{
 		state = DataBrowser.FILTERING;
-		RateFilter loader = new RateFilter(component, rate, nodes);
+		RateFilter loader = new RateFilter(component, ctx, rate, nodes);
 		loader.load();
 	}
 	
@@ -444,7 +453,7 @@ abstract class DataBrowserModel
 	void fireFilteringByTags(List<String> tags, Set<DataObject> nodes)
 	{
 		state = DataBrowser.FILTERING;
-		TagsFilter loader = new TagsFilter(component, tags, nodes);
+		TagsFilter loader = new TagsFilter(component, ctx, tags, nodes);
 		loader.load();
 	}
 	
@@ -457,7 +466,8 @@ abstract class DataBrowserModel
 	void fireFilteringByComments(List<String> comments, Set<DataObject> nodes)
 	{
 		state = DataBrowser.FILTERING;
-		CommentsFilter loader = new CommentsFilter(component, comments, nodes);
+		CommentsFilter loader = new CommentsFilter(component, ctx, comments,
+				nodes);
 		loader.load();
 	}
 
@@ -470,7 +480,7 @@ abstract class DataBrowserModel
 	void fireFilteringByContext(FilterContext context, Set<DataObject> nodes)
 	{
 		state = DataBrowser.FILTERING;
-		DataFilter loader = new DataFilter(component, context, nodes);
+		DataFilter loader = new DataFilter(component, ctx, context, nodes);
 		loader.load();
 	}
 	
@@ -488,8 +498,8 @@ abstract class DataBrowserModel
 			                   Set<DataObject> nodes)
 	{
 		state = DataBrowser.FILTERING;
-		AnnotatedFilter loader = new AnnotatedFilter(component, annotationType,
-				                                   annotated, nodes);
+		AnnotatedFilter loader = new AnnotatedFilter(component, ctx,
+				annotationType, annotated, nodes);
 		loader.load();
 	}
 	
@@ -497,14 +507,14 @@ abstract class DataBrowserModel
 	void fireTagsLoading()
 	{
 		state = DataBrowser.LOADING;
-		TagsLoader loader = new TagsLoader(component);
+		TagsLoader loader = new TagsLoader(component, ctx);
 		loader.load();
 	}
 	
 	/** Starts an asynchronous call to load the existing datasets. */
 	void fireExisitingDatasetsLoading()
 	{
-		DatasetsLoader loader = new DatasetsLoader(component);
+		DatasetsLoader loader = new DatasetsLoader(component, ctx);
 		loader.load();
 	}
 	
@@ -529,9 +539,8 @@ abstract class DataBrowserModel
 		if (nodes.size() > 0) {
 			fullSizeThumbsManager = new ThumbnailsManager(toKeep, 
 					                                    toKeep.size());
-			ThumbnailLoader loader = new ThumbnailLoader(component, nodes, 
-														false, 
-														ThumbnailLoader.IMAGE);
+			ThumbnailLoader loader = new ThumbnailLoader(component, ctx,
+					nodes, false, ThumbnailLoader.IMAGE);
 			loader.load();
 			state = DataBrowser.LOADING_SLIDE_VIEW;
 		}
@@ -561,8 +570,8 @@ abstract class DataBrowserModel
 					p = null;
 			}
 		}
-		DataObjectCreator loader = new DataObjectCreator(component, p, data, 
-														images);
+		DataObjectCreator loader = new DataObjectCreator(component, ctx,
+				p, data, images);
 		loader.load();
 	}
 	
@@ -574,7 +583,7 @@ abstract class DataBrowserModel
 	 */
 	void fireDataSaving(Collection datasets, Collection images)
 	{
-		DataObjectSaver loader = new DataObjectSaver(component, datasets, 
+		DataObjectSaver loader = new DataObjectSaver(component, ctx, datasets, 
 														images);
 		loader.load();
 	}
@@ -589,7 +598,7 @@ abstract class DataBrowserModel
 	void fireReportLoading(Collection images, List<Class> types,
 			String name)
 	{
-		ReportLoader loader = new ReportLoader(component, types, 
+		ReportLoader loader = new ReportLoader(component, ctx, types, 
 				sorter.sort(images), name);
 		loader.load();
 	}
@@ -743,10 +752,10 @@ abstract class DataBrowserModel
 		if (data == null) {
 			if (this instanceof WellsModel) {
 				if (grandParent instanceof ScreenData) {
-					loader = new TabularDataLoader(component,
+					loader = new TabularDataLoader(component, ctx,
 							(DataObject) grandParent);
 				} else if (parent instanceof PlateData) {
-					loader = new TabularDataLoader(component,
+					loader = new TabularDataLoader(component, ctx,
 							(DataObject) parent);
 				}
 			}
@@ -758,7 +767,7 @@ abstract class DataBrowserModel
 				fa = i.next();
 				ids.add(fa.getFileID());
 			}
-			loader = new TabularDataLoader(component, ids);
+			loader = new TabularDataLoader(component, ctx, ids);
 		}
 		if (loader != null) loader.load();
 	}
@@ -787,6 +796,25 @@ abstract class DataBrowserModel
 		Layout layout = b.getSelectedLayout();
 		if (layout == null) return LayoutFactory.SQUARY_LAYOUT;
 		return layout.getIndex();
+	}
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext() { return ctx; }
+	
+	/**
+	 * Returns <code>true</code> if the user belongs to only one group,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isSingleGroup()
+	{
+		Set l = DataBrowserAgent.getAvailableUserGroups();
+		return l.size() <= 1;
 	}
 	
     /**

@@ -59,8 +59,25 @@ public class GroupSelectionAction
 	extends TreeViewerAction
 {
 
+	/** The name of the action. */
+	public static final String NAME = "Switch Group";
+	
+	/** The name of the action. */
+	public static final String NAME_ADD = "Add Group...";
+	
+	/** The name of the action. */
+	public static final String DESCRIPTION = "Select the sole group to " +
+			"display in the tree.";
+	
+	/** The name of the action. */
+	public static final String DESCRIPTION_ADD = "Select the group to " +
+			"add to the tree.";
+	
 	/** The group the logged in user is member of. */
 	private GroupData group;
+	
+	/** Flag indicating to add the group or to switch.*/
+	private boolean add;
 	
 	/** 
 	 * Sets the icon and tool tip text according to the permissions of the 
@@ -115,13 +132,16 @@ public class GroupSelectionAction
 	 * 
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 * @param group The group the logged in user is a member of.
+	 * @param add Passes <code>true</code> to add the group, <code>false</code>
+	 * to switch.
 	 */
-	public GroupSelectionAction(TreeViewer model, GroupData group)
+	public GroupSelectionAction(TreeViewer model, GroupData group, boolean add)
 	{
 		super(model);
 		if (group == null)
 			throw new IllegalArgumentException("No group specified.");
 		this.group = group;
+		this.add = add;
 		name = group.getName();
 		putValue(Action.NAME, name);
         setPermissions();
@@ -140,9 +160,19 @@ public class GroupSelectionAction
 	}
 	
 	/**
+	 * Returns the id of the group hosted by this component.
+	 * 
+	 * @return See above.
+	 */
+	public long getGroupId() { return group.getId(); }
+	
+	/**
 	 * Sets the default group for the currently logged in user.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
-    public void actionPerformed(ActionEvent e) { model.setUserGroup(group); }
+    public void actionPerformed(ActionEvent e)
+    {
+    	model.setUserGroup(group, add);
+    }
 	
 }

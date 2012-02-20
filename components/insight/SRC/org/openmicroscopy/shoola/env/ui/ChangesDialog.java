@@ -39,6 +39,7 @@ import javax.swing.JProgressBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -76,6 +77,9 @@ class ChangesDialog
 	/** The nodes to handle. */
 	private List<Object> 	nodes;
 	
+	/** The security context.*/
+	private SecurityContext ctx;
+	
 	/** Sets the properties of the dialog. */
 	private void setProperties()
 	{
@@ -107,13 +111,15 @@ class ChangesDialog
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param owner		The owner of the dialog.
+	 * @param owner The owner of the dialog.
 	 * @param totalTask The number of tasks to perform.
+	 * @param ctx The security context.
 	 */
-	ChangesDialog(JFrame owner, List<Object> nodes)
+	ChangesDialog(JFrame owner, List<Object> nodes, SecurityContext ctx)
 	{
 		super(owner);
 		count = 0;
+		this.ctx = ctx;
 		this.nodes = nodes;
 		setProperties();
 		initComponents();
@@ -137,8 +143,7 @@ class ChangesDialog
 		}
 		
 		if (nodes.size() == 0) {
-			firePropertyChange(DONE_PROPERTY, Boolean.valueOf(false), 
-					Boolean.valueOf(true));
+			firePropertyChange(DONE_PROPERTY, null, ctx);
 		} else {
 			status.setText(text);
 			progressBar.setValue(count);

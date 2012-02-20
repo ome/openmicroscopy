@@ -24,7 +24,8 @@ package org.openmicroscopy.shoola.agents.events.importer;
 
 
 //Java imports
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -54,10 +55,13 @@ public class LoadImporter
 	private TreeImageDisplay selectedContainer;
 	
 	/** The objects used for selection. */
-	private Collection<TreeImageDisplay> objects;
+	private Map<Long, Map<Long, List<TreeImageDisplay>>> objects;
 	
 	/** The type of the import to handle. */
 	private int type;
+	
+	/** The group context.*/
+	private long groupId;
 	
 	/**
 	 *  Creates a new instance. 
@@ -67,8 +71,23 @@ public class LoadImporter
 	public LoadImporter(TreeImageDisplay selectedContainer, int type)
 	{
 		this.selectedContainer = selectedContainer;
+		groupId = -1;
 		this.type = type;
 	}
+	
+	/**
+	 * Sets the identifier of the group.
+	 * 
+	 * @param groupId The id of the group.
+	 */
+	public void setGroup(long groupId) { this.groupId = groupId; }
+	
+	/**
+	 * Returns the id of the group.
+	 * 
+	 * @return See above.
+	 */
+	public long getGroup() { return groupId; }
 	
 	/**
 	 * Returns the container.
@@ -89,14 +108,17 @@ public class LoadImporter
 	 * 
 	 * @return See above.
 	 */
-	public Collection<TreeImageDisplay> getObjects() { return objects; }
+	public Map<Long, Map<Long, List<TreeImageDisplay>>> getObjects()
+	{
+		return objects;
+	}
 	
 	/**
 	 * Returns the top nodes.
 	 * 
 	 * @param datasets The values to set.
 	 */
-	public void setObjects(Collection<TreeImageDisplay> objects)
+	public void setObjects(Map<Long, Map<Long, List<TreeImageDisplay>>> objects)
 	{
 		this.objects = objects;
 	}

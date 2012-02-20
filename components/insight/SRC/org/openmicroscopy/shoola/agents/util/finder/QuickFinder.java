@@ -34,8 +34,10 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
+
 
 /** 
  * Class used to perform quick search.
@@ -57,54 +59,12 @@ public class QuickFinder
 {
 
 	/** Reference to the component handling data. */ 
-	private List<FinderLoader>	finderHandlers;
+	private List<FinderLoader> finderHandlers;
 	
 	/** One of the constants defined by this class. */
-	private int					state;
+	private int state;
 	
-	/** 
-	 * Searches for the passed values.
-	 * 
-	 * @param values The value to search for.
-	 * @param sep
-	 */
-	private void fireTagsRetrieval(List values, String sep)
-	{
-		state = SEARCH;
-		QuickFinderLoader handler = new QuickFinderLoader(this, null);
-		handler.load();
-		finderHandlers.add(handler);
-	}
-	
-	/** 
-	 * Searches for the passed values.
-	 * 
-	 * @param values The value to search for.
-	 * @param sep
-	 */
-	private void fireImagesRetrieval(List values, String sep)
-	{
-		state = SEARCH;
-		QuickFinderLoader handler = new QuickFinderLoader(this, null);
-		handler.load();
-		finderHandlers.add(handler);
-	}
-	
-	/** 
-	 * Searches for the passed values.
-	 * 
-	 * @param values The value to search for.
-	 * @param sep
-	 */
-	private void fireAnnotationsRetrieval(List values, String sep)
-	{
-		state = SEARCH;
-		QuickFinderLoader handler = new QuickFinderLoader(this, null);
-		handler.load();
-		finderHandlers.add(handler);
-	}
-	
-	/** Creates a new instance. */
+	/** Creates a new instance.*/
 	public QuickFinder()
 	{
 		finderHandlers = new ArrayList<FinderLoader>();
@@ -201,9 +161,9 @@ public class QuickFinder
 
 	/** 
 	 * Implemented as specified by {@link Finder} I/F
-	 * @see Finder#setResult(Object)
+	 * @see Finder#setResult(SecurityContext, Object)
 	 */
-	public void setResult(Object result) {}
+	public void setResult(SecurityContext ctx, Object result) {}
 
 	/** 
 	 * Implemented as specified by {@link Finder} I/F

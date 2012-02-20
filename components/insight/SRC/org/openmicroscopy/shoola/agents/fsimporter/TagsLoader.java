@@ -31,6 +31,7 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
@@ -63,10 +64,11 @@ public class TagsLoader
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      */
-	public TagsLoader(Importer viewer)
+	public TagsLoader(Importer viewer, SecurityContext ctx)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		setIds();
 	}
 	
@@ -76,7 +78,7 @@ public class TagsLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadExistingAnnotations(TagAnnotationData.class, 
+		handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,
 				userID, groupID, this);
 	}
 	

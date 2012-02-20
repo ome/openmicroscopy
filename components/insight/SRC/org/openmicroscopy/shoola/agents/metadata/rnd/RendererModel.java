@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -162,19 +163,24 @@ class RendererModel
     /** Reference to the image. */
     private ImageData			image;
 
+    /** The security context.*/
+    private SecurityContext ctx;
+    
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param rndControl    Reference to the component that controls the
-	 *                      rendering settings. Mustn't be <code>null</code>.
-	 * @param rndIndex		The index associated to the renderer.
+	 * @param ctx The security context.
+	 * @param rndControl Reference to the component that controls the
+	 *                   rendering settings. Mustn't be <code>null</code>.
+	 * @param index The index associated to the renderer.
 	 */
-	RendererModel(RenderingControl rndControl, int rndIndex)
+	RendererModel(SecurityContext ctx, RenderingControl rndControl, int index)
 	{
 		if (rndControl == null)
 			throw new NullPointerException("No rendering control.");
+		this.ctx = ctx;
 		setRenderingControl(rndControl);
-		this.rndIndex = rndIndex;
+		this.rndIndex = index;
 		visible = false;
 		globalMaxChannels = null;
 		globalMinChannels = null;
@@ -270,7 +276,7 @@ class RendererModel
 	{
 		if (rndControl == null) return;
 		RenderingControlShutDown loader = 
-			new RenderingControlShutDown(rndControl.getPixelsID());
+			new RenderingControlShutDown(ctx, rndControl.getPixelsID());
 		loader.load();
 		rndControl = null;
 	}
