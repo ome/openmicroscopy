@@ -172,7 +172,7 @@ def isUserConnected (f):
 
 
 def navHelper(request, conn):
-    
+
     if request.session.get('nav') is None:
         request.session['nav'] = {}
 
@@ -208,6 +208,17 @@ def navHelper(request, conn):
             except:
                 logger.debug("Failed to reverse() toolbar_link: %s" % tl)
         request.session['nav']['toolbar_links'] = tb_links
+        request.session.modified = True
+
+    if "right_tabs" not in request.session['nav']:
+        right_tabs = settings.RIGHT_TABS
+        r_tabs = []
+        for rt in right_tabs:
+            label = rt[0]
+            include = rt[1]
+            tab_id = rt[2]
+            r_tabs.append( {"label":label, "include":include, "tab_id": tab_id} )
+        request.session['nav']['right_tabs'] = r_tabs
         request.session.modified = True
 
 

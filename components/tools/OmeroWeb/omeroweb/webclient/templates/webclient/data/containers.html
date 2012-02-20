@@ -883,7 +883,7 @@
     </script>
 
     <!-- include code to handle middle panel selection -->
-    {% include "webclient/data/includes/thumbnail_tab_init.html" %}
+    {% include "webclient/data/includes/thumbnail_tab_init.js" %}
 
     <script type="text/javascript">
     
@@ -1012,9 +1012,12 @@
     });
     </script>
 
-    <!-- scripts for tabs -->
-    {% include "webclient/data/includes/preview_tab_init.html" %}
-    {% include "webclient/data/includes/acquisition_tab_init.html" %}
+    <!-- include scripts for right tabs -->
+    <!-- these are configured in settings.py under "omero.web.ui.right_tabs" -->
+    {% for rt in nav.right_tabs %}
+        {% include rt.include %}
+    {% endfor %}
+
 
 {% endblock %}
 
@@ -1118,12 +1121,16 @@
     <div id="annotation_tabs" class="absolute_fill">
         <ul class="tabslist">
             <li><a href="#metadata_general">{% trans "General" %}</a></li>
-            <li><a href='#metadata_tab'>{% trans "Acquisition" %}</a></li>
-            <li><a href="#preview_tab">{% trans "Preview" %}</a></li>
+            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
+            {% for rt in nav.right_tabs %}
+                <li><a href="#{{ rt.tab_id }}">{{ rt.label }}</a></li>
+            {% endfor %}
         </ul>
         <div id="metadata_general"></div>
-        <div id="metadata_tab" class="tab_content" style="padding:10px"></div>
-        <div id="preview_tab" class="tab_content" style="padding:10px"></div>
+        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
+        {% for rt in nav.right_tabs %}
+            <div id="{{ rt.tab_id }}" class="tab_content" style="padding:10px"></div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}
