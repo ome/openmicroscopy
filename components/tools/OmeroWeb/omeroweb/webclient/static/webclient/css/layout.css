@@ -409,7 +409,7 @@ div.plane_info table div {
 }
 
 .can-collapse {
-    background:transparent url(/static/common/image/table/desc-big.gif) no-repeat scroll bottom right;
+    background:transparent url(../../3rdparty/jquery.tablesorter/desc-big.gif) no-repeat scroll bottom right;
     border: 1px solid #bbb;
     background-color: #fff;
     cursor:pointer;
@@ -417,7 +417,7 @@ div.plane_info table div {
     margin:5px 0;
 }
 .defclosed,.closed{
-    background:transparent url(/static/common/image/table/asc-big.gif) no-repeat scroll top right;
+    background:transparent url(../../3rdparty/jquery.tablesorter/asc-big.gif) no-repeat scroll top right;
     background-color: #fff;
 }
 
