@@ -581,7 +581,46 @@
                             
                             return config;
                         }
+                    },
+
+                    // default hotkeys only do 'hover' on up/down/left/right. We want to 'select'
+                    "hotkeys" : {
+                        "right" : function () {
+                            var o = this.data.ui.last_selected;
+                            if(o && o.length) {
+                                if(o.hasClass("jstree-closed")) { this.open_node(o); }
+                                else {
+                                    this.hover_node(this._get_next(o));
+                                    this._get_next(o).children("a:eq(0)").click();
+                                }
+                            }
+                            return false;
+                        },
+                        "down" : function () {
+                            var o = this.data.ui.last_selected;
+                            if(o && o.length) {
+                                if(o.hasClass("jstree-closed")) { this.open_node(o); }
+                                else {
+                                    this.hover_node(this._get_next(o));
+                                    this._get_next(o).children("a:eq(0)").click();
+                                }
+                            }
+                            return false;
+                        },
+                        "up" : function () {
+                            var o = this.data.ui.last_selected || -1;
+                            this.hover_node(this._get_prev(o));
+                            this._get_prev(o).children("a:eq(0)").click();
+                            return false;
+                        },
+                        "left" : function () {
+                            var o = this.data.ui.last_selected || -1;
+                            this.hover_node(this._get_prev(o));
+                            this._get_prev(o).children("a:eq(0)").click();
+                            return false;
+                        },
                     }
+
                 })
                 .delegate("a", "click.jstree", function (e) {
                     var data = $.jstree._focused();
