@@ -309,7 +309,12 @@ class ITest(unittest.TestCase):
 
     def user_and_name(self, user):
         admin = self.root.sf.getAdminService()
-        if isinstance(user, omero.model.Experimenter):
+        if isinstance(user, omero.clients.BaseClient):
+            admin = user.sf.getAdminService()
+            ec = admin.getEventContext()
+            name = ec.userName
+            user = admin.lookupExperimenter(name)
+        elif isinstance(user, omero.model.Experimenter):
             if user.isLoaded():
                 name = user.omeName.val
                 user = admin.lookupExperimenter(name)
