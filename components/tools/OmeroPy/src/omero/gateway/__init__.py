@@ -5612,8 +5612,6 @@ class _ImageWrapper (BlitzObjectWrapper):
                     logger.info( "ApiUsageException: getRenderingDefId() failed in _prepareTB")
                     return tb
                 self._onResetDefaults(rdid)
-        else:
-            tb.setRenderingDefId(rdid, self._conn.CONFIG['SERVICE_OPTS'])
         return tb
 
     def loadOriginalMetadata(self):
