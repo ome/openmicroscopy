@@ -34,7 +34,7 @@ from email.MIMEImage import MIMEImage
 
 from django.conf import settings
 
-logger = logging.getLogger('sendfeedback')
+logger = logging.getLogger(__name__)
 
 class SendFeedback(object):
 

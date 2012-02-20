@@ -75,7 +75,7 @@ from omeroweb.webgateway.views import getBlitzConnection
 
 from omeroweb.webadmin.custom_models import Server
 
-logger = logging.getLogger('views-admin')
+logger = logging.getLogger(__name__)
 
 connectors = {}
 
@@ -221,7 +221,7 @@ def forgotten_password(request, **kwargs):
 def login(request):
     request.session.modified = True
     
-    if request.method == 'POST' and request.REQUEST.get('server'):        
+    if request.method == 'POST' and request.REQUEST.get('server'):
         blitz = Server.get(pk=request.REQUEST.get('server')) 
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host

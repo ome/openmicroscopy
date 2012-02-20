@@ -28,7 +28,7 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 import logging
 
-logger = logging.getLogger('web-container')
+logger = logging.getLogger(__name__)
 
 from webclient.controller import BaseController
 

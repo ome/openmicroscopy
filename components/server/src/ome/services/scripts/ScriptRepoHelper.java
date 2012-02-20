@@ -29,6 +29,9 @@ import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
+// import omero.util.TempFileManager;
+// Note: This cannot be imported because
+// it's in the blitz pacakge. TODO
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AndFileFilter;
@@ -116,19 +119,66 @@ public class ScriptRepoHelper {
             Roles roles) {
         this.roles = roles;
         this.uuid = uuid;
-        this.dir = dir;
+        this.dir = sanityCheck(log, dir);
         this.ex = ex;
         this.p = p;
+    }
+
+    /**
+     * If we're in a testing scenario we need to ignore the fact that there
+     * is no lib/script directory. Otherwise, all devs will need to mkdir -p
+     * that directory both at the top-level and under blitz/ etc.
+     */
+    static File sanityCheck(Log log, File dir) {
+
+        String error = null;
+        String testing = System.getProperty("omero.testing", "false").toLowerCase();
+        testing = testing.toLowerCase();
+
         if (dir == null) {
             throw new InternalException("Null dir!");
         }
+
         if (!dir.exists()) {
-            throw new InternalException("Does not exist: "
-                    + dir.getAbsolutePath());
+            error = "Does not exist: ";
+        } else if (!dir.canRead()) {
+            error = "Cannot read: ";
         }
-        if (!dir.canRead()) {
-            throw new InternalException("Cannot read: " + dir.getAbsolutePath());
+
+        if (error != null) {
+            if (testing.equals("true")) {
+                log.error(error + dir.getAbsolutePath());
+                try {
+                    //dir = TempFileManager.create_path("lib", "scripts", true);
+                    dir = getTmpDir();
+                } catch (IOException e) {
+                    throw new InternalException(
+                            "Failed to make temp path for testing");
+                }
+            } else {
+                throw new InternalException(error + dir.getAbsolutePath());
+            }
         }
+
+        return dir;
+    }
+
+    /**
+     * This method creates a temporary directory under
+     * ${java.io.tmpdir}/tmp_lib_scripts" which can be
+     * used during testing. This method would be better
+     * implemeneted using omero.util.TempFileManager
+     * but that's currently not possible for packaging
+     * reasons.
+     */
+    static File getTmpDir() throws IOException {
+        String tmpDirName = System.getProperty("java.io.tmpdir", null);
+        File tmpDir = new File(tmpDirName);
+        File libDir = new File(tmpDir, "tmp_lib_scripts");
+        File dir = File.createTempFile("lib", "scripts", tmpDir);
+        dir.delete();
+        dir.mkdirs();
+        return dir;
     }
 
     /**

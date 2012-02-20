@@ -32,7 +32,7 @@ from django.templatetags.static import PrefixNode
 
 register = template.Library()
 
-logger = logging.getLogger('default_tags')
+logger = logging.getLogger(__name__)
 
 @register.simple_tag
 def static(path):

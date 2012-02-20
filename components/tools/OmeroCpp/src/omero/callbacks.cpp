@@ -141,6 +141,67 @@ namespace omero {
             result = rint(errors);
             event.set();
         };
+
+        //
+        // CmdCallback
+        //
+
+        CmdCallbackI::CmdCallbackI(
+            const Ice::ObjectAdapterPtr& adapter, const omero::cmd::HandlePrx handle) :
+            adapter(adapter),
+            poll(true),
+            handle(handle) {
+        };
+
+	CmdCallbackI::~CmdCallbackI() {
+            handle->close();
+        };
+
+        omero::cmd::ResponsePtr CmdCallbackI::loop(int loops, long ms) {
+            int count = 0;
+            omero::cmd::ResponsePtr rsp;
+            while (!rsp && count < loops) {
+                rsp = block(ms);
+                count++;
+            }
+
+            if (!rsp) {
+                int waited = (ms/1000) * loops;
+                stringstream ss;
+                ss << "Cmd unfinished after " << waited << "seconds.";
+                throw LockTimeout("", "", ss.str(), 5000L, waited);
+            } else {
+                return rsp;
+            }
+        };
+
+        omero::cmd::ResponsePtr CmdCallbackI::block(long ms) {
+            omero::cmd::ResponsePtr rsp;
+            if (poll) {
+                try {
+                    rsp = handle->getResponse();
+                    if (rsp) {
+                            try {
+                                finished(handle->getStatus(), rsp);
+                            } catch (const Ice::Exception& ex) {
+                                cerr << "Error calling CmdCallbackI.finished: " << ex << endl;
+                            }
+                    }
+                } catch (const Ice::ObjectNotExistException& onee) {
+                    throw omero::ClientError(__FILE__, __LINE__, "Handle is gone!");
+                } catch (const Ice::Exception& ex) {
+                    cerr << "Error polling CmdHandle:" << ex << endl;
+                }
+            }
+
+            event.wait(Time::milliSeconds(ms));
+            return rsp; // Possibly empty
+
+        };
+
+        void CmdCallbackI::finished(const omero::cmd::StatusPtr& status, const omero::cmd::ResponsePtr& rsp) {
+            event.set();
+        };
     };
 
 };

@@ -27,7 +27,7 @@ import cStringIO
 import traceback
 import logging
 
-logger = logging.getLogger('webclient_gateway')
+logger = logging.getLogger(__name__)
 
 try:
     from PIL import Image, ImageDraw # see ticket:2597

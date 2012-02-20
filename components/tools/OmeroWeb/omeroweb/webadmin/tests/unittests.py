@@ -109,9 +109,9 @@ class WebAdminUrlTest(WebAdminClientTest):
         response = self.client.post(reverse(viewname="walogin"), params)
         # Check that the response was a 302 (redirect)
         self.failUnlessEqual(response.status_code, 302)
-        self.failUnlessEqual(response['Location'], reverse(viewname="waindex"))
+        self.assert_(response['Location'].endswith(reverse(viewname="waindex")))
     
-    def test_urlsAsRoot(self):        
+    def test_urlsAsRoot(self):
         self.client.login('root', self.root_password)
         
         # response 200

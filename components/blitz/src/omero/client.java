@@ -43,7 +43,7 @@ import omero.model.DetailsI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.PermissionsI;
-import omero.util.ObjectFactoryRegistrar;
+import omero.util.ModelObjectFactoryRegistry;
 import omero.util.Resources;
 import omero.util.Resources.Entry;
 import Glacier2.CannotCreateSessionException;
@@ -350,14 +350,8 @@ public class client {
         }
 
         // Register Object Factories
-        ObjectFactoryRegistrar.registerObjectFactory(__ic,
-                ObjectFactoryRegistrar.INSTANCE);
-        for (rtypes.ObjectFactory of : rtypes.ObjectFactories.values()) {
-            of.register(__ic);
-        }
-        __ic.addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
-        __ic.addObjectFactory(PermissionsI.Factory, PermissionsI
-                .ice_staticId());
+        new ModelObjectFactoryRegistry().setIceCommunicator(__ic);
+        new rtypes.RTypeObjectFactoryRegistry().setIceCommunicator(__ic);
 
         // Define our unique identifer (used during close/detach)
         __uuid = UUID.randomUUID().toString();

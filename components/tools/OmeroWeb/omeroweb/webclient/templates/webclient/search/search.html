@@ -92,6 +92,9 @@
 
             {% if init.query %}
                 $("div#content_details").load('{% url load_searching "form" %}?query={{ init.query }}');
+                var query_string = "{{ init.query }}";
+                query_string = query_string.replace("%20", " ");
+                $("input[name='query']").val(query_string);
             {% endif %}
 
 

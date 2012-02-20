@@ -47,22 +47,64 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.api.delete.DeleteReport;
+import omero.cmd.Chgrp;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.ERR;
+import omero.cmd.HandlePrx;
+import omero.cmd.OK;
+import omero.cmd.Response;
+import omero.cmd.State;
+import omero.cmd.Status;
 import omero.grid.DeleteCallbackI;
+import omero.model.BooleanAnnotation;
+import omero.model.BooleanAnnotationI;
 import omero.model.ChannelBinding;
+import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
+import omero.model.Dataset;
+import omero.model.DatasetAnnotationLink;
+import omero.model.DatasetAnnotationLinkI;
 import omero.model.Experiment;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageAnnotationLink;
+import omero.model.ImageAnnotationLinkI;
+import omero.model.LongAnnotation;
+import omero.model.LongAnnotationI;
+import omero.model.OriginalFile;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
+import omero.model.Plate;
+import omero.model.PlateAcquisition;
+import omero.model.PlateAcquisitionAnnotationLink;
+import omero.model.PlateAcquisitionAnnotationLinkI;
+import omero.model.PlateAnnotationLink;
+import omero.model.PlateAnnotationLinkI;
+import omero.model.Project;
+import omero.model.ProjectAnnotationLink;
+import omero.model.ProjectAnnotationLinkI;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
+import omero.model.Screen;
+import omero.model.ScreenAnnotationLink;
+import omero.model.ScreenAnnotationLinkI;
+import omero.model.TagAnnotation;
+import omero.model.TagAnnotationI;
+import omero.model.TermAnnotation;
+import omero.model.TermAnnotationI;
 import omero.model.Well;
+import omero.model.WellAnnotationLink;
+import omero.model.WellAnnotationLinkI;
 import omero.model.WellSample;
+import omero.model.WellSampleAnnotationLink;
+import omero.model.WellSampleAnnotationLinkI;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
@@ -103,6 +145,9 @@ public class AbstractServerTest
 
     /** Helper reference to the <code>Service factory</code>. */
     protected ServiceFactoryPrx factory;
+
+    /** Helper reference to the <code>Service factory</code>. */
+    protected ServiceFactoryPrx factoryEncrypted;
 
     /** Helper reference to the <code>IQuery</code> service. */
     protected IQueryPrx iQuery;
@@ -202,24 +247,41 @@ public class AbstractServerTest
      * Creates a new group and experimenter and returns the event context.
      * 
      * @param perms The permissions level.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected EventContext newUserAndGroup(String perms, boolean owner)
+	throws Exception
+    {
+        return newUserAndGroup(new PermissionsI(perms), owner);
+    }
+
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
     protected EventContext newUserAndGroup(String perms) 
     	throws Exception
     {
-        return newUserAndGroup(new PermissionsI(perms));
+        return newUserAndGroup(new PermissionsI(perms), false);
     }
 
     /**
      * Creates a new group and experimenter and returns the event context.
      * 
      * @param perms The permissions level.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    protected EventContext newUserAndGroup(Permissions perms) 
-    	throws Exception
+    protected EventContext newUserAndGroup(Permissions perms, boolean owner)
+	throws Exception
     {
         IAdminPrx rootAdmin = root.getSession().getAdminService();
         String uuid = UUID.randomUUID().toString();
@@ -227,7 +289,7 @@ public class AbstractServerTest
         g.setName(omero.rtypes.rstring(uuid));
         g.getDetails().setPermissions(perms);
         g = new ExperimenterGroupI(rootAdmin.createGroup(g), false);
-        return newUserInGroup(g);
+        return newUserInGroup(g, owner);
     }
 
     /**
@@ -247,11 +309,150 @@ public class AbstractServerTest
     }
     
     /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
+     * @param experimenterId The identifier of the experimenter.
+     * @
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected ExperimenterGroup newGroupAddUser(Permissions perms,
+		long experimenterId)
+	throws Exception
+    {
+	return newGroupAddUser(perms, Arrays.asList(experimenterId), false);
+    }
+
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
+     * @param experimenterId The identifier of the experimenter.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected ExperimenterGroup newGroupAddUser(Permissions perms,
+		long experimenterId, boolean owner)
+	throws Exception
+    {
+	return newGroupAddUser(perms, Arrays.asList(experimenterId), owner);
+    }
+
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
+     * @param experimenterIds The identifier of the experimenters.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected ExperimenterGroup newGroupAddUser(Permissions perms,
+		List<Long> experimenterIds, boolean owner)
+	throws Exception
+    {
+        IAdminPrx rootAdmin = root.getSession().getAdminService();
+	String uuid = UUID.randomUUID().toString();
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(omero.rtypes.rstring(uuid));
+        g.getDetails().setPermissions(perms);
+        g = new ExperimenterGroupI(rootAdmin.createGroup(g), false);
+        return addUsers(g, experimenterIds, owner);
+    }
+
+    protected ExperimenterGroup addUsers(ExperimenterGroup g,
+            List<Long> experimenterIds, boolean owner)
+        throws Exception
+    {
+        IAdminPrx rootAdmin = root.getSession().getAdminService();
+        g = rootAdmin.getGroup(g.getId().getValue());
+        Iterator<Long> i = experimenterIds.iterator();
+        List<Experimenter> l = new ArrayList<Experimenter>();
+        while (i.hasNext()) {
+			Experimenter e = rootAdmin.getExperimenter(i.next());
+	        rootAdmin.addGroups(e, Arrays.asList(g));
+	        l.add(e);
+		}
+        if (owner && l.size() > 0) {
+		rootAdmin.addGroupOwners(g, l);
+        }
+        return g;
+    }
+
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
+     * @param experimenterId The identifier of the experimenters.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected ExperimenterGroup newGroupAddUser(String perms,
+		List<Long> experimenterIds, boolean owner)
+	throws Exception
+    {
+	return newGroupAddUser(new PermissionsI(perms), experimenterIds, owner);
+    }
+
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
+     * @param experimenterId The identifier of the experimenters.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected ExperimenterGroup newGroupAddUser(String perms,
+		List<Long> experimenterIds)
+	throws Exception
+    {
+	return newGroupAddUser(new PermissionsI(perms), experimenterIds, false);
+    }
+
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
+     * @param experimenterId The identifier of the experimenter.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected ExperimenterGroup newGroupAddUser(String perms,
+		long experimenterId)
+	throws Exception
+    {
+	return newGroupAddUser(new PermissionsI(perms), experimenterId);
+    }
+
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     *
+     * @param perms The permissions level.
+     * @param experimenterId The identifier of the experimenter.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected ExperimenterGroup newGroupAddUser(String perms,
+		long experimenterId, boolean owner)
+	throws Exception
+    {
+	return newGroupAddUser(new PermissionsI(perms), experimenterId, owner);
+    }
+
+    /**
      * Creates a new user in the current group.
      * @return
      */
     protected EventContext newUserInGroup() throws Exception {
-        EventContext ec = 
+        EventContext ec =
         	client.getSession().getAdminService().getEventContext();
         return newUserInGroup(ec);
     }
@@ -266,22 +467,40 @@ public class AbstractServerTest
     protected EventContext newUserInGroup(EventContext previousUser)
     throws Exception
     {
+        return newUserInGroup(previousUser, false);
+    }
+
+    /**
+     * Takes the {@link EventContext} from another user and creates a new user
+     * in the same group as that user is currently logged in to.
+     *
+     * @param previousUser The context of the previous user.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected EventContext newUserInGroup(EventContext previousUser,
+		boolean owner)
+    throws Exception
+    {
         ExperimenterGroup eg = new ExperimenterGroupI(previousUser.groupId, 
         		false);
-        return newUserInGroup(eg);
+        return newUserInGroup(eg, owner);
     }
     
     /**
      * Creates a new user in the specified group.
      * 
      * @param group The group to add the user to.
+     * @param owner Pass <code>true</code> to indicate that the new user
+     * 				is an owner of the group, <code>false otherwise</code>.
      * @return The context.
      * @throws Exception Thrown if an error occurred.
      */
-    protected EventContext newUserInGroup(ExperimenterGroup group)
+    protected EventContext newUserInGroup(ExperimenterGroup group,
+		boolean owner)
     	throws Exception
     {
-        
         IAdminPrx rootAdmin = root.getSession().getAdminService();
         group = rootAdmin.getGroup(group.getId().getValue());
 
@@ -293,8 +512,29 @@ public class AbstractServerTest
         long id = rootAdmin.createUser(e, group.getName().getValue());
         e = rootAdmin.getExperimenter(id);
         rootAdmin.addGroups(e, Arrays.asList(group));
+        if (owner) {
+		rootAdmin.addGroupOwners(group, Arrays.asList(e));
+        }
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
+        return init(client);
+    }
+
+    /**
+     * Logs in the user.
+     *
+     * @param ownerEc The context of the user.
+     * @param g The group to log into.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected EventContext loginUser(ExperimenterGroup g)
+	throws Exception
+    {
+	EventContext ec = iAdmin.getEventContext();
+        omero.client client = newOmeroClient();
+        client.createSession(ec.userName, "dummy");
+        client.getSession().setSecurityContext(new ExperimenterGroupI(
+			g.getId(), false));
         return init(client);
     }
 
@@ -324,9 +564,16 @@ public class AbstractServerTest
      * Creates a new {@link omero.client} for root based on the {@link EventContext}
      */
     protected void logRootIntoGroup(EventContext ec) throws Exception {
+	logRootIntoGroup(ec.groupId);
+    }
+
+    /**
+     * Creates a new {@link omero.client} for root based on the group identifier.
+     */
+    protected void logRootIntoGroup(long groupId) throws Exception {
         omero.client rootClient = newRootOmeroClient();
         rootClient.getSession().setSecurityContext(new ExperimenterGroupI(
-        		ec.groupId, false));
+			groupId, false));
         init(rootClient);
     }
 
@@ -363,20 +610,13 @@ public class AbstractServerTest
             client.__del__();
         }
         client = null;
-        factory = null;
-        iQuery = null;
-        iUpdate = null;
-        iAdmin = null;
-        iDelete = null;
-        mmFactory = null;
-        importer = null;
     }
 
     /**
      */
     protected EventContext init(EventContext ec) throws Exception {
         omero.client c = newOmeroClient();
-        c.createSession(ec.userName, "");
+        factoryEncrypted = c.createSession(ec.userName, "");
         return init(c);
     }
 
@@ -831,5 +1071,450 @@ public class AbstractServerTest
         image.setPixels(0, loop.getPixels());
         return image;
     }
+
+    /**
+     * Creates various sharable annotations i.e. TagAnnotation, TermAnnotation,
+     * FileAnnotation
+     *
+     * @param parent1 The object to link the annotation to.
+     * @param parent2 The object to link the annotation to if not null.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected List<Long> createSharableAnnotation(IObject parent1,
+		IObject parent2)
+	throws Exception
+    {
+        // Copying to a proxy to prevent issues with parent.annotationLinks
+        // becoming stale on multiple copies.
+        parent1 = parent1.proxy();
+        if (parent2 != null) {
+            parent2 = parent2.proxy();
+        }
+
+	//creation already tested in UpdateServiceTest
+	List<Long> ids = new ArrayList<Long>();
+	TagAnnotation c = new TagAnnotationI();
+	c.setTextValue(omero.rtypes.rstring("tag"));
+	c = (TagAnnotation) iUpdate.saveAndReturnObject(c);
+	ids.add(c.getId().getValue());
+
+	TermAnnotation t = new TermAnnotationI();
+	t.setTermValue(omero.rtypes.rstring("term"));
+	t = (TermAnnotation) iUpdate.saveAndReturnObject(t);
+	ids.add(t.getId().getValue());
+
+	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+				mmFactory.createOriginalFile());
+		assertNotNull(of);
+		FileAnnotation f = new FileAnnotationI();
+		f.setFile(of);
+		f = (FileAnnotation) iUpdate.saveAndReturnObject(f);
+		ids.add(f.getId().getValue());
+
+	List<IObject> links = new ArrayList<IObject>();
+	if (parent1 instanceof Image) {
+		ImageAnnotationLink link = new ImageAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((Image) parent1);
+		links.add(link);
+		link = new ImageAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((Image) parent1);
+		links.add(link);
+		link = new ImageAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((Image) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((Image) parent2);
+			links.add(link);
+			link = new ImageAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((Image) parent2);
+			links.add(link);
+			link = new ImageAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((Image) parent2);
+			links.add(link);
+		}
+	} else if (parent1 instanceof Project) {
+		ProjectAnnotationLink link = new ProjectAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((Project) parent1);
+		links.add(link);
+		link = new ProjectAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((Project) parent1);
+		links.add(link);
+		link = new ProjectAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((Project) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((Project) parent2);
+			links.add(link);
+			link = new ProjectAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((Project) parent2);
+			links.add(link);
+			link = new ProjectAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((Project) parent2);
+			links.add(link);
+		}
+	} else if (parent1 instanceof Dataset) {
+		DatasetAnnotationLink link = new DatasetAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((Dataset) parent1);
+		links.add(link);
+		link = new DatasetAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((Dataset) parent1);
+		links.add(link);
+		link = new DatasetAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((Dataset) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((Dataset) parent2);
+			links.add(link);
+			link = new DatasetAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((Dataset) parent2);
+			links.add(link);
+			link = new DatasetAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((Dataset) parent2);
+			links.add(link);
+		}
+	} else if (parent1 instanceof Plate) {
+		PlateAnnotationLink link = new PlateAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((Plate) parent1);
+		links.add(link);
+		link = new PlateAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((Plate) parent1);
+		links.add(link);
+		link = new PlateAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((Plate) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((Plate) parent2);
+			links.add(link);
+			link = new PlateAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((Plate) parent2);
+			links.add(link);
+			link = new PlateAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((Plate) parent2);
+			links.add(link);
+		}
+	} else if (parent1 instanceof Screen) {
+		ScreenAnnotationLink link = new ScreenAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((Screen) parent1);
+		links.add(link);
+		link = new ScreenAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((Screen) parent1);
+		links.add(link);
+		link = new ScreenAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((Screen) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((Screen) parent2);
+			links.add(link);
+			link = new ScreenAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((Screen) parent2);
+			links.add(link);
+			link = new ScreenAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((Screen) parent2);
+			links.add(link);
+		}
+	} else if (parent1 instanceof Well) {
+		WellAnnotationLink link = new WellAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((Well) parent1);
+		links.add(link);
+		link = new WellAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((Well) parent1);
+		links.add(link);
+		link = new WellAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((Well) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((Well) parent2);
+			links.add(link);
+			link = new WellAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((Well) parent2);
+			links.add(link);
+			link = new WellAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((Well) parent2);
+			links.add(link);
+		}
+	} else if (parent1 instanceof WellSample) {
+		WellSampleAnnotationLink link = new WellSampleAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((WellSample) parent1);
+		links.add(link);
+		link = new WellSampleAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((WellSample) parent1);
+		links.add(link);
+		link = new WellSampleAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((WellSample) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((WellSample) parent2);
+			links.add(link);
+			link = new WellSampleAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((WellSample) parent2);
+			links.add(link);
+			link = new WellSampleAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((WellSample) parent2);
+			links.add(link);
+		}
+	} else if (parent1 instanceof PlateAcquisition) {
+		PlateAcquisitionAnnotationLink link =
+			new PlateAcquisitionAnnotationLinkI();
+		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+		link.setParent((PlateAcquisition) parent1);
+		links.add(link);
+		link = new PlateAcquisitionAnnotationLinkI();
+		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+		link.setParent((PlateAcquisition) parent1);
+		links.add(link);
+		link = new PlateAcquisitionAnnotationLinkI();
+		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+		link.setParent((PlateAcquisition) parent1);
+		links.add(link);
+		if (parent2 != null) {
+			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+			link.setParent((PlateAcquisition) parent2);
+			links.add(link);
+			link = new PlateAcquisitionAnnotationLinkI();
+			link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+			link.setParent((PlateAcquisition) parent2);
+			links.add(link);
+			link = new PlateAcquisitionAnnotationLinkI();
+			link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+			link.setParent((PlateAcquisition) parent2);
+			links.add(link);
+		}
+	}
+	if (links.size() > 0) iUpdate.saveAndReturnArray(links);
+	return ids;
+    }
+
+    /**
+     * Creates various non sharable annotations.
+     *
+     * @param parent The object to link the annotation to.
+     * @param ns     The name space or <code>null</code>.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected List<Long> createNonSharableAnnotation(IObject parent, String ns)
+	throws Exception
+    {
+        // Copying to a proxy to prevent issues with parent.annotationLinks
+        // becoming stale on multiple copies.
+        parent = parent.proxy();
+
+	//creation already tested in UpdateServiceTest
+	List<Long> ids = new ArrayList<Long>();
+	CommentAnnotation c = new CommentAnnotationI();
+	c.setTextValue(omero.rtypes.rstring("comment"));
+	if (ns != null) c.setNs(omero.rtypes.rstring(ns));
+
+	c = (CommentAnnotation) iUpdate.saveAndReturnObject(c);
+
+	LongAnnotation l = new LongAnnotationI();
+	l.setLongValue(omero.rtypes.rlong(1L));
+	if (ns != null) l.setNs(omero.rtypes.rstring(ns));
+
+	l = (LongAnnotation) iUpdate.saveAndReturnObject(l);
+
+	BooleanAnnotation b = new BooleanAnnotationI();
+	b.setBoolValue(omero.rtypes.rbool(true));
+	if (ns != null) b.setNs(omero.rtypes.rstring(ns));
+
+	b = (BooleanAnnotation) iUpdate.saveAndReturnObject(b);
+
+	ids.add(c.getId().getValue());
+	ids.add(l.getId().getValue());
+	ids.add(b.getId().getValue());
+
+	List<IObject> links = new ArrayList<IObject>();
+	if (parent instanceof Image) {
+		ImageAnnotationLink link = new ImageAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((Image) parent);
+		links.add(link);
+		link = new ImageAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((Image) parent);
+		links.add(link);
+		link = new ImageAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((Image) parent);
+		links.add(link);
+	} else if (parent instanceof Project) {
+		ProjectAnnotationLink link = new ProjectAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((Project) parent);
+		links.add(link);
+		link = new ProjectAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((Project) parent);
+		links.add(link);
+		link = new ProjectAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((Project) parent);
+		links.add(link);
+	} else if (parent instanceof Dataset) {
+		DatasetAnnotationLink link = new DatasetAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((Dataset) parent);
+		links.add(link);
+		link = new DatasetAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((Dataset) parent);
+		links.add(link);
+		link = new DatasetAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((Dataset) parent);
+		links.add(link);
+	} else if (parent instanceof Plate) {
+		PlateAnnotationLink link = new PlateAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((Plate) parent);
+		links.add(link);
+		link = new PlateAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((Plate) parent);
+		links.add(link);
+		link = new PlateAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((Plate) parent);
+		links.add(link);
+	} else if (parent instanceof Screen) {
+		ScreenAnnotationLink link = new ScreenAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((Screen) parent);
+		links.add(link);
+		link = new ScreenAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((Screen) parent);
+		links.add(link);
+		link = new ScreenAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((Screen) parent);
+		links.add(link);
+	} else if (parent instanceof Well) {
+		WellAnnotationLink link = new WellAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((Well) parent);
+		links.add(link);
+		link = new WellAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((Well) parent);
+		links.add(link);
+		link = new WellAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((Well) parent);
+		links.add(link);
+	} else if (parent instanceof WellSample) {
+		WellSampleAnnotationLink link = new WellSampleAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((WellSample) parent);
+		links.add(link);
+		link = new WellSampleAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((WellSample) parent);
+		links.add(link);
+		link = new WellSampleAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((WellSample) parent);
+		links.add(link);
+	} else if (parent instanceof PlateAcquisition) {
+		PlateAcquisitionAnnotationLink link =
+			new PlateAcquisitionAnnotationLinkI();
+		link.setChild(c);
+		link.setParent((PlateAcquisition) parent);
+		links.add(link);
+		link = new PlateAcquisitionAnnotationLinkI();
+		link.setChild(l);
+		link.setParent((PlateAcquisition) parent);
+		links.add(link);
+		link = new PlateAcquisitionAnnotationLinkI();
+		link.setChild(b);
+		link.setParent((PlateAcquisition) parent);
+		links.add(link);
+	}
+	if (links.size() > 0) iUpdate.saveAndReturnArray(links);
+	return ids;
+    }
+
+	/**
+	 * Moves the data.
+	 *
+	 * @param change The object hosting information about data to move.
+	 * @return See above.
+	 * @throws Exception
+	 */
+	protected Response doChange(Chgrp change)
+	    throws Exception {
+	    return doChange(change, true);
+	}
+
+	protected Response doChange(Chgrp change, boolean pass)
+		throws Exception
+	{
+		final HandlePrx prx = factory.submit(change);
+		assertFalse(prx.getStatus().flags.contains(State.FAILURE));
+		new CmdCallbackI(client, prx).loop(20, 500);
+		assertNotNull(prx.getResponse());
+
+		Status status = prx.getStatus();
+		Response rsp = prx.getResponse();
+		assertNotNull(rsp);
+		if (pass) {
+		    if (rsp instanceof ERR) {
+		        ERR err = (ERR) rsp;
+		        fail(String.format("Found ERR when pass==true: %s (%s) params=",
+		                err.category, err.name, err.parameters));
+		    }
+		    assertFalse(status.flags.contains(State.FAILURE));
+		} else {
+		    if (rsp instanceof OK) {
+		        OK ok = (OK) rsp;
+		        fail(String.format("Found OK when pass==false: %s", ok));
+		    }
+		    assertTrue(status.flags.contains(State.FAILURE));
+		}
+		return rsp;
+	}
 
 }

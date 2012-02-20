@@ -101,7 +101,7 @@ from omeroweb.webgateway import views as webgateway_views
 
 from omeroweb.feedback.views import handlerInternalError
 
-logger = logging.getLogger('views-web')
+logger = logging.getLogger(__name__)
 
 connectors = {}
 share_connectors = {}
@@ -555,13 +555,18 @@ def load_template(request, menu, **kwargs):
                     init['initially_select'] = k+"-"+i.replace(":selected", "")     # E.g. image-607
                 else:
                     init['initially_open'].append(k+"-"+i)          # E.g. ['project-51', 'dataset-502']
-    
-    
+
+        if init['initially_select'] is None:
+            sdict = string_to_dict(request.REQUEST.get('path'))
+            k = sdict.keys()[-1]
+            init['initially_select'] = k+"-"+sdict[k]
+
+
     # search support
-    if menu == "search":
-        init['query'] = request.REQUEST.get('search_query')
-    
-    
+    if menu == "search" and request.REQUEST.get('search_query'):
+        init['query'] = str(request.REQUEST.get('search_query')).replace(" ", "%20")
+
+
     try:
         manager = BaseContainer(conn)
     except AttributeError, x:
@@ -571,9 +576,18 @@ def load_template(request, menu, **kwargs):
     form_users = None
     filter_user_id = None
     
-    users = list(conn.listColleagues())
-    users.sort(key=lambda x: x.getOmeName().lower())
-    empty_label = "*%s (%s)" % (conn.getUser().getFullName(), conn.getUser().omeName)
+    s = conn.groupSummary()
+    leaders = s["leaders"]
+    members = s["colleagues"]
+    users = []
+    leaders.sort(key=lambda x: x.getOmeName().lower())
+    if len(leaders) > 0:
+        users.append( ("Owners", leaders) )
+    members.sort(key=lambda x: x.getOmeName().lower())
+    if len(members) > 0:
+        users.append( ("Members", members) )
+    users = tuple(users)
+    empty_label = None #"*%s (%s)" % (conn.getUser().getFullName(), conn.getUser().omeName)
     if len(users) > 0:
         if request.REQUEST.get('experimenter') is not None and len(request.REQUEST.get('experimenter'))>0:
             form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu}, data=request.REQUEST.copy())
@@ -585,10 +599,9 @@ def load_template(request, menu, **kwargs):
             if request.REQUEST.get('experimenter') == "":
                 request.session.get('nav')['experimenter'] = None
             filter_user_id = request.session.get('nav')['experimenter'] is not None and request.session.get('nav')['experimenter'] or None
-            if filter_user_id is not None:
-                form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
-            else:
-                form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
+            if filter_user_id is None:
+                filter_user_id = conn.getEventContext().userId
+            form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
             
     else:
         form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
@@ -1092,11 +1105,12 @@ def load_metadata_details(request, c_type, c_id, conn, share_id=None, **kwargs):
             manager.getComments(c_id)
             form_comment = ShareCommentForm()
         else:
-            template = "webclient/annotations/metadata_general.html"
             if conn_share is not None:
                 # We are using a share connection to view Images etc
+                template = "webclient/annotations/annotations_share.html"
                 manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
             else:
+                template = "webclient/annotations/metadata_general.html"
                 manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
                 manager.annotationList()
                 form_comment = CommentAnnotationForm(initial=initial)
@@ -1109,6 +1123,7 @@ def load_metadata_details(request, c_type, c_id, conn, share_id=None, **kwargs):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'index':index}
+    context['share_id'] = share_id
     t = template_loader.get_template(template)
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)

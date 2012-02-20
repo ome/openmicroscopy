@@ -58,7 +58,7 @@ import logging, os, traceback, time, zipfile, shutil
 
 #omero.gateway.BlitzGateway.ICE_CONFIG = os.environ.get('ICE_CONFIG', 'etc/ice.config')
 
-logger = logging.getLogger('webgateway')
+logger = logging.getLogger(__name__)
 
 logger.debug("INIT")
 

@@ -16,7 +16,7 @@ import omero
 from omero.rtypes import rint, rstring
 import omero.gateway
 
-logger = logging.getLogger('webtest')    
+logger = logging.getLogger(__name__)    
 
 
 try:

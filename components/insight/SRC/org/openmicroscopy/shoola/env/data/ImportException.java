@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import ome.conditions.ResourceError;
+
 //Third-party libraries
 import loci.formats.FormatException;
 import loci.formats.UnsupportedCompressionException;
@@ -60,6 +62,9 @@ public class ImportException
 	
 	/** Indicates that a library is missing.*/
 	public static int FILE_ON_TAPE = 2;
+	
+	/** Indicates that there is no space left.*/
+	public static int NO_SPACE = 3;
 	
 	/** The status associated to the exception.*/
 	private int status;
@@ -150,6 +155,10 @@ public class ImportException
 			if (message.contains(
 					"The specified network name is no longer available"))
 				return FILE_ON_TAPE;
+		} else if (cause instanceof ResourceError) {
+			String message = cause.getMessage();
+			if (message.contains("No space left on device"))
+				return NO_SPACE;
 		}
 		return status;
 	}
