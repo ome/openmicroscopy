@@ -93,7 +93,7 @@ installed PIL || bin/pip install PIL
 # Various issues with matplotlib. See the following if you have problems:
 # -----------------------------------------------------------------------
 # http://superuser.com/questions/242190/how-to-install-matplotlib-on-os-x
-# https://jholewinski.wordpress.com/2011/07/21/installing-matplotlib-on-os-x-10-7-with-homebrew/
+# http://jholewinski.org/blog/installing-matplotlib-on-os-x-10-7-with-homebrew/
 #
 export LDFLAGS="-L/usr/X11/lib"
 export CFLAGS="-I/usr/X11/include -I/usr/X11/include/freetype2 -I/usr/X11/include/libpng12"
