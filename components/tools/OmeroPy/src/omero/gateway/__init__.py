@@ -334,7 +334,7 @@ class BlitzObjectWrapper (object):
         
         @rtype:     None
         """
-        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'])
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
         sopts['omero.group'] = str(self.getDetails().getGroup().getId())
         self._obj = self._conn.getUpdateService().saveAndReturnObject(self._obj, sopts)
 
@@ -2530,7 +2530,7 @@ class _BlitzGateway (object):
         if len(clauses) > 0:
             query += " where %s" % (" and ".join(clauses))
 
-        result = q.findAllByQuery(query, params,self._conn.CONFIG['SERVICE_OPTS'])
+        result = q.findAllByQuery(query, params,self.CONFIG['SERVICE_OPTS'])
         for r in result:
             yield AnnotationLinkWrapper(self, r)
 
@@ -6790,7 +6790,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             ann.setNs(ns)
             ann.setValue('&'.join(['='.join(map(str, x)) for x in opts.items()]))
             self.linkAnnotation(ann)
-        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'])
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
         sopts['omero.group'] = str(self.getDetails().getGroup().getId())
         self._re.saveCurrentSettings(sopts)
         return True
