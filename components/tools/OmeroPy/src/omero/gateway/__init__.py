@@ -257,7 +257,7 @@ class BlitzObjectWrapper (object):
         This method can be overwritten by subclasses that want to specify how/which linked objects 
         are loaded. 
         """
-        self._obj = self._conn.getContainerService().loadContainerHierarchy(self.OMERO_CLASS, (self._oid,), None)[0]
+        self._obj = self._conn.getContainerService().loadContainerHierarchy(self.OMERO_CLASS, (self._oid,), None, self._conn.CONFIG['SERVICE_OPTS'])[0]
 
     def _moveLink (self, newParent):
         """ 
@@ -334,7 +334,7 @@ class BlitzObjectWrapper (object):
         
         @rtype:     None
         """
-        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'])
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
         sopts['omero.group'] = str(self.getDetails().getGroup().getId())
         self._obj = self._conn.getUpdateService().saveAndReturnObject(self._obj, sopts)
 
@@ -2530,7 +2530,7 @@ class _BlitzGateway (object):
         if len(clauses) > 0:
             query += " where %s" % (" and ".join(clauses))
 
-        result = q.findAllByQuery(query, params,self._conn.CONFIG['SERVICE_OPTS'])
+        result = q.findAllByQuery(query, params,self.CONFIG['SERVICE_OPTS'])
         for r in result:
             yield AnnotationLinkWrapper(self, r)
 
@@ -6788,7 +6788,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             ann.setNs(ns)
             ann.setValue('&'.join(['='.join(map(str, x)) for x in opts.items()]))
             self.linkAnnotation(ann)
-        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'])
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
         sopts['omero.group'] = str(self.getDetails().getGroup().getId())
         self._re.saveCurrentSettings(sopts)
         return True
