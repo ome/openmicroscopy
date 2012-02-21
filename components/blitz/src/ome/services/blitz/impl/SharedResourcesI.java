@@ -369,7 +369,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
                             public void ice_exception(UserException ex) {
                                 holder.set(null);
                             }
-                        }, file, sf.proxy());
+                        }, file, sf.proxy(), __current.ctx);
                     }
                 });
 
