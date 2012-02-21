@@ -35,6 +35,8 @@ import omero.ServerError;
 import omero.client;
 import omero.api.delete.DeleteHandlePrx;
 import omero.api.delete.DeleteReport;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.HandlePrx;
 import omero.grid.DeleteCallbackI;
 
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
@@ -48,7 +50,7 @@ import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
  * @since Beta4.4
  */
 public class TransferCallback
-	extends DeleteCallbackI
+	extends CmdCallbackI
 {
 
 	/** Helper reference to the adapter to notify. */
@@ -71,7 +73,7 @@ public class TransferCallback
 	 * @throws ServerError Thrown if an error occurred while initializing the
 	 * 					   call-back.
 	 */
-	TransferCallback(client client, final DeleteHandlePrx process)
+	TransferCallback(client client, final HandlePrx process)
 		throws ServerError
 	{
 		super(client, process);
@@ -102,6 +104,7 @@ public class TransferCallback
 	 */
 	public void finished(int value)
 	{
+		/*
 		super.finished(value);
 		finished = true;
 		try {
@@ -127,6 +130,7 @@ public class TransferCallback
 				//ignore the exception.
 			}
 		}
+		*/
 	}
 
 }
