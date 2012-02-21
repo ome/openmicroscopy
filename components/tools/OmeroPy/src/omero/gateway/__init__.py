@@ -335,7 +335,9 @@ class BlitzObjectWrapper (object):
         @rtype:     None
         """
         sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
-        sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+        if self.getDetails() and self.getDetails().getGroup():
+            # This is a save for an object that already exists, make sure group matches
+            sopts['omero.group'] = str(self.getDetails().getGroup().getId())
         self._obj = self._conn.getUpdateService().saveAndReturnObject(self._obj, sopts)
 
     def saveAs (self, details):
