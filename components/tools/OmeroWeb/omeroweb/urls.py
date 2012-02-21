@@ -24,6 +24,7 @@
 
 import os.path
 
+from django.conf import settings
 from django.conf.urls.defaults import *
 from django.views.static import serve
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
@@ -48,5 +49,9 @@ urlpatterns = patterns('',
     (r'(?i)^url/', include('omeroweb.webredirect.urls')),
     (r'(?i)^common/', include('omeroweb.common.urls')),
 )
+
+for app in settings.ADDITIONAL_APPS:
+    regex = '(?i)^%s/' % app
+    urlpatterns += patterns('', (regex, include('omeroweb.%s.urls' % app)),)
 
 urlpatterns += staticfiles_urlpatterns()
