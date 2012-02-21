@@ -310,6 +310,9 @@ class BaseClient(object):
         """
         try:
             self.closeSession()
+        except Glacier2.SessionNotExistException:
+            # It is perfectly normal for the session to have been closed before garbage collection
+            pass
         except exceptions.Exception, e:
             self.__logger.warning("Ignoring error in client.__del__:" + str(e.__class__))
 
