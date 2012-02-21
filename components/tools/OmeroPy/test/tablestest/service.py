@@ -244,8 +244,9 @@ class TestTables(lib.ITest):
         """
 
         # Create a user in one group and a table.
-        group = self.new_group()
-        client = self.new_client(group)
+        group1 = self.new_group()
+        gid1 = str(group1.id.val)
+        client = self.new_client(group1)
         admin = client.sf.getAdminService()
         sr = client.sf.sharedResources()
         table = sr.newTable(1, "/test")
@@ -254,17 +255,16 @@ class TestTables(lib.ITest):
 
         # Add the user to another group
         # and try to load the table
-        group = self.new_group(experimenters=[client])
-        gid = str(group.id.val)
+        group2 = self.new_group(experimenters=[client])
+        gid2 = str(group2.id.val)
         admin.getEventContext() # Refresh
-        client.sf.setSecurityContext(group)
+        client.sf.setSecurityContext(group2)
 
-        # Load the group explicitly
-        sr.openTable(ofile, {"omero.group":gid})
-
-        # Then try to load via -1
+        # Use -1 for all group access
         sr.openTable(ofile, {"omero.group":"-1"})
 
+        # Load the group explicitly
+        sr.openTable(ofile, {"omero.group":gid1})
 
 def test_suite():
     return 1

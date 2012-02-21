@@ -38,6 +38,7 @@ import omero.api._IDeleteOperations;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.api.delete.DeleteHandlePrxHelper;
+import omero.api.delete._DeleteHandleTie;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -158,7 +159,8 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
                 Ice.Identity id = handleId();
                 DeleteHandleI handle = makeAndLaunchHandle(id, commands);
                 DeleteHandlePrx prx = DeleteHandlePrxHelper.
-                    uncheckedCast(sf.registerServant(id, handle));
+                    uncheckedCast(sf.registerServant(id,
+                            new _DeleteHandleTie(handle)));
                 return prx;
             }});
     }

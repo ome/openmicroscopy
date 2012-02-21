@@ -23,7 +23,8 @@ import omero.grid.ProcessCallbackPrx;
 import omero.grid.ProcessPrx;
 import omero.grid.ScriptProcessPrx;
 import omero.grid.ScriptProcessPrxHelper;
-import omero.grid._ScriptProcessDisp;
+import omero.grid._ScriptProcessOperations;
+import omero.grid._ScriptProcessTie;
 import omero.model.ScriptJob;
 
 import org.apache.commons.logging.Log;
@@ -36,7 +37,8 @@ import Ice.Current;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2
  */
-public class ScriptProcessI extends _ScriptProcessDisp {
+public class ScriptProcessI extends AbstractAmdServant
+    implements _ScriptProcessOperations {
 
     private static Log log = LogFactory.getLog(ScriptProcess.class);
 
@@ -59,7 +61,8 @@ public class ScriptProcessI extends _ScriptProcessDisp {
     public ScriptProcessI(ServiceFactoryI sf, Ice.Current current,
             InteractiveProcessorPrx processorPrx, InteractiveProcessorI processor, ProcessPrx process)
             throws ServerError {
-        this.jobId = processor.getJob().getId().getValue();
+        super(null, null);
+        this.jobId = processor.getJob(current).getId().getValue();
         this.processorPrx = processorPrx;
         this.processor = processor;
         this.process = process;
@@ -67,7 +70,7 @@ public class ScriptProcessI extends _ScriptProcessDisp {
         this.cb = new ProcessCallbackI(sf.getAdapter(), process);
         this.id = new Ice.Identity(UUID.randomUUID().toString(), PROCESSCALLBACK.value);
         this.self = ScriptProcessPrxHelper.uncheckedCast(
-                sf.registerServant(this.id, this));
+                sf.registerServant(this.id, new _ScriptProcessTie(this)));
         sf.allow(this.self);
     }
 
