@@ -128,6 +128,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
                             sf.adapter.getCommunicator().stringToProxy(id));
                 try {
                     table.close();
+                } catch (Ice.NotRegisteredException e) {
+                    log.debug("Table already gone: " + id);
                 } catch (Exception e) {
                     log.error("Exception while closing table " + id, e);
                 }

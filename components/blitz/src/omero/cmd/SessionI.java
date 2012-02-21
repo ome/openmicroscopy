@@ -509,11 +509,8 @@ public class SessionI implements _SessionOperations {
 
         Ice.TieBase tie = (Ice.TieBase) servant;
         Object delegate = tie.ice_delegate();
-        Class<?>[] interfaces = delegate.getClass().getInterfaces();
 
-        ProxyFactory wrapper = new ProxyFactory();
-        wrapper.setInterfaces(interfaces);
-        wrapper.setTarget(delegate);
+        ProxyFactory wrapper = new ProxyFactory(delegate);
         wrapper.addAdvice(0, new CallContext(context));
         tie.ice_delegate(wrapper.getProxy());
         return servant;

@@ -43,27 +43,18 @@ public class CallContext implements MethodInterceptor {
      */
     public Object invoke(final MethodInvocation arg0) throws Throwable {
 
-        if (arg0 == null) {
-            throw new InternalException(
-                    "Cannot act on null MethodInvocation. Stopping.");
-        }
-
-        final Object[] args = arg0.getArguments();
-        if (args == null || args.length == 0) {
-            throw new InternalException(
-                    "No args. Can't find Ice.Current");
-        }
-
-        final Object last = args[args.length-1];
-        if (!Ice.Current.class.isAssignableFrom(last.getClass())) {
-            throw new InternalException(
-                    "Last arg is not Ice.Current");
-        }
-
-        final Ice.Current current = (Ice.Current) last;
-        final Map<String, String> ctx = current.ctx;
-        if (ctx != null) {
-            cd.setContext(ctx);
+        if (arg0 != null) {
+            final Object[] args = arg0.getArguments();
+            if (args != null && args.length > 0) {
+                final Object last = args[args.length-1];
+                if (Ice.Current.class.isAssignableFrom(last.getClass())) {
+                    final Ice.Current current = (Ice.Current) last;
+                    final Map<String, String> ctx = current.ctx;
+                    if (ctx != null && ctx.size() > 0) {
+                        cd.setContext(ctx);
+                    }
+                }
+            }
         }
         return arg0.proceed();
     }
