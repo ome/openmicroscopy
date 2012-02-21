@@ -40,6 +40,8 @@ import java.util.Map.Entry;
 
 //Application-internal dependencies
 import omero.api.delete.DeleteCommand;
+import omero.cmd.Chgrp;
+import omero.cmd.CmdCallbackI;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.Channel;
@@ -875,6 +877,7 @@ class OmeroDataServiceImpl
 			throw new IllegalArgumentException("No target specified.");
 		if (objects == null || objects.size() == 0)
 			throw new IllegalArgumentException("No object to move.");
+		Iterator<DataObject> i = objects.iterator();
 		return null;
 	}
 
