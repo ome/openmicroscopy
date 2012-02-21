@@ -132,10 +132,15 @@ class FindObjectTest (lib.GTest):
 
 
     def testFindAnnotation(self):
-
-        # create Tag
-        find_ns = "omero.gateway.test.test_find_annotations"
+        # start by deleting any tag created by this method that may have been left behind
         tag_value = "FindThisTag"
+        find_ns = "omero.gateway.test.test_find_annotations"
+        find_tag = self.gateway.getObjects("Annotation", attributes={"textValue":tag_value,
+                                                                     "ns":find_ns})
+        for t in find_tag:
+            self.gateway.deleteObjectDirect(t._obj)
+        
+        # create Tag
         tag = omero.gateway.TagAnnotationWrapper(self.gateway)
         tag.setNs(find_ns)
         tag.setValue(tag_value)
@@ -171,6 +176,16 @@ class FindObjectTest (lib.GTest):
         commAnn.save()
         commId = commAnn.getId()
         fileAnn = omero.gateway.FileAnnotationWrapper(self.gateway)
+        # An original file object needs to be linked to the annotation or it will
+        # fail to be loaded on getObject(s).
+        fileObj = omero.model.OriginalFileI(False)
+        fileObj = omero.gateway.OriginalFileWrapper(self.gateway, fileObj)
+        fileObj.setName(omero.rtypes.rstring('a'))
+        fileObj.setPath(omero.rtypes.rstring('a'))
+        fileObj.setSha1(omero.rtypes.rstring('a'))
+        fileObj.setSize(omero.rtypes.rlong(0))
+        fileObj.save()
+        fileAnn.setFile(fileObj)
         fileAnn.save()
         fileId = fileAnn.getId()
         doubleAnn = omero.gateway.DoubleAnnotationWrapper(self.gateway)
@@ -279,7 +294,7 @@ class GetObjectTest (lib.GTest):
         # filter by current user should get same as above.
         params.theFilter.ownerId = omero.rtypes.rlong(self.gateway.getEventContext().userId) # owned by 'author'
         pros = list( self.gateway.getObjects("Project", None, params) )
-        projects = list( self.gateway.listProjects(only_owned=True) )
+        projects = list( self.gateway.listProjects() )
         self.assertEqual(len(pros), len(projects))  # check unordered lists are the same length & ids
         projectIds = [p.getId() for p in projects]
         for p in pros:

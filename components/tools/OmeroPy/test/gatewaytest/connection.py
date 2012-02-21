@@ -72,7 +72,7 @@ class ConnectionMethodsTest (lib.GTest):
         self.assertNotEqual(g2_getTestImage(), None)
         g2.seppuku(softclose=False)
         self.assertRaises(Ice.ConnectionLostException, g2_getTestImage)
-        self.assertRaises(Ice.ConnectionLostException, self.getTestImage)
+        self.assertRaises(Ice.ObjectNotExistException, self.getTestImage)
         self._has_connected = False
         self.doDisconnect()
 
@@ -84,24 +84,24 @@ class ConnectionMethodsTest (lib.GTest):
         # Original (4.1) test fails since 'admin' is logged into group 0, but the project
         # created above is in new group.
         # self.loginAsAdmin()   # test passes if we remain logged in as Author
-        ids = map(lambda x: x.getId(), self.gateway.listProjects(only_owned=False))
+        ids = map(lambda x: x.getId(), self.gateway.listProjects())
         self.assert_(project_id in ids)
         self.loginAsAdmin()   # test passes if we NOW log in as Admin (different group)
-        ids = map(lambda x: x.getId(), self.gateway.listProjects(only_owned=True))
+        ids = map(lambda x: x.getId(), self.gateway.listProjects())
         self.assert_(project_id not in ids)
         ##
         # Test listProjects as author (sees, owns)
         self.loginAsAuthor()
-        ids = map(lambda x: x.getId(), self.gateway.listProjects(only_owned=False))
+        ids = map(lambda x: x.getId(), self.gateway.listProjects())
         self.assert_(project_id in ids)
-        ids = map(lambda x: x.getId(), self.gateway.listProjects(only_owned=True))
+        ids = map(lambda x: x.getId(), self.gateway.listProjects())
         self.assert_(project_id in ids)
         ##
         # Test listProjects as guest (does not see, does not own)
         self.doLogin(self.USER)
-        ids = map(lambda x: x.getId(), self.gateway.listProjects(only_owned=False))
+        ids = map(lambda x: x.getId(), self.gateway.listProjects())
         self.assert_(project_id not in ids)
-        ids = map(lambda x: x.getId(), self.gateway.listProjects(only_owned=True))
+        ids = map(lambda x: x.getId(), self.gateway.listProjects())
         self.assert_(project_id not in ids)
         ##
         # Test getProject

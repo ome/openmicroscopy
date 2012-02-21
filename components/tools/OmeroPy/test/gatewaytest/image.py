@@ -168,5 +168,34 @@ class ImageTest (lib.GTest):
         self.assert_('date' in m)
         self.assertEqual(m['parents'], parents)
 
+    def testExport (self):
+        """ Test exporting the image to ometiff """
+        self.assert_(len(self.image.exportOmeTiff()) > 0)
+        # Now try the same using a different user, admin first
+        self.loginAsAdmin()
+        sopts = dict(self.gateway.CONFIG['SERVICE_OPTS'] or {})
+        sopts['omero.group'] = '-1'
+        self.gateway.CONFIG['SERVICE_OPTS'] = sopts
+        image = self.getTestImage()
+        self.assertEqual(image.getId(), self.image.getId())
+        self.assert_(len(self.image.exportOmeTiff()) > 0)
+        # what about a regular user?
+        admin = self.gateway.getAdminService()
+        g = image.getDetails().getGroup()
+        p = g.getDetails().getPermissions()
+        p.setGroupRead(True)
+        p.setGroupWrite(True)
+        admin.changePermissions(g._obj, p)
+        self.loginAsUser()
+        admin.addGroups(omero.model.ExperimenterI(self.gateway._userid, False), [self.image.getDetails().getGroup()._obj])
+        sopts = dict(self.gateway.CONFIG['SERVICE_OPTS'] or {})
+        sopts['omero.group'] = '-1'
+        self.gateway.CONFIG['SERVICE_OPTS'] = sopts
+        image = self.getTestImage()
+        self.assertEqual(image.getId(), self.image.getId())
+        self.assert_(len(self.image.exportOmeTiff()) > 0)
+        
+        
+
 if __name__ == '__main__':
     unittest.main()
