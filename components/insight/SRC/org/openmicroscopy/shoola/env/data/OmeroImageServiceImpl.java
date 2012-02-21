@@ -597,8 +597,13 @@ class OmeroImageServiceImpl
 	 */
 	public void shutDown(SecurityContext ctx, long pixelsID)
 	{
-		if (!PixelsServicesFactory.shutDownRenderingControl(context, pixelsID))
-			gateway.removeREService(ctx, pixelsID);
+		try {
+			if (!PixelsServicesFactory.shutDownRenderingControl(context,
+					pixelsID))
+				gateway.removeREService(ctx, pixelsID);
+		} catch (Exception e) {
+			context.getLogger().error(this, e.getMessage());
+		}
 	}
 	
 	/** 
