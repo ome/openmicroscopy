@@ -2740,7 +2740,7 @@ class _BlitzGateway (object):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oids"] = rlist([rlong(o) for o in set(annids)])
-        for e in q.findAllByQuery(sql,p,self._conn.CONFIG['SERVICE_OPTS']):
+        for e in q.findAllByQuery(sql,p,self.CONFIG['SERVICE_OPTS']):
             kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
             yield wrapper(self, e)
 
@@ -2794,7 +2794,7 @@ class _BlitzGateway (object):
         """
         
         query_serv = self.getQueryService()
-        obj =  query_serv.find(klass, long(eid), self._conn.CONFIG['SERVICE_OPTS'])
+        obj =  query_serv.find(klass, long(eid), self.CONFIG['SERVICE_OPTS'])
         if obj is not None:
             return EnumerationWrapper(self, obj)
         else:
