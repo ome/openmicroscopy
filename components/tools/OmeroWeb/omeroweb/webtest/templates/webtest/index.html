@@ -5,13 +5,20 @@
 
 <body>
 <h1>WebTest</h1>
+
+<p>
+    The webtest app provides some examples of how to extend the OMERO.web framework with your own functionality.
+    Some of these demonstrations were developed in response to feature requests by individuals. Therefore they 
+    should serve as good 'real world' examples.
+</p>
+<a href="{% url weblogout %}">logout</a>
 <hr>
 <ul>
 {% for proj in conn.listProjects %}
   <li>{{ proj.getName }}
     <ul>
       {% for ds in proj.listChildren %}
-      <li>{{ ds.getName }}
+      <li>{{ ds.getName }}  Dataset ID:{{ ds.getId }}
         <ul>
           {% for img in ds.listChildren %}
           <li><img src="{% url webgateway.views.render_thumbnail img.id %}">{{ img.getName }}</li>
@@ -24,6 +31,5 @@
 {% endfor %}
 </ul>
 
-<a href="{% url webtest_logout %}">logout</a>
 <hr>
 </body> </html>

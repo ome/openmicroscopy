@@ -43,8 +43,9 @@ form dir {
 }
 </style>
 
-<script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
-<script type="text/javascript" src="{% url statictest 'js/image_dims.js' %}"></script>
+<!-- links to current version of jquery -->
+{% include "webgateway/base/includes/script_src_jquery.html" %}
+<script type="text/javascript" src="{% static 'webtest/js/image_dims.js' %}"></script>
 
 </head>
 
@@ -53,7 +54,7 @@ form dir {
 <!-- top elements span page -->
 <div id="top-nav">
     <a href="{% url webtest_index %}">Home</a> |
-    <a href="{% url webtest_logout %}">Logout</a>
+    <a href="{% url weblogout %}">Logout</a>
 </div>
 
 <div>
