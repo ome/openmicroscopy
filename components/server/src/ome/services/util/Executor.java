@@ -9,6 +9,7 @@ package ome.services.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -70,24 +71,37 @@ public interface Executor extends ApplicationContextAware {
     public Principal principal();
 
     /**
+     * Call {@link #execute(Map<String, String>, Principal, Work)} with
+     * a null call context.
+     */
+    public Object execute(final Principal p, final Work work);
+
+    /**
      * Executes a {@link Work} instance wrapped in two layers of AOP. The first
      * is intended to acquire the proper arguments for
      * {@link Work#doWork(Session, ServiceFactory)} from the
      * {@link OmeroContext}, and the second performs all the standard service
      * actions for any normal method call.
-     * 
+     *
+     * If the {@link Map<String, String>} argument is not null, then additionally,
+     * setContext will be called in a try/finally block. The first login
+     * within this thread will then pick up this delayed context.
+     *
      * If the {@link Principal} argument is not null, then additionally, a
      * login/logout sequence will be performed in a try/finally block.
-     * 
+     *
      * {@link Work} implementation must be annotated with {@link Transactional}
      * in order to properly specify isolation, read-only status, etc.
-     * 
+     *
+     * @param callContext
+     *            Possibly null.
      * @param p
      *            Possibly null.
      * @param work
      *            Not null.
      */
-    public Object execute(final Principal p, final Work work);
+    public Object execute(final Map<String, String> callContext,
+            final Principal p, final Work work);
 
     /**
      * Simple submission method which can be used in conjunction with a call to
@@ -312,19 +326,29 @@ public interface Executor extends ApplicationContextAware {
         }
 
         /**
+         * Call {@link #execute(Map<String, String>, Principal, Work)}
+         * with a null call context.
+         */
+        public Object execute(final Principal p, final Work work) {
+            return execute(null, p, work);
+        }
+
+        /**
          * Executes a {@link Work} instance wrapped in two layers of AOP. The
          * first is intended to acquire the proper arguments for
          * {@link Work#doWork(TransactionStatus, Session, ServiceFactory)} for
          * the {@link OmeroContext}, and the second performs all the standard
          * service actions for any normal method call.
-         * 
+         *
          * If the {@link Principal} argument is not null, then additionally, a
          * login/logout sequence will be performed in a try/finally block.
-         * 
+         *
+         * @param callContext Possibly null key-value map. See #3529
          * @param p
          * @param work
          */
-        public Object execute(final Principal p, final Work work) {
+        public Object execute(final Map<String, String> callContext,
+                final Principal p, final Work work) {
 
             if (work instanceof SimpleWork) {
                 ((SimpleWork) work).setSqlAction(sqlAction);
@@ -356,6 +380,9 @@ public interface Executor extends ApplicationContextAware {
             if (p != null) {
                 this.principalHolder.login(p);
             }
+            if (callContext != null) {
+                this.principalHolder.setContext(callContext);
+            }
 
             try {
                 // Arguments will be replaced after hibernate is in effect
@@ -363,6 +390,9 @@ public interface Executor extends ApplicationContextAware {
             } finally {
                 if (p != null) {
                     this.principalHolder.logout();
+                }
+                if (callContext != null) {
+                    this.principalHolder.setContext(null);
                 }
             }
         }
