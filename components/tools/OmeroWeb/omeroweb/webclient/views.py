@@ -378,16 +378,10 @@ def index_most_recent(request, conn, **kwargs):
     return HttpResponse(rsp)
 
 @login_required()
-def index_tag_cloud(request, **kwargs):
+def index_tag_cloud(request, conn, **kwargs):
     """ Gets the most used Tags. Used by the homepage via AJAX call """
 
     template = "webclient/index/index_tag_cloud.html"
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseIndex(conn)
     controller.loadTagCloud()
