@@ -17,7 +17,6 @@ package ome.services.query;
 // Java imports
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.List;
 
 import ome.conditions.ApiUsageException;
 import ome.parameters.Parameters;
