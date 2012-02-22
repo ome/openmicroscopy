@@ -299,7 +299,7 @@ def login(request):
         return HttpResponse(rsp)
 
 @login_required()
-def index(request, **kwargs):
+def index(request, conn, **kwargs):
     """
     The webclient home page. 
     Viewing this page doesn't perform any action. All we do here is assemble various data for display, including form for changing current group.
@@ -308,13 +308,6 @@ def index(request, **kwargs):
     template = "webclient/index/index.html"
     
     request.session['nav']['error'] = request.REQUEST.get('error')
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     url = None
     try:
