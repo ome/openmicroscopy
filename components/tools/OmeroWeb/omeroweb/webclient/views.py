@@ -667,7 +667,7 @@ def load_data(request, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_searching(request, form=None, **kwargs):
+def load_searching(request, conn, form=None, **kwargs):
     """
     Handles AJAX calls to search 
     """
@@ -685,14 +685,6 @@ def load_searching(request, form=None, **kwargs):
         request.session['nav']['view'] = view
     else:
         view = request.session['nav']['view']
-    
-    # get connection
-    conn = None
-    try:
-        conn = kwargs["conn"]        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     # get url to redirect
     url = None
