@@ -115,36 +115,6 @@ def isAdminConnected (f):
 
     return wrapped
 
-def isOwnerConnected (f):
-    def wrapped (request, *args, **kwargs):
-        #this check the connection exist, if not it will redirect to login page
-        url = request.REQUEST.get('url')
-        if url is None or len(url) == 0:
-            url = request.get_full_path()
-        
-        conn = None
-        try:
-            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
-        except KeyError:
-            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (str(x),url)))
-        if conn is None:
-            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
-        
-        if kwargs.get('gid') is not None:
-            if not conn.isOwner(kwargs.get('gid')):
-                return page_not_found(request, "404.html")
-        else:
-            if not conn.isOwner():
-                return page_not_found(request, "404.html")
-        kwargs["conn"] = conn
-        navHelper(request, conn)
-        return f(request, *args, **kwargs)
-
-    return wrapped
-
 def isUserConnected (f):
     def wrapped (request, *args, **kwargs):
         #this check connection exist, if not it will redirect to login page
@@ -558,7 +528,7 @@ def manage_group(request, action, gid=None, **kwargs):
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@isOwnerConnected
+@login_required(isGroupOwner=True)
 def manage_group_owner(request, action, gid, **kwargs):
     myaccount = True
     template = "webadmin/group_form_owner.html"
