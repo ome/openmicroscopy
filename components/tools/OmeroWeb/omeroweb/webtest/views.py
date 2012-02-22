@@ -274,13 +274,13 @@ def metadata (request, iid, **kwargs):
                                     'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
                                     'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
             channel['form_emission_filters'] = list()
-            if ch.getLogicalChannel().getLightPath().copyEmissionFilters():
-                for f in ch.getLogicalChannel().getLightPath().copyEmissionFilters():
+            if ch.getLogicalChannel().getLightPath().getEmissionFilters():
+                for f in ch.getLogicalChannel().getLightPath().getEmissionFilters():
                     channel['form_filters'].append(MetadataFilterForm(initial={'filter': f,
                                     'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
             channel['form_excitation_filters'] = list()
-            if ch.getLogicalChannel().getLightPath().copyExcitationFilters():
-                for f in ch.getLogicalChannel().getLightPath().copyExcitationFilters():
+            if ch.getLogicalChannel().getLightPath().getExcitationFilters():
+                for f in ch.getLogicalChannel().getLightPath().getExcitationFilters():
                     channel['form_excitation_filters'].append(MetadataFilterForm(initial={'filter': f,
                                     'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
                                     
