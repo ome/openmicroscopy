@@ -6349,8 +6349,14 @@ class OMEROGateway
 	throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
-		Connector c = getConnector(ctx);
-		if (c != null) c.shutDownRendering(pixelsID);
+		Iterator<Connector> i = connectors.iterator();
+		Connector c;
+		while (i.hasNext()) {
+			c = i.next();
+			if (c.isSame(ctx)) {
+				c.shutDownRendering(pixelsID);
+			}
+		}
 	}
 
 	/**
