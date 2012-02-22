@@ -3390,7 +3390,7 @@ class TreeViewerComponent
 		if (model.getState() != READY) return;
 		if (group == null) return;
 		ExperimenterData exp = TreeViewerAgent.getUserDetails();
-		if (group.getId() == model.getSelectedGroupId()) return;
+		//if (group.getId() == model.getSelectedGroupId()) return;
 		//Scan browser and check if group is there.
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
 		if (browser == null) return;
@@ -3410,11 +3410,6 @@ class TreeViewerComponent
 			i.next().setUserGroup(group, add);
 		}
 		notifyChangeGroup(gid);
-		//Check if the group is not already displayed.
-		//long oldId = model.getUserGroupID();
-		//if (group.getId() == oldId) return;
-		//Registry reg = TreeViewerAgent.getRegistry();
-		//reg.getEventBus().post(new SwitchUserGroup(exp, group.getId()));
 	}
 
 	/** 

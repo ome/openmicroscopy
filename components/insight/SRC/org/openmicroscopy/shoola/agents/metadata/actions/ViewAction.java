@@ -76,11 +76,7 @@ public class ViewAction
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		//TODO review that action.
 		model.viewImage();
-		/*
-		
-		*/
 	}
 	
 }
