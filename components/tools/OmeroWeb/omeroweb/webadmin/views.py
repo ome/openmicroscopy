@@ -82,8 +82,6 @@ from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
 
-connectors = {}
-
 logger.info("INIT '%s'" % os.getpid())
 
 ################################################################################
@@ -108,7 +106,7 @@ def forgotten_password(request, **kwargs):
     template = "webadmin/forgotten_password.html"
     
     conn = None
-    error = None    
+    error = None
     blitz = None
     
     if request.method == 'POST':
