@@ -15,6 +15,8 @@ import traceback
 import omero
 from omero.rtypes import rint, rstring
 import omero.gateway
+import random
+
 
 logger = logging.getLogger(__name__)    
 
@@ -39,7 +41,15 @@ def dataset(request, datasetId, **kwargs):
 @isUserConnected    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
 def index(request, **kwargs):
     conn = kwargs['conn']
-    return render_to_response('webtest/index.html', {'conn': conn})
+    
+    # find a random image and dataset to display & can be used in links to other pages
+    all_images = list(conn.getObjects("Image"))
+    image = random.choice(all_images)
+    
+    all_datasets = list(conn.getObjects("Dataset"))
+    dataset = random.choice(all_datasets)
+
+    return render_to_response('webtest/index.html', {'image': image, 'dataset': dataset})
 
 
 @isUserConnected
@@ -460,9 +470,7 @@ def dataset_split_view (request, datasetId, **kwargs):
 def image_dimensions (request, imageId, **kwargs):
     """
     Prepare data to display various dimensions of a multi-dim image as axes of a grid of image planes. 
-    E.g. x-axis = Time, y-axis = Channel. 
-    If the image has spim data, then combine images with different SPIM angles to provide an additional
-    dimension. Also get the SPIM data from various XML annotations and display on page. 
+    E.g. x-axis = Time, y-axis = Channel.
     """
         
     conn = kwargs['conn']
@@ -475,11 +483,6 @@ def image_dimensions (request, imageId, **kwargs):
     dims = {'Z':image.getSizeZ(), 'C': image.getSizeC(), 'T': image.getSizeT()}
     
     default_yDim = 'Z'
-    
-    spim_data = getSpimData(conn, image)
-    if spim_data is not None:
-        dims['Angle'] = len(spim_data['images'])
-        default_yDim = 'Angle'
     
     xDim = request.REQUEST.get('xDim', 'T')
     if xDim not in dims.keys():
@@ -512,23 +515,19 @@ def image_dimensions (request, imageId, **kwargs):
                 theC = x
             if xDim == 'T':
                 theT = x
-            if xDim == 'Angle':
-                iid = spim_data['images'][x].id
             if yDim == 'Z':
                 theZ = y
             if yDim == 'C':
                 theC = y
             if yDim == 'T':
                 theT = y
-            if yDim == 'Angle':
-                iid = spim_data['images'][y].id
                 
             grid[y].append( (iid, theZ, theC is not None and theC+1 or None, theT) )
     
         
     size = {"height": 125, "width": 125}
     
-    return render_to_response('webtest/demo_viewers/image_dimensions.html', {'image':image, 'spim_data':spim_data, 'grid': grid, 
+    return render_to_response('webtest/demo_viewers/image_dimensions.html', {'image':image, 'grid': grid, 
         "size": size, "mode":mode, 'xDim':xDim, 'xRange':xRange, 'yRange':yRange, 'yDim':yDim, 
         'xFrames':xFrames, 'yFrames':yFrames})
 
