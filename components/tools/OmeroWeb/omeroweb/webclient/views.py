@@ -843,15 +843,8 @@ def load_data_by_tag(request, conn, o_type=None, o_id=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @login_required()
-def autocomplete_tags(request, **kwargs):
+def autocomplete_tags(request, conn, **kwargs):
     """ Autocomplete for tag. Not used now? TODO: remove this? """
-
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     eid = conn.getGroupFromContext().isReadOnly() and conn.getEventContext().userId or None
         
