@@ -347,17 +347,11 @@ def index_context(request, conn, **kwargs):
     return HttpResponse(rsp)
 
 @login_required()
-def index_last_imports(request, **kwargs):
+def index_last_imports(request, conn, **kwargs):
     """
     Gets the most recent imports - Used in an AJAX call by home page.
     """
     template = "webclient/index/index_last_imports.html"
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseIndex(conn)
     controller.loadLastAcquisitions()
