@@ -7861,6 +7861,18 @@ class OMEROGateway
 		return new SecurityContext(ho.getGroupId());
 	}
 
+	/**
+	 * Moves data between groups.
+	 * 
+	 * @param ctx The security context of the source group.
+	 * @param target The security context of the destination group.
+	 * @param map The object to move and where to move them
+	 * @param options The options.
+	 * @return See above
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
 	RequestCallback transfer(SecurityContext ctx, SecurityContext target, 
 			Map<DataObject, List<IObject>> map, Map<String, String> options)
 		throws DSOutOfServiceException, DSAccessException

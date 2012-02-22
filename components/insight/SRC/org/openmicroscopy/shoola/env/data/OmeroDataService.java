@@ -452,8 +452,8 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 * @throws ProcessException If an error occurred while starting the process.
 	 */
-	public RequestCallback transfer( SecurityContext ctx,
-			SecurityContext target, List<DataObject> targetNode, 
+	public RequestCallback transfer(SecurityContext ctx,
+			SecurityContext target, List<DataObject> targetNode,
 		List<DataObject> objects)
 		throws DSOutOfServiceException, DSAccessException, ProcessException;
 

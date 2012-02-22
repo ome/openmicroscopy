@@ -755,10 +755,17 @@ class Connector
 			all.list.add(i.next());
 		}
 		
-		if (entryUnencrypted != null)
+		if (entryUnencrypted != null) {
+			//to be modified.
 			return new RequestCallback(getClient(), 
-					entryUnencrypted.submit(all));
-		return new RequestCallback(getClient(), entryEncrypted.submit(all));
+					entryUnencrypted.submit(commands.get(0)));
+			//return new RequestCallback(getClient(), 
+			//		entryUnencrypted.submit(all));
+		}
+		//to be modified
+		return new RequestCallback(getClient(), 
+				entryEncrypted.submit(commands.get(0)));
+		//return new RequestCallback(getClient(), entryEncrypted.submit(all));
 	}
 
 }
