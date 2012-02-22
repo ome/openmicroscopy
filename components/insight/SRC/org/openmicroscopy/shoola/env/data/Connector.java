@@ -25,17 +25,18 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import ome.formats.OMEROMetadataStoreClient;
 import omero.client;
 import omero.api.ExporterPrx;
@@ -51,7 +52,6 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.IRoiPrx;
 import omero.api.IScriptPrx;
-import omero.api.ITimelinePrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
@@ -61,6 +61,8 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
+import omero.cmd.DoAll;
+import omero.cmd.Request;
 import omero.grid.SharedResourcesPrx;
 
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -734,5 +736,29 @@ class Connector
 	 * @return See above.
 	 */
 	client getClient() { return secureClient; }
+
+	/**
+	 * Executes the commands.
+	 * 
+	 * @param commands The commands to execute.
+	 * @return See above.
+	 */
+	RequestCallback submit(List<Request> commands)
+		throws Exception
+	{
+		if (commands == null || commands.size() == 0)
+			return null;
+		DoAll all = new DoAll();
+		Iterator<Request> i = commands.iterator();
+		all.list = new ArrayList<Request>();
+		while (i.hasNext()) {
+			all.list.add(i.next());
+		}
+		
+		if (entryUnencrypted != null)
+			return new RequestCallback(getClient(), 
+					entryUnencrypted.submit(all));
+		return new RequestCallback(getClient(), entryEncrypted.submit(all));
+	}
 
 }

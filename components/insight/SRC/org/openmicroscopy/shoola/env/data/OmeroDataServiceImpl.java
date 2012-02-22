@@ -868,8 +868,8 @@ class OmeroDataServiceImpl
 	 * @see OmeroDataService#transfer(SecurityContext, SecurityContext, List,
 	 * List)
 	 */
-	public TransferCallback transfer(SecurityContext ctx, 
-			SecurityContext target, List<DataObject> targetNode,
+	public RequestCallback transfer(SecurityContext ctx, 
+			SecurityContext target, List<DataObject> targetNodes,
 		List<DataObject> objects)
 		throws DSOutOfServiceException, DSAccessException, ProcessException
 	{
@@ -878,7 +878,28 @@ class OmeroDataServiceImpl
 		if (objects == null || objects.size() == 0)
 			throw new IllegalArgumentException("No object to move.");
 		Iterator<DataObject> i = objects.iterator();
-		return null;
+		Map<DataObject, List<IObject>> map = 
+			new HashMap<DataObject, List<IObject>>();
+		DataObject data;
+		List<IObject> l;
+		Iterator<DataObject> j;
+		DataObject object;
+		while (i.hasNext()) {
+			data = i.next();
+			l = new ArrayList<IObject>();
+			if (targetNodes != null && targetNodes.size() > 0) {
+				j = targetNodes.iterator();
+				while (j.hasNext()) {
+					object = j.next();
+					if (object != null)
+						l.add(ModelMapper.linkParentToChild(data.asIObject(),
+							object.asIObject()));
+				}
+			}
+			map.put(data, l);
+		}
+		Map<String, String> options = new HashMap<String, String>();
+		return gateway.transfer(ctx, target, map, options);
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.TransferCallback 
+ * org.openmicroscopy.shoola.env.data.RequestCallback 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
@@ -25,31 +25,24 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
-import java.util.ArrayList;
-import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import omero.ServerError;
 import omero.client;
-import omero.api.delete.DeleteHandlePrx;
-import omero.api.delete.DeleteReport;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
-import omero.grid.DeleteCallbackI;
-
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 
 /** 
- * A handle to a transfer computation between groups. 
- * TODO: modify ref to delete callback
+ * A handle to a perform operation e.g. delete, move data between groups.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class TransferCallback
+public class RequestCallback
 	extends CmdCallbackI
 {
 
@@ -57,7 +50,7 @@ public class TransferCallback
 	private DSCallAdapter adapter;
 	
 	/** List handling the reports. */
-	private List<DeleteReport> reports;
+	//private List<DeleteReport> reports;
 	
 	/** Flag indicating that the operation has finished. */
 	private boolean finished;
@@ -73,11 +66,11 @@ public class TransferCallback
 	 * @throws ServerError Thrown if an error occurred while initializing the
 	 * 					   call-back.
 	 */
-	TransferCallback(client client, final HandlePrx process)
+	RequestCallback(client client, final HandlePrx process)
 		throws ServerError
 	{
 		super(client, process);
-		reports = null;
+		//reports = null;
 	}
 	
 	/**
@@ -90,7 +83,7 @@ public class TransferCallback
 		this.adapter = adapter;
 		if (finished && adapter != null) {
 			if (!submitted) {
-				adapter.handleResult(reports);
+				//adapter.handleResult(reports);
 				try {
 					close();
 				} catch (Exception e) {}

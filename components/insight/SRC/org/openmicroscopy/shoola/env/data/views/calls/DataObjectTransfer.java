@@ -34,7 +34,7 @@ import java.util.Map.Entry;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
-import org.openmicroscopy.shoola.env.data.TransferCallback;
+import org.openmicroscopy.shoola.env.data.RequestCallback;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -73,7 +73,7 @@ public class DataObjectTransfer extends BatchCallTree
     		public ProcessCallback initialize() throws Exception
     		{
     			OmeroDataService os = context.getDataService();
-    			TransferCallback cb = os.transfer(ctx, value.getTargetContext(),
+    			RequestCallback cb = os.transfer(ctx, value.getTargetContext(),
     					value.getTarget(), values);
     			if (cb == null) {
     				callBack = Boolean.valueOf(false);

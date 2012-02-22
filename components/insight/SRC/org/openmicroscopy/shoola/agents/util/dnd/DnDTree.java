@@ -509,7 +509,7 @@ public class DnDTree
 			//if (dropNode instanceof TreeImageDisplay) {
 				if (dropNode instanceof TreeImageDisplay)
 					parent = (TreeImageDisplay) dropNode;
-				if (dropNode.isLeaf()) {
+				if (dropNode.isLeaf() && dropNode instanceof TreeImageNode) {
 					parent = (TreeImageDisplay) dropNode.getParent();
 				}
 				int action = DnDConstants.ACTION_MOVE;

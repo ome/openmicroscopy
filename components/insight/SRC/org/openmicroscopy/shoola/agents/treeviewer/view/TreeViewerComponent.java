@@ -171,6 +171,24 @@ class TreeViewerComponent
 	private ScriptingDialog     scriptDialog;
 
 	/**
+	 * Returns the name of the group.
+	 * 
+	 * @param groupId The id of the group.
+	 * @return See above.
+	 */
+	private String getGroupName(long groupId)
+	{
+		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Iterator j = groups.iterator();
+		GroupData group;
+		while (j.hasNext()) {
+			group = (GroupData) j.next();
+			if (group.getId() == groupId) return group.getName();
+		}
+		return "";
+	}
+	
+	/**
 	 * Moves the objects.
 	 * 
 	 * @param ctx The group to move the data to.
@@ -181,6 +199,7 @@ class TreeViewerComponent
 			Map<SecurityContext, List<DataObject>> trans)
 	{
 		TransferableObject t = new TransferableObject(ctx, target, trans);
+		t.setGroupName(getGroupName(ctx.getGroupID()));
 		IconManager icons = IconManager.getInstance();
 		TransferableActivityParam param = new TransferableActivityParam(
 				icons.getIcon(IconManager.MOVE_22), t);
@@ -1769,11 +1788,13 @@ class TreeViewerComponent
 		Entry entry;
 		Iterator k = parentMap.entrySet().iterator();
 		TransferableObject t;
+		Long id;
 		while (k.hasNext()) {
 			entry = (Entry) k.next();
-			t = new TransferableObject(
-					new SecurityContext((Long) entry.getKey()), 
+			id = (Long) entry.getKey();
+			t = new TransferableObject(new SecurityContext(id), 
 					(List<DataObject>) entry.getValue(), trans);
+			t.setGroupName(getGroupName(id));
 			param = new TransferableActivityParam(
 					icons.getIcon(IconManager.APPLY_22), t);
 			param.setFailureIcon(icons.getIcon(IconManager.DELETE_22));

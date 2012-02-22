@@ -118,6 +118,8 @@ import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
+import omero.cmd.Chgrp;
+import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.grid.BoolColumn;
 import omero.grid.Column;
@@ -7859,4 +7861,46 @@ class OMEROGateway
 		return new SecurityContext(ho.getGroupId());
 	}
 
+	RequestCallback transfer(SecurityContext ctx, SecurityContext target, 
+			Map<DataObject, List<IObject>> map, Map<String, String> options)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		Connector c = getConnector(ctx);
+		if (c == null) return null;
+		IAdminPrx svc = getAdminService(ctx);
+		
+		try {
+			String sessionUuid = svc.getEventContext().sessionUuid;
+			Entry entry;
+			Iterator i = map.entrySet().iterator();
+			DataObject data;
+			List<IObject> l;
+			Iterator<IObject> j;
+			List<Request> commands = new ArrayList<Request>();
+			Chgrp cmd;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				data = (DataObject) entry.getKey();
+				l = (List<IObject>) entry.getValue();
+				cmd = new Chgrp(sessionUuid, createDeleteCommand(
+					data.getClass().getName()), data.getId(), options, 
+					target.getGroupID());
+				commands.add(cmd);
+				/*
+				j = l.iterator();
+				while (i.hasNext()) {
+					commands.add(new SaveI(sessionUuid, i.next()));
+				}
+				*/
+			}
+			return c.submit(commands);
+		} catch (Exception e) {
+			handleException(e, "Cannot transfer the data.");
+		}
+		
+		
+		return null;
+	}
+	
 }

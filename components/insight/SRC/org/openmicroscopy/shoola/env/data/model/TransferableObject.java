@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +73,7 @@ public class TransferableObject
 		if (source == null || source.size() == 0)
 			throw new IllegalArgumentException("No elements to move.");
 		this.targetContext = targetContext;
-		this.target = Arrays.asList(target);
+		if (target != null) this.target = Arrays.asList(target);
 		this.source = source;
 	}
 	
