@@ -450,7 +450,7 @@ def logout(request, **kwargs):
 
 ###########################################################################
 @login_required()
-def load_template(request, menu, **kwargs):
+def load_template(request, menu, conn, **kwargs):
     """
     This view handles most of the top-level pages, as specified by 'menu' E.g. userdata, usertags, history, search etc.
     Query string 'path' that specifies an object to display in the data tree is parsed.
@@ -465,15 +465,7 @@ def load_template(request, menu, **kwargs):
     else:
         template = "webclient/%s/%s.html" % (menu,menu)
     request.session['nav']['menu'] = menu
-    
     request.session['nav']['error'] = request.REQUEST.get('error')
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     url = None
     try:
