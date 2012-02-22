@@ -6343,8 +6343,15 @@ class OMEROGateway
 	 */
 	void removeREService(SecurityContext ctx, long pixelsID)
 	{
-		//TODO: review
-		//reServices.remove(pixelsID);
+		isSessionAlive(ctx);
+		Iterator<Connector> i = connectors.iterator();
+		Connector c;
+		while (i.hasNext()) {
+			c = i.next();
+			if (c.isSame(ctx)) {
+				//c.shutDownRendering(pixelsID);
+			}
+		}
 	}
 
 	/**

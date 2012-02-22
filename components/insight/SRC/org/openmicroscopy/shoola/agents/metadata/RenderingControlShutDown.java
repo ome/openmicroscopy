@@ -67,6 +67,7 @@ public class RenderingControlShutDown
     public RenderingControlShutDown(long pixelsID)
     {
     	this.pixelsID = pixelsID;
+    	this.ctx = ctx;
     	registry = MetadataViewerAgent.getRegistry();
     	imView = (ImageDataView) 
     	registry.getDataServicesView(ImageDataView.class);
