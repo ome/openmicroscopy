@@ -89,31 +89,6 @@ logger.info("INIT '%s'" % os.getpid())
 ################################################################################
 # decorators
 
-def isUserConnected (f):
-    def wrapped (request, *args, **kwargs):
-        #this check connection exist, if not it will redirect to login page
-        url = request.REQUEST.get('url')
-        if url is None or len(url) == 0:
-            url = request.get_full_path()
-        
-        conn = None
-        try:
-            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
-        except KeyError:
-            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (str(x),url)))
-        if conn is None:
-            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
-        
-        kwargs["conn"] = conn
-        kwargs["url"] = url
-        navHelper(request, conn)
-        return f(request, *args, **kwargs)
-    
-    return wrapped
-
 def isAnythingCreated(f):
     def wrapped (request, *args, **kwargs):
         kwargs["firsttime"] = kwargs["conn"].isAnythingCreated()
