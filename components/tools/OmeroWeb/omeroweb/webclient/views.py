@@ -751,7 +751,7 @@ def load_searching(request, conn, form=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
+def load_data_by_tag(request, conn, o_type=None, o_id=None, **kwargs):
     """ 
     Loads data for the tag tree and center panel.
     Either get the P/D/I etc under tags, or the images etc under a tagged Dataset or Project.
@@ -780,14 +780,6 @@ def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
         request.session['nav']['view'] = view
     else:
         view = request.session['nav']['view']
-    
-    # get connection
-    conn = None
-    try:
-        conn = kwargs["conn"]        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     # get url to redirect
     url = None
