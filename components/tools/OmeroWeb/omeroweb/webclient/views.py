@@ -1549,7 +1549,7 @@ def annotate_tags(request, conn, **kwargs):
     return HttpResponse(t.render(c))
 
 @login_required()
-def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
+def manage_action_containers(request, action, conn, o_type=None, o_id=None, **kwargs):
     """
     Handles many different actions on various objects.
     
@@ -1560,13 +1560,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     @param o_type:      "dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset","share", "sharecomment"
     """
     template = None
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     # check menu
     menu = request.REQUEST.get("menu")
@@ -1682,7 +1675,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 #guests = request.REQUEST['guests']
                 enable = toBoolean(form.cleaned_data['enable'])
                 host = request.build_absolute_uri(reverse("load_template", args=["public"]))
-                manager.updateShareOrDiscussion(host, request.session.get('server'), message, members, enable, expiration)
+                manager.updateShareOrDiscussion(host, conn.server_id, message, members, enable, expiration)
                 return HttpResponse("DONE")
             else:
                 template = "webclient/public/share_form.html"
@@ -2182,7 +2175,7 @@ def basket_action (request, action=None, **kwargs):
             enable = toBoolean(form.cleaned_data['enable'])
             host = request.build_absolute_uri(reverse("load_template", args=["public"]))
             share = BaseShare(conn)
-            share.createShare(host, request.session.get('server'), images, message, members, enable, expiration)
+            share.createShare(host, conn.server_id, images, message, members, enable, expiration)
             return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
         else:
             template = "webclient/basket/basket_share_action.html"
@@ -2209,7 +2202,7 @@ def basket_action (request, action=None, **kwargs):
             enable = toBoolean(form.cleaned_data['enable'])
             host = request.build_absolute_uri(reverse("load_template", args=["public"]))
             share = BaseShare(conn)
-            share.createDiscussion(host, request.session.get('server'), message, members, enable, expiration)
+            share.createDiscussion(host, conn.server_id, message, members, enable, expiration)
             return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
         else:
             template = "webclient/basket/basket_discussion_action.html"
