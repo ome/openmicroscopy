@@ -2070,7 +2070,7 @@ def download_annotation(request, action, iid, **kwargs):
     return rsp
 
 @login_required()
-def load_public(request, share_id=None, **kwargs):
+def load_public(request, share_id=None, conn=None, conn_share=None, **kwargs):
     """ Loads data for the tree in the 'public' main page. """
 
     request.session.modified = True
@@ -2091,21 +2091,6 @@ def load_public(request, share_id=None, **kwargs):
         request.session['nav']['view'] = view
     else:
         view = request.session['nav']['view']
-
-    # get connection
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    conn_share = None
-    try:
-        conn_share = kwargs["conn_share"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Share connection is not available. Please contact your administrator.")
     
     # get url to redirect
     url = None
