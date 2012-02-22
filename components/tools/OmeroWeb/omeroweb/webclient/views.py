@@ -1312,9 +1312,9 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
                     if lightPathDichroic is not None:
                         channel['form_dichroic'] = MetadataDichroicForm(initial={'dichroic': lightPathDichroic})
                     filterTypes = list(conn.getEnumerationEntries("FilterTypeI"))
-                    for f in lightPath.copyEmissionFilters():
+                    for f in lightPath.getEmissionFilters():
                         channel['form_emission_filters'].append(MetadataFilterForm(initial={'filter': f,'types':filterTypes}))
-                    for f in lightPath.copyExcitationFilters():
+                    for f in lightPath.getExcitationFilters():
                         channel['form_excitation_filters'].append(MetadataFilterForm(initial={'filter': f,'types':filterTypes}))
                 if logicalChannel.getDetectorSettings()._obj is not None and logicalChannel.getDetectorSettings().getDetector():
                     channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':logicalChannel.getDetectorSettings(),
