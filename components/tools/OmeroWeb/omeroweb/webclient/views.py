@@ -393,18 +393,14 @@ def index_tag_cloud(request, conn, **kwargs):
     return HttpResponse(rsp)
 
 @login_required()
-def change_active_group(request, **kwargs):
+def change_active_group(request, conn, **kwargs):
     """
     Changes the active group of the OMERO connection, using conn.changeActiveGroup() with 'active_group' from request.REQUEST.
     First we log out and log in again, to force closing of any processes?
     TODO: This requires usage of request.session.get('password'), which should be avoided.
     Finally this redirects to the 'url'.
     """
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    #TODO: we need to handle exception while changing active group faild, see #
     
     url = None
     try:
@@ -412,28 +408,6 @@ def change_active_group(request, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    server = request.session.get('server')
-    username = request.session.get('username')
-    password = request.session.get('password')
-    ssl = request.session.get('ssl')
-    version = request.session.get('version')
-       
-    webgateway_views._session_logout(request, request.session.get('server'))
-    
-    blitz = Server.get(pk=server) 
-    request.session['server'] = blitz.id
-    request.session['host'] = blitz.host
-    request.session['port'] = blitz.port
-    request.session['username'] = username
-    request.session['password'] = password
-    request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
-    request.session['shares'] = dict()
-    request.session['imageInBasket'] = set()
-    blitz_host = "%s:%s" % (blitz.host, blitz.port)
-    request.session['nav']={"error": None, "blitz": blitz_host, "menu": "start", "view": "icon", "basket": 0, "experimenter":None, 'callback':dict()}
-    
-    conn = getBlitzConnection(request, useragent="OMERO.web")
-
     active_group = request.REQUEST.get('active_group')
     if conn.changeActiveGroup(active_group):
         request.session.modified = True                
