@@ -1,7 +1,5 @@
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+
 
 {% comment %}
 <!--
@@ -29,7 +27,7 @@
         <tbody>
         {% for cm in controller.mostRecentSharesComments %}
             <tr><td>
-                <img src="{% url webstatic "images/knotes16.png" %}" title="comment" alt="comment"/> {{ cm.getComment.getOwner.getFullName }}</a> {% trans "commented the" %} <a href="{% url load_template "public" %}">{% trans "share" %} {{ cm.link.id }}</a> on {{ cm.getComment.creationEventDate|date:"Y-m-d H:i:s" }}
+                <img src="{% static "common/image/knotes16.png" %}" title="comment" alt="comment"/> {{ cm.getComment.getOwner.getFullName }}</a> {% trans "commented the" %} <a href="{% url load_template "public" %}">{% trans "share" %} {{ cm.link.id }}</a> on {{ cm.getComment.creationEventDate|date:"Y-m-d H:i:s" }}
             </td></tr>
         {% endfor %}
         </tbody>

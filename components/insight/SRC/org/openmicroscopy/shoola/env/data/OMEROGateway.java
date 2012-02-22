@@ -45,7 +45,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 //Third-party libraries
-import loci.formats.FormatException;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -70,7 +69,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
-import ome.conditions.ResourceError;
+import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
@@ -487,7 +486,7 @@ class OMEROGateway
 				e instanceof ConnectionLostException)
 				index = DataServicesFactory.LOST_CONNECTION;
 			connected = false;
-			dsFactory.sessionExpiredExit(index);
+			dsFactory.sessionExpiredExit(index, cause);
 		}
 	}
 
@@ -947,29 +946,6 @@ class OMEROGateway
 			fsa.setBackOffTime(mpe.backOff);
 			throw fsa;
 		}
-	}
-	
-	/**
-	 * Returns the message corresponding to the error thrown while importing the
-	 * files.
-	 * 
-	 * @param t The exception to handle.
-	 * @return See above.
-	 */
-	private String getImportFailureMessage(Throwable t)
-	{
-		String message;
-		Throwable cause = t.getCause();
-		if (cause instanceof FormatException) {
-			message = cause.getMessage();
-			cause.printStackTrace();
-			if (message == null) return null;
-			if (message.contains("ome-xml.jar"))
-				return "Missing ome-xml.jar required to read OME-TIFF files";
-			String[] s = message.split(":");
-			if (s.length > 0) return s[0];
-		}
-		return null;
 	}
 
 	/**
@@ -5485,14 +5461,28 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
+			
 			List results = null;
 			Set<DataObject> wells = new HashSet<DataObject>();
 			Iterator i;
 			IQueryPrx service = getQueryService();
 			if (service == null) service = getQueryService();
-			StringBuilder sb = new StringBuilder();
+			//if no acquisition set. First try to see if we have a id.
 			ParametersI param = new ParametersI();
 			param.addLong("plateID", plateID);
+			StringBuilder sb;
+			if (acquisitionID < 0) {
+				sb = new StringBuilder();
+				sb.append("select pa from PlateAcquisition as pa ");
+				sb.append("where pa.plate.id = :plateID");
+				results = service.findAllByQuery(sb.toString(), param);
+				if (results != null && results.size() > 0)
+					acquisitionID = 
+						((PlateAcquisition) results.get(0)).getId().getValue();
+			}
+			
+			sb = new StringBuilder();
+			
 			sb.append("select well from Well as well ");
 			sb.append("left outer join fetch well.plate as pt ");
 			sb.append("left outer join fetch well.wellSamples as ws ");
@@ -6444,7 +6434,7 @@ class OMEROGateway
 			}
 		} catch (Throwable e) {
 			closeImport();
-			throw new ImportException(getImportFailureMessage(e), e);
+			throw new ImportException(e);
 		} finally {
 			if (omsc != null && close) {
 				closeImport();
@@ -6480,7 +6470,7 @@ class OMEROGateway
 			return candidates;
 			//return candidates.getPaths();
 		} catch (Throwable e) {
-			throw new ImportException(getImportFailureMessage(e), e);
+			throw new ImportException(e);
 		}
 	}
 	

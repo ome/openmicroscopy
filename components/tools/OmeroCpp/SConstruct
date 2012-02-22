@@ -137,6 +137,16 @@ library = env.SharedLibrary(\
 env.Alias('lib', library)
 
 #
+# Utilities
+#
+uenv = env.Clone()
+for x in  uenv.Glob("utils/*.cpp"):
+    suffix = x.suffix
+    base = str(x)[0:-4]
+    exe = uenv.iswin32() and ".exe" or ""
+    util = uenv.Program("%s%s" % (base, exe), x, LIBS = ["omero_client"] + env.icelibs())
+
+#
 # Visual Studio
 #
 

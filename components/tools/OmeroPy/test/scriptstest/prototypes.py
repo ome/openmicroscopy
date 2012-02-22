@@ -14,7 +14,6 @@ import sys
 import unittest
 
 import omero
-import omero_Scripts_ice
 from omero.scripts import *
 from omero.rtypes import *
 

@@ -30,12 +30,12 @@ import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
-
 import omero.LockTimeout;
 import omero.ServerError;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteReport;
 import omero.api.delete._DeleteHandleDisp;
+import omero.util.CloseableServant;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;

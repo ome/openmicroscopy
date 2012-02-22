@@ -1,0 +1,253 @@
+/*
+ * Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+
+#logo {
+    left: 10px;
+    position: absolute;
+    top: 1px;
+}
+
+#tabs {
+    position: absolute;
+    bottom: 2px;
+    right: 3px;
+}
+
+#middle_header_right, #middle_header_left {
+    margin: 4px 14px;
+    position: absolute;
+    font-size: 14px;
+}
+
+#middle_header_left {
+    left: 100px;
+    top: 1px;
+}
+#middle_header_right {
+    right: 0px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: 200;
+}
+
+#middle_header_right a {
+    margin-left: 10px;
+}
+
+#middle_header_left li {
+    float:left;
+    margin: 1px 10px;
+    display: block;
+}
+.menu_link {
+    font-size: 16px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: 200;
+}
+
+#middle_header {
+    color: white;
+    margin: 0;
+    padding: 4px 0px;
+    height: 26px;
+    position: relative;
+    background: #333;
+    border-bottom: 1px solid #bbb;
+}
+
+#middle_header a {
+    color: white;
+}
+
+#thin_header_right input, #thin_header_left input {
+    position: relative;
+    top: -1px;
+}
+#thin_header_right select, #thin_header_left select {
+    position: relative;
+    top: -1px;
+}
+
+#thin_header {
+    margin: 0;
+    padding: 4px 0px;
+    height: 18px;
+    position: relative;
+    background: url(../image/header_bg_30.png) repeat-x scroll left bottom #e5e5e5;
+    border-bottom: solid 1px #bbb;
+}
+
+#thin_header_right, #thin_header_left {
+    margin: 2px 10px;
+    position: absolute;
+    top: 3px;
+    font-size: 14px;
+}
+
+#thin_header_right {
+    right: 0;
+}
+
+#thin_header_left {
+    left: 0;
+}
+
+.toolbar_button {
+    float: left;
+    position: relative;
+    top: -1px;
+}
+
+#content {
+    position:absolute;
+    top:62px;
+    right:0px;
+    left:0px;
+    bottom:40px;
+    overflow:auto;
+}
+
+#footer {
+    background: url(../image/header_bg2.png) repeat-x scroll left top #efefef;
+    clear: both;
+    font-size: 11px;
+    height: 32px;
+    text-align: center;
+    border-top: 1px solid #BBBBBB;
+    min-width: 1010px;
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    margin:0px;
+    padding: 4px 0px;
+}
+
+
+
+/* left and right panels that go under tabs */
+
+#Projects, #Tags, #Public, #annotation_tab, #metadata_tab, #preview_tab {
+    position:absolute;
+    top:28px;
+    bottom:0px; left:0px; right:0px;
+}
+
+/* overwrite content and thin_header styles */
+#content {
+    background: #e5e5e5;
+}
+#thin_header {
+    border-bottom: 1px solid #E5E5E5;
+}
+#footer {
+    border-top: none;
+}
+
+/** three main columns of the container layout **/
+#left_panel, #center_panel, #right_panel {
+    background-color: #ffffff;
+    position:absolute;
+    overflow: auto;
+    border: solid #bbb 1px;
+}
+#left_panel {
+    left:0px; top:0px; bottom:0px;right:0px;
+    width:350px;
+    border-left: none;
+    border-radius: 0px 4px 4px 0px;
+}
+#center_panel {
+    left:5px; right:5px; top:0px; bottom:0px;
+    border-radius: 4px;
+}
+#right_panel {
+    width:369px;
+    right:0px; top:0px; bottom:0px;
+    border-radius: 4px 0px 0px 4px;
+    border-right: none;
+}
+
+
+/** the center panel includes the draggable re-size handles either side **/
+
+#trayhandle_left {
+    position:absolute;
+    top:0px; left:0px; bottom:0px;
+    width:5px;
+    background:transparent url(../image/drag_handle_5.png) no-repeat left center scroll;
+}
+#trayhandle_right {
+    position:absolute;
+    top:0px; right:0px; bottom:0px;
+    width:5px;
+    background:transparent url(../image/drag_handle_5.png) no-repeat left center scroll;
+}
+#center_container {
+    position:absolute;
+    left:351px; right:370px; top:0px; bottom:0px;
+    border: none;
+    background: #e5e5e5;
+    z-index:10;
+}
+
+#lhid_trayhandle_icon_right {
+    cursor:pointer;
+    position:relative;
+    top: 5px;
+    height:13px;
+    width:5px;
+}
+
+#lhid_trayhandle_icon_left {
+    cursor:pointer;
+    position:relative;
+    top: 5px;
+    height:13px;
+    width:5px;
+}
+
+.expanded-left {
+    background:transparent url(../image/tray_collapse_left.png) no-repeat scroll;
+}
+.expanded-right {
+    background:transparent url(../image/tray_collapse_left.png) no-repeat scroll;
+}
+.collapsed-left {
+    background:transparent url(../image/tray_collapse_right.png) no-repeat scroll;
+}
+.collapsed-right {
+    background:transparent url(../image/tray_collapse_right.png) no-repeat scroll;
+}
+
+#dragLeft {
+    cursor: e-resize;
+    position:absolute;
+    bottom:0px;
+    top: 20px;
+    left: 0px;
+    right: 0px;
+}
+#dragRight {
+    cursor: w-resize;
+    position:absolute;
+    bottom:0px;
+    top: 20px;
+    left: 0px;
+    right: 0px;
+}

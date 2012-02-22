@@ -62,7 +62,7 @@ public class IconManager
     /** The <code>Create</code> icon. */
     public  static final int          CREATE = 1;
     
-    /** The <code>Create</code> icon. */
+    /** The <code>Editor</code> icon. */
     public  static final int          EDITOR = 2;
 
     /** The <code>Text-Line Field</code> icon. */
@@ -345,7 +345,7 @@ public class IconManager
     static {
         relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
         relPaths[CREATE] = "nuvola_messagebox_info16.png";
-        relPaths[EDITOR] = "nuvola_messagebox_info16.png";
+        relPaths[EDITOR] = "omeroEditorLink16.png";
         
         //Icons for the JTree rendering of text-only outline. 
         relPaths[TEXT_LINE_ICON] = "eclipse_textLine16.png";

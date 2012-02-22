@@ -165,7 +165,7 @@
   License File: apache-v2.0.txt
 
 
-  Artifacts:    django-lib-*.*
+  Artifacts:    Django-*
   Project:      Django, a high-level Python Web framework
   Web Site:     http://djangoproject.com
   License:      BSD

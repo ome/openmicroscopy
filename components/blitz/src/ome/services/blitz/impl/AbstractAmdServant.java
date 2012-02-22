@@ -32,6 +32,7 @@ import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api._ServiceInterfaceOperations;
+import omero.util.CloseableServant;
 import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;

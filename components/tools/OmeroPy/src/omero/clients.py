@@ -20,8 +20,11 @@ finally:
 
 sys = __import__("sys")
 import exceptions, traceback, threading, logging
-import Ice, Glacier2, Glacier2_Router_ice
+import IceImport, Ice
 import omero_ext.uuid as uuid # see ticket:3774
+
+IceImport.load("Glacier2_Router_ice")
+import Glacier2
 
 class BaseClient(object):
     """
@@ -174,6 +177,7 @@ class BaseClient(object):
         # Strictly necessary for this class to work
         id.properties.setProperty("Ice.ImplicitContext", "Shared")
         id.properties.setProperty("Ice.ACM.Client", "0")
+        id.properties.setProperty("Ice.CacheMessageBuffers", "0")
         id.properties.setProperty("Ice.RetryIntervals", "-1")
         id.properties.setProperty("Ice.Default.EndpointSelection", "Ordered")
         id.properties.setProperty("Ice.Default.PreferSecure", "1")
@@ -476,12 +480,7 @@ class BaseClient(object):
                 raise omero.ClientError("Obtained object proxy is not a ServiceFactory")
 
             # Configure keep alive
-            keep_alive = self.__ic.getProperties().getPropertyWithDefault("omero.keep_alive", "-1")
-            try:
-                i = int(keep_alive)
-                self.enableKeepAlive(i)
-            except:
-                pass
+            self.startKeepAlive()
 
             # Set the client callback on the session
             # and pass it to icestorm
@@ -505,8 +504,9 @@ class BaseClient(object):
         """
         Resets the "omero.keep_alive" property on the current
         Ice.Communicator which is used on initialization to determine
-        the time-period between Resource checks. If no __resources
-        instance is available currently, one is also created.
+        the time-period between Resource checks. The __resources
+        instance will be created as soon as an active session is
+        detected.
         """
 
         self.__lock.acquire()
@@ -518,9 +518,44 @@ class BaseClient(object):
             # what was in the configuration file
             ic.getProperties().setProperty("omero.keep_alive", str(seconds))
 
-            # If it's not null, then there's already an entry for keeping
-            # any existing session alive
-            if self.__resources == None and seconds > 0:
+            # If there's not a session, there should be no
+            # __resources but just in case since startKeepAlive
+            # could have been called manually.
+            if seconds <= 0:
+                self.stopKeepAlive()
+            else:
+                try:
+                    # If there's a session, then go ahead and
+                    # start the keep alive.
+                    self.getSession()
+                    self.startKeepAlive()
+                except omero.ClientError:
+                    pass
+        finally:
+            self.__lock.release()
+
+    def startKeepAlive(self):
+        """
+        Start a new __resources instance, stopping any that current exists
+        IF omero.keep_alive is greater than 1.
+        """
+        self.__lock.acquire()
+        try:
+            ic = self.getCommunicator()
+            props = ic.getProperties()
+            seconds = -1
+            try:
+                seconds = props.getPropertyWithDefault("omero.keep_alive", "-1")
+                seconds = int(seconds)
+            except ValueError:
+                pass
+
+            # Any existing resource should be shutdown.
+            if self.__resources is not None:
+                self.stopKeepAlive()
+
+            # If seconds is more than 0, a new one should be started.
+            if seconds > 0:
                 self.__resources = omero.util.Resources(seconds)
                 class Entry:
                     def __init__(self, c):
@@ -538,6 +573,18 @@ class BaseClient(object):
                                 return False
                         return True
                 self.__resources.add(Entry(self))
+        finally:
+            self.__lock.release()
+
+    def stopKeepAlive(self):
+        self.__lock.acquire()
+        try:
+            if self.__resources is not None:
+                try:
+                    self.__resources.cleanup()
+                finally:
+                    self.__resources = None
+
         finally:
             self.__lock.release()
 
@@ -709,6 +756,13 @@ class BaseClient(object):
 
         self.__lock.acquire()
         try:
+
+            try:
+                self.stopKeepAlive()
+            except exceptions.Exception, e:
+                oldIc.getLogger().warning(
+                    "While cleaning up resources: " + str(e))
+
             self.__sf = None
 
             oldOa = self.__oa
@@ -729,15 +783,6 @@ class BaseClient(object):
 
             self.__previous = Ice.InitializationData()
             self.__previous.properties = oldIc.getProperties().clone()
-
-            oldR = self.__resources
-            self.__resources = None
-            if oldR != None:
-                try:
-                    oldR.cleanup()
-                except exceptions.Exception, e:
-                    oldIc.getLogger().warning(
-                        "While cleaning up resources: " + str(e))
 
             try:
                 try:

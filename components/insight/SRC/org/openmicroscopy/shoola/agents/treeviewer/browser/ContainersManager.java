@@ -32,14 +32,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.GroupData;

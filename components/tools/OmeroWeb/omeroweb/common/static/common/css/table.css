@@ -1,0 +1,70 @@
+/*
+ * Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+
+/* tables */
+
+table.tablesorter {
+    margin:10px 0pt 15px;
+    text-align: left;
+    width: 100%;
+}
+table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+    padding-left: 5px;
+    border: 1px solid #bbbbbb;
+    background-color: #eeeeee;
+}
+table.tablesorter thead tr .header {
+    background-image: url(../image/table/bg.gif);
+    background-repeat: no-repeat;
+    background-position: center right;
+    cursor: pointer;
+}
+table.tablesorter tbody td {
+    vertical-align: middle;
+}
+
+td.link {
+    text-align: left;
+    padding: 2px 2px 2px 20px;
+    border-bottom: 1px dashed #bbbbbb;
+}
+
+td.desc {
+    text-align: left;
+    padding: 2px 2px 2px 20px;
+    border-bottom: 1px dashed #bbbbbb;
+}
+
+td.roles {
+    text-align: right;
+    width: 70px;
+    padding: 2px 20px 2px 20px;
+    border-bottom: 1px dashed #bbbbbb;
+}
+
+td.action {
+    text-align: left;
+    width: 100px;
+    padding: 2px 20px 2px 20px;
+    border-bottom: 1px dashed #bbbbbb;
+}
+
+#dataTable tr.ui-selecting { background-color:#ccc; }
+#dataTable tr.ui-selected { background-color:#ccc; }

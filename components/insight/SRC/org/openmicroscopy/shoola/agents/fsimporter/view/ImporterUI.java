@@ -255,8 +255,8 @@ class ImporterUI
 					ImporterControl.CLOSE_BUTTON)));
 			p.add(Box.createHorizontalStrut(5));
 		}
-		//p.add(new JButton(controller.getAction(ImporterControl.RETRY_BUTTON)));
-		//p.add(Box.createHorizontalStrut(5));
+		p.add(new JButton(controller.getAction(ImporterControl.RETRY_BUTTON)));
+		p.add(Box.createHorizontalStrut(5));
 		p.add(new JButton(controller.getAction(ImporterControl.SEND_BUTTON)));
 		return UIUtilities.buildComponentPanelRight(p);
 	}
@@ -315,6 +315,12 @@ class ImporterUI
 			
 			public void stateChanged(ChangeEvent e) {
 				controlsBar.setVisible(tabs.getSelectedIndex() != 0);
+				controller.getAction(
+						ImporterControl.RETRY_BUTTON).setEnabled(
+							hasFailuresToReimport());
+				controller.getAction(
+						ImporterControl.SEND_BUTTON).setEnabled(
+								hasSelectedFailuresToSend());
 			}
 		});
 	}
@@ -506,10 +512,8 @@ class ImporterUI
 		if (n == 0 || element == null) return;
 		if (tabs.getSelectedComponent() == element) return;
 		Component[] components = tabs.getComponents();
-		int index = -1;
 		for (int i = 0; i < components.length; i++) {
 			if (components[i] == element) {
-				index = i;
 				tabs.setSelectedComponent(element);
 			}
 		}
@@ -600,14 +604,19 @@ class ImporterUI
 	 */
 	boolean hasFailuresToSend()
 	{
+		/*
 		Iterator<ImporterUIElement> i = uiElements.values().iterator();
 		while (i.hasNext()) {
 			if (i.next().hasFailuresToSend())
 				return true;
 		}
 		return false;
+		*/
+		
+		return hasSelectedFailuresToSend();
 	}
-
+	
+	
     /**
      * Brings up the menu on top of the specified component at 
      * the specified location.
@@ -668,4 +677,43 @@ class ImporterUI
         b.addMouseListener((PersonalManagementAction) a);
         return b;
     }
+    
+    /**
+     * Returns <code>true</code> if the selected pane has failures to send,
+     * <code>false/code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean hasSelectedFailuresToSend()
+    {
+    	ImporterUIElement pane = getSelectedPane();
+    	if (pane == null) return false;
+    	return pane.hasFailuresToSend();
+    }
+    
+    /**
+	 * Returns the collection of files that could not be imported.
+	 * 
+	 * @return See above.
+	 */
+	List<FileImportComponent> getFilesToReimport()
+	{
+		ImporterUIElement pane = getSelectedPane();
+    	if (pane == null) return null;
+    	return pane.getFilesToReimport();
+	}
+	
+	/**
+	 * Returns <code>true</code> if file to re-import, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasFailuresToReimport()
+	{
+		ImporterUIElement element = getSelectedPane();
+		if (element == null) return false;
+		return element.hasFailuresToReimport();
+	}
+
 }

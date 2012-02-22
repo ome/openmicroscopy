@@ -1,7 +1,6 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+
 
 {% comment %}
 <!--
@@ -23,6 +22,12 @@
 -->
 {% endcomment %}
 
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webadmin/css/picklist.css" %}" type="text/css" media="screen"/>
+
+{% endblock %}
+
 {% block title %}
 {% if gid %}
     {% trans "Edit group" %}
@@ -31,8 +36,8 @@
 {% endif %}
 {% endblock %}
 
-{% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+{% block script %}
+    {{ block.super }}
     
     <script type="text/javascript">
         $(document).ready(function() 
@@ -55,7 +60,7 @@
                     ch.remove();
                 {% endif %}
                 
-                $("input[name='permissions']").click(radioClicks);                
+                $("input[name='permissions']").click(radioClicks);
                 function radioClicks()
                 {
                     var index = $(this).val();
@@ -68,29 +73,31 @@
 
         })
     </script>
+
 {% endblock %}
 
-{% block content %}
+{% block center_details %}
+
+{{ block.super }}
+
 <div>
 {% if gid %}
-    <h2>{% trans "Edit group" %}</h2>
+    <h1>{% trans "Edit group" %}</h1>
 {% else %}
-    <h2>{% trans "Add group" %}</h2>
+    <h1>{% trans "Add group" %}</h1>
 {% endif %}
 
-<h1>{% trans "Permission Levels" %}</h1>
+<h2>{% trans "Permission Levels" %}</h2>
 <ul>
     <li>{% trans "<strong>Private</strong>: All data in this group is only visible to the user who owns it and the group owner. Other users cannot see who else is in the group or view their data. The group owner can view the data for other group members but not make any edits (same as read-only behaviour)." %}</li>
     <li>{% trans "<strong>Collaborative - read-only</strong>: Users in groups with this permission setting can view each others' data, but cannot edit or annotate another user's data. You can view another users' images but not comment, rate or tag their images." %}</li>
     <li>{% trans "<strong>Collaborative</strong>: Users in a collaborative group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</li>
 </ul>
 
-{% if permissions or not gid %}<p><div class="error">{% trans "<strong>WARNING</strong>: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative (or Collaborative - Read-only)</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group. " %}</div></p>{% endif %}
-
-<br/>
+<p><div class="error">{% trans "<strong>WARNING</strong>: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative (or Collaborative - Read-only)</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group. " %}</div></p>
 
 {% if gid %}
-    <form action="{% url wamanagegroupid "save" gid %}" method="POST" id="">
+    <form action="{% url wamanagegroupid "save" gid %}" method="POST">
 {% else %}
     <form action="{% url wamanagegroupid "create" %}" method="POST">
 {% endif %}
@@ -100,7 +107,6 @@
 <table>
   <tbody>
     {% for field in form %}
-    
     {% ifequal form.readonly.label_tag field.label_tag %}
         <tr><td class="form" colspan="3"><span id="checkbox">{{ field }}{{ field.label_tag }}{% if field.field.required %}*{% endif %} {% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</span></td></tr>
     {% else %}
@@ -114,6 +120,6 @@
 </table>
 </form>
 
-
 </div>
+
 {% endblock %}

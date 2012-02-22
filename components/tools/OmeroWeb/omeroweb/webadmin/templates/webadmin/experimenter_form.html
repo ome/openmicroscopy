@@ -1,7 +1,6 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+
 
 {% comment %}
 <!--
@@ -23,21 +22,24 @@
 -->
 {% endcomment %}
 
-{% block css %}
-    <link rel="stylesheet" href="{% url webstatic "css/picklist.css" %}" type="text/css" media="screen"/>
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webadmin/css/picklist.css" %}" type="text/css" media="screen"/>
+
 {% endblock %}
 
 {% block title %}
-{% if eid %}
-    {% trans "Edit scientist" %}
-{% else %}
-    {% trans "Add scientist" %}
-{% endif %}
+    {% if eid %}
+        {% trans "Edit scientist" %}
+    {% else %}
+        {% trans "Add scientist" %}
+    {% endif %}
+
 {% endblock %}
 
-{% block jscript %}
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+{% block script %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static "common/javascript/jquery_1.4.2.js" %}"></script>
     
     <script type="text/javascript">
     $(document).ready(function() 
@@ -88,18 +90,18 @@
 
 {% endblock %}
 
-{% block content %}
+{% block center_details %}
 
-{% if info.message %}<div class="error">{{ info.message|safe|linebreaks }}</div>{% endif %}
+{{ block.super }}
 
 <div>
 {% if eid %}
-    <h2>{% trans "Edit scientist" %}</h2>
+    <h1>{% trans "Edit scientist" %}</h1>
 {% else %}
-    <h2>{% trans "Add scientist" %}</h2>
+    <h1>{% trans "Add scientist" %}</h1>
 {% endif %}
 
-<p>{% trans "Fields marked with and asterisk (*) are mandatory." %}</p>
+<p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
 <br/>
 
 {% if eid %}
@@ -125,7 +127,7 @@
             {% if eid %}<tr><td class="form">Password: </td><td colspan="2"><a href="{% url wamanagechangepasswordid eid %}">change password</a></td></tr>{% endif %}
         {% endif %}
         
-        <tr><td class="form" colspan="3"><p>{% trans "A user may belong to one or more groups. To define the list of groups user is member of select them from the <strong>Available groups</strong> box and click button <strong>[<]</strong> to move them to the <strong>Selected groups</strong> area. Once groups are chosen select one to specify <strong>Default Group</strong> user will first log in to. <strong>Default Group</strong> is last group user successfully logged in to." %}</p></td></tr>
+        <tr><td class="form" colspan="3"><p>{% trans "A user may belong to one or more groups. To define the list of groups user is member of, select them from the <strong>Available groups</strong> box and click the <strong>[<]</strong> button to move them to the <strong>Selected groups</strong> area. Once groups are chosen, select one to specify the user's <strong>Default Group</strong>. The <strong>Default Group</strong> is the group that the user will be logged in to, and will be updated when they switch between groups in the clients." %}</p></td></tr>
         <tr><td></td><td class="form">{% trans "Selected groups" %}*</td><td class="form">{% trans "Available groups" %}</td></tr>
         
         {% if form.default_group.errors or form.available_groups.errors or form.other_groups.errors %}<tr><td></td><td colspan="2">{{ form.default_group.errors }}{{ form.other_groups.errors }}<br/>{{ form.available_groups.errors }}</td></tr>{% endif %}
@@ -159,3 +161,4 @@
 
 
 {% endblock %}
+

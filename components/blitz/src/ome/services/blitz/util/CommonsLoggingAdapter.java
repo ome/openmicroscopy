@@ -47,4 +47,8 @@ public class CommonsLoggingAdapter implements Logger {
         log.warn(message);
     }
 
+    public Logger cloneWithPrefix(java.lang.String unused) {
+        throw new UnsupportedOperationException("NYI");
+    }
+
 }

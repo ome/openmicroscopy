@@ -116,5 +116,11 @@ public class TreeImageNode
         copy.setSelectable(this.isSelectable());
         return copy;
     }
-    
+
+	/**
+	 * Returns <code>false</code> b/c an image node cannot have children.
+	 * @see TreeImageDisplay#contains(TreeImageDisplay)
+	 */
+	public boolean contains(TreeImageDisplay node) { return false; }
+
 }

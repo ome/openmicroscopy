@@ -14,6 +14,7 @@
 import os,sys
 THISPATH = os.path.dirname(os.path.abspath(__file__))
 
+import warnings
 import shutil
 import tempfile
 from types import IntType, LongType, UnicodeType, ListType, TupleType, StringType, StringTypes
@@ -33,7 +34,7 @@ import array
 import math
 
 import logging
-logger = logging.getLogger('blitz_gateway')
+logger = logging.getLogger(__name__)
 
 try:
     import Image, ImageDraw, ImageFont
@@ -45,8 +46,6 @@ except: #pragma: nocover
 from cStringIO import StringIO
 from math import sqrt
 
-import omero_Constants_ice  
-import omero_ROMIO_ice
 from omero.rtypes import rstring, rint, rlong, rbool, rtime, rlist, rdouble, unwrap
 
 def omero_type(val):
@@ -699,23 +698,40 @@ class BlitzObjectWrapper (object):
         @param ns:      Namespace
         @type ns:       String
         """
+        dcs = []
         for al in self._getAnnotationLinks(ns=ns):
-            update = self._conn.getUpdateService()
-            update.deleteObject(al)
-        self._obj.unloadAnnotationLinks()        
+            dcs.append(omero.api.delete.DeleteCommand(
+                "/%s" % al.ice_id().split("::")[-1], # This could be refactored
+                al.id.val, None))
+
+        # Using queueDelete rather than deleteObjects since we need
+        # spec/id pairs rather than spec+id_list as arguments
+        handle = self._conn.getDeleteService().queueDelete(dcs)
+        callback = omero.callbacks.DeleteCallbackI(self._conn.c, handle)
+        # Maximum wait time 5 seconds, will raise a LockTimeout if the
+        # delete has not finished by then.
+        callback.loop(10, 500)
+        self._obj.unloadAnnotationLinks()
 
     def removeAnnotations (self, ns):
         """
-        Uses updateService to delete annotations, with specified ns, and their links on the object
+        Uses the delete service to delete annotations, with a specified ns,
+        and their links on the object and any other objects. Will raise a
+        L{omero.LockTimeout} if the annotation removal has not finished in
+        5 seconds.
         
         @param ns:      Namespace
         @type ns:       String
         """
+        ids = list()
         for al in self._getAnnotationLinks(ns=ns):
             a = al.child
-            update = self._conn.getUpdateService()
-            update.deleteObject(al)
-            update.deleteObject(a)
+            ids.append(a.id.val)
+        handle = self._conn.deleteObjects('/Annotation', ids)
+        callback = omero.callbacks.DeleteCallbackI(self._conn.c, handle)
+        # Maximum wait time 5 seconds, will raise a LockTimeout if the
+        # delete has not finished by then.
+        callback.loop(10, 500)
         self._obj.unloadAnnotationLinks()        
     
     # findAnnotations(self, ns=[])
@@ -2187,6 +2203,33 @@ class _BlitzGateway (object):
                 if d.child.id.val != self.getEventContext().userId:
                     yield ExperimenterWrapper(self, d.child)
 
+    def groupSummary(self, gid=None, exclude_self=False):
+        """
+        Returns lists of 'leaders' and 'members' of the specified group (default is current group)
+        as a dict with those keys.
+
+        @return:    {'leaders': list L{ExperimenterWrapper}, 'colleagues': list L{ExperimenterWrapper}}
+        @rtype:     dict
+        """
+
+        if gid is None:
+            gid = self.getEventContext().groupId
+        userId = None
+        if exclude_self:
+            userId = self.getEventContext().userId
+        colleagues = []
+        leaders = []
+        default = self.getObject("ExperimenterGroup", gid)
+        if not default.isPrivate() or default.isLeader():
+            for d in default.copyGroupExperimenterMap():
+                if d.child.id.val == userId:
+                    continue
+                if d.owner.val:
+                    leaders.append(ExperimenterWrapper(self, d.child))
+                else:
+                    colleagues.append(ExperimenterWrapper(self, d.child))
+        return {"leaders": leaders, "colleagues": colleagues}
+
     def listStaffs(self):
         """
         Look up users who are members of groups lead by the current user.
@@ -2410,8 +2453,10 @@ class _BlitzGateway (object):
         @return:            Generator yielding wrapped objects.
         """
 
-        if parent_type not in ["Project", "Dataset", "Image", "Screen", "Plate"]:
-            raise AttributeError("Can only get Annotations on 'Project', 'Dataset', 'Image', 'Screen', 'Plate'")
+        if parent_type.lower() not in KNOWN_WRAPPERS:
+            wrapper_types = ", ".join(KNOWN_WRAPPERS.keys())
+            err_msg = "getAnnotationLinks() does not support type: '%s'. Must be one of: %s" % (parent_type, wrapper_types)
+            raise AttributeError(err_msg)
         wrapper = KNOWN_WRAPPERS.get(parent_type.lower(), None)
 
         query = "select annLink from %sAnnotationLink as annLink join fetch annLink.details.owner as owner " \
@@ -2815,16 +2860,42 @@ class _BlitzGateway (object):
         u = self.getUpdateService() 
         u.deleteObject(obj)
 
-    def deleteObjects(self, obj_type, obj_ids, deleteAnns=False, deleteChildren=False):
+    def getAvailableDeleteCommands(self):
         """
-        Generic method for deleting using the delete queue. 
-        Supports deletion of 'Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well', 'Annotation'.
-        Options allow to delete 'independent' Annotations (Tag, Term, File) and to delete child objects.
+        Retrieves the current set of delete commands with type (graph spec)
+        and options filled.
+        @return:    Exhaustive list of available delete commands.
+        @rtype:     L{omero.api.delete.DeleteCommand}
+        """
+        return self.getDeleteService().availableCommands()
 
-        @param obj_type:        String to indicate 'Project', 'Image' etc. 
+    def deleteObjects(self, graph_spec, obj_ids, deleteAnns=False,
+                      deleteChildren=False):
+        """
+        Generic method for deleting using the delete queue. Options allow to
+        delete 'independent' Annotations (Tag, Term, File) and to delete
+        child objects.
+
+        @param graph_spec:      String to indicate the object type or graph
+                                specification. Examples include:
+                                 * 'Project'
+                                 * 'Dataset'
+                                 * 'Image'
+                                 * 'Screen'
+                                 * 'Plate'
+                                 * 'Well'
+                                 * 'Annotation'
+                                 * '/OriginalFile'
+                                 * '/Image+Only'
+                                 * '/Image/Pixels/Channel'
+                                As of OMERO 4.4.0 the correct case is now
+                                explicitly required, the use of 'project'
+                                or 'dataset' is no longer supported.
         @param obj_ids:         List of IDs for the objects to delete
-        @param deleteAnns:      If true, delete linked Tag, Term and File annotations
-        @param deleteChildren:  If true, delete children. E.g. Delete Project AND it's Datasets & Images.  
+        @param deleteAnns:      If true, delete linked Tag, Term and File
+                                annotations
+        @param deleteChildren:  If true, delete children. E.g. Delete Project
+                                AND it's Datasets & Images.
         @return:                Delete handle
         @rtype:                 L{omero.api.delete.DeleteHandle}
         """
@@ -2832,36 +2903,40 @@ class _BlitzGateway (object):
         if not isinstance(obj_ids, list) and len(obj_ids) < 1:
             raise AttributeError('Must be a list of object IDs')
 
+        if not graph_spec.startswith('/'):
+            graph_spec = '/%s' % graph_spec
+            logger.debug('Received object type, using "%s"' % graph_spec)
+
         op = dict()
-        if not deleteAnns and obj_type not in ["Annotation", "TagAnnotation"]:
+        if not deleteAnns and graph_spec not in ["/Annotation",
+                                                 "/TagAnnotation"]:
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
 
-        childTypes = {'Project':['/Dataset', '/Image'],
-                'Dataset':['/Image'],
-                'Image':[],
-                'Screen':['/Plate'],
-                'Plate':['/Image'],
-                'Well':[],
-                'Annotation':[] }
-    
-        obj_type = obj_type.title()
-        if obj_type not in childTypes:
-            m = """%s is not an object type. Must be: Project, Dataset, Image, Screen, Plate, Well, Annotation""" % obj_type
-            raise AttributeError(m)
-        if not deleteChildren:
-            for c in childTypes[obj_type]:
-                op[c] = "KEEP"
+        childTypes = {'/Project':['/Dataset', '/Image'],
+                '/Dataset':['/Image'],
+                '/Image':[],
+                '/Screen':['/Plate'],
+                '/Plate':['/Image'],
+                '/Well':[],
+                '/Annotation':[] }
 
-        #return self.simpleDelete(obj_type, obj_ids, op)
+        if not deleteChildren:
+            try:
+                for c in childTypes[graph_spec]:
+                    op[c] = "KEEP"
+            except KeyError:
+                pass
+
         dcs = list()
-        logger.debug('Deleting %s [%s]. Options: %s' % (obj_type, str(obj_ids), op))
+        logger.debug('Deleting %s [%s]. Options: %s' % \
+                (graph_spec, str(obj_ids), op))
         for oid in obj_ids:
-            dcs.append(omero.api.delete.DeleteCommand("/%s" % obj_type, long(oid), op))
+            dcs.append(omero.api.delete.DeleteCommand(
+                graph_spec, long(oid), op))
         handle = self.getDeleteService().queueDelete(dcs)
         return handle
-
 
     ###################
     # Searching stuff #
@@ -3323,7 +3398,7 @@ class _AnnotationLinkWrapper (BlitzObjectWrapper):
     """
 
     def getAnnotation(self):
-        return AnnotationWrapper._wrap(self._conn, self.child)
+        return AnnotationWrapper._wrap(self._conn, self.child, self._obj)
 
 AnnotationLinkWrapper = _AnnotationLinkWrapper
                 
@@ -3362,7 +3437,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
         """
         
         try:
-            if self._obj.ns is not None and self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self._obj.file.name.val.startswith("original_metadata"):
+            if self._obj.ns is not None and self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self.getFile().getName() == omero.constants.annotation.file.ORIGINALMETADATA:
                 return True
         except:
             logger.info(traceback.format_exc())
@@ -3982,6 +4057,10 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
             if ob.parent.name.val == "guest":
                 return True
         return False
+
+    def is_self(self):
+        """ Returns True if this Experimenter is the current user """
+        return self.getId() == self._conn.getEventContext().userId
     
 ExperimenterWrapper = _ExperimenterWrapper
 

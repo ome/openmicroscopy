@@ -26,15 +26,22 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JComponent;
+import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
 
 
@@ -42,6 +49,7 @@ import javax.swing.SwingUtilities;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.dataBrowser.visitor.SelectionVisitor;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
@@ -66,8 +74,9 @@ import pojos.ImageData;
  * </small>
  * @since OME3.0
  */
-class BrowserControl     
-	implements MouseListener, ImageDisplayVisitor, PropertyChangeListener
+class BrowserControl
+	implements MouseListener, ImageDisplayVisitor, PropertyChangeListener,
+	MouseMotionListener
 {
     
     //TODO: Implement scroll listener.  When the currently selected node is 
@@ -94,6 +103,71 @@ class BrowserControl
     /** Flag indicating if the left mouse button is pressed. */
     private boolean			leftMouseButton;
     
+    /** The location of the mouse pressed.*/
+    private Point anchor;
+    
+    /** The source of the mouse pressed.*/
+    private Component source;
+    
+    /** The rectangle used to select multiple nodes.*/
+    private Rectangle selection = new Rectangle();
+    
+    /** Flag indicating if the <code>Shift</code> is down or not.*/
+    private boolean shiftDown;
+    
+    /** Component used to select several images.*/
+    private GlassPane glassPane;
+    
+    /** Flag indicating that the {@link #glassPane} has already been added.*/
+    private boolean added;
+    
+    /** Flag indicating that the multi-selection is on.*/
+    private boolean dragging;
+    
+    /** The listener to add to the nodes.*/
+    private KeyAdapter keyListener;
+    
+    /** Handles the multi-selection using key.*/
+    private void handleKeySelection()
+    {
+		SelectionVisitor visitor = new SelectionVisitor(null, true);
+		view.accept(visitor);
+		model.setSelectedDisplays(visitor.getSelected());
+    }
+    
+    /**
+     * Handles the multi-selection.
+     * 
+     * @param install Pass <code>true</code> to install the glass pane, 
+     *                <code>false</code> otherwise.
+     */
+    private SelectionVisitor handleMultiSelection(boolean install)
+    {
+    	SelectionVisitor visitor = new SelectionVisitor(selection, !install);
+		view.accept(visitor);
+		JLayeredPane pane = (JLayeredPane) view.getInternalDesktop();
+		
+    	if (install) {
+    		if (glassPane == null) {
+    			glassPane = new GlassPane();
+    			
+    		}
+    		glassPane.setSelection(selection);
+    		if (!added) {
+    			glassPane.setSize(view.getSize());
+    			pane.add(glassPane, Integer.valueOf(1));
+    			added = true;
+    		}
+    	} else {
+    		if (glassPane != null) {
+    			pane.remove(glassPane);
+    		}
+    		added = false;
+    	}
+    	pane.repaint();
+    	return visitor;
+    }
+    
     /**
      * Reacts to mouse pressed and mouse release event.
      * 
@@ -105,6 +179,7 @@ class BrowserControl
     {
     	if (me.getClickCount() == 1) {
     		ImageDisplay d = findParentDisplay(me.getSource());
+    		//if (d == view) return;
         	d.moveToFront();
         	handleSelection(d, me);
         	me = SwingUtilities.convertMouseEvent((Component) me.getSource(),
@@ -123,6 +198,7 @@ class BrowserControl
         		|| me.isControlDown() || me.isShiftDown())) {
     		Object src = me.getSource();
             ImageDisplay d = findParentDisplay(src);
+            if (d == view) return;
             if (d instanceof ImageNode && !(d.getTitleBar() == src)
                 && isSelectionValid(d)) {
             	model.viewDisplay(d);
@@ -280,10 +356,10 @@ class BrowserControl
     private void attachListeners(ImageNode node)
     {
     	if (node == null) return;
-    	node.addMouseListenerToComponents(this);
     	node.addPropertyChangeListener(this);
+    	node.addListenerToComponents(this);
     }
-
+    
     /**
      * Creates a new Controller for the specified <code>model</code> and
      * <code>view</code>.
@@ -298,12 +374,31 @@ class BrowserControl
         if (model == null) throw new NullPointerException("No model.");
         if (view == null) throw new NullPointerException("No view.");
         model.addPropertyChangeListener(
-        		Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY,
-                                        this);
-        model.addPropertyChangeListener(Browser.ROLL_OVER_PROPERTY,
-                                            this);
+        		Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY, this);
+        model.addPropertyChangeListener(Browser.ROLL_OVER_PROPERTY, this);
         this.model = model;
         this.view = view;
+        view.getInternalDesktop().addMouseMotionListener(this);
+		view.getInternalDesktop().setCursor(Cursor.getDefaultCursor());
+		keyListener = new KeyAdapter() {
+			
+			/** 
+			 * Selects all the nodes if <code>Ctrl-A</code> or
+			 * <code>Cmd-A</code> is pressed.
+			 * @see KeyListener#keyPressed(KeyEvent)
+			 */
+			public void keyPressed(KeyEvent e)
+			{
+				switch (e.getKeyCode()) {
+					case KeyEvent.VK_A:
+						if ((UIUtilities.isMacOS() && e.isMetaDown()) ||
+							(!UIUtilities.isMacOS() && e.isControlDown())) {
+							handleKeySelection();
+						}
+				}
+			}
+			
+		};
     }
     
     /**
@@ -330,13 +425,6 @@ class BrowserControl
 			img.getDefaultPixels();
 			return true;
 		} catch (Exception e) {
-			/*
-			UserNotifier un = 
-				DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Image Not valid", "The selected image is not valid");
-			node.setHighlight(
-					Colors.getInstance().getDeselectedHighLight(node));
-					*/
 			return false;
 		}
     }
@@ -424,34 +512,18 @@ class BrowserControl
      */
     public void mousePressed(MouseEvent me)
     {
-    	/*
-    	ImageDisplay d = findParentDisplay(me.getSource());
-    	d.moveToFront();
-    	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
-    	
-    	boolean macOS = UIUtilities.isMacOS();
-    	Point p = me.getPoint();
-    	boolean b;
-    	if (macOS) b = me.isShiftDown() || me.isMetaDown();
-    	else b = me.isShiftDown() || me.isControlDown();
-    	me.consume();
-    	if ((me.isControlDown() && SwingUtilities.isLeftMouseButton(me) &&
-				macOS)) {
-			if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
-				//if (isSelectionValid(d)) {
-				if (d instanceof CellDisplay) {
-					setSelectedCell(me.getPoint(), (CellDisplay) d);
-				} else model.setSelectedDisplay(d, false, true);
-			}
-			model.setPopupPoint(p, true);
+    	anchor = me.getPoint();
+    	((Component) me.getSource()).requestFocus();
+    	((Component) me.getSource()).addKeyListener(keyListener);
+    	shiftDown = me.isShiftDown();
+		if (dragging) return;
+		Collection l = model.getSelectedDisplays();
+		if (source == null) {
+			if (l.size() == 0) source = (JComponent) me.getSource();
+			else source = (JComponent) ((List) l).get(0);
+		}
+		if (shiftDown && l.size() > 0)
 			return;
-    	}
-    	if (me.isPopupTrigger() && b) {
-    		model.setPopupPoint(p, true);
-    		return;
-    	}
-    	if (macOS) handleSelection(d, b, me.getPoint());
-    	*/
     	rightClickPad = UIUtilities.isMacOS() && 
     	SwingUtilities.isLeftMouseButton(me) && me.isControlDown();
     	rightClickButton = SwingUtilities.isRightMouseButton(me);
@@ -463,50 +535,41 @@ class BrowserControl
     }
     
     /**
-     * Tells the model that either a popup point or a thumbnail selection
+     * Tells the model that either a pop-up point or a thumbnail selection
      * was detected.
      * @see MouseListener#mouseReleased(MouseEvent)
      */
     public void mouseReleased(MouseEvent me) 
     {
+    	if (dragging) {
+    		SelectionVisitor visitor = handleMultiSelection(false);
+    		model.setSelectedDisplays(visitor.getSelected());
+    		dragging = false;
+    		return;
+    	}
+    	Collection l = model.getSelectedDisplays();
+    	if (shiftDown && l.size() >= 1) {
+    		if (source == null) source = (JComponent) ((List) l).get(0);
+    		ImageDisplay display = findParentDisplay((Component) me.getSource());
+    		Rectangle rS = display.getBounds();
+    		display = findParentDisplay(source);
+    		Rectangle rAnchor =  display.getBounds();
+    		selection.width = Math.abs(rS.x-rAnchor.x)+rS.width;
+    		selection.height = Math.abs(rS.y-rAnchor.y)+rS.height;
+    		if (rAnchor.x < rS.x) selection.x = rAnchor.x;
+    		else selection.x = rS.x;
+    		if (rAnchor.y < rS.y) selection.y = rAnchor.y;
+    		else selection.y = rS.y;
+			SelectionVisitor visitor = new SelectionVisitor(selection, true);
+			view.accept(visitor);
+			shiftDown = me.isShiftDown();
+			if (!shiftDown) source = null;
+			model.setSelectedDisplays(visitor.getSelected());
+			return;
+		}
+    	source = null;
     	leftMouseButton = SwingUtilities.isLeftMouseButton(me);
     	if (UIUtilities.isWindowsOS()) onClick(me, true);
-    	/*
-    	int count = me.getClickCount();
-    	if (count == 2 && !(me.isShiftDown() 
-    			|| me.isControlDown() || me.isMetaDown())) {
-    		if (UIUtilities.isMacOS()) {
-        		if (!me.isControlDown()) {
-        			Object src = me.getSource();
-                    ImageDisplay d = findParentDisplay(src);
-                    if (d instanceof ImageNode && !(d.getTitleBar() == src) 
-                        && isSelectionValid(d)) {
-                    	model.viewDisplay(d);
-                    }   
-        		} 
-        	} else {
-        		Object src = me.getSource();
-                ImageDisplay d = findParentDisplay(src);
-                if (d instanceof ImageNode && !(d.getTitleBar() == src) 
-                    && isSelectionValid(d)) {
-                	model.viewDisplay(d);
-                }   
-        	}
-    	} else if (count == 1) {
-    		boolean b;
-    		boolean macOS = UIUtilities.isMacOS();
-    		if (macOS) return;
-        	b = me.isShiftDown() || me.isControlDown();
-        	if (SwingUtilities.isRightMouseButton(me) || 
-    				(me.isPopupTrigger() && b)) {
-    			model.setPopupPoint(me.getPoint(), true);
-    			return;
-    		}
-    		ImageDisplay d = findParentDisplay(me.getSource());
-    		d.moveToFront();
-    		handleSelection(d, b, me.getPoint());
-    	}
-    	*/	
     }
 
     /**
@@ -551,18 +614,38 @@ class BrowserControl
     public void mouseExited(MouseEvent me)
     {
     	model.setRollOverNode(null);
-    	//if (model.isRollOver()) return;
-        //ImageDisplay d = model.getLastSelectedDisplay();
-        //if (d != null) view.setTitle(model.currentPathString(d));
-        //else view.setTitle("");
-        //model.setNodeForProperty(Browser.SELECTED_DISPLAY_PROPERTY, d);
     }
     
     /**
-     * Required by the {@link MouseListener} I/F but no-op implementation
+     * Highlights the nodes if the <code>SHIFT</code> key is down.
+     * @see MouseMotionListener#mouseDragged(MouseEvent)
+     */
+	public void mouseDragged(MouseEvent e)
+	{
+		if (e.getSource() != view.getInternalDesktop()) return;
+		dragging = true;
+		Point p = e.getPoint();
+		selection.width = Math.abs(p.x-anchor.x);
+		selection.height = Math.abs(p.y-anchor.y);
+		if (anchor.x < p.x) selection.x = anchor.x;
+		else selection.x = p.x;
+		if (anchor.y < p.y) selection.y = anchor.y;
+		else selection.y = p.y;
+		handleMultiSelection(true);
+	}
+
+    /**
+     * Required by the {@link MouseListener} I/F but no-operation implementation
      * in our case.
      * @see MouseListener#mouseClicked(MouseEvent)
      */
     public void mouseClicked(MouseEvent me) {}
-    
+
+	/**
+     * Required by the {@link MouseMotionListener} I/F but no-operation
+     * implementation in our case.
+     * @see MouseMotionListener#mouseMoved(MouseEvent)
+     */
+	public void mouseMoved(MouseEvent e) {}
+
 }

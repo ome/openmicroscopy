@@ -32,6 +32,7 @@ import ome.util.messages.MessageException;
 import omero.ApiUsageException;
 import omero.WrappedCreateSessionException;
 import omero.api.ClientCallbackPrxHelper;
+import omero.api._ServiceFactoryTie;
 import omero.constants.EVENT;
 import omero.constants.GROUP;
 import omero.constants.topics.HEARTBEAT;
@@ -189,7 +190,8 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 cat.add(new String[]{id.name});
             }
             
-            Ice.ObjectPrx _prx = current.adapter.add(session, id); // OK Usage
+            _ServiceFactoryTie tie = new _ServiceFactoryTie(session);
+            Ice.ObjectPrx _prx = current.adapter.add(tie, id); // OK Usage
             _prx = current.adapter.createDirectProxy(id);
 
             // Logging & sessionToClientIds addition
@@ -389,8 +391,9 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             return null;
         }
 
-        if (obj instanceof ServiceFactoryI) {
-            ServiceFactoryI sf = (ServiceFactoryI) obj;
+        if (obj instanceof _ServiceFactoryTie) {
+            _ServiceFactoryTie tie = (_ServiceFactoryTie) obj;
+            ServiceFactoryI sf = (ServiceFactoryI) tie.ice_delegate();
             return sf;
         } else {
             log.warn("Not a ServiceFactory: " + obj);

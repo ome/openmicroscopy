@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 
 //Third-party libraries
 
@@ -214,7 +215,7 @@ public abstract class ImageDisplay
             child.parentDisplay.removeChildDisplay(child);
         child.parentDisplay = this;
         childrenDisplay.add(child);
-        getInternalDesktop().add(child);
+        ((JLayeredPane) getInternalDesktop()).add(child, Integer.valueOf(0));
     }
     
     /**
@@ -438,5 +439,13 @@ public abstract class ImageDisplay
      *          child, <code>false</code> otherwise.
      */
     public abstract boolean containsImages();
+    
+    /** 
+     * Adds the specified listener to the passed components.
+     * 
+     * @param listener The listener to add.
+     * @param listener
+     */
+    public abstract void addListenerToComponents(Object listener);
     
 }

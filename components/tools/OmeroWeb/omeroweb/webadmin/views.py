@@ -69,11 +69,13 @@ from controller.drivespace import BaseDriveSpace, usersData
 from controller.uploadfile import BaseUploadFile
 from controller.enums import BaseEnums
 
-from omeroweb.webclient.views import _session_logout
+from omeroweb.webclient.views import _session_logout, navHelper
 from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck, getGuestConnection
 from omeroweb.webgateway.views import getBlitzConnection
 
-logger = logging.getLogger('views-admin')
+from omeroweb.webadmin.custom_models import Server
+
+logger = logging.getLogger(__name__)
 
 connectors = {}
 
@@ -87,10 +89,7 @@ def isAdminConnected (f):
         #this check the connection exist, if not it will redirect to login page
         url = request.REQUEST.get('url')
         if url is None or len(url) == 0:
-            if request.META.get('QUERY_STRING'):
-                url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
-            else:
-                url = '%s' % (request.META.get('PATH_INFO'))
+            url = request.get_full_path()
         
         conn = None
         try:
@@ -106,6 +105,7 @@ def isAdminConnected (f):
         if not conn.isAdmin():
             return page_not_found(request, "404.html")
         kwargs["conn"] = conn
+        navHelper(request, conn)
         return f(request, *args, **kwargs)
 
     return wrapped
@@ -115,10 +115,7 @@ def isOwnerConnected (f):
         #this check the connection exist, if not it will redirect to login page
         url = request.REQUEST.get('url')
         if url is None or len(url) == 0:
-            if request.META.get('QUERY_STRING'):
-                url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
-            else:
-                url = '%s' % (request.META.get('PATH_INFO'))
+            url = request.get_full_path()
         
         conn = None
         try:
@@ -138,6 +135,7 @@ def isOwnerConnected (f):
             if not conn.isOwner():
                 return page_not_found(request, "404.html")
         kwargs["conn"] = conn
+        navHelper(request, conn)
         return f(request, *args, **kwargs)
 
     return wrapped
@@ -147,10 +145,7 @@ def isUserConnected (f):
         #this check connection exist, if not it will redirect to login page
         url = request.REQUEST.get('url')
         if url is None or len(url) == 0:
-            if request.META.get('QUERY_STRING'):
-                url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
-            else:
-                url = '%s' % (request.META.get('PATH_INFO'))
+            url = request.get_full_path()
         
         conn = None
         try:
@@ -165,6 +160,7 @@ def isUserConnected (f):
         
         kwargs["conn"] = conn
         kwargs["url"] = url
+        navHelper(request, conn)
         return f(request, *args, **kwargs)
     
     return wrapped
@@ -194,7 +190,7 @@ def forgotten_password(request, **kwargs):
     if request.method == 'POST':
         form = ForgottonPasswordForm(data=request.REQUEST.copy())
         if form.is_valid():
-            blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server'))
+            blitz = Server.get(pk=request.REQUEST.get('server'))
             try:
                 conn = getGuestConnection(blitz.host, blitz.port)
                 if not conn.isForgottenPasswordSet():
@@ -216,6 +212,7 @@ def forgotten_password(request, **kwargs):
         form = ForgottonPasswordForm()
     
     context = {'error':error, 'form':form}    
+    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -224,8 +221,8 @@ def forgotten_password(request, **kwargs):
 def login(request):
     request.session.modified = True
     
-    if request.method == 'POST' and request.REQUEST.get('server'):        
-        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
+    if request.method == 'POST' and request.REQUEST.get('server'):
+        blitz = Server.get(pk=request.REQUEST.get('server')) 
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
@@ -263,7 +260,7 @@ def login(request):
         if request.method == 'POST':
             form = LoginForm(data=request.REQUEST.copy())
         else:
-            blitz = settings.SERVER_LIST.get(pk=request.session.get('server')) 
+            blitz = Server.get(pk=request.session.get('server')) 
             if blitz is not None:
                 initial = {'server': unicode(blitz.id)}
                 try:
@@ -277,6 +274,7 @@ def login(request):
             else:
                 form = LoginForm()
         context = {'version': omero_version, 'error':error, 'form':form}
+        context['nav'] = request.session['nav']
         t = template_loader.get_template(template)
         c = Context(request, context)
         rsp = t.render(c)
@@ -325,7 +323,7 @@ def experimenters(request, **kwargs):
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = BaseExperimenters(conn)
     
-    context = {'info':info, 'eventContext':eventContext, 'controller':controller}
+    context = {'nav':request.session['nav'], 'info':info, 'eventContext':eventContext, 'controller':controller}
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -450,6 +448,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
     else:
         return HttpResponseRedirect(reverse("waexperimenters"))
     
+    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -497,6 +496,8 @@ def manage_password(request, eid, **kwargs):
                     return HttpResponseRedirect(reverse("wamyaccount"))
                 
     context = {'info':info, 'error':error, 'eventContext':eventContext, 'password_form':password_form, 'eid': eid}
+    context['nav'] = request.session['nav']
+    
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -522,6 +523,7 @@ def groups(request, **kwargs):
     controller = BaseGroups(conn)
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
+    context['nav'] = request.session['nav']
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -609,6 +611,7 @@ def manage_group(request, action, gid=None, **kwargs):
     else:
         return HttpResponseRedirect(reverse("wagroups"))
     
+    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -648,6 +651,7 @@ def manage_group_owner(request, action, gid, **kwargs):
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
     
+    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -669,6 +673,7 @@ def ldap(request, **kwargs):
     controller = None
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
+    context['nav'] = request.session['nav']
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -769,10 +774,7 @@ def my_account(request, action=None, **kwargs):
     myaccount.getMyDetails()
     myaccount.getOwnedGroups()
     
-    edit_mode = False
-    photo_size = None
     form = None
-    form_file = UploadPhotoForm()    
     
     if action == "save":
         if request.method != 'POST':
@@ -790,30 +792,11 @@ def my_account(request, action=None, **kwargs):
                 myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution)
                 return HttpResponseRedirect(reverse("wamyaccount"))
     
-    elif action == "upload":
-        if request.method == 'POST':
-            form_file = UploadPhotoForm(request.POST, request.FILES)
-            if form_file.is_valid():
-                controller = BaseUploadFile(conn)
-                controller.attach_photo(request.FILES['photo'])
-                return HttpResponseRedirect(reverse("wamyaccount"))
-    elif action == "crop": 
-        x1 = long(request.REQUEST.get('x1'))
-        x2 = long(request.REQUEST.get('x2'))
-        y1 = long(request.REQUEST.get('y1'))
-        y2 = long(request.REQUEST.get('y2'))
-        box = (x1,y1,x2,y2)
-        conn.cropExperimenterPhoto(box)
-        return HttpResponseRedirect(reverse("wamyaccount"))
-    elif action == "editphoto":
+    else:
         form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
                                     'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
-        
-        photo_size = conn.getExperimenterPhotoSize()
-        if photo_size is not None:
-            edit_mode = True
     
     photo_size = conn.getExperimenterPhotoSize()
     form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
@@ -821,7 +804,7 @@ def my_account(request, action=None, **kwargs):
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
         
-    context = {'info':info, 'eventContext':eventContext, 'form':form, 'form_file':form_file, 'ldapAuth': myaccount.ldapAuth, 'edit_mode':edit_mode, 'photo_size':photo_size, 'myaccount':myaccount}
+    context = {'info':info, 'eventContext':eventContext, 'form':form, 'ldapAuth': myaccount.ldapAuth, 'myaccount':myaccount}
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))
@@ -835,6 +818,59 @@ def myphoto(request, **kwargs):
         logger.error(traceback.format_exc())
     photo = conn.getExperimenterPhoto()
     return HttpResponse(photo, mimetype='image/jpeg')
+
+
+@isUserConnected
+def manage_avatar(request, action=None, **kwargs):
+    myaccount = True
+    template = "webadmin/avatar.html"
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+    
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
+    eventContext = {'userId':conn.getEventContext().userId,'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
+    
+    myaccount = BaseExperimenter(conn)
+    myaccount.getMyDetails()
+    myaccount.getOwnedGroups()
+    
+    edit_mode = False
+    photo_size = None
+    form_file = UploadPhotoForm()
+    
+    if action == "upload":
+        if request.method == 'POST':
+            form_file = UploadPhotoForm(request.POST, request.FILES)
+            if form_file.is_valid():
+                controller = BaseUploadFile(conn)
+                controller.attach_photo(request.FILES['photo'])
+                return HttpResponseRedirect(reverse(viewname="wamanageavatar", args=[eventContext['userId']]))
+    elif action == "crop": 
+        x1 = long(request.REQUEST.get('x1'))
+        x2 = long(request.REQUEST.get('x2'))
+        y1 = long(request.REQUEST.get('y1'))
+        y2 = long(request.REQUEST.get('y2'))
+        box = (x1,y1,x2,y2)
+        conn.cropExperimenterPhoto(box)
+        return HttpResponseRedirect(reverse("wamyaccount"))
+    elif action == "editphoto":
+        photo_size = conn.getExperimenterPhotoSize()
+        if photo_size is not None:
+            edit_mode = True
+    elif action == "deletephoto":
+        conn.deleteExperimenterPhoto()
+        return HttpResponseRedirect(reverse("wamyaccount"))
+    
+    photo_size = conn.getExperimenterPhotoSize()
+    context = {'info':info, 'eventContext':eventContext, 'form_file':form_file, 'edit_mode':edit_mode, 'photo_size':photo_size, 'myaccount':myaccount}
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    return HttpResponse(t.render(c))
+
 
 @isUserConnected
 def drivespace(request, **kwargs):
@@ -852,6 +888,7 @@ def drivespace(request, **kwargs):
     controller = BaseDriveSpace(conn)
         
     context = {'info':info, 'eventContext':eventContext, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace }}
+    context['nav'] = request.session['nav']
     
     t = template_loader.get_template(template)
     c = Context(request, context)

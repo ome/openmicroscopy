@@ -1,6 +1,6 @@
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+
+
 
 {% comment %}
 <!--
@@ -25,18 +25,18 @@
     <script type="text/javascript">
         $(document).ready(function() {
             $("#prevMonth").click(function() { 
-                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% static "common/image/spinner.gif" %}"/></p>');
                 $("div#history_calendar").load('{% url load_calendar controller.last_month.year controller.last_month.month %}?experimenter={{ nav.experimenter }}');     
             });
             $("#nextMonth").click(function() { 
-                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
+                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% static "common/image/spinner.gif" %}"/></p>');
                 $("div#history_calendar").load('{% url load_calendar controller.next_month.year controller.next_month.month %}?experimenter={{ nav.experimenter }}');
             });
         })
         
         function load_details(y,m,d) {
-            $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% url webstatic "images/spinner.gif" %}"/></p>');
-            $("div#content_details").load('/webclient/load_history/'+y+'/'+m+'/'+d+'/?experimenter={{ nav.experimenter }}'); 
+            $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "common/image/spinner.gif" %}"/></p>');
+            $("div#content_details").load('{% url load_history %}'+y+'/'+m+'/'+d+'/?experimenter={{ nav.experimenter }}'); 
         }
     </script>
     
@@ -66,9 +66,9 @@
                         <div class="calendar_numerical_day"><input class="button" type="submit" onClick="load_details('{{ controller.year }}', '{{ controller.month }}', '{{ day.cell.day }}')" name="{{ day.cell.day }}" value="{{ day.cell.day }}"/></div>
                         <div class="calendar_items">
                             {% if day.cell.counter.imgCounter or day.cell.counter.dsCounter or  day.cell.counter.prCounter or day.cell.counter.rdCounter %}<table>
-                                <tr><td>{% if day.cell.counter.imgCounter %}<img src="{% url webstatic "images/image16.png" %}" />({{ day.cell.counter.imgCounter }}){% endif %}</td></tr>
-                                <tr><td>{% if day.cell.counter.dsCounter %}<img src="{% url webstatic "images/folder_image16.png" %}" />({{ day.cell.counter.dsCounter }}){% endif %}</td></tr>
-                                <tr><td>{% if day.cell.counter.prCounter %}<img src="{% url webstatic "images/folder16.png" %}" />({{ day.cell.counter.prCounter }}){% endif %}</td></tr>
+                                <tr><td>{% if day.cell.counter.imgCounter %}<img src="{% static "webclient/image/image16.png" %}" />({{ day.cell.counter.imgCounter }}){% endif %}</td></tr>
+                                <tr><td>{% if day.cell.counter.dsCounter %}<img src="{% static "webclient/image/folder_image16.png" %}" />({{ day.cell.counter.dsCounter }}){% endif %}</td></tr>
+                                <tr><td>{% if day.cell.counter.prCounter %}<img src="{% static "webclient/image/folder16.png" %}" />({{ day.cell.counter.prCounter }}){% endif %}</td></tr>
                             </table>{% endif %}
                         </div>
                 </td>

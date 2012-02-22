@@ -8,9 +8,29 @@
 # General build scripts.
 
 import os
+import re
 import sys
 import time
 import subprocess
+
+
+def popen(args, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
+        copy = os.environ.copy()
+        shell = (sys.platform == "win32")
+        return subprocess.Popen(args,
+                env=copy,
+                stdin=stdin,
+                stdout=stdout,
+                stderr=stderr,
+                shell=shell)
+
+
+def execute(args):
+    p = popen(args, stdout=sys.stdout, stderr=sys.stderr)
+    rc = p.wait()
+    if rc != 0:
+        sys.exit(rc)
+
 
 def notification(msg, prio):
     """
@@ -22,8 +42,7 @@ def notification(msg, prio):
         return
 
     try:
-        p = subprocess.Popen(["growlnotify","-t","OMERO Build Status","-p",str(prio)],\
-            stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        p = popen(["growlnotify","-t","OMERO Build Status","-p",str(prio)], stdin=subprocess.PIPE)
         p.communicate(msg)
         rc = p.wait()
         if rc != 0:
@@ -91,27 +110,35 @@ def choose_omero_version():
     ant. Returned as an array so that an empty value can
     be extended into the build command.
 
-    If OMERO_BULID is set, then "-Domero.version=${omero-version}-${OMERO_BUILD}"
+    If BUILD_NUMER is set, then "-Domero.version=${omero.version}-b${BUILD_NUMBER}"
     otherwise nothing.
     """
-    try:
-        omero_build = os.environ["OMERO_BUILD"]
-        command = [ find_java(), "omero","-q","version" ]
-        try:
-            p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            omero_version,err = p.communicate()
-            omero_version = omero_version.split()[1]
-            return [ "-Domero.version=%s-%s" % (omero_version, omero_build) ]
-        except:
-            print "Error getting version for OMERO_BUILD=%s" % omero_build
-            print err
-    except KeyError, ke:
-        return [] # Use default
 
-def execute(args):
-    rc = subprocess.call(args)
-    if rc != 0:
-	sys.exit(rc)
+    omero_build = os.environ.get("BUILD_NUMBER", "")
+    if omero_build:
+        omero_build = "-b%s" % omero_build
+
+    command = [ find_java(), "omero","-q","version" ]
+    err = ""
+    try:
+        p = popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        omero_version, err = p.communicate()
+        omero_version = omero_version.split()[1]
+
+        # If we're not on hudson, then we don't want to force
+        # users to deal with rebuilding after each commit.
+        # Instead, drop everything except for "-DEV"
+        #
+        # See gh-67 for the discussion.
+        if not omero_build:
+            omero_version = re.sub("([-]DEV)?-\d+-[a-f0-9]+(-dirty)?",\
+                    "-DEV", omero_version)
+        return [ "-Domero.version=%s%s" % (omero_version, omero_build) ]
+    except:
+        print "Error getting version for BUILD_NUMBER=%s" % omero_build
+        if err:
+            print err
+        sys.exit(1)
 
 
 if __name__ == "__main__":

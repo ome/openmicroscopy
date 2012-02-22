@@ -28,6 +28,8 @@ from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.forms.widgets import HiddenInput
 
+from omeroweb.webadmin.custom_models import Server
+
 from omeroweb.custom_forms import NonASCIIForm
 
 from custom_forms import ServerModelChoiceField, \
@@ -44,24 +46,23 @@ class LoginForm(NonASCIIForm):
     
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
-        g = settings.SERVER_LIST.all()
         try:
-            if len(g) > 1:
-                self.fields['server'] = ServerModelChoiceField(g, empty_label=u"---------")
+            if len(Server) > 1:
+                self.fields['server'] = ServerModelChoiceField(Server, empty_label=u"---------")
             else:
-                self.fields['server'] = ServerModelChoiceField(g, empty_label=None)
+                self.fields['server'] = ServerModelChoiceField(Server, empty_label=None)
         except:
-            self.fields['server'] = ServerModelChoiceField(g, empty_label=u"---------")
+            self.fields['server'] = ServerModelChoiceField(Server, empty_label=u"---------")
         
         self.fields.keyOrder = ['server', 'username', 'password', 'ssl']
             
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22, 'autocomplete': 'off'}))
-    ssl = forms.BooleanField(required=False, help_text='<img src="/appmedia/omeroweb/images/nuvola_encrypted_grey16.png" title="Real-time encrypted data transfer can be turned on by checking the box, but it will slow down the data access. Turning it off does not affect the connection to the server which is always secure." alt="SSL"')
+    ssl = forms.BooleanField(required=False, help_text='<img src="%scommon/image/nuvola_encrypted_grey16.png" title="Real-time encrypted data transfer can be turned on by checking the box, but it will slow down the data access. Turning it off does not affect the connection to the server which is always secure." alt="SSL"' % settings.STATIC_URL)
 
 class ForgottonPasswordForm(NonASCIIForm):
     
-    server = ServerModelChoiceField(settings.SERVER_LIST.all(), empty_label=u"---------")
+    server = ServerModelChoiceField(Server, empty_label=u"---------")
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':28, 'autocomplete': 'off'}))
     email = forms.EmailField(widget=forms.TextInput(attrs={'size':28, 'autocomplete': 'off'}))
 
@@ -128,16 +129,20 @@ class GroupForm(NonASCIIForm):
     def __init__(self, name_check=False, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
         self.name_check=name_check
+        help_text = None
         try:
             if kwargs['initial']['owners']: pass
-            self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['owner'], required=False)
+            self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['owners'], required=False)
+            help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group. This will take some time for large groups and could break the server.</div>"
         except:
             self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+        
+        self.fields['permissions'] = forms.ChoiceField(choices=self.PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text=help_text)
+        
         self.fields.keyOrder = ['name', 'description', 'owners', 'permissions', 'readonly']
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}))
-    description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}), required=False)
-    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group. This will take some time for large groups and could break the server.</div>")
+    description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}), required=False)    
     readonly = forms.BooleanField(required=False, label="(read-only)")  
     
     def clean_name(self):

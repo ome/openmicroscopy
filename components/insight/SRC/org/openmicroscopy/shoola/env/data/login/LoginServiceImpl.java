@@ -188,8 +188,9 @@ public class LoginServiceImpl
                 	msg.println("OMERO address: "+uc.getHostName());
                 	msg.println(uc);
                 }
+                msg.print(dsose);
                 Logger logger = container.getRegistry().getLogger();
-                //logger.error(this, msg);
+                logger.debug(this, msg);
         	}
         }
         return NOT_CONNECTED;

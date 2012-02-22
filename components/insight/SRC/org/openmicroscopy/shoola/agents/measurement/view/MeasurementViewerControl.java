@@ -319,7 +319,7 @@ class MeasurementViewerControl
         if (view == null) throw new NullPointerException("No view.");
         this.model = model;
         this.view = view;
-        model.addChangeListener(this);   
+        model.addChangeListener(this);
         model.addPropertyChangeListener(this);
         actionsMap = new HashMap<Integer, MeasurementViewerAction>();
         createActions();
@@ -526,6 +526,7 @@ class MeasurementViewerControl
 		switch (state) {
 			case MeasurementViewer.ANALYSE_SHAPE:
 				view.setStatus("Analysing Shape.");
+				view.onAnalysed(true);
 				break;
 			case MeasurementViewer.LOADING_DATA:
 				LoadingWindow w = view.getLoadingWindow();
@@ -535,6 +536,7 @@ class MeasurementViewerControl
 			case MeasurementViewer.READY:
 				view.getLoadingWindow().setVisible(false);
 				view.setStatus("Ready.");
+				view.onAnalysed(false);
 				if(!view.isVisible())
 					view.setOnScreen();
 				break;
@@ -596,7 +598,6 @@ class MeasurementViewerControl
 	{	
 		Collection<Figure> figures = evt.getView().getSelectedFigures();
 		if (figures == null) return;
-		
 		if (view.inDataView() && figures.size() == 1) {
 			ROIFigure figure = (ROIFigure) figures.iterator().next();
 			if (figure == null) return;

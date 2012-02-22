@@ -57,6 +57,7 @@ public class MockedOMEROImportFixture extends OMEROImportFixture {
     public static OMEROMetadataStoreClient mockStore(ServiceFactory sf,
             String password) throws Exception {
 
+        System.setProperty("omero.testing", "true");
         OmeroContext inner = sf.getContext();
         OmeroContext outer = new OmeroContext(new String[] {
                 "classpath:ome/services/messaging.xml", // To share events

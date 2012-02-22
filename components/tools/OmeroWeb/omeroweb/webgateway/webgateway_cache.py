@@ -18,7 +18,7 @@ from random import random
 import datetime
 from types import StringTypes
 
-logger = logging.getLogger('cache')
+logger = logging.getLogger(__name__)
 
 import struct, time, os, re, shutil, stat
 size_of_double = len(struct.pack('d',0))

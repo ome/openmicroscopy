@@ -25,7 +25,10 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.util.List;
+
 import javax.swing.AbstractButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -86,16 +89,6 @@ public class NullTaskBar
     public JMenuBar getTaskBarMenuBar() { return null; }
 
     /**
-     * @see TaskBar#getWindowsMenu()
-     */
-    public JMenu getWindowsMenu() { return null; }
-
-    /**
-     * @see TaskBar#getHelpMenu()
-     */
-    public JMenu getHelpMenu() { return null; }
-    
-    /**
      * @see TaskBar#getCopyMenuItem(int)
      */
 	public JMenuItem getCopyMenuItem(int index) { return null; }
@@ -114,5 +107,20 @@ public class NullTaskBar
 	 * @see TaskBar#sessionExpired(int)
 	 */
 	public void sessionExpired(int index) {}
+
+	/**
+	 * @see TaskBar#addToToolBar(int, JComponent)
+	 */
+	public void addToToolBar(int toolBarID, JComponent entry) {}
+
+	/**
+	 * @see TaskBar#getToolBarEntries(int)
+	 */
+	public List<JComponent> getToolBarEntries(int toolBarID) { return null; }
+
+	/**
+	 * @see TaskBar#getToolBarEntries(int)
+	 */
+	public JMenu getMenu(int menuID) { return null; }
 
 }

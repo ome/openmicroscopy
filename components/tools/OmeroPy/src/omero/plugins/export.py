@@ -66,6 +66,9 @@ class ExportControl(BaseControl):
 
     def handleDatasets(self, args, datasets):
 
+        if args.file == sys.stdout:
+            self.ctx.die(950, "Can't use stdin for datasets")
+
         f = args.file
         dir = f.name
         f.close()
@@ -92,6 +95,7 @@ class ExportControl(BaseControl):
     def handleImages(self, args, images):
         e = None
         handle = args.file
+        issysout = (handle == sys.stdout)
 
         c = self.ctx.conn(args)
         e = c.getSession().createExporter()
@@ -119,16 +123,17 @@ class ExportControl(BaseControl):
                     break
                 rv = rv[:min(DEFAULT_READ_LENGTH, l - offset)]
                 offset += len(rv)
-                if handle == sys.stdout:
-                    sys.stdout.buffer.write(rv)
-                else:
-                    handle.write(rv)
+                handle.write(rv)
 
         finally:
-            if handle != sys.stdout:
-                handle.close()
-            if remove:
-                os.remove(handle.name)
+            try:
+                if not issysout:
+                    handle.close()
+                    if remove:
+                        os.remove(handle.name)
+            except Exception, e:
+                self.ctx.err("Failed to close handle: %s" % e)
+
             e.close()
 
 try:

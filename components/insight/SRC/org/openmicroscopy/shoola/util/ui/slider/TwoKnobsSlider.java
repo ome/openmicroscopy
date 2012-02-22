@@ -31,10 +31,12 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 //Third-party libraries
 
@@ -271,21 +273,24 @@ public class TwoKnobsSlider
 		}
 
 		if (knobControl == LEFT) { //left knob moved.
+			/*
 			if (left < xmin) {
 				left = xmin;
 			} else if (left > (xmax-knobWidth)) left = xmax-knobWidth;
 			else {
 				if (left > right && right < xmax) left = right-1;
 			}
-
-			model.setStartValue(uiDelegate.xValueForPosition(left));
+			*/
+			model.setStartValue(uiDelegate.xValueForPosition(left, true));
 		} else if (knobControl == RIGHT) { //right knob moved.
+			/*
 			if (right > xmax) right = xmax;
 			else if (right < (xmin+knobWidth)) right = xmin+knobWidth;
 			else {
 				if (right < left && left > xmin) right = left+1;
 			}
-			model.setEndValue(uiDelegate.xValueForPosition(right));
+			*/
+			model.setEndValue(uiDelegate.xValueForPosition(right, false));
 		}
 		repaint();
 	}
@@ -318,14 +323,14 @@ public class TwoKnobsSlider
 			else {
 				if (up > down && down < ymax) up = down-1;
 			}
-			model.setEndValue(uiDelegate.yValueForPosition(up));
+			model.setEndValue(uiDelegate.yValueForPosition(up, true));
 		} else if (knobControl == RIGHT) { //right knob moved.
 			if (down > ymax) down = ymax;
 			else if (down < (ymin+knobHeight)) down = ymin+knobHeight;
 			else {
 				if (down < up && up > ymin) down = up+1;
 			}
-			model.setStartValue(uiDelegate.yValueForPosition(down));
+			model.setStartValue(uiDelegate.yValueForPosition(down, false));
 		}
 		repaint();
 	}
@@ -714,6 +719,18 @@ public class TwoKnobsSlider
 	 * @return See above.
 	 */
 	public boolean getColourGradient() { return colourGradient; }
+	
+	/**
+	 * Sets the flag indicating that we allow to have <code>start == end</code>.
+	 * 
+	 * @param overlap Pass <code>true</code> to allow <code>start == end</code>,
+	 * <code>false</code> otherwise.
+	 */
+	public void setOverlap(boolean overlap)
+	{ 
+		model.setOverlap(overlap);
+		uiDelegate.createDarkerImage();
+	}
 	
 	/**
 	 * Overrides method to return the <code>Preferred Size</code>.

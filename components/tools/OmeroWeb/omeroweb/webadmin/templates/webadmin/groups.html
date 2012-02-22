@@ -1,7 +1,6 @@
 {% extends "webadmin/base.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+{% load common_tags %}
 
 {% comment %}
 <!--
@@ -23,17 +22,18 @@
 -->
 {% endcomment %}
 
-{% block css %}
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
+
 {% endblock %}
 
-{% block title %}{% trans "Groups" %}{% endblock %}
-
-{% block jscript %}
-
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
-
+{% block script %}
+    {{ block.super }}
+    
+    <script type="text/javascript" src="{% static "common/javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
+    
     <script type="text/javascript">
         $(document).ready(function() 
             { 
@@ -47,53 +47,56 @@
                 });
         })
     </script>
+    
+{% endblock %}
+
+{% block center_details %}
+{{ block.super }}
+    <h1>{% trans "Groups" %}</h1>
+    
+    <div class="add_button"><img src="{% static "webadmin/image/add.png" %}" alt="add" title="add"> <a href="{% url wamanagegroupid "new" %}">{% trans "Add new group" %}</a></div>
+    
+    {% if controller.groupsCount %}
+
+    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "common/image/spinner.gif" %}"></span></form>
+
+    <table id="groupTable" class="tablesorter"> 
+        <thead> 
+            <tr> 
+                <th class="action">{% trans "ID" %}</th>
+                <th class="link">{% trans "Name" %}</th> 
+                <th class="link">{% trans "Permissions" %}</th> 
+                <th class="desc">{% trans "Description" %}</th>
+            </tr> 
+        </thead> 
+        <tbody>
+        {% for dict in controller.groups %}
+            <tr>
+                <td class="action">
+                    {{ dict.group.id }}
+                    {% if dict.group.isEditable %}{% if not dict.locked %}
+                        <a href="{% url wamanagegroupid "edit" dict.group.id %}"><img src="{% static "webadmin/image/edit.png" %}" alt="edit" title="edit"></a>
+                    {% endif %}
+                    <a href="{% url wamanagegroupid "members" dict.group.id %}"><img src="{% static "webadmin/image/editing.png" %}" alt="manage" title="manage members"></a>{% endif %}
+                </td>
+                <td class="link">{{ dict.group.name }}</td>
+                <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
+                <td class="desc">{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
+            </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% else %}
+    <p>{% trans "No groups in OMERO." %}</p>
+    {% endif %}
 
 {% endblock %}
 
-{% block content %}
+{% block metadata_details %}
 
-<p><img src="{% url webstatic "images/add.png" %}" alt="add" title="add"> <a href="{% url wamanagegroupid "new" %}">{% trans "Add new group" %}</a></p>
-
-{% if info.message %}<div class="error">{{ info.message|safe|linebreaks }}</div>{% endif %}
-
-<h2>{% trans "Groups" %}</h2>
-{% if controller.groupsCount %}
-
-<form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
-
-<table id="groupTable" class="tablesorter"> 
-    <thead> 
-        <tr> 
-            <th class="action">{% trans "ID" %}</th>
-            <th class="link">{% trans "Name" %}</th> 
-            <th class="link">{% trans "Permissions" %}</th> 
-            <th class="desc">{% trans "Description" %}</th>
-        </tr> 
-    </thead> 
-    <tbody>
-    {% for dict in controller.groups %}
-        <tr>
-            <td class="action">
-                {{ dict.group.id }}
-                {% if dict.group.isEditable %}{% if not dict.locked %}
-                    <a href="{% url wamanagegroupid "edit" dict.group.id %}"><img src="{% url webstatic "images/edit.png" %}" alt="edit" title="edit"></a>
-                {% endif %}
-                <a href="{% url wamanagegroupid "members" dict.group.id %}"><img src="{% url webstatic "images/editing.png" %}" alt="manage" title="manage members"></a>{% endif %}
-            </td>
-            <td class="link">{{ dict.group.name }}</td>
-            <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
-            <td class="desc">{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
-        </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-<h1>Summary</h1>
-<p>Currently there are {{ controller.groupsCount }} groups.</p>
-
-
-{% else %}
-<p>{% trans "No groups in OMERO." %}</p>
-{% endif %}
+    <h1>{% trans "Summary" %}</h1>
+    <p>Currently there are <strong>{{ controller.groupsCount }} {% plural controller.groupsCount 'account' 'accounts' %}</strong> in total.</p>
+    
 
 {% endblock %}

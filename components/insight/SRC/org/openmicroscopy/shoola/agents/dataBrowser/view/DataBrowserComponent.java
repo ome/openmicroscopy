@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.visitor.FlushVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
@@ -202,8 +203,8 @@ class DataBrowserComponent
 		} else {
 			view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
 		}
-		if (model.getBrowser() != null) {
-			Browser browser = model.getBrowser();
+		Browser browser = model.getBrowser();
+		if (browser != null) {
 	    	ResetNodesVisitor visitor = new ResetNodesVisitor(null, false);
 	    	browser.accept(visitor, ImageDisplayVisitor.IMAGE_SET_ONLY);
 	    	browser.addPropertyChangeListener(controller);
@@ -217,7 +218,13 @@ class DataBrowserComponent
 	 */
 	public void discard()
 	{
+		Browser browser = model.getBrowser();
+		if (browser != null) {
+			browser.accept(new FlushVisitor(),
+				ImageDisplayVisitor.IMAGE_NODE_ONLY);
+		}
 		model.discard();
+		fireStateChange();
 	}
 
 	/**
@@ -254,6 +261,49 @@ class DataBrowserComponent
 		if (previousState != model.getState()) fireStateChange();
 	}
 
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setSelectedDisplays(List)
+	 */
+	public void setSelectedDisplays(List<ImageDisplay> nodes)
+	{
+		if (nodes == null) return;
+		if (nodes.size() == 1) {
+			setSelectedDisplay(nodes.get(0));
+			return;
+		}
+		List<Object> others = new ArrayList<Object>();
+		List<Object> objects = new ArrayList<Object>();
+		
+		ImageDisplay node = nodes.get(0);
+		Object object = node.getHierarchyObject();
+		Iterator<ImageDisplay> i = nodes.iterator();
+		while (i.hasNext()) {
+			others.add(i.next().getHierarchyObject());
+		}
+		objects.add(others);
+		if (object instanceof DataObject) {
+			Object parent = null;
+			if (object instanceof WellSampleData) {
+				WellSampleNode wsn = (WellSampleNode) node;
+				parent = wsn.getParentObject();
+				((WellsModel) model).setSelectedWell(wsn.getParentWell());
+				view.onSelectedWell();
+			} else {
+				ImageDisplay p = node.getParentDisplay();
+				if (p != null) {
+					parent = p.getHierarchyObject();
+					if (!(parent instanceof DataObject))
+						parent = model.getParent();
+				}
+			}
+			if (parent != null)
+				objects.add(parent);
+		}
+		firePropertyChange(SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY, null, 
+				objects);
+	}
+	
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#setSelectedDisplay(ImageDisplay)
@@ -849,6 +899,12 @@ class DataBrowserComponent
 						"invoked in the DISCARDED state.");
 			case NEW:
 				return;
+		}
+		//flush the previous one first
+		Browser browser = model.getBrowser();
+		if (browser != null) {
+			browser.accept(new FlushVisitor(),
+					ImageDisplayVisitor.IMAGE_NODE_ONLY);
 		}
 		model.loadData(true, ids);
 		fireStateChange();

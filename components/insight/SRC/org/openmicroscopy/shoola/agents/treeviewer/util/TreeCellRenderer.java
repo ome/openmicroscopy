@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -42,6 +43,7 @@ import org.openmicroscopy.shoola.agents.util.browser.SmartFolder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -291,6 +293,21 @@ public class TreeCellRenderer
     /** Filter to identify protocol file. */
     private EditorFileFilter 	filter;
     
+    /** Flag indicating if the node to render is the target node.*/
+    private boolean isTargetNode;
+    
+    /** Flag indicating if the node to render is the target node.*/
+    private boolean droppedAllowed;
+    
+    /** The color used when dragging.*/
+    private Color draggedColor;
+
+    /** Indicates if the node is selected or not.*/
+    private boolean selected;
+    
+    /** The location of the text.*/
+    private int xText;
+    
     /**
      * Sets the icon and the text corresponding to the user's object.
      * 
@@ -466,7 +483,11 @@ public class TreeCellRenderer
     public TreeCellRenderer(boolean b)
     {
         numberChildrenVisible = b;
+        selected = false;
         filter = new EditorFileFilter();
+        draggedColor = new Color(backgroundSelectionColor.getRed(),
+				backgroundSelectionColor.getGreen(),
+				backgroundSelectionColor.getBlue(), 100);
     }
     
     /** Creates a new instance. */
@@ -474,7 +495,7 @@ public class TreeCellRenderer
     
     /**
      * Overridden to set the icon and the text.
-     * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object, 
+     * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object,
      * 								boolean, boolean, boolean, int, boolean)
      */
     public Component getTreeCellRendererComponent(JTree tree, Object value,
@@ -483,6 +504,16 @@ public class TreeCellRenderer
     {
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
                                                 row, hasFocus);
+        isTargetNode = false;
+        droppedAllowed = true;
+        selected = sel;
+        if (tree instanceof DnDTree) {
+        	DnDTree dndTree = (DnDTree) tree;
+        	isTargetNode = (value == dndTree.getDropTargetNode());
+        	if (dndTree.getRowDropLocation() == row) {
+        		droppedAllowed = false;
+        	}
+        }
         setIcon(FILE_TEXT_ICON);
         if (!(value instanceof TreeImageDisplay)) return this;
         TreeImageDisplay  node = (TreeImageDisplay) value;
@@ -514,18 +545,40 @@ public class TreeCellRenderer
         setForeground(c);
         if (!sel) setBorderSelectionColor(getBackground());
         else setTextColor(getBackgroundSelectionColor());
-        
         if (getIcon() != null) w += getIcon().getIconWidth();
         else w += SIZE.width;
         w += getIconTextGap();
+        xText = w;
         if (ho instanceof ImageData)
         	w += fm.stringWidth(node.getNodeName());
         else if (node instanceof TreeFileSet)
         	w +=  fm.stringWidth(getText())+40;
         else w += fm.stringWidth(getText());
+        
         setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
         setEnabled(node.isSelectable());
         return this;
     }
+    
+    /**
+     * Overridden to highlight the destination of the target.
+     * @see paintComponent(Graphics)
+     */
+    public void paintComponent(Graphics g)
+    {
+    	//super.paintComponent(g);
+    	if (isTargetNode) {
+			if (!droppedAllowed) {
+				if (selected) g.setColor(backgroundSelectionColor);
+				else g.setColor(backgroundNonSelectionColor);
+				
+			} else g.setColor(draggedColor);
+			g.fillRect(xText, 0, getSize().width, getSize().height);
+		}
+    	selected = false;
+    	isTargetNode = false;
+    	droppedAllowed = false;
+    	super.paintComponent(g);
+	}
   
 }

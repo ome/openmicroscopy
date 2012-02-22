@@ -50,8 +50,12 @@ import ome.testing.OMEData;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jmock.Mock;
+import org.jmock.core.stub.DefaultResultStub;
 import org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor;
+import org.springframework.aop.target.HotSwappableTargetSource;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.mail.MailSender;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.AfterClass;
@@ -378,4 +382,20 @@ public class AbstractManagedContextTest extends TestCase {
         }
     }
 
+    protected MailSender setMailSender(MailSender ms) {
+        HotSwappableTargetSource hsts =
+            applicationContext.getBean("mailSenderTargetSource",
+                    HotSwappableTargetSource.class);
+        return (MailSender) hsts.swap(ms);
+    }
+
+
+    protected MailSender setNoopMailSender() {
+        MailSender old;
+        final Mock proxy = new Mock(MailSender.class);
+        proxy.setDefaultStub(new DefaultResultStub());
+
+        old = setMailSender((MailSender) proxy.proxy());
+        return old;
+    }
 }

@@ -1,0 +1,74 @@
+/*
+ * Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+ 
+ .cal_nav {
+    position:relative;
+    margin-bottom: 5px;
+}
+.calendar input {
+    border: 0;
+    background-color: transparent;
+    color: #1b7bc7;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.calendar {
+    padding: 10px;
+}
+.calendar table {
+    text-align: center;
+    width: 100%;
+}
+
+.calendar td.calendar_day {
+    height: 70px;
+    vertical-align: top;
+    width: 14.29%;
+    background-color: #f3f3f3;
+}
+.calendar td.not_calendar_day {
+    background-color: #fff;
+}
+.calendar_numerical_day {
+    padding: 2px;
+    text-align: right;
+    background-color: #fff;
+    border: 1px solid #f3f3f3;
+}
+.calendar_items{
+    margin: 5px;
+}
+.calendar th {
+    font-weight: normal;
+    border: 0px;
+    color: #555;
+    background-color: #f3f3f3;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+}
+.calendar th.calendar_day {
+    font-weight: bold;
+    background-color: #bbb;
+}
+.calendar_numerical_day a {
+    color: #555;
+    font-weight: bold;
+    text-decoration: none;
+}

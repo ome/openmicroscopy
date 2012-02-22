@@ -97,7 +97,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
         this.factory = sf;
-        SharedResourcesI resources = (SharedResourcesI) sf.getServant(sf.sharedResources().ice_getIdentity());
+        SharedResourcesI resources = (SharedResourcesI) sf.getServant(sf.sharedResources(null).ice_getIdentity());
         helper = new ParamsHelper(resources, sf.getExecutor(), sf.getPrincipal());
     }
 

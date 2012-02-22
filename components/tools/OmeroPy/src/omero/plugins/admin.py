@@ -34,6 +34,7 @@ from omero.cli import VERSION
 from omero.plugins.prefs import with_config
 
 from omero_ext.which import whichall
+from omero_version import ice_compatibility
 
 try:
     import win32service
@@ -187,6 +188,7 @@ Examples:
         cleanse.add_argument("data_dir", type=DirectoryType(), help = "omero.data.dir directory value (e.g. /OMERO")
 
         Action("checkwindows", """Run simple check of the local installation (Windows-only)""")
+        Action("checkice", """Run simple check of the Ice installation""")
 
         Action("events", """Print event log (Windows-only)""")
 
@@ -357,7 +359,7 @@ Examples:
         """
 
         self.check_access(config=config)
-        self.check_ice()
+        self.checkice()
         self.check_node(args)
         if self._isWindows():
             self.checkwindows(args)
@@ -410,7 +412,7 @@ Examples:
             self.ctx.out(output)
         else:
             command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg(),"--deploy",str(descript)] + args.targets
-            self.ctx.call(command)
+            self.ctx.rv = self.ctx.call(command)
 
     @with_config
     def start(self, args, config):
@@ -428,7 +430,7 @@ Examples:
     @with_config
     def deploy(self, args, config):
         self.check_access()
-        self.check_ice()
+        self.checkice()
         descript = self._descript(args)
 
         # TODO : Doesn't properly handle whitespace
@@ -439,7 +441,7 @@ Examples:
 
     def status(self, args, node_only = False):
         self.check_node(args)
-        command = self._cmd("-e","node ping master") #3141, TODO should be configurable
+        command = self._cmd("-e","node ping %s" % self._node())
         self.ctx.rv = self.ctx.popen(command).wait() # popen
 
         # node_only implies that "up" need not check for all
@@ -451,7 +453,6 @@ Examples:
         if self.ctx.rv == 0 and not node_only:
             try:
                 import Ice
-                import omero_ServerErrors_ice
                 ic = Ice.initialize([self._intcfg()])
                 try:
                     sm = self.session_manager(ic)
@@ -469,15 +470,27 @@ Examples:
 
         return self.ctx.rv
 
+    def wait_for_icedb(self, args, config):
+        """
+        Since the stop and start are separately protected by
+        the lock on config.xml, we need to wait for some time
+        to hopefully let the icegridnode process release the
+        file locks.
+        """
+        self.ctx.sleep(1)  # put in sleep to try to prevent "db locked" (#7325)
+
     @with_config
     def restart(self, args, config):
         if not self.stop(args, config):
             self.ctx.die(54, "Failed to shutdown")
+        self.wait_for_icedb(args, config)
         self.start(args, config)
 
     @with_config
     def restartasync(self, args, config):
-        self.stop(args, config)
+        if not self.stop(args, config):
+            self.ctx.die(54, "Failed to shutdown")
+        self.wait_for_icedb(args, config)
         self.startasync(args, config)
 
     def waitup(self, args):
@@ -535,7 +548,7 @@ Examples:
             self.ctx.out(self.ctx.popen(["sc","stop",svc_name]).communicate()[0]) # popen
             self.ctx.out(self.ctx.popen(["sc","delete",svc_name]).communicate()[0]) # popen
         else:
-            command = self._cmd("-e","node shutdown master")
+            command = self._cmd("-e","node shutdown %s" % self._node())
             try:
                 self.ctx.call(command)
             except NonZeroReturnCode, nzrc:
@@ -843,25 +856,27 @@ OMERO Diagnostics %s
         if not hasattr(args, "node"):
             args.node = self._node()
 
-    def check_ice(self):
+    def checkice(self, args=None):
         """
-        Checks for Ice version 3.3
+        Checks for Ice version 3.4
 
-        See ticket:2514
+        See ticket:2514, ticket:1260
         """
-        pattern = "3.3."
 
-        import Ice, sys, re
-        pat = "^3[.]3[.].*"
-        pattern = re.compile(pat)
+        def _check(msg, vers):
+            compat = ice_compatibility.split(".")
+            vers = vers.split(".")
+            if compat[0:2] != vers[0:2]:
+                self.ctx.die(164, "%s is not compatible with %s: %s" % \
+                        (msg, ".".join(compat), ".".join(vers)))
+
+        import Ice
         vers = Ice.stringVersion()
-        if pattern.match(vers) is None:
-            self.ctx.die(164, "IcePy Version is not compatible with %s: %s" % (pat, vers))
+        _check("IcePy version", vers)
 
         popen = self.ctx.popen(["icegridnode", "--version"])
         vers = popen.communicate()[1]
-        if pattern.match(vers) is None:
-            self.ctx.die(165, "icegridnode version is not compatible with %s: %s" % (pat, vers))
+        _check("icegridnode version", vers)
 
     def open_config(self, unused):
         """

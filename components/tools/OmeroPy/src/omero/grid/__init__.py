@@ -4,8 +4,10 @@
 
 """
 
-import omero_FS_ice
-import omero_Scripts_ice
-import omero_SharedResources_ice
+import IceImport
+IceImport.load("omero_FS_ice")
+IceImport.load("omero_Scripts_ice")
+IceImport.load("omero_SharedResources_ice")
+IceImport.load("omero_Tables_ice")
 
 

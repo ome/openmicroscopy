@@ -168,6 +168,15 @@ public interface ImViewer
 	/** Flag to denote the <i>Loading The tiles</i> state. */
 	public static final int     LOADING_TILES = 15;
 	
+	/** Flag to denote the <i>Loading the RE</i> state. */
+	public static final int     LOADING_RND = 17;
+	
+	/** Flag to denote the <i>Loading the Bird eye view</i> state. */
+	public static final int     LOADING_BIRD_EYE_VIEW = 18;
+	
+	/** Flag to denote the <i>Discarded</i> state. */
+	public static final int     CANCELLED = 19;
+	
 	/** Bound property name indicating that a new z-section is selected. */
 	public final static String  Z_SELECTED_PROPERTY = "zSelected";
 
@@ -1243,6 +1252,14 @@ public interface ImViewer
 	int getTiledImageSizeY();
 	
 	/** Cancels the rendering of the image.*/
-	void cancelRendering();
+	void cancelInit();
 	
+	/**
+	 * Returns <code>true</code> if the image is compressed,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isCompressed();
+
 }

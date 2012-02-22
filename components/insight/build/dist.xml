@@ -51,6 +51,18 @@
    *   + dist.osx.installfile: The install instructions to include in the 
    *           Mac OS X bundle.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <if>
+      <isset property="dist.dir"/>
+      <then>
+          <fail>ERROR: dist.dir is currently set!
+
+        This most likely occurred because dist.dir was set on the top-level
+        build:  ./build.py -Ddist.dir=/tmp/example
+
+        This no longer works with the insight build. Instead, set dist.dir
+        in the etc/local.properties file.</fail>
+      </then>
+  </if>
   <property environment="dist.environment"/>
   <property name="dist.name" value="OMERO.insight"/>
   <property name="dist.dir" location="${build.dir}/dist"/>
@@ -125,6 +137,9 @@
     <zip destfile="${dist.dir}/${main-dist-prefix}-win64-openGL.zip">
       <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
     </zip>
+    <zip destfile="${dist.dir}/${distEditor.bundle.name}-${dist.bundle.version}-win.zip">
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
   </target>
 
   <target name="exe4j-echo-on-missing" unless="dist.exe4j.exists">
@@ -155,7 +170,7 @@
                  pathsep=" " 
                  dirsep="/" 
                  refid="app.libs">
-      <map from="${base.lib.dir}" to="${dist.app.lib.dir.name}"/>                
+      <map from="${base.runtimelib.dir}" to="${dist.app.lib.dir.name}"/>                
     </pathconvert>      
     <jar destfile="${dist.dir}/${dist.jar.file}">
       <fileset dir="${app.compiled.dir}"/>
@@ -171,11 +186,11 @@
         pathsep=" " 
 	                 dirsep="/" 
 	                 refid="app.libs">
-	    <map from="${base.lib.dir}" to="${dist.app.lib.dir.name}"/>                
+	    <map from="${base.runtimelib.dir}" to="${dist.app.lib.dir.name}"/>                
 	    </pathconvert>   
 	    <jar destfile="${dist.dir}/${dist.util.name}-${dist.bundle.version}.jar">
 	      <fileset dir="${app.compiled.util.dir}"/>
-	    	<fileset dir="${base.lib.dir}" includes="${ivy.module}.jar"/>
+	    	<fileset dir="${base.runtimelib.dir}" includes="${ivy.module}.jar"/>
 	    	<manifest>
 	    	        <attribute name="Created-By" value="OMERO Development Team"/>
 	    	      </manifest> 
@@ -197,7 +212,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="dist"
           depends="jar, jar-util, dist-osx-openGL, dist-osx, dist-win, 
-  	dist-win-openGL,dist-win64-openGL"
+  	dist-win-openGL,dist-win64-openGL,distEditor-win,distEditor-osx"
           description="Build and package the app for distribution."> 
 
     <!-- Main zip -->

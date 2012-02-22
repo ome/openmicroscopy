@@ -1,0 +1,87 @@
+/* main layout */
+.padding {
+    margin: 0 auto;
+    width: 900px;
+}
+
+.add_button {
+    padding: 10px 0;
+}
+
+input {
+    background-color: #f5f5f5;
+}
+select {
+    background-color: #f5f5f5;
+    min-width:220px;
+}
+textarea {
+    background-color: #f5f5f5;
+}
+
+img.action {
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+/* form */
+ul.errorlist {
+    list-style: none;
+    color: #e3646f;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+.error {
+    color: #e3646f;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+#center_details form {
+    max-width: 850px;
+}
+
+
+/* table */
+td.form {
+    text-align: left;
+    padding: 2px 20px 2px 30px;
+}
+
+td.input {
+    text-align: left;
+    padding: 2px 2px 2px 20px;
+    min-width: 300px;
+}
+
+td.input ul {
+    list-style: none;
+    margin-left: -30px;
+}
+
+/* myaccount */
+img.imgzoom {
+    border: 1px solid #999;
+}
+
+/* piechart*/
+
+#piechart img{
+    width: 600px;
+}
+#piechart.loading {
+  background: url(../image/spinner.gif) no-repeat center center;
+}
+
+div.hidden {
+    display: none;
+}
+div.float_right {
+    float: right;
+}
+div.float_left {
+    float: left;
+}

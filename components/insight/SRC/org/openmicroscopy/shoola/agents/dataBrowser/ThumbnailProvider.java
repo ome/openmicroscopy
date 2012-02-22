@@ -62,7 +62,7 @@ import pojos.PixelsData;
  * </small>
  * @since OME3.0
  */
-public class ThumbnailProvider     
+public class ThumbnailProvider
 	implements Thumbnail
 {
 
@@ -346,4 +346,14 @@ public class ThumbnailProvider
 		return new Dimension(originalWidth, originalHeight);
 	}
 	
+    /**
+     * Implemented as specified by the {@link Thumbnail} I/F.
+     * @see Thumbnail#flush()
+     */
+	public void flush()
+	{
+		if (fullSizeImage != null) fullSizeImage.flush();
+		if (displayThumb != null) displayThumb.flush();
+		if (fullScaleThumb != null) fullScaleThumb.flush();
+	}
 }

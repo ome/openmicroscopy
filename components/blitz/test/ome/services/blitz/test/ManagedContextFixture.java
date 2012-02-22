@@ -6,10 +6,12 @@
  */
 package ome.services.blitz.test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
 import ome.api.IAdmin;
+import ome.logic.HardWiredInterceptor;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
@@ -18,6 +20,7 @@ import ome.security.basic.PrincipalHolder;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -75,7 +78,7 @@ public class ManagedContextFixture {
         current.ctx = new HashMap<String, String>();
         current.ctx.put(omero.constants.CLIENTUUID.value, "my-client-uuid");
         ServiceFactoryI factory = new ServiceFactoryI(current, null, ctx, mgr, ex,
-                getPrincipal(), null, null, null);
+                getPrincipal(), new ArrayList<HardWiredInterceptor>(), null, null);
         return factory;
     }
 
@@ -93,6 +96,20 @@ public class ManagedContextFixture {
 
     // LOGIN / PERMISSIONS
     // =========================================================================
+
+    public long newGroup() {
+        IAdmin admin = managedSf.getAdminService();
+        String groupName = uuid();
+        ExperimenterGroup g = new ExperimenterGroup();
+        g.setName(groupName);
+        return admin.createGroup(g);
+    }
+
+    public void addUserToGroup(long user, long group) {
+        managedSf.getAdminService().addGroups(
+                new Experimenter(user, false),
+                new ExperimenterGroup(group, false));
+    }
 
     /**
      * Create a new user in the given group
@@ -128,6 +145,10 @@ public class ManagedContextFixture {
     public String getCurrentUser() {
         return managedSf.getAdminService().getEventContext()
                 .getCurrentUserName();
+    }
+
+    public EventContext getCurrentEventContext() {
+        return managedSf.getAdminService().getEventContext();
     }
 
     public void setCurrentUser(String user) {

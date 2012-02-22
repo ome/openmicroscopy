@@ -203,7 +203,7 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
 
     public ApplicationContext loadSpecs() {
         return new ClassPathXmlApplicationContext(
-                new String[]{"classpath:ome/services/delete/spec.xml"}, ctx);
+                new String[]{"classpath:ome/services/spec.xml"}, ctx);
 
     }
 

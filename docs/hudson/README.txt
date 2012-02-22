@@ -36,5 +36,3 @@ products. Execution is as follows:
 
     o OMERO_PREFIX - the prefix of the ports to use
                      (e.g. 1 for 14064)
-
-    o OMERO_BUILD  - the git revision number.

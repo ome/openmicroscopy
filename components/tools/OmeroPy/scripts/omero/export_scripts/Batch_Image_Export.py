@@ -410,7 +410,7 @@ def runScript():
      
     client = scripts.client('Batch_Image_Export.py', """Save multiple images as jpegs or pngs in a zip
 file available for download as a batch export. 
-See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/running-util-scripts""", 
+See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/running-scripts/running-util-scripts/""", 
 
     scripts.String("Data_Type", optional=False, grouping="1",
         description="The data you want to work with.", values=dataTypes, default="Image"),

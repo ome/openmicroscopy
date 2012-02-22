@@ -1,7 +1,6 @@
-{% extends "webclient/base/base_main.html" %}
+{% extends "common/base/container2.html" %}
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
+
 
 {% comment %}
 <!--
@@ -23,24 +22,43 @@
 -->
 {% endcomment %}
 
-{% block header %}
 
-{% include "webclient/base/header.html" %}
-
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block content %}
 
-<table cellspacing="0" cellpadding="0" class="contentWrapper">
-    <tbody>
-    <tr>
-        <td id="center_panel">{% block center %}{% endblock %}</td>
-        <td class="trayhandle collapsibletrayhandle-right">
-            <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="expanded-right" src="{% url webstatic "images/spacer.gif" %}" tabindex="0"></div>
-        </td>
-        <td id="right_panel">{% block right %}{% endblock %}</td>
-    </tr>
-    </tbody>
-</table>
+{% block script %}
+    {{ block.super }}
+    <!-- The following are required by the right-hand panel, E.g. annotations/metadata_general.html -->
+    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
+{% endblock %}
 
+
+{% block middle_header_right %}
+    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
+    <a href="{% url wamyaccount 'edit' %}" title="Edit Account"> {{ eContext.user.getFullName }}</a>
+    <a href="{% url load_template 'help' %}">{% trans "Help" %}</a>
+    {% include "webclient/base/logout.html" %}
+{% endblock %}
+
+
+{% block middle_header_left %}
+    {% include "webclient/base/menu.html" %}
+    {% include "webclient/base/basket_info.html" %}
+    {% include "webclient/base/activities_info.html" %}
+{% endblock %}
+
+
+{% block thin_header_right %}
+    {% include "webclient/base/search_field.html" %}
+{% endblock %}
+
+
+{% block footer_content %}
+    {% include "webclient/base/footer_links.html" %}
 {% endblock %}

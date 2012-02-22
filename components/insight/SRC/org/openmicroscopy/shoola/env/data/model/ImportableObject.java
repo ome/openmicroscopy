@@ -35,17 +35,10 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
-import loci.formats.FormatReader;
-import loci.formats.in.BDReader;
-import loci.formats.in.CellWorxReader;
-import loci.formats.in.CellomicsReader;
-import loci.formats.in.FlexReader;
-import loci.formats.in.InCellReader;
-import loci.formats.in.MIASReader;
-import loci.formats.in.MetamorphTiffReader;
+import loci.formats.FormatTools;
+import loci.formats.IFormatReader;
+import loci.formats.ImageReader;
 import loci.formats.in.OMEXMLReader;
-import loci.formats.in.ScanrReader;
-import loci.formats.in.ScreenReader;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
@@ -111,39 +104,22 @@ public class ImportableObject
 				UIUtilities.D_M_Y_FORMAT);
 		HCS_FILES_EXTENSION = new HashSet<String>();
 		HCS_DOMAIN = new ArrayList<String>();
-		FormatReader reader = new BDReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new CellomicsReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new CellWorxReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new FlexReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		//reader = new InCell3000Reader();
-		//populateExtensions(reader.getSuffixes());
-		//HCS_DOMAIN.add(reader.getFormat());
-		reader = new InCellReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new MetamorphTiffReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new MIASReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new ScanrReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new ScreenReader();
-		populateExtensions(reader.getSuffixes());
-		HCS_DOMAIN.add(reader.getFormat());
-		reader = new OMEXMLReader();
-		OME_SUFFIXES = (List<String>) Arrays.asList(reader.getSuffixes());
+
+		IFormatReader[] allReaders = new ImageReader().getReaders();
+		try {
+			for (IFormatReader reader : allReaders) {
+				if (Arrays.asList(reader.getPossibleDomains("")).contains(
+						FormatTools.HCS_DOMAIN)) {
+					populateExtensions(reader.getSuffixes());
+					HCS_DOMAIN.add(reader.getFormat());
+				}
+			}
+		} catch (Exception e) {}
 		
+
+		IFormatReader reader = new OMEXMLReader();
+		OME_SUFFIXES = (List<String>) Arrays.asList(reader.getSuffixes());
+
 		ARBITRARY_FILES_EXTENSION = new ArrayList<String>();
 		ARBITRARY_FILES_EXTENSION.add("text");
 		ARBITRARY_FILES_EXTENSION.add("txt");
@@ -225,6 +201,25 @@ public class ImportableObject
 
 	/** The collection of new object. */
 	private Map<Long, List<DatasetData>> projectDatasetMap;
+
+	/**
+	 * Returns the object corresponding to the passed file.
+	 * 
+	 * @param f The file to handle.
+	 * @return See above.
+	 */
+	private ImportableFile getImportableFile(File f)
+	{
+		Iterator<ImportableFile> i = files.iterator();
+		String path = f.getAbsolutePath();
+		ImportableFile iFile;
+		while (i.hasNext()) {
+			iFile = i.next();
+			if (path.equals(iFile.getFile().getAbsolutePath()))
+				return iFile;
+		}
+		return null;
+	}
 
 	/**
 	 * Returns the name of the object.
@@ -655,6 +650,51 @@ public class ImportableObject
 				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Returns a copy of the object.
+	 * 
+	 * @return See above.
+	 */
+	public ImportableObject copy()
+	{
+		Iterator<ImportableFile> i = this.files.iterator();
+		List<ImportableFile> copy = new ArrayList<ImportableFile>();
+		while (i.hasNext()) {
+			copy.add(i.next().copy());
+		}
+		ImportableObject newObject = new ImportableObject(copy, 
+				this.overrideName);
+		newObject.depthForName = this.depthForName;
+		newObject.loadThumbnail = this.loadThumbnail;
+		newObject.newObjects = this.newObjects;
+		newObject.overrideName = this.overrideName;
+		newObject.pixelsSize = this.pixelsSize;
+		newObject.projectDatasetMap = this.projectDatasetMap;
+		newObject.refNodes = this.refNodes;
+		newObject.scanningDepth = this.scanningDepth;
+		newObject.tags = this.tags;
+		newObject.type = this.type;
+		return newObject;
+	}
+	
+	/**
+	 * Resets the files to reimport.
+	 * 
+	 * @param list The list of files to handle.
+	 */
+	public void reImport(List<File> list)
+	{
+		if (list == null || list.size() == 0) return;
+		Iterator<File> i = list.iterator();
+		List<ImportableFile> values = new ArrayList<ImportableFile>();
+		ImportableFile v;
+		while (i.hasNext()) {
+			v = getImportableFile(i.next());
+			if (v != null) values.add(v);
+		}
+		this.files = values;
 	}
 
 }

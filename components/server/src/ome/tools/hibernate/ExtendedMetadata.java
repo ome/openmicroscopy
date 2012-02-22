@@ -19,6 +19,7 @@ import ome.annotations.RevisionNumber;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.model.IAnnotated;
+import ome.model.IGlobal;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.internal.Permissions;
@@ -100,6 +101,20 @@ public interface ExtendedMetadata {
      * @return A non-null array of {@link IObject IObjects} which will be linked to.
      */
     IObject[] getLockCandidates(IObject iObject);
+
+    /**
+     * Rather than iterating over an {@link IObject} like
+     * {@link #getLockCandidates(IObject)} this method returns type/field name
+     * pairs (like {@link #getLockChecks(Class)}) to allow performing the
+     * queries manually.
+     *
+     * If onlyWithGroups is true, then only checks which point to non-IGlobal
+     * objects will be returned.
+     *
+     * @param klass Not null.
+     * @return
+     */
+    String[][] getLockCandidateChecks(Class<? extends IObject> klass, boolean onlyWithGroups);
 
     /**
      * returns all class/field name pairs which may possibly link to an object
@@ -314,6 +329,11 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
         return l.getLockCandidates(iObject);
     }
 
+    public String[][] getLockCandidateChecks(Class<? extends IObject> k, boolean onlyWithGroups) {
+        Locks l = locksHolder.get(k.getName());
+        return l.getLockCandidateChecks(onlyWithGroups);
+    }
+
     /**
      * returns all class/field name pairs which may possibly link to an object
      * of type <code>klass</code>.
@@ -517,6 +537,10 @@ class Locks {
 
     private final Type[][] subtypes;
 
+    private final String[][] checks;
+
+    private final String[][] groupChecks;
+
     /**
      * examines all {@link Type types} for this class and stores pointers to
      * those fields which represent {@link IObject} instances. These fields may
@@ -527,6 +551,8 @@ class Locks {
         this.cm = classMetadata;
         String[] name = cm.getPropertyNames();
         Type[] type = cm.getPropertyTypes();
+        List<String[]> checks = new ArrayList<String[]>();
+        List<String[]> groupChecks = new ArrayList<String[]>();
 
         this.size = type.length;
         this.include = new boolean[size];
@@ -544,8 +570,12 @@ class Locks {
                 for (int j = 0; j < sub_type.length; j++) {
                     if (IObject.class.isAssignableFrom(sub_type[j]
                             .getReturnedClass())) {
-                        name_list.add(name[i] + "." + sub_name[j]);
+                        String path = name[i] + "." + sub_name[j];
+                        name_list.add(path);
                         type_list.add(sub_type[j]);
+
+                        addCheck(checks, groupChecks, sub_type[j].getReturnedClass(), path);
+
                     }
                 }
                 add(i, name_list.toArray(new String[name_list.size()]),
@@ -553,9 +583,22 @@ class Locks {
             } else if (IObject.class.isAssignableFrom(type[i]
                     .getReturnedClass())) {
                 add(i);
+                addCheck(checks, groupChecks, type[i].getReturnedClass(), name[i]);
+                // Create checks for
+
             }
         }
+        this.checks = checks.toArray(new String[checks.size()][]);
+        this.groupChecks = groupChecks.toArray(new String[groupChecks.size()][]);
+    }
 
+    private void addCheck(List<String[]> checks, List<String[]> groupChecks,
+            Class type, String field) {
+        String[] s = new String[]{type.getName(), field};
+        checks.add(s);
+        if (!IGlobal.class.isAssignableFrom(type)) {
+            groupChecks.add(s);
+        }
     }
 
     private void add(int i) {
@@ -679,6 +722,13 @@ class Locks {
         retVal = new IObject[idx];
         System.arraycopy(toCheck, 0, retVal, 0, idx);
         return retVal;
+    }
+
+    public String[][] getLockCandidateChecks(boolean onlyWithGroups) {
+        if (onlyWithGroups) {
+            return groupChecks;
+        }
+        return checks;
     }
 
     // ~ Public

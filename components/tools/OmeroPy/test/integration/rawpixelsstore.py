@@ -82,8 +82,8 @@ class TestRPS(lib.ITest):
         us a MissingPyramidException
         """
         from omero.util import concurrency
-        pix = self.missing_pyramid()
-        rps = self.client.sf.createRawPixelsStore()
+        pix = self.missing_pyramid(self.root)
+        rps = self.root.sf.createRawPixelsStore()
         try:
             # First execution should certainly fail
             try:

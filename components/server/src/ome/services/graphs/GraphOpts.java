@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import ome.system.EventContext;
 
 /**
- * Manager for option instances for an entire delete graph. As method calls are
+ * Manager for option instances for an entire action graph. As method calls are
  * made, this instance gets passed around and the appropriate {@link Op ops}
  * are {@link #push(Op) pushed} or {@link #pop() popped} changing the current
  * state of affairs.
@@ -26,7 +26,7 @@ public class GraphOpts {
     public enum Op {
 
         /**
-         * Default operation. If a delete is not possible, i.e. it fails with a
+         * Default operation. If an action is not possible, i.e. it fails with a
          * {@link org.hibernate.exception.ConstraintViolationException} or
          * similar, then the failure will cause the entire command to fail as an
          * error.
@@ -40,8 +40,8 @@ public class GraphOpts {
         SOFT(false),
 
         /**
-         * Prevents the delete from being carried out. If an entry has a subspec,
-         * then the entire subgraph will not be deleted. In some cases,
+         * Prevents the action from being carried out. If an entry has a subspec,
+         * then the entire subgraph will not be processed. In some cases,
          * specifically {@link AnnotationGraphSpec} this value may be
          * vetoed by {@link GraphSpec#overrideKeep()}.
          */
@@ -59,7 +59,9 @@ public class GraphOpts {
         ORPHAN(false),
 
         /**
-         * Nulls a particular field of the target rather than deleting it.
+         * Nulls a particular field of the target rather than performing the
+         * standard action on it.
+         *
          * This is useful for situations where one user has generated data
          * from another user, as with projections.
          *

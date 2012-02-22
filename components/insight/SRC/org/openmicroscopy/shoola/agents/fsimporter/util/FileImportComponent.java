@@ -164,6 +164,24 @@ public class FileImportComponent
 	/** Text to indicate to view the image. */
 	private static final String PYRAMID_TEXT = "Building pyramid, please wait";
 	
+	/** Text to indicate that the thumbnail cannot be created */
+	private static final String IMAGE_CREATION_ERROR_TEXT = 
+		"Cannot create thumbnail";
+	
+	/** Text to indicate that the compression level is not supported. */
+	private static final String COMPRESSION_ERROR_TEXT = 
+		"Compression not supported";
+	
+	/** Text to indicate that library is missing. */
+	private static final String MISSING_LIB_ERROR_TEXT = 
+		"Missing Library";
+	
+	/** Text to indicate that the file is not accessible. */
+	private static final String NO_SPACE_ERROR_TEXT = "No more space on Disk";
+	
+	/** Text to indicate that the file is not accessible. */
+	private static final String FILE_ON_TAPE_ERROR_TEXT = "File on Tape";
+	
 	/** Tool tip text to indicate to browse the container. */
 	private static final String BROWSE_CONTAINER_TOOLTIP = "Click to browse.";
 
@@ -293,6 +311,15 @@ public class FileImportComponent
 	 */
 	private boolean browsable;
 	
+	/** Set to <code>true</code> if attempt to re-import.*/
+	private boolean reimported;
+	
+	/** Indicates that the file has been re-imported.*/
+	private JLabel reimportedLabel;
+	
+	/** Flag indicating that the file should be reimported.*/
+	private boolean toReImport;
+	
 	/** Displays the error box at the specified location.
 	 * 
 	 * @param p The location where to show the box.
@@ -379,6 +406,8 @@ public class FileImportComponent
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		reimportedLabel = new JLabel("Reimported");
+		reimportedLabel.setVisible(false);
 		showContainerLabel = true;
 		adapter = new MouseAdapter() {
 			
@@ -519,6 +548,7 @@ public class FileImportComponent
 		add(Box.createHorizontalStrut(15));
 		add(containerLabel);
 		add(browseButton);
+		add(reimportedLabel);
 	}
 	
 	/**
@@ -641,6 +671,13 @@ public class FileImportComponent
 	}
 	
 	/**
+	 * Returns the file hosted by this component.
+	 * 
+	 * @return See above.
+	 */
+	public File getFile() { return file; }
+	
+	/**
 	 * Sets the location where to import the files.
 	 * 
 	 * @param data The data where to import the folder or screening data.
@@ -757,6 +794,7 @@ public class FileImportComponent
 				img.getDefaultPixels();
 			} catch (Exception e) {
 				error = e;
+				toReImport = true;
 			}
 			if (error != null) {
 				exception = error;
@@ -817,8 +855,16 @@ public class FileImportComponent
 					containerLabel.setVisible(showContainerLabel);
 				}
 			} else {
+				statusLabel.setVisible(false);
 				fileNameLabel.setForeground(ERROR_COLOR);
-				resultLabel.setVisible(false);
+				resultLabel.setText(IMAGE_CREATION_ERROR_TEXT);
+				resultLabel.setToolTipText(
+						UIUtilities.formatExceptionForToolTip(
+						thumbnail.getError()));
+				resultLabel.setVisible(true);
+				errorButton.setVisible(false);
+				errorBox.setVisible(false);
+				/*
 				errorButton.setToolTipText(
 						UIUtilities.formatExceptionForToolTip(
 								thumbnail.getError()));
@@ -828,6 +874,7 @@ public class FileImportComponent
 				errorBox.addChangeListener(this);
 				deleteButton.setVisible(true);
 				deleteButton.addActionListener(this);
+				*/
 			}
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
@@ -915,13 +962,32 @@ public class FileImportComponent
 					ImportException ie = (ImportException) image;
 					fileNameLabel.setForeground(ERROR_COLOR);
 					resultLabel.setVisible(false);
+					toReImport = true;
 					errorButton.setToolTipText(
 							UIUtilities.formatExceptionForToolTip(ie));
 					exception = ie;
-					errorButton.setVisible(true);
-					if (ie.getStatus() == ImportException.COMPRESSION) {
+					errorButton.setVisible(false);
+					int s = ie.getStatus();
+					if (s == ImportException.COMPRESSION) {
 						resultLabel.setVisible(true);
-						resultLabel.setText("Compression not supported");
+						resultLabel.setText(COMPRESSION_ERROR_TEXT);
+						resultLabel.setToolTipText(
+								UIUtilities.formatExceptionForToolTip(ie));
+					} else if (s == ImportException.MISSING_LIBRARY) {
+						resultLabel.setVisible(true);
+						resultLabel.setText(MISSING_LIB_ERROR_TEXT);
+						resultLabel.setToolTipText(
+								UIUtilities.formatExceptionForToolTip(ie));
+					} else if (s == ImportException.FILE_ON_TAPE) {
+						resultLabel.setVisible(true);
+						resultLabel.setText(FILE_ON_TAPE_ERROR_TEXT);
+						resultLabel.setToolTipText(
+								UIUtilities.formatExceptionForToolTip(ie));
+					} else if (s == ImportException.NO_SPACE) {
+						resultLabel.setVisible(true);
+						resultLabel.setText(NO_SPACE_ERROR_TEXT);
+						resultLabel.setToolTipText(
+								UIUtilities.formatExceptionForToolTip(ie));
 					} else {
 						errorBox.setVisible(true);
 						errorBox.addChangeListener(this);
@@ -1036,6 +1102,30 @@ public class FileImportComponent
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
 			if (i.next().hasFailuresToSend()) 
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if file to reimport, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasFailuresToReimport()
+	{
+		if (file.isFile()) {
+			//if (errorButton.isVisible() && !reimported)
+			//	return true;
+			return (toReImport && !reimported);
+		}
+		if (components == null) {
+			return false;
+		}
+		Iterator<FileImportComponent> i = components.values().iterator();
+		while (i.hasNext()) {
+			if (i.next().hasFailuresToReimport()) 
 				return true;
 		}
 		return false;
@@ -1206,6 +1296,62 @@ public class FileImportComponent
 	public void showContainerLabel(boolean show)
 	{
 		showContainerLabel = show;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the file has already been marked for
+	 * re-import, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public List<FileImportComponent> getReImport()
+	{
+		List<FileImportComponent> l = null;
+		if (file.isFile()) {
+			/*
+			if (errorButton != null && errorButton.isVisible()) {
+				if (image instanceof Exception) {
+					l = new ArrayList<FileImportComponent>();
+					if (!reimported) l.add(this);
+					return l;
+				}
+			}
+			*/
+			if (toReImport && !reimported) {
+				l = new ArrayList<FileImportComponent>();
+				l.add(this);
+				return l;
+			}
+		} else {
+			if (components != null) {
+				Entry entry;
+				Iterator<FileImportComponent> i = components.values().iterator();
+				FileImportComponent fc;
+				l = new ArrayList<FileImportComponent>();
+				List<FileImportComponent> list;
+				while (i.hasNext()) {
+					fc = i.next();
+					list = fc.getReImport();
+					if (list != null && list.size() > 0)
+						l.addAll(list);
+				}
+			}
+		}
+		return l;
+	}
+	
+	/**
+	 * Sets to <code>true</code> to mark the file for reimport.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param Pass <code>true</code> to mark the file for reimport.
+	 * <code>false</code> otherwise.
+	 */
+	public void setReimported(boolean reimported)
+	{ 
+		this.reimported = reimported;
+		reimportedLabel.setVisible(true);
+		repaint();
 	}
 	
 	/**

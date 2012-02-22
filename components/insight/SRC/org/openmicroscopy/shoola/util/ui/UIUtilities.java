@@ -1121,7 +1121,7 @@ public class UIUtilities
      * 
      * @param b The button.
      */
-    public static void unifiedButtonLookAndFeel(AbstractButton b)
+    public static void unifiedButtonLookAndFeel(JComponent b)
     {
     	if (b == null) return;
         //b.setMargin(new Insets(0, 2, 0, 3));

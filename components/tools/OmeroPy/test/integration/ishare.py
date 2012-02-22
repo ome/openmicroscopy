@@ -11,7 +11,6 @@
 import unittest, time
 import integration.library as lib
 import omero
-import omero_Constants_ice
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
@@ -712,6 +711,15 @@ class TestIShare(lib.ITest):
         adminService.getEventContext() # Refreshes
         self.assertExpiration(expiration, shareService.getShare(sid))
 
+    def test2513(self):
+        """
+        Test a few NPE scenarios in IShare
+        """
+        shares = self.client.sf.getShareService()
+        bad_screen = ( shares.createShare, "my description", None,
+                [omero.model.ScreenI()], [], [], True)
+
+        self.assertRaises(omero.ValidationException, *bad_screen)
 
     # Helpers
 

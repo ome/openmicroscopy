@@ -1,3 +1,6 @@
+{% load i18n %}
+
+
 {% comment %}
 <!--
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
@@ -37,7 +40,7 @@
 {% if i.list %}
     {% if i.options %}
     <!-- List has options -->
-        <img src="{% url webstatic 'images/info16.png' %}" title="Add items to list with [+]" />
+        <img src="{% static "webclient/image/info16.png" %}" title="Add items to list with [+]" />
         <select name="{{ i.key }}">
             {% for v in i.options %}
                 <option value="{{ v }}" {% ifequal i.default v %} selected="True" {% endifequal %} >{{ v }}</option>
@@ -46,7 +49,7 @@
         <a href="#" class="removeListSelect">[-]</a> <a href="#" class="addListSelect">[+]</a>
     <!-- Otherwise, Use comma-separated list -->
     {% else %}
-        <img src="{% url webstatic 'images/info16.png' %}" title="Add items to list, separated by ','" />
+        <img src="{% static "webclient/image/info16.png" %}" title="Add items to list, separated by ','" />
         <input type="text" name="{{ i.key }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
     {% endif %}
 {% else %}

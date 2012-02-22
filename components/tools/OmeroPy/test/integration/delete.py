@@ -463,6 +463,27 @@ class TestDelete(lib.ITest):
         self.assertEquals(None, query.find("TagAnnotation", tagset.id.val))
         self.assertEquals(tag.id.val, query.find("TagAnnotation", tag.id.val).id.val)
 
+    def test7314(self):
+        """
+        Test the delete of an original file when a file annotation is present
+        """
+        o = self.client.upload(__file__)
+        fa = omero.model.FileAnnotationI()
+        fa.file = o
+        fa = self.update.saveAndReturnObject(fa)
+
+        command = omero.api.delete.DeleteCommand("/OriginalFile", o.id.val, None)
+        handle = self.client.sf.getDeleteService().queueDelete([command])
+        callback = omero.callbacks.DeleteCallbackI(self.client, handle)
+        errors = None
+        count = 10
+        while errors is None:
+            errors = callback.block(500)
+            count -= 1
+            self.assert_( count != 0 )
+        reports = "\n\t".join([r.error for r in handle.report()])
+        self.assertEquals(0, errors, "Found errors:\n\t" + reports)
+
 
 if __name__ == '__main__':
     if "TRACE" in os.environ:

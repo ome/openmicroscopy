@@ -39,7 +39,6 @@ import omero.scripts as scripts
 import omero.util.script_utils as scriptUtil
 import omero.util.figureUtil as figUtil
 from omero.rtypes import *
-import omero_api_IRoi_ice
 import omero.util.imageUtil as imgUtil
 import StringIO
 import omero.clients

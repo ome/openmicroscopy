@@ -59,7 +59,6 @@
         <target name="retrieve" unless="retrieve.done">
                 <property name="retrieve.done" value="true"/>
                 <installIvy/>
-		<installIvy/>
 		<ivy:retrieve settingsRef="ivy.${ant.project.name}" pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
 	</target>
 
@@ -77,6 +76,9 @@
                 <!-- See #2187 for more information-->
 
 		<echo file="${classes.dir}/omero.properties" append="true">
+omero.version=${omero.version}
+		</echo>
+		<echo file="${resrc.dest}/omero.properties" append="true">
 omero.version=${omero.version}
 		</echo>
                 <for list="${classes.dir},${resrc.dest}" param="dir">
@@ -186,7 +188,7 @@ omero.version=${omero.version}
 			<jvmarg value="-Xmx${javac.maxmem}"/>
 			<jvmarg value="-XX:MaxPermSize=256m"/>
 			<jvmarg value="-Demma.coverage.out.file=${target.dir}/coverage.emma" />
-			<jvmarg value="-Dlog4j.configuration=log4j-build.xml"/>
+			<jvmarg value="-Dlog4j.configuration=log4j.xml"/>
 			<jvmarg value="-Domero.db.name=${omero.db.name}"/>
 			<jvmarg value="-Domero.db.host=${omero.db.host}"/>
 			<jvmarg value="-Domero.db.port=${omero.db.port}"/>
