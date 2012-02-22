@@ -89,6 +89,7 @@ def java_omero(args):
     command = [ find_java() ]
     p = os.path.join( os.path.curdir, "lib", "log4j-build.xml")
     command.append("-Dlog4j.configuration=%s" % p)
+    command.append("-Dbuild.py=true")
     command.extend( calculate_memory_args() )
     command.extend(["omero"])
     command.extend(choose_omero_version())
