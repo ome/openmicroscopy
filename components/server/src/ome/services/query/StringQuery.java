@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import ome.conditions.ApiUsageException;
 import ome.parameters.Parameters;
+import ome.util.SqlAction;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -45,16 +46,39 @@ public class StringQuery extends Query {
     static Definitions defs = new Definitions(new QueryParameterDef(STRING,
             String.class, false));
 
+    private final SqlAction sql;
+
+    /**
+     * Default constructor, used primarily for testing.
+     * Leaves {@link SqlAction} field null preventing
+     * query rewriting.
+     */
     public StringQuery(Parameters parameters) {
+        this(null, parameters);
+    }
+
+    public StringQuery(SqlAction sql, Parameters parameters) {
         super(defs, parameters);
+        this.sql = sql;
     }
 
     @Override
     protected void buildQuery(Session session) throws HibernateException,
             SQLException {
+
+        String queryString = (String) value(STRING);
+        if (sql != null) {
+            for (String key : params.keySet()) {
+                if (STRING.equals(key)) {
+                    continue; // Skip ::string: since its what it is.
+                }
+                queryString = sql.rewriteHql(queryString, key, value(key));
+            }
+        }
+
         org.hibernate.Query query;
         try {
-            query = session.createQuery((String) value(STRING));
+            query = session.createQuery(queryString);
         } catch (Exception e) {
             // Caused by a query parser error in Hibernate.
             throw new QueryException("Illegal query:" + value(STRING) + "\n"
