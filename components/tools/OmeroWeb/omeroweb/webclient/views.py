@@ -853,19 +853,13 @@ def autocomplete_tags(request, conn, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @login_required()
-def open_astex_viewer(request, obj_type, obj_id, **kwargs):
+def open_astex_viewer(request, obj_type, obj_id, conn, **kwargs):
     """
     Opens the Open Astex Viewer applet, to display volume masks in a couple of formats:
     - mrc.map files that are attached to images. obj_type = 'file'
     - Convert OMERO image to mrc on the fly. obj_type = 'image_8bit' or 'image'
         In this case, we may use 'scipy' to scale the image volume. 
     """
-    conn = None
-    try:
-        conn = kwargs["conn"]        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     # can only populate these for 'image'
     image = None
