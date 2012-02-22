@@ -2228,6 +2228,11 @@ class _BlitzGateway (object):
                     leaders.append(ExperimenterWrapper(self, d.child))
                 else:
                     colleagues.append(ExperimenterWrapper(self, d.child))
+        else:
+            if  default.isLeader():
+                leaders =  [self.getUser()]
+            else:
+                colleagues =  [self.getUser()]
         return {"leaders": leaders, "colleagues": colleagues}
 
     def listStaffs(self):
