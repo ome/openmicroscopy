@@ -286,7 +286,6 @@ urlpatterns = patterns('',
     webgateway_su,
     
     # Debug stuff
-    (r'^dbg_connectors/$', 'webgateway.views.dbg_connectors'),
 
 )
 
