@@ -30,6 +30,7 @@ import static omero.rtypes.rtime;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -427,6 +428,27 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return images;
     }
 
+    public void importMetadata(String fileId, Current __current) throws ServerError {
+        OMEROMetadataStoreClient store;
+        ImportConfig config = new ImportConfig();
+        final String clientSessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
+        // TODO: replace hard-wired host and port
+        config.hostname.set("localhost");
+        config.port.set(new Integer(4064));
+        config.sessionKey.set(clientSessionUuid);
+        try {
+            store = config.createStore();
+            OMEROWrapper reader = new OMEROWrapper(config);
+            ImportLibrary library = new ImportLibrary(store, reader);
+            ImportContainer ic = new ImportContainer(new File(fileId), -1L, null,
+                    false, null, null, null, null);
+            ic.setDropbox(true);
+            library.importImage(ic, 0, 0, 1);
+        } catch (Throwable t) {
+            throw new omero.InternalException(stackTraceAsString(t), null, t.getMessage());
+        }
+    }
+
     protected List<Pixels> importFile(final File file, final String clientSessionUuid, Map<Integer,Image> imageMap) {
         OMEROMetadataStoreClient store;
         ImportConfig config = new ImportConfig();
@@ -449,8 +471,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
         List<Pixels> pix = new ArrayList<Pixels>();
         try {
-        	ImportContainer ic = new ImportContainer(file, -1L, null, 
-					false, null, null, null, null);
+               ImportContainer ic = new ImportContainer(file, -1L, null,
+                                       false, null, null, null, null);
              pix = library.importImage(ic, 0, 0, 1);
              return pix;
         } catch (Throwable t) {
@@ -821,6 +843,36 @@ public class PublicRepositoryI extends _RepositoryDisp {
     public void rename(String path, Current __current) throws ServerError {
         // TODO Auto-generated method stub
 
+    }
+
+    /**
+     * Append a block to a file into the repository.
+     *
+     * @param fileId
+     *            A file path on a repository.
+     * @param data
+     *            A block of data.
+     * @param __current
+     *            ice context.
+     */
+    public void writeBlock(String fileId, byte[] data, Current __current)
+            throws ServerError {
+        File file = checkPath(fileId);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (Exception e) {
+                throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
+            }
+        }
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(file, true);
+            out.write(data);
+            out.close();
+        } catch (Exception e) {
+            throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
+        }
     }
 
     /**
