@@ -38,12 +38,12 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlShutDown;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -162,6 +162,9 @@ class RendererModel
     /** Reference to the image. */
     private ImageData			image;
 
+    /** The security context.*/
+    private SecurityContext ctx;
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -181,6 +184,13 @@ class RendererModel
 		plane = new PlaneDef();
 		plane.slice = omero.romio.XY.value;
 	}
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext() { return ctx; }
 	
 	/**
 	 * Sets the image the component is for.
