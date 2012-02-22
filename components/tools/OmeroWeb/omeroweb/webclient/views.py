@@ -333,19 +333,12 @@ def index(request, conn, **kwargs):
     return HttpResponse(rsp)
 
 @login_required()
-def index_context(request, **kwargs):
+def index_context(request, conn, **kwargs):
     """ NOT USED? TODO: remove this, url and template """
 
     template = "webclient/index/index_context.html"
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseIndex(conn)
-    #controller.loadData()
     
     context = {'nav':request.session['nav'], 'controller':controller}
     t = template_loader.get_template(template)
