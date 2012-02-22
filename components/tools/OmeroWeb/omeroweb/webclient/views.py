@@ -363,16 +363,10 @@ def index_last_imports(request, conn, **kwargs):
     return HttpResponse(rsp)
 
 @login_required()
-def index_most_recent(request, **kwargs):
+def index_most_recent(request, conn, **kwargs):
     """ Gets the most recent 'shares' and 'share' comments. Used by the homepage via AJAX call """
 
     template = "webclient/index/index_most_recent.html"
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseIndex(conn)
     controller.loadMostRecent()
