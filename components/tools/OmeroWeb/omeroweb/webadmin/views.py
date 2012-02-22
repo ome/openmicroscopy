@@ -89,32 +89,6 @@ logger.info("INIT '%s'" % os.getpid())
 ################################################################################
 # decorators
 
-def isAdminConnected (f):
-    def wrapped (request, *args, **kwargs):
-        #this check the connection exist, if not it will redirect to login page
-        url = request.REQUEST.get('url')
-        if url is None or len(url) == 0:
-            url = request.get_full_path()
-        
-        conn = None
-        try:
-            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
-        except KeyError:
-            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (str(x),url)))
-        if conn is None:
-            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
-        
-        if not conn.isAdmin():
-            return page_not_found(request, "404.html")
-        kwargs["conn"] = conn
-        navHelper(request, conn)
-        return f(request, *args, **kwargs)
-
-    return wrapped
-
 def isUserConnected (f):
     def wrapped (request, *args, **kwargs):
         #this check connection exist, if not it will redirect to login page
@@ -591,7 +565,7 @@ def ldap(request, **kwargs):
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-#@isAdminConnected
+#@login_required(isAdmin=True)
 #def enums(request, **kwargs):
 #    enums = True
 #    template = "webadmin/enums.html"
@@ -614,7 +588,7 @@ def ldap(request, **kwargs):
 #    rsp = t.render(c)
 #    return HttpResponse(rsp)
 
-#@isAdminConnected
+#@login_required(isAdmin=True)
 #def manage_enum(request, action, klass, eid=None, **kwargs):
 #    enums = True
 #    template = "webadmin/enum_form.html"
