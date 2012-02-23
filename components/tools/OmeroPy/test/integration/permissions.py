@@ -473,10 +473,10 @@ class TestPermissions(lib.ITest):
                 return client, user
         F(self).assertCallContext()
 
-    # Other specific issues of the omero.group
-    # functionality
+    # Write tests with omero.group set.
+    # ==============================================
 
-    def testSaveWithNegOne(self):
+    def testSaveWithNegOneExplicit(self):
 
         # Get a user and services
         client, user = self.new_client_and_user()
@@ -493,6 +493,58 @@ class TestPermissions(lib.ITest):
         all_context = {"omero.group":"-1"}
         update.saveAndReturnObject(tag, all_context)
 
+    def testSaveWithNegOneNotExplicit(self):
+
+        # Get a user and services
+        client, user = self.new_client_and_user()
+
+        # Create a new object without any
+        # explicit group
+        tag = omero.model.TagAnnotationI()
+
+        # Now try to save it in the -1 context
+        update = client.sf.getUpdateService()
+        all_context = {"omero.group":"-1"}
+        # An internal exception is raised when
+        # Hibernate tries to access the annotations
+        # for the null group set on the obj.
+        # This isn't optimal but will work for
+        # the moment.
+        self.assertRaises(omero.InternalException, \
+                update.saveAndReturnObject, tag, all_context)
+
+    def testSaveWithNegBadLink(self):
+
+        # Get a user and services
+        client, user = self.new_client_and_user()
+        admin = client.sf.getAdminService()
+        group1 = admin.getGroup(admin.getEventContext().groupId)
+        group2 = self.new_group(experimenters=[user])
+        for x in (group1, group2):
+            x.unload()
+        admin.getEventContext() # Refresh
+
+        # Create a new object with a bad link
+        image = self.new_image()
+        image.details.group = group1
+        tag = omero.model.TagAnnotationI()
+        tag.details.group = group2
+        link = image.linkAnnotation(tag)
+        link.details.group = group2
+
+        # Now try to save it in the -1 context
+        update = client.sf.getUpdateService()
+        all_context = {"omero.group":"-1"}
+        # Bad links should be detected and
+        # a security violation raised.
+        self.assertRaises(omero.SecurityViolation, \
+                update.saveAndReturnObject, image, all_context)
+
+    # Reading with private groups
+    # ==============================================
+
+    def testPrivateGroup(self):
+        pass
 
 if __name__ == '__main__':
     unittest.main()
