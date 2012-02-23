@@ -942,7 +942,7 @@ def open_astex_viewer(request, obj_type, obj_id, conn, **kwargs):
 
 
 @login_required()
-def load_metadata_details(request, c_type, c_id, share_id=None, conn=None, conn_share=None, **kwargs):
+def load_metadata_details(request, c_type, c_id, conn=None, conn_share=None, **kwargs):
     """
     This page is the right-hand panel 'general metadata', first tab only.
     Shown for Projects, Datasets, Images, Screens, Plates, Wells, Tags etc.
@@ -1012,7 +1012,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, conn=None, conn_
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'index':index}
-    context['share_id'] = share_id
+    
     t = template_loader.get_template(template)
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
