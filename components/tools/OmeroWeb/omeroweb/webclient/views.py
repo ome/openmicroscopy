@@ -220,6 +220,17 @@ def navHelper(request, conn):
             r_tabs.append( {"label":label, "include":include, "tab_id": tab_id} )
         request.session['nav']['right_tabs'] = r_tabs
         request.session.modified = True
+    
+    if "center_panels" not in request.session['nav']:
+        center_panels = settings.CENTER_PANELS
+        c_panels = []
+        for cp in center_panels:
+            label = cp[0]
+            include = cp[1]
+            panel_id = cp[2]
+            c_panels.append( {"label":label, "include":include, "panel_id": panel_id} )
+        request.session['nav']['center_panels'] = c_panels
+        request.session.modified = True
 
 
 def sessionHelper(request):

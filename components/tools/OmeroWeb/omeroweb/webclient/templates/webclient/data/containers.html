@@ -1012,10 +1012,29 @@
     });
     </script>
 
-    <!-- include scripts for right tabs -->
+    <script type="text/javascript">
+        // set up the center panel to only show the div chosen by <select>
+        $(document).ready(function() {
+            $(".center_panel_content").hide();
+            $("#content_details").show();
+
+            $('#center_panel_chooser select').bind('change', function() {
+                var panel_id = this.options[this.selectedIndex].value;
+                $(".center_panel_content").hide();
+                $(panel_id).show();
+            });
+        });
+    </script>
+
+
+    <!-- include scripts for loading data into right-hand tabs -->
     <!-- these are configured in settings.py under "omero.web.ui.right_tabs" -->
     {% for rt in nav.right_tabs %}
         {% include rt.include %}
+    {% endfor %}
+
+    {% for cp in nav.center_panels %}
+        {% include cp.include %}
     {% endfor %}
 
 
@@ -1111,7 +1130,19 @@
 
 {% block center %}
 
-<div id="content_details"> </div>
+<div id="center_panel_chooser" style="position:absolute; top:5px; right:5px; z-index:10">
+    <select>
+        <option value="#content_details">Thumbnails</option>
+        {% for cp in nav.center_panels %}
+            <option value="#{{ cp.panel_id }}">{{ cp.label }}</option>
+        {% endfor %}
+    </select>
+</div>
+<div id="content_details" class="center_panel_content"> </div>
+
+{% for cp in nav.center_panels %}
+    <div id="{{ cp.panel_id }}" class="center_panel_content"></div>
+{% endfor %}
 
 {% endblock %}
 

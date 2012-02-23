@@ -235,9 +235,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # E.g. '[["webtest/img/figure_icon-16.png", "webtest_split_view_figure", "Split View Figure", "channel_overlay_link"]]' 'id' is optional
     "omero.web.ui.toolbar_links": ["TOOLBAR_LINKS", '[["webtest/img/figure_icon-16.png", "webtest_split_view_figure", "Split View Figure"]]', json.loads],
 
-    # Add tabs to the right-panel: tabs are ['Tab label', 'include.js', 'tab_id']. Js loads data into tab.
+    # Add tabs to the right-hand & center panels: tabs are ['Tab label', 'include.js', 'tab_id']. The javascript loads data into $('#tab_id').
     "omero.web.ui.right_tabs": ["RIGHT_TABS", '[["Acquisition", "webclient/data/includes/acquisition_tab_init.js", "metadata_tab"],'\
             '["Preview", "webclient/data/includes/preview_tab_init.js", "preview_tab"]]', json.loads],
+    "omero.web.ui.center_panels": ["CENTER_PANELS", '[["Split-view", "webclient/data/includes/dataset_split.js", "dataset_split_viewer"],'\
+            '["Image Viewer", "webclient/data/includes/center_imgviewer.js", "image_viewer_panel"]]', json.loads],
 
     # sharing no longer use this variable. replaced by request.build_absolute_uri
     # after testing this line should be removed.
