@@ -1019,25 +1019,11 @@ def load_metadata_details(request, c_type, c_id, share_id=None, conn=None, conn_
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_metadata_preview(request, imageId, share_id=None, **kwargs):
+def load_metadata_preview(request, imageId, share_id=None, conn=None, conn_share=None, **kwargs):
     """
     This is the image 'Preview' tab for the right-hand panel. 
     Currently this doesn't do much except launch the view-port plugin using the image Id (and share Id if necessary)
     """
-    conn = None
-    try:
-        conn = kwargs["conn"]        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    conn_share = None
-    try:
-        conn_share = kwargs["conn_share"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
     url = None
     try:
         url = kwargs["url"]
