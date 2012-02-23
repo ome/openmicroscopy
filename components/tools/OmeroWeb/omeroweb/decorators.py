@@ -59,6 +59,9 @@ class login_required(object):
         return reverse('weblogin')
     login_url = property(get_login_url)
 
+    def get_share_connection (self, request, conn, share_id):
+        raise NotImplementedError('login_required.get_share_connection see #8118')
+    
     def prepare_share_connection(self, request, conn, share_id):
         """Prepares the share connection if we have a valid share ID."""
         if share_id is None:
@@ -68,7 +71,7 @@ class login_required(object):
             return None
         try:
             if share.getOwner().id != conn.getEventContext().userId:
-                return getShareConnection(request, share_id)
+                return self.get_share_connection(request, conn, share_id)
         except:
             logger.error('Error retrieving share connection.', exc_info=True)
             return None
