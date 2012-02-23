@@ -6164,7 +6164,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         e = self._conn.createExporter()
         e.addImage(self.getId())
-        size = e.generateTiff()
+        size = e.generateTiff(self._conn.CONFIG['SERVICE_OPTS'])
         if bufsize==0:
             # Read it all in one go
             return fileread(e, size, 65536)
