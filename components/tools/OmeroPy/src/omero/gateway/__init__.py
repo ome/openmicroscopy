@@ -6096,7 +6096,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                     self._obj.pixelsLoaded = False
                     self._re = None
                     return self.renderJpeg(z,t,None)
-            rv = self._re.renderCompressed(self._pd)
+            rv = self._re.renderCompressed(self._pd, self._conn.CONFIG['SERVICE_OPTS'])
             return rv
         except omero.InternalException: #pragma: no cover
             logger.debug('On renderJpegRegion');
@@ -6135,9 +6135,9 @@ class _ImageWrapper (BlitzObjectWrapper):
                     return self.renderJpeg(z,t,None)
             projection = self.PROJECTIONS.get(self._pr, -1)
             if not isinstance(projection, omero.constants.projection.ProjectionType):
-                rv = self._re.renderCompressed(self._pd)
+                rv = self._re.renderCompressed(self._pd, self._conn.CONFIG['SERVICE_OPTS'])
             else:
-                rv = self._re.renderProjectedCompressed(projection, self._pd.t, 1, 0, self.getSizeZ()-1)
+                rv = self._re.renderProjectedCompressed(projection, self._pd.t, 1, 0, self.getSizeZ()-1, self._conn.CONFIG['SERVICE_OPTS'])
             return rv
         except omero.InternalException: #pragma: no cover
             logger.debug('On renderJpeg');
