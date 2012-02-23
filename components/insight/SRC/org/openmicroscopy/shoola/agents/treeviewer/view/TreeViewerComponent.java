@@ -122,6 +122,7 @@ import pojos.PlateAcquisitionData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellData;
 import pojos.WellSampleData;
 
 /** 
@@ -1071,8 +1072,12 @@ class TreeViewerComponent
 		if (browser != null) last = browser.getLastSelectedDisplay();
 		if (last != null) exp = browser.getNodeOwner(last);
 		if (exp == null) exp = model.getUserDetails();
-		mv.setRootObject(selected, exp.getId());
+		if (selected instanceof WellSampleData) {
+			if (parent instanceof WellData)
+				parent = ((WellData) parent).getPlate();
+		}
 		mv.setParentRootObject(parent, null);
+		mv.setRootObject(selected, exp.getId());
 		if (size > 0) 
 			mv.setRelatedNodes(siblings);
 

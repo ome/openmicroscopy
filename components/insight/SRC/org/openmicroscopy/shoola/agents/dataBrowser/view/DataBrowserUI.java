@@ -409,9 +409,10 @@ class DataBrowserUI
 	{
 		Browser browser = model.getBrowser();
 		Layout layout = browser.getSelectedLayout();
-		layout.setImagesPerRow(number);
-		//if (selectedView == THUMB_VIEW)
-		browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
+		if (layout != null) {
+			layout.setImagesPerRow(number);
+			browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
+		}
 	}
     
 	/**
