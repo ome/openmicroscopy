@@ -1054,26 +1054,11 @@ def load_metadata_preview(request, imageId, conn=None, conn_share=None, **kwargs
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_metadata_hierarchy(request, c_type, c_id, **kwargs):
+def load_metadata_hierarchy(request, c_type, c_id, conn=None, conn_share=None, **kwargs):
     """
     This loads the ancestors of the specified object and displays them in a static tree.
     Used by an AJAX call from the metadata_general panel.
     """
-
-    conn = None
-    try:
-        conn = kwargs["conn"]        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    conn_share = None
-    try:
-        conn_share = kwargs["conn_share"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
     url = None
     try:
         url = kwargs["url"]
