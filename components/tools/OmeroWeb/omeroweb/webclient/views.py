@@ -1294,7 +1294,7 @@ def getIds(request):
     return selected
 
 
-@isUserConnected
+@login_required()
 def batch_annotate(request, conn, **kwargs):
     """
     This page gives a form for batch annotation. 
