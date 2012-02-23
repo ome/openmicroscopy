@@ -42,14 +42,23 @@ def dataset(request, datasetId, **kwargs):
 def index(request, **kwargs):
     conn = kwargs['conn']
     
-    # find a random image and dataset to display & can be used in links to other pages
-    all_images = list(conn.getObjects("Image"))
-    image = random.choice(all_images)
+    # use Image IDs from request...
+    if request.REQUEST.get("Image", None):
+        imageIds = request.REQUEST.get("Image", None)
+        ids = [int(iid) for iid in imageIds.split(",")]
+        images = list(conn.getObjects("Image", ids))
+    else:
+        # OR find a random image and dataset to display & can be used in links to other pages
+        all_images = list(conn.getObjects("Image"))
+        img = random.choice(all_images)
+        images = [img]
+    
+    imgIds = ",".join([str(img.getId()) for img in images])
     
     all_datasets = list(conn.getObjects("Dataset"))
     dataset = random.choice(all_datasets)
 
-    return render_to_response('webtest/index.html', {'image': image, 'dataset': dataset})
+    return render_to_response('webtest/index.html', {'images': images, 'imgIds': imgIds, 'dataset': dataset})
 
 
 @isUserConnected

@@ -17,17 +17,20 @@
 <table border='1' cellpadding='10'>
     <tr>
         <td>
-            Random Image, used in links below. <br>
-            Name: {{ image.getName }} <br>
-            <img src="{% url webgateway.views.render_thumbnail image.id %}" /> <br>
-            Refresh page to choose another.
+            "Random" Image(s), used in links below. <br>
+            <a href="{% url webtest_index %}">Choose another</a>. <br>
+            {% for i in images %}
+                <div style="float:left; padding:2px" title="{{ i.name }} ID: {{ i.id }}">
+                    <img src="{% url webgateway.views.render_thumbnail i.id %}" />
+                </div>
+            {% endfor %}
         </td>
         <td>
             Random Dataset, used in links below. <br>
             Name: {{ dataset.getName }} <br>
             {% for i in dataset.listChildren %}
-                <div style="float:left; padding:2px">
-                    <img src="{% url webgateway.views.render_thumbnail i.id %}" />
+                <div style="float:left; padding:2px" title="{{ i.name }} ID: {{ i.id }}">
+                    <a href="?Image={{ i.id }}"><img src="{% url webgateway.views.render_thumbnail i.id %}" />
                 </div>
             {% endfor %}
         </td>
@@ -44,7 +47,7 @@
 
 <h2>Split-view Figure</h2>
 <p>
-    <b>Url: <a href="{% url webtest_split_view_figure %}?imageIds={{ image.id }}">{% url webtest_split_view_figure %}?imageIds={{ image.id }}</a></b><br>
+    <b>Url: <a href="{% url webtest_split_view_figure %}?imageIds={{ imgIds }}">{% url webtest_split_view_figure %}?imageIds={{ imgIds }}</a></b><br>
     Displays a split-view figure of the specified images. Users can choose which
     channels are shown individually and in the merged image, and a number of 
     other options. On submission of the form, the figure is updated. Once you are happy with
@@ -62,7 +65,7 @@
 
 <h2>Image Dimensions viewer</h2>
 <p>
-    <b>Url: <a href="{% url webtest_image_dimensions image.id %}">{% url webtest_image_dimensions image.id %}</a></b><br>
+    <b>Url: <a href="{% url webtest_image_dimensions images.0.id %}">{% url webtest_image_dimensions images.0.id %}</a></b><br>
     This unfinished viewer displays a single image as a grid of individual
     planes, allowing the user to choose which dimensions (Z, C, or T) is 
     display along each axis. 
@@ -70,31 +73,11 @@
 
 <h2>Channel Overlay viewer</h2>
 <p>
-    <b>Url: <a href="{% url webtest_channel_overlay_viewer image.id %}">{% url webtest_channel_overlay_viewer image.id %}</a></b><br>
+    <b>Url: <a href="{% url webtest_channel_overlay_viewer images.0.id %}">{% url webtest_channel_overlay_viewer images.0.id %}</a></b><br>
     This viewer allows the user to overlay channels from the same (or different) images
     and to shift them in X, Y or Z independently. It is shown towards the end of
     <a href="http://cvs.openmicroscopy.org.uk/snapshots/movies/omero-4-3/mov/ChannelOffsets-4.3.mov">
     this movie</a>.
 </p>
-    
-<hr>
-<ul>
-{% for proj in conn.listProjects %}
-  <li>{{ proj.getName }}
-    <ul>
-      {% for ds in proj.listChildren %}
-      <li>{{ ds.getName }}  Dataset ID:{{ ds.getId }}
-        <ul>
-          {% for img in ds.listChildren %}
-          <li><img src="{% url webgateway.views.render_thumbnail img.id %}">{{ img.getName }}</li>
-          {% endfor %}
-        </ul>
-      </li>
-      {% endfor %}
-    </ul>
-  </li>
-{% endfor %}
-</ul>
 
-<hr>
 </body> </html>
