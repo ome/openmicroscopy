@@ -1393,7 +1393,7 @@ def annotate_file(request, conn, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
     
-@isUserConnected
+@login_required()
 def annotate_comment(request, conn, **kwargs):
     """ Handle adding Comments to one or more objects """
 
