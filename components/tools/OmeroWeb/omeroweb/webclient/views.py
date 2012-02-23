@@ -1427,7 +1427,7 @@ def annotate_comment(request, conn, **kwargs):
             return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
 
 
-@isUserConnected
+@login_required()
 def annotate_tags(request, conn, **kwargs):
     """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
 
