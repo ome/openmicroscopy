@@ -314,9 +314,6 @@ class BaseClient(object):
         """
         try:
             self.closeSession()
-        except Glacier2.SessionNotExistException:
-            # It is perfectly normal for the session to have been closed before garbage collection
-            pass
         except exceptions.Exception, e:
             # It is perfectly normal for the session to have been closed before garbage collection
             # though for some reason I can't match this exception with the Glacier2.SessionNotExistException
