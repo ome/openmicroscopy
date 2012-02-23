@@ -1019,7 +1019,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, conn=None, conn_
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_metadata_preview(request, imageId, share_id=None, conn=None, conn_share=None, **kwargs):
+def load_metadata_preview(request, imageId, conn=None, conn_share=None, **kwargs):
     """
     This is the image 'Preview' tab for the right-hand panel. 
     Currently this doesn't do much except launch the view-port plugin using the image Id (and share Id if necessary)
