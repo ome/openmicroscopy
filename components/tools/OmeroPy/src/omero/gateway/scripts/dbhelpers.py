@@ -80,7 +80,7 @@ def login (alias, pw=None):
 
 class UserEntry (object):
     def __init__ (self, name, passwd, firstname='', middlename='', lastname='', email='',
-                  groupname=None, groupperms='rw----', admin=False):
+                  groupname=None, groupperms='rwrw--', groupowner=False, admin=False):
         self.name = name
         self.passwd = passwd
         self.firstname = firstname
@@ -109,7 +109,7 @@ class UserEntry (object):
         return client
 
     @staticmethod
-    def _getOrCreateGroup (client, groupname, groupperms='rw----'):
+    def _getOrCreateGroup (client, groupname, groupperms='rwrw--'):
         a = client.getAdminService()
         try:
             g = a.lookupGroup(groupname)
@@ -159,7 +159,7 @@ class UserEntry (object):
         a.changeUserPassword(self.name, omero.gateway.omero_type(password))
 
     @staticmethod
-    def addGroupToUser (client, groupname, groupperms='rw----'):
+    def addGroupToUser (client, groupname, groupperms='rwrw--'):
         a = client.getAdminService()
         if not 'system' in [x.name.val for x in a.containedGroups(client._userid)]:
             admin = loginAsRoot()
