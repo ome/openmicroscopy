@@ -182,18 +182,19 @@ class ImageTest (lib.GTest):
         # what about a regular user?
         admin = self.gateway.getAdminService()
         g = image.getDetails().getGroup()
-        p = g.getDetails().getPermissions()
-        p.setGroupRead(True)
-        p.setGroupWrite(True)
-        admin.changePermissions(g._obj, p)
         self.loginAsUser()
         admin.addGroups(omero.model.ExperimenterI(self.gateway._userid, False), [self.image.getDetails().getGroup()._obj])
-        sopts = dict(self.gateway.CONFIG['SERVICE_OPTS'] or {})
-        sopts['omero.group'] = '-1'
-        self.gateway.CONFIG['SERVICE_OPTS'] = sopts
-        image = self.getTestImage()
-        self.assertEqual(image.getId(), self.image.getId())
-        self.assert_(len(self.image.exportOmeTiff()) > 0)
+        self.loginAsUser()
+        try:
+            sopts = dict(self.gateway.CONFIG['SERVICE_OPTS'] or {})
+            sopts['omero.group'] = '-1'
+            self.gateway.CONFIG['SERVICE_OPTS'] = sopts
+            image = self.getTestImage()
+            self.assertEqual(image.getId(), self.image.getId())
+            self.assert_(len(image.exportOmeTiff()) > 0)
+        finally:
+            admin.removeGroups(omero.model.ExperimenterI(self.gateway._userid, False), [self.image.getDetails().getGroup()._obj])
+            
         
         
 
