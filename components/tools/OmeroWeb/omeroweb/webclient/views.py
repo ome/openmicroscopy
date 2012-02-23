@@ -55,7 +55,7 @@ from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
 from django.core import template_loader
 from django.core.cache import cache
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
+from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render_to_response
 from django.template import RequestContext as Context
 from django.utils import simplejson
@@ -1398,8 +1398,14 @@ def annotate_file(request, conn, **kwargs):
     
 @login_required()
 def annotate_comment(request, conn, **kwargs):
-    """ Handle adding Comments to one or more objects """
+    """ Handle adding Comments to one or more objects 
+    Unbound instance of Comment form not available. 
+    If the form has been submitted, a bound instance of the form 
+    is created using request.POST"""
 
+    if request.method != 'POST':
+        raise Http404("Unbound instance of form not available.")
+    
     index = int(request.REQUEST.get('index', 0))
     oids = getObjects(request, conn)
     selected = getIds(request)
@@ -1409,23 +1415,21 @@ def annotate_comment(request, conn, **kwargs):
     manager = BaseContainer(conn)
 
     # Handle form submission...
-    if request.method == 'POST':
-        form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
-        if form_multi.is_valid():
-            # In each case below, we pass the {'object_type': [ids]} map
-            content = form_multi.cleaned_data['comment']
-            if content is not None and content != "":
-                textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
-                template = "webclient/annotations/comment.html"
-                context = {'tann': textAnn}
-                
-                t = template_loader.get_template(template)
-                c = Context(request,context)
-                logger.debug('TEMPLATE: '+template)
-                return HttpResponse(t.render(c))
-        else:
-            return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
-
+    form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
+    if form_multi.is_valid():
+        # In each case below, we pass the {'object_type': [ids]} map
+        content = form_multi.cleaned_data['comment']
+        if content is not None and content != "":
+            textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
+            template = "webclient/annotations/comment.html"
+            context = {'tann': textAnn}
+            
+            t = template_loader.get_template(template)
+            c = Context(request,context)
+            logger.debug('TEMPLATE: '+template)
+            return HttpResponse(t.render(c))
+    else:
+        return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
 
 @login_required()
 def annotate_tags(request, conn, **kwargs):
