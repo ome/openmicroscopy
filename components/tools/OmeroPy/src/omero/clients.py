@@ -310,11 +310,12 @@ class BaseClient(object):
         """
         try:
             self.closeSession()
-        except Glacier2.SessionNotExistException:
-            # It is perfectly normal for the session to have been closed before garbage collection
-            pass
         except exceptions.Exception, e:
-            self.__logger.warning("Ignoring error in client.__del__:" + str(e.__class__))
+            # It is perfectly normal for the session to have been closed before garbage collection
+            # though for some reason I can't match this exception with the Glacier2.SessionNotExistException
+            # class. Using str matching instead.
+            if 'Glacier2.SessionNotExistException' not in str(e.__class__):
+                self.__logger.warning("..Ignoring error in client.__del__:" + str(e.__class__))
 
     def getCommunicator(self):
         """
