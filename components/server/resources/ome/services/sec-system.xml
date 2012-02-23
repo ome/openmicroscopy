@@ -44,6 +44,7 @@
     <constructor-arg ref="roles"/>
     <constructor-arg ref="internalServiceFactory"/>
     <constructor-arg ref="tokenHolder"/>
+    <constructor-arg ref="securityFilterHolder"/>
   </bean>
 
   <bean id="securityWiring" class="ome.security.basic.BasicSecurityWiring"

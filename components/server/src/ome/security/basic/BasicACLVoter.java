@@ -11,9 +11,13 @@ package ome.security.basic;
 
 // Third-party libraries
 import static ome.model.internal.Permissions.Right.WRITE;
-import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.WORLD;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
+
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.conditions.GroupSecurityViolation;
@@ -22,17 +26,13 @@ import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.internal.Token;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
+import ome.model.internal.Token;
 import ome.security.ACLVoter;
+import ome.security.SecurityFilter;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
-import ome.tools.hibernate.SecurityFilter;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
 
 /**
  * 

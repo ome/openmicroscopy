@@ -38,6 +38,8 @@ import ome.model.meta.GroupExperimenterMap;
 import ome.model.roi.Shape;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
+import ome.security.SecurityFilter;
+import ome.security.SecurityFilterHolder;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.services.messages.EventLogMessage;
@@ -51,7 +53,6 @@ import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
-import ome.tools.hibernate.SecurityFilter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,6 +102,8 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     protected final ServiceFactory sf;
 
+    protected final SecurityFilter filter;
+
     protected/* final */OmeroContext ctx;
 
     /**
@@ -115,8 +118,12 @@ public class BasicSecuritySystem implements SecuritySystem,
         OmeroInterceptor oi = new OmeroInterceptor(new Roles(),
                 st, new ExtendedMetadata.Impl(),
                 cd, th, new PerSessionStats(cd));
+        Roles roles = new Roles();
+        SecurityFilterHolder holder = new SecurityFilterHolder(
+                cd, new OneGroupSecurityFilter(roles),
+                new AllGroupsSecurityFilter(roles));
         BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm,
-                new Roles(), sf, new TokenHolder());
+                roles, sf, new TokenHolder(), holder);
         return sec;
     }
 
@@ -126,11 +133,12 @@ public class BasicSecuritySystem implements SecuritySystem,
     public BasicSecuritySystem(OmeroInterceptor interceptor,
             SystemTypes sysTypes, CurrentDetails cd,
             SessionManager sessionManager, Roles roles, ServiceFactory sf,
-            TokenHolder tokenHolder) {
+            TokenHolder tokenHolder, SecurityFilter filter) {
         this.sessionManager = sessionManager;
         this.tokenHolder = tokenHolder;
         this.interceptor = interceptor;
         this.sysTypes = sysTypes;
+        this.filter = filter;
         this.roles = roles;
         this.cd = cd;
         this.sf = sf;
@@ -217,46 +225,11 @@ public class BasicSecuritySystem implements SecuritySystem,
         // http://opensource.atlassian.com/projects/hibernate/browse/HHH-1932
         final EventContext ec = getEventContext();
         final Session sess = (Session) session;
-        final Filter filter = sess.enableFilter(SecurityFilter.filterName);
-
-        final Long groupId = ec.getCurrentGroupId();
-        final Long shareId = ec.getCurrentShareId();
-        int share01 = shareId != null ? 1 : 0; // non-final; "ticket:3529" below
-
-        final int admin01 = (ec.isCurrentUserAdmin() ||
-                ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId()))
-                ? 1 : 0;
-
-        final int nonpriv01 = (ec.getCurrentGroupPermissions().isGranted(Role.GROUP, Right.READ)
-                || ec.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.READ))
-                ? 1 : 0;
-
-        // ticket:3529 - if the group id is less than zero, then we assume that
-        // SELECTs should return more than a single group.
-        Collection<Long> groups = null;
-        if (groupId < 0) { // Special marker
-            if (ec.isCurrentUserAdmin()) {
-                // Admin is considered to be in every group
-                share01 = 1;
-                groups = Collections.singletonList(-1L);
-            } else {
-                // Non-admin are only in their groups.
-                groups = ec.getMemberOfGroupsList();
-            }
-        } else {
-            // Group is a real value, pass only one.
-            groups = Collections.singletonList(groupId);
-        }
-
-        filter.setParameter(SecurityFilter.is_share, share01); // ticket:2219, not checking -1 here.
-        filter.setParameter(SecurityFilter.is_adminorpi, admin01);
-        filter.setParameter(SecurityFilter.is_nonprivate, nonpriv01);
-        filter.setParameter(SecurityFilter.current_user, ec.getCurrentUserId());
-        filter.setParameterList(SecurityFilter.current_groups, groups);
+        filter.enable(sess, ec);
     }
 
     public void  updateReadFilter(Session session) {
-        session.disableFilter(SecurityFilter.filterName);
+        filter.disable(session);
         enableReadFilter(session);
     }
 
@@ -276,7 +249,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         // checkReady("disableReadFilter");
 
         Session sess = (Session) session;
-        sess.disableFilter(SecurityFilter.filterName);
+        filter.disable(sess);
     }
 
     // ~ Subsystem disabling
