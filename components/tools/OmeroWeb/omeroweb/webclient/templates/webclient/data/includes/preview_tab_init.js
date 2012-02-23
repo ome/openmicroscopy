@@ -22,6 +22,9 @@
 
 $(document).ready(function() {
     
+    // this script is an 'include' within a django for-loop, so we can get our index:
+    var preview_tab_index = {{ forloop.counter }};
+
     var update_preview_tab = function() {
         
         // this may have been called before datatree was initialised...
@@ -60,12 +63,13 @@ $(document).ready(function() {
         // update enabled status
         var selected = data.inst.get_selected();
         if (selected.length > 1) {
-            // handle batch annotation...
+            // handle batch annotation - select a different tab
+            $("#annotation_tabs").tabs("select", 0);
         } else {
             // only enable this tab if we have an image.
             var orel = selected.attr('rel').replace("-locked", "");
             if(orel=="image") {
-                $("#annotation_tabs").tabs("enable", 2);
+                $("#annotation_tabs").tabs("enable", preview_tab_index);
             } else {
                 // not enabled - select a different tab
                 $("#annotation_tabs").tabs("select", 0);
