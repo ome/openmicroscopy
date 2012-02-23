@@ -110,7 +110,7 @@ class TablesTest (lib.GTest):
         self.assertNotEqual(pr, None)
         file_annotation = pr.getAnnotation(ns='openmicroscopy.org/omero/bulk_annotations')
         self.assertNotEqual(file_annotation, None)
-        table = sr.openTable(file_annotation._obj.file)
+        table = sr.openTable(file_annotation._obj.file, sopts)
         self.assertNotEqual(table, None)
 
 
