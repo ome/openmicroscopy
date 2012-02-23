@@ -93,7 +93,7 @@ public class RequestCallback
 	
 	/**
 	 * Overridden to handle the end of the process.
-	 * @see DeleteCallbackI#finished(int)
+	 * @see CmdCallbackI#finished(int)
 	 */
 	public void finished(int value)
 	{
