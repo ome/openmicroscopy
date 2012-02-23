@@ -189,6 +189,32 @@ class TreeViewerComponent
 	}
 	
 	/**
+	 * Removes the nodes from the display.
+	 * 
+	 * @param trans The node to remove.
+	 */
+	private void removeNodes(Map<SecurityContext, List<DataObject>> trans)
+	{
+		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+		List<DataObject> objects = new ArrayList<DataObject>();
+		Iterator<List<DataObject>> i = trans.values().iterator();
+		List<DataObject> l;
+		while (i.hasNext()) {
+			l = i.next();
+			if (l != null) objects.addAll(l);
+		}
+		bus.post(new DeleteObjectEvent(objects));
+		
+		NodesFinder finder = new NodesFinder(objects);
+		Browser browser = model.getSelectedBrowser();
+		browser.accept(finder);
+		browser.removeTreeNodes(finder.getNodes());
+		view.removeAllFromWorkingPane();
+		DataBrowserFactory.discardAll();
+		model.getMetadataViewer().setRootObject(null, -1, null);
+	}
+	
+	/**
 	 * Moves the objects.
 	 * 
 	 * @param ctx The group to move the data to.
@@ -198,6 +224,7 @@ class TreeViewerComponent
 	private void moveData(SecurityContext ctx, DataObject target,
 			Map<SecurityContext, List<DataObject>> trans)
 	{
+		removeNodes(trans);
 		TransferableObject t = new TransferableObject(ctx, target, trans);
 		t.setGroupName(getGroupName(ctx.getGroupID()));
 		IconManager icons = IconManager.getInstance();
@@ -1792,6 +1819,7 @@ class TreeViewerComponent
 		while (k.hasNext()) {
 			entry = (Entry) k.next();
 			id = (Long) entry.getKey();
+			removeNodes(trans);
 			t = new TransferableObject(new SecurityContext(id), 
 					(List<DataObject>) entry.getValue(), trans);
 			t.setGroupName(getGroupName(id));
