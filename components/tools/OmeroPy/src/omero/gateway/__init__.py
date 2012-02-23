@@ -582,7 +582,6 @@ class BlitzObjectWrapper (object):
         parentw = self._getParentWrappers()
         param = omero.sys.Parameters() # TODO: What can I use this for?
         parentnodes = []
-        print self._conn.CONFIG
         for pwc in parentw:
             pwck = pwc()
             if withlinks:
