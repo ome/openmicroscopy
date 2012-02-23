@@ -942,20 +942,13 @@ def open_astex_viewer(request, obj_type, obj_id, conn, **kwargs):
 
 
 @login_required()
-def load_metadata_details(request, c_type, c_id, conn, share_id=None, **kwargs):
+def load_metadata_details(request, c_type, c_id, share_id=None, conn=None, conn_share=None, **kwargs):
     """
     This page is the right-hand panel 'general metadata', first tab only.
     Shown for Projects, Datasets, Images, Screens, Plates, Wells, Tags etc.
     The data and annotations are loaded by the manager. Display of appropriate data is handled by the template.
     """
-
-    conn_share = None
-    try:
-        conn_share = kwargs["conn_share"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
+    
     url = None
     try:
         url = kwargs["url"]
