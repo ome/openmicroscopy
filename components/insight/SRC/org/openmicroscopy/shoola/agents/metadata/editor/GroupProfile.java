@@ -107,9 +107,7 @@ class GroupProfile
     			BorderFactory.createTitledBorder("Permissions"));
     	permissionsPane.displayWarningText();
     	permissionsPane.addPropertyChangeListener(this);
-    	namePane = new JTextField();
     	namePane.setText(ref.getName());
-    	descriptionPane = new JTextField();
     	descriptionPane.setText(ref.getDescription());
     	GroupData group = (GroupData) model.getRefObject();
     	ExperimenterData exp = MetadataViewerAgent.getUserDetails();
@@ -135,7 +133,6 @@ class GroupProfile
     		namePane.getDocument().addDocumentListener(this);
     		descriptionPane.getDocument().addDocumentListener(this);
     	}
-    	
     }
     
     /**
@@ -220,6 +217,13 @@ class GroupProfile
     	return content;
     }
     
+    /** Initializes the components.*/
+    private void initialize()
+    {
+    	namePane = new JTextField();
+    	descriptionPane = new JTextField();
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -230,6 +234,7 @@ class GroupProfile
 	{
 		super(model);
 		setBackground(UIUtilities.BACKGROUND_COLOR);
+		initialize();
 	}
     
 	/** 
@@ -271,7 +276,6 @@ class GroupProfile
 	 */
 	protected void buildUI()
 	{
-		System.err.println(model.getRefObject());
 		removeAll();
     	initComponents();
     	JPanel p = new JPanel();
