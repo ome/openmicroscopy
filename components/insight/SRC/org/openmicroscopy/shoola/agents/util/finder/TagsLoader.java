@@ -25,11 +25,13 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 //Java imports
 import java.util.Collection;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.ExperimenterData;
@@ -48,22 +50,23 @@ import pojos.TagAnnotationData;
  * </small>
  * @since 3.0-Beta4
  */
-public class TagsLoader 
+public class TagsLoader
 	extends FinderLoader
 {
 
 	 /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle	handle;
+    private CallHandle handle;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer 		The viewer this data loader is for.
-     *               		Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     *  @param ctx The security context.
      */
-    public TagsLoader(Finder viewer)
+    public TagsLoader(Finder viewer, List<SecurityContext> ctx)
     {
-    	super(viewer);
+    	super(viewer, ctx);
     }
     
     /**
@@ -86,8 +89,8 @@ public class TagsLoader
 					userID = -1;
 		}
 		
-		handle = mhView.loadExistingAnnotations(TagAnnotationData.class,
-												userID, groupID, this);
+		//handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,
+			//									userID, groupID, this);
     }
 
     /**

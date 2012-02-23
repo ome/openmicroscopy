@@ -31,6 +31,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailSetLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
@@ -57,19 +58,18 @@ public interface HierarchyBrowsingView
 	 * Indicates that the thumbnails are associated to an 
 	 * <code>ExperimenterData</code>.
 	 */
-	public static final int 		EXPERIMENTER = 
-		ThumbnailSetLoader.EXPERIMENTER;
+	public static final int EXPERIMENTER = ThumbnailSetLoader.EXPERIMENTER;
 	
 	/** 
 	 * Indicates that the thumbnails are associated to an <code>FileData</code>.
 	 */
-	public static final int 		FS_FILE = ThumbnailSetLoader.FS_FILE;
+	public static final int FS_FILE = ThumbnailSetLoader.FS_FILE;
 	
 	/** 
 	 * Indicates that the thumbnails are associated to an 
 	 * <code>ImageData</code>.
 	 */
-	public static final int 		IMAGE = ThumbnailSetLoader.IMAGE;
+	public static final int IMAGE = ThumbnailSetLoader.IMAGE;
 	
     /**
      * Loads a data hierarchy rooted by a given node.
@@ -84,17 +84,18 @@ public interface HierarchyBrowsingView
      * a <code>ProjectData, DatasetData depending on whether you asked for a 
      * Project, Dataset tree.</p>
      * 
-     * @param rootNodeType  The type of the root node. Can only be one out of:
+     * @param ctx The security context.
+     * @param rootNodeType The type of the root node. Can only be one out of:
      *                      <code>ProjectData, DatasetData</code>.
-     * @param nodesID       The id of the root nodes.
-     * @param userID   		The identifier of the user.  
-     * @param groupID   	The identifier of the user's group.
-     * @param observer      Call-back handler.
+     * @param nodesID The id of the root nodes.
+     * @param userID The identifier of the user.  
+     * @param groupID The identifier of the user's group.
+     * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadHierarchy(Class rootNodeType, List nodesID,
-    								long userID, long groupID,
-    								AgentEventListener observer);
+    public CallHandle loadHierarchy(SecurityContext ctx, Class rootNodeType,
+    		List nodesID, long userID, long groupID, 
+    		AgentEventListener observer);
     
     /**
      * Loads a thumbnail for each specified <code>DataObject</code> object, 
@@ -110,16 +111,17 @@ public interface HierarchyBrowsingView
      * original image and so that their area doesn't exceed <code>maxWidth*
      * maxHeight</code>.
      * 
-     * @param imgs 		Contains the objects, one for each thumbnail to retrieve.
-     * @param maxWidth  The maximum acceptable width of the thumbnails.
+     * @param ctx The security context.
+     * @param imgs Contains the objects, one for each thumbnail to retrieve.
+     * @param maxWidth The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
-     * @param userID	The id of the user the thumbnails are for.
-     * @param observer  Callback handler.
+     * @param userID The id of the user the thumbnails are for.
+     * @param observer Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadThumbnails(Collection<DataObject> imgs, int maxWidth, 
-    								int maxHeight, long userID, int type, 
-    								AgentEventListener observer);
+    public CallHandle loadThumbnails(SecurityContext ctx, 
+    		Collection<DataObject> imgs, int maxWidth, int maxHeight,
+    		long userID, int type, AgentEventListener observer);
     
     /**
      * Loads a full size image for each specified <code>DataObject</code> 
@@ -132,13 +134,14 @@ public interface HierarchyBrowsingView
      * retrieve a <code>ThumbnailData</code> object for that thumbnail. The 
      * final <code>DSCallOutcomeEvent</code> will have no result.
      * 
-     * @param imgs 		Contains the objects, one for each thumbnail to retrieve.
-     * @param userID	The id of the user the thumbnails are for.
-     * @param observer  Callback handler.
+     * @param ctx The security context.
+     * @param imgs Contains the objects, one for each thumbnail to retrieve.
+     * @param userID The id of the user the thumbnails are for.
+     * @param observer Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadImagesAsThumbnails(Collection<DataObject> imgs, 
-    								long userID, 
-    								AgentEventListener observer);
-    
+    public CallHandle loadImagesAsThumbnails(SecurityContext ctx, 
+    		Collection<DataObject> imgs, long userID, 
+    		AgentEventListener observer);
+
 }

@@ -33,6 +33,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.AnnotationData;
@@ -56,12 +57,16 @@ public class StructuredAnnotationSaver
 {
 
     /** The result of the call. */
-    private Object		result;
+    private Object result;
     
     /** Loads the specified experimenter groups. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
+     * 
      * Creates a {@link BatchCall} to retrieve the users who viewed 
      * the specified set of pixels and also retrieve the rating associated
      * to that set.
@@ -84,10 +89,10 @@ public class StructuredAnnotationSaver
             	if (metadata != null) {
             		Iterator<Object> i = metadata.iterator();
             		while (i.hasNext()) {
-						os.saveAcquisitionData(i.next()) ;
+						os.saveAcquisitionData(ctx, i.next()) ;
 					}
             	}
-            	result = os.saveData(data, toAdd, toRemove, userID);
+            	result = os.saveData(ctx, data, toAdd, toRemove, userID);
             }
         };
     }
@@ -115,10 +120,10 @@ public class StructuredAnnotationSaver
             	if (metadata != null) {
             		Iterator<Object> i = metadata.iterator();
             		while (i.hasNext()) {
-						os.saveAcquisitionData(i.next()) ;
+						os.saveAcquisitionData(ctx, i.next()) ;
 					}
             	}
-            	result = os.saveBatchData(data, toAdd, toRemove, userID);
+            	result = os.saveBatchData(ctx, data, toAdd, toRemove, userID);
             }
         };
     }
@@ -146,10 +151,10 @@ public class StructuredAnnotationSaver
             	if (metadata != null) {
             		Iterator<Object> i = metadata.iterator();
             		while (i.hasNext()) {
-						os.saveAcquisitionData(i.next()) ;
+						os.saveAcquisitionData(ctx, i.next()) ;
 					}
             	}
-            	result = os.saveBatchData(data, toAdd, toRemove, userID);
+            	result = os.saveBatchData(ctx, data, toAdd, toRemove, userID);
             }
         };
     }
@@ -169,20 +174,23 @@ public class StructuredAnnotationSaver
     /**
      * Creates a new instance.
      * 
-     * @param data		The data objects to handle.
-     * @param toAdd		The annotations to add.
-     * @param toRemove	The annotations to remove.
-     * @param metadata	The acquisition metadata.
-     * @param userID	The id of the user.
-     * @param batch		Pass <code>true</code> to indicate that it is a batch
-     * 					annotation, <code>false</code> otherwise.
+     * @param ctx The security context.
+     * @param data The data objects to handle.
+     * @param toAdd The annotations to add.
+     * @param toRemove The annotations to remove.
+     * @param metadata The acquisition metadata.
+     * @param userID The id of the user.
+     * @param batch Pass <code>true</code> to indicate that it is a batch
+     *              annotation, <code>false</code> otherwise.
      */
-    public StructuredAnnotationSaver(Collection<DataObject> data, 
-    		List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
+    public StructuredAnnotationSaver(SecurityContext ctx,
+    		Collection<DataObject> data, List<AnnotationData> toAdd,
+    		List<AnnotationData> toRemove, 
     		List<Object> metadata, long userID, boolean batch)
     {
     	if (data == null)
     		throw new IllegalArgumentException("No object to save.");
+    	this.ctx = ctx;
     	if (batch)
     		loadCall = loadBatchCall(data, toAdd, toRemove, metadata, userID);
     	else 
@@ -192,17 +200,19 @@ public class StructuredAnnotationSaver
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param timeRefObject	The object hosting the time interval.
      * @param toAdd			The annotations to add.
      * @param toRemove		The annotations to remove.
      * @param userID		The id of the user.
      */
-    public StructuredAnnotationSaver(TimeRefObject timeRefObject, 
-    		List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-    		long userID)
+    public StructuredAnnotationSaver(SecurityContext ctx,
+    		TimeRefObject timeRefObject, List<AnnotationData> toAdd,
+    		List<AnnotationData> toRemove, long userID)
     {
     	if (timeRefObject == null)
     		throw new IllegalArgumentException("No time period sepecified.");
+    	this.ctx = ctx;
     	loadCall = loadBatchCall(timeRefObject, toAdd, toRemove, null, userID);
     }
     

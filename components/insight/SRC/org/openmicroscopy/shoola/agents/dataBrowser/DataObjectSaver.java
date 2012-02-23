@@ -30,6 +30,7 @@ import java.util.Collection;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -63,14 +64,15 @@ public class DataObjectSaver
      * 
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param datasets	The datasets to add the images to.
      * 					Mustn't be <code>null</code>.
      * @param images	The images to add. Mustn't be <code>null</code>.
      */
-    public DataObjectSaver(DataBrowser viewer, Collection datasets,
-    		Collection images)
+    public DataObjectSaver(DataBrowser viewer, SecurityContext ctx,
+    		Collection datasets, Collection images)
     {
-    	super(viewer);
+    	super(viewer, ctx);
     	if (datasets == null || datasets.size() == 0) 
     		throw new IllegalArgumentException("No datasets to add the images" +
     				" to.");
@@ -93,7 +95,7 @@ public class DataObjectSaver
 	public void load()
 	{
 
-        handle = dmView.addExistingObjects(datasets, images, this);
+        handle = dmView.addExistingObjects(ctx, datasets, images, this);
 	}
 	
 	/**

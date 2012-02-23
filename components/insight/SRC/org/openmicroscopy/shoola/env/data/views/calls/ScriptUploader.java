@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -59,16 +60,18 @@ public class ScriptUploader
     /**
      * Creates a {@link BatchCall} to upload the script.
      * 
-     * @param script The script to upload. 
+     * @param ctx The security context.
+     * @param script The script to upload.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeCall(final ScriptObject script)
+    private BatchCall makeCall(final SecurityContext ctx,
+    		final ScriptObject script)
     {
     	return new BatchCall("Upload the script") {
     		public void doCall() throws Exception
     		{
     			OmeroImageService os = context.getImageService();
-    			result = os.uploadScript(script);
+    			result = os.uploadScript(ctx, script);
     		}
         };
     }
@@ -89,13 +92,14 @@ public class ScriptUploader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param script The script to upload.
      */
-    public ScriptUploader(ScriptObject script)
+    public ScriptUploader(SecurityContext ctx, ScriptObject script)
     {
     	if (script == null) 
     		throw new IllegalArgumentException("No script specified."); 
-		loadCall = makeCall(script);
+		loadCall = makeCall(ctx, script);
     }
-    
+
 }

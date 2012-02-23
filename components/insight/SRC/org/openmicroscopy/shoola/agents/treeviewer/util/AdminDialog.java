@@ -149,12 +149,14 @@ public class AdminDialog
 	private boolean isExistingObject(String name, boolean group)
 	{
 		AdminService svc = TreeViewerAgent.getRegistry().getAdminService();
+		/* TODO: review
 		try {
 			if (group) return svc.lookupGroup(name) != null;
 			return svc.lookupExperimenter(name) != null;
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
+		*/
 		return true;
 	}
 	

@@ -31,6 +31,7 @@ import java.io.File;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 /** 
  * The activity associated to the Save as action i.e. save a collection of
@@ -69,12 +70,13 @@ public class SaveAsActivity
      * @param viewer		The viewer this data loader is for.
      *               		Mustn't be <code>null</code>.
      * @param registry		Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param parameters	The parameters used to save the collection of images.
      */
 	public SaveAsActivity(UserNotifier viewer,  Registry registry,
-			SaveAsParam	parameters)
+			SecurityContext ctx, SaveAsParam parameters)
 	{
-		super(viewer, registry);
+		super(viewer, registry, ctx);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
@@ -91,7 +93,7 @@ public class SaveAsActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		loader = new SaveAsLoader(viewer, registry, parameters, this);
+		loader = new SaveAsLoader(viewer, registry, ctx, parameters, this);
 		return loader;
 	}
 

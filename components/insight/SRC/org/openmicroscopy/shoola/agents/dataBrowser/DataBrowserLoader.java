@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
@@ -65,33 +66,39 @@ public abstract class DataBrowserLoader
 {
 
 	 /** The viewer this data loader is for. */
-    protected final DataBrowser				viewer;
+    protected final DataBrowser viewer;
     
     /** Convenience reference for subclasses. */
-    protected final Registry              	registry;
+    protected final Registry registry;
     
     /** Convenience reference for subclasses. */
-    protected final HierarchyBrowsingView 	hiBrwView;
+    protected final HierarchyBrowsingView hiBrwView;
     
     /** Convenience reference for subclasses. */
-    protected final DataHandlerView 		dhView;
+    protected final DataHandlerView dhView;
     
     /** Convenience reference for subclasses. */
-    protected final MetadataHandlerView		mhView;
+    protected final MetadataHandlerView mhView;
     
     /** Convenience reference for subclasses. */
-    protected final DataManagerView			dmView;
+    protected final DataManagerView dmView;
+    
+    /** The security context.*/
+    protected final SecurityContext ctx;
     
     /**
      * Creates a new instance.
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      */
-    protected DataBrowserLoader(DataBrowser viewer)
+    protected DataBrowserLoader(DataBrowser viewer, SecurityContext ctx)
     {
-        if (viewer == null) throw new NullPointerException("No viewer.");
+    	if (viewer == null) throw new NullPointerException("No viewer.");
+        if (ctx == null) throw new NullPointerException("No security context.");
         this.viewer = viewer;
+        this.ctx = ctx;
         registry = DataBrowserAgent.getRegistry();
         hiBrwView = (HierarchyBrowsingView) 
         			registry.getDataServicesView(HierarchyBrowsingView.class);

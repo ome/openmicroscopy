@@ -24,22 +24,32 @@ package org.openmicroscopy.shoola.agents.editor.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 
 //Third-party libraries
@@ -47,9 +57,13 @@ import javax.swing.border.EmptyBorder;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
+import org.openmicroscopy.shoola.agents.editor.actions.GroupSelectionAction;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ExperimenterData;
 
 /** 
  * The {@link Editor}'s View.
@@ -86,7 +100,10 @@ class EditorUI
 	 * A Panel to display in the center of this window if there is no file 
 	 * to show. 
 	 */
-	private JPanel 					splashScreen;
+	private JPanel splashScreen;
+	
+	/** The menu displaying the available groups.*/
+	private JPopupMenu groupMenu;
 	
 	/** 
 	 * Creates the file menu.
@@ -212,7 +229,7 @@ class EditorUI
 		if (model == null) throw new NullPointerException("No model.");
 		this.controller = controller;
 		this.model = model;
-		toolBar = new EditorToolBar(controller);
+		toolBar = new EditorToolBar(controller, this);
 		statusBar = new EditorStatusBar();
 		setJMenuBar(createMenuBar());
 		buildGUI();
@@ -249,6 +266,24 @@ class EditorUI
     	repaint();
     }
     
+    /**
+     * Returns <code>true</code> if the editor is not connected to the server,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isStandalone()
+    {
+    	return model.getSecurityContext() == null;
+    }
+    
+    /**
+     * Returns the id of the file saved on the server.
+     * 
+     * @return See above.
+     */
+    long getFileID() { return model.getFileID(); }
+    
     /** Displays the browser by adding it to this UI. */
     void displayFile()
     {
@@ -262,6 +297,58 @@ class EditorUI
     	repaint();
     }
     
+	/**
+	 * Brings up the menu on top of the specified component at 
+	 * the specified location.
+	 * 
+	 * @param menuID The id of the menu.
+	 * @param invoker The component that requested the pop-up menu.
+	 * @param loc The point at which to display the menu, relative to the
+	 *            <code>component</code>'s coordinates.
+	 */
+	void showMenu(int menuID, Component c, Point p)
+	{
+		switch (menuID) {
+			case Editor.GROUP_MENU:
+				if (groupMenu == null) {
+					groupMenu = new JPopupMenu();
+					groupMenu.setBorder(
+		        		BorderFactory.createBevelBorder(BevelBorder.RAISED));
+					Set groups = EditorAgent.getAvailableUserGroups();
+					List<GroupSelectionAction> l = 
+						controller.getUserGroupAction();
+		        	Iterator<GroupSelectionAction> i = l.iterator();
+		        	GroupSelectionAction a;
+		        	JCheckBoxMenuItem item;
+		        	ButtonGroup buttonGroup = new ButtonGroup();
+		        	SecurityContext ctx = model.getSecurityContext();
+		        	long gid = -1;
+		        	if (ctx != null) gid = ctx.getGroupID();
+		        	while (i.hasNext()) {
+						a = i.next();
+						item = new JCheckBoxMenuItem(a);
+						item.setEnabled(true);
+						item.setSelected(a.isSameGroup(gid));
+						item.setBorder(null);
+						buttonGroup.add(item);
+						groupMenu.add(item);
+					}
+				}
+				groupMenu.show(c, p.x, p.y);
+				break;
+	
+			default:
+				break;
+		}
+		
+	}
+	
+	/** 
+	 * Sets the information about the group depending on the context and if the
+	 * file has been saved or not.
+	 */
+	void setGroupInformation() { toolBar.setGroupInformation(); }
+	
     /** 
      * Overrides the {@link #setOnScreen() setOnScreen} method. 
      * Does not make the window visible, since this only occurs after 

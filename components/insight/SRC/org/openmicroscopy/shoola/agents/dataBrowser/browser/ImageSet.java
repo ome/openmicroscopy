@@ -22,10 +22,10 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
-import java.awt.event.KeyListener;
 
 
 //Java imports
+import java.awt.event.KeyListener;
 
 //Third-party libraries
 

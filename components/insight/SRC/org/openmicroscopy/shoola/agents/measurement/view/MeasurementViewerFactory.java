@@ -42,6 +42,7 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.ActivationAction;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import pojos.ChannelData;
 import pojos.PixelsData;
@@ -110,25 +111,25 @@ public class MeasurementViewerFactory
      * Returns a viewer to display the image corresponding to the specified id.
      * Recycles or creates a viewer.
      * 
-     * @param pixels 			The pixels set the measurement tool is for.
-     * @param imageID   		The id of the image.
-     * @param name      		The name of the image.
-     * @param bounds    		The bounds of the component invoking the 
-     *                  		{@link MeasurementViewer}.
-     * @param z					The selected z-section.
-     * @param t					The selected time-point.
-     * @param magnification		The image's magnification factor.
-     * @param activeChannels	Collection of active channels.
-     * @param channelsData		The channels metadata.
+     * @param ctx The security context.
+     * @param pixels The pixels set the measurement tool is for.
+     * @param imageID The id of the image.
+     * @param name The name of the image.
+     * @param bounds The bounds of the component invoking the 
+     *               {@link MeasurementViewer}.
+     * @param z The selected z-section.
+     * @param t The selected time-point.
+     * @param magnification The image's magnification factor.
+     * @param activeChannels Collection of active channels.
+     * @param channelsData The channels metadata.
      * @return See above.
      */
-	public static MeasurementViewer getViewer(PixelsData pixels, long imageID, 
-										String name, Rectangle bounds, 
-										int z, int t, double magnification,
-										Map activeChannels, List<ChannelData>
-										channelsData)
+	public static MeasurementViewer getViewer(SecurityContext ctx,
+			PixelsData pixels, long imageID, String name, Rectangle bounds, 
+			int z, int t, double magnification,
+			Map activeChannels, List<ChannelData> channelsData)
 	{
-		MeasurementViewerModel model = new MeasurementViewerModel(imageID, 
+		MeasurementViewerModel model = new MeasurementViewerModel(ctx, imageID,
 				pixels, name, bounds, channelsData);
 		model.setPlane(z, t);
 		model.setMagnification(magnification);
@@ -139,10 +140,12 @@ public class MeasurementViewerFactory
 	/**
 	 * Returns a viewer or <code>null</code> if not previously created.
 	 * 
+	 *  @param ctx The security context.
 	 * @param pixelsID The id of the pixels set.
 	 * @return See above.
 	 */
-	public static MeasurementViewer getViewer(long pixelsID)
+	public static MeasurementViewer getViewer(SecurityContext ctx,
+			long pixelsID)
 	{
 		Iterator v = singleton.viewers.iterator();
         MeasurementViewerComponent comp;

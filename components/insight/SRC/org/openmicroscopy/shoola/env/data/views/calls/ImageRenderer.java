@@ -34,6 +34,7 @@ import java.awt.image.BufferedImage;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -57,10 +58,13 @@ public class ImageRenderer
 {
 
     /** The rendered image. */
-    private Object       result;
+    private Object result;
     
     /** Loads the specified tree. */
-    private BatchCall     loadCall;
+    private BatchCall loadCall;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Creates a {@link BatchCall} to retrieve the user images.
@@ -80,7 +84,8 @@ public class ImageRenderer
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
-                result = rds.renderImage(pixelsID, pd, asTexture, largeImage);
+                result = rds.renderImage(ctx, pixelsID, pd, asTexture,
+                		largeImage);
             }
         };
     } 
@@ -102,6 +107,7 @@ public class ImageRenderer
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param pixelsID  The id of the pixels set the plane belongs to.
      * @param pd        The plane to render.
      * @param asTexture	Pass <code>true</code> to return a texture,
@@ -109,9 +115,10 @@ public class ImageRenderer
 	 * @param largeImae Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
      */
-    public ImageRenderer(long pixelsID, PlaneDef pd, boolean asTexture,
-    		boolean largeImage)
+    public ImageRenderer(SecurityContext ctx, long pixelsID, PlaneDef pd,
+    	boolean asTexture, boolean largeImage)
     {
+    	this.ctx = ctx;
         if (pixelsID < 0)
             throw new IllegalArgumentException("ID not valid.");
        loadCall = makeBatchCall(pixelsID, pd, asTexture, largeImage);

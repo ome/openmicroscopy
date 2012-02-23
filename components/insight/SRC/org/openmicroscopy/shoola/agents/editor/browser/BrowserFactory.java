@@ -29,6 +29,8 @@
 //Application-internal dependencies
 package org.openmicroscopy.shoola.agents.editor.browser;
 
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 /** 
  * Factory to create {@link Browser} objects.
  *
@@ -44,17 +46,18 @@ public class BrowserFactory
 {
 
     /**
-     * Creates a new {@link Browser}, with a UI either for disply or editing
+     * Creates a new {@link Browser}, with a UI either for display or editing
      * of the Tree data. 
      * 
+     * @param ctx The security context.
      * @param editingMode Either {@link Browser#FILE_LOCKED},
      * 		{@link Browser#EDIT_EXPERIMENT}, or {@link Browser#EDIT_PROTOCOL}.
-     * 
      * @return A browser component. 
      */
-    public static Browser createBrowser(int editingMode, int type)
+    public static Browser createBrowser(SecurityContext ctx,
+    		int editingMode, int type)
     {
-        BrowserModel model = new BrowserModel(editingMode, type);
+        BrowserModel model = new BrowserModel(ctx, editingMode, type);
         BrowserComponent component = new BrowserComponent(model);
         model.initialize(component);
         component.initialize();
@@ -64,19 +67,17 @@ public class BrowserFactory
     /**
      * Creates a new {@link Browser}, with a UI either in the Display mode.
      * 
+     * @param ctx The security context.
      * @param type Either {@link Browser#PROTOCOL} or {@link Browser#EXPERIMENT}.
      * @return A browser component. 
      * 
      */
-    public static Browser createBrowser(int type)
+    public static Browser createBrowser(SecurityContext ctx, int type)
     {
-    	int editingMode;
+    	int editingMode = Browser.EDIT_PROTOCOL;
     	if (type == Browser.EXPERIMENT) 
     		editingMode = Browser.EDIT_EXPERIMENT;
-    	else 
-    		editingMode = Browser.EDIT_PROTOCOL;
-    	
-    	return createBrowser(editingMode, type);
+    	return createBrowser(ctx, editingMode, type);
     }
-    
+
 }

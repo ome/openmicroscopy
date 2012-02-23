@@ -29,6 +29,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.ROIData;
@@ -59,19 +60,20 @@ public class ROISaver
 	/**
 	 * Creates a {@link BatchCall} to load the ROIs.
 	 * 
+	 * @param ctx The security context.
 	 * @param imageID The id of the image.
 	 * @param fileID  The id of the file.
 	 * @param userID  The id of the user. 
 	 * @return The {@link BatchCall}.
 	 */
-	private BatchCall makeSaveCall(final long imageID, final long userID, 
-			final List<ROIData> roiList	)
+	private BatchCall makeSaveCall(final SecurityContext ctx,
+		final long imageID, final long userID, final List<ROIData> roiList)
 	{
 		return new BatchCall("save ROI") {
 			            public void doCall() throws Exception
 	        {
 			    OmeroImageService svc = context.getImageService();
-			    result = svc.saveROI(imageID, userID, roiList);
+			    result = svc.saveROI(ctx, imageID, userID, roiList);
 	        }
 	    };
 	}
@@ -91,13 +93,15 @@ public class ROISaver
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param imageID 	The image's ID.
-	 * @param fileID	The ID of the files.
-	 * @param userID	The user's ID.
+	 * @param ctx The security context.
+	 * @param imageID The image's ID.
+	 * @param fileID The ID of the files.
+	 * @param userID The user's ID.
 	 */
-	public ROISaver(long imageID,long userID, List<ROIData> roiList)
+	public ROISaver(SecurityContext ctx, long imageID,long userID,
+			List<ROIData> roiList)
 	{
-		saveCall = makeSaveCall(imageID, userID, roiList);
+		saveCall = makeSaveCall(ctx, imageID, userID, roiList);
 	}
 
 }

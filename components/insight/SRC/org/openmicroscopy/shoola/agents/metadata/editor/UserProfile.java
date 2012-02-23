@@ -570,7 +570,9 @@ class UserProfile
      */
     private boolean setGroupOwner(GroupData group)
     {
-    	ExperimenterData ref = (ExperimenterData) model.getRefObject();
+    	Object refObject = model.getRefObject();
+    	if (!(refObject instanceof ExperimenterData)) return false;
+    	ExperimenterData ref = (ExperimenterData) refObject;
     	long userID = MetadataViewerAgent.getUserDetails().getId();
     	Set leaders = group.getLeaders();
     	ExperimenterData exp;

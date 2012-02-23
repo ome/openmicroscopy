@@ -35,6 +35,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.TagAnnotationData;
@@ -78,16 +79,17 @@ public class TagsFilter
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param tags		The collection of tags to filter by.
      * 					If <code>null</code> or <code>empty</code>
      *					retrieve the uncommented objects.
      * @param nodes		The collection of objects to filter. 
      * 					Mustn't be <code>null</code>.
      */
-	public TagsFilter(DataBrowser viewer, List<String> tags, 
-					Collection<DataObject> nodes)
+	public TagsFilter(DataBrowser viewer, SecurityContext ctx, 
+			List<String> tags, Collection<DataObject> nodes)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (nodes == null || nodes.size() == 0)
 			throw new IllegalArgumentException("No nodes to filter.");
 		this.tags = tags;
@@ -116,7 +118,7 @@ public class TagsFilter
 	public void load()
 	{
 		long userID = -1;//DataBrowserAgent.getUserDetails().getId();
-		handle = mhView.filterByAnnotation(nodeType, nodeIds, 
+		handle = mhView.filterByAnnotation(ctx, nodeType, nodeIds, 
 							TagAnnotationData.class, tags, userID, this);
 	}
 	

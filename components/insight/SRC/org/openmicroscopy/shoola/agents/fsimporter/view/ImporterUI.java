@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -69,6 +67,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
@@ -87,7 +86,6 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ExperimenterData;
 
 /** 
  * The {@link Importer}'s View. Displays the on-going import and the finished
@@ -225,8 +223,8 @@ class ImporterUI
         	GroupSelectionAction a;
         	JCheckBoxMenuItem item;
         	ButtonGroup buttonGroup = new ButtonGroup();
-        	ExperimenterData exp = ImporterAgent.getUserDetails();
-        	long id = exp.getDefaultGroup().getId();
+        	//ExperimenterData exp = ImporterAgent.getUserDetails();
+        	long id = model.getGroupId();//exp.getDefaultGroup().getId();
         	while (i.hasNext()) {
 				a = i.next();
 				item = new JCheckBoxMenuItem(a);
@@ -399,7 +397,8 @@ class ImporterUI
 	void addComponent(ImportDialog chooser)
 	{
 		if (chooser == null) return;
-		if (model.isMaster()) chooser.addToolBar(buildToolBar());
+		//if (model.isMaster()) chooser.addToolBar(buildToolBar());
+		chooser.addToolBar(buildToolBar());
 		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
 		//if in debug mode insert the debug section
 		Boolean b = (Boolean) 
@@ -459,7 +458,7 @@ class ImporterUI
 		if (object == null) return null;
 		int n = tabs.getComponentCount();
 		String title = "Import #"+total;
-		ImporterUIElement element = new ImporterUIElement(controller,
+		ImporterUIElement element = new ImporterUIElement(controller, model,
 				uiElementID, n, title, object);
 		//IconManager icons = IconManager.getInstance();
 		tabs.insertTab(title, element.getImportIcon(), element, "", total);
@@ -668,7 +667,7 @@ class ImporterUI
     JComponent buildToolBar()
     {
         Set set = ImporterAgent.getAvailableUserGroups();
-        if (set == null || set.size() == 0) return null;
+        if (set == null || set.size() <= 1) return null;
         
     	ImporterAction a = controller.getAction(ImporterControl.GROUP_BUTTON);
     	a.setEnabled(set.size() > 1);

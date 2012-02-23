@@ -588,4 +588,10 @@ class GeneralPaneUI
 		annotationUI.handleObjectsSelection(type, objects, true);
 	}
 	
+	/** Updates the UI when the related nodes have been set.*/
+	void onRelatedNodesSet()
+	{
+		annotationUI.onRelatedNodesSet();
+	}
+
 }

@@ -31,6 +31,7 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.DataObject;
@@ -66,13 +67,14 @@ public class DirectoryMonitor
      * 
      * @param viewer	The Importer this data loader is for.
      * 					Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param directory	The directory to monitor.
      * @param container	The container where to import the image to.
      */
-	public DirectoryMonitor(Importer viewer, File directory, 
-			DataObject container)
+	public DirectoryMonitor(Importer viewer, SecurityContext ctx,
+			File directory, DataObject container)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (directory == null)
 			throw new IllegalArgumentException("No directory to monitor.");
 		this.directory = directory;
@@ -85,7 +87,7 @@ public class DirectoryMonitor
 	 */
 	public void load()
 	{
-		handle = ivView.monitorDirectory(directory, container, 
+		handle = ivView.monitorDirectory(ctx, directory, container, 
 				getCurrentUserID(), -1, this);
 	}
 	

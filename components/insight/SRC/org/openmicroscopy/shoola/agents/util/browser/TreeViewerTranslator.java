@@ -41,18 +41,17 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -829,20 +828,34 @@ public class TreeViewerTranslator
 		TreeImageSet n;
 		while (i.hasNext()) {
 			g = (GroupData) i.next();
-			n = new TreeImageSet(g);
-			l = g.getExperimenters();
-			if (l != null && l.size() > 0) {
-				n.setChildrenLoaded(Boolean.valueOf(true));
-				j = l.iterator();
-				while (j.hasNext()) 
-					n.addChildDisplay(new TreeImageNode(j.next()));
-				n.setNumberItems(l.size());
-			} else n.setNumberItems(0);
-			nodes.add(n);
+			n = transformGroup(g);
+			if (n != null) nodes.add(n);
 		}
 		return nodes;
 	}
     
+	/**
+	 * Transforms the specified group into its corresponding UI entity.
+	 * 
+	 * @param group The group to transform
+	 * @return See above.
+	 */
+	public static TreeImageSet transformGroup(GroupData group)
+	{
+		if (group == null) return null;
+		TreeImageSet n = new TreeImageSet(group);
+		Collection l = group.getExperimenters();
+		if (l != null && l.size() > 0) {
+			n.setChildrenLoaded(Boolean.valueOf(true));
+			Iterator j = l.iterator();
+			while (j.hasNext()) 
+				n.addChildDisplay(new TreeImageNode(j.next()));
+			n.setNumberItems(l.size());
+		} else n.setNumberItems(0);
+    	formatToolTipFor(n);
+    	return n;
+ 	}
+	
 	/**
 	 * Transforms the passed collection.
 	 * 
@@ -908,6 +921,27 @@ public class TreeViewerTranslator
         if (uo instanceof ImageData) {
         	l = EditorUtil.formatObjectTooltip((ImageData) uo);
         	s = UIUtilities.formatString(((ImageData) uo).getName(), -1);
+        } else if (uo instanceof GroupData) {
+        	int level = 
+        		TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+        				(GroupData) uo);
+        	switch (level) {
+	        	case AdminObject.PERMISSIONS_PRIVATE:
+	        		node.setToolTip(AdminObject.PERMISSIONS_PRIVATE_TEXT);
+	        		break;
+	        	case AdminObject.PERMISSIONS_GROUP_READ:
+	        		node.setToolTip(AdminObject.PERMISSIONS_GROUP_READ_TEXT);
+	        		break;
+	        	case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+	        		node.setToolTip(AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT);
+	        		break;
+	        	case AdminObject.PERMISSIONS_PUBLIC_READ:
+	        		node.setToolTip(AdminObject.PERMISSIONS_PUBLIC_READ_TEXT);
+	        		break;
+	        	case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+	        		node.setToolTip(AdminObject.PERMISSIONS_PUBLIC_READ_WRITE_TEXT);
+            }
+        	return;
         }
         if (l == null || l.size() == 0) node.setToolTip(s);
         else {
