@@ -205,7 +205,7 @@ class UserEntry (object):
         a.changeUserPassword(self.name, omero.gateway.omero_type(password))
 
     @staticmethod
-    def addGroupToUser (client, groupname, groupperms='rw----'):
+    def addGroupToUser (client, groupname, groupperms='rwrw--'):
         a = client.getAdminService()
         admin_gateway = None
         try:
