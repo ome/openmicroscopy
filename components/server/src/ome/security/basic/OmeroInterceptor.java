@@ -491,11 +491,18 @@ public class OmeroInterceptor implements Interceptor {
         }
 
         // GROUP
-        // users are only allowed to set0 to the current group
+        // users are only allowed to set to the current group
+        // if, however, the current group is -1 (all groups)
+        // and the user is a member of that group or an admin,
+        // then permit the setting with the assumption that the
+        // later link check will catch any inappropriate linking.
         if (source.getGroup() != null && source.getGroup().getId() != null) {
 
+            final long sourceGroupId = source.getGroup().getId();
+            final boolean isAdmin = bec.isCurrentUserAdmin();
+
             // ticket:1434
-            if (bec.getCurrentGroupId().equals(source.getGroup().getId())) {
+            if (bec.getCurrentGroupId().equals(sourceGroupId)) {
                 newDetails.setGroup(source.getGroup());
             }
 
@@ -503,6 +510,13 @@ public class OmeroInterceptor implements Interceptor {
             else if (bec.isCurrentUserAdmin() &&
                     Long.valueOf(roles.getUserGroupId())
                     .equals(source.getGroup().getId())) {
+                newDetails.setGroup(source.getGroup());
+            }
+
+            // ticket:3529
+            else if ((bec.getCurrentGroupId() < 0) &&
+                    (isAdmin || bec.getMemberOfGroupsList()
+                        .contains(sourceGroupId))) {
                 newDetails.setGroup(source.getGroup());
             }
 

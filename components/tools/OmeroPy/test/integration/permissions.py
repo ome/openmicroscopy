@@ -473,13 +473,26 @@ class TestPermissions(lib.ITest):
                 return client, user
         F(self).assertCallContext()
 
-    # Helpers
+    # Other specific issues of the omero.group
+    # functionality
 
-    def eventContextGetter(self, admin):
-        return lambda: admin.getEventContext().groupId
+    def testSaveWithNegOne(self):
 
-    def assertGroup(self, getter, grp):
-        self.assertEquals(getter(), grp)
+        # Get a user and services
+        client, user = self.new_client_and_user()
+
+        # Create a new object with an explicit group
+        admin = client.sf.getAdminService()
+        ec = admin.getEventContext()
+        grp = omero.model.ExperimenterGroupI(ec.groupId, False)
+        tag = omero.model.TagAnnotationI()
+        tag.details.group = grp
+
+        # Now try to save it in the -1 context
+        update = client.sf.getUpdateService()
+        all_context = {"omero.group":"-1"}
+        update.saveAndReturnObject(tag, all_context)
+
 
 if __name__ == '__main__':
     unittest.main()
