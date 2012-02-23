@@ -543,8 +543,39 @@ class TestPermissions(lib.ITest):
     # Reading with private groups
     # ==============================================
 
-    def testPrivateGroup(self):
-        pass
+    def testPrivateGroupCallContext(self):
+
+        # Setup groups as per Carlos' instructions (Feb 23)
+        groupX = self.new_group(perms="rwrw--")
+        clientA, userA = self.new_client_and_user(group=groupX)
+        gid = str(groupX.id.val)
+
+        groupY = self.new_group(perms="rw----")
+        clientB, userB = self.new_client_and_user(group=groupY)
+        self.add_experimenters(groupX, [userB])
+        clientB.sf.getAdminService().getEventContext() # Refresh
+
+        # Create the object as user A
+        tag = omero.model.TagAnnotationI()
+        tag = clientA.sf.getUpdateService().saveAndReturnObject(tag)
+        tid = tag.id.val
+
+        # Now try to read it in different ways
+        qa = clientA.sf.getQueryService()
+        qb = clientB.sf.getQueryService()
+        qr = self.root.sf.getQueryService()
+
+        negone = {"omero.group":"-1"}
+        specific = {"omero.group":gid}
+
+        qa.get("TagAnnotation", tid)
+        qa.get("TagAnnotation", tid, specific)
+        qa.get("TagAnnotation", tid, negone)
+        qr.get("TagAnnotation", tid, specific) # Not currently in gid
+        qr.get("TagAnnotation", tid, negone)
+        qb.get("TagAnnotation", tid, specific) # Not currently in gid
+        qb.get("TagAnnotation", tid, negone)
+
 
 if __name__ == '__main__':
     unittest.main()
