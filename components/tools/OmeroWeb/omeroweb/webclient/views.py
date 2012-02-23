@@ -1327,7 +1327,7 @@ def batch_annotate(request, conn, **kwargs):
     return HttpResponse(t.render(c))
 
 
-@isUserConnected
+@login_required()
 def annotate_file(request, conn, **kwargs):
     """ 
     On 'POST', This handles attaching an existing file-annotation(s) and/or upload of a new file to one or more objects 
@@ -1359,8 +1359,6 @@ def annotate_file(request, conn, **kwargs):
             except AttributeError, x:
                 logger.error(traceback.format_exc())
                 return handlerInternalError(x)
-        elif o_type in ("share", "sharecomment"):
-            manager = BaseShare(conn, None, o_id)
     if manager is None:
         manager = BaseContainer(conn)
     
