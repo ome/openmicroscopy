@@ -2806,11 +2806,10 @@ def chgrp(request, conn, **kwargs):
 
 
 @login_required()
-def script_run(request, scriptId, **kwargs):
+def script_run(request, scriptId, conn, **kwargs):
     """
     Runs a script using values in a POST
     """
-    conn = kwargs['conn']
     scriptService = conn.getScriptService()
 
     inputMap = {}
