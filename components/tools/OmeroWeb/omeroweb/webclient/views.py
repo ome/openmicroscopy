@@ -2673,12 +2673,10 @@ def list_scripts (request, conn, **kwargs):
     return render_to_response("webclient/scripts/list_scripts.html", {'scriptMenu': scriptList})
 
 @login_required()
-def script_ui(request, scriptId, **kwargs):
+def script_ui(request, scriptId, conn, **kwargs):
     """
     Generates an html form for the parameters of a defined script.
     """
-
-    conn = kwargs['conn']
     scriptService = conn.getScriptService()
 
     params = scriptService.getParams(long(scriptId))
