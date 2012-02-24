@@ -460,7 +460,6 @@ public class ImportLibrary implements IObservable
             }
             log.info("Big image, enabling metadata only and archiving.");
             container.setMetadataOnly(true);
-            container.setArchive(true);
         }
         else
         {
@@ -527,19 +526,15 @@ public class ImportLibrary implements IObservable
             }
             IFormatReader baseReader = reader.getImageReader().getReader();
             handleBigImageFormats(baseReader, container);
-            // Setting these two variables here because handleBigImageFormats()
-            // above may modify the container.
-            boolean archive = container.getArchive();
-            boolean useMetadataFile = container.getUseMetadataFile();
-            boolean fslite = container.getFslite();
+            // Forcing these to false for now but remove completely once tested?
+            boolean useMetadataFile = false;
+            boolean archive = false;
             boolean dropbox = container.getDropbox();
             if (log.isInfoEnabled())
             {
                 log.info("File format: " + format);
                 log.info("Base reader: " + baseReader.getClass().getName());
                 log.info("Metadata only import? " + isMetadataOnly);
-                log.info("Archiving enabled? " + archive);
-                log.info("FS-lite import? " + fslite);
                 log.info("Dropbox import? " + dropbox);
                 log.info("Container metadata only import? " +
                          container.getMetadataOnly());
@@ -565,7 +560,7 @@ public class ImportLibrary implements IObservable
                         + useMetadataFile);
                 metadataFiles = store.setArchive(archive, useMetadataFile);
             }
-            if (fslite) {
+            if (!dropbox) {
                 container = handleFsliteImport(container);
             }
             List<Pixels> pixList = importMetadata(index, container);
@@ -583,66 +578,6 @@ public class ImportLibrary implements IObservable
                 pixelsIds.add(pixels.getId().getValue());
             }
             boolean saveSha1 = false;
-            // If we're metadata only, we don't want to perform any pixel I/O.
-            if (!fslite && !dropbox && !isMetadataOnly && !container.getMetadataOnly())
-            {
-                boolean success = false;
-                try
-                {
-                    store.preparePixelsStore(pixelsIds);
-                    int seriesCount = reader.getSeriesCount();
-                    for (int series = 0; series < seriesCount; series++)
-                    {
-                        // Calculate the dimensions for import this single file.
-                        ImportSize size = new ImportSize(fileName,
-                                pixList.get(series), reader.getDimensionOrder());
-
-                        Pixels pixels = pixList.get(series);
-                        long pixId = pixels.getId().getValue();
-
-                        notifyObservers(new ImportEvent.DATASET_STORED(
-                                index, fileName, userSpecifiedTarget, pixId,
-                                series, size, numDone, total));
-
-                        MessageDigest md = importData(
-                                pixId, fileName, series, size);
-                        if (md != null)
-                        {
-                            String s = OMEROMetadataStoreClient.byteArrayToHexString(
-                                    md.digest());
-                            pixels.setSha1(store.toRType(s));
-                            saveSha1 = true;
-                        }
-
-                        notifyObservers(new ImportEvent.DATA_STORED(
-                                index, fileName, userSpecifiedTarget, pixId,
-                                series, size));
-                    }
-                    success = true;
-                }
-                finally
-                {
-                    try
-                    {
-                        store.finalizePixelStore();
-                    } catch (Throwable t) {
-                        // ticket:5594
-                        if (success) {
-                            // We thought we were successful, so
-                            // this exception can propagate outward
-                            // cancelling the import.
-                            throw t;
-                        } else {
-                            // We were not successful which could
-                            // only happen if an exception was thrown,
-                            // therefore log this new exception, so
-                            // the first exception can propagate.
-                            log.error("Close exception hidden by previous exception", t);
-                        }
-
-                    }
-                }
-            }
 
             // Original file absolute path to original file map for uploading
             Map<String, OriginalFile> originalFileMap =
@@ -685,54 +620,15 @@ public class ImportLibrary implements IObservable
             }
 
             List<File> fileNameList = new ArrayList<File>();
-            if (archive)
-            {
-                for (String filename : reader.getUsedFiles())
-                {
-                    fileNameList.add(new File(filename));
-                }
-            }
-            else
-            {
-                for (String filename : store.getFilteredCompanionFiles())
-                {
-                    fileNameList.add(new File(filename));
-                }
-            }
 
-            fileNameList.addAll(metadataFiles);
-            if (fileNameList.size() != originalFileMap.size())
-            {
-                log.warn(String.format("Original file number mismatch, %d!=%d.",
-                        fileNameList.size(), originalFileMap.size()));
-            }
-
-            if (archive)
-            {
-                notifyObservers(new ImportEvent.IMPORT_ARCHIVING(
-                        index, null, userSpecifiedTarget, null, 0, null));
-                    store.writeFilesToFileStore(fileNameList, originalFileMap);
-            }
-            // If we're in metadata only mode and archiving is on we need to
+            // As we're in metadata only mode  on we need to
             // tell the server which Pixels set matches up to which series.
-            if ((isMetadataOnly || container.getMetadataOnly()) && archive)
+            String targetName = container.getFile().getAbsolutePath();
+            int series = 0;
+            for (Long pixelsId : pixelsIds)
             {
-                int series = 0;
-                for (Long pixelsId : pixelsIds)
-                {
-                    store.setPixelsParams(pixelsId, series);
-                    series++;
-                }
-            }
-            if (fslite || dropbox)
-            {
-                String targetName = container.getFile().getAbsolutePath();
-                int series = 0;
-                for (Long pixelsId : pixelsIds)
-                {
-                    store.setPixelsParams(pixelsId, series, targetName);
-                    series++;
-                }
+                store.setPixelsParams(pixelsId, series, targetName);
+                series++;
             }
 
             if (saveSha1)

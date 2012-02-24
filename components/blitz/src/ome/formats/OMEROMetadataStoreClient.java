@@ -1838,88 +1838,6 @@ public class OMEROMetadataStoreClient
      * @param files Files to populate against an original file list.
      * @param originalFileMap Map of absolute path against original file
      * objects that we are to populate.
-     */
-    public void writeFilesToFileStore(
-		List<File> files, Map<String, OriginalFile> originalFileMap)
-    {
-        // Lookup each source file in our hash map and write it to the
-        // correct original file object server side.
-        byte[] buf = new byte[1048576];  // 1 MB buffer
-        for (File file : files)
-        {
-            String path = file.getAbsolutePath();
-            OriginalFile originalFile = originalFileMap.get(path);
-            if (originalFile == null)
-            {
-                originalFile = byUUID(path, originalFileMap);
-            }
-            if (originalFile == null)
-            {
-                log.warn("Cannot lookup original file with path: "
-                         + file.getAbsolutePath());
-                continue;
-            }
-
-            FileInputStream stream = null;
-            try
-            {
-                stream = new FileInputStream(file);
-                rawFileStore.setFileId(originalFile.getId().getValue());
-                int rlen = 0;
-                int offset = 0;
-                while (stream.available() != 0)
-                {
-                    rlen = stream.read(buf);
-                    rawFileStore.write(buf, offset, rlen);
-                    offset += rlen;
-                }
-            }
-            catch (Exception e)
-            {
-                log.error("I/O or server error populating file store.", e);
-                break;
-            }
-            finally
-            {
-                if (stream != null)
-                {
-                    try
-                    {
-                        stream.close();
-                    }
-                    catch (Exception e)
-                    {
-                        log.error("I/O error closing stream.", e);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Sets extended the properties on a pixel set.
-     * @param pixelsId The pixels set identifier.
-     * @param series The series number to populate.
-     */
-    public void setPixelsParams(long pixelsId, int series)
-    {
-        try
-        {
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("image_no", Integer.toString(series));
-            delegate.setPixelsParams(pixelsId, true, params);
-        }
-        catch (Exception e)
-        {
-            log.error("Server error setting extended properties for Pixels:" +
-                      pixelsId);
-        }
-    }
-    /**
-     * Writes binary original file data to the OMERO server.
-     * @param files Files to populate against an original file list.
-     * @param originalFileMap Map of absolute path against original file
-     * objects that we are to populate.
      * @param target The <code>setId()</code> target.
      * @returns The prefix file path that was calculated by the server.
      */
@@ -1959,11 +1877,13 @@ public class OMEROMetadataStoreClient
             {
                 stream = new FileInputStream(file);
                 if (path.startsWith(basePath)) {
-                    // part of file set
-                    file = new File(directory, file.getName());
+                    // Is relativize safe?
+                    String relative = new File(basePath).toURI().relativize(new File(path).toURI()).getPath();
+                    file = new File(directory, relative);
                 } 
                 else {
-                    // original metadata ??
+                    // This shouldn't happen but copy the files into the 
+                    // original absolute path within the repo directory.
                     file = new File(directory, file.getAbsolutePath());
                 }
                 repo.makeDir(file.getParent());
@@ -2013,17 +1933,12 @@ public class OMEROMetadataStoreClient
     private String getTargetBasePath(List<File> files, File target) {
         // This only works with normalised paths. Can this be assumed here?
         // This also assumes the target file is not a tmp file!!
-        String newBasePath;
         String basePath = FilenameUtils.getFullPathNoEndSeparator(target.getAbsolutePath());
         for (File file : files)
         {
             if (!file.getAbsolutePath().startsWith(basePath))
             {
-                newBasePath = FilenameUtils.getFullPathNoEndSeparator(file.getAbsolutePath());
-                if(basePath.startsWith(newBasePath))
-                {
-                    basePath = newBasePath;
-                }
+                basePath = FilenameUtils.getFullPathNoEndSeparator(basePath);
             }
         }
         return basePath;
