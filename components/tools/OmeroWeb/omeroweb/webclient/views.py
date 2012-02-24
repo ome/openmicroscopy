@@ -2635,11 +2635,8 @@ def render_split_channel (request, iid, z, t, conn=None, conn_share=None, **kwar
 
 # scripting service....
 @login_required()
-def list_scripts (request, **kwargs):
+def list_scripts (request, conn, **kwargs):
     """ List the available scripts - Just officical scripts for now """
-
-    conn = kwargs['conn']
-
     scriptService = conn.getScriptService()
     scripts = scriptService.getScripts()
 
