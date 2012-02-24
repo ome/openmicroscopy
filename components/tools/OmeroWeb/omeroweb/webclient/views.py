@@ -2048,7 +2048,7 @@ def load_public(request, share_id=None, conn=None, conn_share=None, **kwargs):
 # Basket
 
 @login_required()
-def basket_action (request, action=None, **kwargs):
+def basket_action (request, conn, action=None, **kwargs):
     """
     Various actions for creating a 'share' or 'discussion' (no images).
     
@@ -2056,15 +2056,7 @@ def basket_action (request, action=None, **kwargs):
                         'todiscuss', 'createdisc'    (form to create discussion and handling the action itself)
     """
     request.session.modified = True
-    
     request.session['nav']['menu'] = 'basket'
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     url = None
     try:
