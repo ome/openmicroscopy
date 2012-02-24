@@ -54,6 +54,7 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.Pixels;
+import omero.model.Plate;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectDatasetLink;
@@ -76,6 +77,7 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateAcquisitionData;
@@ -84,6 +86,7 @@ import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
+import pojos.WellSampleData;
 
 /** 
  * Implementation of the {@link OmeroDataService} I/F.
@@ -681,6 +684,19 @@ class OmeroDataServiceImpl
 	{
 		try {
 			Class parentClass = gateway.convertPojos(type);
+			if (DatasetData.class.equals(type))
+				parentClass = Project.class;
+			else if (ImageData.class.equals(type))
+				parentClass = Dataset.class;
+			else if (PlateData.class.equals(type))
+				parentClass = Screen.class;
+			else if (TagAnnotationData.class.equals(type))
+				parentClass = TagAnnotation.class;
+			else if (FileAnnotationData.class.equals(type))
+				parentClass = FileAnnotation.class;
+			else if (WellSampleData.class.equals(type) ||
+					WellData.class.equals(type))
+				parentClass = Plate.class;
 			if (parentClass == null) return new HashSet();
 			List links = gateway.findLinks(ctx, parentClass, id, userID);
 			if (links == null) return new HashSet();
