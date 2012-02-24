@@ -178,7 +178,6 @@ public class LoadDefaultsEdit extends AbstractUndoableEdit
 		while(i.hasNext()) {
 			p = i.next();
 			defaultValue = editedParams.get(p);
-			System.out.println(defaultValue);
 			p.setValueAt(0, defaultValue);
 			// get the node from the other map, and notify model of change
 			n = paramNodes.get(p);
