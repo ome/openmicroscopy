@@ -356,7 +356,7 @@ class TextualAnnotationsUI
 		
 		boolean enabled = model.isWritable();
 		if (enabled && model.isMultiSelection()) {
-			enabled = model.isAcrossGroups();
+			enabled = !model.isAcrossGroups();
 		}
 		commentArea.setEnabled(enabled);
 		if (hasPrevious) {

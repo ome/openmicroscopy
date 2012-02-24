@@ -658,7 +658,7 @@ class EditorModel
 	boolean isAcrossGroups()
 	{
 		List<DataObject> l = getSelectedObjects();
-		if (l.size() <= 1) return false;
+		if (l == null || l.size() == 0) return false;
 		List<Long> ids = new ArrayList<Long>();
 		Iterator<DataObject> i = l.iterator();
 		DataObject data;

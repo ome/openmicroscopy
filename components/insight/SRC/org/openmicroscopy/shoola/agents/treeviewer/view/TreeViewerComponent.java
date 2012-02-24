@@ -1002,7 +1002,7 @@ class TreeViewerComponent
 			showDataBrowser(display.getUserObject(), display, true);
 			return;
 		} 
-		metadata.setSelectionMode(single);
+		
 		if (display != null) { 
 			Object object = display.getUserObject();
 			if (!single) {
@@ -1015,6 +1015,7 @@ class TreeViewerComponent
 				}
 				if (l.size() > 0)
 					metadata.setRelatedNodes(l);
+				metadata.setSelectionMode(single);
 			} else {
 				ExperimenterData exp = browser.getNodeOwner(display);
 				if (exp == null) exp = model.getUserDetails();
@@ -1026,7 +1027,8 @@ class TreeViewerComponent
 					Object gpp = null;
 					if (pp != null) gpp = pp.getUserObject();
 					metadata.setParentRootObject(p.getUserObject(), gpp);
-				} 
+				}
+				metadata.setSelectionMode(single);
 			}
 			if (!model.isFullScreen()) {
 				showDataBrowser(object, display, false);

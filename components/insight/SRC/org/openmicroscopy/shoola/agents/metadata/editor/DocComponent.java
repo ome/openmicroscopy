@@ -458,8 +458,7 @@ class DocComponent
 			
 			public void mousePressed(MouseEvent e)
 			{
-				Point p = e.getPoint();
-				showMenu(menuButton, p);
+				showMenu(menuButton, e.getPoint());
 			}
 		});
 		infoButton = new JMenuItem(icons.getIcon(IconManager.INFO));
@@ -468,8 +467,7 @@ class DocComponent
 			
 			public void mousePressed(MouseEvent e)
 			{
-				Point p = e.getPoint();
-				displayInformation(label, p);
+				displayInformation(label, e.getPoint());
 			}
 		});
 		unlinkButton = new JMenuItem(icons.getIcon(IconManager.MINUS_12));
@@ -655,6 +653,8 @@ class DocComponent
 		if (openButton != null) count++;
 		if (deleteButton != null) count++;
 		if (count > 0) {
+			menuButton.setEnabled(true);
+			if (model.isAcrossGroups()) menuButton.setEnabled(false);
 			bar.add(menuButton);
 			if (!b) bar.add(Box.createHorizontalStrut(8));
 			add(bar);
