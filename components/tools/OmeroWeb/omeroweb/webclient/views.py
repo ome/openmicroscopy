@@ -2356,19 +2356,12 @@ def getObjectUrl(conn, obj):
 ######################
 # Activities window & Progressbar
 @login_required()
-def activities(request, **kwargs):
+def activities(request, conn, **kwargs):
     """
     This refreshes callback handles (delete, scripts, chgrp etc) and provides html to update Activities window & Progressbar.
     The returned html contains details for ALL callbacks in web session, regardless of their status.
     We also add counts of jobs, failures and 'in progress' to update status bar.
     """
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
     in_progress = 0
     failure = 0
     _purgeCallback(request)
