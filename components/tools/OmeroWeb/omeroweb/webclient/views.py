@@ -2601,28 +2601,8 @@ def plateGrid_json (request, pid, conn, field=0, server_id=None, **kwargs):
     return webgateway_views.plateGrid_json(request, pid, field=field, server_id=None, **kwargs)
 
 @login_required()
-def image_viewer (request, iid, share_id=None, **kwargs):
+def image_viewer (request, iid, conn=None, conn_share=None, **kwargs):
     """ This view is responsible for showing pixel data as images. Delegates to webgateway, using share connection if appropriate """
-    
-    conn = None
-    if share_id is not None:
-        kwargs['viewport_server'] = reverse('webindex') + ("%s/" % share_id)
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        kwargs['viewport_server'] = reverse('webindex')
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-         
-    if conn is None:
-        raise Exception("Connection not available")
-
     return webgateway_views.full_viewer(request, iid, **kwargs)
 
 
