@@ -2555,16 +2555,8 @@ def activities_update (request, action, **kwargs):
 # User Photo
 
 @login_required()
-def avatar(request, oid=None, **kwargs):
+def avatar(request, conn, oid=None, **kwargs):
     """ Returns the experimenter's photo """
-
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
     photo = conn.getExperimenterPhoto(oid)
     return HttpResponse(photo, mimetype='image/jpeg')
 
