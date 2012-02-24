@@ -1816,15 +1816,8 @@ def manage_action_containers(request, action, conn, o_type=None, o_id=None, **kw
     return HttpResponse(t.render(c))
 
 @login_required()
-def get_original_file(request, fileId, **kwargs):
+def get_original_file(request, fileId, conn, **kwargs):
     """ Returns the specified original file as an http response. Used for displaying text or png/jpeg etc files in browser """
-
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     orig_file = conn.getObject("OriginalFile", fileId)
     if orig_file is None:
