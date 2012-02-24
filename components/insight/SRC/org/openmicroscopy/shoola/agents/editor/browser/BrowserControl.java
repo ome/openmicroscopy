@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.actions.CopyFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.DeleteFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.IndentLeftAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.IndentRightAction;
+import org.openmicroscopy.shoola.agents.editor.browser.actions.LoadDefaultsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.MoveDownAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.MoveUpAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.PasteFieldsAction;
@@ -146,6 +147,9 @@ public class BrowserControl
 	/** Identifies the <code>Clear Values</code> action. */
 	static final Integer    CLEAR_VALUES_ACTION = Integer.valueOf(13);
 	
+	/** Identifies the <code>Load Defaults</code> action. */
+	static final Integer    LOAD_DEFAULTS_ACTION = Integer.valueOf(14);
+	
 	/** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -204,6 +208,8 @@ public class BrowserControl
        actionsMap.put(ADD_EXP_INFO_ACTION, new AddExpInfoAction
 														(undoSupport, model));
        actionsMap.put(CLEAR_VALUES_ACTION, new ClearValuesAction
+														(undoSupport, model));
+       actionsMap.put(LOAD_DEFAULTS_ACTION, new LoadDefaultsAction
 														(undoSupport, model));
     }
     

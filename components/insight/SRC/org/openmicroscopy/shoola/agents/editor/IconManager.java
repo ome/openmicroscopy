@@ -332,11 +332,14 @@ public class IconManager
     /** The <code>Clear Values</code> icon */
     public  static final int			CLEAR_VALUES_ICON = 91;
     
+    /** The <code>Load Defaults</code> icon */
+    public  static final int			LOAD_DEFAULTS_ICON = 92;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 91;
+    private static final int          MAX_ID = 92;
    
     
     /** Paths of the icon files. */
@@ -442,6 +445,7 @@ public class IconManager
         relPaths[ADD_STEP_NOTE_ICON] = "addStepNote.png";
         relPaths[STEP_NOTE_ICON] = "stepNote.png";
         relPaths[CLEAR_VALUES_ICON] = "nuvola_news_unsubscribe16.png";
+        relPaths[LOAD_DEFAULTS_ICON] = "nuvola_bookmarks_list_add16.png";
     }
     
     
