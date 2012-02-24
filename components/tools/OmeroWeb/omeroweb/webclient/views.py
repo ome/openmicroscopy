@@ -1973,16 +1973,8 @@ def archived_files(request, iid, conn, **kwargs):
     return rsp
 
 @login_required()
-def download_annotation(request, action, iid, **kwargs):
+def download_annotation(request, action, iid, conn, **kwargs):
     """ Returns the file annotation as an http response for download """
-
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
     ann = conn.getObject("Annotation", iid)
     if ann is None:
         return handlerInternalError("Annotation does not exist (id:%s)." % (iid))
