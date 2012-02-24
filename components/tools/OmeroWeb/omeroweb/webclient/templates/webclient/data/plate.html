@@ -121,7 +121,7 @@
                         });
                     }
                 }).bind('dblclick', function(){
-                    openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
+                    openPopup("{% url webgateway_full_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
                 });
             });            
             wpv.load({{ manager.plate.id }}, {{ index }});
