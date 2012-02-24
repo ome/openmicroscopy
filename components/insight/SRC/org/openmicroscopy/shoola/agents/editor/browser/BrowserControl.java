@@ -361,6 +361,7 @@ public class BrowserControl
 		edit.doEdit();
 		
 		undoSupport.postEdit(edit);
+		model.setEditingMode(Browser.EDIT_EXPERIMENT);
     }
     
     /**
