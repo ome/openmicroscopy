@@ -2596,23 +2596,8 @@ def render_image_region (request, iid, z, t, server_id=None, conn=None, conn_sha
     return webgateway_views.render_image_region(request, iid, z, t, server_id=None, **kwargs)
 
 @login_required()
-def plateGrid_json (request, pid, field=0, server_id=None, conn=None, **kwargs):
+def plateGrid_json (request, pid, conn, field=0, server_id=None, **kwargs):
     """ This view is responsible for showing well data within plate """
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    if conn is None:
-        raise Exception("Connection not available")
-    
-    def urlprefix(iid):
-        return reverse('render_thumbnail', args=(iid,))
-    kwargs['urlprefix'] = urlprefix
-    
     return webgateway_views.plateGrid_json(request, pid, field=field, server_id=None, **kwargs)
 
 @login_required()
