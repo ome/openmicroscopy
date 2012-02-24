@@ -2222,18 +2222,11 @@ def update_basket(request, **kwargs):
         return handlerInternalError("Request method error in Basket.")
 
 @login_required()
-def help(request, **kwargs):
+def help(request, conn, **kwargs):
     """ Displays help page. Includes the choosers for changing current group and current user. """
 
     template = "webclient/help.html"
     request.session.modified = True
-        
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     url = None
     try:
