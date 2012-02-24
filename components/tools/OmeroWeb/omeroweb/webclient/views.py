@@ -2268,17 +2268,10 @@ def load_calendar(request, conn, year=None, month=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_history(request, year, month, day, **kwargs):
+def load_history(request, year, month, day, conn, **kwargs):
     """ The data for a particular date that is loaded into the center panel """
 
     template = "webclient/history/history_details.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     url = None
     try:
