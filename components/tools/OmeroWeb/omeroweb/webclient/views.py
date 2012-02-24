@@ -2572,26 +2572,8 @@ def render_birds_eye_view (request, iid, size=200, share_id=None, conn=None, con
 # Rendering
 
 @login_required()
-def render_thumbnail (request, iid, share_id=None, **kwargs):
+def render_thumbnail (request, iid, conn=None, conn_share=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
-
-    conn = None
-    if share_id is not None:
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-         
-    if conn is None:
-        raise Exception("Connection not available")
-
     return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, **kwargs)
 
 @login_required()
