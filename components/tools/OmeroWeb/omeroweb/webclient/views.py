@@ -2607,25 +2607,8 @@ def image_viewer (request, iid, conn=None, conn_share=None, **kwargs):
 
 
 @login_required()
-def imageData_json (request, iid, share_id=None, **kwargs):
+def imageData_json (request, iid, conn=None, conn_share=None, **kwargs):
     """ Get a dict with image information. Delegates to webgateway, using share connection if appropriate """
-    conn = None
-    if share_id is not None:
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-         
-    if conn is None:
-        raise Exception("Connection not available")
-
     return HttpResponse(webgateway_views.imageData_json(request, iid=iid, **kwargs), mimetype='application/javascript')
 
 @login_required()
