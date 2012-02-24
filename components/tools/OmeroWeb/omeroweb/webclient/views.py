@@ -2564,26 +2564,8 @@ def avatar(request, conn, oid=None, **kwargs):
 # Bird's eye view
 
 @login_required()
-def render_birds_eye_view (request, iid, size=200, share_id=None, **kwargs):
+def render_birds_eye_view (request, iid, size=200, share_id=None, conn=None, conn_share=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
-
-    conn = None
-    if share_id is not None:
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    if conn is None:
-        raise Exception("Connection not available")
-
     return webgateway_views.render_birds_eye_view(request, iid, size=size, conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
 
 ####################################################################################
