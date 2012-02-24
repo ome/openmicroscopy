@@ -2561,78 +2561,14 @@ def avatar(request, conn, oid=None, **kwargs):
     return HttpResponse(photo, mimetype='image/jpeg')
 
 ####################################################################################
-# Bird's eye view
-
-@login_required()
-def render_birds_eye_view (request, iid, size=200, conn=None, conn_share=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_birds_eye_view(request, iid, size=size, conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
-
-####################################################################################
-# Rendering
-
-@login_required()
-def render_thumbnail (request, iid, conn=None, conn_share=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, **kwargs)
+# webgateway extention
 
 @login_required()
 def render_thumbnail_resize (request, size, iid, conn=None, conn_share=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_thumbnail(request, iid, w=size, _defcb=conn.defaultThumbnail, **kwargs)
 
-@login_required()
-def render_image (request, iid, z, t, conn=None, conn_share=None, **kwargs):
-    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
-        Many options are available from the request dict.
-    I am assuming a single Pixels object on image with imageId='iid'. May be wrong """
-    return webgateway_views.render_image(request, iid, z, t, **kwargs)
-
-@login_required()
-def render_image_region (request, iid, z, t, server_id=None, conn=None, conn_share=None, **kwargs):
-    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
-        Many options are available from the request dict.
-    I am assuming a single Pixels object on image with imageId='iid'. May be wrong """
-    return webgateway_views.render_image_region(request, iid, z, t, server_id=None, **kwargs)
-
-@login_required()
-def plateGrid_json (request, pid, conn, field=0, server_id=None, **kwargs):
-    """ This view is responsible for showing well data within plate """
-    return webgateway_views.plateGrid_json(request, pid, field=field, server_id=None, **kwargs)
-
-@login_required()
-def image_viewer (request, iid, conn=None, conn_share=None, **kwargs):
-    """ This view is responsible for showing pixel data as images. Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.full_viewer(request, iid, **kwargs)
-
-
-@login_required()
-def imageData_json (request, iid, conn=None, conn_share=None, **kwargs):
-    """ Get a dict with image information. Delegates to webgateway, using share connection if appropriate """
-    return HttpResponse(webgateway_views.imageData_json(request, iid=iid, **kwargs), mimetype='application/javascript')
-
-@login_required()
-def render_row_plot (request, iid, z, t, y, w=1, conn=None, conn_share=None, **kwargs):
-    """ Plot of intenisty for a row of pixels. Delegates to webgateway, using share connection if appropriate """
-    img = conn.getObject("Image", iid)
-
-    return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, **kwargs)
-
-@login_required()
-def render_col_plot (request, iid, z, t, x, w=1, conn=None, conn_share=None, **kwargs):
-    """ Plot of intenisty for a row of pixels. Delegates to webgateway, using share connection if appropriate """
-    img = conn.getObject("Image", iid)
-
-    return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, **kwargs)
-
-@login_required()
-def render_split_channel (request, iid, z, t, conn=None, conn_share=None, **kwargs):
-    """ Jpeg of each channel as a separate panel. Delegates to webgateway, using share connection if appropriate """
-    img = conn.getObject("Image", iid)
-
-    return webgateway_views.render_split_channel(request, iid, z, t, **kwargs)
-
-
+####################################################################################
 # scripting service....
 @login_required()
 def list_scripts (request, conn, **kwargs):

@@ -447,7 +447,7 @@
                     </div>
                 {% endif %}
                 {% trans "Launch full viewer" %} 
-                <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')">
+                <a href="#" onclick="return openPopup('{% url webgateway_full_viewer manager.image.id %}')">
                     <img id="{{ manager.image.id }}" src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/>
                 </a>
                 {% if manager.openAstexViewerCompatible %}
@@ -602,7 +602,7 @@
             {% if manager.well.getWellSample.image.isOwned %}<div id="wellname-{{ manager.well.getWellSample.image.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="wellname-{{ manager.well.getWellSample.image.id }}-name" style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</h1>{% endif %}
                    
             <h2 id='well_id'>Image ID: {{ manager.well.getWellSample.image.id }} Well ID: {{ manager.well.id }}</h2>
-            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
+            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url webgateway_full_viewer manager.well.getWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
             <div class="description">
                 {% if manager.well.getWellSample.image.isOwned %}
                     <div id="welldescription-{{ manager.well.getWellSample.image.id }}">
