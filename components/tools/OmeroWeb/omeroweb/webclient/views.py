@@ -2619,24 +2619,8 @@ def render_row_plot (request, iid, z, t, y, w=1, conn=None, conn_share=None, **k
     return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, **kwargs)
 
 @login_required()
-def render_col_plot (request, iid, z, t, x, share_id=None, w=1, **kwargs):
+def render_col_plot (request, iid, z, t, x, w=1, conn=None, conn_share=None, **kwargs):
     """ Plot of intenisty for a row of pixels. Delegates to webgateway, using share connection if appropriate """
-    conn = None
-    if share_id is not None:
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-         
-    if conn is None:
-        raise Exception("Connection not available")
     img = conn.getObject("Image", iid)
 
     return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, **kwargs)
