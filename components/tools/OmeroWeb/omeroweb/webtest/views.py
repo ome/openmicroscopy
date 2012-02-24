@@ -541,6 +541,15 @@ def image_dimensions (request, imageId, **kwargs):
         'xFrames':xFrames, 'yFrames':yFrames})
 
 
+@isUserConnected
+def image_rois (request, imageId, conn=None, **kwargs):
+    """ Simply shows a page of ROI thumbnails for the specified image """
+    roiService = conn.getRoiService()
+    result = roiService.findByImage(long(imageId), None)
+    roiIds = [r.getId().getValue() for r in result.rois]
+    return render_to_response('webtest/demo_viewers/image_rois.html', {'roiIds':roiIds})
+
+
 def common_templates (request, base_template):
     """ Simply return the named template. Similar functionality to django.views.generic.simple.direct_to_template """
     template_name = 'webtest/common/%s.html' % base_template

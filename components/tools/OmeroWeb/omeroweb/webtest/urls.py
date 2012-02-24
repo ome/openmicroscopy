@@ -28,6 +28,9 @@ urlpatterns = patterns('django.views.generic.simple',
     # this is the url for rendering planes for the viewer
     url( r'^render_channel_overlay/', views.render_channel_overlay, name='webtest_render_channel_overlay' ),
 
+    # Show a panel of ROI thumbnails for an image
+    url( r'^image_rois/(?P<imageId>[0-9]+)/', views.image_rois, name='webtest_image_rois' ),
+
     # post a comment annotation to images. parameters are in request: imageIds=123,234  comment=blah 
     # ns=Namespace replace=true (replaces existing comment with same ns if found)
     url( r'^add_annotations/$', views.add_annotations, name="webtest_add_annotations"),
