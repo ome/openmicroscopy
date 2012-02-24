@@ -380,16 +380,16 @@ class BlitzObjectWrapper (object):
         
         @rtype:     Boolean
         """
-        return self._conn.canWrite(self._obj)
+        return self._conn.canWrite(self)
 
     def canOwnerWrite (self):
         """
-        Returns isUserWrite() from the object's permissions
+        Delegates to the connection L{BlitzGateway.canWrite} method
         
         @rtype:     Boolean
-        @return:    True if the objects's permissions allow user to write
+        @return:    True if the objects's permissions allow owner to write
         """
-        return self._obj.details.permissions.isUserWrite()
+        return self._conn.canOwnerWrite(self)
     
     def canDelete(self):
         """
@@ -1781,8 +1781,18 @@ class _BlitzGateway (object):
         @return:    Boolean
         """
         
-        return self.isAdmin() or (self._userid == obj.details.owner.id.val and obj.details.permissions.isUserWrite())
+        return self.isAdmin() or (self._userid == obj.getDetails().getOwner().getId() and
+                                  obj.getDetails().getPermissions().isUserWrite())
 
+    def canOwnerWrite (self, obj):
+        """
+        Returns isUserWrite() from the object's permissions
+        
+        @param obj: Given object
+        @return:    True if the objects's permissions allow owner to write
+        """
+        return obj.getDetails().getPermissions().isUserWrite()
+    
     def getSession (self):
         """
         Returns the existing session, or creates a new one if needed
