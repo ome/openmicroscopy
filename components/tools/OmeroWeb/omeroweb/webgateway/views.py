@@ -499,9 +499,7 @@ def render_birds_eye_view (request, iid, size=None,
     @param size:        Maximum size of the longest side of the resulting bird's eye view.
     @return:            http response containing jpeg
     """
-    USE_SESSION = False
-    img = _get_prepared_image(request, iid, conn=conn,
-                              with_session=USE_SESSION)
+    img = _get_prepared_image(request, iid, conn=conn)
     if img is None:
         logger.debug("(b)Image %s not found..." % (str(iid)))
         raise Http404
@@ -1148,9 +1146,8 @@ def render_movie (request, iid, axis, pos, conn=None, **kwargs):
         key = "%s-%s-%s-%d-%s-%s" % (iid, axis, pos, opts['fps'], _get_signature_from_request(request),
                                   request.REQUEST.get('format', 'quicktime'))
         
-        USE_SESSION = False
         pos = int(pos)
-        pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn, with_session=USE_SESSION)
+        pi = _get_prepared_image(request, iid, server_id=server_id, conn=conn)
         if pi is None:
             raise Http404
         img, compress_quality = pi
