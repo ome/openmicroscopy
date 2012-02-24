@@ -429,11 +429,11 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 #default 2621440 (i.e. 2.5 MB).
 
 # DEFAULT_IMG: Used in webclient.webclient_gateway.OmeroWebGateway.defaultThumbnail in order to load default
 # image while thumbnail can't be retrieved from the server.
-DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'webgateway', 'static', 'common', 'image', 'image128.png').replace('\\','/')
+DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'webgateway', 'static', 'webgateway', 'image', 'image128.png').replace('\\','/')
 
 # # DEFAULT_USER: Used in webclient.webclient_gateway.OmeroWebGateway.getExperimenterDefaultPhoto in order to load default
 # avatar while experimenter photo can't be retrieved from the server.
-DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'webgateway', 'static', 'common', 'image', 'personal32.png').replace('\\','/')
+DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'webgateway', 'static', 'webgateway', 'image', 'personal32.png').replace('\\','/')
 
 # MANAGERS: A tuple in the same format as ADMINS that specifies who should get broken-link notifications when 
 # SEND_BROKEN_LINK_EMAILS=True.
