@@ -48,6 +48,15 @@ class ImageTest (lib.GTest):
         self.assertEqual(thumb.size, (128,96))
         badimage = self.getBadTestImage() # no pixels
         self.assertEqual(badimage.getThumbnail(), None)
+        # Big image (4k x 4k and up) thumb
+        bigimage = self.getBigTestImage()
+        thumb = bigimage.getThumbnail()
+        tfile = StringIO(thumb)
+        thumb = Image.open(tfile) # Raises if invalid
+        thumb.verify() # Raises if invalid
+        self.assertEqual(thumb.format, 'JPEG')
+        self.assertEqual(thumb.size, (64,64))
+        
 
     def testRenderingModels (self):
         # default is color model

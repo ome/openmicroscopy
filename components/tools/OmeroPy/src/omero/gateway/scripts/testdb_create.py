@@ -36,6 +36,7 @@ dbhelpers.IMAGES = {
     'badimg' : dbhelpers.ImageEntry('weblitz_test_priv_image_bad', False, 'testds1'),
     'tinyimg2' : dbhelpers.ImageEntry('weblitz_test_priv_image_tiny2', 'imgs/tinyTest.d3d.dv', 'testds2'),
     'tinyimg3' : dbhelpers.ImageEntry('weblitz_test_priv_image_tiny3', 'imgs/tinyTest.d3d.dv', 'testds3'),
+    'bigimg' : dbhelpers.ImageEntry('weblitz_test_priv_image_big', 'imgs/big.tiff', 'testds3'),
 }
 
 
@@ -129,6 +130,9 @@ class GTest(unittest.TestCase):
 
     def getTinyTestImage2 (self, dataset=None):
         return dbhelpers.getImage(self.gateway, 'tinyimg2', dataset)
+
+    def getBigTestImage (self, dataset=None):
+        return dbhelpers.getImage(self.gateway, 'bigimg', dataset)
 
     def prepTestDB (self):
         dbhelpers.bootstrap()
