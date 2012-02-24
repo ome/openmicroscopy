@@ -2564,7 +2564,7 @@ def avatar(request, conn, oid=None, **kwargs):
 # Bird's eye view
 
 @login_required()
-def render_birds_eye_view (request, iid, size=200, share_id=None, conn=None, conn_share=None, **kwargs):
+def render_birds_eye_view (request, iid, size=200, conn=None, conn_share=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_birds_eye_view(request, iid, size=size, conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
 
