@@ -2245,23 +2245,15 @@ def help(request, conn, **kwargs):
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_calendar(request, year=None, month=None, **kwargs):
+def load_calendar(request, conn, year=None, month=None, **kwargs):
     """ 
     Loads the calendar which is displayed in the left panel of the history page. 
     Shows current month by default. Filter by experimenter 
     """
-
-    template = "webclient/history/calendar.html"
     
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-   
+    template = "webclient/history/calendar.html"
     filter_user_id = request.session.get('nav')['experimenter']
-   
+    
     if year is not None and month is not None:
         controller = BaseCalendar(conn=conn, year=year, month=month, eid=filter_user_id)
     else:
