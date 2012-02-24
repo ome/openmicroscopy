@@ -98,7 +98,8 @@ class GroupProfile
     private void initComponents()
     {
     	ref = (GroupData) model.getRefObject();
-    	
+    	namePane = new JTextField();
+    	descriptionPane = new JTextField();
     	//permission level
     	permissionsPane = new PermissionsPane(ref.getPermissions(),
     			UIUtilities.BACKGROUND_COLOR);
@@ -217,13 +218,6 @@ class GroupProfile
     	return content;
     }
     
-    /** Initializes the components.*/
-    private void initialize()
-    {
-    	namePane = new JTextField();
-    	descriptionPane = new JTextField();
-    }
-    
     /**
      * Creates a new instance.
      * 
@@ -234,7 +228,6 @@ class GroupProfile
 	{
 		super(model);
 		setBackground(UIUtilities.BACKGROUND_COLOR);
-		initialize();
 	}
     
 	/** 
@@ -313,8 +306,8 @@ class GroupProfile
 	 */
 	protected void clearDisplay()
 	{
-		namePane.setText("");
-		descriptionPane.setText("");
+		if (namePane != null) namePane.setText("");
+		if (descriptionPane != null) descriptionPane.setText("");
 		revalidate();
 		repaint();
 	}
