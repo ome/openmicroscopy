@@ -5,7 +5,7 @@ set -e -u -x
 PGPASSWORD=${PGPASSWORD:-"omero"}
 TARGET=${TARGET:-"QA"} # NB. Valid args are {QA | RELEASE}
 URL_RELEASE="http://cvs.openmicroscopy.org.uk/snapshots/omero/"
-RELEASE_ARCHIVE="OMERO.server-Beta-4.3.1.zip"
+RELEASE_ARCHIVE="OMERO.server-Beta-4.3.4.zip"
 RELEASE_FOLDER=${RELEASE_ARCHIVE%.zip}
 DB_VERSION="OMERO4.3"
 DB_REVISION="0"
