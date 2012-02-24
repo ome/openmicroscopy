@@ -1834,18 +1834,11 @@ def get_original_file(request, fileId, conn, **kwargs):
 
 
 @login_required()
-def image_as_map(request, imageId, **kwargs):
+def image_as_map(request, imageId, conn, **kwargs):
     """ Converts OMERO image into mrc.map file (using tiltpicker utils) and returns the file """
 
     from omero_ext.tiltpicker.pyami import mrc
     from numpy import dstack, zeros, int8
-
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
 
     image = conn.getObject("Image", imageId)
     if image is None:
