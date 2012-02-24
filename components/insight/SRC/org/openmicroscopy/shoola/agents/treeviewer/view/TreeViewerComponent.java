@@ -257,6 +257,9 @@ class TreeViewerComponent
 	private GroupData getContext(TreeImageDisplay node)
     {
     	if (node == null) return null;
+    	if (node.getUserObject() instanceof GroupData) {
+    		return (GroupData) node.getUserObject();
+    	}
     	TreeImageDisplay parent = node.getParentDisplay();
     	Object ho;
     	if (parent == null) {
@@ -977,7 +980,6 @@ class TreeViewerComponent
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
 		TreeImageDisplay display = browser.getLastSelectedDisplay();
-		
 		//Update the group.
 		GroupData group = getContext(display);
 		if (group != null) {
