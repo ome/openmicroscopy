@@ -1908,17 +1908,10 @@ def image_as_map(request, imageId, conn, **kwargs):
 
 
 @login_required()
-def archived_files(request, iid, **kwargs):
+def archived_files(request, iid, conn, **kwargs):
     """
     Downloads the archived file(s) as a single file or as a zip (if more than one file)
     """
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
     image = conn.getObject("Image", iid)
     if image is None:
         logger.debug("Cannot download archived file becuase Image does not exist.")
