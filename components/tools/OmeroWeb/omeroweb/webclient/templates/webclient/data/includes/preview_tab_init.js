@@ -60,20 +60,23 @@ $(document).ready(function() {
         // clear contents of all panels
         $("#preview_tab").empty();
 
-        // update enabled status
         var selected = data.inst.get_selected();
-        if (selected.length > 1) {
-            // handle batch annotation - select a different tab
-            $("#annotation_tabs").tabs("select", 0);
-        } else {
-            // only enable this tab if we have an image.
-            var orel = selected.attr('rel').replace("-locked", "");
-            if(orel=="image") {
-                $("#annotation_tabs").tabs("enable", preview_tab_index);
-            } else {
-                // not enabled - select a different tab
+        var orel = selected.attr('rel').replace("-locked", "");
+
+        // we only care about changing selection if this tab is selected...
+        var select_tab = $("#annotation_tabs").tabs( "option", "selected" );
+        if (preview_tab_index == select_tab) {
+            // we don't want to select this tab if multiple selected
+            if ((orel!="image") || (selected.length > 1)) {
                 $("#annotation_tabs").tabs("select", 0);
             }
+        }
+
+        // update enabled state
+        if((orel!="image") || (selected.length > 1)) {
+            $("#annotation_tabs").tabs("disable", preview_tab_index);
+        } else {
+            $("#annotation_tabs").tabs("enable", preview_tab_index);
         }
 
         // update tab content

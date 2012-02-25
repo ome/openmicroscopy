@@ -22,7 +22,10 @@
 
 $(document).ready(function() {
     
-    var update_split_view_figure = function() {
+    // this script is an 'include' within a django for-loop, so we can get our index:
+    var rois_tab_index = {{ forloop.counter }};
+
+    var update_rois_tab = function() {
         
         // this may have been called before datatree was initialised...
         var datatree = $.jstree._focused();
@@ -30,41 +33,52 @@ $(document).ready(function() {
         
         // get the selected id etc
         var selected = datatree.data.ui.selected;
+        var oid = selected.attr('id');
         var orel = selected.attr('rel').replace("-locked", "");
+        if (orel!="image") return;
         
         // if the tab is visible and not loaded yet...
-        $split_view_fig = $("#split_view_fig_panel");
-        var split_view_fig_url;
-        if ($split_view_fig.is(":visible") && $split_view_fig.is(":empty")) {
-            if (orel=="image") {
-                var iids = [];
-                selected.each(function() {
-                    var dtype = this.id.split("-")[0];
-                    if (dtype == "image") {
-                        iids.push(this.id.split("-")[1]);
-                    };
-                });
-                split_view_fig_url = '{% url webtest_split_view_figure %}?imageIds='+ iids.join(",") + "&width=150";
-            }
-            $split_view_fig.load(split_view_fig_url);
+        $image_roi_tab = $("#image_roi_tab");
+        if ($image_roi_tab.is(":visible") && $image_roi_tab.is(":empty")) {
+            var roi_url = '{% url webtest_index %}image_rois/'+oid.split("-")[1]+'/';
+            $image_roi_tab.load(roi_url);
         };
     };
     
     // update tabs when tree selection changes or tabs switch
-    $('#center_panel_chooser select').bind('change', update_split_view_figure);
+    $("#annotation_tabs").bind( "tabsshow", update_rois_tab);
 
     // on change of selection in tree, update which tabs are enabled
     $("#dataTree").bind("select_node.jstree", function(e, data) {
 
         // clear contents of all panels
-        $("#split_view_fig_panel").empty();
+        $("#image_roi_tab").empty();
+
+        var selected = data.inst.get_selected();
+        var orel = selected.attr('rel').replace("-locked", "");
+
+        // we only care about changing selection if this tab is selected...
+        var select_tab = $("#annotation_tabs").tabs( "option", "selected" );
+        if (rois_tab_index == select_tab) {
+            // we don't want to select this tab if multiple selected
+            if ((orel!="image") || (selected.length > 1)) {
+                $("#annotation_tabs").tabs("select", 0);
+            }
+        }
+
+        // update enabled state
+        if((orel!="image") || (selected.length > 1)) {
+            $("#annotation_tabs").tabs("disable", rois_tab_index);
+        } else {
+            $("#annotation_tabs").tabs("enable", rois_tab_index);
+        }
 
         // update tab content
-        update_split_view_figure();
+        update_rois_tab();
     });
     
     // update after we've loaded the document
-    //update_img_viewer();
+    //update_rois_tab();
 });
 
 </script>

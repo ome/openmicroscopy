@@ -998,13 +998,17 @@
         // update tabs when tree selection changes or tabs switch
         $("#annotation_tabs").bind( "tabsshow", update_metadata_general_tab);
 
-        // on change of selection in tree, update which tabs are enabled
-        $("#dataTree").bind("select_node.jstree", function() {
-
-            $("#annotation_tabs").tabs( "option","disabled", [0, 1, 2] ); // disable all tabs.
+        // on change of selection in tree, clear tab
+        $("#dataTree").bind("select_node.jstree", function(e, data) {
 
             // clear contents of panel
             $("#metadata_general").empty();
+            
+            var selected = data.inst.get_selected();
+            if (selected.length > 1) {
+                // handle batch annotation - select first tab
+                $("#annotation_tabs").tabs("select", 0);
+            }
 
             update_metadata_general_tab();     // update
         });

@@ -34,15 +34,24 @@ $(document).ready(function() {
         var orel = selected.attr('rel').replace("-locked", "");
         
         // if the tab is visible and not loaded yet...
-        $dataset_split_viewer = $("#dataset_split_viewer");
-        var split_dataset_url;
-        if ($dataset_split_viewer.is(":visible") && $dataset_split_viewer.is(":empty")) {
+        $split_view_panel = $("#split_view_panel");
+        var split_view_url;
+        if ($split_view_panel.is(":visible") && $split_view_panel.is(":empty")) {
+            // if image(s) selected, show typical split-view figure
             if (orel=="image") {
-                // handle selection update
+                var iids = [];
+                selected.each(function() {
+                    var dtype = this.id.split("-")[0];
+                    if (dtype == "image") {
+                        iids.push(this.id.split("-")[1]);
+                    };
+                });
+                split_view_url = '{% url webtest_split_view_figure %}?imageIds='+ iids.join(",") + "&width=150";
+            // if it's a dataset, show 2 rendering settings side by side.
             } else if (orel=="dataset") {
-                split_dataset_url = '{% url webtest_index %}dataset_split_view/'+oid.split("-")[1]+'/';
+                split_view_url = '{% url webtest_index %}dataset_split_view/'+oid.split("-")[1]+'/';
             }
-            $dataset_split_viewer.load(split_dataset_url);
+            $split_view_panel.load(split_view_url);
         };
     };
     
@@ -54,7 +63,7 @@ $(document).ready(function() {
     $("#dataTree").bind("select_node.jstree", function(e, data) {
 
         // clear contents of all panels
-        $("#dataset_split_viewer").empty();
+        $("#split_view_panel").empty();
 
         // update tab content
         update_dataset_split_viewer();

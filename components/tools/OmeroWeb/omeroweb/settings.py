@@ -237,9 +237,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
 
     # Add tabs to the right-hand & center panels: tabs are ['Tab label', 'include.js', 'tab_id']. The javascript loads data into $('#tab_id').
     "omero.web.ui.right_tabs": ["RIGHT_TABS", '[["Acquisition", "webclient/data/includes/acquisition_tab_init.js", "metadata_tab"],'\
+            '["ROIs", "webclient/data/includes/image_rois.js", "image_roi_tab"],'\
             '["Preview", "webclient/data/includes/preview_tab_init.js", "preview_tab"]]', json.loads],
-    "omero.web.ui.center_panels": ["CENTER_PANELS", '[["Split-view", "webclient/data/includes/dataset_split.js", "dataset_split_viewer"],'\
-            '["Split-view-figure", "webclient/data/includes/split_view_figure.js", "split_view_fig_panel"],'\
+    "omero.web.ui.center_tabs": ["CENTER_PANELS", '[["Split-view", "webclient/data/includes/dataset_split.js", "split_view_panel"],'\
             '["Channel overlay", "webclient/data/includes/channel_overlay.js", "channel_overlay_panel"],'\
             '["Image Viewer", "webclient/data/includes/center_imgviewer.js", "image_viewer_panel"]]', json.loads],
 
