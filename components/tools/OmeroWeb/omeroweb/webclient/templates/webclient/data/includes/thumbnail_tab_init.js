@@ -76,14 +76,14 @@ $(document).ready(function() {
             if ($.inArray(orel, ["project", "screen"]) > -1) {
                 update['empty'] = true;
             } else if($.inArray(orel, ["plate"]) > -1) {
-                if (inst.is_leaf(selected)) {
+                if (data.inst.is_leaf(selected)) {
                     update['rel'] = oid;
                     update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/';
                 } else {
                     update['empty'] = true;
                 }
             } else if($.inArray(orel, ["acquisition"]) > -1 && oid!==crel) {
-                var plate = inst._get_parent(selected).attr('id').replace("-", "/");
+                var plate = data.inst._get_parent(selected).attr('id').replace("-", "/");
                 update['rel'] = oid;
                 update['url'] = prefix+'load_data/'+plate+'/'+orel+'/'+oid.split("-")[1]+'/';
             } else if($.inArray(orel, ["dataset"]) > -1 && oid!==crel) {
