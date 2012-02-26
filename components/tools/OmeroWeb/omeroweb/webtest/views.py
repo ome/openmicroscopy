@@ -383,7 +383,8 @@ def split_view_figure (request, **kwargs):
         # turn merged channels on in the last image
         c_strs.append( ",".join(mergedFlags) )
     
-    return render_to_response('webtest/demo_viewers/split_view_figure.html', {'images':images, 'c_strs': c_strs,'imageIds':idList,
+    template = kwargs.get('template', 'webtest/demo_viewers/split_view_figure.html')
+    return render_to_response(template, {'images':images, 'c_strs': c_strs,'imageIds':idList,
         'channels': channels, 'split_grey':split_grey, 'merged_names': merged_names, 'proj': proj, 'size': size, 'query_string':query_string})
 
 

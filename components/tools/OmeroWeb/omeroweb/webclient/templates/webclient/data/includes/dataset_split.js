@@ -46,7 +46,7 @@ $(document).ready(function() {
                         iids.push(this.id.split("-")[1]);
                     };
                 });
-                split_view_url = '{% url webtest_split_view_figure %}?imageIds='+ iids.join(",") + "&width=150";
+                split_view_url = '{% url webtest_split_view_figure_plugin %}?imageIds='+ iids.join(",") + "&width=150";
             // if it's a dataset, show 2 rendering settings side by side.
             } else if (orel=="dataset") {
                 split_view_url = '{% url webtest_index %}dataset_split_view/'+oid.split("-")[1]+'/';

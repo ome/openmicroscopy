@@ -1,0 +1,166 @@
+{% extends "webgateway/base/base_main.html" %}
+
+{% comment %}
+<!--
+  Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+
+{% block title %}Split View Figure{% endblock %}
+
+
+{% block link %}
+{% endblock %}
+
+{% block script %}
+<style type="text/css">
+
+body {
+    font-family: arial;
+}
+form dir {
+    padding:0px;
+    margin:0px;
+}
+
+#header {
+    background: #ddd;
+    padding: 10px 10px 5px 10px;
+}
+#header dir{
+    padding:0px;
+    margin:0px;
+}
+</style>
+
+<!-- this page is designed to work without jQuery, but use jQuery when this page is loaded E.g. into webclient -->
+<script>
+    $(document).ready(function() {
+
+        $("#split_view_fig_form").ajaxForm({
+            success: function(data) {
+                $("#split_view_fig_content").html(data);
+            }
+        });
+    });
+
+function hideHeader() {
+    if (document.getElementById) {
+        document.getElementById("header").style.display = 'none';
+    }
+    return false;
+}
+</script>
+{% endblock %}
+
+
+{% block body %}
+<div id="header">
+    
+    <div style="float:left">
+    <form id="split_view_fig_form" method='get' action="{% url webtest_split_view_fig_include %}">
+        <div style="display:none">
+            <label>Image IDs</label>
+            <input type="text" name="imageIds" {% if imageIds %} value="{{ imageIds }}" {% endif %} /> 
+            <a href="{% url webtest_split_view_figure %}">Clear</a>
+        </div>
+    {% if imageIds %}
+        <div style="float:left; padding-right:20px">
+            <div>
+            Projection:<br />
+            <input type="radio" name="proj" value="normal" {% ifequal proj 'normal' %} checked="true" {% endifequal %} />
+                Single Z-section <br />
+            <input type="radio" name="proj" value="intmax" {% ifequal proj 'intmax' %} checked="true" {% endifequal %} /> 
+                Maximum Intensity Projection<br />
+            <input type="radio" name="proj" value="intmean" {% ifequal proj 'intmean' %} checked="true" {% endifequal %} /> 
+                Mean Intensity Projection
+            </div>
+        </div>
+        <div>
+            Image size:
+            <input type="text" name="width" {% if size.width %} value="{{ size.width }}" {% endif %} /> <br />
+            <input type="text" name="height" {% if size.height %} value="{{ size.height }}" {% endif %} style="display:none"/>
+            
+            <label>Split Channels Grey</label>
+            <input type="checkbox" name="split_grey" {% if split_grey %} checked="true" {% endif %} /> <br />
+            <label>Merged Channel Names</label>
+            <input type="checkbox" name="merged_names" {% if merged_names %} checked="true" {% endif %} />
+        </div>
+        <div style="clear: both"></div>
+        <div>
+            <table cellspacing='3'>
+            <tr>
+                <td>
+                    Channel Name (on/off)<br />
+                    Rendering (apply to all)
+                </td>
+            {% for c in channels %}
+                <td>
+                    <div style="background:#{{c.colour}}">
+                    <input type="text" size='10' name="cName{{c.index}}" {% if c.name %} value="{{ c.name }}" {% endif %} />
+                    <input type="checkbox" name="cActive{{c.index}}" {% if c.active %} checked="true" {% endif %} />
+                    </div>
+                    <div>
+                        <input type="text" size='3' name="cStart{{c.index}}" {% if c.start %} value="{{ c.start }}" {% endif %} />
+                        -
+                        <input type="text" size='3' name="cEnd{{c.index}}" {% if c.end %} value="{{ c.end }}" {% endif %} />
+                        <input type="checkbox" name="cRenderAll{{c.index}}" {% if c.render_all %} checked="true" {% endif %} />
+                        
+                    </div>
+                </td>
+            {% endfor %}
+                <td>
+                    <div>Merged</div>
+                    <table>
+                        <tr>
+                            {% for c in channels %}
+                                <td bgcolor="#{{c.colour}}">
+                                    <input type="checkbox" name="cMerged{{c.index}}" {% if c.merged %} checked="true" {% endif %} />
+                                </td> 
+                            {% endfor %}
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            </table>
+        </div>
+    
+    {% else %}
+
+    Please start by entering Image IDs as a list. E.g: 3745, 3292, 3498
+    
+    {% endif %}
+        <div>
+            <input type="submit" value='update' />
+        </div>
+        <div style="clear: both"></div>
+    </form>
+    </div>
+
+    
+    <div style="clear: both"></div>
+    
+</div>
+    
+<div id="split_view_fig_content">
+
+{% include "webtest/webclient_plugins/split_view_fig_include.html" %}
+
+</div>
+
+{% endblock %}

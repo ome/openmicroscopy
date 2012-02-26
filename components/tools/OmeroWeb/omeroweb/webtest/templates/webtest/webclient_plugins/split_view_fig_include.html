@@ -1,0 +1,64 @@
+<style type="text/css">
+.img_panel {
+    {% if size.height %} max-height: {{ size.height }}px;{% endif %}
+    {% if size.width %} max-width: {{ size.width }}px;{% endif %}
+    border-width: 0px;
+    margin: 5px;
+}
+.channel_name {
+    font-size: 130%;
+    text-align: center;
+}
+.image_label
+    {
+        position: relative;
+        left: 100px;
+        -moz-transform:rotate(-90deg); 
+        -moz-transform-origin: center center;
+        -webkit-transform: rotate(-90deg);
+        -webkit-transform-origin: center center;
+        -o-transform: rotate(-90deg);
+        -o-transform-origin:  center center;
+        filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+        
+    }
+.label_cell {
+    position: relative;
+}
+</style>
+
+<table>
+    <tr>
+        
+        {% for c in channels %}
+            {% if c.active %} 
+                <td class="channel_name" valign='bottom'>
+                    <div {% if split_grey %} style="color:#{{c.colour}}" {% endif %}>
+                    {{c.name}}
+                    </div>
+                </td> 
+            {% endif %}
+        {% endfor %}
+        <td class="channel_name">
+            {% if merged_names %}
+                {% for c in channels %}
+                    {% if c.merged %}
+                        <div style="color:#{{c.colour}}">{{ c.name }}</div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                Merged
+            {% endif %}
+        </td>
+    </tr>
+    {% for image in images %}
+    <tr>
+        {% for c in c_strs %}
+        <td>
+            <img class='img_panel' 
+            src="{% url webgateway.views.render_image image.id image.z 0 %}?c={{c}}&p={{proj}}" />
+        </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
