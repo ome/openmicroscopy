@@ -442,7 +442,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
             ImportLibrary library = new ImportLibrary(store, reader);
             ImportContainer ic = new ImportContainer(new File(fileId), -1L, null,
                     false, null, null, null, null);
-            ic.setDropbox(true);
+            ic.setMetadataOnly(true);
             library.importImage(ic, 0, 0, 1);
         } catch (Throwable t) {
             throw new omero.InternalException(stackTraceAsString(t), null, t.getMessage());

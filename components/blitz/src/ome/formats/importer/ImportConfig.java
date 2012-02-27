@@ -120,8 +120,7 @@ public class ImportConfig {
     public final BoolValue companionFile;
 
     public final BoolValue archiveImage;
-    public final BoolValue fsliteImport;
-    public final BoolValue dropboxImport;
+    public final BoolValue metadataOnly;
     public final BoolValue useCustomImageNaming;
     public final BoolValue useFullPath;
     public final IntValue numOfDirectories;
@@ -239,8 +238,7 @@ public class ImportConfig {
         sendLogFile  = new BoolValue("sendLogFile", this, true);
 
         archiveImage = new BoolValue("archive", this, false);
-        fsliteImport = new BoolValue("fslite", this, false);
-        dropboxImport = new BoolValue("dropbox", this, false);
+        metadataOnly = new BoolValue("metadatOnly", this, false);
         useFullPath  = new BoolValue("useFullPath", this, true);
         useCustomImageNaming = new BoolValue("overrideImageName", this, true);
         numOfDirectories = new IntValue("numOfDirectories", this, 0);

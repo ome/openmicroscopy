@@ -528,13 +528,12 @@ public class ImportLibrary implements IObservable
             handleBigImageFormats(baseReader, container);
             // Forcing these to false for now but remove completely once tested?
             boolean useMetadataFile = false;
-            boolean dropbox = container.getDropbox();
+            isMetadataOnly = container.getMetadataOnly();
             if (log.isInfoEnabled())
             {
                 log.info("File format: " + format);
                 log.info("Base reader: " + baseReader.getClass().getName());
                 log.info("Metadata only import? " + isMetadataOnly);
-                log.info("Dropbox import? " + dropbox);
             }
             notifyObservers(new ImportEvent.LOADED_IMAGE(
                     shortName, index, numDone, total));
@@ -556,7 +555,7 @@ public class ImportLibrary implements IObservable
                         + useMetadataFile);
                 metadataFiles = store.setArchive(useMetadataFile);
             }
-            if (!dropbox) {
+            if (!isMetadataOnly) {
                 container = handleFsliteImport(container);
             }
             List<Pixels> pixList = importMetadata(index, container);
