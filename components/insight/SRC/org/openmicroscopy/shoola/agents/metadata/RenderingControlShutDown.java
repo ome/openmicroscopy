@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -59,12 +60,16 @@ public class RenderingControlShutDown
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle handle;
     
+    /** The security context.*/
+    private SecurityContext ctx;
+    
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param pixelsID The id of the pixels set.
      */
-    public RenderingControlShutDown(long pixelsID)
+    public RenderingControlShutDown(SecurityContext ctx, long pixelsID)
     {
     	this.pixelsID = pixelsID;
     	this.ctx = ctx;
@@ -79,7 +84,7 @@ public class RenderingControlShutDown
      */
     public void load()
     {
-        handle = imView.shutDownRenderingControl(pixelsID, this);
+        handle = imView.shutDownRenderingControl(ctx, pixelsID, this);
     }
 
     /**

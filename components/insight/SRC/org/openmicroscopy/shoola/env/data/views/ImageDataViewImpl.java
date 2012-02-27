@@ -476,10 +476,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#shutDownRenderingControl(long, AgentEventListener)
      */
-	public CallHandle shutDownRenderingControl(long pixelsID,
-            AgentEventListener observer)
+	public CallHandle shutDownRenderingControl(SecurityContext ctx,
+			long pixelsID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingControlLoader(pixelsID,
+		BatchCallTree cmd = new RenderingControlLoader(ctx, pixelsID,
 				RenderingControlLoader.SHUTDOWN);
         return cmd.exec(observer);
 	}

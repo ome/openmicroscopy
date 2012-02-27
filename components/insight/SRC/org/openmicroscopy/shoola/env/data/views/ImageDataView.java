@@ -97,8 +97,8 @@ public interface ImageDataView
      * @param observer  Call-back handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle shutDownRenderingControl(long pixelsID,
-                        AgentEventListener observer);
+    public CallHandle shutDownRenderingControl(SecurityContext ctx,
+    		long pixelsID, AgentEventListener observer);
     
     /**
      * Renders the specified plane.

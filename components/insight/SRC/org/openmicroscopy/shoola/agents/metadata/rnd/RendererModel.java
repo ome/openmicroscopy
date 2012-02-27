@@ -168,15 +168,18 @@ class RendererModel
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param rndControl    Reference to the component that controls the
 	 *                      rendering settings. Mustn't be <code>null</code>.
 	 * @param rndIndex		The index associated to the renderer.
 	 */
-	RendererModel(RenderingControl rndControl, int rndIndex)
+	RendererModel(SecurityContext ctx, RenderingControl rndControl,
+			int rndIndex)
 	{
 		if (rndControl == null)
 			throw new NullPointerException("No rendering control.");
 		setRenderingControl(rndControl);
+		this.ctx = ctx;
 		this.rndIndex = rndIndex;
 		visible = false;
 		globalMaxChannels = null;
@@ -280,7 +283,7 @@ class RendererModel
 	{
 		if (rndControl == null) return;
 		RenderingControlShutDown loader = 
-			new RenderingControlShutDown(rndControl.getPixelsID());
+			new RenderingControlShutDown(ctx, rndControl.getPixelsID());
 		loader.load();
 		rndControl = null;
 	}

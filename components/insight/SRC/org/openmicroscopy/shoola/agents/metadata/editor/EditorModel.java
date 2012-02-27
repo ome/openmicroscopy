@@ -2303,8 +2303,8 @@ class EditorModel
 		if (renderer != null) {
 			renderer.onSettingsApplied(rndControl);
 		} else {
-			renderer = RendererFactory.createRenderer(rndControl, getImage(),
-					getRndIndex());
+			renderer = RendererFactory.createRenderer(getSecurityContext(),
+					rndControl, getImage(), getRndIndex());
 		}
 	}
 	
