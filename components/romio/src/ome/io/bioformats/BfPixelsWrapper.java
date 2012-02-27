@@ -36,12 +36,6 @@ public class BfPixelsWrapper {
 
     private final String path;
 
-    private final int sizeZ;
-
-    private final int sizeC;
-
-    private final int sizeT;
-
     private final int rgbChannels;
 
     private final int pixelType;
@@ -61,12 +55,7 @@ public class BfPixelsWrapper {
 
         /* Get some data that is widely used elsewhere.
          * As there are no setters this is reasonable here.
-         * We are not copying sizeX and sizeY due to the possible change in
-         * resolution level within the Bio-Formats reader.
          */
-        sizeZ = reader.getSizeZ();
-        sizeC = reader.getSizeC();
-        sizeT = reader.getSizeT();
         rgbChannels = reader.getRGBChannelCount();
         pixelType = reader.getPixelType();
         pixelSize = getBytesPerPixel();
@@ -80,6 +69,7 @@ public class BfPixelsWrapper {
             throw new RuntimeException(
                     "Required SHA-1 message digest algorithm unavailable.");
         }
+        int sizeT = getSizeT();
         for (int t = 0; t < sizeT; t++) {
             try {
                 int size = RomioPixelBuffer.safeLongToInteger(getTimepointSize());
@@ -95,27 +85,30 @@ public class BfPixelsWrapper {
 
     public void checkBounds(Integer x, Integer y, Integer z, Integer c, Integer t)
             throws DimensionsOutOfBoundsException {
-        int sizeX = reader.getSizeX();
-        int sizeY = reader.getSizeY();
+        int sizeX = getSizeX();
+        int sizeY = getSizeY();
+        int sizeZ = getSizeZ();
+        int sizeC = getSizeC();
+        int sizeT = getSizeT();
         if (x != null && (x > sizeX - 1 || x < 0)) {
             throw new DimensionsOutOfBoundsException("X '" + x
-                    + "' greater than sizeX '" + getSizeX() + "'.");
+                    + "' greater than sizeX '" + sizeX + "'.");
         }
         if (y != null && (y > sizeY - 1 || y < 0)) {
             throw new DimensionsOutOfBoundsException("Y '" + y
-                    + "' greater than sizeY '" + getSizeY() + "'.");
+                    + "' greater than sizeY '" + sizeY + "'.");
         }
         if (z != null && (z > sizeZ - 1 || z < 0)) {
             throw new DimensionsOutOfBoundsException("Z '" + z
-                    + "' greater than sizeZ '" + getSizeZ() + "'.");
+                    + "' greater than sizeZ '" + sizeZ + "'.");
         }
         if (c != null && (c > sizeC - 1 || c < 0)) {
             throw new DimensionsOutOfBoundsException("C '" + c
-                    + "' greater than sizeC '" + getSizeC() + "'.");
+                    + "' greater than sizeC '" + sizeC + "'.");
         }
         if (t != null && (t > sizeT - 1 || t < 0)) {
             throw new DimensionsOutOfBoundsException("T '" + t
-                    + "' greater than sizeT '" + getSizeT() + "'.");
+                    + "' greater than sizeT '" + sizeT + "'.");
         }
     }
 
@@ -155,11 +148,11 @@ public class BfPixelsWrapper {
      * Get dimension sizes
      */
     public int getSizeC() {
-        return sizeC;
+        return reader.getSizeC();
     }
 
     public int getSizeT() {
-        return sizeT;
+        return reader.getSizeT();
     }
 
     public int getSizeX() {
@@ -171,7 +164,7 @@ public class BfPixelsWrapper {
     }
 
     public int getSizeZ() {
-        return sizeZ;
+        return reader.getSizeZ();
     }
 
     /*
@@ -314,6 +307,7 @@ public class BfPixelsWrapper {
                 throw new RuntimeException("Buffer size incorrect.");
             int size = RomioPixelBuffer.safeLongToInteger(getPlaneSize());
             byte[] plane = new byte[size];
+            int sizeZ = getSizeZ();
             for(int z = 0; z < sizeZ; z++)
             {
                 getWholePlane(z,c,t,plane);
@@ -332,6 +326,7 @@ public class BfPixelsWrapper {
             throw new RuntimeException("Buffer size incorrect.");
         int size = RomioPixelBuffer.safeLongToInteger(getStackSize());
         byte[] stack = new byte[size];
+        int sizeC = getSizeC();
         for(int c = 0; c < sizeC; c++)
         {
             getStack(c, t, stack);
