@@ -5395,7 +5395,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         rdid = self._getRDef()
         if rdid is None:
             if not re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS']):
-                re.resetDefaults(self._conn.CONFIG['SERVICE_OPTS'])
+                sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
+                sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+                re.resetDefaults(sopts)
                 re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS'])
                 self._onResetDefaults(re.getRenderingDefId(self._conn.CONFIG['SERVICE_OPTS']))
         else:
@@ -5602,7 +5604,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         if rdid is None:
             if not has_rendering_settings:
                 try:
-                    tb.resetDefaults(self._conn.CONFIG['SERVICE_OPTS'])      # E.g. May throw Missing Pyramid Exception
+                    sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
+                    sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+                    tb.resetDefaults(sopts)      # E.g. May throw Missing Pyramid Exception
                 except omero.ConcurrencyException, ce:
                     logger.info( "ConcurrencyException: resetDefaults() failed in _prepareTB with backOff: %s" % ce.backOff)
                     return tb
