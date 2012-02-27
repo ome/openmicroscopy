@@ -31,6 +31,7 @@ import java.util.Iterator;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -53,10 +54,13 @@ public class ArchivedFilesLoader
 {
 	
     /** The result of the call. */
-    private Object		result;
+    private Object result;
 
     /** The collection of files to download. */
-    private Collection<Long> 	pixelsID;
+    private Collection<Long> pixelsID;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Downloads the original file.
@@ -67,7 +71,7 @@ public class ArchivedFilesLoader
     {
     	try {
     		OmeroDataService os = context.getDataService();
-    		result = os.getOriginalFiles(id);
+    		result = os.getOriginalFiles(ctx, id);
         } catch (Exception e) {
         	context.getLogger().error(this, 
         			"Cannot retrieve download the file: "+e.getMessage());
@@ -113,11 +117,14 @@ public class ArchivedFilesLoader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param pixelsID	The collection of the pixels set.
      */
-    public ArchivedFilesLoader(Collection<Long> pixelsID)
+    public ArchivedFilesLoader(SecurityContext ctx,
+    		Collection<Long> pixelsID)
     {
     	this.pixelsID = pixelsID;
+    	this.ctx = ctx;
     }
     
 }

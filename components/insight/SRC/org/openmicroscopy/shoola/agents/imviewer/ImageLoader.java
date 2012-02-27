@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.imviewer;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -55,16 +56,16 @@ public class ImageLoader
 {
 
     /** The ID of the pixels set. */
-    private long        pixelsID;
+    private long pixelsID;
     
     /** The plane to render. */
-    private PlaneDef    pd;
+    private PlaneDef pd;
     
     /** Flag indicating if the image is large or not. */
-    private boolean		largeImage;
+    private boolean largeImage;
     
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle handle;
     
     /** Indicates that the rendering of that image has been cancelled.*/
     private boolean cancelled;
@@ -79,10 +80,10 @@ public class ImageLoader
      * @param largeImae Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
      */
-    public ImageLoader(ImViewer viewer, long pixelsID, PlaneDef pd, boolean
-    		largeImage)
+    public ImageLoader(ImViewer viewer, SecurityContext ctx, long pixelsID,
+    		PlaneDef pd, boolean largeImage)
     {
-        super(viewer);
+        super(viewer, ctx);
         this.pixelsID = pixelsID;
         this.pd = pd;
         this.largeImage = largeImage;
@@ -95,7 +96,7 @@ public class ImageLoader
     public void load()
     {
     	boolean asTexture = ImViewerAgent.hasOpenGLSupport();
-        handle = ivView.render(pixelsID, pd, asTexture, largeImage, this);
+        handle = ivView.render(ctx, pixelsID, pd, asTexture, largeImage, this);
     }
 
     /**

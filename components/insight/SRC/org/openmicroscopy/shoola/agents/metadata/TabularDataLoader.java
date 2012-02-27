@@ -32,6 +32,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -62,10 +63,13 @@ public class TabularDataLoader
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param originalID The identifier of the table.
      */
-    public TabularDataLoader(Editor viewer, long originalFileID)
+    public TabularDataLoader(Editor viewer, SecurityContext ctx,
+    		long originalFileID)
     {
-    	 super(viewer);
+    	 super(viewer, ctx);
     	 if (originalFileID < 0)
     		 throw new IllegalArgumentException("No file to retrieve.");
     	 List<Long> ids = new ArrayList<Long>();
@@ -80,7 +84,7 @@ public class TabularDataLoader
 	public void load()
 	{
 		setIds();
-		handle = mhView.loadTabularData(parameters, userID, this);
+		handle = mhView.loadTabularData(ctx, parameters, userID, this);
 	}
 	
 	/** 

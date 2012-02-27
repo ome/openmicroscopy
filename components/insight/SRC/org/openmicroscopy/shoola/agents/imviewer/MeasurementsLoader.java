@@ -30,6 +30,7 @@ import java.util.Collection;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.ImageData;
@@ -53,10 +54,10 @@ public class MeasurementsLoader
 {
 
 	/** The object to handle. */
-	private DataObject	object;
+	private DataObject object;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle handle;
     
     /**
      * Checks the passed type if supported.
@@ -73,12 +74,14 @@ public class MeasurementsLoader
     /**
      * Creates a new instance.
      * 
-     * @param model 	Reference to the model.
-     * @param object	The object.
+     * @param model Reference to the model.
+     * @param ctx The security context.
+     * @param object The object.
      */
-	public MeasurementsLoader(ImViewer model, DataObject object)
+	public MeasurementsLoader(ImViewer model, SecurityContext ctx,
+			DataObject object)
 	{
-		super(model);
+		super(model, ctx);
 		checkType(object);
 		this.object = object;
 	}
@@ -90,7 +93,7 @@ public class MeasurementsLoader
     public void load()
     {
         long userID = ImViewerAgent.getUserDetails().getId();
-        handle = mhView.loadROIMeasurement(object, userID, this);
+        handle = mhView.loadROIMeasurement(ctx, object, userID, this);
     }
 
     /**

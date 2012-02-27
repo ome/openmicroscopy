@@ -66,6 +66,7 @@ public class ObjectToTransfer
 	{
 		this.target = target;
 		this.nodes = nodes;
+		this.dropAction = dropAction;
 	}
 
 	/**

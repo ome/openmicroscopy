@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
 
@@ -59,10 +60,11 @@ public class DiskSpaceLoader
      * Creates a new instance.
      * 
      * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      */
-	public DiskSpaceLoader(Importer viewer)
+	public DiskSpaceLoader(Importer viewer, SecurityContext ctx)
 	{
-		super(viewer);
+		super(viewer, ctx);
 	}
 
     /** 
@@ -71,7 +73,7 @@ public class DiskSpaceLoader
      */
     public void load()
     { 
-    	handle = adminView.getDiskSpace(ExperimenterData.class,
+    	handle = adminView.getDiskSpace(ctx, ExperimenterData.class,
     			getCurrentUserID(), this); 
     }
 

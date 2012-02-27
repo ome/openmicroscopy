@@ -33,6 +33,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
@@ -68,10 +69,12 @@ public class AdminSaver
     /**
      * Creates a {@link BatchCall} to delete the objects.
      * 
+     * @param ctx The security context.
 	 * @param objects	The objects to handle.
      * @return The {@link BatchCall}.
      */
-    private BatchCall deleteObjects(final List<DataObject> objects)
+    private BatchCall deleteObjects(final SecurityContext ctx,
+    		final List<DataObject> objects)
     {
         return new BatchCall("Delete objects") {
             public void doCall() throws Exception
@@ -92,9 +95,9 @@ public class AdminSaver
             		}
 				}
             	if (groups.size() > 0)
-            		l.addAll(os.deleteGroups(groups));
+            		l.addAll(os.deleteGroups(ctx, groups));
             	if (experimenters.size() > 0)
-            		l.addAll(os.deleteExperimenters(experimenters));
+            		l.addAll(os.deleteExperimenters(ctx, experimenters));
             	result = l;
             }
         };
@@ -103,16 +106,18 @@ public class AdminSaver
     /**
      * Creates a {@link BatchCall} to create experimenters.
      * 
+     * @param ctx The security context.
 	 * @param object 	The experimenters to create.
      * @return The {@link BatchCall}.
      */
-    private BatchCall createExperimenters(final AdminObject object)
+    private BatchCall createExperimenters(final SecurityContext ctx,
+    		final AdminObject object)
     {
         return new BatchCall("Create experimenters") {
             public void doCall() throws Exception
             {
             	AdminService os = context.getAdminService();
-                result = os.createExperimenters(object);
+                result = os.createExperimenters(ctx, object);
             }
         };
     }
@@ -120,16 +125,18 @@ public class AdminSaver
     /**
      * Creates a {@link BatchCall} to reset the password of the experimenters.
      * 
+     * @param ctx The security context.
 	 * @param object 	The experimenters to handle.
      * @return The {@link BatchCall}.
      */
-    private BatchCall resetExperimentersPassword(final AdminObject object)
+    private BatchCall resetExperimentersPassword(final SecurityContext ctx,
+    		final AdminObject object)
     {
         return new BatchCall("Reset password") {
             public void doCall() throws Exception
             {
             	AdminService os = context.getAdminService();
-                result = os.resetExperimentersPassword(object);
+                result = os.resetExperimentersPassword(ctx, object);
             }
         };
     }
@@ -137,16 +144,18 @@ public class AdminSaver
     /**
      * Creates a {@link BatchCall} to activate or not the experimenters.
      * 
-	 * @param object 	The experimenters to handle.
+     * @param ctx The security context.
+	 * @param object The experimenters to handle.
      * @return The {@link BatchCall}.
      */
-    private BatchCall activateExperimenters(final AdminObject object)
+    private BatchCall activateExperimenters(final SecurityContext ctx,
+    		final AdminObject object)
     {
         return new BatchCall("Reset password") {
             public void doCall() throws Exception
             {
             	AdminService os = context.getAdminService();
-                result = os.activateExperimenters(object);
+                result = os.activateExperimenters(ctx, object);
             }
         };
     }
@@ -154,16 +163,18 @@ public class AdminSaver
     /**
      * Creates a {@link BatchCall} to create group.
      * 
-	 * @param object 	The experimenters to create.
+     * @param ctx The security context.
+	 * @param object The experimenters to create.
      * @return The {@link BatchCall}.
      */
-    private BatchCall createGroup(final AdminObject object)
+    private BatchCall createGroup(final SecurityContext ctx,
+    		final AdminObject object)
     {
         return new BatchCall("Create group") {
             public void doCall() throws Exception
             {
             	AdminService os = context.getAdminService();
-                result = os.createGroup(object);
+                result = os.createGroup(ctx, object);
             }
         };
     }
@@ -183,39 +194,41 @@ public class AdminSaver
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param exp The experimenter to update. Mustn't be <code>null</code>.
      */
-    public AdminSaver(AdminObject object)
+    public AdminSaver(SecurityContext ctx, AdminObject object)
     {
     	if (object == null)
     		throw new IllegalArgumentException("Object not valid.");
     	switch (object.getIndex()) {
 			case AdminObject.CREATE_EXPERIMENTER:
-				loadCall = createExperimenters(object);
+				loadCall = createExperimenters(ctx, object);
 				break;
 			case AdminObject.CREATE_GROUP:
-				loadCall = createGroup(object);
+				loadCall = createGroup(ctx, object);
 				break;
 			case AdminObject.RESET_PASSWORD:
-				loadCall = resetExperimentersPassword(object);
+				loadCall = resetExperimentersPassword(ctx, object);
 				break;
 			case AdminObject.ACTIVATE_USER:
-				loadCall = activateExperimenters(object);
+				loadCall = activateExperimenters(ctx, object);
 		}
     }
     
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param objects The objects to handle. Mustn't be <code>null</code>.
      */
-    public AdminSaver(List<DataObject> objects, int index)
+    public AdminSaver(SecurityContext ctx, List<DataObject> objects, int index)
     {
     	if (objects == null || objects.size() == 0)
     		throw new IllegalArgumentException("No objects to handle");
     	switch (index) {
 			case DELETE:
-				loadCall = deleteObjects(objects);
+				loadCall = deleteObjects(ctx, objects);
 				break;
 		}
     }

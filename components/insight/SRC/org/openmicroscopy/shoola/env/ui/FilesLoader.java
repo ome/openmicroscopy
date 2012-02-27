@@ -37,6 +37,7 @@ import java.util.Map.Entry;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.FileAnnotationData;
 
@@ -80,16 +81,17 @@ public class FilesLoader
      * 
      * @param viewer 	Reference to the parent.
      * @param reg    	Reference to the registry.
+     * @param ctx The security context.
      * @param file	 	The absolute path to the file.
      * @param fileID 	The file ID.
      * @param size   	The size of the file.
      * @param toLoad 	Indicates to download the file.
      * @param activity 	The activity associated to this loader.
      */
-	FilesLoader(UserNotifier viewer, Registry reg, 
+	FilesLoader(UserNotifier viewer, Registry reg, SecurityContext ctx, 
 			Map<FileAnnotationData, File> files, ActivityComponent activity)
 	{
-		super(viewer, reg, activity);
+		super(viewer, reg, ctx, activity);
 		if (files == null || files.size() == 0)
 			throw new IllegalArgumentException("No files to download");
 		this.files = files;
@@ -102,7 +104,7 @@ public class FilesLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadFiles(files, this);
+		handle = mhView.loadFiles(ctx, files, this);
 	}
     
 	/** 

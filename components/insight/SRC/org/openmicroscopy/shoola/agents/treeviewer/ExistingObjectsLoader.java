@@ -25,15 +25,13 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -81,13 +79,15 @@ public class ExistingObjectsLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer    The TreeViewer this data loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param ho        The object the nodes has to be added to.
+     * @param viewer The TreeViewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param ho The object the nodes has to be added to.
      */ 
-    public ExistingObjectsLoader(TreeViewer viewer, DataObject ho)
+    public ExistingObjectsLoader(TreeViewer viewer, SecurityContext ctx,
+    		DataObject ho)
     {
-        super(viewer);
+        super(viewer, ctx);
         checkObject(ho);
         this.ho = ho;
     }
@@ -99,7 +99,7 @@ public class ExistingObjectsLoader
     public void load()
     {
         if (ho instanceof GroupData) {
-        	handle = adminView.loadExperimenters(-1, this);
+        	handle = adminView.loadExperimenters(ctx, -1, this);
         }
         //handle = dmView.loadExistingObjects(ho.getClass(), nodes, 
          //       viewer.getRootID(), this);

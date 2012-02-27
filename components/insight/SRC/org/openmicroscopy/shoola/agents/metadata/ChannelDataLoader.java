@@ -31,6 +31,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -53,24 +54,26 @@ public class ChannelDataLoader
 {
 
     /** The id of the pixels set. */
-    private long        pixelsID;
+    private long pixelsID;
     
     /** The id of the user. */
-    private long        userID;
+    private long  userID;
     
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle handle;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer	Reference to the viewer. Mustn't be <code>null</code>.
-     * @param pixelsID	The id of the pixels set.
-     * @param userID    The id of the user.
+     * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param pixelsID The id of the pixels set.
+     * @param userID The id of the user.
      */
-	public ChannelDataLoader(Editor viewer, long pixelsID, long userID)
+	public ChannelDataLoader(Editor viewer, SecurityContext ctx, long pixelsID,
+			long userID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		this.pixelsID = pixelsID;
 		this.userID = userID;
 	}
@@ -81,7 +84,7 @@ public class ChannelDataLoader
      */
     public void load()
     {
-        handle = dmView.loadChannelsData(pixelsID, userID, this);
+        handle = dmView.loadChannelsData(ctx, pixelsID, userID, this);
     }
     
     /**

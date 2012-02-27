@@ -43,6 +43,7 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
@@ -1261,5 +1262,12 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	boolean isCompressed();
+
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext();
 
 }

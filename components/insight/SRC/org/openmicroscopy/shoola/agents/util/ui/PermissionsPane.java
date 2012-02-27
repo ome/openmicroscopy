@@ -356,6 +356,19 @@ public class PermissionsPane
 	}
 	
 	/**
+	 * Overridden to set the flag for all components composing the display.
+	 * @see JPanel#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		if (groupBox != null) groupBox.setEnabled(enabled);
+		if (privateBox != null) privateBox.setEnabled(enabled);
+		if (publicBox != null) publicBox.setEnabled(enabled);
+		if (readOnlyGroupBox != null) readOnlyGroupBox.setEnabled(enabled);
+		if (readOnlyPublicBox != null) readOnlyPublicBox.setEnabled(enabled);
+	}
+	
+	/**
 	 * Sets the enabled flag of the {@link #readOnlyGroupBox} and
 	 * {@link #readOnlyPublicBox}.
 	 * @see ChangeListener#stateChanged(ChangeEvent)

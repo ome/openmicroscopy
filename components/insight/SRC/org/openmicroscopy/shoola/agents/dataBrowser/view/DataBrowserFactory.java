@@ -35,11 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
-import omero.model.PlateAcquisition;
-
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 //Third-party libraries
 
@@ -103,8 +101,8 @@ public class DataBrowserFactory
 	 * @param result The value to set.
 	 * @return See above.
 	 */
-	public static final DataBrowser getSearchBrowser(Collection<DataObject> 
-													result)
+	public static final DataBrowser getSearchBrowser(
+			Map<SecurityContext, Collection<DataObject>> result)
 	{
 		return singleton.createSearchDataBrowser(result);
 	}
@@ -122,6 +120,7 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of images.
 	 * 
+	 * @param ctx The security context.
 	 * @param ancestors		Map containing the ancestors of the node.
 	 * @param parent		The parent's node.
 	 * @param wells			The collection to set.
@@ -129,84 +128,93 @@ public class DataBrowserFactory
      * 						 <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	public static final DataBrowser getWellsDataBrowser(Map<Class, Object> 
-		ancestors, Object parent, Set<WellData> wells, boolean withThumbnails)
+	public static final DataBrowser getWellsDataBrowser(
+			SecurityContext ctx, Map<Class, Object> ancestors, Object parent,
+			Set<WellData> wells, boolean withThumbnails)
 	{
-		return singleton.createWellsDataBrowser(ancestors, parent, wells,
+		return singleton.createWellsDataBrowser(ctx, ancestors, parent, wells,
 				withThumbnails);
 	}
 	
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of images.
 	 * 
+	 * @param ctx The security context.
 	 * @param grandParent	The grandparent of the node.
 	 * @param parent		The parent's node.
 	 * @param images		The collection to set.
 	 * @param node  		The node to handle.
 	 * @return See above.
 	 */
-	public static final DataBrowser getDataBrowser(Object grandParent, 
+	public static final DataBrowser getDataBrowser(
+			SecurityContext ctx, Object grandParent, 
 					Object parent, Collection<ImageData> images, 
 					TreeImageDisplay node)
 	{
-		return singleton.createImagesDataBrowser(grandParent, parent, images, 
-				node);
+		return singleton.createImagesDataBrowser(ctx, grandParent, parent,
+				images, node);
 	}
 	
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of images.
 	 * 
+	 * @param ctx The security context.
 	 * @param parent	 The parent's node.
 	 * @param nodes		 The collection to set.
 	 * @param withImages Pass <code>true</code> to indicate that the images
 	 * 					 are loaded, <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	public static final DataBrowser getTagsBrowser(TagAnnotationData parent, 
+	public static final DataBrowser getTagsBrowser(
+			SecurityContext ctx, TagAnnotationData parent, 
 			Collection<DataObject> nodes, boolean withImages)
 	{
-		return singleton.createTagsDataBrowser(parent, nodes, withImages);
+		return singleton.createTagsDataBrowser(ctx, parent, nodes, withImages);
 	}
 	
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of 
 	 * experimenters.
 	 * 
+	 * @param ctx The security context.
 	 * @param parent		The parent's node.
 	 * @param experimenters	The collection to set.
 	 * @return See above.
 	 */
-	public static final DataBrowser getGroupsBrowser(GroupData parent,
-								Collection<ExperimenterData> experimenters)
+	public static final DataBrowser getGroupsBrowser(
+			SecurityContext ctx, GroupData parent,
+			Collection<ExperimenterData> experimenters)
 	{
-		return singleton.createGroupsBrowser(parent, experimenters);
+		return singleton.createGroupsBrowser(ctx, parent, experimenters);
 	}
 	
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of 
 	 * files.
 	 * 
+	 *  @param ctx The security context.
 	 * @param parent		The parent's node.
 	 * @param experimenters	The collection to set.
 	 * @return See above.
 	 */
-	public static final DataBrowser getFSFolderBrowser(FileData parent,
-								Collection<DataObject> files)
+	public static final DataBrowser getFSFolderBrowser(
+			SecurityContext ctx, FileData parent, Collection<DataObject> files)
 	{
-		return singleton.createFSFolderBrowser(parent, files);
+		return singleton.createFSFolderBrowser(ctx, parent, files);
 	}
 	
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of datasets.
 	 * 
+	 * @param ctx The security context.
 	 * @param parent	The parent's node.
 	 * @param nodes		The collection to set.
 	 * @return See above.
 	 */
-	public static final DataBrowser getDataBrowser(ProjectData parent, 
-													Set<DatasetData> nodes)
+	public static final DataBrowser getDataBrowser(SecurityContext ctx, 
+			ProjectData parent, Set<DatasetData> nodes)
 	{
-		return singleton.createDatasetsDataBrowser(parent, nodes);
+		return singleton.createDatasetsDataBrowser(ctx, parent, nodes);
 	}
 	
 	/**
@@ -389,6 +397,7 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of wells.
 	 * 
+	 * @param ctx The security context.
 	 * @param ancestors		Map containing the ancestors of the node.
 	 * @param parent		The parent's node.
 	 * @param wells			The collection to set.
@@ -396,7 +405,8 @@ public class DataBrowserFactory
      * 						 <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	private DataBrowser createWellsDataBrowser(Map<Class, Object> ancestors, 
+	private DataBrowser createWellsDataBrowser(SecurityContext ctx,
+			Map<Class, Object> ancestors,
 			Object parent, Set<WellData> wells, boolean withThumbnails)
 	{
 		Object p = parent;
@@ -415,7 +425,7 @@ public class DataBrowserFactory
 				break;
 			}
 		}
-		DataBrowserModel model = new WellsModel(p, wells, withThumbnails);
+		DataBrowserModel model = new WellsModel(ctx, p, wells, withThumbnails);
 		model.setGrandParent(go);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
@@ -440,17 +450,19 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of images.
 	 * 
+	 * @param ctx The security context.
 	 * @param grandParent	The grandParent of the node.
 	 * @param parent		The parent's node.
 	 * @param images		The collection to set.
 	 * @param experimenter  The experimenter associated to the node.
 	 * @return See above.
 	 */
-	private DataBrowser createImagesDataBrowser(Object grandParent, 
+	private DataBrowser createImagesDataBrowser(
+			SecurityContext ctx, Object grandParent, 
 					Object parent, Collection<ImageData> images, 
 					TreeImageDisplay node)
 	{
-		DataBrowserModel model = new ImagesModel(parent, images);
+		DataBrowserModel model = new ImagesModel(ctx, parent, images);
 		model.setGrandParent(grandParent);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
@@ -466,14 +478,15 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of datasets.
 	 * 
+	 * @param ctx The security context.
 	 * @param parent	The parent's node.
 	 * @param datasets	The collection to set.
 	 * @return See above.
 	 */
-	private DataBrowser createDatasetsDataBrowser(DataObject parent, 
-											Set<DatasetData> datasets)
+	private DataBrowser createDatasetsDataBrowser(SecurityContext ctx,
+			DataObject parent, Set<DatasetData> datasets)
 	{
-		DataBrowserModel model = new DatasetsModel(parent, datasets);
+		DataBrowserModel model = new DatasetsModel(ctx, parent, datasets);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();
@@ -499,16 +512,19 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of tags.
 	 * 
+	 * @param ctx The security context.
 	 * @param parent 		The parent's node.
 	 * @param dataObjects	The collection to set.
 	 * @param withImages    Pass <code>true</code> to indicate that the images
 	 * 					    are loaded, <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	private DataBrowser createTagsDataBrowser(DataObject parent, 
-			Collection<DataObject> dataObjects, boolean withImages)
+	private DataBrowser createTagsDataBrowser(SecurityContext ctx,
+		DataObject parent, Collection<DataObject> dataObjects,
+		boolean withImages)
 	{
-		DataBrowserModel model = new TagsModel(parent, dataObjects, withImages);
+		DataBrowserModel model = new TagsModel(ctx, parent, dataObjects,
+				withImages);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();
@@ -521,14 +537,15 @@ public class DataBrowserFactory
 	 * Creates a new {@link DataBrowser} for the passed collection of 
 	 * experimenters.
 	 * 
+	 * @param ctx The security context.
 	 * @param parent 		The parent's node.
 	 * @param experimenters	The collection to set.
 	 * @return See above.
 	 */
-	private DataBrowser createGroupsBrowser(GroupData parent, 
-			Collection<ExperimenterData> experimenters)
+	private DataBrowser createGroupsBrowser(SecurityContext ctx,
+			GroupData parent, Collection<ExperimenterData> experimenters)
 	{
-		DataBrowserModel model = new GroupModel(parent, experimenters);
+		DataBrowserModel model = new GroupModel(ctx, parent, experimenters);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();
@@ -540,14 +557,15 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of files.
 	 * 
+	 * @param ctx The security context.
 	 * @param parent	The parent's node.
 	 * @param files		The collection to set.
 	 * @return See above.
 	 */
-	private DataBrowser createFSFolderBrowser(FileData parent, 
-			Collection<DataObject> files)
+	private DataBrowser createFSFolderBrowser(SecurityContext ctx,
+			FileData parent, Collection<DataObject> files)
 	{
-		DataBrowserModel model = new FSFolderModel(parent, files);
+		DataBrowserModel model = new FSFolderModel(ctx, parent, files);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();
@@ -559,11 +577,11 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed result.
 	 * 
-	 * @param result	The result of the search.
+	 * @param result The result of the search.
 	 * @return See above.
 	 */
-	private DataBrowser createSearchDataBrowser(Collection<DataObject> 
-												result)
+	private DataBrowser createSearchDataBrowser(
+			Map<SecurityContext, Collection<DataObject>> result)
 	{
 		DataBrowserModel model = new SearchModel(result);
 		DataBrowserComponent comp = new DataBrowserComponent(model);

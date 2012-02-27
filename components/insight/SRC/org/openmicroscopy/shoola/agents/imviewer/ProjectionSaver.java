@@ -33,6 +33,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import pojos.DataObject;
@@ -101,30 +102,32 @@ public class ProjectionSaver
     /**
      * Creates a new instance.
      * 
-     * @param model    	Reference to the model. Mustn't be <code>null</code>.
-     * @param ref   	The object hosting the projection's parameters.
-     * @param index		One of the constants defined by this class.
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param ref The object hosting the projection's parameters.
+     * @param index One of the constants defined by this class.
      */
-	public ProjectionSaver(ImViewer model, ProjectionParam ref, int index)
+	public ProjectionSaver(ImViewer model, SecurityContext ctx,
+			ProjectionParam ref, int index)
 	{
-		this(model, ref, index, false);
+		this(model, ctx, ref, index, false);
 	}
 	
     /**
      * Creates a new instance.
      * 
-     * @param model    		Reference to the model.
-     * 						Mustn't be <code>null</code>.
-     * @param ref   		The object hosting the projection's parameters.
-     * @param index			One of the constants defined by this class.
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param ref The object hosting the projection's parameters.
+     * @param index One of the constants defined by this class.
      * @param applySettings Pass <code>true</code> to set the rendering settings
 	 * 						of the original image to the new pixels set,
 	 * 						<code>false</code> otherwise.
      */
-	public ProjectionSaver(ImViewer model, ProjectionParam ref, int index, 
-			boolean applySettings)
+	public ProjectionSaver(ImViewer model, SecurityContext ctx,
+		ProjectionParam ref, int index, boolean applySettings)
 	{
-		super(model);
+		super(model, ctx);
 		if (ref == null)
 			throw new IllegalArgumentException("Parameters not specified.");
 		checkIndex(index);
@@ -142,13 +145,13 @@ public class ProjectionSaver
         switch (index) {
 			case PREVIEW:
 				boolean b = ImViewerAgent.hasOpenGLSupport();
-				handle = ivView.renderProjected(ref.getPixelsID(), 
-						ref.getStartZ(), ref.getEndZ(), ref.getStepping(), 
+				handle = ivView.renderProjected(ctx, ref.getPixelsID(),
+						ref.getStartZ(), ref.getEndZ(), ref.getStepping(),
 						ref.getAlgorithm(), ref.getChannels(), b,
 						this);
 				break;
 			case PROJECTION:
-				handle = ivView.projectImage(ref, this);
+				handle = ivView.projectImage(ctx, ref, this);
 		}
     }
 

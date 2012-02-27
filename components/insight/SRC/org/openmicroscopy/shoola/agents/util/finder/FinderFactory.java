@@ -24,6 +24,9 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 
 //Java imports
+import java.util.Collection;
+import java.util.List;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -31,9 +34,11 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Factory to create {@link Finder}.
@@ -57,27 +62,30 @@ public class FinderFactory
 	/**
 	 * Creates or recycles an advanced search.
 	 * 
-	 * @param ctx	Reference to the registry. Mustn't be <code>null</code>.
+	 * @param reg Reference to the registry. Mustn't be <code>null</code>.
+	 * @param groups The available groups.
 	 * @return See above.
 	 */
-	public static AdvancedFinder getAdvancedFinder(Registry ctx)
+	public static AdvancedFinder getAdvancedFinder(Registry reg,
+			Collection<GroupData> groups)
 	{
-		return FinderFactory.getAdvancedFinder(ctx, null);
+		return FinderFactory.getAdvancedFinder(reg, groups, null);
 	}
 	
 	/**
 	 * Creates or recycles an advanced search.
 	 * 
-	 * @param ctx		Reference to the registry. Mustn't be <code>null</code>.
+	 * @param reg Reference to the registry. Mustn't be <code>null</code>.
+	 * @param groups The available groups.
 	 * @param refObject	Object of reference. The search is limited to that 
 	 * 					object.
 	 * @return See above.
 	 */
-	public static AdvancedFinder getAdvancedFinder(Registry ctx, 
-											DataObject refObject)
+	public static AdvancedFinder getAdvancedFinder(Registry reg,
+			Collection<GroupData> groups, DataObject refObject)
 	{
-		if (singleton.registry == null) singleton.registry = ctx;
-		return (AdvancedFinder) singleton.createFinder(refObject);
+		if (singleton.registry == null) singleton.registry = reg;
+		return (AdvancedFinder) singleton.createFinder(groups, refObject);
 	}
 	
 	/**
@@ -149,15 +157,17 @@ public class FinderFactory
 	/**
 	 * Creates the finder.
 	 * 
+	 * @param groups The available groups.
 	 * @param refObject	Object of reference. The search is limited to that 
 	 * 					object.
 	 * @return See above.
 	 */
-	private Finder createFinder(DataObject refObject)
+	private Finder createFinder(Collection<GroupData> groups,
+			DataObject refObject)
 	{
 		if (finder != null)
 			return finder;
-		finder = new AdvancedFinder();
+		finder = new AdvancedFinder(groups);
 		return finder;
 	}
 	

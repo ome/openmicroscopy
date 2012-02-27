@@ -34,10 +34,9 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.ProcessException;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.log.LogMessage;
 
 /** 
  * Loads the scripts. This class calls the <code>loadScripts</code> 
@@ -63,20 +62,33 @@ public class ScriptsLoader
     /** The location of the mouse click.*/
     private Point location;
     
+    /** Flag indicating to load the scripts with a given UI.*/
+    private boolean ui;
+    
     /**
      * Creates a new instance.
      * 
      * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param all  	 Pass <code>true</code> to retrieve all the scripts uploaded
 	 * 				 ones and the default ones, <code>false</code>.
 	 * @param location The location of the mouse click.
      */
-    public ScriptsLoader(TreeViewer viewer, boolean all, Point location)
+    public ScriptsLoader(TreeViewer viewer, SecurityContext ctx, boolean all,
+    		Point location)
     {
-    	super(viewer);
+    	super(viewer, ctx);
     	this.all = all;
     	this.location = location;
     }
+    
+    /**
+     * Indicates to load the scripts with a UI.
+     * 
+     * @param ui Pass <code>true</code> to load scripts with UI,
+     *           <code>false</code> otherwise.
+     */
+    public void setUI(boolean ui) { this.ui = ui; }
     
     /** 
      * Loads the scripts.
@@ -84,7 +96,7 @@ public class ScriptsLoader
      */
     public void load()
     {
-    	handle = mhView.loadScripts(-1, all, this);
+    	handle = mhView.loadScripts(ctx, -1, all, this);
     }
     
     /** 

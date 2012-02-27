@@ -2311,9 +2311,10 @@ public class EditorUtil
 	 * 
 	 * @param target The target of the D&D action.
 	 * @param src    The node to transfer.
+	 * @param userID The id of the user currently logged in.
 	 * @return See above.
 	 */
-	public static boolean isTransferable(Object target, Object src)
+	public static boolean isTransferable(Object target, Object src, long userID)
 	{
 		if (target instanceof ProjectData && src instanceof DatasetData)
 			return true;
@@ -2321,9 +2322,17 @@ public class EditorUtil
 			return true;
 		else if (target instanceof ScreenData && src instanceof PlateData)
 			return true;
-		else if (target instanceof GroupData && src instanceof ExperimenterData)
-			return true;
-		else if (target instanceof TagAnnotationData
+		else if (target instanceof GroupData) {
+			if (src instanceof ExperimenterData) return true;
+			if (src instanceof DataObject) {
+				GroupData g = (GroupData) target;
+				DataObject data = (DataObject) src;
+				return (g.getId() != data.getGroupId());
+			}
+		} else if (target instanceof ExperimenterData) {
+			ExperimenterData exp = (ExperimenterData) target;
+			return exp.getId() == userID;
+		} else if (target instanceof TagAnnotationData
 				&& src instanceof TagAnnotationData) {
 			TagAnnotationData tagSet = (TagAnnotationData) target;
 			TagAnnotationData tag = (TagAnnotationData) src;

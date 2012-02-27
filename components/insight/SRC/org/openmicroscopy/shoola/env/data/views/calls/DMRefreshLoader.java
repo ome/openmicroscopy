@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
@@ -75,10 +76,10 @@ public class DMRefreshLoader
 {
 
     /** The results of the call. */
-    private Object      results;
+    private Object results;
     
     /** Loads the specified tree. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
     
     /**
      * Retrieve the data.
@@ -88,8 +89,8 @@ public class DMRefreshLoader
      * @param mapResult	   Map hosting the results.
      * @throws Exception Thrown if an error occurred.
      */
-    private void retrieveData(Class rootNodeType, Map<Long, List> nodes, 
-    		Map<Long, Object> mapResult)
+    private void retrieveData(Class rootNodeType,
+    		Map<SecurityContext, List> nodes, Map<SecurityContext, Object> mapResult)
     	throws Exception
     {
     	OmeroDataService os = context.getDataService();
@@ -109,21 +110,23 @@ public class DMRefreshLoader
         DataObject child, parent;
         Set s;
         Entry entry;
+        SecurityContext ctx;
         while (users.hasNext()) {
         	entry = (Entry) users.next();
-        	userID = (Long) entry.getKey();
+        	ctx = (SecurityContext) entry.getKey();
+        	userID = ctx.getExperimenter();
         	containers = (List) entry.getValue();
         	if (containers == null || containers.size() == 0) {
-        		result = os.loadContainerHierarchy(rootNodeType, null, 
-                		false, userID, groupID);
-        		if (mapResult.containsKey(userID)) {
+        		result = os.loadContainerHierarchy(ctx, rootNodeType, null, 
+                		false, ctx.getExperimenter(), groupID);
+        		if (mapResult.containsKey(ctx)) {
         			s = (Set) mapResult.get(userID);
         			s.addAll((Set) result);
         		} else {
-        			mapResult.put(userID, result);
+        			mapResult.put(ctx, result);
         		}
         	} else {
-        		set = os.loadContainerHierarchy(rootNodeType, null, 
+        		set = os.loadContainerHierarchy(ctx, rootNodeType, null, 
                         false, userID, groupID);
                 i = containers.iterator();
                 ids = new ArrayList<Long>(containers.size());
@@ -157,7 +160,7 @@ public class DMRefreshLoader
                             child = (DataObject) c.next();
                             id = Long.valueOf(child.getId());
                             if (ids.contains(id)) {
-                                r = os.loadContainerHierarchy(klass, 
+                                r = os.loadContainerHierarchy(ctx, klass, 
                                 		Arrays.asList(id),
                                         true, userID, groupID);
                                 k = r.iterator();
@@ -169,10 +172,10 @@ public class DMRefreshLoader
                     }
                 }
                 result = topNodes;
-                if (mapResult.containsKey(userID)) {
+                if (mapResult.containsKey(ctx)) {
         			Map map  = (Map) mapResult.get(userID);
         			map.putAll((Map) result);
-        		} else mapResult.put(userID, result);
+        		} else mapResult.put(ctx, result);
         	}
 		}
     }
@@ -187,12 +190,13 @@ public class DMRefreshLoader
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final Class rootNodeType, 
-                                    final Map<Long, List> nodes)
+                                    final Map<SecurityContext, List> nodes)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
-            	Map<Long, Object> r = new HashMap<Long, Object>(nodes.size());
+            	Map<SecurityContext, Object> r = 
+            		new HashMap<SecurityContext, Object>(nodes.size());
             	results = r;
                 //retrieveData(ProjectData.class, nodes);
                 retrieveData(rootNodeType, nodes, r);
@@ -203,11 +207,11 @@ public class DMRefreshLoader
     /**
      * Creates a {@link BatchCall} to retrieve the images.
      * 
-     * @param nodes The map whose keys are the id of user and the values 
+     * @param nodes The map whose keys are the security context and the values 
      * 				are the corresponding collections of data objects to reload.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeImagesBatchCall(final Map<Long, List> nodes)
+    private BatchCall makeImagesBatchCall(final Map<SecurityContext, List> nodes)
     {
         return new BatchCall("Loading images: ") {
             public void doCall() throws Exception
@@ -219,15 +223,18 @@ public class DMRefreshLoader
                 Iterator j ;
                 TimeRefObject ref;
                 Entry entry;
+                SecurityContext ctx;
                 while (i.hasNext()) {
                 	entry = (Entry) i.next();
-                	userID = (Long) entry.getKey();
+                	ctx = (SecurityContext) entry.getKey();
+                	userID = ctx.getExperimenter();
                 	containers = (List) entry.getValue();
                 	j = containers.iterator();
                 	while (j.hasNext()) {
                 		ref = (TimeRefObject) j.next();
-        				ref.setResults(os.getImagesPeriod(ref.getStartTime(),
-        								ref.getEndTime(), userID, true));
+        				ref.setResults(os.getImagesPeriod(ctx,
+        					ref.getStartTime(), ref.getEndTime(), userID,
+        					true));
 					}
                 }
                 results = nodes;
@@ -238,15 +245,16 @@ public class DMRefreshLoader
     /**
      * Creates a {@link BatchCall} to retrieve the groups.
      * 
-     * @param nodes The map whose keys are the id of user and the values 
-     * 				are the corresponding collections of data objects to reload.  		
+     * @param nodes The map whose keys are the security context and the values 
+     * 				are the corresponding collections of data objects to reload.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeGroupsBatchCall(final Map<Long, List> nodes)
+    private BatchCall makeGroupsBatchCall(final Map<SecurityContext, List> nodes)
     {
         return new BatchCall("Loading groups: ") {
             public void doCall() throws Exception
             {
+            	/* TODO, move that outside.
                 AdminService svc = context.getAdminService();
                 Entry entry;
                 Iterator i = nodes.entrySet().iterator();
@@ -256,18 +264,20 @@ public class DMRefreshLoader
                 Boolean admin = (Boolean)
                 	context.lookup(LookupNames.USER_ADMINISTRATOR);
                 if (admin != null && admin.booleanValue()) {
-                	List<GroupData> groups = svc.loadGroups(-1);
+                	List<GroupData> groups = svc.loadGroups(ctx, -1);
                     List<GroupData> r = new ArrayList<GroupData>();
                     List<Long> toRemove = new ArrayList<Long>();
                     List<GroupData> l;
                     List list;
+                    SecurityContext ctx;
                     while (i.hasNext()) {
     					entry = (Entry) i.next();
+    					ctx = (SecurityContext) entry.getKey();
     					list = (List) entry.getValue();
     					j = list.iterator();
     					while (j.hasNext()) {
     						groupID = (Long) j.next();
-    						l = svc.loadGroups(groupID);
+    						l = svc.loadGroups(ctx, groupID);
     						toRemove.add(groupID);
     						if (l.size() == 1) r.add(l.get(0));
     					}
@@ -284,7 +294,7 @@ public class DMRefreshLoader
                 	ExperimenterData exp = 
         				(ExperimenterData) context.lookup(
         						LookupNames.CURRENT_USER_DETAILS);
-                	List<GroupData> groups = svc.reloadPIGroups(exp);
+                	List<GroupData> groups = svc.reloadPIGroups(ctx, exp);
                 	Iterator<GroupData> g = groups.iterator();
                 	GroupData gd;
                 	List<GroupData> toKeep = new ArrayList<GroupData>();
@@ -306,6 +316,7 @@ public class DMRefreshLoader
 					}
                 	results = toKeep;
                 }
+                */
             }
         };
     }
@@ -313,30 +324,36 @@ public class DMRefreshLoader
     /**
      * Creates a {@link BatchCall} to retrieve the files.
      * 
-     * @param nodes The map whose keys are the id of user and the values 
-     * 				are the corresponding collections of data objects to reload.  		
+     * @param nodes The map whose keys are the security context and the values 
+     * 				are the corresponding collections of data objects to reload.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeFilesBatchCall(final Map<Long, List> nodes)
+    private BatchCall makeFilesBatchCall(final Map<SecurityContext, List> nodes)
     {
         return new BatchCall("Loading files: ") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-                Iterator users = nodes.keySet().iterator();
+                //Iterator users = nodes.keySet().iterator();
                 long userID;
                 List containers;
                 Iterator j ;
                 TimeRefObject ref;
-                while (users.hasNext()) {
-                	userID = (Long) users.next();
-                	containers = nodes.get(userID);
-                	j = containers.iterator();
+                Entry entry;
+                SecurityContext ctx;
+                Iterator i = nodes.entrySet().iterator();
+                while (i.hasNext()) {
+                	entry = (Entry) i.next();
+					ctx = (SecurityContext) entry.getKey();
+					userID = ctx.getExperimenter();
+					containers = (List) entry.getValue();
+					j = containers.iterator();
                 	while (j.hasNext()) {
                 		ref = (TimeRefObject) j.next();
-        				ref.setResults(os.loadFiles(ref.getFileType(), userID));
+        				ref.setResults(os.loadFiles(ctx, ref.getFileType(),
+        					userID));
 					}
-                }
+				}
                 results = nodes;
             }
         };
@@ -345,17 +362,18 @@ public class DMRefreshLoader
     /**
      * Creates a {@link BatchCall} to retrieve the files.
      * 
-     * @param nodes The map whose keys are the id of user and the values 
-     * 				are the corresponding collections of data objects to reload.  		
+     * @param nodes The map whose keys are the security context and the values 
+     * 				are the corresponding collections of data objects to reload.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeTagsBatchCall(final Map<Long, List> nodes)
+    private BatchCall makeTagsBatchCall(final Map<SecurityContext, List> nodes)
     {
         return new BatchCall("Loading files: ") {
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
-                Map<Long, Object> r = new HashMap<Long, Object>(nodes.size());
+                Map<SecurityContext, Object> r = 
+                	new HashMap<SecurityContext, Object>(nodes.size());
                 long userID;
                 Object result;
                 Entry entry;
@@ -368,15 +386,17 @@ public class DMRefreshLoader
                 Map<Long, Collection> values;
                 String ns;
                 Set<TagAnnotationData> set;
+                SecurityContext ctx;
                 while (j.hasNext()) {
                 	entry = (Entry) j.next();
-                	userID = (Long) entry.getKey();
+                	ctx = (SecurityContext) entry.getKey();
+                	userID = ctx.getExperimenter();
                 	l = (List) entry.getValue();
                 	
-                	tags = os.loadTags(-1L, false, true, userID, -1);
+                	tags = os.loadTags(ctx, -1L, false, true, userID, -1);
                 	List<Object> tagResults = new ArrayList<Object>();
                 	if (l == null || l.size() == 0) {
-                		r.put(userID, tags);
+                		r.put(ctx, tags);
                 	} else {
                 		values = new HashMap<Long, Collection>();
                 		k = l.iterator();
@@ -386,12 +406,12 @@ public class DMRefreshLoader
                 			ob = k.next();
                 			if (ob instanceof TagAnnotationData) {
                 				tag = (TagAnnotationData) ob;
-    							values.put(tag.getId(), os.loadTags(tag.getId(),
-    									true, false, userID, -1));
+    							values.put(tag.getId(), os.loadTags(ctx,
+    									tag.getId(), true, false, userID, -1));
                 			} else {
                 				ref = (TimeRefObject) ob;
-                				ref.setResults(os.loadFiles(ref.getFileType(), 
-                						userID));
+                				ref.setResults(os.loadFiles(ctx, 
+                					ref.getFileType(), userID));
                 				tagResults.add(ref);
                 			}
 						}
@@ -419,7 +439,7 @@ public class DMRefreshLoader
     												tag.getId()));
 							}
     					}
-                		r.put(userID, tagResults);
+                		r.put(ctx, tagResults);
                 	}
                 }
                 results = r;
@@ -444,12 +464,13 @@ public class DMRefreshLoader
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
-     * @param rootNodeType	The type of the root node. 
-     * @param nodes        	The map whose keys are the id of user
+     * @param rootNodeType	The type of the root node.
+     * @param nodes        	The map whose keys are the security context
      * 						and the values are the corresponding collections of
      * 						data objects to reload.
      */
-    public DMRefreshLoader(Class rootNodeType, Map<Long, List> nodes)
+    public DMRefreshLoader(Class rootNodeType,
+    		Map<SecurityContext, List> nodes)
     {
         if (rootNodeType == null) 
             throw new IllegalArgumentException("No root node type.");

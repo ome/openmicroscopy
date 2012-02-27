@@ -25,6 +25,11 @@ package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -35,6 +40,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -74,11 +80,22 @@ public class TaggingAction
             setEnabled(false);
             return;
         }
-    	Object object = node.getHierarchyObject();
-    	if (object instanceof ImageData || object instanceof DatasetData ||
-    			object instanceof ProjectData || object instanceof ScreenData ||
-    			object instanceof PlateData) {
-    		setEnabled(model.isWritable(object));
+    	Object ho = node.getHierarchyObject();
+    	if (ho instanceof ImageData || ho instanceof DatasetData ||
+    			ho instanceof ProjectData || ho instanceof ScreenData ||
+    			ho instanceof PlateData) {
+    		if (model.isWritable(ho)) {
+    			Collection l = model.getBrowser().getSelectedDataObjects();
+        		List<Long> ids = new ArrayList<Long>();
+        		Iterator i = l.iterator();
+        		DataObject data;
+        		while (i.hasNext()) {
+					data = (DataObject) i.next();
+					if (!ids.contains(data.getGroupId()))
+						ids.add(data.getGroupId());
+				}
+        		setEnabled(ids.size() == 1);
+    		} else setEnabled(false);
     	} else setEnabled(false);
     }
       

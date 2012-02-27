@@ -32,6 +32,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.PlateData;
@@ -65,11 +66,13 @@ public class TabularDataLoader
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param ids The identifier of the files hosting the tabular data.
      */
-    public TabularDataLoader(DataBrowser viewer, List<Long> ids)
+    public TabularDataLoader(DataBrowser viewer, SecurityContext ctx,
+    		List<Long> ids)
     {
-    	 super(viewer);
+    	 super(viewer, ctx);
     	 if (ids == null || ids.size() <= 0)
     		 throw new IllegalArgumentException("No file to retrieve.");
     	 parameters = new TableParameters(ids);
@@ -80,11 +83,13 @@ public class TabularDataLoader
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param object The object to handle. Mustn't be <code>null</code>.
      */
-    public TabularDataLoader(DataBrowser viewer, DataObject object)
+    public TabularDataLoader(DataBrowser viewer, SecurityContext ctx,
+    		DataObject object)
     {
-    	 super(viewer);
+    	 super(viewer, ctx);
     	 if (object == null)
     		 throw new IllegalArgumentException("No file to retrieve.");
     	 if (!(object instanceof PlateData || object instanceof ScreenData)) {
@@ -99,7 +104,7 @@ public class TabularDataLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadTabularData(parameters, -1, this);
+		handle = mhView.loadTabularData(ctx, parameters, -1, this);
 	}
 	
 	/** 
