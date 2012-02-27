@@ -436,8 +436,7 @@ public class ImportCandidates extends DirectoryWalker
                 ic.setCustomPlateName(config.plateName.get());
                 ic.setCustomPlateDescription(config.plateDescription.get());
                 ic.setArchive(config.archiveImage.get());
-                ic.setFslite(config.fsliteImport.get());
-                ic.setDropbox(config.dropboxImport.get());
+                ic.setMetadataOnly(config.metadataOnly.get());
                 ic.setCustomAnnotationList(config.annotations.get());
                 ic.setUseMetadataFile(config.companionFile.get());
                 return ic;
