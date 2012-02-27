@@ -1517,11 +1517,9 @@ public class OMEROMetadataStoreClient
      * relevant original metadata files as requested and performs graph logic
      * to have the scafolding in place for later original file upload if
      * we are of the HCS domain.
-     * @param archive Whether or not the user requested the original files to
-     * be archived.
      * @return A list of the temporary metadata files created on local disk.
      */
-    public List<File> setArchiveScreeningDomain(boolean archive)
+    public List<File> setArchiveScreeningDomain()
     {
 	List<File> metadataFiles = new ArrayList<File>();
 	String[] usedFiles = reader.getUsedFiles();
@@ -1541,7 +1539,7 @@ public class OMEROMetadataStoreClient
 			new LinkedHashMap<Index, Integer>();
 		imageIndexes.put(Index.IMAGE_INDEX, series);
 		Image image = getSourceObject(Image.class, imageIndexes);
-		image.setArchived(toRType(archive));
+		image.setArchived(toRType(false));
 	}
 	// Create all original file objects for later population based on
 	// the existence or abscence of companion files and the archive
@@ -1553,33 +1551,18 @@ public class OMEROMetadataStoreClient
 		File usedFile = new File(usedFilename);
 		boolean isCompanionFile = companionFiles == null? false :
 			companionFiles.contains(usedFilename);
-		if (archive || isCompanionFile)
+		if (isCompanionFile)
 		{
 			LinkedHashMap<Index, Integer> indexes =
 				new LinkedHashMap<Index, Integer>();
 			indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
-			if (isCompanionFile)
-			{
-				// PATH 1: The file is a companion file, create it,
-				// and increment the next original file's index.
-				String format = "Companion/" + formatString;
-				createOriginalFileFromFile(usedFile, indexes, format);
-				addCompanionFileAnnotationTo(plateKey, indexes,
-						                     originalFileIndex);
-				originalFileIndex++;
-			}
-			else
-			{
-				// PATH 2: We're archiving and the file is not a
-				// companion file, create it, and increment the next
-				// original file's index.
-				createOriginalFileFromFile(usedFile, indexes,
-						formatString);
-				LSID originalFileKey =
-					new LSID(OriginalFile.class, originalFileIndex);
-				addReference(plateKey, originalFileKey);
-				originalFileIndex++;
-			}
+			// The file is a companion file, create it,
+			// and increment the next original file's index.
+			String format = "Companion/" + formatString;
+			createOriginalFileFromFile(usedFile, indexes, format);
+			addCompanionFileAnnotationTo(plateKey, indexes,
+						                originalFileIndex);
+			originalFileIndex++;
 		}
 	}
 	return metadataFiles;
@@ -1589,13 +1572,11 @@ public class OMEROMetadataStoreClient
      * Populates archive flags on all images currently processed links
      * relevant original metadata files as requested and performs graph logic
      * to have the scaffolding in place for later original file upload.
-     * @param archive Whether or not the user requested the original files to
-     * be archived.
      * @param useMetadataFile Whether or not to dump all metadata to a flat
      * file annotation on the server.
      * @return A list of the temporary metadata files created on local disk.
      */
-    public List<File> setArchive(boolean archive, boolean useMetadataFile)
+    public List<File> setArchive(boolean useMetadataFile)
     {
 	List<File> metadataFiles = new ArrayList<File>();
 	int originalFileIndex = countCachedContainers(OriginalFile.class, null);
@@ -1622,7 +1603,7 @@ public class OMEROMetadataStoreClient
 		// ensures that an Image object (and corresponding container)
 		// exists.
 		Image image = getSourceObject(Image.class, imageIndexes);
-		image.setArchived(toRType(archive));
+		image.setArchived(toRType(false));
 
 		// If we have been asked to create a metadata file with all the
 		// metadata dumped out, do so, add it to the collection we're to
@@ -1658,8 +1639,8 @@ public class OMEROMetadataStoreClient
 		}
 
 		// Create all original file objects for later population based on
-		// the existence or abscence of companion files and the archive
-		// flag. This increments the original file count by the number of
+		// the existence or abscence of companion files.
+		// This increments the original file count by the number of
 		// files to actually be created.
 		for (int i = 0; i < usedFiles.length; i++)
 		{
@@ -1668,7 +1649,7 @@ public class OMEROMetadataStoreClient
 			String absolutePath = usedFile.getAbsolutePath();
 			boolean isCompanionFile = companionFiles == null? false :
 				                      companionFiles.contains(usedFilename);
-			if (archive || isCompanionFile)
+			if (isCompanionFile)
 			{
 				LinkedHashMap<Index, Integer> indexes =
 					new LinkedHashMap<Index, Integer>();
@@ -1680,7 +1661,7 @@ public class OMEROMetadataStoreClient
 					// the same original file index.
 					usedFileIndex = pathIndexMap.get(absolutePath);
 				}
-				else if (isCompanionFile)
+				else
 				{
 					// PATH 2: The file is a companion file, create it,
 					// put the new original file index into our cached map
@@ -1690,35 +1671,12 @@ public class OMEROMetadataStoreClient
 					pathIndexMap.put(absolutePath, usedFileIndex);
 					originalFileIndex++;
 				}
-				else
-				{
-					// PATH 3: We're archiving and the file is not a
-					// companion file, create it, put the new original file
-					// index into our cached map, increment the next
-					// original file's index and link it to our pixels set.
-					createOriginalFileFromFile(usedFile, indexes,
-					                           formatString);
-					pathIndexMap.put(absolutePath, usedFileIndex);
-					originalFileIndex++;
-				}
-
-				if (isCompanionFile)
-				{
-                        // Add a companion file annotation to the Image.
-                        indexes = new LinkedHashMap<Index, Integer>();
-                        indexes.put(Index.IMAGE_INDEX, series);
-                        indexes.put(Index.ORIGINAL_FILE_INDEX, usedFileIndex);
-                        addCompanionFileAnnotationTo(imageKey, indexes,
-                                                     usedFileIndex);
-                    }
-                    if (archive)
-                    {
-                        // Always link the original file to the Image even if
-                        // it is a companion file when we are archiving.
-                        LSID originalFileKey =
-                            new LSID(OriginalFile.class, usedFileIndex);
-                        addReference(pixelsKey, originalFileKey);
-                    }
+                // Add a companion file annotation to the Image.
+                indexes = new LinkedHashMap<Index, Integer>();
+                indexes.put(Index.IMAGE_INDEX, series);
+                indexes.put(Index.ORIGINAL_FILE_INDEX, usedFileIndex);
+                addCompanionFileAnnotationTo(imageKey, indexes,
+                                             usedFileIndex);
                 }
             }
         }

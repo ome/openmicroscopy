@@ -528,7 +528,6 @@ public class ImportLibrary implements IObservable
             handleBigImageFormats(baseReader, container);
             // Forcing these to false for now but remove completely once tested?
             boolean useMetadataFile = false;
-            boolean archive = false;
             boolean dropbox = container.getDropbox();
             if (log.isInfoEnabled())
             {
@@ -536,8 +535,6 @@ public class ImportLibrary implements IObservable
                 log.info("Base reader: " + baseReader.getClass().getName());
                 log.info("Metadata only import? " + isMetadataOnly);
                 log.info("Dropbox import? " + dropbox);
-                log.info("Container metadata only import? " +
-                         container.getMetadataOnly());
             }
             notifyObservers(new ImportEvent.LOADED_IMAGE(
                     shortName, index, numDone, total));
@@ -551,14 +548,13 @@ public class ImportLibrary implements IObservable
             if (isScreeningDomain)
             {
                 log.info("Reader is of HCS domain, disabling metafile.");
-
-                metadataFiles = store.setArchiveScreeningDomain(archive);
+                metadataFiles = store.setArchiveScreeningDomain();
             }
             else
             {
                 log.info("Reader is not of HCS domain, use metafile: "
                         + useMetadataFile);
-                metadataFiles = store.setArchive(archive, useMetadataFile);
+                metadataFiles = store.setArchive(useMetadataFile);
             }
             if (!dropbox) {
                 container = handleFsliteImport(container);
