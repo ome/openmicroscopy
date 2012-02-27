@@ -420,7 +420,7 @@
             <Channel Color="65280" ID="Channel:0:2" PinholeSize="95.5652364435265" SamplesPerPixel="1">
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="0"/>
@@ -464,7 +464,7 @@
             <Channel Color="16777215" ID="Channel:1:0" SamplesPerPixel="3">
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane TheC="0" TheT="0" TheZ="0"/>
         </Pixels>
     </Image>
@@ -493,7 +493,7 @@
                 <DetectorSettings Gain="382.658121614405" ID="Detector:2:3" Offset="0.0"/>
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane DeltaT="0.0" PositionX="0.06990967123748" PositionY="0.04464952792068" PositionZ="0.0" TheC="0" TheT="0" TheZ="0"/>
             <Plane DeltaT="1.3180007934570312" PositionX="0.06990967123748" PositionY="0.04464952792068" PositionZ="0.0" TheC="1" TheT="0" TheZ="0"/>
             <Plane DeltaT="2.63800048828125" PositionX="0.06990967123748" PositionY="0.04464952792068" PositionZ="0.0" TheC="2" TheT="0" TheZ="0"/>
@@ -604,7 +604,7 @@
             <Channel Color="16777215" ID="Channel:3:0" SamplesPerPixel="3">
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane TheC="0" TheT="0" TheZ="0"/>
         </Pixels>
     </Image>
@@ -623,7 +623,7 @@
                 <DetectorSettings Gain="315.251392385748" ID="Detector:4:1" Offset="1.18000000000001"/>
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane DeltaT="0.0" PositionX="0.06231161848706" PositionY="0.04056071653759" PositionZ="0.0" TheC="0" TheT="0" TheZ="0"/>
             <Plane DeltaT="2.533000946044922" PositionX="0.06231161848706" PositionY="0.04056071653759" PositionZ="0.0" TheC="1" TheT="0" TheZ="0"/>
         </Pixels>
@@ -636,7 +636,7 @@
             <Channel Color="16777215" ID="Channel:5:0" SamplesPerPixel="3">
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane TheC="0" TheT="0" TheZ="0"/>
         </Pixels>
     </Image>
@@ -648,7 +648,7 @@
             <Channel Color="16711680" ID="Channel:6:0" PinholeSize="106.08964270380099" SamplesPerPixel="1">
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane DeltaT="0.0" PositionX="0.06320412291291" PositionY="0.0436177999333" PositionZ="0.0" TheC="0" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.8799991607666016" PositionX="0.06320412291291" PositionY="0.0436177999333" PositionZ="0.0" TheC="0" TheT="0" TheZ="1"/>
             <Plane DeltaT="1.760000228881836" PositionX="0.06320412291291" PositionY="0.0436177999333" PositionZ="0.0" TheC="0" TheT="0" TheZ="2"/>
@@ -690,7 +690,7 @@
             <Channel Color="16777215" ID="Channel:7:0" SamplesPerPixel="3">
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane TheC="0" TheT="0" TheZ="0"/>
         </Pixels>
     </Image>
@@ -719,7 +719,7 @@
                 <DetectorSettings Gain="556.496528572519" ID="Detector:8:3" Offset="-0.233333333333334"/>
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane DeltaT="0.0" PositionX="0.06276769735511" PositionY="0.04369709188489" PositionZ="0.0" TheC="0" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" PositionX="0.06276769735511" PositionY="0.04369709188489" PositionZ="0.0" TheC="1" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" PositionX="0.06276769735511" PositionY="0.04369709188489" PositionZ="0.0" TheC="2" TheT="0" TheZ="0"/>
@@ -751,7 +751,7 @@
                 <DetectorSettings Gain="535.915922789349" ID="Detector:9:3" Offset="-0.546666666666667"/>
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane DeltaT="0.0" PositionX="0.06276769735511" PositionY="0.04369709188489" PositionZ="0.0" TheC="0" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" PositionX="0.06276769735511" PositionY="0.04369709188489" PositionZ="0.0" TheC="1" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" PositionX="0.06276769735511" PositionY="0.04369709188489" PositionZ="0.0" TheC="2" TheT="0" TheZ="0"/>
@@ -783,7 +783,7 @@
                 <DetectorSettings Gain="1080.62485694667" ID="Detector:10:3" Offset="-0.233333333333334"/>
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane DeltaT="0.0" PositionX="0.06451753044357" PositionY="0.04300128657708" PositionZ="0.0" TheC="0" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" PositionX="0.06451753044357" PositionY="0.04300128657708" PositionZ="0.0" TheC="1" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" PositionX="0.06451753044357" PositionY="0.04300128657708" PositionZ="0.0" TheC="2" TheT="0" TheZ="0"/>
@@ -815,7 +815,7 @@
                 <DetectorSettings Gain="444.743266956588" ID="Detector:11:3" Offset="-0.546666666666667"/>
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane DeltaT="0.0" PositionX="0.06451753044357" PositionY="0.04300128657708" PositionZ="0.0" TheC="0" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" PositionX="0.06451753044357" PositionY="0.04300128657708" PositionZ="0.0" TheC="1" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" PositionX="0.06451753044357" PositionY="0.04300128657708" PositionZ="0.0" TheC="2" TheT="0" TheZ="0"/>
@@ -839,7 +839,7 @@
             <Channel Color="16777215" ID="Channel:12:3" PinholeSize="67.8860479790053" SamplesPerPixel="1">
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="0"/>
@@ -1774,7 +1774,7 @@
             <Channel Color="16777215" ID="Channel:13:0" SamplesPerPixel="3">
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane TheC="0" TheT="0" TheZ="0"/>
         </Pixels>
     </Image>

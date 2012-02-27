@@ -61,7 +61,7 @@
                 <DetectorSettings ID="Detector:0:1"/>
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane DeltaT="0.0" ExposureTime="0.0" PositionZ="-2.2590361445783174" TheC="0" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" ExposureTime="0.0" PositionZ="-2.2590361445783174" TheC="1" TheT="0" TheZ="0"/>
             <Plane DeltaT="2.656" ExposureTime="0.0" PositionZ="-2.2590361445783174" TheC="0" TheT="0" TheZ="1"/>
@@ -186,7 +186,7 @@
                 <DetectorSettings ID="Detector:1:2"/>
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane DeltaT="0.0" ExposureTime="0.0" PositionZ="-9.422826440898726" TheC="0" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" ExposureTime="0.0" PositionZ="-9.422826440898726" TheC="1" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.0" ExposureTime="0.0" PositionZ="-9.422826440898726" TheC="2" TheT="0" TheZ="0"/>
@@ -214,7 +214,7 @@
                 <DetectorSettings ID="Detector:2:2"/>
                 <LightPath/>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane DeltaT="0.0" ExposureTime="0.0" PositionZ="0.38668186258547055" TheC="0" TheT="0" TheZ="0"/>
             <Plane DeltaT="3.844" ExposureTime="0.0" PositionZ="0.38668186258547055" TheC="1" TheT="0" TheZ="0"/>
             <Plane DeltaT="3.844" ExposureTime="0.0" PositionZ="0.38668186258547055" TheC="2" TheT="0" TheZ="0"/>
@@ -232,7 +232,7 @@
                     <EmissionFilterRef ID="Filter:3:2"/>
                 </LightPath>
             </Channel>
-            <BinData xmlns="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" BigEndian="false" Length="0"/>
+            <MetadataOnly/>
             <Plane DeltaT="0.0" ExposureTime="0.0" PositionZ="-0.020351676978177666" TheC="0" TheT="0" TheZ="0"/>
             <Plane DeltaT="0.266" ExposureTime="0.0" PositionZ="-0.020351676978177666" TheC="0" TheT="1" TheZ="0"/>
             <Plane DeltaT="0.532" ExposureTime="0.0" PositionZ="-0.020351676978177666" TheC="0" TheT="2" TheZ="0"/>
