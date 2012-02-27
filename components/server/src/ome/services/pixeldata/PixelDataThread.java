@@ -193,7 +193,8 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
             throw new InternalException("No user! Must be wrapped by call to Executor?");
         }
 
-        Future<EventLog> future = this.executor.submit(new Callable<EventLog>(){
+        Future<EventLog> future = this.executor.submit(cd.getContext(),
+                new Callable<EventLog>(){
             public EventLog call() throws Exception {
                 return makeEvent(ec, mpm);
             }});

@@ -109,6 +109,10 @@ public class CurrentDetails implements PrincipalHolder {
         }
     }
 
+    public Map<String, String> getContext() {
+        return list().getLast().getCallContext();
+    }
+
     protected void checkDelayedCallContext(BasicEventContext bec) {
         Map<String, String> ctx = delayedCallContext.get();
         delayedCallContext.set(null);

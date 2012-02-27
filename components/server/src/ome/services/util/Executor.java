@@ -104,10 +104,23 @@ public interface Executor extends ApplicationContextAware {
             final Principal p, final Work work);
 
     /**
-     * Simple submission method which can be used in conjunction with a call to
-     * {@link #execute(Principal, Work)} to overcome the no-multiple-login rule.
+     * Call {@link #submit(Map, Callable)} with a null callContext.
+     * @param <T>
+     * @param callable
+     * @return
      */
     public <T> Future<T> submit(final Callable<T> callable);
+
+    /**
+     * Simple submission method which can be used in conjunction with a call to
+     * {@link #execute(Principal, Work)} to overcome the no-multiple-login rule.
+     *
+     * @param callContext Possibly null. See {@link CurrentDetails#setContext(Map)}
+     * @param callable. Not null. Action to be taken.
+     */
+
+    public <T> Future<T> submit(final Map<String, String> callContext,
+            final Callable<T> callable);
 
     /**
      * Helper method to perform {@link Future#get()} and properly unwrap the
@@ -388,17 +401,37 @@ public interface Executor extends ApplicationContextAware {
                 // Arguments will be replaced after hibernate is in effect
                 return wrapper.doWork(null, isf);
             } finally {
-                if (p != null) {
-                    this.principalHolder.logout();
-                }
                 if (callContext != null) {
                     this.principalHolder.setContext(null);
+                }
+                if (p != null) {
+                    this.principalHolder.logout();
                 }
             }
         }
 
         public <T> Future<T> submit(final Callable<T> callable) {
-            return service.submit(callable);
+            return submit(null, callable);
+        }
+
+        public <T> Future<T> submit(final Map<String, String> callContext,
+            final Callable<T> callable) {
+
+            if (callContext == null) {
+                return service.submit(callable); // Early exit.
+            } else {
+                Callable<T> wrapper = new Callable<T>() {
+                    public T call() throws Exception {
+                        principalHolder.setContext(callContext);
+                        try {
+                            return callable.call();
+                        } finally {
+                            principalHolder.setContext(null);
+                        }
+                    }
+                };
+                return service.submit(wrapper);
+            }
         }
 
         public <T> T get(final Future<T> future) {
