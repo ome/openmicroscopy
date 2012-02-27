@@ -128,8 +128,17 @@ class UserControl(BaseControl):
         for user in users:
             row = [user.id.val, user.omeName.val, user.firstName.val, user.lastName.val]
             row.append(user.email and user.email.val or "")
-            member_of = [str(x.parent.id.val) for x in user.copyGroupExperimenterMap() if not x.owner.val]
-            leader_of = [str(x.parent.id.val) for x in user.copyGroupExperimenterMap() if x.owner.val]
+            member_of = []
+            leader_of = []
+            for x in user.copyGroupExperimenterMap():
+                if not x:
+                    continue
+                gid = str(x.parent.id.val)
+                if x.owner.val:
+                    leader_of.append(gid)
+                else:
+                    member_of.append(gid)
+
             if member_of:
                 row.append(",".join(member_of))
             else:
