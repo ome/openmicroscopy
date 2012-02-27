@@ -28,6 +28,10 @@ import ome.security.SecurityFilter;
 import ome.system.EventContext;
 import ome.system.Roles;
 
+import static ome.model.internal.Permissions.Right.*;
+import static ome.model.internal.Permissions.Role.*;
+
+
 /**
  * overrides {@link FilterDefinitionFactoryBean} in order to construct our
  * security filter in code and not in XML. This allows us to make use of the
@@ -46,20 +50,23 @@ import ome.system.Roles;
  */
 public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
 
-    private static String myFilterCondition = "(\n"
-                // Should handle hidden groups at the top-level
-                // ticket:1784 - Allowing system objects to be read.
-                + "\n  ( group_id in (:current_groups) AND "
-                + "\n     ( 1 = :is_nonprivate OR "
-                + "\n       1 = :is_adminorpi OR "
-                + "\n       owner_id = :current_user"
-                + "\n     )"
-                + "\n  ) OR"
-                + "\n  group_id = %s OR " // ticket:1794
-                // Will need to add something about world readable here.
-                + "\n 1 = :is_share"
-                + "\n)\n";
+    static public final String is_admin = "is_admin";
 
+    static public final String current_groups = "current_groups";
+
+    static public final String leader_of_groups = "leader_of_groups";
+
+    static public final String filterName = "securityFilter";
+
+    private static String myFilterCondition = String.format("\n( "
+                + "\n :is_share OR \n :is_admin OR "
+                + "\n (group_id in (:leader_of_groups)) OR "
+                + "\n (owner_id = :current_user AND %s) OR " + // 1st arg U
+                "\n (group_id in (:current_groups) AND %s) OR " + // 2nd arg G
+                "\n (%s) " + // 3rd arg W
+                "\n)\n", isGranted(USER, READ), isGranted(GROUP, READ),
+                isGranted(WORLD, READ));
+    
     /**
      * default constructor which calls all the necessary setters for this
      * {@link FactoryBean}. Also constructs the {@link #defaultFilterCondition }
@@ -86,12 +93,13 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
     public Map<String, String> getParameterTypes() {
         Map<String, String> parameterTypes = new HashMap<String, String>();
         parameterTypes.put(is_share, "int");
-        parameterTypes.put(is_adminorpi, "int");
-        parameterTypes.put(is_nonprivate, "int");
-        parameterTypes.put(current_groups, "long");
+        parameterTypes.put(is_admin, "int");
         parameterTypes.put(current_user, "long");
+        parameterTypes.put(current_groups, "long");
+        parameterTypes.put(leader_of_groups, "long");
         return parameterTypes;
     }
+
 
     /**
      * tests that the {@link Details} argument passes the security test that
@@ -99,53 +107,37 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
      * mostly by the
      * {@link OmeroInterceptor#onLoad(Object, java.io.Serializable, Object[], String[], org.hibernate.type.Type[])}
      * method.
-     *
+     * 
      * @param d
      *            Details instance. If null (or if its {@link Permissions} are
      *            null all {@link Right rights} will be assumed.
      * @return true if the object to which this
      */
-    public boolean passesFilter(Details d,
-            Long currentGroupId, Long currentUserId,
-            boolean nonPrivate, boolean adminOrPi, boolean share,
-            List<Long> memberOfGroups) {
+    public boolean passesFilter(Details d, Long currentGroupId,
+        Long currentUserId, boolean nonPrivate, boolean adminOrPi,
+        boolean share, List<Long> memberOfGroups) {
         if (d == null || d.getPermissions() == null) {
             throw new InternalException("Details/Permissions null! "
                     + "Security system failure -- refusing to continue. "
                     + "The Permissions should be set to a default value.");
         }
 
+        Permissions p = d.getPermissions();
+
         Long o = d.getOwner().getId();
         Long g = d.getGroup().getId();
 
-        if (share) {
+        // most likely and fastest first
+        if (p.isGranted(WORLD, READ)) {
             return true;
         }
 
-        // ticket:1434 - Only loading current objects is permitted.
-        // This method will not be called with system types.
-        // See BasicACLVoter
-        // Also ticket:1784 allowing system objects to be read.
-        // Also ticket:1791 allowing user objects to be read (also 1794)
-        if (Long.valueOf(roles.getSystemGroupId()).equals(g) ||
-                Long.valueOf(roles.getUserGroupId()).equals(g)) {
+        if (currentUserId.equals(o) && p.isGranted(USER, READ)) {
             return true;
         }
 
-        // ticket:3529 - if we're querying for multi groups, then allow
-        // admins to read anything, and prevent other non-group members
-        // from doing anything.
-        if (currentGroupId < 0) {
-            if (adminOrPi) {
-                return true;
-            } else if (!memberOfGroups.contains(g)) {
-                return false;
-            }
-        } else if (!currentGroupId.equals(g)) {
-            return false;
-        }
-
-        if (nonPrivate) {
+        if (memberOfGroups.contains(g)
+                && d.getPermissions().isGranted(GROUP, READ)) {
             return true;
         }
 
@@ -153,7 +145,11 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
             return true;
         }
 
-        if (currentUserId.equals(o)) {
+        if (share) {
+            return true;
+        }
+
+        if (leaderOfGroups.contains(g)) {
             return true;
         }
 
@@ -198,6 +194,18 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
         filter.setParameter(SecurityFilter.current_user, ec.getCurrentUserId());
         filter.setParameterList(SecurityFilter.current_groups, groups);
 
+    }
+
+    // ~ Helpers
+    // =========================================================================
+
+    protected static String isGranted(Role role, Right right) {
+        String bit = "" + Permissions.bit(role, right);
+        String isGranted = String
+                .format(
+                        "(cast(permissions as bit(64)) & cast(%s as bit(64))) = cast(%s as bit(64))",
+                        bit, bit);
+        return isGranted;
     }
 
 }
