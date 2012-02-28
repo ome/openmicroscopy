@@ -210,17 +210,14 @@
         <ObjectiveSettings ID="Objective:0:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:0" PhysicalSizeX="3.5156250966082863" PhysicalSizeY="3.5156250966082863" PhysicalSizeZ="1.0E-13" SizeC="2" SizeT="1" SizeX="256" SizeY="256" SizeZ="1" TimeIncrement="1.0" Type="uint8">
             <Channel Color="65535" ID="Channel:0:0" Name="Ch3" PinholeSize="72.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:0:0"/>
+                <DetectorSettings ID="Detector:0:0"/>
                 <LightPath>
-                    <DichroicRef ID="Dichroic:0:0"/>
                     <EmissionFilterRef ID="Filter:0:0"/>
                 </LightPath>
             </Channel>
             <Channel Color="-1" ID="Channel:0:1" Name="ChD" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:0:1"/>
-                <LightPath>
-                    <DichroicRef ID="Dichroic:0:1"/>
-                </LightPath>
+                <DetectorSettings ID="Detector:0:1"/>
+                <LightPath/>
             </Channel>
             <MetadataOnly/>
             <Plane DeltaT="0.0" ExposureTime="0.0" TheC="0" TheT="0" TheZ="0"/>
@@ -234,35 +231,32 @@
         <ObjectiveSettings ID="Objective:1:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:1" PhysicalSizeX="0.06975446620254537" PhysicalSizeY="0.06975446620254537" PhysicalSizeZ="1.0E-13" SizeC="4" SizeT="1" SizeX="512" SizeY="512" SizeZ="1" TimeIncrement="1.0" Type="uint8">
             <Channel Color="65535" ID="Channel:1:0" Name="Ch2" PinholeSize="82.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:1:0"/>
+                <DetectorSettings ID="Detector:1:0"/>
                 <LightPath>
-                    <DichroicRef ID="Dichroic:1:0"/>
                     <EmissionFilterRef ID="Filter:1:0"/>
                 </LightPath>
             </Channel>
             <Channel Color="-16776961" ID="Channel:1:1" Name="Ch1" PinholeSize="106.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:1:1"/>
+                <DetectorSettings ID="Detector:1:1"/>
                 <LightPath>
-                    <DichroicRef ID="Dichroic:1:1"/>
                     <EmissionFilterRef ID="Filter:1:1"/>
                 </LightPath>
             </Channel>
             <Channel Color="16711935" ID="Channel:1:2" Name="Ch3" PinholeSize="98.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:1:2"/>
+                <DetectorSettings ID="Detector:1:2"/>
                 <LightPath>
-                    <DichroicRef ID="Dichroic:1:2"/>
                     <EmissionFilterRef ID="Filter:1:2"/>
                 </LightPath>
             </Channel>
             <Channel Color="-1" ID="Channel:1:3" Name="ChD" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:1:3"/>
+                <DetectorSettings ID="Detector:1:3"/>
                 <LightPath/>
             </Channel>
             <MetadataOnly/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="0"/>
         </Pixels>
     </Image>
     <Image ID="Image:2" Name="XY-ch">
@@ -271,37 +265,33 @@
         <InstrumentRef ID="Instrument:2"/>
         <ObjectiveSettings ID="Objective:2:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:2" PhysicalSizeX="0.13950893240509074" PhysicalSizeY="0.13950893240509074" PhysicalSizeZ="1.0E-13" SizeC="4" SizeT="1" SizeX="512" SizeY="512" SizeZ="1" TimeIncrement="1.0" Type="uint8">
-            <Channel Color="65535" ID="Channel:2:0" Name="Ch2" PinholeSize="82.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:2:0"/>
+            <Channel Color="65535" ID="Channel:2:0" Name="Ch2" PinholeSize="82.0" SamplesPerPixel="4">
+                <DetectorSettings ID="Detector:2:0"/>
                 <LightPath>
-                    <DichroicRef ID="Dichroic:2:0"/>
                     <EmissionFilterRef ID="Filter:2:0"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711935" ID="Channel:2:1" Name="Ch3" PinholeSize="96.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:2:1"/>
+            <Channel Color="16711935" ID="Channel:2:1" Name="Ch3" PinholeSize="96.0" SamplesPerPixel="4">
+                <DetectorSettings ID="Detector:2:1"/>
                 <LightPath>
-                    <DichroicRef ID="Dichroic:2:1"/>
                     <EmissionFilterRef ID="Filter:2:1"/>
                 </LightPath>
             </Channel>
-            <Channel Color="-1" ID="Channel:2:2" Name="ChD" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:2:2"/>
-                <LightPath>
-                    <DichroicRef ID="Dichroic:2:2"/>
-                </LightPath>
+            <Channel Color="-1" ID="Channel:2:2" Name="ChD" SamplesPerPixel="4">
+                <DetectorSettings ID="Detector:2:2"/>
+                <LightPath/>
             </Channel>
-            <Channel Color="-16776961" ID="Channel:2:3" Name="Ch1" PinholeSize="106.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:2:3"/>
+            <Channel Color="-16776961" ID="Channel:2:3" Name="Ch1" PinholeSize="106.0" SamplesPerPixel="4">
+                <DetectorSettings ID="Detector:2:3"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:2:2"/>
                 </LightPath>
             </Channel>
             <MetadataOnly/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="0"/>
         </Pixels>
     </Image>
     <Image ID="Image:3" Name="XYT">
@@ -311,16 +301,15 @@
         <ObjectiveSettings ID="Objective:3:0"/>
         <Pixels DimensionOrder="XYTCZ" ID="Pixels:3" PhysicalSizeX="7.031250193216572" PhysicalSizeY="7.031250193216572" PhysicalSizeZ="1.0E-13" SizeC="1" SizeT="209" SizeX="33" SizeY="29" SizeZ="1" TimeIncrement="10.0" Type="uint8">
             <Channel Color="-1" ID="Channel:3:0" Name="Ch2" PinholeSize="1000.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:3:0"/>
+                <DetectorSettings ID="Detector:3:0"/>
                 <LightPath>
-                    <DichroicRef ID="Dichroic:3:0"/>
                     <EmissionFilterRef ID="Filter:3:0"/>
                 </LightPath>
             </Channel>
             <MetadataOnly/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="0"/>
-            <Plane DeltaT="601.5566254545456" ExposureTime="-4814.566173090909" TheC="0" TheT="1" TheZ="0"/>
-            <Plane DeltaT="-4213.009547636363" ExposureTime="-548.9648029090908" TheC="0" TheT="2" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
+            <Plane TheC="0" TheT="1" TheZ="0"/>
+            <Plane DeltaT="-4213.009547636363" TheC="0" TheT="2" TheZ="0"/>
             <Plane DeltaT="-4761.9743505454535" ExposureTime="10.00012509090908" TheC="0" TheT="3" TheZ="0"/>
             <Plane DeltaT="-4751.9742254545445" ExposureTime="10.00132654545456" TheC="0" TheT="4" TheZ="0"/>
             <Plane DeltaT="-4741.97289890909" ExposureTime="10.001326545454504" TheC="0" TheT="5" TheZ="0"/>
@@ -536,28 +525,27 @@
         <ObjectiveSettings ID="Objective:4:0"/>
         <Pixels DimensionOrder="XYZCT" ID="Pixels:4" PhysicalSizeX="0.2197265685380179" PhysicalSizeY="0.2197265685380179" PhysicalSizeZ="2.0" SizeC="1" SizeT="1" SizeX="512" SizeY="512" SizeZ="15" TimeIncrement="1.0" Type="uint8">
             <Channel Color="16741375" ID="Channel:4:0" Name="Ch3" PinholeSize="98.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:4:0"/>
+                <DetectorSettings ID="Detector:4:0"/>
                 <LightPath>
-                    <DichroicRef ID="Dichroic:4:0"/>
                     <EmissionFilterRef ID="Filter:4:0"/>
                 </LightPath>
             </Channel>
             <MetadataOnly/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="14"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="1"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="2"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="3"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="4"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="5"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="6"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="7"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="8"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="9"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="10"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="11"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="12"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="13"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="14"/>
         </Pixels>
     </Image>
     <Image ID="Image:5" Name="XYZ-ch-zoom">
@@ -566,86 +554,83 @@
         <InstrumentRef ID="Instrument:5"/>
         <ObjectiveSettings ID="Objective:5:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:5" PhysicalSizeX="0.04394531370760358" PhysicalSizeY="0.04394531370760358" PhysicalSizeZ="0.5" SizeC="2" SizeT="1" SizeX="512" SizeY="512" SizeZ="33" TimeIncrement="1.0" Type="uint8">
-            <Channel Color="16741375" ID="Channel:5:0" Name="Ch3" PinholeSize="98.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:5:0"/>
+            <Channel Color="16741375" ID="Channel:5:0" Name="Ch3" PinholeSize="98.0" SamplesPerPixel="4">
+                <DetectorSettings ID="Detector:5:0"/>
                 <LightPath>
-                    <DichroicRef ID="Dichroic:5:0"/>
                     <EmissionFilterRef ID="Filter:5:0"/>
                 </LightPath>
             </Channel>
-            <Channel Color="-1" ID="Channel:5:1" Name="ChD" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:5:1"/>
-                <LightPath>
-                    <DichroicRef ID="Dichroic:5:1"/>
-                </LightPath>
+            <Channel Color="-1" ID="Channel:5:1" Name="ChD" SamplesPerPixel="4">
+                <DetectorSettings ID="Detector:5:1"/>
+                <LightPath/>
             </Channel>
             <MetadataOnly/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="17"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="17"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="18"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="18"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="19"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="19"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="20"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="20"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="21"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="21"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="22"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="22"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="23"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="23"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="24"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="24"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="25"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="25"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="26"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="26"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="27"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="27"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="28"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="28"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="29"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="29"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="30"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="30"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="31"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="31"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="32"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="32"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="1"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="1"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="2"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="2"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="3"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="3"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="4"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="4"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="5"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="5"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="6"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="6"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="7"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="7"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="8"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="8"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="9"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="9"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="10"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="10"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="11"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="11"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="12"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="12"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="13"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="13"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="14"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="14"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="15"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="15"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="16"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="16"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="17"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="17"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="18"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="18"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="19"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="19"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="20"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="20"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="21"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="21"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="22"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="22"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="23"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="23"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="24"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="24"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="25"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="25"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="26"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="26"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="27"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="27"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="28"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="28"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="29"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="29"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="30"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="30"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="31"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="31"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="32"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="32"/>
         </Pixels>
     </Image>
     <Image ID="Image:6" Name="XYZ-ch">
@@ -654,145 +639,141 @@
         <InstrumentRef ID="Instrument:6"/>
         <ObjectiveSettings ID="Objective:6:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:6" PhysicalSizeX="0.13950893240509074" PhysicalSizeY="0.13950893240509074" PhysicalSizeZ="0.3706461752262131" SizeC="4" SizeT="1" SizeX="512" SizeY="512" SizeZ="28" TimeIncrement="1.0" Type="uint8">
-            <Channel Color="13434879" ID="Channel:6:0" Name="Ch2" PinholeSize="82.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:6:0"/>
+            <Channel Color="13434879" ID="Channel:6:0" Name="Ch2" PinholeSize="82.0" SamplesPerPixel="4">
+                <DetectorSettings ID="Detector:6:0"/>
                 <LightPath>
-                    <DichroicRef ID="Dichroic:6:0"/>
                     <EmissionFilterRef ID="Filter:6:0"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711935" ID="Channel:6:1" Name="Ch3" PinholeSize="96.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:6:1"/>
+            <Channel Color="16711935" ID="Channel:6:1" Name="Ch3" PinholeSize="96.0" SamplesPerPixel="4">
+                <DetectorSettings ID="Detector:6:1"/>
                 <LightPath>
-                    <DichroicRef ID="Dichroic:6:1"/>
                     <EmissionFilterRef ID="Filter:6:1"/>
                 </LightPath>
             </Channel>
             <Channel Color="-1" ID="Channel:6:2" Name="ChD" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:6:2"/>
-                <LightPath>
-                    <DichroicRef ID="Dichroic:6:2"/>
-                </LightPath>
+                <DetectorSettings ID="Detector:6:2"/>
+                <LightPath/>
             </Channel>
-            <Channel Color="-16776961" ID="Channel:6:3" Name="Ch1" PinholeSize="106.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:6:3"/>
+            <Channel Color="-16776961" ID="Channel:6:3" Name="Ch1" PinholeSize="106.0" SamplesPerPixel="4">
+                <DetectorSettings ID="Detector:6:3"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:6:2"/>
                 </LightPath>
             </Channel>
             <MetadataOnly/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="17"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="17"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="17"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="17"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="18"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="18"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="18"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="18"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="19"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="19"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="19"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="19"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="20"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="20"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="20"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="20"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="21"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="21"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="21"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="21"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="22"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="22"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="22"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="22"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="23"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="23"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="23"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="23"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="24"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="24"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="24"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="24"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="25"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="25"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="25"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="25"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="26"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="26"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="26"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="26"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="27"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="27"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="27"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="3" TheT="0" TheZ="27"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="0"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="1"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="1"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="1"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="1"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="2"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="2"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="2"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="2"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="3"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="3"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="3"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="3"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="4"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="4"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="4"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="4"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="5"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="5"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="5"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="5"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="6"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="6"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="6"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="6"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="7"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="7"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="7"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="7"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="8"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="8"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="8"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="8"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="9"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="9"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="9"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="9"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="10"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="10"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="10"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="10"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="11"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="11"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="11"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="11"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="12"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="12"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="12"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="12"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="13"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="13"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="13"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="13"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="14"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="14"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="14"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="14"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="15"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="15"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="15"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="15"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="16"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="16"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="16"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="16"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="17"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="17"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="17"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="17"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="18"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="18"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="18"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="18"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="19"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="19"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="19"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="19"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="20"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="20"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="20"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="20"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="21"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="21"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="21"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="21"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="22"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="22"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="22"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="22"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="23"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="23"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="23"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="23"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="24"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="24"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="24"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="24"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="25"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="25"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="25"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="25"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="26"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="26"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="26"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="26"/>
+            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="27"/>
+            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="27"/>
+            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="27"/>
+            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="27"/>
         </Pixels>
     </Image>
     <Image ID="Image:7" Name="XYZ-ch0">
@@ -802,80 +783,76 @@
         <ObjectiveSettings ID="Objective:7:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:7" PhysicalSizeX="0.09300595493672717" PhysicalSizeY="0.09300595493672717" PhysicalSizeZ="2.8538596031857506" SizeC="3" SizeT="1" SizeX="512" SizeY="512" SizeZ="18" TimeIncrement="1.0" Type="uint8">
             <Channel Color="-16776961" ID="Channel:7:0" Name="Ch1" PinholeSize="134.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:7:0"/>
+                <DetectorSettings ID="Detector:7:0"/>
                 <LightPath>
-                    <DichroicRef ID="Dichroic:7:0"/>
                     <EmissionFilterRef ID="Filter:7:0"/>
                 </LightPath>
             </Channel>
             <Channel Color="65535" ID="Channel:7:1" Name="Ch2" PinholeSize="134.0" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:7:1"/>
+                <DetectorSettings ID="Detector:7:1"/>
                 <LightPath>
-                    <DichroicRef ID="Dichroic:7:1"/>
                     <EmissionFilterRef ID="Filter:7:1"/>
                 </LightPath>
             </Channel>
             <Channel Color="255" ID="Channel:7:2" Name="ChD" SamplesPerPixel="1">
-                <DetectorSettings Binning="1x1" ID="Detector:7:2"/>
-                <LightPath>
-                    <DichroicRef ID="Dichroic:7:2"/>
-                </LightPath>
+                <DetectorSettings ID="Detector:7:2"/>
+                <LightPath/>
             </Channel>
             <MetadataOnly/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="0" TheT="0" TheZ="17"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="1" TheT="0" TheZ="17"/>
-            <Plane DeltaT="0.0" ExposureTime="601.5566254545456" TheC="2" TheT="0" TheZ="17"/>
+            <Plane TheC="0" TheT="0" TheZ="0"/>
+            <Plane TheC="1" TheT="0" TheZ="0"/>
+            <Plane TheC="2" TheT="0" TheZ="0"/>
+            <Plane TheC="0" TheT="0" TheZ="1"/>
+            <Plane TheC="1" TheT="0" TheZ="1"/>
+            <Plane TheC="2" TheT="0" TheZ="1"/>
+            <Plane TheC="0" TheT="0" TheZ="2"/>
+            <Plane TheC="1" TheT="0" TheZ="2"/>
+            <Plane TheC="2" TheT="0" TheZ="2"/>
+            <Plane TheC="0" TheT="0" TheZ="3"/>
+            <Plane TheC="1" TheT="0" TheZ="3"/>
+            <Plane TheC="2" TheT="0" TheZ="3"/>
+            <Plane TheC="0" TheT="0" TheZ="4"/>
+            <Plane TheC="1" TheT="0" TheZ="4"/>
+            <Plane TheC="2" TheT="0" TheZ="4"/>
+            <Plane TheC="0" TheT="0" TheZ="5"/>
+            <Plane TheC="1" TheT="0" TheZ="5"/>
+            <Plane TheC="2" TheT="0" TheZ="5"/>
+            <Plane TheC="0" TheT="0" TheZ="6"/>
+            <Plane TheC="1" TheT="0" TheZ="6"/>
+            <Plane TheC="2" TheT="0" TheZ="6"/>
+            <Plane TheC="0" TheT="0" TheZ="7"/>
+            <Plane TheC="1" TheT="0" TheZ="7"/>
+            <Plane TheC="2" TheT="0" TheZ="7"/>
+            <Plane TheC="0" TheT="0" TheZ="8"/>
+            <Plane TheC="1" TheT="0" TheZ="8"/>
+            <Plane TheC="2" TheT="0" TheZ="8"/>
+            <Plane TheC="0" TheT="0" TheZ="9"/>
+            <Plane TheC="1" TheT="0" TheZ="9"/>
+            <Plane TheC="2" TheT="0" TheZ="9"/>
+            <Plane TheC="0" TheT="0" TheZ="10"/>
+            <Plane TheC="1" TheT="0" TheZ="10"/>
+            <Plane TheC="2" TheT="0" TheZ="10"/>
+            <Plane TheC="0" TheT="0" TheZ="11"/>
+            <Plane TheC="1" TheT="0" TheZ="11"/>
+            <Plane TheC="2" TheT="0" TheZ="11"/>
+            <Plane TheC="0" TheT="0" TheZ="12"/>
+            <Plane TheC="1" TheT="0" TheZ="12"/>
+            <Plane TheC="2" TheT="0" TheZ="12"/>
+            <Plane TheC="0" TheT="0" TheZ="13"/>
+            <Plane TheC="1" TheT="0" TheZ="13"/>
+            <Plane TheC="2" TheT="0" TheZ="13"/>
+            <Plane TheC="0" TheT="0" TheZ="14"/>
+            <Plane TheC="1" TheT="0" TheZ="14"/>
+            <Plane TheC="2" TheT="0" TheZ="14"/>
+            <Plane TheC="0" TheT="0" TheZ="15"/>
+            <Plane TheC="1" TheT="0" TheZ="15"/>
+            <Plane TheC="2" TheT="0" TheZ="15"/>
+            <Plane TheC="0" TheT="0" TheZ="16"/>
+            <Plane TheC="1" TheT="0" TheZ="16"/>
+            <Plane TheC="2" TheT="0" TheZ="16"/>
+            <Plane TheC="0" TheT="0" TheZ="17"/>
+            <Plane TheC="1" TheT="0" TheZ="17"/>
+            <Plane TheC="2" TheT="0" TheZ="17"/>
         </Pixels>
     </Image>
 </OME>
