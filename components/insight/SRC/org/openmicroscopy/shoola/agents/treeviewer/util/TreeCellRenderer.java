@@ -38,6 +38,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.util.browser.SmartFolder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
@@ -45,6 +46,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
@@ -219,11 +221,32 @@ public class TreeCellRenderer
 	/** Reference to the <code>Date</code> icon. */
 	private static final Icon DATE_ICON;
 	
-	/** Reference to the <code>Date</code> icon. */
+	/** Reference to the <code>Group</code> icon. */
 	private static final Icon OWNER_GROUP_ICON;
+	
+	/** Reference to the <code>Group Private</code> icon. */
+	private static final Icon GROUP_PRIVATE_ICON;
+	
+	/** Reference to the <code>Group RWR---</code> icon. */
+	private static final Icon GROUP_READ_ONLY_ICON;
+	
+	/** Reference to the <code>Group RWRW--</code> icon. */
+	private static final Icon GROUP_READ_WRITE_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_WRITE_ICON;
 	
 	static { 
 		IconManager icons = IconManager.getInstance();
+		GROUP_PRIVATE_ICON = icons.getIcon(IconManager.PRIVATE_GROUP);
+		GROUP_READ_ONLY_ICON = icons.getIcon(IconManager.READ_GROUP);
+		GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_LINK_GROUP);
+		GROUP_PUBLIC_READ_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
+		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(
+				IconManager.PUBLIC_GROUP);
 		OWNER_GROUP_ICON = icons.getIcon(IconManager.OWNER_GROUP);
 		IMAGE_ICON = icons.getIcon(IconManager.IMAGE);
 		IMAGE_ANNOTATED_ICON = icons.getIcon(IconManager.IMAGE_ANNOTATED);
@@ -378,7 +401,28 @@ public class TreeCellRenderer
         		icon = PLATE_ACQUISITION_ANNOTATED_ICON;
         	else icon = PLATE_ACQUISITION_ICON; 
         } else if (usrObject instanceof GroupData) {
-        	icon = OWNER_GROUP_ICON;
+        	GroupData g = (GroupData) usrObject;
+        	int level = 
+            TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+                			g);
+        	switch (level) {
+	        	case AdminObject.PERMISSIONS_PRIVATE:
+	        		icon = GROUP_PRIVATE_ICON;
+	        		break;
+	        	case AdminObject.PERMISSIONS_GROUP_READ:
+	        		icon = GROUP_READ_ONLY_ICON;
+	        		break;
+	        	case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+	        		icon = GROUP_READ_WRITE_ICON;
+	        		break;
+	        	case AdminObject.PERMISSIONS_PUBLIC_READ:
+	        		icon = GROUP_PUBLIC_READ_ICON;
+	        		break;
+	        	case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+	        		icon = GROUP_PUBLIC_READ_WRITE_ICON;
+	        	default:
+	        		icon = OWNER_GROUP_ICON;
+        	}
         } else if (usrObject instanceof FileAnnotationData) {
         	FileAnnotationData data = (FileAnnotationData) usrObject;
         	String format = data.getFileFormat();

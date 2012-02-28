@@ -63,18 +63,7 @@ public class ImporterFactory
 	
 	/** The sole instance. */
 	private static final ImporterFactory  singleton = new ImporterFactory();
-	
-	/**
-	 * Returns a {@link Importer}.
-	 *  
-	 * @return See above.
-	 */
-	public static Importer getImporter()
-	{
-		ImporterModel model = new ImporterModel();
-		return singleton.getImporter(model);
-	}
-	
+
 	/**
 	 * Returns <code>true</code> if the importer already exists,
 	 * <code>false</code> otherwise.
@@ -92,13 +81,25 @@ public class ImporterFactory
 	 * @param groupId The identifier of the current group.
 	 * @return See above.
 	 */
-	public static Importer getImporter(long groupId)
+	public static Importer getImporter(long groupId, boolean master)
 	{
-		ImporterModel model = new ImporterModel(groupId);
+		ImporterModel model = new ImporterModel(groupId, master);
 		return singleton.getImporter(model);
 	}
 	
-	
+	/**
+	 * Returns a {@link Importer}.
+	 * 
+	 * @param groupId The identifier of the current group.
+	 * @param master Pass <code>true</code> if the importer is used a 
+	 * stand-alone application, <code>false</code> otherwise.
+	 * @return See above.
+	 */
+	public static Importer getImporter(long groupId)
+	{
+		return getImporter(groupId, false);
+	}
+
 	/**
 	 * Notifies the model that the user's group has successfully be modified
 	 * if the passed value is <code>true</code>, unsuccessfully 

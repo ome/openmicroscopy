@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.Icon;
 
@@ -74,7 +75,7 @@ public class DeleteActivityParam
      */
     public DeleteActivityParam(Icon icon, List<DeletableObject> objects)
     {
-    	if (objects == null)
+    	if (objects == null || objects.size() == 0)
     		throw new IllegalArgumentException("No Objects to delete.");
     	this.icon = icon;
     	this.objects = objects;
@@ -93,8 +94,7 @@ public class DeleteActivityParam
     	if (object == null)
     		throw new IllegalArgumentException("No Object to delete.");
     	this.icon = icon;
-    	objects = new ArrayList<DeletableObject>(1);
-    	objects.add(object);
+    	objects = Arrays.asList(object);
     	imageID = -1;
     	uiRegister = true;
     }

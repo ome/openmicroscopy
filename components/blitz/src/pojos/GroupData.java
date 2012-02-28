@@ -182,6 +182,13 @@ public class GroupData extends DataObject {
         return experimenters == null ? null : new HashSet(experimenters);
     }
 
+    /**
+     * Overridden to return the id of the object.
+     * @see DataObject#getGroupId()
+     */
+    public long getGroupId() {
+    	return getId();
+    }
     // Link mutations
 
     /**

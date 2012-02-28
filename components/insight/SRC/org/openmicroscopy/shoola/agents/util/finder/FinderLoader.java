@@ -28,9 +28,12 @@ package org.openmicroscopy.shoola.agents.util.finder;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.List;
+
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -77,16 +80,19 @@ public abstract class FinderLoader
 	public static final int DATASETS = 4;
 	
 	/** The viewer this data loader is for. */
-	protected Finder					viewer;
+	protected Finder viewer;
 	
 	/** Convenience reference for subclasses. */
-    protected final Registry            registry;
+    protected final Registry registry;
     
 	/** Convenience reference for subclasses. */
-    protected final DataHandlerView		dhView;
+    protected final DataHandlerView dhView;
 	
     /** Convenience reference for subclasses. */
-    protected final MetadataHandlerView	mhView;
+    protected final MetadataHandlerView mhView;
+    
+    /** The security context.*/
+    protected final List<SecurityContext> ctx;
     
     /** 
      * Checks if the passed type is supported and returns the 
@@ -128,14 +134,16 @@ public abstract class FinderLoader
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
-     * @param registry 	Convenience reference for subclasses.
-     *               	Mustn't be <code>null</code>.
+     * @param ctx The security context.
      */
-    protected FinderLoader(Finder viewer)
+    protected FinderLoader(Finder viewer, List<SecurityContext> ctx)
     {
         if (viewer == null) throw new NullPointerException("No viewer.");
+        if (ctx == null || ctx.size() ==0)
+        	throw new NullPointerException("No security context.");
         this.registry = FinderFactory.getRegistry();
         this.viewer = viewer;
+        this.ctx = ctx;
         dhView = (DataHandlerView) 
 					registry.getDataServicesView(DataHandlerView.class);
         mhView = (MetadataHandlerView) 

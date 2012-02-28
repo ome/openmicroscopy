@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import pojos.ImageData;
 
@@ -58,10 +59,11 @@ public class RendererFactory
      * @param rndIndex		The index of the renderer.
      * @return See above.
      */
-    public static Renderer createRenderer(RenderingControl rndControl, 
+    public static Renderer createRenderer(SecurityContext ctx, 
+    		RenderingControl rndControl, 
     		ImageData image, int rndIndex)
     {
-        RendererModel model = new RendererModel(rndControl, rndIndex);
+        RendererModel model = new RendererModel(ctx, rndControl, rndIndex);
         model.setImage(image);
         RendererComponent rnd = new RendererComponent(model);
         rnd.initialize();

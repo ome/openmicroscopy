@@ -29,6 +29,7 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import pojos.DataObject;
@@ -68,15 +69,16 @@ public class OpenObjectLoader
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param registry	Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param object	The object to handle.
      * @param folderPath The folder where to copy locally the object.
      * @param activity 	The activity associated to this loader.
      */
 	public OpenObjectLoader(UserNotifier viewer,  Registry registry,
-			DataObject object, String folderPath,
+			SecurityContext ctx, DataObject object, String folderPath,
 			ActivityComponent activity)
 	{
-		super(viewer, registry, activity);
+		super(viewer, registry, ctx, activity);
 		if (object == null)
 			throw new IllegalArgumentException("Object not valid.");
 		if (!(object instanceof ImageData || 
@@ -101,13 +103,13 @@ public class OpenObjectLoader
     		path += "."+OMETIFFFilter.OME_TIFF;
     		f = new File(path);
     		f.deleteOnExit();
-    		handle = ivView.exportImageAsOMETiff(image.getId(), f, this);
+    		handle = ivView.exportImageAsOMETiff(ctx, image.getId(), f, this);
     	} else {
     		FileAnnotationData fa = (FileAnnotationData) object;
     		path += fa.getFileName();
     		f = new File(path);
     		f.deleteOnExit();
-    		handle = mhView.loadFile(f, fa.getFileID(), 
+    		handle = mhView.loadFile(ctx, f, fa.getFileID(), 
     				FileLoader.FILE_ANNOTATION, this);
     	}
     }

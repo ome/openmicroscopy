@@ -153,6 +153,9 @@ public class SearchDataContext
 	/** The number of results returned. */
 	private int						numberOfResults;
 
+	/** The collection of groups to perform the search on.*/
+	private List<Long> groups;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -178,6 +181,21 @@ public class SearchDataContext
 		numberOfResults = -1;
 		unionOfContexts = true;
 	}
+	
+	/**
+	 * Sets the groups to search into.
+	 * 
+	 * @param groups The groups.
+	 */
+	public void setGroups(List<Long> groups) { this.groups = groups; }
+	
+	/**
+	 * Returns the groups to search into.
+	 * 
+	 * @return See above.
+	 */
+	public List<Long> getGroups() { return groups; }
+	
 	
 	/** 
 	 * Sets to <code>true</code> if it is an union of contexts, or

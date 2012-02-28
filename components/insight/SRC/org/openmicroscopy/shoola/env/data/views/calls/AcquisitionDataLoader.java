@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -68,17 +69,19 @@ public class AcquisitionDataLoader
 	 * Creates a {@link BatchCall} to retrieve the acquisition data linked
 	 * to the passed object.
 	 * 
+	 * @param ctx The security context.
 	 * @param refObject Either an <code>ImageData</code> or 
      * 					<code>ChannelData</code> node.
 	 * @return The {@link BatchCall}.
 	 */
-	private BatchCall makeBatchCall(final Object refObject)
+	private BatchCall makeBatchCall(final SecurityContext ctx,
+			final Object refObject)
 	{
 		return new BatchCall("Loading Acquisition data: ") {
 			public void doCall() throws Exception
 			{
 				OmeroMetadataService svc = context.getMetadataService();
-				result = svc.loadAcquisitionData(refObject);
+				result = svc.loadAcquisitionData(ctx, refObject);
 			}
 		};
 	} 
@@ -87,16 +90,18 @@ public class AcquisitionDataLoader
 	 * Creates a {@link BatchCall} to retrieve the components of the passed
 	 * instrument.
 	 * 
+	 * @param ctx The security context.
 	 * @param id The id of the instrument.
 	 * @return The {@link BatchCall}.
 	 */
-	private BatchCall makeInstrumentBatchCall(final long id)
+	private BatchCall makeInstrumentBatchCall(final SecurityContext ctx,
+			final long id)
 	{
 		return new BatchCall("Loading Instrument data: ") {
 			public void doCall() throws Exception
 			{
 				OmeroMetadataService svc = context.getMetadataService();
-				result = svc.loadInstrument(id);
+				result = svc.loadInstrument(ctx, id);
 			}
 		};
 	} 
@@ -120,14 +125,15 @@ public class AcquisitionDataLoader
 	 * If bad arguments are passed, we throw a runtime exception so to fail
 	 * early and in the caller's thread.
 	 * 
+	 * @param ctx The security context.
 	 * @param refObject Either an <code>ImageData</code> or 
      * 					<code>ChannelData</code> node.
 	 */
-	public AcquisitionDataLoader(Object refObject)
+	public AcquisitionDataLoader(SecurityContext ctx, Object refObject)
 	{
 		if (refObject == null)
 			throw new IllegalArgumentException("Ref Object cannot be null.");
-		loadCall = makeBatchCall(refObject);
+		loadCall = makeBatchCall(ctx, refObject);
 	}
 	
 	/**
@@ -135,21 +141,22 @@ public class AcquisitionDataLoader
 	 * If bad arguments are passed, we throw a runtime exception so to fail
 	 * early and in the caller's thread.
 	 * 
+	 * @param ctx The security context.
 	 * @param type One of the constants defined by this class.
 	 * @param id   The id of the object corresponding to the passed type.
 	 */
-	public AcquisitionDataLoader(int type, long id)
+	public AcquisitionDataLoader(SecurityContext ctx, int type, long id)
 	{
 		if (id <= 0)
 			throw new IllegalArgumentException("Id not valid.");
 		switch (type) {
 			case INSTRUMENT:
-				loadCall = makeInstrumentBatchCall(id);
+				loadCall = makeInstrumentBatchCall(ctx, id);
 				break;
 			case IMAGE:
 				ImageData img = new ImageData();
 				img.setId(id);
-				loadCall = makeBatchCall(img);
+				loadCall = makeBatchCall(ctx, img);
 				break;
 			default:
 				throw new IllegalArgumentException("Type not supported");

@@ -31,6 +31,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /**
@@ -65,16 +66,17 @@ public class ROILoader
     /**
      * Creates a new instance. 
      * 
-     * @param viewer	The viewer this data loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param imageID	The id of the image the ROIs are related to.
-     * @param fileID	The id of the file to load.
-     * @param userID	The id of the user.
+     * @param viewer The viewer this data loader is for.
+     *                Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param imageID The id of the image the ROIs are related to.
+     * @param fileID The id of the file to load.
+     * @param userID The id of the user.
      */
-	public ROILoader(MeasurementViewer viewer, long imageID, List<Long> fileID,
-			long userID)
+	public ROILoader(MeasurementViewer viewer, SecurityContext ctx,
+			long imageID, List<Long> fileID, long userID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (imageID < 0) 
 			throw new IllegalArgumentException("No image specified.");
 		this.imageID = imageID;
@@ -89,12 +91,14 @@ public class ROILoader
      * 
      * @param viewer	The viewer this data loader is for.
      *                  Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param imageID	The id of the image the ROIs are related to.
      * @param userID	The id of the user.
      */
-	public ROILoader(MeasurementViewer viewer, long imageID, long userID)
+	public ROILoader(MeasurementViewer viewer, SecurityContext ctx,
+			long imageID, long userID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (imageID < 0) 
 			throw new IllegalArgumentException("No image specified.");
 		this.imageID = imageID;
@@ -107,7 +111,7 @@ public class ROILoader
      */
     public void load()
     {
-    	handle = idView.loadROI(imageID, fileID, userID, this);
+    	handle = idView.loadROI(ctx, imageID, fileID, userID, this);
     }
     
     /**

@@ -73,13 +73,13 @@ public class EditorAction
 		TreeViewer.NEW_WITH_SELECTION;
 	
 	/** The name of the action. */
-	private static final String NAME = "Launch Editor...";
+	private static final String NAME = "Editor...";
 	
 	/** The name of the action. */
 	private static final String NAME_EXPERIMENT = "New Experiment...";
 	
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Launch the Editor.";
+	private static final String DESCRIPTION = "Open the Editor.";
 	
 	/**  One of the constants defined by this class. */						
 	private int index;

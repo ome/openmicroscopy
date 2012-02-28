@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -50,10 +51,13 @@ public class RelatedContainersLoader
 {
 	
     /** The result of the call. */
-    private Object		result;
+    private Object result;
     
     /** Loads the specified experimenter groups. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Creates a {@link BatchCall} to load the files attached to the object
@@ -72,7 +76,7 @@ public class RelatedContainersLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.findContainerPaths(type, id, userID);
+                result = os.findContainerPaths(ctx, type, id, userID);
             }
         };
     }
@@ -94,13 +98,16 @@ public class RelatedContainersLoader
      * index, throws an {@link IllegalArgumentException} if the index is not
      * supported.
      * 
-     * @param type		The type of node the annotations are related to.
-     * @param id		The id of the object.
-     * @param userID	The id of the user or <code>-1</code> if the id 
+     * @param ctx The security context.
+     * @param type The type of node the annotations are related to.
+     * @param id The id of the object.
+     * @param userID The id of the user or <code>-1</code> if the id 
      * 					is not specified.
      */
-    public RelatedContainersLoader(Class type, long id, long userID)
+    public RelatedContainersLoader(SecurityContext ctx, Class type, long id,
+    		long userID)
     {
+    	this.ctx = ctx;
     	loadCall = loadContainers(type, id, userID);
     }
     

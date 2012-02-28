@@ -102,6 +102,7 @@ import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.ChannelData;
 import pojos.DataObject;
+import pojos.GroupData;
 import pojos.ImageData;
 
 /** 
@@ -2625,6 +2626,13 @@ class ImViewerUI
 		statusBar.formatToolTip();
 	}
 	
+	/**
+     * Returns the group the image belongs to.
+     * 
+     * @return See above.
+     */
+    GroupData getSelectedGroup() { return model.getSelectedGroup(); }
+    
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

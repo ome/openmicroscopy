@@ -37,6 +37,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -74,31 +75,34 @@ public class ThumbnailLoader
 {
 
     /** The images for which we need thumbnails. */
-    private Collection<DataObject>	images;
+    private Collection<DataObject> images;
     
     /** The maximum acceptable width of the thumbnails. */
-    private int             		maxWidth;
+    private int maxWidth;
     
     /** The maximum acceptable height of the thumbnails. */
-    private int             		maxHeight;
+    private int maxHeight;
     
     /** The lastly retrieved thumbnail. */
-    private Object          		currentThumbnail;
+    private Object currentThumbnail;
 
     /** Flag to indicate if the class was invoked for a pixels ID. */
-    private boolean         		pixelsCall;
+    private boolean pixelsCall;
     
     /** The id of the pixels set this loader is for. */
-    private long            		pixelsID;
+    private long pixelsID;
     
     /** Collection of user IDs. */
-    private Set<Long>				userIDs;
+    private Set<Long> userIDs;
     
     /** Helper reference to the image service. */
-    private OmeroImageService		service;
+    private OmeroImageService service;
     
     /** Load the thumbnail as an full size image. */
-    private boolean 				asImage;
+    private boolean asImage;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Loads the thumbnail for {@link #images}<code>[index]</code>.
@@ -123,13 +127,13 @@ public class ThumbnailLoader
         		sizeX = pxd.getSizeX();
         		sizeY = pxd.getSizeY();
         	} else {
-        		Dimension d = Factory.computeThumbnailSize(sizeX, sizeY, 
+        		Dimension d = Factory.computeThumbnailSize(sizeX, sizeY,
         				pxd.getSizeX(), pxd.getSizeY());
         		sizeX = d.width;
         		sizeY = d.height;
         	}
         	try {
-            	thumbPix = service.getThumbnail(pxd.getId(), sizeX, sizeY, 
+            	thumbPix = service.getThumbnail(ctx, pxd.getId(), sizeX, sizeY,
             									userID);
             } catch (RenderingServiceException e) {
             	context.getLogger().error(this, 
@@ -156,18 +160,16 @@ public class ThumbnailLoader
             {
                 BufferedImage thumbPix = null;
                 try {
-                    thumbPix = service.getThumbnail(pixelsID, maxWidth, 
-                    								maxHeight, -1);
+                    thumbPix = service.getThumbnail(ctx, pixelsID, maxWidth,
+                                maxHeight, -1);
                     
                 } catch (RenderingServiceException e) {
                     context.getLogger().error(this, 
                     "Cannot retrieve thumbnail from ID: "+
-                    	e.getExtendedMessage());
+                    e.getExtendedMessage());
                 }
                 if (thumbPix == null) 
                 	thumbPix = Factory.createDefaultImageThumbnail(-1);
-                    //thumbPix = Factory.createDefaultThumbnail(maxWidth, 
-                    //        maxHeight);
                 currentThumbnail = thumbPix;
             }
         };
@@ -226,14 +228,15 @@ public class ThumbnailLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param imgs 		Contains {@link DataObject}s, one
-     * 					for each thumbnail to retrieve.
-     * @param maxWidth  The maximum acceptable width of the thumbnails.
+     * @param ctx The security context.
+     * @param imgs Contains {@link DataObject}s, one 
+     *             for each thumbnail to retrieve.
+     * @param maxWidth The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
-     * @param userIDs	The users the thumbnail are for.
+     * @param userIDs The users the thumbnail are for.
      */
-    public ThumbnailLoader(Set<DataObject> imgs, int maxWidth, int maxHeight, 
-    					Set<Long> userIDs)
+    public ThumbnailLoader(SecurityContext ctx, Set<DataObject> imgs,
+    		int maxWidth, int maxHeight, Set<Long> userIDs)
     {
         if (imgs == null) throw new NullPointerException("No images.");
         if (maxWidth <= 0)
@@ -242,6 +245,7 @@ public class ThumbnailLoader
         if (maxHeight <= 0)
             throw new IllegalArgumentException(
                     "Non-positive height: "+maxHeight+".");
+        this.ctx = ctx;
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
         images = imgs;
@@ -255,13 +259,16 @@ public class ThumbnailLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param imgs 		Contains {@link DataObject}s, one
-     * 					for each thumbnail to retrieve.
-     * @param userID	The user the thumbnail are for.
+     * @param ctx The security context.
+     * @param imgs Contains {@link DataObject}s, one for each thumbnail to 
+     *             retrieve.
+     * @param userID The user the thumbnail are for.
      */
-    public ThumbnailLoader(Collection<DataObject> imgs, long userID)
+    public ThumbnailLoader(SecurityContext ctx, Collection<DataObject> imgs,
+    		long userID)
     {
         if (imgs == null) throw new NullPointerException("No images.");
+        this.ctx = ctx;
         asImage = true;
         images = imgs;
         userIDs = new HashSet<Long>(1);
@@ -274,14 +281,15 @@ public class ThumbnailLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param imgs 		Contains {@link DataObject}s, one
-     * 					for each thumbnail to retrieve.
-     * @param maxWidth  The maximum acceptable width of the thumbnails.
+     * @param ctx The security context.
+     * @param imgs Contains {@link DataObject}s, one for each thumbnail to
+     *             retrieve.
+     * @param maxWidth The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
-     * @param userID	The user the thumbnail are for.
+     * @param userID The user the thumbnail are for.
      */
-    public ThumbnailLoader(Collection<DataObject> imgs, int maxWidth, 
-    						int maxHeight, long userID)
+    public ThumbnailLoader(SecurityContext ctx, Collection<DataObject> imgs,
+    		int maxWidth, int maxHeight, long userID)
     {
         if (imgs == null) throw new NullPointerException("No images.");
         if (maxWidth <= 0)
@@ -290,6 +298,7 @@ public class ThumbnailLoader
         if (maxHeight <= 0)
             throw new IllegalArgumentException(
                     "Non-positive height: "+maxHeight+".");
+        this.ctx = ctx;
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
         images = imgs;
@@ -304,13 +313,14 @@ public class ThumbnailLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param image 	The {@link ImageData}, the thumbnail
-     * @param maxWidth  The maximum acceptable width of the thumbnails.
+     * @param ctx The security context.
+     * @param image The {@link ImageData}, the thumbnail
+     * @param maxWidth The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
-     * @param userID	The user the thumbnails are for.
+     * @param userID The user the thumbnails are for.
      */
-    public ThumbnailLoader(ImageData image, int maxWidth, int maxHeight,
-    						long userID)
+    public ThumbnailLoader(SecurityContext ctx, ImageData image, int maxWidth,
+    		int maxHeight, long userID)
     {
         if (image == null) throw new IllegalArgumentException("No image.");
         if (maxWidth <= 0)
@@ -319,6 +329,7 @@ public class ThumbnailLoader
         if (maxHeight <= 0)
             throw new IllegalArgumentException(
                     "Non-positive height: "+maxHeight+".");
+        this.ctx = ctx;
         userIDs = new HashSet<Long>(1);
         userIDs.add(userID);
         images = new HashSet<DataObject>(1);
@@ -334,13 +345,14 @@ public class ThumbnailLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param pixelsID  The id of the pixel set.
-     * @param maxWidth  The maximum acceptable width of the thumbnails.
+     * @param ctx The security context.
+     * @param pixelsID The id of the pixel set.
+     * @param maxWidth The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
-     * @param userID	The user the thumbnail are for.
+     * @param userID The user the thumbnail are for.
      */
-    public ThumbnailLoader(long pixelsID, int maxWidth, int maxHeight, 
-    						long userID)
+    public ThumbnailLoader(SecurityContext ctx, long pixelsID, int maxWidth,
+    		int maxHeight, long userID)
     {
         if (maxWidth <= 0)
             throw new IllegalArgumentException(
@@ -351,6 +363,7 @@ public class ThumbnailLoader
         if (maxHeight <= 0)
             throw new IllegalArgumentException(
                     "Non-positive height: "+maxHeight+".");
+        this.ctx = ctx;
         pixelsCall = true;
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
@@ -365,13 +378,14 @@ public class ThumbnailLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param image 	The {@link ImageData}, the thumbnail
-     * @param maxWidth  The maximum acceptable width of the thumbnails.
+     * @param ctx The security context.
+     * @param image The {@link ImageData}, the thumbnail
+     * @param maxWidth The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
-     * @param userIDs	The users the thumbnail are for.
+     * @param userIDs The users the thumbnail are for.
      */
-    public ThumbnailLoader(ImageData image, int maxWidth, int maxHeight, 
-    						Set<Long> userIDs)
+    public ThumbnailLoader(SecurityContext ctx, ImageData image, int maxWidth,
+    		int maxHeight, Set<Long> userIDs)
     {
         if (image == null) throw new IllegalArgumentException("No image.");
         if (maxWidth <= 0)
@@ -380,6 +394,7 @@ public class ThumbnailLoader
         if (maxHeight <= 0)
             throw new IllegalArgumentException(
                     "Non-positive height: "+maxHeight+".");
+        this.ctx = ctx;
         images = new HashSet<DataObject>(1);
         images.add(image);
         this.maxWidth = maxWidth;

@@ -175,7 +175,7 @@ class MetadataViewerControl
 		AnalysisActivityParam activity = new AnalysisActivityParam(param, 
 				icons.getIcon(IconManager.ANALYSE_FRAP_22));
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(activity);
+		un.notifyActivity(model.getSecurityContext(), activity);
 	}
 	
 	/**

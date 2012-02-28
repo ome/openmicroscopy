@@ -39,6 +39,7 @@ import javax.swing.JMenuItem;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ExperimenterLoadedDataEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
@@ -75,13 +76,16 @@ public class ImporterAgent
 {
 
     /** Reference to the registry. */
-    private static Registry         registry; 
+    private static Registry registry; 
     
     /** The selected browser type.*/
     private int browserType;
     
     /** The objects displayed.*/
-    private List<TreeImageDisplay> objects;
+    private Map<Long, Map<Long, List<TreeImageDisplay>>> objects;
+    
+    /** The group id if set.*/
+    private long groupId;
     
     /**
      * Helper method. 
@@ -148,7 +152,8 @@ public class ImporterAgent
     private void handleLoadImporter(LoadImporter evt)
     {
     	if (evt == null) return;
-    	Importer importer = ImporterFactory.getImporter();
+    	long groupId = evt.getGroup();
+    	Importer importer = ImporterFactory.getImporter(groupId);
     	if (importer != null) {
     		int t;
     		switch (evt.getType()) {
@@ -162,7 +167,12 @@ public class ImporterAgent
 						t = browserType;
 					else t = getDefaultBrowser();
 			}
-    		importer.activate(t, evt.getSelectedContainer(), evt.getObjects());
+    		//
+    		//objects = evt.getObjects();
+    		Map<Long, List<TreeImageDisplay>> data = objects.get(groupId);
+        	List<TreeImageDisplay> l = null;
+        	if (data != null) l = data.get(getUserDetails().getId());
+    		importer.activate(t, evt.getSelectedContainer(), l);
     	}
     }
 
@@ -190,6 +200,26 @@ public class ImporterAgent
     }
     
     /**
+     * Returns the containers if available for the specified group.
+     * 
+     * @param groupId The id of the group.
+     */
+    private List<Object> handleContainers(long groupId)
+    {
+    	if (objects == null) return null;
+    	Map<Long, List<TreeImageDisplay>> data = objects.get(groupId);
+    	if (data == null) return null;
+    	List<TreeImageDisplay> l = data.get(getUserDetails().getId());
+    	if (l == null) return null;
+    	Iterator<TreeImageDisplay> i = l.iterator();
+		List<Object> values = new ArrayList<Object>();
+		while (i.hasNext()) {
+			values.add(i.next().getUserObject());
+		}
+		return values;
+    }
+    
+    /**
      * Handles the fact that data were loaded.
      * 
      * @param evt The event to handle.
@@ -198,19 +228,17 @@ public class ImporterAgent
     		ExperimenterLoadedDataEvent evt)
     {
     	if (evt == null) return;
-    	Importer importer = ImporterFactory.getImporter();
-    	Map<Long, List<TreeImageDisplay>> map = evt.getData();
-    	if (map == null || map.size() == 0) return;
-    	List<TreeImageDisplay> l = map.get(getUserDetails().getId());
-    	objects = l;
-    	if (importer != null && objects != null) {
-    		Iterator<TreeImageDisplay> i = objects.iterator();
-    		List<Object> values = new ArrayList<Object>();
-    		while (i.hasNext()) {
-				values.add(i.next().getUserObject());
-			}
-    		importer.setContainers(values, true, browserType);
-    	}
+    	
+    	Map<Long, Map<Long, List<TreeImageDisplay>>> map = evt.getData();
+    	objects = map;
+    	if (!ImporterFactory.doesImporterExist()) return;
+    	Importer importer = ImporterFactory.getImporter(-1);
+    	if (importer == null || map == null || map.size() == 0) return;
+    	GroupData group = importer.getSelectedGroup();
+    	if (group == null) return;
+    	List<Object> l = handleContainers(group.getId());
+    	if (l == null || l.size() == 0) return;
+    	importer.setContainers(l, true, browserType);
     }
     
     /** Registers the agent with the tool bar.*/
@@ -226,7 +254,20 @@ public class ImporterAgent
 			/** Posts an event to start the agent.*/
 			public void actionPerformed(ActionEvent e) {
 				EventBus bus = registry.getEventBus();
+				ExperimenterData exp = (ExperimenterData) registry.lookup(
+		    			LookupNames.CURRENT_USER_DETAILS);
+		    	if (exp == null) return;
+		    	GroupData gp = null;
+		    	try {
+		    		gp = exp.getDefaultGroup();
+		    	} catch (Exception ex) {
+		    		//No default group
+		    	}
+		    	long id = -1;
+		    	if (gp != null) id = gp.getId();
+		    	if (groupId == -1) groupId = id;
 				LoadImporter event = new LoadImporter(null, browserType);
+				event.setGroup(groupId);
 				event.setObjects(objects);
 				bus.post(event);
 			}
@@ -261,7 +302,7 @@ public class ImporterAgent
     	}
     	long id = -1;
     	if (gp != null) id = gp.getId();
-    	Importer importer = ImporterFactory.getImporter(id);
+    	Importer importer = ImporterFactory.getImporter(id, true);
     	if (importer != null) {
     		Environment env = (Environment) registry.lookup(LookupNames.ENV);
     		int type = Importer.PROJECT_TYPE;
@@ -298,7 +339,9 @@ public class ImporterAgent
         bus.register(this, ReconnectedEvent.class);
         bus.register(this, BrowserSelectionEvent.class);
         bus.register(this, ExperimenterLoadedDataEvent.class);
+        bus.register(this, ChangeUserGroupEvent.class);
         browserType = getDefaultBrowser();
+        groupId = -1;
         register();
     }
 
@@ -309,7 +352,7 @@ public class ImporterAgent
     public boolean canTerminate()
     { 
     	if (!ImporterFactory.doesImporterExist()) return true;
-    	Importer importer = ImporterFactory.getImporter();
+    	Importer importer = ImporterFactory.getImporter(-1);
     	if (importer == null) return true;
     	return !importer.hasOnGoingImport();
     }
@@ -344,6 +387,9 @@ public class ImporterAgent
     		browserType = evt.getType();
     	} else if (e instanceof ExperimenterLoadedDataEvent) {
     		handleExperimenterLoadedDataEvent((ExperimenterLoadedDataEvent) e);
+    	} else if (e instanceof ChangeUserGroupEvent) {
+    		ChangeUserGroupEvent evt = (ChangeUserGroupEvent) e;
+    		groupId = evt.getGroupID();
     	}
     }
 
