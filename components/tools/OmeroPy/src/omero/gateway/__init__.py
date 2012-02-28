@@ -2608,7 +2608,7 @@ class _BlitzGateway (object):
                         if image == None:   # use the first plane to create image.
                             image = createImage(plane)
                             pixelsId = image.getPrimaryPixels().getId().getValue()
-                            rawPixelsStore.setPixelsId(pixelsId, True)
+                            rawPixelsStore.setPixelsId(pixelsId, True, self.CONFIG['SERVICE_OPTS'])
                         uploadPlane(plane, theZ, theC, theT)
                         # init or update min and max for this channel
                         minValue = plane.min()
@@ -4896,7 +4896,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
         Creates RawPixelsStore and sets the id etc
         """
         ps = self._conn.createRawPixelsStore()
-        ps.setPixelsId(self._obj.id.val, True)
+        ps.setPixelsId(self._obj.id.val, True, self._conn.CONFIG['SERVICE_OPTS'])
         return ps
 
     def getPixelsType (self):
@@ -5917,7 +5917,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         rv = []
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
-        rp.setPixelsId(pixels_id, True)
+        rp.setPixelsId(pixels_id, True, self._conn.CONFIG['SERVICE_OPTS'])
         for c in channels:
             bw = rp.getByteWidth()
             key = self.LINE_PLOT_DTYPES.get((bw, rp.isFloat(), rp.isSigned()), None)
@@ -5929,7 +5929,11 @@ class _ImageWrapper (BlitzObjectWrapper):
             offset = -chw[c][0]
             if offset != 0:
                 plot = map(lambda x: x+offset, plot)
-            normalize = 1.0/chw[c][1]*(range-1)
+            try:
+                normalize = 1.0/chw[c][1]*(range-1)
+            except ZeroDivisionError:
+                # This channel has zero sized window, no plot here
+                continue
             if normalize != 1.0:
                 plot = map(lambda x: x*normalize, plot)
             if isinstance(plot, array.array):
