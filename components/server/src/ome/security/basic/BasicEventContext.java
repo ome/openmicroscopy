@@ -7,15 +7,16 @@
 
 package ome.security.basic;
 
-// Java imports
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.meta.Event;
@@ -110,16 +111,39 @@ class BasicEventContext extends SimpleEventContext {
     }
 
     public Map<String, String> setCallContext(Map<String, String> ctx) {
-        Map<String, String> rv = callContext;
+        final List<String> toPrint = new ArrayList<String>();
+        final Map<String, String> rv = callContext;
+        
         callContext = ctx;
-        Long gid = parseId(ctx, "omero.group");
-        if (gid != null) {
-            setGroup(new ExperimenterGroup(gid, false));
+        final Long uid = parseId(ctx, "omero.user");
+        if (uid != null) {
+            // Here we trust the setting of the admin flag if we also have
+            // a user setting. In other words, if this has been initialized
+            // by the session context, then it's safe to say that we're just
+            // overwriting values.
+            if (cuId != null && !isAdmin && !cuId.equals(uid)) {
+                throw new SecurityViolation(String.format(
+                        "User %s is not an admin and so cannot set uid to %s",
+                        cuId, uid));
+            }
+            setOwner(new Experimenter(uid, false));
+            toPrint.add("owner="+uid);
         }
 
-        Long sid = parseId(ctx, "omero.share");
+        final Long gid = parseId(ctx, "omero.group");
+        if (gid != null) {
+            setGroup(new ExperimenterGroup(gid, false));
+            toPrint.add("group="+gid);
+        }
+
+        final Long sid = parseId(ctx, "omero.share");
         if (sid != null) {
             setShareId(sid);
+            toPrint.add("share="+sid);
+        }
+
+        if (toPrint.size() > 0) {
+            log.info("CallContext: " + StringUtils.join(toPrint, ","));
         }
 
         return rv;

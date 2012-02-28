@@ -576,6 +576,41 @@ class TestPermissions(lib.ITest):
         qb.get("TagAnnotation", tid, specific) # Not currently in gid
         qb.get("TagAnnotation", tid, negone)
 
+    # Use of omero.user
+    # ==============================================
+
+    def private_image_and_user(self):
+        client, user = self.new_client_and_user(system=False, perms="rw----")
+        ec = client.sf.getAdminService().getEventContext()
+        group = omero.model.ExperimenterGroupI(ec.groupId, False)
+        image = self.new_image()
+        image = client.sf.getUpdateService().saveAndReturnObject(image)
+        return image, user, group
+
+    def testOmeroUserAsAdmin(self):
+        client, user = self.new_client_and_user(system=True)
+        admin = client.sf.getAdminService()
+        query = client.sf.getQueryService()
+        self.assertTrue(admin.getEventContext().isAdmin)
+
+        image, user, group = self.private_image_and_user()
+        self.assertAsUser(client, image, user, group)
+
+    def testOmeroUserAsNonAdmin(self):
+        client, user = self.new_client_and_user(system=False)
+        admin = client.sf.getAdminService()
+        query = client.sf.getQueryService()
+        self.assertTrue(not admin.getEventContext().isAdmin)
+
+        image, user, group = self.private_image_and_user()
+        self.assertRaises(omero.SecurityViolation, \
+                self.assertAsUser, client, image, user, group)
+
+    def assertAsUser(self, client, image, user, group):
+        callcontext = {"omero.user":str(user.id.val),
+                "omero.group":str(group.id.val)}
+        query = client.sf.getQueryService()
+        query.get("Image", image.id.val, callcontext)
 
 if __name__ == '__main__':
     unittest.main()

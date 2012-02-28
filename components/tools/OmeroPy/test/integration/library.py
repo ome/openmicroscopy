@@ -241,7 +241,12 @@ class ITest(unittest.TestCase):
             for obj in objs:
                 self.root.sf.getUpdateService().indexObject(obj, {"omero.group":"-1"})
 
-    def new_user(self, group = None, perms = None, admin = False):
+    def new_user(self, group = None, perms = None,
+            admin = False, system = False):
+        """
+        admin: If user is to be an admin of the created group
+        system: If user is to be a system admin
+        """
 
         if not self.root:
             raise exceptions.Exception("No root client. Cannot create user")
@@ -265,14 +270,19 @@ class ITest(unittest.TestCase):
         e = adminService.lookupExperimenter(name)
         if admin:
             adminService.setGroupOwner(g, e)
+        if system:
+            adminService.addGroups(e, \
+                    [omero.model.ExperimenterGroupI(0, False)])
+
         return adminService.getExperimenter(uid)
 
-    def new_client(self, group = None, user = None, perms = None, admin = False):
+    def new_client(self, group = None, user = None, perms = None,
+            admin = False, system = False):
         """
         Like new_user() but returns an active client.
         """
         if user is None:
-            user = self.new_user(group, perms, admin)
+            user = self.new_user(group, perms, admin, system=system)
         props = self.root.getPropertyMap()
         props["omero.user"] = user.omeName.val
         props["omero.pass"] = user.omeName.val
@@ -282,9 +292,10 @@ class ITest(unittest.TestCase):
         client.createSession()
         return client
 
-    def new_client_and_user(self, group = None, perms = None, admin = False):
-        user = self.new_user(group)
-        client = self.new_client(group, user, perms, admin)
+    def new_client_and_user(self, group = None, perms = None,
+            admin = False, system = False):
+        user = self.new_user(group, system=system)
+        client = self.new_client(group, user, perms, admin, system=system)
         return client, user
 
     def timeit(self, func, *args, **kwargs):
