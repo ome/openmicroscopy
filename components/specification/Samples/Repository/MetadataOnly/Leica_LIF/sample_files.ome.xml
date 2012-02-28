@@ -480,7 +480,7 @@
         <ObjectiveSettings ID="Objective:2:0" RefractiveIndex="1.0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:2" PhysicalSizeX="1.513671875" PhysicalSizeY="1.513671875" PhysicalSizeZ="11.0530826918882" SizeC="4" SizeT="1" SizeX="1024" SizeY="1024" SizeZ="25" Type="uint8">
             <Channel Color="255" ExcitationWavelength="405" ID="Channel:2:0" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
-                <LightSourceSettings Attenuation="69.999389611182295" ID="LightSource:2:0"/>
+                <LightSourceSettings Attenuation="0.69999389611182295" ID="LightSource:2:0"/>
                 <DetectorSettings Gain="517.776760509651" ID="Detector:2:0" Offset="0.466666666666669"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:2:4"/>
