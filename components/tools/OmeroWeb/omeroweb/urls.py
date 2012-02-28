@@ -43,7 +43,6 @@ urlpatterns = patterns('',
     (r'(?i)^feedback/', include('omeroweb.feedback.urls')),
     (r'(?i)^webgateway/', include('omeroweb.webgateway.urls')),
     (r'(?i)^webtest/', include('omeroweb.webtest.urls')),    
-    #(r'(?i)^webemdb/', include('omeroweb.webemdb.urls')),
     (r'(?i)^url/', include('omeroweb.webredirect.urls')),
     (r'(?i)^common/', include('omeroweb.common.urls')),
 )

@@ -381,7 +381,6 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.join(os.path.dirname(__file__), 'feedback'), 'templates').replace('\\','/'),
     os.path.join(os.path.join(os.path.dirname(__file__), 'webadmin'), 'templates').replace('\\','/'),
     os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'templates').replace('\\','/'),
-    #os.path.join(os.path.join(os.path.dirname(__file__), 'webemdb'), 'templates').replace('\\','/'),
 )
 
 # INSTALLED_APPS: A tuple of strings designating all applications that are enabled in this Django 
@@ -399,7 +398,6 @@ INSTALLED_APPS = (
     'omeroweb.webclient',
     'omeroweb.webgateway',
     'omeroweb.webtest',
-    #'omeroweb.webemdb',
     'omeroweb.webredirect',
     'omeroweb.common',
     
