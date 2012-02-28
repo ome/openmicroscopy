@@ -614,6 +614,9 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, _conn=None, 
                     prevent_cache = True
                 else:
                     return HttpResponseServerError('Failed to render thumbnail')
+            elif len(jpeg_data) == 2146:
+                # Probably the big image clock
+                prevent_cache = True
         if not prevent_cache:
             webgateway_cache.setThumb(request, server_id, user_id, iid, jpeg_data, size)
     else:
