@@ -1904,7 +1904,7 @@ class TreeViewerComponent
 		}
 		if (experimenters == null) return;
 		switchUserDialog = new UserManagerDialog(f, model.getUserDetails(), 
-				experimenters, group, icons.getIcon(IconManager.OWNER),
+				group, icons.getIcon(IconManager.OWNER),
 				icons.getIcon(IconManager.OWNER_48));
 		switchUserDialog.addPropertyChangeListener(controller);
 		switchUserDialog.setDefaultSize();

@@ -49,6 +49,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.WindowConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout; 
@@ -175,7 +177,6 @@ public class UserManagerDialog
 	{
 		if (group == null) return;
 		DefaultListModel model = (DefaultListModel) users.getModel();
-		ExperimenterData d;
 		int index = 0;
 		List l = sorter.sort(group.getLeaders());
 		Iterator i = l.iterator();
@@ -223,7 +224,16 @@ public class UserManagerDialog
 				cancel();
 			}
 		});
-		
+		users.addListSelectionListener(new ListSelectionListener() {
+			
+			/**
+			 * Sets the enabled flag of the apply button.
+			 */
+			public void valueChanged(ListSelectionEvent e) {
+				Object value = users.getSelectedValue();
+				apply.setEnabled(value instanceof ExperimenterData);
+			}
+		});
 		cancel.setActionCommand(""+CANCEL);
 		cancel.addActionListener(this);
 		apply.setActionCommand(""+APPLY);
@@ -249,9 +259,9 @@ public class UserManagerDialog
 		getRootPane().setDefaultButton(apply);
 		users = new JList(new DefaultListModel());
 		fillList(group);
-		users.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		users.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		users.setLayoutOrientation(JList.VERTICAL);
-		users.setCellRenderer(new UserListRenderer(userIcon));	
+		users.setCellRenderer(new UserListRenderer(userIcon));
 		attachListeners();
 	}
 	
@@ -318,14 +328,12 @@ public class UserManagerDialog
 	 * 
 	 * @param parent The parent of this dialog.
 	 * @param loggedUser The user currently logged in.
-	 * @param groups The groups the user is a member of.
 	 * @param selected The selected group.
 	 * @param userIcon The icon representing an user.
 	 * @param icon The icon displayed in the title panel.
 	 */
 	public UserManagerDialog(JFrame parent, ExperimenterData loggedUser, 
-							Set groups, GroupData selected,
-							Icon userIcon, Icon icon)
+							GroupData selected, Icon userIcon, Icon icon)
 	{
 		super(parent);
 		setProperties();

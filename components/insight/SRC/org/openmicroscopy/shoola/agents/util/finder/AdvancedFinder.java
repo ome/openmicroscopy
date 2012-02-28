@@ -382,7 +382,8 @@ public class AdvancedFinder
 		IconManager icons = IconManager.getInstance();
 		UserManagerDialog dialog = new UserManagerDialog(
 				FinderFactory.getRefFrame(), getUserDetails(), 
-				getAvailableGroups(), null, icons.getIcon(IconManager.OWNER), 
+				getUserDetails().getDefaultGroup(),
+				icons.getIcon(IconManager.OWNER),
 				icons.getIcon(IconManager.OWNER_48));
 		dialog.addPropertyChangeListener(this);
 		dialog.setDefaultSize();
