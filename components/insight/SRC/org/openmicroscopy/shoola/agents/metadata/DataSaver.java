@@ -31,6 +31,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -72,19 +73,20 @@ public class DataSaver
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer		The viewer this data loader is for.
-     *                 		Mustn't be <code>null</code>.
-     * @param data			The objects the data are related to.
-	 * 						Mustn't be <code>null</code>.
-	 * @param toAdd			The collection of annotations to add.
-	 * @param toRemove		The collection of annotations to remove.
+	 * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param data The objects the data are related to.
+	 *             Mustn't be <code>null</code>.
+	 * @param toAdd The collection of annotations to add.
+	 * @param toRemove The collection of annotations to remove.
 	 * @param acquisitionMetadata 
 	 */
-	public DataSaver(MetadataViewer viewer, Collection<DataObject> data,
-					 List<AnnotationData> toAdd, List<AnnotationData> toRemove,
-					 List<Object> acquisitionMetadata)
+	public DataSaver(MetadataViewer viewer, SecurityContext ctx,
+		Collection<DataObject> data, List<AnnotationData> toAdd,
+		List<AnnotationData> toRemove, List<Object> acquisitionMetadata)
 	{
-		super(viewer, null);
+		super(viewer, ctx, null);
 		if (data == null)
 			throw new IllegalArgumentException("No object specified.");
 		this.data = data;
@@ -100,7 +102,7 @@ public class DataSaver
 	public void load()
 	{
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		handle = mhView.saveData(data, toAdd, toRemove,
+		handle = mhView.saveData(ctx, data, toAdd, toRemove,
 				acquisitionMetadata, userID, this);
 	}
 	

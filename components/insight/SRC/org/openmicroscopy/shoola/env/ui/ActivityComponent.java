@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ProcessException;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -167,6 +168,9 @@ public abstract class ActivityComponent
     protected final Registry			registry;
     
     /** Convenience reference for subclasses. */
+    protected final SecurityContext ctx;
+    
+    /** Convenience reference for subclasses. */
     protected final UserNotifier		viewer;
    
     /** The result of the activity. */
@@ -257,7 +261,7 @@ public abstract class ActivityComponent
 			activity.setApplicationData((ApplicationData) parameters);
 		}
 		activity.setSource(source);
-		viewer.notifyActivity(activity);
+		viewer.notifyActivity(ctx, activity);
 	}
 	
 	/** 
@@ -410,18 +414,19 @@ public abstract class ActivityComponent
 	/**
      * Creates a new instance.
      * 
-     * @param viewer	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
-     * @param registry	Convenience reference for subclasses.
-     * @param text		The text of the activity.
-     * @param icon		The icon to display then done.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param registry Convenience reference for subclasses.
+     * @param ctx The security context.
      */
-	ActivityComponent(UserNotifier viewer, Registry registry)
+	ActivityComponent(UserNotifier viewer, Registry registry,
+			SecurityContext ctx)
 	{
 		if (viewer == null) throw new NullPointerException("No viewer.");
     	if (registry == null) throw new NullPointerException("No registry.");
     	this.viewer = viewer;
     	this.registry = registry;
+    	this.ctx = ctx;
 	}
 	
 	/**
@@ -598,7 +603,7 @@ public abstract class ActivityComponent
 			}
 			activity.setLegend(desc);
 			activity.setUIRegister(false);
-			viewer.notifyActivity(activity);
+			viewer.notifyActivity(ctx, activity);
 			return;
 		}
 		JFrame f = registry.getTaskBar().getFrame();
@@ -628,7 +633,7 @@ public abstract class ActivityComponent
 								folder, icons.getIcon(IconManager.DOWNLOAD_22));
 					}
 					activity.setLegend(desc);
-					viewer.notifyActivity(activity);
+					viewer.notifyActivity(ctx, activity);
 				}
 			}
 		});
@@ -662,7 +667,7 @@ public abstract class ActivityComponent
 			if (source != null) source.setEnabled(true);
 		} else {
 			EventBus bus = registry.getEventBus();
-			bus.post(new ViewObjectEvent(object, source));
+			bus.post(new ViewObjectEvent(ctx, object, source));
 		}
 	}
 	
@@ -675,7 +680,7 @@ public abstract class ActivityComponent
 	void browse(Object object, JComponent source)
 	{
 		EventBus bus = registry.getEventBus();
-		ViewObjectEvent evt = new ViewObjectEvent(object, source);
+		ViewObjectEvent evt = new ViewObjectEvent(ctx, object, source);
 		evt.setBrowseObject(true);
 		bus.post(evt);
 	}

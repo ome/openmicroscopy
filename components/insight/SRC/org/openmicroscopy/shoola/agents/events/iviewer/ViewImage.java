@@ -34,6 +34,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
@@ -56,27 +57,35 @@ public class ViewImage
 {
 
     /** The images to view. */
-    private List<ViewImageObject>	images;
+    private List<ViewImageObject> images;
 
     /** The bounds of the component posting the event. */
-    private Rectangle   requesterBounds;
+    private Rectangle requesterBounds;
     
     /**  
      * Flag indicating if the viewer should be opened as a separate window
      * or not. The default value is <code>true</code>.
      */
-    private boolean		separateWindow;
+    private boolean separateWindow;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Creates a new instance.
      * 
-     * @param image  	The id of the image to view.
-     * @param bounds    The bounds of the component posting the event.
+     * @param ctx The security context.
+     * @param image The id of the image to view.
+     * @param bounds The bounds of the component posting the event.
      */
-    public ViewImage(ViewImageObject image, Rectangle bounds)
+    public ViewImage(SecurityContext ctx,
+    		ViewImageObject image, Rectangle bounds)
     {
     	if (image == null) 
     		throw new IllegalArgumentException("Image not null.");
+    	if (ctx == null) 
+    		throw new IllegalArgumentException("No security context.");
+    	this.ctx = ctx;
     	images = new ArrayList<ViewImageObject>();
     	images.add(image);
     	requesterBounds = bounds;
@@ -128,5 +137,12 @@ public class ViewImage
     {
     	this.separateWindow = separateWindow;
     }
+    
+    /**
+     * Returns the security context.
+     * 
+     * @return See above.
+     */
+    public SecurityContext getSecurityContext() { return ctx; }
 
 }

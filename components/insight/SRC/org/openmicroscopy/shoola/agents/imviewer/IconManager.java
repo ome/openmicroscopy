@@ -278,11 +278,23 @@ public class IconManager
     /** The 22x22 <code>Split view figure</code> icon. */
     public static final int           SPLIT_VIEW_FIGURE_22 = 74;
     
+    /** The <code>Private Group</code> icon. */
+    public static final int           PRIVATE_GROUP = 75;
+    
+    /** The <code>Read Group</code> icon. */
+    public static final int           READ_GROUP = 76;
+    
+    /** The <code>Read Link Group</code> icon. */
+    public static final int           READ_LINK_GROUP = 77;
+    
+    /** The <code>Public Group</code> icon. */
+    public static final int           PUBLIC_GROUP = 78;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 74;
+    private static final int          MAX_ID = 78;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -362,6 +374,10 @@ public class IconManager
         relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
         relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
         relPaths[SPLIT_VIEW_FIGURE_22] = "splitViewFigure22.png";
+        relPaths[PRIVATE_GROUP] = "nuvola_ledred16.png";
+        relPaths[READ_GROUP] = "nuvola_ledorange_readOnly16.png";
+        relPaths[READ_LINK_GROUP] = "nuvola_ledorange16.png";
+        relPaths[PUBLIC_GROUP] = "nuvola_ledgreen16.png";
     }
     
     /** The sole instance. */

@@ -23,12 +23,16 @@
 package org.openmicroscopy.shoola.agents.editor.view;
 
 //Java imports
+import java.awt.Component;
+import java.awt.Point;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -42,11 +46,13 @@ import org.openmicroscopy.shoola.agents.editor.actions.SaveLocallyCmd;
 import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 
 /** 
  * Implements the {@link Editor} interface to provide the functionality
@@ -332,7 +338,8 @@ class EditorComponent
 	public void newBlankFile()
 	{
 		// gets a new editor
-		Editor editor = EditorFactory.getNewBlankEditor();
+		Editor editor = EditorFactory.getNewBlankEditor(
+				model.getSecurityContext());
 		
 		// primes the editor to open new file and activates the editor
 		if (editor != null) {
@@ -522,13 +529,14 @@ class EditorComponent
 	{
 		UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
 		String message = 
-			"An error occured while saving the file to the server.";
+			"An error occurred while saving the file to the server.";
 		if (data != null) {
 			long id = data.getId();
 			message = "The File has been saved to the server. \nID = " + id;
 			model.setFileAnnotationData(data);
 			model.getBrowser().setId(id);
 		}
+		view.setGroupInformation();
 		un.notifyInfo("File Saved", message);
 		model.setState(READY);
 		view.setTitle(model.getFileName());
@@ -585,6 +593,25 @@ class EditorComponent
 	{
 		return model.isUserOwner();
 	}
+
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#isUserOwner()
+	 */
+	public GroupData getSelectedGroup()
+	{
+		SecurityContext ctx = model.getSecurityContext();
+		if (ctx == null) return null;
+		Set groups = EditorAgent.getAvailableUserGroups();
+		Iterator i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getId() == ctx.getGroupID())
+				return g;
+		}
+		return null;
+	}
 	
 	/**
 	 * Implemented as specified by the {@link Editor} interface.
@@ -592,10 +619,37 @@ class EditorComponent
 	 */
 	public JFrame getUI() { return view; }
 	
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#showMenu(int, Component, Point)
+	 */
+	public void showMenu(int menuID, Component c, Point p)
+	{
+		switch (menuID) {
+			case GROUP_MENU:
+				view.showMenu(menuID, c, p);
+				break;
+		}
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#showMenu(int, Component, Point)
+	 */
+	public void setUserGroup(long groupID)
+	{
+		SecurityContext ctx = model.getSecurityContext();
+		if (ctx.getGroupID() == groupID) return;
+		model.setSecurityContext(groupID);
+		view.setGroupInformation();
+	}
+	
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
 	public String toString() { return view.getTitle(); }
+
+
 	
 }

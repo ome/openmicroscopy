@@ -294,4 +294,14 @@ public class ExperimenterData extends DataObject {
 		return false;
     }
     
+    /**
+     * Overridden to return the id of the default group.
+     * @see DataObject#getGroupId()
+     */
+    public long getGroupId() {
+    	GroupData g = getDefaultGroup();
+    	if (g == null) return -1;
+    	return g.getId();
+    }
+
 }

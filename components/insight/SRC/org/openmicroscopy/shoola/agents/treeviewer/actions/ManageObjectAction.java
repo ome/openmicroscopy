@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.Action;
 
 //Third-party libraries
@@ -38,8 +40,11 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.CutCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -114,6 +119,9 @@ public class ManageObjectAction
 	/** Helper reference to the icons manager. */
 	private IconManager icons;
 	
+	/** The id of the user currently logged in.*/
+	private long userID;
+	
 	/**
 	 * Checks if the passed index is supported.
 	 * 
@@ -178,28 +186,21 @@ public class ManageObjectAction
 	 * Returns <code>true</code> if the pasting action is valid,
 	 * <code>false</code> otherwise.
 	 * 
-	 * @param ho 	The selected data object.
-	 * @param klass	The type identifying the objects to copy.
+	 * @param ho The selected data object.
+	 * @param list The objects to copy.
 	 * @return See above.
 	 */
-	private boolean isPasteValid(Object ho, Class klass)
+	private boolean isPasteValid(Object ho, List<DataObject>list)
 	{
-		if (ho instanceof ProjectData && DatasetData.class.equals(klass))
-			return true;
-		else if (ho instanceof ScreenData && PlateData.class.equals(klass))
-			return true;
-		else if (ho instanceof DatasetData && ImageData.class.equals(klass))
-			return true;
-		else if (ho instanceof GroupData && 
-				ExperimenterData.class.equals(klass))
-			return true;
-		else if (ho instanceof TagAnnotationData && 
-				TagAnnotationData.class.equals(klass)) {
-			TagAnnotationData tag = (TagAnnotationData) ho;
-			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
-				return true;
+		Iterator<DataObject> i = list.iterator();
+		DataObject os;
+		int count = 0;
+		while (i.hasNext()) {
+			os = i.next();
+			if (!EditorUtil.isTransferable(ho, os, userID)) return false;
+			count++;
 		}
-		return false;
+		return count == list.size();
 	}
 	
 	/**
@@ -225,8 +226,8 @@ public class ManageObjectAction
         if (parentDisplay != null) parent = parentDisplay.getUserObject();
         switch (index) {
 			case PASTE:
-				Class klass = model.hasDataToCopy();
-				if (klass == null) {
+				List<DataObject> list = model.getDataToCopy();
+				if (list == null || list.size() == 0) {
 					setEnabled(false);
 		            return;
 				}
@@ -236,7 +237,7 @@ public class ManageObjectAction
 					selected = browser.getSelectedDisplays();
 		    		for (int i = 0; i < selected.length; i++) {
 		    			ho = selected[i].getUserObject();
-		    			if (isPasteValid(ho, klass)) {
+		    			if (isPasteValid(ho, list)) {
 		    				if (ho instanceof GroupData) {
 		    					count++;
 			    			} else {
@@ -245,6 +246,16 @@ public class ManageObjectAction
 		    			}
 					}
 		    		setEnabled(count == selected.length);
+				} else if (ho instanceof ExperimenterData ||
+						ho instanceof GroupData) {
+					if (browser.getBrowserType() != Browser.ADMIN_EXPLORER) {
+						selected = browser.getSelectedDisplays();
+			    		for (int i = 0; i < selected.length; i++) {
+			    			ho = selected[i].getUserObject();
+			    			if (isPasteValid(ho, list)) count++;
+						}
+			    		setEnabled(count == selected.length);
+					}
 				} else setEnabled(false);
 				break;
 			case REMOVE:
@@ -355,6 +366,7 @@ public class ManageObjectAction
 		icons = IconManager.getInstance();
 		checkIndex(index);
 		this.index = index;
+		userID = model.getUserDetails().getId();
 	}
 	
 	/**

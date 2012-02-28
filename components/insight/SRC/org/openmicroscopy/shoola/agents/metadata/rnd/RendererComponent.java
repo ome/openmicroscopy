@@ -44,9 +44,13 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -1153,12 +1157,23 @@ class RendererComponent
 		}
 	}
 	
-	/**
-	 * Returns <code>true</code> if it is a large image, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#isBigImage()
 	 */
 	public boolean isBigImage() { return model.isBigImage(); }
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#viewImage()
+	 */
+	public void viewImage()
+	{
+		ImageData image = model.getRefImage();
+		if (image == null) return;
+		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+		bus.post(new ViewImage(model.getSecurityContext(),
+				new ViewImageObject(image), null));
+	}
 
 }

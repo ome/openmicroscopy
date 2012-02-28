@@ -31,6 +31,7 @@ import java.util.Collection;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -68,14 +69,15 @@ public class TagHierarchyLoader
      * 
      * @param viewer The viewer this loader is for. 
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param node   The node hosting the project to browse.
      *               Mustn't be <code>null</code>.
      * @param userID The id of the user the annotation belongs to.
      */
-    public TagHierarchyLoader(TreeViewer viewer, TreeImageDisplay node, 
-    		long userID)
+    public TagHierarchyLoader(TreeViewer viewer, SecurityContext ctx,
+    		TreeImageDisplay node, long userID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (node == null)
 			throw new IllegalArgumentException("No node of reference.");
 		this.node = node;
@@ -88,8 +90,8 @@ public class TagHierarchyLoader
      */
     public void load()
     {
-    	handle = dmView.loadTags(node.getUserObjectId(), true, false, userID, 
-    			viewer.getUserGroupID(), this);
+    	handle = dmView.loadTags(ctx, node.getUserObjectId(), true, false,
+    			userID, ctx.getGroupID(), this);
     }
 
     /**

@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.editor;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
@@ -60,24 +61,30 @@ public abstract class BrowserLoader
 {
 
     /** The browser this data loader is for. */
-    protected final Browser                viewer;
+    protected final Browser viewer;
     
 	/** Convenience reference for subclasses. */
-    protected final Registry               registry;
+    protected final Registry registry;
     
     /** Convenience reference for subclasses. */
-    protected final MetadataHandlerView		mhView;
+    protected final MetadataHandlerView mhView;
 
+    /** The security context.*/
+    protected final SecurityContext ctx;
+    
     /**
      * Creates a new instance.
      * 
      * @param viewer The browser this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      */
-    protected BrowserLoader(Browser viewer)
+    protected BrowserLoader(Browser viewer, SecurityContext ctx)
     {
-        if (viewer == null) throw new NullPointerException("No viewer.");
+    	if (viewer == null) throw new NullPointerException("No viewer.");
+        if (ctx == null) throw new NullPointerException("No security context.");
         this.viewer = viewer;
+        this.ctx = ctx;
         registry = EditorAgent.getRegistry();
         mhView = (MetadataHandlerView) 
         	registry.getDataServicesView(MetadataHandlerView.class);

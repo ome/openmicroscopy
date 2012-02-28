@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -56,10 +57,13 @@ public class ProjectionSaver
 	private long 			pixelsID;
 	
 	/** Result of the call. */
-	private Object    		result;
+	private Object result;
 
 	/** Loads the specified tree. */
-	private BatchCall		loadCall;
+	private BatchCall loadCall;
+    
+	/** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Creates a {@link BatchCall} to render the projected image
@@ -83,9 +87,9 @@ public class ProjectionSaver
             {
                 OmeroImageService rds = context.getImageService();
                 if (openGLSupport)
-                	result = rds.renderProjectedAsTexture(pixelsID, startZ, 
+                	result = rds.renderProjectedAsTexture(ctx, pixelsID, startZ, 
                 			endZ, stepping, algorithm, channels);
-                else result = rds.renderProjected(pixelsID, startZ, 
+                else result = rds.renderProjected(ctx, pixelsID, startZ, 
             			endZ, stepping, algorithm, channels);
             }
         };
@@ -103,7 +107,7 @@ public class ProjectionSaver
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
-                result = rds.projectImage(ref);
+                result = rds.projectImage(ctx, ref);
             }
         };
     }
@@ -123,6 +127,7 @@ public class ProjectionSaver
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param pixelsID The id of the pixels set.
      * @param startZ   The first optical section.
      * @param endZ     The last optical section.
@@ -133,12 +138,13 @@ public class ProjectionSaver
      * @param openGLSupport Pass <code>true</code> if openGL is supported,
      * 						<code>false</code> otherwise.
      */
-    public ProjectionSaver(long pixelsID, int startZ, int endZ, int stepping, 
-    		              int type, List<Integer> channels, boolean
-    		              openGLSupport)
+    public ProjectionSaver(SecurityContext ctx, long pixelsID, int startZ,
+    	int endZ, int stepping, int type, List<Integer> channels, boolean
+    	openGLSupport)
     {
     	if (pixelsID < 0)
     		throw new IllegalArgumentException("Pixels Id not valid.");
+    	this.ctx = ctx;
     	this.pixelsID = pixelsID;
     	loadCall = makeRenderProjectedCall(startZ, endZ, stepping, type, 
     			channels, openGLSupport);
@@ -147,10 +153,12 @@ public class ProjectionSaver
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param ref The object hosting the projection's parameters.
      */
-    public ProjectionSaver(ProjectionParam ref)
+    public ProjectionSaver(SecurityContext ctx, ProjectionParam ref)
     {
+    	this.ctx = ctx;
     	loadCall = makeProjectionCall(ref);
     }
     

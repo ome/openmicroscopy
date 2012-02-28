@@ -1443,10 +1443,12 @@ class PropertiesUI
 			switch (object.getIndex()) {
 				case WikiDataObject.IMAGE:
 					if (id > 0) 
-						bus.post(new ViewImage(new ViewImageObject(id), null));
+						bus.post(new ViewImage(model.getSecurityContext(),
+								new ViewImageObject(id), null));
 					break;
 				case WikiDataObject.PROTOCOL:
-					bus.post(new EditFileEvent(id));
+					bus.post(new EditFileEvent(model.getSecurityContext(),
+							id));
 					break;
 			}
 		} else if (OMEWikiComponent.WIKI_DATA_OBJECT_ONE_CLICK_PROPERTY.equals(

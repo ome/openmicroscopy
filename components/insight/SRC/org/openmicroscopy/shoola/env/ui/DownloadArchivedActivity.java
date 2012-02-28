@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.ui;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 /** 
  * Downloads the archived image.
@@ -67,13 +68,14 @@ public class DownloadArchivedActivity
 	 * @param viewer		The viewer this data loader is for.
      *               		Mustn't be <code>null</code>.
      * @param registry		Convenience reference for subclasses.
+     * @param ctx The security context.
 	 * @param parameters    The object hosting information about the 
 	 * 						archived image.
 	 */
 	DownloadArchivedActivity(UserNotifier viewer, Registry registry,
-			DownloadArchivedActivityParam parameters) 
+			SecurityContext ctx, DownloadArchivedActivityParam parameters) 
 	{
-		super(viewer, registry);
+		super(viewer, registry, ctx);
 		if (parameters == null)
 			throw new IllegalArgumentException("No parameters");
 		this.parameters = parameters;
@@ -88,8 +90,8 @@ public class DownloadArchivedActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		loader = new ArchivedLoader(viewer,  registry, parameters.getImage(), 
-				 parameters.getLocation(), this);
+		loader = new ArchivedLoader(viewer, registry, ctx, 
+				parameters.getImage(), parameters.getLocation(), this);
 		return loader;
 	}
 

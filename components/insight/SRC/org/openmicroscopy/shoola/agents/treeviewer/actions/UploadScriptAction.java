@@ -101,7 +101,8 @@ public class UploadScriptAction
 					}
 					ScriptActivityParam p = new ScriptActivityParam(script, 
 							ScriptActivityParam.UPLOAD);
-					un.notifyActivity(p);
+					//TODO:review
+					//un.notifyActivity(p);
 				}
 			}
 		});

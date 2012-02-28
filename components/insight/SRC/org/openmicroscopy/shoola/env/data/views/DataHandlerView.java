@@ -34,6 +34,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.ExperimenterData;
 
@@ -57,14 +58,15 @@ public interface DataHandlerView
 	/**
 	 * Loads the images imported during the passed period.
 	 * 
-	 * @param startTime		The lower bound of the period interval. 
-	 * @param endTime		The upper bound of the interval. 
-	 * @param userID		The id of the user the images belonged to.
-	 * @param observer		Call-back handler.
+	 * @param ctx The security context.
+	 * @param startTime The lower bound of the period interval. 
+	 * @param endTime The upper bound of the interval. 
+	 * @param userID The id of the user the images belonged to.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadImages(Timestamp startTime, Timestamp endTime, 
-								long userID, AgentEventListener observer);
+	public CallHandle loadImages(SecurityContext ctx, Timestamp startTime,
+			Timestamp endTime, long userID, AgentEventListener observer);
 
 	/**
 	 * Applies the rendering settings associated to the passed pixels set 
@@ -73,16 +75,17 @@ public interface DataHandlerView
 	 * Applies the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
-	 * @param pixelsID		The id of the pixels set of reference.
-	 * @param rootNodeType	The type of nodes. Can either be 
+	 * @param ctx The security context.
+	 * @param pixelsID The id of the pixels set of reference.
+	 * @param rootNodeType The type of nodes. Can either be 
 	 * 						<code>ImageData</code>, <code>DatasetData</code>.
-	 * @param ids			The identifiers of the nodes to apply settings to. 
-	 * 						Mustn't be <code>null</code>.
-	 * @param observer		Call-back handler.
+	 * @param ids The identifiers of the nodes to apply settings to. 
+	 * 				Mustn't be <code>null</code>.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle pasteRndSettings(long pixelsID, Class rootNodeType,
-			List<Long> ids, AgentEventListener observer);
+	public CallHandle pasteRndSettings(SecurityContext ctx, long pixelsID,
+			Class rootNodeType, List<Long> ids, AgentEventListener observer);
 
 	/**
 	 * Applies the rendering settings associated to the passed pixels set 
@@ -91,13 +94,14 @@ public interface DataHandlerView
 	 * Applies the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
-	 * @param pixelsID		The identifier of the pixels set of reference.
-	 * @param ref			The time reference object.
-	 * @param observer		Call-back handler.
+	 * @param ctx The security context.
+	 * @param pixelsID The identifier of the pixels set of reference.
+	 * @param ref The time reference object.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle pasteRndSettings(long pixelsID, TimeRefObject ref, 
-			AgentEventListener observer);
+	public CallHandle pasteRndSettings(SecurityContext ctx, long pixelsID,
+			TimeRefObject ref, AgentEventListener observer);
 	
 	/**
 	 * Resets the rendering settings for the images contained in the 
@@ -105,25 +109,27 @@ public interface DataHandlerView
 	 * Resets the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
-	 * @param rootNodeType	The type of nodes. Can either be 
-	 * 						<code>ImageData</code>, <code>DatasetData</code>.
-	 * @param ids			The identifiers of the nodes to apply settings to. 
-	 * 						Mustn't be <code>null</code>.
-	 * @param observer		Call-back handler.
+	 * @param ctx The security context.
+	 * @param rootNodeType The type of nodes. Can either be 
+	 *                     <code>ImageData</code>, <code>DatasetData</code>.
+	 * @param ids The identifiers of the nodes to apply settings to. 
+	 *            Mustn't be <code>null</code>.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle resetRndSettings(Class rootNodeType, List<Long> ids, 
-									AgentEventListener observer);
+	public CallHandle resetRndSettings(SecurityContext ctx, Class rootNodeType,
+			List<Long> ids, AgentEventListener observer);
 
 	/**
 	 * Resets the rendering settings associated for the images imported during 
 	 * a period of time
 	 * 
-	 * @param ref			The time reference object.
-	 * @param observer		Call-back handler.
+	 * @param ctx The security context.
+	 * @param ref The time reference object.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle resetRndSettings(TimeRefObject ref, 
+	public CallHandle resetRndSettings(SecurityContext ctx, TimeRefObject ref,
 										AgentEventListener observer);
 
 	/**
@@ -132,25 +138,27 @@ public interface DataHandlerView
 	 * Resets the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
-	 * @param rootNodeType	The type of nodes. Can either be 
-	 * 						<code>ImageData</code>, <code>DatasetData</code>.
-	 * @param ids			The identifiers of the nodes to apply settings to. 
-	 * 						Mustn't be <code>null</code>.
-	 * @param observer		Call-back handler.
+	 * @param ctx The security context.
+	 * @param rootNodeType The type of nodes. Can either be 
+	 *                     <code>ImageData</code>, <code>DatasetData</code>.
+	 * @param ids The identifiers of the nodes to apply settings to. 
+	 *            Mustn't be <code>null</code>.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle setMinMaxSettings(Class rootNodeType, List<Long> ids, 
-									AgentEventListener observer);
+	public CallHandle setMinMaxSettings(SecurityContext ctx, Class rootNodeType,
+			List<Long> ids, AgentEventListener observer);
 
 	/**
 	 * Resets the rendering settings associated for the images imported during 
 	 * a period of time
 	 * 
-	 * @param ref			The time reference object.
-	 * @param observer		Call-back handler.
+	 * @param ctx The security context.
+	 * @param ref The time reference object.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle setMinMaxSettings(TimeRefObject ref, 
+	public CallHandle setMinMaxSettings(SecurityContext ctx, TimeRefObject ref,
 										AgentEventListener observer);
 	
 	/**
@@ -159,6 +167,7 @@ public interface DataHandlerView
 	 * If the rootType is <code>ImageData</code, resets the settings to the 
 	 * passed images.
 	 * 
+	 * @param ctx The security context.
 	 * @param rootNodeType	The type of nodes. Can either be 
 	 * 						<code>ImageData</code>, <code>DatasetData</code>.
 	 * @param ids			The identifiers of the nodes to apply settings to. 
@@ -166,51 +175,56 @@ public interface DataHandlerView
 	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle setOwnerRndSettings(Class rootNodeType, List<Long> ids, 
-									AgentEventListener observer);
+	public CallHandle setOwnerRndSettings(SecurityContext ctx,
+			Class rootNodeType, List<Long> ids, AgentEventListener observer);
 
 	/**
 	 * Resets the rendering settings used by the owner of the images
 	 * imported during a period of time
 	 * 
-	 * @param ref			The time reference object.
-	 * @param observer		Call-back handler.
+	 * @param ctx The security context.
+	 * @param ref The time reference object.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle setOwnerRndSettings(TimeRefObject ref, 
-										AgentEventListener observer);
+	public CallHandle setOwnerRndSettings(SecurityContext ctx,
+			TimeRefObject ref, AgentEventListener observer);
 	
 	/**
 	 * Retrieves the objects specified by the context of the search.
 	 * 
-	 * @param context	The context of the search.
-	 * @param observer	Call-back handler.
+	 * @param ctx The security context.
+	 * @param context The context of the search.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle advancedSearchFor(SearchDataContext context, 
-										AgentEventListener observer);
+	public CallHandle advancedSearchFor(List<SecurityContext> ctx,
+			SearchDataContext context, AgentEventListener observer);
 
 	/**
 	 * Loads the files of a given type. The type is one the constants
 	 * defined by the {@link OmeroMetadataService}.
 	 * 
-	 * @param type 	The type to handle.
+	 * @param ctx The security context.
+	 * @param type The type to handle.
 	 * @param userID The id of the user.
 	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadFiles(int type, long userID,
+	public CallHandle loadFiles(SecurityContext ctx, int type, long userID,
 			AgentEventListener observer);
 	
 	/**
 	 * Switches the user's group.
 	 * 
-	 * @param experimenter  The experimenter to handle.
-	 * @param groupID		The identifier of the group.
-	 * @param observer		Call-back handler.
+	 * @param ctx The security context.
+	 * @param experimenter The experimenter to handle.
+	 * @param groupID The identifier of the group.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle switchUserGroup( ExperimenterData experimenter, 
-			long groupID, AgentEventListener observer);
+	public CallHandle switchUserGroup(SecurityContext ctx,
+		ExperimenterData experimenter, long groupID,
+		AgentEventListener observer);
 	
 }

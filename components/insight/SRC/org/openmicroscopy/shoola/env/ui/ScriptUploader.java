@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.env.ui;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -69,13 +70,14 @@ public class ScriptUploader
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param registry	Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param script  	The script to run.
      * @param activity  The activity associated to this loader.
      */
 	public ScriptUploader(UserNotifier viewer,  Registry registry,
-			ScriptObject script, ActivityComponent activity)
+		SecurityContext ctx, ScriptObject script, ActivityComponent activity)
 	{
-		super(viewer, registry, activity);
+		super(viewer, registry, ctx, activity);
 		if (script == null)
 			throw new IllegalArgumentException("No script to run.");
 		this.script = script;
@@ -87,7 +89,7 @@ public class ScriptUploader
      */
     public void load()
     {
-    	handle = ivView.uploadScript(script, this);
+    	handle = ivView.uploadScript(ctx, script, this);
     }
     
     /**

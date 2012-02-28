@@ -31,6 +31,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -66,11 +67,12 @@ public class EnumerationLoader
      * Creates a new instance.
      * 
      * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param index  One of the constants defined by this class.
      */
-    public EnumerationLoader(Editor viewer, int index)
+    public EnumerationLoader(Editor viewer, SecurityContext ctx, int index)
     {
-    	super(viewer);
+    	super(viewer, ctx);
     	this.index = index;
     }
     
@@ -81,8 +83,8 @@ public class EnumerationLoader
     public void load()
     {
     	if (index == IMAGE)
-    		handle = imView.loadImageMetadataEnumerations(this);
-    	else handle = imView.loadChannelMetadataEnumerations(this);
+    		handle = imView.loadImageMetadataEnumerations(ctx, this);
+    	else handle = imView.loadChannelMetadataEnumerations(ctx, this);
     }
     
     /** 

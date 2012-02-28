@@ -33,6 +33,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.ProcessException;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
@@ -57,11 +58,12 @@ public class ScriptLoader
      * Creates a new instance.
      * 
      * @param viewer 	Reference to the viewer. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param scriptID	The script's identifier.
      */
-    public ScriptLoader(TreeViewer viewer, long scriptID)
+    public ScriptLoader(TreeViewer viewer, SecurityContext ctx, long scriptID)
     {
-    	super(viewer);
+    	super(viewer, ctx);
     	if (scriptID < 0)
     		throw new IllegalArgumentException("No script specified.");
     	this.scriptID = scriptID;
@@ -73,7 +75,7 @@ public class ScriptLoader
      */
     public void load()
     {
-    	handle = mhView.loadScript(scriptID, this);
+    	handle = mhView.loadScript(ctx, scriptID, this);
     }
     
     /** 

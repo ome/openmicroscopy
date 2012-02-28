@@ -30,6 +30,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -80,16 +81,17 @@ public class Analyser
      * 
      * @param viewer	The viewer this data loader is for.
      *                  Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param pixels	The pixels set to analyze.
      * @param channels	Collection of active channels. 
      * 					Mustn't be <code>null</code>.
      * @param shapes	Collection of shapes to analyze. 
      * 					Mustn't be <code>null</code>.
      */
-	public Analyser(MeasurementViewer viewer, PixelsData pixels,
-					List channels, List shapes)
+	public Analyser(MeasurementViewer viewer, SecurityContext ctx,
+			PixelsData pixels, List channels, List shapes)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (channels == null || channels.size() == 0)
 			throw new IllegalArgumentException("No channels specified.");
 		if (shapes == null || shapes.size() == 0)
@@ -108,10 +110,12 @@ public class Analyser
     {
     	switch (index) {
 			case SHAPE:
-				handle = idView.analyseShapes(pixels, channels, shapes, this);
+				handle = idView.analyseShapes(ctx, pixels, channels, shapes,
+						this);
 				break;
 			case ROI:
-				handle = idView.analyseShapes(pixels, channels, shapes, this);
+				handle = idView.analyseShapes(ctx, pixels, channels, shapes,
+						this);
 				break;
 		}
     }

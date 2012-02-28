@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
@@ -80,13 +81,14 @@ public interface ImageDataView
     /**
      * Loads the rendering proxy associated to the pixels set.
      * 
+     * @param ctx The security context.
      * @param pixelsID  The id of the pixels set.
      * @param index		One of the constants defined by this class.
      * @param observer  Call-back handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadRenderingControl(long pixelsID, int index,
-                        AgentEventListener observer);
+    public CallHandle loadRenderingControl(SecurityContext ctx, long pixelsID,
+    		int index, AgentEventListener observer);
     
     /**
      * Shuts down the rendering proxy associated to the pixels set.
@@ -95,12 +97,13 @@ public interface ImageDataView
      * @param observer  Call-back handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle shutDownRenderingControl(long pixelsID,
-                        AgentEventListener observer);
+    public CallHandle shutDownRenderingControl(SecurityContext ctx,
+    		long pixelsID, AgentEventListener observer);
     
     /**
      * Renders the specified plane.
      * 
+     * @param ctx The security context.
      * @param pixelsID  The id of the pixels set.
      * @param pd        The plane to render.
      * @param asTexture	Pass <code>true</code> to return a texture,
@@ -110,22 +113,24 @@ public interface ImageDataView
      * @param observer  Call-back handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle render(long pixelsID, PlaneDef pd, boolean asTexture,
-    		boolean largeImage, AgentEventListener observer);
+    public CallHandle render(SecurityContext ctx, long pixelsID, PlaneDef pd,
+    		boolean asTexture, boolean largeImage, AgentEventListener observer);
     
     /**
      * Retrieves the pixels set.
      * 
+     * @param ctx The security context.
      * @param pixelsID	The id of the pixels set.
      * @param observer	Call-back handler.
      * @return See above.
      */
-    public CallHandle loadPixels(long pixelsID, 
+    public CallHandle loadPixels(SecurityContext ctx, long pixelsID, 
     					AgentEventListener observer);
     
     /**
      * Retrieves the dimensions in microns of the pixels set.
      * 
+     * @param ctx The security context.
      * @param pixels	The pixels set to analyze.
      * @param channels	Collection of active channels. 
      * 					Mustn't be <code>null</code>.
@@ -134,34 +139,37 @@ public interface ImageDataView
      * @param observer	Call-back handler.
      * @return See above.
      */
-    public CallHandle analyseShapes(PixelsData pixels, List channels, 
-    							List shapes, AgentEventListener observer);
+    public CallHandle analyseShapes(SecurityContext ctx, PixelsData pixels,
+    		List channels, List shapes, AgentEventListener observer);
     
     /**
      * Retrieves all the rendering settings associated to a given set of pixels.
      * 
+     * @param ctx The security context.
      * @param pixelsID The id of the pixels set.
      * @param observer	Call-back handler.
      * @return See above.
      */
-    public CallHandle getRenderingSettings(long pixelsID, 
+    public CallHandle getRenderingSettings(SecurityContext ctx, long pixelsID,
     									AgentEventListener observer);
     
     /**
      * Retrieves all the rendering settings associated to a given set of pixels.
      * for the specified user.
      * 
+     * @param ctx The security context.
      * @param pixelsID 	The id of the pixels set.
      * @param userID	The if of the users.
      * @param observer	Call-back handler.
      * @return See above.
      */
-    public CallHandle getRenderingSettings(long pixelsID, long userID,
-    									AgentEventListener observer);
+    public CallHandle getRenderingSettings(SecurityContext ctx, long pixelsID,
+    		long userID, AgentEventListener observer);
     
     /**
      * Projects a section of the stack and returns the projected image.
      * 
+     * @param ctx The security context.
      * @param pixelsID  The id of the pixels set.
      * @param startZ    The first optical section.
      * @param endZ      The last optical section.
@@ -174,18 +182,20 @@ public interface ImageDataView
      * @param observer 	Call-back handler.
      * @return See above.
      */
-    public CallHandle renderProjected(long pixelsID, int startZ, int endZ,
-    		int stepping, int algorithm, List<Integer> channels,
-    		boolean openGLSupport, AgentEventListener observer);
+    public CallHandle renderProjected(SecurityContext ctx, long pixelsID,
+    	int startZ, int endZ, int stepping, int algorithm,
+    	List<Integer> channels, boolean openGLSupport,
+    	AgentEventListener observer);
     
     /**
      * Projects a section of the stack and returns the projected image.
      * 
+     * @param ctx The security context.
      * @param ref 		The object hosting the projection's parameters.
      * @param observer 	Call-back handler.
      * @return See above.
      */
-    public CallHandle projectImage(ProjectionParam ref, 
+    public CallHandle projectImage(SecurityContext ctx, ProjectionParam ref,
     							AgentEventListener observer);
 
     /**
@@ -193,6 +203,7 @@ public interface ImageDataView
      * copies the settings from the passed rendering setting object if
      * not <code>null</code>.
      * 
+     * @param ctx The security context.
      * @param pixelsID	The id of the pixels set to handle.
      * @param rndToCopy The rendering settings to copy to the newly created one.
      * @param indexes	Collection of channel's indexes. 
@@ -200,33 +211,37 @@ public interface ImageDataView
      * @param observer 	Call-back handler.
      * @return See above.
      */
-    public CallHandle createRndSetting(long pixelsID, RndProxyDef rndToCopy,
-    		List<Integer> indexes, AgentEventListener observer);
+    public CallHandle createRndSetting(SecurityContext ctx, long pixelsID,
+    	RndProxyDef rndToCopy, List<Integer> indexes,
+    	AgentEventListener observer);
     
     /**
      * Loads the acquisition metadata for an image or a given channel.
      * 
+     * @param ctx The security context.
      * @param refObject Either an image or a channel.
      * @param observer	Call-back handler.
      * @return See above.
      */
-    public CallHandle loadAcquisitionData(Object refObject, 
+    public CallHandle loadAcquisitionData(SecurityContext ctx, Object refObject,
     		AgentEventListener observer);
     
     /**
      * Saves the acquisition metadata related to an image or a given channel.
      * 
+     * @param ctx The security context.
      * @param refObject Object hosting the metadata for either an image or
      * 					a channel.
      * @param observer	Call-back handler.
      * @return See above.
      */
-    public CallHandle saveAcquisitionData(Object refObject, 
+    public CallHandle saveAcquisitionData(SecurityContext ctx, Object refObject,
     		AgentEventListener observer);
 
     /**
      * Loads the plane info objects related to the passed pixels set.
      * 
+     * @param ctx The security context.
      * @param pixelsID 	The id of the pixels set.
      * @param z 		The selected z-section or <code>-1</code>.
      * @param t 		The selected timepoint or <code>-1</code>.
@@ -234,24 +249,27 @@ public interface ImageDataView
      * @param observer	Call-back handler.
      * @return See above.
      */
-    public CallHandle loadPlaneInfo(long pixelsID, int z, int t, int channel, 
-    		AgentEventListener observer);
+    public CallHandle loadPlaneInfo(SecurityContext ctx, long pixelsID, int z,
+    		int t, int channel, AgentEventListener observer);
     
     /**
      * Loads the enumerations used for the image metadata.
      * 
+     * @param ctx The security context.
      * @param observer	Call-back handler.
      * @return See above.
      */
-	public CallHandle loadImageMetadataEnumerations(AgentEventListener observer);
+	public CallHandle loadImageMetadataEnumerations(SecurityContext ctx,
+			AgentEventListener observer);
     
 	/**
      * Loads the enumerations used for the channel metadata.
      * 
+     * @param ctx The security context.
      * @param observer	Call-back handler.
      * @return See above.
      */
-	public CallHandle loadChannelMetadataEnumerations(
+	public CallHandle loadChannelMetadataEnumerations(SecurityContext ctx,
 								AgentEventListener observer);
 	
 	/**
@@ -264,12 +282,13 @@ public interface ImageDataView
 	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle importFiles(ImportableObject context, long userID, 
-			long groupID, AgentEventListener observer);
+	public CallHandle importFiles(ImportableObject context,
+			long userID, long groupID, AgentEventListener observer);
 
 	/**
 	 * Monitors the passed directory.
 	 * 
+	 * @param ctx The security context.
 	 * @param directory	The directory to monitor.
 	 * @param container The container where to import the images into or 
 	 * 					<code>null</code>.
@@ -278,23 +297,26 @@ public interface ImageDataView
 	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle monitorDirectory(File directory, DataObject container, 
-			long userID, long groupID, AgentEventListener observer);
+	public CallHandle monitorDirectory(SecurityContext ctx, File directory,
+		DataObject container, long userID, long groupID,
+		AgentEventListener observer);
 	
 	/**
 	 * Loads the specified image.
 	 * 
+	 * @param ctx The security context.
 	 * @param imageID 	The id of the image to load.
 	 * @param userID	The id of the user.
 	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle loadImage(long imageID, long userID, 
+	public CallHandle loadImage(SecurityContext ctx, long imageID, long userID,
 			AgentEventListener observer);
 	
 	/**
 	 * Creates a movie.
 	 * 
+	 * @param ctx The security context.
 	 * @param imageID 	The id of the image.
 	 * @param pixelsID 	The id of the pixels set.	
 	 * @param channels 	The channels to map.
@@ -302,80 +324,88 @@ public interface ImageDataView
 	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle createMovie(long imageID, long pixelsID, 
-			List<Integer> channels, MovieExportParam param, 
+	public CallHandle createMovie(SecurityContext ctx, long imageID,
+		long pixelsID, List<Integer> channels, MovieExportParam param,
 			AgentEventListener observer);
 
 	/**
 	 * Creates a figure.
 	 * 
+	 * @param ctx The security context.
 	 * @param ids 	The id of the objects.
 	 * @param type	The type of objects to handle.
      * @param param The parameters to create the movie.
 	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle createFigure(List<Long> ids, Class type, Object param, 
-			AgentEventListener observer);
+	public CallHandle createFigure(SecurityContext ctx, List<Long> ids,
+			Class type, Object param, AgentEventListener observer);
 	
 	/**
 	 * Loads the instrument and its components.
 	 * 
+	 * @param ctx The security context.
 	 * @param instrumentID   The id of instrument
 	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle loadInstrumentData(long instrumentID, 
+	public CallHandle loadInstrumentData(SecurityContext ctx, long instrumentID,
 			AgentEventListener observer);
 
 	/**
 	 * Loads the ROI.
 	 * 
+	 * @param ctx The security context.
 	 * @param imageID 	The image's id.
 	 * @param fileID	The id of the file.
 	 * @param userID	The user's id.
 	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle loadROI(long imageID, List<Long> fileID, long userID, 
-			AgentEventListener observer);
+	public CallHandle loadROI(SecurityContext ctx, long imageID,
+			List<Long> fileID, long userID, AgentEventListener observer);
+	
 	/**
-	 * Save the ROI for the image to the server..
+	 * Save the ROI for the image to the server.
 	 * 
+	 * @param ctx The security context.
 	 * @param imageID 	The image's ID.
 	 * @param userID	The user's ID.
 	 * @param roiList	The list of ROI to save.
 	 */
-	public CallHandle saveROI(long imageID,  long userID, List<ROIData> roiList,
-			AgentEventListener observer);
+	public CallHandle saveROI(SecurityContext ctx, long imageID, long userID,
+			List<ROIData> roiList, AgentEventListener observer);
 
 	/**
 	 * Exports the image as an XML file.
 	 * 
+	 * @param ctx The security context.
 	 * @param imageID	The image's id.
 	 * @param file		The file where to export the image.
 	 * @param observer 	Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle exportImageAsOMETiff(long imageID, File file,
-			AgentEventListener observer);
+	public CallHandle exportImageAsOMETiff(SecurityContext ctx, long imageID,
+			File file, AgentEventListener observer);
 
 	/**
 	 * Loads the ROI if possible from the server.
 	 * 
+	 * @param ctx The security context.
 	 * @param imageID 	The image's id.
 	 * @param userID	The user's id.
 	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle loadROIFromServer(long imageID, long userID,
-			AgentEventListener serverSideROILoader);
+	public CallHandle loadROIFromServer(SecurityContext ctx, long imageID,
+			long userID, AgentEventListener serverSideROILoader);
 	
 	/**
 	 * Renders the image with the overlays if the passed map is not 
 	 * <code>null</code>, renders the image without the overlays if 
 	 * <code>null</code>.
 	 * 
+	 * @param ctx The security context.
 	 * @param pixelsID 	The id of the pixels set.
 	 * @param pd		The plane to render.
 	 * @param tableID	The id of the table hosting the mask.
@@ -385,76 +415,70 @@ public interface ImageDataView
 	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle renderOverLays(long pixelsID, PlaneDef pd, long tableID,
-			Map<Long, Integer> overlays, boolean asTexture,
-			AgentEventListener observer);
-	
-	/**
-	 * Performs a basic FRAP.
-	 * 
-	 * @param ids	The objects to analyze.
-	 * @param type 	The type of object to analyze.
-	 * @param param	The extra parameters.
-	 * @param observer Call-back handler.
-	 * @return See above.
-	 */
-	public CallHandle analyseFRAP(List<Long> ids, Class objectType, 
-			Object param, AgentEventListener observer);
+	public CallHandle renderOverLays(SecurityContext ctx, long pixelsID,
+		PlaneDef pd, long tableID, Map<Long, Integer> overlays,
+		boolean asTexture, AgentEventListener observer);
 	
 	/**
 	 * Runs the passed script.
 	 * 
+	 * @param ctx The security context.
 	 * @param script The script to run.
 	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle runScript(ScriptObject script, 
+	public CallHandle runScript(SecurityContext ctx, ScriptObject script, 
 			AgentEventListener observer);
 
 	/**
 	 * Uploads the passed script.
 	 * 
+	 * @param ctx The security context.
 	 * @param script The script to upload.
 	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle uploadScript(ScriptObject script,
+	public CallHandle uploadScript(SecurityContext ctx, ScriptObject script,
 			AgentEventListener observer);
 
 	/**
 	 * Retrieve the users workflows.
 	 * 
+	 * @param ctx The security context.
 	 * @param userID id of the user whose workflows are to be retrieved.
 	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle retrieveWorkflows(long userID, AgentEventListener observer);
+	public CallHandle retrieveWorkflows(SecurityContext ctx, long userID,
+			AgentEventListener observer);
 	
 	/**
 	 * Stores the newly created  workflows.
 	 * 
+	 * @param ctx The security context.
 	 * @param workflows The new workflows.
 	 * @param userID id of the user whose workflows are to be retrieved.
 	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle storeWorkflows(List<WorkflowData> workflows, long userID, 
-			AgentEventListener observer);
+	public CallHandle storeWorkflows(SecurityContext ctx, 
+		List<WorkflowData> workflows, long userID, AgentEventListener observer);
 	
 	/**
 	 * Saves the images in the specified folder as JPEG by default.
 	 * 
+	 * @param ctx The security context.
 	 * @param parameters The parameters used to save locally the images.
-	 *.
 	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle saveAs(SaveAsParam parameters,
+	public CallHandle saveAs(SecurityContext ctx, SaveAsParam parameters,
 			AgentEventListener observer);
 
 	/**
 	 * Loads the tiles.
 	 * 
+	 * @param ctx The security context.
 	 * @param pixelsID 	The id of the pixels set.
 	 * @param pDef		The plane to render.
 	 * @param tiles		The tiles.
@@ -463,8 +487,8 @@ public interface ImageDataView
 	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle loadTiles(long pixelsID, PlaneDef pDef, 
-			Collection<Tile> tiles, boolean asTexture,
+	public CallHandle loadTiles(SecurityContext ctx, long pixelsID,
+		PlaneDef pDef, Collection<Tile> tiles, boolean asTexture,
 			AgentEventListener observer);
 	
 }
