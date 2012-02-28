@@ -64,7 +64,7 @@ public class LegacyRepositoryUnitTest extends AbstractRepoUnitTest {
 
     private LegacyRepositoryI mk() {
         return new LegacyRepositoryI(oa, reg, ex, null, "sessuuid", tmpRepo
-                .getAbsolutePath());
+                .getAbsolutePath(), "");
     }
 
     private OriginalFile file() {
