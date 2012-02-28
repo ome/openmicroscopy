@@ -442,7 +442,11 @@ class TextualAnnotationsUI
 			buildGUI();
 			init = true;
 		//}
-		displayAnnotations(model.getTextualAnnotationsByDate());
+		if (model.isMultiSelection()) {
+			displayAnnotations(null);
+		} else {
+			displayAnnotations(model.getTextualAnnotationsByDate());
+		}
 		revalidate();
 		repaint();
 	}

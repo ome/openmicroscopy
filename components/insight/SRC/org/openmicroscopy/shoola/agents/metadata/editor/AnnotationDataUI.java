@@ -905,15 +905,21 @@ class AnnotationDataUI
 			count += v.size();
 		}
 		*/
-		count += l.size();
-		layoutAttachments(l);
+		
+		
 		
 		//Viewed by
 		if (!model.isMultiSelection()) {
 			l = model.getTags();
 			if (l != null) count += l.size();
 			layoutTags(l);
-		} else layoutTags(null);
+			l = model.getAttachments();
+			if (l != null) count += l.size();
+			layoutAttachments(l);
+		} else {
+			layoutTags(null);
+			layoutAttachments(null);
+		}
 		filterButton.setEnabled(count > 0);
 		//Allow to handle annotation.
 		boolean enabled = model.isWritable();
