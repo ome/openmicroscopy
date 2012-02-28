@@ -223,7 +223,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean],
     "omero.web.server_email": ["SERVER_EMAIL", None, identity],
     "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
-    "omero.web.use_eman2": ["USE_EMAN2", "false", parse_boolean],
     # the following parameters configure when to show/hide the 'Volume viewer' icon in the Image metadata panel
     "omero.web.open_astex_max_side": ["OPEN_ASTEX_MAX_SIDE", 400, int],
     "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],
@@ -485,21 +484,3 @@ def load_server_list():
     Server.freeze()
 load_server_list()
 
-###
-### OTHER APPLICATIONS:
-###
-
-
-###
-### BEGIN EMDB settings
-###
-try:
-    if USE_EMAN2:
-        logger.info("Using EMAN2...")
-        from EMAN2 import *
-except:
-    logger.info("Not using EMAN2...")
-    pass
-###
-### END EMDB settings
-###
