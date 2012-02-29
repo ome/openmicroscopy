@@ -44,7 +44,6 @@ urlpatterns = patterns('',
     (r'(?i)^webgateway/', include('omeroweb.webgateway.urls')),
     (r'(?i)^webtest/', include('omeroweb.webtest.urls')),    
     (r'(?i)^url/', include('omeroweb.webredirect.urls')),
-    (r'(?i)^common/', include('omeroweb.common.urls')),
 )
 
 for app in settings.ADDITIONAL_APPS:

@@ -1,4 +1,4 @@
-{% extends "common/base/base_html.html" %}
+{% extends "webgateway/core_html.html" %}
 {% load i18n %}
 {% load common_filters %}
 {% load common_tags %}
@@ -214,7 +214,7 @@
                         <!-- link for loading tags we can add to this object. Loaded by AJAX into form below & displayed as dialog -->
                         <img src="{% static 'webclient/image/plus_11.png' %}" alt="e" title="Add Tags."/>
                     </a>
-                    <img id='tagann_spinner' src="{% static "common/image/spinner.gif" %}" style="display:none"/>
+                    <img id='tagann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
                 </td>
                 <!-- display existing Tags -->
                 <td>
@@ -236,7 +236,7 @@
                     <form id="batch_attachments_form" title="Select Attachments" action="{% url annotate_file %}" method="post">
                     </form>
                     
-                    <img id='fileann_spinner' src="{% static "common/image/spinner.gif" %}" style="display:none"/>
+                    <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
                 </td>
                 <!-- display existing file annotations -->
                 <td>
@@ -266,7 +266,7 @@
                         <tr>
                             <td>
                                 <input type="submit" value="{% trans 'Add Comment' %}" />
-                                <img id='comment_spinner' src="{% static "common/image/spinner.gif" %}" style="display:none"/>
+                                <img id='comment_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
                             </td>
                         </tr>
                     </table>

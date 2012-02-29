@@ -24,16 +24,17 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
     
 {% endblock %}
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "common/javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
 
-    <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
     
     <script type="text/javascript">
         var isCheckedById = function(name) { 
@@ -124,7 +125,7 @@
         <form class="quicksearch" id="quicksearch" action="#">
             <label for="id_search">Filter:</label>
             <input type="text" id="id_search" value="search">
-            <span class="loading"><img class="loader" alt="Loading" src="{% static "common/image/spinner.gif" %}"></span>
+            <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span>
         </form>
 
         <table id="dataTable" class="tablesorter">
@@ -142,7 +143,7 @@
                             <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
                             <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
                         </td>
-                        <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% static "common/image/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% static "webclient/image/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                        <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% static "webgateway/img/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% static "webclient/image/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
                         <td class="roles">{{ c.getDate }}</td>                    
                     </tr>
                 {% endfor %}
