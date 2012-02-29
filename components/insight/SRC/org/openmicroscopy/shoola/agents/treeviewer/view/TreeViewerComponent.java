@@ -90,6 +90,7 @@ import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -3091,7 +3092,9 @@ class TreeViewerComponent
 				File f = new File(
 						folder.getAbsolutePath()+File.separator+
 						image.getName()+OMETIFFFilter.OME_TIFF);
-				TreeViewerAgent.getRegistry().getImageService().exportImageAsOMETiff(
+				OmeroImageService svc =
+					TreeViewerAgent.getRegistry().getImageService();
+				svc.exportImageAsOMEObject(OmeroImageService.EXPORT_AS_OMETIFF,
 						image.getId(), f, null);
 				TreeViewerAgent.getRegistry().getUserNotifier().openApplication(
 						data, f.getAbsolutePath());

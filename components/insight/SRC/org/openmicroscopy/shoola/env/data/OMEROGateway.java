@@ -6984,6 +6984,7 @@ class OMEROGateway
 	/**
 	 * Returns the file 
 	 * 
+	 * @param index Either OME-XML or OME-TIFF.
 	 * @param file		The file to write the bytes.
 	 * @param imageID	The id of the image.
 	 * @return See above.
@@ -6992,7 +6993,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	File exportImageAsOMETiff(File f, long imageID)
+	File exportImageAsOMEObject(int index, File f, long imageID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();
@@ -7009,7 +7010,10 @@ class OMEROGateway
 					store.addImage(imageID);
 					
 					try {
-						long size = store.generateTiff();
+						long size = 0;
+						if (index == OmeroImageService.EXPORT_AS_OME_XML)
+							size = store.generateXml();
+						else store.generateTiff();
 						long offset = 0;
 						try {
 							for (offset = 0; (offset+INC) < size;) {

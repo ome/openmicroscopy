@@ -52,7 +52,12 @@ public class ExportLoader
 {
 
 	/** Indicates to export the image as OME TIFF. */
-	public static final int	EXPORT_AS_OMETIFF = 0;
+	public static final int	EXPORT_AS_OMETIFF = 
+		OmeroImageService.EXPORT_AS_OMETIFF;
+	
+	/** Indicates to export the image as OME XML. */
+	public static final int	EXPORT_AS_OME_XML = 
+		OmeroImageService.EXPORT_AS_OME_XML;
 	
 	/** Loads the specified annotations. */
     private BatchCall   loadCall;
@@ -68,14 +73,15 @@ public class ExportLoader
 	 * @param target The selected schema.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeAsOMETiffBatchCall(final File file, 
+    private BatchCall makeAsOMETiffBatchCall(final int index, final File file, 
     						final long imageID, final Target target)
     {
         return new BatchCall("Export image as OME-TIFF.") {
             public void doCall() throws Exception
             {
                 OmeroImageService service = context.getImageService();
-                result = service.exportImageAsOMETiff(imageID, file, target);
+                result = service.exportImageAsOMEObject(index, imageID, file,
+                		target);
             }
         };
     }
@@ -102,11 +108,7 @@ public class ExportLoader
      */
     public ExportLoader(long imageID, File file, int index, Target target)
     {
-    	switch (index) {
-			case EXPORT_AS_OMETIFF:
-				loadCall = makeAsOMETiffBatchCall(file, imageID, target);
-				break;
-		}
+    	loadCall = makeAsOMETiffBatchCall(index, file, imageID, target);
     }
-    
+
 }

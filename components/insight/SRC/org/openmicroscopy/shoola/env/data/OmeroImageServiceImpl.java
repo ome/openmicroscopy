@@ -93,6 +93,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
+import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
@@ -1461,16 +1462,37 @@ class OmeroImageServiceImpl
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#exportImageAsOMETiff(long, File, Target)
+	 * @see OmeroImageService#exportImageAsOMEObject(int, long, File, Target)
 	 */
-	public Object exportImageAsOMETiff(long imageID, File file, Target target)
+	public Object exportImageAsOMEObject(int index, long imageID, File file, 
+			Target target)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		if (imageID <= 0)
 			throw new IllegalArgumentException("No image specified.");
 		if (file == null)
 			throw new IllegalArgumentException("No File specified.");
-		File f = gateway.exportImageAsOMETiff(file, imageID);
+		//To be modified
+		//check file name and index.
+		String path = file.getAbsolutePath();
+		switch (index) {
+			case EXPORT_AS_OMETIFF:
+				if (!(path.endsWith(OMETIFFFilter.OME_TIFF) || 
+						path.endsWith(OMETIFFFilter.OME_TIF))) {
+					path += "."+OMETIFFFilter.OME_TIFF;
+					file.delete();
+					file = new File(path);
+				}
+				break;
+			case EXPORT_AS_OME_XML:
+				if (!(path.endsWith(XMLFilter.OME_XML))) {
+					path += "."+XMLFilter.OME_XML;
+					file.delete();
+					file = new File(path);
+				}
+		}
+		index = EXPORT_AS_OME_XML; //TO be modified
+		File f = gateway.exportImageAsOMEObject(index, file, imageID);
 		if (target == null) return f;
 		//Apply the transformations
 		List<InputStream> transforms = target.getTransforms();
@@ -1478,32 +1500,36 @@ class OmeroImageServiceImpl
 		//Apply each transform one after another.
 		Iterator<InputStream> i = transforms.iterator();
 		//Create a tmp file then we will copy to the correct location
-		String path = file.getAbsolutePath();
+		
 		TransformerFactory factory;
         Transformer transformer;
         StreamResult result;
 		InputStream stream;
 		File r;
 		File output = null;
-		String name = "."+OMETIFFFilter.OME_TIFF;
+		String ext = "."+XMLFilter.OME_XML;
 		List<File> files = new ArrayList<File>();
 		//TO be reviewed
+		InputStream in = null;
+		OutputStream out = null;
 		try {
-			File input = File.createTempFile(RandomStringUtils.random(10), name);
-			copy(f, input);
-			InputStream in;
-			OutputStream out;
+			File inputXML = File.createTempFile(RandomStringUtils.random(10),
+					ext);
+			File inputTiff = File.createTempFile(RandomStringUtils.random(10), ext);
+			//TODO: extract extract XML from f;
+			extract(index, f, inputXML, inputTiff);
+			
 			while (i.hasNext()) {
 				factory = TransformerFactory.newInstance();
 				stream = i.next();
-				output = File.createTempFile(RandomStringUtils.random(10), name);
+				output = File.createTempFile(RandomStringUtils.random(10), ext);
 				transformer = factory.newTransformer(new StreamSource(stream));
 				out = new FileOutputStream(output);
-				in =  new FileInputStream(input);
+				in =  new FileInputStream(inputXML);
 				transformer.transform(new StreamSource(in),
 						new StreamResult(out));
 				files.add(output);
-				input = output;
+				inputXML = output;
 				stream.close();
 				out.close();
 				in.close();
@@ -1511,7 +1537,8 @@ class OmeroImageServiceImpl
 			file.delete();
 			//Copy the result
 			r = new File(path);
-		    copy(input, r);
+			//TODO: copy Tiff
+		    copy(inputXML, r);
 			//delete file
 			Iterator<File> j = files.iterator();
 			while (j.hasNext()) {
@@ -1519,6 +1546,11 @@ class OmeroImageServiceImpl
 			}
 			
 		} catch (Exception e) {
+			try {
+				if (in != null) in.close();
+				if (out != null) out.close();
+			} catch (Exception ex) {}
+			
 			throw new IllegalArgumentException("Unable to apply the transforms",
 					e);
 		}
@@ -1526,6 +1558,23 @@ class OmeroImageServiceImpl
 		return r;
 	}
 
+	/**
+	 * Extracts the XML and the TIFF part out of the OME-TIFF file.
+	 * 
+	 * @param index Either OME-XML or OME-TIFF.
+	 * @param input The input file.
+	 * @param outXML The XML output.
+	 * @param outTiff The Tiff output.
+	 */
+	private void extract(int index, File input, File outXML, File outTiff)
+	throws Exception
+	{
+		if (index == EXPORT_AS_OME_XML) {
+			copy(input, new FileOutputStream(outXML));
+			return;
+		}
+	}
+	
 	private void copy(File input, FileOutputStream out)
 		throws Exception
 	{

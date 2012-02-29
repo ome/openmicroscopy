@@ -71,6 +71,12 @@ import pojos.WorkflowData;
 public interface OmeroImageService
 {
   
+	/** Indicates to export the image as OME TIFF. */
+	public static final int EXPORT_AS_OMETIFF = 0;
+	
+	/** Indicates to export the image as OME XML. */
+	public static final int EXPORT_AS_OME_XML = 1;
+	
 	/** The maximum number of plane info objects.*/
 	public static final int    MAX_PLANE_INFO = 6000;
 	
@@ -529,6 +535,7 @@ public interface OmeroImageService
 	/**
 	 * Exports the passed image as an XML file.
 	 * 
+	 * @param index One of the export contants defined by this class.
 	 * @param imageID The ID of the image.
 	 * @param folder  The folder where to export the image.
 	 * @param target The selected schema.
@@ -538,7 +545,8 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object exportImageAsOMETiff(long imageID, File folder, Target target)
+	public Object exportImageAsOMEObject(int index, long imageID, File folder,
+			Target target)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
