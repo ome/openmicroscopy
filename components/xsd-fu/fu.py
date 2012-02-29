@@ -165,6 +165,9 @@ FILTER_METADATA_TEMPLATE = "templates/FilterMetadata.template"
 # The default template for OMERO metadata processing.
 OMERO_METADATA_TEMPLATE = "templates/OmeroMetadata.template"
 
+# The default template for OMERO metadata processing.
+OMERO_MODEL_TEMPLATE = "templates/OmeroModel.template"
+
 def resolve_parents(model, element_name):
 	"""
 	Resolves the parents of an element and returns them as an ordered list.
