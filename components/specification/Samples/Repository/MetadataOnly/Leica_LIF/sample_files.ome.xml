@@ -625,8 +625,8 @@
         <InstrumentRef ID="Instrument:4"/>
         <ObjectiveSettings ID="Objective:4:0" RefractiveIndex="1.0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:4" PhysicalSizeX="0.78124921875" PhysicalSizeY="0.78125" SizeC="2" SizeT="1" SizeX="512" SizeY="512" SizeZ="1" Type="uint8">
-            <Channel Color="-16776961" ExcitationWavelength="543" ID="Channel:4:0" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
-                <LightSourceSettings Attenuation="0.7999756" ID="LightSource:4:6"/>
+            <Channel Color="-16776961" ExcitationWavelength="405" ID="Channel:4:0" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
+                <LightSourceSettings Attenuation="0.7999756" ID="LightSource:4:0"/>
                 <DetectorSettings Gain="362.058442053864" ID="Detector:4:0" Offset="0"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:4:5"/>
