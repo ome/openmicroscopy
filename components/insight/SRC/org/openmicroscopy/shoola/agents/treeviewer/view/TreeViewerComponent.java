@@ -105,6 +105,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -3088,9 +3089,10 @@ class TreeViewerComponent
 			image = notArchived.get(0);
 			try {
 				File f = new File(
-						folder.getAbsolutePath()+File.separator+image.getName()+".ome.tiff");
+						folder.getAbsolutePath()+File.separator+
+						image.getName()+OMETIFFFilter.OME_TIFF);
 				TreeViewerAgent.getRegistry().getImageService().exportImageAsOMETiff(
-						image.getId(), f);
+						image.getId(), f, null);
 				TreeViewerAgent.getRegistry().getUserNotifier().openApplication(
 						data, f.getAbsolutePath());
 			} catch (Exception e) {

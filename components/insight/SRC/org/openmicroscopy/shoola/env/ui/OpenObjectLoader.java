@@ -101,7 +101,7 @@ public class OpenObjectLoader
     		path += "."+OMETIFFFilter.OME_TIFF;
     		f = new File(path);
     		f.deleteOnExit();
-    		handle = ivView.exportImageAsOMETiff(image.getId(), f, this);
+    		handle = ivView.exportImageAsOMETiff(image.getId(), f, null, this);
     	} else {
     		FileAnnotationData fa = (FileAnnotationData) object;
     		path += fa.getFileName();

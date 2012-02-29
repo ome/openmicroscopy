@@ -30,6 +30,7 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -64,16 +65,17 @@ public class ExportLoader
      * 
 	 * @param file    The file where to export the image.
 	 * @param imageID The id of the image to export.
+	 * @param target The selected schema.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeAsOMETiffBatchCall(final File file, 
-    						final long imageID)
+    						final long imageID, final Target target)
     {
         return new BatchCall("Export image as OME-TIFF.") {
             public void doCall() throws Exception
             {
                 OmeroImageService service = context.getImageService();
-                result = service.exportImageAsOMETiff(imageID, file);
+                result = service.exportImageAsOMETiff(imageID, file, target);
             }
         };
     }
@@ -96,12 +98,13 @@ public class ExportLoader
 	 * @param imageID The id of the image to export.
 	 * @param file    The file where to store the exported file.
 	 * @param index	  One of the constants defined by this class.
+	 * @param target The selected schema.
      */
-    public ExportLoader(long imageID, File file, int index)
+    public ExportLoader(long imageID, File file, int index, Target target)
     {
     	switch (index) {
 			case EXPORT_AS_OMETIFF:
-				loadCall = makeAsOMETiffBatchCall(file, imageID);
+				loadCall = makeAsOMETiffBatchCall(file, imageID, target);
 				break;
 		}
     }

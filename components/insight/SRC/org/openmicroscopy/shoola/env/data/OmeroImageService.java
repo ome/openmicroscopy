@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -530,13 +531,14 @@ public interface OmeroImageService
 	 * 
 	 * @param imageID The ID of the image.
 	 * @param folder  The folder where to export the image.
+	 * @param target The selected schema.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object exportImageAsOMETiff(long imageID, File folder)
+	public Object exportImageAsOMETiff(long imageID, File folder, Target target)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

@@ -28,16 +28,25 @@ package org.openmicroscopy.shoola.env.data;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.Map.Entry;
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 //Third-party libraries
 import loci.formats.ImageReader;
@@ -61,6 +70,8 @@ import omero.model.ScreenI;
 import omero.model.TagAnnotation;
 import omero.romio.PlaneDef;
 import omero.sys.Parameters;
+
+import org.apache.commons.lang.RandomStringUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -76,10 +87,12 @@ import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
@@ -1448,18 +1461,96 @@ class OmeroImageServiceImpl
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#exportImageAsOMETiff(long, File)
+	 * @see OmeroImageService#exportImageAsOMETiff(long, File, Target)
 	 */
-	public Object exportImageAsOMETiff(long imageID, File file)
+	public Object exportImageAsOMETiff(long imageID, File file, Target target)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		if (imageID <= 0)
 			throw new IllegalArgumentException("No image specified.");
 		if (file == null)
 			throw new IllegalArgumentException("No File specified.");
-		return gateway.exportImageAsOMETiff(file, imageID);
+		File f = gateway.exportImageAsOMETiff(file, imageID);
+		if (target == null) return f;
+		//Apply the transformations
+		List<InputStream> transforms = target.getTransforms();
+		if (transforms == null || transforms.size() == 0) return f;
+		//Apply each transform one after another.
+		Iterator<InputStream> i = transforms.iterator();
+		//Create a tmp file then we will copy to the correct location
+		String path = file.getAbsolutePath();
+		TransformerFactory factory;
+        Transformer transformer;
+        StreamResult result;
+		InputStream stream;
+		File r;
+		File output = null;
+		String name = "."+OMETIFFFilter.OME_TIFF;
+		List<File> files = new ArrayList<File>();
+		//TO be reviewed
+		try {
+			File input = File.createTempFile(RandomStringUtils.random(10), name);
+			copy(f, input);
+			InputStream in;
+			OutputStream out;
+			while (i.hasNext()) {
+				factory = TransformerFactory.newInstance();
+				stream = i.next();
+				output = File.createTempFile(RandomStringUtils.random(10), name);
+				transformer = factory.newTransformer(new StreamSource(stream));
+				out = new FileOutputStream(output);
+				in =  new FileInputStream(input);
+				transformer.transform(new StreamSource(in),
+						new StreamResult(out));
+				files.add(output);
+				input = output;
+				stream.close();
+				out.close();
+				in.close();
+			}
+			file.delete();
+			//Copy the result
+			r = new File(path);
+		    copy(input, r);
+			//delete file
+			Iterator<File> j = files.iterator();
+			while (j.hasNext()) {
+				j.next().delete();
+			}
+			
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Unable to apply the transforms",
+					e);
+		}
+		
+		return r;
 	}
 
+	private void copy(File input, FileOutputStream out)
+		throws Exception
+	{
+		InputStream in = new FileInputStream(input);
+		try {
+			byte[] buffer = new byte[1024];
+			while (true) {
+				int readCount = in.read(buffer);
+				if (readCount < 0) {
+					break;
+				}
+				out.write(buffer, 0, readCount);
+			}
+		} finally {
+			out.close();
+			in.close();
+		}
+	}
+	
+	private void copy(File input, File output)
+		throws Exception
+	{
+		copy(input, new FileOutputStream(output));
+	}
+	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#createFigure(List, Class, Object)

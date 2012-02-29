@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -324,9 +325,9 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#exportImageAsOMETiff(long, File)
+     * @see OmeroImageService#exportImageAsOMETiff(long, File, Target)
      */
-	public Object exportImageAsOMETiff(long imageID, File folder)
+	public Object exportImageAsOMETiff(long imageID, File folder, Target target)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
