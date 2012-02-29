@@ -230,25 +230,25 @@
         <InstrumentRef ID="Instrument:1"/>
         <ObjectiveSettings ID="Objective:1:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:1" PhysicalSizeX="0.06975446620254537" PhysicalSizeY="0.06975446620254537" PhysicalSizeZ="1.0E-13" SizeC="4" SizeT="1" SizeX="512" SizeY="512" SizeZ="1" TimeIncrement="1.0" Type="uint8">
-            <Channel Color="65535" ID="Channel:1:0" Name="Ch2" PinholeSize="82.0" SamplesPerPixel="4">
+            <Channel Color="65535" ID="Channel:1:0" Name="Ch2" PinholeSize="82.0" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:1:0"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:1:0"/>
                 </LightPath>
             </Channel>
-            <Channel Color="-16776961" ID="Channel:1:1" Name="Ch1" PinholeSize="106.0" SamplesPerPixel="4">
+            <Channel Color="-16776961" ID="Channel:1:1" Name="Ch1" PinholeSize="106.0" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:1:1"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:1:1"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711935" ID="Channel:1:2" Name="Ch3" PinholeSize="98.0" SamplesPerPixel="4">
+            <Channel Color="16711935" ID="Channel:1:2" Name="Ch3" PinholeSize="98.0" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:1:2"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:1:2"/>
                 </LightPath>
             </Channel>
-            <Channel Color="-1" ID="Channel:1:3" Name="ChD" SamplesPerPixel="4">
+            <Channel Color="-1" ID="Channel:1:3" Name="ChD" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:1:3"/>
                 <LightPath/>
             </Channel>
@@ -265,23 +265,23 @@
         <InstrumentRef ID="Instrument:2"/>
         <ObjectiveSettings ID="Objective:2:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:2" PhysicalSizeX="0.13950893240509074" PhysicalSizeY="0.13950893240509074" PhysicalSizeZ="1.0E-13" SizeC="4" SizeT="1" SizeX="512" SizeY="512" SizeZ="1" TimeIncrement="1.0" Type="uint8">
-            <Channel Color="65535" ID="Channel:2:0" Name="Ch2" PinholeSize="82.0" SamplesPerPixel="4">
+            <Channel Color="65535" ID="Channel:2:0" Name="Ch2" PinholeSize="82.0" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:2:0"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:2:0"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711935" ID="Channel:2:1" Name="Ch3" PinholeSize="96.0" SamplesPerPixel="4">
+            <Channel Color="16711935" ID="Channel:2:1" Name="Ch3" PinholeSize="96.0" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:2:1"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:2:1"/>
                 </LightPath>
             </Channel>
-            <Channel Color="-1" ID="Channel:2:2" Name="ChD" SamplesPerPixel="4">
+            <Channel Color="-1" ID="Channel:2:2" Name="ChD" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:2:2"/>
                 <LightPath/>
             </Channel>
-            <Channel Color="-16776961" ID="Channel:2:3" Name="Ch1" PinholeSize="106.0" SamplesPerPixel="4">
+            <Channel Color="-16776961" ID="Channel:2:3" Name="Ch1" PinholeSize="106.0" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:2:3"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:2:2"/>
@@ -554,13 +554,13 @@
         <InstrumentRef ID="Instrument:5"/>
         <ObjectiveSettings ID="Objective:5:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:5" PhysicalSizeX="0.04394531370760358" PhysicalSizeY="0.04394531370760358" PhysicalSizeZ="0.5" SizeC="2" SizeT="1" SizeX="512" SizeY="512" SizeZ="33" TimeIncrement="1.0" Type="uint8">
-            <Channel Color="16741375" ID="Channel:5:0" Name="Ch3" PinholeSize="98.0" SamplesPerPixel="4">
+            <Channel Color="16741375" ID="Channel:5:0" Name="Ch3" PinholeSize="98.0" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:5:0"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:5:0"/>
                 </LightPath>
             </Channel>
-            <Channel Color="-1" ID="Channel:5:1" Name="ChD" SamplesPerPixel="4">
+            <Channel Color="-1" ID="Channel:5:1" Name="ChD" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:5:1"/>
                 <LightPath/>
             </Channel>
@@ -639,23 +639,23 @@
         <InstrumentRef ID="Instrument:6"/>
         <ObjectiveSettings ID="Objective:6:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:6" PhysicalSizeX="0.13950893240509074" PhysicalSizeY="0.13950893240509074" PhysicalSizeZ="0.3706461752262131" SizeC="4" SizeT="1" SizeX="512" SizeY="512" SizeZ="28" TimeIncrement="1.0" Type="uint8">
-            <Channel Color="13434879" ID="Channel:6:0" Name="Ch2" PinholeSize="82.0" SamplesPerPixel="4">
+            <Channel Color="13434879" ID="Channel:6:0" Name="Ch2" PinholeSize="82.0" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:6:0"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:6:0"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711935" ID="Channel:6:1" Name="Ch3" PinholeSize="96.0" SamplesPerPixel="4">
+            <Channel Color="16711935" ID="Channel:6:1" Name="Ch3" PinholeSize="96.0" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:6:1"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:6:1"/>
                 </LightPath>
             </Channel>
-            <Channel Color="-1" ID="Channel:6:2" Name="ChD" SamplesPerPixel="4">
+            <Channel Color="-1" ID="Channel:6:2" Name="ChD" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:6:2"/>
                 <LightPath/>
             </Channel>
-            <Channel Color="-16776961" ID="Channel:6:3" Name="Ch1" PinholeSize="106.0" SamplesPerPixel="4">
+            <Channel Color="-16776961" ID="Channel:6:3" Name="Ch1" PinholeSize="106.0" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:6:3"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:6:2"/>
@@ -782,19 +782,19 @@
         <InstrumentRef ID="Instrument:7"/>
         <ObjectiveSettings ID="Objective:7:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:7" PhysicalSizeX="0.09300595493672717" PhysicalSizeY="0.09300595493672717" PhysicalSizeZ="2.8538596031857506" SizeC="3" SizeT="1" SizeX="512" SizeY="512" SizeZ="18" TimeIncrement="1.0" Type="uint8">
-            <Channel Color="-16776961" ID="Channel:7:0" Name="Ch1" PinholeSize="134.0" SamplesPerPixel="2">
+            <Channel Color="-16776961" ID="Channel:7:0" Name="Ch1" PinholeSize="134.0" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:7:0"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:7:0"/>
                 </LightPath>
             </Channel>
-            <Channel Color="65535" ID="Channel:7:1" Name="Ch2" PinholeSize="134.0" SamplesPerPixel="2">
+            <Channel Color="65535" ID="Channel:7:1" Name="Ch2" PinholeSize="134.0" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:7:1"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:7:1"/>
                 </LightPath>
             </Channel>
-            <Channel Color="255" ID="Channel:7:2" Name="ChD" SamplesPerPixel="2">
+            <Channel Color="255" ID="Channel:7:2" Name="ChD" SamplesPerPixel="1">
                 <DetectorSettings ID="Detector:7:2"/>
                 <LightPath/>
             </Channel>
