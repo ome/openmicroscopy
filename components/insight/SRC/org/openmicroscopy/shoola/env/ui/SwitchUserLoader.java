@@ -33,6 +33,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
 
@@ -68,14 +69,15 @@ public class SwitchUserLoader
      * @param viewer		The viewer this data loader is for.
      *               		Mustn't be <code>null</code>.
      * @param registry		Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param toSave		The data to save before switching group.
      * @param experimenter  The experimenter to handle.
      * @param groupID		The identifier of the group.
      */
 	public SwitchUserLoader(UserNotifier viewer, Registry registry, 
-			ExperimenterData experimenter, long groupID)
+			SecurityContext ctx, ExperimenterData experimenter, long groupID)
 	{
-		super(viewer, registry, null);
+		super(viewer, registry, ctx, null);
 		this.experimenter = experimenter;
 		this.groupID = groupID;
 	}
@@ -86,7 +88,7 @@ public class SwitchUserLoader
      */
     public void load()
     {
-    	handle = dhView.switchUserGroup(experimenter, groupID, this);
+    	handle = dhView.switchUserGroup(ctx, experimenter, groupID, this);
     }
     
     /**

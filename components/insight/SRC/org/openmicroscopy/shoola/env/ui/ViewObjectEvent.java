@@ -29,6 +29,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
@@ -57,14 +58,21 @@ public class ViewObjectEvent
 	/** Flag indicating to browse the object.*/
 	private boolean		browse;
 	
+	/** The security context.*/
+	private SecurityContext ctx;
+	
+	
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param object The object to view.
 	 * @param source The component triggering the event.
 	 */
-	public ViewObjectEvent(Object object, JComponent source)
+	public ViewObjectEvent(SecurityContext ctx, Object object,
+			JComponent source)
 	{
+		this.ctx = ctx;
 		this.object = object;
 		this.source = source;
 		browse = false;
@@ -100,5 +108,12 @@ public class ViewObjectEvent
 	 * @return See above.
 	 */
 	public Object getObject() { return object; }
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	public SecurityContext getSecurityContext() { return ctx; }
 	
 }

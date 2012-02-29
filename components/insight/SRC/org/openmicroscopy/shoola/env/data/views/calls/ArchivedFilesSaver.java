@@ -30,6 +30,7 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
@@ -61,22 +62,23 @@ public class ArchivedFilesSaver
     /**
      * Creates a {@link BatchCall} to retrieve the archived files.
      * 
-     * @param fileAnnotation 	The annotation hosting the previous info.
-     * @param file				The file to save.
-     * @param index				Index used to determine the name space.
-     *  @param linkTo			The <code>DataObject</code> to link the 
-     *  						annotation to.
+     * @param ctx The security context.
+     * @param fileAnnotation The annotation hosting the previous info.
+     * @param file The file to save.
+     * @param index Index used to determine the name space.
+     *  @param linkTo The <code>DataObject</code> to link the annotation to.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final FileAnnotationData fileAnnotation, 
-    								final File file, final int index,
-    								final DataObject linkTo)
+    private BatchCall makeBatchCall(final SecurityContext ctx,
+    	final FileAnnotationData fileAnnotation, final File file,
+    	final int index, final DataObject linkTo)
     {
         return new BatchCall("Loading annotation") {
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
-                result = os.archivedFile(fileAnnotation, file, index, linkTo);
+                result = os.archivedFile(ctx, fileAnnotation, file, index,
+                		linkTo);
             }
         };
     }
@@ -96,16 +98,17 @@ public class ArchivedFilesSaver
     /**
      * Creates a new instance.
      * 
-     * @param fileAnnotation 	The annotation hosting the previous info.
-     * @param file				The file to save.
-     * @param index				Index used to determine the name space.
-     * @param linkTo			The <code>DataObject</code> to link the 
-     *  						annotation to.
+     * @param ctx The security context.
+     * @param fileAnnotation The annotation hosting the previous info.
+     * @param file The file to save.
+     * @param index Index used to determine the name space.
+     * @param linkTo The <code>DataObject</code> to link the annotation to.
      */
-    public ArchivedFilesSaver(FileAnnotationData fileAnnotation, File file, 
-    		int  index, DataObject linkTo)
+    public ArchivedFilesSaver(SecurityContext ctx,
+    	FileAnnotationData fileAnnotation, File file, int  index, 
+    	DataObject linkTo)
     {
-    	loadCall = makeBatchCall(fileAnnotation, file, index, linkTo);
+    	loadCall = makeBatchCall(ctx, fileAnnotation, file, index, linkTo);
     }
 
 }

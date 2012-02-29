@@ -408,7 +408,7 @@ class OriginalMetadataComponent
 			
 			DownloadActivityParam activity = new DownloadActivityParam(f,
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
-			un.notifyActivity(activity);
+			un.notifyActivity(model.getSecurityContext(), activity);
 			
 			//un.notifyDownload(model.getOriginalMetadata(), folder);
 		}

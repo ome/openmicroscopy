@@ -36,6 +36,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DatasetData;
@@ -59,11 +60,14 @@ public class ImagesLoader
 {
 	
     /** The results of the call. */
-    private Object        results;
+    private Object results;
     
     /** Loads the specified tree. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
 
+    /** The security context.*/
+    private SecurityContext ctx;
+    
     /**
      * Creates a {@link BatchCall} to retrieve the user images.
      * 
@@ -76,7 +80,7 @@ public class ImagesLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                results = os.getExperimenterImages(userID);
+                results = os.getExperimenterImages(ctx, userID);
             }
         };
     }
@@ -96,7 +100,7 @@ public class ImagesLoader
                 OmeroDataService os = context.getDataService();
                 List<Long> ids = new ArrayList<Long>(1);
                 ids.add(imageID);
-                Set set = os.getImages(ImageData.class, ids, userID);
+                Set set = os.getImages(ctx, ImageData.class, ids, userID);
                 if (set != null && set.size() == 1) {
                 	Iterator i = set.iterator();
                 	while (i.hasNext()) {
@@ -125,7 +129,7 @@ public class ImagesLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                results = os.getImages(nodeType, nodeIDs, userID);
+                results = os.getImages(ctx, nodeType, nodeIDs, userID);
             }
         };
     }
@@ -146,7 +150,8 @@ public class ImagesLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-				results =  os.getImagesPeriod(startTime, endTime, userID, true);
+				results =  os.getImagesPeriod(ctx, startTime, endTime, userID,
+						true);
             }
         };
     }
@@ -168,10 +173,12 @@ public class ImagesLoader
     /** 
      * Creates a new instance. 
      * 
-     * @param rootLevelID	The ID of the user.
+     * @param ctx The security context.
+     * @param rootLevelID The ID of the user.
      */
-    public ImagesLoader(long rootLevelID)
+    public ImagesLoader(SecurityContext ctx, long rootLevelID)
     {
+    	this.ctx = ctx;
         loadCall = makeBatchCall(rootLevelID);
     }
 
@@ -179,19 +186,21 @@ public class ImagesLoader
      * Creates a new instance. If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the call.
      * 
+     * @param ctx The security context.
      * @param nodeType	The type of the root node. Can only be one out of:
      * 					{@link DatasetData}.
      * @param nodeIDs	A set of the IDs of top-most containers.
      * @param userID	The Id of the user.
      */
-    public ImagesLoader(Class nodeType, List nodeIDs, long userID)
+    public ImagesLoader(SecurityContext ctx, Class nodeType, List nodeIDs,
+    		long userID)
     {
         if (nodeType == null) 
             throw new IllegalArgumentException("No node type.");
         if (nodeIDs == null || nodeIDs.size() == 0)
             throw new IllegalArgumentException("Collection of node ID" +
                                                 " not valid.");
-        
+        this.ctx = ctx;
         if (nodeType.equals(DatasetData.class) || 
             nodeType.equals(ImageData.class))
             loadCall = makeImagesInContainerBatchCall(nodeType, nodeIDs, 
@@ -204,25 +213,29 @@ public class ImagesLoader
      * Creates a new instance. If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the call.
 	 * 
+	 * @param ctx The security context.
      * @param startTime The timestamp identifying the start of a period.
-     * @param endTime	The timestamp identifying the date.
-     * @param userID	The Id of the user.
+     * @param endTime The timestamp identifying the date.
+     * @param userID The Id of the user.
      */
-    public ImagesLoader(Timestamp startTime, Timestamp endTime, long userID)
+    public ImagesLoader(SecurityContext ctx, Timestamp startTime,
+    		Timestamp endTime, long userID)
     {
+    	this.ctx = ctx;
     	loadCall = makeBatchCall(startTime, endTime, userID);
     }
     
     /** 
      * Creates a new instance. 
      * 
-     * @param imageID		The id of the image.
-     * @param rootLevelID	The ID of the user.
+     * @param ctx The security context.
+     * @param imageID The id of the image.
+     * @param rootLevelID The ID of the root.
      */
-    public ImagesLoader(long imageID, long rootLevelID)
+    public ImagesLoader(SecurityContext ctx,long imageID, long rootLevelID)
     {
+    	this.ctx = ctx;
         loadCall = makeBatchCall(imageID, rootLevelID);
     }
 
-    
 }

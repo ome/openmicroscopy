@@ -85,10 +85,11 @@ public class MeasurementAgent
     {
     	PixelsData pixels = evt.getPixels();
     	if (pixels == null) return;
-    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
     			pixels.getId());
     	if (viewer == null) {
     		viewer = MeasurementViewerFactory.getViewer(
+    				evt.getSecurityContext(),
         			evt.getPixels(), evt.getImageID(), evt.getName(),
         			evt.getRequesterBounds(), evt.getDefaultZ(), 
         			evt.getDefaultT(), evt.getMagnification(), 
@@ -110,7 +111,7 @@ public class MeasurementAgent
      */
     private void handleMeasurePlaneEvent(MeasurePlane evt)
     {
-    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
     									evt.getPixelsID());
     	if (viewer != null) 
     		viewer.setMagnifiedPlane(evt.getDefaultZ(), evt.getDefaultT(), 
@@ -124,7 +125,7 @@ public class MeasurementAgent
      */
     private void handleViewerStateEvent(ViewerState evt)
     {
-    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
     									evt.getPixelsID());
     	if (viewer != null) {
     		switch (evt.getIndex()) {
@@ -147,7 +148,7 @@ public class MeasurementAgent
      */
     private void handleFocusGainedEvent(FocusGainedEvent evt)
     {
-    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
 				evt.getPixelsID());
     	if (viewer == null) return;
     	if (viewer.getState() != MeasurementViewer.DISCARDED ||
@@ -163,7 +164,7 @@ public class MeasurementAgent
      */
     private void handleChannelSelectionEvent(ChannelSelection evt)
     {
-    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
     									evt.getPixelsID());
     	if (viewer != null) {
     		switch (evt.getIndex()) {
@@ -184,7 +185,7 @@ public class MeasurementAgent
      */
     private void handleSaveData(SaveData evt)
     {
-    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
     									evt.getPixelsID());
     	if (viewer != null && evt.getType() == SaveData.MEASUREMENT_TYPE) {
     		viewer.saveROIToServer();
@@ -199,7 +200,7 @@ public class MeasurementAgent
      */
     private void handleImageRenderedEvent(ImageRendered evt)
     {
-    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
     									evt.getPixelsID());
     	if (viewer != null) {
     		viewer.setIconImage(evt.getThumbnail());

@@ -38,6 +38,7 @@ import omero.model.FileAnnotation;
 import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.FileAnnotationData;
 
@@ -79,14 +80,16 @@ public class FileLoader
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
-	 * @param data		The annotation hosting the file to load.
-	 * @param uiView 	The object to handle.
+	 * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+	 * @param data The annotation hosting the file to load.
+	 * @param uiView The object to handle.
 	 */
-	public FileLoader(Editor viewer, FileAnnotationData data, Object uiView)
+	public FileLoader(Editor viewer, SecurityContext ctx,
+			FileAnnotationData data, Object uiView)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (data == null)
 			throw new IllegalArgumentException("No data set.");
 		this.data = data;
@@ -99,13 +102,15 @@ public class FileLoader
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer 	The viewer this data loader is for.
-	 * 					Mustn't be <code>null</code>.
+	 * @param viewer The viewer this data loader is for.
+	 *               Mustn't be <code>null</code>.
+	 * @param ctx The security context.
 	 * @param files		The files to load.
 	 */
-	public FileLoader(Editor viewer, Map<FileAnnotationData, Object> files)
+	public FileLoader(Editor viewer, SecurityContext ctx,
+			Map<FileAnnotationData, Object> files)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (files == null)
 			throw new IllegalArgumentException("No data set.");
 		this.files = files;
@@ -140,7 +145,7 @@ public class FileLoader
 		if (data != null) {
 			OriginalFile f = ((FileAnnotation) data.asAnnotation()).getFile();
 			if (f.isLoaded()) {
-				handle = mhView.loadFile(file, f.getId().getValue(), 
+				handle = mhView.loadFile(ctx, file, f.getId().getValue(), 
 						f.getSize().getValue(), this);
 			}
 		} else {
@@ -159,9 +164,8 @@ public class FileLoader
 				f.deleteOnExit();
 				filesMap.put(fa, f);
 			}
-			handle = mhView.loadFiles(filesMap, this);
+			handle = mhView.loadFiles(ctx, filesMap, this);
 		}
-		
 	}
 	
     /** 

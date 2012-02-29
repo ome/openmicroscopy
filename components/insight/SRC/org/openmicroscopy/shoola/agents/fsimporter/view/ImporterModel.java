@@ -27,6 +27,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -39,6 +41,8 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.DataObject;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -83,6 +87,12 @@ class ImporterModel
 	/** The id of the user currently logged in.*/
 	private long 					experimenterId;
 	
+	/** The security context.*/
+	private SecurityContext ctx; //to be initialized.
+	
+	/** Returns <code>true</code> if it is opened as a standalone app.*/
+	private boolean master;
+	
 	/** Initializes the model.*/
 	private void initialize()
 	{
@@ -91,20 +101,27 @@ class ImporterModel
 		state = Importer.NEW;
 		loaders = new HashMap<Integer, ImagesImporter>();
 	}
-	
-	/** Creates a new instance.*/
-	ImporterModel()
+
+	/** 
+	 * Creates a new instance.
+	 *
+	 * @param groupID The id to the group selected for the current user.
+	 */
+	ImporterModel(long groupId)
 	{
-		initialize();
+		this(groupId, false);
 	}
 	
 	/** 
 	 * Creates a new instance.
 	 *
-	 * @param groupID 	The id to the group selected for the current user.
+	 * @param groupID The id to the group selected for the current user.
+	 * @param master Pass <code>true</code> if the importer is used a stand-alone
+	 * application, <code>false</code> otherwise.
 	 */
-	ImporterModel(long groupId)
+	ImporterModel(long groupId, boolean master)
 	{
+		this.master = master;
 		initialize();
 		setGroupId(groupId);
 	}
@@ -117,6 +134,7 @@ class ImporterModel
 	void setGroupId(long groupId)
 	{ 
 		this.groupId = groupId;
+		ctx = new SecurityContext(groupId);
 		experimenterId = ImporterAgent.getUserDetails().getId();
 	}
 	
@@ -140,7 +158,7 @@ class ImporterModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isMaster() { return groupId >= 0; }
+	boolean isMaster() { return master; }
 	
 	/**
 	 * Called by the <code>FSImporter</code> after creation to allow this
@@ -266,14 +284,14 @@ class ImporterModel
 	void fireTagsLoading()
 	{
 		if (tags != null) return; //already loading tags
-		TagsLoader loader = new TagsLoader(component);
+		TagsLoader loader = new TagsLoader(component, ctx);
 		loader.load();
 	}
 	
 	/** Starts an asynchronous call to load the available disk space. */
 	void fireDiskSpaceLoading()
 	{
-		DiskSpaceLoader loader = new DiskSpaceLoader(component);
+		DiskSpaceLoader loader = new DiskSpaceLoader(component, ctx);
 		loader.load();
 	}
 	
@@ -287,7 +305,8 @@ class ImporterModel
 	{
 		if (!(ProjectData.class.equals(rootType) ||
 			ScreenData.class.equals(rootType))) return;
-		DataLoader loader = new DataLoader(component, rootType, refreshImport);
+		DataLoader loader = new DataLoader(component, ctx, rootType,
+				refreshImport);
 		loader.load();
 		state = Importer.LOADING_CONTAINER;
 	}
@@ -300,10 +319,21 @@ class ImporterModel
 	 */
 	void fireDataCreation(DataObject child, DataObject parent)
 	{
-		DataObjectCreator loader = new DataObjectCreator(component, child,
-				parent);
+		DataObjectCreator loader = new DataObjectCreator(component, ctx, 
+				child, parent);
 		loader.load();
 		//state = Importer.CREATING_CONTAINER;
 	}
 	
+    /**
+     * Returns <code>true</code> if only one group for the user,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isSingleGroup()
+    { 
+    	Set l = ImporterAgent.getAvailableUserGroups();
+    	return (l.size() <= 1);
+    }
 }

@@ -40,6 +40,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
@@ -171,15 +172,16 @@ public class DownloadActivity
     /**
      * Creates a new instance.
      * 
-     * @param viewer		The viewer this data loader is for.
-     *               		Mustn't be <code>null</code>.
-     * @param registry		Convenience reference for subclasses.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param registry Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param parameters  	The parameters used to export the image.
      */
     public DownloadActivity(UserNotifier viewer, Registry registry,
-    		DownloadActivityParam parameters)
+    		SecurityContext ctx, DownloadActivityParam parameters)
     {
-		super(viewer, registry);
+		super(viewer, registry, ctx);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
@@ -211,12 +213,12 @@ public class DownloadActivity
     	switch (parameters.getIndex()) {
 			case DownloadActivityParam.FILE_ANNOTATION:
 			case DownloadActivityParam.ORIGINAL_FILE:
-				loader = new FileLoader(viewer, registry, file, 
+				loader = new FileLoader(viewer, registry, ctx, file,
 						parameters.getId(),
 	    				parameters.getIndex(), load, this);
 				break;
 			default:
-				loader = new FileLoader(viewer, registry, file, 
+				loader = new FileLoader(viewer, registry, ctx, file, 
 						f.getId().getValue(), f.getSize().getValue(), load, 
 						this);
 		}

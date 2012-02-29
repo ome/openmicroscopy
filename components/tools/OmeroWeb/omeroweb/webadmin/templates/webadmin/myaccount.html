@@ -115,7 +115,7 @@
 {{ block.super }}
     <div id='parent_id'>webclient</div>
     <div>
-        <div class="float_left">
+        <div>
             <h1>{% trans "My account" %}</h1>
 
             <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
@@ -124,63 +124,18 @@
             <form action="{% url wamyaccount "save" %}" method="POST">
             <table>
               <tbody>
+                <tr><td class="form"><img src="{% url wamyphoto %}" width="50" height="50" class="imgzoom"/></td><td colspan="2">&nbsp;</td></tr>
+                <tr><td class="form"><label>Avatar</label></td><td colspan="2"><a href="{% url wamanageavatar eventContext.userId %}">edit <img title="Edit avatar" src="{% static "webclient/image/color_line16.png" %}" /></a> {% if myaccount.hasAvatar %}or <a href="{% url wamanageavatar eventContext.userId "deletephoto" %}">delete <img title="Change avatar" src="{% static "webclient/image/cancel16.png" %}" /></a>{% endif %}</td></tr>
                 {% for field in form %}
                 <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
                 {% endfor %}
                 {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>
-                {% else %}<tr><td class="form">Password: </td><td colspan="2"><a href="{% url wamanagechangepasswordid eventContext.userId %}">change password</a></td></tr>
+                {% else %}<tr><td class="form"><label>Password:</label> </td><td colspan="2"><a href="{% url wamanagechangepasswordid eventContext.userId %}">change password <img title="Change password" src="{% static "webclient/image/color_line16.png" %}" /></a></td></tr>
                 {% endif %}
               </tbody>
               <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
             </table>
             </form>
-    </div>
-    
-    <div class="float_right">
-        <h1>My avatar</h1>
-        
-    {% if edit_mode %}
-        <img src="{% url wamyphoto %}" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
-        <div style="border:1px #999999 solid; float:left; position:relative; overflow:hidden; width:100px; height:100px;">
-            <img src="{% url wamyphoto %}" style="position: relative;" alt="Thumbnail Preview" />
-        </div>
-        <div class="clear"> </div>
-        <h1><form name="thumbnail" action="{% url wamyaccount "crop" %}" method="post">
-            <input type="hidden" name="x1" value="" id="x1" />
-            <input type="hidden" name="y1" value="" id="y1" />
-            <input type="hidden" name="x2" value="" id="x2" />
-            <input type="hidden" name="y2" value="" id="y2" />
-            <input type="submit" name="Cancel" value="Cancel" onclick="history.back();return false" />
-            <input type="submit" name="upload_thumbnail" value="Crop" id="save_thumb" />
-        </form></h1>
-    {% else %}
-        <p><center>
-            {% if photo_size %}
-            <img src="{% url wamyphoto %}" width="100" height="100" class="imgzoom"/>
-            <br/>Original size: ({{ photo_size.0.0 }}, {{ photo_size.0.1 }}) {{ photo_size.1|filesizeformat }}
-            <br/><a href="{% url wamyaccount "editphoto" %}">Crop this picture.</a>
-            {% else %}
-            <img src="{% url wamyphoto %}" />
-            <ul class="errorlist"><li>Please attach a photo to your profile.</li></ul>
-            {% endif %}
-        </center></p>
-    {% endif %}
-    
-        <div>
-          <p>
-            <form enctype="multipart/form-data" method="post" action="{% url wamyaccount "upload" %}">
-                <table>
-                  <tbody>
-                    {% for field in form_file %}
-                    <tr><td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td></tr>
-                    <tr><td class="input">{{ field }}</td><td>{{ field.help_text|safe }}</td></tr>
-                    {% endfor %}
-                  </tbody>
-                  <tr><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Upload' %}" /></td></tr>
-                </table>
-            </form>
-          </p>
-        </div>
     </div>
 
     <div class="clear"></div>

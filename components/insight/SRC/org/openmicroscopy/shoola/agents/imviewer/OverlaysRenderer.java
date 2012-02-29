@@ -30,6 +30,7 @@ import java.util.Map;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -50,13 +51,13 @@ public class OverlaysRenderer
 {
 
 	/** The ID of the pixels set. */
-    private long        		pixelsID;
+    private long pixelsID;
     
     /** The plane to render. */
-    private PlaneDef    		pd;
+    private PlaneDef pd;
     
     /** The id of the table. */
-    private long 				tableID;
+    private long tableID;
     
     /** The overlays to render. */
     private Map<Long, Integer> overlays;
@@ -67,17 +68,17 @@ public class OverlaysRenderer
     /**
      * Creates a new instance
      * 
-     * @param viewer    The view this loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param pixelsID  The id of the pixels set.
-     * @param pd        The plane to render. 
-     * @param tableID	The id of the table.
-     * @param overlays	The overlays to render.
+     * @param viewer The view this loader is for. Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param pixelsID The id of the pixels set.
+     * @param pd The plane to render. 
+     * @param tableID The id of the table.
+     * @param overlays The overlays to render.
      */
-    public OverlaysRenderer(ImViewer viewer, long pixelsID, PlaneDef pd, 
-    		long tableID, Map<Long, Integer> overlays)
+    public OverlaysRenderer(ImViewer viewer, SecurityContext ctx,
+    	long pixelsID, PlaneDef pd, long tableID, Map<Long, Integer> overlays)
     {
-        super(viewer);
+        super(viewer, ctx);
         this.pixelsID = pixelsID;
         this.pd = pd;
         this.tableID = tableID;
@@ -91,7 +92,7 @@ public class OverlaysRenderer
     public void load()
     {
     	boolean asTexture = ImViewerAgent.hasOpenGLSupport();
-    	handle = ivView.renderOverLays(pixelsID, pd, tableID, overlays, 
+    	handle = ivView.renderOverLays(ctx, pixelsID, pd, tableID, overlays,
     			asTexture, this);
     }
 

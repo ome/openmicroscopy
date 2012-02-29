@@ -195,12 +195,15 @@ public class DnDTree
 			parent = (TreeImageDisplay) node.getParent();
 		}
 		Object ot = parent.getUserObject();
+		/*
 		if (ot instanceof GroupData && !administrator) {
 			setCursor(createCursor());
 			dropAllowed = false;
 			return;
 		}
-		if (!isUserOwner(ot)) {
+		*/
+		if (!isUserOwner(ot) &&
+				!(ot instanceof ExperimenterData || ot instanceof GroupData)) {
 			dropAllowed = false;
 			setCursor(createCursor());
 			return;
@@ -222,6 +225,15 @@ public class DnDTree
 				nodes.add((TreeImageDisplay) droppedObject);
 			}
 			if (nodes.size() == 0) return;
+			//Check the first node
+			TreeImageDisplay first = nodes.get(0);
+			Object child = first.getUserObject();
+			if (ot instanceof GroupData && child instanceof ExperimenterData &&
+				!administrator) {
+				setCursor(createCursor());
+				dropAllowed = false;
+				return;
+			}
 			List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
 			Iterator<TreeImageDisplay> i = nodes.iterator();
 			TreeImageDisplay n;
@@ -234,9 +246,13 @@ public class DnDTree
 				if (parent.contains(n)) {
 					childCount++;
 				} else {
-					if (EditorUtil.isTransferable(ot, os)) {
+					if (EditorUtil.isTransferable(ot, os, userID)) {
 						if (ot instanceof GroupData) {
-							if (administrator) list.add(n);
+							if (os instanceof ExperimenterData &&
+									administrator) list.add(n);
+							else {
+								if (isUserOwner(os)) list.add(n);
+							}
 						} else {
 							if (isUserOwner(os)) list.add(n);
 						}
@@ -493,7 +509,7 @@ public class DnDTree
 			//if (dropNode instanceof TreeImageDisplay) {
 				if (dropNode instanceof TreeImageDisplay)
 					parent = (TreeImageDisplay) dropNode;
-				if (dropNode.isLeaf()) {
+				if (dropNode.isLeaf() && dropNode instanceof TreeImageNode) {
 					parent = (TreeImageDisplay) dropNode.getParent();
 				}
 				int action = DnDConstants.ACTION_MOVE;
@@ -502,7 +518,10 @@ public class DnDTree
 				firePropertyChange(DRAGGED_PROPERTY, null, transfer);
 			//}
 			dropped = true;
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			dtde.rejectDrop();
+			repaint();
+		}
 		dtde.dropComplete(dropped);
 		repaint();
 	}
@@ -553,7 +572,6 @@ public class DnDTree
 	 * {@link DropTargetListener#dragExit(DropTargetDragEvent)}
 	 */
 	public void dropActionChanged(DropTargetDragEvent dtde) {}
-	
 	
 	/**
 	 * Implemented as specified by {@link DragSourceListener} I/F but

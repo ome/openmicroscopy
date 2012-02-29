@@ -24,9 +24,10 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -34,6 +35,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.data.DeleteCallback;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.data.views.ProcessBatchCall;
@@ -56,25 +58,27 @@ public class DataObjectRemover
 	extends BatchCallTree
 {
 
-	/** The call. */
-	private BatchCall       call;
-
 	/** The server call-handle to the computation. */
 	private Object		callBack;
+	
+	/** The objects to delete.*/
+	private Map<SecurityContext, Collection<DeletableObject>> map;
     
     /**
      * Creates a {@link BatchCall} to delete the specified objects.
      * 
+     * @param ctx The security context.
      * @param values   The objects to delete.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeDeleteCall(final Collection<DeletableObject> values)
+    private BatchCall makeDeleteCall(final SecurityContext ctx,
+    		final Collection<DeletableObject> values)
     {
     	return new ProcessBatchCall("Delete the Objects") {
     		public ProcessCallback initialize() throws Exception
     		{
     			OmeroDataService os = context.getDataService();
-    			DeleteCallback cb = os.delete(values);
+    			DeleteCallback cb = os.delete(ctx, values);
     			if (cb == null) {
     				callBack = Boolean.valueOf(false);
                 	return null;
@@ -90,7 +94,18 @@ public class DataObjectRemover
      * Adds the {@link #call} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
-    protected void buildTree() { add(call); }
+    protected void buildTree()
+    {
+    	Entry entry;
+    	Iterator i = map.entrySet().iterator();
+    	while (i.hasNext()) {
+			entry = (Entry) i.next();
+			final Collection<DeletableObject> l = 
+				(Collection<DeletableObject>) entry.getValue();
+			final SecurityContext ctx = (SecurityContext) entry.getKey();
+			add(makeDeleteCall(ctx, l));
+		}
+    }
 
     /**
      * Returns the server call-handle to the computation.
@@ -112,27 +127,13 @@ public class DataObjectRemover
 	 * 
      * @param values The collection of object to delete.
      */
-    public DataObjectRemover(Collection<DeletableObject> values)
+    public DataObjectRemover(Map<SecurityContext, Collection<DeletableObject>>
+     values)
     {
-    	 if (values == null)
-             throw new IllegalArgumentException("No objects to remove.");
-    	 call = makeDeleteCall(values);
+    	if (values == null)
+    		throw new IllegalArgumentException("No objects to remove.");
+    	this.map = values;
+    	//call = makeDeleteCall(ctx, values);
     }
-    
-    /**
-     * Creates a new instance.
-     * If bad arguments are passed, we throw a runtime
-	 * exception so to fail early and in the caller's thread.
-	 * 
-     * @param value The object to delete.
-     */
-    public DataObjectRemover(DeletableObject value)
-    {
-    	if (value == null)
-            throw new IllegalArgumentException("No object to remove.");
-    	List<DeletableObject> l = new ArrayList<DeletableObject>(1);
-    	l.add(value);
-    	call = makeDeleteCall(l);
-    }
-    
+
 }

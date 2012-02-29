@@ -560,6 +560,7 @@ class ImViewerControl
 	/** Uploads the script.*/
 	private void uploadScript()
 	{
+		/*
 		Map<Long, String> map;
     	Registry reg = ImViewerAgent.getRegistry();
 		try {
@@ -595,6 +596,7 @@ class ImViewerControl
 			}
 		});
     	UIUtilities.centerAndShow(dialog);
+    	*/
 	}
 	/**
 	 * Downloads the possible script.
@@ -625,7 +627,7 @@ class ImViewerControl
 							folder, icons.getIcon(IconManager.DOWNLOAD_22));
 					UserNotifier un = 
 						ImViewerAgent.getRegistry().getUserNotifier();
-					un.notifyActivity(activity);
+					un.notifyActivity(model.getSecurityContext(), activity);
 				}
 			}
 		});
@@ -1077,11 +1079,12 @@ class ImViewerControl
 						p.getScript().getScriptID(), 
 						DownloadActivityParam.ORIGINAL_FILE, f, null);
 				activity.setApplicationData(new ApplicationData(""));
-				un.notifyActivity(activity);
+				un.notifyActivity(model.getSecurityContext(), activity);
 			} else if (index == ScriptActivityParam.DOWNLOAD) {
 				downloadScript(p);
 			} else {
-				un.notifyActivity(pce.getNewValue());
+				un.notifyActivity(model.getSecurityContext(),
+						pce.getNewValue());
 			}
 		} else if (MetadataViewer.UPLOAD_SCRIPT_PROPERTY.equals(pName)) {
 			uploadScript();
@@ -1113,7 +1116,7 @@ class ImViewerControl
 			activity = new FigureActivityParam(object, ids, klass,
 					FigureActivityParam.SPLIT_VIEW_FIGURE);
 			activity.setIcon(icon);
-			un.notifyActivity(activity);
+			un.notifyActivity(model.getSecurityContext(), activity);
 		}
 	}
 

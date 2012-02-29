@@ -2006,13 +2006,6 @@ def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
 #        json_data = '%s(%s)' % (r['callback'], json_data)
 #    return HttpResponse(json_data, mimetype='application/javascript')
 
-def dbg_connectors (request):
-    """
-    For debugging, return connectors dict as plain text
-    """
-    rv = connectors.items()
-    return HttpResponse(rv, mimetype='text/plain')
-
 @serverid
 def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
     """

@@ -774,10 +774,7 @@ def my_account(request, action=None, **kwargs):
     myaccount.getMyDetails()
     myaccount.getOwnedGroups()
     
-    edit_mode = False
-    photo_size = None
     form = None
-    form_file = UploadPhotoForm()    
     
     if action == "save":
         if request.method != 'POST':
@@ -795,30 +792,11 @@ def my_account(request, action=None, **kwargs):
                 myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution)
                 return HttpResponseRedirect(reverse("wamyaccount"))
     
-    elif action == "upload":
-        if request.method == 'POST':
-            form_file = UploadPhotoForm(request.POST, request.FILES)
-            if form_file.is_valid():
-                controller = BaseUploadFile(conn)
-                controller.attach_photo(request.FILES['photo'])
-                return HttpResponseRedirect(reverse("wamyaccount"))
-    elif action == "crop": 
-        x1 = long(request.REQUEST.get('x1'))
-        x2 = long(request.REQUEST.get('x2'))
-        y1 = long(request.REQUEST.get('y1'))
-        y2 = long(request.REQUEST.get('y2'))
-        box = (x1,y1,x2,y2)
-        conn.cropExperimenterPhoto(box)
-        return HttpResponseRedirect(reverse("wamyaccount"))
-    elif action == "editphoto":
+    else:
         form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
                                     'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
-        
-        photo_size = conn.getExperimenterPhotoSize()
-        if photo_size is not None:
-            edit_mode = True
     
     photo_size = conn.getExperimenterPhotoSize()
     form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
@@ -826,8 +804,7 @@ def my_account(request, action=None, **kwargs):
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
         
-    context = {'info':info, 'eventContext':eventContext, 'form':form, 'form_file':form_file, 'ldapAuth': myaccount.ldapAuth, 'edit_mode':edit_mode, 'photo_size':photo_size, 'myaccount':myaccount}
-    context['nav'] = request.session['nav']
+    context = {'info':info, 'eventContext':eventContext, 'form':form, 'ldapAuth': myaccount.ldapAuth, 'myaccount':myaccount}
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))
@@ -841,6 +818,59 @@ def myphoto(request, **kwargs):
         logger.error(traceback.format_exc())
     photo = conn.getExperimenterPhoto()
     return HttpResponse(photo, mimetype='image/jpeg')
+
+
+@isUserConnected
+def manage_avatar(request, action=None, **kwargs):
+    myaccount = True
+    template = "webadmin/avatar.html"
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+    
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
+    eventContext = {'userId':conn.getEventContext().userId,'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
+    
+    myaccount = BaseExperimenter(conn)
+    myaccount.getMyDetails()
+    myaccount.getOwnedGroups()
+    
+    edit_mode = False
+    photo_size = None
+    form_file = UploadPhotoForm()
+    
+    if action == "upload":
+        if request.method == 'POST':
+            form_file = UploadPhotoForm(request.POST, request.FILES)
+            if form_file.is_valid():
+                controller = BaseUploadFile(conn)
+                controller.attach_photo(request.FILES['photo'])
+                return HttpResponseRedirect(reverse(viewname="wamanageavatar", args=[eventContext['userId']]))
+    elif action == "crop": 
+        x1 = long(request.REQUEST.get('x1'))
+        x2 = long(request.REQUEST.get('x2'))
+        y1 = long(request.REQUEST.get('y1'))
+        y2 = long(request.REQUEST.get('y2'))
+        box = (x1,y1,x2,y2)
+        conn.cropExperimenterPhoto(box)
+        return HttpResponseRedirect(reverse("wamyaccount"))
+    elif action == "editphoto":
+        photo_size = conn.getExperimenterPhotoSize()
+        if photo_size is not None:
+            edit_mode = True
+    elif action == "deletephoto":
+        conn.deleteExperimenterPhoto()
+        return HttpResponseRedirect(reverse("wamyaccount"))
+    
+    photo_size = conn.getExperimenterPhotoSize()
+    context = {'info':info, 'eventContext':eventContext, 'form_file':form_file, 'edit_mode':edit_mode, 'photo_size':photo_size, 'myaccount':myaccount}
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    return HttpResponse(t.render(c))
+
 
 @isUserConnected
 def drivespace(request, **kwargs):

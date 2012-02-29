@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -70,12 +71,14 @@ class TagSetsModel
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param parent	The parent of the datasets.
 	 * @param tagSets 	The collection to datasets the model is for.
 	 */
-	TagSetsModel(Object parent, Set<TagAnnotationData> tagSets)
+	TagSetsModel(SecurityContext ctx, Object parent,
+			Set<TagAnnotationData> tagSets)
 	{
-		super();
+		super(ctx);
 		if (tagSets  == null) 
 			throw new IllegalArgumentException("No images.");
 		this.tagSets = tagSets;
@@ -153,7 +156,7 @@ class TagSetsModel
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return new ThumbnailLoader(component, sorter.sort(imgs));
+		return new ThumbnailLoader(component, ctx, sorter.sort(imgs));
 	}
 	
 	/**

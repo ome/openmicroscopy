@@ -688,5 +688,8 @@ public interface Renderer
 	 * @return See above.
 	 */
 	boolean isBigImage();
-	
+
+	/** Posts an event to view the image.*/
+	void viewImage();
+
 }

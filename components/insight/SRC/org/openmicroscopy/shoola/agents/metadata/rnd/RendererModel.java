@@ -38,12 +38,12 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlShutDown;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -162,18 +162,24 @@ class RendererModel
     /** Reference to the image. */
     private ImageData			image;
 
+    /** The security context.*/
+    private SecurityContext ctx;
+    
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param rndControl    Reference to the component that controls the
 	 *                      rendering settings. Mustn't be <code>null</code>.
 	 * @param rndIndex		The index associated to the renderer.
 	 */
-	RendererModel(RenderingControl rndControl, int rndIndex)
+	RendererModel(SecurityContext ctx, RenderingControl rndControl,
+			int rndIndex)
 	{
 		if (rndControl == null)
 			throw new NullPointerException("No rendering control.");
 		setRenderingControl(rndControl);
+		this.ctx = ctx;
 		this.rndIndex = rndIndex;
 		visible = false;
 		globalMaxChannels = null;
@@ -181,6 +187,13 @@ class RendererModel
 		plane = new PlaneDef();
 		plane.slice = omero.romio.XY.value;
 	}
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext() { return ctx; }
 	
 	/**
 	 * Sets the image the component is for.
@@ -270,7 +283,7 @@ class RendererModel
 	{
 		if (rndControl == null) return;
 		RenderingControlShutDown loader = 
-			new RenderingControlShutDown(rndControl.getPixelsID());
+			new RenderingControlShutDown(ctx, rndControl.getPixelsID());
 		loader.load();
 		rndControl = null;
 	}

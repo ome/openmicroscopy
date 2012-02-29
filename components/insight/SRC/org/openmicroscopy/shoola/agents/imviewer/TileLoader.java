@@ -34,6 +34,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 
@@ -72,16 +73,16 @@ public class TileLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer	The view this loader is for.
-     * 					Mustn't be <code>null</code>.
-     * @param pixelsID  The id of the pixels set.
-     * @param pDef		The plane to render.
-     * @param tiles		The tiles to handle.
+     * @param viewer The view this loader is for. Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param pixelsID The id of the pixels set.
+     * @param pDef The plane to render.
+     * @param tiles The tiles to handle.
      */
-	public TileLoader(ImViewer viewer, long pixelsID, PlaneDef pDef,
-			Collection<Tile> tiles)
+	public TileLoader(ImViewer viewer, SecurityContext ctx, long pixelsID,
+			PlaneDef pDef, Collection<Tile> tiles)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (tiles == null || tiles.size() == 0)
 			throw new IllegalArgumentException("No tiles to load.");
 		if (pDef == null)
@@ -100,7 +101,7 @@ public class TileLoader
     public void load()
     {
     	boolean asTexture = ImViewerAgent.hasOpenGLSupport();
-    	handle = ivView.loadTiles(pixelsID, pDef, tiles, asTexture, this);
+    	handle = ivView.loadTiles(ctx, pixelsID, pDef, tiles, asTexture, this);
     }
     
     /**

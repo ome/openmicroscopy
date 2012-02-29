@@ -32,6 +32,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.AdminView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
@@ -65,57 +66,66 @@ public abstract class MetadataLoader
 {
 
 	/** The node of reference i.e. where to feed back the results. */
-	protected final TreeBrowserDisplay	refNode;
+	protected final TreeBrowserDisplay refNode;
 	
 	/** The viewer this data loader is for. */
-    protected final MetadataViewer		viewer;
+    protected final MetadataViewer viewer;
     
 	/** Convenience reference for subclasses. */
-    protected final Registry        	registry;
+    protected final Registry registry;
     
     /** Convenience reference for subclasses. */
-    protected final MetadataHandlerView	mhView;
+    protected final MetadataHandlerView mhView;
     
     /** Convenience reference for subclasses. */
-    protected final DataManagerView     dmView;
+    protected final DataManagerView dmView;
     
     /** Convenience reference for subclasses. */
-    protected final ImageDataView        ivView;
+    protected final ImageDataView ivView;
     
     /** Convenience reference for subclasses. */
-    protected final AdminView        	adminView;
+    protected final AdminView adminView;
+    
+    /** The security context.*/
+    protected final SecurityContext ctx;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      */
-    public MetadataLoader(MetadataViewer viewer)
+    public MetadataLoader(MetadataViewer viewer, SecurityContext ctx)
     {
-    	this(viewer, null);
+    	this(viewer, ctx, null);
     }
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
-     * @param refNode	The node of reference. Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param refNode The node of reference. Mustn't be <code>null</code>.
      */
-    public MetadataLoader(MetadataViewer viewer, TreeBrowserDisplay refNode)
+    public MetadataLoader(MetadataViewer viewer, SecurityContext ctx,
+    		TreeBrowserDisplay refNode)
     {
-    	 if (viewer == null) throw new NullPointerException("No viewer.");
-         this.viewer = viewer;
-         this.refNode = refNode;
-         registry = MetadataViewerAgent.getRegistry();
-         mhView = (MetadataHandlerView) 
-         	registry.getDataServicesView(MetadataHandlerView.class);
-         dmView = (DataManagerView) 
-			registry.getDataServicesView(DataManagerView.class);
-         ivView = (ImageDataView) 
-         	registry.getDataServicesView(ImageDataView.class);
-         adminView = (AdminView) registry.getDataServicesView(AdminView.class);
+    	if (viewer == null) throw new NullPointerException("No viewer.");
+    	if (ctx == null)
+    		throw new NullPointerException("No security context.");
+    	this.ctx = ctx;
+    	this.viewer = viewer;
+    	this.refNode = refNode;
+    	registry = MetadataViewerAgent.getRegistry();
+    	mhView = (MetadataHandlerView) 
+    	registry.getDataServicesView(MetadataHandlerView.class);
+    	dmView = (DataManagerView) 
+    	registry.getDataServicesView(DataManagerView.class);
+    	ivView = (ImageDataView) 
+    	registry.getDataServicesView(ImageDataView.class);
+    	adminView = (AdminView) registry.getDataServicesView(AdminView.class);
     }
     
     /**

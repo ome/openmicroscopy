@@ -47,7 +47,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.LogOff;
-import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -221,6 +220,7 @@ class ImporterComponent
 			chooser.requestFocusInWindow();
 			view.selectChooser();
 		}
+		chooser.setSelectedGroup(getSelectedGroup());
 		if (model.isMaster() || objects == null || objects.size() == 0)
 			refreshContainers(type);
 		//load available disk space
@@ -699,8 +699,16 @@ class ImporterComponent
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		long oldId = model.getGroupId();
 		if (group.getId() == oldId) return;
+		/*
 		Registry reg = ImporterAgent.getRegistry();
 		reg.getEventBus().post(new SwitchUserGroup(exp, group.getId()));
+		*/
+		//Load data for
+		
+		model.setGroupId(group.getId());
+		chooser.setSelectedGroup(getSelectedGroup());
+		refreshContainers(chooser.getType());
+		firePropertyChange(CHANGED_GROUP_PROPERTY, oldId, group.getId());
 	}
 
 	/** 

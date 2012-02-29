@@ -29,6 +29,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.WorkflowData;
 
@@ -58,12 +59,14 @@ public class WorkflowLoader
     /**
      * Creates a new instance. 
      * 
-     * @param viewer	The viewer this data loader is for.
-     * @param userID	The id of the user.
+     * @param viewer The viewer this data loader is for.
+     * @param ctx The security context.
+     * @param userID The id of the user.
      */
-	public WorkflowLoader(MeasurementViewer viewer,	long userID)
+	public WorkflowLoader(MeasurementViewer viewer, SecurityContext ctx,
+			long userID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		this.userID = userID;
 	}
 	
@@ -73,7 +76,7 @@ public class WorkflowLoader
      */
     public void load()
     {
-    	handle = idView.retrieveWorkflows(userID, this);
+    	handle = idView.retrieveWorkflows(ctx, userID, this);
     }
     
     /**

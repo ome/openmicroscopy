@@ -429,8 +429,7 @@ $.fn.viewportImage = function(options) {
             //return MY_URL + '/' + MY_PREFIX + myPyramid.tile_filename( zoom, xIndex, yIndex );
         }
         myProvider.thumbnailUrl = function (thref) {
-            var d = new Date();
-            this.thumbnailUrl = thref+'?_='+Math.ceil(parseInt(Math.floor(d.getTime()))); /* Pick random number */ 
+            this.thumbnailUrl = thref;
         }
         myProvider.thumbnailUrl(thref);
         

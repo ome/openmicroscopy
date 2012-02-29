@@ -37,6 +37,7 @@ import java.util.Map;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.FileTableNode;
@@ -83,10 +84,10 @@ class FileUploader
      * @param src 		The source object. 
      * @param details	Object hosting the data to upload.
      */
-    FileUploader(UserNotifier viewer, Registry reg, MessengerDialog src,
-    		MessengerDetails details)
+    FileUploader(UserNotifier viewer, Registry reg, SecurityContext ctx, 
+    	MessengerDialog src, MessengerDetails details)
 	{
-		super(viewer, reg, null);
+		super(viewer, reg,ctx, null);
 		if (details == null)
 			throw new IllegalArgumentException("No files to upload.");
 		this.details = details;
@@ -135,7 +136,7 @@ class FileUploader
 		if (!details.isExceptionOnly()) {
 			src.setSubmitStatus("0 out of "+total, false);
 		}
-		handle = mhView.submitFiles(details, this);
+		handle = mhView.submitFiles(ctx, details, this);
 	}
     
 	/** 

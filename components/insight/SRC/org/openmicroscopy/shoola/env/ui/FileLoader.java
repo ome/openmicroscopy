@@ -30,6 +30,7 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 
@@ -90,16 +91,18 @@ public class FileLoader
      * 
      * @param viewer 	Reference to the parent.
      * @param reg    	Reference to the registry.
+     * @param ctx The security context.
      * @param file	 	The absolute path to the file.
      * @param fileID 	The file ID.
      * @param size   	The size of the file.
      * @param toLoad 	Indicates to download the file.
      * @param activity 	The activity associated to this loader.
      */
-	FileLoader(UserNotifier viewer, Registry reg, File file, long fileID, 
-			long size, boolean toLoad, ActivityComponent activity)
+	FileLoader(UserNotifier viewer, Registry reg, SecurityContext ctx, 
+		File file, long fileID, long size, boolean toLoad,
+		ActivityComponent activity)
 	{
-		super(viewer, reg, activity);
+		super(viewer, reg, ctx, activity);
 		this.file = file;
 		this.fileID = fileID;
 		this.size = size;
@@ -118,10 +121,11 @@ public class FileLoader
      * @param toLoad 	Indicates to download the file.
      * @param activity 	The activity associated to this loader.
      */
-	FileLoader(UserNotifier viewer, Registry reg, File file, long fileID, 
-			int index, boolean toLoad, ActivityComponent activity)
+	FileLoader(UserNotifier viewer, Registry reg, SecurityContext ctx, 
+		File file, long fileID, int index, boolean toLoad,
+		ActivityComponent activity)
 	{
-		super(viewer, reg, activity);
+		super(viewer, reg, ctx, activity);
 		this.file = file;
 		this.fileID = fileID;
 		this.toLoad = toLoad;
@@ -138,10 +142,10 @@ public class FileLoader
 			switch (index) {
 				case ORIGINAL_FILE:
 				case FILE_ANNOTATION:
-					handle = mhView.loadFile(file, fileID, index, this);
+					handle = mhView.loadFile(ctx, file, fileID, index, this);
 					break;
 				default:
-					handle = mhView.loadFile(file, fileID, size, this);
+					handle = mhView.loadFile(ctx, file, fileID, size, this);
 			}
 		} else handleResult(file);
 	}

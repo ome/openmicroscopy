@@ -564,13 +564,6 @@ public interface TreeViewer
 	public void showPreSavingDialog();
 
 	/** 
-	 * Returns the id to the group selected for the current user.
-	 * 
-	 * @return See above.
-	 */
-	public long getUserGroupID();
-
-	/** 
 	 * Retrieves the user groups. 
 	 * 
 	 * @param location The location of the mouse pressed.
@@ -809,12 +802,11 @@ public interface TreeViewer
 	public void deleteObjects(List nodes);
 
 	/**
-	 * Returns the type of objects to copy or <code>null</code> if no objects
-	 * selected.
+	 * Returns the objects to copy or <code>null</code>.
 	 * 
 	 * @return See above.
 	 */
-	public Class hasDataToCopy();
+	public List<DataObject> getDataToCopy();
 
 	/** 
 	 * Refreshes the view when nodes have been deleted. A collection of nodes
@@ -895,12 +887,12 @@ public interface TreeViewer
 	void openWith(ApplicationData data);
 
 	/**
-	 * Sets the default group for the currently selected user and updates the 
-	 * view.
+	 * Adds the group to the display if not already displayed
 	 * 
 	 * @param group The group to set.
+	 * @param add Pass <code>true</code> to add, <code>false</code> otherwise.
 	 */
-	void setUserGroup(GroupData group);
+	void setUserGroup(GroupData group, boolean add);
 
 	/** Opens the image in a separate window or in the main viewer. */
 	void setFullScreen();
@@ -914,14 +906,6 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public Map<Long, String> getScriptsAsString();
-
-	/**
-	 * Returns <code>true</code> if the currently logged in user is 
-	 * a leader of the selected group, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isLeaderOfSelectedGroup();
 
 	/**
 	 * Returns <code>true</code> if the currently logged in user is 
@@ -949,16 +933,10 @@ public interface TreeViewer
 	 * Returns the permission level of the selected group. One of the constants
 	 * defined by the <code>AdminObject</code> class.
 	 * 
+	 * @param group The group to handle.
 	 * @return See above.
 	 */
-	int getSelectedGroupPermissions();
-	
-	/**
-	 * Returns the currently selected group.
-	 * 
-	 * @return See above.
-	 */
-	GroupData getSelectedGroup();
+	int getGroupPermissions(GroupData group);
 
 	/**
 	 * Resets the password of the selected experimenters.
@@ -1074,5 +1052,22 @@ public interface TreeViewer
 	 * @param nodes The value to set.
 	 */
 	void setSelectedNodes(Object nodes);
+
+	/**
+	 * Returns the selected group.
+	 * 
+	 * @return See above.
+	 */
+	GroupData getSelectedGroup();
+
+	/** Remove group.*/
+	void removeGroup();
+
+	/** 
+	 * Move the selected data to the specified group.
+	 * 
+	 * @param group The data to move.
+	 */
+	void moveTo(GroupData group, List<DataObject> nodes);
 
 }

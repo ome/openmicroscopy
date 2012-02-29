@@ -465,6 +465,7 @@ class EditorUI
 			return userUI.hasDataToSave();
 		else if (ref instanceof GroupData)
 			return groupUI.hasDataToSave();
+			
 		boolean b = generalPane.hasDataToSave();
 		if (b) return b;
 		//Check metadata.
@@ -476,6 +477,7 @@ class EditorUI
 	{
 		saved = false;
 		userUI.clearData();
+		groupUI.clearData();
 		generalPane.clearData();
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		tabPane.repaint();
@@ -700,7 +702,8 @@ class EditorUI
 			if (name != null && name.trim().length() > 0) {
 				name += ShowEditorEvent.EXPERIMENT_EXTENSION;
 				ShowEditorEvent event = new ShowEditorEvent(
-						(DataObject) object, name, 
+						model.getSecurityContext(),
+						(DataObject) object, name,
 						ShowEditorEvent.EXPERIMENT);
 				bus.post(event);
 			}
@@ -929,5 +932,11 @@ class EditorUI
 		tabPane.setSelectedIndex(GENERAL_INDEX);
 		return false;
 	}
-	
+
+	/** Updates the UI when the related nodes have been set.*/
+	void onRelatedNodesSet()
+	{
+		generalPane.onRelatedNodesSet();
+	}
+
 }
