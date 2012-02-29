@@ -32,6 +32,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.ROIData;
@@ -70,14 +71,15 @@ public class ROISaver
      * 
      * @param viewer	The viewer this data loader is for.
      *                  Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param imageID	The id of the image the ROIs are related to.
      * @param userID	The id of the user.
      * @param roiList	The list of the roi id's to load.
      */
-	public ROISaver(MeasurementViewer viewer, long imageID, long userID, 
-			List<ROIData> roiList)
+	public ROISaver(MeasurementViewer viewer, SecurityContext ctx,
+			long imageID, long userID, List<ROIData> roiList)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (imageID < 0) 
 			throw new IllegalArgumentException("No image specified.");
 		this.imageID = imageID;
@@ -91,7 +93,7 @@ public class ROISaver
      */
     public void load()
     {
-    	handle = idView.saveROI(imageID, userID, roiList , this);
+    	handle = idView.saveROI(ctx, imageID, userID, roiList , this);
     }
     
     /**

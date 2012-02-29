@@ -43,10 +43,12 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.CreateExperimentAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.FieldsViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.SendFeedbackAction;
@@ -62,6 +64,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -73,6 +76,7 @@ import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.GroupData;
 
 /** 
  * The DataBrowser's Controller.
@@ -158,6 +162,9 @@ class DataBrowserControl
 	 /** Maps actions ids onto actual <code>Action</code> object. */
     private Map<Integer, Action>	actionsMap;
     
+    /** One per group.*/
+	private List<MoveToAction> moveActions;
+	
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
@@ -308,6 +315,25 @@ class DataBrowserControl
 	 * @return The specified action.
 	 */
 	Action getAction(Integer id) { return actionsMap.get(id); }
+	
+	/**
+	 * Returns the actions used to move data between groups. 
+	 * 
+	 * @return See abo.ve
+	 */
+	List<MoveToAction> getMoveAction()
+	{
+		if (moveActions != null) return moveActions;
+		Set l = DataBrowserAgent.getAvailableUserGroups();
+		ViewerSorter sorter = new ViewerSorter();
+		List values = sorter.sort(l);
+		moveActions = new ArrayList<MoveToAction>(l.size());
+		Iterator i = values.iterator();
+		while (i.hasNext()) {
+			moveActions.add(new MoveToAction(model, (GroupData) i.next()));
+		}
+		return moveActions;
+	}
 	
 	/**
 	 * Views the selected well sample field while browsing a plate.

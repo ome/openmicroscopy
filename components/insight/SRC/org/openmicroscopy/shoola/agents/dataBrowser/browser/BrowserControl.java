@@ -530,7 +530,7 @@ class BrowserControl
     	ctrl = me.isControlDown();
     	if (UIUtilities.isMacOS()) ctrl = me.isMetaDown();
     	leftMouseButton = SwingUtilities.isLeftMouseButton(me);
-    	if (UIUtilities.isMacOS() || UIUtilities.isLinuxOS()) 
+    	if (!UIUtilities.isWindowsOS()) 
     		onClick(me, false); 
     }
     

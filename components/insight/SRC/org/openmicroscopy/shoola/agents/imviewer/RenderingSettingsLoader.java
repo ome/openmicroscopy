@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
@@ -76,28 +77,29 @@ public class RenderingSettingsLoader
     /**
      * Creates a new instance
      * 
-     * @param viewer    The view this loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param pixelsID  The id of the pixels set.
+     * @param viewer The view this loader is for. Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param pixelsID The id of the pixels set.
      */
-    public RenderingSettingsLoader(ImViewer viewer, long pixelsID)
+    public RenderingSettingsLoader(ImViewer viewer, SecurityContext ctx,
+    		long pixelsID)
     {
-        this(viewer, pixelsID, false);
+        this(viewer, ctx, pixelsID, false);
     }
     
     /**
      * Creates a new instance
      * 
-     * @param viewer    The view this loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param pixelsID  The id of the pixels set.
-     * @param single	Pass <code>true</code> to indicate that the rendering
-     * 					settings are only for the current user.
+     * @param viewer The view this loader is for. Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param pixelsID The id of the pixels set.
+     * @param single Pass <code>true</code> to indicate that the rendering
+     *               settings are only for the current user.
      */
-    public RenderingSettingsLoader(ImViewer viewer, long pixelsID, 
-    		boolean single)
+    public RenderingSettingsLoader(ImViewer viewer, SecurityContext ctx,
+    	long pixelsID, boolean single)
     {
-        super(viewer);
+        super(viewer, ctx);
         if (pixelsID < 0)
         	throw new IllegalArgumentException("Pixels ID not valid.");
         this.pixelsID = pixelsID;
@@ -120,8 +122,9 @@ public class RenderingSettingsLoader
     {
     	if (single) {
     		ExperimenterData exp = ImViewerAgent.getUserDetails();
-    		handle = ivView.getRenderingSettings(pixelsID, exp.getId(), this);
-    	} else handle = ivView.getRenderingSettings(pixelsID, this);
+    		handle = ivView.getRenderingSettings(ctx, pixelsID, exp.getId(),
+    				this);
+    	} else handle = ivView.getRenderingSettings(ctx, pixelsID, this);
     }
 
     /**

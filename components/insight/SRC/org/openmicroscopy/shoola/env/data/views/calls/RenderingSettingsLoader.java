@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -51,11 +52,14 @@ public class RenderingSettingsLoader
 {
 
 	/** Result of the call. */
-	private Object    	result;
+	private Object result;
 
 	/** Loads the specified tree. */
-	private BatchCall	loadCall;
+	private BatchCall loadCall;
 
+	/** The security context.*/
+    private SecurityContext ctx;
+    
 	/**
 	 * Creates a {@link BatchCall} to retrieve rendering settings.
 	 * 
@@ -70,7 +74,7 @@ public class RenderingSettingsLoader
 			public void doCall() throws Exception
 			{
 				OmeroImageService rds = context.getImageService();
-				result = rds.getRenderingSettings(pixelsID, userID);
+				result = rds.getRenderingSettings(ctx, pixelsID, userID);
 			}
 		};
 	} 
@@ -94,13 +98,16 @@ public class RenderingSettingsLoader
 	 * If bad arguments are passed, we throw a runtime exception so to fail
 	 * early and in the caller's thread.
 	 * 
+	 * @param ctx The security context.
 	 * @param pixelsID  The id of the pixels set the rendering control is for.
 	 * @param userID	The id of the user.
 	 */
-	public RenderingSettingsLoader(long pixelsID, long userID)
+	public RenderingSettingsLoader(SecurityContext ctx, long pixelsID,
+			long userID)
 	{
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("ID not valid.");
+		this.ctx = ctx;
 		loadCall = makeBatchCall(pixelsID, userID);
 	}
 

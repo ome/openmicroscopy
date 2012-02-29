@@ -659,9 +659,7 @@ public class BrowserControl
 	public void getFileAnnotation(long fileID, AnnotationHandler handler)
 	{
 		if (handler == null) return;
-		FileAnnotationLoader fal = new FileAnnotationLoader(model, fileID);
-		fal.setAnnotationHandler(handler);
-		fal.load();
+		model.getFileAnnotation(fileID, handler);
 	}
 
 	/**

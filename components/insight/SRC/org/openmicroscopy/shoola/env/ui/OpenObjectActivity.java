@@ -31,6 +31,7 @@ import java.io.File;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 /** 
  * Activity to open an image or a file.
@@ -68,12 +69,13 @@ public class OpenObjectActivity
      * @param viewer		The viewer this data loader is for.
      *               		Mustn't be <code>null</code>.
      * @param registry		Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param parameters  	The parameters used to export the image.
      */
 	public OpenObjectActivity(UserNotifier viewer, Registry registry,
-			OpenActivityParam parameters)
+			SecurityContext ctx, OpenActivityParam parameters)
 	{
-		super(viewer, registry);
+		super(viewer, registry, ctx);
 		if (parameters == null)
 			throw new IllegalArgumentException("No parameters");
 		this.parameters = parameters;
@@ -87,7 +89,8 @@ public class OpenObjectActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		loader = new OpenObjectLoader(viewer,  registry, parameters.getObject(), 
+		loader = new OpenObjectLoader(viewer,  registry, ctx, 
+				parameters.getObject(), 
 				parameters.getFolderPath(), this);
 		return loader;
 	}

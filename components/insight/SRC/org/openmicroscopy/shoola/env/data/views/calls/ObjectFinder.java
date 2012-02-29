@@ -30,8 +30,17 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -53,24 +62,33 @@ public class ObjectFinder
 {
 
 	 /** The root nodes of the found trees. */
-    private Object		result;
+    private Object result;
     
     /** The search call. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
+    
+    /** The security context.*/
+    private List<SecurityContext> ctx;
+    
+    /** The context of the search.*/
+    private SearchDataContext searchContext;
     
     /**
      * Creates a {@link BatchCall} to retrieve the data
      * 
-     * @param searchContext The context of the search.
+     * @param ctx The security context.
      * @return The {@link BatchCall}.
      */
-    private BatchCall searchFor(final SearchDataContext searchContext)
+    private BatchCall searchFor(final SecurityContext ctx)
     {
-        return new BatchCall("Retrieving objects") {
+        return new BatchCall("Searching") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.advancedSearchFor(searchContext);
+                Map<SecurityContext, Object> r = new HashMap<SecurityContext, 
+                Object>();
+                r.put(ctx, os.advancedSearchFor(ctx, searchContext));
+                result = r;
             }
         };
     }
@@ -79,22 +97,40 @@ public class ObjectFinder
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
-    protected void buildTree() { add(loadCall); }
+    protected void buildTree()
+    { 
+    	Iterator<SecurityContext> i = ctx.iterator();
+    	while (i.hasNext()) {
+			final SecurityContext sc = i.next();
+			add(searchFor(sc));
+		}
+    }
 
+
+    /**
+     * Returns the server call-handle to the computation.
+     * 
+     * @return See above.
+     */
+    protected Object getPartialResult() { return result; }
+    
     /**
      * Returns the result of the search.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return result; }
+    protected Object getResult() { return null; }
     
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param searchContext The context of the search.
      */
-    public ObjectFinder(SearchDataContext searchContext)
+    public ObjectFinder(List<SecurityContext> ctx,
+    		SearchDataContext searchContext)
     {
-    	loadCall = searchFor(searchContext);
+    	this.ctx = ctx;
+    	this.searchContext = searchContext;
     }
     
 }

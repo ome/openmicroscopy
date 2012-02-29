@@ -36,8 +36,12 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Registers the agent.
@@ -54,7 +58,7 @@ public class RegisterAction
 	public static final String NAME = "Editor...";
 	
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Open the Editor.";
+	public static final String DESCRIPTION = "Open the Editor.";
 	
 	/**
 	 * Creates a new instance.
@@ -71,9 +75,13 @@ public class RegisterAction
 	 * Posts an event on the bus to open the editor.
 	 * @see AbstractAction#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent evt) {
+	public void actionPerformed(ActionEvent evt)
+	{
+		ExperimenterData exp = EditorAgent.getUserDetails();
+		GroupData group = exp.getDefaultGroup();
+		if (group == null) return;
 		EventBus bus = EditorAgent.getRegistry().getEventBus();
-		bus.post(new ShowEditorEvent());
+		bus.post(new ShowEditorEvent(new SecurityContext(group.getId())));
 	}
 
 }

@@ -32,6 +32,7 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
 
@@ -53,29 +54,30 @@ public class UserPhotoUploader
 {
 
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle	handle;
+    private CallHandle handle;
     
     /** The experimenter to handle. */
     private ExperimenterData experimenter;
     
     /** The photo to upload. */
-    private File 			photo;
+    private File photo;
     
     /** The format of the photo to upload. */
-    private String 			format; 
+    private String format; 
     
     /**	
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param experimenter The experimenter to handle.
-     * @param photo      The photo to upload.              
+     * @param photo The photo to upload.
      */
-    public UserPhotoUploader(Editor viewer, ExperimenterData experimenter, 
-    		File photo, String format)
+    public UserPhotoUploader(Editor viewer, SecurityContext ctx,
+    		ExperimenterData experimenter, File photo, String format)
     {
-    	 super(viewer);
+    	 super(viewer, ctx);
     	 if (experimenter == null)
     		 throw new IllegalArgumentException("No experimenter specified.");
     	 if (photo == null)
@@ -91,7 +93,7 @@ public class UserPhotoUploader
 	 */
 	public void load()
 	{
-		handle = adminView.uploadExperimenterPhoto(experimenter, photo,
+		handle = adminView.uploadExperimenterPhoto(ctx, experimenter, photo,
 				format, this);
 	}
 	

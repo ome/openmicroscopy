@@ -58,6 +58,7 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -259,7 +260,8 @@ class TreeViewerWin
             	browser = browsers.get(Browser.ADMIN_EXPLORER);
                 container.add(new TaskPaneBrowser(browser));
             }
-            AdvancedFinder finder = model.getAdvancedFinder();
+            AdvancedFinder finder = model.getAdvancedFinder(
+            		model.getSecurityContext());
     		finder.addPropertyChangeListener(controller);
     		container.add(new TaskPaneBrowser(new JScrollPane(finder)));
     		JScrollPane s = new JScrollPane(container);
@@ -473,8 +475,28 @@ class TreeViewerWin
                 controller.getAction(TreeViewerControl.PASTE_OBJECT)));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.DELETE_OBJECT)));
+        JMenu move = createMoveToMenu();
+        if (move != null)
+        	menu.add(move);
         return menu;
     }
+    
+	/**
+	 * Creates a menu if the various groups the data can be moved to.
+	 * 
+	 * @return See above.
+	 */
+	private JMenu createMoveToMenu()
+	{
+		List<MoveToAction> actions = controller.getMoveAction();
+		if (actions.size() <= 1) return null;
+		JMenu menu = new JMenu(MoveToAction.NAME);
+		Iterator<MoveToAction> i = actions.iterator();
+		while (i.hasNext()) {
+			menu.add(new JMenuItem(i.next()));
+		}
+		return menu;
+	}
 
     /** Initializes the UI components. */
     private void initComponents()
@@ -877,7 +899,8 @@ class TreeViewerWin
         		displayMode = TreeViewer.SEARCH_MODE;
         	splitPane.setDividerLocation(splitPane.getDividerLocation());
         	if (finderScrollPane == null) {
-        		AdvancedFinder finder = model.getAdvancedFinder();
+        		AdvancedFinder finder = model.getAdvancedFinder(
+        				model.getSecurityContext());
         		finder.addPropertyChangeListener(controller);
         		finderScrollPane = new JScrollPane(finder);
         	}
@@ -1118,6 +1141,9 @@ class TreeViewerWin
 		toolBar.setScriptsLoadingStatus(loading);
 	}
 	
+	/** Indicates the group context.*/
+	void setPermissions() { toolBar.setPermissions(); }
+	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {
@@ -1126,7 +1152,5 @@ class TreeViewerWin
         UIUtilities.incrementRelativeToAndShow(invokerBounds, this);
         invokerBounds = null;
     }
-
-
 
 }

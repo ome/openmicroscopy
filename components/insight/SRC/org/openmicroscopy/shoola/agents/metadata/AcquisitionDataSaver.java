@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.ImageAcquisitionData;
@@ -61,12 +62,14 @@ public class AcquisitionDataSaver
     /**
      * Creates a new instance.
      * 
-     * @param viewer	Reference to the viewer. Mustn't be <code>null</code>.
+     * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param refObject Either an image or a channel.
      */
-	public AcquisitionDataSaver(Editor viewer, Object refObject)
+	public AcquisitionDataSaver(Editor viewer, SecurityContext ctx,
+			Object refObject)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (refObject == null)
 			throw new IllegalArgumentException("Ref Object cannot be null.");
 		this.refObject = refObject;
@@ -78,7 +81,7 @@ public class AcquisitionDataSaver
      */
     public void load()
     {
-    	handle = imView.saveAcquisitionData(refObject, this);
+    	handle = imView.saveAcquisitionData(ctx, refObject, this);
     }
     
     /** 

@@ -35,6 +35,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 import pojos.DataObject;
@@ -102,13 +103,14 @@ public class ThumbnailLoader
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param objects 	The <code>DataObject</code>s associated to the images
      *					to fetch. Mustn't be <code>null</code>.
      */
-    public ThumbnailLoader(DataBrowser viewer, Collection<DataObject> objects, 
-    		int type)
+    public ThumbnailLoader(DataBrowser viewer, SecurityContext ctx,
+    		Collection<DataObject> objects, int type)
     {
-        this(viewer, objects, true, type);
+        this(viewer, ctx, objects, true, type);
     }
     
     /**
@@ -116,12 +118,14 @@ public class ThumbnailLoader
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param objects 	The <code>DataObject</code>s associated to the images
      *					to fetch. Mustn't be <code>null</code>.
      */
-    public ThumbnailLoader(DataBrowser viewer, Collection<DataObject> objects)
+    public ThumbnailLoader(DataBrowser viewer, SecurityContext ctx,
+    		Collection<DataObject> objects)
     {
-        this(viewer, objects, true, IMAGE);
+        this(viewer, ctx, objects, true, IMAGE);
     }
     
     /**
@@ -129,16 +133,17 @@ public class ThumbnailLoader
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param objects 	The <code>DataObject</code>s associated to the images
      *					to fetch. Mustn't be <code>null</code>.
      * @param thumbnail	Pass <code>true</code> to retrieve image at a thumbnail
      * 					size, <code>false</code> otherwise.
      * @param type		The type of thumbnails to load.
      */
-    public ThumbnailLoader(DataBrowser viewer, Collection<DataObject> objects, 
-    		              boolean thumbnail, int type)
+    public ThumbnailLoader(DataBrowser viewer, SecurityContext ctx,
+    		Collection<DataObject> objects, boolean thumbnail, int type)
     {
-        super(viewer);
+        super(viewer, ctx);
         if (objects == null)
             throw new IllegalArgumentException("Collection shouldn't be null.");
         if (type < 0) this.type = IMAGE;
@@ -156,12 +161,12 @@ public class ThumbnailLoader
     {
     	long userID = DataBrowserAgent.getUserDetails().getId();
     	if (thumbnail) 
-    		handle = hiBrwView.loadThumbnails(objects, 
+    		handle = hiBrwView.loadThumbnails(ctx, objects, 
                     ThumbnailProvider.THUMB_MAX_WIDTH,
                     ThumbnailProvider.THUMB_MAX_HEIGHT,
                     userID, type, this);
     	else 
-    		handle = hiBrwView.loadThumbnails(objects, 
+    		handle = hiBrwView.loadThumbnails(ctx, objects, 
                     3*ThumbnailProvider.THUMB_MAX_WIDTH,
                     3*ThumbnailProvider.THUMB_MAX_HEIGHT,
                     userID, type, this);

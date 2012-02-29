@@ -24,8 +24,11 @@ package org.openmicroscopy.shoola.agents.editor;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 
@@ -40,6 +43,8 @@ import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;
 import org.openmicroscopy.shoola.agents.events.editor.CopyEvent;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
+import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
@@ -50,6 +55,7 @@ import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -57,6 +63,7 @@ import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 
 /** 
  * The Editor agent. 
@@ -76,7 +83,10 @@ public class EditorAgent
 {
 	
 	/** Reference to the registry. */
-    private static Registry         registry; 
+    private static Registry registry; 
+    
+    /** The group id if set.*/
+    private long groupId;
     
     /**
      * Helper method. 
@@ -94,6 +104,16 @@ public class EditorAgent
 	{ 
 		return (ExperimenterData) registry.lookup(
 								LookupNames.CURRENT_USER_DETAILS);
+	}
+	
+	/**
+	 * Returns the available user groups.
+	 * 
+	 * @return See above.
+	 */
+	public static Set getAvailableUserGroups()
+	{
+		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 	}
 	
 	/**
@@ -165,14 +185,19 @@ public class EditorAgent
 	public static Editor openLocalFile(File file)
 	{
 		
-		if (file == null)		return null;
-		if (!file.exists())		return null;
+		if (file == null) return null;
+		if (!file.exists()) return null;
 		
 		// gets a blank editor (one that has been created with a 'blank' model), 
 		// OR an existing editor if one has the same 
 		// file ID (will be 0 if editor file is local) and same file name, OR
 		// creates a new editor model and editor with this new file. 
-		Editor editor = EditorFactory.getEditor(file);
+		
+		ExperimenterData exp = getUserDetails();
+		SecurityContext ctx = null;
+		if (exp != null) 
+			ctx = new SecurityContext(exp.getDefaultGroup().getId());
+		Editor editor = EditorFactory.getEditor(ctx, file);
 	
 		// activates the editor
 		// if the editor is 'blank' or has just been created (above), 
@@ -205,7 +230,8 @@ public class EditorAgent
 		FileAnnotationData data = event.getFileAnnotation();
 		if (data == null) {
 			if (event.getFileAnnotationID() > 0)
-				editor = EditorFactory.getEditor(event.getFileAnnotationID());
+				editor = EditorFactory.getEditor(event.getSecurityContext(),
+						event.getFileAnnotationID());
 		} else {
 			if (data.getId() <= 0) return;
 			String name = data.getFileName();
@@ -215,7 +241,8 @@ public class EditorAgent
 				FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns) ||
 				FileAnnotationData.COMPANION_FILE_NS.equals(ns) ||
 				EditorUtil.isEditorFile(name))
-				editor = EditorFactory.getEditor(data);
+				editor = EditorFactory.getEditor(event.getSecurityContext(),
+						data);
 			else {
 				ApplicationData app = new ApplicationData("");
 				UserNotifier un = getRegistry().getUserNotifier();
@@ -235,12 +262,12 @@ public class EditorAgent
 							new File(path), null);
 				}
 				activity.setApplicationData(app);
-				un.notifyActivity(activity);
+				un.notifyActivity(event.getSecurityContext(), activity);
 				return;
 			}
 		}
 		if (editor != null)
-			editor.activate();		// starts file downloading
+			editor.activate();// starts file downloading
 	}
 	
 	/**
@@ -254,18 +281,19 @@ public class EditorAgent
 		AutosaveRecovery autosaveRecovery = new AutosaveRecovery();
 		Editor editor = null;
 		if (evt == null) {
-			editor = EditorFactory.getEditor();
+			editor = EditorFactory.getEditor(null);
 			if (editor != null) editor.activate();
 			autosaveRecovery.checkForRecoveredFiles();	// now check
 			return;
 		}
 		if (evt.getParent() == null)
-			editor = EditorFactory.getEditor();
+			editor = EditorFactory.getEditor(evt.getSecurityContext());
 		else {
 			int editorType = Editor.PROTOCOL;
 			if (evt.getType() == ShowEditorEvent.EXPERIMENT)
 				editorType = Editor.EXPERIMENT;
-			editor = EditorFactory.getEditor(evt.getParent(), evt.getName(), 
+			editor = EditorFactory.getEditor(evt.getSecurityContext(),
+					evt.getParent(), evt.getName(), 
 					editorType);
 		}
 		autosaveRecovery.checkForRecoveredFiles();	// now check
@@ -310,12 +338,35 @@ public class EditorAgent
 	private void register()
 	{
 		TaskBar tb = registry.getTaskBar();
-		RegisterAction a = new RegisterAction();
-		//register with tool bar
-		JButton b = new JButton(a);
+		IconManager icons = IconManager.getInstance();
+		JButton b = new JButton(icons.getIcon(IconManager.EDITOR));
+		b.setToolTipText(RegisterAction.DESCRIPTION);
+		ActionListener l = new ActionListener() {
+			
+			/** Posts an event to start the agent.*/
+			public void actionPerformed(ActionEvent e) {
+				EventBus bus = registry.getEventBus();
+				ExperimenterData exp = (ExperimenterData) registry.lookup(
+		    			LookupNames.CURRENT_USER_DETAILS);
+		    	if (exp == null) return;
+		    	GroupData gp = null;
+		    	try {
+		    		gp = exp.getDefaultGroup();
+		    	} catch (Exception ex) {
+		    		//No default group
+		    	}
+		    	long id = -1;
+		    	if (gp != null) id = gp.getId();
+		    	if (groupId == -1) groupId = id;
+		    	bus.post(new ShowEditorEvent(new SecurityContext(groupId)));
+			}
+		};
+		b.addActionListener(l);
 		tb.addToToolBar(TaskBar.AGENTS, b);
 		//register with File menu
-		JMenuItem item = new JMenuItem(a);
+		JMenuItem item = new JMenuItem(icons.getIcon(IconManager.EDITOR));
+		item.setToolTipText(RegisterAction.DESCRIPTION);
+		item.addActionListener(l);
 		item.setText(RegisterAction.NAME);
 		tb.addToMenu(TaskBar.FILE_MENU, item);
 	}
@@ -352,6 +403,7 @@ public class EditorAgent
         bus.register(this, CopyEvent.class);
         bus.register(this, UserGroupSwitched.class);
         bus.register(this, ReconnectedEvent.class);
+        bus.register(this, ChangeUserGroupEvent.class);
         //Register itself for the toolbar.
         register();
     }
@@ -403,6 +455,10 @@ public class EditorAgent
 			handleUserGroupSwitched((UserGroupSwitched) e);
        else if (e instanceof ReconnectedEvent)
 			handleReconnectedEvent((ReconnectedEvent) e);
+       else if (e instanceof ChangeUserGroupEvent) {
+    	   ChangeUserGroupEvent evt = (ChangeUserGroupEvent) e;
+    	   groupId = evt.getGroupID();
+       }
     }
 
 }

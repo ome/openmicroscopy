@@ -31,6 +31,7 @@ import javax.swing.ImageIcon;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 /** 
  * Utility class where details about a recenlty viewed image are stored.
@@ -57,17 +58,23 @@ public class ImViewerRecentObject
 	/** A thumbnail representation of the image. */
 	private ImageIcon	icon;
 	
+	/** The security context.*/
+	private SecurityContext ctx;
+	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param imageID 	The id of image viewed.
+	 * @param ctx The security context.
+	 * @param imageID The id of image viewed.
 	 * @param imageName The name of image viewed
-	 * @param icon		A icon of the last image.
+	 * @param icon A icon of the last image.
 	 */
-	ImViewerRecentObject(long imageID, String imageName, ImageIcon icon)
+	ImViewerRecentObject(SecurityContext ctx, long imageID, String imageName,
+			ImageIcon icon)
 	{
 		this.imageID = imageID;
 		this.imageName = imageName;
+		this.ctx = ctx;
 		if (icon == null) {
 			IconManager im = IconManager.getInstance();
 			icon = im.getImageIcon(IconManager.VIEWER);
@@ -96,4 +103,10 @@ public class ImViewerRecentObject
 	 */
 	public ImageIcon getImageIcon() { return icon; }
 	
+	/**
+     * Returns the security context.
+     * 
+     * @return See above.
+     */
+    public SecurityContext getSecurityContext() { return ctx; }
 }

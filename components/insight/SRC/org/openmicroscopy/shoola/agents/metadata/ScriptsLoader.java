@@ -30,6 +30,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -63,12 +64,13 @@ public class ScriptsLoader
      * Creates a new instance.
      * 
      * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
-     * @param all  	 Pass <code>true</code> to retrieve all the scripts uploaded
-	 * 				 ones and the default ones, <code>false</code>.
+     * @param ctx The security context.
+     * @param all Pass <code>true</code> to retrieve all the scripts uploaded
+	 *            ones and the default ones, <code>false</code>.
      */
-    public ScriptsLoader(Editor viewer, boolean all)
+    public ScriptsLoader(Editor viewer, SecurityContext ctx, boolean all)
     {
-    	super(viewer);
+    	super(viewer, ctx);
     	this.all = all;
     }
     
@@ -78,7 +80,7 @@ public class ScriptsLoader
      */
     public void load()
     {
-    	handle = mhView.loadScripts(-1, all, this);
+    	handle = mhView.loadScripts(ctx, -1, all, this);
     }
     
     /** 

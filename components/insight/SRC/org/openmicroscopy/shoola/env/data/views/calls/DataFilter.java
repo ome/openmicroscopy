@@ -33,6 +33,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -59,7 +60,9 @@ public class DataFilter
     /** Loads the specified experimenter groups. */
     private BatchCall   loadCall;
     
-
+    /** The security context.*/
+	private SecurityContext ctx;
+	
     /**
      * Creates a {@link BatchCall} to load the ratings related to the object
      * identified by the class and the id.
@@ -73,15 +76,15 @@ public class DataFilter
      * @return The {@link BatchCall}.
      */
     private BatchCall filterBy(final Class annotationType, final Class nodeType, 
-    						final List<Long> ids, final boolean annotated, 
+    						final List<Long> ids, final boolean annotated,
     						final long userID)
     {
         return new BatchCall("Filtering annotated data") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-                result = os.filterByAnnotated(nodeType, ids, annotationType, 
-                					annotated, userID);
+                result = os.filterByAnnotated(ctx, nodeType, ids,
+                	annotationType, annotated, userID);
             }
         };
     }
@@ -98,7 +101,7 @@ public class DataFilter
      * 							<code>-1</code> if the user is not specified.
      * @return The {@link BatchCall}.
      */
-    private BatchCall filterBy(final Class annotationType, final Class nodeType, 
+    private BatchCall filterBy(final Class annotationType, final Class nodeType,
     						final List<Long> ids, final List<String> terms, 
     						final long userID)
     {
@@ -106,8 +109,8 @@ public class DataFilter
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-                result = os.filterByAnnotation(nodeType, ids, annotationType, 
-                					terms, userID);
+                result = os.filterByAnnotation(ctx, nodeType, ids,
+                	annotationType, terms, userID);
             }
         };
     }
@@ -130,7 +133,8 @@ public class DataFilter
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-                result = os.filterByAnnotation(nodeType, ids, filter, userID);
+                result = os.filterByAnnotation(ctx, 
+                		nodeType, ids, filter, userID);
             }
         };
     }
@@ -152,21 +156,23 @@ public class DataFilter
      * index, throws an {@link IllegalArgumentException} if the index is not
      * supported.
      * 
-     * @param annotationType	The type of annotations to fetch.
-     * @param nodeType			The type of objects to filter.	
-     * @param nodeIds			The collection of object ids.
-     * @param annotated			Pass <code>true</code> to retrieve the 
-	 *                          annotated nodes, <code>false</code> otherwise.
-     * @param userID			The id of the user or <code>-1</code> if the id 
-     * 							is not specified.
+     * @param ctx The security context.
+     * @param annotationType The type of annotations to fetch.
+     * @param nodeType The type of objects to filter.	
+     * @param nodeIds The collection of object ids.
+     * @param annotated Pass <code>true</code> to retrieve the 
+	 *                  annotated nodes, <code>false</code> otherwise.
+     * @param userID The id of the user or <code>-1</code> if the id 
+     *               is not specified.
      */
-    public DataFilter(Class annotationType, Class nodeType, List<Long> nodeIds,
-    				boolean annotated, long userID)
+    public DataFilter(SecurityContext ctx, Class annotationType,
+    	Class nodeType, List<Long> nodeIds, boolean annotated, long userID)
     {
     	if (annotationType == null)
     		throw new IllegalArgumentException("Annotation type not valid.");
     	if (nodeType == null)
     		throw new IllegalArgumentException("Node type not valid.");
+    	this.ctx = ctx;
     	loadCall = filterBy(annotationType, nodeType, nodeIds, annotated, 
     			          userID);
     }
@@ -176,20 +182,22 @@ public class DataFilter
      * index, throws an {@link IllegalArgumentException} if the index is not
      * supported.
      * 
-     * @param annotationType	The type of annotations to fetch.
-     * @param nodeType			The type of objects to filter.	
-     * @param nodeIds			The collection of object ids.
-     * @param terms				The collection of terms.
-     * @param userID			The id of the user or <code>-1</code> if the id 
-     * 							is not specified.
+     * @param ctx The security context.
+     * @param annotationType The type of annotations to fetch.
+     * @param nodeType The type of objects to filter.	
+     * @param nodeIds The collection of object ids.
+     * @param terms The collection of terms.
+     * @param userID The id of the user or <code>-1</code> if the id 
+     * is not specified.
      */
-    public DataFilter(Class annotationType, Class nodeType, List<Long> nodeIds,
-    				List<String> terms, long userID)
+    public DataFilter(SecurityContext ctx, Class annotationType, Class nodeType,
+    	List<Long> nodeIds, List<String> terms, long userID)
     {
     	if (annotationType == null)
     		throw new IllegalArgumentException("Annotation type not valid.");
     	if (nodeType == null)
     		throw new IllegalArgumentException("Node type not valid.");
+    	this.ctx = ctx;
     	loadCall = filterBy(annotationType, nodeType, nodeIds, terms, userID);
     }
     
@@ -198,17 +206,19 @@ public class DataFilter
      * index, throws an {@link IllegalArgumentException} if the index is not
      * supported.
      * 
+     * @param ctx The security context.
      * @param nodeType	The type of objects to filter.	
      * @param nodeIds	The collection of object ids.
      * @param context	The filtering context.
      * @param userID	The id of the user or <code>-1</code> if the id 
      * 					is not specified.
      */
-    public DataFilter(Class nodeType, List<Long> nodeIds, FilterContext context, 
-    					long userID)
+    public DataFilter(SecurityContext ctx, Class nodeType, List<Long> nodeIds,
+    	FilterContext context, long userID)
     {
     	if (nodeType == null)
     		throw new IllegalArgumentException("Node type not valid.");
+    	this.ctx = ctx;
     	loadCall = filterBy(nodeType, nodeIds, context, userID);
     }
     

@@ -214,6 +214,19 @@
         <taskdef resource="net/sf/antcontrib/antlib.xml"
                  classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
 
+        <!-- prevent direct use of ant -->
+        <if><not><isset property="build.py"/></not>
+            <then>
+                <fail> ERROR!
+
+========================================================
+Please use ./build.py which uses the ant version bundled
+with OMERO.
+========================================================
+                </fail>
+            </then>
+        </if>
+
         <!-- Define properties :
                 The user's environment (env) overrides all other
                 variables, then comes the user defined

@@ -33,6 +33,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DatasetData;
@@ -58,10 +59,13 @@ public class DMLoader
 {
 
     /** The results of the call. */
-    private Set         results;
+    private Set results;
     
     /** Loads the specified tree. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Creates a {@link BatchCall} to retrieve a Container tree, either
@@ -84,7 +88,7 @@ public class DMLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                results = os.loadContainerHierarchy(rootNodeType, 
+                results = os.loadContainerHierarchy(ctx, rootNodeType, 
     					rootNodeIDs, withLeaves, userID, groupID);
             }
         };
@@ -103,7 +107,7 @@ public class DMLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                results = os.loadContainerHierarchy(ProjectData.class, 
+                results = os.loadContainerHierarchy(ctx, ProjectData.class, 
                 		null, false, userID, groupID);
             }
         };
@@ -126,6 +130,7 @@ public class DMLoader
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
+     * @param ctx The security context.
      * @param rootNodeType  The type of the root node. Can only be one out of:
      *                      {@link ProjectData}, {@link DatasetData}.
      * @param rootNodeIDs   A set of the IDs of top-most containers. Passed
@@ -136,11 +141,12 @@ public class DMLoader
      * @param userID		The identifier of the user. 
      * @param groupID		The identifier of the user's group.
      */
-    public DMLoader(Class rootNodeType, List<Long> rootNodeIDs, 
-    				boolean withLeaves, long userID, long groupID)
+    public DMLoader(SecurityContext ctx, Class rootNodeType,
+    	List<Long> rootNodeIDs, boolean withLeaves, long userID, long groupID)
     {
         if (userID < 0) 
             throw new IllegalArgumentException("No root ID not valid.");
+        this.ctx = ctx;
         if (rootNodeType == null) {
         	loadCall = makeBatchCall(userID, groupID);
         } else if (ProjectData.class.equals(rootNodeType) ||

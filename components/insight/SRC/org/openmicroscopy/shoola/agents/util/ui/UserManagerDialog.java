@@ -34,7 +34,6 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,7 +42,6 @@ import javax.swing.Box;
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -128,9 +126,6 @@ public class UserManagerDialog
 	/** Button to apply the selection. */
 	private JButton apply;
 
-	/** The box hosting the groups. */
-	private JComboBox groupsBox;
-	
 	/** The component hosting the users for a given group. */
 	private JList users;
 	
@@ -139,7 +134,10 @@ public class UserManagerDialog
 	
 	/** Helper class uses to sort elements. */
 	private ViewerSorter sorter;
-
+	
+	/** The group currently selected.*/
+	private GroupData group;
+	
 	/** Closes and disposes. */
 	private void cancel()
 	{
@@ -152,14 +150,13 @@ public class UserManagerDialog
 	{
 		Map<Long, ExperimenterData> 
 		r = new HashMap<Long, ExperimenterData>(1);
-		GroupData g = (GroupData) groupsBox.getSelectedItem();
 		Object user = users.getSelectedValue();
 		if (user == null) {
 			firePropertyChange(NO_USER_SWITCH_PROPERTY, Boolean.valueOf(false), 
 					Boolean.valueOf(true));
 			return;
 		}
-		r.put(g.getId(), (ExperimenterData) user);
+		r.put(group.getId(), (ExperimenterData) user);
 		firePropertyChange(USER_SWITCH_PROPERTY, null, r);
 		cancel();
 	}
@@ -180,7 +177,6 @@ public class UserManagerDialog
 	{
 		if (group == null) return;
 		DefaultListModel model = (DefaultListModel) users.getModel();
-		ExperimenterData d;
 		int index = 0;
 		List l = sorter.sort(group.getLeaders());
 		Iterator i = l.iterator();
@@ -228,34 +224,29 @@ public class UserManagerDialog
 				cancel();
 			}
 		});
-		
+		users.addListSelectionListener(new ListSelectionListener() {
+			
+			/**
+			 * Sets the enabled flag of the apply button.
+			 */
+			public void valueChanged(ListSelectionEvent e) {
+				Object value = users.getSelectedValue();
+				apply.setEnabled(value instanceof ExperimenterData);
+			}
+		});
 		cancel.setActionCommand(""+CANCEL);
 		cancel.addActionListener(this);
 		apply.setActionCommand(""+APPLY);
 		apply.addActionListener(this);
-		groupsBox.setActionCommand(""+GROUPS);
-		groupsBox.addActionListener(this);
-		users.getSelectionModel().addListSelectionListener(
-				new ListSelectionListener() {
-		
-			public void valueChanged(ListSelectionEvent e) {
-				ListSelectionModel lsm = (ListSelectionModel) e.getSource();
-				Object object = users.getSelectedValue();
-				if (object instanceof ExperimenterData) {
-					apply.setEnabled(!lsm.isSelectionEmpty());
-				} else apply.setEnabled(false);
-			}
-		
-		});
 	}
 	
 	/** 
 	 * Initializes the UI components. 
 	 * 
-	 * @param groups		The groups the user is a member of.
+	 * @param selectedGroup The group to display
 	 * @param userIcon	The icon used to represent an user.
 	 */
-	private void initComponents(Set groups, Icon userIcon)
+	private void initComponents(Icon userIcon)
 	{
 		sorter = new ViewerSorter();
 		cancel = new JButton("Cancel");
@@ -266,61 +257,34 @@ public class UserManagerDialog
 		apply.setToolTipText(
 				UIUtilities.formatToolTipText(APPLY_DESCRIPTION));
 		getRootPane().setDefaultButton(apply);
-		GroupData defaultGroup = loggedUser.getDefaultGroup();
-		long groupID = defaultGroup.getId();
-		//Build the array for box.
-		//Iterator i = map.keySet().iterator();
-		//Remove not visible group
-		GroupData g;
-		GroupData[] objects = new GroupData[groups.size()];
-		int selectedIndex = 0;
-		int index = 0;
-		GroupData selectedGroup = defaultGroup;
-		//sort
-		
-		Iterator i = sorter.sort(groups).iterator();
-		while (i.hasNext()) {
-			g = (GroupData) i.next();
-			objects[index] = g;
-			if (g.getId() == groupID) {
-				selectedIndex = index;
-				selectedGroup = g;
-			}
-			index++;
-		}
-		
-		//sort by name
-		groupsBox = new JComboBox(objects);
-		groupsBox.setRenderer(new GroupsRenderer());
-		
-		
 		users = new JList(new DefaultListModel());
-		fillList(selectedGroup);
-		users.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		fillList(group);
+		users.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		users.setLayoutOrientation(JList.VERTICAL);
-		users.setCellRenderer(new UserListRenderer(userIcon));	
+		users.setCellRenderer(new UserListRenderer(userIcon));
 		attachListeners();
-		if (objects.length != 0)
-			groupsBox.setSelectedIndex(selectedIndex);
-		
 	}
 	
 	/** 
 	 * Builds the main component of this dialog.
 	 * 
+	 * @param group The selected group if any.
 	 * @return See above.
 	 */
-	private JPanel buildContent()
+	private JPanel buildContent(GroupData group)
 	{
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, 5, TableLayout.FILL}}; //rows
 		JPanel content = new JPanel();
 		content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 		content.setLayout(new TableLayout(tl));
-		//content.add( UIUtilities.setTextFont("Groups"), "0, 0, LEFT, TOP");
-		//content.add(groups, "1, 0");
-		content.add(UIUtilities.setTextFont("Experimenters "), "0, 2, LEFT, TOP");
-		content.add(new JScrollPane(users), "1, 2");
+		if (group != null) {
+			content.add(UIUtilities.setTextFont(
+				"Select from: "+group.getName()), "0, 0, 1, 0");
+		}
+		//content.add(UIUtilities.setTextFont("Experimenters "),
+		//		"0, 2, LEFT, TOP");
+		content.add(new JScrollPane(users), "0, 2, 1, 2");
 		return content;
 	}
 	
@@ -346,35 +310,37 @@ public class UserManagerDialog
 	/** 
 	 * Builds and lays out the UI. 
 	 * 
-	 * @param icon		The icon displayed in the title panel.
+	 * @param group The selected group.
+	 * @param icon The icon displayed in the title panel.
 	 */
-	private void buildGUI(Icon icon)
+	private void buildGUI(GroupData group, Icon icon)
 	{
 		TitlePanel titlePanel = new TitlePanel(TITLE, TEXT, icon);
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
 		c.add(titlePanel, BorderLayout.NORTH);
-		c.add(buildContent(), BorderLayout.CENTER);
+		c.add(buildContent(group), BorderLayout.CENTER);
 		c.add(buildToolBar(), BorderLayout.SOUTH);
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param parent		The parent of this dialog.
-	 * @param loggedUser	The user currently logged in.
-	 * @param groups		The groups the user is a member of.
-	 * @param userIcon 		The icon representing an user.
-	 * @param icon			The icon displayed in the title panel.
+	 * @param parent The parent of this dialog.
+	 * @param loggedUser The user currently logged in.
+	 * @param selected The selected group.
+	 * @param userIcon The icon representing an user.
+	 * @param icon The icon displayed in the title panel.
 	 */
 	public UserManagerDialog(JFrame parent, ExperimenterData loggedUser, 
-							Set groups, Icon userIcon, Icon icon)
+							GroupData selected, Icon userIcon, Icon icon)
 	{
 		super(parent);
 		setProperties();
 		this.loggedUser = loggedUser;
-		initComponents(groups, userIcon);
-		buildGUI(icon);
+		group = selected;
+		initComponents(userIcon);
+		buildGUI(selected, icon);
 	}
 
 	
@@ -397,12 +363,7 @@ public class UserManagerDialog
 				break;
 			case APPLY:
 				apply();
-				break;
-			case GROUPS:
-				DefaultListModel model = (DefaultListModel) users.getModel();
-				model.clear();
-				fillList((GroupData) groupsBox.getSelectedItem());
 		}
 	}
-	
+
 }

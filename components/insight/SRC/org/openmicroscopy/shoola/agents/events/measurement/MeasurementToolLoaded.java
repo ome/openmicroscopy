@@ -29,6 +29,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.event.ResponseEvent;
 
@@ -59,7 +60,10 @@ public class MeasurementToolLoaded
 	private JComponent	view;
 	
 	/** One of the constants defined by this class. */
-	private int			index;
+	private int index;
+	
+	/** The security context.*/
+	private SecurityContext ctx;
 	
 	/**
 	 * Controls if the passed index is valid.
@@ -81,16 +85,19 @@ public class MeasurementToolLoaded
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param act	The original request.
-	 * @param view	The component to add to the display.
+	 * @param act The original request.
+	 * @param ctx The security context.
+	 * @param view The component to add to the display.
 	 * @param index One of the constants defined by this class.
 	 */
-	public MeasurementToolLoaded(RequestEvent act, JComponent view, int index) 
+	public MeasurementToolLoaded(RequestEvent act, SecurityContext ctx,
+	JComponent view, int index) 
 	{
 		super(act);
 		checkIndex(index);
 		this.index = index;
 		this.view = view;
+		this.ctx = ctx;
 	}
 
 	/**
@@ -107,4 +114,11 @@ public class MeasurementToolLoaded
 	 */
 	public int getIndex() { return index; }
 	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	public SecurityContext getSecurityContext() { return ctx; }
+
 }

@@ -33,6 +33,7 @@ import javax.swing.Icon;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 /** 
  * Activity to run the specified scripts.
@@ -96,13 +97,14 @@ public class ScriptActivity
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param registry	Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param script	The script to run.
      * @param activity 	The activity associated to this loader.
      */
 	public ScriptActivity(UserNotifier viewer, Registry registry,
-			ScriptObject script, int index)
+		SecurityContext ctx, ScriptObject script, int index)
 	{
-		super(viewer, registry);
+		super(viewer, registry, ctx);
 		if (script == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		initialize(DESCRIPTION_RUN_CREATION+script.getDisplayedName(), 
@@ -127,10 +129,11 @@ public class ScriptActivity
 	{
 		switch (index) {
 			case UPLOAD:
-				loader = new ScriptUploader(viewer,  registry, script, this);
+				loader = new ScriptUploader(viewer, registry, ctx, script,
+						this);
 				break;
 			case RUN:
-				loader = new ScriptRunner(viewer,  registry, script, this);
+				loader = new ScriptRunner(viewer, registry, ctx, script, this);
 		}
 		return loader;
 	}

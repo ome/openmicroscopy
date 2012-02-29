@@ -70,6 +70,7 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -208,6 +209,9 @@ class MeasurementViewerModel
 	 /** Flag indicating if it is a big image or not.*/
     private boolean 				bigImage;
     
+    /** The security context.*/
+    private SecurityContext ctx;
+    
     /** 
 	 * Sorts the passed nodes by row.
 	 * 
@@ -273,16 +277,18 @@ class MeasurementViewerModel
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param imageID		The image's id.
-	 * @param pixels		The pixels set the measurement tool is for.
-	 * @param name			The image's name.
-	 * @param bounds		The bounds of the component requesting the model.
-	 * @param channelsData	The channel metadata.
+	 * @param ctx The security context.
+	 * @param imageID The image's id.
+	 * @param pixels The pixels set the measurement tool is for.
+	 * @param name The image's name.
+	 * @param bounds The bounds of the component requesting the model.
+	 * @param channelsData The channel metadata.
 	 */
-	MeasurementViewerModel(long imageID, PixelsData pixels, String name, 
-						Rectangle bounds, List<ChannelData> channelsData)
+	MeasurementViewerModel(SecurityContext ctx, long imageID, PixelsData pixels,
+			String name, Rectangle bounds, List<ChannelData> channelsData)
 	{
 		metadata = channelsData;
+		this.ctx = ctx;
 		this.imageID = imageID;
 		this.pixels = pixels;
 		this.name = name;
@@ -973,8 +979,8 @@ class MeasurementViewerModel
 		state = MeasurementViewer.LOADING_ROI;
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
-		currentLoader = new ROILoader(component, getImageID(), files,
-				exp.getId());
+		currentLoader = new ROILoader(component, getSecurityContext(),
+				getImageID(), files, exp.getId());
 		currentLoader.load();
 	}
 	
@@ -989,8 +995,8 @@ class MeasurementViewerModel
 		state = MeasurementViewer.LOADING_ROI;
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
-		currentLoader = new ServerSideROILoader(component, getImageID(), 
-				exp.getId());
+		currentLoader = new ServerSideROILoader(component, getSecurityContext(),
+				getImageID(),  exp.getId());
 		currentLoader.load();
 		notifyDataChanged(dataChanged);
 	}
@@ -1002,7 +1008,8 @@ class MeasurementViewerModel
 	{
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
-		currentLoader = new WorkflowLoader(component, exp.getId());
+		currentLoader = new WorkflowLoader(component, getSecurityContext(),
+				exp.getId());
 		currentLoader.load();
 	}
 	
@@ -1017,7 +1024,8 @@ class MeasurementViewerModel
 			MeasurementAgent.getRegistry().getImageService();
 		try
 		{
-			List<WorkflowData> result = svc.retrieveWorkflows(exp.getId());
+			List<WorkflowData> result = svc.retrieveWorkflows(
+					getSecurityContext(), exp.getId());
 			workflows.clear();
 			component.setWorkflowList(result);
 		} catch (DSAccessException e)
@@ -1142,15 +1150,16 @@ class MeasurementViewerModel
 			if (roiList.size() == 0) return;
 			roiComponent.reset();
 			if (async) {
-				currentSaver = new ROISaver(component, getImageID(), 
-						exp.getId(), roiList);
+				currentSaver = new ROISaver(component, getSecurityContext(),
+						getImageID(), exp.getId(), roiList);
 				currentSaver.load();
 				state = MeasurementViewer.SAVING_ROI;
 				notifyDataChanged(false);
 			} else {
 				OmeroImageService svc = 
 					MeasurementAgent.getRegistry().getImageService();
-				svc.saveROI(getImageID(), exp.getId(), roiList);
+				svc.saveROI(getSecurityContext(), getImageID(), exp.getId(),
+						roiList);
 				event = null;
 			}
 			checkIfHasROIToDelete();
@@ -1202,14 +1211,15 @@ class MeasurementViewerModel
 			ExperimenterData exp = 
 				(ExperimenterData) MeasurementAgent.getUserDetails();
 			if (async) {
-				currentSaver = new WorkflowSaver(component, 
-						workflowList, exp.getId());
+				currentSaver = new WorkflowSaver(component,
+					getSecurityContext(), workflowList, exp.getId());
 				currentSaver.load();
 				notifyDataChanged(false);
 			} else {
 				OmeroImageService svc = 
 					MeasurementAgent.getRegistry().getImageService();
-				svc.storeWorkflows(workflowList, exp.getId());
+				svc.storeWorkflows(getSecurityContext(), workflowList,
+						exp.getId());
 				event = null;
 			}
 		} catch (Exception e) {
@@ -1301,7 +1311,8 @@ class MeasurementViewerModel
 		List channels = new ArrayList(activeChannels.size());
 		channels.addAll(activeChannels.keySet());
 		if (currentLoader != null) currentLoader.cancel();
-		currentLoader = new Analyser(component, pixels, channels, shapeList);
+		currentLoader = new Analyser(component, getSecurityContext(), pixels,
+				channels, shapeList);
 		currentLoader.load();
 	}
 	
@@ -1742,7 +1753,7 @@ class MeasurementViewerModel
 		p.setImageID(imageID);
 		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
 		UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(p);
+		un.notifyActivity(getSecurityContext(), p);
 	}
 	
     /**
@@ -1750,7 +1761,7 @@ class MeasurementViewerModel
      * 
      * @param value The value to set.
      */
-    public void setBigImage(boolean value) { bigImage = value; }
+    void setBigImage(boolean value) { bigImage = value; }
     
     /**
      * Returns <code>true</code> if big image data, <code>false</code>
@@ -1758,6 +1769,13 @@ class MeasurementViewerModel
      * 
      * @return See above.
      */
-    public boolean isBigImage() { return bigImage; }
+   boolean isBigImage() { return bigImage; }
+
+   /** 
+    * Returns the security context.
+    * 
+    * @return See above.
+    */
+   SecurityContext getSecurityContext() { return ctx; }
 
 }	

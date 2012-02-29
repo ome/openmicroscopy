@@ -38,6 +38,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndZipParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import pojos.FileAnnotationData;
 
@@ -73,14 +74,16 @@ public class DownloadAndZipActivity
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer
-	 * @param registry
-	 * @param parameters
+	 * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param registry Convenience reference for subclasses.
+     * @param ctx The security context.
+     * @param parameters The parameters used to delete.
 	 */
 	public DownloadAndZipActivity(UserNotifier viewer, Registry registry,
-    		DownloadAndZipParam parameters)
+    		SecurityContext ctx, DownloadAndZipParam parameters)
 	{
-		super(viewer, registry);
+		super(viewer, registry, ctx);
 		if (parameters == null)
 			throw new IllegalArgumentException("No parameters");
 		this.parameters = parameters;
@@ -113,7 +116,7 @@ public class DownloadAndZipActivity
 			fa = i.next();
 			toLoad.put(fa, new File(zipFolder, fa.getFileName()));
 		}
-		loader = new FilesLoader(viewer, registry, toLoad, this);
+		loader = new FilesLoader(viewer, registry, ctx, toLoad, this);
 		return loader;
 	}
 

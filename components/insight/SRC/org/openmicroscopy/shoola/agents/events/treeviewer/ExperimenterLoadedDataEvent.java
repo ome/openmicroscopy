@@ -46,14 +46,15 @@ public class ExperimenterLoadedDataEvent
 {
 
 	/** Map hosting the data objects owned by users displayed.*/
-	private Map<Long, List<TreeImageDisplay>> data;
+	private Map<Long, Map<Long, List<TreeImageDisplay>>> data;
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param data The data to store.
 	 */
-	public ExperimenterLoadedDataEvent(Map<Long, List<TreeImageDisplay>> data)
+	public ExperimenterLoadedDataEvent(
+			Map<Long, Map<Long, List<TreeImageDisplay>>> data)
 	{
 		this.data = data;
 	}
@@ -63,6 +64,9 @@ public class ExperimenterLoadedDataEvent
 	 * 
 	 * @return See above.
 	 */
-	public Map<Long, List<TreeImageDisplay>> getData() { return data; }
+	public Map<Long, Map<Long, List<TreeImageDisplay>>> getData()
+	{ 
+		return data; 
+	}
 	
 }

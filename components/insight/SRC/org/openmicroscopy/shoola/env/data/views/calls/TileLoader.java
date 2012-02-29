@@ -33,6 +33,7 @@ import java.util.Iterator;
 import omero.romio.PlaneDef;
 import omero.romio.RegionDef;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.data.Region;
@@ -74,6 +75,9 @@ public class TileLoader
     /** The plane to render.*/
     private PlaneDef pDef;
     
+    /** The security context.*/
+    private SecurityContext ctx;
+    
     /**
      * Loads the tile.
      * 
@@ -85,7 +89,8 @@ public class TileLoader
     	try {
     		pDef.region = new RegionDef(rt.getX(), rt.getY(), 
     				rt.getWidth(), rt.getHeight());
-        	tile.setImage(service.renderImage(pixelsID, pDef, asTexture, false));
+        	tile.setImage(service.renderImage(ctx, pixelsID, pDef, asTexture,
+        			false));
 		} catch (Exception e) {
 			tile.setImage(Factory.createDefaultImageThumbnail(rt.getWidth(), 
 					rt.getHeight()));
@@ -133,13 +138,14 @@ public class TileLoader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param pixelsID 	The id of the pixels set.
      * @param pDef The plane to render.
 	 * @param tiles	The tiles.
 	 * @param asTexture	Pass <code>true</code> to return a texture,
 	 * 					<code>false</code> to return a buffered image.
      */
-    public TileLoader(long pixelsID, PlaneDef pDef,
+    public TileLoader(SecurityContext ctx, long pixelsID, PlaneDef pDef,
     		Collection<Tile> tiles, boolean asTexture)
     {
         if (pixelsID < 0)
@@ -148,6 +154,7 @@ public class TileLoader
             throw new IllegalArgumentException("No tiles to load.");
         if (pDef == null)
         	 throw new IllegalArgumentException("No plane to render.");
+        this.ctx = ctx;
         this.pixelsID = pixelsID;
         this.tiles = tiles;
         this.asTexture = asTexture;

@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -60,17 +61,19 @@ public class AcquisitionDataSaver
 	/**
 	 * Creates a {@link BatchCall} to retrieve rendering control.
 	 * 
+	 * @param ctx The security context.
 	 * @param refObject Either an <code>ImageData</code> or 
      * 					<code>ChannelData</code> node.
 	 * @return The {@link BatchCall}.
 	 */
-	private BatchCall makeBatchCall(final Object refObject)
+	private BatchCall makeBatchCall(final SecurityContext ctx,
+			final Object refObject)
 	{
 		return new BatchCall("Loading Acquisition data: ") {
 			public void doCall() throws Exception
 			{
 				OmeroMetadataService rds = context.getMetadataService();
-				result = rds.saveAcquisitionData(refObject);
+				result = rds.saveAcquisitionData(ctx, refObject);
 			}
 		};
 	} 
@@ -94,13 +97,14 @@ public class AcquisitionDataSaver
 	 * If bad arguments are passed, we throw a runtime exception so to fail
 	 * early and in the caller's thread.
 	 * 
+	 * @param ctx The security context.
 	 * @param refObject Either an <code>ImageData</code> or 
      * 					<code>ChannelData</code> node.
 	 */
-	public AcquisitionDataSaver(Object refObject)
+	public AcquisitionDataSaver(SecurityContext ctx, Object refObject)
 	{
 		if (refObject == null)
 			throw new IllegalArgumentException("Ref Object cannot be null.");
-		loadCall = makeBatchCall(refObject);
+		loadCall = makeBatchCall(ctx, refObject);
 	}
 }

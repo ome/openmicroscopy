@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.editor;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.preview.AnnotationHandler;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.FileAnnotationData;
 
@@ -52,27 +53,29 @@ public class FileAnnotationLoader
 {
 
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle				handle;
+    private CallHandle handle;
     
     /** The id of the file annotation to load. */
-    private long					fileAnnotationID;
+    private long fileAnnotationID;
     
     /** 
      * The handler of the annotation. Don't want this to be Editor since
      * it would be tricky to handle which class requested the annotation. 
      */
-    private AnnotationHandler		annotationHandler;
+    private AnnotationHandler annotationHandler;
     
     /**
      * Creates a new instance.
      * 
      * @param viewer	The Editor this data loader is for.
      *                  Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param fileAnnotationID The Id of the file annotation to load.
      */
-	public FileAnnotationLoader(Browser viewer, long fileAnnotationID)
+	public FileAnnotationLoader(Browser viewer, SecurityContext ctx,
+			long fileAnnotationID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (fileAnnotationID < 0)
 			throw new IllegalArgumentException("ID not valid.");
 		this.fileAnnotationID = fileAnnotationID;
@@ -94,7 +97,7 @@ public class FileAnnotationLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadAnnotation(fileAnnotationID, this);
+		handle = mhView.loadAnnotation(ctx, fileAnnotationID, this);
 	}
 	
 	/**
