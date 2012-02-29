@@ -109,7 +109,7 @@ var gs_modalJson_cb;
 
 function gs_loadBlockUI (callback) {
   if (jQuery.blockUI === undefined) {
-    jQuery.getScript(gs_script_location_prefix + '3rdparty/jquery.blockUI.js', callback);
+    jQuery.getScript(gs_static_location_prefix + '3rdparty/jquery.blockUI.js', callback);
     return false;
   }
   return true;
