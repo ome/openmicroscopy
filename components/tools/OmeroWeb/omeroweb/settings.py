@@ -199,6 +199,7 @@ def leave_none_unset(s):
     return s
 
 CUSTOM_SETTINGS_MAPPINGS = {
+    "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads],
     "omero.web.public.user": ["PUBLIC_USER", None, leave_none_unset],
     "omero.web.public.password": ["PUBLIC_PASSWORD", None, leave_none_unset],
     "omero.web.databases": ["DATABASES", '{}', json.loads],
@@ -222,7 +223,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean],
     "omero.web.server_email": ["SERVER_EMAIL", None, identity],
     "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
-    "omero.web.use_eman2": ["USE_EMAN2", "false", parse_boolean],
     # the following parameters configure when to show/hide the 'Volume viewer' icon in the Image metadata panel
     "omero.web.open_astex_max_side": ["OPEN_ASTEX_MAX_SIDE", 400, int],
     "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],
@@ -380,9 +380,6 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.join(os.path.dirname(__file__), 'feedback'), 'templates').replace('\\','/'),
     os.path.join(os.path.join(os.path.dirname(__file__), 'webadmin'), 'templates').replace('\\','/'),
     os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'templates').replace('\\','/'),
-    #os.path.join(os.path.join(os.path.dirname(__file__), 'webemdb'), 'templates').replace('\\','/'),
-    os.path.join(os.path.join(os.path.dirname(__file__), 'webmobile'), 'templates').replace('\\','/'),
-    os.path.join(os.path.join(os.path.dirname(__file__), 'webpublic'), 'templates').replace('\\','/'),
 )
 
 # INSTALLED_APPS: A tuple of strings designating all applications that are enabled in this Django 
@@ -400,13 +397,19 @@ INSTALLED_APPS = (
     'omeroweb.webclient',
     'omeroweb.webgateway',
     'omeroweb.webtest',
-    #'omeroweb.webemdb',
-    'omeroweb.webmobile',
-    'omeroweb.webpublic',
     'omeroweb.webredirect',
     'omeroweb.common',
     
 )
+
+# ADDITONAL_APPS: Each additional application should have its templates
+# registered and be added to installed apps.
+for app in ADDITIONAL_APPS:
+    app_dir = os.path.join(os.path.dirname(__file__), app)
+    template_dir = os.path.join(app_dir, 'templates')
+    template_dir = template_dir.replace('\\', '/')
+    TEMPLATE_DIRS += (template_dir,)
+    INSTALLED_APPS += ('omeroweb.%s' % app,)
 
 # FEEDBACK_URL: Used in feedback.sendfeedback.SendFeedback class in order to submit 
 # error or comment messages to http://qa.openmicroscopy.org.uk.
@@ -481,21 +484,3 @@ def load_server_list():
     Server.freeze()
 load_server_list()
 
-###
-### OTHER APPLICATIONS:
-###
-
-
-###
-### BEGIN EMDB settings
-###
-try:
-    if USE_EMAN2:
-        logger.info("Using EMAN2...")
-        from EMAN2 import *
-except:
-    logger.info("Not using EMAN2...")
-    pass
-###
-### END EMDB settings
-###

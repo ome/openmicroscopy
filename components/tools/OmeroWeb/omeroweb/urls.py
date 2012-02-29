@@ -24,6 +24,7 @@
 
 import os.path
 
+from django.conf import settings
 from django.conf.urls.defaults import *
 from django.views.static import serve
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
@@ -42,11 +43,12 @@ urlpatterns = patterns('',
     (r'(?i)^feedback/', include('omeroweb.feedback.urls')),
     (r'(?i)^webgateway/', include('omeroweb.webgateway.urls')),
     (r'(?i)^webtest/', include('omeroweb.webtest.urls')),    
-    (r'(?i)^p/', include('omeroweb.webpublic.urls')),
-    #(r'(?i)^webemdb/', include('omeroweb.webemdb.urls')),
-    (r'(?i)^m/', include('omeroweb.webmobile.urls')),
     (r'(?i)^url/', include('omeroweb.webredirect.urls')),
     (r'(?i)^common/', include('omeroweb.common.urls')),
 )
+
+for app in settings.ADDITIONAL_APPS:
+    regex = '(?i)^%s/' % app
+    urlpatterns += patterns('', (regex, include('omeroweb.%s.urls' % app)),)
 
 urlpatterns += staticfiles_urlpatterns()
