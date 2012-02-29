@@ -5327,7 +5327,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         self.LINK_CLASS = None
         self.CHILD_WRAPPER_CLASS = None
         self.PARENT_WRAPPER_CLASS = ['DatasetWrapper', 'WellSampleWrapper']
-
+        self._thumbInProgress = False
+        
     def __del__ (self):
         self._re and self._re.untaint()
 
@@ -5778,6 +5779,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 args = list(pos) + args
             args += [self._conn.CONFIG['SERVICE_OPTS']]
             rv = thumb(*args)
+            self._thumbInProgress = tb.isInProgress()
             tb.close()      # close every time to prevent stale state
             return rv
         except Exception: #pragma: no cover
