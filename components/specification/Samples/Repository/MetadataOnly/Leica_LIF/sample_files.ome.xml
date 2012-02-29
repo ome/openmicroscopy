@@ -411,17 +411,17 @@
         <InstrumentRef ID="Instrument:0"/>
         <ObjectiveSettings ID="Objective:0:0" RefractiveIndex="1.518"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:0" PhysicalSizeX="0.12013269531250001" PhysicalSizeY="0.12013269531250001" PhysicalSizeZ="0.440120592088558" SizeC="3" SizeT="1" SizeX="512" SizeY="512" SizeZ="11" Type="uint8">
-            <Channel Color="255" ID="Channel:0:0" PinholeSize="95.5652364435265" SamplesPerPixel="1">
+            <Channel Color="65535" ID="Channel:0:0" PinholeSize="95.5652364435265" SamplesPerPixel="1">
                 <LightPath>
                     <EmissionFilterRef ID="Filter:0:0"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711680" ID="Channel:0:1" PinholeSize="95.5652364435265" SamplesPerPixel="1">
+            <Channel Color="-16776961" ID="Channel:0:1" PinholeSize="95.5652364435265" SamplesPerPixel="1">
                 <LightPath>
                     <EmissionFilterRef ID="Filter:0:1"/>
                 </LightPath>
             </Channel>
-            <Channel Color="65280" ID="Channel:0:2" PinholeSize="95.5652364435265" SamplesPerPixel="1">
+            <Channel Color="16711935" ID="Channel:0:2" PinholeSize="95.5652364435265" SamplesPerPixel="1">
                 <LightPath>
                     <EmissionFilterRef ID="Filter:0:3"/>
                 </LightPath>
@@ -467,7 +467,7 @@
         <InstrumentRef ID="Instrument:1"/>
         <ObjectiveSettings ID="Objective:1:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:1" PhysicalSizeX="1.0" PhysicalSizeY="1.0" SizeC="3" SizeT="1" SizeX="1390" SizeY="944" SizeZ="1" Type="uint8">
-            <Channel Color="16777215" ID="Channel:1:0" SamplesPerPixel="3">
+            <Channel Color="-1" ID="Channel:1:0" SamplesPerPixel="3">
                 <LightPath/>
             </Channel>
             <MetadataOnly/>
@@ -479,26 +479,26 @@
         <InstrumentRef ID="Instrument:2"/>
         <ObjectiveSettings ID="Objective:2:0" RefractiveIndex="1.0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:2" PhysicalSizeX="1.513671875" PhysicalSizeY="1.513671875" PhysicalSizeZ="11.0530826918882" SizeC="4" SizeT="1" SizeX="1024" SizeY="1024" SizeZ="25" Type="uint8">
-            <Channel Color="255" ExcitationWavelength="405" ID="Channel:2:0" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
+            <Channel Color="65535" ExcitationWavelength="405" ID="Channel:2:0" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.69999389611182295" ID="LightSource:2:0"/>
                 <DetectorSettings Gain="517.776760509651" ID="Detector:2:0" Offset="0.466666666666669"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:2:4"/>
                 </LightPath>
             </Channel>
-            <Channel Color="65280" ExcitationWavelength="488" ID="Channel:2:1" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
+            <Channel Color="16711935" ExcitationWavelength="488" ID="Channel:2:1" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.61997193" ID="LightSource:2:3"/>
                 <DetectorSettings Gain="415.503166247044" ID="Detector:2:1" Offset="0.0"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:2:5"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16777215" ExcitationWavelength="405" ID="Channel:2:2" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
+            <Channel Color="-1" ExcitationWavelength="405" ID="Channel:2:2" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.7999756" ID="LightSource:2:0"/>
                 <DetectorSettings Gain="285.839627679866" ID="Detector:2:2" Offset="1.18000000000001"/>
                 <LightPath/>
             </Channel>
-            <Channel Color="16711680" ExcitationWavelength="633" ID="Channel:2:3" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
+            <Channel Color="-16776961" ExcitationWavelength="633" ID="Channel:2:3" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.5199902" ID="LightSource:2:7"/>
                 <DetectorSettings Gain="382.658121614405" ID="Detector:2:3" Offset="0.0"/>
                 <LightPath>
@@ -613,7 +613,7 @@
         <InstrumentRef ID="Instrument:3"/>
         <ObjectiveSettings ID="Objective:3:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:3" PhysicalSizeX="1.0" PhysicalSizeY="1.0" SizeC="3" SizeT="1" SizeX="1390" SizeY="940" SizeZ="1" Type="uint8">
-            <Channel Color="16777215" ID="Channel:3:0" SamplesPerPixel="3">
+            <Channel Color="-1" ID="Channel:3:0" SamplesPerPixel="3">
                 <LightPath/>
             </Channel>
             <MetadataOnly/>
@@ -625,14 +625,14 @@
         <InstrumentRef ID="Instrument:4"/>
         <ObjectiveSettings ID="Objective:4:0" RefractiveIndex="1.0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:4" PhysicalSizeX="0.78124921875" PhysicalSizeY="0.78125" SizeC="2" SizeT="1" SizeX="512" SizeY="512" SizeZ="1" Type="uint8">
-            <Channel Color="16711680" ExcitationWavelength="543" ID="Channel:4:0" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
+            <Channel Color="-16776961" ExcitationWavelength="543" ID="Channel:4:0" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.7999756" ID="LightSource:4:6"/>
                 <DetectorSettings Gain="362.058442053864" ID="Detector:4:0" Offset="0"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:4:5"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711680" ExcitationWavelength="633" ID="Channel:4:1" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
+            <Channel Color="-16776961" ExcitationWavelength="633" ID="Channel:4:1" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.5599707" ID="LightSource:4:7"/>
                 <DetectorSettings Gain="402.265964751659" ID="Detector:4:1" Offset="0"/>
                 <LightPath>
@@ -649,7 +649,7 @@
         <InstrumentRef ID="Instrument:5"/>
         <ObjectiveSettings ID="Objective:5:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:5" PhysicalSizeX="1.0" PhysicalSizeY="1.0" SizeC="3" SizeT="1" SizeX="1420" SizeY="720" SizeZ="1" Type="uint8">
-            <Channel Color="16777215" ID="Channel:5:0" SamplesPerPixel="3">
+            <Channel Color="-1" ID="Channel:5:0" SamplesPerPixel="3">
                 <LightPath/>
             </Channel>
             <MetadataOnly/>
@@ -661,7 +661,7 @@
         <InstrumentRef ID="Instrument:6"/>
         <ObjectiveSettings ID="Objective:6:0" RefractiveIndex="1.0"/>
         <Pixels DimensionOrder="XYZCT" ID="Pixels:6" PhysicalSizeX="3.124996875" PhysicalSizeY="3.124996875" SizeC="1" SizeT="1" SizeX="128" SizeY="128" SizeZ="31" Type="uint8">
-            <Channel Color="16711680" ID="Channel:6:0" PinholeSize="106.08964270380099" SamplesPerPixel="1">
+            <Channel Color="-16776961" ID="Channel:6:0" PinholeSize="106.08964270380099" SamplesPerPixel="1">
                 <LightPath/>
             </Channel>
             <MetadataOnly/>
@@ -703,7 +703,7 @@
         <InstrumentRef ID="Instrument:7"/>
         <ObjectiveSettings ID="Objective:7:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:7" PhysicalSizeX="1.0" PhysicalSizeY="1.0" SizeC="3" SizeT="1" SizeX="933" SizeY="933" SizeZ="1" Type="uint8">
-            <Channel Color="16777215" ID="Channel:7:0" SamplesPerPixel="3">
+            <Channel Color="-1" ID="Channel:7:0" SamplesPerPixel="3">
                 <LightPath/>
             </Channel>
             <MetadataOnly/>
@@ -715,28 +715,28 @@
         <InstrumentRef ID="Instrument:8"/>
         <ObjectiveSettings ID="Objective:8:0" RefractiveIndex="1.0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:8" PhysicalSizeX="3.02734375" PhysicalSizeY="3.02734375" SizeC="4" SizeT="1" SizeX="512" SizeY="512" SizeZ="1" Type="uint8">
-            <Channel Color="255" ExcitationWavelength="405" ID="Channel:8:0" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="65535" ExcitationWavelength="405" ID="Channel:8:0" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.7999756" ID="LightSource:8:0"/>
                 <DetectorSettings Gain="407.434958419165" ID="Detector:8:0" Offset="0.38666666666667"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:8:0"/>
                 </LightPath>
             </Channel>
-            <Channel Color="65280" ExcitationWavelength="488" ID="Channel:8:1" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="16711935" ExcitationWavelength="488" ID="Channel:8:1" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.7999756" ID="LightSource:8:3"/>
                 <DetectorSettings Gain="434.634164950027" ID="Detector:8:1" Offset="-1.48666666666666"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:8:1"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711935" ExcitationWavelength="543" ID="Channel:8:2" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="-16711681" ExcitationWavelength="543" ID="Channel:8:2" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.6999939" ID="LightSource:8:6"/>
                 <DetectorSettings Gain="535.915922789349" ID="Detector:8:2" Offset="-0.546666666666667"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:8:2"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711680" ExcitationWavelength="633" ID="Channel:8:3" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="-16776961" ExcitationWavelength="633" ID="Channel:8:3" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.6999939" ID="LightSource:8:7"/>
                 <DetectorSettings Gain="556.496528572519" ID="Detector:8:3" Offset="-0.233333333333334"/>
                 <LightPath>
@@ -755,28 +755,28 @@
         <InstrumentRef ID="Instrument:9"/>
         <ObjectiveSettings ID="Objective:9:0" RefractiveIndex="1.0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:9" PhysicalSizeX="1.513671875" PhysicalSizeY="1.513671875" SizeC="4" SizeT="1" SizeX="512" SizeY="512" SizeZ="1" Type="uint8">
-            <Channel Color="255" ExcitationWavelength="405" ID="Channel:9:0" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="65535" ExcitationWavelength="405" ID="Channel:9:0" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.7999756" ID="LightSource:9:0"/>
                 <DetectorSettings Gain="407.434958419165" ID="Detector:9:0" Offset="0.38666666666667"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:9:0"/>
                 </LightPath>
             </Channel>
-            <Channel Color="65280" ExcitationWavelength="488" ID="Channel:9:1" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="16711935" ExcitationWavelength="488" ID="Channel:9:1" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.7999756" ID="LightSource:9:3"/>
                 <DetectorSettings Gain="434.634164950027" ID="Detector:9:1" Offset="-1.48666666666666"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:9:1"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711935" ExcitationWavelength="543" ID="Channel:9:2" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="-16711681" ExcitationWavelength="543" ID="Channel:9:2" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.6999939" ID="LightSource:9:6"/>
                 <DetectorSettings Gain="535.915922789349" ID="Detector:9:2" Offset="-0.546666666666667"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:9:2"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711680" ExcitationWavelength="633" ID="Channel:9:3" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="-16776961" ExcitationWavelength="633" ID="Channel:9:3" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.6999939" ID="LightSource:9:7"/>
                 <DetectorSettings Gain="556.496528572519" ID="Detector:9:3" Offset="-0.233333333333334"/>
                 <LightPath>
@@ -795,28 +795,28 @@
         <InstrumentRef ID="Instrument:10"/>
         <ObjectiveSettings ID="Objective:10:0" RefractiveIndex="1.518"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:10" PhysicalSizeX="0.7568359375" PhysicalSizeY="0.7568359375" SizeC="4" SizeT="1" SizeX="512" SizeY="512" SizeZ="1" Type="uint8">
-            <Channel Color="255" ExcitationWavelength="405" ID="Channel:10:0" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="65535" ExcitationWavelength="405" ID="Channel:10:0" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.7999756" ID="LightSource:10:0"/>
                 <DetectorSettings Gain="541.275654230564" ID="Detector:10:0" Offset="0.38666666666667"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:10:0"/>
                 </LightPath>
             </Channel>
-            <Channel Color="65280" ExcitationWavelength="488" ID="Channel:10:1" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="16711935" ExcitationWavelength="488" ID="Channel:10:1" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.7999756" ID="LightSource:10:3"/>
                 <DetectorSettings Gain="541.027695124743" ID="Detector:10:1" Offset="-1.48666666666666"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:10:1"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711935" ExcitationWavelength="543" ID="Channel:10:2" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="-16711681" ExcitationWavelength="543" ID="Channel:10:2" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.6999939" ID="LightSource:10:6"/>
                 <DetectorSettings Gain="444.743266956588" ID="Detector:10:2" Offset="-0.546666666666667"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:10:2"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711680" ExcitationWavelength="633" ID="Channel:10:3" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="-16776961" ExcitationWavelength="633" ID="Channel:10:3" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.6999939" ID="LightSource:10:7"/>
                 <DetectorSettings Gain="1080.62485694667" ID="Detector:10:3" Offset="-0.233333333333334"/>
                 <LightPath>
@@ -835,28 +835,28 @@
         <InstrumentRef ID="Instrument:11"/>
         <ObjectiveSettings ID="Objective:11:0" RefractiveIndex="1.518"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:11" PhysicalSizeX="0.7568359375" PhysicalSizeY="0.7568359375" SizeC="4" SizeT="1" SizeX="512" SizeY="512" SizeZ="1" Type="uint8">
-            <Channel Color="255" ExcitationWavelength="405" ID="Channel:11:0" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="65535" ExcitationWavelength="405" ID="Channel:11:0" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.7999756" ID="LightSource:11:0"/>
                 <DetectorSettings Gain="541.275654230564" ID="Detector:11:0" Offset="0.38666666666667"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:11:0"/>
                 </LightPath>
             </Channel>
-            <Channel Color="65280" ExcitationWavelength="488" ID="Channel:11:1" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="16711935" ExcitationWavelength="488" ID="Channel:11:1" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.7999756" ID="LightSource:11:3"/>
                 <DetectorSettings Gain="541.027695124743" ID="Detector:11:1" Offset="-1.48666666666666"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:11:1"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711935" ExcitationWavelength="543" ID="Channel:11:2" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="-16711681" ExcitationWavelength="543" ID="Channel:11:2" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.6999939" ID="LightSource:11:6"/>
                 <DetectorSettings Gain="444.743266956588" ID="Detector:11:2" Offset="-0.546666666666667"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:11:2"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711680" ExcitationWavelength="633" ID="Channel:11:3" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
+            <Channel Color="-16776961" ExcitationWavelength="633" ID="Channel:11:3" Name="" PinholeSize="600.000028498471" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.6999939" ID="LightSource:11:7"/>
                 <DetectorSettings Gain="1080.62485694667" ID="Detector:11:3" Offset="-0.233333333333334"/>
                 <LightPath>
@@ -875,22 +875,22 @@
         <InstrumentRef ID="Instrument:12"/>
         <ObjectiveSettings ID="Objective:12:0" RefractiveIndex="1.518"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:12" PhysicalSizeX="0.0946044921875" PhysicalSizeY="0.0946044921875" PhysicalSizeZ="0.167369802625226" SizeC="4" SizeT="1" SizeX="512" SizeY="512" SizeZ="231" Type="uint8">
-            <Channel Color="255" ID="Channel:12:0" PinholeSize="67.8860479790053" SamplesPerPixel="1">
+            <Channel Color="65535" ID="Channel:12:0" PinholeSize="67.8860479790053" SamplesPerPixel="1">
                 <LightPath>
                     <EmissionFilterRef ID="Filter:12:0"/>
                 </LightPath>
             </Channel>
-            <Channel Color="65280" ID="Channel:12:1" PinholeSize="67.8860479790053" SamplesPerPixel="1">
+            <Channel Color="16711935" ID="Channel:12:1" PinholeSize="67.8860479790053" SamplesPerPixel="1">
                 <LightPath>
                     <EmissionFilterRef ID="Filter:12:1"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16711680" ID="Channel:12:2" PinholeSize="67.8860479790053" SamplesPerPixel="1">
+            <Channel Color="-16776961" ID="Channel:12:2" PinholeSize="67.8860479790053" SamplesPerPixel="1">
                 <LightPath>
                     <EmissionFilterRef ID="Filter:12:3"/>
                 </LightPath>
             </Channel>
-            <Channel Color="16777215" ID="Channel:12:3" PinholeSize="67.8860479790053" SamplesPerPixel="1">
+            <Channel Color="-1" ID="Channel:12:3" PinholeSize="67.8860479790053" SamplesPerPixel="1">
                 <LightPath/>
             </Channel>
             <MetadataOnly/>
@@ -1825,7 +1825,7 @@
         <InstrumentRef ID="Instrument:13"/>
         <ObjectiveSettings ID="Objective:13:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:13" PhysicalSizeX="1.0" PhysicalSizeY="1.0" SizeC="3" SizeT="1" SizeX="930" SizeY="930" SizeZ="1" Type="uint8">
-            <Channel Color="16777215" ID="Channel:13:0" SamplesPerPixel="3">
+            <Channel Color="-1" ID="Channel:13:0" SamplesPerPixel="3">
                 <LightPath/>
             </Channel>
             <MetadataOnly/>
