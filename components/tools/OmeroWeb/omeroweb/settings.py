@@ -231,8 +231,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # Add links to the top header: links are ['Link Text', 'url_name'], where the url is reverse("url_name")
     "omero.web.ui.top_links": ["TOP_LINKS", '[]', json.loads],  # E.g. '[["Webtest", "webtest_index"]]'
     # Add links to the tool-bar: links are ['path/to/icon.png' OR 'label', 'url_name', 'title', 'id'], where the url is reverse("url_name").
-    # E.g. '[["webtest/img/figure_icon-16.png", "webtest_render_channel_overlay", "Channel Overlay", "channel_overlay_link"]]' 'id' is optional
-    "omero.web.ui.toolbar_links": ["TOOLBAR_LINKS", '[]', json.loads],
+    # E.g. '[["webtest/img/figure_icon-16.png", "webtest_split_view_figure", "Split View Figure", "channel_overlay_link"]]' 'id' is optional
+    "omero.web.ui.toolbar_links": ["TOOLBAR_LINKS", '[["webtest/img/figure_icon-16.png", "webtest_split_view_figure", "Split View Figure"]]', json.loads],
     
     
     # sharing no longer use this variable. replaced by request.build_absolute_uri

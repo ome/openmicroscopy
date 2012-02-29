@@ -306,6 +306,7 @@ def split_view_figure (request, **kwargs):
     
     
     idList = request.REQUEST.get('imageIds', None)    # comma - delimited list
+    idList = request.REQUEST.get('Image', idList)    # we also support 'Image'
     if idList:
         imageIds = [long(i) for i in idList.split(",")]
     else:
