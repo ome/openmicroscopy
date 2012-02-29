@@ -25,16 +25,18 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "common/css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
+    
 {% endblock %}
 
 {% block script %}
     {{ block.super }}
-    <!--[if IE]><script language="javascript" type="text/javascript" src="{% static "webadmin/javascript/excanvas.js" %}"></script><![endif]-->
-    <script language="javascript" type="text/javascript" src="{% static "webadmin/javascript/jquery.flot.js" %}"></script>
-    <script type="text/javascript" src="{% static "webadmin/javascript/jquery.flot.pie.js" %}"></script>
+    <!--[if IE]><script language="javascript" type="text/javascript" src="{% static "3rdparty/jquery.flot/excanvas.js" %}"></script><![endif]-->
+    <script language="javascript" type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.pie.js" %}"></script>
     
-    <script type="text/javascript" src="{% static "common/javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript">
         Number.prototype.filesizeformat = function () {
             /*
@@ -196,7 +198,7 @@
 <div>{% trans "Free space" %}: {{ driveSpace.free|filesizeformat }}</div>
 <div id="total"></div>
 
-<div id="usage"><img src="{% static "common/image/spinner.gif" %}" id="progress" style="display: none; float:left"/><div id="status"></div></div>
+<div id="usage"><img src="{% static "webgateway/img/spinner.gif" %}" id="progress" style="display: none; float:left"/><div id="status"></div></div>
 
 
 <table id="drivespaceTable" class="tablesorter" style="display: none;">
