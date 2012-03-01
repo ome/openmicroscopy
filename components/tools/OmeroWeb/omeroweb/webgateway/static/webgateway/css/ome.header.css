@@ -114,7 +114,7 @@
 
 				
 			#logout a{
-				background: url(../image/logout.png) center center no-repeat;
+				background: url(../img/logout.png) center center no-repeat;
 				display:block;
 				text-indent: -9999px;
 				width:8px;
@@ -283,7 +283,7 @@
 		position:absolute;
 		top:6px;
 		right:7px;
-		background: url(../image/search.png) no-repeat;
+		background: url(../img/search.png) no-repeat;
 		width:20px;
 		height:20px;
 		border:none;
