@@ -500,7 +500,7 @@ def load_template(request, menu, conn, **kwargs):
         manager = BaseContainer(conn)
     except AttributeError, x:
         logger.error(traceback.format_exc())
-        return handlerInternalError(x)
+        return handlerInternalError(request, x)
     
     form_users = None
     filter_user_id = None
@@ -614,8 +614,7 @@ def load_data(request, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
         manager= BaseContainer(conn, **kw)
     except AttributeError, x:
         logger.error(traceback.format_exc())
-        return HttpJavascriptResponse("Object does not exist. Refresh the page.")
-        #return handlerInternalError(x)
+        return handlerInternalError(request, "Object does not exist. Refresh the page.")
     
     # prepare forms
     filter_user_id = request.session.get('nav')['experimenter']
@@ -812,7 +811,7 @@ def load_data_by_tag(request, conn, o_type=None, o_id=None, **kwargs):
         manager= BaseContainer(conn, **kw)
     except AttributeError, x:
         logger.error(traceback.format_exc())
-        return handlerInternalError(x)
+        return handlerInternalError(request, x)
 
     if o_id is not None:
         if o_type == "tag":
@@ -868,7 +867,7 @@ def open_astex_viewer(request, obj_type, obj_id, conn, **kwargs):
     if obj_type == 'file':
         ann = conn.getObject("Annotation", obj_id)
         if ann is None:
-            return handlerInternalError("Can't find file Annotation ID %s as data source for Open Astex Viewer." % obj_id)
+            return handlerInternalError(request, "Can't find file Annotation ID %s as data source for Open Astex Viewer." % obj_id)
         # determine mapType by name
         imageName = ann.getFileName()
         if imageName.endswith(".bit"):
@@ -879,7 +878,7 @@ def open_astex_viewer(request, obj_type, obj_id, conn, **kwargs):
     elif obj_type in ('image', 'image_8bit'):
         image = conn.getObject("Image", obj_id)     # just check the image exists
         if image is None:
-            return handlerInternalError("Can't find image ID %s as data source for Open Astex Viewer." % obj_id)
+            return handlerInternalError(request, "Can't find image ID %s as data source for Open Astex Viewer." % obj_id)
         imageName = image.getName()
         c = image.getChannels()[0]
         # By default, scale to 120 ^3. Also give option to load 'bigger' map or full sized
@@ -1005,7 +1004,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, conn_share=None, **k
                 
     except AttributeError, x:
         logger.error(traceback.format_exc())
-        return handlerInternalError(x)    
+        return handlerInternalError(request, x)    
 
     if c_type in ("tag"):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
@@ -1043,7 +1042,7 @@ def load_metadata_preview(request, imageId, conn=None, conn_share=None, **kwargs
             manager = BaseContainer(conn, index=index, image=long(imageId))
     except AttributeError, x:
         logger.error(traceback.format_exc())
-        return handlerInternalError(x)
+        return handlerInternalError(request, x)
     
     context = {'imageId':imageId, 'manager':manager}
 
@@ -1077,7 +1076,7 @@ def load_metadata_hierarchy(request, c_type, c_id, conn=None, conn_share=None, *
             manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     except AttributeError, x:
         logger.error(traceback.format_exc())
-        return handlerInternalError(x)
+        return handlerInternalError(request, x)
 
     context = {'manager':manager}
 
@@ -1118,7 +1117,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, conn_share=None,
                 manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     except AttributeError, x:
         logger.error(traceback.format_exc())
-        return handlerInternalError(x)
+        return handlerInternalError(request, x)
 
     form_environment = None
     form_objective = None
@@ -1357,7 +1356,7 @@ def annotate_file(request, conn, **kwargs):
                 manager = BaseContainer(conn, **kw)
             except AttributeError, x:
                 logger.error(traceback.format_exc())
-                return handlerInternalError(x)
+                return handlerInternalError(request, x)
     if manager is None:
         manager = BaseContainer(conn)
     
@@ -1456,7 +1455,7 @@ def annotate_tags(request, conn, **kwargs):
                 manager = BaseContainer(conn, **kw)
             except AttributeError, x:
                 logger.error(traceback.format_exc())
-                return handlerInternalError(x)
+                return handlerInternalError(request, x)
         elif o_type in ("share", "sharecomment"):
             manager = BaseShare(conn, None, o_id)
 
@@ -1541,7 +1540,7 @@ def manage_action_containers(request, action, conn, o_type=None, o_id=None, **kw
             manager = BaseContainer(conn, **kw)
         except AttributeError, x:
             logger.error(traceback.format_exc())
-            return handlerInternalError(x)
+            return handlerInternalError(request, x)
     elif o_type in ("share", "sharecomment"):
         manager = BaseShare(conn, None, o_id)
     else:
@@ -1820,7 +1819,7 @@ def get_original_file(request, fileId, conn, **kwargs):
 
     orig_file = conn.getObject("OriginalFile", fileId)
     if orig_file is None:
-        return handlerInternalError("Original File does not exists (id:%s)." % (iid))
+        return handlerInternalError(request, "Original File does not exists (id:%s)." % (iid))
     
     rsp = HttpResponse(orig_file.getFileInChunks())
     mimetype = orig_file.mimetype
@@ -1843,7 +1842,7 @@ def image_as_map(request, imageId, conn, **kwargs):
     if image is None:
         message = "Image ID %s not found in image_as_map" % imageId
         logger.error(message)
-        return handlerInternalError(message)
+        return handlerInternalError(request, message)
 
     imageName = image.getName()
     downloadName = imageName.endswith(".map") and imageName or "%s.map" % imageName
@@ -1902,7 +1901,7 @@ def image_as_map(request, imageId, conn, **kwargs):
     except Exception, x:
         temp.close()
         logger.error(traceback.format_exc())
-        return handlerInternalError("Cannot generate map (id:%s)." % (imageId))
+        return handlerInternalError(request, "Cannot generate map (id:%s)." % (imageId))
     return rsp
 
 
@@ -1914,13 +1913,13 @@ def archived_files(request, iid, conn, **kwargs):
     image = conn.getObject("Image", iid)
     if image is None:
         logger.debug("Cannot download archived file becuase Image does not exist.")
-        return handlerInternalError("Cannot download archived file becuase Image does not exist (id:%s)." % (iid))
+        return handlerInternalError(request, "Cannot download archived file becuase Image does not exist (id:%s)." % (iid))
     
     files = list(image.getArchivedFiles())
 
     if len(files) == 0:
         logger.debug("Tried downloading archived files from image with no files archived.")
-        return handlerInternalError("This image has no Archived Files.")
+        return handlerInternalError(request, "This image has no Archived Files.")
 
     if len(files) == 1:
         orig_file = files[0]
@@ -1966,7 +1965,7 @@ def archived_files(request, iid, conn, **kwargs):
         except Exception, x:
             temp.close()
             logger.error(traceback.format_exc())
-            return handlerInternalError("Cannot download file (id:%s)." % (iid))
+            return handlerInternalError(request, "Cannot download file (id:%s)." % (iid))
 
     rsp['Content-Type'] = 'application/force-download'
     return rsp
@@ -1976,7 +1975,7 @@ def download_annotation(request, action, iid, conn, **kwargs):
     """ Returns the file annotation as an http response for download """
     ann = conn.getObject("Annotation", iid)
     if ann is None:
-        return handlerInternalError("Annotation does not exist (id:%s)." % (iid))
+        return handlerInternalError(request, "Annotation does not exist (id:%s)." % (iid))
     
     rsp = HttpResponse(ann.getFileInChunks())
     rsp['Content-Type'] = 'application/force-download'
@@ -2166,7 +2165,7 @@ def update_basket(request, **kwargs):
             action = request.REQUEST['action']
         except Exception, x:
             logger.error(traceback.format_exc())
-            return handlerInternalError("Attribute error: 'action' is missed.")
+            return handlerInternalError(request, "Attribute error: 'action' is missed.")
         else:
             prod = request.REQUEST.get('productId')
             ptype = request.REQUEST.get('productType')
@@ -2218,7 +2217,7 @@ def update_basket(request, **kwargs):
         request.session['nav']['basket'] = total
         return HttpResponse(total)
     else:
-        return handlerInternalError("Request method error in Basket.")
+        return handlerInternalError(request, "Request method error in Basket.")
 
 @login_required()
 def help(request, conn, **kwargs):

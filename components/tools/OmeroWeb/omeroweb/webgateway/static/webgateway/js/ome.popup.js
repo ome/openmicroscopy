@@ -109,9 +109,9 @@ function get_tree_selection() {
  */
 var confirm_dialog = function(dialog_text, callback, title, button_labels, width, height) {
 
-    if (typeof title == "undefined") var title = "Confirm";
-    if (typeof width == "undefined") var width = 350;
-    if (typeof height == "undefined") var height = 140;
+    if ((typeof title == "undefined") || (title === null)) var title = "Confirm";
+    if ((typeof width == "undefined") || (width === null)) var width = 350;
+    if ((typeof height == "undefined") || (height === null)) var height = 140;
 
     var $dialog = $("#confirm_dialog");
     if ($dialog.length > 0) {       // get rid of any old dialogs
@@ -202,7 +202,8 @@ var feedback_dialog = function(error) {
 $(document).ready(function(){
     $("body").ajaxError(function(e, req, settings, exception) {
         if (req.status == 404) {
-            confirm_dialog("404 Error: page not found", null, "404 Error", ["OK"]);
+            var msg = req.responseText;
+            confirm_dialog(msg, null, "404 Error", ["OK"], 360, 180);
         } else if (req.status == 403) {
             // Denied (E.g. session timeout) Refresh - will redirect to login page
             window.location.reload();
