@@ -879,9 +879,18 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * Return a template based directory path.
      * (an option here would be to create the dir if it doesn't exist??)
      */
-    public String getCurrentRepoDir(String uniquePath, Current __current) throws ServerError {
+    public List<String> getCurrentRepoDir(List<String> paths, Current __current) throws ServerError {
         //FIXME: MANAGED_REPO_PATH should be passed in as config.
-        String path = FilenameUtils.concat(root.getAbsolutePath(), MANAGED_REPO_PATH);
+        String repoPath = FilenameUtils.concat(root.getAbsolutePath(), MANAGED_REPO_PATH);
+        String basePath = FilenameUtils.getFullPathNoEndSeparator(paths.get(0));
+        for (String path : paths)
+        {
+            if (!path.startsWith(basePath))
+            {
+                basePath = FilenameUtils.getFullPathNoEndSeparator(basePath);
+            }
+        }
+        String uniquePath = paths.get(0);
 
         //FIXME: this seems a long-winded way to get the username. Is there an easier way?
         Principal currentUser = currentUser(__current);
@@ -900,7 +909,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         String name = rv.getOmeName().getValue();
 
         //FIXME: Force user prefix for now
-        path = FilenameUtils.concat(path, name);
+        repoPath = FilenameUtils.concat(repoPath, name);
         String dir;
         String[] elements = template.split("/");
         for (String part : elements) {
@@ -909,19 +918,40 @@ public class PublicRepositoryI extends _RepositoryDisp {
             for (int i = 1; i < subelements.length; i++) {
                 dir = dir + "-" + getStringFromToken(subelements[i]);
             }
-            path = FilenameUtils.concat(path, dir);
+            repoPath = FilenameUtils.concat(repoPath, dir);
         }
 
-        int version = 0;
-        String uniquePathElement = FilenameUtils.getName(uniquePath);
+        //if file clashes in that directory
+        String uniquePathElement = FilenameUtils.getName(basePath);
         String endPart = uniquePathElement;
-        while (new File(path, endPart).exists()) {
-            version++;
-            endPart = uniquePathElement + "-" + Integer.toString(version);
+        boolean clashes = false;
+        for (String path: paths)
+        {
+            String relative = new File(basePath).toURI().relativize(new File(path).toURI()).getPath();
+            if (new File(new File(repoPath, endPart), relative).exists()) {
+                clashes = true;
+                break;
+            }
         }
-        path = FilenameUtils.concat(path, endPart);
 
-        return path;
+        if (clashes) {
+            int version = 0;
+            while (new File(repoPath, endPart).exists()) {
+                version++;
+                endPart = uniquePathElement + "-" + Integer.toString(version);
+            }
+        }
+        repoPath = FilenameUtils.concat(repoPath, endPart);
+
+        for (int i=0; i<paths.size(); i++)
+        {
+            String path = paths.get(i);
+            String relative = new File(basePath).toURI().relativize(new File(path).toURI()).getPath();
+            path = FilenameUtils.concat(repoPath, relative);
+            paths.set(i, path);
+        }
+
+        return paths;
     }
 
     // Helper method to provide a little more flexibility
@@ -946,6 +976,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         return rv;
     }
+
+
 
     public RenderingEnginePrx render(String path, Current __current)
             throws ServerError {

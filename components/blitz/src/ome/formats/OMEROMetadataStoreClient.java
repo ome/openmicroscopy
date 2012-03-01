@@ -1799,7 +1799,7 @@ public class OMEROMetadataStoreClient
      * @param target The <code>setId()</code> target.
      * @returns The prefix file path that was calculated by the server.
      */
-    public String[] writeFilesToFileStore(List<File> files, File target)
+    public String[] writeFilesToFileStore(String[] usedFiles, File target)
     {
         // Lookup each source file in our hash map and write it to the
         // correct original file object server side.
@@ -1807,43 +1807,29 @@ public class OMEROMetadataStoreClient
         RepositoryPrx repo = getLegacyRepository();
         File repositoryRoot;
         File directory;
-        String filePath = null;
-        List<String> usedFiles = new ArrayList<String>();
+        List<String> destFiles;
+        List<String> srcFiles = Arrays.asList(usedFiles);
 
-        String basePath = getTargetBasePath(files, target);
         try
         {
             OriginalFile ofRoot = repo.root();
             repositoryRoot = new File(ofRoot.getPath().getValue(),
                             ofRoot.getName().getValue());
-
-            log.debug("Target: " + target.getAbsolutePath());
-            filePath = repo.getCurrentRepoDir(basePath);
-            directory = new File(filePath);
-            repo.makeDir(directory.getAbsolutePath());
+            destFiles = repo.getCurrentRepoDir(srcFiles);
         }
         catch (ServerError e)
         {
             throw new RuntimeException(e);
         }
 
-        for (File file : files)
+        for (int i = 0; i < srcFiles.size(); i++)
         {
-            String path = file.getAbsolutePath();
+            File file = new File(srcFiles.get(i));
             FileInputStream stream = null;
             try
             {
                 stream = new FileInputStream(file);
-                if (path.startsWith(basePath)) {
-                    // Is relativize safe?
-                    String relative = new File(basePath).toURI().relativize(new File(path).toURI()).getPath();
-                    file = new File(directory, relative);
-                } 
-                else {
-                    // This shouldn't happen but copy the files into the 
-                    // original absolute path within the repo directory.
-                    file = new File(directory, file.getAbsolutePath());
-                }
+                file = new File(destFiles.get(i));
                 repo.makeDir(file.getParent());
                 rawFileStore = repo.file(file.getAbsolutePath(), "rw");
                 int rlen = 0;
@@ -1854,7 +1840,6 @@ public class OMEROMetadataStoreClient
                     rawFileStore.write(buf, offset, rlen);
                     offset += rlen;
                 }
-                usedFiles.add(file.getAbsolutePath());
                 // FIXME: This is for testing only. See #6349
                 try 
                 {
@@ -1885,21 +1870,7 @@ public class OMEROMetadataStoreClient
                 }
             }
         }
-        return usedFiles.toArray(new String[usedFiles.size()]);
-    }
-
-    private String getTargetBasePath(List<File> files, File target) {
-        // This only works with normalised paths. Can this be assumed here?
-        // This also assumes the target file is not a tmp file!!
-        String basePath = FilenameUtils.getFullPathNoEndSeparator(target.getAbsolutePath());
-        for (File file : files)
-        {
-            if (!file.getAbsolutePath().startsWith(basePath))
-            {
-                basePath = FilenameUtils.getFullPathNoEndSeparator(basePath);
-            }
-        }
-        return basePath;
+        return destFiles.toArray(new String[destFiles.size()]);
     }
 
     /**

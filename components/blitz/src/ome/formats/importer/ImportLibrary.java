@@ -408,12 +408,10 @@ public class ImportLibrary implements IObservable
         File target = container.getFile();
         log.info("Main file: " + target.getAbsolutePath());
         log.info("Used files before:");
-        List<File> files = new ArrayList<File>();
         for (String f : usedFiles) {
             log.info(f);
-            files.add(new File(f));
         }
-        usedFiles = store.writeFilesToFileStore(files, target);
+        usedFiles = store.writeFilesToFileStore(usedFiles, target);
         log.info("Used files after:");
         for (String f : usedFiles) {
             log.info(f);
