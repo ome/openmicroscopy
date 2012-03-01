@@ -26,6 +26,7 @@
       <constructor-arg index="3" ref="simpleSqlAction"/>
       <constructor-arg index="4" ref="uuid"/>
       <constructor-arg index="5" value="${omero.data.dir}"/>
+      <constructor-arg index="6" value="${omero.fslite.path}"/>
   </bean>
   <bean id="repositoryTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="legacyRepository" />

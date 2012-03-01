@@ -2,7 +2,7 @@
  * ome.services.blitz.repo.PublicRepositoryI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -30,11 +30,14 @@ import static omero.rtypes.rtime;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -81,6 +84,7 @@ import omero.grid.RepositoryListConfig;
 import omero.grid.RepositoryPrx;
 import omero.grid._RepositoryDisp;
 import omero.model.DimensionOrder;
+import omero.model.Experimenter;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -90,6 +94,7 @@ import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.util.IceMapper;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -119,9 +124,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
     /* String used as key in params field of db for indexing image series number */
     private final static String IMAGE_NO_KEY = "image_no";
 
+    // FIXME: This should ultimately come from somewhere else
+    private final static String MANAGED_REPO_PATH = "ManagedRepository" + File.separator;
+
     private final long id;
 
     private final File root;
+
+    private final String template;
 
     private final Executor executor;
 
@@ -137,9 +147,10 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     private String repoUuid;
 
-    public PublicRepositoryI(File root, long repoObjectId, Executor executor,
+    public PublicRepositoryI(File root, String template, long repoObjectId, Executor executor,
             SqlAction sql, Principal principal) throws Exception {
         this.id = repoObjectId;
+        this.template = template;
         this.executor = executor;
         this.sql = sql;
         this.principal = principal;
@@ -150,10 +161,19 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         this.root = root.getAbsoluteFile();
         this.repoUuid = null;
+        log.info("Repository template: " + this.template);
     }
 
     public OriginalFile root(Current __current) throws ServerError {
-        return new OriginalFileI(this.id, false); // SHOULD BE LOADED.
+       final long repoId = this.id;
+       ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
+           .execute(principal, new Executor.SimpleWork(this, "root") {
+               @Transactional(readOnly = true)
+               public Object doWork(Session session, ServiceFactory sf) {
+                   return sf.getQueryService().find(ome.model.core.OriginalFile.class, repoId);
+               }
+           });
+       return (OriginalFileI) new IceMapper().map(oFile);
     }
 
     /**
@@ -408,6 +428,27 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return images;
     }
 
+    public void importMetadata(String fileId, Current __current) throws ServerError {
+        OMEROMetadataStoreClient store;
+        ImportConfig config = new ImportConfig();
+        final String clientSessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
+        // TODO: replace hard-wired host and port
+        config.hostname.set("localhost");
+        config.port.set(new Integer(4064));
+        config.sessionKey.set(clientSessionUuid);
+        try {
+            store = config.createStore();
+            OMEROWrapper reader = new OMEROWrapper(config);
+            ImportLibrary library = new ImportLibrary(store, reader);
+            ImportContainer ic = new ImportContainer(new File(fileId), -1L, null,
+                    false, null, null, null, null);
+            ic.setMetadataOnly(true);
+            library.importImage(ic, 0, 0, 1);
+        } catch (Throwable t) {
+            throw new omero.InternalException(stackTraceAsString(t), null, t.getMessage());
+        }
+    }
+
     protected List<Pixels> importFile(final File file, final String clientSessionUuid, Map<Integer,Image> imageMap) {
         OMEROMetadataStoreClient store;
         ImportConfig config = new ImportConfig();
@@ -430,8 +471,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
         List<Pixels> pix = new ArrayList<Pixels>();
         try {
-        	ImportContainer ic = new ImportContainer(file, -1L, null, 
-					false, null, null, null, null);
+               ImportContainer ic = new ImportContainer(file, -1L, null,
+                                       false, null, null, null, null);
              pix = library.importImage(ic, 0, 0, 1);
              return pix;
         } catch (Throwable t) {
@@ -697,7 +738,49 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return RawPixelsStorePrxHelper.uncheckedCast(prx);
     }
 
-    public RawFileStorePrx file(long fileId, Current __current) throws ServerError {
+    public RawFileStorePrx file(String path, String mode, Current __current) throws ServerError {
+        // See comment below in RawFileStorePrx
+        Ice.Current adjustedCurr = new Ice.Current();
+        adjustedCurr.ctx = __current.ctx;
+        adjustedCurr.operation = __current.operation;
+        String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
+        adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
+
+        RepoRawFileStoreI rfs;
+        try {
+            rfs = new RepoRawFileStoreI(path, mode);
+        } catch (Throwable t) {
+            if (t instanceof ServerError) {
+                throw (ServerError) t;
+            } else {
+                omero.InternalException ie = new omero.InternalException();
+                IceMapper.fillServerError(ie, t);
+                throw ie;
+            }
+        }
+
+        // See comment below in fileById
+        _RawFileStoreTie tie = new _RawFileStoreTie(rfs);
+        RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
+        try {
+            this.executor.getContext().publishMessage(msg);
+        } catch (Throwable t) {
+            if (t instanceof ServerError) {
+                throw (ServerError) t;
+            } else {
+                omero.InternalException ie = new omero.InternalException();
+                IceMapper.fillServerError(ie, t);
+                throw ie;
+            }
+        }
+        Ice.ObjectPrx prx = msg.getProxy();
+        if (prx == null) {
+            throw new omero.InternalException(null, null, "No ServantHolder for proxy.");
+        }
+        return RawFileStorePrxHelper.uncheckedCast(prx);
+    }
+
+    public RawFileStorePrx fileById(long fileId, Current __current) throws ServerError {
         Principal currentUser = currentUser(__current);
         File file = getFile(fileId, currentUser);
         if (file == null) {
@@ -738,16 +821,163 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return RawFileStorePrxHelper.uncheckedCast(prx);
     }
 
-    public RawFileStorePrx read(String path, Current __current)
-            throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
+    /**
+     * Create a nested path in the repository. Creates each directory
+     * in the path is it doen't already exist. Silently returns if
+     * the directory already exists.
+     *
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     */
+    public void makeDir(String path, Current __current) throws ServerError {
+        File file = checkPath(path);
+        try {
+            FileUtils.forceMkdir(file);
+        } catch (Exception e) {
+            throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
+        }
     }
 
     public void rename(String path, Current __current) throws ServerError {
         // TODO Auto-generated method stub
 
     }
+
+    /**
+     * Append a block to a file into the repository.
+     *
+     * @param fileId
+     *            A file path on a repository.
+     * @param data
+     *            A block of data.
+     * @param __current
+     *            ice context.
+     */
+    public void writeBlock(String fileId, byte[] data, Current __current)
+            throws ServerError {
+        File file = checkPath(fileId);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (Exception e) {
+                throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
+            }
+        }
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(file, true);
+            out.write(data);
+            out.close();
+        } catch (Exception e) {
+            throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
+        }
+    }
+
+    /**
+     * Return a template based directory path.
+     * (an option here would be to create the dir if it doesn't exist??)
+     */
+    public List<String> getCurrentRepoDir(List<String> paths, Current __current) throws ServerError {
+        //FIXME: MANAGED_REPO_PATH should be passed in as config.
+        String repoPath = FilenameUtils.concat(root.getAbsolutePath(), MANAGED_REPO_PATH);
+        String basePath = FilenameUtils.getFullPathNoEndSeparator(paths.get(0));
+        for (String path : paths)
+        {
+            if (!path.startsWith(basePath))
+            {
+                basePath = FilenameUtils.getFullPathNoEndSeparator(basePath);
+            }
+        }
+        String uniquePath = paths.get(0);
+
+        //FIXME: this seems a long-winded way to get the username. Is there an easier way?
+        Principal currentUser = currentUser(__current);
+        ome.model.meta.Experimenter exp = (ome.model.meta.Experimenter) executor.execute(
+                currentUser, new Executor.SimpleWork(this, "getCurrentRepoDir") {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                long id = sf.getAdminService().getEventContext().getCurrentUserId();
+                ome.model.meta.Experimenter exp = sf.getAdminService().getExperimenter(id);
+                return exp;
+            }
+        });
+
+        IceMapper mapper = new IceMapper();
+        Experimenter rv = (Experimenter) mapper.map(exp);
+        String name = rv.getOmeName().getValue();
+
+        //FIXME: Force user prefix for now
+        repoPath = FilenameUtils.concat(repoPath, name);
+        String dir;
+        String[] elements = template.split("/");
+        for (String part : elements) {
+            String[] subelements = part.split("-");
+            dir = getStringFromToken(subelements[0]);
+            for (int i = 1; i < subelements.length; i++) {
+                dir = dir + "-" + getStringFromToken(subelements[i]);
+            }
+            repoPath = FilenameUtils.concat(repoPath, dir);
+        }
+
+        //if file clashes in that directory
+        String uniquePathElement = FilenameUtils.getName(basePath);
+        String endPart = uniquePathElement;
+        boolean clashes = false;
+        for (String path: paths)
+        {
+            String relative = new File(basePath).toURI().relativize(new File(path).toURI()).getPath();
+            if (new File(new File(repoPath, endPart), relative).exists()) {
+                clashes = true;
+                break;
+            }
+        }
+
+        if (clashes) {
+            int version = 0;
+            while (new File(repoPath, endPart).exists()) {
+                version++;
+                endPart = uniquePathElement + "-" + Integer.toString(version);
+            }
+        }
+        repoPath = FilenameUtils.concat(repoPath, endPart);
+
+        for (int i=0; i<paths.size(); i++)
+        {
+            String path = paths.get(i);
+            String relative = new File(basePath).toURI().relativize(new File(path).toURI()).getPath();
+            path = FilenameUtils.concat(repoPath, relative);
+            paths.set(i, path);
+        }
+
+        return paths;
+    }
+
+    // Helper method to provide a little more flexibility
+    // when building a path from a template
+    private String getStringFromToken(String token) {
+        Calendar now = Calendar.getInstance();
+        DateFormatSymbols dfs = new DateFormatSymbols();
+        String rv;
+        if (token.equals("%year%"))
+            rv = Integer.toString(now.get(Calendar.YEAR));
+        else if (token.equals("%month%"))
+            rv = Integer.toString(now.get(Calendar.MONTH)+1);
+        else if (token.equals("%monthname%"))
+            rv = dfs.getMonths()[now.get(Calendar.MONTH)];
+        else if (token.equals("%day%"))
+            rv = Integer.toString(now.get(Calendar.DAY_OF_MONTH));
+        else if (!token.endsWith("%") && !token.startsWith("%"))
+            rv = token;
+        else {
+            log.warn("Ignored unrecognised token in template: " + token);
+            rv = "";
+        }
+        return rv;
+    }
+
+
 
     public RenderingEnginePrx render(String path, Current __current)
             throws ServerError {
@@ -766,14 +996,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         // TODO Auto-generated method stub
 
     }
-
-    public RawFileStorePrx write(String path, Current __current)
-            throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-
 
     /**
      *

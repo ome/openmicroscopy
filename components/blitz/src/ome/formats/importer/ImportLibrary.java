@@ -398,6 +398,30 @@ public class ImportLibrary implements IObservable
 
     /**
      * Perform various specific operations on big image formats.
+     * @param container The current import container we're to handle.
+     * @return Rewritten container after files have been copied to repository.
+     */
+    private ImportContainer handleFsliteImport(ImportContainer container)
+    {
+        String[] usedFiles = container.getUsedFiles();
+        File target = container.getFile();
+        log.info("Main file: " + target.getAbsolutePath());
+        log.info("Used files before:");
+        for (String f : usedFiles) {
+            log.info(f);
+        }
+        usedFiles = store.writeFilesToFileStore(usedFiles, target);
+        log.info("Used files after:");
+        for (String f : usedFiles) {
+            log.info(f);
+        }
+        container.setUsedFiles(usedFiles);
+        container.setFile(new File(usedFiles[0]));
+        return container;
+    }
+
+    /**
+     * Perform various specific operations on big image formats.
      * @param reader The base reader currently being used.
      * @param container The current import container we're to handle.
      */
@@ -433,7 +457,6 @@ public class ImportLibrary implements IObservable
             }
             log.info("Big image, enabling metadata only and archiving.");
             container.setMetadataOnly(true);
-            container.setArchive(true);
         }
         else
         {
@@ -500,18 +523,14 @@ public class ImportLibrary implements IObservable
             }
             IFormatReader baseReader = reader.getImageReader().getReader();
             handleBigImageFormats(baseReader, container);
-            // Setting these two variables here because handleBigImageFormats()
-            // above may modify the container.
-            boolean archive = container.getArchive();
-            boolean useMetadataFile = container.getUseMetadataFile();
+            // Forcing these to false for now but remove completely once tested?
+            boolean useMetadataFile = false;
+            isMetadataOnly = container.getMetadataOnly();
             if (log.isInfoEnabled())
             {
                 log.info("File format: " + format);
                 log.info("Base reader: " + baseReader.getClass().getName());
                 log.info("Metadata only import? " + isMetadataOnly);
-                log.info("Archiving enabled? " + archive);
-                log.info("Container metadata only import? " +
-                         container.getMetadataOnly());
             }
             notifyObservers(new ImportEvent.LOADED_IMAGE(
                     shortName, index, numDone, total));
@@ -525,14 +544,16 @@ public class ImportLibrary implements IObservable
             if (isScreeningDomain)
             {
                 log.info("Reader is of HCS domain, disabling metafile.");
-
-                metadataFiles = store.setArchiveScreeningDomain(archive);
+                metadataFiles = store.setArchiveScreeningDomain();
             }
             else
             {
                 log.info("Reader is not of HCS domain, use metafile: "
                         + useMetadataFile);
-                metadataFiles = store.setArchive(archive, useMetadataFile);
+                metadataFiles = store.setArchive(useMetadataFile);
+            }
+            if (!isMetadataOnly) {
+                container = handleFsliteImport(container);
             }
             List<Pixels> pixList = importMetadata(index, container);
             List<Long> plateIds = new ArrayList<Long>();
@@ -549,66 +570,6 @@ public class ImportLibrary implements IObservable
                 pixelsIds.add(pixels.getId().getValue());
             }
             boolean saveSha1 = false;
-            // If we're metadata only, we don't want to perform any pixel I/O.
-            if (!isMetadataOnly && !container.getMetadataOnly())
-            {
-                boolean success = false;
-                try
-                {
-                    store.preparePixelsStore(pixelsIds);
-                    int seriesCount = reader.getSeriesCount();
-                    for (int series = 0; series < seriesCount; series++)
-                    {
-                        // Calculate the dimensions for import this single file.
-                        ImportSize size = new ImportSize(fileName,
-                                pixList.get(series), reader.getDimensionOrder());
-
-                        Pixels pixels = pixList.get(series);
-                        long pixId = pixels.getId().getValue();
-
-                        notifyObservers(new ImportEvent.DATASET_STORED(
-                                index, fileName, userSpecifiedTarget, pixId,
-                                series, size, numDone, total));
-
-                        MessageDigest md = importData(
-                                pixId, fileName, series, size);
-                        if (md != null)
-                        {
-                            String s = OMEROMetadataStoreClient.byteArrayToHexString(
-                                    md.digest());
-                            pixels.setSha1(store.toRType(s));
-                            saveSha1 = true;
-                        }
-
-                        notifyObservers(new ImportEvent.DATA_STORED(
-                                index, fileName, userSpecifiedTarget, pixId,
-                                series, size));
-                    }
-                    success = true;
-                }
-                finally
-                {
-                    try
-                    {
-                        store.finalizePixelStore();
-                    } catch (Throwable t) {
-                        // ticket:5594
-                        if (success) {
-                            // We thought we were successful, so
-                            // this exception can propagate outward
-                            // cancelling the import.
-                            throw t;
-                        } else {
-                            // We were not successful which could
-                            // only happen if an exception was thrown,
-                            // therefore log this new exception, so
-                            // the first exception can propagate.
-                            log.error("Close exception hidden by previous exception", t);
-                        }
-
-                    }
-                }
-            }
 
             // Original file absolute path to original file map for uploading
             Map<String, OriginalFile> originalFileMap =
@@ -651,44 +612,15 @@ public class ImportLibrary implements IObservable
             }
 
             List<File> fileNameList = new ArrayList<File>();
-            if (archive)
-            {
-                for (String filename : reader.getUsedFiles())
-                {
-                    fileNameList.add(new File(filename));
-                }
-            }
-            else
-            {
-                for (String filename : store.getFilteredCompanionFiles())
-                {
-                    fileNameList.add(new File(filename));
-                }
-            }
 
-            fileNameList.addAll(metadataFiles);
-            if (fileNameList.size() != originalFileMap.size())
-            {
-                log.warn(String.format("Original file number mismatch, %d!=%d.",
-                        fileNameList.size(), originalFileMap.size()));
-            }
-
-            if (archive)
-            {
-                notifyObservers(new ImportEvent.IMPORT_ARCHIVING(
-                        index, null, userSpecifiedTarget, null, 0, null));
-            }
-            store.writeFilesToFileStore(fileNameList, originalFileMap);
-            // If we're in metadata only mode and archiving is on we need to
+            // As we're in metadata only mode  on we need to
             // tell the server which Pixels set matches up to which series.
-            if ((isMetadataOnly || container.getMetadataOnly()) && archive)
+            String targetName = container.getFile().getAbsolutePath();
+            int series = 0;
+            for (Long pixelsId : pixelsIds)
             {
-                int series = 0;
-                for (Long pixelsId : pixelsIds)
-                {
-                    store.setPixelsParams(pixelsId, series);
-                    series++;
-                }
+                store.setPixelsParams(pixelsId, series, targetName);
+                series++;
             }
 
             if (saveSha1)

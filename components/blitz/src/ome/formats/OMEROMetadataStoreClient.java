@@ -112,6 +112,8 @@ import omero.api.ServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.METADATASTORE;
 import omero.grid.InteractiveProcessorPrx;
+import omero.grid.RepositoryMap;
+import omero.grid.RepositoryPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.AcquisitionMode;
 import omero.model.Annotation;
@@ -205,6 +207,7 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.util.TempFileManager;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -1497,11 +1500,9 @@ public class OMEROMetadataStoreClient
      * relevant original metadata files as requested and performs graph logic
      * to have the scafolding in place for later original file upload if
      * we are of the HCS domain.
-     * @param archive Whether or not the user requested the original files to
-     * be archived.
      * @return A list of the temporary metadata files created on local disk.
      */
-    public List<File> setArchiveScreeningDomain(boolean archive)
+    public List<File> setArchiveScreeningDomain()
     {
 	List<File> metadataFiles = new ArrayList<File>();
 	String[] usedFiles = reader.getUsedFiles();
@@ -1521,7 +1522,7 @@ public class OMEROMetadataStoreClient
 			new LinkedHashMap<Index, Integer>();
 		imageIndexes.put(Index.IMAGE_INDEX, series);
 		Image image = getSourceObject(Image.class, imageIndexes);
-		image.setArchived(toRType(archive));
+		image.setArchived(toRType(false));
 	}
 	// Create all original file objects for later population based on
 	// the existence or abscence of companion files and the archive
@@ -1533,33 +1534,18 @@ public class OMEROMetadataStoreClient
 		File usedFile = new File(usedFilename);
 		boolean isCompanionFile = companionFiles == null? false :
 			companionFiles.contains(usedFilename);
-		if (archive || isCompanionFile)
+		if (isCompanionFile)
 		{
 			LinkedHashMap<Index, Integer> indexes =
 				new LinkedHashMap<Index, Integer>();
 			indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
-			if (isCompanionFile)
-			{
-				// PATH 1: The file is a companion file, create it,
-				// and increment the next original file's index.
-				String format = "Companion/" + formatString;
-				createOriginalFileFromFile(usedFile, indexes, format);
-				addCompanionFileAnnotationTo(plateKey, indexes,
-						                     originalFileIndex);
-				originalFileIndex++;
-			}
-			else
-			{
-				// PATH 2: We're archiving and the file is not a
-				// companion file, create it, and increment the next
-				// original file's index.
-				createOriginalFileFromFile(usedFile, indexes,
-						formatString);
-				LSID originalFileKey =
-					new LSID(OriginalFile.class, originalFileIndex);
-				addReference(plateKey, originalFileKey);
-				originalFileIndex++;
-			}
+			// The file is a companion file, create it,
+			// and increment the next original file's index.
+			String format = "Companion/" + formatString;
+			createOriginalFileFromFile(usedFile, indexes, format);
+			addCompanionFileAnnotationTo(plateKey, indexes,
+						                originalFileIndex);
+			originalFileIndex++;
 		}
 	}
 	return metadataFiles;
@@ -1569,13 +1555,11 @@ public class OMEROMetadataStoreClient
      * Populates archive flags on all images currently processed links
      * relevant original metadata files as requested and performs graph logic
      * to have the scaffolding in place for later original file upload.
-     * @param archive Whether or not the user requested the original files to
-     * be archived.
      * @param useMetadataFile Whether or not to dump all metadata to a flat
      * file annotation on the server.
      * @return A list of the temporary metadata files created on local disk.
      */
-    public List<File> setArchive(boolean archive, boolean useMetadataFile)
+    public List<File> setArchive(boolean useMetadataFile)
     {
 	List<File> metadataFiles = new ArrayList<File>();
 	int originalFileIndex = countCachedContainers(OriginalFile.class, null);
@@ -1602,7 +1586,7 @@ public class OMEROMetadataStoreClient
 		// ensures that an Image object (and corresponding container)
 		// exists.
 		Image image = getSourceObject(Image.class, imageIndexes);
-		image.setArchived(toRType(archive));
+		image.setArchived(toRType(false));
 
 		// If we have been asked to create a metadata file with all the
 		// metadata dumped out, do so, add it to the collection we're to
@@ -1638,8 +1622,8 @@ public class OMEROMetadataStoreClient
 		}
 
 		// Create all original file objects for later population based on
-		// the existence or abscence of companion files and the archive
-		// flag. This increments the original file count by the number of
+		// the existence or abscence of companion files.
+		// This increments the original file count by the number of
 		// files to actually be created.
 		for (int i = 0; i < usedFiles.length; i++)
 		{
@@ -1648,7 +1632,7 @@ public class OMEROMetadataStoreClient
 			String absolutePath = usedFile.getAbsolutePath();
 			boolean isCompanionFile = companionFiles == null? false :
 				                      companionFiles.contains(usedFilename);
-			if (archive || isCompanionFile)
+			if (isCompanionFile)
 			{
 				LinkedHashMap<Index, Integer> indexes =
 					new LinkedHashMap<Index, Integer>();
@@ -1660,7 +1644,7 @@ public class OMEROMetadataStoreClient
 					// the same original file index.
 					usedFileIndex = pathIndexMap.get(absolutePath);
 				}
-				else if (isCompanionFile)
+				else
 				{
 					// PATH 2: The file is a companion file, create it,
 					// put the new original file index into our cached map
@@ -1670,35 +1654,12 @@ public class OMEROMetadataStoreClient
 					pathIndexMap.put(absolutePath, usedFileIndex);
 					originalFileIndex++;
 				}
-				else
-				{
-					// PATH 3: We're archiving and the file is not a
-					// companion file, create it, put the new original file
-					// index into our cached map, increment the next
-					// original file's index and link it to our pixels set.
-					createOriginalFileFromFile(usedFile, indexes,
-					                           formatString);
-					pathIndexMap.put(absolutePath, usedFileIndex);
-					originalFileIndex++;
-				}
-
-				if (isCompanionFile)
-				{
-                        // Add a companion file annotation to the Image.
-                        indexes = new LinkedHashMap<Index, Integer>();
-                        indexes.put(Index.IMAGE_INDEX, series);
-                        indexes.put(Index.ORIGINAL_FILE_INDEX, usedFileIndex);
-                        addCompanionFileAnnotationTo(imageKey, indexes,
-                                                     usedFileIndex);
-                    }
-                    if (archive)
-                    {
-                        // Always link the original file to the Image even if
-                        // it is a companion file when we are archiving.
-                        LSID originalFileKey =
-                            new LSID(OriginalFile.class, usedFileIndex);
-                        addReference(pixelsKey, originalFileKey);
-                    }
+                // Add a companion file annotation to the Image.
+                indexes = new LinkedHashMap<Index, Integer>();
+                indexes.put(Index.IMAGE_INDEX, series);
+                indexes.put(Index.ORIGINAL_FILE_INDEX, usedFileIndex);
+                addCompanionFileAnnotationTo(imageKey, indexes,
+                                             usedFileIndex);
                 }
             }
         }
@@ -1818,33 +1779,42 @@ public class OMEROMetadataStoreClient
      * @param files Files to populate against an original file list.
      * @param originalFileMap Map of absolute path against original file
      * objects that we are to populate.
+     * @param target The <code>setId()</code> target.
+     * @returns The prefix file path that was calculated by the server.
      */
-    public void writeFilesToFileStore(
-		List<File> files, Map<String, OriginalFile> originalFileMap)
+    public String[] writeFilesToFileStore(String[] usedFiles, File target)
     {
         // Lookup each source file in our hash map and write it to the
         // correct original file object server side.
         byte[] buf = new byte[1048576];  // 1 MB buffer
-        for (File file : files)
-        {
-            String path = file.getAbsolutePath();
-            OriginalFile originalFile = originalFileMap.get(path);
-            if (originalFile == null)
-            {
-                originalFile = byUUID(path, originalFileMap);
-            }
-            if (originalFile == null)
-            {
-                log.warn("Cannot lookup original file with path: "
-                         + file.getAbsolutePath());
-                continue;
-            }
+        RepositoryPrx repo = getLegacyRepository();
+        File repositoryRoot;
+        File directory;
+        List<String> destFiles;
+        List<String> srcFiles = Arrays.asList(usedFiles);
 
+        try
+        {
+            OriginalFile ofRoot = repo.root();
+            repositoryRoot = new File(ofRoot.getPath().getValue(),
+                            ofRoot.getName().getValue());
+            destFiles = repo.getCurrentRepoDir(srcFiles);
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        for (int i = 0; i < srcFiles.size(); i++)
+        {
+            File file = new File(srcFiles.get(i));
             FileInputStream stream = null;
             try
             {
                 stream = new FileInputStream(file);
-                rawFileStore.setFileId(originalFile.getId().getValue());
+                file = new File(destFiles.get(i));
+                repo.makeDir(file.getParent());
+                rawFileStore = repo.file(file.getAbsolutePath(), "rw");
                 int rlen = 0;
                 int offset = 0;
                 while (stream.available() != 0)
@@ -1852,6 +1822,15 @@ public class OMEROMetadataStoreClient
                     rlen = stream.read(buf);
                     rawFileStore.write(buf, offset, rlen);
                     offset += rlen;
+                }
+                // FIXME: This is for testing only. See #6349
+                try 
+                {
+                    rawFileStore.close();
+                } 
+                catch (Exception npe)
+                {
+                    log.error("Ignoring NPE due to rawFileStore.close() bug, see #6349");
                 }
             }
             catch (Exception e)
@@ -1874,25 +1853,29 @@ public class OMEROMetadataStoreClient
                 }
             }
         }
+        return destFiles.toArray(new String[destFiles.size()]);
     }
 
     /**
      * Sets extended the properties on a pixel set.
      * @param pixelsId The pixels set identifier.
      * @param series The series number to populate.
+     * @param target The <code>setId()</code> target.
+     * @param prefix Prefix within the binary repository for all files.
      */
-    public void setPixelsParams(long pixelsId, int series)
+    public void setPixelsParams(long pixelsId, int series, String targetName)
     {
         try
         {
             Map<String, String> params = new HashMap<String, String>();
             params.put("image_no", Integer.toString(series));
+            params.put("target", targetName);
             delegate.setPixelsParams(pixelsId, true, params);
         }
         catch (Exception e)
         {
             log.error("Server error setting extended properties for Pixels:" +
-                      pixelsId);
+                      pixelsId + " Target file:" + targetName);
         }
     }
 
@@ -2191,6 +2174,33 @@ public class OMEROMetadataStoreClient
         try
         {
             return (T) iQuery.get(klass.getName(), id);
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Retrieves the legacy repository (the one that is backed by the OMERO
+     * binary repository) from the list of current active repositories.
+     * @return Active proxy for the legacy repository.
+     */
+    public RepositoryPrx getLegacyRepository()
+    {
+        try
+        {
+            RepositoryMap map = serviceFactory.sharedResources().repositories();
+            for (int i = 0; i < map.proxies.size(); i++)
+            {
+                RepositoryPrx proxy = map.proxies.get(i);
+                String repo = proxy.toString();
+                if (!repo.startsWith("PublicRepository-ScriptRepo"))
+                {
+                    return proxy;
+                }
+            }
+            return null;
         }
         catch (ServerError e)
         {
