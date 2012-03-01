@@ -12,6 +12,7 @@ import unittest
 import omero
 
 import gatewaytest.library as lib
+from omero.gateway.scripts import dbhelpers
 
 class UserTest (lib.GTest):
     def testUsers (self):
@@ -55,6 +56,35 @@ class UserTest (lib.GTest):
                 self.gateway.getUpdateService().deleteObject(ann._obj)
                 anns = self.gateway.getQueryService().findAllByQuery('from CommentAnnotation as a where a.ns=:ns', param)
                 self.assertEqual(len(anns), 0)
+
+    def testCrossGroupSave (self):
+        self.loginAsAuthor()
+        d = self.getTestDataset()
+        did = d.getId()
+        self.loginAsAdmin()
+        admin = self.gateway.getAdminService()
+        g = d.getDetails().getGroup()
+        self.assert_(g.getDetails().permissions.isGroupWrite())
+        self.loginAsUser()
+        admin.addGroups(omero.model.ExperimenterI(self.gateway._userid, False), [g._obj])
+        self.loginAsUser()
+        # User is now a member of the group to which testDataset belongs, which has groupWrite==True
+        # But the default group for User is diferent
+        try:
+            self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
+            d = self.getTestDataset()
+            did = d.getId()
+            n = d.getName()
+            d.setName(n+'_1')
+            d.save()
+            d = self.gateway.getObject('dataset', did)
+            self.assertEqual(d.getName(), n+'_1')
+            d.setName(n)
+            d.save()
+            d = self.gateway.getObject('dataset', did)
+            self.assertEqual(d.getName(), n)
+        finally:
+            admin.removeGroups(omero.model.ExperimenterI(self.gateway._userid, False), [g._obj])
 
 if __name__ == '__main__':
     unittest.main()
