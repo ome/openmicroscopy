@@ -607,7 +607,6 @@
                                     var datatree = this;
                                     // our *actual* selection occurs after timeout, if selection hasn't moved yet
                                     setTimeout(function (){
-                                        console.log( new_select.children("a").hasClass("jstree-hovered") );
                                         if (new_select.children("a").hasClass("jstree-hovered")) {
                                             datatree.data.ui.selected = $();    // clears any previous selection
                                             datatree.select_node(new_select);   // trigger selection event
