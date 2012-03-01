@@ -62,7 +62,7 @@
 {% if o.name not in fu.METADATA_OBJECT_IGNORE %}\
 {% choose %}\
 {% when parent_object(o.name) is not None and parent_object(o.name).isAbstractProprietary %}\
-    <type id="omero.model.${o.name}" superclass="omero.model.${parent_object(o.name).name} ${type_attributes(o)}>
+    <type id="omero.model.${o.name}" superclass="omero.model.${parent_object(o.name).name}" ${type_attributes(o)}>
 {% end %}\
 {% when o.isAbstractProprietary or o.isAbstract %}\
     <abstract id="omero.model.${o.name}" ${type_attributes(o)}>
@@ -120,7 +120,12 @@
 {% end %}\
 {% end %}\
         </properties>
+{% if o.isAbstractProprietary or o.isAbstract %}\
+    </abstract>
+{% end %}
+{% if not o.isAbstractProprietary and not o.isAbstract %}\
     </type>
+{% end %}
 {% end %}\
 {% end %}\
 </types>
