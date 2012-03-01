@@ -158,7 +158,7 @@ module omero {
             void importMetadata(string fileId) throws ServerError;
             void writeBlock(string fileId, Ice::ByteSeq data) throws ServerError;
 
-            string getCurrentRepoDir(string uniquePath) throws ServerError;
+            omero::api::StringSet getCurrentRepoDir(omero::api::StringSet paths) throws ServerError;
 
             /* TODO for both methods: These methods should both be removed
               in favour of a full implementation of thumbs()*/
