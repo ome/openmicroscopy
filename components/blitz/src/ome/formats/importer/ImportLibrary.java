@@ -514,6 +514,10 @@ public class ImportLibrary implements IObservable
             {
                 usedFiles = reader.getUsedFiles();
             }
+            if (usedFiles == null) {
+                throw new NullPointerException(
+                        "usedFiles must be non-null");
+            }
             for (String domain : domains)
             {
                 if (domain.equals(FormatTools.HCS_DOMAIN))
@@ -676,6 +680,10 @@ public class ImportLibrary implements IObservable
             notifyObservers(new ErrorHandler.FILE_EXCEPTION(
                     fileName, fe, usedFiles, format));
             throw fe;
+        } catch (NullPointerException npe) {
+            notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
+                    fileName, npe, usedFiles, format));
+            throw npe;
         } catch (Exception e) {
             notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
                     fileName, e, usedFiles, format));
