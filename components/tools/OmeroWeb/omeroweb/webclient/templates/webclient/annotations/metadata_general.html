@@ -31,7 +31,7 @@
                 jQuery.fn.tooltip_init = function() {
                     $(this).tooltip({
                         bodyHandler: function() {
-                                return $(this).parent().children("span").html();
+                                return $(this).parent().children("span.tooltip_html").html();
                             },
                         track: true,
                         delay: 0,
@@ -109,7 +109,7 @@
                 $("#custom_annotations td span").hide() // hide the tool tip source elements
                 $("#custom_annotations td").tooltip({ 
                     bodyHandler: function() { 
-                            return $(this).children("span").html(); 
+                            return $("span.tooltip_html", $(this)).html(); 
                         },
                     track: true, 
                     delay: 0, 
@@ -504,7 +504,7 @@
                         <div class='tooltip'>{{ manager.image.getPixelSizeX|floatformat:4 }} x {{ manager.image.getPixelSizeY|floatformat:4 }} 
                             {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ|floatformat:4 }} {% endif %}
                         </div>
-                        <span style='display:none'>{{ manager.image.getPixelSizeX }} x {{ manager.image.getPixelSizeY }}
+                        <span class="tooltip_html" style='display:none'>{{ manager.image.getPixelSizeX }} x {{ manager.image.getPixelSizeY }}
                             {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ }} {% endif %}
                         </span>
                     </td>
@@ -652,7 +652,7 @@
                         <div class='tooltip'>{{ manager.well.getWellSample.image.getPixelSizeX|floatformat:4 }} x {{ manager.well.getWellSample.image.getPixelSizeY|floatformat:4 }} 
                             {% if manager.well.getWellSample.image.getPixelSizeZ %} x {{ manager.well.getWellSample.image.getPixelSizeZ|floatformat:4 }} {% endif %}
                         </div>
-                        <span style='display:none'>{{ manager.well.getWellSample.image.getPixelSizeX }} x {{ manager.well.getWellSample.image.getPixelSizeY }}
+                        <span class="tooltip_html" style='display:none'>{{ manager.well.getWellSample.image.getPixelSizeX }} x {{ manager.well.getWellSample.image.getPixelSizeY }}
                             {% if manager.well.getWellSample.image.getPixelSizeZ %} x {{ manager.well.getWellSample.image.getPixelSizeZ }} {% endif %}
                         </span>
                     </td>
@@ -912,7 +912,7 @@
                         
                         {% for ann in manager.boolean_annotations %}
                         <tr><th>Boolean:</th>
-                            <td>
+                            <td class='tooltip'>
                                 {{ ann.getValue }}
                                 <span style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
@@ -923,7 +923,7 @@
                         {% endfor %}
                         {% for ann in manager.double_annotations %}
                         <tr><th>Double:</th>
-                            <td>
+                            <td class='tooltip'>
                                 {{ ann.getValue }}
                                 <span style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
@@ -934,7 +934,7 @@
                         {% endfor %}
                         {% for ann in manager.term_annotations %}
                         <tr><th>Term:</th>
-                            <td>
+                            <td class='tooltip'>
                                 {{ ann.getValue }}
                                 <span style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
@@ -945,7 +945,7 @@
                         {% endfor %}
                         {% for ann in manager.time_annotations %}
                         <tr><th>Time:</th>
-                            <td>
+                            <td class='tooltip'>
                                 {{ ann.getValue }}
                                 <span style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}

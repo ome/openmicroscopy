@@ -36,7 +36,7 @@
         title="Linked by {{ fileann.link.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}. {% trans "Owner:" %} {{ fileann.getDetails.getOwner.getNameWithInitial }}">
         {{ fileann.getFileName|shortening:40 }}
     </a>
-    <span style='display:none'>
+    <span class="tooltip_html" style='display:none'>
         <b>Owner:</b> {{ fileann.getOwner.getFullName }}<br />
         <b>Linked by:</b> {{ fileann.link.getDetails.getOwner.getFullName }}<br />
         <b>On:</b> {{ fileann.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
