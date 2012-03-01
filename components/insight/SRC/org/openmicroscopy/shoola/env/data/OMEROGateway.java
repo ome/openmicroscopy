@@ -6368,7 +6368,7 @@ class OMEROGateway
 	 * @throws ImportException If an error occurred while importing.
 	 */
 	Object importImage(ImportableObject object, IObject container, 
-			File file, StatusLabel status, boolean close)
+			File file, String[] usedFiles, StatusLabel status, boolean close)
 		throws ImportException
 	{
 		isSessionAlive();
@@ -6379,7 +6379,7 @@ class OMEROGateway
 					new OMEROWrapper(new ImportConfig()));
 			library.addObserver(status);
 			ImportContainer ic = new ImportContainer(file, -1L, container, 
-					false, object.getPixelsSize(), null, null, null);
+					false, object.getPixelsSize(), null, usedFiles, null);
 			ic.setUseMetadataFile(true);
 			if (object.isOverrideName()) {
 				int depth = object.getDepthForName();
