@@ -108,7 +108,7 @@
         }
         
         $(document).ready(function() {
-            wpv = $.WeblitzPlateview($('#spw'), {baseurl: '/webclient', useParentPrefix: false});
+            wpv = $.WeblitzPlateview($('#spw'), {baseurl: '/webgateway', useParentPrefix: false});
             wpv.self.bind('thumbLoad', function (ev, pelm, elm) {
                 elm.bind('click', function(event){
                     handleClickSelection(event);
@@ -121,7 +121,7 @@
                         });
                     }
                 }).bind('dblclick', function(){
-                    openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
+                    openPopup("{% url webgateway_full_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
                 });
             });            
             wpv.load({{ manager.plate.id }}, {{ index }});

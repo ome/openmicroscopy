@@ -46,7 +46,7 @@
             
             // double-click handler on image - launches image viewer
             $("#dataIcons img").dblclick(function(event) {
-                openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
+                openPopup("{% url webgateway_full_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
             });
             
             // single click handler on image (container). Selection then update toolbar & metadata pane
@@ -109,7 +109,7 @@
     <ul id="dataIcons">
         {% for c in manager.containers.images %}
         <li id="{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
-            <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+            <img id="{{ c.id }}" src="{% url webgateway_render_thumbnail c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
         </li>
         {% endfor %}
     </ul>

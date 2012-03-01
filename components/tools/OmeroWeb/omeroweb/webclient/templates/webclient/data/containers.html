@@ -592,7 +592,7 @@
                 })
                 .delegate("a", "dblclick", function(e) {
                     if ($(this).parent().attr('rel')=='image') {
-                        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                        openPopup("{% url webgateway_full_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                 })
                 .bind("select_node.jstree", function (e, data) {
@@ -648,7 +648,6 @@
                       },
                       error: function(response) {
                           $.jstree.rollback(data.rlbk);
-                          alert("Internal server error. Cannot create object.");
                       }
                     });
                 })
@@ -696,7 +695,6 @@
                             },
                             error: function(response) {
                                 $.jstree.rollback(data.rlbk);
-                                alert("Internal server error. "+response);
                             }
                         });
                     });

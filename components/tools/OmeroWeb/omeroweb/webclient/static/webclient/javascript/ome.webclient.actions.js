@@ -150,9 +150,6 @@ var addToBasket = function(selected, prefix) {
             } else {
                 calculateCartTotal(responce);
             }
-        },
-        error: function(responce) {
-            alert("Internal server error. Cannot add to basket.")
         }
     });
 };
@@ -176,7 +173,6 @@ var multipleAnnotation = function(selected, index, prefix){
 var loadMetadataPanel = function(src, html) {
     
     var $metadataPanel = $("#right_panel");
-
     if (src!=null) {
         $metadataPanel.load(src);
     } else {
@@ -247,10 +243,6 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
             cache:false,
             success: function(responce){
                 $($('#id_'+metadata_type).parent().find('img')).remove()
-            },
-            error: function(responce) {
-                $($('#id_'+metadata_type).parent().find('img')).remove()
-                alert("Cannot save new value for '"+metadata_type+"'.")
             }
         });
     }

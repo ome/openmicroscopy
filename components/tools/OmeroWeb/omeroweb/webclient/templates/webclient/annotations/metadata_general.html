@@ -1,4 +1,5 @@
 
+
 {% load i18n %}
 {% load common_filters %}
 {% load common_tags %}
@@ -34,7 +35,7 @@
                     } else {
                         $(this).show();
                     }
-                  return this;
+                    return this;
                 };
 
                 jQuery.fn.tooltip_init = function() {
@@ -101,7 +102,7 @@
                 var acquisition_load = false;
                 var preview_load = false;
                 var hierarchy_load = false;
-                
+
                 $('#annotation_tabs').tabs({cache : true});
                 
                 $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
@@ -152,6 +153,7 @@
                 })
                 {% endif %}
 
+
                 // handle deleting of Tag, File, Comment
                 // on successful delete via AJAX, the parent .domClass is hidden
                 var removeItem = function(event, domClass) {
@@ -176,12 +178,10 @@
                                             alert(r.errs);
                                         } else {
                                             // simply remove the item (parent class div)
+                                            //console.log("Success function");
                                             $parent.remove();
                                             $annContainer.hide_if_empty();
                                         }
-                                    },
-                                    error: function(response) {
-                                        alert("Internal server error. Cannot remove object.");
                                     }
                                 });
                             }
@@ -211,9 +211,6 @@
                                 removeItem(event, "ann_comment_wrapper");
                             });
                             textArea.val('');
-                        },
-                        error: function(html) {
-                            alert("Internal server error. Cannot add comment.");
                         }
                     });
                     return false;
@@ -255,9 +252,6 @@
                                             $annContainer.hide_if_empty();
                                             window.parent.refreshActivities();
                                         }
-                                    },
-                                    error: function(response) {
-                                        alert("Internal server error. Cannot delete object.");
                                     }
                                 });
                             }
@@ -459,7 +453,7 @@
                     </div>
                 {% endif %}
                 {% trans "Launch full viewer" %} 
-                <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')">
+                <a href="#" onclick="return openPopup('{% url webgateway_full_viewer manager.image.id %}')">
                     <img id="{{ manager.image.id }}" src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/>
                 </a>
                 {% if manager.openAstexViewerCompatible %}
@@ -578,7 +572,7 @@
             {% if manager.well.getWellSample.image.isOwned %}<div id="wellname-{{ manager.well.getWellSample.image.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="wellname-{{ manager.well.getWellSample.image.id }}-name" style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</h1>{% endif %}
                    
             <h2 id='well_id'>Image ID: {{ manager.well.getWellSample.image.id }} Well ID: {{ manager.well.id }}</h2>
-            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
+            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url webgateway_full_viewer manager.well.getWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
             <div class="description">
                 {% if manager.well.getWellSample.image.isOwned %}<div id="welldescription-{{ manager.well.getWellSample.image.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="welldescription-{{ manager.well.getWellSample.image.id }}-description">{{ manager.well.getWellSample.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='well_desc'>{{ manager.well.getWellSample.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
             </div>

@@ -109,9 +109,9 @@ function get_tree_selection() {
  */
 var confirm_dialog = function(dialog_text, callback, title, button_labels, width, height) {
 
-    if (typeof title == "undefined") var title = "Confirm";
-    if (typeof width == "undefined") var width = 350;
-    if (typeof height == "undefined") var height = 140;
+    if ((typeof title == "undefined") || (title === null)) var title = "Confirm";
+    if ((typeof width == "undefined") || (width === null)) var width = 350;
+    if ((typeof height == "undefined") || (height === null)) var height = 140;
 
     var $dialog = $("#confirm_dialog");
     if ($dialog.length > 0) {       // get rid of any old dialogs
@@ -142,6 +142,116 @@ var confirm_dialog = function(dialog_text, callback, title, button_labels, width
         width: width,
         modal: true,
         buttons: btns
+    });
+    $dialog.bind("dialogclose", callback);
+
+    return $dialog;
+};
+
+
+/*
+ * A dialog for sending feedback. 
+ * Loads and submits the feedback form at "/feedback/feedback"
+ */
+var feedback_dialog = function(error) {
+
+    var $feedback_dialog = $("#feedback_dialog");
+    if ($feedback_dialog.length > 0) {       // get rid of any old dialogs
+        $feedback_dialog.remove();
+    }
+    $feedback_dialog = $("<div id='feedback_dialog'></div>");
+    $('body').append($feedback_dialog);
+
+    $feedback_dialog.attr("title", "Send Feedback").hide();
+    $feedback_dialog.load("/feedback/feedback #form-500", function() {
+        $("textarea[name=error]", $feedback_dialog).val(error);
+        $("input[type=submit]", $feedback_dialog).hide();
+        $("form", $feedback_dialog).ajaxForm({
+            success: function(data) {
+                $feedback_dialog.html(data);
+                $feedback_dialog.dialog("option", "buttons", {
+                    "Close": function() {
+                        $( this ).dialog( "close" );
+                    }
+                });
+            }
+        });
+    });
+
+    $feedback_dialog.dialog({
+        resizable: true,
+        height: 500,
+        width: 700,
+        modal: true,
+        buttons: {
+            "Cancel": function() {
+                $( this ).dialog( "close" );
+            },
+            "Send": function() {
+                $("form", $feedback_dialog).submit();
+            }
+        }
+    });
+    return $feedback_dialog;
+};
+
+/** 
+ * Handle jQuery load() errors (E.g. timeout)
+ * In this case we simply refresh (will redirect to login page)
+**/
+$(document).ready(function(){
+    $("body").ajaxError(function(e, req, settings, exception) {
+        if (req.status == 404) {
+            var msg = req.responseText;
+            confirm_dialog(msg, null, "404 Error", ["OK"], 360, 180);
+        } else if (req.status == 403) {
+            // Denied (E.g. session timeout) Refresh - will redirect to login page
+            window.location.reload();
+        } else if (req.status == 500) {
+            // Our 500 handler returns only the stack-trace if request.is_json()
+            var error = req.responseText;
+            feedback_dialog(error);
+        }
+    });
+});
+
+
+/*
+ * NB: This code is NOT USED currently. Experimental.
+ * A dialog for logging-in on the fly (without redirect to login page).
+ * On clicking 'Connect' we post username & password to login url and on callback, the callback function is called
+ */
+var login_dialog = function(login_url, callback) {
+
+    var $dialog = $("#login_dialog");
+    if ($dialog.length > 0) {       // get rid of any old dialogs
+        $dialog.remove();
+    }
+    $dialog = $("<div id='login_dialog'></div>");
+    $('body').append($dialog);
+
+    $dialog.attr("title", "Login").hide();
+    $dialog.html("<form>Username:<input type='text' name='username' id='login_username' /><br />Password:<input type='text' name='password' id='login_password'/>");
+
+    $dialog.dialog({
+        resizable: true,
+        height: 200,
+        width: 300,
+        modal: true,
+        buttons: {
+            "Cancel": function() {
+                $( this ).dialog( "close" );
+            },
+            "Connect": function() {
+                var username = $("#login_username").val();
+                var password = $("#login_password").val();
+                $.post(login_url, {'password':password, 'username':username, 'noredirect':'true'},  function(data) {
+                    //console.log("logged-in...");
+                    callback();
+                });
+                $( this ).dialog( "close" );
+            }
+        }
     });
     $dialog.bind("dialogclose", callback);
 
