@@ -277,7 +277,7 @@ public class ImportableObject
 	 * the image is imported, <code>false</code> otherwise.
 	 * @return
 	 */
-	public boolean isLoadThumbnail() { return loadThumbnail; }
+	public boolean isLoadThumbnail() { return false; }//loadThumbnail; }
 	
 	/**
 	 * Sets the type to use when creating a folder as container.

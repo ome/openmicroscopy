@@ -796,6 +796,7 @@ public class FileImportComponent
 				error = e;
 				toReImport = true;
 			}
+			statusLabel.setVisible(false);
 			if (error != null) {
 				exception = error;
 				fileNameLabel.setForeground(ERROR_COLOR);
@@ -813,9 +814,9 @@ public class FileImportComponent
 				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
 				resultLabel.setToolTipText(ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
 				//resultLabel.setEnabled(false);
-				resultLabel.setVisible(true);
+				resultLabel.setVisible(false); //was true
 				fileNameLabel.addMouseListener(adapter);
-				resultLabel.addMouseListener(adapter);
+				//resultLabel.addMouseListener(adapter);
 				addMouseListener(adapter);
 				showContainerLabel = 
 					(dataset != null || containerFromFolder != null);
@@ -838,13 +839,15 @@ public class FileImportComponent
 				resultLabel.setText(VIEW_TEXT);
 				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
 				resultLabel.setToolTipText(ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
-				resultLabel.setVisible(false);
+				resultLabel.setVisible(false); //was true
+				/*
 				if (thumbnail.requirePyramid() != null 
 						&& thumbnail.requirePyramid().booleanValue()) {
 						imageLabel.setToolTipText(PYRAMID_TEXT);
 						resultLabel.setVisible(true);
 						resultLabel.addMouseListener(adapter);	
 				}
+				*/
 				showContainerLabel = 
 					(dataset != null || containerFromFolder != null);
 				if (noContainer) {
@@ -920,7 +923,7 @@ public class FileImportComponent
 					label.setText(value);
 				}
 			}
-			resultLabel.setVisible(true);
+			resultLabel.setVisible(false); //was true
 			showContainerLabel = true;
 			if (noContainer) {
 				browseButton.setVisible(false);
