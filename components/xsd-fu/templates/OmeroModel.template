@@ -30,7 +30,8 @@
     def sorted_and_filtered_properties(o):
         properties = sorted_properties(o)
         def f(x):
-            if x.name in ('ID', 'AnnotationRef', 'Description', 'Name'):
+            if x.name in ('ID', 'AnnotationRef', 'Description', 'Name',
+                          'BinData', 'TiffData', 'MetadataOnly'):
                 return False
             return True
         return filter(f, properties)
