@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
@@ -605,7 +606,7 @@ public class DataServicesFactory
 			ScreenLogin.registerGroup(names);
 		} else ScreenLogin.registerGroup(null);
 		CacheServiceFactory.shutdown(container);
-        ((OmeroImageServiceImpl) is).shutDown(ctx);
+		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
         omeroGateway.logout(); 
         if (executor != null) executor.shutdown();
         executor = null;

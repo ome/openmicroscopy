@@ -701,10 +701,6 @@ class ImViewerModel
 		if (imageIcon != null) imageIcon.flush();
 		browser.discard();
 		if (image == null) return;
-		//Shut down the service
-		OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
-		long pixelsID = getImage().getDefaultPixels().getId();
-		svr.shutDown(ctx, pixelsID);
 		Iterator i = loaders.keySet().iterator();
 		Integer index;
 		while (i.hasNext()) {

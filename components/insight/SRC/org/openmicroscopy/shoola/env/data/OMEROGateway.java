@@ -3824,7 +3824,6 @@ class OMEROGateway
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-		
 	}
 	
 	/** 
@@ -6349,7 +6348,7 @@ class OMEROGateway
 		while (i.hasNext()) {
 			c = i.next();
 			if (c.isSame(ctx)) {
-				//c.shutDownRendering(pixelsID);
+				c.shutDownRenderingEngine(pixelsID);
 			}
 		}
 	}
