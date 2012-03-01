@@ -5,6 +5,12 @@
         except AttributeError:
             return None
 
+    def is_annotated(obj):
+        for prop in obj.properties.values():
+            if prop.javaMethodName == 'Annotation':
+                return 'true'
+        return 'false'
+
     def is_abstract(name):
         o = model.getObjectByName(name)
         if o is not None and \
@@ -48,13 +54,13 @@
 {% if o.name not in fu.METADATA_OBJECT_IGNORE %}\
 {% choose %}\
 {% when parent_object(o.name) is not None and parent_object(o.name).isAbstractProprietary %}\
-    <type id="omero.model.${o.name}" superclass="omero.model.${parent_object(o.name).name}>
+    <type id="omero.model.${o.name}" superclass="omero.model.${parent_object(o.name).name} annotated="${is_annotated(o)}">
 {% end %}\
 {% when o.isAbstractProprietary or o.isAbstract %}\
-    <abstract id="omero.model.${o.name}">
+    <abstract id="omero.model.${o.name}" annotated="${is_annotated(o)}">
 {% end %}\
 {% when parent_object(o.name) is None or not parent_object(o.name).isAbstractProprietary %}\
-    <type id="omero.model.${o.name}">
+    <type id="omero.model.${o.name}" annotated="${is_annotated(o)}">
 {% end %}\
 {% end %}\
         <properties>
@@ -71,20 +77,21 @@
 {% otherwise %}\
 \
 {% for prop in sorted(o.properties.values() + o.baseObjectProperties, lambda x, y: cmp(x.name, y.name)) %}\
+{% if prop.javaMethodName != 'Annotation' %}\
 {% choose %}\
-{% when prop.isReference and prop.maxOccurs > 1%}
+{% when prop.isReference and prop.maxOccurs > 1 %}\
             <!--
 	        // Reference ${prop.name}
             -->
             <onemany name="${prop.javaInstanceVariableName}" type="omero.model.${prop.javaMethodName}" inverse="${o.name}" ordered="TODO"/>
 {% end %}\
-{% when prop.isBackReference %}
+{% when prop.isBackReference %}\
             <!--
 	        // Back reference ${prop.name}
             -->
             <manyone name="${prop.javaInstanceVariableName}" type="omero.model.${prop.javaMethodName}" inverse="${o.name}" ordered="TODO"/>
 {% end %}\
-{% when prop.maxOccurs == 1 and (not o.isAbstractProprietary or prop.isAttribute or not prop.isComplex()) %}
+{% when prop.maxOccurs == 1 and (not o.isAbstractProprietary or prop.isAttribute or not prop.isComplex()) %}\
             <!--
 	        // Property
             -->
@@ -95,7 +102,7 @@
             <optional name="${prop.javaInstanceVariableName}" type="omero.model.${prop.javaType}"/>
 {% end %}\
 {% end %}\
-{% when prop.maxOccurs > 1 and not o.isAbstractProprietary %}
+{% when prop.maxOccurs > 1 and not o.isAbstractProprietary %}\
             <!--
 	        // Property which occurs more than once
             -->
@@ -105,6 +112,7 @@
             <!--
             // *** WARNING *** Unhandled or skipped property ${prop.name}
             -->
+{% end %}\
 {% end %}\
 {% end %}\
 {% end %}\
