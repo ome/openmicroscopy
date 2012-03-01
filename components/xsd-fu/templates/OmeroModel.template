@@ -88,25 +88,25 @@
 {% choose %}\
 {% when prop.isReference and prop.maxOccurs > 1 %}\
             <!--
-	        // Reference ${prop.name}
+            // Reference ${prop.name}
             -->
             <onemany name="${prop.javaInstanceVariableName}" type="omero.model.${prop.javaMethodName}" inverse="${o.name}" ordered="TODO"/>
 {% end %}\
 {% when prop.isBackReference %}\
             <!--
-	        // Back reference ${prop.name}
+            // Back reference ${prop.name}
             -->
             <{% if prop.minOccurs == 0 %}manyzero{% end %}{% if prop.minOccurs == 1 %}manyone{% end %} name="${prop.javaInstanceVariableName}" type="omero.model.${prop.javaMethodName}" inverse="${o.name}" ordered="TODO"/>
 {% end %}\
 {% when prop.maxOccurs == 1 and (not o.isAbstractProprietary or prop.isAttribute or not prop.isComplex()) %}\
             <!--
-	        // Property ${prop.name}
+            // Property ${prop.name}
             -->
             <{% if prop.minOccurs == 0 %}optional{% end %}{% if prop.minOccurs %}required{% end %} name="${prop.javaInstanceVariableName}" type="omero.model.${prop.javaType}"/>
 {% end %}\
 {% when prop.maxOccurs > 1 and not o.isAbstractProprietary %}\
             <!--
-	        // Property which occurs more than once ${prop.name}
+            // Property which occurs more than once ${prop.name}
             -->
             <{% if prop.minOccurs == 0 %}zeromany{% end %}{% if prop.minOccurs == 1 %}onemany{% end %} name="${prop.javaInstanceVariableName}" type="omero.model.${prop.javaMethodName}" inverse="${o.name}" ordered="TODO"/>
 {% end %}\
