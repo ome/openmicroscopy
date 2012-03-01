@@ -510,6 +510,30 @@ class OMEModelObject(OMEModelEntity):
 	isReference = property(_get_isReference,
 		doc="""Whether or not the model object is a reference.""")
 
+	def _get_isAnnotated(self):
+		for v in self.properties.values():
+			if v.name == "AnnotationRef":
+				return True
+		return False
+	isAnnotated = property(_get_isAnnotated,
+		doc="""Whether or not the model object is annotated.""")
+
+	def _get_isNamed(self):
+		for v in self.properties.values():
+			if v.name == "Name":
+				return True
+		return False
+	isNamed = property(_get_isNamed,
+		doc="""Whether or not the model object is named.""")
+
+	def _get_isDescribed(self):
+		for v in self.properties.values():
+			if v.name == "Description":
+				return True
+		return False
+	isDescribed = property(_get_isDescribed,
+		doc="""Whether or not the model object is described.""")
+
 	def _get_javaBase(self):
 		base = self.element.getBase()
 		if base in JAVA_BASE_TYPE_MAP:
