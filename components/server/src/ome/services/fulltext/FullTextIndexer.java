@@ -159,20 +159,9 @@ public class FullTextIndexer extends SimpleWork {
     }
 
     private int doIndexingWithWorldRead(ServiceFactory sf, FullTextSession session) {
-
-        LocalShare share = (LocalShare) sf.getShareService();
-        Long old = share.setShareId(-1L);
-
-        try {
-            share.resetReadFilter(session);
-            int rc = doIndexing(session);
-            session.flush();
-            return rc;
-        } finally {
-            share.setShareId(old);
-        }
-
-
+        int rc = doIndexing(session);
+        session.flush();
+        return rc;
     }
 
     public int doIndexing(FullTextSession session) {

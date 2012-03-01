@@ -124,13 +124,18 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
     }
 
     /**
-     * Not in the public interface (since it allows setting to -1 which
-     * makes everything readable, but used internally similar to a
-     * LocalShare interface.
+     * Set the share id on the current session context.
+     *
+     * Previously this method was used throughout the code base in order to
+     * "open up" a session. This however, has issues since it can lead to data
+     * leakage (8037). Using the omero.group functionality (3529), this method
+     * no longer needs to be public.
      *
      * @see ticket:2219
+     * @see ticket:3529
+     * @see ticket:8037
      */
-    public Long setShareId(Long shareId) {
+    private Long setShareId(Long shareId) {
         String sessId = getSecuritySystem().getEventContext().getCurrentSessionUuid();
         SessionContext sc = (SessionContext) sessionManager
                 .getEventContext(new Principal(sessId));

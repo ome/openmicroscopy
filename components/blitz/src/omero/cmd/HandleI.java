@@ -7,6 +7,8 @@
 
 package omero.cmd;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.logging.Log;
@@ -242,7 +244,10 @@ public class HandleI implements _HandleOperations, IHandle,
 
         StopWatch sw = new CommonsLogStopWatch();
         try {
-            executor.execute(principal, new Executor.SimpleWork(this, "run",
+            Map<String, String> callContext = new HashMap<String, String>();
+            callContext.put("omero.group", "-1");
+            executor.execute(callContext, principal,
+                    new Executor.SimpleWork(this, "run",
                     Ice.Util.identityToString(id), req) {
                 @Transactional(readOnly = false)
                 public Object doWork(Session session, ServiceFactory sf) {

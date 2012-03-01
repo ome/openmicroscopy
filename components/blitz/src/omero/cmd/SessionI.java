@@ -201,7 +201,7 @@ public class SessionI implements _SessionOperations {
             // Init
             try {
                 handle.initialize(id, (IRequest) req);
-                executor.submit(Executors.callable(handle));
+                executor.submit(current.ctx, Executors.callable(handle));
                 __cb.ice_response(prx);
             } catch (Throwable e) {
                 log.error("Exception on startup; removing handle " + id, e);
