@@ -168,9 +168,24 @@ public class SessionI implements _SessionOperations {
                 }
             }
 
-            if (servant == null || !(servant instanceof IHandle)) {
+            IHandle handle = null;
+            if (servant != null) {
+                if (servant instanceof Ice.TieBase) {
+                    Ice.TieBase tie = (Ice.TieBase) servant;
+                    Object delegate = tie.ice_delegate();
+                    if (IHandle.class.isAssignableFrom(delegate.getClass())) {
+                        handle = (IHandle) delegate;
+                    }
+                } else if (servant instanceof IHandle) {
+                    handle = (IHandle) servant;
+                }
+            }
+
+            if (handle == null) {
                 log.info("No handle found for " + req);
-                __cb.ice_response(null);
+                InternalException ie = new InternalException();
+                ie.message = "No handle found for " + req;
+                __cb.ice_exception(ie);
                 return; // EARLY EXIT
             }
 
@@ -184,7 +199,6 @@ public class SessionI implements _SessionOperations {
                     new _HandleTie(ops)));
 
             // Init
-            IHandle handle = (IHandle) servant;
             try {
                 handle.initialize(id, (IRequest) req);
                 executor.submit(Executors.callable(handle));
