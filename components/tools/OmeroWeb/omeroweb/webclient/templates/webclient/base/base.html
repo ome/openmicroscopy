@@ -23,10 +23,6 @@
 {% endcomment %}
 
 
-{% block link %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
-{% endblock %}
 
 
 {% block script %}
@@ -68,9 +64,11 @@
 
 {% block middle_header_right %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-    <a href="{% url wamyaccount 'edit' %}" title="Edit Account"> {{ eContext.user.getFullName }}</a>
-    <a href="{% url load_template 'help' %}">{% trans "Help" %}</a>
+	<ul>
+    	<li><a href="{% url wamyaccount 'edit' %}" title="Edit Account"> {{ eContext.user.getFullName }}</a></li>
+    	<li><a href="{% url load_template 'help' %}">{% trans "Help" %}</a></li>
     {% include "webclient/base/logout.html" %}
+	</ul>
 {% endblock %}
 
 

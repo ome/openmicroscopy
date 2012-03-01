@@ -956,12 +956,39 @@
 
 {% block left %}
 
+	
+
+
     <div id="left_panel_tabs" class="absolute_fill">
+		
+		<!--
+		<div>
+			{% block group_chooser %}
+			    {% include "webclient/base/group_user.html" %}
+			{% endblock %}
+		</div>
+		-->
+		
+		
         <ul class="tabslist">
-        <li><a href="#Projects" title="Projects">{% trans "Projects+Screens" %}</a></li>
-        <li><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
-        <li><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>
+	        <li><a href="#Projects" title="Explore">{% trans "Explore" %}</a></li>
+	        <li><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
+			<li><a href="{% url load_template 'usertags' %}">{% trans "History" %}</a></li>
+	        <!--<li><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>-->
         </ul>
+
+		<div id="navigator">
+			<a href="#" id="back">Back</a>
+			<a href="#" id="forward">Back</a>
+			<dl>
+				<dt>Groups</dt>
+			</dl>
+			<a href="#" id="settings">Settings</a>
+		</div>
+		
+		
+		
+		
 
 
             <!-- toolbar above tree -->
@@ -1043,7 +1070,7 @@
 
 {% block center %}
 
-<div id="center_panel_chooser" style="position:absolute; top:5px; right:5px; z-index:10">
+<div id="center_panel_chooser" style="position:absolute; top:5px; right:5px; z-index:10; border: solid 1px blue;">
     <select>
         <option value="#content_details">Thumbnails</option>
         {% for cp in nav.center_plugins %}

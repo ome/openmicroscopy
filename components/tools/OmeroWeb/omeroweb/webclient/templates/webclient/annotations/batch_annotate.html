@@ -210,8 +210,8 @@
 <table>
             <!-- TAGS -->               
             <tr>
-                <th width="60">{% trans "Tag" %}:</th>
-                <td style="vertical-align: middle">
+                <th width="60">{% trans "Tags" %}:</th>
+                <td>
                     <a id="launch_tags_form" href="{% url annotate_tags %}?{{ obj_string }}">
                         <!-- link for loading tags we can add to this object. Loaded by AJAX into form below & displayed as dialog -->
                         <img src="{% static 'webclient/image/plus_11.png' %}" alt="e" title="Add Tags."/>
@@ -225,10 +225,11 @@
                     </div>
                 </td>
             </tr>
+			
             <!-- FILES -->
             <tr>
                 <th>{% trans "Attach" %}:</th>
-                <td style="vertical-align: middle">
+                <td>
                     
                     <a id="choose_file_anns" href="{% url annotate_file %}?{{ obj_string }}">
                         <img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attach an existing file."/>

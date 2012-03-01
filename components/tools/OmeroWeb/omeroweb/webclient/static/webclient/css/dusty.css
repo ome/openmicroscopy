@@ -1,0 +1,47 @@
+/*
+	------------------------------------------------
+	:: Tags
+	------------------------------------------------
+*/
+    
+    
+    
+    
+a.tag {
+    font-size: 1em;
+	font-family: 'HelveticaNeue-Medium';
+	-webkit-border-radius:;
+	text-shadow: 0 1px 0 rgba(255,255,255,.8);
+	border:solid 1px red;
+	display:inline-block;
+	margin:2px 0;
+	padding:0 .7em;
+	line-height:1.5em;
+    font-weight: normal;
+    -webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
+	border-radius: 30px;
+	border:solid 1px hsl(205,40%,60%);
+	background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(205, 65%, 85%)), to(hsl(205, 60%, 90%)));
+	color:hsl(205,30%,35%);
+	-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
+	background-image: -moz-linear-gradient(90deg, hsl(0, 100%, 57%) 0%, hsl(0, 100%, 27%) 100%);
+}
+    
+a.tag:hover {
+	background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(205, 70%, 75%)), to(hsl(205, 65%, 80%)));
+	text-decoration:none;
+	text-shadow: 0 1px 0 rgba(255,255,255,.4);
+	color:hsl(205,30%,30%);        
+}
+
+.removeTag {
+	color:hsl(210,20%,20%);
+	color:red;
+	border:solid 1px red;
+	text-shadow: 0 1px 0 rgba(255,255,255,.7);
+	display:inline-block;
+	width:10px;
+	height:10px;
+	overflow:hidden;
+}

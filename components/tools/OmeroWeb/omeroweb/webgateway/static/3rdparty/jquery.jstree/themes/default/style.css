@@ -3,28 +3,44 @@
  * Supported features: dots/no-dots, icons/no-icons, focused, loading
  * Supported plugins: ui (hovered, clicked), checkbox, contextmenu, search
  */
+ 
+ #tree_details {
+     position: absolute;
+     top:25px;
+     left:0px; right:0px; bottom:0px;
+     padding-top: 3px;
+     overflow: auto;
+ }
+ 
+ 
+ 
+ .jstree-default > ul { 
+ 	background: hsl(220,20%,95%);
+ 	width:300px;
+	font-size:1.2em;
+ 	padding:10px 0 !important;
+ 	}
+ 
 
 .jstree-default li, 
-.jstree-default ins { background-image:url("d.png"); background-repeat:no-repeat; background-color:transparent; }
-.jstree-default li { background-position:-90px 0; background-repeat:repeat-y; }
+.jstree-default ins {}
+.jstree-default li { }
 .jstree-default li.jstree-last { background:transparent; }
-.jstree-default .jstree-open > ins { background-position:-72px 0; }
-.jstree-default .jstree-closed > ins { background-position:-54px 0; }
-.jstree-default .jstree-leaf > ins { background-position:-36px 0; }
 
-.jstree-default .jstree-hovered { background:#e7f4f9; border:1px solid #d8f0fa; padding:0 2px 0 1px; }
-.jstree-default .jstree-clicked { background:#beebff; border:1px solid #99defd; padding:0 2px 0 1px; }
+.jstree-default .jstree-hovered {  border:1px solid #d8f0fa; padding:0 2px 0 1px; }
+.jstree-default .jstree-clicked {  border:1px solid #99defd; padding:0 2px 0 1px; }
+
+
 .jstree-default a .jstree-icon { background-position:-56px -19px; }
 .jstree-default a.jstree-loading .jstree-icon { background:url("throbber.gif") center center no-repeat !important; }
 
-.jstree-default.jstree-focused { background:#ffffff; }
 
 .jstree-default .jstree-no-dots li, 
-.jstree-default .jstree-no-dots .jstree-leaf > ins { background:transparent; }
+.jstree-default .jstree-no-dots .jstree-leaf > ins { background:transparent; border solid 1px blue}
 .jstree-default .jstree-no-dots .jstree-open > ins { background-position:-18px 0; }
 .jstree-default .jstree-no-dots .jstree-closed > ins { background-position:0 0; }
 
-.jstree-default .jstree-no-icons a .jstree-icon { display:none; }
+.jstree-default .jstree-no-icons a .jstree-icon { display:none; border:solid 5px red}
 
 .jstree-default .jstree-search { font-style:italic; }
 
@@ -36,6 +52,95 @@
 .jstree-default .jstree-checked > a > .jstree-checkbox:hover { background-position:-38px -37px; }
 .jstree-default .jstree-unchecked > a > .jstree-checkbox:hover { background-position:-2px -37px; }
 .jstree-default .jstree-undetermined > a > .jstree-checkbox:hover { background-position:-20px -37px; }
+
+
+
+
+
+
+
+
+
+
+.jstree-default a { 
+	border-radius:2px; 
+	-moz-border-radius:2px; 
+	-webkit-border-radius:2px; 
+	text-shadow:0 1px 0 white;
+	border: solid 1px transparent; 
+	color: hsl(220,30%,30%) !important; 
+	font-family:'HelveticaNeue-Bold';
+	padding:1px 3px !important;
+	}
+
+.jstree-default .jstree-hovered { 
+	background:hsl(230,20%,85%);
+	-webkit-transition: .1s background linear; 
+	}
+	
+.jstree-default .jstree-clicked { 
+	background:hsl(230,20%,80%);
+	border: solid 1px hsl(220,30%,70%);
+	text-shadow: 0 1px 0 rgba(255,255,255,.6);
+	}
+	
+	
+	.jstree-open>.jstree-clicked{ /* Prevents Open Folder from being highlighted */
+		background:none;
+		border: solid 1px transparent;
+	}
+	
+	
+	
+	
+	
+.jstree-default a .jstree-icon {
+	background:url(box8.png) center center no-repeat;
+	}
+	
+	.jstree-default .data_screen a .jstree-icon{
+		background:url(plate.png) center center no-repeat !important;
+	}
+
+
+
+/* Targets Children */
+
+	.jstree-default ul li ul li a {
+		opacity:.9;
+		font-family:'HelveticaNeue-Medium'; 
+		}
+	
+	.jstree-default ul li ul li a .jstree-icon {
+		background:url(folder.png) center center no-repeat;
+		}
+
+
+/* Targets Level 3 Grandchildren */
+
+.jstree-default .jstree-clicked .jstree-leaf a{ 
+	background:hsl(230,20%,80%);
+	border: solid 1px hsl(220,30%,70%);
+	text-shadow: 0 1px 0 rgba(255,255,255,.6);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #vakata-dragged.jstree-default ins { background:transparent !important; }
 #vakata-dragged.jstree-default .jstree-ok { background:url("d.png") -2px -53px no-repeat !important; }

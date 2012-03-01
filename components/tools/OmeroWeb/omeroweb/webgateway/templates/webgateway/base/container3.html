@@ -59,8 +59,9 @@
 {% block content %}
 
 <div id="left_panel">
-    {% block left %}{% endblock %}
+	{% block left %}{% endblock %}
 </div>
+
 <div id="center_container">
     <div id="trayhandle_left">
         <div id="swapTree"><img id="lhid_trayhandle_icon_left" class="expanded-left" src="{% static "webgateway/img/spacer.gif" %}"></div>
@@ -74,6 +75,7 @@
         <div id="dragRight"></div>
     </div>
 </div>
+
 <div id="right_panel">
     {% block right %}{% endblock %}
 </div>

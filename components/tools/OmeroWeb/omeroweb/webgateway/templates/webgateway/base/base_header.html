@@ -23,8 +23,11 @@
 
 
 {% block link %}
+	 <link rel="stylesheet" href="{% static "common/css/reset.css" %}" type="text/css" />   
     {{ block.super }}
     <link rel="stylesheet" href="{% static "webgateway/css/ome.header.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
+	<link rel="stylesheet" href="{% static "webclient/css/dusty.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 
@@ -49,10 +52,12 @@
         {% block middle_header %}
         <div id="middle_header">
 
-            <div id="logo">
-                <img src="{% static "webgateway/img/ome_text_109.png" %}" height="30" />
-            </div>
+            <a id="logo">
+                <img src="{% static "webgateway/img/logo2.png" %}"/>
+            </a>
+
             
+			
             <div id="middle_header_right">
                 {% block middle_header_right %}
                 {% endblock %}
@@ -62,42 +67,23 @@
                 {% block middle_header_left %}
                 {% endblock %}
             </div>
-        
+        <div class="clear"></div> <!-- Silly div to prevent overflow:hidden from hiding info panels. Ask Dom why he did this if you're curious for more info. -->
         </div>
         {% endblock %}
         
-        
-        {% block thin_header %}
-        <div id="thin_header">
-
-            <div id="thin_header_left">
-                {% block thin_header_left %}
-                {% endblock %}
-            </div>
-
-            <div id="thin_header_right">
-                {% block thin_header_right %}
-                {% endblock %}
-            </div>
-
-        </div>
-        {% endblock %}
-
         <div id="content">
         {% block content %}
         {% endblock %}
         </div>
-
+		
+		<!--
         {% block footer %}
             <div id="footer">
-                <div>
-                    {% block footer_content %}
-                    {% endblock %}
-                </div>
                 {% block copywrite %}
-                    <p>&copy; 2007-2011 University of Dundee & Open Microscopy Environment</p>
+                    <p>&copy; 2007-2011 University of Dundee &amp; Open Microscopy Environment</p>
                 {% endblock %}
             </div>
         {% endblock %}
+		-->
 
 {% endblock %}

@@ -373,15 +373,49 @@
                 {% endif %}
             {% endif %}
         </div>
-
-
+        
+        {% if manager.image %}
+        <!-- VIEWER "Preview"-->
+        <div id="preview_tab">
+            <img id="preview_spinner" src="{% static "webgateway/img/spinner.gif" %}" style='display:none'/>
+        </div>
+        {% endif %}
+        {% if manager.well %}
+		
+        <!-- VIEWER "Preview" -->
+        <div id="preview_tab">
+            <a id="preview-link" href="{% url load_metadata_preview manager.well.getWellSample.image.id %}" style='display:none'>Preview</a>
+            <img id="preview_spinner" src="{% static "webgateway/img/spinner.gif" %}" style='display:none'/>
+        </div>
+        {% endif %}
+        
+        
+        <!-- METADATA "Acquisition" TAB  - only show for images -->
+        {% if manager.image %}
+        <div id="metadata_tab"></div>
+        {% endif %}
+        {% if manager.well %}
+        <div id="metadata_tab"></div>
+        {% endif %}
+                
         {% if not manager.tag %}
-        <!-- ANNOTATIONS "General" -->
+        
+		
+		<!-- ANNOTATIONS "General" -->
         <div id="annotation_tab">
-            {% if manager.image %}            
-            {% if manager.image.isOwned %}<div id="imagename-{{ manager.image.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="imagename-{{ manager.image.id }}-name" style="word-wrap: break-word;">{{ manager.image.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>{% endif %}
+           
+		    {% if manager.image %}            
+            {% if manager.image.isOwned %}
+				<div class="data_heading" id="imagename-{{ manager.image.id }}">
+					<h1>
+						<img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> 
+						<span id="imagename-{{ manager.image.id }}-name" style="word-wrap: break-word;">{{ manager.image.name }}</span>
+					</h1>
+				</div>{% else %}
+				<h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>{% endif %}
             
-            <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>
+            	<h2 id='image_id'><strong>Image ID:</strong> {{ manager.image.id }}</h2>
+				
             <!-- open-image link -->
             <div style="padding-bottom:6px">
                 {% if manager.image.countArchivedFiles %}
@@ -392,6 +426,7 @@
                         </a>
                     </div>
                 {% endif %}
+				
                 {% trans "Launch full viewer" %} 
                 <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')">
                     <img id="{{ manager.image.id }}" src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/>
@@ -402,21 +437,44 @@
                     <img src="{% static "webclient/image/oav_16.png" %}" alt="Open Astex Viewer" title="Open Astex Viewer"/>
                 </a>
                 {% endif %}
+				
             </div>
-                    
+                  
+				  
+				  
+				  
+				  
+			
+			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+				  
+				  
+				  
+				  
+				    
             <div class="description">
                 {% if manager.image.isOwned %}
-                    <div id="imagedescription-{{ manager.image.id }}">
-                        <p>
-                            <img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/>
-                            <span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default_if_none:""|linebreaksbr}}</span>
-                        </p>
-                    </div>
-                {% else %}
-                    <span id='image_desc'>{{ manager.image.description|default_if_none:""|linebreaks }}</span>
-                {% endif %}
+					<div id="imagedescription-{{ manager.image.id }}">
+						<p>
+						<span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default_if_none:"Add Description"}}</span>
+						<img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/>
+						</p>
+					</div>
+					
+					{% else %}
+					<span id='image_desc'>{{ manager.image.description|default_if_none:""|linebreaks }} </span>{% endif %}
             </div>
-            <table>                    
+			
+			
+			
+			
+			
+			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+			
+			
+			
+			
+			
+            <table class="metadata_details">                    
                 {% if not manager.image.isOwned %}
                 <tr>
                     <th>Owner:</th>
@@ -475,6 +533,10 @@
                 {% else %}
                     <h1 style="word-wrap: break-word;">{{ manager.dataset.name }}</h1>
                 {% endif %}
+
+
+
+
 
                 <h2 id='dataset_id'>Dataset ID: {{ manager.dataset.id }}</h2>    
                 
@@ -732,9 +794,22 @@
             {% endif %}
         
         
+		
+			
+			
+			
+			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+			
+			
+			
+			
+			
+			
+		
+		
             <!-- ANNOTATIONS -->
-            <h1>{% trans "Annotations" %}</h1>
-            <table width="100%">
+            <!--<h1>{% trans "Annotations" %}</h1>-->
+            <table class="annotations_table">
             <!-- RATING -->
             <tr>
                 <th colspan="2">{% trans "Rate" %}:</th>
@@ -763,6 +838,7 @@
                     {% endif %}
                 </td>
             </tr> 
+			
             <!-- TAGS -->               
             <tr>
                 <th>{% trans "Tag" %}:</th>
@@ -786,6 +862,7 @@
                     </div>
                 </td>
             </tr>
+			
             <!-- FILES -->
             <tr>
                 <th>{% trans "Attach" %}:</th>

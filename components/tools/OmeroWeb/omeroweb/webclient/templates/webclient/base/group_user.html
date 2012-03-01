@@ -22,7 +22,7 @@
 {% endcomment %}
 
 <div class="header_chooser">
-    {% for field in form_active_group %} {% trans "Group" %}: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
+    {% for field in form_active_group %}{{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
 </div>
 {% if form_users %}
 <div class="header_chooser">

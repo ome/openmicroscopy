@@ -19,15 +19,15 @@
 -->
 {% endcomment %}
 
-    <li class="menu_link home"><a href="{% url webindex %}" title="Home">{% trans "Home" %}</a></li>
-    <li class="menu_link userdata usertags basket status"><a href="{% url load_template "userdata" %}" title="Browse Data via Projects, Tags etc">{% trans "Data" %}</a></li>
-    <li class="menu_link history"><a href="{% url load_template "history" %}" title="History">{% trans "History" %}</a></li>
-    <li class="menu_link search"><a href="{% url load_template "search" %}" title="Search">{% trans "Search" %}</a></li>
+<ul>
+	<li class="home"><a href="{% url webindex %}" title="Home">{% trans "Home" %}</a></li>
+    <li class="userdata usertags basket status"><a href="{% url load_template "userdata" %}" title="Browse Data via Projects, Tags etc">{% trans "Data" %}</a></li>
+    <!--<li class="history"><a href="{% url load_template "history" %}" title="History">{% trans "History" %}</a></li>-->
     {% if eContext.context.isAdmin %}
-    <li class="menu_link admin"><a href="{% url waindex %}" title="Web-Admin: Edit users and groups">{% trans "Admin" %}</a></li>
+    <li class="admin"><a href="{% url waindex %}" title="Web-Admin: Edit users and groups">{% trans "Admin" %}</a></li>
     {% endif %}
-    
     <!-- Handle links from settings -->
     {% for link in nav.top_links %}
-        <li class="menu_link"><a href="{{ link.url }}">{{ link.label }}</a></li>
+    	<li><a href="{{ link.link }}">{{ link.label }}</a></li>
     {% endfor %}
+</ul>

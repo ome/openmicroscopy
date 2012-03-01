@@ -33,14 +33,14 @@
 
 {% block title %}
     {% trans "Webclient" %}
-{% endblock %}
+	{% endblock %}
 
 
-{% block link %}
-    {{ block.super }}
+<!-- Moved to higher folder so global styles are applied to everything in the interface
+
     <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
 
-{% endblock %}
+-->
 
 
 {% block script %}
@@ -88,34 +88,20 @@
 
 {% block middle_header_right %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-    <a href="{% url wamyaccount 'edit' %}" title="Edit Account"> {{ eContext.user.getFullName }}</a>
-    <a href="{% url load_template 'help' %}">{% trans "Help" %}</a>
+	{% include "webclient/base/search_field.html" %}
+    <li><a href="{% url wamyaccount 'edit' %}" title="Edit Account"> {{ eContext.user.getFullName }}</a></li>
+    <li><a href="{% url load_template 'help' %}">{% trans "Help" %}</a></li>
+	{% include "webclient/base/script_launch.html" %}
     {% include "webclient/base/logout.html" %}
 {% endblock %}
 
 
 {% block middle_header_left %}
     {% include "webclient/base/menu.html" %}
-    {% include "webclient/base/basket_info.html" %}
-    {% include "webclient/base/activities_info.html" %}
-{% endblock %}
-
-
-{% block thin_header_left %}
-    <!-- left-hand side of toolbar (group chooser) -->
-    {% include "webclient/base/group_user.html" %}
-    {% include "webclient/base/script_launch.html" %}
-    {% include "webclient/base/custom_toolbar_links.html" %}
-{% endblock %}
-
-
-{% block thin_header_right %}
-    {% include "webclient/base/search_field.html" %}
-{% endblock %}
-
-
-{% block footer_content %}
-    {% include "webclient/base/footer_links.html" %}
+	<div style="overflow:hidden;">
+    <!--{% include "webclient/base/basket_info.html" %} -->
+    <!--{% include "webclient/base/activities_info.html" %} -->
+	</div>
 {% endblock %}
 
 
