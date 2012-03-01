@@ -1,15 +1,14 @@
+{% def type_attributes(obj) %}\
+{% if obj.isAnnotated %}annotated="true" {% end %}\
+{% if obj.isNamed %}named="true" {% end %}\
+{% if obj.isDescribed %}described="true"{% end %}\
+{% end %}\
 {% python
     def parent_object(name):
         try:
             return model.getObjectByName(parents[name].keys()[0])
         except AttributeError:
             return None
-
-    def is_annotated(obj):
-        for prop in obj.properties.values():
-            if prop.javaMethodName == 'Annotation':
-                return 'true'
-        return 'false'
 
     def is_abstract(name):
         o = model.getObjectByName(name)
@@ -27,6 +26,14 @@
 
     def sorted_properties(o):
         return sorted(o.properties.values() + o.baseObjectProperties, lambda x, y: cmp(x.name, y.name))
+
+    def sorted_and_filtered_properties(o):
+        properties = sorted_properties(o)
+        def f(x):
+            if x.name in ('ID', 'AnnotationRef', 'Description', 'Name'):
+                return False
+            return True
+        return filter(f, properties)
 %}\
 \
 \
@@ -54,19 +61,19 @@
 {% if o.name not in fu.METADATA_OBJECT_IGNORE %}\
 {% choose %}\
 {% when parent_object(o.name) is not None and parent_object(o.name).isAbstractProprietary %}\
-    <type id="omero.model.${o.name}" superclass="omero.model.${parent_object(o.name).name} annotated="${is_annotated(o)}">
+    <type id="omero.model.${o.name}" superclass="omero.model.${parent_object(o.name).name} ${type_attributes(o)}>
 {% end %}\
 {% when o.isAbstractProprietary or o.isAbstract %}\
-    <abstract id="omero.model.${o.name}" annotated="${is_annotated(o)}">
+    <abstract id="omero.model.${o.name}" ${type_attributes(o)}>
 {% end %}\
 {% when parent_object(o.name) is None or not parent_object(o.name).isAbstractProprietary %}\
-    <type id="omero.model.${o.name}" annotated="${is_annotated(o)}">
+    <type id="omero.model.${o.name}" ${type_attributes(o)}>
 {% end %}\
 {% end %}\
         <properties>
 {% choose %}\
 {% when o.isReference %}\
-{% for prop in sorted(o.properties.values() + o.baseObjectProperties, lambda x, y: cmp(x.name, y.name)) %}\
+{% for prop in sorted_and_filtered_properties(o) %}\
             <!--
             // ${prop.minOccurs}:${prop.maxOccurs}
             // Is multi path? ${is_multi_path[o.name]}
@@ -76,8 +83,7 @@
 {% end %}\
 {% otherwise %}\
 \
-{% for prop in sorted(o.properties.values() + o.baseObjectProperties, lambda x, y: cmp(x.name, y.name)) %}\
-{% if prop.javaMethodName != 'Annotation' %}\
+{% for prop in sorted_and_filtered_properties(o) %}\
 {% choose %}\
 {% when prop.isReference and prop.maxOccurs > 1 %}\
             <!--
@@ -93,7 +99,7 @@
 {% end %}\
 {% when prop.maxOccurs == 1 and (not o.isAbstractProprietary or prop.isAttribute or not prop.isComplex()) %}\
             <!--
-	        // Property
+	        // Property ${prop.name}
             -->
 {% if prop.minOccurs == 1 %}\
             <required name="${prop.javaInstanceVariableName}" type="omero.model.${prop.javaType}"/>
@@ -104,7 +110,7 @@
 {% end %}\
 {% when prop.maxOccurs > 1 and not o.isAbstractProprietary %}\
             <!--
-	        // Property which occurs more than once
+	        // Property which occurs more than once ${prop.name}
             -->
             <onemany name="${prop.javaInstanceVariableName}" type="omero.model.${prop.javaMethodName}" inverse="${o.name}" ordered="TODO"/>
 {% end %}\
@@ -112,7 +118,6 @@
             <!--
             // *** WARNING *** Unhandled or skipped property ${prop.name}
             -->
-{% end %}\
 {% end %}\
 {% end %}\
 {% end %}\
