@@ -866,7 +866,7 @@
             <!-- FILES -->
             <tr>
                 <th>{% trans "Attach" %}:</th>
-                <td style="vertical-align: middle">
+                <td>
                     {% if manager.isEditable %}
                         <a id="choose_file_anns" href="{% url annotate_file %}?{{manager.obj_type}}={{ manager.obj_id }}">
                             <img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attach new or existing files."/>
@@ -881,11 +881,11 @@
                 </td>
                 <!-- display existing file annotations -->
                 <td>
-                    <div id="fileanns_container" class="lnfiles">
+                    <ul id="fileanns_container" class="lnfiles">
                         {% for fileann in manager.file_annotations %}
                             {% include "webclient/annotations/fileann.html" %}
                         {% endfor %}
-                    </div>
+                    </ul>
                 </td>
             </tr>  
             <!-- CUSTOM ANNOTATIONS -->

@@ -36,9 +36,9 @@ a.tag:hover {
 }
 
 .removeTag {
-	color:hsl(210,20%,20%);
-	color:red;
-	border:solid 1px red;
+	color:hsl(210,20%,60%);
+	cursor:pointer;
+	font-weight:bold; 
 	text-shadow: 0 1px 0 rgba(255,255,255,.7);
 	display:inline-block;
 	width:10px;

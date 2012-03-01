@@ -284,10 +284,15 @@
     
     
     
-    #right_panel {
-        font-size:1.1em
-    }
+#right_panel {
+    font-size:1.1em;
+}
     
+    #annotation_tab, #metadata_tab, #preview_tab {
+        padding: 10px;
+        overflow: auto;
+    }
+   
     
     #right_panel hr {
         margin:15px 0;
@@ -327,43 +332,40 @@
     */
     
     
-        .data_heading {
-
+    
+        .data_heading h1 {
+            overflow:hidden;
+                
         }
     
-            .data_heading h1 {
+            .data_heading span {
+                display:inline-block;
+                width:90%;
+                line-height:1.2em;
+                float:left;
                 overflow:hidden;
-                
             }
-    
-                .data_heading span {
-                    display:inline-block;
-                    width:90%;
-                    line-height:1.2em;
-                    float:left;
-                    overflow:hidden;
-                }
                 
-                .data_heading form {
+            .data_heading form {
 
-                }
+            }
                 
-                    .data_heading form input[type=text] {
-                        font-size:1.3em;
-                        margin-top:10px;
-                        width:90%;
-                    }
+                .data_heading form input[type=text] {
+                    font-size:1.3em;
+                    margin-top:10px;
+                    width:90%;
+                }
     
     
-            #image_id {
-                font-size:1em;
-                color:hsl(210,5%,60%);
-            }
+        #image_id {
+            font-size:1em;
+            color:hsl(210,5%,60%);
+        }
     
-            #image_id strong {
-                font-weight:bold;
-                color:hsl(210,10%,30%);
-            }
+        #image_id strong {
+            font-weight:bold;
+            color:hsl(210,10%,30%);
+        }
     
     
     
@@ -388,7 +390,6 @@
                 overflow:hidden;
                 float:left;
                 width:90%;
-                
             }
     
                 .description form {
@@ -427,7 +428,7 @@
     
     /*
     	------------------------------------------------
-    	:: Right Panel - Table Value
+    	:: Right Panel - Metadata Values
     	------------------------------------------------
     */
     
@@ -447,25 +448,53 @@
     
         
         
-        /*
-        	------------------------------------------------
-        	:: Tags, Attachments, Ratings, Comments
-        	------------------------------------------------
-        */
+    /*
+    	------------------------------------------------
+    	:: Tags, Attachments, Ratings, Comments
+    	------------------------------------------------
+    */
             
         
     
         /* Attachments */
         
         
-        div.lnfiles{
-            overflow: auto;
-            border: 1px solid red;
-            -webkit-border-radius:4px;
-            padding: 0 10px;
-            background-color: #fff;
+        .lnfiles{
+            
         }
-        
+
+            .lnfiles li {
+                overflow: hidden;
+                background: hsl(210,20%,85%);
+                border-bottom: solid 1px hsl(210,20%,80%);
+                border-top: solid 1px hsl(210,20%,90%);
+            }
+            
+            .lnfiles li:first-child {
+                -webkit-border-top-left-radius: 5px;
+                -webkit-border-top-right-radius: 5px;
+                border-top: none;
+            }
+            
+            .lnfiles li:last-child {
+                border-bottom: none;
+                -webkit-border-bottom-left-radius: 5px;
+                -webkit-border-bottom-right-radius: 5px;
+            }
+            
+            
+                .lnfiles li a {
+                    text-shadow:0 1px 0 rgba(255,255,255,.4);
+                    font-size:1em;
+                    padding:6px 10px;
+                    display:inline-block;
+                    color:hsl(210,15%,35%);
+                    -webkit-border-radius: inherit;
+                }
+                
+                    .lnfiles li a span {
+                        color:hsl(210,15%,55%);
+                    }
         
     
     
@@ -480,11 +509,6 @@
     
     
 
-
-    #annotation_tab, #metadata_tab, #preview_tab {
-        padding: 10px;
-        overflow: auto;
-    }
 
     
     img.thumbnail {
@@ -494,16 +518,9 @@
 
     select.existing {
         width: 300px;
+        border:solid 1px red;
     }
 
-    
-    div.lncomments{
-        overflow: auto;
-        border: 1px solid #bbb;
-        padding: 10px;
-        background-color: #fff;
-    }
-    
     
     
 
@@ -552,7 +569,6 @@
         color: #1B7BC7;
         cursor: pointer;
     }
-
 
 
 
@@ -755,6 +771,7 @@ em {
     width: 300px;
     height: 300px;
     position: relative;
+    border:solid 1px red;
 }
 
 div.paging {
@@ -799,15 +816,8 @@ div.paging input.button_pagination {
 
 /** Annotation Styles **/
 
-#annotation_tab, #metadata_tab, #preview_tab {
-    padding: 10px;
-    overflow: auto;
-}
 
-img.pencil {
-    float: left;
-    padding: 8px 5px 0 0;
-}
+
 img.thumbnail {
     margin-right: 5px;
     border: 1px solid #bbb;
@@ -829,12 +839,6 @@ select.existing {
     font-weight: bold;
 }
 
-table.metadata_details {
-    width: 100%;
-}
-table.metadata_details td{
-    border-bottom: 1px dotted #bbb;
-}
 
 div.plane_info {
     width:100%;
@@ -872,13 +876,23 @@ div.plane_info table div {
 
 #tooltip {
 position: absolute;
+background: rgba(0,0,0,.9);
+color:#999;
 z-index: 3000;
-border: 1px solid #c3c3c3;
-background-color: #fffecb;
+border:solid 1px black;
+-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 3px 3px 3px rgba(0,0,0,.3);
+-webkit-border-radius: 3px;
+line-height:1.4em;
+font-size:1.1em;
 padding: 5px;
-opacity: 0.85;
 width: 250px;
 }
+
+    #tooltip b {
+        font-weight: bold;
+        color:white;
+    }
+
 #tooltip h3, #tooltip div { margin: 0; }
 
 
