@@ -760,7 +760,7 @@ def load_drivespace(request, **kwargs):
     try:
         conn = kwargs["conn"]
     except:
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
+        return handlerInternalError(request, "Connection is not available. Please contact your administrator.")
     
     offset = request.REQUEST.get('offset', 0)
     rv = usersData(conn, offset)
