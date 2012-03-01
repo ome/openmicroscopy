@@ -194,13 +194,13 @@
             }
 
             #navigator #back {
-                background:url(/static/common/image/navigator_back.png) center 50% no-repeat;
+                background:url(/static/webgateway/img/navigator_back.png) center 50% no-repeat;
                 border-right:solid 1px hsl(210,28%,77%);
             }
         
         
             #navigator #forward {
-                background:url(/static/common/image/navigator_forward.png) center 50% no-repeat;
+                background:url(/static/webgateway/img/navigator_forward.png) center 50% no-repeat;
             }
         
         
@@ -208,7 +208,7 @@
                 height:16px;
                 width:75%;
                 padding:0 10px;
-                background: url(/static/common/image/up_down.png) 98% center no-repeat;
+                background: url(/static/webgateway/img/up_down.png) 98% center no-repeat;
             }
         
                 #navigator dl dt{
@@ -222,7 +222,7 @@
         
         
             #navigator #settings {
-                background:url(/static/common/image/settings.png) center center no-repeat;
+                background:url(/static/webgateway/img/settings.png) center center no-repeat;
                 border-right:none;
             }
 
@@ -536,7 +536,7 @@
     }
 
     .can-collapse {
-        background:transparent url(/static/common/image/table/desc-big.gif) no-repeat scroll bottom right;
+        background:transparent url(/static/webgateway/img/table/desc-big.gif) no-repeat scroll bottom right;
         border: 1px solid #bbb;
         background-color: #fff;
         cursor:pointer;
@@ -544,7 +544,7 @@
         margin:5px 0;
     }
     .defclosed,.closed{
-        background:transparent url(/static/common/image/table/asc-big.gif) no-repeat scroll top right;
+        background:transparent url(/static/webgateway/img/table/asc-big.gif) no-repeat scroll top right;
         background-color: #fff;
     }
 
@@ -815,32 +815,6 @@ img.thumbnail {
 
 select.existing {
     width: 300px;
-}
-
-div.description {
-    min-height:60px;
-    overflow: auto;
-    border: 1px solid #bbb;
-    padding: 5px;
-    background-color: #fff;
-}
-div.lncomments{
-    overflow: auto;
-    border: 1px solid #bbb;
-    padding: 10px;
-    background-color: #fff;
-}
-div.lntags{
-    overflow: auto;
-    border: 1px solid #bbb;
-    padding: 0 10px;
-    background-color: #fff;
-}
-div.lnfiles{
-    overflow: auto;
-    border: 1px solid #bbb;
-    padding: 0 10px;
-    background-color: #fff;
 }
 
 .ann_comment_wrapper {
