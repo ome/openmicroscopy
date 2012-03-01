@@ -159,9 +159,11 @@ class RDefsTest (lib.GTest):
             rsettings = self.gateway.getRenderingSettingsService()
             sopts = dict(self.gateway.CONFIG['SERVICE_OPTS'] or {})
             sopts['omero.group'] = str(i1.getDetails().getGroup().getId())
+            sopts['omero.user'] = str(i1.getOwner().getId())
             rv = rsettings.applySettingsToImages(frompid, list(toids), sopts)
             err = '''FAIL: rsettings.applySettingsToImages(%i, (%i,)) -> %s''' % (i1.getId(), i2.getId(), rv)
             self.assertEqual(rv[True], [i2.getId()], err)
+            self.gateway.CONFIG['SERVICE_OPTS'] = sopts
             i2 = self.getTinyTestImage2()
             i2c = i2.getChannels()
             self.assertEqual(i2c[0].getWindowStart(), t)
