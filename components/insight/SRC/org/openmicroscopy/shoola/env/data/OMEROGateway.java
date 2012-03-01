@@ -6362,15 +6362,13 @@ class OMEROGateway
 	 * @param object Information about the file to import.
 	 * @param container The folder to import the image.
 	 * @param name		The name to give to the imported image.
-	 * @param archived  Pass <code>true</code> if the image has to be archived,
-	 * 					<code>false</code> otherwise.
      * @param Pass <code>true</code> to close the import,
      * 		<code>false</code> otherwise.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
 	Object importImage(ImportableObject object, IObject container, 
-			File file, StatusLabel status, boolean archived, boolean close)
+			File file, StatusLabel status, boolean close)
 		throws ImportException
 	{
 		isSessionAlive();
@@ -6381,7 +6379,7 @@ class OMEROGateway
 					new OMEROWrapper(new ImportConfig()));
 			library.addObserver(status);
 			ImportContainer ic = new ImportContainer(file, -1L, container, 
-					archived, object.getPixelsSize(), null, null, null);
+					false, object.getPixelsSize(), null, null, null);
 			ic.setUseMetadataFile(true);
 			if (object.isOverrideName()) {
 				int depth = object.getDepthForName();

@@ -126,16 +126,14 @@ class OmeroImageServiceImpl
 	 * @param candidates The file to import.
 	 * @param status The original status.
 	 * @param object The object hosting information about the import.
-	 * @param archived Pass <code>true</code> if the original file had to be
-	 * 					archived, <code>false</code> otherwise.
 	 * @param ioList The containers where to import the files.
 	 * @param list   The list of annotations.
 	 * @param userID The identifier of the user.
 	 * @param hcs Value returns by the import containers.
 	 */
 	private Boolean importCandidates(Map<File, StatusLabel> files,
-			StatusLabel status, ImportableObject object, boolean archived,
-			IObject ioContainer, List<Annotation> list, long userID,
+			StatusLabel status, ImportableObject object, IObject ioContainer,
+			List<Annotation> list, long userID,
 			boolean close, boolean hcs)
 	{
 		if (status.isMarkedAsCancel()) {
@@ -146,7 +144,6 @@ class OmeroImageServiceImpl
 		Entry entry;
 		Iterator jj = files.entrySet().iterator();
 		StatusLabel label = null;
-		//boolean archived = object.isArchivedFile(file);
 		File file;
 		Object result;
 		List<ImageData> images = new ArrayList<ImageData>();
@@ -178,7 +175,7 @@ class OmeroImageServiceImpl
 				try {
 					if (ioContainer == null) label.setNoContainer();
 					result = gateway.importImage(object, ioContainer, file,
-							label, archived, toClose);
+							label, toClose);
 					if (result instanceof ImageData) {
 						image = (ImageData) result;
 						images.add(image);
@@ -1189,7 +1186,7 @@ class OmeroImageServiceImpl
 					if (ioContainer == null)
 						status.setNoContainer();
 					result = gateway.importImage(object, ioContainer, f,
-							status, importable.isArchived(), close);
+							status, close);
 					if (result instanceof ImageData) {
 						image = (ImageData) result;
 						images.add(image);
@@ -1216,7 +1213,7 @@ class OmeroImageServiceImpl
 						files.put(new File(i.next()), new StatusLabel());
 					status.setFiles(files);
 					Boolean v = importCandidates(files, status, object, 
-							importable.isArchived(), ioContainer, list, userID,
+							ioContainer, list, userID,
 							close, hcs);
 					if (v != null) {
 						return v.booleanValue();
@@ -1225,8 +1222,8 @@ class OmeroImageServiceImpl
 			} else { //single file let's try to import it.
 				if (ioContainer == null)
 					status.setNoContainer();
-				result = gateway.importImage(object, ioContainer, file, status, 
-						importable.isArchived(), close);
+				result = gateway.importImage(object, ioContainer, file, status,
+						close);
 				if (result instanceof ImageData) {
 					image = (ImageData) result;
 					images.add(image);
@@ -1300,9 +1297,8 @@ class OmeroImageServiceImpl
 					}
 				} else ioContainer = container.asIObject();
 			}
-			importCandidates(hcsFiles, status, object, 
-					importable.isArchived(), ioContainer, list, userID, close, 
-					hcs);
+			importCandidates(hcsFiles, status, object, ioContainer, list,
+					userID, close, hcs);
 		}
 		if (otherFiles.size() > 0) {
 			folder = object.createFolderAsContainer(importable);
@@ -1374,9 +1370,8 @@ class OmeroImageServiceImpl
 				}
 			}
 			
-			importCandidates(otherFiles, status, object,
-					importable.isArchived(), ioContainer, list, userID, close,
-					hcs);
+			importCandidates(otherFiles, status, object, ioContainer, list,
+					userID, close, hcs);
 		}
 		return Boolean.valueOf(true);
 	}
