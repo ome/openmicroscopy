@@ -24,6 +24,18 @@
             return True
         return False
 
+    def sorted_objects():
+        return sorted(model.objects.values(), lambda x, y: cmp(x.name, y.name))
+
+    def sorted_and_filtered_objects():
+        objects = sorted_objects()
+        def f(x):
+            if x.name in ('BinaryOnly', 'Contact', 'Leader', 'MetadataOnly',
+                          'OME', 'TiffData', 'UUID'):
+                return False
+            return True
+        return filter(f, objects)
+
     def sorted_properties(o):
         return sorted(o.properties.values() + o.baseObjectProperties, lambda x, y: cmp(x.name, y.name))
 
@@ -58,7 +70,7 @@
 -->
 
 <types>
-{% for o in sorted(model.objects.values(), lambda x, y: cmp(x.name, y.name)) %}\
+{% for o in sorted_and_filtered_objects() %}\
 {% if o.name not in fu.METADATA_OBJECT_IGNORE %}\
 {% choose %}\
 {% when parent_object(o.name) is not None and parent_object(o.name).isAbstractProprietary %}\
