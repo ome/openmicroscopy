@@ -96,15 +96,7 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
 
-        final BasicEventContext c = currentUser.current();
-        final boolean nonPrivate = c.getCurrentGroupPermissions().isGranted(Role.GROUP, Right.READ) ||
-            c.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.READ);
-        final boolean isShare = c.getCurrentShareId() != null;
-        final boolean adminOrPi = c.isCurrentUserAdmin() ||
-            c.getLeaderOfGroupsList().contains(c.getCurrentGroupId());
-        return securityFilter.passesFilter(d,
-                c.getGroup().getId(), c.getOwner().getId(),
-                nonPrivate, adminOrPi, isShare, c.getMemberOfGroupsList());
+        return securityFilter.passesFilter(d, currentUser.current());
     }
 
     public void throwLoadViolation(IObject iObject) throws SecurityViolation {

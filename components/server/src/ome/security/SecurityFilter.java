@@ -36,8 +36,6 @@ public interface SecurityFilter {
 
     static public final String is_nonprivate = "is_nonprivate";
 
-    static public final String current_groups = "current_groups";
-
     static public final String current_user = "current_user";
 
     /**
@@ -70,10 +68,7 @@ public interface SecurityFilter {
      *            null all {@link Right rights} will be assumed.
      * @return true if the object to which this
      */
-    public boolean passesFilter(Details d,
-            Long currentGroupId, Long currentUserId,
-            boolean nonPrivate, boolean adminOrPi, boolean share,
-            List<Long> memberOfGroups);
+    public boolean passesFilter(Details d, EventContext c);
 
     /**
      * Enables this filter with the settings from this filter. The intent is

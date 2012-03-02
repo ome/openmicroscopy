@@ -46,10 +46,12 @@ import ome.system.Roles;
  */
 public class OneGroupSecurityFilter extends AbstractSecurityFilter {
 
+    static public final String current_group = "current_group";
+
     private static String myFilterCondition = "(\n"
                 // Should handle hidden groups at the top-level
                 // ticket:1784 - Allowing system objects to be read.
-                + "\n  ( group_id in (:current_groups) AND "
+                + "\n  ( group_id = :current_group AND "
                 + "\n     ( 1 = :is_nonprivate OR "
                 + "\n       1 = :is_adminorpi OR "
                 + "\n       owner_id = :current_user"
@@ -88,7 +90,7 @@ public class OneGroupSecurityFilter extends AbstractSecurityFilter {
        parameterTypes.put(is_share, "int");
        parameterTypes.put(is_adminorpi, "int");
        parameterTypes.put(is_nonprivate, "int");
-       parameterTypes.put(current_groups, "long");
+       parameterTypes.put(current_group, "long");
        parameterTypes.put(current_user, "long");
        return parameterTypes;
    }
@@ -105,10 +107,15 @@ public class OneGroupSecurityFilter extends AbstractSecurityFilter {
      *            null all {@link Right rights} will be assumed.
      * @return true if the object to which this
      */
-    public boolean passesFilter(Details d,
-            Long currentGroupId, Long currentUserId,
-            boolean nonPrivate, boolean adminOrPi, boolean share,
-            List<Long> memberOfGroups) {
+    public boolean passesFilter(Details d, EventContext c) {
+
+        final Long currentGroupId = c.getCurrentGroupId();
+        final Long currentUserId = c.getCurrentUserId();
+        final boolean nonPrivate = isNonPrivate(c);
+        final boolean adminOrPi = isAdminOrPi(c);
+        final boolean share = isShare(c);
+        final List<Long> memberOfGroups = c.getMemberOfGroupsList();
+
         if (d == null || d.getPermissions() == null) {
             throw new InternalException("Details/Permissions null! "
                     + "Security system failure -- refusing to continue. "
@@ -132,15 +139,8 @@ public class OneGroupSecurityFilter extends AbstractSecurityFilter {
             return true;
         }
 
-        // ticket:3529 - if we're querying for multi groups, then allow
-        // admins to read anything, and prevent other non-group members
-        // from doing anything.
         if (currentGroupId < 0) {
-            if (adminOrPi) {
-                return true;
-            } else if (!memberOfGroups.contains(g)) {
-                return false;
-            }
+            throwNegOne();
         } else if (!currentGroupId.equals(g)) {
             return false;
         }
@@ -175,29 +175,21 @@ public class OneGroupSecurityFilter extends AbstractSecurityFilter {
                 || ec.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.READ))
                 ? 1 : 0;
 
-        // ticket:3529 - if the group id is less than zero, then we assume that
-        // SELECTs should return more than a single group.
-        Collection<Long> groups = null;
         if (groupId < 0) { // Special marker
-            if (ec.isCurrentUserAdmin()) {
-                // Admin is considered to be in every group
-                share01 = 1;
-                groups = Collections.singletonList(-1L);
-            } else {
-                // Non-admin are only in their groups.
-                groups = ec.getMemberOfGroupsList();
-            }
-        } else {
-            // Group is a real value, pass only one.
-            groups = Collections.singletonList(groupId);
+            throwNegOne();
         }
 
         filter.setParameter(SecurityFilter.is_share, share01); // ticket:2219, not checking -1 here.
         filter.setParameter(SecurityFilter.is_adminorpi, admin01);
         filter.setParameter(SecurityFilter.is_nonprivate, nonpriv01);
         filter.setParameter(SecurityFilter.current_user, ec.getCurrentUserId());
-        filter.setParameterList(SecurityFilter.current_groups, groups);
+        filter.setParameter(current_group, groupId);
 
     }
 
+    private void throwNegOne() {
+        throw new InternalException("OneGroupSecurityFilter is not " +
+                "capable of handling omero.group=-1. This is handled by " +
+                "AllGroupsSecurityFilter");
+    }
 }

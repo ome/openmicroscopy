@@ -79,11 +79,8 @@ public class SecurityFilterHolder implements SecurityFilter {
         choose().disable(sess);
     }
 
-    public boolean passesFilter(Details d, Long currentGroupId,
-            Long currentUserId, boolean nonPrivate, boolean adminOrPi,
-            boolean share, List<Long> memberOfGroups) {
-        return choose().passesFilter(d, currentGroupId, currentUserId,
-                nonPrivate, adminOrPi, share, memberOfGroups);
+    public boolean passesFilter(Details d, EventContext c) {
+        return choose().passesFilter(d, c);
     }
 
 }

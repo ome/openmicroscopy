@@ -74,4 +74,19 @@ public abstract class AbstractSecurityFilter extends FilterDefinitionFactoryBean
         sess.disableFilter(getName());
     }
 
+    public boolean isNonPrivate(EventContext c) {
+        return c.getCurrentGroupPermissions().isGranted(Role.GROUP, Right.READ)
+            || c.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.READ);
+    }
+
+    public boolean isAdminOrPi(EventContext c) {
+        return c.isCurrentUserAdmin() ||
+            c.getLeaderOfGroupsList().contains(c.getCurrentGroupId());
+
+    }
+
+    public boolean isShare(EventContext c) {
+        return c.getCurrentShareId() != null;
+    }
+
 }
