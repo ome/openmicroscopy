@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ome.api.local.LocalAdmin;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
@@ -43,6 +44,12 @@ class BasicEventContext extends SimpleEventContext {
     // =========================================================================
 
     /**
+     * Service so that this instance can the members of the call context
+     * on {@link #setCallContext(Map, LocalAdmin)}.
+     */
+    private final LocalAdmin admin;
+
+    /**
      * Prinicpal should only be set once (on
      * {@link PrincipalHolder#login(Principal)}.
      */
@@ -66,12 +73,13 @@ class BasicEventContext extends SimpleEventContext {
 
     private Map<String, String> callContext;
 
-    public BasicEventContext(Principal p, SessionStats stats) {
+    public BasicEventContext(LocalAdmin admin, Principal p, SessionStats stats) {
         if (p == null || stats == null) {
             throw new RuntimeException("Principal and stats canot be null.");
         }
         this.p = p;
         this.stats = stats;
+        this.admin = admin;
     }
 
     void invalidate() {
@@ -126,13 +134,13 @@ class BasicEventContext extends SimpleEventContext {
                         "User %s is not an admin and so cannot set uid to %s",
                         cuId, uid));
             }
-            setOwner(new Experimenter(uid, false));
+            setOwner(admin.userProxy(uid));
             toPrint.add("owner="+uid);
         }
 
         final Long gid = parseId(ctx, "omero.group");
         if (gid != null) {
-            setGroup(new ExperimenterGroup(gid, false));
+            setGroup(admin.groupProxy(gid));
             toPrint.add("group="+gid);
         }
 
@@ -143,7 +151,7 @@ class BasicEventContext extends SimpleEventContext {
         }
 
         if (toPrint.size() > 0) {
-            log.info("CallContext: " + StringUtils.join(toPrint, ","));
+            log.info(" cctx:\t" + StringUtils.join(toPrint, ","));
         }
 
         return rv;

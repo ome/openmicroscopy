@@ -11,13 +11,19 @@ package ome.security.basic;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.util.Assert;
+
+import ome.api.local.LocalAdmin;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.model.IObject;
@@ -40,10 +46,7 @@ import ome.services.util.ServiceHandler;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.tools.hibernate.HibernateUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
+import ome.tools.spring.OnContextRefreshedEventListener;
 
 /**
  * Stores information related to the security context of the current thread.
@@ -59,12 +62,17 @@ import org.springframework.util.Assert;
  * Details: user == null ==> object belongs to root CurrentDetails: user == null
  * ==> current user is "nobody" (anonymous)
  * 
+ * Subclasses {@link OnContextRefreshedEventListener} so that after the context
+ * configuration is done, we can grab an admin service. Before that, it's not
+ * possible due to cyclical dependencies.
  */
-public class CurrentDetails implements PrincipalHolder {
+public class CurrentDetails extends OnContextRefreshedEventListener implements PrincipalHolder {
 
     private static Log log = LogFactory.getLog(CurrentDetails.class);
 
     private final SessionCache cache;
+
+    private /*final*/ LocalAdmin admin;
 
     private final ThreadLocal<LinkedList<BasicEventContext>> contexts = new ThreadLocal<LinkedList<BasicEventContext>>();
 
@@ -86,7 +94,14 @@ public class CurrentDetails implements PrincipalHolder {
     public CurrentDetails(SessionCache cache) {
         this.cache = cache;
     }
-    
+
+
+    @Override
+    public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
+        this.admin = (LocalAdmin)
+        event.getApplicationContext().getBean("internal-ome.api.LocalAdmin");
+    }
+
     private LinkedList<BasicEventContext> list() {
         LinkedList<BasicEventContext> list = contexts.get();
         if (list == null) {
@@ -136,7 +151,7 @@ public class CurrentDetails implements PrincipalHolder {
         final String uuid = principal.getName();
         final SessionContext ctx = cache.getSessionContext(uuid);
         final SessionStats stats = ctx.stats();
-        final BasicEventContext c = new BasicEventContext(principal, stats);
+        final BasicEventContext c = new BasicEventContext(admin, principal, stats);
         login(c);
     }
 
