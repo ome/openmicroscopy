@@ -165,7 +165,6 @@
 		<xsd:key name="InstrumentIDKey"><xsd:selector xpath="OME:Instrument"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="LightSourceIDKey"><xsd:selector xpath="OME:Instrument/OME:LightSource"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="MicrobeamManipulationIDKey"><xsd:selector xpath="OME:Experiment/OME:MicrobeamManipulation"/><xsd:field xpath="@ID"/></xsd:key>
-		<xsd:key name="OTFIDKey"><xsd:selector xpath="OME:Instrument/OME:OTF"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="ObjectiveIDKey"><xsd:selector xpath="OME:Instrument/OME:Objective"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="PixelsIDKey"><xsd:selector xpath="OME:Image/OME:Pixels"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="PlateIDKey"><xsd:selector xpath="SPW:Plate"/><xsd:field xpath="@ID"/></xsd:key>
@@ -202,13 +201,10 @@
 		<xsd:keyref name="ImagePixelsChannelLightPathEmissionFilterIDKeyRef" refer="OME:FilterIDKey" ><xsd:selector xpath="OME:Image/OME:Pixels/OME:Channel/OME:LightPath/OME:EmissionFilterPath/OME:FilterRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ImagePixelsChannelLightPathEmissionDichroicIDKeyRef" refer="OME:DichroicIDKey" ><xsd:selector xpath="OME:Image/OME:Pixels/OME:Channel/OME:LightPath/OME:EmissionFilterPath/OME:DichroicRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ImagePixelsChannelLightSourceSettingsLightSourceIDKeyRef" refer="OME:LightSourceIDKey" ><xsd:selector xpath="OME:Image/OME:Pixels/OME:Channel/OME:LightSourceSettings"/><xsd:field xpath="@ID"/></xsd:keyref>
-		<xsd:keyref name="ImagePixelsChannelOTFIDKeyRef" refer="OME:OTFIDKey" ><xsd:selector xpath="OME:Image/OME:Pixels/OME:Channel/OME:OTFRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="InstrumentFilterSetExcitationFilterIDKeyRef" refer="OME:FilterIDKey" ><xsd:selector xpath="OME:Instrument/OME:FilterSet/OME:ExcitationFilterRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="InstrumentFilterSetDichroicIDKeyRef" refer="OME:DichroicIDKey" ><xsd:selector xpath="OME:Instrument/OME:FilterSet/OME:DichroicRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="InstrumentFilterSetEmissionFilterIDKeyRef" refer="OME:FilterIDKey" ><xsd:selector xpath="OME:Instrument/OME:FilterSet/OME:EmissionFilterRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="InstrumentLightSourceLaserPumpLightSourceIDKey" refer="OME:LightSourceIDKey" ><xsd:selector xpath="OME:Instrument/OME:LightSource/OME:Laser/OME:Pump"/><xsd:field xpath="@ID"/></xsd:keyref>
-		<xsd:keyref name="InstrumentOTFFilterSetIDKeyRef" refer="OME:FilterSetIDKey" ><xsd:selector xpath="OME:Instrument/OME:OTF/OME:FilterSetRef"/><xsd:field xpath="@ID"/></xsd:keyref>
-		<xsd:keyref name="InstrumentOTFObjectiveSettingsObjectiveIDKeyRef" refer="OME:ObjectiveIDKey" ><xsd:selector xpath="OME:Instrument/OME:OTF/OME:ObjectiveSettings"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="PlateScreenIDKeyRef" refer="OME:ScreenIDKey" ><xsd:selector xpath="SPW:Plate/SPW:ScreenRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="PlateWellReagentIDKeyRef" refer="OME:ReagentIDKey" ><xsd:selector xpath="SPW:Plate/SPW:Well/SPW:ReagentRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="PlateWellWellSampleImageIDKeyRef" refer="OME:ImageIDKey" ><xsd:selector xpath="SPW:Plate/SPW:Well/SPW:WellSample/SPW:ImageRef"/><xsd:field xpath="@ID"/></xsd:keyref>
@@ -479,7 +475,6 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 		<xsd:complexType>
 			<xsd:sequence>
 				<xsd:element ref="LightSourceSettings" minOccurs="0" maxOccurs="1"/>
-				<xsd:element ref="OTFRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="DetectorSettings" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="FilterSetRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
@@ -803,14 +798,10 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				It is primarily a container for manufacturer's model and catalog 
 				numbers for the Microscope, LightSource, Detector, Objective and 
 				Filters components.
-				Additionally, one or more OTF elements may be specified, describing 
-				the optical transfer function under different conditions.
 				The Objective element contains the additional elements LensNA and Magnification.
 				The Filters element can be composed either of separate excitation, 
 				emission filters and a dichroic mirror or a single filter set. 
 				Within the Image itself, a reference is made to this one Filter element.
-				The OTF element contains an optical transfer function.
-				The same OTF can be used for all wavelengths, or there may be one per wavelength.
 				There may be multiple light sources, detectors, objectives and filters on a microscope.
 				Each of these has their own ID attribute, which can be referred to from Channel.
 				It is understood that the light path configuration can be different 
@@ -827,7 +818,6 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				<xsd:element ref="FilterSet" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="Filter" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="Dichroic" minOccurs="0" maxOccurs="unbounded"/>
-				<xsd:element ref="OTF" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
 			<xsd:attribute name="ID" use="required" type="InstrumentID"/>
 		</xsd:complexType>
@@ -852,58 +842,6 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 					</xsd:attribute>
 				</xsd:extension>
 			</xsd:complexContent>
-		</xsd:complexType>
-	</xsd:element>
-	<xsd:element name="OTF"> <!-- top level definition -->
-		<xsd:annotation>
-			<xsd:documentation>
-				NOTE: OTF is DEPRECATED as it is due to be removed. 
-				No objections were received in reply to:
-				http://lists.openmicroscopy.org.uk/pipermail/ome-devel/2011-April/001931.html
-
-				The optical transfer function. FilterSetRef refers to the set of 
-				filters used in computing the OTF.
-				This element must contain a BinData element containing the 
-				Base64-encoded OTF. These work the same way as they do for the 
-				Data element within Image.
-			</xsd:documentation>
-		</xsd:annotation>
-		<xsd:complexType>
-			<xsd:sequence>
-				<xsd:element ref="ObjectiveSettings" minOccurs="1" maxOccurs="1"/>
-				<xsd:element ref="FilterSetRef" minOccurs="0" maxOccurs="1"/>
-				<xsd:element ref="BIN:BinaryFile" minOccurs="1" maxOccurs="1"/>
-			</xsd:sequence>
-			<xsd:attribute name="ID" use="required" type="OTFID"/>
-			<xsd:attribute name="Type" use="required" type="PixelType">
-				<xsd:annotation>
-					<xsd:documentation>
-						The variable type used to specify the size of pixel the OTF is for designed for.
-					</xsd:documentation>
-				</xsd:annotation>
-			</xsd:attribute>
-			<xsd:attribute name="OpticalAxisAveraged" use="required" type="xsd:boolean">
-				<xsd:annotation>
-					<xsd:documentation>
-						The OpticalAxisAveraged is a boolean specifying whether or not 
-						optical axis averaging was done. [flag]
-					</xsd:documentation>
-				</xsd:annotation>
-			</xsd:attribute>
-			<xsd:attribute name="SizeX" use="required" type="PositiveInt">
-				<xsd:annotation>
-					<xsd:documentation>
-						The width of the OTF. [units:none]
-					</xsd:documentation>
-				</xsd:annotation>
-			</xsd:attribute>
-			<xsd:attribute name="SizeY" use="required" type="PositiveInt">
-				<xsd:annotation>
-					<xsd:documentation>
-						The height of the OTF. [units:none]
-					</xsd:documentation>
-				</xsd:annotation>
-			</xsd:attribute>
 		</xsd:complexType>
 	</xsd:element>
 
@@ -2116,15 +2054,6 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 			</xsd:complexContent>
 		</xsd:complexType>
 	</xsd:element>
-	<xsd:element name="OTFRef"> <!-- top level definition -->
-		<xsd:complexType>
-			<xsd:complexContent>
-				<xsd:extension base="Reference">
-					<xsd:attribute name="ID" use="required" type="OTFID"/>
-				</xsd:extension>
-			</xsd:complexContent>
-		</xsd:complexType>
-	</xsd:element>
 
 	<!-- Settings -->
 	<xsd:complexType name="Settings">
@@ -2357,11 +2286,6 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 	<xsd:simpleType name="FilterSetID">
 		<xsd:restriction base="LSID">
 			<xsd:pattern value="(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:FilterSet:\S+)|(FilterSet:\S+)"/>
-		</xsd:restriction>
-	</xsd:simpleType>
-	<xsd:simpleType name="OTFID">
-		<xsd:restriction base="LSID">
-			<xsd:pattern value="(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:OTF:\S+)|(OTF:\S+)"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 	<xsd:simpleType name="DetectorID">
