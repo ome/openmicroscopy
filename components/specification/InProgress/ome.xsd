@@ -88,7 +88,7 @@
 					<xsd:element ref="SPW:Plate" minOccurs="0" maxOccurs="unbounded"/>
 					<xsd:element ref="SPW:Screen" minOccurs="0" maxOccurs="unbounded"/>
 					<xsd:element ref="Experimenter" minOccurs="0" maxOccurs="unbounded"/>
-					<xsd:element ref="Group" minOccurs="0" maxOccurs="unbounded"/>
+					<xsd:element ref="ExperimenterGroup" minOccurs="0" maxOccurs="unbounded"/>
 					<xsd:element ref="Instrument" minOccurs="0" maxOccurs="unbounded"/>
 					<xsd:element ref="Image" minOccurs="0" maxOccurs="unbounded"/>
 					<xsd:element ref="SA:StructuredAnnotations" minOccurs="0" maxOccurs="1"/>
@@ -160,7 +160,7 @@
 		<xsd:key name="ExperimenterIDKey"><xsd:selector xpath="OME:Experimenter"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="FilterIDKey"><xsd:selector xpath="OME:Instrument/OME:Filter"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="FilterSetIDKey"><xsd:selector xpath="OME:Instrument/OME:FilterSet"/><xsd:field xpath="@ID"/></xsd:key>
-		<xsd:key name="GroupIDKey"><xsd:selector xpath="OME:Group"/><xsd:field xpath="@ID"/></xsd:key>
+		<xsd:key name="ExperimenterGroupIDKey"><xsd:selector xpath="OME:ExperimenterGroup"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="ImageIDKey"><xsd:selector xpath="OME:Image"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="InstrumentIDKey"><xsd:selector xpath="OME:Instrument"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="LightSourceIDKey"><xsd:selector xpath="OME:Instrument/OME:LightSource"/><xsd:field xpath="@ID"/></xsd:key>
@@ -178,18 +178,18 @@
 		<xsd:key name="ShapeIDKey"><xsd:selector xpath="ROI:ROI/ROI:Union/ROI:Shape"/><xsd:field xpath="@ID"/></xsd:key>
 		
 		<xsd:keyref name="DatasetExperimenterIDKeyRef" refer="OME:ExperimenterIDKey" ><xsd:selector xpath="OME:Dataset/OME:ExperimenterRef"/><xsd:field xpath="@ID"/></xsd:keyref>
-		<xsd:keyref name="DatasetGroupIDKeyRef" refer="OME:GroupIDKey" ><xsd:selector xpath="OME:Dataset/OME:GroupRef"/><xsd:field xpath="@ID"/></xsd:keyref>
+		<xsd:keyref name="DatasetExperimenterGroupIDKeyRef" refer="OME:ExperimenterGroupIDKey" ><xsd:selector xpath="OME:Dataset/OME:ExperimenterGroupRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="DatasetProjectIDKeyRef" refer="OME:ProjectIDKey" ><xsd:selector xpath="OME:Dataset/OME:ProjectRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ExperimentExperimenterIDKeyRef" refer="OME:ExperimenterIDKey" ><xsd:selector xpath="OME:Experiment/OME:ExperimenterRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ExperimentMicrobeamManipulationExperimenterIDKeyRef" refer="OME:ExperimenterIDKey" ><xsd:selector xpath="OME:Experiment/OME:MicrobeamManipulation/OME:ExperimenterRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ExperimentMicrobeamManipulationLightSourceSettingsLightSourceIDKeyRef" refer="OME:LightSourceIDKey" ><xsd:selector xpath="OME:Experiment/OME:MicrobeamManipulation/OME:LightSourceSettings"/><xsd:field xpath="@ID"/></xsd:keyref>
-		<xsd:keyref name="ExperimenterGroupIDKeyRef" refer="OME:GroupIDKey" ><xsd:selector xpath="OME:Experimenter/OME:GroupRef"/><xsd:field xpath="@ID"/></xsd:keyref>
-		<xsd:keyref name="GroupContactExperimenterIDKeyRef" refer="OME:ExperimenterIDKey" ><xsd:selector xpath="OME:Group/OME:Contact"/><xsd:field xpath="@ID"/></xsd:keyref>
-		<xsd:keyref name="GroupLeaderExperimenterIDKeyRef" refer="OME:ExperimenterIDKey" ><xsd:selector xpath="OME:Group/OME:Leader"/><xsd:field xpath="@ID"/></xsd:keyref>
+		<xsd:keyref name="ExperimenterExperimenterGroupIDKeyRef" refer="OME:ExperimenterGroupIDKey" ><xsd:selector xpath="OME:Experimenter/OME:ExperimenterGroupRef"/><xsd:field xpath="@ID"/></xsd:keyref>
+		<xsd:keyref name="ExperimenterGroupContactExperimenterIDKeyRef" refer="OME:ExperimenterIDKey" ><xsd:selector xpath="OME:ExperimenterGroup/OME:Contact"/><xsd:field xpath="@ID"/></xsd:keyref>
+		<xsd:keyref name="ExperimenterGroupLeaderExperimenterIDKeyRef" refer="OME:ExperimenterIDKey" ><xsd:selector xpath="OME:ExperimenterGroup/OME:Leader"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ImageDatasetIDKeyRef" refer="OME:DatasetIDKey" ><xsd:selector xpath="OME:Image/OME:DatasetRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ImageExperimenterIDKeyRef" refer="OME:ExperimenterIDKey" ><xsd:selector xpath="OME:Image/OME:ExperimenterRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ImageExperimentIDKeyRef" refer="OME:ExperimentIDKey" ><xsd:selector xpath="OME:Image/OME:ExperimentRef"/><xsd:field xpath="@ID"/></xsd:keyref>
-		<xsd:keyref name="ImageGroupIDKeyRef" refer="OME:GroupIDKey" ><xsd:selector xpath="OME:Image/OME:GroupRef"/><xsd:field xpath="@ID"/></xsd:keyref>
+		<xsd:keyref name="ImageExperimenterGroupIDKeyRef" refer="OME:ExperimenterGroupIDKey" ><xsd:selector xpath="OME:Image/OME:ExperimenterGroupRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ImageInstrumentIDKeyRef" refer="OME:InstrumentIDKey" ><xsd:selector xpath="OME:Image/OME:InstrumentRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ImageMicrobeamManipulationIDKeyRef" refer="OME:MicrobeamManipulationIDKey" ><xsd:selector xpath="OME:Image/OME:MicrobeamManipulationRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ImageObjectiveSettingsObjectiveIDKeyRef" refer="OME:ObjectiveIDKey" ><xsd:selector xpath="OME:Image/OME:ObjectiveSettings"/><xsd:field xpath="@ID"/></xsd:keyref>
@@ -209,7 +209,7 @@
 		<xsd:keyref name="PlateWellReagentIDKeyRef" refer="OME:ReagentIDKey" ><xsd:selector xpath="SPW:Plate/SPW:Well/SPW:ReagentRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="PlateWellWellSampleImageIDKeyRef" refer="OME:ImageIDKey" ><xsd:selector xpath="SPW:Plate/SPW:Well/SPW:WellSample/SPW:ImageRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ProjectExperimenterIDKeyRef" refer="OME:ExperimenterIDKey" ><xsd:selector xpath="OME:Project/OME:ExperimenterRef"/><xsd:field xpath="@ID"/></xsd:keyref>
-		<xsd:keyref name="ProjectGroupIDKeyRef" refer="OME:GroupIDKey" ><xsd:selector xpath="OME:Project/OME:GroupRef"/><xsd:field xpath="@ID"/></xsd:keyref>
+		<xsd:keyref name="ProjectExperimenterGroupIDKeyRef" refer="OME:ExperimenterGroupIDKey" ><xsd:selector xpath="OME:Project/OME:ExperimenterGroupRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ScreenPlateIDKeyRef" refer="OME:PlateIDKey" ><xsd:selector xpath="SPW:Screen/SPW:PlateRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ScreenScreenAcquisitionWellSampleIDKeyRef" refer="OME:WellSampleIDKey" ><xsd:selector xpath="SPW:Screen/SPW:ScreenAcquisition/SPW:WellSampleRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="ExperimentMicrobeamManipulationROIIDKeyRef" refer="OME:ROIIDKey" ><xsd:selector xpath="OME:Experiment/OME:MicrobeamManipulation/ROI:ROIRef"/><xsd:field xpath="@ID"/></xsd:keyref>
@@ -262,7 +262,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 					</xsd:simpleType>
 				</xsd:element>
 				<xsd:element ref="ExperimentRef" minOccurs="0" maxOccurs="1"/>
-				<xsd:element ref="GroupRef" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="ExperimenterGroupRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="DatasetRef" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="InstrumentRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="ObjectiveSettings" minOccurs="0" maxOccurs="1"/>
@@ -912,17 +912,17 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 					</xsd:simpleType>
 				</xsd:element>
 				<xsd:element ref="ExperimenterRef" minOccurs="0" maxOccurs="1"/>
-				<xsd:element ref="GroupRef" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="ExperimenterGroupRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
 			<xsd:attribute name="Name" use="optional" type="xsd:string"/>
 			<xsd:attribute name="ID" use="required" type="ProjectID"/>
 		</xsd:complexType>
 	</xsd:element>
-	<xsd:element name="Group"> <!-- top level definition -->
+	<xsd:element name="ExperimenterGroup"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:documentation>
-				The Group ID is required.
+				The ExperimenterGroupID is required.
 				Contact information should be specified for the leader of the group and a contact person.
 				The Leader and/or Contact are themselves experimenters.
 			</xsd:documentation>
@@ -943,15 +943,16 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				</xsd:element>
 				<xsd:element ref="Leader" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="Contact" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
 			<xsd:attribute name="Name" use="optional" type="xsd:string"/>
-			<xsd:attribute name="ID" use="required" type="GroupID"/>
+			<xsd:attribute name="ID" use="required" type="ExperimenterGroupID"/>
 		</xsd:complexType>
 	</xsd:element>
 	<xsd:element name="Leader"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:documentation>
-				Contact information for a Group leader specified using a reference 
+				Contact information for a ExperimenterGroup leader specified using a reference 
 				to an Experimenter element defined elsewhere in the document.
 			</xsd:documentation>
 		</xsd:annotation>
@@ -986,7 +987,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				Images can belong to more than one Dataset, and a Dataset may contain more than one Image.
 				Images contain one or more DatasetRef elements to specify what datasets they belong to.
 				Once a Dataset has been processed in any way, its collection of images cannot be altered.
-				The ExperimenterRef and GroupRef elements specify the person and group this Dataset belongs to.
+				The ExperimenterRef and ExperimenterGroupRef elements specify the person and group this Dataset belongs to.
 				Projects may contain one or more Datasets, and Datasets may belong to one or more Projects.
 				This relationship is specified by listing ProjectRef elements within the Dataset element.
 			</xsd:documentation>
@@ -1006,7 +1007,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 					</xsd:simpleType>
 				</xsd:element>
 				<xsd:element ref="ExperimenterRef" minOccurs="0" maxOccurs="1"/>
-				<xsd:element ref="GroupRef" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="ExperimenterGroupRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="ProjectRef" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
@@ -1093,12 +1094,12 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 			<xsd:documentation>
 				This element describes a person who performed an imaging experiment.
 				This person may also be a user of the OME system, in which case the UserName element contains their login name.
-				Experimenters may belong to one or more groups which are specified using one or more GroupRef elements.
+				Experimenters may belong to one or more groups which are specified using one or more ExperimenterGroupRef elements.
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element ref="GroupRef" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="ExperimenterGroupRef" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
 			<xsd:attribute name="ID" use="required" type="ExperimenterID"/>
@@ -2003,14 +2004,14 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 			</xsd:complexContent>
 		</xsd:complexType>
 	</xsd:element>
-	<xsd:element name="GroupRef"> <!-- top level definition -->
+	<xsd:element name="ExperimenterGroupRef"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:documentation>This empty element has a reference (the Group ID attribute) to a Group defined within OME.</xsd:documentation>
+			<xsd:documentation>This empty element has a reference (the ExperimenterGroup ID attribute) to a ExperimenterGroup defined within OME.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
 				<xsd:extension base="Reference">
-					<xsd:attribute name="ID" use="required" type="GroupID"/>
+					<xsd:attribute name="ID" use="required" type="ExperimenterGroupID"/>
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>
@@ -2243,9 +2244,9 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 			<xsd:pattern value="(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Experimenter:\S+)|(Experimenter:\S+)"/>
 		</xsd:restriction>
 	</xsd:simpleType>
-	<xsd:simpleType name="GroupID">
+	<xsd:simpleType name="ExperimenterGroupID">
 		<xsd:restriction base="LSID">
-			<xsd:pattern value="(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Group:\S+)|(Group:\S+)"/>
+			<xsd:pattern value="(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:ExperimenterGroup:\S+)|(ExperimenterGroup:\S+)"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 	<xsd:simpleType name="ExperimentID">
