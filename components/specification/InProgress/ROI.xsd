@@ -130,10 +130,10 @@
 					</xsd:documentation>
 				</xsd:annotation>		
 			</xsd:attribute>
-			<xsd:attribute name="Fill" use="optional" type="xsd:int">
+			<xsd:attribute name="Fill" use="optional" type="OME:Color">
 				<xsd:annotation>
 					<xsd:documentation>
-						The colour of the fill - encoded as RGBA
+						The color of the fill - encoded as RGBA
 						The value "-2147483648" is #FFFFFFFF so solid white (it is a signed 32 bit value)
 					</xsd:documentation>
 				</xsd:annotation>
@@ -152,10 +152,10 @@
 					</xsd:restriction>
 				</xsd:simpleType>
 			</xsd:attribute>
-			<xsd:attribute name="Stroke" use="optional" type="xsd:int">
+			<xsd:attribute name="Stroke" use="optional" type="OME:Color">
 				<xsd:annotation>
 					<xsd:documentation>
-						The colour of the stroke  - encoded as RGBA
+						The color of the stroke  - encoded as RGBA
 						The value "-2147483648" is #FFFFFFFF so solid white (it is a signed 32 bit value)
 					</xsd:documentation>
 				</xsd:annotation>
