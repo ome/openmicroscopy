@@ -7013,7 +7013,7 @@ class OMEROGateway
 						long size = 0;
 						if (index == OmeroImageService.EXPORT_AS_OME_XML)
 							size = store.generateXml();
-						else store.generateTiff();
+						else size = store.generateTiff();
 						long offset = 0;
 						try {
 							for (offset = 0; (offset+INC) < size;) {
