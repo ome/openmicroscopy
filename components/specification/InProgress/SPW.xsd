@@ -77,6 +77,7 @@
 				</xsd:element>
 				<xsd:element name="ScreenRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
+						<xsd:appinfo>plural:Screens</xsd:appinfo>
 						<xsd:documentation>
 							The ScreenRef element is a reference to a Screen element.
 							Plate elements may have one or more ScreenRef elements to define the screen that a plate belongs to.
@@ -92,7 +93,11 @@
 					</xsd:complexType>
 				</xsd:element>
 				<xsd:element ref="Well" minOccurs="0" maxOccurs="unbounded"/>
-				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 				<xsd:element ref="PlateAcquisition" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
 			<xsd:attribute name="ID" use="required" type="PlateID"/>
@@ -262,7 +267,11 @@
 						</xsd:restriction>
 					</xsd:simpleType>
 				</xsd:element>
-				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 			</xsd:sequence>
 			<xsd:attribute name="ID" use="required" type="ReagentID"/>
 			<xsd:attribute name="Name" use="optional" type="xsd:string">
@@ -324,9 +333,14 @@
 						</xsd:restriction>
 					</xsd:simpleType>
 				</xsd:element>
-				<xsd:element ref="Reagent" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="Reagent" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo>plural:Reagents</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 				<xsd:element name="PlateRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
+						<xsd:appinfo>plural:Plates</xsd:appinfo>
 						<xsd:documentation>
 							The PlateRef element is a reference to a Plate element.
 							Screen elements may have one or more PlateRef elements to define the plates that are part of the screen.
@@ -341,7 +355,11 @@
 						</xsd:complexContent>
 					</xsd:complexType>
 				</xsd:element>
-				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 			</xsd:sequence>
 			<xsd:attribute name="ID" use="required" type="ScreenID"/>
 			<xsd:attribute name="Name" use="optional" type="xsd:string"/>
@@ -416,8 +434,16 @@
 						</xsd:restriction>
 					</xsd:simpleType>
 				</xsd:element>
-				<xsd:element ref="WellSampleRef" minOccurs="0" maxOccurs="unbounded"/>
-				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="WellSampleRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo>plural:WellSamples</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 			</xsd:sequence>
 			<xsd:attribute name="ID" use="required" type="PlateAcquisitionID"/>
 			<xsd:attribute name="Name" use="optional" type="xsd:string"/>
@@ -468,7 +494,11 @@
 			<xsd:sequence>
 				<xsd:element ref="WellSample" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="ReagentRef" minOccurs="0" maxOccurs="1"/>
-				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 			</xsd:sequence>
 			<xsd:attribute name="ID" use="required" type="WellID"/>
 			<xsd:attribute name="Column" use="required" type="OME:NonNegativeInt">
@@ -543,7 +573,11 @@
 						</xsd:documentation>
 					</xsd:annotation>	  
 				</xsd:element>
-				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 			</xsd:sequence>
 			<xsd:attribute name="ID" use="required" type="WellSampleID"/>
 			<xsd:attribute name="X" use="optional" type="xsd:float">

@@ -63,7 +63,11 @@
 						</xsd:complexType>
 					</xsd:element>
 				</xsd:choice>
-				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 				<xsd:element name="Description" minOccurs="0" maxOccurs="1">
 					<xsd:annotation>
 						<xsd:documentation>

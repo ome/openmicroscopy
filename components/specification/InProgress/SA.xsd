@@ -126,7 +126,11 @@
 				</xsd:simpleType>
 			</xsd:element>
 			<xsd:sequence>
-				<xsd:element ref="AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="AnnotationRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 			</xsd:sequence>
 		</xsd:sequence>
 		<xsd:attribute name="ID" use="required" type="AnnotationID"></xsd:attribute>
