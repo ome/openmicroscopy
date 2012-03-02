@@ -53,9 +53,8 @@
 	<xsd:annotation>
 		<xsd:documentation>
 			Open Microscopy Environment
-			OME XML Schema April 2011
+			OME XML Schema June 2012
 			Author:  Ilya G. Goldberg, Andrew J Patterson
-			Copyright (C) 2002-2011 Open Microscopy Environment
 		</xsd:documentation>
 	</xsd:annotation>
 
