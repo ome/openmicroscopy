@@ -359,31 +359,31 @@ public class OmeroInterceptor implements Interceptor {
      * update} since this is the only time that new entity references can be
      * created.
      *
-     * @param iObject
+     * @param changedObject
      *            new or updated entity which may reference other entities which
      *            then require locking. Nulls are tolerated but do nothing.
      */
-    public Details evaluateLinkages(IObject iObject) {
+    public Details evaluateLinkages(IObject changedObject) {
 
-        if (iObject == null) {
+        if (changedObject == null) {
             return null;
         }
 
-        final Details rv = iObject.getDetails().newInstance();
-        if (sysTypes.isSystemType(iObject.getClass()) ||
-                sysTypes.isInSystemGroup(iObject.getDetails())) {
+        final Details rv = changedObject.getDetails().newInstance();
+        if (sysTypes.isSystemType(changedObject.getClass()) ||
+                sysTypes.isInSystemGroup(changedObject.getDetails())) {
             return rv;
         }
 
-        IObject[] candidates = em.getLockCandidates(iObject);
-        for (IObject object : candidates) {
+        IObject[] candidates = em.getLockCandidates(changedObject);
+        for (IObject linkedObject : candidates) {
 
-            if (!sysTypes.isSystemType(object.getClass()) &&
-                    !sysTypes.isInSystemGroup(object.getDetails()) &&
-                    !sysTypes.isInUserGroup(object.getDetails())) {
+            if (!sysTypes.isSystemType(linkedObject.getClass()) &&
+                    !sysTypes.isInSystemGroup(linkedObject.getDetails()) &&
+                    !sysTypes.isInUserGroup(linkedObject.getDetails())) {
 
-                Details d = object.getDetails();
-                if (d == null) {
+                Details linkedDetails = linkedObject.getDetails();
+                if (linkedDetails == null) {
                     // ticket:2575. Previously, the details of the candidates
                     // were never null. the addition of the reagent linkages
                     // *somehow* led to NPEs here. for the moment, we're assuming
@@ -392,16 +392,19 @@ public class OmeroInterceptor implements Interceptor {
                     continue;
                 }
 
+                // If this is -1 situation, then we pass back out the
+                // group for the linked object. In the case of new transient
+                // objects, this will be set as the new group.
                 if (currentUser.getGroup().getId() < 0) {
-                    rv.setGroup(d.getGroup());
-                } else if (d != null && d.getGroup() != null &&
-                        !HibernateUtils.idEqual(d.getGroup(),
+                    rv.setGroup(linkedDetails.getGroup());
+                } else if (linkedDetails.getGroup() != null &&
+                        !HibernateUtils.idEqual(linkedDetails.getGroup(),
                         currentUser.getGroup())) {
                     throw new GroupSecurityViolation(String.format(
                             "MIXED GROUP: " +
                             "%s(group=%s) and %s(group=%s) cannot be linked.",
-                            iObject, currentUser.getGroup(),
-                            object, d.getGroup()));
+                            changedObject, currentUser.getGroup(),
+                            linkedObject, linkedDetails.getGroup()));
                 }
 
                 // Rather than as in <=4.1 in which objects were scheduled
@@ -409,28 +412,32 @@ public class OmeroInterceptor implements Interceptor {
                 // whether or not we're graph critical and if so, and if
                 // the objects do not belong the current user, then we abort.
 
-                Experimenter owner = object.getDetails().getOwner();
-                if (owner == null) {
+                Experimenter linkedOwner = linkedObject.getDetails().getOwner();
+                if (linkedOwner == null) {
                     continue;
                 }
-                Long oid = owner.getId();
-                Long uid = currentUser.getOwner().getId();
-                if (oid != null && !uid.equals(oid)) {
+                Long linkedUid = linkedOwner.getId();
+                Long currentUid = currentUser.getOwner().getId();
+                if (linkedUid != null && !currentUid.equals(linkedUid)) {
                     if (currentUser.isGraphCritical()) {  // ticket:1769
-                    String gname = currentUser.getGroup().getName();
-                    String oname = currentUser.getOwner().getOmeName();
-                    Permissions p = currentUser.getCurrentEventContext()
-                        .getCurrentGroupPermissions();
-                    throw new ReadOnlyGroupSecurityViolation(String.format(
+                        String gname = currentUser.getGroup().getName();
+                        String oname = currentUser.getOwner().getOmeName();
+                        Permissions p = currentUser.getCurrentEventContext()
+                            .getCurrentGroupPermissions();
+
+                        throw new ReadOnlyGroupSecurityViolation(String.format(
                             "Cannot link to %s\n" +
                             "Current user (%s) is an admin or the owner of\n" +
                             "the private group (%s=%s). It is not allowed to\n" +
-                            "link to users' data.", object, oname, gname, p));
+                            "link to users' data.", linkedObject, oname, gname, p));
+
                     } else if (!currentUser.getCurrentEventContext()
                             .getCurrentGroupPermissions()
                             .isGranted(Role.GROUP, Right.WRITE)) {// ticket:1992
+
                         throw new ReadOnlyGroupSecurityViolation("Group is READ-ONLY. " +
-					"Cannot link to object: " + object);
+                            "Cannot link to object: " + linkedObject);
+
                     }
                 }
             }
