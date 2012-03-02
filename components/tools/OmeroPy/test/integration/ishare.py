@@ -721,6 +721,77 @@ class TestIShare(lib.ITest):
 
         self.assertRaises(omero.ValidationException, *bad_screen)
 
+    ########################################
+    # Test omero.share functionality (#3527)
+    ########################################
+
+    def create_share(self, share, description="desc", timeout=None,
+            objects=None, experimenters=None, guests=None, enabled=True):
+        return share.createShare(description, timeout, objects, experimenters, guests, enabled)
+
+    def testOSRegularUser(self):
+        # """ test regular user can activate a share """
+
+        owner, owner_obj = self.new_client_and_user(perms="rw----") # Owner of share
+        member, member_obj = self.new_client_and_user(perms="rw----") # Different group!
+        share1 = owner.sf.getShareService()
+        update1 = owner.sf.getUpdateService()
+
+        # create image and share
+        img = self.new_image("testOSRegularUser")
+        img = update1.saveAndReturnObject(img)
+        img.unload()
+        sid = self.create_share(share1, objects=[img],
+                experimenters=[owner_obj, member_obj])
+
+        self.assertAccess(owner, sid)
+        self.assertAccess(member, sid)
+        # But the user won't be able to just access it plainly
+        member_query = member.sf.getQueryService()
+        self.assertRaises(omero.SecurityViolation, \
+                member_query.get, "Image", img.id.val)
+
+        # But if we let the user pass omero.share it should work.
+        member_query.get("Image", img.id.val, {"omero.share":"%s" % sid})
+
+        return img, sid
+
+    def testOSNonMember(self):
+        # """ Non-members should not be able to use this method """
+
+        # Run setup
+        img, sid = self.testOSRegularUser()
+        non_member = self.new_client(perms="rw----")
+        non_member_query = non_member.sf.getQueryService()
+
+        # Try to access direct
+        self.assertRaises(omero.SecurityViolation, \
+                non_member_query.get, "Image", img.id.val)
+
+        # Now try to access via omero.share
+        self.assertRaises(omero.SecurityViolation, \
+                non_member_query.get, "Image", img.id.val,
+                {"omero.share":"%s" % sid})
+
+    def testOSAdminUser(self):
+        # """ Admin should be able to log into any share
+        img, sid = self.testOSRegularUser()
+        root_query = self.root.sf.getQueryService()
+
+        # Try to access direct (in wrong group)
+        self.assertRaises(omero.SecurityViolation, \
+                root_query.get, "Image", img.id.val)
+
+        # Now try to access via omero.share
+        root_query.get("Image", img.id.val, {"omero.share":"%s" % sid})
+
+    def testBadShare(self):
+        # Try to access a non-extant share
+        # Since the security violation is thrown
+        # first, we no longer get a validation exc.
+        self.assertRaises(omero.SecurityViolation, \
+            self.client.sf.getQueryService().get, "Image", -1, {"omero.share":"-100"})
+
     # Helpers
 
     def assertAccess(self, client, sid, success = True):

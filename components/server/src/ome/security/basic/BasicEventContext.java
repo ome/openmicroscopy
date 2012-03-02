@@ -26,6 +26,8 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.messages.RegisterServiceCleanupMessage;
 import ome.services.sessions.stats.SessionStats;
+import ome.services.sharing.ShareStore;
+import ome.services.sharing.data.ShareData;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.SimpleEventContext;
@@ -89,7 +91,7 @@ class BasicEventContext extends SimpleEventContext {
         super.copy(ec);
     }
 
-    void checkAndInitialize(EventContext ec, LocalAdmin admin) {
+    void checkAndInitialize(EventContext ec, LocalAdmin admin, ShareStore store) {
         this.copyContext(ec);
 
         // Now re-apply values.
@@ -122,6 +124,15 @@ class BasicEventContext extends SimpleEventContext {
 
         final Long sid = parseId(callContext, "omero.share");
         if (sid != null) {
+            if (!isAdmin) {
+                // If the user is not an admin then we need to verify that
+                // s/he is a valid member of the share.
+                ShareData data = store.getShareIfAccessible(sid, isAdmin, this.cuId);
+                if (data == null) {
+                    throw new SecurityViolation(String.format(
+                            "User %s cannot access share %s", this.cuId, sid));
+                }
+            }
             setShareId(sid);
             toPrint.add("share="+sid);
         }

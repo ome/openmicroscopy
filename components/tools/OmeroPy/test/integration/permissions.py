@@ -402,18 +402,6 @@ class TestPermissions(lib.ITest):
             "elapsed1=%s, elapsed2=%s" % (elapsed1, elapsed2))
 
     #
-    # Support for call context (omero.group, etc) (#3529)
-    #
-
-    def testOSRegularUser(self):
-        # """ test regular user can activate a share """
-        self.fail("NYI")
-
-    def testOGRegularUser(self):
-        # """ test regular user activate all groups """
-        self.fail("NYI")
-
-    #
     # Different API usages of call context (#3529)
     #
 

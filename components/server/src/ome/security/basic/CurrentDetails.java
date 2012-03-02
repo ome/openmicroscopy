@@ -40,6 +40,7 @@ import ome.services.messages.RegisterServiceCleanupMessage;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.SessionStats;
+import ome.services.sharing.ShareStore;
 import ome.services.util.ServiceHandler;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -230,8 +231,8 @@ public class CurrentDetails implements PrincipalHolder {
      * Replaces all the simple-valued fields in the {@link BasicEventContext}.
      * This method
      */
-    void checkAndInitialize(EventContext ec, LocalAdmin admin) {
-        current().checkAndInitialize(ec, admin);
+    void checkAndInitialize(EventContext ec, LocalAdmin admin, ShareStore store) {
+        current().checkAndInitialize(ec, admin, store);
     }
 
     /**

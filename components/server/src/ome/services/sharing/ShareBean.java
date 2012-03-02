@@ -917,18 +917,11 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
      */
     protected ShareData getShareIfAccessible(long shareId) {
 
-        ShareData data = store.get(shareId);
-        if (data == null) {
-            return null;
-        }
-
         EventContext ec = getSecuritySystem().getEventContext();
         boolean isAdmin = ec.isCurrentUserAdmin();
         long userId = ec.getCurrentUserId();
-        if (data.owner == userId || data.members.contains(userId) || isAdmin) {
-            return data;
-        }
-        return null;
+        return store.getShareIfAccessible(shareId, isAdmin, userId);
+
     }
 
     protected void _addGraph(ShareData data, Graph g) {

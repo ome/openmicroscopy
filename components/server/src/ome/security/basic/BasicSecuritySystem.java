@@ -9,9 +9,19 @@ package ome.security.basic;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.proxy.HibernateProxy;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.util.Assert;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
@@ -47,25 +57,13 @@ import ome.services.messages.ShapeChangeMessage;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.stats.PerSessionStats;
+import ome.services.sharing.ShareStore;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Filter;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.proxy.HibernateProxy;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationListener;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.util.Assert;
 
 /**
  * simplest implementation of {@link SecuritySystem}. Uses an ctor-injected
@@ -105,6 +103,8 @@ public class BasicSecuritySystem implements SecuritySystem,
     protected final SecurityFilter filter;
 
     protected/* final */OmeroContext ctx;
+
+    protected/* final */ShareStore store;
 
     /**
      * Simpilifed factory method which generates all the security primitives
@@ -147,6 +147,7 @@ public class BasicSecuritySystem implements SecuritySystem,
     public void setApplicationContext(ApplicationContext arg0)
             throws BeansException {
         this.ctx = (OmeroContext) arg0;
+        this.store = this.ctx.getBean("shareStore", ShareStore.class);
     }
 
     // ~ Login/logout
@@ -332,7 +333,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         }
 
         // Refill current details
-        cd.checkAndInitialize(ec, admin);
+        cd.checkAndInitialize(ec, admin, store);
         ec = cd.getCurrentEventContext(); // Replace with callContext
 
         // Experimenter
