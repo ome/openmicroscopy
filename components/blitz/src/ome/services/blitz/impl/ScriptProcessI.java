@@ -10,7 +10,13 @@ package ome.services.blitz.impl;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import Ice.Current;
+
 import ome.services.procs.scripts.ScriptProcess;
+
 import omero.RInt;
 import omero.RType;
 import omero.ServerError;
@@ -23,14 +29,10 @@ import omero.grid.ProcessCallbackPrx;
 import omero.grid.ProcessPrx;
 import omero.grid.ScriptProcessPrx;
 import omero.grid.ScriptProcessPrxHelper;
+import omero.grid._InteractiveProcessorOperations;
 import omero.grid._ScriptProcessOperations;
 import omero.grid._ScriptProcessTie;
 import omero.model.ScriptJob;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import Ice.Current;
 
 /**
  *
@@ -44,7 +46,7 @@ public class ScriptProcessI extends AbstractAmdServant
 
     private final InteractiveProcessorPrx processorPrx;
 
-    private final InteractiveProcessorI processor;
+    private final _InteractiveProcessorOperations processor;
 
     private final ProcessPrx process;
 
@@ -59,7 +61,8 @@ public class ScriptProcessI extends AbstractAmdServant
     private final long jobId;
 
     public ScriptProcessI(ServiceFactoryI sf, Ice.Current current,
-            InteractiveProcessorPrx processorPrx, InteractiveProcessorI processor, ProcessPrx process)
+            InteractiveProcessorPrx processorPrx,
+            _InteractiveProcessorOperations processor, ProcessPrx process)
             throws ServerError {
         super(null, null);
         this.jobId = processor.getJob(current).getId().getValue();
