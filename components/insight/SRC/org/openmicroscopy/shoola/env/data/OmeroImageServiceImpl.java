@@ -71,6 +71,7 @@ import omero.model.TagAnnotation;
 import omero.romio.PlaneDef;
 import omero.sys.Parameters;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -1570,7 +1571,8 @@ class OmeroImageServiceImpl
 	throws Exception
 	{
 		if (index == EXPORT_AS_OME_XML) {
-			copy(input, new FileOutputStream(outXML));
+			FileUtils.copyFile(input, outXML);
+			//copy(input, new FileOutputStream(outXML));
 			return;
 		}
 	}

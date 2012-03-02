@@ -109,6 +109,7 @@ public class DowngradeChooser
 	 */
 	public Target getSelectedSchema()
 	{
+		if (box == null) return null;
 		Object ho = box.getSelectedItem();
 		if (ho instanceof Target) return (Target) ho;
 		return null;
