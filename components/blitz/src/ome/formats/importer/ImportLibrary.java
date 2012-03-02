@@ -558,7 +558,11 @@ public class ImportLibrary implements IObservable
                 metadataFiles = store.setArchive(useMetadataFile);
             }
             if (!isMetadataOnly) {
+                notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
+                        shortName, 0, 0, null, null, null));
                 container = handleFsliteImport(container);
+                notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
+                        shortName, 0, 0, null, null, null));
             }
             List<Pixels> pixList = importMetadata(index, container);
             List<Long> plateIds = new ArrayList<Long>();
