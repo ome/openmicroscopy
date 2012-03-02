@@ -49,7 +49,11 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 //Third-party libraries
+import loci.common.RandomAccessInputStream;
 import loci.formats.ImageReader;
+import loci.formats.tiff.TiffParser;
+import loci.formats.tiff.TiffSaver;
+
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
@@ -1492,7 +1496,6 @@ class OmeroImageServiceImpl
 					file = new File(path);
 				}
 		}
-		index = EXPORT_AS_OME_XML; //TO be modified
 		File f = gateway.exportImageAsOMEObject(index, file, imageID);
 		if (target == null) return f;
 		//Apply the transformations
@@ -1504,22 +1507,28 @@ class OmeroImageServiceImpl
 		
 		TransformerFactory factory;
         Transformer transformer;
-        StreamResult result;
 		InputStream stream;
 		File r;
 		File output = null;
 		String ext = "."+XMLFilter.OME_XML;
 		List<File> files = new ArrayList<File>();
-		//TO be reviewed
 		InputStream in = null;
 		OutputStream out = null;
+		File tmp = null;
 		try {
 			File inputXML = File.createTempFile(RandomStringUtils.random(10),
 					ext);
-			File inputTiff = File.createTempFile(RandomStringUtils.random(10), ext);
-			//TODO: extract extract XML from f;
-			extract(index, f, inputXML, inputTiff);
-			
+			files.add(inputXML);
+			if (index == EXPORT_AS_OMETIFF) {
+				tmp = File.createTempFile(RandomStringUtils.random(10),
+						"."+OMETIFFFilter.OME_TIFF);
+				files.add(tmp);
+				FileUtils.copyFile(f, tmp);
+				String c = new TiffParser(f.getAbsolutePath()).getComment();
+				FileUtils.writeStringToFile(inputXML, c);
+			} else {
+				FileUtils.copyFile(f, inputXML);
+			}
 			while (i.hasNext()) {
 				factory = TransformerFactory.newInstance();
 				stream = i.next();
@@ -1535,17 +1544,25 @@ class OmeroImageServiceImpl
 				out.close();
 				in.close();
 			}
+			
 			file.delete();
 			//Copy the result
 			r = new File(path);
-			//TODO: copy Tiff
-		    copy(inputXML, r);
+			if (index == EXPORT_AS_OME_XML)
+				FileUtils.copyFile(inputXML, r);
+			else {
+				FileUtils.copyFile(tmp, r);
+				TiffSaver saver = new TiffSaver(path);
+				RandomAccessInputStream ra = new RandomAccessInputStream(path);
+				saver.overwriteComment(ra, 
+						FileUtils.readFileToString(inputXML));
+				ra.close();
+			}
 			//delete file
 			Iterator<File> j = files.iterator();
 			while (j.hasNext()) {
 				j.next().delete();
 			}
-			
 		} catch (Exception e) {
 			try {
 				if (in != null) in.close();
@@ -1559,49 +1576,6 @@ class OmeroImageServiceImpl
 		return r;
 	}
 
-	/**
-	 * Extracts the XML and the TIFF part out of the OME-TIFF file.
-	 * 
-	 * @param index Either OME-XML or OME-TIFF.
-	 * @param input The input file.
-	 * @param outXML The XML output.
-	 * @param outTiff The Tiff output.
-	 */
-	private void extract(int index, File input, File outXML, File outTiff)
-	throws Exception
-	{
-		if (index == EXPORT_AS_OME_XML) {
-			FileUtils.copyFile(input, outXML);
-			//copy(input, new FileOutputStream(outXML));
-			return;
-		}
-	}
-	
-	private void copy(File input, FileOutputStream out)
-		throws Exception
-	{
-		InputStream in = new FileInputStream(input);
-		try {
-			byte[] buffer = new byte[1024];
-			while (true) {
-				int readCount = in.read(buffer);
-				if (readCount < 0) {
-					break;
-				}
-				out.write(buffer, 0, readCount);
-			}
-		} finally {
-			out.close();
-			in.close();
-		}
-	}
-	
-	private void copy(File input, File output)
-		throws Exception
-	{
-		copy(input, new FileOutputStream(output));
-	}
-	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#createFigure(List, Class, Object)
