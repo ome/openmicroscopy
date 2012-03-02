@@ -405,7 +405,6 @@ class TestPermissions(lib.ITest):
     # Different API usages of call context (#3529)
     #
 
-
     def testOGContextParameter(self):
         # """ test omero.group can be set on the method call """
 
@@ -414,14 +413,6 @@ class TestPermissions(lib.ITest):
                 return query.get("Image", this.img.id.val, {"omero.group":"-1"})
         F(self).assertCallContext()
 
-
-    def testOGSetSecurityContext(self):
-        # """ test omero.group can be set on session """
-
-        class F(CallContextFixture):
-            def prepare(this):
-                return this.sf.setSecurityContext(ExperimenterGroupI(-1, False))
-        F(self).assertCallContext()
 
     def testOGSetImplicitContext(self):
         # """ test omero.group can be set on the implicit context """
@@ -442,6 +433,19 @@ class TestPermissions(lib.ITest):
                 return service.ice_context(ctx)
         F(self).assertCallContext()
 
+    #
+    # Still UNSUPPORTED API usages of call context (#3529)
+    #
+
+    def testOGSetSecurityContext(self):
+        # """ test omero.group can be set on session """
+
+        class F(CallContextFixture):
+            def prepare(this):
+                return this.sf.setSecurityContext(ExperimenterGroupI(-1, False))
+
+        self.assertRaises(omero.ApiUsageException, F(self).assertCallContext)
+
     def testOGArg(self):
         # """ test omero.group can be set as an argument """
 
@@ -459,7 +463,10 @@ class TestPermissions(lib.ITest):
                 ec = admin.getEventContext().userId
                 user = admin.getExperimenter(userId)
                 return client, user
-        F(self).assertCallContext()
+
+        import Glacier2
+        self.assertRaises(Glacier2.CannotCreateSessionException, \
+            F(self).assertCallContext)
 
     # Write tests with omero.group set.
     # ==============================================
