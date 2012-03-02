@@ -148,7 +148,7 @@
 					<xsd:documentation>
 						This defines the X position to use for the origin of the
 						fields (individual images) taken in a well. It is used 
-						with the PositionX in the WellSample to display the fields
+						with the X in the WellSample to display the fields
 						in the correct position relative to each other. Each Well
 						in the plate has the same well origin. [units:none]
 						
@@ -162,7 +162,7 @@
 					<xsd:documentation>
 						This defines the Y position to use for the origin of the
 						fields (individual images) taken in a well. It is used 
-						with the PositionY in the WellSample to display the fields
+						with the Y in the WellSample to display the fields
 						in the correct position relative to each other. Each Well
 						in the plate has the same well origin. [units:none]
 						
@@ -503,12 +503,11 @@
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="Status" use="optional" type="xsd:string">
+			<xsd:attribute name="Type" use="optional" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation>
 						A human readable identifier for the screening status. 
 						e.g. empty, positive control, negative control, control, experimental, etc.
-						This string is likely to become an enumeration in future releases.
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -547,7 +546,7 @@
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
 			<xsd:attribute name="ID" use="required" type="WellSampleID"/>
-			<xsd:attribute name="PositionX" use="optional" type="xsd:float">
+			<xsd:attribute name="X" use="optional" type="xsd:float">
 				<xsd:annotation>
 					<xsd:documentation>
 						The X position of the field (image) within the well relative to
@@ -555,7 +554,7 @@
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="PositionY" use="optional" type="xsd:float">
+			<xsd:attribute name="Y" use="optional" type="xsd:float">
 				<xsd:annotation>
 					<xsd:documentation>
 						The Y position of the field (image) within the well relative to
