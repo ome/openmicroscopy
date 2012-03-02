@@ -513,7 +513,7 @@ class TestPermissions(lib.ITest):
         self.assertRaises(omero.InternalException, \
                 update.saveAndReturnObject, tag, all_context)
 
-    def testSaveWithNegBadLink(self):
+    def testSaveWithNegBadLink(self): # ticket:8194
 
         # Get a user and services
         client, user = self.new_client_and_user()
@@ -537,7 +537,7 @@ class TestPermissions(lib.ITest):
         all_context = {"omero.group":"-1"}
         # Bad links should be detected and
         # a security violation raised.
-        self.assertRaises(omero.SecurityViolation, \
+        self.assertRaises(omero.GroupSecurityViolation, \
                 update.saveAndReturnObject, image, all_context)
 
     # Reading with private groups

@@ -375,14 +375,16 @@ public class OmeroInterceptor implements Interceptor {
             return rv;
         }
 
-        IObject[] candidates = em.getLockCandidates(changedObject);
+        final Long currentGroupId = currentUser.getGroup().getId();
+        final boolean currentGroupNegative = currentGroupId < 0;
+        final IObject[] candidates = em.getLockCandidates(changedObject);
         for (IObject linkedObject : candidates) {
 
             if (!sysTypes.isSystemType(linkedObject.getClass()) &&
                     !sysTypes.isInSystemGroup(linkedObject.getDetails()) &&
                     !sysTypes.isInUserGroup(linkedObject.getDetails())) {
 
-                Details linkedDetails = linkedObject.getDetails();
+                final Details linkedDetails = linkedObject.getDetails();
                 if (linkedDetails == null) {
                     // ticket:2575. Previously, the details of the candidates
                     // were never null. the addition of the reagent linkages
@@ -395,16 +397,19 @@ public class OmeroInterceptor implements Interceptor {
                 // If this is -1 situation, then we pass back out the
                 // group for the linked object. In the case of new transient
                 // objects, this will be set as the new group.
-                if (currentUser.getGroup().getId() < 0) {
-                    rv.setGroup(linkedDetails.getGroup());
-                } else if (linkedDetails.getGroup() != null &&
-                        !HibernateUtils.idEqual(linkedDetails.getGroup(),
-                        currentUser.getGroup())) {
-                    throw new GroupSecurityViolation(String.format(
-                            "MIXED GROUP: " +
-                            "%s(group=%s) and %s(group=%s) cannot be linked.",
-                            changedObject, currentUser.getGroup(),
-                            linkedObject, linkedDetails.getGroup()));
+                if (currentGroupNegative) {
+                    if (rv.getGroup() == null) {
+                        // If this is the first linked object then we assume
+                        // that this object should use this value.
+                        rv.setGroup(linkedDetails.getGroup());
+                    } else {
+                        throwIfGroupsDontMatch(rv.getGroup(), changedObject,
+                                linkedDetails.getGroup(), linkedObject);
+                    }
+                } else {
+                    throwIfGroupsDontMatch(currentUser.getGroup(),
+                            changedObject, linkedDetails.getGroup(),
+                            linkedObject);
                 }
 
                 // Rather than as in <=4.1 in which objects were scheduled
@@ -1077,4 +1082,19 @@ public class OmeroInterceptor implements Interceptor {
         return false;
     }
 
+    void throwIfGroupsDontMatch(
+            ExperimenterGroup changedObjectGroup, IObject changedObject,
+            ExperimenterGroup linkedGroup, IObject linkedObject) {
+
+        if (linkedGroup != null &&
+            !HibernateUtils.idEqual(linkedGroup, changedObjectGroup)) {
+
+            throw new GroupSecurityViolation(String.format(
+                "MIXED GROUP: " +
+                "%s(group=%s) and %s(group=%s) cannot be linked.",
+                changedObject, changedObjectGroup,
+                linkedObject, linkedGroup));
+        }
+
+    }
 }
