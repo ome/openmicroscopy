@@ -240,7 +240,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element name="AcquiredDate" minOccurs="0" maxOccurs="1" type="xsd:dateTime">
+				<xsd:element name="AcquisitionDate" minOccurs="0" maxOccurs="1" type="xsd:dateTime">
 					<xsd:annotation>
 						<xsd:documentation>
 							The acquisition date of the Image.
