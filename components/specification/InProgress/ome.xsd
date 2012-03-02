@@ -280,6 +280,13 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 	<xsd:element name="Pixels"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:documentation>
+				NOTE: Pixels is DEPRECATED, but it is still required.
+				This is just notice that the contents of Pixels will be
+				moved up to Image in the next release. This is because there
+				has only been 1 Pixels object in each Image for some time.
+				The concept of multiple Pixels sets for one Image failed to
+				take off. It is therefore redundant.
+
 				The Image will be unreadable if any of the required Pixel attributes are missing.
 				The Pixels themselves are stored within the file compressed by plane, and encoded in Base64.
 				The Pixels element must contain a list of BinData, each containing a single plane of pixels.
