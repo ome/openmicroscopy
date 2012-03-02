@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.measurement;
 
 //Java imports
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -62,19 +63,19 @@ public class Analyser
 	public static final int	ROI = 1;
 	
 	/** The pixels set to analyze. */
-	private PixelsData 	pixels;
+	private PixelsData pixels;
 	
 	/** One of the constants defined by this class. */
-	private int			index;
+	private int index;
 	
 	/** Collection of active channels. */
-	private List		channels;
+	private Collection channels;
 	
 	/** Collection of shapes to analyze. */
-	private List		shapes;
+	private List shapes;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle handle;
    
     /**
      * Creates a new instance. 
@@ -89,7 +90,7 @@ public class Analyser
      * 					Mustn't be <code>null</code>.
      */
 	public Analyser(MeasurementViewer viewer, SecurityContext ctx,
-			PixelsData pixels, List channels, List shapes)
+			PixelsData pixels, Collection channels, List shapes)
 	{
 		super(viewer, ctx);
 		if (channels == null || channels.size() == 0)

@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.agents.measurement.WorkflowSaver;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
@@ -212,28 +213,8 @@ class MeasurementViewerModel
     /** The security context.*/
     private SecurityContext ctx;
     
-    /** 
-	 * Sorts the passed nodes by row.
-	 * 
-	 * @param nodes The nodes to sort.
-	 * @return See above.
-	 */
-	private List sortROIShape(List nodes)
-	{
-		Comparator c = new Comparator() {
-            public int compare(Object o1, Object o2)
-            {
-            	long i1 = ((ROIShape) o1).getID();
-            	long i2 = ((ROIShape) o2).getID();
-                int v = 0;
-                if (i1 < i2) v = -1;
-                else if (i1 > i2) v = 1;
-                return v;
-            }
-        };
-        Collections.sort(nodes, c);
-		return nodes;
-	}
+    /** The sorter to order shapes.*/
+    private ViewerSorter sorter;
 	
 	/**
 	 * Map figure attributes to ROI and ROIShape annotations where necessary. 
@@ -294,6 +275,7 @@ class MeasurementViewerModel
 		this.name = name;
 		requesterBounds = bounds;
 		state = MeasurementViewer.NEW;
+		sorter = new ViewerSorter();
 		drawingComponent = new DrawingComponent();
 		roiComponent = new ROIComponent();
 		fileSaved = null;
@@ -1308,11 +1290,9 @@ class MeasurementViewerModel
 	void fireAnalyzeShape(List<ROIShape> shapeList)
 	{
 		state = MeasurementViewer.ANALYSE_SHAPE;
-		List channels = new ArrayList(activeChannels.size());
-		channels.addAll(activeChannels.keySet());
 		if (currentLoader != null) currentLoader.cancel();
 		currentLoader = new Analyser(component, getSecurityContext(), pixels,
-				channels, shapeList);
+				activeChannels.keySet(), shapeList);
 		currentLoader.load();
 	}
 	
@@ -1349,30 +1329,23 @@ class MeasurementViewerModel
 	 */
 	void setAnalysisResults(Map analysisResults)
 	{
-		this.analysisResults = analysisResults;
+		if (this.analysisResults != null) {
+			this.analysisResults.clear();
+		} else {
+			this.analysisResults = new LinkedHashMap();
+		}
+		//this.analysisResults = analysisResults;
 		//sort the map.
 		if (analysisResults != null) {
-			
-			Iterator i = analysisResults.entrySet().iterator();
-			List l = new ArrayList(analysisResults.size());
-			Entry entry;
+			List newList = sorter.sort(analysisResults.keySet());
+			Iterator i = newList.iterator();
 			ROIShape shape;
 			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				shape = (ROIShape) entry.getKey();
-				l.add(shape);
-			}
-			List newList = sortROIShape(l);
-			
-			LinkedHashMap m = new LinkedHashMap(analysisResults.size());
-			i = newList.iterator();
-			while (i.hasNext()) {
 				shape = (ROIShape) i.next();
-				m.put(shape, analysisResults.get(shape));
+				this.analysisResults.put(shape, analysisResults.get(shape));
 			}
-			this.analysisResults = m;
+			analysisResults.clear();
 		}
-		
 		state = MeasurementViewer.READY;
 	}
 	

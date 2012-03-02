@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.rnd.roi;
 
 //Java imports
 import java.awt.Point;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -143,7 +144,7 @@ public class ROIAnalyser
      *                              data from the pixels source.
      */
     public Map analyze(SecurityContext ctx, ROIShape[] shapes,
-    		List channels) 
+    		Collection channels) 
         throws DataSourceException
     {
     	if (shapes == null) throw new NullPointerException("No shapes.");
