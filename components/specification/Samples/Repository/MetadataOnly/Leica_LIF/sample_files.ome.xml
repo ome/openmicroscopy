@@ -711,7 +711,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:8" Name="image 01 - XYCh-10x">
-        <AcquiredDate>2009-04-24T11:06:29</AcquiredDate>
+        <AcquiredDate>2009-04-24T10:06:29</AcquiredDate>
         <InstrumentRef ID="Instrument:8"/>
         <ObjectiveSettings ID="Objective:8:0" RefractiveIndex="1.0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:8" PhysicalSizeX="3.02734375" PhysicalSizeY="3.02734375" SizeC="4" SizeT="1" SizeX="512" SizeY="512" SizeZ="1" Type="uint8">
