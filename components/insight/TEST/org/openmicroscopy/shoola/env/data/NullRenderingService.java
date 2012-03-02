@@ -325,16 +325,6 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#exportImageAsOMETiff(long, File, Target)
-     */
-	public Object exportImageAsOMETiff(long imageID, File folder, Target target)
-			throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-     * No-op implementation
      * @see OmeroImageService#renderProjectedAsTexture(long, int, int, int, int, 
      * List)
      */
@@ -531,13 +521,16 @@ public class NullRenderingService
 
 	public ScriptCallback saveAs(SaveAsParam param) throws DSAccessException,
 			DSOutOfServiceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Boolean isLargeImage(long pixelsId) throws DSAccessException,
 			DSOutOfServiceException {
-		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object exportImageAsOMEObject(int index, long imageID, File folder,
+			Target target) throws DSOutOfServiceException, DSAccessException {
 		return null;
 	}
 
