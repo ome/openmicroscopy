@@ -21,6 +21,78 @@ from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero.rtypes import *
 
+class CallContextFixture(object):
+    """
+    Provides overwriteable methods for testing the call context
+    workflow (See #3529). The primary purpose is to reduce
+    the copied code between the many call context test methods.
+    """
+
+    def __init__(self, test):
+        self.test = test
+
+    def client_and_user(self):
+        """
+        Creates a new client and a user for the fixture.
+        By default, this calls new_client_and_user on the
+        test object, but this can be overwritten.
+        """
+        return self.test.new_client_and_user()
+
+    def setup(self):
+        """
+        Called to run the configuration from the client.
+        Most likely this should not be modified.
+        """
+        self.client, self.user = self.client_and_user()
+        self.sf = self.client.sf
+        self.img = self.test.new_image()
+        self.img = self.sf.getUpdateService().saveAndReturnObject(self.img)
+
+        self.group2 = self.test.new_group([self.user])
+        self.sf.getAdminService().getEventContext() # Refresh
+        self.sf.setSecurityContext(self.group2)
+
+        # At this point, the fixture shouldn't be able
+        # to load the image
+        try:
+            self.sf.getQueryService().get("Image", self.img.id.val)
+            self.fail("secvio!")
+        except omero.SecurityViolation, sv:
+            pass
+
+    def prepare(self):
+        """
+        This method should be once in order to set
+        globally the call context if so desired.
+        """
+        pass
+
+    def query_service(self):
+        """
+        This method should return a query service.
+        By default, it simply returns the value of
+        sf.getQueryService(), but this can be
+        overwritten.
+        """
+        return self.sf.getQueryService()
+
+    def get_image(self, query):
+        """
+        This method should make the IQuery.get call.
+        By default, it simply makes the call, but this
+        can be overwritten.
+        """
+        return query.get("Image", self.img.id.val)
+
+    def assertCallContext(self):
+        self.setup()
+        self.prepare()
+        query = self.query_service()
+        img = self.get_image(query)
+        self.test.assertTrue(img is not None)
+
+
 class TestPermissions(lib.ITest):
 
     def testLoginToPublicGroupTicket1940(self):
@@ -274,7 +346,8 @@ class TestPermissions(lib.ITest):
         Seeing if by setting omero.group < 0, we
         can load all possible objects.
 
-        see ticket:2950
+        see ticket:2950 - was prevented
+        see ticket:3529 - now enabled
         """
 
         uuid = self.uuid()
@@ -304,11 +377,7 @@ class TestPermissions(lib.ITest):
         self.assertEquals(tid, tag.id.val)
 
         # If the user tries that, there will be an exception
-        try:
-            get_tag(query, {"omero.group": "-1"})
-            self.fail("Should throw!")
-        except omero.SecurityViolation:
-            pass
+        get_tag(query, {"omero.group": "-1"})
 
     def test3136(self):
         """
@@ -331,6 +400,212 @@ class TestPermissions(lib.ITest):
 
         self.assertTrue(elapsed1 < (0.1 * elapsed2),\
             "elapsed1=%s, elapsed2=%s" % (elapsed1, elapsed2))
+
+    #
+    # Different API usages of call context (#3529)
+    #
+
+    def testOGContextParameter(self):
+        # """ test omero.group can be set on the method call """
+
+        class F(CallContextFixture):
+            def get_image(this, query):
+                return query.get("Image", this.img.id.val, {"omero.group":"-1"})
+        F(self).assertCallContext()
+
+
+    def testOGSetImplicitContext(self):
+        # """ test omero.group can be set on the implicit context """
+
+        class F(CallContextFixture):
+            def prepare(this):
+                return this.client.getImplicitContext().put("omero.group","-1")
+        F(self).assertCallContext()
+
+    def testOGSetProxyContext(self):
+        # """ test omero.group can be set on a proxy """
+
+        class F(CallContextFixture):
+            def query_service(this):
+                service = this.sf.getQueryService()
+                ctx = this.client.ic.getImplicitContext().getContext()
+                ctx["omero.group"] = "-1"
+                return service.ice_context(ctx)
+        F(self).assertCallContext()
+
+    #
+    # Still UNSUPPORTED API usages of call context (#3529)
+    #
+
+    def testOGSetSecurityContext(self):
+        # """ test omero.group can be set on session """
+
+        class F(CallContextFixture):
+            def prepare(this):
+                return this.sf.setSecurityContext(ExperimenterGroupI(-1, False))
+
+        self.assertRaises(omero.ApiUsageException, F(self).assertCallContext)
+
+    def testOGArg(self):
+        # """ test omero.group can be set as an argument """
+
+        class F(CallContextFixture):
+            def client_and_user(this):
+                user = this.test.new_user()
+                props = this.test.client.getPropertyMap()
+                props["omero.user"] = user.omeName.val
+                props["omero.pass"] = "xxx"
+                client = omero.client(props, ["--omero.group=-1"])
+                self._ITest__clients.add(client)
+                client.setAgent("OMERO.py.new_client_test")
+                client.createSession()
+                admin = client.sf.getAdminService()
+                ec = admin.getEventContext().userId
+                user = admin.getExperimenter(userId)
+                return client, user
+
+        import Glacier2
+        self.assertRaises(Glacier2.CannotCreateSessionException, \
+            F(self).assertCallContext)
+
+    # Write tests with omero.group set.
+    # ==============================================
+
+    def testSaveWithNegOneExplicit(self):
+
+        # Get a user and services
+        client, user = self.new_client_and_user()
+
+        # Create a new object with an explicit group
+        admin = client.sf.getAdminService()
+        ec = admin.getEventContext()
+        grp = omero.model.ExperimenterGroupI(ec.groupId, False)
+        tag = omero.model.TagAnnotationI()
+        tag.details.group = grp
+
+        # Now try to save it in the -1 context
+        update = client.sf.getUpdateService()
+        all_context = {"omero.group":"-1"}
+        update.saveAndReturnObject(tag, all_context)
+
+    def testSaveWithNegOneNotExplicit(self):
+
+        # Get a user and services
+        client, user = self.new_client_and_user()
+
+        # Create a new object without any
+        # explicit group
+        tag = omero.model.TagAnnotationI()
+
+        # Now try to save it in the -1 context
+        update = client.sf.getUpdateService()
+        all_context = {"omero.group":"-1"}
+        # An internal exception is raised when
+        # Hibernate tries to access the annotations
+        # for the null group set on the obj.
+        # This isn't optimal but will work for
+        # the moment.
+        self.assertRaises(omero.InternalException, \
+                update.saveAndReturnObject, tag, all_context)
+
+    def testSaveWithNegBadLink(self): # ticket:8194
+
+        # Get a user and services
+        client, user = self.new_client_and_user()
+        admin = client.sf.getAdminService()
+        group1 = admin.getGroup(admin.getEventContext().groupId)
+        group2 = self.new_group(experimenters=[user])
+        for x in (group1, group2):
+            x.unload()
+        admin.getEventContext() # Refresh
+
+        # Create a new object with a bad link
+        image = self.new_image()
+        image.details.group = group1
+        tag = omero.model.TagAnnotationI()
+        tag.details.group = group2
+        link = image.linkAnnotation(tag)
+        link.details.group = group2
+
+        # Now try to save it in the -1 context
+        update = client.sf.getUpdateService()
+        all_context = {"omero.group":"-1"}
+        # Bad links should be detected and
+        # a security violation raised.
+        self.assertRaises(omero.GroupSecurityViolation, \
+                update.saveAndReturnObject, image, all_context)
+
+    # Reading with private groups
+    # ==============================================
+
+    def testPrivateGroupCallContext(self):
+
+        # Setup groups as per Carlos' instructions (Feb 23)
+        groupX = self.new_group(perms="rwrw--")
+        clientA, userA = self.new_client_and_user(group=groupX)
+        gid = str(groupX.id.val)
+
+        groupY = self.new_group(perms="rw----")
+        clientB, userB = self.new_client_and_user(group=groupY)
+        self.add_experimenters(groupX, [userB])
+        clientB.sf.getAdminService().getEventContext() # Refresh
+
+        # Create the object as user A
+        tag = omero.model.TagAnnotationI()
+        tag = clientA.sf.getUpdateService().saveAndReturnObject(tag)
+        tid = tag.id.val
+
+        # Now try to read it in different ways
+        qa = clientA.sf.getQueryService()
+        qb = clientB.sf.getQueryService()
+        qr = self.root.sf.getQueryService()
+
+        negone = {"omero.group":"-1"}
+        specific = {"omero.group":gid}
+
+        qa.get("TagAnnotation", tid)
+        qa.get("TagAnnotation", tid, specific)
+        qa.get("TagAnnotation", tid, negone)
+        qr.get("TagAnnotation", tid, specific) # Not currently in gid
+        qr.get("TagAnnotation", tid, negone)
+        qb.get("TagAnnotation", tid, specific) # Not currently in gid
+        qb.get("TagAnnotation", tid, negone)
+
+    # Use of omero.user
+    # ==============================================
+
+    def private_image_and_user(self):
+        client, user = self.new_client_and_user(system=False, perms="rw----")
+        ec = client.sf.getAdminService().getEventContext()
+        group = omero.model.ExperimenterGroupI(ec.groupId, False)
+        image = self.new_image()
+        image = client.sf.getUpdateService().saveAndReturnObject(image)
+        return image, user, group
+
+    def testOmeroUserAsAdmin(self):
+        client, user = self.new_client_and_user(system=True)
+        admin = client.sf.getAdminService()
+        query = client.sf.getQueryService()
+        self.assertTrue(admin.getEventContext().isAdmin)
+
+        image, user, group = self.private_image_and_user()
+        self.assertAsUser(client, image, user, group)
+
+    def testOmeroUserAsNonAdmin(self):
+        client, user = self.new_client_and_user(system=False)
+        admin = client.sf.getAdminService()
+        query = client.sf.getQueryService()
+        self.assertTrue(not admin.getEventContext().isAdmin)
+
+        image, user, group = self.private_image_and_user()
+        self.assertRaises(omero.SecurityViolation, \
+                self.assertAsUser, client, image, user, group)
+
+    def assertAsUser(self, client, image, user, group):
+        callcontext = {"omero.user":str(user.id.val),
+                "omero.group":str(group.id.val)}
+        query = client.sf.getQueryService()
+        query.get("Image", image.id.val, callcontext)
 
 if __name__ == '__main__':
     unittest.main()

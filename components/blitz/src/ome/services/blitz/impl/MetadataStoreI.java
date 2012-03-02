@@ -447,7 +447,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
     // =========================================================================
 
     @Override
-    protected void preClose() {
+    protected void preClose(Ice.Current current) {
         // Nulling should be sufficient.
         store = null;
     }

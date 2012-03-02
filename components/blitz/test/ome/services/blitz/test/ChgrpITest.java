@@ -32,6 +32,7 @@ import omero.api.delete.DeleteHandlePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.ERR;
 import omero.cmd.HandleI;
+import omero.cmd._HandleTie;
 import omero.cmd.OK;
 import omero.cmd.RequestObjectFactoryRegistry;
 import omero.cmd.Response;
@@ -125,7 +126,7 @@ public class ChgrpITest extends AbstractGraphTest {
 
         // Do chgrp and wait on completion.
         ChgrpI chgrp = newChgrp("/Image", imageId, newGroupId);
-        HandleI handle = doChgrp(chgrp);
+        _HandleTie handle = doChgrp(chgrp);
         block(handle, 5, 1000);
 
         // Non-null response signals completion.
@@ -161,7 +162,7 @@ public class ChgrpITest extends AbstractGraphTest {
         Map<String, String> options = new HashMap<String, String>();
         options.put("/DatasetImageLink", "KEEP");
         ChgrpI chgrp = newChgrp("/Image", i.getId().getValue(), newGroupId, options);
-        HandleI handle = doChgrp(chgrp);
+        _HandleTie handle = doChgrp(chgrp);
         block(handle, 5, 1000);
 
         assertFailure(handle);
@@ -184,7 +185,7 @@ public class ChgrpITest extends AbstractGraphTest {
         i = assertSaveAndReturn(i);
 
         ChgrpI chgrp = newChgrp("/Image", i.getId().getValue(), newGroupId);
-        HandleI handle = doChgrp(chgrp);
+        _HandleTie handle = doChgrp(chgrp);
         block(handle, 5, 1000);
 
         assertSuccess(handle);
@@ -208,7 +209,7 @@ public class ChgrpITest extends AbstractGraphTest {
         // Perform chgrp
         ChgrpI chgrp = newChgrp("/Image/Pixels/Channel",
                 imageId, newGroupId);
-        HandleI handle = doChgrp(chgrp);
+        _HandleTie handle = doChgrp(chgrp);
         block(handle, 5, 500);
         assertFailure(handle);
 
@@ -231,7 +232,7 @@ public class ChgrpITest extends AbstractGraphTest {
         // Perform chgrp
         ChgrpI chgrp = newChgrp("/Image/Pixels/RenderingDef", imageId,
                 newGroupId);
-        HandleI handle = doChgrp(chgrp);
+        _HandleTie handle = doChgrp(chgrp);
         block(handle, 5, 500);
         assertFailure(handle);
     }
@@ -244,7 +245,7 @@ public class ChgrpITest extends AbstractGraphTest {
         long imageId = makeImage();
         ChgrpI chgrp = newChgrp("/Image", imageId, newGroupId);
 
-        HandleI handle = doChgrp(chgrp);
+        _HandleTie handle = doChgrp(chgrp);
         block(handle, 5, 500);
         assertSuccess(handle);
 
@@ -282,7 +283,7 @@ public class ChgrpITest extends AbstractGraphTest {
 
         // Perform chgrp
         ChgrpI chgrp = newChgrp("/Image", imageId, newGroupId);
-        HandleI handle = doChgrp(chgrp);
+        _HandleTie handle = doChgrp(chgrp);
         block(handle, 5, 500);
         assertSuccess(handle);
 
@@ -323,7 +324,7 @@ public class ChgrpITest extends AbstractGraphTest {
 
         // Perform chgrp
         ChgrpI chgrp = newChgrp("/Image", imageId1, newGroupId);
-        HandleI handle = doChgrp(chgrp);
+        _HandleTie handle = doChgrp(chgrp);
         block(handle, 5, 500);
         assertSuccess(handle);
 
@@ -709,14 +710,14 @@ public class ChgrpITest extends AbstractGraphTest {
         old.getId().getValue();
     }
 
-    private HandleI doChgrp(ChgrpI chgrp) throws Exception {
+    private _HandleTie doChgrp(ChgrpI chgrp) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", "chgrp");
         HandleI handle = new HandleI(1000);
         handle.setSession(user_sf);
         handle.initialize(id, chgrp);
         handle.run();
         // Client side this would need a try/finally { handle.close() }
-        return handle;
+        return new _HandleTie(handle);
     }
 
     Plate createPlate(long imageId) throws Exception {

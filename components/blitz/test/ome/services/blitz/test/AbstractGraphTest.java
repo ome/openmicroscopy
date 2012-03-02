@@ -32,6 +32,7 @@ import omero.api.delete.DeleteHandlePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.ERR;
 import omero.cmd.HandleI;
+import omero.cmd._HandleTie;
 import omero.cmd.OK;
 import omero.cmd.RequestObjectFactoryRegistry;
 import omero.cmd.Response;
@@ -110,14 +111,14 @@ public class AbstractGraphTest extends AbstractServantTest {
     // Helpers
     //
 
-    protected void block(HandleI handle, int loops, long pause)
+    protected void block(_HandleTie handle, int loops, long pause)
             throws InterruptedException {
         for (int i = 0; i < loops && null == handle.getResponse(); i++) {
             Thread.sleep(pause);
         }
     }
 
-    protected void assertSuccess(HandleI handle) {
+    protected void assertSuccess(_HandleTie handle) {
         Response rsp = handle.getResponse();
         assertNotNull(rsp);
         if (rsp instanceof ERR) {
@@ -127,7 +128,7 @@ public class AbstractGraphTest extends AbstractServantTest {
         assertFalse(handle.getStatus().flags.contains(State.FAILURE));
     }
 
-    protected void assertFailure(HandleI handle) {
+    protected void assertFailure(_HandleTie handle) {
         Response rsp = handle.getResponse();
         assertNotNull(rsp);
         if (rsp instanceof OK) {

@@ -304,14 +304,14 @@ module omero
     {
     };
 
-  exception GroupSecurityViolation extends ServerError
+  exception GroupSecurityViolation extends SecurityViolation
     {
     };
 
-  exception PermissionMismatchGroupSecurityViolation extends ServerError
+  exception PermissionMismatchGroupSecurityViolation extends SecurityViolation
     {
     };
-  exception ReadOnlyGroupSecurityViolation extends ServerError
+  exception ReadOnlyGroupSecurityViolation extends SecurityViolation
     {
     };
 

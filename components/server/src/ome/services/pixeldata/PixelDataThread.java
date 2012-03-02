@@ -193,7 +193,8 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
             throw new InternalException("No user! Must be wrapped by call to Executor?");
         }
 
-        Future<EventLog> future = this.executor.submit(new Callable<EventLog>(){
+        Future<EventLog> future = this.executor.submit(cd.getContext(),
+                new Callable<EventLog>(){
             public EventLog call() throws Exception {
                 return makeEvent(ec, mpm);
             }});
@@ -208,17 +209,23 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
             public Object doWork(Session session, ServiceFactory sf) {
                 log.info("Creating PIXELDATA event for pixels id:"
                         + mpm.pixelsID);
+
+                // Load objects
+                final EventType type = sf.getTypesService().getEnumeration(
+                        EventType.class, ec.getCurrentEventType());
+                final ExperimenterGroup group = sf.getQueryService().findByQuery(
+                        "select p.details.group from Pixels p where p.id = :id",
+                        new ome.parameters.Parameters().addId(mpm.pixelsID));
+
                 final EventLog el = new EventLog();
                 final Event e = new Event();
                 e.setExperimenter(
                         new Experimenter(ec.getCurrentUserId(), false));
-                e.setExperimenterGroup(
-                        new ExperimenterGroup(ec.getCurrentGroupId(), false));
+                e.setExperimenterGroup(group);
                 e.setSession(new ome.model.meta.Session(
                         ec.getCurrentSessionId(), false));
                 e.setTime(new Timestamp(new Date().getTime()));
-                e.setType(sf.getTypesService().getEnumeration(
-                        EventType.class, ec.getCurrentEventType()));
+                e.setType(type);
                 el.setAction("PIXELDATA");
                 el.setEntityId(mpm.pixelsID);
                 el.setEntityType(Pixels.class.getName());

@@ -484,7 +484,7 @@ public class ThumbnailCtx
             boolean isExtendedGraphCritical = 
                 isExtendedGraphCritical(Collections.singleton(pixelsId));
             Long metadataOwnerId = metadata.getDetails().getOwner().getId();
-            Long sessionUserId = getCurrentUserId();
+            Long sessionUserId = securitySystem.getEffectiveUID();
             boolean isMyMetadata = sessionUserId.equals(metadataOwnerId);
             if (!dirtyMetadata)
             {
@@ -550,22 +550,6 @@ public class ThumbnailCtx
         }
         float ratio = (float) longestSide / sizeY;
         return new Dimension((int) (sizeX * ratio), longestSide);
-    }
-
-    /**
-     * Returns the Id of the currently logged in user.
-     * Returns owner of the share while in share
-     * @return See above.
-     */
-    private Long getCurrentUserId()
-    {
-        EventContext ec = securitySystem.getEventContext();
-        Long shareId = ec.getCurrentShareId();
-        if (shareId != null) {
-            Session s = queryService.get(Session.class, shareId);
-            return s.getOwner().getId();
-        }
-        return ec.getCurrentUserId();
     }
 
     /**

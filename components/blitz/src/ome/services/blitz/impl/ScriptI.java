@@ -13,6 +13,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
+
+import Ice.Current;
+
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
@@ -26,6 +34,7 @@ import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.Utils;
+
 import omero.ApiUsageException;
 import omero.RInt;
 import omero.RType;
@@ -46,14 +55,14 @@ import omero.api.AMD_IScript_uploadOfficialScript;
 import omero.api.AMD_IScript_uploadScript;
 import omero.api.AMD_IScript_validateScript;
 import omero.api._IScriptOperations;
-import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.JobParams;
 import omero.grid.ParamsHelper;
+import omero.grid.ParamsHelper.Acquirer;
 import omero.grid.ProcessPrx;
 import omero.grid.ProcessorPrx;
 import omero.grid.ScriptProcessPrx;
-import omero.grid.SharedResourcesPrx;
+import omero.grid._InteractiveProcessorOperations;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
@@ -62,14 +71,6 @@ import omero.model.OriginalFileI;
 import omero.model.ScriptJob;
 import omero.model.ScriptJobI;
 import omero.util.IceMapper;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
-
-import Ice.Current;
 
 /**
  * implementation of the IScript service interface.
@@ -97,8 +98,12 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
         this.factory = sf;
-        SharedResourcesI resources = (SharedResourcesI) sf.getServant(sf.sharedResources(null).ice_getIdentity());
-        helper = new ParamsHelper(resources, sf.getExecutor(), sf.getPrincipal());
+        helper = new ParamsHelper(acquirer(), sf.getExecutor(), sf.getPrincipal());
+    }
+
+    protected Acquirer acquirer() throws ServerError {
+        return (Acquirer) this.factory.getServant(
+                this.factory.sharedResources(null).ice_getIdentity());
     }
 
     // ~ Process Service methods
@@ -117,10 +122,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     timeout = waitSecs.getValue();
                 }
 
-                SharedResourcesPrx srPrx = factory.sharedResources(__current);
-                SharedResourcesI sr = (SharedResourcesI) factory.getServant(srPrx.ice_getIdentity());
-                InteractiveProcessorPrx ipPrx = sr.acquireProcessor(job, timeout, __current);
-                InteractiveProcessorI ip = (InteractiveProcessorI) factory.getServant(ipPrx.ice_getIdentity());
+                InteractiveProcessorPrx ipPrx = acquirer().acquireProcessor(job, timeout, __current);
+                _InteractiveProcessorOperations ip =
+                    (_InteractiveProcessorOperations) factory.getServant(ipPrx.ice_getIdentity());
                 ProcessPrx proc = ip.execute(omero.rtypes.rmap(inputs), __current);
 
                 ScriptProcessI process = new ScriptProcessI(factory, __current, ipPrx, ip, proc);
