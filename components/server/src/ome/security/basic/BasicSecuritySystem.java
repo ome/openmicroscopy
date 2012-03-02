@@ -332,7 +332,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         }
 
         // Refill current details
-        cd.copy(ec);
+        cd.checkAndInitialize(ec, admin);
         ec = cd.getCurrentEventContext(); // Replace with callContext
 
         // Experimenter

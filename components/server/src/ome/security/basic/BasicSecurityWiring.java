@@ -133,7 +133,7 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
 
         public CloseOnNoSessionContext()
         {
-            super(null, new Principal(""), new DelegatingStats());
+            super(new Principal(""), new DelegatingStats());
         }
 
     }

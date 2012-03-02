@@ -12,6 +12,15 @@ import static ome.model.internal.Permissions.Role.WORLD;
 
 import java.util.List;
 
+import org.hibernate.Filter;
+import org.hibernate.Session;
+import org.jmock.Mock;
+import org.jmock.core.Invocation;
+import org.jmock.core.Stub;
+import org.jmock.core.stub.DefaultResultStub;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.testng.annotations.Test;
+
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.model.IEnum;
@@ -25,17 +34,8 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
-import ome.security.SystemTypes;
-import ome.tools.hibernate.SecurityFilter;
-
-import org.hibernate.Filter;
-import org.hibernate.Session;
-import org.jmock.Mock;
-import org.jmock.core.Invocation;
-import org.jmock.core.Stub;
-import org.jmock.core.stub.DefaultResultStub;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.testng.annotations.Test;
+import ome.security.SecurityFilter;
+import ome.security.basic.OneGroupSecurityFilter;
 
 @Test
 public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
@@ -176,10 +176,10 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         Mock mockFilter = mock(Filter.class);
         Filter f = (Filter) mockFilter.proxy();
         mockFilter.expects(once()).method("setParameter").with(
-                eq(SecurityFilter.is_adminorpi), eq(Boolean.FALSE)).will(
+                eq(OneGroupSecurityFilter.is_adminorpi), eq(Boolean.FALSE)).will(
                 returnValue(f));
         mockFilter.expects(once()).method("setParameter").with(
-                eq(SecurityFilter.current_user), eq(user.getId())).will(
+                eq(OneGroupSecurityFilter.current_user), eq(user.getId())).will(
                 returnValue(f));
         Mock mockSession = mock(Session.class);
         mockSession.expects(once()).method("enableFilter").with(

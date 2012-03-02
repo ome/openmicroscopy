@@ -44,12 +44,6 @@ class BasicEventContext extends SimpleEventContext {
     // =========================================================================
 
     /**
-     * Service so that this instance can the members of the call context
-     * on {@link #setCallContext(Map, LocalAdmin)}.
-     */
-    private final LocalAdmin admin;
-
-    /**
      * Prinicpal should only be set once (on
      * {@link PrincipalHolder#login(Principal)}.
      */
@@ -73,13 +67,12 @@ class BasicEventContext extends SimpleEventContext {
 
     private Map<String, String> callContext;
 
-    public BasicEventContext(LocalAdmin admin, Principal p, SessionStats stats) {
+    public BasicEventContext(Principal p, SessionStats stats) {
         if (p == null || stats == null) {
             throw new RuntimeException("Principal and stats canot be null.");
         }
         this.p = p;
         this.stats = stats;
-        this.admin = admin;
     }
 
     void invalidate() {
@@ -94,7 +87,48 @@ class BasicEventContext extends SimpleEventContext {
      */
     void copyContext(EventContext ec) {
         super.copy(ec);
-        setCallContext(callContext); // Re-apply values.
+    }
+
+    void checkAndInitialize(EventContext ec, LocalAdmin admin) {
+        this.copyContext(ec);
+
+        // Now re-apply values.
+        final List<String> toPrint = new ArrayList<String>();
+        
+        final Long uid = parseId(callContext, "omero.user");
+        if (uid != null) {
+            // Here we trust the setting of the admin flag if we also have
+            // a user setting. In other words, if this has been initialized
+            // by the session context, then it's safe to say that we're just
+            // overwriting values.
+            if (cuId != null && !isAdmin && !cuId.equals(uid)) {
+                throw new SecurityViolation(String.format(
+                        "User %s is not an admin and so cannot set uid to %s",
+                        cuId, uid));
+            }
+            setOwner(admin.userProxy(uid));
+            toPrint.add("owner="+uid);
+        }
+
+        final Long gid = parseId(callContext, "omero.group");
+        if (gid != null) {
+            if (gid < 0) {
+                setGroup(new ExperimenterGroup(gid, false));
+            } else {
+                setGroup(admin.groupProxy(gid));
+            }
+            toPrint.add("group="+gid);
+        }
+
+        final Long sid = parseId(callContext, "omero.share");
+        if (sid != null) {
+            setShareId(sid);
+            toPrint.add("share="+sid);
+        }
+
+        if (toPrint.size() > 0) {
+            log.info(" cctx:\t" + StringUtils.join(toPrint, ","));
+        }
     }
 
     // Call Context (ticket:3529)
@@ -119,41 +153,8 @@ class BasicEventContext extends SimpleEventContext {
     }
 
     public Map<String, String> setCallContext(Map<String, String> ctx) {
-        final List<String> toPrint = new ArrayList<String>();
         final Map<String, String> rv = callContext;
-        
         callContext = ctx;
-        final Long uid = parseId(ctx, "omero.user");
-        if (uid != null) {
-            // Here we trust the setting of the admin flag if we also have
-            // a user setting. In other words, if this has been initialized
-            // by the session context, then it's safe to say that we're just
-            // overwriting values.
-            if (cuId != null && !isAdmin && !cuId.equals(uid)) {
-                throw new SecurityViolation(String.format(
-                        "User %s is not an admin and so cannot set uid to %s",
-                        cuId, uid));
-            }
-            setOwner(admin.userProxy(uid));
-            toPrint.add("owner="+uid);
-        }
-
-        final Long gid = parseId(ctx, "omero.group");
-        if (gid != null) {
-            setGroup(admin.groupProxy(gid));
-            toPrint.add("group="+gid);
-        }
-
-        final Long sid = parseId(ctx, "omero.share");
-        if (sid != null) {
-            setShareId(sid);
-            toPrint.add("share="+sid);
-        }
-
-        if (toPrint.size() > 0) {
-            log.info(" cctx:\t" + StringUtils.join(toPrint, ","));
-        }
-
         return rv;
     }
 
@@ -233,6 +234,9 @@ class BasicEventContext extends SimpleEventContext {
         if (group.isLoaded()) {
             this.cgName = group.getName();
             this.groupPermissions = group.getDetails().getPermissions();
+        } else if (group.getId() < -1) {
+            this.cgName = null;
+            this.groupPermissions = null;
         }
     }
 

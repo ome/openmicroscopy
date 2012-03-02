@@ -19,8 +19,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.util.Assert;
 
 import ome.api.local.LocalAdmin;
@@ -46,7 +44,6 @@ import ome.services.util.ServiceHandler;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.tools.hibernate.HibernateUtils;
-import ome.tools.spring.OnContextRefreshedEventListener;
 
 /**
  * Stores information related to the security context of the current thread.
@@ -61,18 +58,12 @@ import ome.tools.spring.OnContextRefreshedEventListener;
  * 
  * Details: user == null ==> object belongs to root CurrentDetails: user == null
  * ==> current user is "nobody" (anonymous)
- * 
- * Subclasses {@link OnContextRefreshedEventListener} so that after the context
- * configuration is done, we can grab an admin service. Before that, it's not
- * possible due to cyclical dependencies.
  */
-public class CurrentDetails extends OnContextRefreshedEventListener implements PrincipalHolder {
+public class CurrentDetails implements PrincipalHolder {
 
     private static Log log = LogFactory.getLog(CurrentDetails.class);
 
     private final SessionCache cache;
-
-    private /*final*/ LocalAdmin admin;
 
     private final ThreadLocal<LinkedList<BasicEventContext>> contexts = new ThreadLocal<LinkedList<BasicEventContext>>();
 
@@ -93,13 +84,6 @@ public class CurrentDetails extends OnContextRefreshedEventListener implements P
     
     public CurrentDetails(SessionCache cache) {
         this.cache = cache;
-    }
-
-
-    @Override
-    public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
-        this.admin = (LocalAdmin)
-        event.getApplicationContext().getBean("internal-ome.api.LocalAdmin");
     }
 
     private LinkedList<BasicEventContext> list() {
@@ -151,7 +135,7 @@ public class CurrentDetails extends OnContextRefreshedEventListener implements P
         final String uuid = principal.getName();
         final SessionContext ctx = cache.getSessionContext(uuid);
         final SessionStats stats = ctx.stats();
-        final BasicEventContext c = new BasicEventContext(admin, principal, stats);
+        final BasicEventContext c = new BasicEventContext(principal, stats);
         login(c);
     }
 
@@ -244,9 +228,10 @@ public class CurrentDetails extends OnContextRefreshedEventListener implements P
 
     /**
      * Replaces all the simple-valued fields in the {@link BasicEventContext}.
+     * This method
      */
-    void copy(EventContext ec) {
-        current().copyContext(ec);
+    void checkAndInitialize(EventContext ec, LocalAdmin admin) {
+        current().checkAndInitialize(ec, admin);
     }
 
     /**
