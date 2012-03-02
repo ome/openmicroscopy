@@ -3,7 +3,7 @@
 <!--
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #
-    # Copyright (C) 2003-2011 Open Microscopy Environment
+    # Copyright (C) 2003-2012 Open Microscopy Environment
     #       Massachusetts Institute of Technology,
     #       National Institutes of Health,
     #       University of Dundee,
@@ -25,20 +25,20 @@
 	# Written by:  Andrew J Patterson 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
-<xsd:schema xmlns = "http://www.openmicroscopy.org/Schemas/SA/2011-06"
-	targetNamespace = "http://www.openmicroscopy.org/Schemas/SA/2011-06"
-	xmlns:OME = "http://www.openmicroscopy.org/Schemas/OME/2011-06"
-	xmlns:Bin="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" 
+<xsd:schema xmlns = "http://www.openmicroscopy.org/Schemas/SA/2012-InProgress"
+	targetNamespace = "http://www.openmicroscopy.org/Schemas/SA/2012-InProgress"
+	xmlns:OME = "http://www.openmicroscopy.org/Schemas/OME/2012-InProgress"
+	xmlns:Bin="http://www.openmicroscopy.org/Schemas/BinaryFile/2012-InProgress" 
 	xmlns:xsd = "http://www.w3.org/2001/XMLSchema"
 	version = "1"
 	elementFormDefault = "qualified">
-	<!-- Using the svn location for import -->
-	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/OME/2011-06" schemaLocation="http://git.openmicroscopy.org/src/develop/components/specification/InProgress/ome.xsd"/>
-	<xsd:import namespace = "http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" schemaLocation = "http://git.openmicroscopy.org/src/develop/components/specification/InProgress/BinaryFile.xsd"/>
-	<!-- Using the local directory location for import 
-	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/OME/2011-06" schemaLocation="ome.xsd"/>
-	<xsd:import namespace = "http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" schemaLocation = "BinaryFile.xsd"/>
-	-->
+	<!-- Using the svn location for import
+	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/OME/2012-InProgress" schemaLocation="http://git.openmicroscopy.org/src/develop/components/specification/InProgress/ome.xsd"/>
+	<xsd:import namespace = "http://www.openmicroscopy.org/Schemas/BinaryFile/2012-InProgress" schemaLocation = "http://git.openmicroscopy.org/src/develop/components/specification/InProgress/BinaryFile.xsd"/>
+	Using the local directory location for import -->
+	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/OME/2012-InProgress" schemaLocation="ome.xsd"/>
+	<xsd:import namespace = "http://www.openmicroscopy.org/Schemas/BinaryFile/2012-InProgress" schemaLocation = "BinaryFile.xsd"/>
+	<!-- -->
 	
 	<!-- Annotatable objects
 		Annotation
@@ -61,7 +61,6 @@
 		Well
 		WellSample
 		
-		ExperimenterGroup ?
 		Node ?
 		OriginalFile ?
 		Session ?
@@ -104,11 +103,13 @@
 			</xsd:complexContent>
 		</xsd:complexType>
 	</xsd:element>
-	<xsd:complexType name="Annotation">
+	
+	<!-- the base annotation that all others are ultimately derived from -->
+	<xsd:complexType name="Annotation"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:appinfo>abstract</xsd:appinfo>
 			<xsd:documentation>
-				An annotation from which the other are derived.
+				An annotation from which all others are ultimately derived.
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
@@ -125,7 +126,11 @@
 				</xsd:simpleType>
 			</xsd:element>
 			<xsd:sequence>
-				<xsd:element ref="AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="AnnotationRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 			</xsd:sequence>
 		</xsd:sequence>
 		<xsd:attribute name="ID" use="required" type="AnnotationID"></xsd:attribute>
@@ -144,6 +149,55 @@
 			<xsd:pattern value="(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Annotation:\S+)|(Annotation:\S+)"/>
 		</xsd:restriction>
 	</xsd:simpleType>
+
+	<!-- Intermediate abstract annotations, not used directly -->
+	<xsd:complexType name="BasicAnnotation"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo>abstract</xsd:appinfo>
+			<xsd:documentation>
+				An abstract Basic Annotation from which some others are derived.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="Annotation"/>
+		</xsd:complexContent> 
+	</xsd:complexType>
+	<xsd:complexType name="NumericAnnotation"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo>abstract</xsd:appinfo>
+			<xsd:documentation>
+				An abstract Numeric Annotation from which some others are derived.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="Annotation"/>
+		</xsd:complexContent> 
+	</xsd:complexType>
+	<xsd:complexType name="TextAnnotation"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo>abstract</xsd:appinfo>
+			<xsd:documentation>
+				An abstract Text Annotation from which some others are derived.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="Annotation"/>
+		</xsd:complexContent> 
+	</xsd:complexType>
+	<xsd:complexType name="TypeAnnotation"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo>abstract</xsd:appinfo>
+			<xsd:documentation>
+				An abstract Type Annotation from which some others are derived.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="Annotation"/>
+		</xsd:complexContent> 
+	</xsd:complexType>
+	<!-- end of abstract annotations -->
+	
+	<!-- The annotations used in the instance documents -->
 	<xsd:element name="FileAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:documentation>
@@ -152,7 +206,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="TypeAnnotation">
 					<xsd:sequence>
 						<xsd:element ref="Bin:BinaryFile" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
@@ -168,7 +222,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="TextAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" minOccurs="1" maxOccurs="1">
 							<xsd:complexType>
@@ -203,7 +257,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="TextAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
@@ -219,7 +273,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="NumericAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" type="xsd:long" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
@@ -235,7 +289,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="NumericAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" type="xsd:double" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
@@ -251,7 +305,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="BasicAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" type="xsd:boolean" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
@@ -267,7 +321,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="BasicAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" type="xsd:dateTime" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
@@ -283,7 +337,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="TextAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
@@ -299,7 +353,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="BasicAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>

@@ -3,7 +3,7 @@
 <!--
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #
-    # Copyright (C) 2003-2011 Open Microscopy Environment
+    # Copyright (C) 2003-2012 Open Microscopy Environment
     #       Massachusetts Institute of Technology,
     #       National Institutes of Health,
     #       University of Dundee,
@@ -25,23 +25,23 @@
 	# Written by:  Andrew J Patterson 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
-<xsd:schema xmlns = "http://www.openmicroscopy.org/Schemas/ROI/2011-06"
-	targetNamespace = "http://www.openmicroscopy.org/Schemas/ROI/2011-06"
-	xmlns:OME = "http://www.openmicroscopy.org/Schemas/OME/2011-06"
-	xmlns:BIN="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" 
-	xmlns:SA="http://www.openmicroscopy.org/Schemas/SA/2011-06" 
+<xsd:schema xmlns = "http://www.openmicroscopy.org/Schemas/ROI/2012-InProgress"
+	targetNamespace = "http://www.openmicroscopy.org/Schemas/ROI/2012-InProgress"
+	xmlns:OME = "http://www.openmicroscopy.org/Schemas/OME/2012-InProgress"
+	xmlns:BIN="http://www.openmicroscopy.org/Schemas/BinaryFile/2012-InProgress" 
+	xmlns:SA="http://www.openmicroscopy.org/Schemas/SA/2012-InProgress" 
 	xmlns:xsd = "http://www.w3.org/2001/XMLSchema"
 	version = "1"
 	elementFormDefault = "qualified">
-	<!-- Using the svn location for import -->
-	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/OME/2011-06" schemaLocation="http://git.openmicroscopy.org/src/develop/components/specification/InProgress/ome.xsd"/>
-	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" schemaLocation="http://git.openmicroscopy.org/src/develop/components/specification/InProgress/BinaryFile.xsd"/>
-	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/SA/2011-06" schemaLocation="http://git.openmicroscopy.org/src/develop/components/specification/InProgress/SA.xsd"/>
-	<!-- Using the local directory location for import 
-	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/OME/2011-06" schemaLocation="ome.xsd"/>
-	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06" schemaLocation="BinaryFile.xsd"/>
-	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/SA/2011-06" schemaLocation="SA.xsd"/>
-	-->
+	<!-- Using the svn location for import 
+	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/OME/2012-InProgress" schemaLocation="http://git.openmicroscopy.org/src/develop/components/specification/InProgress/ome.xsd"/>
+	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/BinaryFile/2012-InProgress" schemaLocation="http://git.openmicroscopy.org/src/develop/components/specification/InProgress/BinaryFile.xsd"/>
+	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/SA/2012-InProgress" schemaLocation="http://git.openmicroscopy.org/src/develop/components/specification/InProgress/SA.xsd"/>
+	Using the local directory location for import -->
+	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/OME/2012-InProgress" schemaLocation="ome.xsd"/>
+	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/BinaryFile/2012-InProgress" schemaLocation="BinaryFile.xsd"/>
+	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/SA/2012-InProgress" schemaLocation="SA.xsd"/>
+	<!-- -->
 	
 	<xsd:element name="ROI"> <!-- top level definition -->
 		<xsd:annotation>
@@ -63,7 +63,11 @@
 						</xsd:complexType>
 					</xsd:element>
 				</xsd:choice>
-				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 				<xsd:element name="Description" minOccurs="0" maxOccurs="1">
 					<xsd:annotation>
 						<xsd:documentation>
@@ -107,33 +111,14 @@
 					<xsd:element ref="Ellipse" minOccurs="1" maxOccurs="1"/>
 					<xsd:element ref="Point" minOccurs="1" maxOccurs="1"/>
 					<xsd:element ref="Polyline" minOccurs="1" maxOccurs="1"/>
-					<xsd:element ref="Path" minOccurs="1" maxOccurs="1"/>
-					<xsd:element ref="Text" minOccurs="1" maxOccurs="1"/>
+					<xsd:element ref="Polygon" minOccurs="1" maxOccurs="1"/>
+					<xsd:element ref="Label" minOccurs="1" maxOccurs="1"/>
 				</xsd:choice>
-				<xsd:element name="Description" minOccurs="0" maxOccurs="1">
-					<xsd:annotation>
-						<xsd:documentation>
-							A description for the ROI. [plane text multi-line string]
-						</xsd:documentation>
-					</xsd:annotation>
-					<xsd:simpleType>
-						<xsd:restriction base="xsd:string">
-							<xsd:whiteSpace value="preserve"/>
-						</xsd:restriction>
-					</xsd:simpleType>
-				</xsd:element>
 			</xsd:sequence>
-			<xsd:attribute name="Name" use="optional" type="xsd:string">
+			<xsd:attribute name="FillColor" use="optional" type="OME:Color">
 				<xsd:annotation>
 					<xsd:documentation>
-						The Name identifies the Shape to the user. [plane text string]
-					</xsd:documentation>
-				</xsd:annotation>		
-			</xsd:attribute>
-			<xsd:attribute name="Fill" use="optional" type="xsd:int">
-				<xsd:annotation>
-					<xsd:documentation>
-						The colour of the fill - encoded as RGBA
+						The color of the fill - encoded as RGBA
 						The value "-2147483648" is #FFFFFFFF so solid white (it is a signed 32 bit value)
 					</xsd:documentation>
 				</xsd:annotation>
@@ -152,10 +137,10 @@
 					</xsd:restriction>
 				</xsd:simpleType>
 			</xsd:attribute>
-			<xsd:attribute name="Stroke" use="optional" type="xsd:int">
+			<xsd:attribute name="StrokeColor" use="optional" type="OME:Color">
 				<xsd:annotation>
 					<xsd:documentation>
-						The colour of the stroke  - encoded as RGBA
+						The color of the stroke  - encoded as RGBA
 						The value "-2147483648" is #FFFFFFFF so solid white (it is a signed 32 bit value)
 					</xsd:documentation>
 				</xsd:annotation>
@@ -188,9 +173,7 @@
 					</xsd:restriction>
 				</xsd:simpleType>
 			</xsd:attribute>
-			<xsd:attribute name="MarkerStart" use="optional" type="Marker"/>
-			<xsd:attribute name="MarkerEnd" use="optional" type="Marker"/>
-			<xsd:attribute name="Label" use="optional" type="xsd:string"/>
+			<xsd:attribute name="Text" use="optional" type="xsd:string"/>
 			<xsd:attribute name="FontFamily" use="optional">
 				<xsd:simpleType>
 					<xsd:annotation>
@@ -234,6 +217,14 @@
 						<xsd:enumeration value="Normal"/>
 					</xsd:restriction>
 				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="Visibility" use="optional" type="xsd:boolean">
+				<xsd:annotation>
+					<xsd:documentation>
+						Controls whether the shape is currently visible,
+						true is visible, false is hidden.
+					</xsd:documentation>
+				</xsd:annotation>
 			</xsd:attribute>
 			<xsd:attribute name="ID" use="required" type="ShapeID"/>
 			<xsd:attribute name="TheZ" use="optional" type="OME:NonNegativeInt">
@@ -428,157 +419,95 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
-					<xsd:attribute name="X1" use="required" type="xsd:float">
-						<xsd:annotation>
-							<xsd:documentation>
-								The X coordinate of the start of the line. [units pixels]
-							</xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
-					<xsd:attribute name="Y1" use="required" type="xsd:float">
-						<xsd:annotation>
-							<xsd:documentation>
-								The Y coordinate of the start of the line. [units pixels]
-							</xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
-					<xsd:attribute name="X2" use="required" type="xsd:float">
-						<xsd:annotation>
-							<xsd:documentation>
-								The X coordinate of the end of the line. [units pixels]
-							</xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
-					<xsd:attribute name="Y2" use="required" type="xsd:float">
-						<xsd:annotation>
-							<xsd:documentation>
-								The Y coordinate of the end of the line. [units pixels]
-							</xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
+			<xsd:attribute name="X1" use="required" type="xsd:float">
+				<xsd:annotation>
+					<xsd:documentation> The X coordinate of the start of the line. [units pixels]
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="Y1" use="required" type="xsd:float">
+				<xsd:annotation>
+					<xsd:documentation> The Y coordinate of the start of the line. [units pixels]
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="X2" use="required" type="xsd:float">
+				<xsd:annotation>
+					<xsd:documentation> The X coordinate of the end of the line. [units pixels]
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="Y2" use="required" type="xsd:float">
+				<xsd:annotation>
+					<xsd:documentation> The Y coordinate of the end of the line. [units pixels]
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="MarkerStart" use="optional" type="Marker"/>
+			<xsd:attribute name="MarkerEnd" use="optional" type="Marker"/>
 		</xsd:complexType>
 	</xsd:element>
 	
 	<xsd:element name="Polyline"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:documentation>
-				NOTE: Polyline and Path are DEPRECATED as they are due to be 
-				replaced in the next major release to provide support for 
-				3-dimensional objects. see http://www.openmicroscopy.org/site/support/file-formats/working-with-ome-xml/roi
-				
-				The Polyline defines open and closed shapes formed of straight 
+				The Polyline defines open shapes formed of straight 
 				lines. Note: Polyline uses counterclockwise winding (this is the 
 				default OpenGL behavior)
 			</xsd:documentation>
 		</xsd:annotation>		
 		<xsd:complexType>
-					<xsd:attribute name="Points" use="required" type="xsd:string">
-						<xsd:annotation>
-							<xsd:documentation>
-								The points of the polyline are defined as a list 
-								of comma separated x,y coordinates seperated by 
-								spaces like "x1,y1 x2,y2 x3,y3" e.g. "0,0 1,2 3,5"
-							</xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
-					<xsd:attribute name="Closed" use="optional" type="xsd:boolean" default="false">
-						<xsd:annotation>
-							<xsd:documentation>
-								Indicates if the shape is closed with an extra 
-								line form the end point back to the start point. [flag]
-							</xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
+			<xsd:attribute name="Points" use="required" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation> The points of the polyline are defined as a list of comma
+						separated x,y coordinates seperated by spaces like "x1,y1 x2,y2 x3,y3" e.g.
+						"0,0 1,2 3,5" </xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="MarkerStart" use="optional" type="Marker"/>
+			<xsd:attribute name="MarkerEnd" use="optional" type="Marker"/>
 		</xsd:complexType>
 	</xsd:element>
-		
-	<xsd:element name="Path"> <!-- top level definition -->
+
+	<xsd:element name="Polygon"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:documentation>
-				NOTE: Polyline and Path are DEPRECATED as they are due to be 
-				replaced in the next major release to provide support for 
-				3-dimensional objects. see http://www.openmicroscopy.org/site/support/file-formats/working-with-ome-xml/roi
-				
-				A path is a complex shape that can consists of straight and 
-				curved sections. It is defined as a collection of drawing 
-				commands.
+				The Polygon defines closed shapes formed of straight 
+				lines. Note: Polygon uses counterclockwise winding (this is the 
+				default OpenGL behavior)
 			</xsd:documentation>
-		</xsd:annotation>
+		</xsd:annotation>		
 		<xsd:complexType>
-					<xsd:attribute name="Definition" use="required" type="xsd:string">
-						<xsd:annotation>
-							<xsd:documentation>
-								The commands are listed in the string separated by spaces.
-								The following commands are available:
-								
-								M = moveto (absolute)
-								L = lineto (absolute)
-								H = horizontal lineto (absolute)
-								V = vertical lineto (absolute)
-								C = curveto (absolute)
-								S = smooth curveto (absolute)
-								Q = quadratic Bezier curve (absolute)
-								T = smooth quadratic Bezier curveto (absolute)
-								A = elliptical Arc (absolute)
-								Z = closepath
-								
-								m = moveto (relative)
-								l = lineto (relative)
-								h = horizontal lineto (relative)
-								v = vertical lineto (relative)
-								c = curveto (relative)
-								s = smooth curveto (relative)
-								q = quadratic Bezier curve (relative)
-								t = smooth quadratic Bezier curveto (relative)
-								a = elliptical Arc (relative)
-								z = closepath
-							</xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
+			<xsd:attribute name="Points" use="required" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation> The points of the Polygon are defined as a list of comma
+						separated x,y coordinates seperated by spaces like "x1,y1 x2,y2 x3,y3" e.g.
+						"0,0 1,2 3,5" </xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
 		</xsd:complexType>
 	</xsd:element>
 	
-	<xsd:element name="Text"> <!-- top level definition -->
+	<xsd:element name="Label"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:documentation>
-				The text annotation. Any transformation should be applied at the 
+				The text label. Any transformation should be applied at the 
 				shape level.
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
-					<xsd:sequence>
-						<xsd:element name="Value">
-							<xsd:annotation>
-								<xsd:documentation>
-									The string of characters to display. 
-									White space should be preserved.
-								</xsd:documentation>
-							</xsd:annotation>
-							<xsd:simpleType>
-								<xsd:restriction base="xsd:string">
-									<xsd:whiteSpace value="preserve"/>
-								</xsd:restriction>
-							</xsd:simpleType>
-						</xsd:element>
-					</xsd:sequence>
-					<xsd:attribute name="X" use="required" type="xsd:float">
-						<xsd:annotation>
-							<xsd:documentation>
-								This defines the X coordinate of the current 
-								text position of the first character in the 
-								string. [units pixels]
-							</xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
-					<xsd:attribute name="Y" use="required" type="xsd:float">
-						<xsd:annotation>
-							<xsd:documentation>
-								This defines the X coordinate of the current 
-								text position of the first character in the 
-								string. [units pixels]
-							</xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
+			<xsd:attribute name="X" use="required" type="xsd:float">
+				<xsd:annotation>
+					<xsd:documentation> This defines the X coordinate of the current text position
+						of the first character in the string. [units pixels] </xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="Y" use="required" type="xsd:float">
+				<xsd:annotation>
+					<xsd:documentation> This defines the Y coordinate of the current text position
+						of the first character in the string. [units pixels] </xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
 		</xsd:complexType>
 	</xsd:element>
 
