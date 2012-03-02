@@ -56,20 +56,20 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 public class ROIAnalyser
 {
 
-	 /** 
-     * Iterates an {@link ROIShape} over our pixels set.
-     * Observers compute the statistics as the iteration moves forward. 
-     */
-	private PointIterator 		runner;
+	/** 
+	 * Iterates an {@link ROIShape} over our pixels set.
+	 * Observers compute the statistics as the iteration moves forward.
+	 */
+	private PointIterator runner;
 	
 	/** The number of z-sections. */
-	private int					sizeZ;   
+	private int sizeZ;
 	
 	/** The number of time-points. */
-	private int					sizeT;   
+	private int sizeT;
 	
 	/** The number of channels. */
-	private int					sizeC;   
+	private int sizeC;
     
 	/**
 	 * Controls if the specified coordinates are valid. 
