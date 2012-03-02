@@ -53,6 +53,7 @@ import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.model.PixelsOriginalFileMapI;
 import omero.sys.ParametersI;
+import spec.SchemaResolver;
 
 /** 
  * Collections of tests for the <code>Exporter</code> service.
@@ -85,6 +86,37 @@ public class ExporterTest
 	private List<File> files;
 	
     
+	/**
+	 * Validates the specified input.
+	 * 
+	 * @param input The input to validate
+	 * @param schemas The schemas to use.
+	 * @throws Exception Thrown if an error occurred during the validation
+	 */
+	private void validate(File input, StreamSource[] schemas)
+		throws Exception
+	{
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setNamespaceAware(true); // This must be set to avoid error : cvc-elt.1: Cannot find the declaration of element 'OME'.
+        SchemaFactory factory = SchemaFactory.newInstance(
+        		XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        factory.setResourceResolver(new SchemaResolver());
+        Schema theSchema = factory.newSchema(schemas);
+
+        /*
+        // Version - one step parse and validate (print error to stdErr)
+        dbf.setSchema(theSchema);
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document theDoc = builder.parse(file);
+        */
+
+        // Version - two step parse then validate (throws error as exception)
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document theDoc = builder.parse(input);
+        Validator validator = theSchema.newValidator();
+        validator.validate(new DOMSource(theDoc));
+	}
+	
     /**
      * Applies the transforms to the specified XML file.
      * 
@@ -291,6 +323,11 @@ public class ExporterTest
 				throw e;
 			}
 		}
+		StreamSource[] schemas = new StreamSource[1];
+
+		schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
+				"/Released-Schema/2010-06/V1/ome.xsd"));
+
 		InputStream sheet = this.getClass().getResourceAsStream(
 				"/Xslt/2011-06-to-2010-06.xsl");
 		List<InputStream> transforms = Arrays.asList(sheet);
@@ -315,6 +352,12 @@ public class ExporterTest
 		saver.overwriteComment(ra, FileUtils.readFileToString(inputXML));
 		ra.close();
 		
+		//validate schema
+		File downgradedXML = File.createTempFile(RandomStringUtils.random(10),
+				"."+OME_XML);
+		c = new TiffParser(f.getAbsolutePath()).getComment();
+		FileUtils.writeStringToFile(downgradedXML, c);
+		//validate(downgradedXML, schemas);
 		try {
 			List<Pixels> pixels = importFile(downgraded, OME_TIFF);
 			//Add checks.
