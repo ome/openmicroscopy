@@ -79,6 +79,9 @@ public class LoadingWindow
     /** The default size of the window. */
     private static final Dimension	DEFAULT_SIZE = new Dimension(400, 60);
     
+    /** The option set when the dialog has been closed.*/
+    private static final int DISCARD = 1;
+    
     /** Displays the status message. */
     private JLabel              status;
     
@@ -87,6 +90,9 @@ public class LoadingWindow
     
     /** Cancels the loading of the image.*/
     private JButton				cancelButton;
+    
+    /** The option set when the dialog is closed.*/
+    private int option;
     
     /** Initializes the components. */
     private void initComponents()
@@ -162,6 +168,14 @@ public class LoadingWindow
         setVisible(false);
     }
     
+    /** Disposes of the dialog.*/
+    public void close()
+    {
+    	option = DISCARD;
+    	setVisible(false);
+    	dispose();
+    }
+    
     /** 
      * Sets the status message.
      * 
@@ -184,4 +198,13 @@ public class LoadingWindow
         progressBar.setIndeterminate(true);
     }
     
+    /**
+     * Overridden to set the visibility depending on the option
+     */
+    public void setVisible(boolean visible)
+    {
+    	if (visible && option == DISCARD) visible = false;
+    	super.setVisible(visible);
+    }
+
 }
