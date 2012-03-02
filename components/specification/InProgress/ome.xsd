@@ -1103,11 +1103,6 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
 			<xsd:attribute name="ID" use="required" type="ExperimenterID"/>
-			<xsd:attribute name="DisplayName" use="required" type="xsd:string">
-				<xsd:annotation>
-					<xsd:documentation>This is the only required name field. [plain text string]</xsd:documentation>
-				</xsd:annotation>
-			</xsd:attribute>
 			<xsd:attribute name="FirstName" use="optional" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation>First name, sometime called christian name or given name or forename. [plain text string]</xsd:documentation>
