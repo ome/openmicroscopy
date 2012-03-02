@@ -69,7 +69,7 @@ public class DowngradeChooser
 			//Build the UI
 			Iterator<Target> i = targets.iterator();
 			Object[] values = new Object[targets.size()+1];
-			values[0] = "";
+			values[0] = "-- no downgrade --";
 			int index = 1;
 			while (i.hasNext()) {
 				values[index] = i.next();
