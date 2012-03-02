@@ -103,11 +103,13 @@
 			</xsd:complexContent>
 		</xsd:complexType>
 	</xsd:element>
-	<xsd:complexType name="Annotation">
+	
+	<!-- the base annotation that all others are ultimately derived from -->
+	<xsd:complexType name="Annotation"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:appinfo>abstract</xsd:appinfo>
 			<xsd:documentation>
-				An annotation from which the other are derived.
+				An annotation from which all others are ultimately derived.
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
@@ -143,6 +145,55 @@
 			<xsd:pattern value="(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Annotation:\S+)|(Annotation:\S+)"/>
 		</xsd:restriction>
 	</xsd:simpleType>
+
+	<!-- Intermediate abstract annotations, not used directly -->
+	<xsd:complexType name="BasicAnnotation"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo>abstract</xsd:appinfo>
+			<xsd:documentation>
+				An abstract Basic Annotation from which some others are derived.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="Annotation"/>
+		</xsd:complexContent> 
+	</xsd:complexType>
+	<xsd:complexType name="NumericAnnotation"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo>abstract</xsd:appinfo>
+			<xsd:documentation>
+				An abstract Numeric Annotation from which some others are derived.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="Annotation"/>
+		</xsd:complexContent> 
+	</xsd:complexType>
+	<xsd:complexType name="TextAnnotation"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo>abstract</xsd:appinfo>
+			<xsd:documentation>
+				An abstract Text Annotation from which some others are derived.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="Annotation"/>
+		</xsd:complexContent> 
+	</xsd:complexType>
+	<xsd:complexType name="TypeAnnotation"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo>abstract</xsd:appinfo>
+			<xsd:documentation>
+				An abstract Type Annotation from which some others are derived.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="Annotation"/>
+		</xsd:complexContent> 
+	</xsd:complexType>
+	<!-- end of abstract annotations -->
+	
+	<!-- The annotations used in the instance documents -->
 	<xsd:element name="FileAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:documentation>
@@ -151,7 +202,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="TypeAnnotation">
 					<xsd:sequence>
 						<xsd:element ref="Bin:BinaryFile" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
@@ -167,7 +218,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="TextAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" minOccurs="1" maxOccurs="1">
 							<xsd:complexType>
@@ -202,7 +253,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="TextAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
@@ -218,7 +269,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="NumericAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" type="xsd:long" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
@@ -234,7 +285,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="NumericAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" type="xsd:double" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
@@ -250,7 +301,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="BasicAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" type="xsd:boolean" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
@@ -266,7 +317,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="BasicAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" type="xsd:dateTime" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
@@ -282,7 +333,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="TextAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
@@ -298,7 +349,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:complexContent>
-				<xsd:extension base="Annotation">
+				<xsd:extension base="BasicAnnotation">
 					<xsd:sequence>
 						<xsd:element name="Value" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
