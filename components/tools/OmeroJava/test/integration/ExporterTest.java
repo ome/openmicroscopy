@@ -17,10 +17,17 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 import loci.common.RandomAccessInputStream;
 import loci.formats.tiff.TiffParser;
@@ -28,10 +35,10 @@ import loci.formats.tiff.TiffSaver;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
-import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.w3c.dom.Document;
 
 
 import omero.api.ExporterPrx;
@@ -307,7 +314,7 @@ public class ExporterTest
 		RandomAccessInputStream ra = new RandomAccessInputStream(path);
 		saver.overwriteComment(ra, FileUtils.readFileToString(inputXML));
 		ra.close();
-		//Now we try to import the downgraded file.
+		
 		try {
 			List<Pixels> pixels = importFile(downgraded, OME_TIFF);
 			//Add checks.
