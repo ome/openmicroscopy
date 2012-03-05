@@ -135,6 +135,18 @@ DEFAULT_BASE_CLASS = "AbstractOMEModelObject"
 # The default Java package for OME XML model objects.
 DEFAULT_PACKAGE = "ome.xml.r2008"
 
+# The package regular expression for OME namespaces.
+PACKAGE_NAMESPACE_RE = re.compile(
+        r'http://www.openmicroscopy.org/Schemas/(\w+)/\d+-\d+')
+
+# The default OMERO package.
+OMERO_DEFAULT_PACKAGE = "omero.model"
+
+# The OMERO package overrides.
+OMERO_PACKAGE_OVERRIDES = {
+        "OME": "omero.model.core",
+}
+
 # The default template for enum class processing.
 ENUM_TEMPLATE = "templates/Enum.template"
 
@@ -270,6 +282,15 @@ class OMEModelEntity(object):
                 return JAVA_TYPE_MAP[simpleType.getBase()]
             except KeyError:
                 simpleTypeName = simpleType.getBase()
+
+    def _get_omeroPackage(self):
+        suffix = PACKAGE_NAMESPACE_RE.match(self.namespace).group(1)
+        try:
+            return OMERO_PACKAGE_OVERRIDES[suffix]
+        except:
+            return "%s.%s" % (OMERO_DEFAULT_PACKAGE, suffix.lower())
+    omeroPackage = property(_get_omeroPackage,
+        doc="""The OMERO package of the entity.""")
 
 class OMEModelProperty(OMEModelEntity):
     """
