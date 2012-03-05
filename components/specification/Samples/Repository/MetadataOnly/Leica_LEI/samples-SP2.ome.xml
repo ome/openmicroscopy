@@ -2,7 +2,7 @@
 <OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2011-06" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2011-06 http://www.openmicroscopy.org/Schemas/OME/2011-06/ome.xsd">
     <Instrument ID="Instrument:0">
         <Detector ID="Detector:0:0" Offset="-34.599999999999994" Type="PMT" Voltage="742.0867526377491"/>
-        <Detector ID="Detector:0:1" Offset="0.0" Type="PMT" Voltage="391.3"/>
+        <Detector ID="Detector:0:1" Offset="0.0" Type="PMT" Voltage="391.2661195779601"/>
         <Objective Correction="Other" ID="Objective:0:0" Immersion="Oil" LensNA="1.25" Model="HCX PL APO CS" NominalMagnification="40" SerialNumber="506179"/>
         <Filter ID="Filter:0:0" Model="SP Mirror 1"/>
         <Filter ID="Filter:0:1" Model="SP Mirror 2">
@@ -13,7 +13,7 @@
     <Instrument ID="Instrument:1">
         <Detector ID="Detector:1:0" Offset="0.5" Type="PMT" Voltage="631.8874560375147"/>
         <Detector ID="Detector:1:1" Offset="-1.2999999999999972" Type="PMT" Voltage="640.0937866354044"/>
-        <Detector ID="Detector:1:2" Offset="-4.4" Type="PMT" Voltage="163.8"/>
+        <Detector ID="Detector:1:2" Offset="-4.400000000000006" Type="PMT" Voltage="163.8335287221571"/>
         <Objective Correction="Other" ID="Objective:1:0" Immersion="Oil" LensNA="1.32" Model="HCX PL APO CS" NominalMagnification="63" SerialNumber="506182"/>
         <Filter ID="Filter:1:0" Model="SP Mirror 1">
             <TransmittanceRange CutIn="500" CutOut="540"/>
@@ -26,7 +26,7 @@
     <Instrument ID="Instrument:2">
         <Detector ID="Detector:2:0" Offset="1.0" Type="PMT" Voltage="820.926143024619"/>
         <Detector ID="Detector:2:1" Offset="0.7999999999999972" Type="PMT" Voltage="451.34818288393905"/>
-        <Detector ID="Detector:2:2" Offset="-13.4" Type="PMT" Voltage="286.9"/>
+        <Detector ID="Detector:2:2" Offset="-13.400000000000006" Type="PMT" Voltage="286.9284876905041"/>
         <Objective Correction="Other" ID="Objective:2:0" Immersion="Oil" LensNA="1.32" Model="HCX PL APO CS" NominalMagnification="63" SerialNumber="506182"/>
         <Filter ID="Filter:2:0" Model="SP Mirror 1">
             <TransmittanceRange CutIn="500" CutOut="560"/>
@@ -37,7 +37,7 @@
         <Filter ID="Filter:2:2" Model="SP Mirror 3"/>
     </Instrument>
     <Instrument ID="Instrument:3">
-        <Detector ID="Detector:3:0" Offset="3.2" Type="PMT" Voltage="430.2"/>
+        <Detector ID="Detector:3:0" Offset="3.200000000000003" Type="PMT" Voltage="430.2461899179367"/>
         <Objective Correction="Other" ID="Objective:3:0" Immersion="Other" LensNA="0.3" Model="HC PL FLUOTAR" NominalMagnification="10" SerialNumber="506507"/>
         <Filter ID="Filter:3:0" Model="SP Mirror 1"/>
         <Filter ID="Filter:3:1" Model="SP Mirror 2"/>
