@@ -52,7 +52,7 @@ class PyramidTest (lib.GTest):
         
         image = self.TESTIMG
         image._conn.createRenderingEngine = lambda: MockRenderingEngine()
-        
+
         channels = image.getChannels()
         for c in channels:
             print c.getLabel()
@@ -61,22 +61,22 @@ class PyramidTest (lib.GTest):
 class MockRenderingEngine(object):
     """ Should throw on re.load() """
     
-    def lookupPixels(self, id):
+    def lookupPixels(self, id, ctx=None):
         pass
     
-    def lookupRenderingDef(self, id):
+    def lookupRenderingDef(self, id, ctx=None):
         pass
     
-    def loadRenderingDef(self, id):
+    def loadRenderingDef(self, id, ctx=None):
         pass
     
-    def resetDefaults(self):
+    def resetDefaults(self, ctx=None):
         pass
 
-    def getRenderingDefId(self):
+    def getRenderingDefId(self, ctx=None):
         return 1
 
-    def load(self):
+    def load(self, ctx=None):
         e = omero.ConcurrencyException("MOCK MissingPyramidException")
         e.backOff = (3 * 60 * 60 * 1000) + (20 * 60 * 1000) + (45 * 1000) # 3 hours
         raise e
