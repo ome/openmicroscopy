@@ -23,9 +23,9 @@
 $(document).ready(function() {
 
     // this script is an 'include' within a django for-loop, so we can get our index:
-    var imgviewer_plugin_index = {{ forloop.counter }};
+    var overlay_plugin_index = {{ forloop.counter }};
 
-    var update_img_viewer = function() {
+    var update_channel_overlay = function() {
         
         // this may have been called before datatree was initialised...
         var datatree = $.jstree._focused();
@@ -33,52 +33,40 @@ $(document).ready(function() {
         
         // get the selected id etc
         var selected = datatree.data.ui.selected;
-        var oid = selected.attr('id');
         var orel = selected.attr('rel').replace("-locked", "");
+        var oid = selected.attr('id');
+        if (orel != "image") return;
         
-        $image_viewer_panel = $("#image_viewer_panel");
-
-        if (orel!="image") {
-            $image_viewer_panel.html("<h1>Image Viewer cannot display " + orel + "</h1>");
-            return;
-        };
-
         // if the tab is visible and not loaded yet...
-
-        if ($image_viewer_panel.is(":visible") && $image_viewer_panel.is(":empty")) {
-            var url = null;
-            var pr = selected.parent().parent();
-            if (pr.length>0 && pr.attr('rel').replace("-locked", "")==="share") {
-                //url = '{% url webindex %}metadata_preview/'+oid.split("-")[1]+'/'+pr.attr("id").split("-")[1]+'/';
-            } else {
-                url = '{% url webindex %}metadata_preview/'+oid.split("-")[1]+'/';
-            }
-            $image_viewer_panel.load(url);
+        $channel_overlay_panel = $("#channel_overlay_panel");
+        var channel_overlay_url;
+        if ($channel_overlay_panel.is(":visible") && $channel_overlay_panel.is(":empty")) {
+            split_view_fig_url = '{% url webtest_index %}channel_overlay_viewer/'+ oid.split("-")[1] + "/";
+            $channel_overlay_panel.load(split_view_fig_url);
         };
     };
     
     // update tabs when tree selection changes or tabs switch
-    //$("#annotation_tabs").bind( "tabsshow", update_img_viewer);
-    $('#center_panel_chooser select').bind('change', update_img_viewer);
+    $('#center_panel_chooser select').bind('change', update_channel_overlay);
 
     // on change of selection in tree, update which tabs are enabled
     $("#dataTree").bind("select_node.jstree", function(e, data) {
 
-        // clear contents of panel
-        $("#image_viewer_panel").empty();
+        // clear contents of all panels
+        $("#channel_overlay_panel").empty();
 
         var selected = data.inst.get_selected();
         var orel = selected.attr('rel').replace("-locked", "");
 
         // update enabled state
         if((orel!="image") || (selected.length > 1)) {
-            set_center_plugin_enabled(imgviewer_plugin_index, false);
+            set_center_plugin_enabled(overlay_plugin_index, false);
         } else {
-            set_center_plugin_enabled(imgviewer_plugin_index, true);
+            set_center_plugin_enabled(overlay_plugin_index, true);
         }
 
         // update tab content
-        update_img_viewer();
+        update_channel_overlay();
     });
     
     // update after we've loaded the document

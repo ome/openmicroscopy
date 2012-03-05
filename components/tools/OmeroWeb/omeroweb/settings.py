@@ -235,13 +235,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # E.g. '[["webtest/img/figure_icon-16.png", "webtest_split_view_figure", "Split View Figure", "channel_overlay_link"]]' 'id' is optional
     "omero.web.ui.toolbar_links": ["TOOLBAR_LINKS", '[["webtest/img/figure_icon-16.png", "webtest_split_view_figure", "Split View Figure"]]', json.loads],
 
-    # Add tabs to the right-hand & center panels: tabs are ['Tab label', 'include.js', 'tab_id']. The javascript loads data into $('#tab_id').
-    "omero.web.ui.right_tabs": ["RIGHT_TABS", '[["Acquisition", "webclient/data/includes/acquisition_tab_init.js", "metadata_tab"],'\
-            '["ROIs", "webclient/data/includes/image_rois.js", "image_roi_tab"],'\
-            '["Preview", "webclient/data/includes/preview_tab_init.js", "preview_tab"]]', json.loads],
-    "omero.web.ui.center_tabs": ["CENTER_PANELS", '[["Split-view", "webclient/data/includes/dataset_split.js", "split_view_panel"],'\
-            '["Channel overlay", "webclient/data/includes/channel_overlay.js", "channel_overlay_panel"],'\
-            '["Image Viewer", "webclient/data/includes/center_imgviewer.js", "image_viewer_panel"]]', json.loads],
+    # Add plugins to the right-hand & center panels: plugins are ['Label', 'include.js', 'div_id']. The javascript loads data into $('#div_id').
+    "omero.web.ui.right_plugins": ["RIGHT_PLUGINS", '[["Acquisition", "webclient/data/includes/right_plugin.acquisition.js", "metadata_tab"],'\
+            '["ROIs", "webclient/data/includes/right_plugin.rois.js", "image_roi_tab"],'\
+            '["Preview", "webclient/data/includes/right_plugin.preview.js", "preview_tab"]]', json.loads],
+    "omero.web.ui.center_plugins": ["CENTER_PLUGINS", '[["Split-view", "webclient/data/includes/center_plugin.splitview.js", "split_view_panel"],'\
+            '["Channel overlay", "webclient/data/includes/center_plugin.overlay.js", "channel_overlay_panel"],'\
+            '["Image Viewer", "webclient/data/includes/center_plugin.imgviewer.js", "image_viewer_panel"]]', json.loads],
 
     # sharing no longer use this variable. replaced by request.build_absolute_uri
     # after testing this line should be removed.

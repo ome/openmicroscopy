@@ -210,26 +210,26 @@ def navHelper(request, conn):
         request.session['nav']['toolbar_links'] = tb_links
         request.session.modified = True
 
-    if "right_tabs" not in request.session['nav']:
-        right_tabs = settings.RIGHT_TABS
-        r_tabs = []
-        for rt in right_tabs:
+    if "right_plugins" not in request.session['nav']:
+        right_plugins = settings.RIGHT_PLUGINS
+        r_plugins = []
+        for rt in right_plugins:
             label = rt[0]
             include = rt[1]
-            tab_id = rt[2]
-            r_tabs.append( {"label":label, "include":include, "tab_id": tab_id} )
-        request.session['nav']['right_tabs'] = r_tabs
+            plugin_id = rt[2]
+            r_plugins.append( {"label":label, "include":include, "plugin_id": plugin_id} )
+        request.session['nav']['right_plugins'] = r_plugins
         request.session.modified = True
     
-    if "center_panels" not in request.session['nav']:
-        center_panels = settings.CENTER_PANELS
-        c_panels = []
-        for cp in center_panels:
+    if "center_plugins" not in request.session['nav']:
+        center_plugins = settings.CENTER_PLUGINS
+        c_plugins = []
+        for cp in center_plugins:
             label = cp[0]
             include = cp[1]
-            panel_id = cp[2]
-            c_panels.append( {"label":label, "include":include, "panel_id": panel_id} )
-        request.session['nav']['center_panels'] = c_panels
+            plugin_id = cp[2]
+            c_plugins.append( {"label":label, "include":include, "plugin_id": plugin_id} )
+        request.session['nav']['center_plugins'] = c_plugins
         request.session.modified = True
 
 
