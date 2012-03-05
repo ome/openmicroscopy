@@ -1974,7 +1974,7 @@ def copy_image_rdef_json (request, server_id=None, _conn=None, _internal=False, 
         fromimg = blitzcon.getObject("Image", fromid)
         frompid = fromimg.getPixelsId()
         userid = fromimg.getOwner().getId()
-        if blitzcon.isAdmin():
+        if fromimg.canWrite():
             sopts = dict(blitzcon.CONFIG['SERVICE_OPTS'] or {})
             sopts['omero.group'] = str(fromimg.getDetails().getGroup().getId())
             sopts['omero.user'] = str(userid)
