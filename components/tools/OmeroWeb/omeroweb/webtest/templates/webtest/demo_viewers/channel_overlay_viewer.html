@@ -9,9 +9,10 @@ body {
 }
 </style>
 
-<script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
-<script type="text/javascript" src="/webtest/statictest/js/imgareaselect/jquery.imgareaselect.js"></script>
-<link rel="stylesheet" type="text/css" href="/webtest/statictest/css/imgareaselect-default.css" /> 
+<!-- links to current version of jquery -->
+{% include "webgateway/base/includes/script_src_jquery.html" %}
+<script type="text/javascript" src="{% static 'webtest/js/imgareaselect/jquery.imgareaselect.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'webtest/css/imgareaselect-default.css' %}" /> 
 <script type="text/javascript">
 
 $(document).ready(function() {
@@ -216,13 +217,13 @@ $(document).ready(function() {
                 <td>Red</td><td>Green</td><td>Blue</td> 
                 <td>Image-ID</td>
                 <td>Z 
-                    <img class='incZ minus' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12'/>
-                    <img class='incZ plus' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
+                    <img class='incZ minus' src="{% static 'webtest/img/channel_overlay/minus12.png' %}" width='12'/>
+                    <img class='incZ plus' src="{% static 'webtest/img/channel_overlay/plus12.png' %}" width='12'/>
                 </td>
                 <td>C</td>
                 <td>T
-                    <img class='incT minus' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12'/>
-                    <img class='incT plus' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
+                    <img class='incT minus' src="{% static 'webtest/img/channel_overlay/minus12.png' %}" width='12'/>
+                    <img class='incT plus' src="{% static 'webtest/img/channel_overlay/plus12.png' %}" width='12'/>
                 </td>
                 <td>Channel Name</td><td>x-shift</td><td>y-shift</td>
             </tr>
@@ -241,17 +242,17 @@ $(document).ready(function() {
                 <td><input class='tIndex' type="text" size="2" name="t" value='0'/></td>
                 <td>{{ c.name }}</td>
                 <td>
-                    <img class='incShift minusBig' src="/webtest/statictest/img/channel_overlay/minus12.png" width='16' />
-                    <img class='incShift minusSmall' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12' />
-                    <img class='incShift plusSmall' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
-                    <img class='incShift plusBig' src="/webtest/statictest/img/channel_overlay/plus12.png" width='16'/>
+                    <img class='incShift minusBig' src="{% static 'webtest/img/channel_overlay/minus12.png' %}" width='16' />
+                    <img class='incShift minusSmall' src="{% static 'webtest/img/channel_overlay/minus12.png' %}" width='12' />
+                    <img class='incShift plusSmall' src="{% static 'webtest/img/channel_overlay/plus12.png' %}" width='12'/>
+                    <img class='incShift plusBig' src="{% static 'webtest/img/channel_overlay/plus12.png' %}" width='16'/>
                     <input type="text" size="5" name="x" value='{% if c.x %}{{c.x}}{% else %}0{% endif %}'/>
                 </td>
                 <td>
-                    <img class='incShift minusBig' src="/webtest/statictest/img/channel_overlay/minus12.png" width='16' />
-                    <img class='incShift minusSmall' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12' />
-                    <img class='incShift plusSmall' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
-                    <img class='incShift plusBig' src="/webtest/statictest/img/channel_overlay/plus12.png" width='16'/>
+                    <img class='incShift minusBig' src="{% static 'webtest/img/channel_overlay/minus12.png' %}" width='16' />
+                    <img class='incShift minusSmall' src="{% static 'webtest/img/channel_overlay/minus12.png' %}" width='12' />
+                    <img class='incShift plusSmall' src="{% static 'webtest/img/channel_overlay/plus12.png' %}" width='12'/>
+                    <img class='incShift plusBig' src="{% static 'webtest/img/channel_overlay/plus12.png' %}" width='16'/>
                     <input type="text" size="5" name="y" value='{% if c.y %}{{c.y}}{% else %}0{% endif %}'/>
                 </td>
             </tr>
