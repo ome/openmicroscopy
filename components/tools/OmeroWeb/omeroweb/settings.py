@@ -237,11 +237,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
 
     # Add plugins to the right-hand & center panels: plugins are ['Label', 'include.js', 'div_id']. The javascript loads data into $('#div_id').
     "omero.web.ui.right_plugins": ["RIGHT_PLUGINS", '[["Acquisition", "webclient/data/includes/right_plugin.acquisition.js", "metadata_tab"],'\
-            '["ROIs", "webclient/data/includes/right_plugin.rois.js", "image_roi_tab"],'\
+            '["ROIs", "webtest/webclient_plugins/right_plugin.rois.js", "image_roi_tab"],'\
             '["Preview", "webclient/data/includes/right_plugin.preview.js", "preview_tab"]]', json.loads],
     "omero.web.ui.center_plugins": ["CENTER_PLUGINS", '[["Split-view", "webclient/data/includes/center_plugin.splitview.js", "split_view_panel"],'\
-            '["Channel overlay", "webclient/data/includes/center_plugin.overlay.js", "channel_overlay_panel"],'\
-            '["Image Viewer", "webclient/data/includes/center_plugin.imgviewer.js", "image_viewer_panel"]]', json.loads],
+            '["Channel overlay", "webtest/webclient_plugins/center_plugin.overlay.js", "channel_overlay_panel"]]', json.loads],
 
     # sharing no longer use this variable. replaced by request.build_absolute_uri
     # after testing this line should be removed.
