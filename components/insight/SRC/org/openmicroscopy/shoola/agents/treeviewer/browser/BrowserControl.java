@@ -187,8 +187,22 @@ class BrowserControl
      * Selects the specified nodes.
      * 
      * @param nodes The nodes to select.
+     * @param updateView Pass <code>true</code> to update the view,
+     * <code>false</code> otherwise.
      */
     void selectNodes(List nodes, Class ref)
+    {
+    	selectNodes(nodes, ref, true);
+    }
+    
+    /**
+     * Selects the specified nodes.
+     * 
+     * @param nodes The nodes to select.
+     * @param updateView Pass <code>true</code> to update the view,
+     * <code>false</code> otherwise.
+     */
+    void selectNodes(List nodes, Class ref, boolean updateView)
     {
     	if (nodes == null || nodes.size() == 0) return;
     	//make sure we have node of the same type.
@@ -205,9 +219,9 @@ class BrowserControl
     	if (values == null || values.size() == 0) return;
     	TreeImageDisplay[] array = values.toArray(
     			new TreeImageDisplay[values.size()]);
-    	model.setSelectedDisplay(array[0]);
+    	//model.setSelectedDisplay(array[0]);
     	model.setSelectedDisplays(array, false);
-    	view.setFoundNode(array);
+    	if (updateView) view.setFoundNode(array);
     }
     
     /**
@@ -220,7 +234,7 @@ class BrowserControl
     		model.setSelectedDisplay(node);
     	}
     }
-    
+
     /**
      * Reacts to tree expansion events.
      * 

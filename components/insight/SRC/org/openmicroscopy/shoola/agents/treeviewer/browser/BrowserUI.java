@@ -39,7 +39,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -66,6 +68,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
@@ -973,6 +976,7 @@ class BrowserUI
 			public void keyPressed(KeyEvent e)
 			{
 				ctrl = false;
+				TreePath[] paths;
 				switch (e.getKeyCode()) {
 					case KeyEvent.VK_ENTER:
 						ViewCmd cmd = new ViewCmd(model.getParentModel(), true);
@@ -999,6 +1003,13 @@ class BrowserUI
 							!UIUtilities.isWindowsOS() && e.isMetaDown()) {
 							handleMultiSelection();
 						}
+						break;
+					case KeyEvent.VK_DOWN:
+						handleKeySelectionDown(treeDisplay.getSelectionPaths());
+				    	break;
+					case KeyEvent.VK_UP:
+						handleKeySelectionUp(treeDisplay.getSelectionPaths());
+				    	break;
 					}
 			}
 			
@@ -1009,7 +1020,91 @@ class BrowserUI
 			
 		});
     }
+    
+    /**
+     * Handles the selection when using the <code>up</code> key.
+     * 
+     * @param node The selected paths.
+     */
+    private void handleKeySelectionUp(TreePath[] paths)
+    {
+    	int n = paths.length;
+    	TreePath path = paths[n-1];
+    	TreeImageDisplay node = (TreeImageDisplay) path.getLastPathComponent();
+    	List<TreeImageDisplay> l = new ArrayList<TreeImageDisplay>();
+    	TreeImageDisplay parent = node.getParentDisplay();
+		int index = parent.getIndex(node);
+		TreeImageDisplay sibling;
+		
+		if (index > 0) {
+			sibling = (TreeImageDisplay) parent.getChildAt(index-1);
+			if (sibling.isExpanded()) {
+				sibling = (TreeImageDisplay) sibling.getChildAt(
+						sibling.getChildCount()-1);
+			}
+			l.add(sibling);
+			Class k = sibling.getUserObject().getClass();
+			for (int i = 0; i < n-1; i++) {
+				node = (TreeImageDisplay) path.getLastPathComponent();
+				if (node.getUserObject().getClass().equals(k)) {
+					//l.add(node);
+				}
+			}
+			controller.selectNodes(l, k, false);
+		} else if (index == 0) {
+			l.add(parent);
+			controller.selectNodes(l, parent.getUserObject().getClass(), false);
+		}
+    }
 
+    /**
+     * Handles the selection when using the <code>down</code> key.
+     * 
+     * @param node The node to handle.
+     */
+    private void handleKeySelectionDown(TreePath[] paths)
+    {
+    	int n = paths.length;
+    	TreePath path = paths[n-1];
+    	TreeImageDisplay node = (TreeImageDisplay) path.getLastPathComponent();
+    	List<TreeImageDisplay> l = new ArrayList<TreeImageDisplay>();
+    	TreeImageDisplay parent;
+    	if (node.isExpanded()) {
+    		parent = node;
+    	} else parent = node.getParentDisplay();
+		int m = parent.getChildCount()-1;
+		int index = parent.getIndex(node);
+		TreeImageDisplay sibling;
+		if (index < m) {
+			sibling = (TreeImageDisplay) parent.getChildAt(index+1);
+			l.add(sibling);
+			Class k = sibling.getUserObject().getClass();
+			for (int i = 0; i < n-1; i++) {
+				node = (TreeImageDisplay) path.getLastPathComponent();
+				if (node.getUserObject().getClass().equals(k)) {
+					//l.add(node);
+				}
+			}
+			controller.selectNodes(l,
+					sibling.getUserObject().getClass(), 
+					false);
+		} else if (index == m) {
+			//get the sibling of the parent.
+			TreeImageDisplay p = parent.getParentDisplay();
+			index = p.getIndex(parent);
+			m = p.getChildCount()-1;
+			if (index < m) {
+				sibling = (TreeImageDisplay) p.getChildAt(index+1);
+				l.add(sibling);
+				
+				controller.selectNodes(l,
+						sibling.getUserObject().getClass(), 
+						false);
+			}
+			
+		}
+    }
+    
     /**
      * Adds the nodes to the specified parent.
      * 
