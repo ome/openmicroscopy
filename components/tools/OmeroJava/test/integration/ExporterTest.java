@@ -54,6 +54,7 @@ import omero.model.PixelsI;
 import omero.model.PixelsOriginalFileMapI;
 import omero.sys.ParametersI;
 import spec.SchemaResolver;
+import spec.OmeValidator;
 
 /** 
  * Collections of tests for the <code>Exporter</code> service.
@@ -96,25 +97,8 @@ public class ExporterTest
 	private void validate(File input, StreamSource[] schemas)
 		throws Exception
 	{
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		dbf.setNamespaceAware(true); // This must be set to avoid error : cvc-elt.1: Cannot find the declaration of element 'OME'.
-        SchemaFactory factory = SchemaFactory.newInstance(
-        		XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        factory.setResourceResolver(new SchemaResolver());
-        Schema theSchema = factory.newSchema(schemas);
-
-        /*
-        // Version - one step parse and validate (print error to stdErr)
-        dbf.setSchema(theSchema);
-        DocumentBuilder builder = dbf.newDocumentBuilder();
-        Document theDoc = builder.parse(file);
-        */
-
-        // Version - two step parse then validate (throws error as exception)
-        DocumentBuilder builder = dbf.newDocumentBuilder();
-        Document theDoc = builder.parse(input);
-        Validator validator = theSchema.newValidator();
-        validator.validate(new DOMSource(theDoc));
+	    OmeValidator theValidator = new OmeValidator();
+	    theValidator.validateFile(input, schemas);
 	}
 	
     /**
