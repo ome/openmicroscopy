@@ -41,7 +41,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -68,7 +67,6 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
@@ -189,6 +187,9 @@ class BrowserUI
     
     /** Flag indicating if it is a right-click.*/
     private boolean rightClickPad;
+    
+    /** Identifies the key event.*/
+    private int keyEvent;
     
     /**
      * Builds the tool bar.
@@ -311,18 +312,19 @@ class BrowserUI
     /** 
      * Reacts to node expansion event.
      * 
-     * @param tee       The event to handle.
-     * @param expanded 	Pass <code>true</code> is the node is expanded,
-     * 					<code>false</code> otherwise.
+     * @param node     The node to handle.
+     * @param expanded Pass <code>true</code> is the node is expanded,
+     *                 <code>false</code> otherwise.
      */
-    private void onNodeNavigation(TreeExpansionEvent tee, boolean expanded)
+    private void onNodeNavigation(TreeImageDisplay node, boolean expanded)
     {
-        TreeImageDisplay node = (TreeImageDisplay) 
-        							tee.getPath().getLastPathComponent();
         node.setExpanded(expanded);
         controller.onNodeNavigation(node, expanded);
         treeDisplay.clearSelection();
-        treeDisplay.setSelectionPath(new TreePath(node.getPath()));
+        try {
+        	treeDisplay.setSelectionPath(new TreePath(node.getPath()));
+		} catch (Exception e) {}
+        
 		treeDisplay.repaint();
     }
     
@@ -937,36 +939,13 @@ class BrowserUI
             public void valueChanged(TreeSelectionEvent e)
             {
             	event = e;
-            	/*
-            	if (ctrl && leftMouseButton) {
-            		TreePath[] paths = treeDisplay.getSelectionPaths();
-            		List<TreePath> added = new ArrayList<TreePath>();
-            		TreePath[] all = null;
-            		if (paths != null) {
-            			all = new TreePath[paths.length];
-                		for (int i = 0; i < paths.length; i++) {
-                			all[i] = new TreePath(paths[i].getPath());
-    					}
-            		}
-            		treeDisplay.removeTreeSelectionListener(selectionListener);
-            		if (all != null) treeDisplay.setSelectionPaths(all);
-            		treeDisplay.addTreeSelectionListener(selectionListener);
-            		if (all != null) {
-            			for (int i = 0; i < all.length; i++)
-                    		added.add(all[i]);
-            		}
-                	controller.onClick(added);
-            		return;
-            	}
-            	
-            	TreePath[] paths = e.getPaths();
-            	List<TreePath> added = new ArrayList<TreePath>();
-            	for (int i = 0; i < paths.length; i++) {
-            		if (e.isAddedPath(paths[i])) added.add(paths[i]);
+            	switch (keyEvent) {
+					case KeyEvent.VK_DOWN:
+					case KeyEvent.VK_UP:
+						controller.onClick(
+	            				Arrays.asList(treeDisplay.getSelectionPaths()));
+						break; 
 				}
-            	//if (!ctrl) 
-            	controller.onClick(added);
-            	*/
             }
         };
         treeDisplay.addTreeSelectionListener(selectionListener);
@@ -976,7 +955,6 @@ class BrowserUI
 			public void keyPressed(KeyEvent e)
 			{
 				ctrl = false;
-				TreePath[] paths;
 				switch (e.getKeyCode()) {
 					case KeyEvent.VK_ENTER:
 						ViewCmd cmd = new ViewCmd(model.getParentModel(), true);
@@ -1005,106 +983,31 @@ class BrowserUI
 						}
 						break;
 					case KeyEvent.VK_DOWN:
-						handleKeySelectionDown(treeDisplay.getSelectionPaths());
-				    	break;
 					case KeyEvent.VK_UP:
-						handleKeySelectionUp(treeDisplay.getSelectionPaths());
-				    	break;
-					}
+					case KeyEvent.VK_RIGHT:
+						keyEvent = e.getKeyCode();
+						break;
+					case KeyEvent.VK_LEFT:
+						TreePath[] paths = treeDisplay.getSelectionPaths();
+						TreeImageDisplay node;
+						for (int i = 0; i < paths.length; i++) {
+							node = (TreeImageDisplay) 
+							 paths[i].getLastPathComponent();
+							if (node.isExpanded())
+								node.setExpanded(false);
+						}
+				}
 			}
 			
 			public void keyReleased(KeyEvent e)
 			{
 				ctrl = false;
+				keyEvent = -1;
 			}
 			
 		});
     }
-    
-    /**
-     * Handles the selection when using the <code>up</code> key.
-     * 
-     * @param node The selected paths.
-     */
-    private void handleKeySelectionUp(TreePath[] paths)
-    {
-    	int n = paths.length;
-    	TreePath path = paths[n-1];
-    	TreeImageDisplay node = (TreeImageDisplay) path.getLastPathComponent();
-    	List<TreeImageDisplay> l = new ArrayList<TreeImageDisplay>();
-    	TreeImageDisplay parent = node.getParentDisplay();
-		int index = parent.getIndex(node);
-		TreeImageDisplay sibling;
-		
-		if (index > 0) {
-			sibling = (TreeImageDisplay) parent.getChildAt(index-1);
-			if (sibling.isExpanded()) {
-				sibling = (TreeImageDisplay) sibling.getChildAt(
-						sibling.getChildCount()-1);
-			}
-			l.add(sibling);
-			Class k = sibling.getUserObject().getClass();
-			for (int i = 0; i < n-1; i++) {
-				node = (TreeImageDisplay) path.getLastPathComponent();
-				if (node.getUserObject().getClass().equals(k)) {
-					//l.add(node);
-				}
-			}
-			controller.selectNodes(l, k, false);
-		} else if (index == 0) {
-			l.add(parent);
-			controller.selectNodes(l, parent.getUserObject().getClass(), false);
-		}
-    }
 
-    /**
-     * Handles the selection when using the <code>down</code> key.
-     * 
-     * @param node The node to handle.
-     */
-    private void handleKeySelectionDown(TreePath[] paths)
-    {
-    	int n = paths.length;
-    	TreePath path = paths[n-1];
-    	TreeImageDisplay node = (TreeImageDisplay) path.getLastPathComponent();
-    	List<TreeImageDisplay> l = new ArrayList<TreeImageDisplay>();
-    	TreeImageDisplay parent;
-    	if (node.isExpanded()) {
-    		parent = node;
-    	} else parent = node.getParentDisplay();
-		int m = parent.getChildCount()-1;
-		int index = parent.getIndex(node);
-		TreeImageDisplay sibling;
-		if (index < m) {
-			sibling = (TreeImageDisplay) parent.getChildAt(index+1);
-			l.add(sibling);
-			Class k = sibling.getUserObject().getClass();
-			for (int i = 0; i < n-1; i++) {
-				node = (TreeImageDisplay) path.getLastPathComponent();
-				if (node.getUserObject().getClass().equals(k)) {
-					//l.add(node);
-				}
-			}
-			controller.selectNodes(l,
-					sibling.getUserObject().getClass(), 
-					false);
-		} else if (index == m) {
-			//get the sibling of the parent.
-			TreeImageDisplay p = parent.getParentDisplay();
-			index = p.getIndex(parent);
-			m = p.getChildCount()-1;
-			if (index < m) {
-				sibling = (TreeImageDisplay) p.getChildAt(index+1);
-				l.add(sibling);
-				
-				controller.selectNodes(l,
-						sibling.getUserObject().getClass(), 
-						false);
-			}
-			
-		}
-    }
-    
     /**
      * Adds the nodes to the specified parent.
      * 
@@ -1423,10 +1326,12 @@ class BrowserUI
         nodesToReset = new HashSet<TreeImageDisplay>();
         listener = new TreeExpansionListener() {
             public void treeCollapsed(TreeExpansionEvent e) {
-                onNodeNavigation(e, false);
+                onNodeNavigation((TreeImageDisplay) 
+						e.getPath().getLastPathComponent(), false);
             }
             public void treeExpanded(TreeExpansionEvent e) {
-                onNodeNavigation(e, true);  
+                onNodeNavigation((TreeImageDisplay) 
+						e.getPath().getLastPathComponent(), true);  
             }   
         };
     }
