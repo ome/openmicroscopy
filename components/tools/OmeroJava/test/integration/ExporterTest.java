@@ -355,9 +355,10 @@ public class ExporterTest
 		//validate schema
 		File downgradedXML = File.createTempFile(RandomStringUtils.random(10),
 				"."+OME_XML);
-		c = new TiffParser(f.getAbsolutePath()).getComment();
+		c = new TiffParser(path).getComment();
 		FileUtils.writeStringToFile(downgradedXML, c);
-		//validate(downgradedXML, schemas);
+		validate(downgradedXML, schemas);
+		files.add(downgradedXML);
 		try {
 			List<Pixels> pixels = importFile(downgraded, OME_TIFF);
 			//Add checks.
