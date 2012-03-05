@@ -1972,32 +1972,19 @@ def copy_image_rdef_json (request, server_id=None, _conn=None, _internal=False, 
         blitzcon = _conn
             
         fromimg = blitzcon.getObject("Image", fromid)
-        details = fromimg.getDetails()
         frompid = fromimg.getPixelsId()
-        newConn = None
+        userid = fromimg.getOwner().getId()
         if blitzcon.isAdmin():
-            p = omero.sys.Principal()
-            p.name = details.getOwner().omeName
-            p.group = details.getGroup().name
-            p.eventType = "User"
-            # This connection will have a 20 minute timeout
-            newConnId = blitzcon.getSessionService().createSessionWithTimeout(p, 1200000)
-            newConn = blitzcon.clone()
-            newConn.connect(sUuid=newConnId.getUuid().val)
-        elif fromimg.isEditable():
-            newConn = blitzcon
-            newConn.setGroupForSession(details.getGroup().getId())
-
-        if newConn is not None and newConn.isConnected():
-            frompid = newConn.getObject("Image", fromid).getPixelsId()
-            rsettings = newConn.getRenderingSettingsService()
-            json_data = rsettings.applySettingsToImages(frompid, list(toids))
+            sopts = dict(blitzcon.CONFIG['SERVICE_OPTS'] or {})
+            sopts['omero.group'] = str(fromimg.getDetails().getGroup().getId())
+            sopts['omero.user'] = str(userid)
+            rsettings = blitzcon.getRenderingSettingsService()
+            json_data = rsettings.applySettingsToImages(frompid, list(toids), sopts)
             if fromid in json_data[True]:
                 del json_data[True][json_data[True].index(fromid)]
             for iid in json_data[True]:
-                img = newConn.getObject("Image", iid)
-                user_id = newConn.getEventContext().userId
-                img is not None and webgateway_cache.invalidateObject(server_id, user_id, img)
+                img = blitzcon.getObject("Image", iid)
+                img is not None and webgateway_cache.invalidateObject(server_id, userid, img)
     return json_data
 #
 #            json_data = simplejson.dumps(json_data)
