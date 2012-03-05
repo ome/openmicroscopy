@@ -320,6 +320,13 @@ class OMEModelProperty(OMEModelEntity):
         return self.delegate.getName()
     name = property(_get_name, doc="""The property's name.""")
 
+    def _get_namespace(self):
+        if self.isAttribute or self.isBackReference:
+            return self.parent.namespace
+        return self.delegate.namespace
+    namespace = property(_get_namespace,
+        doc="""The root namespace of the property.""")
+
     def _get_javaType(self):
         try:
             # Hand back the type of enumerations
