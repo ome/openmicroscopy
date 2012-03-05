@@ -97,7 +97,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     protected transient IPixels pixelsMetadata;
 
     /**
-     * Returns the Id of the currently logged in user.
+     * Returns the Id of the currently logged in user. Opposed to ThumbnailBean,
+     * here we do not support share contexts since this service requires a viable
+     * write context which doesn't exist in shares.
+     *
      * @return See above.
      */
     private Long getCurrentUserId()

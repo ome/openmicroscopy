@@ -15,7 +15,7 @@ import omero.util.CloseableServant;
  *
  * @since Beta4.3.2
  */
-public interface IHandle extends Ice.Object, Runnable, CloseableServant {
+public interface IHandle extends Runnable, CloseableServant {
 
     void initialize(Ice.Identity id, IRequest req);
 

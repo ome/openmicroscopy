@@ -66,17 +66,23 @@ class ExperimenterGroup(object):
 class ChgrpArg(object):
 
     def __call__(self, arg):
-        parts = arg.split(":", 1)
-        assert len(parts) == 2
-        type = parts[0]
-        id = long(parts[1])
+        try:
+            parts = arg.split(":", 1)
+            assert len(parts) == 2
+            type = parts[0]
+            id = long(parts[1])
 
-        import omero
-        import omero.cmd
-        return omero.cmd.Chgrp(\
-                type=type,\
-                id=id,\
-                options={})
+            import omero
+            import omero.cmd
+            return omero.cmd.Chgrp(\
+                    type=type,\
+                    id=id,\
+                    options={})
+        except:
+            raise ValueError("Bad object: %s", arg)
+
+    def __repr__(self):
+        return "argument"
 
 
 class ChgrpControl(BaseControl):
@@ -91,7 +97,7 @@ class ChgrpControl(BaseControl):
         parser.add_argument("--list-details", action="store_true",
                 help="""Print a list of all available chgrp specs along with detailed info""")
         parser.add_argument("--report", action="store_true", help="""Print more detailed report of each chgrp""")
-        parser.add_argument("grp", type=ExperimenterGroup, help="""Group to move objects to""")
+        parser.add_argument("grp", nargs="?", type=ExperimenterGroup, help="""Group to move objects to""")
         parser.add_argument("obj", nargs="*", type=ChgrpArg(), help="""Objects to be chgrp'd in the form "<Class>:<Id>""")
 
     def chgrp(self, args):

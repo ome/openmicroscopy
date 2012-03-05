@@ -27,6 +27,7 @@ import omero.api.IDeletePrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.api.delete.DeleteReport;
+import omero.api.delete._DeleteHandleTie;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Dataset;
@@ -93,7 +94,7 @@ public class DeleteITest extends AbstractServantTest {
     public void testBasicUsageOfQueueDelete() throws Exception {
         long imageId = makeImage();
         DeleteCommand dc = new DeleteCommand("/Image", imageId, null);
-        DeleteHandleI handle = doDelete(dc);
+        _DeleteHandleTie handle = doDelete(dc);
         assertEquals(dc, handle.commands()[0]);
         assertEquals(0, handle.errors());
         block(handle, 5, 1000);
@@ -217,7 +218,7 @@ public class DeleteITest extends AbstractServantTest {
 
         // Perform delete
         DeleteCommand dc = new DeleteCommand("/Image", imageId1, null);
-        DeleteHandleI handle = doDelete(dc);
+        _DeleteHandleTie handle = doDelete(dc);
         DeleteReport[] reports = handle.report();
         boolean found = false;
         for (DeleteReport report : reports) {
@@ -708,7 +709,7 @@ public class DeleteITest extends AbstractServantTest {
     // Helpers
     //
 
-    private void block(DeleteHandleI handle, int loops, long pause)
+    private void block(_DeleteHandleTie handle, int loops, long pause)
             throws ServerError, InterruptedException {
         for (int i = 0; i < loops && !handle.finished(); i++) {
             Thread.sleep(pause);
@@ -718,13 +719,13 @@ public class DeleteITest extends AbstractServantTest {
         }
     }
 
-    private DeleteHandleI doDelete(DeleteCommand... dc) throws Exception {
+    private _DeleteHandleTie doDelete(DeleteCommand... dc) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", "delete");
         //DeleteSpecFactory factory = specFactory();
         DeleteHandleI handle = new DeleteHandleI(user_delete.loadSpecs(), id, user_sf, afs, dc, 1000);
         handle.run();
-        assertEquals(handle.report().toString(), 0, handle.errors());
-        return handle;
+        assertEquals(handle.report(null).toString(), 0, handle.errors(null));
+        return new _DeleteHandleTie(handle);
     }
 
     /**
