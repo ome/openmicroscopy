@@ -21,7 +21,10 @@
 <script>
 
 $(document).ready(function() {
-    
+
+    // this script is an 'include' within a django for-loop, so we can get our index:
+    var splitview_plugin_index = {{ forloop.counter }};
+
     var update_dataset_split_viewer = function() {
         
         // this may have been called before datatree was initialised...
@@ -64,6 +67,19 @@ $(document).ready(function() {
 
         // clear contents of all panels
         $("#split_view_panel").empty();
+
+        var selected = data.inst.get_selected();
+        var orel = selected.attr('rel').replace("-locked", "");
+
+        // update enabled state... split-view supports multiple 'image' or single dataset
+        if ((orel=="image") && (selected.length > 0)) {
+            set_center_plugin_enabled(splitview_plugin_index, true);
+        } else if ((orel=="dataset") && (selected.length == 1)) {
+            set_center_plugin_enabled(splitview_plugin_index, true);
+        } else {
+            // otherwise, disable this option
+            set_center_plugin_enabled(splitview_plugin_index, false);
+        }
 
         // update tab content
         update_dataset_split_viewer();

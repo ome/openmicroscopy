@@ -21,7 +21,10 @@
 <script>
 
 $(document).ready(function() {
-    
+
+    // this script is an 'include' within a django for-loop, so we can get our index:
+    var overlay_plugin_index = {{ forloop.counter }};
+
     var update_channel_overlay = function() {
         
         // this may have been called before datatree was initialised...
@@ -51,6 +54,16 @@ $(document).ready(function() {
 
         // clear contents of all panels
         $("#channel_overlay_panel").empty();
+
+        var selected = data.inst.get_selected();
+        var orel = selected.attr('rel').replace("-locked", "");
+
+        // update enabled state
+        if((orel!="image") || (selected.length > 1)) {
+            set_center_plugin_enabled(overlay_plugin_index, false);
+        } else {
+            set_center_plugin_enabled(overlay_plugin_index, true);
+        }
 
         // update tab content
         update_channel_overlay();

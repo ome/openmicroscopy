@@ -38,6 +38,7 @@
     <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jquery.jstree.js" %}"></script>   
     <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
 
+    <!-- set-up left panel tabs, jstree etc -->
     <script type="text/javascript">
         String.prototype.capitalize = function() {
             return this.charAt(0).toUpperCase() + this.slice(1);
@@ -882,6 +883,7 @@
     <!-- include code to handle middle panel selection -->
     {% include "webclient/data/includes/thumbnail_tab_init.js" %}
 
+    <!-- configure toolbar buttons -->
     <script type="text/javascript">
     
     $(function () {
@@ -928,14 +930,15 @@
         });
     });
     </script>
-    
+
+    <!-- set-up right panel tabs -->
     <script type="text/javascript">
-    
-    // handle js tree selection changes, loading content into right-hand panels as needed
+
     $(function () {
         
         $("#annotation_tabs").tabs({cache: true});
 
+        // this is called on change in jstree selection, or switching tabs
         var update_metadata_general_tab = function() {
             var datatree = $.jstree._focused();
             var selected = datatree.data.ui.selected;
@@ -1013,8 +1016,20 @@
     });
     </script>
 
+    <!-- set up the center panel to only show the div chosen by <select> -->
     <script type="text/javascript">
-        // set up the center panel to only show the div chosen by <select>
+
+        // set the enabled status of the option to select a plugin. Set by index (0-based)
+        var set_center_plugin_enabled = function (index, enabled) {
+            // the first 'plugin' is actually the second option (first is thumbnails)
+            var $plugin_option = $('#center_panel_chooser select option:nth-child('+ (index+1) +')');
+            if (enabled) {
+                $plugin_option.attr('disabled', false);
+            } else {
+                $plugin_option.attr('disabled', 'disabled');
+            }
+        }
+
         $(document).ready(function() {
             $(".center_panel_content").hide();
             $("#content_details").show();

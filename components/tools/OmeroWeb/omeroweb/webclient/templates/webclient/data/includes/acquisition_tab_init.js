@@ -57,7 +57,7 @@ $(document).ready(function() {
     // on change of selection in tree, update which tabs are enabled
     $("#dataTree").bind("select_node.jstree", function(e, data) {
 
-        // clear contents of all panels
+        // clear contents of panel
         $("#metadata_tab").empty();
 
         var selected = data.inst.get_selected();

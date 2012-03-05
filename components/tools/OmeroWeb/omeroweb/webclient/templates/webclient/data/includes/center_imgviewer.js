@@ -21,7 +21,10 @@
 <script>
 
 $(document).ready(function() {
-    
+
+    // this script is an 'include' within a django for-loop, so we can get our index:
+    var imgviewer_plugin_index = {{ forloop.counter }};
+
     var update_img_viewer = function() {
         
         // this may have been called before datatree was initialised...
@@ -32,10 +35,16 @@ $(document).ready(function() {
         var selected = datatree.data.ui.selected;
         var oid = selected.attr('id');
         var orel = selected.attr('rel').replace("-locked", "");
-        if (orel!="image") return;
         
-        // if the tab is visible and not loaded yet...
         $image_viewer_panel = $("#image_viewer_panel");
+
+        if (orel!="image") {
+            $image_viewer_panel.html("<h1>Image Viewer cannot display " + orel + "</h1>");
+            return;
+        };
+
+        // if the tab is visible and not loaded yet...
+
         if ($image_viewer_panel.is(":visible") && $image_viewer_panel.is(":empty")) {
             var url = null;
             var pr = selected.parent().parent();
@@ -55,8 +64,18 @@ $(document).ready(function() {
     // on change of selection in tree, update which tabs are enabled
     $("#dataTree").bind("select_node.jstree", function(e, data) {
 
-        // clear contents of all panels
+        // clear contents of panel
         $("#image_viewer_panel").empty();
+
+        var selected = data.inst.get_selected();
+        var orel = selected.attr('rel').replace("-locked", "");
+
+        // update enabled state
+        if((orel!="image") || (selected.length > 1)) {
+            set_center_plugin_enabled(imgviewer_plugin_index, false);
+        } else {
+            set_center_plugin_enabled(imgviewer_plugin_index, true);
+        }
 
         // update tab content
         update_img_viewer();
