@@ -83,7 +83,7 @@ def login (alias, pw=None):
 
 class UserEntry (object):
     def __init__ (self, name, passwd, firstname='', middlename='', lastname='', email='',
-                  groupname=None, groupperms='rw----', groupowner=False, admin=False):
+                  groupname=None, groupperms='rwrw--', groupowner=False, admin=False):
         self.name = name
         self.passwd = passwd
         self.firstname = firstname
