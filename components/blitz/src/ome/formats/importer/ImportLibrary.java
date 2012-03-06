@@ -46,6 +46,7 @@ import ome.formats.model.InstanceProvider;
 import ome.util.PixelData;
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
+import omero.grid.RepositoryPrx;
 import omero.model.Annotation;
 import omero.model.Dataset;
 import omero.model.FileAnnotation;
@@ -286,7 +287,12 @@ public class ImportLibrary implements IObservable
                 }
 
                 try {
-                    importImage(ic, index, numDone, containers.size());
+                    if(!ic.getMetadataOnly()) {
+                        ic = uploadFilesToRepository(ic);
+                    }
+                    RepositoryPrx repo = store.getLegacyRepository();
+                    repo.importMetadata(ic.getFile().getAbsolutePath());
+                    //importImage(ic, index, numDone, containers.size());
                     numDone++;
                 } catch (Throwable t) {
                     if (!config.contOnError.get()) {
@@ -398,11 +404,11 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * Perform various specific operations on big image formats.
+     * Upload files to the managed repository.
      * @param container The current import container we're to handle.
      * @return Rewritten container after files have been copied to repository.
      */
-    private ImportContainer handleFsliteImport(ImportContainer container)
+    public ImportContainer uploadFilesToRepository(ImportContainer container)
     {
         String[] usedFiles = container.getUsedFiles();
         File target = container.getFile();
@@ -411,7 +417,11 @@ public class ImportLibrary implements IObservable
         for (String f : usedFiles) {
             log.info(f);
         }
+        notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
+                target.getName(), 0, 0, null, null, null));
         usedFiles = store.writeFilesToFileStore(usedFiles, target);
+        notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
+                target.getName(), 0, 0, null, null, null));
         log.info("Used files after:");
         for (String f : usedFiles) {
             log.info(f);
@@ -504,6 +514,7 @@ public class ImportLibrary implements IObservable
         usedFiles[0] = file.getAbsolutePath();
 
         try {
+            //TODO: must check that files exist in repository
             notifyObservers(new ImportEvent.LOADING_IMAGE(
                     shortName, index, numDone, total));
 
@@ -530,7 +541,6 @@ public class ImportLibrary implements IObservable
             handleBigImageFormats(baseReader, container);
             // Forcing these to false for now but remove completely once tested?
             boolean useMetadataFile = false;
-            isMetadataOnly = container.getMetadataOnly();
             if (log.isInfoEnabled())
             {
                 log.info("File format: " + format);
@@ -556,13 +566,6 @@ public class ImportLibrary implements IObservable
                 log.info("Reader is not of HCS domain, use metafile: "
                         + useMetadataFile);
                 metadataFiles = store.setArchive(useMetadataFile);
-            }
-            if (!isMetadataOnly) {
-                notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
-                        shortName, 0, 0, null, null, null));
-                container = handleFsliteImport(container);
-                notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
-                        shortName, 0, 0, null, null, null));
             }
             List<Pixels> pixList = importMetadata(index, container);
             List<Long> plateIds = new ArrayList<Long>();

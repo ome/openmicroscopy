@@ -155,7 +155,7 @@ module omero {
             void transfer(string srcPath, Repository* target, string targetPath) 
                     throws ServerError;
 
-            void importMetadata(string fileId) throws ServerError;
+            omero::api::PixelsList importMetadata(string target) throws ServerError;
             void writeBlock(string fileId, Ice::ByteSeq data) throws ServerError;
 
             omero::api::StringSet getCurrentRepoDir(omero::api::StringSet paths) throws ServerError;
