@@ -52,20 +52,20 @@ public class SwitchUserGroupLoader
 {
 
 	/** The experimenter to handle. */
-	private ExperimenterData 			experimenter;
+	private ExperimenterData experimenter;
 	
 	/** The identifier of the group. */
-	private long 						groupID;
+	private long groupID;
 	
 	/** The partial result. */
-	private Object						result;
+	private Object result;
 	
 	/** Switches the user group. */
 	private void switchUserGroup()
 	{
 		try {
-			context.getAdminService().changeExperimenterGroup(experimenter, 
-					groupID);
+			//context.getAdminService().changeExperimenterGroup(experimenter, 
+			//		groupID);
 		} catch (Exception e) {
 			e.printStackTrace();
 			context.getLogger().error(this, 

@@ -39,6 +39,7 @@ import omero.constants.topics.PROCESSORACCEPTS;
 import omero.grid.AMI_InternalRepository_getDescription;
 import omero.grid.AMI_InternalRepository_getProxy;
 import omero.grid.AMI_Tables_getTable;
+import omero.grid._InteractiveProcessorTie;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
@@ -119,7 +120,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
     }
 
     @Override
-    protected void preClose() {
+    protected void preClose(Ice.Current current) {
         synchronized (tableIds) {
             for (String id : tableIds) {
                 TablePrx table =
@@ -127,6 +128,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
                             sf.adapter.getCommunicator().stringToProxy(id));
                 try {
                     table.close();
+                } catch (Ice.NotRegisteredException e) {
+                    log.debug("Table already gone: " + id);
                 } catch (Exception e) {
                     log.error("Exception while closing table " + id, e);
                 }
@@ -366,7 +369,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
                             public void ice_exception(UserException ex) {
                                 holder.set(null);
                             }
-                        }, file, sf.proxy());
+                        }, file, sf.proxy(), __current.ctx);
                     }
                 });
 
@@ -412,7 +415,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
                 sf.sessionManager, sf.executor, server, job, timeout,
                 sf.control, new ParamsHelper(this, sf.getExecutor(), sf.getPrincipal()));
         Ice.Identity procId = sessionedID("InteractiveProcessor");
-        Ice.ObjectPrx rv = sf.registerServant(procId, ip);
+        Ice.ObjectPrx rv = sf.registerServant(procId, new _InteractiveProcessorTie(ip));
         sf.allow(rv);
         return InteractiveProcessorPrxHelper.uncheckedCast(rv);
     }

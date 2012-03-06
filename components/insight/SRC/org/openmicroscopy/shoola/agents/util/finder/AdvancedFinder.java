@@ -51,9 +51,11 @@ import javax.swing.JPanel;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -65,9 +67,13 @@ import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellData;
 
 /** 
  * The class actually managing the search.
@@ -88,19 +94,46 @@ public class AdvancedFinder
 {
 	
 	/** The default title of the notification message. */
-	private static final String 	TITLE = "Search";
+	private static final String TITLE = "Search";
 	
 	/** Reference to the component handling data. */ 
-	private List<FinderLoader>				finderHandlers;
+	private FinderLoader loader;
 	
 	/** One of the constants defined by this class. */
-	private int								state;
+	private int state;
 	
 	/** Collection of selected users. */
-	private Map<Long, ExperimenterData>		users;
+	private Map<Long, ExperimenterData> users;
     
 	/** The collection of tags. */
-	private Collection 						tags;
+	private Collection tags;
+	
+	/** The available groups.*/
+	private Collection<GroupData> groups;
+	
+	/** Host the result per group.*/
+	private Map<SecurityContext, Set> results;
+	
+	/** The total number of groups to search.*/
+	private int total;
+	
+	/**
+	 * Returns the name of the group corresponding to the security context.
+	 * 
+	 * @param ctx The context to handle.
+	 * @return See above
+	 */
+	private String getGroupName(SecurityContext ctx)
+	{
+		Iterator<GroupData> i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = i.next();
+			if (g.getId() == ctx.getGroupID())
+				return g.getName();
+		}
+		return null;
+	}
 	
 	/**
 	 * Determines the scope of the search.
@@ -139,13 +172,12 @@ public class AdvancedFinder
 	private Class convertType(int value)
 	{
 		switch (value) {
-			case SearchContext.DATASETS:
-				return DatasetData.class;
-			case SearchContext.PROJECTS:
-				return ProjectData.class;
-			case SearchContext.IMAGES:
-				return ImageData.class;
-			
+			case SearchContext.DATASETS: return DatasetData.class;
+			case SearchContext.PROJECTS: return ProjectData.class;
+			case SearchContext.IMAGES: return ImageData.class;
+			case SearchContext.SCREENS: return ScreenData.class;
+			case SearchContext.PLATES: return PlateData.class;
+			case SearchContext.WELLS: return WellData.class;
 			default:
 				return null;
 		}
@@ -307,10 +339,17 @@ public class AdvancedFinder
 		searchContext.setExcludedAnnotators(excludedAnnotators);
 		searchContext.setCaseSensitive(ctx.isCaseSensitive());
 		searchContext.setNumberOfResults(ctx.getNumberOfResults());
-		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, 
-													searchContext);
+		
+		List<Long> groups = ctx.getSelectedGroups();
+		List<SecurityContext> l = new ArrayList<SecurityContext>();
+		Iterator<Long> j = groups.iterator();
+		while (j.hasNext()) {
+			l.add(new SecurityContext(j.next()));
+		}
+		total = l.size();
+		results.clear();
+		loader = new AdvancedFinderLoader(this, l, searchContext);
 		loader.load();
-		finderHandlers.add(loader);
 		state = Finder.SEARCH;
 		setSearchEnabled(true);
 	}
@@ -343,7 +382,8 @@ public class AdvancedFinder
 		IconManager icons = IconManager.getInstance();
 		UserManagerDialog dialog = new UserManagerDialog(
 				FinderFactory.getRefFrame(), getUserDetails(), 
-				getAvailableGroups(), icons.getIcon(IconManager.OWNER), 
+				getUserDetails().getDefaultGroup(),
+				icons.getIcon(IconManager.OWNER),
 				icons.getIcon(IconManager.OWNER_48));
 		dialog.addPropertyChangeListener(this);
 		dialog.setDefaultSize();
@@ -376,7 +416,12 @@ public class AdvancedFinder
 	private void loadTags()
 	{
 		if (tags == null) {
-			TagsLoader loader = new TagsLoader(this);
+			List<SecurityContext> l = new ArrayList<SecurityContext>();
+			Iterator<GroupData> i = groups.iterator();
+			while (i.hasNext()) {
+				l.add(new SecurityContext(i.next().getId()));
+			}
+			TagsLoader loader = new TagsLoader(this, l);
 			loader.load();
 		} else setExistingTags(tags);
 	}
@@ -407,15 +452,23 @@ public class AdvancedFinder
 		setSomeValues(toAdd);
 	}
 	
-	/** Creates a new instance. */
-	AdvancedFinder()
+	/** 
+	 * Creates a new instance.
+	 * 
+	 * @param groups The available groups.
+	 */
+	AdvancedFinder(Collection<GroupData> groups)
 	{
-		initialize(createControls());
-		finderHandlers = new ArrayList<FinderLoader>();
+		//sort
+		this.groups = groups;
+		ViewerSorter sorter = new ViewerSorter();
+		List<GroupData> l = sorter.sort(groups);
+		initialize(createControls(), l);
 		addPropertyChangeListener(SEARCH_PROPERTY, this);
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
 		addPropertyChangeListener(OWNER_PROPERTY, this);
 		users = new HashMap<Long, ExperimenterData>();
+		results = new HashMap<SecurityContext, Set>();
 	}
 
 	/**
@@ -434,9 +487,8 @@ public class AdvancedFinder
 	 */
 	public void cancel()
 	{
-		Iterator i = finderHandlers.iterator();
-		while (i.hasNext())
-			((FinderLoader) i.next()).cancel();
+		if (loader != null) loader.cancel();
+		results.clear();
 		state = DISCARDED;
 	}
 	
@@ -469,15 +521,17 @@ public class AdvancedFinder
 	
 	/** 
 	 * Implemented as specified by {@link Finder} I/F
-	 * @see Finder#setResult(Object)
+	 * @see Finder#setResult(SecurityContext, Object)
 	 */
-	public void setResult(Object result)
+	public void setResult(SecurityContext ctx, Object result)
 	{
 		setSearchEnabled(false);
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		
+		String group = getGroupName(ctx);
+		if (group != null && groups.size() > 1)
+			p.add(UIUtilities.setTextFont("Group: "+group));
 		Map map = (Map) result;
 
 		//Format UI component
@@ -526,10 +580,11 @@ public class AdvancedFinder
 				}
 			}
 			
-			displayResult(UIUtilities.buildComponentPanel(p));
+			addResult(UIUtilities.buildComponentPanel(p), results.size() == 0);
 		}
-		
-		firePropertyChange(RESULTS_FOUND_PROPERTY, null, nodes);
+		results.put(ctx, nodes);
+		if (results.size() == total)
+			firePropertyChange(RESULTS_FOUND_PROPERTY, null, results);
 	}
 	
 	/** 

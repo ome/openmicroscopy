@@ -44,6 +44,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.MultiImageData;
 import pojos.PermissionData;
@@ -570,29 +571,58 @@ public class DataBrowserTranslator
      * visualization objects. The elements of the set only be {@link ImageData}.
      * The {@link ImageData}s are added to a {@link ImageSet}.
      * 
-     * @param dataObjects   The {@link DataObject}s to transform.
-     *                      Mustn't be <code>null</code>.
-     * @param userID        The id of the current user.
-     * @param groupID       The id of the group the current user selects when 
-     *                      retrieving the data.                   
+     * @param dataObjects The {@link DataObject}s to transform.
+     *                    Mustn't be <code>null</code>.
+     * @param userID The id of the current user.
+     * @param group The the group the current user selects when 
+     * retrieving the data.
      * @return See above.
      */
-    public static Set transformObjects(Collection dataObjects, long userID,
-                                    long groupID)
+    public static ImageSet transformObjects(Collection dataObjects, long userID,
+                                    GroupData group)
     {
         if (dataObjects == null)
             throw new IllegalArgumentException("No objects.");
         Set results = new HashSet();
         DataObject ho;
         Iterator i = dataObjects.iterator();
+        long groupId = group.getId();
+        ImageSet groupNode = new ImageSet(group.getName(), group);
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (isReadable(ho, userID, groupID) && ho instanceof ImageData)
+            if (isReadable(ho, userID, groupId) && ho instanceof ImageData)
+                linkImageTo((ImageData) ho, groupNode);
+        }
+        return groupNode;
+    }
+    
+    /** 
+     * Transforms a set of {@link DataObject}s into their corresponding 
+     * visualization objects. The elements of the set only be {@link ImageData}.
+     * The {@link ImageData}s are added to a {@link ImageSet}.
+     * 
+     * @param dataObjects   The {@link DataObject}s to transform.
+     *                      Mustn't be <code>null</code>.
+     * @param userID        The id of the current user.
+     * @param groupId       The id of the group the current user selects when 
+     *                      retrieving the data.
+     * @return See above.
+     */
+    public static Set<ImageDisplay> transformObjects(Collection dataObjects,
+    		long userID, long groupId)
+    {
+        if (dataObjects == null)
+            throw new IllegalArgumentException("No objects.");
+        Set<ImageDisplay> results = new HashSet<ImageDisplay>();
+        DataObject ho;
+        Iterator i = dataObjects.iterator();
+        while (i.hasNext()) {
+            ho = (DataObject) i.next();
+            if (isReadable(ho, userID, groupId) && ho instanceof ImageData)
                 results.add(linkImageTo((ImageData) ho, null));
         }
         return results;
     }
-    
     /** 
      * Transforms a set of {@link DataObject}s into their corresponding 
      * visualization objects. The elements of the set only be {@link ImageData}.

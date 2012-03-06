@@ -46,9 +46,11 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 
 /** 
@@ -312,9 +314,11 @@ public interface Browser
      * Returns the nodes linked to the specified user.
      * 
      * @param userID The identifier of the user.
+     * @param node The selected node.
      * @return See above.
      */
-    public List<TreeImageDisplay> getNodesForUser(long userID);
+    public List<TreeImageDisplay> getNodesForUser(long userID, TreeImageDisplay
+			node);
     
     /** 
      * Collapses the specified node. 
@@ -394,13 +398,6 @@ public interface Browser
      * @param toBrowse The data object to browse
      */
     public void refreshTree(Object refNode, DataObject toBrowse);
-    
-    /**
-     * The id of the root level.
-     * 
-     * @return See above.
-     */
-    public long getRootID();
     
     /**
      * Sets the number of items contained in the specified container.
@@ -521,12 +518,11 @@ public interface Browser
 	/** 
 	 * Adds the passed experimenter to the display.
 	 * 
-	 * @param experimenter 	The experimenter to add. 
-	 * 						Mustn't be <code>null</code>.
-	 * @param load			Pass <code>true</code> to load the data,
-	 * 						<code>false</code> otherwise.
+	 * @param experimenter The experimenter to add. Mustn't be <code>null</code>.
+	 * @param groupID The identifier of the group the experimenter has to be
+	 * added.
 	 */
-	public void addExperimenter(ExperimenterData experimenter, boolean load);
+	public void addExperimenter(ExperimenterData experimenter, long groupID);
 
 	/**
 	 * Removes the experimenter's data from the display.
@@ -545,8 +541,9 @@ public interface Browser
 	 * @param type The type of data object to select or <code>null</code>.
 	 * @param id   The identifier of the data object.
 	 */
-	public void setRefreshExperimenterData(Map<Long, RefreshExperimenterDef> 
-					def, Class type, long id);
+	public void setRefreshExperimenterData(
+			Map<SecurityContext, RefreshExperimenterDef> def, Class type,
+			long id);
 
 	/** Refreshes the data used by the currently logged in user. */
 	public void refreshLoggedExperimenterData();
@@ -577,7 +574,7 @@ public interface Browser
 	 * @return See above.
 	 */
 	ExperimenterData getNodeOwner(TreeImageDisplay node);
-	
+
 	/** 
 	 * Sets the node the user wished to save before being prompt with
 	 * the Save data message box.
@@ -727,13 +724,6 @@ public interface Browser
 	 */
 	void setExperimenters(TreeImageSet node, List result);
 	
-	/** 
-	 * Returns the id to the group selected for the current user.
-	 * 
-	 * @return See above.
-	 */
-	long getUserGroupID();
-	
 	/**
 	 * Returns <code>true</code> if the user currently logged in is the
 	 * owner of the object, <code>false</code> otherwise.
@@ -795,5 +785,27 @@ public interface Browser
 
 	/** Indicates that the transfer has been rejected.*/
 	void rejectTransfer();
+
+	/**
+	 * Returns the security context.
+	 * 
+	 * @param node The node to handle
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext(TreeImageDisplay node);
+	
+	/**
+	 * Adds the specified group to the tree.
+	 * 
+	 * @param group The selected group.
+	 */
+	void setUserGroup(GroupData group, boolean add);
+
+	/**
+	 * Removes the specified group from the display
+	 * 
+	 * @param group The group to remove.
+	 */
+	void removeGroup(GroupData group);
 
 }

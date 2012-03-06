@@ -410,9 +410,11 @@ class BrowserUI
      * Creates an experimenter node hosting the passed experimenter.
      * 
      * @param exp	The experimenter to add.
+     * @param groupNode The node to attach the experimenter to.
      * @return See above.
      */
-    private TreeImageSet createExperimenterNode(ExperimenterData exp)
+    private TreeImageSet createExperimenterNode(ExperimenterData exp,
+    		TreeImageDisplay groupNode)
     {
     	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
     	TreeImageSet node = new TreeImageSet(exp);
@@ -429,9 +431,11 @@ class BrowserUI
 			default:
 				buildEmptyNode(node);
 		}
-    	TreeImageDisplay root = getTreeRoot();
-    	root.addChildDisplay(node);
-    	tm.insertNodeInto(node, root, root.getChildCount());
+    	//TreeImageDisplay root = getTreeRoot();
+    	//root.addChildDisplay(node);
+    	//tm.insertNodeInto(node, root, root.getChildCount());
+    	groupNode.addChildDisplay(node);
+    	tm.insertNodeInto(node, groupNode, groupNode.getChildCount());
     	return node;
     }
     
@@ -782,6 +786,96 @@ class BrowserUI
 		}
     }
     
+    /**
+	 * Builds the top nodes of the tree.
+	 * 
+	 * @param exp The experimenter to attach.
+	 * @return See above.
+	 */
+	private TreeImageDisplay buildTreeNodes(ExperimenterData exp)
+	{
+		TreeImageDisplay root = getTreeRoot();
+		TreeImageDisplay node = null;
+    	if (model.isSingleGroup()) {
+    		node = root;
+    		node = createExperimenterNode(exp, node);
+    	} else {
+    		if (TreeViewerAgent.isMultiGroups()) {
+    			GroupData group = model.getSelectedGroup();
+    			List<TreeImageSet> nodes = createGroups(group);
+    			Iterator<TreeImageSet> i = nodes.iterator();
+    			TreeImageSet n;
+    			GroupData g;
+    			while (i.hasNext()) {
+					n = i.next();
+					g = (GroupData) n.getUserObject();
+					n = createExperimenterNode(exp, n);
+					if (g.getId() == group.getId())
+						node = n;
+				}
+    		} else {
+    			node = createGroup(model.getSelectedGroup());
+    			node = createExperimenterNode(exp, node);
+    		}
+    	}
+    	return node;
+	}
+
+    /**
+     * Creates the group nodes.
+     * 
+     * @param defaultGroup The default group
+     * @return See above.
+     */
+    private List<TreeImageSet> createGroups(GroupData defaultGroup)
+    {
+    	TreeImageDisplay root = getTreeRoot();
+    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+    	//root.addChildDisplay(node);
+    	//tm.insertNodeInto(node, root, root.getChildCount());
+    	
+    	List<TreeImageSet> l = new ArrayList<TreeImageSet>();
+    	List groups = sorter.sort(TreeViewerAgent.getAvailableUserGroups());
+    	//sort the group first.
+    	Iterator i = groups.iterator();
+    	GroupData group;
+    	TreeImageSet n = new TreeImageSet(defaultGroup);
+    	TreeViewerTranslator.formatToolTipFor(n);
+    	l.add(n);
+    	root.addChildDisplay(n);
+    	tm.insertNodeInto(n, root, root.getChildCount());
+    	while (i.hasNext()) {
+			group = (GroupData) i.next();
+			if (group.getId() != defaultGroup.getId()) {
+				n = new TreeImageSet(group);
+				TreeViewerTranslator.formatToolTipFor(n);
+				l.add(n);
+				root.addChildDisplay(n);
+				tm.insertNodeInto(n, root, root.getChildCount());
+			}
+		}
+    	return l;
+    }
+    
+    /**
+     * Creates the group node.
+     * 
+     * @param group The group to add.
+     * @return See above.
+     */
+    private TreeImageSet createGroup(GroupData group)
+    {
+    	TreeImageDisplay root = getTreeRoot();
+    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+    	//root.addChildDisplay(node);
+    	//tm.insertNodeInto(node, root, root.getChildCount());
+    	TreeImageSet n = new TreeImageSet(group);
+    	TreeViewerTranslator.formatToolTipFor(n);
+    	root.addChildDisplay(n);
+    	tm.insertNodeInto(n, root, root.getChildCount());
+    	return n;
+    }
+    
     /** 
      * Helper method to create the trees hosting the display. 
      * 
@@ -803,8 +897,11 @@ class BrowserUI
         treeDisplay.setShowsRootHandles(true);
         TreeImageSet root = new TreeImageSet("");
         treeDisplay.setModel(new DefaultTreeModel(root));
-        TreeImageSet node = createExperimenterNode(exp);
-        treeDisplay.collapsePath(new TreePath(node.getPath()));
+        if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
+        	TreeImageDisplay node = buildTreeNodes(exp);
+        	if (node != null)
+            	treeDisplay.collapsePath(new TreePath(node.getPath()));
+        }
         //Add Listeners
         //treeDisplay.requestFocus();
         treeDisplay.addMouseListener(new MouseAdapter() {
@@ -1441,7 +1538,7 @@ class BrowserUI
      * @param newNode       The node to add to the parent.
      * @param parentDisplay The selected parent.
      */
-    void createNodes(List nodes, TreeImageDisplay newNode, 
+    void createNodes(List nodes, TreeImageDisplay newNode,
                     TreeImageDisplay parentDisplay)
     {
         if (parentDisplay == null) parentDisplay = getTreeRoot();
@@ -1558,16 +1655,8 @@ class BrowserUI
 					while (j.hasNext()) {
 						setExpandedParent((TreeImageDisplay) j.next(), true);
 					}
-				}	        	
+				}
 		}
-    }
-    
-    /** Loads the children of the currently logged in experimenter. */
-    void loadExperimenterData()
-    {
-    	TreeImageDisplay root = getTreeRoot();
-    	TreeImageDisplay child = (TreeImageDisplay) root.getFirstChild();
-        treeDisplay.expandPath(new TreePath(child.getPath()));
     }
 
     /** 
@@ -1682,11 +1771,24 @@ class BrowserUI
         while (i.hasNext()) 
 			setExpandedParent((TreeImageDisplay) i.next(), true);
         TreeImageDisplay root = getTreeRoot();
-		TreeImageDisplay element;
+		TreeImageDisplay element, child;
+		Object ho;
+		List children;
 		for (int j = 0; j < root.getChildCount(); j++) {
 			element = (TreeImageDisplay) root.getChildAt(j);
-			if (element.getUserObject() instanceof ExperimenterData) {
-				if (element.isExpanded()) expandNode(element);
+			ho = element.getUserObject();
+			if (ho instanceof GroupData && element.isExpanded()) {
+				expandNode(element);
+				children = element.getChildrenDisplay();
+				if (children != null) {
+					i = children.iterator();
+					while (i.hasNext()) {
+						child = (TreeImageDisplay) i.next();
+						if (child.getUserObject() instanceof ExperimenterData
+								&& child.isExpanded())
+							expandNode(child);
+					}
+				}
 			}
 		}
 	}
@@ -1703,7 +1805,7 @@ class BrowserUI
 		TreeImageDisplay root = getTreeRoot();
 		root.removeAllChildren();
 		root.removeAllChildrenDisplay();
-		root.setChildrenLoaded(Boolean.TRUE);
+		root.setChildrenLoaded(Boolean.valueOf(true));
 		root.setExpanded(true);
 		dtm.reload();
         if (nodes.size() != 0) {
@@ -1880,16 +1982,23 @@ class BrowserUI
 	 * Adds a new experimenter to the tree.
 	 * 
 	 * @param experimenter  The experimenter to add.
-	 * @param load			Pass <code>true</code> to load the data,
-	 * 						<code>false</code> otherwise.
+	 * @param groupNode The node to add the experimenter to.
 	 */
-	void addExperimenter(ExperimenterData experimenter, boolean load)
+	void addExperimenter(ExperimenterData experimenter,
+			TreeImageDisplay groupNode)
 	{
+		TreeImageSet node = createExperimenterNode(experimenter, groupNode);
+		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+		dtm.reload();
+		if (model.isSelected())
+			treeDisplay.expandPath(new TreePath(node.getPath()));
+		/*
 		TreeImageSet node = createExperimenterNode(experimenter);
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
 		dtm.reload();
 		if (load)
-			treeDisplay.expandPath(new TreePath(node.getPath()));	
+			treeDisplay.expandPath(new TreePath(node.getPath()));
+			*/
 	}
 
 	/**
@@ -1899,7 +2008,41 @@ class BrowserUI
 	 */
 	void removeExperimenter(ExperimenterData exp)
 	{
+		if (model.getBrowserType() == Browser.ADMIN_EXPLORER) return;
 		TreeImageDisplay root = getTreeRoot();
+		List<TreeImageDisplay> nodesToKeep;
+		List l = root.getChildrenDisplay();
+		if (l == null || l.size() == 0) return;
+		Iterator j = l.iterator();
+		TreeImageDisplay element, n, node;
+		Object ho;
+		ExperimenterData expElement;
+		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+		Iterator k;
+		while (j.hasNext()) {
+			node = null;
+			element = (TreeImageDisplay) j.next();
+			nodesToKeep = new ArrayList<TreeImageDisplay>();
+			for (int i = 0; i < element.getChildCount(); i++) {
+				n = (TreeImageDisplay) element.getChildAt(i);
+				ho = n.getUserObject();
+				if (ho instanceof ExperimenterData) {
+					expElement = (ExperimenterData) ho;
+					if (expElement.getId() == exp.getId())
+						node = n;
+					else nodesToKeep.add(n);
+				}
+			}
+			if (node != null) element.removeChildDisplay(node);
+			k = nodesToKeep.iterator();
+			element.removeAllChildren();
+			while (k.hasNext()) {
+				tm.insertNodeInto((TreeImageSet) k.next(), element,
+								element.getChildCount());
+			}
+		}
+		tm.reload();
+		/*
 		List<TreeImageDisplay> nodesToKeep = new ArrayList<TreeImageDisplay>();
 		TreeImageDisplay element, node = null;
 		Object ho;
@@ -1923,41 +2066,62 @@ class BrowserUI
 							root.getChildCount());
 		}
 		tm.reload();
+		*/
 	}
 
+	/**
+	 * Removes the specified group from the tree.
+	 * 
+	 * @param group The data to remove.
+	 */
+	void removeGroup(GroupData group)
+	{
+		if (model.getBrowserType() == Browser.ADMIN_EXPLORER) return;
+		TreeImageDisplay root = getTreeRoot();
+		List<TreeImageDisplay> nodesToKeep;
+		List l = root.getChildrenDisplay();
+		if (l == null || l.size() == 0) return;
+		Iterator j = l.iterator();
+		TreeImageDisplay element, n, node;
+		Object ho;
+		ExperimenterData expElement;
+		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+		Iterator k;
+		GroupData g;
+		nodesToKeep = new ArrayList<TreeImageDisplay>();
+		node = null;
+		while (j.hasNext()) {
+			element = (TreeImageDisplay) j.next();
+			if (element.getUserObject() instanceof GroupData) {
+				g = (GroupData) element.getUserObject();
+				if (g.getId() == group.getId()) node = element;
+				else nodesToKeep.add(element);
+			}
+		}
+		
+		if (node != null) root.removeChildDisplay(node);
+		k = nodesToKeep.iterator();
+		root.removeAllChildren();
+		while (k.hasNext()) {
+			tm.insertNodeInto((TreeImageSet) k.next(), root,
+							root.getChildCount());
+		}
+		tm.reload();
+	}
+	
 	/** Reactivates the tree. */
 	void reActivate()
 	{
 		TreeImageDisplay root = getTreeRoot();
 		root.removeAllChildren();
 		root.removeAllChildrenDisplay();
-		createExperimenterNode(TreeViewerAgent.getUserDetails());
+		if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
+			ExperimenterData exp = TreeViewerAgent.getUserDetails();
+			TreeImageDisplay node = buildTreeNodes(exp);
+            if (model.isSelected() && node != null) expandNode(node, true);
+        }
 		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
 		tm.reload();
-	}
-	
-	/**
-	 * Returns the node hosting the logged in user.
-	 * 
-	 * @return See above.
-	 */
-	TreeImageDisplay getLoggedExperimenterNode()
-	{
-		TreeImageDisplay root = getTreeRoot();
-		return (TreeImageDisplay) root.getChildAt(0);
-	}
-
-	/** Refreshes the experimenter data. */
-	void refreshExperimenter()
-	{
-		TreeImageDisplay root = getTreeRoot();
-		TreeImageDisplay element = (TreeImageDisplay) root.getChildAt(0);
-		Object ho = element.getUserObject();
-		if (ho instanceof ExperimenterData) {
-			element.setUserObject(model.getUserDetails());
-			DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
-			tm.reload(element);
-		}
 	}
 
 	/**
@@ -1978,7 +2142,6 @@ class BrowserUI
 		}
 		
 		treeDisplay.repaint();
-		
 	}
     
 	/**
@@ -2046,27 +2209,6 @@ class BrowserUI
 		tm.reload(node);
 	}
 	
-	/** Expands the node corresponding to the user currently logged in. */
-	void expandUser()
-	{
-		TreeImageDisplay root = getTreeRoot();
-		TreeImageDisplay element;
-		Object ho;
-		ExperimenterData exp;
-		long id = model.getUserID();
-		for (int i = 0; i < root.getChildCount(); i++) {
-			element = (TreeImageDisplay) root.getChildAt(i);
-			ho = element.getUserObject();
-			if (ho instanceof ExperimenterData) {
-				exp = (ExperimenterData) ho;
-				if (exp.getId() == id && !element.isExpanded()) {
-					expandNode(element);
-					break;
-				}
-			}
-		}
-	}
-	
 	/**
      * Expands the specified node. To avoid loop, we first need to 
      * remove the <code>TreeExpansionListener</code>.
@@ -2076,6 +2218,7 @@ class BrowserUI
     void expandNode(TreeImageDisplay node, boolean withListener)
     {
     	 //First remove listener otherwise an event is fired.
+    	if (node == null) return;
     	node.setExpanded(true);
     	if (withListener) {
     		treeDisplay.expandPath(new TreePath(node.getPath()));
@@ -2110,34 +2253,41 @@ class BrowserUI
     	revalidate();
     	repaint();
     }
-    
+
     /**
-     * Returns the nodes corresponding to the passed user.
-     * 
-     * @param userID The id of the user.
-     * @return See above.
-     */
-    List<TreeImageDisplay> getNodesForUser(long userID)
-    {
-    	TreeImageDisplay root = getTreeRoot();
-		TreeImageDisplay element;
-		Object ho;
-		ExperimenterData exp;
-		long id = model.getUserID();
-		for (int i = 0; i < root.getChildCount(); i++) {
-			element = (TreeImageDisplay) root.getChildAt(i);
-			ho = element.getUserObject();
-			if (ho instanceof ExperimenterData) {
-				exp = (ExperimenterData) ho;
-				if (exp.getId() == id) {
-					return element.getChildrenDisplay();
-				}
+	 * Adds the specified group to the tree.
+	 * 
+	 * @param group The group to add.
+	 * @param add Pass <code>true</code> to add, <code>false</code> otherwise.
+	 */
+	void setUserGroup(GroupData group, boolean add)
+	{
+		if (group == null) return;
+		ExperimenterData exp = model.getUserDetails();
+		TreeImageSet node;
+		TreeImageDisplay root = getTreeRoot();
+		if (add) {
+			//Collapses previous group.
+			List children = root.getChildrenDisplay();
+			Iterator i = children.iterator();
+			TreeImageDisplay n;
+			while (i.hasNext()) {
+				n = (TreeImageDisplay) i.next();
+				n.setExpanded(false);
+				collapsePath(n);
 			}
+			node = createGroup(model.getSelectedGroup());
+	    	node = createExperimenterNode(exp, node);
+	    	if (model.isSelected()) expandNode(node, true);
+		} else {
+			root.removeAllChildren();
+			root.removeAllChildrenDisplay();
+			node = createGroup(model.getSelectedGroup());
+	    	node = createExperimenterNode(exp, node);
+	    	if (model.isSelected()) expandNode(node, true);
 		}
-		return null;
-    }
-
-
+	}
+	
     /**
      * Reacts to the D&D properties.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

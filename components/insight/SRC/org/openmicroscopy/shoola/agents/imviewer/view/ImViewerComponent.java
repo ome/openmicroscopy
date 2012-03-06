@@ -83,6 +83,7 @@ import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -434,7 +435,8 @@ class ImViewerComponent
 		int option = msg.centerMsgBox();
 		if (option == MessageBox.YES_OPTION) {
 			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-			bus.post(new ViewImage(new ViewImageObject(image), null));
+			bus.post(new ViewImage(model.getSecurityContext(),
+					new ViewImageObject(image), null));
 		}
 	}
 	
@@ -481,7 +483,8 @@ class ImViewerComponent
 		double f = 
 			model.getZoomFactor()*model.getOriginalRatio();
 		if (model.isBigImage()) f = view.getBigImageMagnificationFactor();
-		MeasurementTool request = new MeasurementTool(model.getImageID(), 
+		MeasurementTool request = new MeasurementTool(
+				model.getSecurityContext(), model.getImageID(), 
 				model.getPixelsData(), model.getImageName(), 
 				model.getDefaultZ(), model.getDefaultT(),
 				model.getActiveChannelsColorMap(),f, 
@@ -3096,8 +3099,9 @@ class ImViewerComponent
 				if (notifyUser) {
 					postViewerState(ViewerState.CLOSE);
 					ImViewerRecentObject object = new ImViewerRecentObject(
-							model.getImageID(), model.getImageTitle(),
-							getImageIcon());
+						model.getSecurityContext(),
+						model.getImageID(), model.getImageTitle(),
+						getImageIcon());
 					firePropertyChange(RECENT_VIEWER_PROPERTY, null, object);
 				}
 				
@@ -3376,6 +3380,16 @@ class ImViewerComponent
 				fireStateChange();
 		}
 	}
+
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	public SecurityContext getSecurityContext()
+	{ 
+		return model.getSecurityContext();
+	}
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
@@ -3391,6 +3405,5 @@ class ImViewerComponent
 	 * @see #toString()
 	 */
 	public String toString() { return getTitle(); }
-
 
 }

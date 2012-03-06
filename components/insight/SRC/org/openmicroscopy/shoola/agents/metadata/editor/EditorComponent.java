@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -716,7 +717,7 @@ class EditorComponent
 		IconManager icons = IconManager.getInstance();
 		param.setIcon(icons.getIcon(IconManager.EXPORT_22));
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(param);
+		un.notifyActivity(model.getSecurityContext(), param);
 	}
 
 	/** 
@@ -1052,5 +1053,14 @@ class EditorComponent
 			dialog = null;
 		}
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#getSecurityContext()
+	 */
+    public SecurityContext getSecurityContext()
+    { 
+    	return model.getSecurityContext();
+    }
 
 }

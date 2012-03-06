@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.measurement;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
@@ -63,23 +64,30 @@ public abstract class MeasurementViewerLoader
 {
 
 	/** The MeasurementViewer this data loader is for. */
-    protected final MeasurementViewer		viewer;
+    protected final MeasurementViewer viewer;
     
     /** Convenience reference for subclasses. */
-    protected final Registry        		registry;
+    protected final Registry registry;
     
     /** Convenience reference for subclasses. */
-    protected final ImageDataView 			idView;
+    protected final ImageDataView idView;
+    
+    /** The security context.*/
+    protected final SecurityContext ctx;
     
     /**
      * Creates a new instance.
      * 
      * @param viewer The MeasurementViewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      */
-    protected MeasurementViewerLoader(MeasurementViewer viewer)
+    protected MeasurementViewerLoader(MeasurementViewer viewer,
+    		SecurityContext ctx)
     {
         if (viewer == null) throw new NullPointerException("No viewer.");
+        if (ctx == null) throw new NullPointerException("No security context.");
+        this.ctx = ctx;
         this.viewer = viewer;
         registry = MeasurementAgent.getRegistry();
         idView = (ImageDataView) 

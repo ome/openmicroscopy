@@ -31,6 +31,7 @@ import java.io.File;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 
 
@@ -100,15 +101,16 @@ public class ExportActivity
     /**
      * Creates a new instance.
      * 
-     * @param viewer		The viewer this data loader is for.
-     *               		Mustn't be <code>null</code>.
-     * @param registry		Convenience reference for subclasses.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param registry Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param parameters  	The parameters used to export the image.
      */
 	public ExportActivity(UserNotifier viewer, Registry registry,
-			ExportActivityParam parameters)
+			SecurityContext ctx, ExportActivityParam parameters)
 	{
-		super(viewer, registry);
+		super(viewer, registry, ctx);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
@@ -127,8 +129,8 @@ public class ExportActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		loader = new ExportLoader(viewer,  registry, parameters.getImage(), 
-				new File(getFileName()), ExportLoader.EXPORT_AS_OME_TIFF, 
+		loader = new ExportLoader(viewer, registry, ctx, parameters.getImage(),
+				new File(getFileName()), ExportLoader.EXPORT_AS_OME_TIFF,
 				parameters.getTarget(), this);
 		return loader;
 	}

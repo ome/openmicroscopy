@@ -24,11 +24,9 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -37,6 +35,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -142,13 +141,14 @@ public class ExperimenterDataLoader
      * 
      * @param viewer        The viewer this data loader is for.
      *                      Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param containerType	One of the type defined by this class.
      * @param expNode		The node hosting the experimenter the data are for.
      */
-    public ExperimenterDataLoader(Browser viewer, int containerType, 
-    							TreeImageSet expNode)
+    public ExperimenterDataLoader(Browser viewer, SecurityContext ctx,
+    		int containerType, TreeImageSet expNode)
     {
-        this(viewer, containerType, expNode, null);
+        this(viewer, ctx, containerType, expNode, null);
     } 
     
     /**
@@ -156,15 +156,16 @@ public class ExperimenterDataLoader
      * 
      * @param viewer        The viewer this data loader is for.
      *                      Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param containerType	One of the type defined by this class.
      * @param expNode		The node hosting the experimenter the data are for.
      * 						Mustn't be <code>null</code>.
      * @param parent		The parent the nodes are for.
      */
-    public ExperimenterDataLoader(Browser viewer, int containerType, 
-    							TreeImageSet expNode, TreeImageSet parent)
+    public ExperimenterDataLoader(Browser viewer, SecurityContext ctx,
+    		int containerType, TreeImageSet expNode, TreeImageSet parent)
     {
-    	super(viewer);
+    	super(viewer, ctx);
         if (expNode == null ||
         		!(expNode.getUserObject() instanceof ExperimenterData))
         	throw new IllegalArgumentException("Experimenter node not valid.");
@@ -190,24 +191,23 @@ public class ExperimenterDataLoader
     			id = parent.getUserObjectId();
     		}
     		boolean top = type == TAG_SET;
-    		handle = dmView.loadTags(id, withImages, top, exp.getId(), 
-    				viewer.getUserGroupID(), this);
+    		handle = dmView.loadTags(ctx, id, withImages, top, exp.getId(), 
+    				ctx.getGroupID(), this);
     	} else if (FileAnnotationData.class.equals(rootNodeType)) {
-    		handle = mhView.loadExistingAnnotations(rootNodeType, exp.getId(), 
-    				viewer.getUserGroupID(), this);
+    		handle = mhView.loadExistingAnnotations(ctx,
+    				rootNodeType, exp.getId(), ctx.getGroupID(), this);
     	} else {
     		if (viewer.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
-    			handle = dmView.loadRepositories(exp.getId(), this);
+    			handle = dmView.loadRepositories(ctx, exp.getId(), this);
     		} else {
     			if (parent == null) {
-            		handle = dmView.loadContainerHierarchy(rootNodeType, null, 
-            				withImages, exp.getId(), viewer.getUserGroupID(), 
-            				this);	
+            		handle = dmView.loadContainerHierarchy(ctx,
+            				rootNodeType, null, withImages, exp.getId(),
+            				ctx.getGroupID(), this);	
             	} else {
-            		handle = dmView.loadContainerHierarchy(rootNodeType,
+            		handle = dmView.loadContainerHierarchy(ctx, rootNodeType,
             				Arrays.asList(parent.getUserObjectId()),
-            				withImages, exp.getId(), viewer.getUserGroupID(), 
-            				this);
+            				withImages, exp.getId(), ctx.getGroupID(), this);
             	}
     		}
     	}

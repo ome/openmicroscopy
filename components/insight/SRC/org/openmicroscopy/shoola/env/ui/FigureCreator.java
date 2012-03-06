@@ -30,6 +30,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
 
@@ -80,16 +81,17 @@ public class FigureCreator
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param registry	Convenience reference for subclasses.
+     * @param ctx The security context.
      * @param param  	The parameters used to create the movie.
      * @param ids		The selected objects.
      * @param type		The type of objects.
      * @param activity 	The activity associated to this loader.
      */
 	public FigureCreator(UserNotifier viewer,  Registry registry,
-			Object param, List<Long> ids, Class type, 
+			SecurityContext ctx, Object param, List<Long> ids, Class type,
 			ActivityComponent activity)
 	{
-		super(viewer, registry, activity);
+		super(viewer, registry, ctx, activity);
 		if (ids == null || ids.size() == 0)
 			throw new IllegalArgumentException("Objects not valid.");
 		if (param == null)
@@ -105,7 +107,7 @@ public class FigureCreator
      */
     public void load()
     {
-        handle = ivView.createFigure(ids, type, param, this);
+        handle = ivView.createFigure(ctx, ids, type, param, this);
     }
     
     /**

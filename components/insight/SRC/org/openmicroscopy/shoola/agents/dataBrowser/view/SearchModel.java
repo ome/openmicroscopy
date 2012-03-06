@@ -26,9 +26,13 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -40,7 +44,10 @@ import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.DataObject;
+import pojos.GroupData;
 import pojos.ImageData;
 
 /** 
@@ -60,44 +67,83 @@ class SearchModel
 	extends DataBrowserModel
 {
 
-	/** The images to lay out. */
-	private Collection<DataObject> results;
+	/** The result to display. */
+	private Map<SecurityContext, Collection<DataObject>> results;
+	
+	/**
+	 * Returns the group corresponding to the specified id.
+	 * 
+	 * @param groupId The id of the group.
+	 * @return See above.
+	 */
+	private GroupData getGroup(long groupId)
+	{
+		Set groups = DataBrowserAgent.getAvailableUserGroups();
+		Iterator i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getId() == groupId) return g;
+		}
+		return null;
+	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param results The results to display.
 	 */
-	SearchModel(Collection<DataObject> results)
+	SearchModel(Map<SecurityContext, Collection<DataObject>> results)
 	{
-		super();
+		super(null);
 		if (results  == null) 
 			throw new IllegalArgumentException("No results.");
 		this.results = results;
-		numberOfImages = results.size();
+		numberOfImages = 0;
 		long userID = DataBrowserAgent.getUserDetails().getId();
-		Set vis = DataBrowserTranslator.transformObjects(results, userID, 0);
-        browser = BrowserFactory.createBrowser(vis);
-        //layoutBrowser();
+		Set<ImageDisplay> vis = new HashSet<ImageDisplay>();
+		Iterator i = results.entrySet().iterator();
+		Entry e;
+		SecurityContext ctx;
+		GroupData g;
+		Collection<DataObject> objects;
+		boolean singleGroup = isSingleGroup();
+		while (i.hasNext()) {
+			e = (Entry) i.next();
+			ctx = (SecurityContext) e.getKey();
+			
+			objects = (Collection<DataObject>) e.getValue();
+			numberOfImages += objects.size();
+			if (singleGroup) {
+				 vis.addAll(DataBrowserTranslator.transformObjects(objects,
+				    		userID, ctx.getGroupID()));
+			} else {
+				g = getGroup(ctx.getGroupID());
+				if (g != null && objects != null && objects.size() > 0)
+				    vis.add(DataBrowserTranslator.transformObjects(objects,
+				    		userID, g));
+			}
+		}
+		browser = BrowserFactory.createBrowser(vis);
 	}
 	
 	/**
-	 * Creates a concrete loader.
-	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
+	 * Overridden to start several loaders.
 	 */
-	protected DataBrowserLoader createDataLoader(boolean refresh, 
-			Collection ids)
+	void loadData(boolean refresh, Collection ids)
 	{
 		if (refresh) imagesLoaded = 0;
 		if (imagesLoaded != 0 && ids != null)
 			imagesLoaded = imagesLoaded-ids.size();
-		if (imagesLoaded == numberOfImages) return null;
-		//only load thumbnails not loaded.
+		if (imagesLoaded == numberOfImages) return;
+		Map<Long, List<ImageData>> map = new HashMap<Long, List<ImageData>>();
 		List<ImageNode> nodes = browser.getVisibleImageNodes();
-		if (nodes == null || nodes.size() == 0) return null;
+		if (nodes == null || nodes.size() == 0) return;
 		Iterator<ImageNode> i = nodes.iterator();
 		ImageNode node;
-		List<ImageData> imgs = new ArrayList<ImageData>();
+		ImageData image;
+		long groupId;
+		List<ImageData> imgs;
 		if (ids != null) {
 			ImageData img;
 			while (i.hasNext()) {
@@ -105,7 +151,13 @@ class SearchModel
 				img = (ImageData) node.getHierarchyObject();
 				if (ids.contains(img.getId())) {
 					if (node.getThumbnail().getFullScaleThumb() == null) {
-						imgs.add((ImageData) node.getHierarchyObject());
+						image = (ImageData) node.getHierarchyObject();
+						groupId = image.getGroupId();
+						if (!map.containsKey(groupId)) {
+							map.put(groupId, new ArrayList<ImageData>());
+						}
+						imgs = map.get(groupId);
+						imgs.add(image);
 						imagesLoaded++;
 					}
 				}
@@ -114,12 +166,38 @@ class SearchModel
 			while (i.hasNext()) {
 				node = i.next();
 				if (node.getThumbnail().getFullScaleThumb() == null) {
-					imgs.add((ImageData) node.getHierarchyObject());
+					image = (ImageData) node.getHierarchyObject();
+					groupId = image.getGroupId();
+					if (!map.containsKey(groupId)) {
+						map.put(groupId, new ArrayList<ImageData>());
+					}
+					imgs = map.get(groupId);
+					imgs.add(image);
 					imagesLoaded++;
 				}
 			}
 		}
-		return new ThumbnailLoader(component, sorter.sort(imgs));
+		if (map.size() == 0) return;
+		Entry e;
+		Iterator j = map.entrySet().iterator();
+		DataBrowserLoader loader;
+		while (j.hasNext()) {
+			e = (Entry) j.next();
+			loader = new ThumbnailLoader(component, new SecurityContext(
+					(Long) e.getKey()), sorter.sort((List) e.getValue()));
+			loader.load();
+		}
+		state = DataBrowser.LOADING;
+	}
+
+	/**
+	 * Creates a concrete loader.
+	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
+	 */
+	protected DataBrowserLoader createDataLoader(boolean refresh, 
+			Collection ids)
+	{
+		return null;
 	}
 
 	/**
@@ -133,5 +211,5 @@ class SearchModel
 	 * @see DataBrowserModel#getNodes()
 	 */
 	protected List<ImageDisplay> getNodes() { return null; }
-	
+
 }

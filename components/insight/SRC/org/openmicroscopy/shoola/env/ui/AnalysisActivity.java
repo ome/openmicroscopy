@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import pojos.FileAnnotationData;
 
@@ -71,15 +72,16 @@ public class AnalysisActivity
     /**
      * Creates a new instance.
      * 
-     * @param viewer		The viewer this data loader is for.
-     *               		Mustn't be <code>null</code>.
-     * @param registry		Convenience reference for subclasses.
-     * @param parameters  	The parameters used to analyze.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param registry Convenience reference for subclasses.
+     * @param ctx The security context.
+     * @param parameters The parameters used to analyze.
      */
 	public AnalysisActivity(UserNotifier viewer, Registry registry,
-			AnalysisActivityParam parameters)
+			SecurityContext ctx, AnalysisActivityParam parameters)
 	{
-		super(viewer, registry);
+		super(viewer, registry, ctx);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
@@ -92,11 +94,7 @@ public class AnalysisActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		AnalysisParam param = (AnalysisParam) parameters.getParameters();
-		loader = new Analyser(viewer,  registry, param, 
-				param.getIds(), param.getNodeType(), param.getIndex(),
-				this);
-		return loader;
+		return null;
 	}
 
 	/**
@@ -143,7 +141,7 @@ public class AnalysisActivity
 					activity.setLegend(data.getDescription());
 					activity.setLegendExtension(
 							DownloadActivity.LEGEND_TEXT_CSV);
-					viewer.notifyActivity(activity);
+					viewer.notifyActivity(ctx, activity);
 				}
 			}
 		});

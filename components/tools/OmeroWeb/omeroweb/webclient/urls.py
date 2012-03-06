@@ -25,7 +25,6 @@
 import os.path
 
 from django.conf.urls.defaults import *
-from django.views.static import serve
 
 from omeroweb.webclient import views
 

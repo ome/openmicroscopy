@@ -255,7 +255,8 @@ class DocComponent
 	{
 		if (!(data instanceof FileAnnotationData)) return;
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new EditFileEvent((FileAnnotationData) data));
+		bus.post(new EditFileEvent(model.getSecurityContext(),
+				(FileAnnotationData) data));
 	}
 	
 	/** 
@@ -417,7 +418,8 @@ class DocComponent
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData f = (FileAnnotationData) data;
 			Registry reg = MetadataViewerAgent.getRegistry();		
-			reg.getEventBus().post(new EditFileEvent(f));
+			reg.getEventBus().post(new EditFileEvent(model.getSecurityContext(),
+					f));
 		}
 	}
 	
@@ -456,8 +458,7 @@ class DocComponent
 			
 			public void mousePressed(MouseEvent e)
 			{
-				Point p = e.getPoint();
-				showMenu(menuButton, p);
+				showMenu(menuButton, e.getPoint());
 			}
 		});
 		infoButton = new JMenuItem(icons.getIcon(IconManager.INFO));
@@ -466,8 +467,7 @@ class DocComponent
 			
 			public void mousePressed(MouseEvent e)
 			{
-				Point p = e.getPoint();
-				displayInformation(label, p);
+				displayInformation(label, e.getPoint());
 			}
 		});
 		unlinkButton = new JMenuItem(icons.getIcon(IconManager.MINUS_12));
@@ -653,6 +653,8 @@ class DocComponent
 		if (openButton != null) count++;
 		if (deleteButton != null) count++;
 		if (count > 0) {
+			menuButton.setEnabled(true);
+			if (model.isAcrossGroups()) menuButton.setEnabled(false);
 			bar.add(menuButton);
 			if (!b) bar.add(Box.createHorizontalStrut(8));
 			add(bar);
@@ -881,7 +883,7 @@ class DocComponent
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
 			//Check Name space
 			activity.setLegend(fa.getDescription());
-			un.notifyActivity(activity);
+			un.notifyActivity(model.getSecurityContext(), activity);
 			//un.notifyDownload((FileAnnotationData) data, folder);
 		}
 	}

@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
@@ -466,4 +467,11 @@ public interface Editor
 	 * otherwise.
 	 */
 	void onGroupSwitched(boolean success);
+	
+	/**
+     * Returns the security context.
+     * 
+     * @return See above.
+     */
+    SecurityContext getSecurityContext();
 }

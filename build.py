@@ -13,6 +13,8 @@ import sys
 import time
 import subprocess
 
+BUILD_PY = "-Dbuild.py=true"
+
 
 def popen(args, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
         copy = os.environ.copy()
@@ -89,6 +91,7 @@ def java_omero(args):
     command = [ find_java() ]
     p = os.path.join( os.path.curdir, "lib", "log4j-build.xml")
     command.append("-Dlog4j.configuration=%s" % p)
+    command.append(BUILD_PY)
     command.extend( calculate_memory_args() )
     command.extend(["omero"])
     command.extend(choose_omero_version())
@@ -118,7 +121,7 @@ def choose_omero_version():
     if omero_build:
         omero_build = "-b%s" % omero_build
 
-    command = [ find_java(), "omero","-q","version" ]
+    command = [ find_java(), "omero",BUILD_PY,"-q","version" ]
     err = ""
     try:
         p = popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

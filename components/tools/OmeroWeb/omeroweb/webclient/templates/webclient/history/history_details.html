@@ -23,8 +23,8 @@
 -->
 {% endcomment %}
 
-    <script type="text/javascript" src="{% static "common/javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% static "common/javascript/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function(){
@@ -96,7 +96,7 @@
     <div>
         {% if controller.day_items_size %}
         
-        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "common/image/spinner.gif" %}"></span></form>
+        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
         
         <table id="dataTable" class="tablesorter">
             <thead> 
@@ -111,7 +111,7 @@
             {% for c in i.project %}
                 <tr id="project-{{ c.id }}">
                     <td class="action">
-                        <img id="{{ c.id }}" src="{% static "common/image/folder32.png" %}" alt="project" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder32.png" %}" alt="project" title="{{ c.name }}"/>
                         <input type="checkbox" name="project" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
@@ -121,7 +121,7 @@
             {% for c in i.screen %}
                 <tr id="screen-{{ c.id }}">
                     <td class="action">
-                        <img id="{{ c.id }}" src="{% static "common/image/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
                         <input type="checkbox" name="screen" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
@@ -131,7 +131,7 @@
             {% for c in i.dataset %}
                 <tr id="dataset-{{ c.id }}">
                     <td class="action">
-                        <img id="{{ c.id }}" src="{% static "common/image/folder_image32.png" %}" alt="dataset" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder_image32.png" %}" alt="dataset" title="{{ c.name }}"/>
                         <input type="checkbox" name="dataset" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
@@ -141,7 +141,7 @@
             {% for c in i.plate %}
                 <tr id="plate-{{ c.id }}">
                     <td class="action">
-                        <img id="{{ c.id }}" src="{% static "common/image/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
                         <input type="checkbox" name="plate" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>

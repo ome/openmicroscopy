@@ -32,6 +32,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 
@@ -102,14 +103,16 @@ public class DataObjectUpdater
     /**
      * Creates a new instance.
      * 
-     * @param viewer    The Editor this data loader is for.
-     *                      Mustn't be <code>null</code>.
-     * @param objects   The objects to update.
-     * @param index     One of the constants defined by this class.
+     * @param viewer The Editor this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param objects The objects to update.
+     * @param index One of the constants defined by this class.
      */
-    public DataObjectUpdater(TreeViewer viewer, Map objects, int index)
+    public DataObjectUpdater(TreeViewer viewer, SecurityContext ctx,
+    		Map objects, int index)
     {
-        super(viewer);
+        super(viewer, ctx);
         if (objects == null)
             throw new IllegalArgumentException("No DataObject");
         checkIndex(index);
@@ -120,16 +123,17 @@ public class DataObjectUpdater
     /**
      * Creates a new instance.
      * 
-     * @param viewer    The Editor this data loader is for.
-     *                      Mustn't be <code>null</code>.
-     * @param objects   The objects to update.
-     * @param toRemove  The objects to remove.
-     * @param index     One of the constants defined by this class.
+     * @param viewer The Editor this data loader is for.
+     *               Mustn't be <code>null</code>.
+     *  @param ctx The security context.
+     * @param objects The objects to update.
+     * @param toRemove The objects to remove.
+     * @param index One of the constants defined by this class.
      */
-    public DataObjectUpdater(TreeViewer viewer, Map objects, Map toRemove, 
-                        int index)
+    public DataObjectUpdater(TreeViewer viewer,SecurityContext ctx,
+    		Map objects, Map toRemove, int index)
     {
-        super(viewer);
+        super(viewer, ctx);
         if (objects == null)
             throw new IllegalArgumentException("No DataObject");
         checkIndex(index);
@@ -145,13 +149,14 @@ public class DataObjectUpdater
     public void load()
     {
         if (index == COPY_AND_PASTE)
-            handle = dmView.addExistingObjects(objectsToUpdate, null, this);
+            handle = dmView.addExistingObjects(ctx, objectsToUpdate, null,
+            		this);
         else if ((index == CUT_AND_PASTE) || (index == CUT)) {
         	boolean admin = false;
         	Browser browser = viewer.getSelectedBrowser();
         	if (browser != null)
         		 admin = browser.getBrowserType() == Browser.ADMIN_EXPLORER;
-        	handle = dmView.cutAndPaste(objectsToUpdate, objectsToRemove,
+        	handle = dmView.cutAndPaste(ctx, objectsToUpdate, objectsToRemove,
     				admin, this);
         }
     }

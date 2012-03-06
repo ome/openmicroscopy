@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -53,16 +54,18 @@ public class AnnotationParentLoader
     /**
      * Creates a {@link BatchCall} to load the parents of the annotation.
      * 
+     * @param ctx The security context.
      * @param annotationId The id of the annotation to handle.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeCall(final long annotationId)
+    private BatchCall makeCall(final SecurityContext ctx,
+    		final long annotationId)
     {
     	return new BatchCall("Load Parents of annotations") {
     		            public void doCall() throws Exception
             {
     		        OmeroMetadataService svc = context.getMetadataService();
-    		        result = svc.loadParentsOfAnnotations(annotationId);
+    		        result = svc.loadParentsOfAnnotations(ctx, annotationId);
             }
         };
     }
@@ -83,11 +86,12 @@ public class AnnotationParentLoader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param annotationId The id of the annotation to handle.
      */
-    public AnnotationParentLoader(long annotationId)
+    public AnnotationParentLoader(SecurityContext ctx, long annotationId)
     {
-    	loadCall = makeCall(annotationId);
+    	loadCall = makeCall(ctx, annotationId);
     }
     
 }

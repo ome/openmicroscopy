@@ -31,6 +31,7 @@ import java.io.File;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.util.Target;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -60,10 +61,13 @@ public class ExportLoader
 		OmeroImageService.EXPORT_AS_OME_XML;
 	
 	/** Loads the specified annotations. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
     
     /** The result of the call. */
-    private Object		result;
+    private Object result;
+    
+    /** The security context.*/
+    private SecurityContext ctx;
     
     /**
      * Creates a {@link BatchCall} to export the image as XML.
@@ -76,12 +80,12 @@ public class ExportLoader
     private BatchCall makeAsOMETiffBatchCall(final int index, final File file, 
     						final long imageID, final Target target)
     {
-        return new BatchCall("Export image as OME-TIFF.") {
+        return new BatchCall("Export image as OME-TIFF or OME-XML.") {
             public void doCall() throws Exception
             {
                 OmeroImageService service = context.getImageService();
-                result = service.exportImageAsOMEObject(index, imageID, file,
-                		target);
+                result = service.exportImageAsOMEFormat(ctx, index, imageID,
+                		file, target);
             }
         };
     }
@@ -101,12 +105,14 @@ public class ExportLoader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
 	 * @param imageID The id of the image to export.
 	 * @param file    The file where to store the exported file.
 	 * @param index	  One of the constants defined by this class.
 	 * @param target The selected schema.
      */
-    public ExportLoader(long imageID, File file, int index, Target target)
+    public ExportLoader(SecurityContext ctx, long imageID, File file, int index,
+    		Target target)
     {
     	loadCall = makeAsOMETiffBatchCall(index, file, imageID, target);
     }

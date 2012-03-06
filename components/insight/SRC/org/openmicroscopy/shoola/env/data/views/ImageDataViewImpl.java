@@ -42,12 +42,12 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
 import org.openmicroscopy.shoola.env.data.views.calls.EnumerationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ExportLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.FRAPAnalyser;
 import org.openmicroscopy.shoola.env.data.views.calls.FigureCreator;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesImporter;
@@ -101,8 +101,8 @@ class ImageDataViewImpl
      * @see ImageDataView#loadRenderingControl(long, int, 
      * 											AgentEventListener)
      */
-    public CallHandle loadRenderingControl(long pixelsID, int index,
-                                        AgentEventListener observer)
+    public CallHandle loadRenderingControl(SecurityContext ctx, long pixelsID,
+    		int index, AgentEventListener observer)
     {
     	int i = -1;
     	switch (index) {
@@ -116,7 +116,7 @@ class ImageDataViewImpl
 			case RESET:
 				i = RenderingControlLoader.RESET;
 		}
-        BatchCallTree cmd = new RenderingControlLoader(pixelsID, i);
+        BatchCallTree cmd = new RenderingControlLoader(ctx, pixelsID, i);
         return cmd.exec(observer);
     }
 
@@ -125,10 +125,10 @@ class ImageDataViewImpl
      * @see ImageDataView#render(long, PlaneDef, boolean, boolean, 
      * AgentEventListener)
      */
-    public CallHandle render(long pixelsID, PlaneDef pd, boolean asTexture, 
-                        boolean largeImage, AgentEventListener observer)
+    public CallHandle render(SecurityContext ctx, long pixelsID, PlaneDef pd,
+    		boolean asTexture, boolean largeImage, AgentEventListener observer)
     {
-        BatchCallTree cmd = new ImageRenderer(pixelsID, pd, asTexture, 
+        BatchCallTree cmd = new ImageRenderer(ctx, pixelsID, pd, asTexture,
         		largeImage);
         return cmd.exec(observer);
     }
@@ -137,9 +137,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#loadPixels(long, AgentEventListener)
      */
-	public CallHandle loadPixels(long pixelsID, AgentEventListener observer) 
+	public CallHandle loadPixels(SecurityContext ctx, long pixelsID,
+			AgentEventListener observer) 
 	{
-		BatchCallTree cmd = new PixelsDataLoader(pixelsID, 
+		BatchCallTree cmd = new PixelsDataLoader(ctx, pixelsID,
 									PixelsDataLoader.SET);
 		return cmd.exec(observer);
 	}
@@ -149,10 +150,10 @@ class ImageDataViewImpl
      * @see ImageDataView#analyseShapes(PixelsData, List, List, 
      * 									AgentEventListener)
      */
-	public CallHandle analyseShapes(PixelsData pixels, List channels, 
-			List shapes, AgentEventListener observer)
+	public CallHandle analyseShapes(SecurityContext ctx, PixelsData pixels,
+			List channels, List shapes, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new Analyser(pixels, channels, shapes);
+		BatchCallTree cmd = new Analyser(ctx, pixels, channels, shapes);
 		return cmd.exec(observer);
 	}
 
@@ -160,20 +161,20 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#getRenderingSettings(long, AgentEventListener)
      */
-	public CallHandle getRenderingSettings(long pixelsID, 
+	public CallHandle getRenderingSettings(SecurityContext ctx, long pixelsID, 
 										AgentEventListener observer)
 	{
-		return getRenderingSettings(pixelsID, -1, observer);
+		return getRenderingSettings(ctx, pixelsID, -1, observer);
 	}
 	
 	/**
      * Implemented as specified by the view interface.
      * @see ImageDataView#getRenderingSettings(long, long, AgentEventListener)
      */
-	public CallHandle getRenderingSettings(long pixelsID, long userID,
-										AgentEventListener observer)
+	public CallHandle getRenderingSettings(SecurityContext ctx,
+			long pixelsID, long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsLoader(pixelsID, userID);
+		BatchCallTree cmd = new RenderingSettingsLoader(ctx, pixelsID, userID);
 		return cmd.exec(observer);
 	}
 
@@ -182,11 +183,12 @@ class ImageDataViewImpl
      * @see ImageDataView#renderProjected(long, int, int, int, int, List, 
      *                       AgentEventListener)
      */
-	public CallHandle renderProjected(long pixelsID, int startZ, int endZ, 
-			int stepping, int algorithm, List<Integer> channels, 
-			boolean openGLSupport, AgentEventListener observer)
+	public CallHandle renderProjected(SecurityContext ctx,
+		long pixelsID, int startZ, int endZ, int stepping, int algorithm,
+		List<Integer> channels, boolean openGLSupport,
+		AgentEventListener observer)
     {
-		BatchCallTree cmd = new ProjectionSaver(pixelsID, startZ, endZ, 
+		BatchCallTree cmd = new ProjectionSaver(ctx, pixelsID, startZ, endZ,
 				                  stepping, algorithm, channels, openGLSupport);
 		return cmd.exec(observer);
 	}
@@ -195,10 +197,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#projectImage(ProjectionParam, AgentEventListener)
      */
-	public CallHandle projectImage(ProjectionParam ref, 
+	public CallHandle projectImage(SecurityContext ctx, ProjectionParam ref,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ProjectionSaver(ref);
+		BatchCallTree cmd = new ProjectionSaver(ctx, ref);
         return cmd.exec(observer);
 	}
 
@@ -207,10 +209,11 @@ class ImageDataViewImpl
      * @see ImageDataView#createRndSetting(long, RndProxyDef, List, 
      * 										AgentEventListener)
      */
-	public CallHandle createRndSetting(long pixelsID, RndProxyDef rndToCopy, 
-			List<Integer> indexes, AgentEventListener observer)
+	public CallHandle createRndSetting(SecurityContext ctx, long pixelsID,
+		RndProxyDef rndToCopy, List<Integer> indexes,
+		AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsSaver(pixelsID, rndToCopy, 
+		BatchCallTree cmd = new RenderingSettingsSaver(ctx, pixelsID, rndToCopy,
 									indexes);
         return cmd.exec(observer);
 	}
@@ -219,10 +222,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#loadAcquisitionData(Object, AgentEventListener)
      */
-	public CallHandle loadAcquisitionData(Object refObject, 
+	public CallHandle loadAcquisitionData(SecurityContext ctx, Object refObject,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AcquisitionDataLoader(refObject);
+		BatchCallTree cmd = new AcquisitionDataLoader(ctx, refObject);
 		return cmd.exec(observer);
 	}
 
@@ -230,10 +233,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#loadInstrumentData(long, AgentEventListener)
      */
-	public CallHandle loadInstrumentData(long instrumentID, 
+	public CallHandle loadInstrumentData(SecurityContext ctx, long instrumentID,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AcquisitionDataLoader(
+		BatchCallTree cmd = new AcquisitionDataLoader(ctx, 
 				AcquisitionDataLoader.INSTRUMENT, instrumentID);
 		return cmd.exec(observer);
 	}
@@ -242,10 +245,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#saveAcquisitionData(Object, AgentEventListener)
      */
-	public CallHandle saveAcquisitionData(Object refObject, 
+	public CallHandle saveAcquisitionData(SecurityContext ctx, Object refObject,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AcquisitionDataSaver(refObject);
+		BatchCallTree cmd = new AcquisitionDataSaver(ctx, refObject);
 		return cmd.exec(observer);
 	}
 	
@@ -253,10 +256,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#loadPlaneInfo(long, int, int, int, AgentEventListener)
      */
-	public CallHandle loadPlaneInfo(long pixelsID, int z, int t, int channel,
-			AgentEventListener observer)
+	public CallHandle loadPlaneInfo(SecurityContext ctx, long pixelsID, int z,
+			int t, int channel, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new PlaneInfoLoader(pixelsID, z, t, channel);
+		BatchCallTree cmd = new PlaneInfoLoader(ctx, pixelsID, z, t, channel);
 		return cmd.exec(observer);
 	}
 
@@ -264,10 +267,11 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#loadChannelMetadataEnumerations(AgentEventListener)
      */
-	public CallHandle loadChannelMetadataEnumerations(AgentEventListener 
-					observer) 
+	public CallHandle loadChannelMetadataEnumerations(SecurityContext ctx,
+		AgentEventListener observer) 
 	{
-		BatchCallTree cmd = new EnumerationLoader(EnumerationLoader.CHANNEL);
+		BatchCallTree cmd = new EnumerationLoader(ctx, 
+				EnumerationLoader.CHANNEL);
 		return cmd.exec(observer);
 	}
 
@@ -275,19 +279,19 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#loadImageMetadataEnumerations(AgentEventListener)
      */
-	public CallHandle loadImageMetadataEnumerations(AgentEventListener observer) 
+	public CallHandle loadImageMetadataEnumerations(SecurityContext ctx, 
+			AgentEventListener observer) 
 	{
-		BatchCallTree cmd = new EnumerationLoader(EnumerationLoader.IMAGE);
+		BatchCallTree cmd = new EnumerationLoader(ctx, EnumerationLoader.IMAGE);
 		return cmd.exec(observer);
 	}
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#importImages(ImportContext, long, long, 
-     * AgentEventListener)
+     * @see ImageDataView#importImages(long, long, AgentEventListener)
      */
-	public CallHandle importFiles(ImportableObject context, long userID, 
-			long groupID, AgentEventListener observer)
+	public CallHandle importFiles(ImportableObject context,
+			long userID, long groupID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ImagesImporter(context, userID, groupID);
 		return cmd.exec(observer);
@@ -298,8 +302,9 @@ class ImageDataViewImpl
      * @see ImageDataView#monitorDirectory(File, DataObject, long, long,
      * AgentEventListener)
      */
-	public CallHandle monitorDirectory(File directory, DataObject container, 
-			long userID, long groupID, AgentEventListener observer)
+	public CallHandle monitorDirectory(SecurityContext ctx, File directory,
+		DataObject container, long userID, long groupID,
+		AgentEventListener observer)
 	{
 		return null;
 	}
@@ -308,10 +313,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#loadImage(long, long, AgentEventListener)
      */
-	public CallHandle loadImage(long imageID, long userID,
+	public CallHandle loadImage(SecurityContext ctx, long imageID, long userID,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ImagesLoader(imageID, userID);
+		BatchCallTree cmd = new ImagesLoader(ctx, imageID, userID);
 		return cmd.exec(observer);
 	}
 
@@ -320,11 +325,11 @@ class ImageDataViewImpl
      * @see ImageDataView#createMovie(long, long, List, MovieExportParam, 
      * 	AgentEventListener)
      */
-	public CallHandle createMovie(long imageID, long pixelsID,
-			List<Integer> channels, MovieExportParam param, 
+	public CallHandle createMovie(SecurityContext ctx, long imageID,
+			long pixelsID, List<Integer> channels, MovieExportParam param, 
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new MovieCreator(imageID, pixelsID, channels,
+		BatchCallTree cmd = new MovieCreator(ctx, imageID, pixelsID, channels,
 				param);
 		return cmd.exec(observer);
 	}
@@ -333,10 +338,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#createFigure(List, Class, Object, AgentEventListener)
      */
-	public CallHandle createFigure(List<Long> ids, Class type, Object param, 
-			AgentEventListener observer)
+	public CallHandle createFigure(SecurityContext ctx, List<Long> ids,
+			Class type, Object param, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new FigureCreator(ids, type, param);
+		BatchCallTree cmd = new FigureCreator(ctx, ids, type, param);
 		return cmd.exec(observer);
 	}
 
@@ -344,10 +349,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#loadROI(long, Long, long, AgentEventListener)
      */
-	public CallHandle loadROI(long imageID, List<Long> fileID, long userID,
-			AgentEventListener observer)
+	public CallHandle loadROI(SecurityContext ctx, long imageID,
+			List<Long> fileID, long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ROILoader(imageID, fileID, userID);
+		BatchCallTree cmd = new ROILoader(ctx, imageID, fileID, userID);
 		return cmd.exec(observer);
 	}
 	
@@ -355,21 +360,21 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#saveROI(long, Long, long, AgentEventListener)
      */
-	public CallHandle saveROI(long imageID, long userID, List<ROIData> roiList,
-			AgentEventListener observer)
+	public CallHandle saveROI(SecurityContext ctx, long imageID, long userID,
+			List<ROIData> roiList, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ROISaver(imageID, userID, roiList);
+		BatchCallTree cmd = new ROISaver(ctx, imageID, userID, roiList);
 		return cmd.exec(observer);
 	}
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#exportImageAsOMETiff(long, File, Target,
+     * @see ImageDataView#exportImageAsOMETiff(SecurityContext, long, File, Target,
      * AgentEventListener)
      */
-	public CallHandle exportImageAsOMETiff(long imageID, File file,
-			Target target, AgentEventListener observer)
+	public CallHandle exportImageAsOMETiff(SecurityContext ctx, long imageID,
+			File file, Target target, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ExportLoader(imageID, file,
+		BatchCallTree cmd = new ExportLoader(ctx, imageID, file,
 				ExportLoader.EXPORT_AS_OMETIFF, target);
 		return cmd.exec(observer);
 	}
@@ -378,10 +383,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#loadROIFromServer(long, Long, AgentEventListener)
      */
-	public CallHandle loadROIFromServer(long imageID, long userID, 
-								AgentEventListener observer)
+	public CallHandle loadROIFromServer(SecurityContext ctx, long imageID,
+			long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ServerSideROILoader(imageID, userID);
+		BatchCallTree cmd = new ServerSideROILoader(ctx, imageID, userID);
 		return cmd.exec(observer);
 	}
 
@@ -390,35 +395,23 @@ class ImageDataViewImpl
      * @see ImageDataView#renderOverLays(long, PlaneDef, long, Map, boolean, 
      * AgentEventListener)
      */
-	public CallHandle renderOverLays(long pixelsID, PlaneDef pd, long tableID,
-			Map<Long, Integer> overlays, boolean asTexture,
-			AgentEventListener observer)
+	public CallHandle renderOverLays(SecurityContext ctx, long pixelsID,
+		PlaneDef pd, long tableID, Map<Long, Integer> overlays,
+		boolean asTexture, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new OverlaysRenderer(pixelsID, pd, tableID, 
+		BatchCallTree cmd = new OverlaysRenderer(ctx, pixelsID, pd, tableID,
 				overlays, asTexture);
 		return cmd.exec(observer);
 	}
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#analyseFRAP(List, Class, Object, AgentEventListener)
-     */
-	public CallHandle analyseFRAP(List<Long> ids, Class objectType,
-			Object param, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new FRAPAnalyser(ids, objectType, param);
-		return cmd.exec(observer);
-	}
-	
-
-	/**
-     * Implemented as specified by the view interface.
      * @see ImageDataView#runScript(ScriptObject, AgentEventListener)
      */
-	public CallHandle runScript(ScriptObject script, 
+	public CallHandle runScript(SecurityContext ctx, ScriptObject script,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ScriptRunner(script);
+		BatchCallTree cmd = new ScriptRunner(ctx, script);
 		return cmd.exec(observer);
 	}
 
@@ -426,10 +419,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#uploadScript(ScriptObject, AgentEventListener)
      */
-	public CallHandle uploadScript(ScriptObject script,
+	public CallHandle uploadScript(SecurityContext ctx,ScriptObject script,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ScriptUploader(script);
+		BatchCallTree cmd = new ScriptUploader(ctx, script);
 		return cmd.exec(observer);
 	}
 
@@ -437,9 +430,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#retrieveWorkflows(long, AgentEventListener)
      */
-	public CallHandle retrieveWorkflows(long userID, AgentEventListener observer)
+	public CallHandle retrieveWorkflows(SecurityContext ctx,
+			long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new WorkflowHandler(userID);
+		BatchCallTree cmd = new WorkflowHandler(ctx, userID);
 		return cmd.exec(observer);
 	}
 
@@ -447,10 +441,11 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#storeWorkflows(List, long, AgentEventListener)
      */
-	public CallHandle storeWorkflows(List<WorkflowData> workflows, long userID, 
+	public CallHandle storeWorkflows(SecurityContext ctx,
+			List<WorkflowData> workflows, long userID, 
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new WorkflowHandler(workflows, userID);
+		BatchCallTree cmd = new WorkflowHandler(ctx, workflows, userID);
 		return cmd.exec(observer);
 	}
 
@@ -458,10 +453,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#saveAs(SaveAsParam, AgentEventListener)
      */
-	public CallHandle saveAs(SaveAsParam parameters,
+	public CallHandle saveAs(SecurityContext ctx,SaveAsParam parameters,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new SaveAsLoader(parameters);
+		BatchCallTree cmd = new SaveAsLoader(ctx, parameters);
 		return cmd.exec(observer);
 	}
 
@@ -470,11 +465,12 @@ class ImageDataViewImpl
      * @see ImageDataView#loadTiles(long, PlaneDef, List, boolean,
      * AgentEventListener)
      */
-	public CallHandle loadTiles(long pixelsID, PlaneDef pDef,
-			Collection<Tile> tiles, boolean asTexture,
+	public CallHandle loadTiles(SecurityContext ctx, long pixelsID,
+		PlaneDef pDef, Collection<Tile> tiles, boolean asTexture,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new TileLoader(pixelsID, pDef, tiles, asTexture);
+		BatchCallTree cmd = new TileLoader(ctx, pixelsID, pDef, tiles,
+				asTexture);
 		return cmd.exec(observer);
 	}
 	
@@ -482,10 +478,10 @@ class ImageDataViewImpl
      * Implemented as specified by the view interface.
      * @see ImageDataView#shutDownRenderingControl(long, AgentEventListener)
      */
-	public CallHandle shutDownRenderingControl(long pixelsID,
-            AgentEventListener observer)
+	public CallHandle shutDownRenderingControl(SecurityContext ctx,
+			long pixelsID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingControlLoader(pixelsID,
+		BatchCallTree cmd = new RenderingControlLoader(ctx, pixelsID,
 				RenderingControlLoader.SHUTDOWN);
         return cmd.exec(observer);
 	}

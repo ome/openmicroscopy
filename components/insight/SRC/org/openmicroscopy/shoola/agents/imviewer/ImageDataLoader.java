@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.imviewer;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
@@ -51,7 +52,7 @@ import pojos.ImageData;
  * </small>
  * @since 3.0-Beta4
  */
-public class ImageDataLoader     
+public class ImageDataLoader
 	extends DataLoader
 {
 
@@ -66,11 +67,12 @@ public class ImageDataLoader
      * 
      * @param viewer    The view this loader is for.
      *                  Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param imageID  	The id of the image.
      */
-    public ImageDataLoader(ImViewer viewer, long imageID)
+    public ImageDataLoader(ImViewer viewer, SecurityContext ctx, long imageID)
     {
-        super(viewer);
+        super(viewer, ctx);
         this.imageID = imageID;
     }
 
@@ -80,7 +82,7 @@ public class ImageDataLoader
      */
     public void load()
     {
-    	handle = ivView.loadImage(imageID, getCurrentUserID(), this);
+    	handle = ivView.loadImage(ctx, imageID, getCurrentUserID(), this);
     }
 
     /**

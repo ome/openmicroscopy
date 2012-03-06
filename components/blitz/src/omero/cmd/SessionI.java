@@ -7,7 +7,9 @@
 
 package omero.cmd;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+
 import ome.conditions.SessionException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.sessions.SessionManager;
@@ -41,6 +44,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import Ice.ConnectTimeoutException;
@@ -153,7 +157,7 @@ public class SessionI implements _SessionOperations {
 
             Ice.Object servant = null;
             for (String key : Arrays.asList(req.ice_id(),
-                    HandleI.ice_staticId())) {
+                    _HandleTie.ice_staticId())) {
                 try {
                     servant = createServantDelegate(key);
                     if (servant != null && servant instanceof IHandle) {
@@ -164,20 +168,40 @@ public class SessionI implements _SessionOperations {
                 }
             }
 
-            if (servant == null || !(servant instanceof IHandle)) {
+            IHandle handle = null;
+            if (servant != null) {
+                if (servant instanceof Ice.TieBase) {
+                    Ice.TieBase tie = (Ice.TieBase) servant;
+                    Object delegate = tie.ice_delegate();
+                    if (IHandle.class.isAssignableFrom(delegate.getClass())) {
+                        handle = (IHandle) delegate;
+                    }
+                } else if (servant instanceof IHandle) {
+                    handle = (IHandle) servant;
+                }
+            }
+
+            if (handle == null) {
                 log.info("No handle found for " + req);
-                __cb.ice_response(null);
+                InternalException ie = new InternalException();
+                ie.message = "No handle found for " + req;
+                __cb.ice_exception(ie);
                 return; // EARLY EXIT
             }
 
-            IHandle handle = (IHandle) servant;
+            // ID
             Ice.Identity id = getIdentity("IHandle"
                     + UUID.randomUUID().toString());
+
+            // Tie
+            _HandleOperations ops = (_HandleOperations) servant;
             HandlePrx prx = HandlePrxHelper.checkedCast(registerServant(id,
-                    handle));
+                    new _HandleTie(ops)));
+
+            // Init
             try {
                 handle.initialize(id, (IRequest) req);
-                executor.submit(Executors.callable(handle));
+                executor.submit(current.ctx, Executors.callable(handle));
                 __cb.ice_response(prx);
             } catch (Throwable e) {
                 log.error("Exception on startup; removing handle " + id, e);
@@ -451,6 +475,7 @@ public class SessionI implements _SessionOperations {
 
         Ice.ObjectPrx prx = null;
         try {
+            servant = callContextWrapper(servant);
             Ice.Object already = adapter.find(id);
             if (null == already) {
                 adapter.add(servant, id); // OK ADAPTER USAGE
@@ -487,6 +512,22 @@ public class SessionI implements _SessionOperations {
 
         return prx;
 
+    }
+
+
+    protected Ice.Object callContextWrapper(Ice.Object servant) {
+        // If this isn't a tie, then we can't do any wrapping.
+        if (!(Ice.TieBase.class.isAssignableFrom(servant.getClass()))) {
+            return servant;
+        }
+
+        Ice.TieBase tie = (Ice.TieBase) servant;
+        Object delegate = tie.ice_delegate();
+
+        ProxyFactory wrapper = new ProxyFactory(delegate);
+        wrapper.addAdvice(0, new CallContext(context));
+        tie.ice_delegate(wrapper.getProxy());
+        return servant;
     }
 
     /**

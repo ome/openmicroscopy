@@ -74,7 +74,8 @@ import ome.model.*;
     @org.hibernate.annotations.Filter(name="${gfilter}", condition=":groupId = group_id"),
     @org.hibernate.annotations.Filter(name="${efilter}", condition=":eventId = event_id"),
     @org.hibernate.annotations.Filter(name="${pfilter}", condition=":permsStr = permissions"),
-    @org.hibernate.annotations.Filter(name="securityFilter")
+    @org.hibernate.annotations.Filter(name="OneGroupSecurityFilter"),
+    @org.hibernate.annotations.Filter(name="AllGroupsSecurityFilter")
 })
 #end
 @javax.persistence.Entity
@@ -412,7 +413,8 @@ implements java.io.Serializable, IObject
 ##
 #if(!$prop.actualTarget.global)
     @org.hibernate.annotations.Filters({
-        @org.hibernate.annotations.Filter(name="securityFilter"),
+        @org.hibernate.annotations.Filter(name="OneGroupSecurityFilter"),
+        @org.hibernate.annotations.Filter(name="AllGroupsSecurityFilter"),
         @org.hibernate.annotations.Filter(name=OWNER_FILTER_${prop.nameUpper}, condition=":ownerId = owner_id"),
         @org.hibernate.annotations.Filter(name=GROUP_FILTER_${prop.nameUpper}, condition=":groupId = group_id"),
         @org.hibernate.annotations.Filter(name=EVENT_FILTER_${prop.nameUpper}, condition=":eventId = event_id"),

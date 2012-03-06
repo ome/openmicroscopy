@@ -31,6 +31,7 @@ import java.util.Collection;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.FileAnnotationData;
 
@@ -60,12 +61,13 @@ public class AttachmentsLoader
 	 /**	
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      */
-    public AttachmentsLoader(Editor viewer)
+    public AttachmentsLoader(Editor viewer, SecurityContext ctx)
     {
-    	 super(viewer);
+    	 super(viewer, ctx);
     }
     
 	/** 
@@ -75,7 +77,7 @@ public class AttachmentsLoader
 	public void load()
 	{
 		setIds();
-		handle = mhView.loadExistingAnnotations(FileAnnotationData.class, 
+		handle = mhView.loadExistingAnnotations(ctx, FileAnnotationData.class,
 												userID, groupID, this);
 	}
 	

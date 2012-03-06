@@ -1,9 +1,10 @@
-{% extends "common/base/base_html.html" %}
+{% extends "webgateway/core_html.html" %}
 
 {% block title %}Split View Figure{% endblock %}
 
 {% block link %}
-<script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
+<!-- links to current version of jquery -->
+{% include "webgateway/base/includes/script_src_jquery.html" %}
 {% endblock %}
 
 {% block script %}
@@ -83,7 +84,7 @@ function hideHeader() {
 {% endblock %}
 
 
-{% block content %}
+{% block body %}
 <div id="header">
     
     <div style="float:left">

@@ -36,6 +36,7 @@ import ome.model.annotations.SessionAnnotationLink;
 import ome.model.internal.Details;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
 import ome.parameters.Parameters;
@@ -123,13 +124,18 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
     }
 
     /**
-     * Not in the public interface (since it allows setting to -1 which
-     * makes everything readable, but used internally similar to a
-     * LocalShare interface.
+     * Set the share id on the current session context.
+     *
+     * Previously this method was used throughout the code base in order to
+     * "open up" a session. This however, has issues since it can lead to data
+     * leakage (8037). Using the omero.group functionality (3529), this method
+     * no longer needs to be public.
      *
      * @see ticket:2219
+     * @see ticket:3529
+     * @see ticket:8037
      */
-    public Long setShareId(Long shareId) {
+    private Long setShareId(Long shareId) {
         String sessId = getSecuritySystem().getEventContext().getCurrentSessionUuid();
         SessionContext sc = (SessionContext) sessionManager
                 .getEventContext(new Principal(sessId));
@@ -572,35 +578,28 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
             @NotNull final String commentText) {
         
         getShareIfAccessible(shareId);
+        ExperimenterGroup group = iQuery.get(Share.class, shareId).getGroup();
         
         final CommentAnnotation[] rv = new CommentAnnotation[1];
-        sec.runAsAdmin(new AdminAction(){
+        sec.runAsAdmin(group, new AdminAction(){
             public void runAsAdmin() {
                 
-                Share share = iQuery.get(Share.class, shareId);
-                Long gid = share.getGroup().getId();
-                Map<String, String> ctx = new HashMap<String, String>();
-                ctx.put("omero.group", ""+gid);
-                try {
-                    executor.setCallGroup(gid);
-                    CommentAnnotation comment = new CommentAnnotation();
-                    comment.setTextValue(commentText);
-                    comment.setNs(NS_COMMENT);
-                    //comment.getDetails().setOwner(commentOwner);
-                    SessionAnnotationLink link = share.linkAnnotation(comment);
-                    //link.getDetails().setOwner(commentOwner);
-                    //
-                    // ticket:1434 - no longer setting permissions, since they
-                    // will be set to the value of the group automatically.
-                    //
-                    // comment.getDetails().setPermissions(Permissions.DEFAULT);
-                    // link.getDetails().setPermissions(Permissions.DEFAULT);
+                final Share share = iQuery.get(Share.class, shareId);
+                CommentAnnotation comment = new CommentAnnotation();
+                comment.setTextValue(commentText);
+                comment.setNs(NS_COMMENT);
+                //comment.getDetails().setOwner(commentOwner);
+                SessionAnnotationLink link = share.linkAnnotation(comment);
+                //link.getDetails().setOwner(commentOwner);
+                //
+                // ticket:1434 - no longer setting permissions, since they
+                // will be set to the value of the group automatically.
+                //
+                // comment.getDetails().setPermissions(Permissions.DEFAULT);
+                // link.getDetails().setPermissions(Permissions.DEFAULT);
 
-                    iUpdate.flush();
-                    rv[0] = iQuery.get(CommentAnnotation.class, comment.getId());
-                } finally {
-                    executor.resetCallGroup();
-                }
+                iUpdate.flush();
+                rv[0] = iQuery.get(CommentAnnotation.class, comment.getId());
 
             }});
         return rv[0];
@@ -918,18 +917,11 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
      */
     protected ShareData getShareIfAccessible(long shareId) {
 
-        ShareData data = store.get(shareId);
-        if (data == null) {
-            return null;
-        }
-
         EventContext ec = getSecuritySystem().getEventContext();
         boolean isAdmin = ec.isCurrentUserAdmin();
         long userId = ec.getCurrentUserId();
-        if (data.owner == userId || data.members.contains(userId) || isAdmin) {
-            return data;
-        }
-        return null;
+        return store.getShareIfAccessible(shareId, isAdmin, userId);
+
     }
 
     protected void _addGraph(ShareData data, Graph g) {
