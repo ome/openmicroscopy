@@ -1817,7 +1817,7 @@ class _BlitzGateway (object):
         @return:            True if the group was switched successfully
         """
         if self.getEventContext().groupId == groupid:
-            return True
+            return None
         if groupid not in self._ctx.memberOfGroups and 0 not in self._ctx.memberOfGroups:
             return False
         self._lastGroupId = self._ctx.groupId
