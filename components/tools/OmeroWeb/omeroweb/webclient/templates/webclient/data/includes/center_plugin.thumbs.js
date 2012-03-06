@@ -66,6 +66,8 @@ $(document).ready(function() {
         // handle single object selection...
         var oid = selected.attr('id');                              // E.g. 'dataset-501'
         var orel = selected.attr('rel').replace("-locked", "");     // E.g. 'dataset'
+        var page = selected.data("page") || null;                   // Check for pagination
+
         // Check what we've currently loaded: E.g. 'dataset-501'
         var crel = $("div#content_details").attr('rel');
         if (!oid) return;
@@ -98,6 +100,7 @@ $(document).ready(function() {
             if (oid!==crel) {
                 update['rel'] = oid;
                 update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
+                if (page) update['url'] += "&page="+page;
             }
         } else if(orel == "share") {
             if (oid!==crel) {

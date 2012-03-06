@@ -266,6 +266,7 @@ function doPagination(view, page) {
     $("div#content_details").html('<p>Loading data... please wait <img src="../../static/webgateway/img/spinner.gif"/></p>');
     $("div#content_details").load('/webclient/load_data/'+rel[0]+'/'+rel[1]+'/?view='+view+'&page='+page, function() {
         $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
+        $("#dataTree #"+ rel[0]+'-'+rel[1]).data("page", page);     // let the parent node keep track of current page
         if(rel[0].indexOf("orphaned")<0) {
             src = '/webclient/metadata_details/'+rel[0]+'/'+rel[1]+'/';
             loadMetadataPanel(src);
