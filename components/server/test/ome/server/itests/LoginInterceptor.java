@@ -6,39 +6,44 @@
  */
 package ome.server.itests;
 
-import ome.security.basic.PrincipalHolder;
-import ome.system.Principal;
+import java.util.Map;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+
+import ome.security.basic.CurrentDetails;
+import ome.system.Principal;
 
 /**
  * Simple interceptor used to control login on all method calls.
  */
 public class LoginInterceptor implements MethodInterceptor {
 
-    final PrincipalHolder holder;
+    final CurrentDetails cd;
     public Principal p;
+    public Map<String, String> callContext = null;
 
-    public LoginInterceptor(PrincipalHolder holder) {
-        this.holder = holder;
+    public LoginInterceptor(CurrentDetails cd) {
+        this.cd = cd;
     }
 
     public Object invoke(MethodInvocation arg0) throws Throwable {
         int still;
-        still = holder.size();
+        still = cd.size();
         if (still != 0) {
             throw new RuntimeException(still + " remaining on login!");
         }
 
         if (p != null) {
-            holder.login(p);
+            cd.login(p);
+            cd.setContext(callContext);
         }
 
         try {
             return arg0.proceed();
         } finally {
-            still = holder.logout();
+            cd.setContext(null);
+            still = cd.logout();
             if (still != 0) {
                 throw new RuntimeException(still + " remaining on logout!");
             }

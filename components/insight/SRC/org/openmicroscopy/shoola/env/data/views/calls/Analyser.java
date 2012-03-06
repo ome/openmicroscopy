@@ -31,6 +31,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
@@ -71,10 +72,12 @@ public class Analyser
     /**
      * Creates a {@link BatchCall} to analyze the specified shapes.
      * 
-     * @param shapes	Collection of shapes to analyze. 
+     * @param ctx The security context.
+     * @param shapes Collection of shapes to analyze.
      * @return The {@link BatchCall}.
      */
-    private BatchCall analyseShapes(final ROIShape[] shapes)
+    private BatchCall analyseShapes(final SecurityContext ctx,
+    		final ROIShape[] shapes)
     {
     	return new BatchCall("Analysing shapes") {
     		            public void doCall() throws Exception
@@ -86,11 +89,8 @@ public class Analyser
             					pixels.getSizeC(), pixels.getSizeX(),
             					pixels.getSizeY());
             	try {
-            		result = analyser.analyze(shapes, channels);
+            		result = analyser.analyze(ctx, shapes, channels);
 				} catch (Exception e) {
-					
-					//TODO handle exception
-					e.printStackTrace();
 				}
             }
         };
@@ -112,13 +112,15 @@ public class Analyser
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param pixels	The pixels set to analyze.
      * @param channels	Collection of active channels. 
      * 					Mustn't be <code>null</code>.
      * @param shapes	Collection of shapes to analyze. 
      * 					Mustn't be <code>null</code>.
      */
-    public Analyser(PixelsData pixels, List channels, List shapes)
+    public Analyser(SecurityContext ctx, PixelsData pixels, List channels,
+    		List shapes)
     {
     	if (pixels == null) 
     		throw new IllegalArgumentException("No Pixels specified."); 
@@ -135,7 +137,7 @@ public class Analyser
 			data[index] = (ROIShape) i.next();
 			index++;
 		}
-		loadCall = analyseShapes(data);
+		loadCall = analyseShapes(ctx, data);
     }
     
 }

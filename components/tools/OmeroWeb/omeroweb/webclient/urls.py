@@ -25,7 +25,6 @@
 import os.path
 
 from django.conf.urls.defaults import *
-from django.views.static import serve
 
 from omeroweb.webclient import views
 
@@ -33,7 +32,8 @@ urlpatterns = patterns('django.views.generic.simple',
     
     url( r'^$', views.index, name="webindex" ),
     # render main template
-    url( r'^(?P<menu>((?i)userdata|public|history|search|importer|help|usertags))/$', views.load_template, name="load_template" ),
+    url( r'^(?P<menu>((?i)userdata|public|history|search|help|usertags))/$', views.load_template, name="load_template" ),
+    url( r'^userdata/$', views.load_template, {'menu':'userdata'}, name="userdata" ),
 
     url( r'^context/$', views.index_context, name="index_context" ),
     url( r'^last_imports/$', views.index_last_imports, name="index_last_imports" ),
@@ -44,24 +44,23 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^logout/$', views.logout, name="weblogout" ),
     url( r'^active_group/$', views.change_active_group, name="change_active_group" ),
     
-    url ( r'^myaccount/(?:(?P<action>((?i)save))/)?$', views.manage_myaccount, name="myaccount"),
-    url ( r'^upload_myphoto/(?:(?P<action>((?i)upload|crop|editphoto))/)?$', views.upload_myphoto, name="upload_myphoto"),
-    
     # load basket
     url( r'^basket/empty/$', views.empty_basket, name="empty_basket"),
     url( r'^basket/update/$', views.update_basket, name="update_basket"),
     url( r'^basket/(?:(?P<action>[a-zA-Z]+)/)?$', views.basket_action, name="basket_action"),
+    url( r'^basket_content/$', views.basket_action, {'template':'webclient/basket/basketContent.html'}, name="basket_content"),
     
-    # update, display processes, E.g. delete queues, scripts etc.
-    url( r'^progress/', views.progress, name="progress"),
-    url( r'^status/(?:(?P<action>[a-zA-Z]+)/)?$', views.status_action, name="status"),
+    # update, display activities, E.g. delete queues, scripts etc.
+    url( r'^activities/', views.activities, name="activities"),
+    url( r'^activities_json/', views.activities, {'template':'json'}, name="activities_json"),
+    url( r'^activities_update/(?:(?P<action>clean)/)?$', views.activities_update, name="activities_update"),
     
     # loading data    
     url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well|orphaned))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|acquisition|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
     
     # load history
     url( r'^load_calendar/(?:(\d{4})/(\d{1,2})/)?$', views.load_calendar, name="load_calendar"),
-    url( r'^load_history/(\d{4})/(\d{1,2})/(\d{1,2})/$', views.load_history, name="load_history"),
+    url( r'^load_history/(?:(\d{4})/(\d{1,2})/(\d{1,2})/)?$', views.load_history, name="load_history"),
     
     # load search
     url( r'^load_searching/(?:(?P<form>((?i)form))/)?$', views.load_searching, name="load_searching"),
@@ -70,13 +69,17 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^load_public/(?:(?P<share_id>[0-9]+)/)?$', views.load_public, name="load_public"),
     
     # metadata
-    url( r'^metadata_details/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_details, name="load_metadata_details" ),
+    url( r'^metadata_details/(?:(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/)?(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_details, name="load_metadata_details" ),
     url( r'^metadata_acquisition/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_acquisition, name="load_metadata_acquisition" ),
     url( r'^metadata_preview/(?P<imageId>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_preview, name="load_metadata_preview" ),
     url( r'^metadata_hierarchy/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.load_metadata_hierarchy, name="load_metadata_hierarchy" ),
-    url( r'^metadata_details/multiaction/(?:(?P<action>[a-zA-Z]+)/)?$', views.manage_annotation_multi, name="manage_annotation_multi" ),
+    #url( r'^metadata_details/multiaction/(?:(?P<action>[a-zA-Z]+)/)?$', views.manage_annotation_multi, name="manage_annotation_multi" ),
     
     url( r'^action/(?P<action>[a-zA-Z]+)/(?:(?P<o_type>[a-zA-Z]+)/)?(?:(?P<o_id>[0-9]+)/)?$', views.manage_action_containers, name="manage_action_containers" ),
+    url( r'^batch_annotate/$', views.batch_annotate, name="batch_annotate" ),
+    url( r'^annotate_tags/$', views.annotate_tags, name="annotate_tags" ),
+    url( r'^annotate_comment/$', views.annotate_comment, name="annotate_comment" ),
+    url( r'^annotate_file/$', views.annotate_file, name="annotate_file" ),
     url( r'^annotation/(?P<action>[a-zA-Z]+)/(?P<iid>[0-9]+)/$', views.download_annotation, name="download_annotation" ),
     url( r'^archived_files/download/(?P<iid>[0-9]+)/$', views.archived_files, name="archived_files" ),
     
@@ -113,15 +116,9 @@ urlpatterns = patterns('django.views.generic.simple',
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$', views.render_col_plot, name="web_render_col_plot"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', views.render_split_channel, name="web_render_split_channel"),
     
-    #url( r'^clipboard/$', views.update_clipboard, name="update_clipboard"),
-        
-    #url( r'^import/$', views.importer, name="importer"),
-    
     url( r'^help_search/$', 'direct_to_template', {'template': 'webclient/help/help_search.html'}, name="help_search" ),
     
-    url( r'^myphoto/$', views.myphoto, name="myphoto"),
-    url( r'^change_password/$', views.change_password, name="change_password"),
-    url( r'^userphoto/(?P<oid>[0-9]+)/$', views.load_photo, name="load_photo"),
+    url( r'^avatar/(?P<oid>[0-9]+)/$', views.avatar, name="avatar"),
     
     url( r'^spellchecker/$', views.spellchecker, name="spellchecker"), 
     

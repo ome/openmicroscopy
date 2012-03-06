@@ -24,6 +24,8 @@
 
 package org.openmicroscopy.shoola.env.log;
 
+import java.io.File;
+
 //Java imports
 
 //Third-party libraries
@@ -151,5 +153,12 @@ public interface Logger
 	 * @param msg	The log message.
 	 */
 	public void fatal(Object originator, LogMessage msg);
+	
+	/** 
+	 * Returns the log file.
+	 * 
+	 * @return See above.
+	 */
+	public String getLogFile();
     
 }

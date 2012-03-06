@@ -547,7 +547,7 @@ public class UIUtilities
 	public static void showOnScreen(Component window, Point location) 
 	{
 		if (window == null) return;
-		if (location == null) centerOnScreen(window);
+		if (location == null) centerAndShow(window);
 		else {
 			window.setLocation(location);
 			window.setVisible(true);
@@ -1122,7 +1122,7 @@ public class UIUtilities
      * 
      * @param b The button.
      */
-    public static void unifiedButtonLookAndFeel(AbstractButton b)
+    public static void unifiedButtonLookAndFeel(JComponent b)
     {
     	if (b == null) return;
         //b.setMargin(new Insets(0, 2, 0, 3));

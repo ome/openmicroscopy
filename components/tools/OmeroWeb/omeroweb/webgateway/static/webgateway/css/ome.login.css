@@ -1,0 +1,61 @@
+/*
+ * Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+
+#login-logo {
+    margin: 5% auto 5px auto;
+    background-color: #000;
+    border: 1px solid #555;
+    width: 551px;
+}
+#login {
+    margin: 0px auto;
+    background-color: #000;
+    border: 1px solid #555;
+    width: 551px;
+}
+
+#login table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#login form {
+    padding: 5px;
+    color: #fff;
+}
+#login td {
+    text-align: left;
+    padding: 5px ;
+    vertical-align:middle;
+}
+#login th {
+    font-weight: bold;
+    vertical-align:middle;
+}
+#login form table td select {
+    min-width: 200px;
+}
+#login-footer {
+    clear: both;
+    font-size: 11px;
+    text-align: center;
+    margin-top: 10px;
+    height: 100px;
+}

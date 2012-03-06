@@ -12,5 +12,6 @@
   <dependencies defaultconfmapping="test->*">
     <dependency org="omero" name="omero_client" rev="${omero.version}" changing="true"/>
     <dependency org="omero" name="blitz-test" rev="${omero.version}" changing="true"/>
+    <dependency org="omero" name="specification-test" rev="${omero.version}" changing="true"/>
   </dependencies>
 </ivy-module>

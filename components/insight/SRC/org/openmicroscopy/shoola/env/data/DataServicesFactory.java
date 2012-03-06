@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -51,6 +52,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -306,17 +308,35 @@ public class DataServicesFactory
 		//exitApplication();
     }
     
+    /**
+     * Returns the credentials.
+     * 
+     * @return See above.
+     */
+    UserCredentials getCredentials()
+    {
+    	return (UserCredentials) 
+    		registry.lookup(LookupNames.USER_CREDENTIALS);
+    }
+    
 	/** 
 	 * Brings up a dialog indicating that the session has expired and
 	 * quits the application.
 	 * 
 	 * @param index One of the connection constants defined by the gateway.
+	 * @param exc The exception to register.
 	 */
-	public void sessionExpiredExit(int index)
+	public void sessionExpiredExit(int index, Throwable exc)
 	{
 		if (connectionDialog != null) return;
 		String message;
 		UserNotifier un = registry.getUserNotifier();
+		if (exc != null) {
+			LogMessage msg = new LogMessage();
+			msg.print("Session Expired");
+			msg.print(exc);
+			registry.getLogger().debug(this, msg);
+		}
 		switch (index) {
 			case LOST_CONNECTION:
 				message = "The connection has been lost. \nDo you want " +
@@ -345,7 +365,7 @@ public class DataServicesFactory
 						while (i.hasNext()) {
 							id = i.next();
 							try {
-								svc.reloadRenderingService(id);
+								//svc.reloadRenderingService(id);
 							} catch (Exception e) {
 								failure.add(id);
 							}
@@ -439,12 +459,14 @@ public class DataServicesFactory
     	
         //Check if client and server are compatible.
         String version = omeroGateway.getServerVersion();
+        /* TODO: review version handling.
         if (!checkClientServerCompatibility(version, clientVersion)) {
         	compatible = false;
         	notifyIncompatibility(clientVersion, version, uc.getHostName());
         	omeroGateway.logout();
         	return;
         }
+        */
         
         //Register into log file.
         Map<String, String> info = ProxyUtil.collectOsInfoAndJavaVersion();
@@ -463,30 +485,19 @@ public class DataServicesFactory
         executor = new ScheduledThreadPoolExecutor(1);
         executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
         
-        String ldap = omeroGateway.lookupLdapAuthExperimenter(exp.getId());
-        //replace Server string in fs config
-        /*
-        Iterator k = fsConfig.keySet().iterator();
-        String value, key;
-        String regex = LookupNames.FS_HOSTNAME;
-        while (k.hasNext()) {
-        	key = (String) k.next();
-			value = fsConfig.getProperty(key);
-			value = value.replaceAll(regex, uc.getHostName());
-			fsConfig.setProperty(key, value);
-		}
-        omeroGateway.startFS(fsConfig);
-        */ 
-        registry.bind(LookupNames.USER_AUTHENTICATION, ldap);
+        //String ldap = omeroGateway.lookupLdapAuthExperimenter(exp.getId());
+        //registry.bind(LookupNames.USER_AUTHENTICATION, ldap);
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.CONNECTION_SPEED, 
         		isFastConnection(uc.getSpeedLevel()));
         
-        Set<GroupData> groups;
+        Collection<GroupData> groups;
         Set<GroupData> available;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
         try {
-        	groups = omeroGateway.getAvailableGroups(exp);
+        	SecurityContext ctx = new SecurityContext(
+        			exp.getDefaultGroup().getId());
+        	groups = omeroGateway.getAvailableGroups(ctx, exp);
         	//Check if the current experimenter is an administrator 
         	Iterator<GroupData> i = groups.iterator();
         	GroupData g;
@@ -527,15 +538,15 @@ public class DataServicesFactory
 		} 
         //Bind user details to all agents' registry.
         List agents = (List) registry.lookup(LookupNames.AGENTS);
-		Iterator i = agents.iterator();
+		Iterator kk = agents.iterator();
 		AgentInfo agentInfo;
 		Registry reg;
 		Boolean b = (Boolean) registry.lookup(LookupNames.BINARY_AVAILABLE);
-		while (i.hasNext()) {
-			agentInfo = (AgentInfo) i.next();
+		while (kk.hasNext()) {
+			agentInfo = (AgentInfo) kk.next();
 			if (agentInfo.isActive()) {
 				reg = agentInfo.getRegistry();
-				reg.bind(LookupNames.USER_AUTHENTICATION, ldap);
+				//reg.bind(LookupNames.USER_AUTHENTICATION, ldap);
 				reg.bind(LookupNames.CURRENT_USER_DETAILS, exp);
 				reg.bind(LookupNames.USER_GROUP_DETAILS, available);
 				reg.bind(LookupNames.USERS_DETAILS, exps);
@@ -565,8 +576,12 @@ public class DataServicesFactory
 	 */
 	public boolean isCompatible() { return compatible; }
 	
-    /** Shuts down the connection. */
-	public void shutdown()
+    /** 
+     * Shuts down the connection.
+     * 
+     * @param ctx The security context.
+     */
+	public void shutdown(SecurityContext ctx)
     { 
 		//Need to write the current group.
 		Set groups = (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
@@ -590,8 +605,8 @@ public class DataServicesFactory
 			ScreenLogin.registerGroup(names);
 		} else ScreenLogin.registerGroup(null);
 		CacheServiceFactory.shutdown(container);
-        ((OmeroImageServiceImpl) is).shutDown();
-        omeroGateway.logout();
+        ((OmeroImageServiceImpl) is).shutDown(ctx);
+        omeroGateway.logout(); 
         if (executor != null) executor.shutdown();
         executor = null;
     }
@@ -651,7 +666,7 @@ public class DataServicesFactory
 					return;
 			}
 		}
-		shutdown();
+		shutdown(null);
 		if (exit) container.exit();
 	}
 
@@ -663,7 +678,8 @@ public class DataServicesFactory
 	 */
 	public static void isSessionAlive(Registry context)
 	{
-		if (context == registry) omeroGateway.isSessionAlive();
+		//To review
+		//if (context == registry) omeroGateway.isSessionAlive();
 	}
 	
 }

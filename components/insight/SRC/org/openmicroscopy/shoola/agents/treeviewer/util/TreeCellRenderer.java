@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -37,12 +38,15 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.util.browser.SmartFolder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
@@ -217,11 +221,32 @@ public class TreeCellRenderer
 	/** Reference to the <code>Date</code> icon. */
 	private static final Icon DATE_ICON;
 	
-	/** Reference to the <code>Date</code> icon. */
+	/** Reference to the <code>Group</code> icon. */
 	private static final Icon OWNER_GROUP_ICON;
+	
+	/** Reference to the <code>Group Private</code> icon. */
+	private static final Icon GROUP_PRIVATE_ICON;
+	
+	/** Reference to the <code>Group RWR---</code> icon. */
+	private static final Icon GROUP_READ_ONLY_ICON;
+	
+	/** Reference to the <code>Group RWRW--</code> icon. */
+	private static final Icon GROUP_READ_WRITE_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_ICON;
+	
+	/** Reference to the <code>Group</code> icon. */
+	private static final Icon GROUP_PUBLIC_READ_WRITE_ICON;
 	
 	static { 
 		IconManager icons = IconManager.getInstance();
+		GROUP_PRIVATE_ICON = icons.getIcon(IconManager.PRIVATE_GROUP);
+		GROUP_READ_ONLY_ICON = icons.getIcon(IconManager.READ_GROUP);
+		GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_LINK_GROUP);
+		GROUP_PUBLIC_READ_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
+		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(
+				IconManager.PUBLIC_GROUP);
 		OWNER_GROUP_ICON = icons.getIcon(IconManager.OWNER_GROUP);
 		IMAGE_ICON = icons.getIcon(IconManager.IMAGE);
 		IMAGE_ANNOTATED_ICON = icons.getIcon(IconManager.IMAGE_ANNOTATED);
@@ -290,6 +315,21 @@ public class TreeCellRenderer
 
     /** Filter to identify protocol file. */
     private EditorFileFilter 	filter;
+    
+    /** Flag indicating if the node to render is the target node.*/
+    private boolean isTargetNode;
+    
+    /** Flag indicating if the node to render is the target node.*/
+    private boolean droppedAllowed;
+    
+    /** The color used when dragging.*/
+    private Color draggedColor;
+
+    /** Indicates if the node is selected or not.*/
+    private boolean selected;
+    
+    /** The location of the text.*/
+    private int xText;
     
     /**
      * Sets the icon and the text corresponding to the user's object.
@@ -361,7 +401,28 @@ public class TreeCellRenderer
         		icon = PLATE_ACQUISITION_ANNOTATED_ICON;
         	else icon = PLATE_ACQUISITION_ICON; 
         } else if (usrObject instanceof GroupData) {
-        	icon = OWNER_GROUP_ICON;
+        	GroupData g = (GroupData) usrObject;
+        	int level = 
+            TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+                			g);
+        	switch (level) {
+	        	case AdminObject.PERMISSIONS_PRIVATE:
+	        		icon = GROUP_PRIVATE_ICON;
+	        		break;
+	        	case AdminObject.PERMISSIONS_GROUP_READ:
+	        		icon = GROUP_READ_ONLY_ICON;
+	        		break;
+	        	case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+	        		icon = GROUP_READ_WRITE_ICON;
+	        		break;
+	        	case AdminObject.PERMISSIONS_PUBLIC_READ:
+	        		icon = GROUP_PUBLIC_READ_ICON;
+	        		break;
+	        	case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+	        		icon = GROUP_PUBLIC_READ_WRITE_ICON;
+	        	default:
+	        		icon = OWNER_GROUP_ICON;
+        	}
         } else if (usrObject instanceof FileAnnotationData) {
         	FileAnnotationData data = (FileAnnotationData) usrObject;
         	String format = data.getFileFormat();
@@ -466,7 +527,11 @@ public class TreeCellRenderer
     public TreeCellRenderer(boolean b)
     {
         numberChildrenVisible = b;
+        selected = false;
         filter = new EditorFileFilter();
+        draggedColor = new Color(backgroundSelectionColor.getRed(),
+				backgroundSelectionColor.getGreen(),
+				backgroundSelectionColor.getBlue(), 100);
     }
     
     /** Creates a new instance. */
@@ -474,7 +539,7 @@ public class TreeCellRenderer
     
     /**
      * Overridden to set the icon and the text.
-     * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object, 
+     * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object,
      * 								boolean, boolean, boolean, int, boolean)
      */
     public Component getTreeCellRendererComponent(JTree tree, Object value,
@@ -483,6 +548,16 @@ public class TreeCellRenderer
     {
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
                                                 row, hasFocus);
+        isTargetNode = false;
+        droppedAllowed = true;
+        selected = sel;
+        if (tree instanceof DnDTree) {
+        	DnDTree dndTree = (DnDTree) tree;
+        	isTargetNode = (value == dndTree.getDropTargetNode());
+        	if (dndTree.getRowDropLocation() == row) {
+        		droppedAllowed = false;
+        	}
+        }
         setIcon(FILE_TEXT_ICON);
         if (!(value instanceof TreeImageDisplay)) return this;
         TreeImageDisplay  node = (TreeImageDisplay) value;
@@ -514,18 +589,40 @@ public class TreeCellRenderer
         setForeground(c);
         if (!sel) setBorderSelectionColor(getBackground());
         else setTextColor(getBackgroundSelectionColor());
-        
         if (getIcon() != null) w += getIcon().getIconWidth();
         else w += SIZE.width;
         w += getIconTextGap();
+        xText = w;
         if (ho instanceof ImageData)
         	w += fm.stringWidth(node.getNodeName());
         else if (node instanceof TreeFileSet)
         	w +=  fm.stringWidth(getText())+40;
         else w += fm.stringWidth(getText());
+        
         setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
         setEnabled(node.isSelectable());
         return this;
     }
+    
+    /**
+     * Overridden to highlight the destination of the target.
+     * @see paintComponent(Graphics)
+     */
+    public void paintComponent(Graphics g)
+    {
+    	//super.paintComponent(g);
+    	if (isTargetNode) {
+			if (!droppedAllowed) {
+				if (selected) g.setColor(backgroundSelectionColor);
+				else g.setColor(backgroundNonSelectionColor);
+				
+			} else g.setColor(draggedColor);
+			g.fillRect(xText, 0, getSize().width, getSize().height);
+		}
+    	selected = false;
+    	isTargetNode = false;
+    	droppedAllowed = false;
+    	super.paintComponent(g);
+	}
   
 }

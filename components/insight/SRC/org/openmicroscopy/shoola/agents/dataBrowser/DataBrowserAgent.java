@@ -80,6 +80,16 @@ public class DataBrowserAgent
      */
     public static Registry getRegistry() { return registry; }
     
+	/**
+	 * Returns the available user groups.
+	 * 
+	 * @return See above.
+	 */
+	public static Set getAvailableUserGroups()
+	{
+		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+	}
+	
     /**
      * Returns the identifier of the plugin to run.
      * 

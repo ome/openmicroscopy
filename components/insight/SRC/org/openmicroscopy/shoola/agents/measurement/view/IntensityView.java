@@ -33,6 +33,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -107,7 +109,8 @@ import pojos.ChannelData;
  */
 class IntensityView
 	extends JPanel 
-	implements ActionListener, TabPaneInterface, ChangeListener
+	implements ActionListener, TabPaneInterface, ChangeListener,
+	PropertyChangeListener
 {
 	
 	/** Index to identify tab */
@@ -258,10 +261,53 @@ class IntensityView
 	/** Table Model. */
 	private IntensityModel				tableModel;
 	
+	/** Indicates the selected plane.*/
+	private void formatPlane()
+	{
+		if (!zSlider.isVisible() && !tSlider.isVisible()) {
+			view.setPlaneStatus("");
+			return;
+		}
+		StringBuffer buffer = new StringBuffer();
+		if (zSlider.isVisible())
+			buffer.append("Z="+zSlider.getValue()+" ");
+		if (tSlider.isVisible())
+			buffer.append("T="+tSlider.getValue());
+		view.setPlaneStatus(buffer.toString());
+	}
+	
 	/** The slider has changed value and the mouse button released. */
 	private void handleSliderReleased()
 	{
-		stateChanged(null);
+		if (zSlider == null || tSlider == null || coord == null || 
+				state != State.READY)
+			return;
+		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, 
+				tSlider.getValue()-1);
+		if (coord.equals(thisCoord)) return;
+		if (!pixelStats.containsKey(thisCoord)) return;
+	
+		Object[] nameColour = (Object[]) channelSelection.getSelectedItem();
+		String string = (String)nameColour[1];
+		if (!nameMap.containsKey(string))
+		{
+			state=State.READY;
+			return;
+		}
+		selectedChannelName = string;
+		int channel = nameMap.get(string);
+		if (channel == -1)
+			return;
+		if (!pixelStats.get(thisCoord).containsKey(channel))
+			return;
+		
+		state = State.ANALYSING;
+		populateData(thisCoord, channel);
+		formatPlane();
+		//repaint();
+		if (shape!=null)
+			view.selectFigure(shape.getFigure());
+		state = State.READY;
 	}
 
 	/** Initializes the table model.*/
@@ -306,13 +352,6 @@ class IntensityView
 		zSlider.setPaintTicks(false);
 		zSlider.setPaintLabels(false);
 		zSlider.setMajorTickSpacing(1);
-		zSlider.addMouseListener(new MouseAdapter()
-		{
-			public void mouseReleased(MouseEvent e)
-			{
-				handleSliderReleased();
-			}
-		});
 		zSlider.setShowArrows(true);
 		zSlider.setVisible(false);
 		zSlider.setEndLabel("Z");
@@ -323,17 +362,14 @@ class IntensityView
 		tSlider.setPaintLabels(false);
 		tSlider.setMajorTickSpacing(1);
 		tSlider.setSnapToTicks(true);
-		tSlider.addMouseListener(new MouseAdapter()
-		{
-			public void mouseReleased(MouseEvent e)
-			{
-				handleSliderReleased();
-			}
-		});
 		tSlider.setShowArrows(true);
 		tSlider.setVisible(false);	
 		tSlider.setEndLabel("T");
 		tSlider.setShowEndLabel(true);
+		zSlider.addPropertyChangeListener(this);
+		tSlider.addPropertyChangeListener(this);
+		zSlider.addChangeListener(this);
+		tSlider.addChangeListener(this);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -405,7 +441,7 @@ class IntensityView
 		return panel;
 	}
 	
-	/** Clears the maps just incase the data is not being reassigned. */
+	/** Clears the maps just in case the data is not being reassigned. */
 	private void clearMaps()
 	{
 		if (shapeStatsList != null)
@@ -1190,7 +1226,8 @@ class IntensityView
 		zSlider.setValue(model.getCurrentView().getZSection()+1);
 		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
 		shape = shapeMap.get(coord);
-		populateData(coord, selectedChannel);	
+		populateData(coord, selectedChannel);
+		formatPlane();
 		saveButton.setEnabled(tableModel.getRowCount() > 0);
 		state = State.READY;
 	}
@@ -1211,6 +1248,24 @@ class IntensityView
 			showIntensityTable.setEnabled(size > 0);
 		}
 	}
+	
+ 	/**
+ 	 * Indicates any on-going analysis.
+ 	 * 
+ 	 * @param analyse Passes <code>true</code> when analyzing,
+ 	 * <code>false</code> otherwise.
+ 	 */
+	void onAnalysed(boolean analyse)
+	{
+		zSlider.setEnabled(!analyse);
+		tSlider.setEnabled(!analyse);
+	}
+	
+	/**
+	 * Implemented as specified by the I/F {@link TabPaneInterface}
+	 * @see TabPaneInterface#getIndex()
+	 */
+	public int getIndex() {return INDEX; }
 	
 	/** 
 	 * Reacts to the controls.
@@ -1249,44 +1304,30 @@ class IntensityView
 
 	/**
 	 * Reacts to slider moves.
-	 * @see ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
+	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */
-	public void stateChanged(ChangeEvent e)
+	public void stateChanged(ChangeEvent evt)
 	{
-		if (zSlider == null || tSlider == null || coord == null || 
-				state != State.READY)
-			return;
-		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, 
-				tSlider.getValue()-1);
-		if (coord.equals(thisCoord)) return;
-		if (!pixelStats.containsKey(thisCoord)) return;
-	
-		Object[] nameColour = (Object[]) channelSelection.getSelectedItem();
-		String string = (String)nameColour[1];
-		if (!nameMap.containsKey(string))
-		{
-			state=State.READY;
-			return;
+		Object src = evt.getSource();
+		if (src == zSlider || src == tSlider) {
+			formatPlane();
+			OneKnobSlider slider = (OneKnobSlider) src;
+			if (!slider.isDragging()) {
+				handleSliderReleased();
+			}
 		}
-		selectedChannelName = string;
-		int channel = nameMap.get(string);
-		if (channel == -1)
-			return;
-		if (!pixelStats.get(thisCoord).containsKey(channel))
-			return;
-		
-		state = State.ANALYSING;
-		populateData(thisCoord, channel);
-		repaint();
-		if (shape!=null)
-			view.selectFigure(shape.getFigure());
-		state = State.READY;
 	}
 	
 	/**
-	 * Implemented as specified by the I/F {@link TabPaneInterface}
-	 * @see TabPaneInterface#getIndex()
+	 * Listens to property fired by {@link #zSlider} or {@link #tSlider}.
+	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */
-	public int getIndex() {return INDEX; }
-	
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (OneKnobSlider.ONE_KNOB_RELEASED_PROPERTY.equals(name)) {
+			handleSliderReleased();
+		}
+	}
+
 }

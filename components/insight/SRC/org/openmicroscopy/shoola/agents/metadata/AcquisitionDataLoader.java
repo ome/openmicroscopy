@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.ChannelAcquisitionData;
@@ -54,20 +55,22 @@ public class AcquisitionDataLoader
 {
 
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle handle;
     
     /** Either an image or a channel. */
-    private Object 		refObject;
+    private Object refObject;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer	Reference to the viewer. Mustn't be <code>null</code>.
+     * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param refObject Either an image or a channel.
      */
-	public AcquisitionDataLoader(Editor viewer, Object refObject)
+	public AcquisitionDataLoader(Editor viewer, SecurityContext ctx,
+			Object refObject)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (refObject == null)
 			throw new IllegalArgumentException("Ref Object cannot be null.");
 		this.refObject = refObject;
@@ -79,7 +82,7 @@ public class AcquisitionDataLoader
      */
     public void load()
     {
-    	handle = imView.loadAcquisitionData(refObject, this);
+    	handle = imView.loadAcquisitionData(ctx, refObject, this);
     }
     
     /** 

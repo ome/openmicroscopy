@@ -31,14 +31,9 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ImageData;
 
 /** 
  * Opens the viewer.
@@ -61,7 +56,7 @@ public class ViewAction
 	public static final String NAME = "View...";
 	
 	/** The description of the action. */
-	public static final String DESCRIPTION = "Launch the viewer.";
+	public static final String DESCRIPTION = "Open the viewer.";
 	
 	/** Name of the action. */
 	public static final String NAME_IJ = "View in ImageJ...";
@@ -91,10 +86,7 @@ public class ViewAction
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		ImageData image = model.getRefImage();
-		if (image == null) return;
-		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new ViewImage(new ViewImageObject(image), null));
+		model.viewImage();
 	}
 	
 }

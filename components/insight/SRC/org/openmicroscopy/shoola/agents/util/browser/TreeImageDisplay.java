@@ -159,6 +159,9 @@ public abstract class TreeImageDisplay
     /** Flag indicating that the node has to be refreshed. */
     protected boolean					toRefresh;
     
+    /** Indicates to display or not the number of items.*/
+    private boolean displayItems;
+    
     /**
      * Checks if the algorithm to visit the tree is one of the constants
      * defined by {@link TreeImageDisplayVisitor}.
@@ -197,6 +200,7 @@ public abstract class TreeImageDisplay
         numberItems = -1;
         partialName = true;
         fontStyle = FONT_PLAIN;
+        displayItems = true;
     }
     
     /**
@@ -487,6 +491,7 @@ public abstract class TreeImageDisplay
         	return name;
         else if ((uo instanceof PlateData) && !hasChildrenDisplay())
         	return name;
+        if (!displayItems) return name;
         if (numberItems < 0) return (name+SPACE+"[...]");
         return (name+SPACE+"["+numberItems+"]");
     }
@@ -596,6 +601,17 @@ public abstract class TreeImageDisplay
      */
     public boolean isToRefresh() { return toRefresh; }
     
+    /**
+     * Sets to <code>true</code> to display the number of items,
+     * <code>false</code> otherwise.
+     * 
+     * @param displayItems The value to set.
+     */
+    public void setDisplayItems(boolean displayItems)
+    {
+    	this.displayItems = displayItems;
+    }
+    
     /** 
      * Overridden to return the name of the hierarchy object. 
      * @see Object#toString()
@@ -663,4 +679,12 @@ public abstract class TreeImageDisplay
      */
     public abstract TreeImageDisplay copy();
     
+    /**
+     * Tells if the passed node is already a child of the node.
+     * 
+     * @return 	Returns <code>true</code> if it is a child,
+     *          <code>false</code> otherwise.
+     */
+    public abstract boolean contains(TreeImageDisplay node);
+
 }

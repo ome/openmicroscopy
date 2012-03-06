@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
@@ -76,6 +77,7 @@ import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -256,7 +258,7 @@ public class TaskBarManager
 		try {
 			DataServicesFactory f = DataServicesFactory.getInstance(container);
 			if (f.isConnected()) {
-				f.shutdown();
+				f.shutdown(null);
 				synchConnectionButtons();
 			} else {
 				EventBus bus = container.getRegistry().getEventBus();
@@ -391,7 +393,7 @@ public class TaskBarManager
 	{
 		if (evt == null) return;
 		//Do we have data to save.
-		
+		/*
 		CheckoutBox box = new CheckoutBox(view, SWITCH_GROUP_TITLE, 
 				SWITCH_GROUP_TEXT, getInstancesToSave());
 		if (box.centerMsgBox() == MessageBox.YES_OPTION) {
@@ -420,6 +422,7 @@ public class TaskBarManager
 					evt.getGroupID());
 			loader.load();
 		}
+		*/
 	}
 	
 	/**
@@ -461,6 +464,7 @@ public class TaskBarManager
 		}
 	}
 	
+	/** Reconnects to the server.*/
 	private void reconnect()
 	{
 		Image img = IconManager.getOMEImageIcon();
@@ -494,7 +498,7 @@ public class TaskBarManager
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (ScreenLogin.QUIT_PROPERTY.equals(name))
-					doExit(false);
+					doExit(false, null);
 				else if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
 					LoginCredentials lc = (LoginCredentials) evt.getNewValue();
 					if (lc != null) 
@@ -535,10 +539,12 @@ public class TaskBarManager
 	 * The exit action.
 	 * Just forwards to the container.
 	 * 
-	 * @param askQuestion 	Pass <code>true</code> to pop up a message before
+	 * @param askQuestion Pass <code>true</code> to pop up a message before
 	 * 						quitting, <code>false</code> otherwise.
+	 * @param ctx The security context so the default group can be set or
+	 * <code>null</code>.
 	 */
-	private void doExit(boolean askQuestion)
+	private void doExit(boolean askQuestion, SecurityContext ctx)
     {
 		Environment env = (Environment) 
 			container.getRegistry().lookup(LookupNames.ENV);
@@ -559,11 +565,11 @@ public class TaskBarManager
 		}
 		if (option == MessageBox.YES_OPTION) {
 			if (msg == null) {
-				exitApplication();
+				exitApplication(ctx);
 			} else {
 				Map<Agent, AgentSaveInfo> map = msg.getInstancesToSave();
 				if (map == null || map.size() == 0) {
-					exitApplication();
+					exitApplication(ctx);
 				} else {
 					List<Object> nodes = new ArrayList<Object>();
 					Iterator i = map.entrySet().iterator();
@@ -577,7 +583,7 @@ public class TaskBarManager
 						agent.save(info.getInstances());
 						nodes.add(info);
 					}
-					exitApplication();
+					exitApplication(ctx);
 					//UserNotifierImpl un = (UserNotifierImpl) 
 					//container.getRegistry().getUserNotifier();
 					//un.notifySaving(nodes, this);
@@ -592,16 +598,39 @@ public class TaskBarManager
 		}
     }
 
-	/** Exits the application. */
-	private void exitApplication()
+	/** 
+	 * Exits the application.
+	 * 
+	 * @param ctx The security context or <code>null</code>.
+	 */
+	private void exitApplication(SecurityContext ctx)
 	{
+		//Change group if context not null
+		if (ctx != null) {
+			try {
+				AdminService svc = container.getRegistry().getAdminService();
+				svc.changeExperimenterGroup(ctx, null, ctx.getGroupID());
+			} catch (Exception e) {
+				IJ.log(e.getMessage());
+				Logger log = container.getRegistry().getLogger();
+				LogMessage msg = new LogMessage();
+				msg.print(e);
+				log.error(this, msg);
+			}
+		}
 		try {
+			
 			DataServicesFactory f = 
 				DataServicesFactory.getInstance(container);
 			f.exitApplication(false, true);
 		} catch (Exception e) {
 			IJ.log(e.getMessage());
-		} //ignore
+			Logger log = container.getRegistry().getLogger();
+			LogMessage msg = new LogMessage();
+			msg.print("Error while exiting");
+			msg.print(e);
+			log.error(this, msg);
+		}
 	}
 	
 	/**  Displays information about software. */
@@ -641,6 +670,7 @@ public class TaskBarManager
     /** Opens the directory where the log file is. */
     private void logFile()
     {
+    	//To be reviewed
     	String logDirName = (String) container.getRegistry().lookup(
     			LookupNames.LOG_DIR);	
 		String name = (String) container.getRegistry().lookup(
@@ -732,7 +762,7 @@ public class TaskBarManager
 	private void attachOpenExitListeners()
 	{
 		view.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { doExit(true); }
+			public void windowClosing(WindowEvent we) { doExit(true, null); }
 			public void windowOpened(WindowEvent we) { 
 				synchConnectionButtons();
 			}
@@ -873,7 +903,7 @@ public class TaskBarManager
 			try {
 				DataServicesFactory factory = 
 					DataServicesFactory.getInstance(container);
-				factory.sessionExpiredExit(index);
+				factory.sessionExpiredExit(index, null);
 			} catch (Exception e) {
 				// TODO: handle exception
 			}
@@ -937,11 +967,12 @@ public class TaskBarManager
 	 */
 	public void eventFired(AgentEvent e) 
 	{
-		if (e instanceof ServiceActivationResponse)	
+		if (e instanceof ServiceActivationResponse)
 			synchConnectionButtons();
-		else if (e instanceof ExitApplication) 
-        	doExit(((ExitApplication) e).isAskQuestion());
-		else if (e instanceof SwitchUserGroup) 
+		else if (e instanceof ExitApplication) {
+			ExitApplication a = (ExitApplication) e;
+			doExit(a.isAskQuestion(), a.getContext());
+		} else if (e instanceof SwitchUserGroup) 
 			handleSwitchUserGroup((SwitchUserGroup) e);
         else if (e instanceof SaveEventResponse) 
         	handleSaveEventResponse((SaveEventResponse) e);
@@ -967,7 +998,7 @@ public class TaskBarManager
 			Registry reg = container.getRegistry();;
 			Object exp = reg.lookup(LookupNames.CURRENT_USER_DETAILS);
 			if (exp == null) container.exit(); //not connected
-			else doExit(true);
+			//else doExit(true, null);
 		} else if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
 			LoginCredentials lc = (LoginCredentials) evt.getNewValue();
 			if (lc != null) collectCredentials(lc, login);
@@ -975,9 +1006,8 @@ public class TaskBarManager
 			login.close();
 			success = false;
 		} else if (ChangesDialog.DONE_PROPERTY.equals(name)) {
-			Boolean value = (Boolean) evt.getNewValue();
-			if (value.booleanValue())
-				exitApplication();
+			SecurityContext value = (SecurityContext) evt.getNewValue();
+			exitApplication(value);
 		}
 	}
 

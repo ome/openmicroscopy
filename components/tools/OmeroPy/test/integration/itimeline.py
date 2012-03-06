@@ -13,7 +13,6 @@ import datetime
 import unittest
 import integration.library as lib
 import omero
-import omero_Constants_ice
 from omero.rtypes import *
 
 class TestITimeline(lib.ITest):

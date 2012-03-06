@@ -31,6 +31,7 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -62,10 +63,11 @@ public class DatasetsLoader
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
      */
-	public DatasetsLoader(DataBrowser viewer)
+	public DatasetsLoader(DataBrowser viewer, SecurityContext ctx)
 	{
-		super(viewer);
+		super(viewer, ctx);
 	}
 
 	/** 
@@ -86,7 +88,7 @@ public class DatasetsLoader
 		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
 		GroupData group = exp.getDefaultGroup();
 		
-		handle = dmView.loadContainerHierarchy(DatasetData.class, null, 
+		handle = dmView.loadContainerHierarchy(ctx, DatasetData.class, null,
 				false, exp.getId(), group.getId(), this);	
 	}
 	

@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
@@ -85,13 +87,16 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.MetadataVisibilityAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasswordResetAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PersonalManagementAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshExperimenterData;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNode;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveGroupNode;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.RunScriptAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SendFeedbackAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
@@ -118,6 +123,7 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -128,9 +134,11 @@ import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
+import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import pojos.DataObject;
@@ -354,6 +362,12 @@ class TreeViewerControl
 	/** Identifies the <code>View In ImageJ</code> in the menu. */
 	static final Integer    VIEW_IN_IJ = Integer.valueOf(70);
 	
+	/** Identifies the <code>Available scripts/code>. */
+	static final Integer    AVAILABLE_SCRIPTS = Integer.valueOf(70);
+	
+	/** Identifies the <code>Remove the group/code>. */
+	static final Integer    REMOVE_GROUP = Integer.valueOf(71);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -371,6 +385,9 @@ class TreeViewerControl
 
 	/** The loading window. */
 	private LoadingWindow   				loadingWindow;
+	
+	/** One per group.*/
+	private List<MoveToAction> moveActions;
 	
 	/**
 	 * Downloads the possible script.
@@ -401,7 +418,9 @@ class TreeViewerControl
 							folder, icons.getIcon(IconManager.DOWNLOAD_22));
 					UserNotifier un = 
 						TreeViewerAgent.getRegistry().getUserNotifier();
-					un.notifyActivity(activity);
+					SecurityContext ctx = new SecurityContext(
+					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+					un.notifyActivity(ctx, activity);
 				}
 			}
 		});
@@ -541,6 +560,8 @@ class TreeViewerControl
 				new CreateObjectWithChildren(model, 
 						CreateObjectWithChildren.DATASET));
 		actionsMap.put(VIEW_IN_IJ, new ViewInPlugin(model, TreeViewer.IMAGE_J));
+		actionsMap.put(AVAILABLE_SCRIPTS, new RunScriptAction(model));
+		actionsMap.put(REMOVE_GROUP, new RemoveGroupNode(model));
 	}
 
 	/** 
@@ -564,6 +585,13 @@ class TreeViewerControl
 	 */
 	private void attachListeners()
 	{
+		if (UIUtilities.isMacOS()) {
+			try {
+				MacOSMenuHandler handler = new MacOSMenuHandler(view);
+				handler.initialize();
+				view.addPropertyChangeListener(this);
+			} catch (Throwable e) {}
+        }
 		Map browsers = model.getBrowsers();
 		Iterator i = browsers.values().iterator();
 		Browser browser;
@@ -699,6 +727,25 @@ class TreeViewerControl
 	}
 
 	/**
+	 * Returns the actions used to move data between groups. 
+	 * 
+	 * @return See abo.ve
+	 */
+	List<MoveToAction> getMoveAction()
+	{
+		if (moveActions != null) return moveActions;
+		Set l = TreeViewerAgent.getAvailableUserGroups();
+		ViewerSorter sorter = new ViewerSorter();
+		List values = sorter.sort(l);
+		moveActions = new ArrayList<MoveToAction>(l.size());
+		Iterator i = values.iterator();
+		while (i.hasNext()) {
+			moveActions.add(new MoveToAction(model, (GroupData) i.next()));
+		}
+		return moveActions;
+	}
+	
+	/**
 	 * Returns the {@link ChangeListener} attached to the tab pane,
 	 * or creates one if none initialized.
 	 * 
@@ -763,22 +810,55 @@ class TreeViewerControl
 	/**
 	 * Returns the list of group the user is a member of.
 	 * 
+	 * @param add Passes <code>true</code> to add the group to the display,
+	 * <code>false</code> to switch.
 	 * @return See above.
 	 */
-	List<GroupSelectionAction> getUserGroupAction()
+	List<GroupSelectionAction> getUserGroupAction(boolean add)
 	{
 		List<GroupSelectionAction> l = new ArrayList<GroupSelectionAction>();
 		Set m = TreeViewerAgent.getAvailableUserGroups();
 		if (m == null || m.size() == 0) return l;
 		ViewerSorter sorter = new ViewerSorter();
 		Iterator i = sorter.sort(m).iterator();
-		GroupData group;
-		GroupSelectionAction action;
 		while (i.hasNext()) {
-			group = (GroupData) i.next();
-			l.add(new GroupSelectionAction(model, group));
+			l.add(new GroupSelectionAction(model, (GroupData) i.next(), add));
 		}
 		return l;
+	}
+	
+	/**
+	 * Handles the selection of the script.
+	 * 
+	 * @param script The script to handle.
+	 * @param index Indicates to <code>view, download or run</code> the script.
+	 */
+	private void handleScript(ScriptObject script, int index)
+	{
+		if (script == null) return;
+		
+		SecurityContext ctx = new SecurityContext(
+				TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+		if (index == ScriptActivityParam.VIEW) {
+			Environment env = (Environment) 
+			TreeViewerAgent.getRegistry().lookup(LookupNames.ENV);
+			String path = env.getOmeroFilesHome();
+			path += File.separator+script.getName();
+			File f = new File(path);
+			DownloadActivityParam activity;
+			activity = new DownloadActivityParam(
+					script.getScriptID(), 
+					DownloadActivityParam.ORIGINAL_FILE, f, null);
+			activity.setApplicationData(new ApplicationData(""));
+			un.notifyActivity(ctx, activity);
+		} else if (index == ScriptActivityParam.DOWNLOAD) {
+			downloadScript(new ScriptActivityParam(script,
+					ScriptActivityParam.DOWNLOAD));
+		} else {
+			//un.notifyActivity(new ScriptActivityParam(script,
+			//		ScriptActivityParam.RUN));
+		}
 	}
 	
 	/**
@@ -803,6 +883,29 @@ class TreeViewerControl
 	
 	/** Forwards call to the {@link TreeViewer}. */
 	void cancel() { model.cancel(); }
+	
+	/** 
+	 * Reloads the available scripts.
+	 * 
+	 * @param location The location of the mouse click.
+	 */
+	void reloadAvailableScripts(Point location)
+	{
+		model.showMenu(TreeViewer.AVAILABLE_SCRIPTS_MENU, null, location);
+	}
+	
+	/**
+	 * Handles the selection of a script.
+	 * 
+	 * @param object The object to handle.
+	 */
+	void handleScriptSelection(ScriptObject object)
+	{
+		if (object == null) return;
+		if (!object.isParametersLoaded())
+			model.loadScript(object.getScriptID());
+		else model.setScript(object);
+	}
 	
 	/**
 	 * Brings up the menu on top of the specified component at 
@@ -1134,8 +1237,10 @@ class TreeViewerControl
 			activity = new FigureActivityParam(object, ids, klass,
 					FigureActivityParam.SPLIT_VIEW_FIGURE);
 			activity.setIcon(icon);
-			un.notifyActivity(activity);
+			//TODO:review
+			//un.notifyActivity(activity);
 		} else if (MetadataViewer.HANDLE_SCRIPT_PROPERTY.equals(name)) {
+			/*
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			ScriptActivityParam p = (ScriptActivityParam) pce.getNewValue();
 			int index = p.getIndex();
@@ -1151,12 +1256,14 @@ class TreeViewerControl
 						p.getScript().getScriptID(), 
 						DownloadActivityParam.ORIGINAL_FILE, f, null);
 				activity.setApplicationData(new ApplicationData(""));
-				un.notifyActivity(activity);
+				//TODO:review
+				//un.notifyActivity(activity);
 			} else if (index == ScriptActivityParam.DOWNLOAD) {
 				downloadScript(p);
 			} else {
-				un.notifyActivity(pce.getNewValue());
-			}
+				//TODO:review
+				//un.notifyActivity(pce.getNewValue());
+			}*/
 		} else if (OpenWithDialog.OPEN_DOCUMENT_PROPERTY.equals(name)) {
 			ApplicationData data = (ApplicationData) pce.getNewValue();
 			//Register 
@@ -1204,9 +1311,47 @@ class TreeViewerControl
 				}
 			}
 		} else if (DataBrowser.SET__OWNER_RND_SETTINGS_PROPERTY.equals(name)) {
-			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
+			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model,
 					PasteRndSettingsCmd.SET_OWNER);
 			cmd.execute();
+		} else if (ScriptingDialog.RUN_SELECTED_SCRIPT_PROPERTY.equals(name)) {
+			handleScript((ScriptObject) pce.getNewValue(),
+					ScriptActivityParam.RUN);
+		} else if (ScriptingDialog.DOWNLOAD_SELECTED_SCRIPT_PROPERTY.equals(
+				name)) {
+			Object value = pce.getNewValue();
+			if (value instanceof ScriptObject)
+				handleScript((ScriptObject) value, 
+						ScriptActivityParam.DOWNLOAD);
+			else if (value instanceof String) {
+				ScriptObject script = view.getScriptFromName((String) value);
+				if (script != null)
+					handleScript(script, ScriptActivityParam.DOWNLOAD);
+			}
+		} else if (ScriptingDialog.VIEW_SELECTED_SCRIPT_PROPERTY.equals(name)) {
+			Object value = pce.getNewValue();
+			if (value instanceof ScriptObject)
+				handleScript((ScriptObject) value, ScriptActivityParam.VIEW);
+			else if (value instanceof String) {
+				ScriptObject script = view.getScriptFromName((String) value);
+				if (script != null)
+					handleScript(script, ScriptActivityParam.VIEW);
+			}
+		} else if (TreeViewer.SCRIPTS_LOADING_PROPERTY.equals(name)) {
+			view.setScriptsLoadingStatus(true);
+		} else if (TreeViewer.SCRIPTS_LOADED_PROPERTY.equals(name)) {
+			view.setScriptsLoadingStatus(false);
+		} else if (
+				DataBrowser.SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY.equals(
+						name)) {
+			model.setSelectedNodes(pce.getNewValue());
+		} else if (TreeViewer.GROUP_CHANGED_PROPERTY.equals(name)) {
+			view.setPermissions();
+		} else if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {
+			Action a = getAction(EXIT);
+			ActionEvent event = 
+				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
+			a.actionPerformed(event);
 		}
 	}
 	

@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -69,6 +67,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
@@ -87,7 +86,6 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ExperimenterData;
 
 /** 
  * The {@link Importer}'s View. Displays the on-going import and the finished
@@ -225,8 +223,8 @@ class ImporterUI
         	GroupSelectionAction a;
         	JCheckBoxMenuItem item;
         	ButtonGroup buttonGroup = new ButtonGroup();
-        	ExperimenterData exp = ImporterAgent.getUserDetails();
-        	long id = exp.getDefaultGroup().getId();
+        	//ExperimenterData exp = ImporterAgent.getUserDetails();
+        	long id = model.getGroupId();//exp.getDefaultGroup().getId();
         	while (i.hasNext()) {
 				a = i.next();
 				item = new JCheckBoxMenuItem(a);
@@ -255,8 +253,8 @@ class ImporterUI
 					ImporterControl.CLOSE_BUTTON)));
 			p.add(Box.createHorizontalStrut(5));
 		}
-		//p.add(new JButton(controller.getAction(ImporterControl.RETRY_BUTTON)));
-		//p.add(Box.createHorizontalStrut(5));
+		p.add(new JButton(controller.getAction(ImporterControl.RETRY_BUTTON)));
+		p.add(Box.createHorizontalStrut(5));
 		p.add(new JButton(controller.getAction(ImporterControl.SEND_BUTTON)));
 		return UIUtilities.buildComponentPanelRight(p);
 	}
@@ -315,6 +313,12 @@ class ImporterUI
 			
 			public void stateChanged(ChangeEvent e) {
 				controlsBar.setVisible(tabs.getSelectedIndex() != 0);
+				controller.getAction(
+						ImporterControl.RETRY_BUTTON).setEnabled(
+							hasFailuresToReimport());
+				controller.getAction(
+						ImporterControl.SEND_BUTTON).setEnabled(
+								hasSelectedFailuresToSend());
 			}
 		});
 	}
@@ -393,7 +397,8 @@ class ImporterUI
 	void addComponent(ImportDialog chooser)
 	{
 		if (chooser == null) return;
-		if (model.isMaster()) chooser.addToolBar(buildToolBar());
+		//if (model.isMaster()) chooser.addToolBar(buildToolBar());
+		chooser.addToolBar(buildToolBar());
 		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
 		//if in debug mode insert the debug section
 		Boolean b = (Boolean) 
@@ -453,7 +458,7 @@ class ImporterUI
 		if (object == null) return null;
 		int n = tabs.getComponentCount();
 		String title = "Import #"+total;
-		ImporterUIElement element = new ImporterUIElement(controller,
+		ImporterUIElement element = new ImporterUIElement(controller, model,
 				uiElementID, n, title, object);
 		//IconManager icons = IconManager.getInstance();
 		tabs.insertTab(title, element.getImportIcon(), element, "", total);
@@ -506,10 +511,8 @@ class ImporterUI
 		if (n == 0 || element == null) return;
 		if (tabs.getSelectedComponent() == element) return;
 		Component[] components = tabs.getComponents();
-		int index = -1;
 		for (int i = 0; i < components.length; i++) {
 			if (components[i] == element) {
-				index = i;
 				tabs.setSelectedComponent(element);
 			}
 		}
@@ -600,14 +603,19 @@ class ImporterUI
 	 */
 	boolean hasFailuresToSend()
 	{
+		/*
 		Iterator<ImporterUIElement> i = uiElements.values().iterator();
 		while (i.hasNext()) {
 			if (i.next().hasFailuresToSend())
 				return true;
 		}
 		return false;
+		*/
+		
+		return hasSelectedFailuresToSend();
 	}
-
+	
+	
     /**
      * Brings up the menu on top of the specified component at 
      * the specified location.
@@ -659,7 +667,7 @@ class ImporterUI
     JComponent buildToolBar()
     {
         Set set = ImporterAgent.getAvailableUserGroups();
-        if (set == null || set.size() == 0) return null;
+        if (set == null || set.size() <= 1) return null;
         
     	ImporterAction a = controller.getAction(ImporterControl.GROUP_BUTTON);
     	a.setEnabled(set.size() > 1);
@@ -668,4 +676,43 @@ class ImporterUI
         b.addMouseListener((PersonalManagementAction) a);
         return b;
     }
+    
+    /**
+     * Returns <code>true</code> if the selected pane has failures to send,
+     * <code>false/code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean hasSelectedFailuresToSend()
+    {
+    	ImporterUIElement pane = getSelectedPane();
+    	if (pane == null) return false;
+    	return pane.hasFailuresToSend();
+    }
+    
+    /**
+	 * Returns the collection of files that could not be imported.
+	 * 
+	 * @return See above.
+	 */
+	List<FileImportComponent> getFilesToReimport()
+	{
+		ImporterUIElement pane = getSelectedPane();
+    	if (pane == null) return null;
+    	return pane.getFilesToReimport();
+	}
+	
+	/**
+	 * Returns <code>true</code> if file to re-import, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasFailuresToReimport()
+	{
+		ImporterUIElement element = getSelectedPane();
+		if (element == null) return false;
+		return element.hasFailuresToReimport();
+	}
+
 }

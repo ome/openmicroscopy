@@ -30,6 +30,7 @@ import java.util.Collection;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -64,16 +65,16 @@ public class PlaneInfoLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer	The view this loader is for.
-     *                  Mustn't be <code>null</code>.
+     * @param viewer The view this loader is for. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param pixelsID  The id of pixels set.
      * @param defaultZ  The selected z-section.
      * @param channel	The selected channel.
      */
-	public PlaneInfoLoader(Editor viewer, long pixelsID, int channel, 
-			int defaultZ)
+	public PlaneInfoLoader(Editor viewer, SecurityContext ctx, long pixelsID,
+			int channel, int defaultZ)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		this.pixelsID = pixelsID;
 		this.channel = channel;
 		this.defaultZ = defaultZ;
@@ -82,13 +83,13 @@ public class PlaneInfoLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer	The view this loader is for.
-     *                  Mustn't be <code>null</code>.
+     * @param viewer The view this loader is for. Mustn't be <code>null</code>.
+     * @param ctx The security context.
      * @param pixelsID  The id of pixels set.
      */
-	public PlaneInfoLoader(Editor viewer, long pixelsID)
+	public PlaneInfoLoader(Editor viewer, SecurityContext ctx, long pixelsID)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		this.pixelsID = pixelsID;
 		this.channel = -1;
 		this.defaultZ = -1;
@@ -100,7 +101,8 @@ public class PlaneInfoLoader
      */
     public void load()
     {
-    	handle = imView.loadPlaneInfo(pixelsID, defaultZ, -1, channel, this);
+    	handle = imView.loadPlaneInfo(ctx, pixelsID, defaultZ, -1, channel,
+    			this);
     }
 
     /**
@@ -118,6 +120,5 @@ public class PlaneInfoLoader
         //if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
         viewer.setPlaneInfo((Collection) result, pixelsID, channel);
     }
-    
-    
+
 }

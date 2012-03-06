@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -51,10 +52,10 @@ public class TabularDataLoader
 {
 
 	/** The result of the call. */
-    private Object				result;
+    private Object result;
     
     /** Loads the specified experimenter groups. */
-    private BatchCall   		loadCall;
+    private BatchCall loadCall;
     
     /**
      * Creates a {@link BatchCall} to load the tabular data.
@@ -63,14 +64,14 @@ public class TabularDataLoader
      * @param userID The identifier of the user.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeCall(final TableParameters parameters, 
-    		final long userID)
+    private BatchCall makeCall(final SecurityContext ctx,
+    		final TableParameters parameters, final long userID)
     {
     	return new BatchCall("Load tabular data") {
     		public void doCall() throws Exception
     		{
     			OmeroMetadataService os = context.getMetadataService();
-    			result = os.loadTabularData(parameters, userID);
+    			result = os.loadTabularData(ctx, parameters, userID);
     		}
         };
     }
@@ -91,14 +92,16 @@ public class TabularDataLoader
     /**
      * Creates a new instance.
      * 
+     * @param ctx The security context.
      * @param parameters The parameters to handle.
      * @param userID The identifier of the user.
      */
-	public TabularDataLoader(TableParameters parameters, long userID)
+	public TabularDataLoader(SecurityContext ctx,
+			TableParameters parameters, long userID)
 	{
 		if (parameters == null) 
     		throw new IllegalArgumentException("No data to load."); 
-		loadCall = makeCall(parameters, userID);
+		loadCall = makeCall(ctx, parameters, userID);
 	}
 	
 }

@@ -93,6 +93,7 @@ import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.util.filter.file.HCSFilter;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -100,6 +101,7 @@ import org.openmicroscopy.shoola.util.ui.filechooser.GenericFileChooser;
 
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.GroupData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -189,6 +191,9 @@ public class ImportDialog
 	private static final String MESSAGE_LOCATION = "Select where to import " +
 			"the data";
 
+	/** The message to display in the header. */
+	private static final String MESSAGE_GROUP = "Group";
+	
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
 	
@@ -354,8 +359,11 @@ public class ImportDialog
 	/** The collection of general filters. */
 	private List<FileFilter> 			generalFilters;
 	
-	/** The combine filter. */
+	/** The combined filter. */
 	private FileFilter					combinedFilter;
+
+	/** The combined filter for HCS. */
+	private FileFilter					combinedHCSFilter;
 	
 	/** The component displaying the available and used disk space. */
 	private JPanel						diskSpacePane;
@@ -400,6 +408,12 @@ public class ImportDialog
 	
 	/** The number of items before adding new elements to the tool bar.*/
 	private int			tbItems;
+	
+	/** The selected group.*/
+	private GroupData group;
+	
+	/** The component used to select the group.*/
+	private JComponent groupSelection;
 	
 	/** 
 	 * Creates the dataset.
@@ -563,7 +577,7 @@ public class ImportDialog
 			checkFile(files[i], l);
 		}
 		chooser.setSelectedFile(new File("."));
-		table.addFiles(l, isParentFolderAsDataset());//fadBox.isSelected());
+		table.addFiles(l, isParentFolderAsDataset(), group);
 		importButton.setEnabled(table.hasFilesToImport());
 	}
 
@@ -796,24 +810,6 @@ public class ImportDialog
 	 */
 	private void initComponents(FileFilter[] filters)
 	{
-		/*
-		List<String> tips = new ArrayList<String>();
-		tips.add("If selected, when adding images to queue, ");
-    	tips.add("the folder containing the images will be ");
-    	tips.add("marked to be turned into dataset.");
-    	folderAsDatasetBox = new JCheckBox();
-    	folderAsDatasetBox.setToolTipText(UIUtilities.formatToolTipText(tips));
-    	folderAsDatasetBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	folderAsDatasetBox.setText("New Dataset from folder's name");
-    	folderAsDatasetBox.addChangeListener(new ChangeListener() {
-			
-			public void stateChanged(ChangeEvent e) {
-				boolean b = !folderAsDatasetBox.isSelected();
-				datasetsBox.setEnabled(b);
-				addButton.setEnabled(b);
-			}
-		});
-    	*/
     	canvas = new QuotaCanvas();
 		sizeImportLabel = new JLabel();
 		//sizeImportLabel.setText(UIUtilities.formatFileSize(0));
@@ -835,30 +831,6 @@ public class ImportDialog
     	}
     	b = (Boolean) ImporterAgent.getRegistry().lookup(
     			FOLDER_AS_DATASET);
-    	
-    	/*
-    	fadBox = new JCheckBox("Folder As Dataset");
-    	tips = new ArrayList<String>();
-    	tips.add("If selected, folders added to the import queue ");
-    	tips.add("will be marked to be turned into dataset.");
-    	fadBox.setToolTipText(UIUtilities.formatToolTipText(tips));
-    	//fadBox.setVisible(type != Importer.SCREEN_TYPE);
-    	fadBox.setBackground(UIUtilities.BACKGROUND);
-    	fadBox.setSelected(true);
-    	fadBox.addChangeListener(new ChangeListener() {
-			
-			public void stateChanged(ChangeEvent e) {
-				//
-				int n = handleFilesSelection(chooser.getSelectedFiles());
-				if (n == 0) {
-					datasetsBox.setEnabled(true);
-					folderAsDatasetBox.setEnabled(true);
-				} 
-			}
-		});
-		if (b != null) fadBox.setSelected(b.booleanValue());
-		*/
-    	
     	if (!isFastConnection()) //slow connection
     		showThumbnails.setSelected(false);
 		reference = null;
@@ -871,16 +843,6 @@ public class ImportDialog
 		};
 		parentsBox.addActionListener(parentsBoxListener);
 		datasetsBox = new JComboBox();
-		/*
-		datasetsBoxListener = new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				DataNode node = (DataNode) datasetsBox.getSelectedItem();
-				folderAsDatasetBox.setSelected(node != null && 
-						node.isDefaultNode());
-			}
-		};
-		*/
 		sorter = new ViewerSorter();
 		datasets = new ArrayList<DataNode>();
 		addProjectButton = new JButton("New...");
@@ -1030,12 +992,16 @@ public class ImportDialog
 					*/
 				}
 			}
+			Set<String> set = ImportableObject.HCS_FILES_EXTENSION;
+			combinedHCSFilter = new HCSFilter((String[]) set.toArray(
+					new String[set.size()]));
 			Iterator<FileFilter> j;
 			if (type == Importer.SCREEN_TYPE) {
+				chooser.addChoosableFileFilter(combinedHCSFilter);
 				j = hcsFilters.iterator();
 				while (j.hasNext())
 					chooser.addChoosableFileFilter(j.next());
-				chooser.setFileFilter(hcsFilters.get(0));
+				chooser.setFileFilter(combinedHCSFilter);
 			} else {
 				chooser.addChoosableFileFilter(combinedFilter);
 				j = generalFilters.iterator();
@@ -1606,6 +1572,13 @@ public class ImportDialog
 		locationPane.add(row);
 		locationPane.add(Box.createVerticalStrut(2));
 		locationPane.add(new JSeparator());
+		if (groupSelection != null) {
+			row = createRow(null);
+			row.add(UIUtilities.setTextFont(MESSAGE_GROUP));
+			row.add(groupSelection);
+			locationPane.add(row);
+			locationPane.add(Box.createVerticalStrut(2));
+		}
 		row = createRow(null);
 		row.add(UIUtilities.setTextFont(message));
 		row.add(parentsBox);
@@ -2013,8 +1986,6 @@ public class ImportDialog
     	initComponents(filters);
     	installListeners();
     	buildGUI();
-    	//Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    	//setSize(7*(screenSize.width/10), 7*(screenSize.height/10));
     }
 
     /** 
@@ -2023,6 +1994,18 @@ public class ImportDialog
      * @return See above.
      */
     public int getType() { return type; }
+    
+    /**
+     * Returns <code>true</code> if only one group for the user,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isSingleGroup()
+    { 
+    	Set l = ImporterAgent.getAvailableUserGroups();
+    	return (l.size() <= 1);
+    }
     
     /** Display the size of files to add. */
     void onSelectionChanged()
@@ -2196,10 +2179,11 @@ public class ImportDialog
 			Iterator<FileFilter> j;
 			if (type == Importer.SCREEN_TYPE) {
 				j = hcsFilters.iterator();
+				chooser.addChoosableFileFilter(combinedHCSFilter);
 				while (j.hasNext()) {
 					chooser.addChoosableFileFilter(j.next());
 				}
-				chooser.setFileFilter(hcsFilters.get(0));
+				chooser.setFileFilter(combinedHCSFilter);
 			} else {
 				chooser.addChoosableFileFilter(combinedFilter);
 				j = generalFilters.iterator();
@@ -2307,7 +2291,9 @@ public class ImportDialog
 	public void addToolBar(JComponent bar)
 	{
 		if (bar == null) return;
-		toolBar.add(bar);
+		groupSelection = bar;
+		buildLocationPane();
+		//toolBar.add(bar);
 		//invoke when master
 		cancelButton.setVisible(false);
 	}
@@ -2359,7 +2345,14 @@ public class ImportDialog
 	 * @return See above.
 	 */
 	public boolean reloadHierarchies() { return reload; }
-
+	
+	/**
+	 * Sets the selected group.
+	 * 
+	 * @param group The group to set.
+	 */
+	public void setSelectedGroup(GroupData group) { this.group = group; }
+	
 	/**
 	 * Reacts to property fired by the table.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

@@ -36,7 +36,11 @@
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
   <alias name="org.hibernate.EmptyInterceptor.INSTANCE" alias="omeroInterceptor"/>
 
-  <bean id="securityFilter" class="ome.tools.hibernate.SecurityFilter">
+  <bean id="oneGroupSecurityFilter" class="ome.security.basic.OneGroupSecurityFilter">
+    <property name="defaultFilterCondition" value="true"/>
+  </bean>
+
+  <bean id="allGroupSecurityFilter" class="ome.security.basic.AllGroupsSecurityFilter">
     <property name="defaultFilterCondition" value="true"/>
   </bean>
 
@@ -73,5 +77,8 @@
      init-method="run" lazy-init="false">
      <constructor-arg value="${omero.data.dir}"/>
   </bean>
+
+  <!-- Workaround for session mgr dependency#5216-->
+  <bean id="dbPatchCheck" class="java.lang.Object"/>
 
 </beans>

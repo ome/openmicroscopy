@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -185,6 +186,9 @@ public interface TreeViewer
 	/** Identifies the <code>View pop-up menu</code> menu. */
 	public static final int         VIEW_MENU = 9;
 	
+	/** Identifies the <code>Available Scripts</code> menu. */
+	public static final int         AVAILABLE_SCRIPTS_MENU = 10;
+	
 	/** Identifies the <code>Copy and Paste</code> action. */
 	public static final int         COPY_AND_PASTE = 400;
 
@@ -244,7 +248,17 @@ public interface TreeViewer
 	 * automatically.
 	 */
 	public static final String      SELECTION_PROPERTY = "selection";
-
+	
+	/** 
+	 * Bound property indicating the start of the available scripts loading.
+	 */
+	public static final String      SCRIPTS_LOADING_PROPERTY = "scriptsLoading";
+	
+	/** 
+	 * Bound property indicating the start of the available scripts are loaded.
+	 */
+	public static final String      SCRIPTS_LOADED_PROPERTY = "scriptsLoaded";
+	
 	/** 
 	 * The title displayed in the {@link LoadingWindow} during the saving 
 	 * process.
@@ -556,13 +570,6 @@ public interface TreeViewer
 	public void showPreSavingDialog();
 
 	/** 
-	 * Returns the id to the group selected for the current user.
-	 * 
-	 * @return See above.
-	 */
-	public long getUserGroupID();
-
-	/** 
 	 * Retrieves the user groups. 
 	 * 
 	 * @param location The location of the mouse pressed.
@@ -801,12 +808,11 @@ public interface TreeViewer
 	public void deleteObjects(List nodes);
 
 	/**
-	 * Returns the type of objects to copy or <code>null</code> if no objects
-	 * selected.
+	 * Returns the objects to copy or <code>null</code>.
 	 * 
 	 * @return See above.
 	 */
-	public Class hasDataToCopy();
+	public List<DataObject> getDataToCopy();
 
 	/** 
 	 * Refreshes the view when nodes have been deleted. A collection of nodes
@@ -887,12 +893,12 @@ public interface TreeViewer
 	void openWith(ApplicationData data);
 
 	/**
-	 * Sets the default group for the currently selected user and updates the 
-	 * view.
+	 * Adds the group to the display if not already displayed
 	 * 
 	 * @param group The group to set.
+	 * @param add Pass <code>true</code> to add, <code>false</code> otherwise.
 	 */
-	void setUserGroup(GroupData group);
+	void setUserGroup(GroupData group, boolean add);
 
 	/** Opens the image in a separate window or in the main viewer. */
 	void setFullScreen();
@@ -906,14 +912,6 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public Map<Long, String> getScriptsAsString();
-
-	/**
-	 * Returns <code>true</code> if the currently logged in user is 
-	 * a leader of the selected group, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isLeaderOfSelectedGroup();
 
 	/**
 	 * Returns <code>true</code> if the currently logged in user is 
@@ -941,16 +939,10 @@ public interface TreeViewer
 	 * Returns the permission level of the selected group. One of the constants
 	 * defined by the <code>AdminObject</code> class.
 	 * 
+	 * @param group The group to handle.
 	 * @return See above.
 	 */
-	int getSelectedGroupPermissions();
-	
-	/**
-	 * Returns the currently selected group.
-	 * 
-	 * @return See above.
-	 */
-	GroupData getSelectedGroup();
+	int getGroupPermissions(GroupData group);
 
 	/**
 	 * Resets the password of the selected experimenters.
@@ -1028,5 +1020,60 @@ public interface TreeViewer
 	 * @param data The object to create.
 	 */
 	void createDataObjectWithChildren(DataObject data);
+
+	/**
+	 * Sets the collection of available scripts.
+	 * 
+	 * @param scripts The available scripts.
+	 * @param location The location of the mouse click.
+	 */
+	void setAvailableScripts(List result, Point location);
+
+	/**
+	 * Loads the specified script.
+	 * 
+	 * @param scriptID The identifier of the script to load.
+	 */
+	void loadScript(long scriptID);
+
+	/**
+	 * Sets the script.
+	 * 
+	 * @param object The object hosting the script.
+	 */
+	void setScript(ScriptObject object);
+
+	/** Transfers the nodes.
+	 * 
+	 * @param target The target.
+	 * @param nodes The nodes to transfer.
+	 * @param transferAction The transfer action.
+	 */
+	void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes, int
+			transferAction);
 	
+	/**
+	 * Sets the selected nodes, the nodes selected from middle panel.
+	 * 
+	 * @param nodes The value to set.
+	 */
+	void setSelectedNodes(Object nodes);
+
+	/**
+	 * Returns the selected group.
+	 * 
+	 * @return See above.
+	 */
+	GroupData getSelectedGroup();
+
+	/** Remove group.*/
+	void removeGroup();
+
+	/** 
+	 * Move the selected data to the specified group.
+	 * 
+	 * @param group The data to move.
+	 */
+	void moveTo(GroupData group, List<DataObject> nodes);
+
 }

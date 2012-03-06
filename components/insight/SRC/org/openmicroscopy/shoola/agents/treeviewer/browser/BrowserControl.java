@@ -142,11 +142,11 @@ class BrowserControl
         actionsMap.put(SORT_DATE, new SortByDateAction(model));
         actionsMap.put(PARTIAL_NAME, new ShowNameAction(model));
         actionsMap.put(DELETE, new BrowserDeleteAction(model));
-        actionsMap.put(NEW_CONTAINER, new BrowserManageAction(model, 
+        actionsMap.put(NEW_CONTAINER, new BrowserManageAction(model,
         		BrowserManageAction.NEW_CONTAINERS));
-        actionsMap.put(NEW_ADMIN, new BrowserManageAction(model, 
+        actionsMap.put(NEW_ADMIN, new BrowserManageAction(model,
         		BrowserManageAction.NEW_ADMIN));
-        actionsMap.put(NEW_TAG, new BrowserManageAction(model, 
+        actionsMap.put(NEW_TAG, new BrowserManageAction(model,
         		BrowserManageAction.NEW_TAGS));
         actionsMap.put(IMPORT, new BrowserImportAction(model));
         actionsMap.put(REFRESH, new BrowserRefreshAction(model));
@@ -183,6 +183,33 @@ class BrowserControl
         model.addChangeListener(this);
     }
 
+    /**
+     * Selects the specified nodes.
+     * 
+     * @param nodes The nodes to select.
+     */
+    void selectNodes(List nodes, Class ref)
+    {
+    	if (nodes == null || nodes.size() == 0) return;
+    	//make sure we have node of the same type.
+    	Iterator i = nodes.iterator();
+    	TreeImageDisplay n;
+    	List<TreeImageDisplay> values = new ArrayList<TreeImageDisplay>();
+    	Object o;
+    	while (i.hasNext()) {
+			n = (TreeImageDisplay) i.next();
+			o = n.getUserObject();
+			if (o.getClass().equals(ref))
+				values.add(n);
+		}
+    	if (values == null || values.size() == 0) return;
+    	TreeImageDisplay[] array = values.toArray(
+    			new TreeImageDisplay[values.size()]);
+    	model.setSelectedDisplay(array[0]);
+    	model.setSelectedDisplays(array, false);
+    	view.setFoundNode(array);
+    }
+    
     /**
      * Invokes the right-click is selected.
      */
@@ -246,21 +273,33 @@ class BrowserControl
         	if (display.getNumberOfItems() == 0) return;
         }
         
-        view.loadAction(display);
+       
         if ((display instanceof TreeImageTimeSet) ||  
         	(display instanceof TreeFileSet)) {
+        	view.loadAction(display);
         	model.loadExperimenterData(BrowserFactory.getDataOwner(display), 
         			display);
         	return;
         }
         if ((ho instanceof DatasetData) || (ho instanceof TagAnnotationData) 
         		) {//|| (ho instanceof PlateData)) {
+        	view.loadAction(display);
         	model.loadExperimenterData(BrowserFactory.getDataOwner(display), 
         			display);
         } else if (ho instanceof ExperimenterData) {
+        	view.loadAction(display);
         	model.loadExperimenterData(display, null);
         } else if (ho instanceof GroupData) {
-        	model.loadExperimenterData(display, display); 
+        	if (browserType == Browser.ADMIN_EXPLORER) {
+        		view.loadAction(display);
+        		model.loadExperimenterData(display, display);
+        	} else {
+        		//Load the data of the logged in user.
+        		List l = display.getChildrenDisplay();
+        		if (l != null & l.size() > 0) {
+            		view.expandNode((TreeImageDisplay) l.get(0), true);
+        		}
+        	}
         }
     }
     

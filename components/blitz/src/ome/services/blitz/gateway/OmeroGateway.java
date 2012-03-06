@@ -437,11 +437,7 @@ public class OmeroGateway extends AbstractAmdServant
 	}
 
 	@Override
-	protected void preClose() {
-	    try {
-	        close();
-	    } catch (Exception e) {
-	        log.error("Error on OmeroGateway.close()", e);
-	    }
+	protected void preClose(Ice.Current current) throws Throwable {
+            close();
 	}
 }

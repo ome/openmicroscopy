@@ -7,7 +7,7 @@
 package ome.services.blitz.repo;
 
 import ome.services.blitz.fire.Registry;
-import omero.util.ObjectFactoryRegistrar;
+import omero.util.ModelObjectFactoryRegistry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,8 +46,6 @@ public class InternalRepositoryConfig {
             id.properties.load(ICE_CONFIG);
         }
         ic = Ice.Util.initialize(id);
-        ObjectFactoryRegistrar.registerObjectFactory(ic,
-                ObjectFactoryRegistrar.INSTANCE);
 
         reg = new Registry.Impl(ic);
         oa = ic.createObjectAdapter("RepositoryAdapter");

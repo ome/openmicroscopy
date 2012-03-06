@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.MoveToEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -52,6 +53,7 @@ import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -134,6 +136,39 @@ public class TreeViewerAgent
 	}
 	
 	/**
+	 * Returns the context for an administrator.
+	 * 
+	 * @return See above.
+	 */
+	public static SecurityContext getAdminContext()
+	{
+		if (!isAdministrator()) return null;
+		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Iterator i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getName().equals(GroupData.SYSTEM)) {
+				return new SecurityContext(g.getId());
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the binary data are available, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isBinaryAvailable()
+	{
+		Boolean b = (Boolean) registry.lookup(LookupNames.BINARY_AVAILABLE);
+		if (b == null) return true;
+		return b.booleanValue();
+	}
+	
+	/**
 	 * Returns the collection of groups the current user is the leader of.
 	 * 
 	 * @return See above.
@@ -191,6 +226,19 @@ public class TreeViewerAgent
 		return false;
 	}
 	
+    /**
+     * Returns <code>true</code> if all groups are displayed at the same time
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isMultiGroups()
+    {
+    	Boolean b = (Boolean) registry.lookup("MutliGroup");
+		if (b == null) return false;
+		return b.booleanValue();
+    }
+    
 	/**
 	 * Returns the default hierarchy i.e. P/D, HCS etc.
 	 * 
@@ -281,15 +329,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) {
         	viewer.onActivityProcessed(evt.getActivity(), evt.isFinished());
         }
@@ -316,15 +356,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null)
         	viewer.findDataObject(evt.getDataType(), evt.getID(), 
         			evt.isSelectTab());
@@ -363,15 +395,7 @@ public class TreeViewerAgent
     		ExperimenterData exp = (ExperimenterData) registry.lookup(
     				LookupNames.CURRENT_USER_DETAILS);
     		if (exp == null) return;
-        	GroupData gp = null;
-        	try {
-        		gp = exp.getDefaultGroup();
-    		} catch (Exception e) {
-    			//No default group
-    		}
-    		long id = -1;
-			if (gp != null) id = gp.getId();
-			TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+			TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
 			if (viewer != null)  {
 				viewer.browseContainer(data, null);
 			}
@@ -394,15 +418,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) 
         	viewer.setImporting(evt.isImporting(), evt.getContainers(), 
         			evt.isToRefresh());
@@ -421,15 +437,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) 
         	viewer.browseContainer(evt.getData(), evt.getNode());
     }
@@ -447,15 +455,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) 
         	viewer.indicateToRefresh(evt.getObjects(), evt.getRefresh());
     }
@@ -469,7 +469,21 @@ public class TreeViewerAgent
     {
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	if (!env.isServerAvailable()) return;
-    	TreeViewerFactory.onGroupSwitched(true);
+    	TreeViewerFactory.onReconnected();
+    }
+    
+    /**
+     * Indicates to move the data.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleMoveToEvent(MoveToEvent evt)
+    {
+    	ExperimenterData exp = (ExperimenterData) registry.lookup(
+    			LookupNames.CURRENT_USER_DETAILS);
+    	if (exp == null) return;
+    	TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+    	if (viewer != null) viewer.moveTo(evt.getGroup(), evt.getObjects());
     }
     
     /**
@@ -485,15 +499,7 @@ public class TreeViewerAgent
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) viewer.activate();
     }
 
@@ -529,6 +535,7 @@ public class TreeViewerAgent
         bus.register(this, NodeToRefreshEvent.class);
         bus.register(this, ViewObjectEvent.class);
         bus.register(this, ReconnectedEvent.class);
+        bus.register(this, MoveToEvent.class);
     }
 
     /**
@@ -583,6 +590,8 @@ public class TreeViewerAgent
 			handleNodeToRefreshEvent((NodeToRefreshEvent) e);
 		else if (e instanceof ReconnectedEvent)
 			handleReconnectedEvent((ReconnectedEvent) e);
+		else if (e instanceof MoveToEvent)
+			handleMoveToEvent((MoveToEvent) e);
 	}
 
 }

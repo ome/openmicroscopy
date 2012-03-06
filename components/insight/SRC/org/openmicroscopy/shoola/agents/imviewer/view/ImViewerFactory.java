@@ -31,6 +31,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -49,6 +50,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivateRecentAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import pojos.DataObject;
@@ -165,17 +167,20 @@ public class ImViewerFactory
 	/**
 	 * Returns a viewer to display the image corresponding to the specified id.
 	 * 
+	 * @param ctx The security context.
 	 * @param image  	The image or wellSample to view.
 	 * @param bounds    The bounds of the component invoking the 
 	 *                  {@link ImViewer}.
 	 * @param separateWindow Pass <code>true</code> to open the viewer in a 
-	 * 						 separate window, <code>false</code> otherwise.           
+	 * 						 separate window, <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	public static ImViewer getImageViewer(DataObject image, Rectangle bounds, 
+	public static ImViewer getImageViewer(SecurityContext ctx,
+			DataObject image, Rectangle bounds, 
 			boolean separateWindow)
 	{
-		ImViewerModel model = new ImViewerModel(image, bounds, separateWindow);
+		ImViewerModel model = new ImViewerModel(ctx, image, bounds,
+				separateWindow);
 		return singleton.getViewer(model);
 	}
 
@@ -189,10 +194,10 @@ public class ImViewerFactory
 	 * 						 separate window, <code>false</code> otherwise. 
 	 * @return See above.
 	 */
-	public static ImViewer getImageViewer(long imageID, Rectangle bounds, 
-			boolean separateWindow)
+	public static ImViewer getImageViewer(SecurityContext ctx,
+		long imageID, Rectangle bounds, boolean separateWindow)
 	{
-		ImViewerModel model = new ImViewerModel(imageID, bounds, 
+		ImViewerModel model = new ImViewerModel(ctx, imageID, bounds, 
 				separateWindow);
 		return singleton.getViewer(model);
 	}
@@ -203,13 +208,14 @@ public class ImViewerFactory
 	 * @param pixelsID The Identifier of the pixels set.
 	 * @return See above.
 	 */
-	public static ImViewer getImageViewer(long pixelsID)
+	public static ImViewer getImageViewer(SecurityContext ctx, long pixelsID)
 	{
 		Iterator v = singleton.viewers.iterator();
 		ImViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();
-			if (comp.getModel().getPixelsID() == pixelsID)  return comp;
+			if (comp.getModel().isSame(pixelsID, ctx)) return comp;
+			//if (comp.getModel().getPixelsID() == pixelsID)return comp;
 		}
 		return null;
 	}
@@ -501,12 +507,17 @@ public class ImViewerFactory
 	 */
 	public void stateChanged(ChangeEvent ce)
 	{
-		ImViewerComponent comp = (ImViewerComponent) ce.getSource(); 
-		if (comp.getState() == ImViewer.DISCARDED) {
-			viewers.remove(comp);
-			List<Long> ids = new ArrayList<Long>();
-			ids.add(comp.getModel().getImageID());
-			removeRecentViewers(ids);
+		ImViewerComponent comp = (ImViewerComponent) ce.getSource();
+		switch (comp.getState()) {
+			case ImViewer.DISCARDED:
+			case ImViewer.CANCELLED:
+				viewers.remove(comp);
+				removeRecentViewers(
+						Arrays.asList(comp.getModel().getImageID()));
+				break;
+	
+			default:
+				break;
 		}
 	}
 

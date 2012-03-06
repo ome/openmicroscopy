@@ -193,7 +193,7 @@ class EditorUI
 		groupUI.addPropertyChangeListener(controller);
 		userUI = new UserUI(model, controller);
 		toolBar = new ToolBar(model, controller);
-		generalPane = new GeneralPaneUI(this, model, controller);
+		generalPane = new GeneralPaneUI(this, model, controller, toolBar);
 		acquisitionPane = new AcquisitionDataUI(this, model, controller);
 		tabPane = new JTabbedPane();
 		tabPane.addChangeListener(controller);
@@ -212,7 +212,7 @@ class EditorUI
 	{
 		setLayout(new BorderLayout(0, 0));
 		setBackground(UIUtilities.BACKGROUND_COLOR);
-		add(toolBar, BorderLayout.NORTH);
+		//add(toolBar, BorderLayout.NORTH);
 		add(component, BorderLayout.CENTER);
 	}
 	
@@ -267,6 +267,11 @@ class EditorUI
         	generalPane.layoutUI();
         	acquisitionPane.layoutCompanionFiles();
         	component = tabPane;
+        	if (model.isMultiSelection()) {
+				tabPane.setSelectedIndex(GENERAL_INDEX);
+				tabPane.setEnabledAt(ACQUISITION_INDEX, false);
+				tabPane.setEnabledAt(RND_INDEX, false);
+			}
     	}
     	if (add) add(component, BorderLayout.CENTER);
     	validate();
@@ -368,7 +373,6 @@ class EditorUI
 				}
 				load = true;
 			}
-			
 			generalPane.setRootObject();
 			acquisitionPane.setRootObject(load);
 		}
@@ -461,6 +465,7 @@ class EditorUI
 			return userUI.hasDataToSave();
 		else if (ref instanceof GroupData)
 			return groupUI.hasDataToSave();
+			
 		boolean b = generalPane.hasDataToSave();
 		if (b) return b;
 		//Check metadata.
@@ -472,6 +477,7 @@ class EditorUI
 	{
 		saved = false;
 		userUI.clearData();
+		groupUI.clearData();
 		generalPane.clearData();
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		tabPane.repaint();
@@ -696,7 +702,8 @@ class EditorUI
 			if (name != null && name.trim().length() > 0) {
 				name += ShowEditorEvent.EXPERIMENT_EXTENSION;
 				ShowEditorEvent event = new ShowEditorEvent(
-						(DataObject) object, name, 
+						model.getSecurityContext(),
+						(DataObject) object, name,
 						ShowEditorEvent.EXPERIMENT);
 				bus.post(event);
 			}
@@ -909,5 +916,27 @@ class EditorUI
 	{
 		
 	}
-	
+
+	/**
+	 * Returns <code>true</code> if the tab is enabled, <code>false</code>
+	 * otherwise. if it is not enabled, reset to the default tab, this should
+	 * use to reset to the <code>General</code> tab.
+	 * 
+	 * @param index The index of the tab.
+	 * @return See above.
+	 */
+	boolean checkIfTabEnabled(int index)
+	{
+		if (index == -1) return false;
+		if (tabPane.isEnabledAt(index)) return true;
+		tabPane.setSelectedIndex(GENERAL_INDEX);
+		return false;
+	}
+
+	/** Updates the UI when the related nodes have been set.*/
+	void onRelatedNodesSet()
+	{
+		generalPane.onRelatedNodesSet();
+	}
+
 }

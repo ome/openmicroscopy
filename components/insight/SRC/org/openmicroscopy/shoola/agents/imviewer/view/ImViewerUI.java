@@ -102,6 +102,7 @@ import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.ChannelData;
 import pojos.DataObject;
+import pojos.GroupData;
 import pojos.ImageData;
 
 /** 
@@ -375,8 +376,8 @@ class ImViewerUI
 		menuBar.add(createShowViewMenu());
 		TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
 		//menuBar.add(tb.getWindowsMenu());
-		menuBar.add(tb.getWindowsMenu());
-		menuBar.add(tb.getHelpMenu());
+		menuBar.add(tb.getMenu(TaskBar.WINDOW_MENU));
+		menuBar.add(tb.getMenu(TaskBar.HELP_MENU));
 		return menuBar;
 	}
 
@@ -1101,6 +1102,7 @@ class ImViewerUI
 	{
 		super(title);
 		loadingWindow = new LoadingWindow(this);
+		loadingWindow.setTitle("Opening Image Viewer...");
 		defaultIndex = UnitBarSizeAction.DEFAULT_UNIT_INDEX;
 		displayMode = NEUTRAL;
 		bigImageMagnification = 1.0;
@@ -1305,10 +1307,12 @@ class ImViewerUI
 		//TODO
 		//model.getRenderer().onStateChange(b);
 		model.getBrowser().onStateChange(b);
-		tabs.setEnabled(b);
-		enableSliders(b);
-		controlPane.onStateChange(b); 
-		toolBar.onStateChange(b); 
+		if (tabs != null) {
+			tabs.setEnabled(b);
+			enableSliders(b);
+			controlPane.onStateChange(b); 
+			toolBar.onStateChange(b); 
+		}
 	}
 	
 	/** Sets the default text of the status bar. */
@@ -2622,6 +2626,13 @@ class ImViewerUI
 		statusBar.formatToolTip();
 	}
 	
+	/**
+     * Returns the group the image belongs to.
+     * 
+     * @return See above.
+     */
+    GroupData getSelectedGroup() { return model.getSelectedGroup(); }
+    
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

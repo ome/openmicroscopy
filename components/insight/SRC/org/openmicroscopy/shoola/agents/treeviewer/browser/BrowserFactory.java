@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 
 import pojos.ExperimenterData;
@@ -56,18 +57,7 @@ public class BrowserFactory
      */
     public static TreeImageDisplay getDataOwner(TreeImageDisplay node)
     {
-    	if (node == null) return null;
-    	TreeImageDisplay parent = node.getParentDisplay();
-    	Object ho;
-    	if (parent == null) {
-    		ho = node.getUserObject();
-    		if (ho instanceof ExperimenterData)
-    			return node;
-    		return null;
-    	}
-    	ho = parent.getUserObject();
-    	if (ho instanceof ExperimenterData) return parent;
-    	return getDataOwner(parent);
+    	return EditorUtil.getDataOwner(node);
     }
     
     /**

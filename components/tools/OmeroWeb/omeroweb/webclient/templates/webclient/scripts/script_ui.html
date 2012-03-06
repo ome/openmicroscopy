@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{% extends "webgateway/core_html.html" %}
+{% load i18n %}
 
-<html xmlns="http://www.w3.org/1999/xhtml">
 {% comment %}
 <!--
   Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
@@ -29,110 +28,12 @@
 -->
 {% endcomment %}
 
-<head>
-
-    <title>Run {{ paramData.name }}</title>
-
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.4.2.js" %}"></script>
-       <script type="text/javascript" src="{% url webstatic "javascript/popup.js" %}"></script>
-
-    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
-
-    <script type="text/javascript">
-        jQuery.fn.runScript = function(actWindow) {
-            var $form = $(this);
-            var postData = $form.serialize();
-            var actionUrl="{% url script_run paramData.id %}";
-            $.ajaxSetup({ cache: false });
-            $.ajax({
-                type: "POST",
-                url: actionUrl,
-                data: postData,
-                contentType:'json',
-                success: function(data){
-                    $.ajaxSetup({ cache: true });
-                    if(data.status == 'in progress') {
-                        window.opener.refreshProgressBar();     // also refreshes Activities window
-                        self.close();
-                    }
-                    else {
-                        window.opener.refreshProgressBar();     // also refreshes Activities window
-                        self.close();
-                    }
-                },
-                error: function(data) {
-                    window.opener.refreshProgressBar();
-                    self.close();
-                }
-            });
-            return false;
-        };
+{% block title %}
+    Run {{ paramData.name }}
+{% endblock %}
 
 
-        $(document).ready(function() {
-            $("#submit").click(function(e){
-                window.open('', 'Activities').close();
-                
-                var actWindow = popupActivites('{% url status %}');
-                window.opener.activities_Window = actWindow;    // allows webclient window to update Activities window
-                actWindow.webclient_window = window.opener;
-                $('#script_form').runScript(actWindow);
-                e.preventDefault();
-                return false;
-            });
-
-            // this simply prevents any attempt to 'submit' the form (default behavior)
-            $('form').submit(function(e){
-                e.preventDefault();
-                return false;
-            });
-
-
-            // for any 'list' parameters with enum options, controls to add / remove
-            $(".addListSelect").click(function(e) {
-                var $lastSelect = $(this).parent().children('select').last();
-                $lastSelect.after($lastSelect.clone());
-                $lastSelect.after(" ");
-                e.preventDefault();
-                return false;
-            });
-            $(".removeListSelect").click(function(e) {
-                var selectCount = $(this).parent().find('select').length;
-                if (selectCount > 1) {
-                    var $lastSelect = $(this).parent().children('select').last();
-                    $lastSelect.remove();
-                }
-                e.preventDefault();
-                return false;
-            });
-
-            // for any 'map' parameters in the UI, add controls to add key:value fields
-            $(".addKeyValue").click(function() {
-                var $keyValueTable = $(this).parent().next().find(".map");
-                var rowCount = $keyValueTable.find('tr').length;
-                var $newRow = $("tr", $keyValueTable).first().clone();
-                var $keyInput = $newRow.find('input:eq(0)');
-                var $valueInput = $newRow.find('input:eq(1)');
-                // give the new inputs unique names, based on number of key:value pairs
-                $keyInput.attr('name', $keyInput.attr('name')+rowCount);
-                $valueInput.attr('name', $valueInput.attr('name')+rowCount);
-                $keyInput.attr('value', "");
-                $valueInput.attr('value', "");
-                $keyValueTable.append($newRow);
-                return false;
-            });
-            $(".removeKeyValue").click(function(e) {
-                var $keyValueTable = $(this).parent().next().find(".map");
-                var rowCount = $keyValueTable.find('tr').length;
-                if (rowCount > 1) {
-                    var $lastRow = $("tr", $keyValueTable).last();
-                    $lastRow.remove();
-                }
-                e.preventDefault();
-                return false;
-            });
-        });
-    </script>
+{% block link %}
 
     <style type="text/css">
         h3 {
@@ -184,11 +85,75 @@
         }
 
     </style>
-</head>
+{% endblock %}
 
-<body>
 
-    <form id='script_form' method="post">
+{% block script %}
+    {{ block.super }}
+    {% include "webgateway/base/includes/script_src_jquery.html" %}
+    {% include "webgateway/base/includes/script_src_popup.html" %}
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+
+            $('#script_form').ajaxForm({
+                success: function(data) {
+                    window.opener.showActivities();
+                    self.close();
+                }
+            });
+
+            // for any 'list' parameters with enum options, controls to add / remove
+            $(".addListSelect").click(function(e) {
+                var $lastSelect = $(this).parent().children('select').last();
+                $lastSelect.after($lastSelect.clone());
+                $lastSelect.after(" ");
+                e.preventDefault();
+                return false;
+            });
+            $(".removeListSelect").click(function(e) {
+                var selectCount = $(this).parent().find('select').length;
+                if (selectCount > 1) {
+                    var $lastSelect = $(this).parent().children('select').last();
+                    $lastSelect.remove();
+                }
+                e.preventDefault();
+                return false;
+            });
+
+            // for any 'map' parameters in the UI, add controls to add key:value fields
+            $(".addKeyValue").click(function() {
+                var $keyValueTable = $(this).parent().next().find(".map");
+                var rowCount = $keyValueTable.find('tr').length;
+                var $newRow = $("tr", $keyValueTable).first().clone();
+                var $keyInput = $newRow.find('input:eq(0)');
+                var $valueInput = $newRow.find('input:eq(1)');
+                // give the new inputs unique names, based on number of key:value pairs
+                $keyInput.attr('name', $keyInput.attr('name')+rowCount);
+                $valueInput.attr('name', $valueInput.attr('name')+rowCount);
+                $keyInput.attr('value', "");
+                $valueInput.attr('value', "");
+                $keyValueTable.append($newRow);
+                return false;
+            });
+            $(".removeKeyValue").click(function(e) {
+                var $keyValueTable = $(this).parent().next().find(".map");
+                var rowCount = $keyValueTable.find('tr').length;
+                if (rowCount > 1) {
+                    var $lastRow = $("tr", $keyValueTable).last();
+                    $lastRow.remove();
+                }
+                e.preventDefault();
+                return false;
+            });
+        });
+    </script>
+{% endblock %}
+
+
+{% block body %}
+    <form id='script_form' method="post" action="{% url script_run paramData.id %}">
         <div style="padding:10px; margin-bottom:40px">
             <h3 id="scriptName">{{ paramData.name }}</h3>
             <div id='script_desc'>{{ paramData.description|linebreaks }}
@@ -222,6 +187,4 @@
             <a href="#" onClick="return openPopup('{% url get_original_file scriptId %}');">View Script</a>
         </div>
     </form>
-</body>
-
-</html>
+{% endblock %}

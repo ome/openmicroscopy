@@ -44,7 +44,7 @@ public class AbstractFileSystemService {
 
         this.root = rootDirectory.getAbsolutePath();
         if (log.isDebugEnabled()) {
-            log.warn("Using root path: '" + this.root + "'");
+            log.debug("Using root path: '" + this.root + "'");
         }
     }
 

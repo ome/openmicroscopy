@@ -32,6 +32,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.AdminView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
@@ -64,28 +65,31 @@ public abstract class DataImporterLoader
 {
 
 	/** The Importer this data loader is for. */
-	protected final Importer				viewer;
+	protected final Importer viewer;
 
 	/** Convenience reference for subclasses. */
-	protected final Registry        		registry;
+	protected final Registry registry;
 
     /** Convenience reference for subclasses. */
-    protected final ImageDataView        	ivView;
+    protected final ImageDataView ivView;
     
     /** Convenience reference for subclasses. */
-    protected final MetadataHandlerView		mhView;
+    protected final MetadataHandlerView mhView;
     
     /** Convenience reference for subclasses. */
-    protected final AdminView        	adminView;
+    protected final AdminView adminView;
 
     /** Convenience reference for subclasses. */
-    protected final DataManagerView        dmView;
+    protected final DataManagerView dmView;
     
     /** The id of the user or <code>-1</code>. */
-    protected long 						userID;
+    protected long userID;
     
     /** The id of the group or <code>-1</code>. */
-    protected long 						groupID;
+    protected long groupID;
+    
+    /** The security context.*/
+    protected final SecurityContext ctx;
     
 	/**
      * Helper method to return the ID of the currently logged in user.
@@ -117,11 +121,13 @@ public abstract class DataImporterLoader
 	 * 
 	 * @param viewer The Importer this data loader is for.
 	 *               Mustn't be <code>null</code>.
+	 * @param ctx The security context.
 	 */
-	protected DataImporterLoader(Importer viewer)
+	protected DataImporterLoader(Importer viewer, SecurityContext ctx)
 	{
 		if (viewer == null) throw new NullPointerException("No viewer.");
-		this.viewer = viewer;
+        this.viewer = viewer;
+        this.ctx = ctx;
 		registry = ImporterAgent.getRegistry();
 		ivView = (ImageDataView) 
 			registry.getDataServicesView(ImageDataView.class);

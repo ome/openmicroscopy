@@ -1,7 +1,7 @@
 {% load i18n %}
-{% load markup %}
-{% load custom_tags %}
-{% load wikitags %}
+{% load common_filters %}
+
+
 
 {% comment %}
 <!--
@@ -23,16 +23,32 @@
 -->
 {% endcomment %}
 
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
-
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/jquery.ui.selectable.js" %}"></script>
-
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
+    
+    <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
     
     <script type="text/javascript">
+        var handleRemove = function (e, data) {
+            var content_id = $("#content_details").attr("rel");     // content, E.g. 'dataset-123'
+            data.rslt.obj.each(function() {
+                // if we're removing the current dataset...
+                if (content_id == $(this).attr('id')) {
+                    $("#content_details").remove();
+                } else if ($(this).attr('id').split("-")[0] == "image") {
+                    // else, remove image
+                    var imgId = $(this).attr('id').split("-")[1];
+                    $("#dataTable tr[id='" + imgId + "']").remove();
+                }
+            });
+        };
+
         $(document).ready(function(){
 
+            // when the jstree removes objects from the tree, handle each object...
+            $("#dataTree").one("remove.jstree", handleRemove});
+            
             var datatree = $.jstree._focused();
 
             // double-click handler on image - launches image viewer
@@ -59,7 +75,7 @@
 
                 var primaryIndex = -1;
                 var lastSelected = datatree.data.ui.last_selected
-                if (lastSelected) {
+                if (lastSelected && (lastSelected.length > 0)) {
                     primaryIndex = rows.index($('#dataTable tr#'+ lastSelected.attr('id').split('-')[1]).get(0));
                 }
                 
@@ -176,11 +192,11 @@
 {% if manager.containers.images %}
 
     <div id="toolbar" class="toolbar_noborder" rel="table">
-        <input onclick="changeView('icon',{{ manager.paging.page|default:"1" }});" class="button" type="image" src="{% url webstatic "images/view_icon16.png" %}" alt="Change view to icon" title="Change view to icon">
+        <input onclick="changeView('icon',{{ manager.paging.page|default:"1" }});" class="button" type="image" src="{% static "webclient/image/view_icon16.png" %}" alt="Change view to icon" title="Change view to icon">
     </div>
     <div class="clear"> </div>
     
-    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
     
     <table id="dataTable" class="tablesorter">
         <thead> 
@@ -195,7 +211,7 @@
                 <tr id="{{ c.id }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
                     <td class="action">
                         {% comment %}<img src="{% url render_thumbnail_resize 32 c.id  %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>{% endcomment %}
-                        <img src="{% url webstatic "images/image16.png" %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+                        <img src="{% static "webclient/image/image16.png" %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
                         <input type="checkbox" name="image" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>

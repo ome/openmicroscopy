@@ -123,11 +123,15 @@ class ITest(unittest.TestCase):
             group.details.permissions = omero.model.PermissionsI(perms)
         gid = admin.createGroup(group)
         group = admin.getGroup(gid)
+        self.add_experimenters(group, experimenters)
+        return group
+
+    def add_experimenters(self, group, experimenters):
+        admin = self.root.sf.getAdminService()
         if experimenters:
             for exp in experimenters:
                 user, name = self.user_and_name(exp)
                 admin.addGroups(user, [group])
-        return group
 
     def new_image(self, name = ""):
         img = omero.model.ImageI()
@@ -237,12 +241,17 @@ class ITest(unittest.TestCase):
             for obj in objs:
                 self.root.sf.getUpdateService().indexObject(obj, {"omero.group":"-1"})
 
-    def new_user(self, group = None, perms = None, admin = False):
+    def new_user(self, group = None, perms = None,
+            admin = False, system = False):
+        """
+        admin: If user is to be an admin of the created group
+        system: If user is to be a system admin
+        """
 
         if not self.root:
             raise exceptions.Exception("No root client. Cannot create user")
 
-        admin = self.root.getSession().getAdminService()
+        adminService = self.root.getSession().getAdminService()
         name = self.uuid()
 
         # Create group if necessary
@@ -257,18 +266,23 @@ class ITest(unittest.TestCase):
         e.omeName = rstring(name)
         e.firstName = rstring(name)
         e.lastName = rstring(name)
-        uid = admin.createUser(e, group)
-        e = admin.lookupExperimenter(name)
+        uid = adminService.createUser(e, group)
+        e = adminService.lookupExperimenter(name)
         if admin:
-            admin.setGroupOwner(g, e)
-        return admin.getExperimenter(uid)
+            adminService.setGroupOwner(g, e)
+        if system:
+            adminService.addGroups(e, \
+                    [omero.model.ExperimenterGroupI(0, False)])
 
-    def new_client(self, group = None, user = None, perms = None, admin = False):
+        return adminService.getExperimenter(uid)
+
+    def new_client(self, group = None, user = None, perms = None,
+            admin = False, system = False):
         """
         Like new_user() but returns an active client.
         """
         if user is None:
-            user = self.new_user(group, perms, admin)
+            user = self.new_user(group, perms, admin, system=system)
         props = self.root.getPropertyMap()
         props["omero.user"] = user.omeName.val
         props["omero.pass"] = user.omeName.val
@@ -278,9 +292,10 @@ class ITest(unittest.TestCase):
         client.createSession()
         return client
 
-    def new_client_and_user(self, group = None, perms = None, admin = False):
-        user = self.new_user(group)
-        client = self.new_client(group, user, perms, admin)
+    def new_client_and_user(self, group = None, perms = None,
+            admin = False, system = False):
+        user = self.new_user(group, system=system)
+        client = self.new_client(group, user, perms, admin, system=system)
         return client, user
 
     def timeit(self, func, *args, **kwargs):
@@ -309,7 +324,12 @@ class ITest(unittest.TestCase):
 
     def user_and_name(self, user):
         admin = self.root.sf.getAdminService()
-        if isinstance(user, omero.model.Experimenter):
+        if isinstance(user, omero.clients.BaseClient):
+            admin = user.sf.getAdminService()
+            ec = admin.getEventContext()
+            name = ec.userName
+            user = admin.lookupExperimenter(name)
+        elif isinstance(user, omero.model.Experimenter):
             if user.isLoaded():
                 name = user.omeName.val
                 user = admin.lookupExperimenter(name)
@@ -328,7 +348,7 @@ class ITest(unittest.TestCase):
     # Data methods
     #
 
-    def missing_pyramid(self):
+    def missing_pyramid(self, client=None):
         """
         Creates and returns a pixels whose shape changes from
         1,1,4000,4000,1 to 4000,4000,1,1,1 making it a pyramid
@@ -336,8 +356,12 @@ class ITest(unittest.TestCase):
         initial import in 4.3+. This simulates a big image that
         was imported in 4.2.
         """
-        pix = self.pix(x=1, y=1, z=4000, t=4000, c=1)
-        rps = self.client.sf.createRawPixelsStore()
+
+        if client is None:
+            client = self.client
+
+        pix = self.pix(x=1, y=1, z=4000, t=4000, c=1, client=client)
+        rps = client.sf.createRawPixelsStore()
         try:
             rps.setPixelsId(pix.id.val, True)
             for t in range(4000):
@@ -350,9 +374,11 @@ class ITest(unittest.TestCase):
         pix.sizeY = rint(4000)
         pix.sizeZ = rint(1)
         pix.sizeT = rint(1)
-        return self.update.saveAndReturnObject(pix)
 
-    def pix(self, x=10, y=10, z=10, c=3, t=50):
+        update = client.sf.getUpdateService()
+        return update.saveAndReturnObject(pix)
+
+    def pix(self, x=10, y=10, z=10, c=3, t=50, client=None):
         """
         Creates an int8 pixel of the given size in the database.
         No data is written.
@@ -370,7 +396,11 @@ class ITest(unittest.TestCase):
         pixels.dimensionOrder = omero.model.DimensionOrderI()
         pixels.dimensionOrder.value = rstring("XYZCT")
         image.addPixels(pixels)
-        image = self.update.saveAndReturnObject(image)
+
+        if client is None:
+            client = self.client
+        update = client.sf.getUpdateService()
+        image = update.saveAndReturnObject(image)
         pixels = image.getPrimaryPixels()
         return pixels
 
@@ -422,6 +452,39 @@ class ITest(unittest.TestCase):
         tfile = StringIO(buf)
         jpeg = Image.open(tfile) # Raises if invalid
         return jpeg
+
+    def loginAttempt(self, name, t, pw="BAD", less=False):
+        """
+        Checks that login happens in less than or greater than
+        the given time. By default, the password "BAD" is used,
+        and the expectation is that login will take greather
+        than the specified time since the password won't match.
+        To check that logins happen more quickly, pass the
+        correct password and less=True:
+
+            loginAttempt("user", 0.15, pw="REALVALUE", less=True)
+
+        See integration.tickets4000 and 5000
+        """
+        c = omero.client()
+        try:
+            t1 = time.time()
+            try:
+                c.createSession(name, pw)
+                if pw == "BAD":
+                    self.fail("Should not reach this point")
+            except Glacier2.PermissionDeniedException:
+                if pw != "BAD":
+                    raise
+            t2 = time.time()
+            T = (t2-t1)
+            if less:
+                self.assertTrue(T < t, "%s > %s" % (T, t))
+            else:
+                self.assertTrue(T > t, "%s < %s" % (T, t))
+        finally:
+            c.__del__()
+
 
     def tearDown(self):
         failure = False

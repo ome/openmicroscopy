@@ -86,7 +86,7 @@ public class ActivateRecentAction
     public void actionPerformed(ActionEvent e)
     { 
     	EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-    	ViewImage event = new ViewImage(
+    	ViewImage event = new ViewImage(recent.getSecurityContext(),
     			new ViewImageObject(recent.getImageID()), null);
     	bus.post(event);
     }

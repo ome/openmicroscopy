@@ -27,7 +27,7 @@ import cStringIO
 import traceback
 import logging
 
-logger = logging.getLogger('webclient_gateway')
+logger = logging.getLogger(__name__)
 
 try:
     from PIL import Image, ImageDraw # see ticket:2597
@@ -49,17 +49,15 @@ import Glacier2
 import omero.gateway
 import omero.scripts
 
-import omero_api_IScript_ice
-
 from omero.rtypes import *
 from omero.model import FileAnnotationI, TagAnnotationI, \
                         DatasetI, ProjectI, ImageI, ScreenI, PlateI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, \
                         LaserI
 
-from omero.gateway import TagAnnotationWrapper, ExperimenterWrapper, \
+from omero.gateway import FileAnnotationWrapper, TagAnnotationWrapper, ExperimenterWrapper, \
                 ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper, \
-                OmeroGatewaySafeCallWrapper
+                OmeroGatewaySafeCallWrapper, CommentAnnotationWrapper
 
 from omero.sys import ParametersI
 
@@ -68,6 +66,8 @@ from django.utils.translation import ugettext as _
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
+
+from omeroweb.webadmin.custom_models import Server
 
 try:
     PAGE = settings.PAGE
@@ -603,18 +603,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @rtype          Boolean
         """
         
-        photo = None
         meta = self.getMetadataService()
         try:
             if oid is None:
-                ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])[0]
+                ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])
             else:
-                ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
-            if ann is not None:
+                ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])
+            if len(ann) > 0:
                 return True
             else:
                 return False
         except:
+            logger.error(traceback.format_exc())
             return False
     
     def getExperimenterPhoto(self, oid=None):
@@ -681,6 +681,26 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 return (im.size, ann.file.size.val)
         except:
             return None
+    
+    def deleteExperimenterPhoto(self, oid=None):
+        ann = None
+        meta = self.getMetadataService()
+        try:
+            if oid is None:
+                ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])[0]
+            else:
+                ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
+        except:
+            logger.error(traceback.format_exc())
+            raise IOError("Photo does not exist.")
+        else:
+            exp = self.getUser()
+            links = exp._getAnnotationLinks()
+            # there should be only one ExperimenterAnnotationLink 
+            # but if there is more then one all of them should be deleted.
+            for l in links:
+                self.deleteObjectDirect(l)
+            self.deleteObjects("/Annotation", [ann.id.val])
     
     def cropExperimenterPhoto(self, box, oid=None):
         """
@@ -1240,9 +1260,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         recps = list()
         for m in recipients:
             try:
-                e = (m.email, m.email.val)[isinstance(m.email, omero.RString)]
-                if e is not None and e!="":
-                    recps.append(e)
+                if m.email is not None and m.email!="":
+                    recps.append(m.email)
             except:
                 logger.error(traceback.format_exc())
         logger.info(recps)
@@ -1271,10 +1290,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             except Exception, x:
                 logger.error(traceback.format_exc())
             else:
-                blitz = settings.SERVER_LIST.get(pk=blitz_id)
+                blitz = Server.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["add_comment_to_share"]
-                message = t['text_content'] % (settings.APPLICATION_HOST, blitz_id)
-                message_html = t['html_content'] % (settings.APPLICATION_HOST, blitz_id, settings.APPLICATION_HOST, blitz_id)
+                message = t['text_content'] % (host, blitz_id)
+                message_html = t['html_content'] % (host, blitz_id, host, blitz_id)
                 try:
                     title = 'OMERO.web - new comment for share %i' % share_id
                     text_content = message
@@ -1285,6 +1304,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                     logger.error("Email was sent")
                 except:
                     logger.error(traceback.format_exc())
+        return CommentAnnotationWrapper(self, new_cm)
                 
     def removeImage(self, share_id, image_id):
         sh = self.getShareService()
@@ -1322,8 +1342,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 logger.error(traceback.format_exc())
             else:
                 t = settings.EMAIL_TEMPLATES["create_share"]
-                message = t['text_content'] % (settings.APPLICATION_HOST, blitz_id, self.getUser().getFullName())
-                message_html = t['html_content'] % (settings.APPLICATION_HOST, blitz_id, settings.APPLICATION_HOST, blitz_id, self.getUser().getFullName())
+                message = t['text_content'] % (host, blitz_id, self.getUser().getFullName())
+                message_html = t['html_content'] % (host, blitz_id, host, blitz_id, self.getUser().getFullName())
                 
                 try:
                     title = 'OMERO.web - new share %i' % sid
@@ -1353,10 +1373,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             except Exception, x:
                 logger.error(traceback.format_exc())
             else:
-                blitz = settings.SERVER_LIST.get(pk=blitz_id)
+                blitz = Server.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["add_member_to_share"]
-                message = t['text_content'] % (settings.APPLICATION_HOST, blitz_id, self.getUser().getFullName())
-                message_html = t['html_content'] % (settings.APPLICATION_HOST, blitz_id, settings.APPLICATION_HOST, blitz_id, self.getUser().getFullName())
+                message = t['text_content'] % (host, blitz_id, self.getUser().getFullName())
+                message_html = t['html_content'] % (host, blitz_id, host, blitz_id, self.getUser().getFullName())
                 try:
                     title = 'OMERO.web - update share %i' % share_id
                     text_content = message
@@ -1374,10 +1394,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             except Exception, x:
                 logger.error(traceback.format_exc())
             else:
-                blitz = settings.SERVER_LIST.get(pk=blitz_id)
+                blitz = Server.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["remove_member_from_share"]
-                message = t['text_content'] % (settings.APPLICATION_HOST, blitz_id)
-                message_html = t['html_content'] % (settings.APPLICATION_HOST, blitz_id, settings.APPLICATION_HOST, blitz_id)
+                message = t['text_content'] % (host, blitz_id)
+                message_html = t['html_content'] % (host, blitz_id, host, blitz_id)
                 
                 try:
                     title = 'OMERO.web - update share %i' % share_id
@@ -1874,6 +1894,13 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         return False
     
     def getExpireDate(self):
+        """
+        Gets the end date for the share
+        
+        @return:    End Date-time
+        @rtype:     datetime object
+        """
+        
         #workaround for problem of year 2038
         try:
             d = self.started+self.timeToLive
@@ -1893,24 +1920,6 @@ class ShareWrapper (omero.gateway.BlitzObjectWrapper):
         """
         
         return datetime.fromtimestamp(self.getStarted()/1000)
-        
-    def getExpirationDate(self):
-        """
-        Gets the end date for the share
-        
-        @return:    End Date-time
-        @rtype:     datetime object
-        """
-        
-        #workaround for problem of year 2038
-        try:
-            d = self.started+self.timeToLive
-            if d > 2051222400:
-                return datetime(2035, 1, 1, 0, 0, 0)            
-            return datetime.fromtimestamp(d / 1000)
-        except:
-            logger.info(traceback.format_exc())
-        return None
     
     def isExpired(self):
         """

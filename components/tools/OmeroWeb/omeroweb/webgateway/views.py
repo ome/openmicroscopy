@@ -58,7 +58,7 @@ import logging, os, traceback, time, zipfile, shutil
 
 #omero.gateway.BlitzGateway.ICE_CONFIG = os.environ.get('ICE_CONFIG', 'etc/ice.config')
 
-logger = logging.getLogger('webgateway')
+logger = logging.getLogger(__name__)
 
 logger.debug("INIT")
 
@@ -2006,13 +2006,6 @@ def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
 #        json_data = '%s(%s)' % (r['callback'], json_data)
 #    return HttpResponse(json_data, mimetype='application/javascript')
 
-def dbg_connectors (request):
-    """
-    For debugging, return connectors dict as plain text
-    """
-    rv = connectors.items()
-    return HttpResponse(rv, mimetype='text/plain')
-
 @serverid
 def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
     """
@@ -2043,7 +2036,7 @@ def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
              'viewport_server': kwargs.get('viewport_server', '/webgateway'),
              'object': 'image:%i' % int(iid)}
 
-        template = kwargs.get('template', "webgateway/omero_image.html")
+        template = kwargs.get('template', "webgateway/viewport/omero_image.html")
         t = template_loader.get_template(template)
         c = Context(request,d)
         rsp = t.render(c)
@@ -2184,7 +2177,7 @@ def test (request):
     
     context = {}
 
-    t = template_loader.get_template('webgateway/omero_image.html')
+    t = template_loader.get_template('webgateway/viewport/omero_image.html')
     c = Context(request,context)
     return HttpResponse(t.render(c))
 

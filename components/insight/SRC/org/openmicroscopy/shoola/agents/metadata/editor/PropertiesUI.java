@@ -780,41 +780,17 @@ class PropertiesUI
     private JPanel buildProperties()
     {
     	Object refObject = model.getRefObject();
-        boolean view = false;
         if (refObject instanceof ImageData) {
         	ImageData img = (ImageData) refObject;
         	try {
         		img.getDefaultPixels();
-        		view = true;
     		} catch (Exception e) {}
         } else if (refObject instanceof WellSampleData) {
         	ImageData img = ((WellSampleData) refObject).getImage();
         	if (img != null && img.getId() > 0) {
         		img.getDefaultPixels();
-        		view = true;
         	}
         }
-        JButton button = null;
-        if (view) {
-        	IconManager icons = IconManager.getInstance();
-        	button = new JButton(icons.getIcon(IconManager.VIEW));
-        	UIUtilities.unifiedButtonLookAndFeel(button);
-        	switch (MetadataViewerAgent.runAsPlugin()) {
-				case MetadataViewer.IMAGE_J:
-					button.addMouseListener(new MouseAdapter() {
-						public void mouseReleased(MouseEvent e) {
-							showViewMenu((JComponent) e.getSource(), 
-									e.getPoint());
-						}
-					});
-					break;
-				default:
-					button.setToolTipText(ViewAction.DESCRIPTION);
-		        	button.setActionCommand(""+EditorControl.VIEW_IMAGE);
-		        	button.addActionListener(controller);;
-			}
-        }
-        
         JPanel p = new JPanel();
         p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -822,7 +798,7 @@ class PropertiesUI
         JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         int w = editName.getIcon().getIconWidth()+4;
-        p.add(layoutEditablefield(button, l));
+        p.add(layoutEditablefield(null, l));
         l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
@@ -1012,9 +988,10 @@ class PropertiesUI
 		if (parent instanceof WellData) {
 			WellData well = (WellData) parent;
 			PlateData plate = well.getPlate();
-			String text = "Plate: "; 
-			text += plate.getName();
-			parentLabel.setText(text);
+			String text = plate.getName();
+			String s = UIUtilities.formatPartialName(text);
+			parentLabel.setText("Plate: "+s);
+			parentLabel.setToolTipText(text);
 			parentLabel.repaint();
 			text = "Well "+getWellLabel(well, plate.getColumnSequenceIndex(), 
 					plate.getRowSequenceIndex());
@@ -1503,10 +1480,12 @@ class PropertiesUI
 			switch (object.getIndex()) {
 				case WikiDataObject.IMAGE:
 					if (id > 0) 
-						bus.post(new ViewImage(new ViewImageObject(id), null));
+						bus.post(new ViewImage(model.getSecurityContext(),
+								new ViewImageObject(id), null));
 					break;
 				case WikiDataObject.PROTOCOL:
-					bus.post(new EditFileEvent(id));
+					bus.post(new EditFileEvent(model.getSecurityContext(),
+							id));
 					break;
 			}
 		} else if (OMEWikiComponent.WIKI_DATA_OBJECT_ONE_CLICK_PROPERTY.equals(

@@ -255,7 +255,8 @@ class DocComponent
 	{
 		if (!(data instanceof FileAnnotationData)) return;
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new EditFileEvent((FileAnnotationData) data));
+		bus.post(new EditFileEvent(model.getSecurityContext(),
+				(FileAnnotationData) data));
 	}
 	
 	/** 
@@ -334,13 +335,21 @@ class DocComponent
 	 * Formats the passed annotation.
 	 * 
 	 * @param annotation The value to format.
+	 * @param name The full name.
 	 * @return See above.
 	 */
-	private String formatTootTip(AnnotationData annotation)
+	private String formatTootTip(AnnotationData annotation, String name)
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append("<html><body>");
 		ExperimenterData exp = null;
+		if (name != null) {
+			buf.append("<b>");
+			buf.append("Name: ");
+			buf.append("</b>");
+			buf.append(name);
+			buf.append("<br>");
+		}
 		if (annotation.getId() > 0)
 			exp = model.getOwner(annotation);
 		if (exp != null) {
@@ -409,7 +418,8 @@ class DocComponent
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData f = (FileAnnotationData) data;
 			Registry reg = MetadataViewerAgent.getRegistry();		
-			reg.getEventBus().post(new EditFileEvent(f));
+			reg.getEventBus().post(new EditFileEvent(model.getSecurityContext(),
+					f));
 		}
 	}
 	
@@ -448,8 +458,7 @@ class DocComponent
 			
 			public void mousePressed(MouseEvent e)
 			{
-				Point p = e.getPoint();
-				showMenu(menuButton, p);
+				showMenu(menuButton, e.getPoint());
 			}
 		});
 		infoButton = new JMenuItem(icons.getIcon(IconManager.INFO));
@@ -458,8 +467,7 @@ class DocComponent
 			
 			public void mousePressed(MouseEvent e)
 			{
-				Point p = e.getPoint();
-				displayInformation(label, p);
+				displayInformation(label, e.getPoint());
 			}
 		});
 		unlinkButton = new JMenuItem(icons.getIcon(IconManager.MINUS_12));
@@ -551,10 +559,13 @@ class DocComponent
 			if (data instanceof FileAnnotationData) {
 				FileAnnotationData f = (FileAnnotationData) data;
 				String fileName = f.getFileName();
-				if (FileAnnotationData.MEASUREMENT_NS.equals(fileName))
+				String s = fileName;
+				if (FileAnnotationData.MEASUREMENT_NS.equals(fileName)) {
 					label.setText(f.getDescription());
-				else label.setText(EditorUtil.getPartialName(fileName));
-				label.setToolTipText(formatTootTip(f));
+					s = label.getText();
+				} else label.setText(UIUtilities.formatPartialName(
+						EditorUtil.getPartialName(fileName)));
+				label.setToolTipText(formatTootTip(f, s));
 				Iterator<CustomizedFileFilter> i = FILTERS.iterator();
 				CustomizedFileFilter filter;
 				long id = f.getId();
@@ -584,12 +595,12 @@ class DocComponent
 			} else if (data instanceof File) {
 				initButtons();
 				File f = (File) data;
-				label.setText(f.getName());
+				label.setText(EditorUtil.getPartialName(f.getName()));
 				label.setForeground(Color.BLUE);
 			} else if (data instanceof TagAnnotationData) {
 				TagAnnotationData tag = (TagAnnotationData) data;
 				label.setText(tag.getTagValue());
-				label.setToolTipText(formatTootTip(tag));
+				label.setToolTipText(formatTootTip(tag, null));
 				initButtons();
 				if (tag.getId() < 0)
 					label.setForeground(
@@ -642,6 +653,8 @@ class DocComponent
 		if (openButton != null) count++;
 		if (deleteButton != null) count++;
 		if (count > 0) {
+			menuButton.setEnabled(true);
+			if (model.isAcrossGroups()) menuButton.setEnabled(false);
 			bar.add(menuButton);
 			if (!b) bar.add(Box.createHorizontalStrut(8));
 			add(bar);
@@ -841,7 +854,7 @@ class DocComponent
 			//reset text and tooltip
 			TagAnnotationData tag = (TagAnnotationData) data;
 			label.setText(tag.getTagValue());
-			label.setToolTipText(formatTootTip(tag));
+			label.setToolTipText(formatTootTip(tag, null));
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
 		} else if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			if (data == null) return;
@@ -870,7 +883,7 @@ class DocComponent
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
 			//Check Name space
 			activity.setLegend(fa.getDescription());
-			un.notifyActivity(activity);
+			un.notifyActivity(model.getSecurityContext(), activity);
 			//un.notifyDownload((FileAnnotationData) data, folder);
 		}
 	}

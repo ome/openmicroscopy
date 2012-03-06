@@ -103,7 +103,7 @@ class MessengerFileRequest
         	Part[] parts = { 
         			new StringPart(TOKEN, token),
         			new StringPart(READER, reader),
-        			new FilePart(FILE,  file) 
+        			new SubmittedFilePart(FILE,  file) 
         			};
         	request.setRequestEntity(new MultipartRequestEntity(
         			parts, request.getParams()));

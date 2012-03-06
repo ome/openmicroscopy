@@ -20,15 +20,19 @@ import ome.services.blitz.fire.SessionManagerI;
 import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.test.utests.TestCache;
 import ome.services.blitz.util.BlitzConfiguration;
+import ome.services.roi.RoiTypes;
 import ome.services.scheduler.SchedulerFactoryBean;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.util.SqlAction;
+import omero.rtypes;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
 import omero.constants.CLIENTUUID;
+import omero.util.ModelObjectFactoryRegistry;
+import omero.util.ObjectFactoryRegistry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -137,6 +141,12 @@ public class MockFixture {
         this.sm = (SessionManagerI) blitz.getBlitzManager();
         this.sm.setApplicationContext(ctx);
         this.ctx.addApplicationListener(this.sm);
+
+        // Reproducing the logic of initializing the ObjectFactories
+        // which typically happens within Spring
+        new rtypes.RTypeObjectFactoryRegistry().setIceCommunicator(blitz.getCommunicator());
+        new RoiTypes.RoiTypesObjectFactoryRegistry().setIceCommunicator(blitz.getCommunicator());
+        new ModelObjectFactoryRegistry().setIceCommunicator(blitz.getCommunicator());
 
         /* UNUSED
         // The following is a bit of spring magic so that we can configure
@@ -373,6 +383,10 @@ public class MockFixture {
         }
 
         public ObjectPrx getServerProxy(Current arg0) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void refreshSession(Ice.Current current) throws Glacier2.SessionNotExistException {
             throw new UnsupportedOperationException();
         }
 

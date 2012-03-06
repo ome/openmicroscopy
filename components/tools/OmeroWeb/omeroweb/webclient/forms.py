@@ -27,6 +27,7 @@ import time
 import logging
 import traceback
 
+from django.conf import settings
 from django import forms
 from django.forms.widgets import Textarea
 from django.forms.widgets import HiddenInput
@@ -41,13 +42,13 @@ from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
                         GroupModelMultipleChoiceField, GroupModelChoiceField
 
 
-logger = logging.getLogger('forms-web')
+logger = logging.getLogger(__name__)
              
 ##################################################################
 # Static values
 
 # TODO: change to reverse
-help_button = "/appmedia/omeroweb/images/help16.png"
+help_button = "%scommon/image/help16.png" % settings.STATIC_URL
 
 help_wiki = '<span id="markup" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
 
@@ -122,44 +123,14 @@ class ContainerDescriptionForm(NonASCIIForm):
     
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 39}), required=False)
 
-class CommentAnnotationForm(NonASCIIForm):
-    
-    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}))
 
-class TagFilterForm(NonASCIIForm):
-    
-    tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
-
-class TagAnnotationForm(NonASCIIForm):
-    
-    tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}))
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 31}), required=False, label="Desc")
-
-class TagListForm(forms.Form):
-    
+class BaseAnnotationForm(NonASCIIForm):
+    """
+    This is the superclass of the various forms used for annotating single or multiple objects.
+    All these forms use hidden fields to specify the object(s) currently being annotated.
+    """
     def __init__(self, *args, **kwargs):
-        super(TagListForm, self).__init__(*args, **kwargs)
-        self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}))
-        self.fields.keyOrder = ['tags']
-
-class FileListForm(forms.Form):
-    
-    def __init__(self, *args, **kwargs):
-        super(FileListForm, self).__init__(*args, **kwargs)
-        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}))
-        self.fields.keyOrder = ['files']
-
-class UploadFileForm(NonASCIIForm):
-    annotation_file  = forms.FileField(required=False)
-    
-    def clean_annotation_file(self):
-        if self.cleaned_data['annotation_file'] is None:
-            raise forms.ValidationError('This field is required.')
-
-class MultiAnnotationForm(NonASCIIForm):
-    
-    def __init__(self, *args, **kwargs):
-        super(MultiAnnotationForm, self).__init__(*args, **kwargs)
+        super(BaseAnnotationForm, self).__init__(*args, **kwargs)
         try:
             self.fields['image'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['images'], initial=kwargs['initial']['selected']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         except:
@@ -201,17 +172,32 @@ class MultiAnnotationForm(NonASCIIForm):
         except:
             logger.error(traceback.format_exc())
             self.fields['well'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['wells'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-            
-        self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
-        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
-        
-        self.fields.keyOrder = ['content', 'tag', 'description', 'annotation_file', 'tags', 'files', 'image', 'project', 'dataset', 'screen', 'plate', 'acquisition', 'well']
-        
-    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), required=False)
+
+
+class TagsAnnotationForm(BaseAnnotationForm):
+    """ Form for annotating one or more objects with existing Tags or New tags """
+
+    def __init__(self, *args, **kwargs):
+        super(TagsAnnotationForm, self).__init__(*args, **kwargs)
+        self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], 
+                widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
+
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 31}), required=False, label="Desc")
-    annotation_file  = forms.FileField(required=False)
+
+
+class FilesAnnotationForm(BaseAnnotationForm):
     
+    def __init__(self, *args, **kwargs):
+        super(FilesAnnotationForm, self).__init__(*args, **kwargs)
+        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':8, 'class':'existing'}), required=False)
+    
+    annotation_file = forms.FileField(required=False)
+
+
+class CommentAnnotationForm(BaseAnnotationForm):
+    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}))
+
 class UsersForm(forms.Form):
 
     def __init__(self, *args, **kwargs):

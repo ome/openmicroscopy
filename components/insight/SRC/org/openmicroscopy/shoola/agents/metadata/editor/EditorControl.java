@@ -63,12 +63,12 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
@@ -114,7 +114,8 @@ import pojos.WellSampleData;
  * @since OME3.0
  */
 class EditorControl
-	implements ActionListener, ChangeListener, PropertyChangeListener, MouseListener
+	implements ActionListener, ChangeListener, PropertyChangeListener,
+	MouseListener
 {
 
 	/** Bound property indicating that the save status has been modified. */
@@ -269,7 +270,8 @@ class EditorControl
 	private void viewImage(long imageID)
 	{
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new ViewImage(new ViewImageObject(imageID), null));
+		bus.post(new ViewImage(model.getSecurityContext(),
+				new ViewImageObject(imageID), null));
 	}
 
 	/**
@@ -291,7 +293,7 @@ class EditorControl
 	private void viewProtocol(long protocolID)
 	{
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new EditFileEvent(protocolID));
+		bus.post(new EditFileEvent(model.getSecurityContext(), protocolID));
 	}
 	
 	/** Brings up the folder chooser. */
@@ -481,8 +483,10 @@ class EditorControl
 	{
 		if (e.getSource() instanceof JTabbedPane) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			if (pane.getSelectedIndex() == EditorUI.RND_INDEX)
-				model.loadRenderingControl(RenderingControlLoader.LOAD);
+			if (view.checkIfTabEnabled(pane.getSelectedIndex())) {
+				if (pane.getSelectedIndex() == EditorUI.RND_INDEX)
+					model.loadRenderingControl(RenderingControlLoader.LOAD);
+			}
 		}
 	}
 	
@@ -583,9 +587,11 @@ class EditorControl
 			figureDialog = null;
 		} else if (MetadataViewer.CLOSE_RENDERER_PROPERTY.equals(name)) {
 			view.discardRenderer(evt.getNewValue());
+		} else if (MetadataViewer.RELATED_NODES_PROPERTY.equals(name)) {
+			view.onRelatedNodesSet();
 		} else if (ScriptingDialog.RUN_SELECTED_SCRIPT_PROPERTY.equals(name)) {
-			view.manageScript((ScriptObject) evt.getNewValue(), 
-					MetadataViewer.RUN);
+			//view.manageScript((ScriptObject) evt.getNewValue(), 
+			//		MetadataViewer.RUN);
 		} else if (ScriptingDialog.DOWNLOAD_SELECTED_SCRIPT_PROPERTY.equals(
 				name)) {
 			Object value = evt.getNewValue();
@@ -746,7 +752,7 @@ class EditorControl
 				if (img != null) {
 					ViewImageObject vio = new ViewImageObject(img);
 					MetadataViewerAgent.getRegistry().getEventBus().post(
-							new ViewImage(vio, null));
+						new ViewImage(model.getSecurityContext(), vio, null));
 				}
 				break;
 			case VIEW_IMAGE_IN_IJ:

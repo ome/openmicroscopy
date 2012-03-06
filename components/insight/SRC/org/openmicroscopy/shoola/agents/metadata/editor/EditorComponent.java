@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -383,6 +384,7 @@ class EditorComponent
 	 */
 	public void setSelectionMode(boolean single)
 	{
+		if (!single) view.layoutUI();
 		view.repaint();
 	}
 
@@ -678,6 +680,7 @@ class EditorComponent
 	 */
 	public void refresh()
 	{
+		/*
 		switch (view.getSelectedTab()) {
 			case EditorUI.GENERAL_INDEX:
 				model.refresh();
@@ -689,6 +692,8 @@ class EditorComponent
 			case EditorUI.ACQUISITION_INDEX:
 				view.refreshAcquisition();
 		};
+		*/
+		model.refresh();
 	}
 
 	/** 
@@ -711,7 +716,7 @@ class EditorComponent
 		IconManager icons = IconManager.getInstance();
 		param.setIcon(icons.getIcon(IconManager.EXPORT_22));
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(param);
+		un.notifyActivity(model.getSecurityContext(), param);
 	}
 
 	/** 
@@ -920,7 +925,8 @@ class EditorComponent
 		if (dialog == null) {
 			dialog = new ScriptingDialog(f, 
 					model.getScript(script.getScriptID()), 
-					model.getSelectedObjects());
+					model.getSelectedObjects(), 
+					MetadataViewerAgent.isBinaryAvailable());
 			dialog.addPropertyChangeListener(controller);
 			UIUtilities.centerAndShow(dialog);
 		} else {
@@ -1046,5 +1052,14 @@ class EditorComponent
 			dialog = null;
 		}
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#getSecurityContext()
+	 */
+    public SecurityContext getSecurityContext()
+    { 
+    	return model.getSecurityContext();
+    }
 
 }

@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -150,7 +151,7 @@ class MetadataViewerComponent
 		MovieActivityParam activity = new MovieActivityParam(parameters, img);
 		IconManager icons = IconManager.getInstance();
 		activity.setIcon(icons.getIcon(IconManager.MOVIE_22));
-		un.notifyActivity(activity);
+		un.notifyActivity(model.getSecurityContext(), activity);
 	}
 
 	/**
@@ -172,7 +173,7 @@ class MetadataViewerComponent
 		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
 		UserNotifier un = 
 			TreeViewerAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(p);
+		un.notifyActivity(model.getSecurityContext(), p);
 	}
 	
 	/**
@@ -215,7 +216,8 @@ class MetadataViewerComponent
 		switch (model.getState()) {
 			case NEW:
 				model.getEditor().setChannelsData(channelData, false);
-				setRootObject(model.getRefObject(), model.getUserID());
+				setRootObject(model.getRefObject(), model.getUserID(),
+						model.getSecurityContext());
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
@@ -273,7 +275,7 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setMetadata(TreeBrowserDisplay, Object)
+	 * @see MetadataViewer#setMetadata(TreeBrowserDisplay, Object, boolean)
 	 */
 	public void setMetadata(TreeBrowserDisplay node, Object result)
 	{
@@ -281,25 +283,37 @@ class MetadataViewerComponent
 			throw new IllegalArgumentException("No node specified.");
 		Object userObject = node.getUserObject();
 		Object refObject = model.getRefObject();
-		if (refObject == userObject) {
-			Browser browser = model.getBrowser();
-			if (result instanceof StructuredDataResults) {
-				model.setStructuredDataResults((StructuredDataResults) result);
+		if (refObject != userObject) {
+			model.setStructuredDataResults(null, node);
+			fireStateChange();
+			return;
+		}
+		Browser browser = model.getBrowser();
+		if (result instanceof StructuredDataResults) {
+			StructuredDataResults data = (StructuredDataResults) result;
+			Object object = data.getRelatedObject();
+			if (object == model.getParentRefObject()) {
+				model.setParentDataResults((StructuredDataResults) result,
+						node);
+				loadMetadata(node);
+			} else {
+				model.setStructuredDataResults((StructuredDataResults) result,
+						node);
 				browser.setParents(node, 
 						model.getStructuredData().getParents());
 				model.getEditor().setStructuredDataResults();
 				view.setOnScreen();
-				fireStateChange();
-				return;
 			}
-			if (!(userObject instanceof String)) return;
-			String name = (String) userObject;
-			
-			if (browser == null) return;
-			if (Browser.DATASETS.equals(name) || Browser.PROJECTS.equals(name)) 
-				browser.setParents((TreeBrowserSet) node, (Collection) result);
-			model.notifyLoadingEnd(node);
+			fireStateChange();
+			return;
 		}
+		if (!(userObject instanceof String)) return;
+		String name = (String) userObject;
+		
+		if (browser == null) return;
+		if (Browser.DATASETS.equals(name) || Browser.PROJECTS.equals(name)) 
+			browser.setParents((TreeBrowserSet) node, (Collection) result);
+		model.notifyLoadingEnd(node);
 	}
 
 	/** 
@@ -352,9 +366,9 @@ class MetadataViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setRootObject(Object, long)
+	 * @see MetadataViewer#setRootObject(Object, long, ctx)
 	 */
-	public void setRootObject(Object root, long userID)
+	public void setRootObject(Object root, long userID, SecurityContext ctx)
 	{
 		if (root instanceof WellSampleData) {
 			WellSampleData ws = (WellSampleData) root;
@@ -365,57 +379,19 @@ class MetadataViewerComponent
 			userID = -1;
 		}
 		//Previewed the image.
-		Renderer rnd = model.getEditor().getRenderer();
-		if (rnd != null && getRndIndex() == RND_GENERAL) {
-			//save settings 
-			long imageID = -1;
-			long pixelsID = -1;
-			Object obj = model.getRefObject();
-			if (obj instanceof WellSampleData) {
-				WellSampleData wsd = (WellSampleData) obj;
-				obj = wsd.getImage();
-			}
-			if (obj instanceof ImageData) {
-				ImageData data = (ImageData) obj;
-				imageID = data.getId();
-				pixelsID = data.getDefaultPixels().getId();
-			}
-			//check if I can save first
-			/*
-			if (model.isWritable()) {
-				Registry reg = MetadataViewerAgent.getRegistry();
-				RndProxyDef def = null;
-				try {
-					def = rnd.saveCurrentSettings();
-				} catch (Exception e) {
-					try {
-						reg.getImageService().resetRenderingService(pixelsID);
-						def = rnd.saveCurrentSettings();
-					} catch (Exception ex) {
-						String s = "Data Retrieval Failure: ";
-				    	LogMessage msg = new LogMessage();
-				        msg.print(s);
-				        msg.print(e);
-				        reg.getLogger().error(this, msg);
-					}
-				}
-				EventBus bus = 
-					MetadataViewerAgent.getRegistry().getEventBus();
-				bus.post(new RndSettingsSaved(pixelsID, def));
-			}
-			
-			if (imageID >= 0 && model.isWritable()) {
-				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
-			}
-			*/
-		}
-		model.setRootObject(root);
+		model.setRootObject(root, ctx);
 		view.setRootObject();
 		//reset the parent.
 		model.setUserID(userID);
 		setParentRootObject(null, null);
 	}
 
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#refresh()
+	 */
+	public void refresh() { model.refresh(); }
+	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#setParentRootObject(Object, Object)
@@ -581,7 +557,8 @@ class MetadataViewerComponent
 		DataObject dataObject = null;
 		if (data.size() == 1) dataObject = data.get(0);
 		if (dataObject != null && model.isSameObject(dataObject)) {
-			setRootObject(model.getRefObject(), model.getUserID());
+			setRootObject(model.getRefObject(), model.getUserID(),
+					model.getSecurityContext());
 			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, dataObject);
 		} else
 			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, data);
@@ -604,10 +581,7 @@ class MetadataViewerComponent
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#isSingleMode()
 	 */
-	public boolean isSingleMode()
-	{
-		return model.isSingleMode();
-	}
+	public boolean isSingleMode() { return model.isSingleMode(); }
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
@@ -615,8 +589,12 @@ class MetadataViewerComponent
 	 */
 	public void setRelatedNodes(List nodes)
 	{
-		setRootObject(model.getRefObject(), model.getUserID());
+		if (nodes == null || nodes.size() == 0) return;
+		//model.setSelectionMode(false);
+		//setRootObject(model.getRefObject(), model.getUserID());
 		model.setRelatedNodes(nodes);
+		firePropertyChange(RELATED_NODES_PROPERTY, Boolean.valueOf(false),
+				Boolean.valueOf(true));
 	}
 
 	/** 
@@ -652,8 +630,8 @@ class MetadataViewerComponent
 				un.notifyInfo("Update experimenters", buf.toString());
 			}
 			firePropertyChange(CLEAR_SAVE_DATA_PROPERTY, null, data);
-			setRootObject(null, -1);
-		} else setRootObject(o, model.getUserID());
+			setRootObject(null, -1, null);
+		} else setRootObject(o, model.getUserID(), model.getSecurityContext());
 		firePropertyChange(ADMIN_UPDATED_PROPERTY, null, data);
 		
 		/*
@@ -693,6 +671,16 @@ class MetadataViewerComponent
 		return model.getStructuredData();
 	}
 
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getParentStructuredData()
+	 */
+	public StructuredDataResults getParentStructuredData()
+	{
+		//TODO: Check state
+		return model.getParentStructuredData();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#setStatus(boolean)
@@ -788,7 +776,7 @@ class MetadataViewerComponent
 			
 			DownloadActivityParam activity = new DownloadActivityParam(f,
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
-			un.notifyActivity(activity);
+			un.notifyActivity(model.getSecurityContext(), activity);
 			//un.notifyDownload(data, folder);
 		}
 		firePropertyChange(CREATING_MOVIE_PROPERTY, Boolean.valueOf(true), 
@@ -952,7 +940,7 @@ class MetadataViewerComponent
 			
 			DownloadActivityParam activity = new DownloadActivityParam(f,
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
-			un.notifyActivity(activity);
+			un.notifyActivity(model.getSecurityContext(), activity);
 		}
 		firePropertyChange(ANALYSE_PROPERTY, Boolean.valueOf(true), 
 				Boolean.valueOf(false));
@@ -1180,7 +1168,9 @@ class MetadataViewerComponent
 					def = rnd.saveCurrentSettings();
 				} catch (Exception e) {
 					try {
-						reg.getImageService().resetRenderingService(pixelsID);
+						
+						reg.getImageService().resetRenderingService(
+								model.getSecurityContext(), pixelsID);
 						def = rnd.saveCurrentSettings();
 					} catch (Exception ex) {
 						String s = "Data Retrieval Failure: ";
@@ -1212,11 +1202,18 @@ class MetadataViewerComponent
 	}
 	
 	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#onGroupSwitched(boolean)
+	 */
+	public SecurityContext getSecurityContext()
+	{ 
+		return model.getSecurityContext();
+	
+	}
+	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
 	public String toString() { return model.getRefObjectName(); }
-
-
 
 }

@@ -23,24 +23,33 @@
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -48,19 +57,29 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.EmptyBorder;
 
 //Third-party libraries
+import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.PersonalManagementAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.RunScriptAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ExperimenterData;
+
+import pojos.GroupData;
 
 /** 
  * The tool bar of {@link TreeViewer}.
@@ -82,6 +101,31 @@ class ToolBar
     /** Size of the horizontal box. */
     private static final Dimension HBOX = new Dimension(100, 16);
 
+    /** The icon for private group.*/
+    private static final Icon PERMISSIONS_PRIVATE;
+    
+    /** The icon for private group.*/
+    private static final Icon PERMISSIONS_GROUP_READ;
+    
+    /** The icon for private group.*/
+    private static final Icon PERMISSIONS_GROUP_READ_LINK;
+    
+    /** The icon for private group.*/
+    private static final Icon PERMISSIONS_PUBLIC_READ;
+    
+    /** The icon for private group.*/
+    private static final Icon PERMISSIONS_PUBLIC_READ_WRITE;
+    
+    //Initializes the icons.
+    static {
+    	IconManager im = IconManager.getInstance();
+    	PERMISSIONS_PRIVATE = im.getIcon(IconManager.PRIVATE_GROUP);
+    	PERMISSIONS_GROUP_READ = im.getIcon(IconManager.READ_GROUP);
+    	PERMISSIONS_GROUP_READ_LINK = im.getIcon(IconManager.READ_LINK_GROUP);
+    	PERMISSIONS_PUBLIC_READ = im.getIcon(IconManager.PUBLIC_GROUP);
+    	PERMISSIONS_PUBLIC_READ_WRITE = im.getIcon(IconManager.PUBLIC_GROUP);
+    }
+    
     /** Reference to the control. */
     private TreeViewerControl   controller;
     
@@ -97,6 +141,24 @@ class ToolBar
     /** Button to open the full in a separate window. */
     private JToggleButton		fullScreen;
     
+    /** The menu displaying the available scripts.*/
+    private JPopupMenu			scriptsMenu;
+    
+    /** The button showing the available scripts.*/
+    private JButton				scriptButton;
+    
+    /** Indicates the loading progress. */
+	private JXBusyLabel		busyLabel;
+	
+	/** The index of the {@link #scriptButton}.*/
+	private int index;
+	
+	/** The management bar.*/
+	private JToolBar bar;
+	
+	/** The label displaying the group context.*/
+	private JLabel groupContext;
+
     /**
      * Sets the defaults of the specified menu item.
      * 
@@ -117,7 +179,7 @@ class ToolBar
      */
     private JComponent createManagementBar()
     {
-        JToolBar bar = new JToolBar();
+        bar = new JToolBar();
     	bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
@@ -166,42 +228,130 @@ class ToolBar
         UIUtilities.unifiedButtonLookAndFeel(b);
         //bar.add(b);
         
-        bar.add(new JSeparator(JSeparator.VERTICAL));
+        
        
         TreeViewerAction a = controller.getAction(TreeViewerControl.MANAGER);
         b = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         b.addMouseListener((ManagerAction) a);
         bar.add(b);
+        bar.add(new JSeparator(JSeparator.VERTICAL));
+        //Now register the agent if any
+        TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
+        List<JComponent> l = tb.getToolBarEntries(TaskBar.AGENTS);
+        if (l != null) {
+        	Iterator<JComponent> i = l.iterator();
+        	JComponent comp;
+        	while (i.hasNext()) {
+				comp = i.next();
+				UIUtilities.unifiedButtonLookAndFeel(comp);
+		        bar.add(comp);
+			}
+        	/*
+        	b = new JButton(controller.getAction(
+            		TreeViewerControl.IMPORT_NO_SELECTION));
+            UIUtilities.unifiedButtonLookAndFeel(b);
+            bar.add(b);
+            */
+            bar.add(new JSeparator(JSeparator.VERTICAL));
+        }
+        
+        /*
         b = new JButton(controller.getAction(
         		TreeViewerControl.EDITOR_NO_SELECTION));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
-        b = new JButton(controller.getAction(
-        		TreeViewerControl.IMPORT_NO_SELECTION));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
-        bar.add(new JSeparator(JSeparator.VERTICAL));
+        */
+        
         fullScreen = new JToggleButton(
         		controller.getAction(TreeViewerControl.FULLSCREEN));
         //UIUtilities.unifiedButtonLookAndFeel(button);
         fullScreen.setSelected(model.isFullScreen());
         //bar.add(fullScreen);
-        
-        a = controller.getAction(TreeViewerControl.SWITCH_USER);
+        if (TreeViewerAgent.isAdministrator()) {
+        	b = new JButton(controller.getAction(
+        			TreeViewerControl.UPLOAD_SCRIPT));
+            UIUtilities.unifiedButtonLookAndFeel(b);
+            bar.add(b);
+        }
+        a = controller.getAction(TreeViewerControl.AVAILABLE_SCRIPTS);
         b = new JButton(a);
-        b.addMouseListener((SwitchUserAction) a);
+        Icon icon  = b.getIcon();
+        Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH,
+				UIUtilities.DEFAULT_ICON_HEIGHT);
+        if (icon != null) 
+        	d = new Dimension(icon.getIconWidth(), icon.getIconHeight());
+    	busyLabel = new JXBusyLabel(d);
+    	busyLabel.setVisible(true);
+        b.addMouseListener((RunScriptAction) a);
         UIUtilities.unifiedButtonLookAndFeel(b);
+        scriptButton = b;
         bar.add(b);
+        index = bar.getComponentCount()-1;
+        
+        bar.add(new JSeparator(JSeparator.VERTICAL));
+        
         Set set = TreeViewerAgent.getAvailableUserGroups();
-        if (set != null && set.size() > 0) {
+        if (set != null && set.size() > 1) {
+        	groupContext = new JLabel();
+        	setPermissions();
+			IconManager icons = IconManager.getInstance();
+        	b = new JButton(icons.getIcon(IconManager.OWNER_GROUP));
+        	 UIUtilities.unifiedButtonLookAndFeel(b);
+        	b.addMouseListener(new MouseAdapter() {
+        		
+        		/**
+        		 * Shows the menu with the various 
+        		 */
+        		public void mousePressed(MouseEvent me)
+        		{
+        			TreeViewerAction a = 
+    		        	controller.getAction(TreeViewerControl.SWITCH_USER);
+    				a.putValue(Action.SMALL_ICON, null);
+    				JPopupMenu selectionMenu = new JPopupMenu();
+    				JMenuItem item = new JMenuItem(a);
+    				item.setText(SwitchUserAction.NAME);
+    				selectionMenu.add(item);
+    				JMenu menu = new JMenu(GroupSelectionAction.NAME_ADD);
+    				menu.setToolTipText(GroupSelectionAction.DESCRIPTION_ADD);
+    				List<JMenuItem> items = createMenuItem(true);
+    				Iterator<JMenuItem> i = items.iterator();
+    				while (i.hasNext()) {
+						menu.add(i.next());
+					}
+    				selectionMenu.add(menu);
+    				menu = new JMenu(GroupSelectionAction.NAME);
+    				menu.setToolTipText(GroupSelectionAction.DESCRIPTION);
+    				items = createMenuItem(false);
+    				i = items.iterator();
+    				while (i.hasNext()) {
+						menu.add(i.next());
+					}
+    				selectionMenu.add(menu);
+        			selectionMenu.show((JComponent) me.getSource(), 
+        					me.getX(), me.getY());
+        		}
+			});
+        	bar.add(b);
+        	bar.add(Box.createHorizontalStrut(5));
+        	bar.add(groupContext);
+        	//menu attached to the button.
+        	/*
         	a = controller.getAction(TreeViewerControl.PERSONAL);
             b = new JButton(a);
             BorderFactory.createCompoundBorder(new EmptyBorder(2, 2, 2, 2), 
             		BorderFactory.createLineBorder(Color.GRAY));
             b.addMouseListener((PersonalManagementAction) a);
             bar.add(b);
+            */
+        } else {
+        	a = controller.getAction(TreeViewerControl.SWITCH_USER);
+            b = new JButton(a);
+            b.addMouseListener((SwitchUserAction) a);
+            UIUtilities.unifiedButtonLookAndFeel(b);
+            bar.add(b);
         }
+        
         return bar;
     }
     
@@ -286,10 +436,10 @@ class ToolBar
     }
     
     /**
-     * Brings up the <code>ManagePopupMenu</code>on top of the specified
+     * Brings up the <code>Personal Menu</code> on top of the specified
      * component at the specified location.
      * 
-     * @param c The component that requested the po-pup menu.
+     * @param c The component that requested the pop-up menu.
      * @param p The point at which to display the menu, relative to the
      *            <code>component</code>'s coordinates.
      */
@@ -302,24 +452,159 @@ class ToolBar
         	personalMenu = new JPopupMenu();
         	personalMenu.setBorder(
         			BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        	List<GroupSelectionAction> l = controller.getUserGroupAction();
-        	Iterator<GroupSelectionAction> i = l.iterator();
-        	GroupSelectionAction a;
-        	JCheckBoxMenuItem item;
-        	ButtonGroup buttonGroup = new ButtonGroup();
-        	ExperimenterData exp = TreeViewerAgent.getUserDetails();
-        	long id = exp.getDefaultGroup().getId();
+        	List<JMenuItem> l =  createMenuItem(false);
+        	Iterator<JMenuItem> i = l.iterator();
         	while (i.hasNext()) {
-				a = i.next();
-				item = new JCheckBoxMenuItem(a);
-				item.setEnabled(true);
-				item.setSelected(a.isSameGroup(id));
-				initMenuItem(item);
-				buttonGroup.add(item);
-				personalMenu.add(item);
+				personalMenu.add(i.next());
 			}
         //}
         personalMenu.show(c, p.x, p.y);
+    }
+    
+    /**
+     * Creates the items for the menu.
+     * 
+     * @param add Pass <code>true</code> to build items for the <code>Add</code>
+     * menu, <code>false</code> otherwise.
+     * @return See above
+     */
+    private List<JMenuItem> createMenuItem(boolean add)
+    {
+    	List<JMenuItem> items = new ArrayList<JMenuItem>();
+    	List<GroupSelectionAction> l = controller.getUserGroupAction(add);
+    	Iterator<GroupSelectionAction> i = l.iterator();
+    	GroupSelectionAction a;
+    	JMenuItem item;
+    	if (add) {
+    		//Check the groups that already in the view.
+    		Browser browser = model.getSelectedBrowser();
+    		List<Long> ids = new ArrayList<Long>();
+    		if (browser != null) {
+    			ExperimenterVisitor v = new ExperimenterVisitor(browser, -1);
+    			browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
+    			List<TreeImageDisplay> nodes = v.getNodes();
+    			Iterator<TreeImageDisplay> j = nodes.iterator();
+    			TreeImageDisplay node;
+    			while (j.hasNext()) {
+					node = j.next();
+					ids.add(((GroupData) node.getUserObject()).getId());
+				}
+    		}
+    		
+    		while (i.hasNext()) {
+    			a = i.next();
+    			item = new JMenuItem(a);
+    			if (ids.size() > 0) {
+    				item.setEnabled(!ids.contains(a.getGroupId()));
+    			} else item.setEnabled(true);
+    			initMenuItem(item);
+    			items.add(item);
+    		}
+    	} else {
+    		ButtonGroup buttonGroup = new ButtonGroup();
+        	long id = model.getSelectedGroupId();
+    		while (i.hasNext()) {
+    			a = i.next();
+    			item = new JCheckBoxMenuItem(a);
+    			item.setEnabled(true);
+    			item.setSelected(a.isSameGroup(id));
+    			initMenuItem(item);
+    			buttonGroup.add(item);
+    			items.add(item);
+    		}
+    	}
+    	
+    	return items;
+    }
+    
+    /**
+     * Brings up the <code>Available Scripts</code> on top of the specified
+     * component at the specified location.
+     * 
+     * @param c The component that requested the pop-pup menu.
+     * @param p The point at which to display the menu, relative to the
+     *            <code>component</code>'s coordinates.
+     */
+    void showAvailableScriptsMenu(Component c, Point p)
+    {
+    	if (p == null) return;
+        if (c == null) {
+        	c = scriptButton;
+        	//loading the data.
+        }
+        IconManager icons = IconManager.getInstance();
+        Collection<ScriptObject> scripts = model.getAvailableScripts();
+        if (scripts == null || scripts.size() == 0) return;
+        if (scriptsMenu == null) {
+        	scriptsMenu = new JPopupMenu();
+        	JMenuItem refresh = new JMenuItem(icons.getIcon(
+    				IconManager.REFRESH));
+        	refresh.setText("Reload Scripts");
+        	refresh.setToolTipText("Reloads the existing scripts.");
+        	refresh.addMouseListener(new MouseAdapter() {
+    			
+    			/**
+    			 * Launches the dialog when the user releases the mouse.
+    			 * MouseAdapter#mouseReleased(MouseEvent)
+    			 */
+    			public void mouseReleased(MouseEvent e)
+    			{
+    				model.setAvailableScripts(null);
+    				scriptsMenu = null;
+    				controller.reloadAvailableScripts(e.getPoint());
+    			}
+        	});
+        	scriptsMenu.add(refresh);
+        	scriptsMenu.add(new JSeparator());
+        	Iterator<ScriptObject> i = scripts.iterator();
+        	ScriptObject so;
+        	Map<String, ScriptSubMenu>
+        		menus = new HashMap<String, ScriptSubMenu>();
+        	String path;
+        	ScriptSubMenu subMenu;
+        	List<ScriptSubMenu> others = new ArrayList<ScriptSubMenu>();
+        	List<String> formattedName = new ArrayList<String>();
+        	
+        	Icon icon = icons.getIcon(IconManager.ANALYSIS);
+        	Icon largeIcon = icons.getIcon(IconManager.ANALYSIS_48);
+        	ActionListener listener = new ActionListener() {
+				
+        		/** 
+        		 * Listens to the selection of a script.
+        		 * @see ActionListener#actionPerformed(ActionEvent)
+        		 */
+				public void actionPerformed(ActionEvent e) {
+					ScriptMenuItem item = (ScriptMenuItem) e.getSource();
+					controller.handleScriptSelection(item.getScript());
+				}
+			};
+        	while (i.hasNext()) {
+        		so = i.next();
+        		if (so.getIcon() == null) {
+        			so.setIcon(icon);
+                	so.setIconLarge(largeIcon);
+        		}
+        		path = so.getPath();
+        		subMenu = menus.get(path);
+        		if (subMenu == null) {
+        			subMenu = new ScriptSubMenu(path, formattedName);
+        			menus.put(path, subMenu);
+        			if (so.isOfficialScript()) scriptsMenu.add(subMenu);
+        			else others.add(subMenu);
+        		}
+        		//if (!ScriptMenuItem.isScriptWithUI(so.getScriptLabel()))
+        		subMenu.addScript(so).addActionListener(listener);
+        	}
+        	if (others.size() > 0) {
+        		scriptsMenu.add(new JSeparator());
+        		JMenu uploadedMenu = new JMenu("User Scripts");
+        		scriptsMenu.add(uploadedMenu);
+        		Iterator<ScriptSubMenu> j = others.iterator();
+            	while (j.hasNext()) 
+            		uploadedMenu.add(j.next());
+        	}
+        }
+        scriptsMenu.show(c, p.x, p.y);
     }
     
     /**
@@ -335,7 +620,7 @@ class ToolBar
     {
         if (c == null) return;
         if (p == null) return;
-        PopupMenu menu = new PopupMenu(controller,index);
+        PopupMenu menu = new PopupMenu(controller, index);
         menu.show(c, p.x, p.y);
     }
     
@@ -349,4 +634,56 @@ class ToolBar
     	fullScreen.setSelected(selected);
     }
     
+	/** 
+	 * Invokes when loadings scripts.
+	 * 
+	 * @param loading Passes <code>true</code> if there is an on-going loading.
+	 *                <code>false</code> otherwise.
+	 */
+	void setScriptsLoadingStatus(boolean loading)
+	{
+		bar.remove(index);
+		busyLabel.setBusy(loading);
+		if (loading) bar.add(busyLabel, index);
+		else bar.add(scriptButton, index);
+		validate();
+		repaint();
+	}
+	
+	/** Sets the permissions level.*/
+    void setPermissions()
+    {
+    	GroupData group = model.getSelectedGroup();
+    	if (group == null || groupContext == null) return;
+    	String desc = "";
+		int level = 
+        TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+        			group);
+		Icon icon = null;
+		switch (level) {
+			case AdminObject.PERMISSIONS_PRIVATE:
+				desc = AdminObject.PERMISSIONS_PRIVATE_TEXT;
+				icon = PERMISSIONS_PRIVATE;
+				break;
+			case AdminObject.PERMISSIONS_GROUP_READ:
+				desc = AdminObject.PERMISSIONS_GROUP_READ_TEXT;
+				icon = PERMISSIONS_GROUP_READ;
+				break;
+			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+				desc = AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT;
+				icon = PERMISSIONS_GROUP_READ_LINK;
+				break;
+			case AdminObject.PERMISSIONS_PUBLIC_READ:
+				desc = AdminObject.PERMISSIONS_PUBLIC_READ_TEXT;
+				icon = PERMISSIONS_PUBLIC_READ;
+				break;
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				desc = AdminObject.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
+				icon = PERMISSIONS_PUBLIC_READ;
+		}
+		if (icon != null) groupContext.setIcon(icon);
+		groupContext.setText(group.getName());
+		groupContext.setToolTipText(desc);
+		repaint();
+    }
 }

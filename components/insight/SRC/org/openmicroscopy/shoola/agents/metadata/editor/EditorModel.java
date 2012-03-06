@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.sql.Timestamp;
@@ -78,7 +77,6 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
-import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
@@ -88,8 +86,8 @@ import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
-import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -182,7 +180,7 @@ class EditorModel
     /** The list of emission wavelengths for a given set of pixels. */
     private Map						emissionsWavelengths;
     
-    /** Used to sort the various collection. */
+    /** Used to sort the various collections. */
     private ViewerSorter			sorter;
 
 	/** Reference to the browser. */
@@ -241,7 +239,7 @@ class EditorModel
 		
 		DownloadActivityParam activity = new DownloadActivityParam(f,
 				folder, icons.getIcon(IconManager.DOWNLOAD_22));
-		un.notifyActivity(activity);
+		un.notifyActivity(getSecurityContext(), activity);
 		
 		Collection l = parent.getRelatedNodes();
 		if (l == null) return;
@@ -267,7 +265,7 @@ class EditorModel
 							icons.getIcon(IconManager.DOWNLOAD_22));
 				}
 				activity.setFileName(fa.getFileName());
-				un.notifyActivity(activity);
+				un.notifyActivity(getSecurityContext(), activity);
 			}
 		}
 	}
@@ -309,7 +307,7 @@ class EditorModel
 				img = i.next();
 				p = new DownloadArchivedActivityParam(path, img, 
 						icons.getIcon(IconManager.DOWNLOAD_22));
-				un.notifyActivity(p);
+				un.notifyActivity(getSecurityContext(), p);
 			}
 		}
 	}
@@ -402,7 +400,8 @@ class EditorModel
     	if (refObject instanceof ExperimenterData) {
     		ExperimenterData exp = (ExperimenterData) refObject;
     		if (usersPhoto == null || !usersPhoto.containsKey(exp.getId())) {
-    			UserPhotoLoader loader = new UserPhotoLoader(component, exp);
+    			UserPhotoLoader loader = new UserPhotoLoader(component,
+    					parent.getSecurityContext(), exp);
         		loader.load();
     		}
     	}
@@ -648,6 +647,55 @@ class EditorModel
 				return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the selected objects belong to several
+	 * groups, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isAcrossGroups()
+	{
+		List<DataObject> l = getSelectedObjects();
+		if (l == null || l.size() == 0) return false;
+		List<Long> ids = new ArrayList<Long>();
+		Iterator<DataObject> i = l.iterator();
+		DataObject data;
+		while (i.hasNext()) {
+			data = i.next();
+			if (!ids.contains(data.getGroupId())) 
+				ids.add(data.getGroupId());
+		}
+		return ids.size() > 1;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the annotation can be added, should
+	 * only be invoked for tagging or adding attachments, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isAnnotationAllowed()
+	{
+		if (!isWritable()) return false;
+		if (!isMultiSelection()) return true;
+		//multi selection.
+		List l = parent.getRelatedNodes();
+		if (l == null) return false;
+		Iterator i = l.iterator();
+		DataObject data;
+		List<Long> ids = new ArrayList<Long>();
+		while (i.hasNext()) {
+			data = (DataObject) i.next();
+			if (!(data instanceof GroupData || 
+					data instanceof ExperimenterData)) {
+				if (!ids.contains(data.getGroupId()))
+					ids.add(data.getGroupId());
+			}
+		}
+		return ids.size() <= 1;
 	}
 	
 	/**
@@ -968,7 +1016,7 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		List<FileAnnotationData> list = new ArrayList<FileAnnotationData>();
 		if (data == null) return list;
-		Collection<FileAnnotationData> attachements = data.getAttachments(); 
+		Collection<FileAnnotationData> attachements = data.getAttachments();
 		if (attachements == null) return list;
 		Iterator<FileAnnotationData> i = attachements.iterator();
 		FileAnnotationData f;
@@ -979,6 +1027,22 @@ class EditorModel
 			if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) && 
 					f != originalMetadata) {
 				list.add(f);
+			}
+		}
+		if (refObject instanceof WellSampleData) {
+			data = parent.getParentStructuredData();
+			if (data != null) {
+				attachements = data.getAttachments();
+				if (attachements != null) {
+					while (i.hasNext()) {
+						f = i.next();
+						ns = f.getNameSpace();
+						if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) && 
+								f != originalMetadata) {
+							list.add(f);
+						}
+					}
+				}
 			}
 		}
 		return (Collection<FileAnnotationData>) sorter.sort(list); 
@@ -1012,6 +1076,25 @@ class EditorModel
 				l.add(f);
 			}
 			
+		}
+		if (getRefObject() instanceof WellSampleData) {
+			data = parent.getParentStructuredData();
+			if (data != null) {
+				attachements = data.getAttachments();
+				if (attachements != null) {
+					i = attachements.iterator();
+					while (i.hasNext()) {
+						f = i.next();
+						ns = f.getNameSpace();
+						if (FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
+							String name = f.getFileName();
+							if (name.contains(
+									FileAnnotationData.ORIGINAL_METADATA_NAME))
+								originalMetadata = f;
+						}
+					}
+				}
+			}
 		}
 		return (Collection<FileAnnotationData>) sorter.sort(l); 
 	}
@@ -1473,7 +1556,8 @@ class EditorModel
 			}
 		}
 		if (exist) return;
-		TagsLoader loader = new TagsLoader(component);
+		TagsLoader loader = new TagsLoader(component,
+				parent.getSecurityContext());
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1495,7 +1579,8 @@ class EditorModel
 			}
 		}
 		if (exist) return;
-		AttachmentsLoader loader = new AttachmentsLoader(component);
+		AttachmentsLoader loader = new AttachmentsLoader(component,
+				parent.getSecurityContext());
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1531,6 +1616,7 @@ class EditorModel
 		try {
 			PixelsData pixs = data.getDefaultPixels();
 			ChannelDataLoader loader = new ChannelDataLoader(component, 
+					parent.getSecurityContext(),
 					pixs.getId(), parent.getUserID());
 			loader.load();
 			loaders.add(loader);
@@ -1761,7 +1847,8 @@ class EditorModel
 	 */
 	void loadDiskSpace(Class type, long id)
 	{
-		DiskSpaceLoader loader = new DiskSpaceLoader(component, type, id);
+		DiskSpaceLoader loader = new DiskSpaceLoader(component,
+				parent.getSecurityContext(), type, id);
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1785,12 +1872,13 @@ class EditorModel
 	/**
 	 * Fires an asynchronous call to modify the password.
 	 * 
-	 * @param old		The old password.
-	 * @param confirm	The new password.
+	 * @param old The old password.
+	 * @param confirm The new password.
 	 */
 	void changePassword(String old, String confirm)
 	{
-		EditorLoader loader = new PasswordEditor(component, old, confirm);
+		EditorLoader loader = new PasswordEditor(component,
+				parent.getSecurityContext(), old, confirm);
 		loader.load();
 		loaders.add(loader);
 	}
@@ -1850,7 +1938,7 @@ class EditorModel
 	void fireImageEnumerationsLoading()
 	{
 		EnumerationLoader loader = new EnumerationLoader(component, 
-					EnumerationLoader.IMAGE);
+				parent.getSecurityContext(), EnumerationLoader.IMAGE);
 		loader.load();
 	}
 	
@@ -1858,7 +1946,7 @@ class EditorModel
 	void fireChannelEnumerationsLoading()
 	{
 		EnumerationLoader loader = new EnumerationLoader(component, 
-				EnumerationLoader.CHANNEL);
+				parent.getSecurityContext(), EnumerationLoader.CHANNEL);
 		loader.load();
 	}
 	
@@ -1874,7 +1962,8 @@ class EditorModel
 		}
 		if (data == null) return;
 		AcquisitionDataLoader 
-			loader = new AcquisitionDataLoader(component, data); 
+			loader = new AcquisitionDataLoader(component, 
+					parent.getSecurityContext(), data); 
 		loader.load();
 	}
 	
@@ -1886,7 +1975,8 @@ class EditorModel
 	void  fireChannelAcquisitionDataLoading(ChannelData channel)
 	{
 		AcquisitionDataLoader 
-			loader = new AcquisitionDataLoader(component, channel); 
+			loader = new AcquisitionDataLoader(component, 
+					parent.getSecurityContext(), channel); 
 		loader.load();
 	}
 	
@@ -1898,7 +1988,7 @@ class EditorModel
 	void fireInstrumentDataLoading(long instrumentID)
 	{
 		InstrumentDataLoader loader = new InstrumentDataLoader(component, 
-				instrumentID);
+				parent.getSecurityContext(), instrumentID);
 		loader.load();
 	}
 	
@@ -1923,7 +2013,7 @@ class EditorModel
 	}
 
     /**
-     * Sets the acquisition data for the specifed channel.
+     * Sets the acquisition data for the specified channel.
      * 
      * @param index The index of the channel.
      * @param data  The value to set.
@@ -2150,7 +2240,8 @@ class EditorModel
 		if (!(ref instanceof ImageData)) return;
 		ImageData img = (ImageData) ref;
 		PlaneInfoLoader loader = new PlaneInfoLoader(component, 
-				img.getDefaultPixels().getId(), channel, z);
+				parent.getSecurityContext(), img.getDefaultPixels().getId(),
+				channel, z);
 		loader.load();
 	}
 
@@ -2197,7 +2288,7 @@ class EditorModel
 		if (isRendererLoaded() && index == RenderingControlLoader.LOAD) 
 			return false;
 		RenderingControlLoader loader = new RenderingControlLoader(component, 
-				pixelsID, index);
+				parent.getSecurityContext(), pixelsID, index);
 		loader.load();
 		return true;
 	}
@@ -2212,8 +2303,8 @@ class EditorModel
 		if (renderer != null) {
 			renderer.onSettingsApplied(rndControl);
 		} else {
-			renderer = RendererFactory.createRenderer(rndControl, getImage(),
-					getRndIndex());
+			renderer = RendererFactory.createRenderer(getSecurityContext(),
+					rndControl, getImage(), getRndIndex());
 		}
 	}
 	
@@ -2252,7 +2343,8 @@ class EditorModel
 	 */
 	void loadFile(FileAnnotationData data, Object uiView)
 	{
-		FileLoader loader = new FileLoader(component, data, uiView);
+		FileLoader loader = new FileLoader(component,
+				parent.getSecurityContext(), data, uiView);
 		loader.load();
 	}
 	
@@ -2264,7 +2356,8 @@ class EditorModel
 	void loadFiles(Map<FileAnnotationData, Object> files)
 	{
 		if (!MetadataViewerAgent.isBinaryAvailable()) return;
-		FileLoader loader = new FileLoader(component, files);
+		FileLoader loader = new FileLoader(component,
+				parent.getSecurityContext(), files);
 		loader.load();
 	}
 	
@@ -2454,7 +2547,8 @@ class EditorModel
 		ImageData img = getImage();
 		if (img == null) return;
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		ROILoader loader = new ROILoader(component, img.getId(), userID, index);
+		ROILoader loader = new ROILoader(component, parent.getSecurityContext(),
+				img.getId(), userID, index);
 		loader.load();
 	}
 	
@@ -2466,7 +2560,7 @@ class EditorModel
 	}
 	
 	/** Refreshes the view. */
-	void refresh() { parent.setRootObject(getRefObject(), getUserID()); }
+	void refresh() { parent.refresh(); }
 	
 	/**
 	 * Sets the collection of scripts.
@@ -2509,7 +2603,8 @@ class EditorModel
 	 */
 	void loadScript(long scriptID)
 	{
-		ScriptLoader loader = new ScriptLoader(component, scriptID);
+		ScriptLoader loader = new ScriptLoader(component,
+				parent.getSecurityContext(), scriptID);
 		loader.load();
 		loaders.add(loader);
 	}
@@ -2540,7 +2635,8 @@ class EditorModel
 	/** Loads the scripts. */
 	void loadScripts()
 	{
-		ScriptsLoader loader = new ScriptsLoader(component, false);
+		ScriptsLoader loader = new ScriptsLoader(component,
+				parent.getSecurityContext(), false);
 		loader.load();
 		loaders.add(loader);
 	}
@@ -2601,8 +2697,8 @@ class EditorModel
     	if (refObject instanceof ExperimenterData) {
     		//ExperimenterData exp = (ExperimenterData) refObject;
     		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-    		UserPhotoUploader loader = new UserPhotoUploader(component, exp,
-    				photo, format);
+    		UserPhotoUploader loader = new UserPhotoUploader(component,
+    				parent.getSecurityContext(), exp, photo, format);
     		loader.load();
     	}
     }
@@ -2616,7 +2712,9 @@ class EditorModel
     			if (usersPhoto != null) usersPhoto.remove(exp.getId());
     			OmeroMetadataService svc = 
     				MetadataViewerAgent.getRegistry().getMetadataService();
-    			Collection photos = svc.loadAnnotations(FileAnnotationData.class,
+    			Collection photos = svc.loadAnnotations(
+    					parent.getSecurityContext(), 
+    					FileAnnotationData.class,
     					FileAnnotationData.EXPERIMENTER_PHOTO_NS, exp.getId(),
     					-1);
     			if (photos == null || photos.size() == 0) return;
@@ -2631,7 +2729,7 @@ class EditorModel
 	    		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
 	    		UserNotifier un = 
 	    			TreeViewerAgent.getRegistry().getUserNotifier();
-	    		un.notifyActivity(p);
+	    		un.notifyActivity(getSecurityContext(), p);
 			} catch (Exception e) {
 				// TODO: handle exception
 			}
@@ -2651,6 +2749,7 @@ class EditorModel
      */
     private List<ScriptObject> getScriptsWithUI()
     {
+    	/*
     	if (scriptsWithUI != null) return scriptsWithUI;
     	try {
     		OmeroImageService svc = 
@@ -2663,6 +2762,7 @@ class EditorModel
 			msg.print(e);
 			MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
 		}
+		*/
     	return new ArrayList<ScriptObject>();
     }
     
@@ -2692,6 +2792,7 @@ class EditorModel
      */
     GroupData loadGroup(long groupID)
     {
+    	/*
     	try {
 			AdminService svc = 
 				MetadataViewerAgent.getRegistry().getAdminService();
@@ -2705,6 +2806,7 @@ class EditorModel
 		} catch (Exception e) {
 			//ignore
 		}
+		*/
 		return null;
     }
     
@@ -2718,7 +2820,7 @@ class EditorModel
     	if (resultsLoader == null)
     		resultsLoader = new HashMap<AnalysisResultsItem, EditorLoader>();
     	AnalysisResultsFileLoader loader = new AnalysisResultsFileLoader(
-    			component, analysis);
+    			component, parent.getSecurityContext(), analysis);
     	resultsLoader.put(analysis, loader);
     	loader.load();
     }
@@ -2822,7 +2924,7 @@ class EditorModel
 			p.setIcon(icons.getIcon(IconManager.SAVE_AS_22));
 			UserNotifier un =
 				MetadataViewerAgent.getRegistry().getUserNotifier();
-			un.notifyActivity(p);
+			un.notifyActivity(getSecurityContext(), p);
 		}
 	}
 	
@@ -2869,7 +2971,7 @@ class EditorModel
 			PixelsData data = img.getDefaultPixels();
 			b = 
 			MetadataViewerAgent.getRegistry().getImageService().isLargeImage(
-					data.getId());
+					parent.getSecurityContext(), data.getId());
 		} catch (Exception e) {}
 		if (b != null) return b.booleanValue();
 		return false;
@@ -2905,6 +3007,34 @@ class EditorModel
 	{
 		if (usersPhoto == null) return null;
 		return usersPhoto.get(expId);
+	}
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext() { return parent.getSecurityContext(); }
+	
+	/**
+	 * Returns <code>true</code> if the name of the group already exists,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The group to handle.
+	 * @param name The name to check.
+	 * @return
+	 */
+	boolean doesGroupExist(GroupData data, String name)
+	{
+		if (data == null) return false;
+		AdminService svc = MetadataViewerAgent.getRegistry().getAdminService();
+		try {
+			GroupData g = svc.lookupGroup(getSecurityContext(), name);
+			if (g != null && data.getId() != g.getId()) {
+				return true;
+			}
+		} catch (Exception e) {}
+		return false;
 	}
 	
 }

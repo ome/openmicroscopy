@@ -7,9 +7,11 @@
 
 package ome.services.search;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +46,10 @@ import org.springframework.util.Assert;
  * @since 3.0-Beta3
  */
 public class FullText extends SearchAction {
+
+    public final static String ALL_PROJECTIONS = "__ALL_PROJECTIONS";
+
+    public final static String TOTAL_SIZE = "TOTAL_SIZE";
 
     private static final Log log = LogFactory.getLog(FullText.class);
 
@@ -106,12 +112,8 @@ public class FullText extends SearchAction {
         }
     }
 
-    @Transactional(readOnly = true)
-    public Object doWork(Session s, ServiceFactory sf) {
-
+    private Criteria criteria(FullTextSession session) {
         final Class<?> cls = values.onlyTypes.get(0);
-
-        FullTextSession session = Search.getFullTextSession(s);
         Criteria criteria = session.createCriteria(cls);
         AnnotationCriteria ann = new AnnotationCriteria(criteria,
                 values.fetchAnnotations);
@@ -160,6 +162,32 @@ public class FullText extends SearchAction {
                 }
             }
         }
+        return criteria;
+    }
+
+    /**
+     * Allows settings offset and limit on the query. The default implementation
+     * calls setProjection with SCORE and ID, which MUST BE the first two
+     * projection values. Any overriding method may add further projections but
+     * must start with these two.
+     *
+     * @param ftQuery
+     */
+    protected void initializeQuery(FullTextQuery ftQuery) {
+        ftQuery
+        .setProjection(ProjectionConstants.SCORE,
+                ProjectionConstants.ID);
+    }
+
+    @Transactional(readOnly = true)
+    public Object doWork(Session s, ServiceFactory sf) {
+
+        final Class<?> cls = values.onlyTypes.get(0);
+        FullTextSession session = Search.createFullTextSession(s);
+        Criteria criteria = criteria(session);
+        if (criteria == null) {
+            return null; // EARLY EXIT. See criteria method.
+        }
 
         final String ticket975 = "ticket:975 - Wrong return type: %s instead of %s\n"
                 + "Under some circumstances, byFullText and related methods \n"
@@ -170,9 +198,7 @@ public class FullText extends SearchAction {
 
         // Main query
         FullTextQuery ftQuery = session.createFullTextQuery(this.q, cls);
-        ftQuery
-                .setProjection(ProjectionConstants.SCORE,
-                        ProjectionConstants.ID);
+        initializeQuery(ftQuery);
         List<?> result = ftQuery.list();
         int totalSize = ftQuery.getResultSize();
 
@@ -183,25 +209,42 @@ public class FullText extends SearchAction {
 
         final Map<Long, Integer> order = new HashMap<Long, Integer>();
         final Map<Long, Float> scores = new HashMap<Long, Float>();
+        final Map<Long, Object[]> projections = new HashMap<Long, Object[]>();
         for (int i = 0; i < result.size(); i++) {
             Object[] parts = (Object[]) result.get(i);
             scores.put((Long) parts[1], (Float) parts[0]);
             order.put((Long) parts[1], i);
+            projections.put((Long) parts[1], parts);
         }
 
         // TODO Could add a performance optimization here on returnUnloaded
 
-        criteria.add(Restrictions.in("id", scores.keySet()));
-        final List<IObject> check975 = criteria.list();
+        final LinkedList<Long> ids = new LinkedList<Long>(scores.keySet());
+        final List<IObject> check975 = new ArrayList<IObject>();
+
+        while (ids.size() > 0) {
+            final List<Long> page = new ArrayList<Long>();
+            for (int i = 0; i < 1000 && ids.size() > 0; i++) {
+                page.add(ids.removeFirst());
+            }
+            if (criteria == null) {
+                criteria = criteria(session);
+            }
+            criteria.add(Restrictions.in("id", page));
+            check975.addAll(criteria.list());
+            criteria = null;
+        }
+
         for (IObject object : check975) {
             // TODO This is now all but impossible. Remove
             if (!cls.isAssignableFrom(object.getClass())) {
                 throw new ApiUsageException(String.format(ticket975, object
                         .getClass(), cls));
             } else {
-                object.putAt("TOTAL_SIZE", totalSize);
+                object.putAt(TOTAL_SIZE, totalSize);
                 object.putAt(ProjectionConstants.SCORE, scores.get(object
                         .getId()));
+                object.putAt(ALL_PROJECTIONS, projections.get(object.getId()));
             }
         }
 
@@ -220,5 +263,29 @@ public class FullText extends SearchAction {
         };
         Collections.sort(check975, cmp);
         return check975;
+    }
+
+    public Float getScore(IObject object) {
+        Object o = object.retrieve(ProjectionConstants.SCORE);
+        if (o instanceof Float) {
+            return (Float) o;
+        }
+        return null;
+    }
+
+    public Integer getTotalSize(IObject object) {
+        Object o = object.retrieve(TOTAL_SIZE);
+        if (o instanceof Integer) {
+            return (Integer) o;
+        }
+        return null;
+    }
+
+    public Object[] getProjections(IObject object) {
+        Object o = object.retrieve(ALL_PROJECTIONS);
+        if (o instanceof Object[]) {
+            return (Object[]) o;
+        }
+        return null;
     }
 }

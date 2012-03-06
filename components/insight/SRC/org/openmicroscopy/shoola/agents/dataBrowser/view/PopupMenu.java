@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -34,13 +33,13 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.border.BevelBorder;
 
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
-import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
-import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewOtherAction;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.MoveToAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewOtherAction;
 
 /** 
  * Pop-up menu for nodes in the browser display.
@@ -103,6 +102,23 @@ class PopupMenu
 	
 	/** Reference to the control. */
 	private DataBrowserControl controller;
+	
+	/**
+	 * Creates a menu if the various groups the data can be moved to.
+	 * 
+	 * @return See above.
+	 */
+	private JMenu createMoveToMenu()
+	{
+		List<MoveToAction> actions = controller.getMoveAction();
+		if (actions.size() <= 1) return null;
+		JMenu menu = new JMenu(MoveToAction.NAME);
+		Iterator<MoveToAction> i = actions.iterator();
+		while (i.hasNext()) {
+			menu.add(new JMenuItem(i.next()));
+		}
+		return menu;
+	}
 	
 	/**
 	 * Initializes the menu items with the given actions.
@@ -170,6 +186,8 @@ class PopupMenu
 		add(cutElement);
 		add(copyElement);
 		add(pasteElement);
+		JMenu m = createMoveToMenu();
+		if (m != null) add(m);
 		add(removeElement);
 		add(new JSeparator(JSeparator.HORIZONTAL));
 		add(tagElement);

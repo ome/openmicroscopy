@@ -46,7 +46,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImageLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImagesCounter;
-import org.openmicroscopy.shoola.agents.treeviewer.FilesChecker;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.ScreenPlateLoader;
@@ -56,12 +55,12 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -154,6 +153,9 @@ class BrowserModel
     /** Reference to the component that embeds this model. */
     protected Browser           	component; 
     
+    /** The security context for the administrator.*/
+    //private SecurityContext adminContext;
+    
     /** 
      * Checks if the specified browser is valid.
      * 
@@ -181,7 +183,7 @@ class BrowserModel
      * @param browserType   The browser's type. One of the type defined by
      *                      the {@link Browser}.
      * @param parent        Reference to the parent. 
-     * @param experimenter  The experimenter this browser is for.                  
+     * @param experimenter  The experimenter this browser is for.
      */
     protected BrowserModel(int browserType, TreeViewer parent)
     { 
@@ -193,6 +195,7 @@ class BrowserModel
         foundNodeIndex = -1;
         selectedNodes = new ArrayList<TreeImageDisplay>();
         displayed = true;
+        //adminContext = TreeViewerAgent.getAdminContext();
     }
 
     /**
@@ -217,21 +220,6 @@ class BrowserModel
      *              One of the state constants defined by the {@link Browser}.
      */
     void setState(int state) { this.state = state; }
-    
-    /** 
-     * Returns the root ID.
-     * 
-     * @return See above.
-     */
-    long getRootID() { return parent.getUserDetails().getId(); }
-    
-	/** 
-	 * Returns the id to the group selected for the current user.
-	 * 
-	 * @return See above.
-	 */
-    long getGroupID() { return parent.getUserGroupID(); }
-    
     /**
      * Returns the currently selected node.
      * 
@@ -337,24 +325,27 @@ class BrowserModel
     void fireLeavesLoading(TreeImageDisplay expNode, TreeImageDisplay node)
     {
     	state = Browser.LOADING_LEAVES;
+    	SecurityContext ctx = getSecurityContext(expNode);
     	if (node instanceof TreeImageTimeSet || node instanceof TreeFileSet) {
-    		currentLoader = new ExperimenterImageLoader(component, 
+    		currentLoader = new ExperimenterImageLoader(component, ctx,
 					(TreeImageSet) expNode, (TreeImageSet) node);
     		 currentLoader.load();
     	} else {
     		Object ho = node.getUserObject();
             if (ho instanceof DatasetData)  {
-        		currentLoader = new ExperimenterDataLoader(component, 
+        		currentLoader = new ExperimenterDataLoader(component, ctx,
         				ExperimenterDataLoader.DATASET, 
         				(TreeImageSet) expNode, (TreeImageSet) node);
         		 currentLoader.load();
         	} else if (ho instanceof TagAnnotationData) {
-        		currentLoader = new ExperimenterDataLoader(component, 
+        		currentLoader = new ExperimenterDataLoader(component, ctx,
         				ExperimenterDataLoader.TAG, 
         				(TreeImageSet) expNode, (TreeImageSet) node);
         		currentLoader.load();
         	} else if (ho instanceof GroupData) {
-        		currentLoader = new AdminLoader(component, 
+        		if (TreeViewerAgent.isAdministrator()) 
+        			ctx = TreeViewerAgent.getAdminContext();;
+        		currentLoader = new AdminLoader(component, ctx,
         				(TreeImageSet) expNode);
         		currentLoader.load();
             } else if (ho instanceof FileData) {
@@ -375,15 +366,20 @@ class BrowserModel
      * @param containers The collection of <code>DataObject</code>s.
      * @param nodes      The corresponding nodes.
      */
-    void fireContainerCountLoading(Set containers, Set<TreeImageSet> nodes)
+    void fireContainerCountLoading(Set containers, Set<TreeImageSet> nodes, 
+    		TreeImageDisplay refNode)
     {
         if (containers == null || containers.size() == 0) {
             state = Browser.READY;
             return;
         }
         //state = Browser.COUNTING_ITEMS;
-        numberLoader = new ContainerCounterLoader(component, containers, nodes);
-        numberLoader.load();
+        SecurityContext ctx = getSecurityContext(refNode);
+        if (TreeViewerAgent.isAdministrator())
+        	ctx = TreeViewerAgent.getAdminContext();;
+        ContainerCounterLoader loader = new ContainerCounterLoader(component,
+        		ctx, containers, nodes);
+        loader.load();
     }
 
     /**
@@ -488,13 +484,6 @@ class BrowserModel
      * @return See above.
      */
     long getUserID() { return parent.getUserDetails().getId(); }
-
-    /** 
-     * Returns the id to the group selected for the current user.
-     * 
-     * @return See above.
-     */
-    long getUserGroupID() { return parent.getUserGroupID(); }
     
     /**
      * Returns the details of the user currently logged in.
@@ -552,17 +541,17 @@ class BrowserModel
 			state = Browser.LOADING_DATA;
 			//Depending on user roles.
 			if (TreeViewerAgent.isAdministrator()) {
-				currentLoader = new AdminLoader(component, null);
+				currentLoader = new AdminLoader(component, 
+						TreeViewerAgent.getAdminContext(), null);
 				currentLoader.load();
-				return;
 			} else {
 				component.setGroups(TreeViewerAgent.getGroupsLeaderOf(), null);
-				return;
 			}
-			
+			return;
 		}
+		SecurityContext ctx = getSecurityContext(expNode);
 		if (browserType == Browser.SCREENS_EXPLORER) {
-			currentLoader = new ScreenPlateLoader(component, expNode, 
+			currentLoader = new ScreenPlateLoader(component, ctx, expNode, 
 												ScreenPlateLoader.SCREEN);
 	        currentLoader.load();
 			state = Browser.LOADING_DATA;
@@ -585,7 +574,8 @@ class BrowserModel
 				//index = ExperimenterDataLoader.FILE;
 		}
 		if (index == -1) return;
-		currentLoader = new ExperimenterDataLoader(component, index, expNode);
+		currentLoader = new ExperimenterDataLoader(component, ctx, index,
+				expNode);
         currentLoader.load();
         state = Browser.LOADING_DATA;
 	}
@@ -599,7 +589,8 @@ class BrowserModel
      * @param refNode  The node to hosting the data object to browse.
      * @param toBrowse The data object to browse.
      */
-    void loadRefreshExperimenterData(Map<Long, RefreshExperimenterDef> nodes, 
+    void loadRefreshExperimenterData(
+    		Map<SecurityContext, RefreshExperimenterDef> nodes, 
     		Class type, long id, Object refNode, DataObject toBrowse)
     {
         Class klass = null;
@@ -624,9 +615,10 @@ class BrowserModel
 		}
         state = Browser.LOADING_DATA;
         if (klass == null) return;
-        currentLoader = new RefreshExperimenterDataLoader(component, klass,
+        currentLoader = new RefreshExperimenterDataLoader(component, 
+        		getSecurityContext(null), klass,
         					nodes, type, id, refNode, toBrowse);
-        currentLoader.load();   
+        currentLoader.load();
     }
 
     /**
@@ -637,6 +629,7 @@ class BrowserModel
      */
 	void fireCountExperimenterImages(TreeImageSet expNode)
 	{
+		SecurityContext ctx = getSecurityContext(expNode);
 		List<TreeImageSet> n = expNode.getChildrenDisplay();
 		Iterator i = n.iterator();
 		Set<Integer> indexes = new HashSet<Integer>();
@@ -665,7 +658,8 @@ class BrowserModel
 		if (containersManagerWithIndexes == null)
 			containersManagerWithIndexes = new ContainersManager(indexes);
 		state = Browser.COUNTING_ITEMS;
-        numberLoader = new ExperimenterImagesCounter(component, expNode, n);
+        numberLoader = new ExperimenterImagesCounter(component, ctx,
+        		expNode, n);
         numberLoader.load();  
 	}
 	
@@ -713,34 +707,6 @@ class BrowserModel
 	{ 
 		if (node == null) return;
 		Object object = node.getUserObject();
-		//if ((object instanceof ImageData) || (object instanceof PlateData)) {
-			/*
-			ImageData image = (ImageData) node.getUserObject();
-			TreeImageDisplay pNode = node.getParentDisplay();
-			DataObject pObject = null;
-			DataObject gpObject = null;
-			if (pNode != null) {
-				Object p = pNode.getUserObject();
-				if (p instanceof DataObject)
-					pObject = (DataObject) p;
-				TreeImageDisplay gpNode = pNode.getParentDisplay();
-				if (gpNode != null) {
-					p = gpNode.getUserObject();
-					if (p instanceof DataObject) {
-						if (!((p instanceof ExperimenterData) ||
-								(p instanceof GroupData)))
-							gpObject = (DataObject) p;
-					}
-						
-				}
-			}
-			Rectangle r = parent.getUI().getBounds();
-			ViewImage evt = new ViewImage(image, r);
-	    	evt.setContext(pObject, gpObject);
-			TreeViewerAgent.getRegistry().getEventBus().post(evt);
-			*/
-			//parent.browse(node, true);
-		//}
 		if (object instanceof ImageData) parent.browse(node, null, true);
 		else if (object instanceof PlateData) {
 			if (!node.hasChildrenDisplay() || 
@@ -759,7 +725,7 @@ class BrowserModel
 	{
 		if (node == null) return;
 		FileAnnotationData data = (FileAnnotationData) node.getUserObject();
-		EditFileEvent evt = new EditFileEvent(data);
+		EditFileEvent evt = new EditFileEvent(getSecurityContext(node), data);
 		TreeViewerAgent.getRegistry().getEventBus().post(evt);
 	}
 
@@ -858,19 +824,6 @@ class BrowserModel
 		return importedImages.get(name) != null;
 	}
 
-	/**
-	 * Starts an asynchronous call to check if the files hosted by the 
-	 * passed nodes can be imported.
-	 * 
-	 * @param nodes The nodes to handle.
-	 */
-	void fireFilesCheck(List<TreeImageNode> nodes)
-	{
-		if (nodes == null || nodes.size() == 0) return;
-		FilesChecker loader = new FilesChecker(component, nodes);
-		loader.load();
-	}
-
 	/** Creates a {@link DeleteCmd} command to execute the action. */
 	void delete()
 	{
@@ -885,31 +838,6 @@ class BrowserModel
 			DeleteCmd c = new DeleteCmd(component);
 			c.execute();
 		}
-	}
-	
-	/**
-	 * Returns <code>true</code> if the image file format is supported,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param path The path to the file.
-	 * @return See above.
-	 */
-	boolean isSupportedImageFormat(String path)
-	{
-		/*
-		if (path == null) return false;
-		if (path.endsWith(OmeroImageService.ZIP_EXTENSION)) return true;
-    	
-		List<FileFilter> filters = parent.getSupportedFormats();
-		Iterator<FileFilter> i = filters.iterator();
-		FileFilter filter;
-		while (i.hasNext()) {
-			filter = i.next();
-			if (filter.accept(new File(path))) return true;
-		}
-		return false;
-		*/
-		return false;
 	}
 	
 	/**
@@ -947,5 +875,68 @@ class BrowserModel
 		if (nodes == null || nodes.length <= 1) return false;
 		return true;
 	}
+
+	/**
+	 * Transfers the nodes.
+	 * 
+	 * @param target The target.
+	 * @param nodes The nodes to transfer.
+	 * @param transferAction The transfer action.
+	 */
+	void transfer(TreeImageDisplay target, List<TreeImageDisplay> nodes,
+			int transferAction)
+	{
+		parent.transfer(target, nodes, transferAction);
+	}
 	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @param node The node to handle.
+	 * @return See above
+	 */
+	SecurityContext getSecurityContext(TreeImageDisplay node)
+	{
+		if (node == null || isSingleGroup()) {
+			return new SecurityContext(
+					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+		}
+		if (node.getUserObject() instanceof ExperimenterData) {
+			TreeImageDisplay parent = node.getParentDisplay();
+			GroupData group = (GroupData) parent.getUserObject();
+			return new SecurityContext(group.getId());
+		}
+		if (node.getUserObject() instanceof GroupData) {
+			GroupData group = (GroupData) node.getUserObject();
+			return new SecurityContext(group.getId());
+		}
+		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
+		if (n == null || isSingleGroup()) {
+			return new SecurityContext(
+					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+		}
+		TreeImageDisplay parent = n.getParentDisplay();
+		GroupData group = (GroupData) parent.getUserObject();
+		return new SecurityContext(group.getId());
+	}
+	
+	/**
+	 * Returns the selected group.
+	 * 
+	 * @return See above.
+	 */
+	GroupData getSelectedGroup() { return parent.getSelectedGroup(); }
+	
+	/**
+	 * Returns <code>true</code> if the user belongs to one group only,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above
+	 */
+	boolean isSingleGroup()
+	{
+		Set l = TreeViewerAgent.getAvailableUserGroups();
+		return l.size() <= 1;
+	}
+
 }

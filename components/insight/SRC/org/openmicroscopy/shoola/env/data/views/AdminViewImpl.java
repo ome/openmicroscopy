@@ -33,6 +33,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.calls.AdminLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AdminSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -59,182 +60,184 @@ class AdminViewImpl
 
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#updateExperimenter(ExperimenterData, 
+	 * @see AdminView#updateExperimenter(SecurityContext, ExperimenterData,
 	 * 										AgentEventListener)
 	 */
-	public CallHandle updateExperimenter(ExperimenterData exp, 
-			AgentEventListener observer)
+	public CallHandle updateExperimenter(SecurityContext ctx,
+			ExperimenterData exp, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(exp, 
+		BatchCallTree cmd = new AdminLoader(ctx, exp,
 				AdminLoader.EXPERIMENTER_UPDATE);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#updateGroup(GroupData, int AgentEventListener)
+	 * @see AdminView#updateGroup(SecurityContext, GroupData, int, AgentEventListener)
 	 */
-	public CallHandle updateGroup(GroupData group, int permissions,
-			AgentEventListener observer)
+	public CallHandle updateGroup(SecurityContext ctx, GroupData group,
+			int permissions, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(group, permissions);
+		BatchCallTree cmd = new AdminLoader(ctx, group, permissions);
 		return cmd.exec(observer);
 	}
 	
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#changePassword(String, String, AgentEventListener)
+	 * @see AdminView#changePassword(SecurityContext, String, String, AgentEventListener)
 	 */
-	public CallHandle changePassword(String oldPassword, String newPassword, 
-			AgentEventListener observer)
+	public CallHandle changePassword(SecurityContext ctx, String oldPassword,
+			String newPassword, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(oldPassword, newPassword);
+		BatchCallTree cmd = new AdminLoader(ctx, oldPassword, newPassword);
 		return cmd.exec(observer);
 	}
-
-
+	
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#getDiskSpace(Class, long, AgentEventListener)
+	 * @see AdminView#getDiskSpace(SecurityContext, Class, long, AgentEventListener)
 	 */
-	public CallHandle getDiskSpace(Class type, long id, 
+	public CallHandle getDiskSpace(SecurityContext ctx, Class type, long id,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(type, id);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#createExperimenters(AdminObject, AgentEventListener)
-	 */
-	public CallHandle createExperimenters(AdminObject object,
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AdminSaver(object);
+		BatchCallTree cmd = new AdminLoader(ctx, type, id);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#createGroup(AdminObject, AgentEventListener)
+	 * @see AdminView#createExperimenters(SecurityContext, AdminObject, AgentEventListener)
 	 */
-	public CallHandle createGroup(AdminObject object,
-			AgentEventListener observer)
+	public CallHandle createExperimenters(SecurityContext ctx,
+			AdminObject object, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminSaver(object);
+		BatchCallTree cmd = new AdminSaver(ctx, object);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#loadExperimenterGroups(long, AgentEventListener)
+	 * @see AdminView#createGroup(SecurityContext, AdminObject, AgentEventListener)
 	 */
-	public CallHandle loadExperimenterGroups(long groupID,
+	public CallHandle createGroup(SecurityContext ctx, AdminObject object,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(groupID, AdminLoader.GROUPS);
+		BatchCallTree cmd = new AdminSaver(ctx, object);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#loadExperimenters(long, AgentEventListener)
+	 * @see AdminView#loadExperimenterGroups(SecurityContext, long, AgentEventListener)
 	 */
-	public CallHandle loadExperimenters(long groupID,
+	public CallHandle loadExperimenterGroups(SecurityContext ctx, long groupID,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(groupID, AdminLoader.EXPERIMENTERS);
+		BatchCallTree cmd = new AdminLoader(ctx, groupID, AdminLoader.GROUPS);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#deleteObjects(List, AgentEventListener)
+	 * @see AdminView#loadExperimenters(SecurityContext, long, AgentEventListener)
 	 */
-	public CallHandle deleteObjects(List<DataObject> objects,
+	public CallHandle loadExperimenters(SecurityContext ctx, long groupID,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminSaver(objects, AdminSaver.DELETE);
+		BatchCallTree cmd = new AdminLoader(ctx, groupID,
+				AdminLoader.EXPERIMENTERS);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#updateExperimenters(Map, AgentEventListener)
+	 * @see AdminView#deleteObjects(SecurityContext, List, AgentEventListener)
 	 */
-	public CallHandle updateExperimenters(GroupData group,
+	public CallHandle deleteObjects(SecurityContext ctx,
+			List<DataObject> objects, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminSaver(ctx, objects, AdminSaver.DELETE);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the {@link AdminView} interface.
+	 * @see AdminView#updateExperimenters(SecurityContext, Map, AgentEventListener)
+	 */
+	public CallHandle updateExperimenters(SecurityContext ctx, GroupData group,
 			Map<ExperimenterData, UserCredentials> experimenters,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(group, experimenters);
+		BatchCallTree cmd = new AdminLoader(ctx, group, experimenters);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#resetExperimentersPassword(AdminObject, 
+	 * @see AdminView#resetExperimentersPassword(SecurityContext, AdminObject, 
 	 * AgentEventListener)
 	 */
-	public CallHandle resetExperimentersPassword(AdminObject object,
-			AgentEventListener observer)
+	public CallHandle resetExperimentersPassword(SecurityContext ctx, 
+			AdminObject object, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminSaver(object);
+		BatchCallTree cmd = new AdminSaver(ctx, object);
 		return cmd.exec(observer);
 	}
 	
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#activateExperimenters(AdminObject, AgentEventListener)
+	 * @see AdminView#activateExperimenters(SecurityContext, AdminObject, AgentEventListener)
 	 */
-	public CallHandle activateExperimenters(AdminObject object,
-			AgentEventListener observer)
+	public CallHandle activateExperimenters(SecurityContext ctx,
+			AdminObject object, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminSaver(object);
+		BatchCallTree cmd = new AdminSaver(ctx, object);
 		return cmd.exec(observer);
 	}
 	
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#loadExperimenterPhoto(ExperimenterData, 
+	 * @see AdminView#loadExperimenterPhoto(SecurityContext, ExperimenterData,
 	 * AgentEventListener)
 	 */
-	public CallHandle loadExperimenterPhoto(ExperimenterData experimenter, 
-			AgentEventListener observer)
+	public CallHandle loadExperimenterPhoto(SecurityContext ctx,
+			ExperimenterData experimenter, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(experimenter, 
+		BatchCallTree cmd = new AdminLoader(ctx, experimenter, 
 				AdminLoader.EXPERIMENTER_PHOTO);
 		return cmd.exec(observer);
 	}
 	
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#uploadExperimenterPhoto(ExperimenterData, File, String
+	 * @see AdminView#uploadExperimenterPhoto(SecurityContext, ExperimenterData, File, String
 	 * AgentEventListener)
 	 */
-	public CallHandle uploadExperimenterPhoto(ExperimenterData experimenter, 
-			File photo, String format, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AdminLoader(experimenter, photo, format);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#getDiskSpace(Class, List, AgentEventListener)
-	 */
-	public CallHandle getDiskSpace(Class type, List<Long> ids,
+	public CallHandle uploadExperimenterPhoto(SecurityContext ctx,
+			ExperimenterData experimenter, File photo, String format,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(type, ids);
+		BatchCallTree cmd = new AdminLoader(ctx, experimenter, photo, format);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#loadAdministrators(AgentEventListener)
+	 * @see AdminView#getDiskSpace(SecurityContext, Class, List, AgentEventListener)
 	 */
-	public CallHandle loadAdministrators(AgentEventListener observer)
+	public CallHandle getDiskSpace(SecurityContext ctx, Class type,
+			List<Long> ids, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminLoader(ctx, type, ids);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the {@link AdminView} interface.
+	 * @see AdminView#loadAdministrators(SecurityContext, AgentEventListener)
+	 */
+	public CallHandle loadAdministrators(SecurityContext ctx,
+			AgentEventListener observer)
 	{
 		return null;
 	}

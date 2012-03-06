@@ -44,6 +44,7 @@ import javax.swing.JScrollPane;
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -262,33 +263,40 @@ class BrowserModel
 	String currentPathString(ImageDisplay parent)
 	{
 	    StringBuffer buf = new StringBuffer();
-	    StringBuffer titleBuf = new StringBuffer();
+	    List<String> titleBuf = new ArrayList<String>();
 	    while (parent != null && !(parent instanceof RootDisplay)) {
 	    	if (parent instanceof CellDisplay) {
 	    		int type = ((CellDisplay) parent).getType();
 	    		if (type == CellDisplay.TYPE_HORIZONTAL)
-	    			titleBuf.append("column: "+parent.getTitle());
-	    		else titleBuf.append("row: "+parent.getTitle());
+	    			titleBuf.add("column: "+parent.getTitle());
+	    		else titleBuf.add("row: "+parent.getTitle());
 	    	} else if (parent instanceof WellImageSet) {
 	    		WellImageSet wiNode = (WellImageSet) parent;
-	    		titleBuf.append(wiNode.getTitle());
+	    		titleBuf.add(wiNode.getTitle());
 	    	} else if (parent instanceof WellSampleNode) {
 	    		Object o = ((WellSampleNode) parent).getParentObject();
 	    		if (o instanceof WellData) {
-	    			titleBuf.append(((WellData) o).getPlate().getName());
-	    			if (titleBuf.length() != 0)
-	    				titleBuf.append(" > ");
-	    			titleBuf.append(parent.getTitle());
-		    		if (titleBuf.length() == 0) titleBuf.append("[..]");
+	    			titleBuf.add(((WellData) o).getPlate().getName());
+	    			//if (titleBuf.s() != 0)
+	    			//	titleBuf.append(" > ");
+	    			titleBuf.add(parent.getTitle());
+	    			if (titleBuf.size() == 0) titleBuf.add("[..]");
+		    		//if (titleBuf.length() == 0) titleBuf.append("[..]");
 	    		}
 	    	} else {
-	    		titleBuf.append(parent.getTitle());
-	    		if (titleBuf.length() == 0) titleBuf.append("[..]");
-	    		if (parent instanceof ImageSet) buf.insert(0, " > ");
+	    		//titleBuf.append(parent.getTitle());
+	    		titleBuf.add(parent.getTitle());
+	    		//if (titleBuf.length() == 0) titleBuf.append("[..]");
+	    		//if (parent instanceof ImageSet) buf.insert(0, " > ");
 	    	}
-	        buf.insert(0, titleBuf.toString());
+	    	//buf.insert(0, titleBuf.toString());
 	        parent = parent.getParentDisplay();
 	    }
+	    int n = titleBuf.size();
+	    for (int i = 0; i < n; i++) {
+			buf.append(titleBuf.get(n-1-i));
+			if (i != (n-1)) buf.append(">");
+		}
 	    return buf.toString();
 	}
 	
@@ -771,6 +779,29 @@ class BrowserModel
 	    		node.setHighlight(colors.getSelectedHighLight(node, n == 0));
 	    	} else onNodeSelected(node, oldValue);
 	    }
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setSelectedDisplays(List)
+	 */
+	public void setSelectedDisplays(List<ImageDisplay> nodes)
+	{
+		if (nodes == null || nodes.size() == 0) return;
+		if (nodes.size() == 1) {
+			setSelectedDisplay(nodes.get(0), false, true);
+		} else {
+			thumbSelected = false;
+		    this.multiSelection = true;
+		    Set<ImageDisplay> oldValue = 
+		    	new HashSet<ImageDisplay>(selectedDisplays.size());
+		    Iterator<ImageDisplay> i = selectedDisplays.iterator();
+		    while (i.hasNext())
+		    	oldValue.add(i.next());
+		    selectedDisplays = nodes;
+		    firePropertyChange(SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY,
+	    			oldValue, nodes);
+		}
 	}
 	
 	/**

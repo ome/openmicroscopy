@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -98,55 +99,61 @@ class MetadataViewerModel
 {
 	
 	/** Holds one of the state flags defined by {@link MetadataViewer}. */
-	private int										state;
+	private int state;
 
 	/** Reference to the component that embeds this model. */
-	private MetadataViewer							component;
+	private MetadataViewer component;
 
 	/** The object of reference for the viewer i.e. the root. */
-	private Object									refObject;
+	private Object refObject;
 	
 	/** The object of reference for the viewer i.e. the root. */
-	private Object									parentRefObject;
+	private Object parentRefObject;
 	
 	/** The object hosting the various annotations linked to an object. */
-	private StructuredDataResults					data;
+	private StructuredDataResults data;
+	
+	/** The object hosting the various annotations linked to an object. */
+	private StructuredDataResults parentData;
 	
 	/** Reference to the browser. */
-	private Browser									browser;
+	private Browser browser;
 	
 	/** Reference to the editor. */
-	private Editor									editor;
+	private Editor editor;
 	
 	/** The active data loaders. */
-	private Map<TreeBrowserDisplay, MetadataLoader>	loaders;
+	private Map<TreeBrowserDisplay, MetadataLoader> loaders;
 	
 	/** Only used when it is a batch call. */
-	private Class									dataType;
+	private Class dataType;
 	
 	/** 
 	 * Flag indicating the selection mode, <code>true</code>
 	 * if single selection, <code>false</code> otherwise.
 	 */
-	private boolean									singleMode;
+	private boolean singleMode;
 	
 	/** Collection of nodes related to the node of reference. */
-	private List									relatedNodes;
+	private List relatedNodes;
 	
 	/** 
 	 * One of the Rendering constants defined by the 
 	 * <code>MetadataViewer</code> interface.
 	 */
-	private int										index;
+	private int index;
 	
 	/** 
 	 * The id of the possible owner, this should only be used
 	 * to handle unregistered objects.
 	 */
-	private long									userID;
+	private long userID;
 	
 	/** The collection of rendering settings related to the image. */
-	private Map										viewedBy;
+	private Map viewedBy;
+	
+	/** The security context.*/
+	private SecurityContext ctx;
 	
 	/**
 	 * Returns the collection of the attachments linked to the 
@@ -254,16 +261,34 @@ class MetadataViewerModel
 	/**
 	 * Sets the object of reference.
 	 * 
-	 * @param refObject	The value to set.
+	 * @param refObject The value to set.
+	 * @param ctx The security context.
 	 */
-	void setRootObject(Object refObject)
+	void setRootObject(Object refObject, SecurityContext ctx)
 	{ 
-		this.refObject = refObject; 
+		this.refObject = refObject;
+		this.ctx = ctx;
+		if (ctx == null && refObject instanceof DataObject) {
+			DataObject data = (DataObject) refObject;
+			if (data.getId() >= 0)
+				this.ctx = new SecurityContext(data.getGroupId());
+		}
 		browser.setRootObject(refObject);
 		editor.setRootObject(refObject);
 		data = null;
+		if (!(refObject instanceof WellSampleData) && parentData != null) {
+			parentData = null;
+		}
 		parentRefObject = null;
 		viewedBy = null;
+	}
+	
+	/** Refreshes the general view.*/
+	void refresh()
+	{
+		data = null;
+		parentData = null;
+		browser.setRootObject(refObject);
 	}
 	
 	/**
@@ -350,7 +375,7 @@ class MetadataViewerModel
 		Object ho = refNode.getUserObject();
 		if (ho instanceof DataObject) {
 			ContainersLoader loader = new ContainersLoader(
-					component, refNode, ho.getClass(), 
+					component, ctx, refNode, ho.getClass(),
 					((DataObject) ho).getId());
 			loaders.put(refNode, loader);
 			loader.load();
@@ -377,9 +402,18 @@ class MetadataViewerModel
 			if (uo instanceof WellSampleData) {
 				WellSampleData wsd = (WellSampleData) uo;
 				uo = wsd.getImage();
+				if (!loaders.containsKey(refNode) && parentData == null
+						&& parentRefObject != null) {
+					StructuredDataLoader l = new StructuredDataLoader(component,
+						ctx, refNode, parentRefObject);
+					loaders.put(refNode, l);
+					l.load();
+					state = MetadataViewer.LOADING_METADATA;
+					return;
+				}
 			}
-			StructuredDataLoader loader = new StructuredDataLoader(component, 
-									refNode, uo);
+			StructuredDataLoader loader = new StructuredDataLoader(component,
+					ctx, refNode, uo);
 			loaders.put(refNode, loader);
 			loader.load();
 			state = MetadataViewer.LOADING_METADATA;
@@ -464,8 +498,8 @@ class MetadataViewerModel
 			List<Object> metadata, Collection<DataObject> data, boolean asynch)
 	{
 		if (asynch) {
-			DataSaver loader = new DataSaver(component, data, toAdd, toRemove, 
-					metadata);
+			DataSaver loader = new DataSaver(component, ctx, data, toAdd,
+					toRemove, metadata);
 			loader.load();
 			state = MetadataViewer.SAVING;
 		} else {
@@ -475,9 +509,9 @@ class MetadataViewerModel
             	if (metadata != null) {
             		Iterator<Object> i = metadata.iterator();
             		while (i.hasNext()) 
-						os.saveAcquisitionData(i.next()) ;
+						os.saveAcquisitionData(ctx, i.next()) ;
             	}
-            	os.saveData(data, toAdd, toRemove, userID);
+            	os.saveData(ctx, data, toAdd, toRemove, userID);
 			} catch (Exception e) {
 				LogMessage msg = new LogMessage();
 				msg.print("Unable to save annotation and/or edited data");
@@ -497,14 +531,15 @@ class MetadataViewerModel
 	void fireExperimenterSaving(ExperimenterData data, boolean async)
 	{
 		if (async) {
-			ExperimenterEditor loader = new ExperimenterEditor(component, data);
+			ExperimenterEditor loader = new ExperimenterEditor(component, ctx,
+					data);
 			loader.load();
 			state = MetadataViewer.SAVING;
 		} else {
 			AdminService svc = 
 				MetadataViewerAgent.getRegistry().getAdminService();
 			try {
-				svc.updateExperimenter(data, null);
+				svc.updateExperimenter(ctx, data, null);
 			} catch (Exception e) {
 				LogMessage msg = new LogMessage();
 				msg.print("Unable to update the experimenter");
@@ -528,11 +563,11 @@ class MetadataViewerModel
 			switch (data.getIndex()) {
 				case AdminObject.UPDATE_GROUP:
 					GroupData group = data.getGroup();
-					loader = new GroupEditor(component, group, 
+					loader = new GroupEditor(component, ctx, group, 
 							data.getPermissions());
 					break;
 				case AdminObject.UPDATE_EXPERIMENTER:
-					loader = new AdminEditor(component, data.getGroup(),
+					loader = new AdminEditor(component, ctx, data.getGroup(),
 							data.getExperimenters());
 			}	
 			if (loader != null) {
@@ -547,9 +582,9 @@ class MetadataViewerModel
 				case AdminObject.UPDATE_GROUP:
 					try {
 						GroupData group = data.getGroup();
-						GroupData g = svc.lookupGroup(group.getName());
+						GroupData g = svc.lookupGroup(ctx, group.getName());
 						if (g == null || group.getId() == g.getId())
-							svc.updateGroup(data.getGroup(), 
+							svc.updateGroup(ctx, data.getGroup(),
 									data.getPermissions());
 						else {
 							UserNotifier un = 
@@ -566,7 +601,7 @@ class MetadataViewerModel
 					break;
 				case AdminObject.UPDATE_EXPERIMENTER:
 					try {
-						svc.updateExperimenters(data.getGroup(), 
+						svc.updateExperimenters(ctx, data.getGroup(),
 								data.getExperimenters());
 					} catch (Exception e) {
 						msg.print("Unable to update experimenters");
@@ -574,7 +609,7 @@ class MetadataViewerModel
 						MetadataViewerAgent.getRegistry().getLogger().error(
 								this, msg);
 					}
-			}	
+			}
 		}
 	}
 	
@@ -582,10 +617,26 @@ class MetadataViewerModel
 	 * Sets the structured data.
 	 * 
 	 * @param data The value to set.
+	 * @param refNode The node of reference.
 	 */
-	void setStructuredDataResults(StructuredDataResults data)
+	void setStructuredDataResults(StructuredDataResults data,
+			TreeBrowserDisplay refNode)
 	{
 		this.data = data;
+		state = MetadataViewer.READY;
+	}
+	
+	/**
+	 * Sets the structured data of the parent.
+	 * 
+	 * @param parentData The value to set.
+	 * @param refNode The node of reference.
+	 */
+	void setParentDataResults(StructuredDataResults parentData,
+			TreeBrowserDisplay refNode)
+	{
+		loaders.remove(refNode);
+		this.parentData = parentData;
 		state = MetadataViewer.READY;
 	}
 	
@@ -595,6 +646,13 @@ class MetadataViewerModel
 	 * @return See above.
 	 */
 	StructuredDataResults getStructuredData() { return data; }
+	
+	/**
+	 * Returns the structured data.
+	 * 
+	 * @return See above.
+	 */
+	StructuredDataResults getParentStructuredData() { return parentData; }
 	
 	/**
 	 * Returns <code>true</code> if the imported set of pixels has been 
@@ -621,8 +679,8 @@ class MetadataViewerModel
 	void fireBatchSaving(List<AnnotationData> toAdd, List<AnnotationData> 
 						toRemove, Collection<DataObject> toSave)
 	{
-		DataBatchSaver loader = new DataBatchSaver(component, toSave, toAdd, 
-				toRemove);
+		DataBatchSaver loader = new DataBatchSaver(component, ctx,
+				toSave, toAdd, toRemove);
 		loader.load();
 		state = MetadataViewer.BATCH_SAVING;
 	}
@@ -680,7 +738,7 @@ class MetadataViewerModel
 	 */
 	void loadParents(Class type, long id)
 	{
-		ContainersLoader loader = new ContainersLoader(component, type, id);
+		ContainersLoader loader = new ContainersLoader(component, ctx, type, id);
 		loader.load();
 	}
 
@@ -795,7 +853,7 @@ class MetadataViewerModel
 		if (img == null) return;
 		getEditor().getRenderer().loadRndSettings(false, null);
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component, 
-				img.getDefaultPixels().getId());
+				ctx, img.getDefaultPixels().getId());
 		loader.load();
 	}
 	
@@ -813,7 +871,7 @@ class MetadataViewerModel
 			ids.add(((ExperimenterData) i.next()).getId());
 		}
 		if (ids.size() == 0) return;
-		ThumbnailLoader loader = new ThumbnailLoader(component, image, ids);
+		ThumbnailLoader loader = new ThumbnailLoader(component, ctx, image, ids);
 		loader.load();
 	}
 	
@@ -838,6 +896,18 @@ class MetadataViewerModel
 	{
 		if (editor == null) return false;
 		return editor.isWritable();
+	}
+	
+	/** 
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext()
+	{ 
+		if (MetadataViewerAgent.isAdministrator())
+			return MetadataViewerAgent.getAdminContext();
+		return ctx;
 	}
 
 }

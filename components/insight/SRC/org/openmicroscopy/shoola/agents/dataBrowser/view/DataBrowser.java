@@ -129,6 +129,13 @@ public interface DataBrowser
 												"selectedNodeDisplay";
 	
 	/** 
+	 * Bound property name indicating {@link ImageDisplay} objects have been
+	 * selected in the visualization tree. 
+	 */
+	public static final String SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY = 
+		"selectedNodesDisplay";
+	
+	/** 
 	 * Bound property name indicating that nodes have been marked as selected.
 	 */
 	public static final String 		SELECTION_UPDATED_PROPERTY = 
@@ -318,6 +325,13 @@ public interface DataBrowser
      */
 	public void setSelectedDisplay(ImageDisplay node);
 
+    /**
+     * Sets the selected nodes.
+     * 
+     * @param nodes The node to set.
+     */
+	public void setSelectedDisplays(List<ImageDisplay> nodes);
+	
 	/**
 	 * Sets the collection of selected nodes.
 	 * 

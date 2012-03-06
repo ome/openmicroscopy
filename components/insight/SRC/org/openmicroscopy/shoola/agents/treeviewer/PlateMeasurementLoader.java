@@ -31,6 +31,7 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -66,12 +67,13 @@ public class PlateMeasurementLoader
 	 * 
 	 * @param viewer The viewer this data loader is for.
 	 * 				 Mustn't be <code>null</code>.
+	 * @param ctx The security context.
 	 * @param node	 The node hosting the plate.
 	 */
-	public PlateMeasurementLoader(Browser viewer, TreeImageSet expNode,
-			TreeImageSet node)
+	public PlateMeasurementLoader(Browser viewer, SecurityContext ctx,
+			TreeImageSet expNode, TreeImageSet node)
 	{
-		super(viewer);
+		super(viewer, ctx);
 		if (node == null) throw new IllegalArgumentException("No node set.");
 		this.expNode = expNode;
 		this.node = node;
@@ -85,7 +87,7 @@ public class PlateMeasurementLoader
     {
     	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
     	DataObject object = (DataObject) node.getUserObject();
-    	handle = mhView.loadROIMeasurement(object, exp.getId(), this);
+    	handle = mhView.loadROIMeasurement(ctx, object, exp.getId(), this);
     }
 
     /**

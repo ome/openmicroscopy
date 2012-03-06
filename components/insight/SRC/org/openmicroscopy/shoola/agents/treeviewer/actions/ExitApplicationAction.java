@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -105,7 +106,10 @@ public class ExitApplicationAction
     {
     	model.cancel();
     	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-        bus.post(new ExitApplication());
+    	ExitApplication a = new ExitApplication();
+    	a.setSecurityContext(new SecurityContext(
+    			model.getSelectedGroup().getId()));
+        bus.post(a);
     }
 
 }

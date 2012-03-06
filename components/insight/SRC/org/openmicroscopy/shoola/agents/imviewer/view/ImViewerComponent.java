@@ -83,9 +83,11 @@ import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.SaveEventBox;
@@ -433,7 +435,8 @@ class ImViewerComponent
 		int option = msg.centerMsgBox();
 		if (option == MessageBox.YES_OPTION) {
 			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-			bus.post(new ViewImage(new ViewImageObject(image), null));
+			bus.post(new ViewImage(model.getSecurityContext(),
+					new ViewImageObject(image), null));
 		}
 	}
 	
@@ -480,7 +483,8 @@ class ImViewerComponent
 		double f = 
 			model.getZoomFactor()*model.getOriginalRatio();
 		if (model.isBigImage()) f = view.getBigImageMagnificationFactor();
-		MeasurementTool request = new MeasurementTool(model.getImageID(), 
+		MeasurementTool request = new MeasurementTool(
+				model.getSecurityContext(), model.getImageID(), 
 				model.getPixelsData(), model.getImageName(), 
 				model.getDefaultZ(), model.getDefaultT(),
 				model.getActiveChannelsColorMap(),f, 
@@ -627,8 +631,11 @@ class ImViewerComponent
 				*/
 				if (!model.isImageLoaded()) {
 					model.fireImageLoading();
-					fireStateChange();
+				} else {
+					model.setState(ImViewer.LOADING_IMAGE_DATA);
+					setImageData(model.getImage());
 				}
+				fireStateChange();
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
@@ -1076,7 +1083,7 @@ class ImViewerComponent
 				return;
 		} 
 		if (model.isBigImage()) {
-			model.fireBirdEyeViewRetrieval();
+			//model.fireBirdEyeViewRetrieval();
 			model.resetTiles();
 			loadTiles(model.getBrowser().getVisibleRectangle());
 			return;
@@ -2831,6 +2838,26 @@ class ImViewerComponent
 	 */
 	public boolean isNumerousChannel() { return model.isNumerousChannel(); }
 
+	private void buildView()
+	{
+		int index = UnitBarSizeAction.getDefaultIndex(5*getPixelsSizeX());
+		setUnitBarSize(UnitBarSizeAction.getValue(index));
+		view.setDefaultScaleBarMenu(index);
+		colorModel = model.getColorModel();
+		view.buildComponents();
+		view.onRndLoaded();
+		if (model.isSeparateWindow()) {
+			view.setOnScreen();
+			view.toFront();
+			view.requestFocusInWindow();
+		} else {
+			postViewerCreated(true, false);;
+		}
+		if (ImViewerAgent.isFastConnection())
+			model.firePlaneInfoRetrieval();
+		view.setLeftStatus();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#onRndLoaded(boolean)
@@ -2838,35 +2865,21 @@ class ImViewerComponent
 	public void onRndLoaded(boolean reload)
 	{
 		//if (model.isNumerousChannel()) model.setForLifetime();
+		if (model.getState() == DISCARDED) return;
 		model.onRndLoaded();
 		if (!reload) {
-			int index = UnitBarSizeAction.getDefaultIndex(5*getPixelsSizeX());
-			setUnitBarSize(UnitBarSizeAction.getValue(index));
-			view.setDefaultScaleBarMenu(index);
-			colorModel = model.getColorModel();
-			view.buildComponents();
-			view.onRndLoaded();
-			if (model.isSeparateWindow()) {
-				view.setOnScreen();
-				view.toFront();
-				view.requestFocusInWindow();
-			} else {
-				postViewerCreated(true, false);;
+			if (model.isBigImage()) {
+				model.fireBirdEyeViewRetrieval();
+				fireStateChange();
+				return;
 			}
-			if (ImViewerAgent.isFastConnection())
-				model.firePlaneInfoRetrieval();
-			view.setLeftStatus();
+			buildView();
 		} else {
 			//TODO
 			//clean history, reset UI element
 			model.resetHistory();
 			view.switchRndControl();
 		}
-		
-		/*
-		if (model.isBigImage()) { //bird eye loaded.
-			model.fireBirdEyeViewRetrieval();
-		}*/
 		renderXYPlane();
 		fireStateChange();
 	}
@@ -3086,8 +3099,9 @@ class ImViewerComponent
 				if (notifyUser) {
 					postViewerState(ViewerState.CLOSE);
 					ImViewerRecentObject object = new ImViewerRecentObject(
-							model.getImageID(), model.getImageTitle(),
-							getImageIcon());
+						model.getSecurityContext(),
+						model.getImageID(), model.getImageTitle(),
+						getImageIcon());
 					firePropertyChange(RECENT_VIEWER_PROPERTY, null, object);
 				}
 				
@@ -3216,9 +3230,14 @@ class ImViewerComponent
 	 */
 	public void setBirdEyeView(BufferedImage image)
 	{
-		if (model.getState() == DISCARDED) 
-			return;
-		model.getBrowser().setBirdEyeView(image);
+		switch (model.getState()) {
+			case LOADING_BIRD_EYE_VIEW:
+				if (!view.isVisible()) {
+					buildView();
+					renderXYPlane();
+				}
+				model.setBirdEyeView(image);
+		}
 	}
 	
 	/** 
@@ -3340,15 +3359,45 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#cancelRendering()
+	 * @see ImViewer#cancelInit()
 	 */
-	public void cancelRendering()
+	public void cancelInit()
 	{
-		if (model.getState() == LOADING_IMAGE) {
-			model.cancelRendering();
-			view.getLoadingWindow().setVisible(false);
-			fireStateChange();
+		switch (model.getState()) {
+			case LOADING_RND:
+				if (model.isBigImage()) {
+					model.cancelBirdEyeView(); 
+					view.dispose();
+				} else {
+					model.cancelRendering();
+					view.getLoadingWindow().setVisible(false);
+					fireStateChange();
+				}
+				break;
+			case LOADING_BIRD_EYE_VIEW:
+				model.cancelBirdEyeView(); 
+				view.dispose();
+				fireStateChange();
 		}
+	}
+
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	public SecurityContext getSecurityContext()
+	{ 
+		return model.getSecurityContext();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#isCompressed()
+	 */
+	public boolean isCompressed()
+	{
+		return model.getCompressionLevel() != RenderingControl.UNCOMPRESSED;
 	}
 	
 	/** 
@@ -3356,6 +3405,5 @@ class ImViewerComponent
 	 * @see #toString()
 	 */
 	public String toString() { return getTitle(); }
-
 
 }
