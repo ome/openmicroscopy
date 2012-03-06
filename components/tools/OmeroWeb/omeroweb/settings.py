@@ -240,7 +240,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
             #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js", "image_roi_tab"],'\
             '["Preview", "webclient/data/includes/right_plugin.preview.js", "preview_tab"]]', json.loads],
     # E.g. Center plugin: ["Channel overlay", "webtest/webclient_plugins/center_plugin.overlay.js", "channel_overlay_panel"]
-    "omero.web.ui.center_plugins": ["CENTER_PLUGINS", '[["Split-view", "webclient/data/includes/center_plugin.splitview.js", "split_view_panel"]]', json.loads],
+    "omero.web.ui.center_plugins": ["CENTER_PLUGINS", '['\
+            '["Table", "webclient/data/includes/center_plugin.table.js", "image_table"],'\
+            '["Split-view", "webclient/data/includes/center_plugin.splitview.js", "split_view_panel"]]', json.loads],
 
     # sharing no longer use this variable. replaced by request.build_absolute_uri
     # after testing this line should be removed.

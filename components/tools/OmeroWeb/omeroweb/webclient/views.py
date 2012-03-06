@@ -704,11 +704,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             url = reverse(viewname="load_template", args=[menu])
     
     # get page 
-    try:
-        page = int(request.REQUEST['page'])
-    except:
-        #page = (1, None)[view=="tree"]
-        page = 1
+    page = int(request.REQUEST.get('page', 1))
         
     # get index of the plate
     try:

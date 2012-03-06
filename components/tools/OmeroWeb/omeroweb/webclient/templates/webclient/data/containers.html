@@ -289,9 +289,9 @@
                             "data" : function (n) {
                                 var r = { "view" : "tree" };
                                 if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
-                                    if($("div#content_details").attr("rel")===n.attr("id") && $("div#content_details").has("#page").length > 0) {
-                                        r["page"] = parseInt($("div#content_details").find("#page").attr("rel"));
-                                    }
+                                    // pagination supported for 'dataset' and 'orphaned'...
+                                    var page = n.data("page") || null;      // this data is added by doPagination()
+                                    if (page) r["page"] = page;
                                 } 
                                 return r;
                             }

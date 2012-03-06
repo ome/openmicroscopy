@@ -261,17 +261,14 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
     }
 }
 
+// This is called by the Pagination controls at the bottom of icon or table pages.
+// We simply update the 'page' data on the parent (E.g. dataset node in tree) and refresh
 function doPagination(view, page) {
-    var rel = $("div#content_details").attr('rel').split("-");
-    $("div#content_details").html('<p>Loading data... please wait <img src="../../static/webgateway/img/spinner.gif"/></p>');
-    $("div#content_details").load('/webclient/load_data/'+rel[0]+'/'+rel[1]+'/?view='+view+'&page='+page, function() {
-        $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
-        $("#dataTree #"+ rel[0]+'-'+rel[1]).data("page", page);     // let the parent node keep track of current page
-        if(rel[0].indexOf("orphaned")<0) {
-            src = '/webclient/metadata_details/'+rel[0]+'/'+rel[1]+'/';
-            loadMetadataPanel(src);
-        }
-    });
+    var rel = $container.attr('rel').split("-");
+    var $parent = $("#dataTree #"+ rel[0]+'-'+rel[1]);
+    $parent.data("page", page);     // let the parent node keep track of current page
+    $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
+    $parent.children("a:eq(0)").click();    // this will cause center and right panels to update
     return false;
 }
 
