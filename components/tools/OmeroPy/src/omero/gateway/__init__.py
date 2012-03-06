@@ -5623,7 +5623,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         logger.debug("tb.setPixelsId(%d) = %s " % (pid, str(has_rendering_settings)))
         if rdid is not None:
             try:
-                tb.setRenderingDefId(rdid)
+                tb.setRenderingDefId(rdid, self._conn.CONFIG['SERVICE_OPTS'])
             except omero.ValidationException:
                 # The annotation exists, but not the rendering def?
                 logger.error('IMG %d, defrdef == %d but object does not exist?' % (self.getId(), rdid))
