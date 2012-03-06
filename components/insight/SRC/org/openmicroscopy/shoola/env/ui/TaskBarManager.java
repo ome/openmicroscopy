@@ -365,6 +365,10 @@ public class TaskBarManager
 			buffer.append("]");
 			IJ.runPlugIn("loci.plugins.LociImporter", buffer.toString());
 		} catch (Exception e) {
+			LogMessage message = new LogMessage();
+			message.println("Opening in image J");
+			message.print(e);
+			container.getRegistry().getLogger().debug(this, message);
 			IJ.showMessage("An error occurred while loading the image.");
 		}
 	}

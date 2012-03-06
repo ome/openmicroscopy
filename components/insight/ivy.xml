@@ -65,6 +65,7 @@
     <!-- TODO: copied from OmeroImporter -->
     <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/>
     <dependency org="OME" name="loci-common" rev="${versions.bio-formats}"/>
+    <dependency org="OME" name="ome-io" rev="${versions.bio-formats}"/>
     <dependency org="OME" name="scifio" rev="${versions.bio-formats}"/>
     <dependency org="loci" name="xalan" rev="${versions.xalan}"/>
     <dependency org="loci" name="serializer" rev="${versions.xalan}"/>
