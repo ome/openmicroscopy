@@ -219,14 +219,18 @@ class BaseContainer(BaseController):
             self.original_metadata = om[0]
             self.global_metadata = om[1]
             self.series_metadata = om[2]
-        # in SPW model, companion files can be found on Plate
+        # Look for companion files on the Image
         if self.image is not None:
+            comp_obj = self.image
             p = self.image.getPlate()
+            # in SPW model, companion files can be found on Plate
             if p is not None:
-                for ann in p.listAnnotations():
-                    if hasattr(ann._obj, "file") and ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
-                        if ann.getFileName() != omero.constants.annotation.file.ORIGINALMETADATA:
-                            self.companion_files.append(ann)
+                comp_obj = p
+            for ann in comp_obj.listAnnotations():
+                if hasattr(ann._obj, "file") and ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
+                    if ann.getFileName() != omero.constants.annotation.file.ORIGINALMETADATA:
+                        self.companion_files.append(ann)
+
 
     def channelMetadata(self):
         self.channel_metadata = None
