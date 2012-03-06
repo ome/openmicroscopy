@@ -880,9 +880,6 @@
             
     </script>
 
-    <!-- include code to handle middle panel selection -->
-    {% include "webclient/data/includes/center_plugin.thumbs.js" %}
-
     <!-- configure toolbar buttons -->
     <script type="text/javascript">
     
@@ -930,6 +927,35 @@
         });
     });
     </script>
+
+    <!-- set up the center panel to only show the div chosen by <select> -->
+    <script type="text/javascript">
+
+        // set the enabled status of the option to select a plugin. Set by index (0-based)
+        var set_center_plugin_enabled = function (index, enabled) {
+            // the first 'plugin' is actually the second option (first is thumbnails)
+            var $plugin_option = $('#center_panel_chooser select option:nth-child('+ (index+1) +')');
+            if (enabled) {
+                $plugin_option.attr('disabled', false);
+            } else {
+                $plugin_option.attr('disabled', 'disabled');
+            }
+        }
+
+        $(document).ready(function() {
+            $(".center_panel_content").hide();
+            $("#content_details").show();
+
+            $('#center_panel_chooser select').bind('change', function() {
+                var panel_id = this.options[this.selectedIndex].value;
+                $(".center_panel_content").hide();
+                $(panel_id).show();
+            });
+        });
+    </script>
+
+    <!-- include code to handle middle panel selection -->
+    {% include "webclient/data/includes/center_plugin.thumbs.js" %}
 
     <!-- set-up right panel tabs -->
     <script type="text/javascript">
@@ -1015,33 +1041,6 @@
 
     });
     </script>
-
-    <!-- set up the center panel to only show the div chosen by <select> -->
-    <script type="text/javascript">
-
-        // set the enabled status of the option to select a plugin. Set by index (0-based)
-        var set_center_plugin_enabled = function (index, enabled) {
-            // the first 'plugin' is actually the second option (first is thumbnails)
-            var $plugin_option = $('#center_panel_chooser select option:nth-child('+ (index+1) +')');
-            if (enabled) {
-                $plugin_option.attr('disabled', false);
-            } else {
-                $plugin_option.attr('disabled', 'disabled');
-            }
-        }
-
-        $(document).ready(function() {
-            $(".center_panel_content").hide();
-            $("#content_details").show();
-
-            $('#center_panel_chooser select').bind('change', function() {
-                var panel_id = this.options[this.selectedIndex].value;
-                $(".center_panel_content").hide();
-                $(panel_id).show();
-            });
-        });
-    </script>
-
 
     <!-- include scripts for loading data into right-hand tabs -->
     <!-- these are configured in settings.py under "omero.web.ui.right_tabs" -->

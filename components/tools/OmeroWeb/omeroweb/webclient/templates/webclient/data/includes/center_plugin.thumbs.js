@@ -41,9 +41,15 @@ $(document).ready(function() {
     }
 
     // on change of selection in tree, update center panel
-    $("#dataTree").bind("select_node.jstree", function(e, data) {
+    var update_thumbnails_panel = function() {
 
-        var selected = data.inst.get_selected();
+        // this may have been called before datatree was initialised...
+        var datatree = $.jstree._focused();
+        if (!datatree) return;
+
+        // get the selected id etc
+        var selected = datatree.data.ui.selected;
+
         if (selected.length == 0) {
             $("div#content_details").empty();
             $("div#content_details").removeAttr('rel');
@@ -58,78 +64,98 @@ $(document).ready(function() {
             return;
         }
         // handle single object selection...
-        var oid = selected.attr('id');
-        var orel = selected.attr('rel').replace("-locked", "");
+        var oid = selected.attr('id');                              // E.g. 'dataset-501'
+        var orel = selected.attr('rel').replace("-locked", "");     // E.g. 'dataset'
+        // Check what we've currently loaded: E.g. 'dataset-501'
         var crel = $("div#content_details").attr('rel');
         if (!oid) return;
         
         update = {'url': null, 'rel': null, 'empty':false };
         var prefix = "{% url webindex %}";
-        if (oid.indexOf("orphaned")>=0) {
-            if(oid!==crel) {
+        
+        // Show nothing for Experimenter, Project or Screen...
+        if ($.inArray(orel, ["experimenter", "project", "screen"])>-1) {
+            update['empty'] = true;
+        } else if (oid.indexOf("orphaned")>=0) {
+            if (oid!==crel) {           // check we've not already loaded orphaned
                 update['rel'] = oid;
                 update['url'] = prefix+'load_data/'+orel+'/?view=icon';
+            }
+        } else if(orel == "plate") {
+            if (datatree.is_leaf(selected)) {   // Load Plate if it's a 'leaf' (No PlateAcquisition)...
+                update['rel'] = oid;
+                update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/';
             } else {
                 update['empty'] = true;
             }
-        } else if(oid.indexOf("experimenter")<0) {
-            if ($.inArray(orel, ["project", "screen"]) > -1) {
-                update['empty'] = true;
-            } else if($.inArray(orel, ["plate"]) > -1) {
-                if (data.inst.is_leaf(selected)) {
-                    update['rel'] = oid;
-                    update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/';
-                } else {
-                    update['empty'] = true;
-                }
-            } else if($.inArray(orel, ["acquisition"]) > -1 && oid!==crel) {
-                var plate = data.inst._get_parent(selected).attr('id').replace("-", "/");
+        } else if(orel == "acquisition"){
+            if (oid!==crel) {
+                var plate = datatree._get_parent(selected).attr('id').replace("-", "/");
                 update['rel'] = oid;
                 update['url'] = prefix+'load_data/'+plate+'/'+orel+'/'+oid.split("-")[1]+'/';
-            } else if($.inArray(orel, ["dataset"]) > -1 && oid!==crel) {
+            }
+        } else if(orel == "dataset") {
+            if (oid!==crel) {
                 update['rel'] = oid;
                 update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
-            } else if($.inArray(orel, ["share"]) > -1 && oid!==crel) {
+            }
+        } else if(orel == "share") {
+            if (oid!==crel) {
                 update['rel'] = oid;
                 update['url'] = prefix+'load_public/'+oid.split("-")[1]+'/?view=icon';
-            } else if($.inArray(orel, ["tag"]) > -1 && oid!==crel) {
-                update['rel'] = oid;
-                update['url'] = prefix+'load_tags/?view=icon&o_type=tag&o_id='+oid.split("-")[1];
-            } else if(orel=="image") {
-                var pr = selected.parent().parent();
-                if (pr.length>0 && pr.attr('id')!==crel) {
-                    if(pr.attr('rel').replace("-locked", "")==="share" && pr.attr('id')!==crel) {
-                        update['rel'] = pr.attr('id');
-                        update['url'] = prefix+'load_public/'+pr.attr('id').split("-")[1]+'/?view=icon';
-                    } else if (pr.attr('rel').replace("-locked", "")=="tag") {
-                        update['rel'] = pr.attr('id');
-                        update['url'] = prefix+'load_tags/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
-                    } else if (pr.attr('rel').replace("-locked", "")!=="orphaned") {
-                        update['rel'] = pr.attr('id');
-                        update['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
-                    } else {
-                        update['rel'] = pr.attr("id");
-                        update['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/?view=icon';
-                    }
+            }
+        //} else if($.inArray(orel, ["tag"]) > -1 && oid!==crel) {
+        //    update['rel'] = oid;
+        //    update['url'] = prefix+'load_tags/?view=icon&o_type=tag&o_id='+oid.split("-")[1];
+        } else if(orel=="image") {
+            var pr = selected.parent().parent();
+            if (pr.length>0 && pr.attr('id')!==crel) {
+                if(pr.attr('rel').replace("-locked", "")==="share" && pr.attr('id')!==crel) {
+                    update['rel'] = pr.attr('id');
+                    update['url'] = prefix+'load_public/'+pr.attr('id').split("-")[1]+'/?view=icon';
+                } else if (pr.attr('rel').replace("-locked", "")=="tag") {
+                    update['rel'] = pr.attr('id');
+                    update['url'] = prefix+'load_tags/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
+                } else if (pr.attr('rel').replace("-locked", "")!=="orphaned") {
+                    update['rel'] = pr.attr('id');
+                    update['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
+                } else {
+                    update['rel'] = pr.attr("id");
+                    update['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/?view=icon';
                 }
-            } 
+            }
         } else {
             update['empty'] = true;
         }
+
+        var $content_details = $("#content_details");
         
-        if (update.rel!==null && update.url!==null){
-            $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/common/image/spinner.gif"/></p>');
-            $("div#content_details").attr('rel', update.rel);
-            $("div#content_details").load(update.url, function() {
-                syncPanels(selected);
-            });
-        } else if (update.empty){
+        // if nothing to show - clear panel
+        if (update.empty) {
             $("div#content_details").empty();
             $("div#content_details").removeAttr('rel');
         }
+        // only load data if panel is visible, otherwise clear panel
+        else if (update.rel!==null && update.url!==null){
+            if ($content_details.is(":visible")) {
+                $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/common/image/spinner.gif"/></p>');
+                $("div#content_details").attr('rel', update.rel);
+                $("div#content_details").load(update.url, function() {
+                    syncPanels(selected);
+                });
+            } else {
+                $("div#content_details").empty();
+                $("div#content_details").removeAttr('rel');
+            }
+        }
         
         syncPanels(selected); // update selected thumbs
-    });
+    };
+    
+    // on change of selection in tree OR switching pluginupdate center panel
+    $("#dataTree").bind("select_node.jstree", update_thumbnails_panel);
+    
+    $('#center_panel_chooser select').bind('change', update_thumbnails_panel);
 
 });
 
