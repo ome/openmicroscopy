@@ -92,13 +92,21 @@
 						</xsd:complexContent>
 					</xsd:complexType>
 				</xsd:element>
-				<xsd:element ref="Well" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="Well" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo><xsd-fu><plural>Wells</plural></xsd-fu></xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
 						<xsd:appinfo><xsd-fu><plural>Annotations</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
-				<xsd:element ref="PlateAcquisition" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="PlateAcquisition" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo><xsd-fu><plural>PlateAcquisitions</plural></xsd-fu></xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 			</xsd:sequence>
 			<xsd:attribute name="ID" use="required" type="PlateID"/>
 			<xsd:attribute name="Name" use="optional" type="xsd:string">
@@ -492,7 +500,11 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element ref="WellSample" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="WellSample" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo><xsd-fu><plural>WellSamples</plural></xsd-fu></xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 				<xsd:element ref="ReagentRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>

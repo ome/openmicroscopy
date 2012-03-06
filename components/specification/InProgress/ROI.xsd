@@ -58,7 +58,11 @@
 					<xsd:element name="Union" minOccurs="1" maxOccurs="1">
 						<xsd:complexType>
 							<xsd:sequence>
-								<xsd:element ref="Shape" minOccurs="1" maxOccurs="unbounded"/>
+								<xsd:element ref="Shape" minOccurs="1" maxOccurs="unbounded">
+									<xsd:annotation>
+										<xsd:appinfo><xsd-fu><plural>Shapes</plural></xsd-fu></xsd:appinfo>
+									</xsd:annotation>
+								</xsd:element>
 							</xsd:sequence>
 						</xsd:complexType>
 					</xsd:element>
@@ -321,7 +325,11 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element ref="BIN:BinData" minOccurs="1" maxOccurs="unbounded"/>
+				<xsd:element ref="BIN:BinData" minOccurs="1" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo><xsd-fu><plural>BinDataBlocks</plural></xsd-fu></xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 			</xsd:sequence>
 			<xsd:attribute name="X" use="required" type="xsd:float">
 				<xsd:annotation>
