@@ -125,39 +125,28 @@ class login_required(object):
 
         session = request.session
         request = request.REQUEST
-    
+        is_secure = request.get('ssl', False)
+        logger.debug('Is SSL? %s' % is_secure)
         connector = session.get('connector', None)
-        logger.debug('Django session connector: %r' % connector)
-        if connector is not None:
-            # We have a connector, attempt to use it to join an existing
-            # connection / OMERO session.
-            connection = connector.join_connection(self.useragent)
-            if connection is not None:
-                logger.debug('Connector valid, session successfully joined.')
-                return connection
-            # Fall through, we the session we've been asked to join may
-            # be invalid and we may have other credentials as request
-            # variables.
-            logger.debug('Connector is no longer valid, destroying...')
-            del session['connector']
 
         if server_id is None:
             # If no server id is passed, the db entry will not be used and
             # instead we'll depend on the request.session and request.REQUEST
             # values
-            server_id = request.get('server', session.get('server'))
-            logger.debug('No Server ID available.')
-            if server_id is None:
-                return None
+            if connector is not None:
+                server_id = connector.server_id
+            else:
+                try:
+                    server_id = request['server']
+                except:
+                    logger.debug('No Server ID available.')
+                    return None
 
-        # We have no current connector, create one and attempt to
-        # create a connection based on the credentials we have available
-        # in the current request.
-        is_secure = request.get('ssl', False)
-        logger.debug('Is SSL? %s' % is_secure)
-        connector = Connector(server_id, is_secure)
+        # If we have an OMERO session key in our request variables attempt
+        # to make a connection based on those credentials.
         try:
             omero_session_key = request['bsession']
+            connector = Connector(server_id, is_secure)
         except KeyError:
             # We do not have an OMERO session key in the current request.
             pass
@@ -176,28 +165,47 @@ class login_required(object):
         username = None
         password = None
         try:
-            username = request.get('username')
-            password = request.get('password')
+            username = request['username']
+            password = request['password']
         except KeyError:
-            if not settings.PUBLIC_ENABLED:
+            if not settings.PUBLIC_ENABLED and connector is None:
                 logger.debug('No username or password in request, raising ' \
                              'HTTP 403')
                 # We do not have an OMERO session or a username and password
-                # in the current request, raise an error.
+                # in the current request and we do not have a valid connector.
+                # Raise an error.
                 raise Http403
             # If OMERO.webpublic is enabled, pick up a username and
             # password from configuration.
-            logger.debug('OMERO.webpublic enabled, attempting to login with ' \
-                         'configuration supplied credentials.')
-            username = settings.PUBLIC_USER
-            password = settings.PUBLIC_PASSWORD
-        # We have a username and password in the current request, or
-        # OMERO.webpublic is enabled and has provided us with a username
-        # and password via configureation. Use them to try and create a
-        # new connection / OMERO session.
-        logger.debug('Creating connection with username and password...')
-        connection = connector.create_connection(
-                self.useragent, username, password)
+            if settings.PUBLIC_ENABLED:
+                logger.debug('OMERO.webpublic enabled, attempting to login ' \
+                             'with configuration supplied credentials.')
+                username = settings.PUBLIC_USER
+                password = settings.PUBLIC_PASSWORD
+
+        if username is not None and password is not None:
+            # We have a username and password in the current request, or
+            # OMERO.webpublic is enabled and has provided us with a username
+            # and password via configureation. Use them to try and create a
+            # new connection / OMERO session.
+            logger.debug('Creating connection with username and password...')
+            connection = connector.create_connection(
+                    self.useragent, username, password)
+
+        logger.debug('Django session connector: %r' % connector)
+        if connector is not None:
+            # We have a connector, attempt to use it to join an existing
+            # connection / OMERO session.
+            connection = connector.join_connection(self.useragent)
+            if connection is not None:
+                logger.debug('Connector valid, session successfully joined.')
+                return connection
+            # Fall through, we the session we've been asked to join may
+            # be invalid and we may have other credentials as request
+            # variables.
+            logger.debug('Connector is no longer valid, destroying...')
+            del session['connector']
+
         session['connector'] = connector
         return connection
 
