@@ -115,12 +115,11 @@
     * First the whole app and test dirs are removed and then new ones are
     * re-generated with all app and test code.  Tests are run and if a failure
     * occurs, the build is halted.  This way, the app can't be released unless 
-    * all tests pass.  
+    * all tests pass.  ,test
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-  <target name="dist-init" depends="app.clean,test.clean,test">
+  <target name="dist-init" depends="app.clean,test.clean, test">
     <mkdir dir="${dist.dir}"/>
     <property name="main-dist-prefix" value="${dist.bundle.name}-${dist.bundle.version}"/>
-  	<property name="main-dist-ij-prefix" value="${dist.bundle.ij.name}-${dist.bundle.version}"/>
   </target>
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -262,13 +261,12 @@
   <target name="dist-ij"
           depends="jar-ij"
           description="Build and package the app for distribution."> 
-    <property name="main-dist-prefix" value="${dist.bundle.ij.name}-${dist.bundle.version}"/>
+  	<property name="main-dist-ij-prefix" value="${dist.bundle.ij.name}-${dist.bundle.version}"/>
     <zip destfile="${dist.dir}/${main-dist-ij-prefix}.zip">
-      <zipfileset dir="${app.config.dir}" prefix="${main-dist-prefix}/${dist.app.config.dir.name}"/>
-      <zipfileset refid="app.libs" prefix="${main-dist-prefix}/${dist.app.lib.dir.name}"/>
-      <zipfileset dir="${dist.dir}" prefix="${main-dist-prefix}" includes="${dist.jar.ij.file}"/>
-      <!-- zipfileset file="${dist.installfile}" prefix="${main-dist-prefix}"/ -->
-      <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+      <zipfileset dir="${app.config.dir}" prefix="${main-dist-ij-prefix}/${dist.app.config.dir.name}"/>
+      <zipfileset refid="app.libs" prefix="${main-dist-ij-prefix}/${dist.app.lib.dir.name}"/>
+      <zipfileset dir="${dist.dir}" prefix="${main-dist-ij-prefix}" includes="${dist.jar.ij.file}"/>
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-ij-prefix}/LICENSE"/>
     </zip>
   </target>
  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
