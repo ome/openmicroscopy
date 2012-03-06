@@ -65,7 +65,7 @@
 				</xsd:choice>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>Annotations</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 				<xsd:element name="Description" minOccurs="0" maxOccurs="1">
@@ -95,7 +95,7 @@
 	
 	<xsd:element name="Shape"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo>abstract-proprietary</xsd:appinfo>
+			<xsd:appinfo><xsd-fu><abstract-proprietary/></xsd-fu></xsd:appinfo>
 			<xsd:documentation>
 				The shape element contains a single specific ROI shape and links 
 				that to any channels, and a timepoint and a z-section. It also 

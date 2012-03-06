@@ -265,7 +265,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				<xsd:element ref="ExperimenterGroupRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="DatasetRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:Datasets</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>Datasets</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 				<xsd:element ref="InstrumentRef" minOccurs="0" maxOccurs="1"/>
@@ -275,17 +275,17 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				<xsd:element ref="Pixels" minOccurs="1" maxOccurs="1"/>
 				<xsd:element ref="ROI:ROIRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:ROIs</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>ROIs</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 				<xsd:element ref="MicrobeamManipulationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:MicrobeamManipulations</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>MicrobeamManipulations</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>Annotations</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>
@@ -321,7 +321,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				<xsd:element ref="Plane" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>Annotations</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>
@@ -422,7 +422,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				</xsd:choice>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>Annotations</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>
@@ -510,7 +510,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				<xsd:element ref="FilterSetRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>Annotations</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 				<xsd:element ref="LightPath" minOccurs="0" maxOccurs="1"/>
@@ -796,7 +796,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				</xsd:element>
 				<xsd:element ref="ROI:ROIRef" minOccurs="1" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:ROIs</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>ROIs</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 				<xsd:element ref="ExperimenterRef" minOccurs="1" maxOccurs="1"/>
@@ -954,7 +954,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				<xsd:element ref="ExperimenterGroupRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>Annotations</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>
@@ -988,7 +988,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				<xsd:element ref="Contact" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>Annotations</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>
@@ -1057,12 +1057,12 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				<xsd:element ref="ExperimenterGroupRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="ProjectRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:Projects</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>Projects</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>Annotations</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>
@@ -1156,12 +1156,12 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 			<xsd:sequence>
 				<xsd:element ref="ExperimenterGroupRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:ExperimenterGroups</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>ExperimenterGroups</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:Annotations</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>Annotations</plural></xsd-fu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>
@@ -1208,7 +1208,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 	<!-- Common types -->
 	<xsd:complexType name="ManufacturerSpec">
 		<xsd:annotation>
-			<xsd:appinfo>abstract</xsd:appinfo>
+			<xsd:appinfo><xsd-fu><abstract/></xsd-fu></xsd:appinfo>
 			<xsd:documentation>
 				This is the base from which many microscope components are extended. E.g Objective, Filter etc. 
 				Provides attributes for recording common properties of these components such as Manufacturer name, Model etc, 
@@ -1549,7 +1549,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 					<xsd:sequence>
 						<xsd:element name="ExcitationFilterRef" type="FilterRef" minOccurs="0" maxOccurs="unbounded">
 							<xsd:annotation>
-								<xsd:appinfo>plural:ExcitationFilters</xsd:appinfo>
+								<xsd:appinfo><xsd-fu><plural>ExcitationFilters</plural></xsd-fu></xsd:appinfo>
 								<xsd:documentation>
 									The Filters placed in the Excitation light path.
 								</xsd:documentation>
@@ -1558,7 +1558,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 						<xsd:element ref="DichroicRef" minOccurs="0" maxOccurs="1"/>
 						<xsd:element name="EmissionFilterRef" type="FilterRef" minOccurs="0" maxOccurs="unbounded">
 							<xsd:annotation>
-								<xsd:appinfo>plural:EmissionFilters</xsd:appinfo>
+								<xsd:appinfo><xsd-fu><plural>EmissionFilters</plural></xsd-fu></xsd:appinfo>
 								<xsd:documentation>
 									The Filters placed in the Emission light path.
 								</xsd:documentation>
@@ -1679,7 +1679,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 			<xsd:sequence>
 				<xsd:element name="ExcitationFilterRef" type="FilterRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:ExcitationFilters</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>ExcitationFilters</plural></xsd-fu></xsd:appinfo>
 						<xsd:documentation>
 							The Filters placed in the Excitation light path.
 						</xsd:documentation>
@@ -1688,7 +1688,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 				<xsd:element ref="DichroicRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element name="EmissionFilterRef" type="FilterRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo>plural:EmissionFilters</xsd:appinfo>
+						<xsd:appinfo><xsd-fu><plural>EmissionFilters</plural></xsd-fu></xsd:appinfo>
 						<xsd:documentation>
 							The Filters placed in the Emission light path.
 						</xsd:documentation>
@@ -1710,7 +1710,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 	<!-- Light elements -->
 	<xsd:element name="LightSource"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo>abstract-proprietary</xsd:appinfo>
+			<xsd:appinfo><xsd-fu><abstract-proprietary/></xsd-fu></xsd:appinfo>
 			<xsd:documentation>
 				The lightsource for the instrument.  An instrument may have several light sources.
 				The type of lightsource is specified by one of the child-elements which are 'Laser', 'Filament', 'Arc' or 'LightEmittingDiode'.
@@ -1993,7 +1993,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 	<!-- References -->
 	<xsd:complexType name="Reference">
 		<xsd:annotation>
-			<xsd:appinfo>abstract</xsd:appinfo>
+			<xsd:appinfo><xsd-fu><abstract/></xsd-fu></xsd:appinfo>
 			<xsd:documentation>
 				Reference is an empty complex type that is contained and extended by all the *Ref elements and also the Settings Complex Type
 				Each *Ref element defines an attribute named ID of simple type *ID and no other information
@@ -2121,7 +2121,7 @@ ExperimenterRef is required for all Images with well formed LSIDs.
 	<!-- Settings -->
 	<xsd:complexType name="Settings">
 		<xsd:annotation>
-			<xsd:appinfo>abstract</xsd:appinfo>
+			<xsd:appinfo><xsd-fu><abstract/></xsd-fu></xsd:appinfo>
 			<xsd:documentation>
 				Settings is an empty complex type that is contained and extended by all the *Settings elements
 				Each *Settings element defines an attribute named ID of simple type *ID and the other information that is needed.
