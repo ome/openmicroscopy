@@ -67,7 +67,7 @@
   <property name="dist.name" value="OMERO.insight"/>
   <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="dist.jar.file" value="omero.insight.jar"/>
-	<property name="dist.jar.ij.file" value="omero_insight.jar"/>
+   <property name="dist.jar.ij.file" value="omero.ij.jar"/>
   <property name="dist.bundle.name" value="OMERO.insight"/>
   <property name="dist.bundle.ij.name" value="OMERO.ij"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
@@ -120,6 +120,7 @@
   <target name="dist-init" depends="app.clean,test.clean,test">
     <mkdir dir="${dist.dir}"/>
     <property name="main-dist-prefix" value="${dist.bundle.name}-${dist.bundle.version}"/>
+  	<property name="main-dist-ij-prefix" value="${dist.bundle.ij.name}-${dist.bundle.version}"/>
   </target>
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -172,8 +173,8 @@
                  pathsep=" " 
                  dirsep="/" 
                  refid="app.libs">
-      <map from="${base.runtimelib.dir}" to="${dist.app.lib.dir.name}"/>                
-    </pathconvert>      
+      <map from="${base.runtimelib.dir}" to="${dist.app.lib.dir.name}"/>
+    </pathconvert>
     <jar destfile="${dist.dir}/${dist.jar.file}">
       <fileset dir="${app.compiled.dir}"/>
       <manifest>
@@ -229,8 +230,8 @@
    *   + The license file, ${base.licensefile}. 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="dist"
-          depends="jar, jar-util, dist-osx-openGL, dist-osx, dist-win, 
-  	dist-win-openGL,dist-win64-openGL,distEditor-win,distEditor-osx"
+          depends="jar, jar-util, jar-ij, dist-osx-openGL, dist-osx, dist-win, 
+  	dist-win-openGL,dist-win64-openGL,distEditor-win,distEditor-osx, dist-ij"
           description="Build and package the app for distribution."> 
 
     <!-- Main zip -->
@@ -262,7 +263,7 @@
           depends="jar-ij"
           description="Build and package the app for distribution."> 
     <property name="main-dist-prefix" value="${dist.bundle.ij.name}-${dist.bundle.version}"/>
-    <zip destfile="${dist.dir}/${main-dist-prefix}.zip">
+    <zip destfile="${dist.dir}/${main-dist-ij-prefix}.zip">
       <zipfileset dir="${app.config.dir}" prefix="${main-dist-prefix}/${dist.app.config.dir.name}"/>
       <zipfileset refid="app.libs" prefix="${main-dist-prefix}/${dist.app.lib.dir.name}"/>
       <zipfileset dir="${dist.dir}" prefix="${main-dist-prefix}" includes="${dist.jar.ij.file}"/>
