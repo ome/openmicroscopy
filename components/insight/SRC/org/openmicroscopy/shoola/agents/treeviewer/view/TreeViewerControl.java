@@ -359,14 +359,14 @@ class TreeViewerControl
 	/** Identifies the <code>Create dataset</code> in the File menu. */
 	static final Integer    CREATE_DATASET_FROM_SELECTION = Integer.valueOf(69);
 
-	/** Identifies the <code>View In ImageJ</code> in the menu. */
-	static final Integer    VIEW_IN_IJ = Integer.valueOf(70);
-	
 	/** Identifies the <code>Available scripts/code>. */
 	static final Integer    AVAILABLE_SCRIPTS = Integer.valueOf(70);
 	
 	/** Identifies the <code>Remove the group/code>. */
 	static final Integer    REMOVE_GROUP = Integer.valueOf(71);
+	
+	/** Identifies the <code>View In ImageJ</code> in the menu. */
+	static final Integer    VIEW_IN_IJ = Integer.valueOf(72);
 	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
