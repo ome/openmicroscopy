@@ -24,24 +24,14 @@ $(document).ready(function() {
 
     // updates the selected images in the table
     var syncTableSelection = function(get_selected) {
-        var toSelect = new Array();
+        $("#dataTable .ui-selectee").removeClass('ui-selected');    // clear selection
         get_selected.each(function(i) {
-            var _this = $(this)
-            if ($.inArray(_this.attr("rel").replace("-locked", ""), ["image"]) >= 0) toSelect[i]=_this.attr("id").split("-")[1];
-        });
-        /*
-        TODO: selection in table
-        $(".ui-selectee", $("ul.ui-selectable")).each(function(){
-            var selectee = $(this);
-            if ($.inArray(selectee.attr('id'), toSelect) != -1) {
-                if(!selectee.hasClass('ui-selected')) {
-                    selectee.addClass('ui-selected');
-                }
-            } else {
-                selectee.removeClass('ui-selected');
+            var dtype = $(this).attr("rel").replace("-locked", "");
+            if (dtype == "image") {
+                var imgId = $(this).attr("id").split("-")[1];
+                $("#image_row-"+imgId).addClass('ui-selected');
             }
         });
-        */
     }
 
     // on change of selection in tree etc, update table
@@ -65,13 +55,14 @@ $(document).ready(function() {
             if (selected.filter('li:not([id|=image])').length > 0) {
                 $image_table.empty();
                 $image_table.removeAttr('rel');
+                return;
             }
-            return;
         }
-        // handle single object selection...
+        // handle single object (or multi-image) selection...
         var oid = selected.attr('id');                              // E.g. 'dataset-501'
         var orel = selected.attr('rel').replace("-locked", "");     // E.g. 'dataset'
         var page = selected.data("page") || null;                   // Check for pagination
+        //console.log(orel, oid);
         if (!oid) return;
 
         // Check what we've currently loaded: E.g. 'dataset-501'
@@ -87,7 +78,6 @@ $(document).ready(function() {
         } else if(orel == "dataset") {
             update['rel'] = oid;
             update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?view=table';
-
         } else if(orel == "share") {
             update['rel'] = oid;
             update['url'] = prefix+'load_public/'+oid.split("-")[1]+'/?view=table';
@@ -120,6 +110,7 @@ $(document).ready(function() {
 
         // need to refresh if page or E.g. dataset has changed
         var need_refresh = ((oid!==crel) || (page!==cpage));
+        //console.log(oid, crel, page, cpage, "need_refresh", need_refresh);
 
         // if nothing to show - clear panel
         if (update.empty) {

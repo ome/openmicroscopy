@@ -177,8 +177,7 @@ var multipleAnnotation = function(selected, index, prefix){
 
 var loadMetadataPanel = function(src, html) {
     
-    console.log("NOT SUPPORTED! loadMetadataPanel()", src, html);
-    return
+    console.log("DEPRECATED! loadMetadataPanel()", src, html);
     
     var $metadataPanel = $("#right_panel");
 
@@ -264,6 +263,8 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
 // This is called by the Pagination controls at the bottom of icon or table pages.
 // We simply update the 'page' data on the parent (E.g. dataset node in tree) and refresh
 function doPagination(view, page) {
+    var $container = $("#content_details");
+    if (view == "tree") $container = $("#image_table");
     var rel = $container.attr('rel').split("-");
     var $parent = $("#dataTree #"+ rel[0]+'-'+rel[1]);
     $parent.data("page", page);     // let the parent node keep track of current page

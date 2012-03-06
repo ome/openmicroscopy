@@ -23,19 +23,13 @@
 $(document).ready(function() {
     
     var syncPanels = function(get_selected) {
-        var toSelect = new Array();
+        $("#content_details .ui-selectee").removeClass('ui-selected');    // clear selection
         get_selected.each(function(i) {
-            var _this = $(this)
-            if ($.inArray(_this.attr("rel").replace("-locked", ""), ["image"]) >= 0) toSelect[i]=_this.attr("id").split("-")[1];
-        });
-        $(".ui-selectee", $("ul.ui-selectable")).each(function(){
-            var selectee = $(this);
-            if ($.inArray(selectee.attr('id'), toSelect) != -1) {
-                if(!selectee.hasClass('ui-selected')) {
-                    selectee.addClass('ui-selected');
-                }
-            } else {
-                selectee.removeClass('ui-selected');
+            var dtype = $(this).attr("rel").replace("-locked", "");
+            if (dtype == "image") {
+                var imgId = $(this).attr("id").split("-")[1];
+                //console.log(imgId, $("#image_icon-"+imgId));
+                $("#image_icon-"+imgId).addClass('ui-selected');
             }
         });
     }
@@ -60,10 +54,10 @@ $(document).ready(function() {
             if (selected.filter('li:not([id|=image])').length > 0) {
                 $("div#content_details").empty();
                 $("div#content_details").removeAttr('rel');
+                return;
             }
-            return;
         }
-        // handle single object selection...
+        // handle single object (or multi-image) selection...
         var oid = selected.attr('id');                              // E.g. 'dataset-501'
         var orel = selected.attr('rel').replace("-locked", "");     // E.g. 'dataset'
         var page = selected.data("page") || null;                   // Check for pagination

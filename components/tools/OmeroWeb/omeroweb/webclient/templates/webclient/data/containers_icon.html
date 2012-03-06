@@ -73,7 +73,8 @@
                     // get the image ids from the thumbnails
                     var toSelectIds = new Array();
                     $("li.ui-selected", this).each(function(i){
-                        toSelectIds[i] = "image-"+$(this).attr('id');
+                        var iId = $(this).attr('id').split("-")[1];
+                        toSelectIds[i] = "image-"+iId;
                     });
                     
                     // find the matching child nodes from the tree
@@ -105,7 +106,7 @@
         
     <ul id="dataIcons">
         {% for c in manager.containers.images %}
-        <li id="{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
+        <li id="image_icon-{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
             <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
         </li>
         {% endfor %}

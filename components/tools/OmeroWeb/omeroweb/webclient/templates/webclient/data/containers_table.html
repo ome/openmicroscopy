@@ -47,7 +47,7 @@
         $(document).ready(function(){
 
             // when the jstree removes objects from the tree, handle each object...
-            $("#dataTree").one("remove.jstree", handleRemove});
+            $("#dataTree").one("remove.jstree", handleRemove);
             
             var datatree = $.jstree._focused();
 
@@ -74,9 +74,11 @@
                 //$clickedRow.css('background', 'red');
 
                 var primaryIndex = -1;
-                var lastSelected = datatree.data.ui.last_selected
+                var lastSelected = datatree.data.ui.last_selected;
                 if (lastSelected && (lastSelected.length > 0)) {
-                    primaryIndex = rows.index($('#dataTable tr#'+ lastSelected.attr('id').split('-')[1]).get(0));
+                    var img_id = lastSelected.attr('id').split('-')[1];
+                    var $row = $('#image_row-'+ img_id);
+                    primaryIndex = rows.index($row.get(0));
                 }
                 
                 var selIndex = rows.index($clickedRow.get(0));
@@ -93,7 +95,7 @@
                     //var end = Math.max(primaryIndex,selIndex);
                     //thumbs.slice(start, end+1).parent().addClass("ui-selected");
 
-                    var branch = datatree._get_children('#'+$('#content_details').attr('rel'));
+                    var branch = datatree._get_children('#'+$('#image_table').attr('rel'));
 
                     if ( primaryIndex == -1 ) {
                         primaryIndex = selIndex;
@@ -127,7 +129,7 @@
                         primaryIndex = selIndex;
                     }
 
-                    var branch = datatree._get_children('#'+$('#content_details').attr('rel'))
+                    var branch = datatree._get_children('#'+$('#image_table').attr('rel'))
                     var selectee = $(branch[selIndex]);
 
                     if(!datatree.is_selected(selectee)) {
@@ -150,7 +152,7 @@
                     datatree.deselect_all();
                     rows.removeClass("ui-selected");
 
-                    var branch = datatree._get_children('#'+$('#content_details').attr('rel'))
+                    var branch = datatree._get_children('#'+$('#image_table').attr('rel'))
                     var selectee = $(branch[selIndex]);
                     $clickedRow.addClass("ui-selected");
                     if(!datatree.is_selected(selectee)) datatree.select_node(selectee);
@@ -166,11 +168,12 @@
                 stop: function(){
                     var toSelect = new Array();
                     $("tr.ui-selected", this).each(function(i){
-                        toSelect[i] = "image-"+$(this).attr('id');
+                        var imgId = $(this).attr('id').split("-")[1];
+                        toSelect[i] = "image-"+imgId;
                     });
 
                     datatree.deselect_all();
-                    datatree._get_children('#'+$('#content_details').attr('rel')).each(function(){
+                    datatree._get_children('#'+$('#image_table').attr('rel')).each(function(){
                         if($.inArray($(this).attr('id'),toSelect)!=-1) {
                             if(!datatree.is_selected(this)) datatree.select_node(this);
                         }
@@ -204,7 +207,7 @@
         </thead>
         <tbody>
             {% for c in manager.containers.images %}
-                <tr id="{{ c.id }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
+                <tr id="image_row-{{ c.id }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
                     <td class="action">
                         {% comment %}<img src="{% url render_thumbnail_resize 32 c.id  %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>{% endcomment %}
                         <img src="{% static "webclient/image/image16.png" %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
