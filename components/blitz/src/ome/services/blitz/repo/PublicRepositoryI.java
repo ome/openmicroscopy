@@ -428,10 +428,11 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return images;
     }
 
-    public void importMetadata(String fileId, Current __current) throws ServerError {
+    public List<Pixels> importMetadata(String target, Current __current) throws ServerError {
         OMEROMetadataStoreClient store;
         ImportConfig config = new ImportConfig();
         final String clientSessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
+        List<Pixels> pix = null;
         // TODO: replace hard-wired host and port
         config.hostname.set("localhost");
         config.port.set(new Integer(4064));
@@ -440,13 +441,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
             store = config.createStore();
             OMEROWrapper reader = new OMEROWrapper(config);
             ImportLibrary library = new ImportLibrary(store, reader);
-            ImportContainer ic = new ImportContainer(new File(fileId), -1L, null,
+            ImportContainer ic = new ImportContainer(new File(target), -1L, null,
                     false, null, null, null, null);
             ic.setMetadataOnly(true);
-            library.importImage(ic, 0, 0, 1);
+            pix = library.importImage(ic, 0, 0, 1);
         } catch (Throwable t) {
             throw new omero.InternalException(stackTraceAsString(t), null, t.getMessage());
         }
+        return pix;
     }
 
     protected List<Pixels> importFile(final File file, final String clientSessionUuid, Map<Integer,Image> imageMap) {
