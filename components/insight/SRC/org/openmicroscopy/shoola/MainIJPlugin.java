@@ -30,7 +30,6 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.net.URL;
 import java.security.CodeSource;
 
 //Third-party libraries
