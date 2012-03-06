@@ -173,3 +173,32 @@ function doPagination(view, page) {
     $parent.children("a:eq(0)").click();    // this will cause center and right panels to update
     return false;
 }
+
+function makeShare(prefix) {
+    if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
+        alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
+    } else { 
+        var productArray = $("input[type='checkbox']:checked");
+        var productListQuery = "";
+        if (productArray.length > 0 ) {
+            productArray.each(function() {
+                if(this.checked) {
+                    productListQuery += "&"+this.name+"="+this.id;
+                }
+            });
+        } else {
+            productListQuery += "&"+productArray.name+"="+productArray.id;
+        }
+    }
+    
+    src = prefix+'?'+productListQuery+'';
+    loadMetadataPanel(src);
+    return false;
+}
+
+function makeDiscussion() {
+    src = '/webclient/basket/todiscuss/';
+    loadMetadataPanel(src);
+>>>>>>> Table-view is a separate plugin. Pagination.
+    return false;
+}
