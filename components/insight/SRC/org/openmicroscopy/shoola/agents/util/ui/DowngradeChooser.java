@@ -69,7 +69,7 @@ public class DowngradeChooser
 			//Build the UI
 			Iterator<Target> i = targets.iterator();
 			Object[] values = new Object[targets.size()+1];
-			values[0] = "-- no downgrade --";
+			values[0] = parser.getCurrentSchema()+" (current)";
 			int index = 1;
 			while (i.hasNext()) {
 				values[index] = i.next();
@@ -78,7 +78,7 @@ public class DowngradeChooser
 			box = new JComboBox(values);
 			JPanel p = new JPanel();
 			p.setLayout(new FlowLayout(FlowLayout.LEFT));
-			p.add(new JLabel("Downgrade to:"));
+			p.add(new JLabel("Version:"));
 			p.add(box);
 			addComponentToControls(p);
 		} catch (Exception e) {
