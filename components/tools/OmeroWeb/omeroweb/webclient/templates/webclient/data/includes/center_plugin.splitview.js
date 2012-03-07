@@ -58,11 +58,10 @@ $(document).ready(function() {
         };
     };
     
-    // update tabs when tree selection changes or tabs switch
-    //$("#annotation_tabs").bind( "tabsshow", update_img_viewer);
-    $('#center_panel_chooser select').bind('change', update_dataset_split_viewer);
+    // update plugin when we switch between plugins
+    $('#center_panel_chooser').bind('change', update_dataset_split_viewer);
 
-    // on change of selection in tree, update which tabs are enabled
+    // on change of selection in tree, update which plugins are enabled
     $("#dataTree").bind("select_node.jstree", function(e, data) {
 
         // clear contents of all panels
