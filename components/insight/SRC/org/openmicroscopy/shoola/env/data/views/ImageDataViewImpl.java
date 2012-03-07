@@ -146,11 +146,11 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#analyseShapes(PixelsData, List, List, 
+     * @see ImageDataView#analyseShapes(PixelsData, Collection, List, 
      * 									AgentEventListener)
      */
 	public CallHandle analyseShapes(SecurityContext ctx, PixelsData pixels,
-			List channels, List shapes, AgentEventListener observer)
+			Collection channels, List shapes, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new Analyser(ctx, pixels, channels, shapes);
 		return cmd.exec(observer);

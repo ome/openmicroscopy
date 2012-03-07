@@ -522,12 +522,6 @@ class OmeroImageServiceImpl
 		this.gateway = gateway;
 	}
 
-	/** Shuts down all active rendering engines. */
-	void shutDown(SecurityContext ctx)
-	{
-		PixelsServicesFactory.shutDownRenderingControls(context);
-	}
-
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#loadRenderingControl(SecurityContext, long)

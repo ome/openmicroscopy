@@ -140,7 +140,7 @@ public interface ImageDataView
      * @return See above.
      */
     public CallHandle analyseShapes(SecurityContext ctx, PixelsData pixels,
-    		List channels, List shapes, AgentEventListener observer);
+    		Collection channels, List shapes, AgentEventListener observer);
     
     /**
      * Retrieves all the rendering settings associated to a given set of pixels.

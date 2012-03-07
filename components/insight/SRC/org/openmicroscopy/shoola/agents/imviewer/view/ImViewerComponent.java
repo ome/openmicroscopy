@@ -1080,6 +1080,8 @@ class ImViewerComponent
 						"This method can't be invoked in the NEW state.");
 			case LOADING_IMAGE:
 			case DISCARDED:
+			case LOADING_BIRD_EYE_VIEW:
+			case LOADING_RND:
 				return;
 		} 
 		if (model.isBigImage()) {
@@ -3368,9 +3370,10 @@ class ImViewerComponent
 				if (model.isBigImage()) {
 					model.cancelBirdEyeView(); 
 					view.dispose();
+					fireStateChange();
 				} else {
 					model.cancelRendering();
-					view.getLoadingWindow().setVisible(false);
+					discard();
 					fireStateChange();
 				}
 				break;
