@@ -107,7 +107,7 @@
 	<!-- the base annotation that all others are ultimately derived from -->
 	<xsd:complexType name="Annotation"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsd-fu><abstract/></xsd-fu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><abstract/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				An annotation from which all others are ultimately derived.
 			</xsd:documentation>
@@ -128,7 +128,7 @@
 			<xsd:sequence>
 				<xsd:element ref="AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo><xsd-fu><plural>Annotations</plural></xsd-fu></xsd:appinfo>
+						<xsd:appinfo><xsdfu><plural>Annotations</plural><manytomany/></xsdfu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>
@@ -153,7 +153,7 @@
 	<!-- Intermediate abstract annotations, not used directly -->
 	<xsd:complexType name="BasicAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsd-fu><abstract/></xsd-fu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><abstract/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				An abstract Basic Annotation from which some others are derived.
 			</xsd:documentation>
@@ -164,7 +164,7 @@
 	</xsd:complexType>
 	<xsd:complexType name="NumericAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsd-fu><abstract/></xsd-fu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><abstract/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				An abstract Numeric Annotation from which some others are derived.
 			</xsd:documentation>
@@ -175,7 +175,7 @@
 	</xsd:complexType>
 	<xsd:complexType name="TextAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsd-fu><abstract/></xsd-fu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><abstract/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				An abstract Text Annotation from which some others are derived.
 			</xsd:documentation>
@@ -186,7 +186,7 @@
 	</xsd:complexType>
 	<xsd:complexType name="TypeAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsd-fu><abstract/></xsd-fu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><abstract/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				An abstract Type Annotation from which some others are derived.
 			</xsd:documentation>

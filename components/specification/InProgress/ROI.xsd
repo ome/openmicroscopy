@@ -60,7 +60,7 @@
 							<xsd:sequence>
 								<xsd:element ref="Shape" minOccurs="1" maxOccurs="unbounded">
 									<xsd:annotation>
-										<xsd:appinfo><xsd-fu><plural>Shapes</plural></xsd-fu></xsd:appinfo>
+										<xsd:appinfo><xsdfu><plural>Shapes</plural></xsdfu></xsd:appinfo>
 									</xsd:annotation>
 								</xsd:element>
 							</xsd:sequence>
@@ -69,7 +69,7 @@
 				</xsd:choice>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo><xsd-fu><plural>Annotations</plural></xsd-fu></xsd:appinfo>
+						<xsd:appinfo><xsdfu><plural>Annotations</plural><manytomany/></xsdfu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 				<xsd:element name="Description" minOccurs="0" maxOccurs="1">
@@ -99,7 +99,7 @@
 	
 	<xsd:element name="Shape"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsd-fu><abstract-proprietary/></xsd-fu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><abstractproprietary/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				The shape element contains a single specific ROI shape and links 
 				that to any channels, and a timepoint and a z-section. It also 
@@ -185,7 +185,7 @@
 							The font family used to draw the text. [enumeration]
 							Note: these values are all lower case so they match 
 							the standard HTML/CSS values. "fantasy" has been
-							included for completeness we do not recommended it's
+							included for completeness we do not recommended its
 							regular use.
 						</xsd:documentation>
 					</xsd:annotation>
@@ -261,7 +261,7 @@
 			<xsd:attribute name="Transform" use="optional" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation>
-						This is a matrix used to transform the the shape.
+						This is a matrix used to transform the shape.
 						It is a string of 6 numbers "a, b, c, d, e, f" that
 						represent the 3 by 3 matrix.
 						--       --
@@ -327,7 +327,7 @@
 			<xsd:sequence>
 				<xsd:element ref="BIN:BinData" minOccurs="1" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo><xsd-fu><plural>BinDataBlocks</plural></xsd-fu></xsd:appinfo>
+						<xsd:appinfo><xsdfu><plural>BinDataBlocks</plural></xsdfu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>
