@@ -136,6 +136,18 @@ class InputServerStrategy
 	private ROIComponent		component;
 	
 	/**
+	 * Creates the affine transform.
+	 * 
+	 * @param values The values to handle.
+	 * @return See above.
+	 */
+	private AffineTransform createTransform(double[] values)
+	{
+		if (values != null) return new AffineTransform(values);
+		return new AffineTransform();
+	}
+	
+	/**
 	 * Adds any missing basic attributes from the default attributes map, 
 	 * to the figure.
 	 * 
@@ -285,12 +297,7 @@ class InputServerStrategy
 		fig.setText(data.getText());
 		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -310,11 +317,7 @@ class InputServerStrategy
 				2*r, 2*r, data.isReadOnly(), data.isClientObject());
 		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}	
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -334,12 +337,7 @@ class InputServerStrategy
 		fig.setText(data.getText());
 		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -361,12 +359,7 @@ class InputServerStrategy
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
 		fig.setVisible(data.isVisible());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -389,11 +382,7 @@ class InputServerStrategy
 		fig.setVisible(true);
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -420,12 +409,7 @@ class InputServerStrategy
 		
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -452,12 +436,7 @@ class InputServerStrategy
 		if (text == null || text.trim().length() == 0)
 			text = ROIFigure.DEFAULT_TEXT;
 		fig.setText(text);
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		fig.setClosed(true);		
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -502,11 +481,7 @@ class InputServerStrategy
 		
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}	
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -532,12 +507,7 @@ class InputServerStrategy
 		if (text == null || text.trim().length() == 0)
 			text = ROIFigure.DEFAULT_TEXT;
 		fig.setText(text);
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-		}	
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	

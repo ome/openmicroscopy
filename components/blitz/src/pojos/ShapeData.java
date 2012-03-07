@@ -369,18 +369,26 @@ public abstract class ShapeData
 	}
 
 	/**
-	 * Returns the transformation.
+	 * Returns the transformation as flat matrix [m00, m10, m01, m11, m02, m12]
 	 * 
 	 * @return See above.
 	 */
-	public String getTransform()
+	public double[] getTransform()
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		RString value = shape.getTransform();
-		if (value == null) return "";
-		return value.getValue();
+		if (value == null) return null;
+		double[] values = new double[6];
+		//for now return identity
+		values[0] = 1;
+		values[1] = 0;
+		values[2] = 0;
+		values[3] = 1;
+		values[4] = 0;
+		values[5] = 0;
+		return values;
 	}
 	
 	/**
