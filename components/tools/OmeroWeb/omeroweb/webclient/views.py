@@ -2592,8 +2592,8 @@ def getObjectUrl(conn, obj):
 @isUserConnected
 def activities(request, **kwargs):
     """
-    Refresh callbacks (delete, scripts etc) and provide json to update Activities window & Progressbar.
-    The returned json contains details for ALL callbacks in web session, regardless of their status.
+    This refreshes callback handles (delete, scripts, chgrp etc) and provides html to update Activities window & Progressbar.
+    The returned html contains details for ALL callbacks in web session, regardless of their status.
     We also add counts of jobs, failures and 'in progress' to update status bar.
     """
     conn = None
@@ -2623,6 +2623,7 @@ def activities(request, **kwargs):
                 #cb = CmdCallbackI(conn.c, prx)
                 #cb.loop(20, 500)
                 rsp = prx.getResponse()
+                # if response is None, then we're still in progress, otherwise...
                 if rsp is not None:
                     if isinstance(rsp, omero.cmd.ERR):
                         request.session['callback'][cbString]['status'] = "failed"
@@ -2631,6 +2632,8 @@ def activities(request, **kwargs):
                     elif isinstance(rsp, omero.cmd.OK):
                         request.session['callback'][cbString]['status'] = "finished"
                         request.session['callback'][cbString]['results'] = "Moved OK"
+                else:
+                    in_progress+=1
 
         # update delete
         elif job_type == 'delete':

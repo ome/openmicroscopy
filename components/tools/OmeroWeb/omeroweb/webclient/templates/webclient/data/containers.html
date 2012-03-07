@@ -550,7 +550,7 @@
                             
                             config["chgrp"] = {
                                 "label" : "Move to Group...",
-                                "icon"  : '{% static "webclient/image/cancel16.png" %}',
+                                "icon"  : '{% static "webclient/image/kuser16.png" %}',
                                 "action": handleChgrp
                             };
                             
@@ -573,6 +573,7 @@
                                     config["ccp"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
+                                    config["chgrp"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("experimenter")>=0) {
                                     config["delete"]["_disabled"] = true;
                                     config["ccp"]["_disabled"] = true;

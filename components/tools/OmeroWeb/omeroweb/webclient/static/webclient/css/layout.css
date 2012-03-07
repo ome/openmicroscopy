@@ -469,4 +469,5 @@ width: 250px;
 }
 #chgrp-form .group_option {
     padding: 5px;
+    cursor: pointer;
 }

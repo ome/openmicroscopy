@@ -44,7 +44,7 @@
                 {% ifequal j.job_type "chgrp" %}
                     <tr id="{{ j.id }}">
                         <td width="25px">
-                            {% ifequal j.status "in progress" %}<img class="icon" src="{% static "common/image/spinner.gif" %}" />
+                            {% ifequal j.status "in progress" %}<img class="icon" src="{% static "webgateway/img/spinner.gif" %}" />
                             {% else %} <img class="icon" src="{% static "webclient/image/nuvola_apply22.png" %}" />
                             {% endifequal %}
                         </td>
