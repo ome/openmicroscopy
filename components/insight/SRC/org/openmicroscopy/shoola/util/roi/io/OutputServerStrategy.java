@@ -354,7 +354,7 @@ class OutputServerStrategy
 		}
 		PolygonData poly = new PolygonData();
 		poly.setVisible(fig.isVisible());
-		poly.setPoints(points, points1, points2, maskList);
+		poly.setPoints(points);//, points1, points2, maskList);
 		if (t != null)
 			poly.setTransform(toTransform(t));
 		String text = fig.getText();
@@ -406,7 +406,7 @@ class OutputServerStrategy
 		}
 		PolylineData line = new PolylineData();
 		line.setVisible(fig.isVisible());
-		line.setPoints(points, points1, points2, maskList);
+		line.setPoints(points);//, points1, points2, maskList);
 		if (t != null)
 			line.setTransform(toTransform(t));
 		String text = fig.getText();
@@ -440,11 +440,12 @@ class OutputServerStrategy
 			points.add(new Point2D.Double(node.x[0], node.y[0]));
 			points1.add(new Point2D.Double(node.x[1], node.y[1]));
 			points2.add(new Point2D.Double(node.x[2], node.y[2]));
+			System.err.println(node.getMask());
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolylineData poly = new PolylineData();
 		poly.setVisible(fig.isVisible());
-		poly.setPoints(points, points1, points2, maskList);
+		poly.setPoints(points);//, points1, points2, maskList);
 		if (t != null)
 			poly.setTransform(toTransform(t));
 		String text = fig.getText();
