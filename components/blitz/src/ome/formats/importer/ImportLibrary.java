@@ -65,18 +65,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * support class for the proper usage of {@link OMEROMetadataStoreClient} and
  * {@link FormatReader} instances. This library was factored out of
- * ImportHandler to support ImportFixture The general workflow
- * for this class (as seen in {@link ImportFixture} is: <code>
- *   ImportLibrary library = new ImportLibrary(store,reader,files);
- *   for (File file : files) {
- *     String fileName = file.getAbsolutePath();
- *     library.open(fileName);
- *     int count = library.calculateImageCount(fileName);
- *     long pixId = library.importMetadata();
- *     library.importData(pixId, fileName, new ImportLibrary.Step(){
- *       public void step(int i) {}});
- *   }
- * </code>
+ * ImportHandler to support ImportFixture
  *
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision: 1167 $, $Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $
@@ -428,19 +417,23 @@ public class ImportLibrary implements IObservable
     {
         String[] usedFiles = container.getUsedFiles();
         File target = container.getFile();
-        log.info("Main file: " + target.getAbsolutePath());
-        log.info("Used files before:");
-        for (String f : usedFiles) {
-            log.info(f);
+        if (log.isDebugEnabled()) {
+            log.debug("Main file: " + target.getAbsolutePath());
+            log.debug("Used files before:");
+            for (String f : usedFiles) {
+                log.debug(f);
+            }
         }
         notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
                 target.getName(), 0, 0, null, null, null));
         usedFiles = store.writeFilesToFileStore(usedFiles, target);
         notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
                 target.getName(), 0, 0, null, null, null));
-        log.info("Used files after:");
-        for (String f : usedFiles) {
-            log.info(f);
+        if (log.isDebugEnabled()) {
+            log.debug("Used files after:");
+            for (String f : usedFiles) {
+                log.debug(f);
+            }
         }
         container.setUsedFiles(usedFiles);
         container.setFile(new File(usedFiles[0]));
@@ -719,55 +712,6 @@ public class ImportLibrary implements IObservable
             store.setGroup(null);
             store.createRoot(); // CLEAR MetadataStore
         }
-    }
-
-    /**
-     * saves the binary data to the server. After each successful save,
-     * an {@link ImportEvent.IMPORT_STEP} is raised with the number of the
-     * iteration just completed.
-     * @param series
-     * @return The SHA1 message digest for the Pixels saved.
-     */
-    public MessageDigest importData(Long pixId, String fileName,
-                                    int series, ImportSize size)
-        throws FormatException, IOException, ServerError
-    {
-        reader.setSeries(series);
-        int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
-
-        MessageDigest md;
-        try
-        {
-            md = MessageDigest.getInstance("SHA-1");
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            throw new RuntimeException(
-                "Required SHA-1 message digest algorithm unavailable.");
-        }
-
-        int planeNo = 1;
-        int[] tileSize = store.getTileSize(pixId);
-        if (log.isDebugEnabled())
-        {
-            log.debug("Server tile size: " + Arrays.toString(tileSize));
-        }
-        for (int t = 0; t < size.sizeT; t++)
-        {
-            for (int c = 0; c < size.sizeC; c++)
-            {
-                for (int z = 0; z < size.sizeZ; z++)
-                {
-                    writeDataTileBased(
-                            pixId, size, z, c, t, tileSize[0], tileSize[1],
-                            bytesPerPixel, fileName, md);
-                    notifyObservers(new ImportEvent.IMPORT_STEP(
-                            planeNo, series, reader.getSeriesCount()));
-                    planeNo++;
-                }
-            }
-        }
-        return md;
     }
 
     // ~ Helpers
