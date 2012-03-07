@@ -463,7 +463,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:1" Name="series 01 - XYZCh snapshot">
-        <AcquiredDate>2012-02-22T14:27:53</AcquiredDate>
+        <AcquiredDate>2009-06-11T17:44:42</AcquiredDate>
         <InstrumentRef ID="Instrument:1"/>
         <ObjectiveSettings ID="Objective:1:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:1" PhysicalSizeX="1.0" PhysicalSizeY="1.0" SizeC="3" SizeT="1" SizeX="1390" SizeY="944" SizeZ="1" Type="uint8">
@@ -609,7 +609,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:3" Name="series 02 - XYZChBF Snapshot">
-        <AcquiredDate>2012-02-22T14:27:53</AcquiredDate>
+        <AcquiredDate>2009-06-11T17:44:42</AcquiredDate>
         <InstrumentRef ID="Instrument:3"/>
         <ObjectiveSettings ID="Objective:3:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:3" PhysicalSizeX="1.0" PhysicalSizeY="1.0" SizeC="3" SizeT="1" SizeX="1390" SizeY="940" SizeZ="1" Type="uint8">
@@ -645,7 +645,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:5" Name="series 03 - XZChRefl Snapshot">
-        <AcquiredDate>2012-02-22T14:27:53</AcquiredDate>
+        <AcquiredDate>2009-06-11T17:44:42</AcquiredDate>
         <InstrumentRef ID="Instrument:5"/>
         <ObjectiveSettings ID="Objective:5:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:5" PhysicalSizeX="1.0" PhysicalSizeY="1.0" SizeC="3" SizeT="1" SizeX="1420" SizeY="720" SizeZ="1" Type="uint8">
@@ -699,7 +699,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:7" Name="series 04 - XYlambda Snapshot">
-        <AcquiredDate>2012-02-22T14:27:53</AcquiredDate>
+        <AcquiredDate>2009-06-11T17:44:42</AcquiredDate>
         <InstrumentRef ID="Instrument:7"/>
         <ObjectiveSettings ID="Objective:7:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:7" PhysicalSizeX="1.0" PhysicalSizeY="1.0" SizeC="3" SizeT="1" SizeX="933" SizeY="933" SizeZ="1" Type="uint8">
@@ -1821,7 +1821,7 @@
         </Pixels>
     </Image>
     <Image ID="Image:13" Name="series 06 - XYZCh Snapshot">
-        <AcquiredDate>2012-02-22T14:27:53</AcquiredDate>
+        <AcquiredDate>2009-06-11T17:44:42</AcquiredDate>
         <InstrumentRef ID="Instrument:13"/>
         <ObjectiveSettings ID="Objective:13:0"/>
         <Pixels DimensionOrder="XYCZT" ID="Pixels:13" PhysicalSizeX="1.0" PhysicalSizeY="1.0" SizeC="3" SizeT="1" SizeX="930" SizeY="930" SizeZ="1" Type="uint8">
