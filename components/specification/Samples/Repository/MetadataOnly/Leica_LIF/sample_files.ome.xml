@@ -106,7 +106,7 @@
         <Detector ID="Detector:4:0" Model="PMT 1" Type="PMT" Voltage="0.0" Zoom="3.8750036954915"/>
         <Detector ID="Detector:4:1" Model="PMT Trans" Type="PMT" Voltage="0.0" Zoom="3.8750036954915"/>
         <Detector ID="Detector:4:2" Model="PMT 4" Type="PMT" Voltage="0.0" Zoom="3.8750036954915"/>
-        <Detector ID="Detector:4:3" Model="PMT 4" Offset="-1.5" Type="PMT" Voltage="402.265964751659" Zoom="3.8750036954915"/>
+        <Detector ID="Detector:4:3" Model="PMT 4" Offset="0.0" Type="PMT" Voltage="402.265964751659" Zoom="3.8750036954915"/>
         <Objective Correction="UV" ID="Objective:4:0" Immersion="Air" LensNA="0.4" Model="HCX PL APO CS" NominalMagnification="10" SerialNumber="11506285"/>
         <Filter ID="Filter:4:0" Model="SP Mirror Channel 1">
             <TransmittanceRange CutIn="420" CutOut="480"/>
