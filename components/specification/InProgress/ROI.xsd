@@ -122,7 +122,7 @@
 					<xsd:annotation>
 						<xsd:documentation>
 							This is a matrix used to transform the shape. 
-							The element has 6 double attributes. If the element 
+							The element has 6 xsd:float attributes. If the element 
 							is present then all 6 values must be included.
 						</xsd:documentation>
 					</xsd:annotation>
@@ -536,12 +536,12 @@
 				--       --
 			</xsd:documentation>
 		</xsd:annotation>
-		<xsd:attribute name="A" use="required" type="xsd:double"/>
-		<xsd:attribute name="B" use="required" type="xsd:double"/>
-		<xsd:attribute name="C" use="required" type="xsd:double"/>
-		<xsd:attribute name="D" use="required" type="xsd:double"/>
-		<xsd:attribute name="E" use="required" type="xsd:double"/>
-		<xsd:attribute name="F" use="required" type="xsd:double"/>
+		<xsd:attribute name="A" use="required" type="xsd:float"/>
+		<xsd:attribute name="B" use="required" type="xsd:float"/>
+		<xsd:attribute name="C" use="required" type="xsd:float"/>
+		<xsd:attribute name="D" use="required" type="xsd:float"/>
+		<xsd:attribute name="E" use="required" type="xsd:float"/>
+		<xsd:attribute name="F" use="required" type="xsd:float"/>
 	</xsd:complexType>
 
 	<xsd:simpleType name="ROIID"> <!-- top level definition -->
