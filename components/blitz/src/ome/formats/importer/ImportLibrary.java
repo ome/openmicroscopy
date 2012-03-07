@@ -46,6 +46,7 @@ import ome.formats.model.InstanceProvider;
 import ome.util.PixelData;
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
+import omero.grid.RepositoryImportContainer;
 import omero.grid.RepositoryPrx;
 import omero.model.Annotation;
 import omero.model.Dataset;
@@ -291,10 +292,11 @@ public class ImportLibrary implements IObservable
                         ic = uploadFilesToRepository(ic);
                     }
                     RepositoryPrx repo = store.getLegacyRepository();
-                    repo.importMetadata(ic.getFile().getAbsolutePath());
-                    //importImage(ic, index, numDone, containers.size());
+                    RepositoryImportContainer repoIc = createRepositoryImportContainer(ic);
+                    repo.importMetadata(repoIc);
                     numDone++;
                 } catch (Throwable t) {
+                    log.error("Error on import", t);
                     if (!config.contOnError.get()) {
                         log.info("Exiting on error");
                         return false;
@@ -305,6 +307,20 @@ public class ImportLibrary implements IObservable
             }
         }
         return true;
+    }
+
+    /**
+     * Create a RepositoryImportContainer from an ImportContainer
+     */
+    public RepositoryImportContainer createRepositoryImportContainer(ImportContainer ic) {
+        RepositoryImportContainer repoIC = new RepositoryImportContainer();
+        repoIC.file = ic.getFile().getAbsolutePath();
+        repoIC.projectId = (ic.getProjectID() == null) ? -1L : ic.getProjectID().longValue();
+        repoIC.target = ic.getTarget();
+        repoIC.reader = ic.getReader();
+        repoIC.usedFiles = ic.getUsedFiles();
+        repoIC.isSPW = ic.getIsSPW();
+        return repoIC;
     }
 
     /** opens the file using the {@link FormatReader} instance */

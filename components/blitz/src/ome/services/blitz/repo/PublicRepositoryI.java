@@ -80,6 +80,7 @@ import omero.api._RawFileStoreTie;
 import omero.api._RawPixelsStoreTie;
 import omero.constants.data.NONAMESET;
 import omero.grid.FileSet;
+import omero.grid.RepositoryImportContainer;
 import omero.grid.RepositoryListConfig;
 import omero.grid.RepositoryPrx;
 import omero.grid._RepositoryDisp;
@@ -428,7 +429,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return images;
     }
 
-    public List<Pixels> importMetadata(String target, Current __current) throws ServerError {
+    public List<Pixels> importMetadata(RepositoryImportContainer repoIC, Current __current) throws ServerError {
         OMEROMetadataStoreClient store;
         ImportConfig config = new ImportConfig();
         final String clientSessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
@@ -441,14 +442,21 @@ public class PublicRepositoryI extends _RepositoryDisp {
             store = config.createStore();
             OMEROWrapper reader = new OMEROWrapper(config);
             ImportLibrary library = new ImportLibrary(store, reader);
-            ImportContainer ic = new ImportContainer(new File(target), -1L, null,
-                    false, null, null, null, null);
-            ic.setMetadataOnly(true);
+            ImportContainer ic = createImportContainer(repoIC);
             pix = library.importImage(ic, 0, 0, 1);
         } catch (Throwable t) {
             throw new omero.InternalException(stackTraceAsString(t), null, t.getMessage());
         }
         return pix;
+    }
+
+    /**
+     * Create an ImportContainer from a RepositoryImportContainer
+     */
+    private ImportContainer createImportContainer(RepositoryImportContainer repoIC) {
+        ImportContainer ic = new ImportContainer(new File(repoIC.file), repoIC.projectId,
+			    repoIC.target, false, null, repoIC.reader, repoIC.usedFiles, repoIC.isSPW);
+        return ic;
     }
 
     protected List<Pixels> importFile(final File file, final String clientSessionUuid, Map<Integer,Image> imageMap) {

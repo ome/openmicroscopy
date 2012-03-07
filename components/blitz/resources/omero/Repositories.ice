@@ -45,6 +45,16 @@ module omero {
             omero::api::ImageList imageList;
         };
 
+        class RepositoryImportContainer
+        {
+            string file;
+            long projectId;
+            omero::model::IObject target;
+            string reader;
+            omero::api::StringArray usedFiles;
+            bool isSPW;
+        };
+
         ["java:type:java.util.ArrayList<FileSet>:java.util.List<FileSet>"]
             sequence<FileSet> FileSetList;
         
@@ -155,7 +165,7 @@ module omero {
             void transfer(string srcPath, Repository* target, string targetPath) 
                     throws ServerError;
 
-            omero::api::PixelsList importMetadata(string target) throws ServerError;
+            omero::api::PixelsList importMetadata(RepositoryImportContainer ic) throws ServerError;
             void writeBlock(string fileId, Ice::ByteSeq data) throws ServerError;
 
             omero::api::StringSet getCurrentRepoDir(omero::api::StringSet paths) throws ServerError;
