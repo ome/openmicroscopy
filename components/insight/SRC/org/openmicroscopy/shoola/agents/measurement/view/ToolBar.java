@@ -52,7 +52,6 @@ import org.jhotdraw.draw.DrawingEditor;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.actions.DrawingAction;
-import org.openmicroscopy.shoola.agents.measurement.util.workflow.CreateWorkflowDialog;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
@@ -73,7 +72,6 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingToolB
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 import pojos.ShapeSettingsData;
-import pojos.WorkflowData;
 
 /** 
  * UI component acting as toolbar. Used to create Region of Interest.
@@ -185,14 +183,6 @@ class ToolBar
     
     /** The component to show/hide the text. */
     private JCheckBox					showTextButton;
-    
-    /** The workflow panel controls what workflow elements will be added to the 
-     * created figure. 
-     */
-    private WorkflowPanel				workflowPanel;
-    
-    /** Dialog used to create the workflow. */
-    private CreateWorkflowDialog 		createWorkflowDialog;
    
     /**
      * Sets the property of the toggle button.
@@ -307,7 +297,6 @@ class ToolBar
 				setUpToggleButton(button);	
 			}
 		}
-		workflowPanel = new WorkflowPanel(view, model, controller);
 	}
 	
 	/**
@@ -459,42 +448,7 @@ class ToolBar
 		int size = view.getDrawingView().getSelectedFigures().size();
 		assistantButton.getAction().setEnabled(size == 1);
 	}
-	
-	/**
-	 * Updates the workflow in the toolbar UI.
-	 */
-	void updateWorkflow()
-	{
-		workflowPanel.updateWorkflow();
-	}
-	
-	/**
-	 * Returns the workflow panel.
-	 * 
-	 * @return See above.
-	 */
-	WorkflowPanel getWorkflowPanel()
-	{
-		return workflowPanel;
-	}
 
-	/** Shows the create workflow menu. */
-	void createWorkflow() 
-	{ 
-		createWorkflowDialog = 
-			new CreateWorkflowDialog(model.getWorkflowDataList());
-		List<WorkflowData> newWorkflows = createWorkflowDialog.show();
-		if (newWorkflows != null)
-		{
-			model.resetWorkflows(newWorkflows);
-			model.saveWorkflowToServer(false);
-			model.retrieveWorkflowsFromServer();
-		}
-	}
-
-	/** Adds the workflows. */
-	void addedWorkflow() { workflowPanel.addedWorkflow(); }
-	
  	/**
  	 * Indicates any on-going analysis.
  	 * 

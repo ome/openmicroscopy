@@ -93,7 +93,6 @@ import pojos.PixelsData;
 import pojos.ROIData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
-import pojos.WorkflowData;
 
 /** 
 * Implementation of the {@link OmeroImageService} I/F.
@@ -1661,31 +1660,6 @@ class OmeroImageServiceImpl
 			}
 		}
 		return m;
-	}
-	
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroImageService#storeWorkflows(SecurityContext, List, long)
-	 */
-	public Object storeWorkflows(SecurityContext ctx,
-		List<WorkflowData> workflows, long userID)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		return gateway.storeWorkflows(ctx, workflows, userID);
-	}
-	
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroImageService#retrieveWorkflows(SecurityContext, long)
-	 */
-	public List<WorkflowData> retrieveWorkflows(SecurityContext ctx,
-		long userID) 
-		throws DSAccessException, DSOutOfServiceException
-	{
-		ExperimenterData exp = (ExperimenterData) context.lookup(
-					LookupNames.CURRENT_USER_DETAILS);
-		if (userID < 0) userID = exp.getId();
-		return gateway.retrieveWorkflows(ctx, userID);
 	}
 	
 	/**

@@ -67,7 +67,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointFigure;
 
 import pojos.EllipseData;
@@ -170,19 +169,6 @@ class InputServerStrategy
 		ROI newROI = component.createROI(id, id <= 0);
 		newROI.setOwnerID(roi.getOwner().getId());
 		newROI.setAnnotation(AnnotationKeys.TEXT, roi.getDescription());
-		if (roi.getNamespaces().size() != 0) {
-			String s = roi.getNamespaces().get(0);
-			newROI.setAnnotation(AnnotationKeys.NAMESPACE, s);
-			if (roi.getNamespaceKeywords().size() != 0)
-				newROI.setAnnotation(AnnotationKeys.KEYWORDS, 
-						UIUtilities.listToCSV(roi.getNamespaceKeywords(s)));
-		}
-			
-		if (roi.getNamespaceKeywords().size() != 0)
-			newROI.setAnnotation(AnnotationKeys.KEYWORDS, 
-					UIUtilities.listToCSV(roi.getNamespaceKeywords(
-							roi.getNamespaces().get(0))));
-							
 		ROIShape shape;
 		ShapeData shapeData;
 		Iterator<List<ShapeData>> i = roi.getIterator();
