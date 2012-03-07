@@ -169,7 +169,7 @@ class InputServerStrategy
 		//ROI newROI = component.createROI(id, readOnly);
 		ROI newROI = component.createROI(id, id <= 0);
 		newROI.setOwnerID(roi.getOwner().getId());
-		
+		newROI.setAnnotation(AnnotationKeys.TEXT, roi.getDescription());
 		if (roi.getNamespaces().size() != 0) {
 			String s = roi.getNamespaces().get(0);
 			newROI.setAnnotation(AnnotationKeys.NAMESPACE, s);

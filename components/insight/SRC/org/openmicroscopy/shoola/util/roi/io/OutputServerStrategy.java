@@ -158,6 +158,10 @@ class OutputServerStrategy
 		throws Exception
 	{
 		ROIData roiData = new ROIData();
+		Object v = roi.getAnnotation(AnnotationKeys.TEXT);
+		if (v != null) {
+			roiData.setDescription((String) v);
+		}
 		String ns = (String) roi.getAnnotation(AnnotationKeys.NAMESPACE);
 		List<String> list = UIUtilities.CSVToList(
 				(String) roi.getAnnotation(AnnotationKeys.KEYWORDS));

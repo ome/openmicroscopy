@@ -34,6 +34,8 @@ import java.lang.Math;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RString;
+import omero.rtypes;
 import omero.model.Ellipse;
 import omero.model.Image;
 import omero.model.Line;
@@ -447,6 +449,60 @@ public class ROIData
 			map.put(namespaces.get(index), keywordList);
 		}
 		return map;
+	}
+	
+	/**
+	 * Returns the description.
+	 * 
+	 * @return See above.
+	 */
+	public String getDescription()
+	{
+		Roi roi = (Roi) asIObject();
+		if (roi == null) return "";
+		RString value = roi.getDescription();
+		if (value == null) return "";
+		return value.getValue();
+	}
+	
+	/**
+	 * Sets the description of the roi.
+	 * 
+	 * @param description The value to set.
+	 */
+	public void setDescription(String description)
+	{
+		Roi roi = (Roi) asIObject();
+		if (roi == null) return;
+		if (description == null) description = "";
+		roi.setDescription(rtypes.rstring(description));
+	}
+	
+	/**
+	 * Sets the name of the roi.
+	 * 
+	 * @param name The value to set.
+	 */
+	public void setName(String name)
+	{
+		Roi roi = (Roi) asIObject();
+		if (roi == null) return;
+		if (name == null) name = "";
+		//roi.setName(rtypes.rstring(name));
+	}
+	
+	/**
+	 * Returns the name.
+	 * 
+	 * @return See above.
+	 */
+	public String getName()
+	{
+		Roi roi = (Roi) asIObject();
+		if (roi == null) return "";
+		RString value = null;//roi.getName();
+		if (value == null) return "";
+		return value.getValue();
 	}
 	
 }
