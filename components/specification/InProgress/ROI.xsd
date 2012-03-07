@@ -118,6 +118,15 @@
 					<xsd:element ref="Polygon" minOccurs="1" maxOccurs="1"/>
 					<xsd:element ref="Label" minOccurs="1" maxOccurs="1"/>
 				</xsd:choice>
+				<xsd:element name="Transform" type="AffineTransform" minOccurs="0" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>
+							This is a matrix used to transform the shape. 
+							The element has 6 double attributes. If the element 
+							is present then all 6 values must be included.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
 			</xsd:sequence>
 			<xsd:attribute name="FillColor" use="optional" type="OME:Color">
 				<xsd:annotation>
@@ -255,20 +264,6 @@
 						The channel the ROI applies to. If not specified then 
 						the ROI applies to all the channels of the image. [units:none]
 						This is numbered from 0.
-					</xsd:documentation>
-				</xsd:annotation>
-			</xsd:attribute>
-			<xsd:attribute name="Transform" use="optional" type="xsd:string">
-				<xsd:annotation>
-					<xsd:documentation>
-						This is a matrix used to transform the shape.
-						It is a string of 6 numbers "a, b, c, d, e, f" that
-						represent the 3 by 3 matrix.
-						--       --
-						| a, c, e |
-						| b, d, f |
-						| 0, 0, 1 |
-						--       --
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -528,6 +523,26 @@
 			</xsd:complexContent>
 		</xsd:complexType>
 	</xsd:element>
+
+
+	<xsd:complexType name="AffineTransform">
+		<xsd:annotation>
+			<xsd:documentation>
+				This is a matrix used to transform the shape.
+				--       --
+				| A, C, E |
+				| B, D, F |
+				| 0, 0, 1 |
+				--       --
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:attribute name="A" use="required" type="xsd:double"/>
+		<xsd:attribute name="B" use="required" type="xsd:double"/>
+		<xsd:attribute name="C" use="required" type="xsd:double"/>
+		<xsd:attribute name="D" use="required" type="xsd:double"/>
+		<xsd:attribute name="E" use="required" type="xsd:double"/>
+		<xsd:attribute name="F" use="required" type="xsd:double"/>
+	</xsd:complexType>
 
 	<xsd:simpleType name="ROIID"> <!-- top level definition -->
 		<xsd:restriction base="OME:LSID">
