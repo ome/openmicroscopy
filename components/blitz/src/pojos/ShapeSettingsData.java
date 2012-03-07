@@ -420,25 +420,6 @@ public class ShapeSettingsData
 		setDirty(true);
 	}
 
-	/**
-	 * Returns the marker start.
-	 * 
-	 * @return See above.
-	 */
-	public String getMarkerStart()
-	{
-		return "";
-	}
-	
-	/**
-	 * Returns the marker end.
-	 * 
-	 * @return See above.
-	 */
-	public String getMarkerEnd()
-	{
-		return "";
-	}
 	
 	/**
 	 * Returns the marker start.

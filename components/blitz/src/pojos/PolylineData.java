@@ -140,4 +140,43 @@ public class PolylineData
 		shape.setPoints(rtypes.rstring(pts));
 	}
 
+	/**
+	 * Returns the marker start.
+	 * 
+	 * @return See above.
+	 */
+	public String getMarkerStart()
+	{
+		return "";
+	}
+	
+	/**
+	 * Returns the marker end.
+	 * 
+	 * @return See above.
+	 */
+	public String getMarkerEnd()
+	{
+		return "";
+	}
+	
+	/**
+	 * Sets the marker start.
+	 * 
+	 * @param markerStart The value to set.
+	 */
+	public void setMarkerStart(String markerStart)
+	{
+		
+	}
+	
+	/**
+	 * Sets the marker end.
+	 * 
+	 * @param markerStart The value to set.
+	 */
+	public void setMarkerEnd(String markerEnd)
+	{
+		
+	}
 }

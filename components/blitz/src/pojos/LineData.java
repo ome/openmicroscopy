@@ -30,8 +30,6 @@ package pojos;
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
-import omero.model.Ellipse;
-import omero.model.EllipseI;
 import omero.model.Line;
 import omero.model.LineI;
 import omero.model.Shape;
@@ -228,4 +226,44 @@ public class LineData
 		shape.setY2(rtypes.rdouble(y2));
 	}
 	
+	/**
+	 * Returns the marker start.
+	 * 
+	 * @return See above.
+	 */
+	public String getMarkerStart()
+	{
+		return "";
+	}
+	
+	/**
+	 * Returns the marker end.
+	 * 
+	 * @return See above.
+	 */
+	public String getMarkerEnd()
+	{
+		return "";
+	}
+	
+	/**
+	 * Sets the marker start.
+	 * 
+	 * @param markerStart The value to set.
+	 */
+	public void setMarkerStart(String markerStart)
+	{
+		
+	}
+	
+	/**
+	 * Sets the marker end.
+	 * 
+	 * @param markerStart The value to set.
+	 */
+	public void setMarkerEnd(String markerEnd)
+	{
+		
+	}
+
 }
