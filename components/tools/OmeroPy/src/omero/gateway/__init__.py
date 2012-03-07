@@ -2228,6 +2228,11 @@ class _BlitzGateway (object):
                     leaders.append(ExperimenterWrapper(self, d.child))
                 else:
                     colleagues.append(ExperimenterWrapper(self, d.child))
+        else:
+            if  default.isLeader():
+                leaders =  [self.getUser()]
+            else:
+                colleagues =  [self.getUser()]
         return {"leaders": leaders, "colleagues": colleagues}
 
     def listStaffs(self):
@@ -5495,6 +5500,28 @@ class _ImageWrapper (BlitzObjectWrapper):
             logger.debug('on getProject')
             logger.debug(traceback.format_exc())
             return None
+
+    def getPlate(self):
+        """
+        If the image is in a Plate/Well hierarchy, returns the parent Plate, otherwise None
+
+        @return:    Plate
+        @rtype:     L{PlateWrapper}
+        """
+
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["oid"] = omero.rtypes.rlong(self.getId())
+        query = "select well from Well as well "\
+                "join fetch well.details.creationEvent "\
+                "join fetch well.details.owner join fetch well.details.group " \
+                "join fetch well.plate as pt "\
+                "left outer join fetch well.wellSamples as ws " \
+                "left outer join fetch ws.image as img "\
+                "where ws.image.id = :oid"
+        q = self._conn.getQueryService()
+        for well in q.findAllByQuery(query, params):
+            return PlateWrapper(self._conn, well.plate)
 
     def getObjectiveSettings (self):
         """

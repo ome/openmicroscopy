@@ -401,9 +401,6 @@ INSTALLED_APPS = (
 # registered and be added to installed apps.
 for app in ADDITIONAL_APPS:
     app_dir = os.path.join(os.path.dirname(__file__), app)
-    template_dir = os.path.join(app_dir, 'templates')
-    template_dir = template_dir.replace('\\', '/')
-    TEMPLATE_DIRS += (template_dir,)
     INSTALLED_APPS += ('omeroweb.%s' % app,)
 
 # FEEDBACK_URL: Used in feedback.sendfeedback.SendFeedback class in order to submit 
