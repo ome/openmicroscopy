@@ -191,32 +191,20 @@
                 }
 
                 // handle submit of Add Comment form
-                $("#add_comment_form").submit(function() {
-                    var $form = $(this);
-                    var add_comment_url = $form.attr('action');
-                    var postData = $form.serialize();
-                    var textArea = $('textarea', $form);
-                    if (textArea.val().trim().length == 0) {
-                        return false;
-                    }
-                    $.ajax({
-                        type: "POST",
-                        url: add_comment_url,
-                        data:postData,
-                        contentType:'html',
-                        success: function(html){
-                            var $comment = $(html)
-                            $('#comments_container').prepend( $comment ).show();
-                            $(".removeComment", $comment).click(function(event) {
-                                removeItem(event, "ann_comment_wrapper");
-                            });
-                            textArea.val('');
-                        },
-                        error: function(html) {
-                            alert("Internal server error. Cannot add comment.");
-                        }
-                    });
-                    return false;
+                $("#add_comment_form").ajaxForm({
+                    beforeSubmit: function(data) {
+                        var textArea = $('#add_comment_form textarea');
+                        if ($.trim(textArea.val()).length == 0) return false;
+                    },
+                    success: function(html) {
+                        var $comment = $(html)
+                        $('#comments_container').prepend( $comment ).show();
+                        $(".removeComment", $comment).click(function(event) {
+                            removeItem(event, "ann_comment_wrapper");
+                        });
+                        var textArea = $('#add_comment_form textarea');
+                        textArea.val('');
+                    },
                 });
 
                 // bind removeItem to various [-] buttons
