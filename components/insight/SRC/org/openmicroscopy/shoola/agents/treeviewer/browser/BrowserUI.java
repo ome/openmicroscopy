@@ -990,11 +990,14 @@ class BrowserUI
 					case KeyEvent.VK_LEFT:
 						TreePath[] paths = treeDisplay.getSelectionPaths();
 						TreeImageDisplay node;
+						Object o;
 						for (int i = 0; i < paths.length; i++) {
-							node = (TreeImageDisplay) 
-							 paths[i].getLastPathComponent();
-							if (node.isExpanded())
-								node.setExpanded(false);
+							o = paths[i].getLastPathComponent();
+							if (o instanceof TreeImageDisplay) {
+								node = (TreeImageDisplay) o;
+								if (node.isExpanded())
+									node.setExpanded(false);
+							}
 						}
 				}
 			}
