@@ -66,38 +66,21 @@ public abstract class ShapeData
 	/** Flag indicating that the shape been created client side. */
 	private boolean clientObject;
 
-	/**
-	 * Converts the passed collection of points.
-	 * 
-	 * @param pts  The points to convert.
-	 * @param type The value in the list to parse.
-	 * @return See above.
-	 */
-	private String convertPoints(String pts, String type)
-	{
-		if (pts.length() == 0) return "";
-		String exp = type+'[';
-		int typeStr = pts.indexOf(exp, 0);
-		int start = pts.indexOf('[', typeStr);
-		int end = pts.indexOf(']', start);
-		return pts.substring(start+1,end);
-	}
 	
 	/**
 	 * Parses out the type from the points string.
 	 * 
-	 * @param type The value in the list to parse.
 	 * @return See above.
 	 */
-	protected String fromPoints(String type)
+	protected String getPointsAsString()
 	{
 		IObject o = asIObject();
 		if (o instanceof Polygon) {
 			Polygon shape = (Polygon) asIObject();
-			return convertPoints(shape.getPoints().getValue(), type);
+			return shape.getPoints().getValue();
 		} else if (o instanceof Polyline) {
 			Polyline shape = (Polyline) asIObject();
-			return convertPoints(shape.getPoints().getValue(), type);
+			return shape.getPoints().getValue();
 		}
 		throw new IllegalArgumentException("No shape specified.");
 	}
@@ -136,40 +119,29 @@ public abstract class ShapeData
 	}
 	
 	/**
-	 * Returns a Point2D.Double array as a Points attribute value. as specified
-	 * in http://www.w3.org/TR/SVGMobile12/shapes.html#PointsBNF
+	 * Returns a Point2D.Double array as a Points attribute value
+	 * 
+	 * @param The points to transform.
 	 */
-	protected static String toPoints(Point2D.Double[] points)
+	protected String toPoints(Point2D.Double[] points)
 	{
 		StringBuilder buf = new StringBuilder();
-		for (int i = 0; i < points.length; i++)
-		{
-			if (i != 0)
-			{
-				buf.append(", ");
-			}
+		for (int i = 0; i < points.length; i++) {
+			if (i != 0) buf.append(", ");
 			buf.append(toNumber(points[i].x));
 			buf.append(',');
 			buf.append(toNumber(points[i].y));
 		}
 		return buf.toString();
 	}
-	
-	/**
-	 * Populates the collections.
+
+	/** 
+	 * Returns a double array as a number attribute value.
+	 * 
+	 * @param number The number to handle.
+	 * @return See above.
 	 */
-	private void parseShapeStringToPointsList()
-	{
-		/*
-		points = getPoints();
-		points1 = getPoints();
-		points2 = getPoints();
-		mask = getMaskPoints();
-		*/
-	}
-	
-	/** Returns a double array as a number attribute value. */
-	protected static String toNumber(double number)
+	protected String toNumber(double number)
 	{
 		String str = Double.toString(number);
 		if (str.endsWith(".0"))

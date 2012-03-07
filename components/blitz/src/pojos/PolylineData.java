@@ -53,18 +53,6 @@ public class PolylineData
 	extends ShapeData
 {
 
-	/** The points in the polyline as list. */
-	private List<Point2D.Double> points;
-
-	/** The points in the polyline as list. */
-	private List<Point2D.Double> points1;
-
-	/** The points in the polyline as list. */
-	private List<Point2D.Double> points2;
-	
-	/** The points in the polyline as list. */
-	private List<Integer> mask;
-
 	/**
 	 * Creates a new instance.
 	 * 
@@ -73,7 +61,6 @@ public class PolylineData
 	public PolylineData(Shape shape)
 	{
 		super(shape);
-		//parseShapeStringToPointsList();
 	}
 	
 	/**
@@ -81,19 +68,18 @@ public class PolylineData
 	 */
 	public PolylineData()
 	{
-		this(new ArrayList<Point2D.Double>(),new ArrayList<Point2D.Double>(),
-				new ArrayList<Point2D.Double>(), new ArrayList<Integer>());
+		this(new ArrayList<Point2D.Double>());
 	}
 	
 	/**
-	 * Create a new instance of the PolylineData, set the points in the polyline.
-	 * @param points See Above.
+	 * Create a new instance of the PolylineData.
+	 * 
+	 * @param points The points to set.
 	 */
-	public PolylineData(List<Point2D.Double> points, List<Point2D.Double> points1, 
-			List<Point2D.Double> points2, List<Integer> maskList)
+	public PolylineData(List<Point2D.Double> points)
 	{
 		super(new PolylineI(), true);
-		setPoints(points, points1, points2, maskList);
+		setPoints(points);
 	}
 		
 	/**
@@ -131,55 +117,16 @@ public class PolylineData
 	 */
 	public List<Point2D.Double> getPoints()
 	{
-		String pts = fromPoints("points");
-		return parsePointsToPoint2DList(pts);
-	}
-	
-	/**
-	 * Returns the points in the Polyline.
-	 * 
-	 * @return See above.
-	 */
-	public List<Point2D.Double> getPoints1()
-	{
-		String pts = fromPoints("points1");
-		return parsePointsToPoint2DList(pts);
-	}
-
-	/**
-	 * Returns the points in the Polyline.
-	 * 
-	 * @return See above.
-	 */
-	public List<Point2D.Double> getPoints2()
-	{
-		String pts = fromPoints("points2");
-		return parsePointsToPoint2DList(pts);
-	}
-	
-	/**
-	 * Returns the points in the Polyline.
-	 * 
-	 * @return See above.
-	 */
-	public List<Integer> getMaskPoints()
-	{
-		String pts = fromPoints("mask");
-		return parsePointsToIntegerList(pts);
+		return parsePointsToPoint2DList(getPointsAsString());
 	}
 	
 	/**
 	 * Sets the points in the polyline.
 	 * 
 	 * @param points The points to set.
-	 * @param ponts1 The points to set.
-	 * @param ponts2 The points to set.
-	 * @param maskList The points to set.
 	 * @param points See above.
 	 */
-	public void setPoints(List<Point2D.Double> points, 
-			List<Point2D.Double> points1, 
-			List<Point2D.Double> points2, List<Integer> maskList)
+	public void setPoints(List<Point2D.Double> points)
 	{
 		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
@@ -187,25 +134,9 @@ public class PolylineData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		
-		String pointsValues =
-			toPoints(points.toArray(new Point2D.Double[points.size()]));
-		String points1Values =
-			toPoints(points1.toArray(new Point2D.Double[points1.size()]));
-		String points2Values =
-			toPoints(points2.toArray(new Point2D.Double[points2.size()]));
-		String maskValues = "";
-		for (int i = 0 ; i < maskList.size()-1; i++)
-			maskValues = maskValues + maskList.get(i)+",";
-		if (maskList.size()!=0)
-			maskValues = maskValues+maskList.get(maskList.size()-1)+"";
-		String pts = "points["+pointsValues+"] ";
-		pts = pts + "points1["+points1Values+"] ";
-		pts = pts + "points2["+points2Values+"] ";
-		pts = pts + "mask["+maskValues+"] ";
-		this.points = points;
-		this.points1 = points1;
-		this.points2 = points2;
-		this.mask = maskList;
+		String pts = "";
+		if (points != null)
+			pts = toPoints(points.toArray(new Point2D.Double[points.size()]));
 		shape.setPoints(rtypes.rstring(pts));
 	}
 
