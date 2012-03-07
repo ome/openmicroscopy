@@ -408,20 +408,12 @@ def cleanup ():
         p = p.get()
         if p is not None:
             client = p._conn
-            update = client.getUpdateService()
-            delete = client.getDeleteService()
-            for d in p.listChildren():
-                delete.deleteImagesByDataset(d.getId(), True)
-                update.deleteObject(d._obj)
-            nss = list(set([x.ns for x in p.listAnnotations()]))
-            for ns in nss:
-                p.removeAnnotations(ns)
-            #print ".. -> removing project %s" % p.getName()
-            update.deleteObject(p._obj)
-    # What about users?
+            client.deleteObjects('Project', [p.getId()], deleteAnns=True, deleteChildren=True)
+    client.seppuku()
+    client = loginAsRoot()
     admin = client.getAdminService()
     for k, u in USERS.items():
-        u.changePassword(client, None)
+        u.changePassword(client, None, ROOT.passwd)
     client.seppuku()
         
 
