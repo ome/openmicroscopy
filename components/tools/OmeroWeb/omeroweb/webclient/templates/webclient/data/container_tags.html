@@ -28,6 +28,8 @@
     <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jquery.jstree.js" %}"></script>
     
     <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
+
+    <!-- set-up the jstree, toolbar, left-panel tabs etc -->
     <script type="text/javascript">
         $(function() 
             {
@@ -313,16 +315,6 @@
                 .bind("select_node.jstree", function (e, data) {
                     var selected = data.inst.get_selected();
                     buttonsShowHide(selected);
-                    if (selected.attr("rel").replace("-locked","") === "tag") {
-                        loadOtherPanels(data.inst, '{% url webindex %}');
-                    } else {
-                        if (selected.attr("rel").replace("-locked","") === "image" && selected.parent().parent().attr("rel").replace("-locked","") === "tag") {
-                            loadOtherPanels(data.inst, '{% url webindex %}');
-                        } else {
-                            loadOtherPanels(data.inst, '{% url webindex %}');
-                        }
-                    }
-                    syncPanels(selected);
                 })
                 .bind("remove.jstree", function (e, data) {
                     data.args[0].each(function (i) {
@@ -369,6 +361,7 @@
         
     </script>
     
+    <!-- handle toolbar button clicks -->
     <script type="text/javascript">
     $(function () {
         $("#buttons input").click(function () {
@@ -392,6 +385,19 @@
         });
     });
     </script>
+
+    <!-- include code to handle middle panel selection -->
+    {% include "webclient/data/includes/center_plugin.thumbs.js" %}
+
+    <!-- set-up right panel tabs -->
+    {% include "webclient/data/includes/right_plugin.general.js" %}
+
+    <!-- include scripts for loading data into right-hand tabs -->
+    <!-- these are configured in settings.py under "omero.web.ui.right_tabs" -->
+    {% for rt in nav.right_plugins %}
+        {% include rt.include %}
+    {% endfor %}
+
 {% endblock %}
 
 
@@ -430,11 +436,22 @@
 
 
 {% block right %}
-
-<div id="metadata_details">
+<div>
+    <div id="annotation_tabs" class="absolute_fill">
+        <ul class="tabslist">
+            <li><a href="#metadata_general">{% trans "General" %}</a></li>
+            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
+            {% for rt in nav.right_plugins %}
+                <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
+            {% endfor %}
+        </ul>
+        <div id="metadata_general"></div>
+        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
+        {% for rt in nav.right_plugins %}
+            <div id="{{ rt.plugin_id }}" class="tab_content" style="padding:10px"></div>
+        {% endfor %}
+    </div>
 </div>
-
-
 {% endblock %}
 
 

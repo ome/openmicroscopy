@@ -1,5 +1,5 @@
 {% comment %}
-<!--
+/**
   Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
@@ -15,10 +15,16 @@
 
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
+*/
 {% endcomment %}
 
 <script>
+/**
+ * This script is included in the main containers.html page as well as the container_tags.html and public.html pages,
+ * adding itself as a selection listener to the jsTree in each case.
+ * It loads appropriate data into the middle panel on selection changes in the jsTree.
+ * For the main containers.html page, it also responds to switching between 'plugins'
+**/
 
 $(document).ready(function() {
     
@@ -86,20 +92,20 @@ $(document).ready(function() {
             } else {
                 update['empty'] = true;
             }
-        } else if(orel == "acquisition"){
-                var plate = datatree._get_parent(selected).attr('id').replace("-", "/");
-                update['rel'] = oid;
-                update['url'] = prefix+'load_data/'+plate+'/'+orel+'/'+oid.split("-")[1]+'/';
-        } else if(orel == "dataset") {
-                update['rel'] = oid;
-                update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
-        } else if(orel == "share") {
-                update['rel'] = oid;
-                update['url'] = prefix+'load_public/'+oid.split("-")[1]+'/?view=icon';
-        //} else if($.inArray(orel, ["tag"]) > -1 && oid!==crel) {
-        //    update['rel'] = oid;
-        //    update['url'] = prefix+'load_tags/?view=icon&o_type=tag&o_id='+oid.split("-")[1];
-        } else if(orel=="image") {
+        } else if (orel == "acquisition"){
+            var plate = datatree._get_parent(selected).attr('id').replace("-", "/");
+            update['rel'] = oid;
+            update['url'] = prefix+'load_data/'+plate+'/'+orel+'/'+oid.split("-")[1]+'/';
+        } else if (orel == "dataset") {
+            update['rel'] = oid;
+            update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
+        } else if (orel == "share") {
+            update['rel'] = oid;
+            update['url'] = prefix+'load_public/'+oid.split("-")[1]+'/?view=icon';
+        } else if (orel == "tag") {     // when this script is used in tags page (see comments above)
+            update['rel'] = oid;
+            update['url'] = prefix+'load_tags/?view=icon&o_type=tag&o_id='+oid.split("-")[1];
+        } else if (orel=="image") {
             var pr = selected.parent().parent();
             if (page == null) {
                 page = pr.data("page") || null;

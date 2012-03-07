@@ -29,6 +29,8 @@
     <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jquery.jstree.js" %}"></script>
 
     <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
+
+    <!-- set-up left-panel tabs, jsTree, toolbar etc -->
     <script type="text/javascript">
         $(function() 
             {
@@ -72,7 +74,7 @@
                     }
                 }
                 
-                $("#datashareTree").jstree({ 
+                $("#dataTree").jstree({
                         // the list of plugins to include
                         "plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
                         // Plugin configuration
@@ -219,8 +221,6 @@
                 })
                 .bind("select_node.jstree", function (e, data) {
                     buttonsShowHide(data.rslt.obj);
-                    loadOtherPanels(data.inst, '{% url webindex %}');
-                    syncPanels(data.inst.get_selected());
                 })
                 .bind("remove.jstree", function (e, data) {
                     var pr = $(data.args[1]);
@@ -253,6 +253,8 @@
             });
         
     </script>
+
+    <!-- handle toolbar clicks -->
     <script type="text/javascript">
     $(function () { 
         $("#buttons input").click(function () {
@@ -265,17 +267,17 @@
                         function() {
                             if(confirm_remove.data("clicked_button") == "OK") {
                                 var jstree = $.jstree._focused();
-                                $("#datashareTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
+                                $("#dataTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
                             }
                         }
                     );
                     if (confirm("Remove image?")) {
                         var jstree = $.jstree._focused();
-                        $("#datashareTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
+                        $("#dataTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
                     }                    
                     break;
                 case "refreshButton":
-                    $("#datashareTree").jstree("refresh");
+                    $("#dataTree").jstree("refresh");
                     refreshCenterPanel();
                     break;
                 default:
@@ -284,6 +286,19 @@
         });
     });
     </script>
+
+    <!-- include code to handle middle panel selection -->
+    {% include "webclient/data/includes/center_plugin.thumbs.js" %}
+
+    <!-- set-up right panel tabs -->
+    {% include "webclient/data/includes/right_plugin.general.js" %}
+
+    <!-- include scripts for loading data into right-hand tabs -->
+    <!-- these are configured in settings.py under "omero.web.ui.right_tabs" -->
+    {% for rt in nav.right_plugins %}
+        {% include rt.include %}
+    {% endfor %}
+
 {% endblock %}
 
 
@@ -305,7 +320,7 @@
         </div>
 
         <div id="tree_details">
-            <div class="datashareTree" id="datashareTree"></div>
+            <div class="datashareTree" id="dataTree"></div>
         </div>
     </div>
 </div>
@@ -318,4 +333,24 @@
 
 <div id="content_details"> </div>
 
+{% endblock %}
+
+
+{% block right %}
+<div>
+    <div id="annotation_tabs" class="absolute_fill">
+        <ul class="tabslist">
+            <li><a href="#metadata_general">{% trans "General" %}</a></li>
+            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
+            {% for rt in nav.right_plugins %}
+                <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
+            {% endfor %}
+        </ul>
+        <div id="metadata_general"></div>
+        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
+        {% for rt in nav.right_plugins %}
+            <div id="{{ rt.plugin_id }}" class="tab_content" style="padding:10px"></div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
