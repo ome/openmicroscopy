@@ -135,14 +135,11 @@ class ImViewerModel
 	/** Index of the <code>RenderingSettings</code> loader. */
 	private static final int	SETTINGS = 0;
 	
-	/** Index of the <code>RenderingControlLoader</code> loader. */
-	private static final int	RND = 1;
+	/** Index of the <code>ImageLoader</code> loader. */
+	private static final int	IMAGE = 1;
 	
 	/** Index of the <code>ImageLoader</code> loader. */
-	private static final int	IMAGE = 2;
-	
-	/** Index of the <code>ImageLoader</code> loader. */
-	private static final int	BIRD_EYE_BVIEW = 3;
+	private static final int	BIRD_EYE_BVIEW = 2;
 	
 	/** The image to view. */
 	private DataObject 					image; 
@@ -701,10 +698,6 @@ class ImViewerModel
 		if (imageIcon != null) imageIcon.flush();
 		browser.discard();
 		if (image == null) return;
-		//Shut down the service
-		OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
-		long pixelsID = getImage().getDefaultPixels().getId();
-		svr.shutDown(ctx, pixelsID);
 		Iterator i = loaders.keySet().iterator();
 		Integer index;
 		while (i.hasNext()) {
@@ -2791,16 +2784,13 @@ class ImViewerModel
 	/** Cancels the rendering of the image.*/
 	void cancelRendering()
 	{
-		DataLoader loader = loaders.get(IMAGE);
-		if (loader != null) {
-			loader.cancel();
-			firstTime = true;
-			state = ImViewer.LOADING_IMAGE_CANCELLED;
-		}
+		if (metadataViewer == null) return;
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd != null) rnd.discard();
+		state = ImViewer.CANCELLED;
 	}
 	
 	/**
-<<<<<<< HEAD
 	 * Sets the image for the bird eye view.
 	 * 
 	 * @param image The image to set.

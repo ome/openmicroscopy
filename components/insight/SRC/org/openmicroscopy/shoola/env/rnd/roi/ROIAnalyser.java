@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.rnd.roi;
 
 //Java imports
 import java.awt.Point;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -55,20 +56,20 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 public class ROIAnalyser
 {
 
-	 /** 
-     * Iterates an {@link ROIShape} over our pixels set.
-     * Observers compute the statistics as the iteration moves forward. 
-     */
-	private PointIterator 		runner;
+	/** 
+	 * Iterates an {@link ROIShape} over our pixels set.
+	 * Observers compute the statistics as the iteration moves forward.
+	 */
+	private PointIterator runner;
 	
 	/** The number of z-sections. */
-	private int					sizeZ;   
+	private int sizeZ;
 	
 	/** The number of time-points. */
-	private int					sizeT;   
+	private int sizeT;
 	
 	/** The number of channels. */
-	private int					sizeC;   
+	private int sizeC;
     
 	/**
 	 * Controls if the specified coordinates are valid. 
@@ -143,7 +144,7 @@ public class ROIAnalyser
      *                              data from the pixels source.
      */
     public Map analyze(SecurityContext ctx, ROIShape[] shapes,
-    		List channels) 
+    		Collection channels) 
         throws DataSourceException
     {
     	if (shapes == null) throw new NullPointerException("No shapes.");

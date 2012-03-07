@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -58,16 +59,16 @@ public class Analyser
 {
 
 	/** The pixels set to analyze. */
-	private final PixelsData	pixels;
+	private final PixelsData pixels;
 	
 	/** Collection of active channels. */
-	private final List			channels; 
+	private final Collection channels; 
 	
 	/** The result of the call. */
-    private Object				result;
+    private Object result;
     
     /** Loads the specified experimenter groups. */
-    private BatchCall   		loadCall;
+    private BatchCall loadCall;
     
     /**
      * Creates a {@link BatchCall} to analyze the specified shapes.
@@ -119,7 +120,7 @@ public class Analyser
      * @param shapes	Collection of shapes to analyze. 
      * 					Mustn't be <code>null</code>.
      */
-    public Analyser(SecurityContext ctx, PixelsData pixels, List channels,
+    public Analyser(SecurityContext ctx, PixelsData pixels, Collection channels,
     		List shapes)
     {
     	if (pixels == null) 
