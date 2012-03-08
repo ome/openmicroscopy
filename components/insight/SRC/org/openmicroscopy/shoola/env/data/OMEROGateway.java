@@ -6761,8 +6761,7 @@ class OMEROGateway
 				if (serverRoi != null) {
 					Roi ri = (Roi) roi.asIObject();
 					serverRoi.setDescription(ri.getDescription());
-					serverRoi.setNamespaces(ri.getNamespaces());
-					serverRoi.setKeywords(ri.getKeywords());
+					serverRoi.setNamespace(ri.getNamespace());
 					serverRoi.setImage(unloaded);
 					updateService.saveAndReturnObject(serverRoi);
 				}

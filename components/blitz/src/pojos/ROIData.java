@@ -220,8 +220,7 @@ public class ROIData
 		Iterator<ROICoordinate> i = roiShapes.keySet().iterator();
 		int cnt = 0;
 		List shapeList;
-		while(i.hasNext())
-		{
+		while(i.hasNext()) {
 			shapeList = roiShapes.get(i.next());
 			cnt += shapeList.size();
 		}
@@ -351,7 +350,7 @@ public class ROIData
 	{
 		Roi roi = (Roi) asIObject();
 		if (roi == null) return "";
-		RString value = roi.getDescription();
+		RString value = roi.getName();
 		if (value == null) return "";
 		return value.getValue();
 	}
@@ -366,9 +365,7 @@ public class ROIData
 		Roi roi = (Roi) asIObject();
 		if (roi == null) return;
 		if (name == null) name = "";
-		String[] names = new String[1];
-		names[0] = name;
-		roi.setNamespaces(names);
+		roi.setNamespace(rtypes.rstring(name));
 	}
 	
 	/**
@@ -380,9 +377,9 @@ public class ROIData
 	{
 		Roi roi = (Roi) asIObject();
 		if (roi == null) return "";
-		String[] values = roi.getNamespaces();
-		if (values == null || values.length == 0) return "";
-		return values[0];
+		RString value = roi.getNamespace();
+		if (value == null) return "";
+		return value.getValue();
 	}
 	
 }

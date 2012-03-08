@@ -1151,6 +1151,32 @@ public class UpdateServiceTest
     }
     
     /**
+     * Tests the creation of a ROI.
+     * @throws Exception  Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateROI()
+    	throws Exception
+    {
+    	Image image = (Image) iUpdate.saveAndReturnObject(
+       			mmFactory.simpleImage(0));
+    	Roi roi = new RoiI();
+    	roi.setImage(image);
+    	String name = "roi name";
+    	String description = "roi description";
+    	String ns = "roi ns";
+    	roi.setName(rstring(name));
+    	roi.setDescription(rstring(description));
+    	roi.setNamespace(rstring(ns));
+    	Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+    	assertNotNull(serverROI);
+    	ROIData data = new ROIData(serverROI);
+    	assertEquals(data.getName(), name);
+    	assertEquals(data.getDescription(), description);
+    	assertEquals(data.getNamespace(), ns);
+    }
+    
+    /**
 	 * Tests the creation of ROIs whose shapes are Polygons and converts them 
 	 * into the corresponding <code>POJO</code> objects.
 	 * @throws Exception  Thrown if an error occurred.
@@ -1195,8 +1221,6 @@ public class UpdateServiceTest
         	assertTrue(shape.getZ() == z);
         	assertTrue(shape.getC() == c);
         	assertTrue(shape.getPoints().size() == 1);
-        	assertTrue(shape.getPoints1().size() == 1);
-        	assertTrue(shape.getPoints2().size() == 1);
 		}
     }
     
@@ -1244,8 +1268,6 @@ public class UpdateServiceTest
         	assertTrue(shape.getZ() == z);
         	assertTrue(shape.getC() == c);
         	assertTrue(shape.getPoints().size() == 1);
-        	assertTrue(shape.getPoints1().size() == 1);
-        	assertTrue(shape.getPoints2().size() == 1);
 		}
     }
     
