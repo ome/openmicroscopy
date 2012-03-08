@@ -2188,7 +2188,7 @@ class _BlitzGateway (object):
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in self.getEventContext().leaderOfGroups])
         sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p,self._conn.CONFIG['SERVICE_OPTS']):
+        for e in q.findAllByQuery(sql, p,self.CONFIG['SERVICE_OPTS']):
             yield ExperimenterGroupWrapper(self, e)
 
     def getGroupsMemberOf(self):
@@ -2204,7 +2204,7 @@ class _BlitzGateway (object):
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in self.getEventContext().memberOfGroups])
         sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p,self._conn.CONFIG['SERVICE_OPTS']):
+        for e in q.findAllByQuery(sql, p,self.CONFIG['SERVICE_OPTS']):
             if e.name.val == "user":
                 pass
             else:
@@ -2228,7 +2228,7 @@ class _BlitzGateway (object):
         params = omero.sys.Parameters()
         params.map = {'start': rstring('%s%%' % start.lower())}
         q = self.getQueryService()
-        rv = q.findAllByQuery("from Experimenter e where lower(e.omeName) like :start", params,self._conn.CONFIG['SERVICE_OPTS'])
+        rv = q.findAllByQuery("from Experimenter e where lower(e.omeName) like :start", params,self.CONFIG['SERVICE_OPTS'])
         rv.sort(lambda x,y: cmp(x.omeName.val,y.omeName.val))
         for e in rv:
             yield ExperimenterWrapper(self, e)
@@ -2305,7 +2305,7 @@ class _BlitzGateway (object):
         sql = "select e from Experimenter as e where " \
                 "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id " \
                 "and gem.parent.id in (:gids)) order by e.omeName"
-        for e in q.findAllByQuery(sql, p,self._conn.CONFIG['SERVICE_OPTS']):
+        for e in q.findAllByQuery(sql, p,self.CONFIG['SERVICE_OPTS']):
             if e.id.val != self.getEventContext().userId:
                 yield ExperimenterWrapper(self, e)
 
