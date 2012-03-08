@@ -3,6 +3,21 @@
 {% if obj.isNamed %}named="true" {% end %}\
 {% if obj.isDescribed %}described="true"{% end %}\
 {% end %}\
+\
+{% def fq_class_name(obj_or_prop) %}\
+{% choose %}\
+{% when obj_or_prop.javaType == 'Object' %}\
+${obj_or_prop.omeroPackage}.${obj_or_prop.javaMethodName}\
+{% end %}\
+{% when obj_or_prop.isPrimitive %}\
+${obj_or_prop.javaType}\
+{% end %}\
+{% otherwise %}\
+${obj_or_prop.omeroPackage}.${obj_or_prop.javaType}\
+{% end %}\
+{% end %}\
+{% end %}\
+\
 {% python
     def parent_object(name):
         try:
@@ -74,13 +89,13 @@
 {% if o.name not in fu.METADATA_OBJECT_IGNORE %}\
 {% choose %}\
 {% when parent_object(o.name) is not None and parent_object(o.name).isAbstractProprietary %}\
-    <type id="${o.omeroPackage}.${o.name}" superclass="${o.omeroPackage}.${parent_object(o.name).name}" ${type_attributes(o)}>
+    <type id="${fq_class_name(o)}" superclass="${fq_class_name(parent_object(o.name))}" ${type_attributes(o)}>
 {% end %}\
 {% when o.isAbstractProprietary or o.isAbstract %}\
-    <abstract id="${o.omeroPackage}.${o.name}" ${type_attributes(o)}>
+    <abstract id="${fq_class_name(o)}" ${type_attributes(o)}>
 {% end %}\
 {% when parent_object(o.name) is None or not parent_object(o.name).isAbstractProprietary %}\
-    <type id="${o.omeroPackage}.${o.name}" ${type_attributes(o)}>
+    <type id="${fq_class_name(o)}" ${type_attributes(o)}>
 {% end %}\
 {% end %}\
         <properties>
@@ -102,25 +117,25 @@
             <!--
             // Reference ${prop.name}
             -->
-            <onemany name="${prop.javaInstanceVariableName}" type="${o.omeroPackage}.${prop.javaMethodName}" inverse="${o.name}" ordered="TODO"/>
+            <onemany name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.name}" ordered="TODO"/>
 {% end %}\
 {% when prop.isBackReference %}\
             <!--
             // Back reference ${prop.name}
             -->
-            <{% if prop.minOccurs == 0 %}manyzero{% end %}{% if prop.minOccurs == 1 %}manyone{% end %} name="${prop.javaInstanceVariableName}" type="${o.omeroPackage}.${prop.javaMethodName}" inverse="${o.name}" ordered="TODO"/>
+            <{% if prop.minOccurs == 0 %}manyzero{% end %}{% if prop.minOccurs == 1 %}manyone{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.name}" ordered="TODO"/>
 {% end %}\
 {% when prop.maxOccurs == 1 and (not o.isAbstractProprietary or prop.isAttribute or not prop.isComplex()) %}\
             <!--
             // Property ${prop.name}
             -->
-            <{% if prop.minOccurs == 0 %}optional{% end %}{% if prop.minOccurs %}required{% end %} name="${prop.javaInstanceVariableName}" type="${o.omeroPackage}.${prop.javaType}"/>
+            <{% if prop.minOccurs == 0 %}optional{% end %}{% if prop.minOccurs %}required{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}"/>
 {% end %}\
 {% when prop.maxOccurs > 1 and not o.isAbstractProprietary %}\
             <!--
             // Property which occurs more than once ${prop.name}
             -->
-            <{% if prop.minOccurs == 0 %}zeromany{% end %}{% if prop.minOccurs == 1 %}onemany{% end %} name="${prop.javaInstanceVariableName}" type="${o.omeroPackage}.${prop.javaMethodName}" inverse="${o.name}" ordered="TODO"/>
+            <{% if prop.minOccurs == 0 %}zeromany{% end %}{% if prop.minOccurs == 1 %}onemany{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.name}" ordered="TODO"/>
 {% end %}\
 {% otherwise %}\
             <!--
