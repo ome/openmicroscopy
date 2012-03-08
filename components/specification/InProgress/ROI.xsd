@@ -45,6 +45,7 @@
 	
 	<xsd:element name="ROI"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>ROIs</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				A four dimensional 'Region of Interest'.
 				If they are not used, and the Image has more than one plane,
@@ -58,18 +59,14 @@
 					<xsd:element name="Union" minOccurs="1" maxOccurs="1">
 						<xsd:complexType>
 							<xsd:sequence>
-								<xsd:element ref="Shape" minOccurs="1" maxOccurs="unbounded">
-									<xsd:annotation>
-										<xsd:appinfo><xsdfu><plural>Shapes</plural></xsdfu></xsd:appinfo>
-									</xsd:annotation>
-								</xsd:element>
+								<xsd:element ref="Shape" minOccurs="1" maxOccurs="unbounded"/>
 							</xsd:sequence>
 						</xsd:complexType>
 					</xsd:element>
 				</xsd:choice>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo><xsdfu><plural>Annotations</plural><manytomany/></xsdfu></xsd:appinfo>
+						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 				<xsd:element name="Description" minOccurs="0" maxOccurs="1">
@@ -99,7 +96,7 @@
 	
 	<xsd:element name="Shape"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><abstractproprietary/></xsdfu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><plural>Shapes</plural><abstractproprietary/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				The shape element contains a single specific ROI shape and links 
 				that to any channels, and a timepoint and a z-section. It also 
@@ -320,11 +317,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element ref="BIN:BinData" minOccurs="1" maxOccurs="unbounded">
-					<xsd:annotation>
-						<xsd:appinfo><xsdfu><plural>BinDataBlocks</plural></xsdfu></xsd:appinfo>
-					</xsd:annotation>
-				</xsd:element>
+				<xsd:element ref="BIN:BinData" minOccurs="1" maxOccurs="unbounded"/>
 			</xsd:sequence>
 			<xsd:attribute name="X" use="required" type="xsd:float">
 				<xsd:annotation>

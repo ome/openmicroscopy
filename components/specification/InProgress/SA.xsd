@@ -107,7 +107,7 @@
 	<!-- the base annotation that all others are ultimately derived from -->
 	<xsd:complexType name="Annotation"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><abstract/></xsdfu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><plural>Annotations</plural><abstract/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				An annotation from which all others are ultimately derived.
 			</xsd:documentation>
@@ -128,7 +128,7 @@
 			<xsd:sequence>
 				<xsd:element ref="AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo><xsdfu><plural>Annotations</plural><manytomany/></xsdfu></xsd:appinfo>
+						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>

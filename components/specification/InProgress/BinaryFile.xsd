@@ -77,6 +77,7 @@ If Offset and ReadLength are specified in conjuction with Compression, then they
 	</xsd:element>
 	<xsd:element name = "BinData"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>BinDataBlocks</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>The contents of this element are base64-encoded.  These are not CDATA sections, just a base64 stream.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
