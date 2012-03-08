@@ -113,10 +113,10 @@ def getEllipses(roiService, imageId, textValues):
 				# if any of the shapes have a matching text-value, use that value for the map
 				if shape.getTextValue().getValue() in textValues:
 					roiName = shape.getTextValue().getValue()
-				cx = int(shape.getCx().getValue())
-				cy = int(shape.getCy().getValue())
-				rx = int(shape.getRx().getValue())
-				ry = int(shape.getRy().getValue())
+				cx = int(shape.getX().getValue())
+				cy = int(shape.getY().getValue())
+				rx = int(shape.getRadiusx().getValue())
+				ry = int(shape.getRadiusy().getValue())
 				z = int(shape.getTheZ().getValue())
 				t = int(shape.getTheT().getValue())
 				shapeMap[t] = (cx, cy, rx, ry, z)
