@@ -262,13 +262,14 @@
 	position:relative;
 }
 
-<<<<<<< HEAD
+
 .toolbar_button {
     float: left;
     position: relative;
     top: -1px;
     padding: 0 4px;
-=======
+}
+
 	#search input[type=text] {
 		-webkit-border-radius:50px;
 		-moz-border-radius:50px;
@@ -309,7 +310,6 @@
     position: absolute;
     bottom: 2px;
     right: 3px;
->>>>>>> Initial changes
 }
 
 
