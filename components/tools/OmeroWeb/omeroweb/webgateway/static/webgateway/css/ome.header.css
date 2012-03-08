@@ -414,6 +414,13 @@ body {
     z-index:10;
 }
 
+
+#swapTree, #swapMeta {
+	bottom:10px;
+	position:absolute;
+}
+
+
 #lhid_trayhandle_icon_right {
     cursor:pointer;
     position:relative;
@@ -446,8 +453,8 @@ body {
 #dragLeft {
     cursor: col-resize;
     position:absolute;
-    bottom:0px;
-    top: 20px;
+    bottom:20px;
+    top: 0px;
     left: 0px;
     right: 0px;
 }

@@ -67,9 +67,11 @@
         <div id="swapTree"><img id="lhid_trayhandle_icon_left" class="expanded-left" src="{% static "webgateway/img/spacer.gif" %}"></div>
         <div id="dragLeft"></div>
     </div>
-    <div id="center_panel">
+	
+    <div id="center_panel" style="border:solid 1px red">
         {% block center %}{% endblock %}
     </div>
+	
     <div id="trayhandle_right">
         <div id="swapMeta"><img id="lhid_trayhandle_icon_right" class="collapsed-right" src="{% static "webgateway/img/spacer.gif" %}"></div>
         <div id="dragRight"></div>
