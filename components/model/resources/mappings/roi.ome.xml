@@ -55,16 +55,6 @@
                         <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
                         <optional name="fontSize" type="int"/>
                         <optional name="fontStyle" type="string"/><!-- normal, italic, oblique -->
-                        <!-- Marker
-                        To support something of the form:
-                        <marker id="startArrow" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" orient="auto" markerWidth="5" markerHeight="4">
-                            <polyline points="10,0 0,5 10,10 9,5" fill="darkblue" />
-                        </marker>
-                        We may need a component object or a reference to another shape. For now,
-                        create the polyline at the proper location and group it to the line.
-                        <optional name="markerStart" type="string"/>
-                        <optional name="markerEnd" type="string"/>
-                        -->
                 </properties>
         </abstract>
         <type id="ome.model.roi.Label" discriminator="text" superclass="ome.model.roi.Shape">
@@ -113,12 +103,6 @@
                         <optional name="text" type="text"/>
                 </properties>
         </type>
-        <type id="ome.model.roi.Path" discriminator="path" superclass="ome.model.roi.Shape">
-                <properties>
-                        <optional name="d" type="text"/><!-- e.g. "M 100 100 L 300 100 L 200 300 z" -->
-                         <optional name="text" type="text"/>
-               </properties>
-        </type>
         <type id="ome.model.roi.Polygon" discriminator="polygon" superclass="ome.model.roi.Shape">
                 <properties>
                         <optional name="points" type="text"/>
@@ -129,6 +113,16 @@
                 <properties>
                         <optional name="points" type="text"/>
                         <optional name="text" type="text"/>
+                        <!-- Marker
+                        To support something of the form:
+                        <marker id="startArrow" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" orient="auto" markerWidth="5" markerHeight="4">
+                            <polyline points="10,0 0,5 10,10 9,5" fill="darkblue" />
+                        </marker>
+                        We may need a component object or a reference to another shape. For now,
+                        create the polyline at the proper location and group it to the line.
+                        -->
+                        <optional name="markerStart" type="string"/>
+                        <optional name="markerEnd" type="string"/>
                 </properties>
         </type>
         <type id="ome.model.roi.Line" discriminator="line" superclass="ome.model.roi.Shape">
@@ -138,6 +132,16 @@
                         <optional name="x2" type="double"/>
                         <optional name="y2" type="double"/>
                         <optional name="text" type="text"/>
+                        <!-- Marker
+                        To support something of the form:
+                        <marker id="startArrow" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" orient="auto" markerWidth="5" markerHeight="4">
+                            <polyline points="10,0 0,5 10,10 9,5" fill="darkblue" />
+                        </marker>
+                        We may need a component object or a reference to another shape. For now,
+                        create the polyline at the proper location and group it to the line.
+                        -->
+                        <optional name="markerStart" type="string"/>
+                        <optional name="markerEnd" type="string"/>
                 </properties>
         </type>
         <!-- MISSING:

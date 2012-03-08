@@ -1244,11 +1244,15 @@ public class UpdateServiceTest
         int z = 0;
         int t = 0;
         int c = 0;
+        String start = "start";
+        String end = "end";
         Polyline rect = new PolylineI();
         rect.setPoints(omero.rtypes.rstring(points));
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
+        rect.setMarkerStart(omero.rtypes.rstring(start));
+        rect.setMarkerEnd(omero.rtypes.rstring(end));
         serverROI.addShape(rect);
         
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
@@ -1268,6 +1272,8 @@ public class UpdateServiceTest
         	assertTrue(shape.getZ() == z);
         	assertTrue(shape.getC() == c);
         	assertTrue(shape.getPoints().size() == 1);
+        	assertEquals(shape.getMarkerStart(), start);
+        	assertEquals(shape.getMarkerEnd(), end);
 		}
     }
     
@@ -1291,6 +1297,8 @@ public class UpdateServiceTest
         int z = 0;
         int t = 0;
         int c = 0;
+        String start = "start";
+        String end = "end";
         Line rect = new LineI();
         rect.setX1(omero.rtypes.rdouble(v));
         rect.setY1(omero.rtypes.rdouble(v));
@@ -1299,6 +1307,8 @@ public class UpdateServiceTest
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
+        rect.setMarkerStart(omero.rtypes.rstring(start));
+        rect.setMarkerEnd(omero.rtypes.rstring(end));
         serverROI.addShape(rect);
         
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
@@ -1321,6 +1331,8 @@ public class UpdateServiceTest
         	assertTrue(shape.getY1() == v);
         	assertTrue(shape.getX2() == w);
         	assertTrue(shape.getY2() == w);
+        	assertEquals(shape.getMarkerStart(), start);
+        	assertEquals(shape.getMarkerEnd(), end);
 		}
     }
     

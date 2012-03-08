@@ -33,7 +33,6 @@ import omero.model.Ellipse;
 import omero.model.IObject;
 import omero.model.Line;
 import omero.model.Mask;
-import omero.model.Path;
 import omero.model.Point;
 import omero.model.Polygon;
 import omero.model.Polyline;
@@ -68,9 +67,7 @@ public class ShapeProcessor implements ModelProcessor
         SHAPE_TYPES.add(Ellipse.class);
         SHAPE_TYPES.add(Point.class);
         SHAPE_TYPES.add(Polyline.class);
-        SHAPE_TYPES.add(Path.class);
         SHAPE_TYPES.add(Label.class);
-        // XXX: Unused OME-XML type
         SHAPE_TYPES.add(Polygon.class);
     }
 

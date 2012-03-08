@@ -15,7 +15,6 @@ import omero.model.Ellipse;
 import omero.model.Label;
 import omero.model.Line;
 import omero.model.Mask;
-import omero.model.Path;
 import omero.model.Point;
 import omero.model.Polygon;
 import omero.model.Polyline;
@@ -25,7 +24,6 @@ import omero.model.Shape;
 import omero.model.SmartEllipseI;
 import omero.model.SmartLineI;
 import omero.model.SmartMaskI;
-import omero.model.SmartPathI;
 import omero.model.SmartPointI;
 import omero.model.SmartPolygonI;
 import omero.model.SmartPolylineI;
@@ -72,15 +70,6 @@ public abstract class RoiTypes {
                 @Override
                 public Mask create(String name) {
                     return new SmartMaskI();
-                }
-
-            });
-
-            factories.put(SmartPathI.ice_staticId(), new ObjectFactory(Path.ice_staticId()) {
-
-                @Override
-                public Path create(String name) {
-                    return new SmartPathI();
                 }
 
             });

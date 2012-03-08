@@ -30,6 +30,7 @@ import java.awt.geom.Point2D;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RString;
 import omero.rtypes;
 import omero.model.PolylineI;
 import omero.model.Shape;
@@ -118,7 +119,11 @@ public class PolylineData
 	 */
 	public String getMarkerStart()
 	{
-		return "";
+		Polyline shape = (Polyline) asIObject();
+		if (shape == null) return "";
+		RString value = shape.getMarkerStart();
+		if (value == null) return "";
+		return value.getValue();
 	}
 	
 	/**
@@ -128,7 +133,11 @@ public class PolylineData
 	 */
 	public String getMarkerEnd()
 	{
-		return "";
+		Polyline shape = (Polyline) asIObject();
+		if (shape == null) return "";
+		RString value = shape.getMarkerEnd();
+		if (value == null) return "";
+		return value.getValue();
 	}
 	
 	/**
@@ -138,16 +147,25 @@ public class PolylineData
 	 */
 	public void setMarkerStart(String markerStart)
 	{
-		
+		if (markerStart == null) return;
+		Polyline shape = (Polyline) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setMarkerStart(rtypes.rstring(markerStart));
 	}
 	
 	/**
 	 * Sets the marker end.
 	 * 
-	 * @param markerStart The value to set.
+	 * @param markerEnd The value to set.
 	 */
 	public void setMarkerEnd(String markerEnd)
 	{
-		
+		if (markerEnd == null) return;
+		Polyline shape = (Polyline) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setMarkerEnd(rtypes.rstring(markerEnd));
 	}
+
 }

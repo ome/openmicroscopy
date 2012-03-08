@@ -171,7 +171,6 @@ import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
-import omero.model.Path;
 import omero.model.Permissions;
 import omero.model.Pixels;
 import omero.model.PixelsType;
@@ -5890,26 +5889,12 @@ public class OMEROMetadataStoreClient
         o.setWorkingDistance(toRType(workingDistance));
     }
 
-    //////// Path /////////
-
-    private Path getPath(int ROIIndex, int shapeIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.ROI_INDEX, ROIIndex);
-        indexes.put(Index.SHAPE_INDEX, shapeIndex);
-        return getSourceObject(Path.class, indexes);
-    }
-
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPathDefinition(java.lang.String, int, int)
      */
     public void setPathDefinition(String definition, int ROIIndex,
             int shapeIndex)
     {
-        // TODO : double-check that this is correct
-        Path o = getPath(ROIIndex, shapeIndex);
-        o.setD(toRType(definition));
     }
 
     /* (non-Javadoc)
@@ -5938,8 +5923,6 @@ public class OMEROMetadataStoreClient
      */
     public void setPathFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
     {
-        Path o = getPath(ROIIndex, shapeIndex);
-        o.setFontSize(toRType(fontSize));
     }
 
     /* (non-Javadoc)
@@ -5947,14 +5930,6 @@ public class OMEROMetadataStoreClient
      */
     public void setPathID(String id, int ROIIndex, int shapeIndex)
     {
-        checkDuplicateLSID(Path.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.ROI_INDEX, ROIIndex);
-        indexes.put(Index.SHAPE_INDEX, shapeIndex);
-        IObjectContainer o = getIObjectContainer(Path.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(Path.class, id, o);
     }
 
     /* (non-Javadoc)
@@ -5993,8 +5968,6 @@ public class OMEROMetadataStoreClient
     public void setPathStrokeDashArray(String strokeDashArray, int ROIIndex,
             int shapeIndex)
     {
-        Path o = getPath(ROIIndex, shapeIndex);
-        o.setStrokeDashArray(toRType(strokeDashArray));
     }
 
     /* (non-Javadoc)
@@ -6013,8 +5986,6 @@ public class OMEROMetadataStoreClient
      */
     public void setPathTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
     {
-        Path o = getPath(ROIIndex, shapeIndex);
-        o.setTheC(toRType(theC));
     }
 
     /* (non-Javadoc)
@@ -6022,8 +5993,6 @@ public class OMEROMetadataStoreClient
      */
     public void setPathTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
     {
-        Path o = getPath(ROIIndex, shapeIndex);
-        o.setTheT(toRType(theT));
     }
 
     /* (non-Javadoc)
@@ -6031,8 +6000,6 @@ public class OMEROMetadataStoreClient
      */
     public void setPathTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
     {
-        Path o = getPath(ROIIndex, shapeIndex);
-        o.setTheZ(toRType(theZ));
     }
 
     /* (non-Javadoc)
@@ -6040,8 +6007,6 @@ public class OMEROMetadataStoreClient
      */
     public void setPathTransform(String transform, int ROIIndex, int shapeIndex)
     {
-        Path o = getPath(ROIIndex, shapeIndex);
-        o.setTransform(toRType(transform));
     }
 
     //////// Pixels /////////
