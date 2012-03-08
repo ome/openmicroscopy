@@ -23,6 +23,7 @@ module omero {
         ["ami", "amd"] interface ThumbnailStore extends StatefulServiceInterface
             {
                 bool setPixelsId(long pixelsId) throws ServerError;
+                bool isInProgress() throws ServerError;
                 void setRenderingDefId(long renderingDefId) throws ServerError;
                 long getRenderingDefId() throws ServerError;
                 Ice::ByteSeq getThumbnail(omero::RInt sizeX, omero::RInt sizeY) throws ServerError;
