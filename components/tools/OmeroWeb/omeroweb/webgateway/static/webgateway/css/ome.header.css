@@ -64,8 +64,8 @@
  #middle_header {
      color: white;
      background: hsl(215,20%,20%);
-	 background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(208, 20%, 40%)), to(hsl(208, 20%, 50%)));
-	 background-image: -moz-linear-gradient(90deg, hsl(0, 100%, 57%) 0%, hsl(0, 100%, 27%) 100%);
+	 background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(208, 18%, 40%)), to(hsl(208, 18%, 50%)));
+	 background-image: -moz-linear-gradient(90deg, hsl(208, 18%, 40%) 0%, hsl(208, 18%, 50%) 100%);
 	 font-family: "HelveticaNeue-Medium",Helvetica,Arial,sans-serif;
 	 padding:5px 0;
  }
@@ -358,12 +358,18 @@
 }
 
 
+
 /** three main columns of the container layout **/
 #left_panel, #center_panel, #right_panel {
     background-color: #ffffff;
     position:absolute;
     overflow: auto;
 }
+
+body {
+	background:hsl(210,10%,83%);
+}
+
 #left_panel {
     left:0px; top:0px; bottom:0px;right:0px;
     width:350px;
@@ -373,6 +379,8 @@
 #center_panel {
     left:5px; right:5px; top:0px; bottom:0px;
     border-radius: 4px;
+	background:hsl(210,1%,98%);
+	/* I wish that background: hsl(220,8%,16%);*/
 }
 #right_panel {
     width:369px;
@@ -401,6 +409,8 @@
     left:351px; right:370px; top:0px; bottom:0px;
     border: none;
     background: #e5e5e5;
+	background:hsl(210,1%,98%); /* Must match #center_panel background-color */
+	/* I wish that background: hsl(220,8%,16%);*/
     z-index:10;
 }
 
@@ -434,7 +444,7 @@
 }
 
 #dragLeft {
-    cursor: e-resize;
+    cursor: col-resize;
     position:absolute;
     bottom:0px;
     top: 20px;
@@ -442,7 +452,7 @@
     right: 0px;
 }
 #dragRight {
-    cursor: w-resize;
+    cursor: col-resize;
     position:absolute;
     bottom:0px;
     top: 20px;

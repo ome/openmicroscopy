@@ -30,9 +30,9 @@
 {% endcomment %}
 
 <span class="tag_annotation_wrapper">
-    	<a class='tooltip tag' href="{% url load_template "usertags" %}{% if not tag.isOwned %}?experimenter={{ tag.getOwner.id }}{% endif %}" target="_top"> {{ tag.textValue }}</a> 
+    	<a class='tooltip tag' href="{% url load_template "usertags" %}{% if not tag.isOwned %}?experimenter={{ tag.getOwner.id }}{% endif %}" target="_top"> {{ tag.textValue }} <span class='removeTag' id="{{ tag.id }}-tag" title="Unlink"> x </span></a> 
     {% if tag.link.isOwned %}
-        <div class='removeTag' id="{{ tag.id }}-tag" title="Unlink"> x </div>
+        
     {% endif %}
 	
     <span class="tooltip_html" style='display:none'>

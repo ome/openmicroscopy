@@ -271,7 +271,7 @@
                 // set-up the tags form to use dialog
                 $("#add_tags_form").dialog({
                     autoOpen: false,
-                    resizable: true,
+                    resizable: false,
                     height: 410,
                     width:420,
                     modal: true,
@@ -327,8 +327,8 @@
                 // prepare dialog for choosing file to attach...
                 $("#choose_attachments_form").dialog({
                     autoOpen: false,
-                    resizable: true,
-                    height: 400,
+                    resizable: false,
+                    height: 380,
                     width:420,
                     modal: true,
                     buttons: {
@@ -358,6 +358,28 @@
     </script>
 
 
+{% comment %}
+    <!-- Example toolbar of links to webtest pages. Remove comments to activate -->
+    {% include "webtest/webtest-toolbar-include.html" %}
+{% endcomment %}
+
+    <div id="annotation_tabs" class="absolute_fill ui-tabs">
+        <ul>
+            {% if manager.tag %}
+                <li><a href="#metadata_tab">{% trans "General" %}</a></li>
+            {% else %}
+                <li><a href="#annotation_tab">{% trans "General" %}</a></li>
+                {% if manager.image %}
+                    <li><a id='acquisition' title="metadata tab" href="{% url load_metadata_acquisition 'image' manager.image.id %}">{% trans "Acquisition" %}</a></li>                
+                    <li><a id='preview' title="preview tab" href="{% url load_metadata_preview manager.image.id %}">{% trans "Preview" %}</a></li>
+                {% endif %}
+                {% if manager.well %}
+                    <li><a id='acquisition' title="metadata tab" href="{% url load_metadata_acquisition 'image' manager.well.getWellSample.image.id %}">{% trans "Acquisition" %}</a></li>                
+                    <li><a id='preview' title="preview tab" href="{% url load_metadata_preview manager.well.getWellSample.image.id %}">{% trans "Preview" %}</a></li>
+                {% endif %}
+            {% endif %}
+        </ul>
+        <div class="clear"></div>  
         
         <div id='parent-id' style="display:none">
             {% if manager.image %}image-{{ manager.image.id}}{% else %}
@@ -807,94 +829,105 @@
 			
 		
 		
-            <!-- ANNOTATIONS -->
-            <!--<h1>{% trans "Annotations" %}</h1>-->
-            <table class="annotations_table">
+    <!-- ANNOTATIONS -->
+    <!--<h1>{% trans "Annotations" %}</h1>-->
+            
+			<div class="annotations_section">
             <!-- RATING -->
-            <tr>
-                <th colspan="2">{% trans "Rate" %}:</th>
-                <td>
+      
+			      	{% trans "Rate" %}:
+                
                     {% if manager.rating_annotations %}
                     <div class="lntags">
-                        <table>
+                
                     {% for rating in manager.rating_annotations %}
-                    <tr><td valign="middle">
+                
                         {% ifequal rating.getValue 0 %}<img src="{% static "webclient/image/rating0.png" %}">{% endifequal %}
                         {% ifequal rating.getValue 1 %}<img src="{% static "webclient/image/rating1.png" %}">{% endifequal %}
                         {% ifequal rating.getValue 2 %}<img src="{% static "webclient/image/rating2.png" %}">{% endifequal %}
                         {% ifequal rating.getValue 3 %}<img src="{% static "webclient/image/rating3.png" %}">{% endifequal %}
                         {% ifequal rating.getValue 4 %}<img src="{% static "webclient/image/rating4.png" %}">{% endifequal %}
                         {% ifequal rating.getValue 5 %}<img src="{% static "webclient/image/rating5.png" %}">{% endifequal %}
-                        </td>
-                        <td>
+                       
+					   
                         {{ rating.getDetails.getOwner.getNameWithInitial }}
-                        </td>
-                    </tr>
+                        
                     {% endfor %}
-                        </table>
+                       
                     </div>
                     {% else %}
                         {% trans "No ratings" %}
                     {% endif %}
-                </td>
-            </tr> 
+             
+			 </div>
+			
+			
+			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+			
 			
             <!-- TAGS -->               
-            <tr>
-                <th>{% trans "Tag" %}:</th>
-                <td style="vertical-align: middle">
-                    {% if manager.isEditable %}
-                    <a id="launch_tags_form" href="{% url annotate_tags %}?{{manager.obj_type}}={{ manager.obj_id }}">
-                        <!-- link for loading tags we can add to this object. Loaded by AJAX into form below & displayed as dialog -->
-                        <img src="{% static 'webclient/image/plus_11.png' %}" alt="e" title="Add Tags."/>
-                    </a>
-                    {% endif %}
-                </td>
-                <!-- hidden form for choosing new or existing Tags in dialog - load form via AJAX when we show dialog -->
+            <div class="annotations_section">
+                
+				<h2>{% trans "Tags" %}</h2>
+                
+				
+				
+                {% if manager.isEditable %}
+	                <a id="launch_tags_form" href="{% url annotate_tags %}?{{manager.obj_type}}={{ manager.obj_id }}" class="btn silver"><span>+</span></a>
+                {% endif %}
+                
+				<!-- hidden form for choosing new or existing Tags in dialog - load form via AJAX when we show dialog -->
                 <form id='add_tags_form' title="Tags Selection" action="{% url annotate_tags %}" method="post" style="display:none">
                 </form>
+				
                 <!-- display existing Tags -->
-                <td>
-                    <div id="tags_container" class="lntags">
-                    {% for tag in manager.tag_annotations %}
-                        {% include "webclient/annotations/tag.html" %}
-                    {% endfor %}
-                    </div>
-                </td>
-            </tr>
+                <div id="tags_container" class="lntags">
+                {% for tag in manager.tag_annotations %}
+                    {% include "webclient/annotations/tag.html" %}
+                {% endfor %}
+                </div>
+ 
+            </div>
+			
+			
+			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+			
+			
 			
             <!-- FILES -->
-            <tr>
-                <th>{% trans "Attach" %}:</th>
-                <td>
+            <div class="annotations_section">
+                <h2>{% trans "Attachments" %}</h2>
+
                     {% if manager.isEditable %}
-                        <a id="choose_file_anns" href="{% url annotate_file %}?{{manager.obj_type}}={{ manager.obj_id }}">
-                            <img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attach new or existing files."/>
+                        <a id="choose_file_anns" href="{% url annotate_file %}?{{manager.obj_type}}={{ manager.obj_id }}" class="btn silver">
+                            <span>+</span>
                         </a>
                     {% endif %}
                     <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
                     
                     <!-- hidden form for choosing files in dialog - load form via AJAX when we show dialog -->
-                    <form id="choose_attachments_form" title="Select Attachments" style="display:none" action="{% url annotate_file %}" method="post">
+                    <form id="choose_attachments_form" style="display:none" action="{% url annotate_file %}" method="post">
                     </form>
                     
-                </td>
+
                 <!-- display existing file annotations -->
-                <td>
+
                     <ul id="fileanns_container" class="lnfiles">
                         {% for fileann in manager.file_annotations %}
                             {% include "webclient/annotations/fileann.html" %}
                         {% endfor %}
                     </ul>
-                </td>
-            </tr>  
+
+			</div>
+
+
+			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+
+
             <!-- CUSTOM ANNOTATIONS -->
-            <tr>
-                <th>{% trans "Others" %}:</th>
-                <td>
-                    <!-- no editing of custom annotations-->
-                </td>
-                <td>
+            <div class="annotations_section">
+                <h2>{% trans "Others" %}:</h2>
+				
                     <!-- tool tips for each <td> is contained in child <span>, which are also hidden -->
                     <table id="custom_annotations">
                         {% for ann in manager.xml_annotations %}
@@ -955,13 +988,18 @@
                         </tr>
                         {% endfor %}
                     </table>
-                </td>
-            </tr>
-                      
-            <!-- COMMENT -->
-            <tr>
-                <th colspan="3">                
-                    {% trans "Comment:" %}
+            </div>
+                    
+					
+					
+			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+
+
+			<!--
+
+            <div class="annotations_section">
+				<h2>{% trans "Comment:" %}</h2>
+				
                     {% if manager.project.isEditable or manager.dataset.isEditable or manager.image.isEditable or manager.screen.isEditable or manager.plate.isEditable or manager.acquisition.isEditable or  manager.well.isEditable %}
                     <form id="add_comment_form" action="{% url annotate_comment %}" method="post">
                     <table>
@@ -981,19 +1019,17 @@
                     </table>
                     </form>
                     {% endif %}                        
-                </th>
-            </tr>
-            <tr>
-                <td colspan="3">
-                    <div id="comments_container" class="lncomments">
+                
+					<div id="comments_container" class="lncomments">
                         {% for tann in manager.text_annotations %}
                             {% include "webclient/annotations/comment.html" %}
                         {% endfor %}
                     </div>
-                </td>
-            </tr>            
-            </table>            
+           
             <div class="clear"></div>          
+
+			-->
+
 
             {% if manager.image %}
             <!-- HIERARCHY - Contained In -->

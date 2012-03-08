@@ -146,8 +146,8 @@ label {
     display: none;
 }
 
-/* used by the dialog in popup.js */
-.ui-dialog-titlebar { background: gray; color: white }
+/* used by the dialog in popup.js 
+.ui-dialog-titlebar { background: gray; color: white } */
 
 .absolute_fill {
     position: absolute;

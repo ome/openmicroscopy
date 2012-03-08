@@ -394,7 +394,27 @@
  *
  * http://docs.jquery.com/UI/Button#theming
  */
-.ui-button { display: inline-block; position: relative; padding: 0; margin-right: .1em; text-decoration: none !important; cursor: pointer; text-align: center; zoom: 1; overflow: visible; } /* the overflow property removes extra width in IE */
+ 
+.ui-button { 
+	display: inline-block; 
+	position: relative; 
+	padding: 0; 
+	margin-right: .1em; 
+	text-decoration: none !important; 
+	cursor: pointer; text-align: center; 
+	overflow: visible;  /* the overflow property removes extra width in IE */
+	}
+	
+
+
+	
+	
+	
+	
+	
+	
+	
+	
 .ui-button-icon-only { width: 2.2em; } /* to make room for the icon, a width needs to be set here */
 button.ui-button-icon-only { width: 2.4em; } /* button elements seem to need a little more width */
 .ui-button-icons-only { width: 3.4em; } 
@@ -423,6 +443,12 @@ input.ui-button { padding: .4em 1em; }
 
 /* workarounds */
 button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra padding in Firefox */
+
+
+
+
+
+
 /*
  * jQuery UI Dialog 1.8.17
  *
@@ -432,18 +458,42 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
  *
  * http://docs.jquery.com/UI/Dialog#theming
  */
-.ui-dialog { position: absolute; padding: .2em; width: 300px; overflow: hidden; }
-.ui-dialog .ui-dialog-titlebar { padding: .4em 1em; position: relative;  }
+
+.ui-dialog { 
+	position: absolute; 
+	width: 300px;
+	background-color:hsl(210,3%,94%); 
+	overflow: hidden;
+	-webkit-border-radius:5px;
+	border:solid 10px rgba(0,0,0,.8);
+}
+
+	.ui-dialog .ui-dialog-titlebar { 
+		position: relative; 
+		-webkit-border-radius:0;
+	}
+	
 .ui-dialog .ui-dialog-title { float: left; margin: .1em 16px .1em 0; } 
 .ui-dialog .ui-dialog-titlebar-close { position: absolute; right: .3em; top: 50%; width: 19px; margin: -10px 0 0 0; padding: 1px; height: 18px; }
 .ui-dialog .ui-dialog-titlebar-close span { display: block; margin: 1px; }
 .ui-dialog .ui-dialog-titlebar-close:hover, .ui-dialog .ui-dialog-titlebar-close:focus { padding: 0; }
-.ui-dialog .ui-dialog-content { position: relative; border: 0; padding: .5em 1em; background: none; overflow: auto; zoom: 1; }
-.ui-dialog .ui-dialog-buttonpane { text-align: left; border-width: 1px 0 0 0; background-image: none; margin: .5em 0 0 0; padding: .3em 1em .5em .4em; }
+.ui-dialog .ui-dialog-content { position: relative; padding: .5em 1em; background: none; overflow: auto; zoom: 1; }
+.ui-dialog .ui-dialog-buttonpane { text-align: left; border-width: 1px 0 0 0; background-image: none;  }
 .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset { float: right; }
 .ui-dialog .ui-dialog-buttonpane button { margin: .5em .4em .5em 0; cursor: pointer; }
 .ui-dialog .ui-resizable-se { width: 14px; height: 14px; right: 3px; bottom: 3px; }
 .ui-draggable .ui-dialog-titlebar { cursor: move; }
+
+
+
+
+
+
+
+
+
+
+
 /*
  * jQuery UI Slider 1.8.17
  *
@@ -475,16 +525,80 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
  * http://jquery.org/license
  *
  * http://docs.jquery.com/UI/Tabs#theming
- */
+
 .ui-tabs { position: relative; padding: .2em; zoom: 1; } /* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
-.ui-tabs .ui-tabs-nav { margin: 0; padding: .2em .2em 0; }
-.ui-tabs .ui-tabs-nav li { list-style: none; float: left; position: relative; top: 1px; margin: 0 .2em 1px 0; border-bottom: 0 !important; padding: 0; white-space: nowrap; }
-.ui-tabs .ui-tabs-nav li a { float: left; padding: 0 5px; text-decoration: none; }
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected { margin-bottom: 0; padding-bottom: 1px; }
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-state-processing a { cursor: text; }
+.ui-tabs .ui-tabs-nav { 
+	background:#333;
+	overflow:hidden;
+    background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(212, 20%, 20%)), to(hsl(212, 20%, 25%)));
+    background-image: -moz-linear-gradient(90deg, hsl(210, 25%, 15%) 0%, hsl(210, 25%, 20%) 100%);
+    border-top: solid 1px hsl(210,20%,11%);
+    -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    border-bottom: solid 1px hsl(210,20%,1%); 
+	-webkit-border-radius:0;
+}
+
+	.ui-tabs .ui-tabs-nav li { 
+		float:left;
+		border:none;
+	    border-left:solid 1px hsl(210,20%,15%);
+		background:none;
+		cursor:pointer;
+		-webkit-border-radius:inherit;
+	}
+
+	.ui-tabs .ui-tabs-nav li:last-child { 
+		border-right: none;
+	}
+
+		.ui-tabs .ui-tabs-nav li a { 
+			display: inline-block;
+            border-radius:inherit;
+			padding:4px 12px 5px;
+            border-left:solid 1px rgba(255,255,255,.05);
+            font-size:1.1em;
+            line-height: 2em;
+            font-weight:bold;
+			color:hsl(210,10%,60%);
+            text-shadow: 0 -1px 0 black;
+			
+		}
+				
+		.ui-tabs .ui-tabs-nav li a:hover { 
+			text-decoration: none;
+            background:rgba(255,255,255,.1);
+            color:hsl(210,10%,70%);
+		}
+				
+				
+		.ui-tabs .ui-tabs-nav .ui-tabs-selected a{ 
+			color:white;
+			background: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 25%, 18%)), to(hsl(215, 25%, 10%))) !important;
+		}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-state-processing a { /*cursor: text;*/ }
 .ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer; } /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
 .ui-tabs .ui-tabs-panel { display: block; border-width: 0; padding: 1em 1.4em; background: none; }
 .ui-tabs .ui-tabs-hide { display: none !important; }
+
+
+          
+            
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
  * jQuery UI Datepicker 1.8.17
  *
@@ -540,6 +654,11 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 .ui-datepicker-rtl .ui-datepicker-group { float:right; }
 .ui-datepicker-rtl .ui-datepicker-group-last .ui-datepicker-header { border-right-width:0; border-left-width:1px; }
 .ui-datepicker-rtl .ui-datepicker-group-middle .ui-datepicker-header { border-right-width:0; border-left-width:1px; }
+
+
+
+
+
 
 /* IE6 IFRAME FIX (taken from datepicker 1.5.3 */
 .ui-datepicker-cover {

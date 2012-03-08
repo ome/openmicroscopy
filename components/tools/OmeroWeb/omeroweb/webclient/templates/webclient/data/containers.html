@@ -969,13 +969,14 @@
 		</div>
 		-->
 		
-		
-        <ul class="tabslist">
-	        <li><a href="#Projects" title="Explore">{% trans "Explore" %}</a></li>
-	        <li><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
-			<li><a href="{% url load_template 'usertags' %}">{% trans "History" %}</a></li>
-	        <!--<li><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>-->
-        </ul>
+		<div ama>
+	        <ul class="ui-tabs-nav">
+		        <li><a href="#Projects" title="Explore">{% trans "Explore" %}</a></li>
+		        <li><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
+				<li><a href="{% url load_template 'usertags' %}">{% trans "History" %}</a></li>
+		        <!--<li><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>-->
+	        </ul>
+		</div>
 
 		<div id="navigator">
 			<a href="#" id="back">Back</a>

@@ -99,58 +99,7 @@
 
 
 
-    /*
-    	------------------------------------------------
-    	:: Left Panel - Tabs
-    	------------------------------------------------
-    */
-
-    .tabslist {
-        background:#333;
-    	overflow:hidden;
-        background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 25%, 20%)), to(hsl(215, 25%, 25%)));
-        background-image: -moz-linear-gradient(90deg, hsl(210, 25%, 15%) 0%, hsl(210, 25%, 20%) 100%);
-        border-top: solid 1px hsl(210,20%,11%);
-        -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-        border-bottom: solid 1px hsl(210,20%,1%);
-    }
-
-        .tabslist li {
-    		float:left;
-            border-left:solid 1px hsl(210,20%,15%);
-        }
-        
-        .tabslist li:first-child {
-        }
-        
-        .tabslist li:last-child {
-            border-right: none;
-        }
-        
-	
-    		.tabslist li a {
-    			display: inline-block;
-                border-radius:inherit;
-    			padding:4px 12px 5px;
-                //border-top:solid 1px rgba(255,255,255,.05);
-                border-left:solid 1px rgba(255,255,255,.05);
-                font-size:1.1em;
-                line-height: 2em;
-                font-weight:bold;
-    			color:hsl(210,10%,60%);
-                text-shadow: 0 -1px 0 black;
-    		}
-            
-    		.tabslist li a:hover {
-    			text-decoration: none;
-                background:rgba(255,255,255,.1);
-                color:hsl(210,10%,70%);
-    		}
-            
-		
-    		.tabslist .ui-tabs-selected a, .tabslist ui-state-active a{
-    			color:white !important;
-    		}
+  
     
     
 
@@ -282,15 +231,19 @@
 	===============================================
 */
     
-    
-    
 #right_panel {
     font-size:1.1em;
+    overflow:auto;
 }
     
     #annotation_tab, #metadata_tab, #preview_tab {
-        padding: 10px;
+        padding: 15px;
         overflow: auto;
+        
+    }
+    
+    #right_panel .tabslist {
+        min-width:240px;
     }
    
     
@@ -335,7 +288,6 @@
     
         .data_heading h1 {
             overflow:hidden;
-                
         }
     
             .data_heading span {
@@ -345,10 +297,10 @@
                 float:left;
                 overflow:hidden;
             }
-                
-            .data_heading form {
-
-            }
+            
+                .data_heading img {
+                    float:right;
+                }
                 
                 .data_heading form input[type=text] {
                     font-size:1.3em;
@@ -383,7 +335,6 @@
             text-shadow: 0 1px 0 rgba(255,255,255,.8);
             line-height:1.4em;
             overflow:hidden;
-            position:relative;
         }
     
             .description span {
@@ -391,6 +342,11 @@
                 float:left;
                 width:90%;
             }
+            
+            .description img {
+                float:right;
+            }
+            
     
                 .description form {
                     overflow:hidden;
@@ -454,20 +410,67 @@
     	------------------------------------------------
     */
             
+      
+    .annotations_section {
+        overflow:hidden;        
+    }  
+        
+        .annotations_section h2{
+            font-size:.9em;
+            line-height:1.6em;
+            text-shadow: 0 1px 0 rgba(255,255,255,1);
+            text-transform: uppercase;
+            color:hsl(210,10%,50%);
+            font-weight:bold;
+            float:left;
+			margin-bottom:5px;
+        }
+    
+    
+            .annotations_section .btn {
+                float:right;
+                position:relative;
+                overflow:hidden;
+            }
+        
+                .annotations_section .btn span{
+                    font-size:1.3em;
+                    font-weight:bold;
+					line-height:.7em;
+                    padding: 0 5px 4px;
+                    font-family: 'Helvetica-Bold';
+                }
+        
         
     
+        
+        
+        /* Tags */
+        
+        #tags_container, .lnfiles {
+            clear:left;
+            overflow:hidden;
+            width:100%;
+        }
+            
+        
+        
+        
+        
         /* Attachments */
         
         
         .lnfiles{
-            
+            overflow:hidden;
+            border: solid 1px hsl(210,20%,85%);
+            -webkit-border-radius: 5px;
         }
 
             .lnfiles li {
                 overflow: hidden;
-                background: hsl(210,20%,85%);
-                border-bottom: solid 1px hsl(210,20%,80%);
-                border-top: solid 1px hsl(210,20%,90%);
+                background: hsl(210,20%,90%);
+                border-bottom: solid 1px hsl(210,20%,85%);
+                border-top: solid 1px hsl(210,20%,95%);
             }
             
             .lnfiles li:first-child {
@@ -483,19 +486,126 @@
             }
             
             
-                .lnfiles li a {
+                .lnfiles li a.tooltip {
                     text-shadow:0 1px 0 rgba(255,255,255,.4);
                     font-size:1em;
-                    padding:6px 10px;
+                    padding:8px 10px;
                     display:inline-block;
                     color:hsl(210,15%,35%);
                     -webkit-border-radius: inherit;
                 }
                 
-                    .lnfiles li a span {
+                    .lnfiles li a.tooltip span {
                         color:hsl(210,15%,55%);
                     }
+					
+					
+				/* Actions for Attachments */
+				
+				.attachment_actions {
+					float:right;
+					margin-right:10px;
+					//display:none;
+					opacity:0;
+				}
+				
+				.lnfiles li:hover .attachment_actions {
+					//display:block;
+					opacity:1;
+					-webkit-transition: all .2s linear;
+				}
+				
+					.action {
+						width:18px;
+						height:18px;
+						cursor:pointer;
+						display:inline-block;
+						text-align:center;
+						font-size:1.2em;
+						font-weight:bold;
+						margin-top:5px;
+						background: hsl(210,25%,75%);
+						-webkit-border-radius:3px;
+						color:hsl(210,40%,30%);
+						line-height:1.3em;
+						text-shadow: 0 1px 0 rgba(255,255,255,.5);
+					}
+					
+					.action:hover {
+						background: hsl(210,25%,65%);
+						color:hsl(210,40%,20%);
+					}
+				
+				.removeFile {
+					
+				}	
         
+    
+    
+    
+    
+    
+    
+    /* Modal Dialog */
+    
+    
+    
+    
+    
+    #choose_attachments_form {
+        padding:0 !important;
+    }
+    
+            
+            .modal div:first-child {
+                border-bottom:solid 1px rgba(0,0,0,.1);
+                padding: 5px 15px 15px 15px;
+            }
+            
+            .modal div:last-child {
+                border-top: solid 1px rgba(255,255,255,.5);
+                padding:5px 15px 15px 15px;
+            }
+            
+            .modal select {
+                -webkit-box-shadow: 0 1px 0 white;
+                -webkit-border-radius:3px;
+            }
+            
+            
+        
+            
+                #choose_attachments_form table select{
+                    width:385px;
+                }
+                
+                    .ui-dialog h1, ui-dialog span {
+                        text-shadow:0 1px 0 white;
+                    }
+            
+    
+                    .ui-dialog h1 {
+                        font-weight:bold;
+                        font-size:1.4em;
+                        color:hsl(210,5%,30%);
+                    }
+    
+                    .ui-dialog span {
+                        font-size:1.1em;
+                        color:#999;
+                        margin-bottom:15px;
+                        display:block;
+                    }
+    
+           
+    
+            
+    
+    
+    
+    
+    
+    
     
     
     
@@ -516,16 +626,12 @@
         border: 1px solid #bbb;
     }
 
-    select.existing {
-        width: 300px;
-        border:solid 1px red;
-    }
 
     
     
 
     .ann_comment_wrapper {
-        width: 100%;
+        border:solid 1px red;
     }
     .ann_comment_wrapper div.avatar {
         float: left;

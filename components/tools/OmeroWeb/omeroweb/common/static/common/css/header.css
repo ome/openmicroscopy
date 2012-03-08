@@ -56,8 +56,9 @@
  #middle_header {
      color: white;
      background: hsl(215,20%,20%);
-	 background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(208, 20%, 40%)), to(hsl(208, 20%, 50%)));
-	 background-image: -moz-linear-gradient(90deg, hsl(0, 100%, 57%) 0%, hsl(0, 100%, 27%) 100%);
+	 background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(208, 15%, 40%)), to(hsl(208, 15%, 50%)));
+	 background-image: -moz-linear-gradient(90deg, hsl(208, 15%, 40%) 0%, hsl(208, 15%, 50%) 100%);
+	 border: solid 5px red;
 	 font-family: "HelveticaNeue-Medium",Helvetica,Arial,sans-serif;
 	 padding:5px 0;
  }
@@ -343,15 +344,17 @@
 	overflow:auto;
 }
 #left_panel {
-    left:0px; top:0px; bottom:0px;right:0px;
+    left:0px; top:0px; bottom:0px;
     width:350px;
     border-left: none;
 }
+
 #center_panel {
     left:5px; right:5px; top:0px; bottom:0px;
 }
+
 #right_panel {
-    width:350px;
+	width:240px;
     right:0px; top:0px; bottom:0px;
 }
 

@@ -44,18 +44,22 @@
         <b>Description:</b> {{ fileann.description|default_if_none:""|truncatewords:10  }}
     </span>
 	
-    {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}
-        <img class='removeFile' id="{{ fileann.id }}-file" src="{% static "webclient/image/minus_11.png" %}" title="Unlink"/>
-    {% endif %}
-    {% if fileann.canDelete and not fileann.isOriginalMetadata %}
-        <input class="deleteFile button" id="{{ fileann.id }}-file" type="image" src="{% static "webclient/image/cancel12.png" %}" alt="Delete" title="Delete"/>
-    {% endif %}
-    <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
-    {% ifequal fileann.getFileName|slice:"-3:" 'map' %}
-        <a href="#" onclick="return openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
-    {% endifequal %}
-    {% ifequal fileann.getFileName|slice:"-3:" 'bit' %}
-        <a href="#" onclick="return openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
-    {% endifequal %}
+	<div class="attachment_actions">
+	    {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}
+	        <a class='removeFile action' id="{{ fileann.id }}-file" title="Unlink">-</a>
+	    {% endif %}
+	
+	    {% if fileann.canDelete and not fileann.isOriginalMetadata %}
+	        <a id="{{ fileann.id }}-file" type="image" class="action" alt="Delete" title="Delete"> &#215 </a>
+	    {% endif %}
+	
+	    <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
+	    {% ifequal fileann.getFileName|slice:"-3:" 'map' %}
+	        <a href="#" onclick="return openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
+	    {% endifequal %}
+	    {% ifequal fileann.getFileName|slice:"-3:" 'bit' %}
+	        <a href="#" onclick="return openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
+	    {% endifequal %}
+	</div>
 </li>
 {% endif %}
