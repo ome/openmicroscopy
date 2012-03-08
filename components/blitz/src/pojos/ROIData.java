@@ -72,8 +72,6 @@ public class ROIData
 	/** Initializes the map. */
 	private void initialize()
 	{
-		roiShapes = new TreeMap<ROICoordinate, List<ShapeData>>
-						(new ROICoordinate());
 		Roi roi = (Roi) asIObject();
 		List<Shape> shapes = roi.copyShapes();
 		if (shapes == null) return;
@@ -121,6 +119,8 @@ public class ROIData
 	{
 		super();
 		setValue(roi);
+		roiShapes = new TreeMap<ROICoordinate, List<ShapeData>>
+		(new ROICoordinate());
 		if (roi != null) initialize();
 	}
 	
@@ -339,7 +339,7 @@ public class ROIData
 		Roi roi = (Roi) asIObject();
 		if (roi == null) return;
 		if (name == null) name = "";
-		//roi.setName(rtypes.rstring(name));
+		roi.setDescription(rtypes.rstring(name));
 	}
 	
 	/**
@@ -351,7 +351,7 @@ public class ROIData
 	{
 		Roi roi = (Roi) asIObject();
 		if (roi == null) return "";
-		RString value = null;//roi.getName(); TODO: remove null
+		RString value = roi.getDescription();
 		if (value == null) return "";
 		return value.getValue();
 	}
@@ -366,16 +366,23 @@ public class ROIData
 		Roi roi = (Roi) asIObject();
 		if (roi == null) return;
 		if (name == null) name = "";
-		//roi.setNamespace(rtypes.rstring(name));
+		String[] names = new String[1];
+		names[0] = name;
+		roi.setNamespaces(names);
 	}
 	
+	/**
+	 * Returns the namespace.
+	 * 
+	 * @return See above.
+	 */
 	public String getNamespace()
 	{
 		Roi roi = (Roi) asIObject();
 		if (roi == null) return "";
-		RString value = null;//roi.getNamespace(); TODO: remove null
-		if (value == null) return "";
-		return value.getValue();
+		String[] values = roi.getNamespaces();
+		if (values == null || values.length == 0) return "";
+		return values[0];
 	}
 	
 }
