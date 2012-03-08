@@ -529,19 +529,19 @@
 		<xsd:annotation>
 			<xsd:documentation>
 				This is a matrix used to transform the shape.
-				--       --
-				| A, C, E |
-				| B, D, F |
-				| 0, 0, 1 |
-				--       --
+				--             --
+				| A00, A01, A02 |
+				| A10, A11, A12 |
+				| 0,   0,   1   |
+				--             --
 			</xsd:documentation>
 		</xsd:annotation>
-		<xsd:attribute name="A" use="required" type="xsd:float"/>
-		<xsd:attribute name="B" use="required" type="xsd:float"/>
-		<xsd:attribute name="C" use="required" type="xsd:float"/>
-		<xsd:attribute name="D" use="required" type="xsd:float"/>
-		<xsd:attribute name="E" use="required" type="xsd:float"/>
-		<xsd:attribute name="F" use="required" type="xsd:float"/>
+		<xsd:attribute name="A00" use="required" type="xsd:float"/>
+		<xsd:attribute name="A10" use="required" type="xsd:float"/>
+		<xsd:attribute name="A01" use="required" type="xsd:float"/>
+		<xsd:attribute name="A11" use="required" type="xsd:float"/>
+		<xsd:attribute name="A02" use="required" type="xsd:float"/>
+		<xsd:attribute name="A12" use="required" type="xsd:float"/>
 	</xsd:complexType>
 
 	<xsd:simpleType name="ROIID"> <!-- top level definition -->
