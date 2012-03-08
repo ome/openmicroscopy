@@ -30,7 +30,6 @@ import java.awt.geom.Point2D;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RString;
 import omero.rtypes;
 import omero.model.PolylineI;
 import omero.model.Shape;
@@ -80,34 +79,6 @@ public class PolylineData
 	{
 		super(new PolylineI(), true);
 		setPoints(points);
-	}
-		
-	/**
-	 * Returns the text of the shape.
-	 * 
-	 * @return See above.
-	 */
-	public String getText()
-	{
-		Polyline shape = (Polyline) asIObject();
-		RString value = shape.getTextValue();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the text of the shape.
-	 * 
-	 * @param text See above.
-	 */
-	public void setText(String text)
-	{
-		if(isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Polyline shape = (Polyline) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setTextValue(rtypes.rstring(text));
 	}
 
 	/**

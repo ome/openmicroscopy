@@ -37,7 +37,7 @@ import omero.model.Path;
 import omero.model.Point;
 import omero.model.Polygon;
 import omero.model.Polyline;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Roi;
 import omero.model.Label;
 
@@ -63,7 +63,7 @@ public class ShapeProcessor implements ModelProcessor
     static
     {
         SHAPE_TYPES.add(Line.class);
-        SHAPE_TYPES.add(Rect.class);
+        SHAPE_TYPES.add(Rectangle.class);
         SHAPE_TYPES.add(Mask.class);
         SHAPE_TYPES.add(Ellipse.class);
         SHAPE_TYPES.add(Point.class);

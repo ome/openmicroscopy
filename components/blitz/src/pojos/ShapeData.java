@@ -36,8 +36,14 @@ import omero.rtypes;
 import omero.RInt;
 import omero.RString;
 import omero.model.IObject;
+import omero.model.Ellipse;
+import omero.model.Label;
+import omero.model.Line;
+import omero.model.Mask;
+import omero.model.Point;
 import omero.model.Polygon;
 import omero.model.Polyline;
+import omero.model.Rectangle;
 import omero.model.Shape;
 
 /**
@@ -447,4 +453,62 @@ public abstract class ShapeData
 		setDirty(true);
 	}
 	
+	/**
+	 * Returns the text of the shape.
+	 * 
+	 * @return See above.
+	 */
+	public String getText()
+	{
+		IObject ho = asIObject();
+		RString value = null;
+		if (ho instanceof Ellipse) {
+			value = ((Ellipse) ho).getText();
+		} else if (ho instanceof Line) {
+			value = ((Line) ho).getText();
+		} else if (ho instanceof Mask) {
+			value = ((Mask) ho).getText();
+		} else if (ho instanceof Polygon) {
+			value = ((Polygon) ho).getText();
+		} else if (ho instanceof Polyline) {
+			value = ((Polyline) ho).getText();
+		} else if (ho instanceof Rectangle) {
+			value = ((Rectangle) ho).getText();
+		} else if (ho instanceof Label) {
+			value = ((Label) ho).getText();
+		} else if (ho instanceof Point) {
+			value = ((Point) ho).getText();
+		}
+		if (value == null) return "";
+		return value.getValue();
+	}
+	
+	/**
+	 * Sets the text of the shape.
+	 * 
+	 * @param text See above.
+	 */
+	public void setText(String text)
+	{
+		if (isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		IObject ho = asIObject();
+		if (ho instanceof Ellipse) {
+			((Ellipse) ho).setText(rtypes.rstring(text));
+		} else if (ho instanceof Line) {
+			((Line) ho).setText(rtypes.rstring(text));
+		} else if (ho instanceof Mask) {
+			((Mask) ho).setText(rtypes.rstring(text));
+		} else if (ho instanceof Polygon) {
+			((Polygon) ho).setText(rtypes.rstring(text));
+		} else if (ho instanceof Polyline) {
+			((Polyline) ho).setText(rtypes.rstring(text));
+		} else if (ho instanceof Rectangle) {
+			((Rectangle) ho).setText(rtypes.rstring(text));
+		} else if (ho instanceof Label) {
+			((Label) ho).setText(rtypes.rstring(text));
+		} else if (ho instanceof Point) {
+			((Point) ho).setText(rtypes.rstring(text));
+		}
+	}
 }

@@ -38,11 +38,11 @@ public class SmartLineI extends omero.model.LineI implements SmartShape {
         try {
             List<Point> points = new ArrayList<Point>();
             SmartPointI start = new SmartPointI();
-            start.setCx(getX1());
-            start.setCy(getY1());
+            start.setX(getX1());
+            start.setY(getY1());
             SmartPointI end = new SmartPointI();
-            end.setCx(getX2());
-            end.setCy(getY2());
+            end.setX(getX2());
+            end.setY(getY2());
             points.addAll(start.asPoints());
             points.addAll(end.asPoints());
             assert Util.checkNonNull(points) : "Null points in " + this;

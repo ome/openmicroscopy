@@ -415,8 +415,6 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setFontStyle(rtypes.rstring(formatFontStyle(fontStyle)));
-		//update the font weight.
-		shape.setFontWeight(null);
 		setDirty(true);
 	}
 

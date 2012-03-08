@@ -30,7 +30,6 @@ import java.awt.geom.Point2D;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RString;
 import omero.rtypes;
 import omero.model.PolygonI;
 import omero.model.Shape;
@@ -78,34 +77,6 @@ public class PolygonData
 	{
 		super(new PolygonI(), true);
 		setPoints(points);
-	}
-	
-	/**
-	 * Returns the text of the shape.
-	 * 
-	 * @return See above.
-	 */
-	public String getText()
-	{
-		Polygon shape = (Polygon) asIObject();
-		RString value = shape.getTextValue();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the text of the shape.
-	 * 
-	 * @param text See above.
-	 */
-	public void setText(String text)
-	{
-		if (isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Polygon shape = (Polygon) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setTextValue(rtypes.rstring(text));
 	}
 	
 	/**

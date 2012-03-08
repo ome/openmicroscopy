@@ -30,7 +30,6 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
-import omero.RString;
 import omero.rtypes;
 import omero.model.Shape;
 import omero.model.Label;
@@ -84,35 +83,6 @@ public class TextData
 		setY(y);
 		setText(text);
 	}
-	
-	/**
-	 * Returns the text of the shape.
-	 * 
-	 * @return See above.
-	 */
-	public String getText()
-	{
-		Label shape = (Label) asIObject();
-		RString value = shape.getTextValue();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the text of the shape.
-	 * 
-	 * @param text See above.
-	 */
-	public void setText(String text)
-	{
-		if (isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Label shape = (Label) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setTextValue(rtypes.rstring(text));
-	}
-
 	
 	/**
 	 * Returns the x-coordinate text field.

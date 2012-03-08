@@ -28,7 +28,6 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
-import omero.RString;
 import omero.rtypes;
 import omero.model.Line;
 import omero.model.LineI;
@@ -84,35 +83,6 @@ public class LineData
 		setX2(x2);
 		setY2(y2);
 	}
-	
-	/**
-	 * Returns the text of the shape.
-	 * 
-	 * @return See above.
-	 */
-	public String getText()
-	{
-		Line shape = (Line) asIObject();
-		RString value = shape.getTextValue();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the text of the shape.
-	 * 
-	 * @param text See above.
-	 */
-	public void setText(String text)
-	{
-		if(isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Line shape = (Line) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setTextValue(rtypes.rstring(text));
-	}
-	
 	
 	/**
 	 * Returns the x-coordinate of the starting point of an untransformed line.

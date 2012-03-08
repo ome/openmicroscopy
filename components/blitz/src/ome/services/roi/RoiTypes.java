@@ -19,7 +19,7 @@ import omero.model.Path;
 import omero.model.Point;
 import omero.model.Polygon;
 import omero.model.Polyline;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Roi;
 import omero.model.Shape;
 import omero.model.SmartEllipseI;
@@ -32,7 +32,6 @@ import omero.model.SmartPolylineI;
 import omero.model.SmartRectI;
 import omero.model.SmartTextI;
 import omero.util.ObjectFactoryRegistry;
-import omero.util.ObjectFactoryRegistry.ObjectFactory;
 
 /**
  * Intelligent server-side representations of the {@link Roi} and {@link Shape}
@@ -114,10 +113,10 @@ public abstract class RoiTypes {
 
                     });
 
-            factories.put(SmartRectI.ice_staticId(), new ObjectFactory(Rect.ice_staticId()) {
+            factories.put(SmartRectI.ice_staticId(), new ObjectFactory(Rectangle.ice_staticId()) {
 
                 @Override
-                public Rect create(String name) {
+                public Rectangle create(String name) {
                     return new SmartRectI();
                 }
 
