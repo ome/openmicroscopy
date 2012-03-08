@@ -41,12 +41,7 @@
                                Color keyword : red, blue, black, ...
                         -->
                         <!-- Global -->
-                        <!-- "g" provides limited support for the nestable g
-                              elements in SVG. All shapes with the same roi and the same
-                              g value are in the same group -->
-                        <optional name="g" type="string"/>
                         <optional name="transform" type="string"/><!-- e.g. [cos(a) sin(a) -sin(a) cos(a) 0 0] -->
-                        <optional name="vectorEffect" type="string"/><!-- non-scaling-stroke, none -->
                         <optional name="visibility" type="boolean"/>
                         <!-- Fill -->
                         <optional name="fillColor" type="int"/>
@@ -54,19 +49,13 @@
                         <!-- Stroke -->
                         <optional name="strokeColor" type="int"/>
                         <optional name="strokeDashArray" type="string"/><!-- e.g. none, 10 20 30 10 -->
-                        <optional name="strokeDashOffset" type="int"/>
                         <optional name="strokeLineCap" type="string"/><!-- butt, round, square -->
-                        <optional name="strokeLineJoin" type="string"/><!-- miter, round, bevel -->
-                        <optional name="strokeMiterLimit" type="int"/>
                         <optional name="strokeWidth" type="int"/>
                         <!-- Font -->
                         <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
                         <optional name="fontSize" type="int"/>
-                        <optional name="fontStretch" type="string"/><!-- normal, wider, narrower, expanded, ultra-condensed, extra-condensed -->
                         <optional name="fontStyle" type="string"/><!-- normal, italic, oblique -->
-                        <optional name="fontVariant" type="string"/><!-- normal, small-caps -->
-                        <optional name="fontWeight" type="string"/><!-- normal, bold, bolder, lighter, 100, 900 -->
-                         <!-- Marker
+                        <!-- Marker
                         To support something of the form:
                         <marker id="startArrow" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" orient="auto" markerWidth="5" markerHeight="4">
                             <polyline points="10,0 0,5 10,10 9,5" fill="darkblue" />
@@ -74,7 +63,6 @@
                         We may need a component object or a reference to another shape. For now,
                         create the polyline at the proper location and group it to the line.
                         <optional name="markerStart" type="string"/>
-                        <optional name="markerMid" type="string"/>
                         <optional name="markerEnd" type="string"/>
                         -->
                 </properties>
@@ -87,12 +75,6 @@
                         <optional name="y" type="double"/>
                         <!-- Text values -->
                         <optional name="text" type="text"/>
-                        <optional name="anchor" type="string"/><!-- start, middle, end -->
-                        <optional name="decoration" type="string"/><!-- underline, overline, line-through -->
-                        <optional name="baselineShift" type="string"/><!-- 70%, -70%, 7, sup, sub, normal -->
-                        <optional name="glyphOrientationVertical" type="int"/><!-- 0, 90, 180, 270 -->
-                        <optional name="direction" type="string"/><!-- ltr, rtl -->
-                        <optional name="writingMode" type="string"/><!-- r-tb | rl-tb | tb-rl | lr | rl | tb -->
                  </properties>
         </type>
         <type id="ome.model.roi.Rectangle" discriminator="rectangle" superclass="ome.model.roi.Shape">

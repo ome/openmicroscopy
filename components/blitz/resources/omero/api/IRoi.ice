@@ -49,7 +49,6 @@ module omero {
          *
          *   byZ.get(-1);
          *   byT.get(-1);
-         *   byG.get("");
          *
          * respectively. The groups string-string map provides the hierarchy of the group
          * strings using unix-style filesystem paths. That is, if a returned shape is in
@@ -65,7 +64,6 @@ module omero {
 
                 IntShapeListMap    byZ;
                 IntShapeListMap    byT;
-                StringShapeListMap byG;
                 StringStringMap    groups;
             };
 

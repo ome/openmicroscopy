@@ -468,15 +468,7 @@ public class ShapeSettingsData
 			throw new IllegalArgumentException("No shape specified.");
 		String f = FONT_BOLD.toLowerCase();
 		String f1 = FONT_BOLD_ITALIC.toLowerCase();
-		String value;
-		RString weight = shape.getFontWeight();
-		if (weight != null) {
-			value = weight.getValue();
-			value = value.toLowerCase();
-			if (value.trim().length() > 0)
-				return (f.equals(value) || f1.equals(value));
-		}
-		value = getFontStyle();
+		String value = getFontStyle();
 		value = value.toLowerCase();
 		return (f.equals(value) || f1.equals(value));
 	}
