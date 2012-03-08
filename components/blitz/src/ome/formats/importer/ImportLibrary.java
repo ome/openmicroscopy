@@ -309,6 +309,26 @@ public class ImportLibrary implements IObservable
         repoIC.reader = ic.getReader();
         repoIC.usedFiles = ic.getUsedFiles();
         repoIC.isSPW = ic.getIsSPW();
+        repoIC.bfImageCount = ic.getBfImageCount();
+        repoIC.bfPixels = ic.getBfPixels();
+        repoIC.bfImageNames = ic.getBfImageNames();
+        // Assuming that if the array is not null all values are not null.
+        if (ic.getUserPixels() == null || ic.getUserPixels().length == 0) {
+            repoIC.userPixels = null;
+        }
+        else {
+            double[] userPixels = new double[ic.getUserPixels().length];
+            for (int i=0; i < userPixels.length; i++) {
+                userPixels[i] = ic.getUserPixels()[i].doubleValue();
+            }
+            repoIC.userPixels = userPixels;
+        }
+        repoIC.customImageName = ic.getCustomImageName();
+        repoIC.customImageDescription = ic.getCustomImageDescription();
+        repoIC.customPlateName = ic.getCustomPlateName();
+        repoIC.customPlateDescription = ic.getCustomPlateDescription();
+        repoIC.doThumbnails = ic.getDoThumbnails();
+        repoIC.customAnnotationList = ic.getCustomAnnotationList();
         return repoIC;
     }
 
