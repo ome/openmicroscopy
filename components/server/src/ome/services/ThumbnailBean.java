@@ -284,6 +284,17 @@ public class ThumbnailBean extends AbstractLevel2Service
         return false;
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see ome.api.ThumbnailStore#isInProgress()
+     */
+    @RolesAllowed("user")
+    public boolean isInProgress()
+    {
+        return inProgress;
+    }
+
     /**
      * Retrieves a list of the families supported by the {@link Renderer}
      * either from instance variable cache or the database.
