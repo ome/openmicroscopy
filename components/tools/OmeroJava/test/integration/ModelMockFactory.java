@@ -100,7 +100,7 @@ import omero.model.PlateI;
 import omero.model.Pulse;
 import omero.model.Reagent;
 import omero.model.ReagentI;
-import omero.model.RectI;
+import omero.model.RectangleI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.StageLabel;
@@ -1073,7 +1073,7 @@ public class ModelMockFactory
     public Image createImageWithRoi() throws Exception
     {
         Roi roi = new RoiI();
-        roi.addShape(new RectI());
+        roi.addShape(new RectangleI());
         Image image = createImage();
         image.addRoi(roi);
         return image;

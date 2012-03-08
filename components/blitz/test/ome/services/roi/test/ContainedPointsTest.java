@@ -11,11 +11,9 @@ import omero.api.AMD_IRoi_getPoints;
 import omero.api.ShapePoints;
 import omero.model.Ellipse;
 import omero.model.Image;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Roi;
 import omero.model.Shape;
-import omero.model.SmartLineI;
-import omero.model.SmartShape.Util;
 
 import org.testng.annotations.Test;
 
@@ -29,7 +27,7 @@ public class ContainedPointsTest extends AbstractRoiITest {
 
     @Test
     public void testGeometryOfRectangle() throws Exception {
-        Rect r = geomTool.rect(0, 0, 10, 10);
+    	Rectangle r = geomTool.rect(0, 0, 10, 10);
         Roi roi = createRoi("geoOfRect", r);
         ShapePoints pts = assertPoints(roi.getPrimaryShape());
         assertEquals(100, pts.x.length);
