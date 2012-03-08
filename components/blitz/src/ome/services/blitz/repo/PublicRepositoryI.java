@@ -456,6 +456,26 @@ public class PublicRepositoryI extends _RepositoryDisp {
     private ImportContainer createImportContainer(RepositoryImportContainer repoIC) {
         ImportContainer ic = new ImportContainer(new File(repoIC.file), repoIC.projectId,
 			    repoIC.target, false, null, repoIC.reader, repoIC.usedFiles, repoIC.isSPW);
+		ic.setBfImageCount(repoIC.bfImageCount);
+		ic.setBfPixels(repoIC.bfPixels);
+		ic.setBfImageNames(repoIC.bfImageNames);
+        // Assuming that if the array is not null all values are not null.
+        if (repoIC.userPixels == null || repoIC.userPixels.length == 0) {
+            ic.setUserPixels(null);
+        }
+        else {
+            Double[] userPixels = new Double[repoIC.userPixels.length];
+            for (int i=0; i < userPixels.length; i++) {
+                userPixels[i] = repoIC.userPixels[i];
+            }
+            ic.setUserPixels(userPixels);
+        }
+		ic.setCustomImageName(repoIC.customImageName);
+		ic.setCustomImageDescription(repoIC.customImageDescription);
+		ic.setCustomPlateName(repoIC.customPlateName);
+		ic.setCustomPlateDescription(repoIC.customPlateDescription);
+		ic.setDoThumbnails(repoIC.doThumbnails);
+		ic.setCustomAnnotationList(repoIC.customAnnotationList);
         return ic;
     }
 

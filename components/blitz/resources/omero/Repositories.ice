@@ -53,6 +53,16 @@ module omero {
             string reader;
             omero::api::StringArray usedFiles;
             bool isSPW;
+            int bfImageCount;
+            omero::api::PixelsList bfPixels;
+            omero::api::StringSet bfImageNames;
+            omero::api::DoubleArray userPixels;
+            string customImageName;
+            string customImageDescription;
+            string customPlateName;
+            string customPlateDescription;
+            bool doThumbnails;
+            omero::api::AnnotationList customAnnotationList;
         };
 
         ["java:type:java.util.ArrayList<FileSet>:java.util.List<FileSet>"]
