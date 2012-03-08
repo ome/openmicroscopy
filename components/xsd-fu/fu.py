@@ -292,6 +292,28 @@ class OMEModelEntity(object):
     omeroPackage = property(_get_omeroPackage,
         doc="""The OMERO package of the entity.""")
 
+    def _get_javaArgumentName(self):
+        argumentName = self.REF_REGEX.sub('', self.name)
+        m = self.LOWER_CASE_REGEX.search(argumentName)
+        if not m:
+            return argumentName.lower()
+        i = m.start()
+        return argumentName[:i].lower() + argumentName[i:]
+    javaArgumentName = property(_get_javaArgumentName,
+        doc="""The property's Java argument name (camelCase).""")
+
+    def _get_javaMethodName(self):
+        return self.BACKREF_REGEX.sub('', self.REF_REGEX.sub('', self.name))
+    javaMethodName = property(_get_javaMethodName,
+        doc="""The property's Java method name.""")
+
+    def _get_javaInstanceVariableName(self):
+        if self.maxOccurs > 1:
+            return self.javaArgumentName + 'List';
+        return self.javaArgumentName
+    javaInstanceVariableName = property(_get_javaInstanceVariableName,
+        doc="""The property's Java instance variable name.""")
+
 class OMEModelProperty(OMEModelEntity):
     """
     An aggregate type representing either an OME XML Schema element, 
@@ -399,28 +421,6 @@ class OMEModelProperty(OMEModelEntity):
     metadataStoreType = property(_get_metadataStoreType,
         doc="""The property's MetadataStore type.""")
     
-    def _get_javaArgumentName(self):
-        argumentName = self.REF_REGEX.sub('', self.name)
-        m = self.LOWER_CASE_REGEX.search(argumentName)
-        if not m:
-            return argumentName.lower()
-        i = m.start()
-        return argumentName[:i].lower() + argumentName[i:]
-    javaArgumentName = property(_get_javaArgumentName,
-        doc="""The property's Java argument name (camelCase).""")
-    
-    def _get_javaMethodName(self):
-        return self.BACKREF_REGEX.sub('', self.REF_REGEX.sub('', self.name))
-    javaMethodName = property(_get_javaMethodName,
-        doc="""The property's Java method name.""")
-
-    def _get_javaInstanceVariableName(self):
-        if self.maxOccurs > 1:
-            return self.javaArgumentName + 'List';
-        return self.javaArgumentName
-    javaInstanceVariableName = property(_get_javaInstanceVariableName,
-        doc="""The property's Java instance variable name.""")
-
     def _get_isPrimitive(self):
         if self.javaType in JAVA_PRIMITIVE_TYPE_MAP.values():
             return True
