@@ -57,7 +57,9 @@ ${obj_or_prop.omeroPackage}.${obj_or_prop.javaType}\
     def sorted_and_filtered_properties(o):
         properties = sorted_properties(o)
         def f(x):
-            if x.name in ('ID', 'AnnotationRef', 'Description', 'Name',
+            if x.isReference:
+                return False
+            if x.name in ('ID', 'Description', 'Name',
                           'BinData', 'TiffData', 'MetadataOnly'):
                 return False
             return True
