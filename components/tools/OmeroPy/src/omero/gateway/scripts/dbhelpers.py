@@ -40,6 +40,9 @@ def loginAsRoot ():
     refreshConfig()
     return login(ROOT)
 
+def loginAsPublic ():
+    return login(settings.PUBLIC_USER, settings.PUBLIC_PASSWORD)
+
 def login (alias, pw=None):
     if isinstance(alias, UserEntry):
         return alias.login()
@@ -80,7 +83,7 @@ def login (alias, pw=None):
 
 class UserEntry (object):
     def __init__ (self, name, passwd, firstname='', middlename='', lastname='', email='',
-                  groupname=None, groupperms='rw----', admin=False):
+                  groupname=None, groupperms='rwrw--', groupowner=False, admin=False):
         self.name = name
         self.passwd = passwd
         self.firstname = firstname
@@ -90,6 +93,7 @@ class UserEntry (object):
         self.admin = admin
         self.groupname = groupname
         self.groupperms = groupperms
+        self.groupowner = groupowner
 
     def fullname (self):
         return '%s %s' % (self.firstname, self.lastname)
@@ -127,7 +131,7 @@ class UserEntry (object):
             g = a.lookupGroup(groupname)
         return g
 
-    def create (self, client):
+    def create (self, client, password):
         a = client.getAdminService()
         try:
             a.lookupExperimenter(self.name)
@@ -146,16 +150,18 @@ class UserEntry (object):
         u.setLastName(omero.gateway.omero_type(self.lastname))
         u.setEmail(omero.gateway.omero_type(self.email))
         a.createUser(u, g.getName().val)
+        u = a.lookupExperimenter(self.name)
         if self.admin:
-            u = a.lookupExperimenter(self.name)
             a.addGroups(u,(a.lookupGroup("system"),))
-        client.c.sf.setSecurityPassword(ROOT.passwd) # See #3202
+        client.c.sf.setSecurityPassword(password) # See #3202
         a.changeUserPassword(u.getOmeName().val, omero.gateway.omero_type(self.passwd))
+        if self.groupowner:
+            a.setGroupOwner(g, u)
         return True
 
-    def changePassword (self, client, password):
+    def changePassword (self, client, password, rootpass):
         a = client.getAdminService()
-        client.c.sf.setSecurityPassword(ROOT.passwd) # See #3202
+        client.c.sf.setSecurityPassword(rootpass) # See #3202
         a.changeUserPassword(self.name, omero.gateway.omero_type(password))
 
     @staticmethod
@@ -319,7 +325,6 @@ class ImageEntry (ObjectEntry):
         host = dataset._conn.c.ic.getProperties().getProperty('omero.host') or 'localhost'
         port = dataset._conn.c.ic.getProperties().getProperty('omero.port') or '4063'
 
-
         exe = path(".") / ".." / "bin" /"omero" # Running from dist
         if not exe.exists():
             exe = path(".") / ".." / ".."/ ".." / "dist" / "bin" / "omero" # Running from OmeroPy
@@ -334,6 +339,7 @@ class ImageEntry (ObjectEntry):
         #print session
         exe += ' -s %s -k %s -p %s import -d %i -n' % (host, session, port, dataset.getId())
         exe = exe.split() + [self.name, fpath]
+        print ' '.join(exe)
         try:
             p = subprocess.Popen(exe,  shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except OSError:
@@ -388,8 +394,8 @@ def bootstrap ():
     # Create users
     client = loginAsRoot()
     for k, u in USERS.items():
-        if not u.create(client):
-            u.changePassword(client, u.passwd)
+        if not u.create(client, ROOT.passwd):
+            u.changePassword(client, u.passwd, ROOT.passwd)
     for k, p in PROJECTS.items():
         p = p.create()
         p._conn.seppuku()
