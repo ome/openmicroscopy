@@ -358,28 +358,7 @@
     </script>
 
 
-{% comment %}
-    <!-- Example toolbar of links to webtest pages. Remove comments to activate -->
-    {% include "webtest/webtest-toolbar-include.html" %}
-{% endcomment %}
 
-    <div id="annotation_tabs" class="absolute_fill ui-tabs">
-        <ul>
-            {% if manager.tag %}
-                <li><a href="#metadata_tab">{% trans "General" %}</a></li>
-            {% else %}
-                <li><a href="#annotation_tab">{% trans "General" %}</a></li>
-                {% if manager.image %}
-                    <li><a id='acquisition' title="metadata tab" href="{% url load_metadata_acquisition 'image' manager.image.id %}">{% trans "Acquisition" %}</a></li>                
-                    <li><a id='preview' title="preview tab" href="{% url load_metadata_preview manager.image.id %}">{% trans "Preview" %}</a></li>
-                {% endif %}
-                {% if manager.well %}
-                    <li><a id='acquisition' title="metadata tab" href="{% url load_metadata_acquisition 'image' manager.well.getWellSample.image.id %}">{% trans "Acquisition" %}</a></li>                
-                    <li><a id='preview' title="preview tab" href="{% url load_metadata_preview manager.well.getWellSample.image.id %}">{% trans "Preview" %}</a></li>
-                {% endif %}
-            {% endif %}
-        </ul>
-        <div class="clear"></div>  
         
         <div id='parent-id' style="display:none">
             {% if manager.image %}image-{{ manager.image.id}}{% else %}
@@ -395,31 +374,8 @@
                 {% endif %}
             {% endif %}
         </div>
-        
-        {% if manager.image %}
-        <!-- VIEWER "Preview"-->
-        <div id="preview_tab">
-            <img id="preview_spinner" src="{% static "webgateway/img/spinner.gif" %}" style='display:none'/>
-        </div>
-        {% endif %}
-        {% if manager.well %}
-		
-        <!-- VIEWER "Preview" -->
-        <div id="preview_tab">
-            <a id="preview-link" href="{% url load_metadata_preview manager.well.getWellSample.image.id %}" style='display:none'>Preview</a>
-            <img id="preview_spinner" src="{% static "webgateway/img/spinner.gif" %}" style='display:none'/>
-        </div>
-        {% endif %}
-        
-        
-        <!-- METADATA "Acquisition" TAB  - only show for images -->
-        {% if manager.image %}
-        <div id="metadata_tab"></div>
-        {% endif %}
-        {% if manager.well %}
-        <div id="metadata_tab"></div>
-        {% endif %}
-                
+
+
         {% if not manager.tag %}
         
 		
