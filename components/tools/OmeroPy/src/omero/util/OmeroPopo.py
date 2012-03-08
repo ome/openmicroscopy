@@ -36,12 +36,11 @@ from omero.model import ImageI
 from omero.model import RoiI
 from omero.model import EllipseI
 from omero.model import LineI
-from omero.model import RectI
+from omero.model import RectangleI
 from omero.model import PointI
 from omero.model import LabelI
 from omero.model import PolylineI
 from omero.model import PolygonI
-from omero.model import PathI
 from omero.model import MaskI
 from omero.model import NamespaceI
 from omero.rtypes import rdouble
@@ -337,8 +336,8 @@ def shapeWrapper(serverSideShape):
     print  serverSideShape.__class__.__name__
     if serverSideShape.__class__.__name__=='EllipseI':
         return EllipseData(serverSideShape);
-    if serverSideShape.__class__.__name__=='RectI':
-        return RectData(serverSideShape);
+    if serverSideShape.__class__.__name__=='RectangleI':
+        return RectangleData(serverSideShape);
     if serverSideShape.__class__.__name__=='MaskI':
         return MaskData(serverSideShape);
     if serverSideShape.__class__.__name__=='PolygonI':
@@ -484,83 +483,30 @@ class ROIData(DataObject):
             if(coord>=start and coord <= end):
                 keyList.append(coord);
         return self.roiShapes.from_keys(keyList);
-
-    ##
-    # Returns the namespace of the ROI.
-    #
-    # @return see above.
-    #
-    def setNamespaceKeywords(self, namespace, keywords):
-        roi = self.asIObject();
-        if(roi==None):
-            raise Exception("No Roi specified.");
-        if(len(keywords)==0):
-            self.removeNamespace(namespace);
-        else:
-            map = self.getNamespaceKeywords();
-            map[namespace] = keywords;
-            self.setNamespaceMap(map);
-            self.setDirty(True);
     
     ##
-    # Remove the namespace from the ROI
-    # @param namespace See above.
+    # Sets the name space of the roi.
+    # @param namespace The value to set.
     #
-    def removeNamespace(self, namespace):
+    def setNamespace(self, namespace):
         roi = self.asIObject();
-        if(roi==None):
+        if (roi==None):
             raise Exception("No Roi specified.");
-        map = self.getNamespaceKeywords();
-        if(map.has_key(namespace)):
-            del map[namespace];
-        self.setNamespaceMap(map);
-        self.setDirty(True);
-    
-    ##
-    # Update the ROIData object to have the namespaces of the 
-    # map, and the keywords of the map.
-    # @param map See above.
-    #
-    def setNamespaceMap(self, map):
-        roi = self.asIObject();
-        if(roi==None):
-            raise Exception("No Roi specified.");
-        roi.setNamespaces(map.keys);
-        keywords = [];
-        for namespace in map.keys:
-            keywords.append(map[namespace]);
-        roi.setKeywords(keywords);
+        roi.setNamespace(rstring(namespace));
         self.setDirty(True);
     
     ##
     # Retrieve the namespaces of the ROI
     # @return See above.
     #
-    def getNamespaces(self):
+    def getNamespace(self):
         roi = self.asIObject();
         if(roi==None):
             raise Exception("No Roi specified.");
-        namespaces = roi.getNamespaces();
-        if(namespaces==None):
-            return [];
-        return namespaces;
-
-    ##
-    # Get the keywords and namespaces as a map<namespace, keywords>
-    # @return See above.
-    #
-    def getNamespaceKeywords(self):
-        roi = self.asIObject();
-        if (roi == None):
-            raise Exception("No Roi specified.");
-        namespaces = self.getNamespaces();
-        namespaceKeywords = roi.getKeywords();
-        if(len(namespaces) != len(namespaceKeywords)):
-            raise Exception("Namespaces length does not match keywords namespace length.");
-        map = {};
-        for i in range(len(namespaces)):
-            map[namespaces[i]] = namespaceKeywords[i];
-        return map;
+        namespace = roi.getNamespace();
+        if (namespace==None):
+            return "";
+        return namespace;
 	
 class ShapeData(DataObject):
     
@@ -702,9 +648,9 @@ class ShapeData(DataObject):
     def transformToMatrix(self, str):
         if (str == ""):
             return numpy.matrix([[1,0,0],[0,1,0]])
-        transformstr = str[str.find('(')+1:len(str)-1];
-        values = transformstr.split(' ');
-        b = numpy.matrix(numpy.array(values, dtype='double'));
+        #transformstr = str[str.find('(')+1:len(str)-1];
+        #values = transformstr.split(' ');
+        b = numpy.matrix(numpy.array(str, dtype='double'));
         t = numpy.matrix(numpy.zeros((3,3)));
         t[0,0] = b[0,0];
         t[0,1] = b[0,2];
@@ -740,10 +686,10 @@ class EllipseData(ShapeData):
         ShapeData.__init__(self);
         if(shape==None):
             self.setValue(EllipseI());
-            self.setCx(0);
-            self.setCy(0);
-            self.setRx(0);
-            self.setRy(0);
+            self.setX(0);
+            self.setY(0);
+            self.setRadiusx(0);
+            self.setRadiusy(0);
         else:
             self.setValue(shape);
         
@@ -754,7 +700,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject();
         if(shape==None):
             raise Exception("No Shape specified.");
-        shape.setCx(rdouble(cx));
+        shape.setX(rdouble(cx));
 
     ## 
     # Get the centre x coord of the Ellipse
@@ -763,7 +709,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject();
         if(shape==None):
             raise Exception("No Shape specified.");
-        cx = shape.getCx();
+        cx = shape.getX();
         if(cx==None):
             return 0;
         return cx.getValue();
@@ -784,7 +730,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject();
         if(shape==None):
             raise Exception("No Shape specified.");
-        cy = shape.getCy();
+        cy = shape.getY();
         if(cy==None):
             return 0;
         return cy.getValue();
@@ -796,7 +742,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject();
         if(shape==None):
             raise Exception("No Shape specified.");
-        shape.setRx(rdouble(rx));
+        shape.setRadiusx(rdouble(rx));
 
     ## 
     # Get the radius of the x-axis of the Ellipse
@@ -805,7 +751,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject();
         if(shape==None):
             raise Exception("No Shape specified.");
-        rx = shape.getRx();
+        rx = shape.getRadiusx();
         if(rx==None):
             return 0;
         return rx.getValue();
@@ -817,7 +763,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject();
         if(shape==None):
             raise Exception("No Shape specified.");
-        shape.setRy(rdouble(ry));
+        shape.setRadiusy(rdouble(ry));
         
     ## 
     # Get the radius of the y-axis of the Ellipse
@@ -826,7 +772,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject();
         if(shape==None):
             raise Exception("No Shape specified.");
-        ry = shape.getRy();
+        ry = shape.getRadiusy();
         if(ry==None):
             return 0;
         return ry.getValue();
@@ -907,9 +853,6 @@ class PolygonData(ShapeData):
         if(shape==None):
             self.setValue(PolygonI());
             self.points = [];
-            self.points1 = [];
-            self.points2 = [];
-            self.mask = [];
         else:
             self.setValue(shape);
             self.parseShapeStringToPoints();
@@ -919,33 +862,8 @@ class PolygonData(ShapeData):
     # @return See above.
     #
     def getPoints(self):
-        pts = self.fromPoints("points");
-        return self.parsePointsToList(pts);
+        return self.getPointsString()
 
-    ##
-    # Get the points1 from the points String 
-    # @return See above.
-    #
-    def getPoints1(self):
-        pts =  self.fromPoints("points1");
-        return self.parsePointsToList(pts);
-
-    ##
-    # Get the points2 from the points String 
-    # @return See above.
-    #
-    def getPoints2(self):
-        pts =  self.fromPoints("points2");
-        return self.parsePointsToList(pts);
-        
-    ##
-    # Get the mask type from the points String 
-    # @return See above.
-    #
-    def getMaskPoints(self):
-        pts =  self.fromPoints("mask");
-        return self.parsePointsToList(pts);
-    
     ##
     # Set the points from the original PolygonI type.
     # @param pts The points values.
@@ -955,25 +873,14 @@ class PolygonData(ShapeData):
         if(shape==None):
             raise Exception("No Shape specified.");
         shape.setPoints(pts);
-        self.setDirty(True);        
-        self.parseShapeStringToPoints();
+        self.setDirty(True);
     
     ##
     # Set the points from a series of lists, and also set the points string.
     # @param points The points list.
-    # @param points1 The points1 list.
-    # @param points2 The points2 list.
-    # @param mask The mask represents the curve type, lineTo, ArcTo..
-    def setPointsFromList(self, points, points1, point2, mask):
+    def setPointsFromList(self, points):
         pts = self.toString(points);
-        pts1 = self.toString(points);
-        pts2 = self.toString(points);
-        mask = self.toString(points);
-        str =  "points["+pts+"] ";
-        str = str + "points1["+pts1+"] ";
-        str = str + "points2["+pts2+"] ";
-        str = str + "mask["+mask+"]";
-        self.setPointsString(str);
+        self.setPointsString(pts);
         
     ##
     # Get the points string from the IObject
@@ -988,39 +895,7 @@ class PolygonData(ShapeData):
         else:
             return pts.getValue();
     
-    ##
-    # Get the points of type from the point string.
-    # @param type The points type to return, points, point1, point2, mask
-    # @return See above.
-    #
-    def fromPoints(self, type):
-        return self.getContents(self.getPointsString(), type+"[","]");
-        
-    ##
-    # Helper method to get the contents of the values from the string of form type[values].
-    # @param string The string to parse.
-    # @param start the first part of the string to break apart on. "type["
-    # @param end the last part of the string to break apart "]".
-    # @return The contents of the string between start ReturnValues end
-    #
-    def getContents(self, string, start, end):
-        lIndex = string.find(start);
-        if(lIndex == -1):
-            return ""; 
-        strFragment = string[lIndex:];
-        rIndex = strFragment.find(']');
-        if(rIndex == -1):
-            return "";
-        return string[lIndex+len(start):rIndex];
-    
-    ##
-    # Convert the pts string to a list
-    # @return See above.
-    #
-    def parsePointsToList(self, pts):
-        numberList = pts.split(',');
-        return numberList;
-        
+     
     ##
     # Convert the pointsList to a string, of CSV 
     # @return See above.
@@ -1032,16 +907,7 @@ class PolygonData(ShapeData):
             if(index<len(pointsList)-1):
                 str = str + ",";
         return str;
-    
-    ##
-    # Convert the points string to the points lists, points, point1, point2 and mask.
-    #
-    def parseShapeStringToPoints(self):
-        self.points = self.fromPoints("points");
-        self.points1 = self.fromPoints("points1");
-        self.points2 = self.fromPoints("points2");
-        self.mask = self.fromPoints("mask");
-    
+
     ##
     # Returns the bounding rectangle of the polygon, as a list of coords [(x1,y1), (x2,y2)]
     # @return See above.
@@ -1255,7 +1121,7 @@ class MaskData(ShapeData):
 ##
 # Instance of the RectangleData object
 # 
-class RectData(ShapeData):
+class RectangleData(ShapeData):
     
     ##
     # Create instance of MaskData Object
@@ -1263,7 +1129,7 @@ class RectData(ShapeData):
     def __init__(self, rectShape=None):
         ShapeData.__init__(self);
         if (rectShape == None):
-            self.setValue(RectI());
+            self.setValue(RectangleI());
             self.setX(0);
             self.setY(0);
             self.setWidth(0);
@@ -1409,99 +1275,3 @@ class RectData(ShapeData):
                 if (newX-transformedX < width and newY-transformedY < height and newX-transformedX > 0 and newY-transformedY > 0):
                     points[(int(x+cx), int(y+cy))]=1;
         return points;              
-
-##
-# The workflow data object, which wraps the omero.mdoel.NamespaceI class 
-#
-class WorkflowData(DataObject):
-    def __init__(self, workflow=None):
-        DataObject.__init__(self);
-        if(workflow==None):
-            self.setValue(NamespaceI());
-            self.setNamespace("");
-            self.setKeywords([]);
-            self.setDirty(True);
-        else:
-            self.setValue(workflow);
-
-    ## 
-    # Set the namespace of the workflow.
-    # @param namespace See above.
-    def setNamespace(self, namespace):
-        workflow = self.asIObject();
-        if(workflow==None):
-            raise Exception("No workflow specified.");
-        workflow.setName(rstring(namespace));
-        self.setDirty(True);
-
-    ## 
-    # Get the namespace of the workflow
-    # @return See Above. 
-    def getNamespace(self):
-        workflow = self.asIObject();
-        if(workflow==None):
-            raise Exception("No Workflow specified.");
-        namespace = workflow.getName();
-        if(namespace==None):
-            return "";
-        return namespace.getValue();
-        
-    ## 
-    # Set the keywords of the workflow.
-    # @param namespace See above.
-    def setKeywords(self, keywords):
-        workflow = self.asIObject();
-        if(workflow==None):
-            raise Exception("No workflow specified.");
-        workflow.setKeywords(keywords);
-        self.setDirty(True);    
-    
-    ## 
-    # Set the keywords of the workflow.
-    # @param namespace See above.
-    def setKeywordsFromString(self, keywords):
-        workflow = self.asIObject();
-        if(workflow==None):
-            raise Exception("No workflow specified.");
-        workflow.setKeywords(toList(keywords));
-        self.setDirty(True);
-
-    ## 
-    # Get the keywords of the workflow
-    # @return See Above. 
-    def getKeywords(self):
-        workflow = self.asIObject();
-        if(workflow==None):
-            raise Exception("No Workflow specified.");
-        keywords = workflow.getKeywords();
-        if(keywords==None):
-            return [];
-        return keywords;
-        
-    ## 
-    # Add a keyword to the workflow
-    # @param keyword See Above. 
-    def addKeyword(self, keyword):
-        if(self.containsKeyword(keyword)):
-            return;
-        keywords = self.getKeywords();
-        keywords.append(keyword);
-        self.setKeywords(keywords);       
-
-    ## 
-    # Return <code>True</code> if the keyword is part of workflow
-    # @return See Above. 
-    def containsKeyword(self, keyword):
-        keywords = self.getKeywords();
-        return (keyword in keywords);
-        
-    ## 
-    # Remove the keyword from the workflow
-    # @param keyword See Above. 
-    def removeKeyword(self, keyword):
-        if(not self.containsKeyword(keyword)):
-            return;
-        newList = self.getKeywords();
-        newList.remove(keyword);
-        self.setKeywords(newList);
-        
