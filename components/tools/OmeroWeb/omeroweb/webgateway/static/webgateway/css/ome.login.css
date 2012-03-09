@@ -19,45 +19,108 @@
 
 
 body {
-	background:hsl(215,10%,90%);
+	background:hsl(215,20%,90%);
 }
 
 #login-logo {
     margin: 20% auto 20px;
     width: 290px;
 }
+
+
+
 #login {
-    margin: 0px auto;
-    background-color: red;
-    border: 1px solid #555;
-    width: 551px;
+	width:370px;
+	margin: 0 auto;
+	color:#333;
+	
 }
 
-#login table {
-    margin-left: auto;
-    margin-right: auto;
-}
+	#login form {
+    padding: 40px;
+	-webkit-border-radius:5px;
+	border-radius:5px;
+	background:hsl(215,4%,96%);
+	-webkit-box-shadow: 0 1px 1px rgba(0,0,0,.2);
+	border-top:solid 1px white;
+	border-right:solid 1px white;
+	border-left:solid 1px white;
+	border-bottom:solid 1px white;
+	overflow:hidden;
+	}
 
-#login form {
-    padding: 5px;
-    color: #fff;
-}
-#login td {
-    text-align: left;
-    padding: 5px ;
-    vertical-align:middle;
-}
-#login th {
-    font-weight: bold;
-    vertical-align:middle;
-}
-#login form table td select {
-    min-width: 200px;
-}
+		#login div {
+			margin-bottom: 6px;
+		}
+			
+		#choose_server img {
+			top:-3px;
+			position:relative;
+		}
+		
+
+			#login label {
+				color:#333;
+				color:hsl(210,10%,50%);
+				text-shadow: 0 1px 0 white;
+				width:25%;
+				display:inline-block;
+				font-size:1.2em;
+			}
+	
+			#login input, #login select {
+				display:inline-block;
+				font-size:1.6em;
+			}
+			
+			#login input[type=text], #login input[type=password] {
+				width:70%;
+				border: solid 1px rgba(0,0,0,.2);
+				-webkit-box-shadow: 0 1px 0 white;
+				-webkit-border-radius: 2px;
+				padding:5px 2px;
+			}
+			
+			#login select {
+				width:64%;
+				margin-right:5px;
+			}
+	
+			
+			#login input[type="submit"] {
+				cursor: pointer;
+				float:right;
+				width:40%;
+				margin-right:2px;
+				display:block;
+				background-color:hsl(210,50%,60%);
+				background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,60%)), to(hsl(210,40%,70%)));
+				border-top:solid 1px hsl(210,40%,50%);
+				border-right:solid 1px hsl(210,40%,40%);
+				border-left:solid 1px hsl(210,40%,40%);
+				border-bottom:solid 1px hsl(210,40%,35%);
+				-webkit-border-radius:3px;
+				-moz-border-radius:3px;
+				-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 1px rgba(0,0,0,.3);
+				padding:5px;
+				font-size:1.3em;
+				font-weight:bold;
+				color: hsl(210,70%,10%);
+				text-shadow: 0 1px 0 rgba(255,255,255,.3);
+				border-radius:3px;
+			}
+
+
+
+
+
+
 #login-footer {
     clear: both;
-    font-size: 11px;
+    font-size: 1.1em;
     text-align: center;
     margin-top: 10px;
-    height: 100px;
+	line-height:1.5em;
+	color:hsl(210,10%,65%);
+	text-shadow: 0 1px 0 rgba(255,255,255,.5);
 }
