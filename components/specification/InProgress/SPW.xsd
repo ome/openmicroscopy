@@ -557,6 +557,7 @@
 
 	<xsd:element name="WellSample"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>WellSamples</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				WellSample is an individual image that has been captured within a Well.
 			</xsd:documentation>

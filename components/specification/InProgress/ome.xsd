@@ -295,6 +295,7 @@
 	</xsd:element>
 	<xsd:element name="Pixels"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Pixels</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				NOTE: Pixels is DEPRECATED, but it is still required.
 				This is just notice that the contents of Pixels will be
@@ -1151,6 +1152,7 @@
 	</xsd:element>
 	<xsd:element name="Experimenter"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Experimenters</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				This element describes a person who performed an imaging experiment.
 				This person may also be a user of the OME system, in which case the UserName element contains their login name.
@@ -1683,6 +1685,7 @@
 	</xsd:element>
 	<xsd:element name="LightPath"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>LightPaths</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>A description of the light path</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
