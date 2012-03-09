@@ -855,7 +855,8 @@ class PolygonData(ShapeData):
             self.points = [];
         else:
             self.setValue(shape);
-            self.parseShapeStringToPoints();
+            self.setPointsString(pts);
+            #self.parseShapeStringToPoints();
     
     ##
     # Get the points from the points String 
@@ -874,13 +875,6 @@ class PolygonData(ShapeData):
             raise Exception("No Shape specified.");
         shape.setPoints(pts);
         self.setDirty(True);
-    
-    ##
-    # Set the points from a series of lists, and also set the points string.
-    # @param points The points list.
-    def setPointsFromList(self, points):
-        pts = self.toString(points);
-        self.setPointsString(pts);
         
     ##
     # Get the points string from the IObject
