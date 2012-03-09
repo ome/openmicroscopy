@@ -35,6 +35,7 @@ from posix import getuid
 from pwd import getpwuid
 
 from util import odict
+from xml.etree import ElementTree
 
 try:
     import mx.DateTime as DateTime
@@ -307,13 +308,6 @@ class OMEModelEntity(object):
     javaMethodName = property(_get_javaMethodName,
         doc="""The property's Java method name.""")
 
-    def _get_javaInstanceVariableName(self):
-        if self.maxOccurs > 1:
-            return self.javaArgumentName + 'List';
-        return self.javaArgumentName
-    javaInstanceVariableName = property(_get_javaInstanceVariableName,
-        doc="""The property's Java instance variable name.""")
-
 class OMEModelProperty(OMEModelEntity):
     """
     An aggregate type representing either an OME XML Schema element, 
@@ -329,6 +323,12 @@ class OMEModelProperty(OMEModelEntity):
         self.parent = parent
         self.isAttribute = False
         self.isBackReference = False
+        self.plural = None
+        try:
+            root = ElementTree.fromstring(delegate.appinfo)
+            self.plural = root.findtext('plural')
+        except AttributeError:
+            pass
 
     def _get_type(self):
         if self.isAttribute:
@@ -449,6 +449,16 @@ class OMEModelProperty(OMEModelEntity):
     possibleValues = property(_get_possibleValues,
         doc="""If the property is an enumeration, it's possible values.""")
     
+    def _get_javaInstanceVariableName(self):
+        if self.maxOccurs > 1:
+            plural = self.plural
+            if plural is None:
+                plural = self.model.getObjectByName(self.type).plural
+            return plural[0].lower() + plural[1:]
+        return self.javaArgumentName
+    javaInstanceVariableName = property(_get_javaInstanceVariableName,
+        doc="""The property's Java instance variable name.""")
+
     def isComplex(self):
         """
         Returns whether or not the property has a "complex" content type.
@@ -501,15 +511,18 @@ class OMEModelObject(OMEModelEntity):
         self.name = element.getName()
         self.type = element.getType()
         self.properties = odict()
-        if hasattr(element, 'appinfo') and element.appinfo == 'abstract':
-            self.isAbstract = True
-        else:
-            self.isAbstract = False
-        if hasattr(element, 'appinfo') \
-           and element.appinfo == 'abstract-proprietary':
-            self.isAbstractProprietary = True
-        else:
-            self.isAbstractProprietary = False
+        self.isAbstract = False
+        self.isAbstractProprietary = False
+        self.plural = None
+        try:
+            root = ElementTree.fromstring(element.appinfo)
+            if root.find('abstract') is not None:
+                self.isAbstract = True
+            if root.find('abstractproprietary') is not None:
+                self.isAbstractProprietary = True
+            self.plural = root.findtext('plural')
+        except AttributeError:
+            pass
     
     def addAttribute(self, attribute):
         """
@@ -607,6 +620,13 @@ class OMEModelObject(OMEModelEntity):
                     return parent.javaType
             return "Object"
     javaType = property(_get_javaType, doc="""The property's Java type.""")
+
+    def _get_javaInstanceVariableName(self):
+        if self.maxOccurs > 1:
+            return self.plural[0].lower() + self.plural[1:]
+        return self.javaArgumentName
+    javaInstanceVariableName = property(_get_javaInstanceVariableName,
+        doc="""The property's Java instance variable name.""")
 
     def isComplex(self):
         """
