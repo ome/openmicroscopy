@@ -285,7 +285,13 @@ class OMEModelEntity(object):
                 simpleTypeName = simpleType.getBase()
 
     def _get_omeroPackage(self):
-        suffix = PACKAGE_NAMESPACE_RE.match(self.namespace).group(1)
+        namespace = self.namespace
+        try:
+            if self.isBackReference:
+                namespace = self.model.getObjectByName(self.type).namespace
+        except AttributeError:  # OMEModelObject not OMEModelProperty
+            pass
+        suffix = PACKAGE_NAMESPACE_RE.match(namespace).group(1)
         try:
             return OMERO_PACKAGE_OVERRIDES[suffix]
         except:
