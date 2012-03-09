@@ -138,7 +138,7 @@ DEFAULT_PACKAGE = "ome.xml.r2008"
 
 # The package regular expression for OME namespaces.
 PACKAGE_NAMESPACE_RE = re.compile(
-        r'http://www.openmicroscopy.org/Schemas/(\w+)/\d+-\d+')
+        r'http://www.openmicroscopy.org/Schemas/(\w+)/\d+-\w+')
 
 # The default OMERO package.
 OMERO_DEFAULT_PACKAGE = "omero.model"
