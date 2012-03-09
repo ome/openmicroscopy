@@ -288,7 +288,7 @@ def getRectangle(roiService, imageId, roiLabel):
     for roi in result.rois:
         timeShapeMap = {} # map of tIndex: (x,y,zMin,zMax) for a single roi
         for shape in roi.copyShapes():
-            if type(shape) == omero.model.RectI:
+            if type(shape) == omero.model.RectangleI:
                 t = shape.getTheT().getValue()
                 z = shape.getTheZ().getValue()
                 x = int(shape.getX().getValue())

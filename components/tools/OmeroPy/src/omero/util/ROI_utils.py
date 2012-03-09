@@ -313,10 +313,10 @@ class EllipseData(ShapeData, ROIDrawingI):
     def setROIGeometry(self, ellipse):
         ellipse.setTheZ(self.coord.theZ);
         ellipse.setTheT(self.coord.theZ);
-        ellipse.setX(self.cx);
-        ellipse.setY(self.cy);
-        ellipse.setRadiusx(self.rx);
-        ellipse.setRadiusy(self.ry);
+        ellipse.setX(self.x);
+        ellipse.setY(self.y);
+        ellipse.setRadiusx(self.radiusx);
+        ellipse.setRadiusy(self.radiusy);
 
     ##
     # overridden, @See ShapeData#getGeometryFromROI
