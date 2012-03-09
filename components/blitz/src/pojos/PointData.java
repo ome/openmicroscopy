@@ -28,7 +28,6 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
-import omero.RString;
 import omero.rtypes;
 import omero.model.Point;
 import omero.model.PointI;
@@ -84,35 +83,6 @@ public class PointData
 	}
 	
 	/**
-	 * Returns the text of the shape.
-	 * 
-	 * @return See above.
-	 */
-	public String getText()
-	{
-		Point shape = (Point) asIObject();
-		RString value = shape.getTextValue();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the text of the shape.
-	 * 
-	 * @param text See above.
-	 */
-	public void setText(String text)
-	{
-		if(isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Point shape = (Point) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setTextValue(rtypes.rstring(text));
-	}
-	
-	
-	/**
 	 * Returns the x-coordinate of the shape.
 	 * 
 	 * @return See above.
@@ -121,7 +91,7 @@ public class PointData
 	{
 		Point shape = (Point) asIObject();
 		if (shape == null) return 0;
-		RDouble value = shape.getCx();
+		RDouble value = shape.getX();
 		if (value == null) return 0;
 		return value.getValue();
 	}
@@ -138,7 +108,7 @@ public class PointData
 		Point shape = (Point) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setCx(rtypes.rdouble(x));
+		shape.setX(rtypes.rdouble(x));
 	}
 	
 	/**
@@ -150,7 +120,7 @@ public class PointData
 	{
 		Point shape = (Point) asIObject();
 		if (shape == null) return 0;
-		RDouble value = shape.getCy();
+		RDouble value = shape.getY();
 		if (value == null) return 0;
 		return value.getValue();
 	}
@@ -167,7 +137,7 @@ public class PointData
 		Point shape = (Point) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setCy(rtypes.rdouble(y));
+		shape.setY(rtypes.rdouble(y));
 	}
 	
 }

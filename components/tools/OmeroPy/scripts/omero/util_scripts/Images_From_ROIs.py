@@ -67,7 +67,7 @@ def getRectangles(conn, imageId):
         tEnd = 0
         x = None
         for shape in roi.copyShapes():
-            if type(shape) == omero.model.RectI:
+            if type(shape) == omero.model.RectangleI:
                 # check t range and z range for every rectangle
                 t = shape.getTheT().getValue()
                 z = shape.getTheZ().getValue()

@@ -23,8 +23,8 @@ class TestRois(lib.ITest):
         """
         img = self.new_image("#3703")
         roi = omero.model.RoiI()
-        roi.addShape(omero.model.RectI())
-        roi.addShape(omero.model.RectI())
+        roi.addShape(omero.model.RectangleI())
+        roi.addShape(omero.model.RectangleI())
         roi.setShape(0, None)
         img.addRoi(roi)
 

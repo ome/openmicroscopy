@@ -24,16 +24,15 @@ package pojos;
 
 //Java imports
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.Map;
-import java.lang.Math;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RString;
+import omero.rtypes;
 import omero.model.Ellipse;
 import omero.model.Image;
 import omero.model.Line;
@@ -41,7 +40,7 @@ import omero.model.Mask;
 import omero.model.Point;
 import omero.model.Polygon;
 import omero.model.Polyline;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
@@ -73,8 +72,6 @@ public class ROIData
 	/** Initializes the map. */
 	private void initialize()
 	{
-		roiShapes = new TreeMap<ROICoordinate, List<ShapeData>>
-						(new ROICoordinate());
 		Roi roi = (Roi) asIObject();
 		List<Shape> shapes = roi.copyShapes();
 		if (shapes == null) return;
@@ -86,7 +83,7 @@ public class ROIData
 		while (i.hasNext()) {
 			shape = i .next();
 			s = null;
-			if (shape instanceof Rect) 
+			if (shape instanceof Rectangle) 
 				s = new RectangleData(shape);
 			else if (shape instanceof Ellipse)
 				s = new EllipseData(shape);
@@ -122,6 +119,8 @@ public class ROIData
 	{
 		super();
 		setValue(roi);
+		roiShapes = new TreeMap<ROICoordinate, List<ShapeData>>
+		(new ROICoordinate());
 		if (roi != null) initialize();
 	}
 	
@@ -221,8 +220,7 @@ public class ROIData
 		Iterator<ROICoordinate> i = roiShapes.keySet().iterator();
 		int cnt = 0;
 		List shapeList;
-		while(i.hasNext())
-		{
+		while(i.hasNext()) {
 			shapeList = roiShapes.get(i.next());
 			cnt += shapeList.size();
 		}
@@ -304,149 +302,84 @@ public class ROIData
 	}
 	
 	/**
-	 * Sets the namespace and keywords.
-	 * 
-	 * @param namespace The value to set.
-	 * @param keywords The value to set.
-	 */
-	public void setNamespaceKeywords(String namespace, String[] keywords)
-	{
-		if (namespace.equals("") || keywords.length == 0)
-			return;
-        Roi roi = (Roi) asIObject();
-		if (roi == null) 
-			throw new IllegalArgumentException("No Roi specified.");
-		if (keywords.length == 0)
-			removeNamespace(namespace);
-		else
-		{
-			Map<String, List<String>> map = getNamespaceKeywords();
-			List<String> keywordsList = new ArrayList<String>();
-			for (String keyword: keywords)
-				if (!keyword.equals(""))
-					keywordsList.add(keyword);
-			if (keywordsList.size() == 0)
-				return;
-			map.put(namespace, keywordsList);
-			setNamespaceMap(map);
-			setDirty(true);
-		}
-	}
-	
-	/**
-	 * Removes the namespace from the ROI.
-	 * 
-	 * @param namespace The value to remove.
-	 */
-	public void removeNamespace(String namespace)
-	{
-        Roi roi = (Roi) asIObject();
-		if (roi == null) 
-			throw new IllegalArgumentException("No Roi specified.");
-		Map<String, List<String>> map = getNamespaceKeywords();
-		if (map.containsKey(namespace))
-		{
-			map.remove(namespace);
-			setNamespaceMap(map);
-			setDirty(true);
-		}
-	}
-	
-	/**
-	 * Sets the namespaces and keywords of the ROI from the map.
-	 * 
-	 * @param map See above.
-	 */
-	public void setNamespaceMap(Map<String, List<String>> map)
-	{
-        Roi roi = (Roi) asIObject();
-		if (roi == null) 
-			throw new IllegalArgumentException("No Roi specified.");
-		Iterator<String> namespaceIterator = map.keySet().iterator();
-		String[] namespaces = new String[map.size()];
-		int k = 0;
-		while (namespaceIterator.hasNext())
-			namespaces[k++] = namespaceIterator.next();
-		roi.setNamespaces(namespaces);
-		int maxKeywordLength = 0;
-		for (String namespace : namespaces)
-			maxKeywordLength = Math.max(maxKeywordLength, 
-					map.get(namespace).size());
-		String[][] keywords = new String[namespaces.length][maxKeywordLength];
-		List<String> keywordsList;
-		for (int i = 0 ; i < namespaces.length ; i++)
-		{
-			keywordsList = map.get(namespaces[i]);
-			for (int j = 0 ; j < map.get(namespaces[i]).size() ; j++)
-				keywords[i][j] = keywordsList.get(j);
-		}
-		roi.setKeywords(keywords);
-		setDirty(true);
-	}
-	
-	/**
-	* Returns the namespace of the ROI.
-	* 
-    * @return See above.
-	*/
-	public List<String> getNamespaces()
-	{
-        Roi roi = (Roi) asIObject();
-		if (roi == null) 
-			throw new IllegalArgumentException("No Roi specified.");
-		List<String> namespaces = new ArrayList<String>(); 
-        String[] namespacesArray = roi.getNamespaces();
-        if (namespacesArray != null)
-        	for(String namespace : namespacesArray)
-        		namespaces.add(namespace);
-        return namespaces;
-	}
-	
-	/**
-	 * Returns the keywords of the namespace on the ROI.
-	 * 
-	 * @param namespace See above.
-	 * @return See above.
-	 */
-	public List<String> getNamespaceKeywords(String namespace)
-	{
-		Map<String, List<String>> map = getNamespaceKeywords();
-		if (!map.containsKey(namespace))
-			throw new IllegalArgumentException("Namespace " + namespace + 
-					" does not exist.");
-		return map.get(namespace);
-	}
-	
-	/**
-	 * Returns the keywords of the ROI.
+	 * Returns the description.
 	 * 
 	 * @return See above.
 	 */
-	public Map<String, List<String>> getNamespaceKeywords()
+	public String getDescription()
 	{
-        Map<String, List<String>> map = new HashMap<String, List<String>>();
 		Roi roi = (Roi) asIObject();
-		if (roi == null) 
-			throw new IllegalArgumentException("No Roi specified.");
-		List<String> namespaces = this.getNamespaces();
-		String[][] namespaceKeywords = roi.getKeywords();
-		if (namespaceKeywords == null)
-			return map;
-		if (namespaces.size() != namespaceKeywords.length)
-			throw new IllegalArgumentException("Namespaces length = " + 
-				namespaces.size() + " not equal to keywords namespaces " + 
-					namespaceKeywords.length);
-		List<String> keywordList;
-		String[] keywords;
-		for (int index = 0 ; index < namespaces.size() ; index++)
-		{
-			keywordList = new ArrayList<String>();
-			keywords = namespaceKeywords[index];
-			for (String keyword : keywords)
-				keywordList.add(keyword);
-			map.put(namespaces.get(index), keywordList);
-		}
-		return map;
+		if (roi == null) return "";
+		RString value = roi.getDescription();
+		if (value == null) return "";
+		return value.getValue();
+	}
+	
+	/**
+	 * Sets the description of the roi.
+	 * 
+	 * @param description The value to set.
+	 */
+	public void setDescription(String description)
+	{
+		Roi roi = (Roi) asIObject();
+		if (roi == null) return;
+		if (description == null) description = "";
+		roi.setDescription(rtypes.rstring(description));
+	}
+	
+	/**
+	 * Sets the name of the roi.
+	 * 
+	 * @param name The value to set.
+	 */
+	public void setName(String name)
+	{
+		Roi roi = (Roi) asIObject();
+		if (roi == null) return;
+		if (name == null) name = "";
+		roi.setDescription(rtypes.rstring(name));
+	}
+	
+	/**
+	 * Returns the name.
+	 * 
+	 * @return See above.
+	 */
+	public String getName()
+	{
+		Roi roi = (Roi) asIObject();
+		if (roi == null) return "";
+		RString value = roi.getName();
+		if (value == null) return "";
+		return value.getValue();
+	}
+	
+	/**
+	 * Sets the name space.
+	 * 
+	 * @param name The value to set.
+	 */
+	public void setNamespace(String name)
+	{
+		Roi roi = (Roi) asIObject();
+		if (roi == null) return;
+		if (name == null) name = "";
+		roi.setNamespace(rtypes.rstring(name));
+	}
+	
+	/**
+	 * Returns the namespace.
+	 * 
+	 * @return See above.
+	 */
+	public String getNamespace()
+	{
+		Roi roi = (Roi) asIObject();
+		if (roi == null) return "";
+		RString value = roi.getNamespace();
+		if (value == null) return "";
+		return value.getValue();
 	}
 	
 }

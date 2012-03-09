@@ -21,7 +21,7 @@ import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.LogicalChannel;
 import omero.model.Pixels;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Roi;
 import omero.model.Shape;
 import omero.sys.ParametersI;
@@ -43,7 +43,7 @@ public class ShapeStatsTest extends AbstractRoiITest {
         i.addPixels(p);
         i.setName(rstring("statsOfRect"));
         i.setAcquisitionDate(rtime(0));
-        Rect r = geomTool.rect(0, 0, 10, 10);
+        Rectangle r = geomTool.rect(0, 0, 10, 10);
         Roi roi = createRoi(i, "statsOfRect", r);
         ShapeStats stats = assertStats(roi.getPrimaryShape());
     }
@@ -58,7 +58,7 @@ public class ShapeStatsTest extends AbstractRoiITest {
         i.addPixels(p);
         i.setName(rstring("statsOfRectImplicitChannels"));
         i.setAcquisitionDate(rtime(0));
-        Rect r = geomTool.rect(0, 0, 10, 10);
+        Rectangle r = geomTool.rect(0, 0, 10, 10);
         Roi roi = createRoi(i, "statsOfRect", r);
 
         ShapeStats stats = assertStats(roi.getPrimaryShape(), lcs);
@@ -74,7 +74,7 @@ public class ShapeStatsTest extends AbstractRoiITest {
         i.addPixels(p);
         i.setName(rstring("statsOfRectExplicitChannels"));
         i.setAcquisitionDate(rtime(0));
-        Rect r = geomTool.rect(0, 0, 10, 10);
+        Rectangle r = geomTool.rect(0, 0, 10, 10);
         // Now add one channel
         LogicalChannel lc = (LogicalChannel) assertFindByQuery(
                 "select lc from LogicalChannel lc where id = :id",

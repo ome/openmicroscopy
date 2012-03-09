@@ -67,11 +67,9 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ROIData;
-import pojos.WorkflowData;
 
 /** 
  * Implements the {@link MeasurementViewer} interface to provide the 
@@ -207,7 +205,6 @@ class MeasurementViewerComponent
     void saveAndDiscard()
     {
     	model.saveROIToServer(false);
-    	model.saveWorkflowToServer(false);	
     	discard();
     }
     
@@ -254,16 +251,12 @@ class MeasurementViewerComponent
         		if (HCSData) {
         			if (measurements == null) {
         				model.setHCSData(false);
-        				model.fireLoadWorkflow();
                 		model.fireLoadROIServerOrClient(false);
         			} else 
         				model.fireLoadROIFromServer(measurements);
         		} else {
-        			model.fireLoadWorkflow();
             		model.fireLoadROIServerOrClient(false);
         		}
-        		//model.fireROILoading(null);
-        		//fireStateChange();
                 break;
             case DISCARDED:
                 throw new IllegalStateException(
@@ -918,35 +911,6 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#createWorkflow()
-     */
-	public void createWorkflow()
-	{
-		view.createWorkflow();
-	}
-
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setWorkflow(String)
-     */
-	public void setWorkflow(String workflowNamespace)
-	{
-		workflowNamespace = view.getWorkflowFromDisplay(workflowNamespace);
-		model.setWorkflow(workflowNamespace);
-		view.updateWorkflow();
-	}
-
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setWorkflow(List)
-     */
-	public void setKeyword(List<String> keyword)
-	{
-		model.setKeyword(keyword);
-	}
-	
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#isImageWritable()
      */
 	public boolean isImageWritable()
@@ -970,23 +934,6 @@ class MeasurementViewerComponent
 		return false;
 	}
 	
-	/** 
-	 * Overridden to return the name of the instance to save. 
-	 * @see #toString()
-	 */
-	public String toString() { return view.getTitle(); }
-
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setWorkflowList(List)
-     */
-	public void setWorkflowList(List<WorkflowData> workflows)
-	{
-		for(WorkflowData workflow : workflows)
-			model.addWorkflow(workflow);
-		view.addedWorkflow();
-	}
-
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#deleteAllROIs()
@@ -1032,5 +979,11 @@ class MeasurementViewerComponent
 		if (model.getState() == DISCARDED) return false;
 		return model.hasROIToDelete();
 	}
-	
+
+	/** 
+	 * Overridden to return the name of the instance to save. 
+	 * @see #toString()
+	 */
+	public String toString() { return view.getTitle(); }
+
 }

@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import pojos.WorkflowData;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -75,7 +73,7 @@ public class AnnotationKeys
 	public  static final AnnotationKey<List<Double>> ANGLE = 
 		new AnnotationKey<List<Double>>("measurementAngle", null);
 	
-	/** A list of lenghts in the figure, used for bezier, line and 
+	/** A list of lengths in the figure, used for bezier, line and 
 	 * line connection figures which can have a number of elbows. 
 	 */
 	public static final AnnotationKey<List<Double>> LENGTH = 
@@ -130,26 +128,10 @@ public class AnnotationKeys
 	/** The height of the figure.*/
 	public static final AnnotationKey<Double> HEIGHT = 
 		new AnnotationKey<Double>("measurementHeight", 0.0);
-//	public static final AnnotationKey<Long> ROIID = 
-//		new AnnotationKey<Long>("regionOfInterestID", null);
-//	public static final AnnotationKey<String> FIGURETYPE = 
-//		new AnnotationKey<String>("figureType", null);
-	
-	
+
 	/**
-	 * The namespace associated with the ROI.
+	 * A set with all attributes defined by this class.
 	 */
-	public static final AnnotationKey<String> NAMESPACE = 
-		new AnnotationKey<String>("Namespace", WorkflowData.DEFAULTWORKFLOW);
-	
-	/**
-	 * The keywords associated with the ROI.
-	 */
-	public static final AnnotationKey<String> KEYWORDS = 
-		new AnnotationKey<String>("Keywords", "");
-	 /**
-     * A set with all attributes defined by this class.
-     */
     public final static Set<AnnotationKey> 			supportedAnnotations;
     
     /** The map of the supported annotations. */
@@ -159,41 +141,31 @@ public class AnnotationKeys
     {
         Set<AnnotationKey> as = new HashSet<AnnotationKey>();
         as.addAll(Arrays.asList(new AnnotationKey[] 
-                                                  {
+        {
         		TEXT,
         		AREA,
-        		PERIMETER, 
+        		PERIMETER,
         		VOLUME, 
         		ANGLE,
         		LENGTH, 
-        		POINTARRAYX, 
-        		POINTARRAYY, 
-        		CENTREX, 
-        		CENTREY, 
-        		STARTPOINTX, 
-        		STARTPOINTY, 
-        		ENDPOINTX, 
-        		ENDPOINTY, 
+        		POINTARRAYX,
+        		POINTARRAYY,
+        		CENTREX,
+        		CENTREY,
+        		STARTPOINTX,
+        		STARTPOINTY,
+        		ENDPOINTX,
+        		ENDPOINTY,
         		WIDTH,
-        		HEIGHT, 
-        		NAMESPACE,
-        		KEYWORDS
-        //		ROIID, 
-        //		FIGURETYPE
-        		
+        		HEIGHT
         }));
         
         supportedAnnotations = Collections.unmodifiableSet(as);
         
-        HashMap<String,AnnotationKey> am = new HashMap<String,AnnotationKey>();
+        Map<String,AnnotationKey> am = new HashMap<String,AnnotationKey>();
         for (AnnotationKey a: as) 
-        {
             am.put(a.getKey(), a);
-        }
-        
         supportedAnnotationMap = Collections.unmodifiableMap(am);
     }
 
 }
-
-

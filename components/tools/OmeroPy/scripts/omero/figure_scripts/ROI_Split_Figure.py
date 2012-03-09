@@ -98,7 +98,7 @@ def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
     return True
 
 
-def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, mergedColours, 
+def getROIsplitView(re, pixels, zStart, zEnd, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, mergedColours, 
             roiX, roiY, roiWidth, roiHeight, roiZoom, tIndex, spacer, algorithm, stepping, fontsize, showTopLabels):
     """ This takes a ROI rectangle from an image and makes a split view canvas of the region in the ROI, zoomed 
         by a defined factor. 
@@ -327,7 +327,7 @@ def getRectangle(roiService, imageId, roiLabel):
         roiCount += 1
         # go through all the shapes of the ROI
         for shape in roi.copyShapes():
-            if type(shape) == omero.model.RectI:
+            if type(shape) == omero.model.RectangleI:
                 t = shape.getTheT().getValue()
                 z = shape.getTheZ().getValue()
                 x = shape.getX().getValue()

@@ -634,7 +634,6 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 result.rois = Collections.emptyList();
                 result.byZ = Collections.emptyMap();
                 result.byT = Collections.emptyMap();
-                result.byG = Collections.emptyMap();
                 result.groups = Collections.emptyMap();
                 return result; // EARLY EXIT
             }
@@ -644,7 +643,6 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             result.rois = rois;
             MultiMap byZ = new MultiValueMap();
             MultiMap byT = new MultiValueMap();
-            MultiMap byG = new MultiValueMap();
             for (Roi roi : rois) {
                 omero.model.RoiI roii = (omero.model.RoiI) roi;
                 Iterator<Shape> it = roii.iterateShapes();
@@ -663,13 +661,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                     } else {
                         byZ.put(-1, shape);
                     }
-                    if (shape.getG() != null) {
-                        byG.put(shape.getG().getValue(), shape);
-                    } else {
-                        byG.put("", shape);
-                    }
                 }
-                result.byG = byG;
                 result.byZ = byZ;
                 result.byT = byT;
             }
@@ -704,11 +696,5 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
         }
 
     }
-    
-    private class NamespaceKeywords
-    {
-    	public String[] namespaces;
-    	public String[][] keywords;
-    }
-    
+
 }

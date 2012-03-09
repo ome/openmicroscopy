@@ -44,18 +44,13 @@ public class Model42Test extends AbstractUpdateTest {
     }
 
     @Test
-    public void testRoiKeywords() {
+    public void testRoiNamespace() {
         Image img = new_Image("model42");
         Roi roi = new Roi();
         roi.setImage(img);
-        roi.setNamespaces(Arrays.asList("ns0", "ns0"));
-        roi.setKeywords(Arrays.asList(new String[] { "ns0-0", "ns0-1" },
-                new String[] { "ns1-0", "ns1-1" }));
+        roi.setNamespace("ns0");
         roi = iUpdate.saveAndReturnObject(roi);
-        assertEquals("ns0-0", roi.getKeywords().get(0)[0]);
-        assertEquals("ns0-1", roi.getKeywords().get(0)[1]);
-        assertEquals("ns1-0", roi.getKeywords().get(1)[0]);
-        assertEquals("ns1-1", roi.getKeywords().get(1)[1]);
+        assertEquals("ns0", roi.getNamespace());
     }
 
     @Test

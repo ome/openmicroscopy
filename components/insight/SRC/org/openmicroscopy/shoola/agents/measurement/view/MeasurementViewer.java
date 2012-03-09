@@ -35,12 +35,10 @@ import javax.swing.JFrame;
 import org.jhotdraw.draw.AttributeKey;
 
 //Application-internal dependencies
-import pojos.WorkflowData;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
 import pojos.FileAnnotationData;
 
 /** 
@@ -324,35 +322,12 @@ public interface MeasurementViewer
 	public void setUpdateROIComponent(Collection result);
 
 	/**
-	 * Create a new workflow
-	 */
-	public void createWorkflow();
-
-	/**
-	 * Set the current workflow to workflowNamespace. 
-	 * @param workflowNamespace The general name of the workflow. 
-	 */
-	public void setWorkflow(String workflowNamespace);
-
-	/**
-	 * Set the current keyword of the workflow to keyword. 
-	 * @param keyword The keyword of the workflow. 
-	 */
-	public void setKeyword(List<String> keyword);
-	
-	/**
 	 * Returns <code>true</code> if the specified image is writable,
 	 * <code>false</code> otherwise, depending on the permission.
 	 * 
 	 * @return See above.
 	 */
 	public boolean isImageWritable();
-
-	/**
-	 * Set the workflows in the measurement tool to be list passed.
-	 * @param workflows See above.
-	 */
-	public void setWorkflowList(List<WorkflowData> workflows);
 
 	/** Deletes all ROIs owned by the user currently logged in. */
 	public void deleteAllROIs();

@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -59,13 +58,8 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.ROILoader;
 import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
-import org.openmicroscopy.shoola.agents.measurement.WorkflowLoader;
-import org.openmicroscopy.shoola.agents.measurement.WorkflowSaver;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-import pojos.WorkflowData;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
@@ -187,15 +181,6 @@ class MeasurementViewerModel
     
     /** The collection of ROIs and tables related to the measurements. */
     private Collection 				 measurementResults;
-
-    /** The current workflow namespace being used. */
-	private String 					workflowNamespace;
-    
-	/** The map of workflow namespace, workflow. */
-	private Map<String, WorkflowData> 	workflows;
-	
-	/** The keyword of the current workflow. */
-	private List<String>			keyword;
 	
 	/** Flag indicating if the tool is for HCS data. */
 	private boolean					HCSData;
@@ -300,9 +285,6 @@ class MeasurementViewerModel
 		roiComponent.setMicronsPixelX(getPixelSizeX());
 		roiComponent.setMicronsPixelY(getPixelSizeY());
 		roiComponent.setMicronsPixelZ(getPixelSizeZ());
-		workflows = new HashMap<String, WorkflowData>();
-		this.workflowNamespace = WorkflowData.DEFAULTWORKFLOW;
-		this.keyword = new ArrayList<String>();
 	}
 	
 	/**
@@ -923,17 +905,7 @@ class MeasurementViewerModel
 	ROI createROI(ROIFigure figure, boolean addAttribs)
 		throws ROICreationException, NoSuchROIException
 	{
-		ROI roi = roiComponent.addROI(figure, getCurrentView(), addAttribs);
-		roi.setAnnotation(AnnotationKeys.NAMESPACE, this.workflowNamespace);
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0 ; i < keyword.size() ; i++)
-		{
-			buffer.append(keyword.get(i));
-			if (i < keyword.size()-1)
-				buffer.append(",");
-		}
-		roi.setAnnotation(AnnotationKeys.KEYWORDS, buffer.toString());		
-		return roi;
+		return roiComponent.addROI(figure, getCurrentView(), addAttribs);
 	}
 	
 	/**
@@ -999,44 +971,6 @@ class MeasurementViewerModel
 				getImageID(),  exp.getId());
 		currentLoader.load();
 		notifyDataChanged(dataChanged);
-	}
-	
-	/** 
-	 * Fires an asynchronous retrieval of the Workflow related user.
-	 */
-	void fireLoadWorkflow()
-	{
-		ExperimenterData exp = 
-			(ExperimenterData) MeasurementAgent.getUserDetails();
-		currentLoader = new WorkflowLoader(component, getSecurityContext(),
-				exp.getId());
-		currentLoader.load();
-	}
-	
-	/**
-	 * Retrieves the workflows saved.
-	 */
-	void retrieveWorkflowsFromServer()
-	{
-		ExperimenterData exp = 
-			(ExperimenterData) MeasurementAgent.getUserDetails();
-		OmeroImageService svc = 
-			MeasurementAgent.getRegistry().getImageService();
-		try
-		{
-			List<WorkflowData> result = svc.retrieveWorkflows(
-					getSecurityContext(), exp.getId());
-			workflows.clear();
-			component.setWorkflowList(result);
-		} catch (DSAccessException e)
-		{
-			Logger log = MeasurementAgent.getRegistry().getLogger();
-			log.error(this, "Cannot load workflows");
-		} catch (DSOutOfServiceException e)
-		{
-			Logger log = MeasurementAgent.getRegistry().getLogger();
-			log.error(this, "Cannot load workflows");
-		}
 	}
 	
 	/** 
@@ -1194,39 +1128,6 @@ class MeasurementViewerModel
 	 * @return See above.
 	 */
 	ImageData getImage() { return pixels.getImage(); }
-	
-	/** 
-	 * Saves the current ROISet in the ROI component to server. 
-	 * 
-	 * @param async Pass <code>true</code> to save the ROI asynchronously,
-	 * 				 <code>false</code> otherwise.
-	 */
-	void saveWorkflowToServer(boolean async)
-	{
-		List<WorkflowData> workflowList = new ArrayList<WorkflowData>();
-		Iterator<WorkflowData> workflowIterator = workflows.values().iterator();
-		while (workflowIterator.hasNext())
-			workflowList.add(workflowIterator.next());
-		try {
-			ExperimenterData exp = 
-				(ExperimenterData) MeasurementAgent.getUserDetails();
-			if (async) {
-				currentSaver = new WorkflowSaver(component,
-					getSecurityContext(), workflowList, exp.getId());
-				currentSaver.load();
-				notifyDataChanged(false);
-			} else {
-				OmeroImageService svc = 
-					MeasurementAgent.getRegistry().getImageService();
-				svc.storeWorkflows(getSecurityContext(), workflowList,
-						exp.getId());
-				event = null;
-			}
-		} catch (Exception e) {
-			Logger log = MeasurementAgent.getRegistry().getLogger();
-			log.warn(this, "Cannot save workflows to server "+e.getMessage());
-		}
-	}
 	
 	/**
 	 * Propagates the selected shape in the roi model. 
@@ -1566,127 +1467,6 @@ class MeasurementViewerModel
 		return dataToDelete;
 	}
 
-	/**
-	 * Sets the workflow for the next ROI.
-	 * 
-	 * @param workflowNamespace  See above.
-	 */
-	void setWorkflow(String workflowNamespace)
-	{
-		if (workflowNamespace == null) return;
-		if (WorkflowData.DEFAULTWORKFLOW.equals(workflowNamespace))
-		{
-			this.workflowNamespace = workflowNamespace;
-			keyword = new ArrayList<String>();
-		} else {
-			if (!workflows.containsKey(workflowNamespace))
-				throw new IllegalArgumentException("Workflow " + 
-						workflowNamespace + " does not exist");
-			this.workflowNamespace = workflowNamespace;
-			keyword = getWorkflow().getKeywordsAsList();
-		}
-	}
-	
-	/** 
-	 * Returns the current workflow; or null if default workflow selected.
-	 *  
-	 * @return See above.
-	 */
-	WorkflowData getWorkflow()
-	{
-		if (!WorkflowData.DEFAULTWORKFLOW.equals(workflowNamespace))
-			return workflows.get(workflowNamespace);
-		return null;
-	}
-	
-	/** 
-	 * Adds a new workflow to the workflow list;
-	 * @param workflow See above.
-	 */
-	void addWorkflow(WorkflowData workflow)
-	{
-		if (workflow != null)
-			workflows.put(workflow.getNameSpace(), workflow);
-	}
-
-	/**
-	 * Set the Workflows of the system.
-	 * @param workflowList See above.
-	 */
-	void resetWorkflows(List<WorkflowData> workflowList)
-	{
-		workflows.clear();
-		for(WorkflowData workflow : workflowList)
-			workflows.put(workflow.getNameSpace(), workflow);
-	}
-	
-	/** 
-	 * Returns all the workflow namespaces in the model, as an array list
-	 * @return See above.
-	 */
-	List<String> getWorkflows()
-	{
-		List<String> workflowList = new ArrayList<String>();
-		Iterator<String> i = workflows.keySet().iterator();
-		workflowList.add(WorkflowData.DEFAULTWORKFLOW);
-		while (i.hasNext())
-			workflowList.add(i.next());
-		return workflowList;
-	}
-	
-	/** 
-	 * Returns all the workflow namespaces in the model, as an array list.
-	 * 
-	 * @return See above.
-	 */
-	List<WorkflowData> getWorkflowDataList()
-	{
-		List<WorkflowData> workflowList = new ArrayList<WorkflowData>();
-		Iterator<WorkflowData> i = workflows.values().iterator();
-		while (i.hasNext())
-			workflowList.add(i.next());
-		return workflowList;
-	}
-
-	/**
-	 * Sets the keyword of the workflow to keyword, the keyword must exist in 
-	 * the workflow to be set.
-	 * 
-	 * @param keyword See above.
-	 */
-	void setKeyword(List<String> keywords)
-	{
-		if (keywords == null) return;
-		if (keywords.size() == 0)
-			this.keyword = keywords;
-		else {
-			WorkflowData workflow = getWorkflow();
-			if (workflow == null) return;
-			boolean b = true;
-			for (String word : keywords) {
-				if (!workflow.contains(word) && word.trim().length() != 0)
-					b = false;
-			}
-			/*
-			for (String word : keywords)
-				if (!workflow.contains(word) && word.trim().length() != 0)
-					throw new IllegalArgumentException(
-							"Workflow does not contain keyword '" +
-							keyword +"'");
-							*/
-			if (b)
-				this.keyword = keywords;
-			else keyword = new ArrayList<String>();
-		}
-	}
-	
-	/**
-	 * Returns the keywords associated with the namespace that have been 
-	 * selected.
-	 * @return See above.
-	 */
-	List<String> getKeywords() { return keyword; }
-	
 	/**
 	 * Returns <code>true</code> if the tool is for HCS data, <code>false</code>
 	 * otherwise.

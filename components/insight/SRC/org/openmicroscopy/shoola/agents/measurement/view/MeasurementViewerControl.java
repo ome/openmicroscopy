@@ -65,13 +65,11 @@ import org.jhotdraw.draw.FigureSelectionListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.actions.CreateFigureAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.DeleteROIAction;
-import org.openmicroscopy.shoola.agents.measurement.actions.KeywordSelectionAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
-import org.openmicroscopy.shoola.agents.measurement.actions.WorkflowAction;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
@@ -135,27 +133,8 @@ class MeasurementViewerControl
      */
     static final Integer     CREATE_MULTIPLE_FIGURES =  Integer.valueOf(9);
     
-
-    /** 
-     * Identifies the <code>selectWorkFlow</code> action in 
-     * the menu.
-     */
-    static final Integer     SELECT_WORKFLOW =  Integer.valueOf(10);
-   
-    /** 
-     * Identifies the <code>createWorkflow</code> action in 
-     * the menu.
-     */
-    static final Integer     CREATE_WORKFLOW =  Integer.valueOf(11);
-    
-    /** 
-     * Identifies the <code>keywordSelection</code> action in 
-     * the keyword combobox.
-     */
-    static final Integer     KEYWORD_SELECTION =  Integer.valueOf(12);
-    
     /** Identifies the <code>DELETE</code> action in the menu. */
-    static final Integer     DELETE = Integer.valueOf(13);
+    static final Integer     DELETE = Integer.valueOf(10);
 
     /** 
      * Reference to the {@link MeasurementViewer} component, which, 
@@ -179,11 +158,8 @@ class MeasurementViewerControl
     	actionsMap.put(IN_PIXELS, new UnitsAction(model, false));
     	actionsMap.put(CREATE_SINGLE_FIGURE, 
     			new CreateFigureAction(model, true));
-    	actionsMap.put(CREATE_MULTIPLE_FIGURES, new CreateFigureAction(model, 
-    												false));
-    	actionsMap.put(SELECT_WORKFLOW, new WorkflowAction(model, false));
-    	actionsMap.put(CREATE_WORKFLOW, new WorkflowAction(model, true));
-    	actionsMap.put(KEYWORD_SELECTION, new KeywordSelectionAction(model));
+    	actionsMap.put(CREATE_MULTIPLE_FIGURES,
+    			new CreateFigureAction(model, false));
     	actionsMap.put(DELETE, new DeleteROIAction(model));
     }
 

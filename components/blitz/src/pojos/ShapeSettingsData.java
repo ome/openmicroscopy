@@ -415,30 +415,9 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setFontStyle(rtypes.rstring(formatFontStyle(fontStyle)));
-		//update the font weight.
-		shape.setFontWeight(null);
 		setDirty(true);
 	}
 
-	/**
-	 * Returns the marker start.
-	 * 
-	 * @return See above.
-	 */
-	public String getMarkerStart()
-	{
-		return "";
-	}
-	
-	/**
-	 * Returns the marker end.
-	 * 
-	 * @return See above.
-	 */
-	public String getMarkerEnd()
-	{
-		return "";
-	}
 	
 	/**
 	 * Returns the marker start.
@@ -489,15 +468,7 @@ public class ShapeSettingsData
 			throw new IllegalArgumentException("No shape specified.");
 		String f = FONT_BOLD.toLowerCase();
 		String f1 = FONT_BOLD_ITALIC.toLowerCase();
-		String value;
-		RString weight = shape.getFontWeight();
-		if (weight != null) {
-			value = weight.getValue();
-			value = value.toLowerCase();
-			if (value.trim().length() > 0)
-				return (f.equals(value) || f1.equals(value));
-		}
-		value = getFontStyle();
+		String value = getFontStyle();
 		value = value.toLowerCase();
 		return (f.equals(value) || f1.equals(value));
 	}

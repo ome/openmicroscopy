@@ -8,7 +8,6 @@
 
 package omero.model;
 
-import static omero.rtypes.rdouble;
 
 import java.awt.Shape;
 import java.util.Arrays;
@@ -45,8 +44,8 @@ public class SmartTextI extends omero.model.LabelI implements SmartShape {
             return null; // As in SmartPoint
         }
         Point pt = new PointI();
-        pt.cx = x;
-        pt.cy = y;
+        pt.x = x;
+        pt.y = y;
         List<Point> points = Arrays.<Point> asList(pt);
         assert Util.checkNonNull(points) : "Null points in " + this;
         return points;
