@@ -114,6 +114,7 @@ public class ExportLoader
     public ExportLoader(SecurityContext ctx, long imageID, File file, int index,
     		Target target)
     {
+    	this.ctx = ctx;
     	loadCall = makeAsOMETiffBatchCall(index, file, imageID, target);
     }
 
