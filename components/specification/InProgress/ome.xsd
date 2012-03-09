@@ -659,6 +659,7 @@
 	<!-- Other elements associated with pixel storage -->
 	<xsd:element name="MetadataOnly"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>MetadataOnlyMarkers</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				This place holder means there is on pixel data in this file.
 			</xsd:documentation>
@@ -745,6 +746,7 @@
 	</xsd:element>
 	<xsd:element name="StageLabel"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>StageLabels</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				The StageLabel is used to specify a name and position for a stage position in the microscope's reference frame.
 			</xsd:documentation>
@@ -869,6 +871,7 @@
 	</xsd:element>
 	<xsd:element name="Microscope"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Microscopes</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>The microscope's manufacturer specification.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
@@ -893,6 +896,7 @@
 	<!-- Image sample elements -->
 	<xsd:element name="ImagingEnvironment"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>ImagingEnvironments</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				This describes the environment that the biological sample was in 
 				during the experiment.
@@ -1006,6 +1010,7 @@
 	</xsd:element>
 	<xsd:element name="Leader"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Leaders</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				Contact information for a ExperimenterGroup leader specified using a reference 
 				to an Experimenter element defined elsewhere in the document.
@@ -1021,6 +1026,7 @@
 	</xsd:element>
 	<xsd:element name="Contact"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Contacts</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				The Contact element describes the contact person for a group of 
 				experimenters - typically a project leader or lab manager.
@@ -1627,6 +1633,7 @@
 	</xsd:element>
 	<xsd:element name="TransmittanceRange"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>TransmittanceRanges</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				This records the range of wavelengths that are transmitted by the filter. It also records the maximum amount of light transmitted.
 			</xsd:documentation>
@@ -1761,6 +1768,7 @@
 	</xsd:element>
 	<xsd:element name="Laser"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Laser</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				Laser types are specified using two attributes - the Type and the LaserMedium.
 			</xsd:documentation>
@@ -1906,6 +1914,7 @@
 	</xsd:element>
 	<xsd:element name="Arc"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Arcs</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				The Arc element is used to describe various kinds of Arc lamps - Hg, Xe, HgXe.
 				The Power of the Arc is now stored in the LightSource.
@@ -1931,6 +1940,7 @@
 	</xsd:element>
 	<xsd:element name="Filament"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Filaments</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				The Filament element is used to describe various kinds of filament bulbs such as Incadescent or Halogen.
 				The Power of the Filament is now stored in the LightSource.
@@ -1955,6 +1965,7 @@
 	</xsd:element>
 	<xsd:element name="LightEmittingDiode"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>LightEmittingDiodes</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				The LightEmittingDiode element is used to describe
 				various kinds of LED lamps.
@@ -1990,6 +2001,7 @@
 	</xsd:element>
 	<xsd:element name="Pump"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Pumps</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				The Pump element is a reference to a LightSource.  It is used within the Laser element to specify the light source for the laser's pump (if any).
 			</xsd:documentation>
@@ -2175,6 +2187,7 @@
 	</xsd:element>
 	<xsd:element name="DetectorSettings"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>DetectorSettingsCombinations</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				This holds the setting applied to a detector as well as a
 				reference to the detector. 
@@ -2241,6 +2254,7 @@
 	</xsd:element>
 	<xsd:element name="ObjectiveSettings"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>ObjectiveSettingsCombinations</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation> 
 				This holds the setting applied to an objective as well as a
 				reference to the objective. 
@@ -2254,7 +2268,7 @@
 					<xsd:attribute name="CorrectionCollar" use="optional" type="xsd:float">
 						<xsd:annotation>
 							<xsd:documentation>
-								The CorrectionCollar is it normal an adjustable ring on the 
+								The CorrectionCollar is normally an adjustable ring on the 
 								objective. Each has an arbitrary scale on it so the values 
 								is unit-less. [units:none]
 							</xsd:documentation>

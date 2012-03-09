@@ -46,6 +46,7 @@
 	</xsd:annotation>
 	<xsd:element name = "External"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Externals</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>Describes a file location.  Can optionally specify a portion of a file using Offset and a ReadLength.
 If Offset and ReadLength are specified in conjuction with Compression, then they point into the uncompressed file.
 			</xsd:documentation>
@@ -119,6 +120,7 @@ If Offset and ReadLength are specified in conjuction with Compression, then they
 	</xsd:element>
 	<xsd:element name = "BinaryFile"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>BinaryFiles</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>Describes a binary file.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>

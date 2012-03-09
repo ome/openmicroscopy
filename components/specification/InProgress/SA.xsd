@@ -153,7 +153,7 @@
 	<!-- Intermediate abstract annotations, not used directly -->
 	<xsd:complexType name="BasicAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><abstract/></xsdfu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><plural>BasicAnnotations</plural><abstract/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				An abstract Basic Annotation from which some others are derived.
 			</xsd:documentation>
@@ -164,7 +164,7 @@
 	</xsd:complexType>
 	<xsd:complexType name="NumericAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><abstract/></xsdfu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><plural>NumericAnnotations</plural><abstract/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				An abstract Numeric Annotation from which some others are derived.
 			</xsd:documentation>
@@ -175,7 +175,7 @@
 	</xsd:complexType>
 	<xsd:complexType name="TextAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><abstract/></xsdfu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><plural>TextAnnotations</plural><abstract/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				An abstract Text Annotation from which some others are derived.
 			</xsd:documentation>
@@ -186,7 +186,7 @@
 	</xsd:complexType>
 	<xsd:complexType name="TypeAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><abstract/></xsdfu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><plural>TypeAnnotation</plural><abstract/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				An abstract Type Annotation from which some others are derived.
 			</xsd:documentation>
@@ -200,6 +200,7 @@
 	<!-- The annotations used in the instance documents -->
 	<xsd:element name="FileAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>FileAnnotations</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				A file object annotation
 			</xsd:documentation>
@@ -216,6 +217,7 @@
 	</xsd:element>
 	<xsd:element name="XMLAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>XMLAnnotations</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				An general xml annotation. The contents of this is not processed as OME XML but should still be well-formed XML.
 			</xsd:documentation>
@@ -238,6 +240,7 @@
 	</xsd:element>
 	<xsd:element name="ListAnnotation">  <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>ListAnnotation</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				This annotation is a grouping object. It uses the sequence of 
 				annotation refs from the base Annotation to form the list.
@@ -251,6 +254,7 @@
 	</xsd:element>
 	<xsd:element name="CommentAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>CommentAnnotation</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				A simple comment annotation
 			</xsd:documentation>
@@ -267,6 +271,7 @@
 	</xsd:element>
 	<xsd:element name="LongAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>LongAnnotations</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				A simple numerical annotation of type xsd:long
 			</xsd:documentation>
@@ -283,6 +288,7 @@
 	</xsd:element>
 	<xsd:element name="DoubleAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>DoubleAnnotations</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				A simple numerical annotation of type xsd:double
 			</xsd:documentation>
@@ -299,6 +305,7 @@
 	</xsd:element>
 	<xsd:element name="BooleanAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>BooleanAnnotations</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				A simple boolean annotation of type xsd:boolean
 			</xsd:documentation>
@@ -315,6 +322,7 @@
 	</xsd:element>	
 	<xsd:element name="TimestampAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>TimestampAnnotations</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				A date/time annotation of type xsd:dateTime
 			</xsd:documentation>
@@ -331,6 +339,7 @@
 	</xsd:element>
 	<xsd:element name="TagAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>TagAnnotation</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				A tag annotation (represents a tag or a tagset)
 			</xsd:documentation>
@@ -347,6 +356,7 @@
 	</xsd:element>
 	<xsd:element name="TermAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>TermAnnotations</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				A ontology term annotation
 			</xsd:documentation>

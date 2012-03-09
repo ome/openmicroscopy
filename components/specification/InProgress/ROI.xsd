@@ -269,6 +269,7 @@
 
 	<xsd:element name="Rectangle"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Rectangles</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				A simple rectangle object. If rotation is required apply a 
 				transformation at the Shape level.
@@ -308,6 +309,7 @@
 	
 	<xsd:element name="Mask"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Masks</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				The Mask ROI shape is a link to a BIN:BinData object that is 
 				a BIT mask drawn on top of the image as an ROI. It is applied 
@@ -351,6 +353,9 @@
 	</xsd:element>
 
 	<xsd:element name="Point"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Points</plural></xsdfu></xsd:appinfo>
+		</xsd:annotation>
 		<xsd:complexType>
 					<xsd:attribute name="X" use="required" type="xsd:float">
 						<xsd:annotation>
@@ -371,6 +376,7 @@
 	
 	<xsd:element name="Ellipse"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Ellipses</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				A simple ellipse object. If rotation is required apply a 
 				transformation at the Shape level.
@@ -410,6 +416,7 @@
 	
 	<xsd:element name="Line"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Lines</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				A straight line defined by it's end points.
 			</xsd:documentation>
@@ -446,6 +453,7 @@
 	
 	<xsd:element name="Polyline"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Polylines</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				The Polyline defines open shapes formed of straight 
 				lines. Note: Polyline uses counterclockwise winding (this is the 
@@ -467,6 +475,7 @@
 
 	<xsd:element name="Polygon"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Polygons</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				The Polygon defines closed shapes formed of straight 
 				lines. Note: Polygon uses counterclockwise winding (this is the 
@@ -486,6 +495,7 @@
 	
 	<xsd:element name="Label"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Labels</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				The text label. Any transformation should be applied at the 
 				shape level.
@@ -551,6 +561,7 @@
 	
 	<xsd:simpleType name="Marker"> <!-- top level definition -->
 		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Markers</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				Shape of marker on the end of a line. [enumeration]
 			</xsd:documentation>
