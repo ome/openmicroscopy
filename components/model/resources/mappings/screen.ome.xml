@@ -54,7 +54,6 @@
 	</type>
 	<type id="ome.model.screen.Well" annotated="true">
 		<properties>
-			<optional name="status" type="string"/>
 			<optional name="column" type="int"/>
 			<optional name="row" type="int"/>
 			<!-- Note: the following are not (yet) in model -->
@@ -77,8 +76,8 @@
 <!-- A WellSample is effectively a WellImageLink -->
 	<type id="ome.model.screen.WellSample" annotated="true">
 		<properties>
-			<optional name="posX" type="double"/>
-			<optional name="posY" type="double"/>
+			<optional name="x" type="double"/>
+			<optional name="y" type="double"/>
 			<optional name="timepoint" type="timestamp"/>
 			<optional name="plateAcquisition" type="ome.model.screen.PlateAcquisition"/>
 			<manyone name="well" type="ome.model.screen.Well" inverse="wellSamples" ordered="true"/>

@@ -99,16 +99,6 @@ public class WellData extends DataObject {
     }
 
     /**
-     * Returns the status of the well.
-     * 
-     * @return See above.
-     */
-    public String getStatus() {
-    	 RString d = asWell().getStatus();
-         return d == null ? null : d.getValue();
-    }
-    
-    /**
      * Returns a human readable identifier for the screening status e.g. empty,
      * positive control, etc.
      * 
@@ -275,17 +265,6 @@ public class WellData extends DataObject {
                 description == null ? null : rstring(description));
     }
 
-    /**
-     * Sets the status of the well.
-     * 
-     * @param status The status of the well.
-     */
-    public void setStatus(String status) {
-        setDirty(true);
-        asWell().setStatus(
-                status == null ? null : rstring(status));
-    }
-    
     /**
      * Returns the number of annotations linked to the object, key: id of the
      * user, value: number of annotation. The map may be <code>null</code> if
