@@ -56,6 +56,13 @@
 
 
 
+.children_count {
+	opacity:.6;
+	background-color:rgba(0,0,0,.05);
+	-webkit-border-radius:2px;
+	display:inline-block;
+	padding:0 3px;
+}
 
 
 
@@ -73,22 +80,14 @@
 	padding:1px 3px !important;
 	}
 
-.jstree-default .jstree-hovered { 
-	background:hsl(230,20%,85%);
+.jstree-default .jstree-hovered, .jstree-default .jstree-clicked { 
+	background:hsl(215,20%,85%);
+	border:solid 1px hsl(215,20%,65%);
 	-webkit-transition: .1s background linear; 
 	}
 	
-.jstree-default .jstree-clicked { 
-	background:hsl(230,20%,80%);
-	border: solid 1px hsl(220,30%,70%);
-	text-shadow: 0 1px 0 rgba(255,255,255,.6);
-	}
 	
 	
-	.jstree-open>.jstree-clicked{ /* Prevents Open Folder from being highlighted */
-		background:none;
-		border: solid 1px transparent;
-	}
 	
 	
 	

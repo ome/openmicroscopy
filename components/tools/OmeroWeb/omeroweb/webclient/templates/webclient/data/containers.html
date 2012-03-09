@@ -969,7 +969,7 @@
 		</div>
 		-->
 		
-		<div ama>
+		<div>
 	        <ul class="ui-tabs-nav">
 		        <li><a href="#Projects" title="Explore">{% trans "Explore" %}</a></li>
 		        <li><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
@@ -1071,14 +1071,17 @@
 
 {% block center %}
 
-<div id="center_panel_chooser" style="position:absolute; top:5px; right:5px; z-index:10; border: solid 1px blue;">
-    <select>
-        <option value="#content_details">Thumbnails</option>
-        {% for cp in nav.center_plugins %}
-            <option value="#{{ cp.plugin_id }}">{{ cp.label }}</option>
-        {% endfor %}
-    </select>
+<div id="center_panel_header">
+	<div id="center_panel_chooser">
+	    <select>
+	        <option value="#content_details">Thumbnails</option>
+	        {% for cp in nav.center_plugins %}
+	            <option value="#{{ cp.plugin_id }}">{{ cp.label }}</option>
+	        {% endfor %}
+	    </select>
+	</div>
 </div>
+
 <div id="content_details" class="center_panel_content"> </div>
 
 {% for cp in nav.center_plugins %}

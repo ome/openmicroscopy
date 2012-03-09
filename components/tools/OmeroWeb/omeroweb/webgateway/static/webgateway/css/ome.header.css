@@ -52,19 +52,10 @@
 
 
 
-#thin_header {
-    margin: 0;
-    padding: 4px 0px;
-    height: 18px;
-    position: relative;
-    background: url(../img/header_bg_30.png) repeat-x scroll left bottom #e5e5e5;
-    border-bottom: solid 1px #bbb;
-}
-
  #middle_header {
      color: white;
      background: hsl(215,20%,20%);
-	 background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(208, 18%, 40%)), to(hsl(208, 18%, 50%)));
+	 background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(212, 25%, 75%)), to(hsl(212, 25%, 85%)));
 	 background-image: -moz-linear-gradient(90deg, hsl(208, 18%, 40%) 0%, hsl(208, 18%, 50%) 100%);
 	 font-family: "HelveticaNeue-Medium",Helvetica,Arial,sans-serif;
 	 padding:5px 0;
@@ -274,9 +265,9 @@
 		-webkit-border-radius:50px;
 		-moz-border-radius:50px;
 		border-radius:50px;
-		border:solid 1px hsl(215,50%,25%);
+		border:solid 1px hsl(215,10%,55%);
 		padding: .2em .5em;
-		-webkit-box-shadow: 0 1px 0 rgba(255,255,255,.2), inset 0 1px 1px rgba(0,0,0,.4);
+		-webkit-box-shadow: 0 1px 0 rgba(255,255,255,.2), inset 0 1px 1px rgba(0,0,0,.2);
 	}
 
 	#search input[type=submit] {
@@ -368,24 +359,22 @@
 
 body {
 	background:hsl(210,10%,83%);
+	background:red;
 }
 
 #left_panel {
     left:0px; top:0px; bottom:0px;right:0px;
     width:350px;
     border-left: none;
-    border-radius: 0px 4px 4px 0px;
 }
 #center_panel {
-    left:5px; right:5px; top:0px; bottom:0px;
-    border-radius: 4px;
+    left:0px; right:0px; top:0px; bottom:0px;
 	background:hsl(210,1%,98%);
 	/* I wish that background: hsl(220,8%,16%);*/
 }
 #right_panel {
-    width:369px;
+    width:370px;
     right:0px; top:0px; bottom:0px;
-    border-radius: 4px 0px 0px 4px;
     border-right: none;
 }
 
@@ -396,17 +385,19 @@ body {
     position:absolute;
     top:0px; left:0px; bottom:0px;
     width:5px;
+	z-index:9999;
     background:transparent url(../img/drag_handle_5.png) no-repeat left center scroll;
 }
 #trayhandle_right {
     position:absolute;
     top:0px; right:0px; bottom:0px;
     width:5px;
+	z-index:9999;
     background:transparent url(../img/drag_handle_5.png) no-repeat left center scroll;
 }
 #center_container {
     position:absolute;
-    left:351px; right:370px; top:0px; bottom:0px;
+    left:350px; right:370px; top:0px; bottom:0px;
     border: none;
     background: #e5e5e5;
 	background:hsl(210,1%,98%); /* Must match #center_panel background-color */

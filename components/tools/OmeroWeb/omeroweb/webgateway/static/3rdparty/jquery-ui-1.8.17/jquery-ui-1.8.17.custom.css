@@ -531,7 +531,7 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 	background:#333;
 	overflow:hidden;
     background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(212, 20%, 20%)), to(hsl(212, 20%, 25%)));
-    background-image: -moz-linear-gradient(90deg, hsl(210, 25%, 15%) 0%, hsl(210, 25%, 20%) 100%);
+    background-image: -moz-linear-gradient(90deg, hsl(212, 20%, 20%) 0%, hsl(212, 20%, 25%) 100%);
     border-top: solid 1px hsl(210,20%,11%);
     -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
     border-bottom: solid 1px hsl(210,20%,1%); 
@@ -560,7 +560,7 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
             line-height: 2em;
             font-weight:bold;
 			color:hsl(210,10%,60%);
-            text-shadow: 0 -1px 0 black;
+            text-shadow: 0 -1px 1px rgba(0,0,0,.7);
 			
 		}
 				

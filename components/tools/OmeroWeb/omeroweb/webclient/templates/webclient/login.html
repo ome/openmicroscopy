@@ -39,8 +39,9 @@
 {% block body %}
 
 <div id="login-logo">
-    <img src="{% static "webclient/image/logo.png" %}" />
+    <img src="{% static "webclient/image/logo_login.png" %}" />
 </div>
+
 <div id="login">
     <form action="{% url weblogin %}{% if url %}?url={{url}}{% endif %}" method="post">
         <table><tbody>

@@ -78,29 +78,10 @@
 }
 
 
-
-
-
-    /*
-    	------------------------------------------------
-    	:: Left Panel - User Selection (Soon Redundant)
-    	------------------------------------------------
-    */
-
-
-
-    .header_chooser {
-    	width:40%;
+    #left_panel_tabs .ui-tabs-nav {
+        border-right:solid 1px hsl(210,10%,10%);
     }
 
-    .header_chooser select {
-    	width:100%;
-    }
-
-
-
-  
-    
     
 
 
@@ -118,6 +99,7 @@
         background-image: -moz-linear-gradient(90deg, hsl(210, 25%, 15%) 0%, hsl(210, 25%, 20%) 100%);
         border-bottom: solid 1px hsl(210,20%,65%);
         -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.1);
+        border-right:solid 1px hsl(210,10%,75%);
     }
     
         #navigator a, #navigator dl {
@@ -232,7 +214,6 @@
 */
     
 #right_panel {
-    font-size:1.1em;
     overflow:auto;
 }
     
@@ -603,10 +584,56 @@
     
     
     
+/*
+	===============================================
+	:: Center Panel
+	===============================================
+*/
     
     
+
+    /* Center Panel Header */   
+    
+    #center_panel_header {
+        background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(212, 10%, 40%)), to(hsl(212, 10%, 45%)));
+        height:31px;
+        border-bottom:solid 1px rgba(0,0,0,.6);
+        border-top:solid 1px rgba(0,0,0,.3);
+        -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+        border-left:solid 1px rgba(255,255,255,.1);
+    } 
     
     
+        #center_panel_chooser {
+            float:right;
+            position:relative;
+            top:5px;
+            right:5px;
+        }
+        
+            #center_panel_chooser select {
+                background:transparent;
+                -webkit-appearance:none;
+                padding:2px 10px;
+                background:rgba(0,0,0,.2);
+                -webkit-border-radius:3px;
+                color:white;
+                border:solid 1px rgba(0,0,0,.4);
+                -webkit-box-shadow:0 1px 0 rgba(255,255,255,.1), inset 0 1px 0 rgba(255,255,255,.1);
+            }
+    
+        
+    
+    
+    /* Center Panel Content */  
+    
+    #content_details {
+        padding: 0 20px 0 10px;
+        position: absolute;
+        top:20px; bottom:0px; left:0px; right:0px;
+        overflow: auto;
+    }
+
     
     
     
@@ -781,15 +808,6 @@ ul.criteria li{
 
 .link_box {
     border-top:1px solid #BBBBBB;
-}
-.content_details {
-    padding: 10px;
-}
-#content_details {
-    padding: 0 20px 0 10px;
-    position: absolute;
-    top:0px; bottom:0px; left:0px; right:0px;
-    overflow: auto;
 }
 
 

@@ -18,15 +18,17 @@
  */
 
 
+body {
+	background:hsl(215,10%,90%);
+}
+
 #login-logo {
-    margin: 5% auto 5px auto;
-    background-color: #000;
-    border: 1px solid #555;
-    width: 551px;
+    margin: 20% auto 20px;
+    width: 290px;
 }
 #login {
     margin: 0px auto;
-    background-color: #000;
+    background-color: red;
     border: 1px solid #555;
     width: 551px;
 }
