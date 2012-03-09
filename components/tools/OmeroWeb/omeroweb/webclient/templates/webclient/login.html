@@ -45,32 +45,59 @@
 <div id="login">
     <form action="{% url weblogin %}{% if url %}?url={{url}}{% endif %}" method="post">
         
+			
             {% if error %}
-				<ul class="errorlist">
-					<li>{% trans "Error:" %} {{ error }}</li>
-				</ul>
+				<span class="error">{% trans "Error:" %} {{ error }}</span>
 			{% endif %}
 			
 			<div id="choose_server">
-	           {% trans form.server.label_tag %}{% if form.server.field.required %}*{% endif %}
-			   {{ form.server }} {{ form.server.errors }}
-	           {{ form.ssl.help_text|safe }}{% if form.ssl.field.required %}*{% endif %}
-	           {{ form.ssl }} {{ form.ssl.errors }}
+					
+					{% trans form.server.label_tag %}
+			  		{{ form.server }}
+						
+				   <div id="ssl">
+					   <!--Padlock Image -->
+					   {{ form.ssl.help_text|safe }}{% if form.ssl.field.required %}*{% endif %}
+					   <!--Padlock Checkbox -->
+					   {{ form.ssl }}
+					   {{ form.ssl.errors }}
+				   </div>
+			   
+			   <!-- Form Error -->
+				{% if form.server.errors %}
+	                 {% for error in form.server.errors %}
+	                     <span class="form_error">{{ error|escape }}</span>
+	                 {% endfor %}
+				{% endif %}
 		   </div>
 		   
 		   
-            
-           {{ form.username.errors }}
-           {{ form.password.errors }}
+			
+           
+           
             
 			<div>
-				{% trans form.username.label_tag %}{% if form.username.field.required %}*{% endif %}
+				{% trans form.username.label_tag %}
+				<!--{% if form.username.field.required %}*{% endif %} -->
 				{{ form.username }}
+				<!-- Form Error -->
+				{% if form.username.errors %}
+                  {% for error in form.username.errors %}
+                      <span class="form_error">{{ error|escape }}</span>
+                  {% endfor %}
+				{% endif %}
 			</div>
 			
 			<div>
-				{% trans form.password.label_tag %}{% if form.password.field.required %}*{% endif %}
+				{% trans form.password.label_tag %}
+				<!--{% if form.password.field.required %}*{% endif %}-->
 	            {{ form.password }}
+				<!-- Form Error -->
+				{% if form.password.errors %}
+                  {% for error in form.password.errors %}
+                      <span class="form_error">{{ error|escape }}</span>
+                  {% endfor %}
+				{% endif %}
 			</div>
             
         <!-- <tr><td>{% if form.user_name.errors %}{{ form.user_name.errors }}{% endif %}{{ form.user_name.help_text|safe }}</td> -->
