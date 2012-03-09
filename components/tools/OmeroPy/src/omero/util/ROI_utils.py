@@ -303,8 +303,8 @@ class EllipseData(ShapeData, ROIDrawingI):
         ShapeData.__init__(self);
         self.x = rdouble(cx);
         self.y = rdouble(cy);
-        self.radiusx = rdouble(rx);
-        self.radiusy = rdouble(ry);
+        self.radiusX = rdouble(rx);
+        self.radiusY = rdouble(ry);
         self.setCoord(roicoord);
     
     ##
@@ -315,8 +315,8 @@ class EllipseData(ShapeData, ROIDrawingI):
         ellipse.setTheT(self.coord.theZ);
         ellipse.setX(self.x);
         ellipse.setY(self.y);
-        ellipse.setRadiusx(self.radiusx);
-        ellipse.setRadiusy(self.radiusy);
+        ellipse.setRadiusX(self.radiusX);
+        ellipse.setRadiusY(self.radiusY);
 
     ##
     # overridden, @See ShapeData#getGeometryFromROI
@@ -324,8 +324,8 @@ class EllipseData(ShapeData, ROIDrawingI):
     def getGeometryFromROI(self, roi):
         self.x = roi.getX();
         self.y = roi.getY();
-        self.radiusx = roi.getRadiusx();
-        self.radiusy = roi.getRadiusy();
+        self.radiusX = roi.getRadiusX();
+        self.radiusY = roi.getRadiusY();
 
     ##
     # overridden, @See ShapeData#createBaseType
@@ -337,7 +337,7 @@ class EllipseData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#acceptVisitor
     #    
     def acceptVisitor(self, visitor):
-        visitor.drawEllipse(self.x.getValue(), self.y.getValue(), self.radiusx.getValue(), self.radiusy.getValue(), self.shapeSettings.getSettings());
+        visitor.drawEllipse(self.x.getValue(), self.y.getValue(), self.radiusX.getValue(), self.radiusY.getValue(), self.shapeSettings.getSettings());
         
 ##
 # The RectangleData class contains all the manipulation and create of RectI

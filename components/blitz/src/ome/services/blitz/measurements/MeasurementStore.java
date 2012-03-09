@@ -128,8 +128,8 @@ public class MeasurementStore implements OmeroMeasurementStore {
         Ellipse ellipse = new Ellipse();
         ellipse.setX(x);
         ellipse.setY(y);
-        ellipse.setRadiusx(r);
-        ellipse.setRadiusy(r);
+        ellipse.setRadiusX(r);
+        ellipse.setRadiusY(r);
         roi.addShape(ellipse);
         appendRoi(roiLsid, roi);
     }

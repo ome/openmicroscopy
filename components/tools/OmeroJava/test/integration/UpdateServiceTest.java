@@ -1007,8 +1007,8 @@ public class UpdateServiceTest
         EllipseI rect = new EllipseI();
         rect.setX(omero.rtypes.rdouble(v));
         rect.setY(omero.rtypes.rdouble(v));
-        rect.setRadiusx(omero.rtypes.rdouble(v));
-        rect.setRadiusy(omero.rtypes.rdouble(v));
+        rect.setRadiusX(omero.rtypes.rdouble(v));
+        rect.setRadiusY(omero.rtypes.rdouble(v));
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
