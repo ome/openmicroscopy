@@ -40,12 +40,11 @@ import omero.clients
 from omero.model import RoiI
 from omero.model import EllipseI
 from omero.model import LineI
-from omero.model import RectI
+from omero.model import RectangleI
 from omero.model import PointI
 from omero.model import TextI
 from omero.model import PolylineI
 from omero.model import PolygonI
-from omero.model import PathI
 from omero.model import MaskI
 from omero.rtypes import rdouble 
 from omero.rtypes import rstring 
@@ -79,10 +78,7 @@ class ShapeSettingsData:
         self.strokeColour = rint(self.GREY)
         self.strokeWidth = rint(1)
         self.strokeDashArray = rstring('')
-        self.strokeDashOffset = rint(0)
         self.strokeLineCap = rstring('')
-        self.strokeLineJoin = rstring('')
-        self.strokeMiterLimit = rint(0)
         self.fillColour = rint(self.GREY)
         self.fillRule = rstring('')
 
@@ -94,10 +90,7 @@ class ShapeSettingsData:
         shape.setStrokeColor(self.strokeColour);
         shape.setStrokeWidth(self.strokeWidth);
         shape.setStrokeDashArray(self.strokeDashArray);
-        shape.setStrokeDashOffset(self.strokeDashOffset);
         shape.setStrokeLineCap(self.strokeLineCap);
-        shape.setStrokeLineJoin(self.strokeLineJoin);
-        shape.setStrokeMiterLimit(self.strokeMiterLimit);
         shape.setFillColor(self.fillColour);
         shape.setFillRule(self.fillRule);
     
@@ -145,10 +138,7 @@ class ShapeSettingsData:
         self.strokeColour = roi.getStrokeColor();
         self.strokeWidth = roi.getStrokeWidth();
         self.strokeDashArray = roi.getStrokeDashArray();
-        self.strokeDashOffset = roi.getStrokeDashOffset();
         self.strokeLineCap = roi.getStrokeLineCap();
-        self.strokeLineJoin = roi.getStrokeLineJoin();
-        self.strokeMiterLimit =  roi.getStrokeMiterLimit();
         self.fillColour = roi.getFillColor();
         self.fillRule = roi.getFillRule();
 
@@ -311,10 +301,10 @@ class EllipseData(ShapeData, ROIDrawingI):
     # @param ry The minor axis of the ellipse.   
     def __init__(self, roicoord = ROICoordinate(), cx = 0, cy = 0, rx = 0, ry = 0):
         ShapeData.__init__(self);
-        self.cx = rdouble(cx);
-        self.cy = rdouble(cy);
-        self.rx = rdouble(rx);
-        self.ry = rdouble(ry);
+        self.x = rdouble(cx);
+        self.y = rdouble(cy);
+        self.radiusx = rdouble(rx);
+        self.radiusy = rdouble(ry);
         self.setCoord(roicoord);
     
     ##
@@ -323,19 +313,19 @@ class EllipseData(ShapeData, ROIDrawingI):
     def setROIGeometry(self, ellipse):
         ellipse.setTheZ(self.coord.theZ);
         ellipse.setTheT(self.coord.theZ);
-        ellipse.setCx(self.cx);
-        ellipse.setCy(self.cy);
-        ellipse.setRx(self.rx);
-        ellipse.setRy(self.ry);
+        ellipse.setX(self.x);
+        ellipse.setY(self.y);
+        ellipse.setRadiusx(self.radiusx);
+        ellipse.setRadiusy(self.radiusy);
 
     ##
     # overridden, @See ShapeData#getGeometryFromROI
     #    
     def getGeometryFromROI(self, roi):
-        self.cx = roi.getCx();
-        self.cy = roi.getCy();
-        self.rx = roi.getRx();
-        self.ry = roi.getRy();
+        self.x = roi.getX();
+        self.y = roi.getY();
+        self.radiusx = roi.getRadiusx();
+        self.radiusy = roi.getRadiusy();
 
     ##
     # overridden, @See ShapeData#createBaseType
@@ -347,7 +337,7 @@ class EllipseData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#acceptVisitor
     #    
     def acceptVisitor(self, visitor):
-        visitor.drawEllipse(self.cx.getValue(), self.cy.getValue(), self.rx.getValue(), self.ry.getValue(), self.shapeSettings.getSettings());
+        visitor.drawEllipse(self.x.getValue(), self.y.getValue(), self.radiusx.getValue(), self.radiusy.getValue(), self.shapeSettings.getSettings());
         
 ##
 # The RectangleData class contains all the manipulation and create of RectI
@@ -395,7 +385,7 @@ class RectangleData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#createBaseType
     #    
     def createBaseType(self):
-        return RectI();
+        return RectangleI();
 
     ##
     # overridden, @See ShapeData#acceptVisitor
@@ -591,7 +581,7 @@ class PolygonData(ShapeData, ROIDrawingI):
         self.points = roi.getPoints();
 
     ##
-    # Convert a pointsList[x1,y1,x2,y2..] to a string.
+    # Convert a pointsList[x1,y1, x2,y2..] to a string.
     # @param pointsList The list of points to convert.
     # @return The pointsList converted to a string.
     def listToString(self, pointsList):

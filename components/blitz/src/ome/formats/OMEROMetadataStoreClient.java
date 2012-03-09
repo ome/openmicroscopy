@@ -50,7 +50,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -78,7 +77,6 @@ import ome.formats.model.ReferenceProcessor;
 import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
-import ome.system.UpgradeCheck;
 import ome.util.LSID;
 import ome.xml.model.enums.IlluminationType;
 import ome.xml.model.enums.NamingConvention;
@@ -159,7 +157,6 @@ import omero.model.LaserType;
 import omero.model.LightEmittingDiode;
 import omero.model.LightPath;
 import omero.model.LightSettings;
-import omero.model.LightSource;
 import omero.model.Line;
 import omero.model.ListAnnotation;
 import omero.model.LogicalChannel;
@@ -169,13 +166,11 @@ import omero.model.Medium;
 import omero.model.MicrobeamManipulation;
 import omero.model.MicrobeamManipulationType;
 import omero.model.Microscope;
-import omero.model.MicroscopeI;
 import omero.model.MicroscopeType;
 import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
-import omero.model.Path;
 import omero.model.Permissions;
 import omero.model.Pixels;
 import omero.model.PixelsType;
@@ -188,7 +183,7 @@ import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.Pulse;
 import omero.model.Reagent;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
@@ -3781,7 +3776,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseRadiusX(Double radiusX, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setRx(toRType(radiusX));
+        o.setRadiusx(toRType(radiusX));
     }
 
     /* (non-Javadoc)
@@ -3790,7 +3785,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseRadiusY(Double radiusY, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setRy(toRType(radiusY));
+        o.setRadiusy(toRType(radiusY));
     }
 
     /* (non-Javadoc)
@@ -3864,7 +3859,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseX(Double x, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setCx(toRType(x));
+        o.setX(toRType(x));
     }
 
     /* (non-Javadoc)
@@ -3873,7 +3868,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseY(Double y, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setCy(toRType(y));
+        o.setY(toRType(y));
     }
 
     ////////Experiment/////////
@@ -5894,26 +5889,12 @@ public class OMEROMetadataStoreClient
         o.setWorkingDistance(toRType(workingDistance));
     }
 
-    //////// Path /////////
-
-    private Path getPath(int ROIIndex, int shapeIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.ROI_INDEX, ROIIndex);
-        indexes.put(Index.SHAPE_INDEX, shapeIndex);
-        return getSourceObject(Path.class, indexes);
-    }
-
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPathDefinition(java.lang.String, int, int)
      */
     public void setPathDefinition(String definition, int ROIIndex,
             int shapeIndex)
     {
-        // TODO : double-check that this is correct
-        Path o = getPath(ROIIndex, shapeIndex);
-        o.setD(toRType(definition));
     }
 
     /* (non-Javadoc)
@@ -5942,8 +5923,6 @@ public class OMEROMetadataStoreClient
      */
     public void setPathFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
     {
-        Path o = getPath(ROIIndex, shapeIndex);
-        o.setFontSize(toRType(fontSize));
     }
 
     /* (non-Javadoc)
@@ -5951,14 +5930,6 @@ public class OMEROMetadataStoreClient
      */
     public void setPathID(String id, int ROIIndex, int shapeIndex)
     {
-        checkDuplicateLSID(Path.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.ROI_INDEX, ROIIndex);
-        indexes.put(Index.SHAPE_INDEX, shapeIndex);
-        IObjectContainer o = getIObjectContainer(Path.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(Path.class, id, o);
     }
 
     /* (non-Javadoc)
@@ -5997,8 +5968,6 @@ public class OMEROMetadataStoreClient
     public void setPathStrokeDashArray(String strokeDashArray, int ROIIndex,
             int shapeIndex)
     {
-        Path o = getPath(ROIIndex, shapeIndex);
-        o.setStrokeDashArray(toRType(strokeDashArray));
     }
 
     /* (non-Javadoc)
@@ -6017,8 +5986,6 @@ public class OMEROMetadataStoreClient
      */
     public void setPathTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
     {
-        Path o = getPath(ROIIndex, shapeIndex);
-        o.setTheC(toRType(theC));
     }
 
     /* (non-Javadoc)
@@ -6026,8 +5993,6 @@ public class OMEROMetadataStoreClient
      */
     public void setPathTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
     {
-        Path o = getPath(ROIIndex, shapeIndex);
-        o.setTheT(toRType(theT));
     }
 
     /* (non-Javadoc)
@@ -6035,8 +6000,6 @@ public class OMEROMetadataStoreClient
      */
     public void setPathTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
     {
-        Path o = getPath(ROIIndex, shapeIndex);
-        o.setTheZ(toRType(theZ));
     }
 
     /* (non-Javadoc)
@@ -6044,8 +6007,6 @@ public class OMEROMetadataStoreClient
      */
     public void setPathTransform(String transform, int ROIIndex, int shapeIndex)
     {
-        Path o = getPath(ROIIndex, shapeIndex);
-        o.setTransform(toRType(transform));
     }
 
     //////// Pixels /////////
@@ -6696,7 +6657,7 @@ public class OMEROMetadataStoreClient
     public void setPointX(Double x, int ROIIndex, int shapeIndex)
     {
         Point o = getPoint(ROIIndex, shapeIndex);
-        o.setCx(toRType(x));
+        o.setX(toRType(x));
     }
 
     /* (non-Javadoc)
@@ -6705,7 +6666,7 @@ public class OMEROMetadataStoreClient
     public void setPointY(Double y, int ROIIndex, int shapeIndex)
     {
         Point o = getPoint(ROIIndex, shapeIndex);
-        o.setCy(toRType(y));
+        o.setY(toRType(y));
     }
 
     //////// Polyline /////////
@@ -7065,13 +7026,13 @@ public class OMEROMetadataStoreClient
      * @param shapeIndex
      * @return
      */
-    private Rect getRectangle(int ROIIndex, int shapeIndex)
+    private Rectangle getRectangle(int ROIIndex, int shapeIndex)
     {
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.ROI_INDEX, ROIIndex);
         indexes.put(Index.SHAPE_INDEX, shapeIndex);
-        return getSourceObject(Rect.class, indexes);
+        return getSourceObject(Rectangle.class, indexes);
     }
 
     /* (non-Javadoc)
@@ -7079,14 +7040,14 @@ public class OMEROMetadataStoreClient
      */
     public void setRectangleID(String id, int ROIIndex, int shapeIndex)
     {
-        checkDuplicateLSID(Rect.class, id);
+        checkDuplicateLSID(Rectangle.class, id);
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.ROI_INDEX, ROIIndex);
         indexes.put(Index.SHAPE_INDEX, shapeIndex);
-        IObjectContainer o = getIObjectContainer(Rect.class, indexes);
+        IObjectContainer o = getIObjectContainer(Rectangle.class, indexes);
         o.LSID = id;
-        addAuthoritativeContainer(Rect.class, id, o);
+        addAuthoritativeContainer(Rectangle.class, id, o);
     }
 
     /* (non-Javadoc)
@@ -7116,7 +7077,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleFontSize(NonNegativeInteger fontSize, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+    	Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setFontSize(toRType(fontSize));
     }
 
@@ -7125,7 +7086,7 @@ public class OMEROMetadataStoreClient
      */
     public void setRectangleHeight(Double height, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+    	Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setHeight(toRType(height));
     }
 
@@ -7165,7 +7126,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleStrokeDashArray(String strokeDashArray,
             int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+    	Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setStrokeDashArray(toRType(strokeDashArray));
     }
 
@@ -7185,7 +7146,7 @@ public class OMEROMetadataStoreClient
      */
     public void setRectangleTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+    	Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setTheC(toRType(theC));
     }
 
@@ -7194,7 +7155,7 @@ public class OMEROMetadataStoreClient
      */
     public void setRectangleTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+    	Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setTheT(toRType(theT));
     }
 
@@ -7203,7 +7164,7 @@ public class OMEROMetadataStoreClient
      */
     public void setRectangleTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+    	Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setTheZ(toRType(theZ));
     }
 
@@ -7213,7 +7174,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleTransform(String transform, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+    	Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setTransform(toRType(transform));
     }
 
@@ -7222,7 +7183,7 @@ public class OMEROMetadataStoreClient
      */
     public void setRectangleWidth(Double width, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+    	Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setWidth(toRType(width));
     }
 
@@ -7231,7 +7192,7 @@ public class OMEROMetadataStoreClient
      */
     public void setRectangleX(Double x, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+    	Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setX(toRType(x));
     }
 
@@ -7240,7 +7201,7 @@ public class OMEROMetadataStoreClient
      */
     public void setRectangleY(Double y, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+    	Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setY(toRType(y));
     }
 
@@ -7624,7 +7585,7 @@ public class OMEROMetadataStoreClient
     public void setTextValue(String value, int ROIIndex, int shapeIndex)
     {
         Label o = getText(ROIIndex, shapeIndex);
-        o.setTextValue(toRType(value));
+        o.setText(toRType(value));
     }
 
     /* (non-Javadoc)

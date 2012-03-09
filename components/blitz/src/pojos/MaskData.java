@@ -92,34 +92,6 @@ public class MaskData
 	}
 	
 	/**
-	 * Returns the text of the shape.
-	 * 
-	 * @return See above.
-	 */
-	public String getText()
-	{
-		Mask shape = (Mask) asIObject();
-		RString value = shape.getTextValue();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the text of the shape.
-	 * 
-	 * @param text See above.
-	 */
-	public void setText(String text)
-	{
-		if (isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Mask shape = (Mask) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setTextValue(rtypes.rstring(text));
-	}
-	
-	/**
 	 * Returns the x-coordinate of the top-left corner of the mask.
 	 * 
 	 * @return See above.

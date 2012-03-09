@@ -14,6 +14,7 @@ import static omero.rtypes.rlong;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -34,7 +35,7 @@ import omero.api.ShapeStats;
 import omero.model.Ellipse;
 import omero.model.Line;
 import omero.model.Point;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Shape;
 import omero.model.SmartEllipseI;
 import omero.model.SmartLineI;
@@ -49,8 +50,6 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.context.ApplicationListener;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  * Strategy for handling the conversion between {@link Shape shapes} and
@@ -146,7 +145,7 @@ public class GeomTool {
         return rect;
     }
 
-    public Rect rect(double x, double y, double w, double h) {
+    public Rectangle rect(double x, double y, double w, double h) {
         SmartRectI rect = new SmartRectI();
         rect.setX(rdouble(x));
         rect.setY(rdouble(y));
@@ -157,17 +156,17 @@ public class GeomTool {
 
     public Point pt(double x, double y) {
         SmartPointI pt = new SmartPointI();
-        pt.setCx(rdouble(x));
-        pt.setCy(rdouble(y));
+        pt.setX(rdouble(x));
+        pt.setY(rdouble(y));
         return pt;
     }
 
     public Ellipse ellipse(double cx, double cy, double rx, double ry) {
         SmartEllipseI ellipse = new SmartEllipseI();
-        ellipse.setCx(rdouble(cx));
-        ellipse.setCy(rdouble(cy));
-        ellipse.setRx(rdouble(rx));
-        ellipse.setRy(rdouble(ry));
+        ellipse.setX(rdouble(cx));
+        ellipse.setY(rdouble(cy));
+        ellipse.setRadiusx(rdouble(rx));
+        ellipse.setRadiusy(rdouble(ry));
         return ellipse;
     }
 

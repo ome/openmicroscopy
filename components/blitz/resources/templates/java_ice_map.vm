@@ -71,11 +71,10 @@ public class IceMap {
         _ome2omero.put(ome.model.roi.Ellipse.class, omero.model.SmartEllipseI.class);
         _ome2omero.put(ome.model.roi.Line.class, omero.model.SmartLineI.class);
         _ome2omero.put(ome.model.roi.Mask.class, omero.model.SmartMaskI.class);
-        _ome2omero.put(ome.model.roi.Path.class, omero.model.SmartPathI.class);
         _ome2omero.put(ome.model.roi.Point.class, omero.model.SmartPointI.class);
         _ome2omero.put(ome.model.roi.Polygon.class, omero.model.SmartPolygonI.class);
         _ome2omero.put(ome.model.roi.Polyline.class, omero.model.SmartPolylineI.class);
-        _ome2omero.put(ome.model.roi.Rect.class, omero.model.SmartRectI.class);
+        _ome2omero.put(ome.model.roi.Rectangle.class, omero.model.SmartRectI.class);
         _ome2omero.put(ome.model.roi.Label.class, omero.model.SmartTextI.class);
 
         // Sealing

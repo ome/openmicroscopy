@@ -30,7 +30,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -39,13 +38,9 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
-import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -69,8 +64,6 @@ import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -91,8 +84,6 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-
-import com.sun.org.apache.bcel.internal.classfile.Code;
 
 /** 
  * The {@link MeasurementViewer} view.
@@ -215,18 +206,6 @@ class MeasurementViewerUI
     /** The main menu bar. */
     private JMenuBar 					mainMenu;
     
-    /** The menu bar handling the workflows. */
-    private JMenu 						workflowMenu;
-   
-    /** The existing workflow menu. */
-    private JMenu 						existingWorkflow;
-    
-    /** Buttong group of exisitng workflows. */
-    private ButtonGroup					workflows;
-    
-    /** The map holding the work-flow objects. */
-    private Map<String, String>			workflowsUIMap;
-    
     /** 
      * Flag indicating that the measurement was shown before adding 
      * a new figure.
@@ -255,8 +234,6 @@ class MeasurementViewerUI
     	JMenuBar menuBar = new JMenuBar(); 
     	menuBar.add(createControlsMenu());
     	menuBar.add(createOptionsMenu());
-    	workflowMenu = createWorkFlowMenu();
-    	//menuBar.add(workflowMenu);
         return menuBar;
     }
     
@@ -338,48 +315,10 @@ class MeasurementViewerUI
         return menu;
     }
     
-    /**
-     * Helper method to create the Workflow menu.
-     * 
-     * @return The options sub-menu.
-     */
-    private JMenu createWorkFlowMenu()
-    {
-        JMenu menu = new JMenu("Workflow");
-        existingWorkflow = new JMenu("Existing Workflows");
-       	workflows = new ButtonGroup();
-        menu.setMnemonic(KeyEvent.VK_W);
-        
-        List<String> workFlows = model.getWorkflows();
-        MeasurementViewerAction a;
-        JCheckBoxMenuItem workflowItem;
-        String uiWorkFlow;
-        for (String workFlow : workFlows)
-        {
-        	a = controller.getAction(MeasurementViewerControl.SELECT_WORKFLOW);
-        	workflowItem = new JCheckBoxMenuItem(a);
-        	workflowItem.setSelected(WorkflowData.DEFAULTWORKFLOW.equals(
-        			workFlow));
-        	uiWorkFlow = getWorkflowDisplay(workFlow);
-        	workflowItem.setText(uiWorkFlow);
-        	workflows.add(workflowItem);
-        	existingWorkflow.add(workflowItem);
-        }
-        menu.add(existingWorkflow);    
-       	a = controller.getAction(MeasurementViewerControl.CREATE_WORKFLOW);
-       	
-       	JMenuItem createWorkflow = new JMenuItem();
-        createWorkflow.setText(a.getName());
-    	createWorkflow.addActionListener(a);
-    	//tmp
-       	//menu.add(createWorkflow);
-        return menu;
-    }
 
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		workflowsUIMap = new HashMap<String, String>();
 		roiTables = new ArrayList<ServerROITable>();
 		statusBar = new StatusBar();
 		toolBar = new ToolBar(component, this, controller, model);
@@ -1428,87 +1367,6 @@ class MeasurementViewerUI
 		model.calculateStats(shapeList);
 	}
 
-    /** Updates the workflow in the toolbar. */
-	void addedWorkflow()
-	{
-		if (workflowMenu != null && mainMenu != null 
-				&& existingWorkflow != null)
-		{
-			 Enumeration<AbstractButton> buttons = workflows.getElements();
-			 List<AbstractButton> buttonList = new ArrayList<AbstractButton>();
-			 while(buttons.hasMoreElements())
-				 buttonList.add(buttons.nextElement());
-			 
-			ActionListener[] l = existingWorkflow.getActionListeners();
-			for (ActionListener a :l )
-				existingWorkflow.removeActionListener(a);
-			for (AbstractButton button : buttonList)
-				workflows.remove(button);
-			existingWorkflow.removeAll();
-			workflows = new ButtonGroup();
-			List<String> workFlows = model.getWorkflows();
-		    JCheckBoxMenuItem workflowItem;
-		    MeasurementViewerAction action;
-		    String uiWorkFlow;
-		    for (String workFlow : workFlows)
-		    {
-		    	action = controller.getAction(
-		    			MeasurementViewerControl.SELECT_WORKFLOW);
-		    	workflowItem = new JCheckBoxMenuItem(action);
-		    	uiWorkFlow = getWorkflowDisplay(workFlow);
-		    	workflowsUIMap.put(uiWorkFlow, workFlow);
-		    	workflowItem.setSelected(
-		    			WorkflowData.DEFAULTWORKFLOW.equals(workFlow));
-		    	workflowItem.setText(uiWorkFlow);
-		    	workflows.add(workflowItem);
-		    	existingWorkflow.add(workflowItem);
-		    	workflowItem.setEnabled(true);
-		    }
-		    for (ActionListener a :l )
-				existingWorkflow.addActionListener(a);
-		    toolBar.addedWorkflow();
-		}
-	}
-	
-	/** Updates the workflow list. */
-	void updateWorkflow() { toolBar.updateWorkflow(); }
-	
- 	/** Adds the workflow to the toolbar.  */
-	void createWorkflow() { toolBar.createWorkflow(); }
-	
-	/**
-	 * Returns The UI representations of the workflow.
-	 * 
-	 * @param value The value to convert.
-	 * @return See above.
-	 */
-	String getWorkflowDisplay(String value)
-	{
-		/*
-		String result = value;
-		if (value.contains("/")) {
-			String[] list = value.split("/");
-			result = list[list.length-1];
-		}
-		*/
-		String result = EditorUtil.getWorkflowForDisplay(value);
-		if (!workflowsUIMap.containsKey(result))
-			workflowsUIMap.put(result, value);
-		return result;
-	}
-	
-	/**
-	 * Returns the workflow corresponding to the specified UI value.
-	 * 
-	 * @param value The value to convert.
-	 * @return See above.
-	 */
-	String getWorkflowFromDisplay(String value)
-	{
-		if (value == null) return null;
-		return workflowsUIMap.get(value);
-	}
-	
 	/** Invokes when the figures are selected. */
 	void onSelectedFigures()
 	{
@@ -1588,16 +1446,5 @@ class MeasurementViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
-    
-	/** 
-     * Overridden to the hide the window'd items of the UI.
-     * @see TopWindow#setVisible() 
-     */
- 	public void setVisible(boolean value)
-	{
-		if (!value)
-			toolBar.getWorkflowPanel().setVisible(false);
-		super.setVisible(value);
-	}
-    
+
 }

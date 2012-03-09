@@ -67,7 +67,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointFigure;
 
 import pojos.EllipseData;
@@ -137,6 +136,18 @@ class InputServerStrategy
 	private ROIComponent		component;
 	
 	/**
+	 * Creates the affine transform.
+	 * 
+	 * @param values The values to handle.
+	 * @return See above.
+	 */
+	private AffineTransform createTransform(double[] values)
+	{
+		if (values != null) return new AffineTransform(values);
+		return new AffineTransform();
+	}
+	
+	/**
 	 * Adds any missing basic attributes from the default attributes map, 
 	 * to the figure.
 	 * 
@@ -169,20 +180,7 @@ class InputServerStrategy
 		//ROI newROI = component.createROI(id, readOnly);
 		ROI newROI = component.createROI(id, id <= 0);
 		newROI.setOwnerID(roi.getOwner().getId());
-		
-		if (roi.getNamespaces().size() != 0) {
-			String s = roi.getNamespaces().get(0);
-			newROI.setAnnotation(AnnotationKeys.NAMESPACE, s);
-			if (roi.getNamespaceKeywords().size() != 0)
-				newROI.setAnnotation(AnnotationKeys.KEYWORDS, 
-						UIUtilities.listToCSV(roi.getNamespaceKeywords(s)));
-		}
-			
-		if (roi.getNamespaceKeywords().size() != 0)
-			newROI.setAnnotation(AnnotationKeys.KEYWORDS, 
-					UIUtilities.listToCSV(roi.getNamespaceKeywords(
-							roi.getNamespaces().get(0))));
-							
+		newROI.setAnnotation(AnnotationKeys.TEXT, roi.getDescription());
 		ROIShape shape;
 		ShapeData shapeData;
 		Iterator<List<ShapeData>> i = roi.getIterator();
@@ -256,21 +254,21 @@ class InputServerStrategy
 	private ROIFigure createROIFigure(ShapeData shape)
 	{
 		if (shape instanceof RectangleData) {
-			return createRectangleFigure((RectangleData) shape);			
+			return createRectangleFigure((RectangleData) shape);
 		} else if (shape instanceof EllipseData) {
 			return createEllipseFigure((EllipseData) shape);
 		} else if (shape instanceof LineData) {
-			return createLineFigure((LineData) shape);			
+			return createLineFigure((LineData) shape);
 		} else if (shape instanceof PointData) {
-			return createPointFigure((PointData) shape);	
+			return createPointFigure((PointData) shape);
 		} else if (shape instanceof PolylineData) {
-			return createPolyOrlineFigure((PolylineData) shape);			
+			return createPolyOrlineFigure((PolylineData) shape);
 		} else if (shape instanceof PolygonData) {
-			return createPolygonFigure((PolygonData) shape);			
+			return createPolygonFigure((PolygonData) shape);
 		} else if (shape instanceof MaskData) {
-			return createMaskFigure((MaskData) shape);			
+			return createMaskFigure((MaskData) shape);
 		} else if (shape instanceof TextData) {
-			return createTextFigure((TextData) shape);			
+			return createTextFigure((TextData) shape);
 		}
 		return null;
 	}
@@ -299,12 +297,7 @@ class InputServerStrategy
 		fig.setText(data.getText());
 		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -324,11 +317,7 @@ class InputServerStrategy
 				2*r, 2*r, data.isReadOnly(), data.isClientObject());
 		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}	
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -348,12 +337,7 @@ class InputServerStrategy
 		fig.setText(data.getText());
 		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -375,12 +359,7 @@ class InputServerStrategy
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
 		fig.setVisible(data.isVisible());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -403,11 +382,7 @@ class InputServerStrategy
 		fig.setVisible(true);
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -434,12 +409,7 @@ class InputServerStrategy
 		
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -456,26 +426,17 @@ class InputServerStrategy
 				data.isReadOnly(), data.isClientObject());
 		fig.setVisible(data.isVisible());
 		List<Point2D.Double> points = data.getPoints();
-		List<Point2D.Double> points1 = data.getPoints1();
-		List<Point2D.Double> points2 = data.getPoints2();
-		List<Integer> mask = data.getMaskPoints();
-		for (int i = 0; i < points.size(); i++)
-		{
-			fig.addNode(new Node(mask.get(i), points.get(i), points1.get(i), 
-					points2.get(i)));
+		Point2D.Double p;
+		for (int i = 0; i < points.size(); i++) {
+			p = points.get(i);
+			fig.addNode(new Node(0, p, p, p));
 		}
-		
 		addShapeSettings(fig, data.getShapeSettings());
 		String text = data.getText();
 		if (text == null || text.trim().length() == 0)
 			text = ROIFigure.DEFAULT_TEXT;
 		fig.setText(text);
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		fig.setClosed(true);		
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -488,16 +449,16 @@ class InputServerStrategy
 	 */
 	private ROIFigure createPolyOrlineFigure(PolylineData data)
 	{
-		List<Integer> mask = data.getMaskPoints();
-		
-		boolean line = true;
+		/*
+		 List<Integer> mask = data.getMaskPoints();
+		 boolean line = true;
 		for (int i = 0 ; i < mask.size(); i++)
 		{
 			if (mask.get(i) != 0)
 				line = false;
 		}
-		
 		if (line) return createLineFromPolylineFigure(data);
+		*/
 		return createPolylineFromPolylineFigure(data);
 	}	
 		
@@ -520,11 +481,7 @@ class InputServerStrategy
 		
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}	
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	
@@ -537,27 +494,20 @@ class InputServerStrategy
 	private ROIFigure createPolylineFromPolylineFigure(PolylineData data)
 	{
 		List<Point2D.Double> points = data.getPoints();
-		List<Point2D.Double> points1 = data.getPoints1();
-		List<Point2D.Double> points2 = data.getPoints2();
-		List<Integer> mask = data.getMaskPoints();
 		MeasureBezierFigure fig = new MeasureBezierFigure(false, 
 				data.isReadOnly(), data.isClientObject());
 		fig.setVisible(data.isVisible());
-		for (int i = 0; i < points.size(); i++)
-			fig.addNode(new Node(mask.get(i), points.get(i), 
-					points1.get(i), points2.get(i)));
-		
+		Point2D.Double p;
+		for (int i = 0; i < points.size(); i++) {
+			p = points.get(i);
+			fig.addNode(new Node(0, p, p, p));
+		}
 		addShapeSettings(fig, data.getShapeSettings());
 		String text = data.getText();
 		if (text == null || text.trim().length() == 0)
 			text = ROIFigure.DEFAULT_TEXT;
 		fig.setText(text);
-		AffineTransform transform;
-		try {
-			transform = SVGTransform.toTransform(data.getTransform());
-			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-		}	
+		TRANSFORM.set(fig, createTransform(data.getTransform()));
 		return fig;
 	}
 	

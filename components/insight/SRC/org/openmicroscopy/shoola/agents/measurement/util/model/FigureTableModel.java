@@ -33,10 +33,8 @@ import org.jhotdraw.draw.AttributeKey;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 
 /** 
@@ -161,16 +159,10 @@ public class FigureTableModel
 				}
 				*/
 				keys.add(key);
-				if (AnnotationKeys.NAMESPACE.equals(key)) {
-					values.add(EditorUtil.getWorkflowForDisplay(
-							(String) figure.getROI().getAnnotation(
-									(AnnotationKey) key)));
-				} else {
-					if (key instanceof AnnotationKey)
-						values.add(figure.getROI().getAnnotation(
-							(AnnotationKey) key));
-					else values.add(NA);
-				}
+				if (key instanceof AnnotationKey)
+					values.add(figure.getROI().getAnnotation(
+						(AnnotationKey) key));
+				else values.add(NA);
 			}
 		}
 		fireTableDataChanged();

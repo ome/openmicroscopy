@@ -15,24 +15,21 @@ import omero.model.Ellipse;
 import omero.model.Label;
 import omero.model.Line;
 import omero.model.Mask;
-import omero.model.Path;
 import omero.model.Point;
 import omero.model.Polygon;
 import omero.model.Polyline;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Roi;
 import omero.model.Shape;
 import omero.model.SmartEllipseI;
 import omero.model.SmartLineI;
 import omero.model.SmartMaskI;
-import omero.model.SmartPathI;
 import omero.model.SmartPointI;
 import omero.model.SmartPolygonI;
 import omero.model.SmartPolylineI;
 import omero.model.SmartRectI;
 import omero.model.SmartTextI;
 import omero.util.ObjectFactoryRegistry;
-import omero.util.ObjectFactoryRegistry.ObjectFactory;
 
 /**
  * Intelligent server-side representations of the {@link Roi} and {@link Shape}
@@ -77,15 +74,6 @@ public abstract class RoiTypes {
 
             });
 
-            factories.put(SmartPathI.ice_staticId(), new ObjectFactory(Path.ice_staticId()) {
-
-                @Override
-                public Path create(String name) {
-                    return new SmartPathI();
-                }
-
-            });
-
             factories.put(SmartPointI.ice_staticId(), new ObjectFactory(Point.ice_staticId()) {
 
                 @Override
@@ -114,10 +102,10 @@ public abstract class RoiTypes {
 
                     });
 
-            factories.put(SmartRectI.ice_staticId(), new ObjectFactory(Rect.ice_staticId()) {
+            factories.put(SmartRectI.ice_staticId(), new ObjectFactory(Rectangle.ice_staticId()) {
 
                 @Override
-                public Rect create(String name) {
+                public Rectangle create(String name) {
                     return new SmartRectI();
                 }
 

@@ -217,7 +217,6 @@ import pojos.TextualAnnotationData;
 import pojos.TimeAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
-import pojos.WorkflowData;
 
 /** 
  * Unified access point to the various <i>OMERO</i> services.
@@ -6762,8 +6761,7 @@ class OMEROGateway
 				if (serverRoi != null) {
 					Roi ri = (Roi) roi.asIObject();
 					serverRoi.setDescription(ri.getDescription());
-					serverRoi.setNamespaces(ri.getNamespaces());
-					serverRoi.setKeywords(ri.getKeywords());
+					serverRoi.setNamespace(ri.getNamespace());
 					serverRoi.setImage(unloaded);
 					updateService.saveAndReturnObject(serverRoi);
 				}
@@ -7627,61 +7625,7 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
-	/**
-	 * Returns the list of available workflows on the server.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	List<WorkflowData> retrieveWorkflows(SecurityContext ctx, long userID)
-			throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive(ctx);
-		IQueryPrx svc = getQueryService(ctx);
-		try {
-			ParametersI param = new ParametersI();
-			param.map.put("userID", omero.rtypes.rlong(userID));
-			List<Namespace> serverWorkflows = 
-				(List) svc.findAllByQuery("from Namespace as n", param);
-			return PojoMapper.asDataObjectsAsList(serverWorkflows);
-		} catch(Throwable t) {
-			return new ArrayList<WorkflowData>();
-		}
-	}
-	
-	/**
-	 * Returns the list of available workflows on the server.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	Object storeWorkflows(SecurityContext ctx, List<WorkflowData> workflows,
-			long userID)
-			throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive(ctx);
-		IUpdatePrx updateService = getUpdateService(ctx);
-		for (WorkflowData workflow : workflows)
-			if (workflow.isDirty())
-			{
-				try {
-					updateService.saveObject(workflow.asIObject());
-				} catch (Throwable e) {
-					handleException(e, "Unable to save Object : "+ workflow);
-				}
-			}
-		return Boolean.valueOf(true);
-	}
-	
+
 	/**
 	 * Reads the file hosting the user photo.
 	 * 

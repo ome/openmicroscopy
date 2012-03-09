@@ -72,8 +72,8 @@ import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 import omero.model.Reagent;
-import omero.model.Rect;
-import omero.model.RectI;
+import omero.model.Rectangle;
+import omero.model.RectangleI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Screen;
@@ -1005,10 +1005,10 @@ public class UpdateServiceTest
         int t = 0;
         int c = 0;
         EllipseI rect = new EllipseI();
-        rect.setCx(omero.rtypes.rdouble(v));
-        rect.setCy(omero.rtypes.rdouble(v));
-        rect.setRx(omero.rtypes.rdouble(v));
-        rect.setRy(omero.rtypes.rdouble(v));
+        rect.setX(omero.rtypes.rdouble(v));
+        rect.setY(omero.rtypes.rdouble(v));
+        rect.setRadiusx(omero.rtypes.rdouble(v));
+        rect.setRadiusy(omero.rtypes.rdouble(v));
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
@@ -1057,8 +1057,8 @@ public class UpdateServiceTest
         int t = 0;
         int c = 0;
         Point rect = new PointI();
-        rect.setCx(omero.rtypes.rdouble(v));
-        rect.setCy(omero.rtypes.rdouble(v));
+        rect.setX(omero.rtypes.rdouble(v));
+        rect.setY(omero.rtypes.rdouble(v));
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
@@ -1104,7 +1104,7 @@ public class UpdateServiceTest
         int z = 0;
         int t = 0;
         int c = 0;
-        Rect rect = new RectI();
+        Rectangle rect = new RectangleI();
         rect.setX(omero.rtypes.rdouble(v));
         rect.setY(omero.rtypes.rdouble(v));
         rect.setWidth(omero.rtypes.rdouble(v));
@@ -1151,6 +1151,32 @@ public class UpdateServiceTest
     }
     
     /**
+     * Tests the creation of a ROI.
+     * @throws Exception  Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateROI()
+    	throws Exception
+    {
+    	Image image = (Image) iUpdate.saveAndReturnObject(
+       			mmFactory.simpleImage(0));
+    	Roi roi = new RoiI();
+    	roi.setImage(image);
+    	String name = "roi name";
+    	String description = "roi description";
+    	String ns = "roi ns";
+    	roi.setName(rstring(name));
+    	roi.setDescription(rstring(description));
+    	roi.setNamespace(rstring(ns));
+    	Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+    	assertNotNull(serverROI);
+    	ROIData data = new ROIData(serverROI);
+    	assertEquals(data.getName(), name);
+    	assertEquals(data.getDescription(), description);
+    	assertEquals(data.getNamespace(), ns);
+    }
+    
+    /**
 	 * Tests the creation of ROIs whose shapes are Polygons and converts them 
 	 * into the corresponding <code>POJO</code> objects.
 	 * @throws Exception  Thrown if an error occurred.
@@ -1170,7 +1196,7 @@ public class UpdateServiceTest
         int z = 0;
         int t = 0;
         int c = 0;
-        String points = "points[10, 10] points1[10, 10] points2[10, 10]";
+        String points = "10,10 11,11";
         Polygon rect = new PolygonI();
         rect.setPoints(omero.rtypes.rstring(points));
         rect.setTheZ(omero.rtypes.rint(z));
@@ -1195,8 +1221,6 @@ public class UpdateServiceTest
         	assertTrue(shape.getZ() == z);
         	assertTrue(shape.getC() == c);
         	assertTrue(shape.getPoints().size() == 1);
-        	assertTrue(shape.getPoints1().size() == 1);
-        	assertTrue(shape.getPoints2().size() == 1);
 		}
     }
     
@@ -1216,15 +1240,19 @@ public class UpdateServiceTest
         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
-        String points = "points[10, 10] points1[10, 10] points2[10, 10]";
+        String points = "10,10 11,11";
         int z = 0;
         int t = 0;
         int c = 0;
+        String start = "start";
+        String end = "end";
         Polyline rect = new PolylineI();
         rect.setPoints(omero.rtypes.rstring(points));
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
+        rect.setMarkerStart(omero.rtypes.rstring(start));
+        rect.setMarkerEnd(omero.rtypes.rstring(end));
         serverROI.addShape(rect);
         
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
@@ -1244,8 +1272,8 @@ public class UpdateServiceTest
         	assertTrue(shape.getZ() == z);
         	assertTrue(shape.getC() == c);
         	assertTrue(shape.getPoints().size() == 1);
-        	assertTrue(shape.getPoints1().size() == 1);
-        	assertTrue(shape.getPoints2().size() == 1);
+        	assertEquals(shape.getMarkerStart(), start);
+        	assertEquals(shape.getMarkerEnd(), end);
 		}
     }
     
@@ -1269,6 +1297,8 @@ public class UpdateServiceTest
         int z = 0;
         int t = 0;
         int c = 0;
+        String start = "start";
+        String end = "end";
         Line rect = new LineI();
         rect.setX1(omero.rtypes.rdouble(v));
         rect.setY1(omero.rtypes.rdouble(v));
@@ -1277,6 +1307,8 @@ public class UpdateServiceTest
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
+        rect.setMarkerStart(omero.rtypes.rstring(start));
+        rect.setMarkerEnd(omero.rtypes.rstring(end));
         serverROI.addShape(rect);
         
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
@@ -1299,6 +1331,8 @@ public class UpdateServiceTest
         	assertTrue(shape.getY1() == v);
         	assertTrue(shape.getX2() == w);
         	assertTrue(shape.getY2() == w);
+        	assertEquals(shape.getMarkerStart(), start);
+        	assertEquals(shape.getMarkerEnd(), end);
 		}
     }
     
