@@ -165,8 +165,8 @@ public class GeomTool {
         SmartEllipseI ellipse = new SmartEllipseI();
         ellipse.setX(rdouble(cx));
         ellipse.setY(rdouble(cy));
-        ellipse.setRadiusx(rdouble(rx));
-        ellipse.setRadiusy(rdouble(ry));
+        ellipse.setRadiusX(rdouble(rx));
+        ellipse.setRadiusY(rdouble(ry));
         return ellipse;
     }
 

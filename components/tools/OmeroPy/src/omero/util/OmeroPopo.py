@@ -688,8 +688,8 @@ class EllipseData(ShapeData):
             self.setValue(EllipseI());
             self.setX(0);
             self.setY(0);
-            self.setRadiusx(0);
-            self.setRadiusy(0);
+            self.setRadiusX(0);
+            self.setRadiusY(0);
         else:
             self.setValue(shape);
         
@@ -742,7 +742,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject();
         if(shape==None):
             raise Exception("No Shape specified.");
-        shape.setRadiusx(rdouble(rx));
+        shape.setRadiusX(rdouble(rx));
 
     ## 
     # Get the radius of the x-axis of the Ellipse
@@ -751,7 +751,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject();
         if(shape==None):
             raise Exception("No Shape specified.");
-        rx = shape.getRadiusx();
+        rx = shape.getRadiusX();
         if(rx==None):
             return 0;
         return rx.getValue();
@@ -763,7 +763,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject();
         if(shape==None):
             raise Exception("No Shape specified.");
-        shape.setRadiusy(rdouble(ry));
+        shape.setRadiusY(rdouble(ry));
         
     ## 
     # Get the radius of the y-axis of the Ellipse
@@ -772,7 +772,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject();
         if(shape==None):
             raise Exception("No Shape specified.");
-        ry = shape.getRadiusy();
+        ry = shape.getRadiusY();
         if(ry==None):
             return 0;
         return ry.getValue();
