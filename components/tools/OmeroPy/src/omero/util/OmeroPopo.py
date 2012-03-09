@@ -855,7 +855,6 @@ class PolygonData(ShapeData):
             self.points = [];
         else:
             self.setValue(shape);
-            self.setPointsString(pts);
             #self.parseShapeStringToPoints();
     
     ##
