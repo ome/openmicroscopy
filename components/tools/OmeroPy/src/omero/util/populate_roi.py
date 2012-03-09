@@ -808,8 +808,8 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             shape.x = rdouble(float(values[i]))
             values = columns[3].values
             shape.y = rdouble(float(values[i]))
-            shape.radiusx = diameter
-            shape.radiusy = diameter
+            shape.radiusX = diameter
+            shape.radiusY = diameter
             roi.addShape(shape)
             roi.image = unloaded_image
             roi.linkAnnotation(unloaded_file_annotation)

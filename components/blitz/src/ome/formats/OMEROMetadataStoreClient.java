@@ -3776,7 +3776,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseRadiusX(Double radiusX, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setRadiusx(toRType(radiusX));
+        o.setRadiusX(toRType(radiusX));
     }
 
     /* (non-Javadoc)
@@ -3785,7 +3785,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseRadiusY(Double radiusY, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setRadiusy(toRType(radiusY));
+        o.setRadiusY(toRType(radiusY));
     }
 
     /* (non-Javadoc)

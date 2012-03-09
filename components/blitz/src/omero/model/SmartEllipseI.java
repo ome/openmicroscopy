@@ -34,8 +34,8 @@ public class SmartEllipseI extends omero.model.EllipseI implements SmartShape {
         try {
             double cx = getX().getValue();
             double cy = getY().getValue();
-            double rx = getRadiusx().getValue();
-            double ry = getRadiusy().getValue();
+            double rx = getRadiusX().getValue();
+            double ry = getRadiusY().getValue();
             double height = ry * 2;
             double width = rx * 2;
             double cornerX = cx - rx;
@@ -72,8 +72,8 @@ public class SmartEllipseI extends omero.model.EllipseI implements SmartShape {
         if (roi == null) {
             x = rdouble(random.nextInt(100));
             y = rdouble(random.nextInt(100));
-            radiusx = rdouble(random.nextInt(100));
-            radiusy = rdouble(random.nextInt(100));
+            radiusX = rdouble(random.nextInt(100));
+            radiusY = rdouble(random.nextInt(100));
         } else {
             throw new UnsupportedOperationException(
                     "Roi-based values unsupported");
