@@ -202,8 +202,6 @@
 			<!-- Note: emissionWave is called emWave in model-->
 			<optional name="fluor" type="string"/>
 			<optional name="ndFilter" type="double"/>
-			<optional name="otf" type="ome.model.acquisition.OTF"/>
-			<!-- Note: oft is called OTFRef (ID only Ref) in model-->
 			<optional name="detectorSettings" type="ome.model.acquisition.DetectorSettings"/>
 			<!-- Note: detectorSettings is called DetectorRef (ID and values) in model-->
 			<optional name="lightSourceSettings" type="ome.model.acquisition.LightSettings"/>

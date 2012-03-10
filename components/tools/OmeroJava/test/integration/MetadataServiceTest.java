@@ -54,7 +54,6 @@ import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
-import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.OriginalFile;
 import omero.model.PermissionsI;
@@ -738,12 +737,10 @@ public class MetadataServiceTest
     	List<FilterSet> filterSets;
     	List<Objective> objectives;
     	List<LightSource> lights;
-    	List<OTF> otfs;
     	Detector detector;
     	Filter filter;
     	FilterSet fs;
     	Objective objective;
-    	OTF otf;
     	LightSource light;
     	Laser laser;
     	Iterator j; 
@@ -762,7 +759,6 @@ public class MetadataServiceTest
     		assertTrue(instrument.sizeOfFilterSet() > 0);
     		assertTrue(instrument.sizeOfLightSource() == 1);
     		assertTrue(instrument.sizeOfObjective() > 0);
-    		assertTrue(instrument.sizeOfOtf() > 0);
     		
     		assertTrue(instrument.sizeOfDetector() == 
     			data.getDetectors().size());
@@ -776,9 +772,6 @@ public class MetadataServiceTest
     			data.getLightSources().size());
     		assertTrue(instrument.sizeOfObjective() == 
     			data.getObjectives().size());
-    		assertTrue(instrument.sizeOfOtf() == 
-    			data.getOTF().size());
-    		
     		
     		detectors = instrument.copyDetector();
     		j = detectors.iterator();
@@ -803,17 +796,6 @@ public class MetadataServiceTest
     		j = objectives.iterator();
     		while (j.hasNext()) {
 				objective = (Objective) j.next();
-				assertNotNull(objective.getCorrection());
-				assertNotNull(objective.getImmersion());
-			}
-    		otfs = instrument.copyOtf();
-    		j = otfs.iterator();
-    		while (j.hasNext()) {
-				otf = (OTF) j.next();
-				objective = otf.getObjective();
-				assertNotNull(otf.getPixelsType());
-				assertNotNull(otf.getFilterSet());
-				assertNotNull(objective);
 				assertNotNull(objective.getCorrection());
 				assertNotNull(objective.getImmersion());
 			}
@@ -916,9 +898,6 @@ public class MetadataServiceTest
         	sql = "select d from Objective as d where d.instrument.id = :iid";
         	Objective objective = (Objective) iQuery.findByQuery(sql, param);
         	
-        	sql = "select d from OTF as d where d.instrument.id = :iid";
-        	OTF otf = (OTF) iQuery.findByQuery(sql, param);
-        	assertNotNull(otf);
         	LogicalChannel lc;
         	Channel channel;
         	ContrastMethod cm;
@@ -942,7 +921,6 @@ public class MetadataServiceTest
     			lc.setContrastMethod(cm);
     			lc.setIllumination(illumination);
     			lc.setMode(mode);
-    			lc.setOtf(otf);
     	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
     	    	lc.setFilterSet(filterSet);
     	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));
@@ -983,19 +961,6 @@ public class MetadataServiceTest
             	assertNotNull(data.getContrastMethod());
             	assertNotNull(data.getIllumination());
             	assertNotNull(data.getMode());
-            	//OTF support
-            	
-            	assertTrue(data.getOTF().getId() == otf.getId().getValue());
-            	assertNotNull(loaded.getOtf());
-            	assertTrue(loaded.getOtf().getId().getValue() 
-            			== otf.getId().getValue());
-            	assertNotNull(loaded.getOtf().getFilterSet());
-            	assertNotNull(loaded.getOtf().getObjective());
-            	assertTrue(loaded.getOtf().getFilterSet().getId().getValue() ==
-            		filterSet.getId().getValue());
-            	assertTrue(loaded.getOtf().getObjective().getId().getValue() ==
-            		objective.getId().getValue());
-            	assertNotNull(loaded.getOtf().getPixelsType());
     		}
 		}
     }

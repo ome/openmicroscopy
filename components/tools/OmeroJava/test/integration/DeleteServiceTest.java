@@ -67,7 +67,6 @@ import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
 import omero.model.Microscope;
-import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
@@ -990,8 +989,6 @@ public class DeleteServiceTest
     	Laser laser = (Laser) iQuery.findByQuery(sql, param);
     	sql = "select d from Dichroic as d where d.instrument.id = :iid";
     	Dichroic dichroic = (Dichroic) iQuery.findByQuery(sql, param);
-    	sql = "select d from OTF as d where d.instrument.id = :iid";
-    	OTF otf = (OTF) iQuery.findByQuery(sql, param);
     	sql = "select d from Objective as d where d.instrument.id = :iid";
     	Objective objective = (Objective) iQuery.findByQuery(sql, param);
     	
@@ -1021,7 +1018,6 @@ public class DeleteServiceTest
     	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
 			channel = pixels.getChannel(i);
 			lc = channel.getLogicalChannel();
-			lc.setOtf(otf);
 	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
 	    	lc.setFilterSet(filterSet);
 	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));
@@ -1059,10 +1055,7 @@ public class DeleteServiceTest
     	sql = "select d from Detector as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	
-    	param.addId(otf.getId().getValue());
-    	sql = "select d from OTF as d where d.id = :id";
-    	assertNull(iQuery.findByQuery(sql, param));
-    	
+    
     	param.addId(objective.getId().getValue());
     	sql = "select d from Objective as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
@@ -2481,8 +2474,6 @@ public class DeleteServiceTest
     	Laser laser = (Laser) iQuery.findByQuery(sql, param);
     	sql = "select d from Dichroic as d where d.instrument.id = :iid";
     	Dichroic dichroic = (Dichroic) iQuery.findByQuery(sql, param);
-    	sql = "select d from OTF as d where d.instrument.id = :iid";
-    	OTF otf = (OTF) iQuery.findByQuery(sql, param);
     	sql = "select d from Objective as d where d.instrument.id = :iid";
     	Objective objective = (Objective) iQuery.findByQuery(sql, param);
     	
@@ -2512,7 +2503,6 @@ public class DeleteServiceTest
     	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
 			channel = pixels.getChannel(i);
 			lc = channel.getLogicalChannel();
-			lc.setOtf(otf);
 	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
 	    	lc.setFilterSet(filterSet);
 	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));
@@ -2549,10 +2539,6 @@ public class DeleteServiceTest
     	assertNull(iQuery.findByQuery(sql, param));
     	param.addId(detector.getId().getValue());
     	sql = "select d from Detector as d where d.id = :id";
-    	assertNull(iQuery.findByQuery(sql, param));
-    	
-    	param.addId(otf.getId().getValue());
-    	sql = "select d from OTF as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	
     	param.addId(objective.getId().getValue());
@@ -2585,8 +2571,7 @@ public class DeleteServiceTest
     }
 
     /**
-     * Test to delete an image with an instrument with 2 objectives and 
-     * 2 OTF.
+     * Test to delete an image with an instrument with 2 objectives
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -2604,9 +2589,6 @@ public class DeleteServiceTest
     	Instrument instrument = mmFactory.createInstrument(
     			ModelMockFactory.LASER);
     	Objective objective = mmFactory.createObjective();
-    	OTF otf = mmFactory.createOTF(instrument.copyFilterSet().get(0), 
-    			objective);
-    	instrument.addOTF(otf);
     	instrument.addObjective(objective);
     	
     	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
@@ -2625,21 +2607,8 @@ public class DeleteServiceTest
     	Laser laser = (Laser) iQuery.findByQuery(sql, param);
     	sql = "select d from Dichroic as d where d.instrument.id = :iid";
     	Dichroic dichroic = (Dichroic) iQuery.findByQuery(sql, param);
-    	sql = "select d from OTF as d where d.instrument.id = :iid";
-    	List<IObject> l = iQuery.findAllByQuery(sql, param);
-    	otf = (OTF) l.get(0);
     	sql = "select d from Objective as d where d.instrument.id = :iid";
-    	l = iQuery.findAllByQuery(sql, param);
-    	Iterator<IObject> j = l.iterator();
-    	long objectiveID = otf.getObjective().getId().getValue();
-    	IObject iObject;
-    	while (j.hasNext()) {
-			iObject = j.next();
-			if (objectiveID != iObject.getId().getValue()) {
-				objective = (Objective) iObject;
-				break;
-			}
-		}
+    	objective = (Objective) iQuery.findByQuery(sql, param);
     	img.setInstrument(instrument);
     	img.setImagingEnvironment(mmFactory.createImageEnvironment());
     	img.setObjectiveSettings(mmFactory.createObjectiveSettings(objective));
@@ -2667,7 +2636,6 @@ public class DeleteServiceTest
     	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
 			channel = pixels.getChannel(i);
 			lc = channel.getLogicalChannel();
-			lc.setOtf(otf);
 	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
 	    	lc.setFilterSet(filterSet);
 	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));
@@ -2707,10 +2675,6 @@ public class DeleteServiceTest
     	assertNull(iQuery.findByQuery(sql, param));
     	
     	param.addId(instrument.getId().getValue());
-    	
-    	sql = "select d from OTF as d where d.instrument.id = :id";
-    	assertEquals(iQuery.findAllByQuery(sql, param).size(), 0);
-
     	sql = "select d from Objective as d where d.instrument.id = :id";
     	assertEquals(iQuery.findAllByQuery(sql, param).size(), 0);
     	
@@ -3810,8 +3774,6 @@ public class DeleteServiceTest
     	List<Filter> filters = instrument.copyFilter();
     	List<Objective> objectives = instrument.copyObjective();
     	List<LightSource> lightSources = instrument.copyLightSource();
-    	List<OTF> otfs = instrument.copyOtf();
-
     	//Delete the image.
     	delete(new DeleteCommand(REF_IMAGE, imageID, null));
     	assertDoesNotExist(image);
@@ -3848,10 +3810,7 @@ public class DeleteServiceTest
     	while (i.hasNext()) {
     		assertDoesNotExist((IObject) i.next());
 		}
-    	i = otfs.iterator();
-    	while (i.hasNext()) {
-    		assertDoesNotExist((IObject) i.next());
-		}
+    	
     	i = planes.iterator();
     	while (i.hasNext()) {
     		assertDoesNotExist((IObject) i.next());
