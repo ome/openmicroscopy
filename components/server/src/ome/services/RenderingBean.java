@@ -593,7 +593,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             projectedPixels.setSizeZ(1);
             projectedPixels.setSizeT(1);
             projectedPixels.setSizeC(projectedSizeC);
-            projectedPixels.setPixelsType(pixelsObj.getPixelsType());
+            projectedPixels.setType(pixelsObj.getType());
             PixelBuffer projectedPlanes = new InMemoryPlanarPixelBuffer(
                     projectedPixels, planes);
             PlaneDef pd = new PlaneDef(PlaneDef.XY, 0);
@@ -1593,7 +1593,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
         Pixels newPixels = new ShallowCopy().copy(pixels);
         newPixels.putAt(Pixels.CHANNELS, new ArrayList<Channel>());
         copyChannels(pixels, newPixels);
-        newPixels.setPixelsType(new ShallowCopy().copy(pixels.getPixelsType()));
+        newPixels.setType(new ShallowCopy().copy(pixels.getType()));
         return newPixels;
     }
 

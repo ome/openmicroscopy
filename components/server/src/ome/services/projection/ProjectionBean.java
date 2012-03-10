@@ -15,7 +15,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IProjection;
@@ -99,7 +98,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
 
             if (pixelsType == null)
             {
-                pixelsType = ctx.pixels.getPixelsType();
+                pixelsType = ctx.pixels.getType();
             }
             else
             {
@@ -197,13 +196,13 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         Pixels newPixels = newImage.getPixels(0);
         if (pixelsType == null)
         {
-            pixelsType = ctx.pixels.getPixelsType();
+            pixelsType = ctx.pixels.getType();
         }
         else
         {
             pixelsType = iQuery.get(PixelsType.class, pixelsType.getId());
         }
-        newPixels.setPixelsType(pixelsType);
+        newPixels.setType(pixelsType);
         
         // Project each stack for each channel and each timepoint in the
         // entire image, copying into the pixel buffer the projected pixels.
@@ -278,8 +277,8 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                     si.setGlobalMax(ctx.maximum);
                     channel.setStatsInfo(si);
                     // Set our methodology
-                    newPixels.setMethodology(
-                            IProjection.METHODOLOGY_STRINGS[algorithm]);
+                    //newPixels.setMethodology(
+                      //      IProjection.METHODOLOGY_STRINGS[algorithm]);
                     newC++;
                 }
             }

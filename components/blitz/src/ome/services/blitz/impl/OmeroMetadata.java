@@ -592,7 +592,7 @@ public class OmeroMetadata extends DummyMetadata {
         {
             return null;
         }
-        omero.model.PixelsType e = o.getPrimaryPixels().getPixelsType();
+        omero.model.PixelsType e = o.getPrimaryPixels().getType();
         try
         {
             return e != null? 
@@ -637,7 +637,7 @@ public class OmeroMetadata extends DummyMetadata {
         {
             return null;
         }
-        omero.model.AcquisitionMode e = o.getLogicalChannel().getMode();
+        omero.model.AcquisitionMode e = o.getLogicalChannel().getAcquisitionMode();
         try
         {
             return e != null? 
@@ -713,7 +713,7 @@ public class OmeroMetadata extends DummyMetadata {
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        return toPositiveInteger(o.getLogicalChannel().getEmissionWave());
+        return toPositiveInteger(o.getLogicalChannel().getEmissionWavelength());
     }
 
     @Override
@@ -721,7 +721,7 @@ public class OmeroMetadata extends DummyMetadata {
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        return toPositiveInteger(o.getLogicalChannel().getExcitationWave()); 
+        return toPositiveInteger(o.getLogicalChannel().getExcitationWavelength()); 
     }
 
     @Override
@@ -747,7 +747,7 @@ public class OmeroMetadata extends DummyMetadata {
         {
             return null;
         }
-        omero.model.Illumination e = o.getLogicalChannel().getIllumination();
+        omero.model.Illumination e = o.getLogicalChannel().getIlluminationType();
         try
         {
             return e != null? 

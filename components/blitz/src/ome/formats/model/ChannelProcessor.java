@@ -144,7 +144,7 @@ public class ChannelProcessor implements ModelProcessor
 		return;
         }
         //First we check the emission wavelength.
-	Integer value = getValue(lc.getEmissionWave());
+	Integer value = getValue(lc.getEmissionWavelength());
 	if (value != null) {
 		setChannelColor(channel, channelIndex,
 				ColorsFactory.determineColor(value));
@@ -196,7 +196,7 @@ public class ChannelProcessor implements ModelProcessor
 		}
 	}
 	//Excitation
-	value = getValue(lc.getExcitationWave());
+	value = getValue(lc.getExcitationWavelength());
 	if (value != null) {
 		setChannelColor(channel, channelIndex,
 				ColorsFactory.determineColor(value));
@@ -347,7 +347,7 @@ public class ChannelProcessor implements ModelProcessor
     private RString getChannelName(ChannelData channelData)
     {
 	LogicalChannel lc = channelData.getLogicalChannel();
-	Integer value = getValue(lc.getEmissionWave());
+	Integer value = getValue(lc.getEmissionWavelength());
 	RString name;
 	if (value != null)
 	{
@@ -383,7 +383,7 @@ public class ChannelProcessor implements ModelProcessor
 			}
 		}
 	}
-	value = getValue(lc.getExcitationWave());
+	value = getValue(lc.getExcitationWavelength());
 	if (value != null)
 	{
 		return rstring(value.toString());

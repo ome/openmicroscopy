@@ -291,7 +291,7 @@ public class PixelsData extends DataObject {
      * @return See above.
      */
     public String getPixelType() {
-        PixelsType type = asPixels().getPixelsType();
+        PixelsType type = asPixels().getType();
         return type == null ? null : (type.getValue() == null ? null : type
                 .getValue().getValue());
     }

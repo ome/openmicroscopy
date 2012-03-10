@@ -3114,7 +3114,9 @@ public class OMEROMetadataStoreClient
             int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setMode((AcquisitionMode) getEnumeration(AcquisitionMode.class, acquisitionMode.toString()));
+        o.getLogicalChannel().setAcquisitionMode(
+        		(AcquisitionMode) getEnumeration(
+        				AcquisitionMode.class, acquisitionMode.toString()));
     }
 
     /* (non-Javadoc)
@@ -3149,7 +3151,7 @@ public class OMEROMetadataStoreClient
             PositiveInteger emissionWavelength, int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setEmissionWave(toRType(emissionWavelength));
+        o.getLogicalChannel().setEmissionWavelength(toRType(emissionWavelength));
     }
 
     /** (non-Javadoc)
@@ -3160,7 +3162,8 @@ public class OMEROMetadataStoreClient
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setExcitationWave(toRType(excitationWavelength));
+        o.getLogicalChannel().setExcitationWavelength(
+        		toRType(excitationWavelength));
     }
 
     /* (non-Javadoc)
@@ -3190,7 +3193,9 @@ public class OMEROMetadataStoreClient
             int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setIllumination((Illumination) getEnumeration(Illumination.class, illuminationType.toString()));
+        o.getLogicalChannel().setIlluminationType(
+        (Illumination) getEnumeration(Illumination.class,
+        illuminationType.toString()));
     }
 
 
@@ -3459,7 +3464,7 @@ public class OMEROMetadataStoreClient
             int detectorIndex)
     {
         Detector o = getDetector(instrumentIndex, detectorIndex);
-        o.setOffsetValue(toRType(offset));
+        o.setOffset(toRType(offset));
     }
 
     /* (non-Javadoc)
@@ -3558,7 +3563,7 @@ public class OMEROMetadataStoreClient
             int channelIndex)
     {
         DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
-        o.setOffsetValue(toRType(offset));
+        o.setOffset(toRType(offset));
     }
 
     /* (non-Javadoc)
@@ -5582,21 +5587,7 @@ public class OMEROMetadataStoreClient
 
     public OTF getOTF(int instrumentIndex, int OTFIndex)
     {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
-        indexes.put(Index.OTF_INDEX, OTFIndex);
-        return getSourceObject(OTF.class, indexes);
-    }
-
-
-    private OriginalFile getOriginalFile(int instrumentIndex, int OTFIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
-        indexes.put(Index.OTF_INDEX, OTFIndex);
-        return getSourceObject(OriginalFile.class, indexes);
+        return null;
     }
 
     /* (non-Javadoc)
@@ -5604,14 +5595,6 @@ public class OMEROMetadataStoreClient
      */
     public void setOTFID(String id, int instrumentIndex, int OTFIndex)
     {
-        checkDuplicateLSID(OTF.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
-        indexes.put(Index.OTF_INDEX, OTFIndex);
-        IObjectContainer o = getIObjectContainer(OTF.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(OTF.class, id, o);
     }
 
     /* (non-Javadoc)
@@ -5620,8 +5603,7 @@ public class OMEROMetadataStoreClient
     public void setOTFBinaryFileFileName(String fileName, int instrumentIndex,
             int OTFIndex)
     {
-        OriginalFile o = getOriginalFile(instrumentIndex, OTFIndex);
-        o.setName(toRType(fileName));
+        
     }
 
     /* (non-Javadoc)
@@ -5630,8 +5612,6 @@ public class OMEROMetadataStoreClient
     public void setOTFBinaryFileMIMEType(String mimetype, int instrumentIndex,
             int OTFIndex)
     {
-        OriginalFile o = getOriginalFile(instrumentIndex, OTFIndex);
-        o.setMimetype(toRType(mimetype));
     }
 
     /* (non-Javadoc)
@@ -5640,8 +5620,7 @@ public class OMEROMetadataStoreClient
     public void setOTFBinaryFileSize(NonNegativeLong size, int instrumentIndex,
             int OTFIndex)
     {
-        OriginalFile o = getOriginalFile(instrumentIndex, OTFIndex);
-        o.setSize(toRType(size));
+       
     }
 
     /* (non-Javadoc)
@@ -5650,8 +5629,6 @@ public class OMEROMetadataStoreClient
     public void setOTFFilterSetRef(String filterSet, int instrumentIndex,
             int OTFIndex)
     {
-        LSID key = new LSID(OTF.class, instrumentIndex, OTFIndex);
-        addReference(key, new LSID(filterSet));
     }
 
     /* (non-Javadoc)
@@ -5660,8 +5637,6 @@ public class OMEROMetadataStoreClient
     public void setOTFOpticalAxisAveraged(Boolean opticalAxisAveraged,
             int instrumentIndex, int OTFIndex)
     {
-        OTF o = getOTF(instrumentIndex, OTFIndex);
-        o.setOpticalAxisAveraged(toRType(opticalAxisAveraged));
     }
 
     /* (non-Javadoc)
@@ -5670,8 +5645,6 @@ public class OMEROMetadataStoreClient
     public void setOTFSizeX(PositiveInteger sizeX, int instrumentIndex,
             int OTFIndex)
     {
-        OTF o = getOTF(instrumentIndex, OTFIndex);
-        o.setSizeX(toRType(sizeX));
     }
 
     /* (non-Javadoc)
@@ -5680,8 +5653,6 @@ public class OMEROMetadataStoreClient
     public void setOTFSizeY(PositiveInteger sizeY, int instrumentIndex,
             int OTFIndex)
     {
-        OTF o = getOTF(instrumentIndex, OTFIndex);
-        o.setSizeY(toRType(sizeY));
     }
 
     /* (non-Javadoc)
@@ -5689,30 +5660,14 @@ public class OMEROMetadataStoreClient
      */
     public void setOTFType(ome.xml.model.enums.PixelType type, int instrumentIndex, int OTFIndex)
     {
-        OTF o = getOTF(instrumentIndex, OTFIndex);
-        o.setPixelsType((PixelsType) getEnumeration(PixelsType.class, type.toString()));
     }
-
-    ////////OTF Objective Settings /////////
-
-    private ObjectiveSettings getOTFObjectiveSettings(int instrumentIndex, int OTFIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
-        indexes.put(Index.OTF_INDEX, OTFIndex);
-        return getSourceObject(ObjectiveSettings.class, indexes);
-    }
-
+    
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsID(java.lang.String, int, int)
      */
     public void setOTFObjectiveSettingsID(String id, int instrumentIndex,
             int OTFIndex)
     {
-        getOTFObjectiveSettings(instrumentIndex, OTFIndex);
-        LSID key = new LSID(OTF.class, instrumentIndex, OTFIndex);
-        addReference(key, new LSID(id));
     }
 
     /* (non-Javadoc)
@@ -5721,8 +5676,6 @@ public class OMEROMetadataStoreClient
     public void setOTFObjectiveSettingsCorrectionCollar(
             Double correctionCollar, int instrumentIndex, int OTFIndex)
     {
-        ObjectiveSettings o = getOTFObjectiveSettings(instrumentIndex, OTFIndex);
-        o.setCorrectionCollar(toRType(correctionCollar));
     }
 
     /* (non-Javadoc)
@@ -5732,8 +5685,6 @@ public class OMEROMetadataStoreClient
             ome.xml.model.enums.Medium medium, int instrumentIndex,
             int OTFIndex)
     {
-        ObjectiveSettings o = getOTFObjectiveSettings(instrumentIndex, OTFIndex);
-        o.setMedium((Medium) getEnumeration(Medium.class, medium.toString()));
     }
 
     /* (non-Javadoc)
@@ -5742,8 +5693,6 @@ public class OMEROMetadataStoreClient
     public void setOTFObjectiveSettingsRefractiveIndex(Double refractiveIndex,
             int instrumentIndex, int OTFIndex)
     {
-        ObjectiveSettings o = getOTFObjectiveSettings(instrumentIndex, OTFIndex);
-        o.setRefractiveIndex(toRType(refractiveIndex));
     }
 
 
@@ -6155,7 +6104,7 @@ public class OMEROMetadataStoreClient
     public void setPixelsType(PixelType type, int imageIndex)
     {
         Pixels o = getPixels(imageIndex);
-        o.setPixelsType(
+        o.setType(
             (PixelsType) getEnumeration(PixelsType.class, type.toString()));
     }
 
@@ -7360,7 +7309,7 @@ public class OMEROMetadataStoreClient
     public void setStageLabelX(Double x, int imageIndex)
     {
         StageLabel o = getStageLabel(imageIndex);
-        o.setPositionX(toRType(x));
+        o.setX(toRType(x));
     }
 
     /* (non-Javadoc)
@@ -7369,7 +7318,7 @@ public class OMEROMetadataStoreClient
     public void setStageLabelY(Double y, int imageIndex)
     {
         StageLabel o = getStageLabel(imageIndex);
-        o.setPositionY(toRType(y));
+        o.setY(toRType(y));
     }
 
     /* (non-Javadoc)
@@ -7378,7 +7327,7 @@ public class OMEROMetadataStoreClient
     public void setStageLabelZ(Double z, int imageIndex)
     {
         StageLabel o = getStageLabel(imageIndex);
-        o.setPositionZ(toRType(z));
+        o.setZ(toRType(z));
     }
 
     //////// String Annotation /////////

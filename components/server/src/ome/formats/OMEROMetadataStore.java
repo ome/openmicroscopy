@@ -1647,7 +1647,7 @@ public class OMEROMetadataStore
     		if (compare(s1.getBinning(), s2.getBinning())
     			&& s1.getDetector() == s2.getDetector()
     			&& compare(s1.getGain(), s2.getGain())
-    			&& compare(s1.getOffsetValue(), s2.getOffsetValue())
+    			&& compare(s1.getOffset(), s2.getOffset())
     			&& compare(s1.getReadOutRate(), s2.getReadOutRate())
     			&& compare(s1.getVoltage(), s2.getVoltage()))
     		{
@@ -1675,14 +1675,16 @@ public class OMEROMetadataStore
 
     	for (LogicalChannel lc2 : uniqueChannels)
     	{
-    		if (compare(lc.getMode(), lc2.getMode())
+    		if (compare(lc.getAcquisitionMode(), lc2.getAcquisitionMode())
     			&& compare(lc.getContrastMethod(), lc2.getContrastMethod())
-    			&& compare(lc.getIllumination(), lc2.getIllumination())
+    			&& compare(lc.getIlluminationType(), lc2.getIlluminationType())
     			&& compare(lc.getPhotometricInterpretation(),
     					   lc2.getPhotometricInterpretation())
     			&& lc.getDetectorSettings() == lc2.getDetectorSettings()
-    			&& compare(lc.getEmissionWave(), lc2.getEmissionWave())
-    			&& compare(lc.getExcitationWave(), lc2.getExcitationWave())
+    			&& compare(lc.getEmissionWavelength(),
+    					lc2.getEmissionWavelength())
+    			&& compare(lc.getExcitationWavelength(),
+    					lc2.getExcitationWavelength())
     			&& lc.getFilterSet() == lc2.getFilterSet()
     			&& compare(lc.getFluor(), lc2.getFluor())
     			&& lc.getLightSourceSettings() == lc2.getLightSourceSettings()

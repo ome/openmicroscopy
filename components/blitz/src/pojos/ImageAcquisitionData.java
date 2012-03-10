@@ -136,7 +136,7 @@ public class ImageAcquisitionData
 	public Object getPositionX()
 	{
 		if (label == null) return null;
-		RDouble value = label.getPositionX();
+		RDouble value = label.getX();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -149,7 +149,7 @@ public class ImageAcquisitionData
 	public Object getPositionY()
 	{
 		if (label == null) return null;
-		RDouble value = label.getPositionY();
+		RDouble value = label.getY();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -162,7 +162,7 @@ public class ImageAcquisitionData
 	public Object getPositionZ()
 	{
 		if (label == null) return null;
-		RDouble value = label.getPositionZ();
+		RDouble value = label.getZ();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -280,7 +280,7 @@ public class ImageAcquisitionData
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionX(omero.rtypes.rdouble(value));
+		label.setX(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -292,7 +292,7 @@ public class ImageAcquisitionData
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionY(omero.rtypes.rdouble(value));
+		label.setY(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -304,7 +304,7 @@ public class ImageAcquisitionData
 	{
 		labelDirty = true;
 		if (label == null) label = new StageLabelI();
-		label.setPositionZ(omero.rtypes.rdouble(value));
+		label.setZ(omero.rtypes.rdouble(value));
 	}
 	
 	/**

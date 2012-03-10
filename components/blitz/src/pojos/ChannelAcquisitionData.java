@@ -128,7 +128,7 @@ public class ChannelAcquisitionData
 	public Double getDetectorSettingsOffset()
 	{
 		if (detectorSettings == null) return null;
-		RDouble value = detectorSettings.getOffsetValue();
+		RDouble value = detectorSettings.getOffset();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -271,7 +271,7 @@ public class ChannelAcquisitionData
 		detectorSettingsDirty = true;
 		if (detectorSettings == null) 
 			detectorSettings = new DetectorSettingsI();
-		detectorSettings.setOffsetValue(omero.rtypes.rdouble(value));
+		detectorSettings.setOffset(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -396,7 +396,7 @@ public class ChannelAcquisitionData
     { 
     	LogicalChannel lc = (LogicalChannel) asIObject();
     	if (lc == null) return null;
-    	Illumination value =  lc.getIllumination();
+    	Illumination value =  lc.getIlluminationType();
     	if (value != null) return value.getValue().getValue();
     	return null; 
     }
@@ -424,7 +424,7 @@ public class ChannelAcquisitionData
     { 
     	LogicalChannel lc = (LogicalChannel) asIObject();
     	if (lc == null) return null;
-    	AcquisitionMode value =  lc.getMode();
+    	AcquisitionMode value =  lc.getAcquisitionMode();
     	if (value != null) return value.getValue().getValue();
     	return null; 
     }
