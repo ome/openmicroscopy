@@ -263,13 +263,13 @@ class OmeroMetadataServiceImpl
 			label.setName(omero.rtypes.rstring(data.getLabelName()));
 			Object o = data.getPositionX();
 			if (o != null)
-				label.setPositionX(omero.rtypes.rdouble((Float) o));
+				label.setX(omero.rtypes.rdouble((Float) o));
 			o = data.getPositionY();
 			if (o != null)
-				label.setPositionY(omero.rtypes.rdouble((Float) o));
+				label.setY(omero.rtypes.rdouble((Float) o));
 			o = data.getPositionZ();
 			if (o != null)
-				label.setPositionZ(omero.rtypes.rdouble((Float) o));
+				label.setZ(omero.rtypes.rdouble((Float) o));
 		}
 		//Environment
 		if (data.isImagingEnvironmentDirty()) {

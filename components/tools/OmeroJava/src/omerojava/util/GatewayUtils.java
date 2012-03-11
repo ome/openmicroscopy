@@ -35,17 +35,14 @@ import java.util.TreeMap;
 
 //Application-internal dependencies
 import omero.ServerError;
-import omero.client;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.Image;
 import omero.model.Pixels;
-import omero.model.PixelsI;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectI;
-import omero.model.SessionPrx;
 
 /**
  *
@@ -97,9 +94,9 @@ public class GatewayUtils
 			throw new NullPointerException("pixels is null");
 		if (rawPlane == null)
 			throw new NullPointerException("rawPlane is null");
-		if (pixels.getPixelsType().getValue().getValue() == null)
+		if (pixels.getType().getValue().getValue() == null)
 			throw new NullPointerException("pixels.getPixelsType().getValue() is null");
-		String type = pixels.getPixelsType().getValue().getValue();
+		String type = pixels.getType().getValue().getValue();
 		int bytesPerPixels = getBytesPerPixels(type);
 		BytesConverter strategy = BytesConverter.getConverter(type);
 		return createPlane2D(pixels, rawPlane, bytesPerPixels, strategy);
@@ -122,9 +119,9 @@ public class GatewayUtils
 			throw new NullPointerException("pixels is null");
 		if (rawPlane == null)
 			throw new NullPointerException("rawPlane is null");
-		if (pixels.getPixelsType().getValue().getValue() == null)
+		if (pixels.getType().getValue().getValue() == null)
 			throw new NullPointerException("pixels.getPixelsType().getValue() is null");
-		String type = pixels.getPixelsType().getValue().getValue();
+		String type = pixels.getType().getValue().getValue();
 		int bytesPerPixels = getBytesPerPixels(type);
 		BytesConverter strategy = BytesConverter.getConverter(type);
 		return createPlane1D(pixels, rawPlane, bytesPerPixels, strategy);
@@ -340,11 +337,11 @@ public class GatewayUtils
 		int sizey = pixels.getSizeY().getValue();
 		if (data == null)
 			throw new NullPointerException("data is null");
-		if (pixels.getPixelsType().getValue().getValue() == null)
+		if (pixels.getType().getValue().getValue() == null)
 			throw new NullPointerException("pixels.getPixelsType() is null");
 		if(data.length*data[0].length!=sizex*sizey)
 			throw new IllegalArgumentException("data[][] does not match pixels.getSizeX()*pixels.getSizeY()");
-		String pixelsType  = pixels.getPixelsType().getValue().getValue();
+		String pixelsType  = pixels.getType().getValue().getValue();
 		int pixelsSize = getPixelsSize(pixelsType); 
 			byte[] rawbytes =  new byte[sizex*sizey*pixelsSize];
 		for ( int x = 0 ; x < sizex ; x++)

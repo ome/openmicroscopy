@@ -167,7 +167,6 @@ import omero.model.MicrobeamManipulation;
 import omero.model.MicrobeamManipulationType;
 import omero.model.Microscope;
 import omero.model.MicroscopeType;
-import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
@@ -5584,12 +5583,6 @@ public class OMEROMetadataStoreClient
     }
 
     //////// OTF /////////
-
-    public OTF getOTF(int instrumentIndex, int OTFIndex)
-    {
-        return null;
-    }
-
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setOTFID(java.lang.String, int, int)
      */

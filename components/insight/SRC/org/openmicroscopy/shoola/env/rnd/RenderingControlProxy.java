@@ -1536,7 +1536,7 @@ class RenderingControlProxy
 		if (getPixelsDimensionsY() != pixels.getSizeY()) return false;
 		if (getPixelsDimensionsX() != pixels.getSizeX()) return false;
 		String s = pixels.getPixelType();
-		String value = pixs.getPixelsType().getValue().getValue();
+		String value = pixs.getType().getValue().getValue();
 		if (!value.equals(s)) return false;
 		return true;
 	}

@@ -338,8 +338,6 @@
 			<zeromany name="filterSet" type="ome.model.acquisition.FilterSet" inverse="instrument"/>
 		</properties>
 	</type>
-	<type id="ome.model.acquisition.Instrument">
-	</type>
 <!-- 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			Acquisition Context 5
