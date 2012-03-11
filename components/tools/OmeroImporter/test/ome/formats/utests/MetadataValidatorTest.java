@@ -65,7 +65,6 @@ import omero.model.Instrument;
 import omero.model.LightSettings;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
-import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
@@ -799,28 +798,4 @@ public class MetadataValidatorTest
         }
     }
 
-    @Test(dependsOnMethods={"testMetadataLevel"})
-    public void testOTFIsReferenced()
-    {
-        Class<? extends IObject> klass = OTF.class;
-        List<IObjectContainer> containers = 
-            store.getIObjectContainers(klass);
-        referenceCache = store.getReferenceCache();
-        for (IObjectContainer container : containers)
-        {
-            LSID lsid = new LSID(container.LSID);
-            for (LSID target : referenceCache.keySet())
-            {
-                for (LSID reference : referenceCache.get(target))
-                {
-                    if (reference.equals(lsid))
-                    {
-                        return;
-                    }
-                }
-            }
-            fail(String.format(
-                    "%s %s not referenced by any object.", klass, lsid));
-        }
-    }
 }

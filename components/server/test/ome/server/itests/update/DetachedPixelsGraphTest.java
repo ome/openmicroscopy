@@ -43,44 +43,6 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
 
     }
 
-    @Test
-    public void testNewRecursiveEntityFieldOnDetachedPixels() throws Exception {
-        // PREPARE ----------------------------------------------
-        p.setRelatedTo(ObjectFactory.createPixelGraph(null));
-        p = iUpdate.saveAndReturnObject(p.getImage()).getPixels(0);
-
-        // TEST -------------------------------------------------
-        assertTrue("Related-to is null", p.getRelatedTo() != null);
-        assertTrue("or it has no id", p.getRelatedTo().getId().longValue() > 0);
-
-        long id = (Long) iQuery.projection(
-                "select relatedto from Pixels where id = :id",
-                new Parameters().addId(p.getId())).get(0)[0];
-        assertTrue("Id *really* has to be there.", p.getRelatedTo().getId()
-                .longValue() == id);
-
-    }
-
-    @Test
-    public void testDetachedRecursiveEntityFieldOnDetachedPixels()
-            throws Exception {
-        // PREPARE ----------------------------------------------
-        // Make field entry; we have to re-do what is done in setup above.
-        Pixels example2 = ObjectFactory.createPixelGraph(null);
-        example2 = iUpdate.saveAndReturnObject(example2.getImage()).getPixels(0);
-
-        Pixels p2 = ObjectFactory.createPixelGraph(example2);
-
-        p.setRelatedTo(p2);
-        p = iUpdate.saveAndReturnObject(p);
-
-        // TEST -------------------------------------------------
-        assertTrue("Related-to is null", p.getRelatedTo() != null);
-        assertTrue("and it has no id", p.getRelatedTo().getId().equals(
-                p2.getId()));
-
-    }
-
 /*
 	// This test is now out of date
     @Test

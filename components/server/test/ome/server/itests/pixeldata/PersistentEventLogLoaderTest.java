@@ -220,7 +220,7 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
         pixels.setSizeT(1);
         pixels.setSizeC(1);
         pixels.setSha1("UNKNOWN");
-        pixels.setPixelsType(new PixelsType("int8"));
+        pixels.setType(new PixelsType("int8"));
         pixels.setDimensionOrder(new DimensionOrder("XYZCT"));
         image.addPixels(pixels);
         image = iUpdate.saveAndReturnObject(image);

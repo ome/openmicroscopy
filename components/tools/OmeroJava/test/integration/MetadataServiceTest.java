@@ -919,8 +919,8 @@ public class MetadataServiceTest
     			channel = pixels.getChannel(i);
     			lc = channel.getLogicalChannel();
     			lc.setContrastMethod(cm);
-    			lc.setIllumination(illumination);
-    			lc.setMode(mode);
+    			lc.setIlluminationType(illumination);
+    			lc.setAcquisitionMode(mode);
     	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
     	    	lc.setFilterSet(filterSet);
     	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));

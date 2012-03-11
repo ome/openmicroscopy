@@ -80,8 +80,6 @@ import omero.model.MicrobeamManipulationI;
 import omero.model.MicrobeamManipulationType;
 import omero.model.MicroscopeI;
 import omero.model.MicroscopeType;
-import omero.model.OTF;
-import omero.model.OTFI;
 import omero.model.Objective;
 import omero.model.ObjectiveI;
 import omero.model.ObjectiveSettings;
@@ -337,34 +335,9 @@ public class ModelMockFactory
     	detector.setModel(omero.rtypes.rstring("model"));
     	detector.setSerialNumber(omero.rtypes.rstring("serial number"));
     	detector.setLotNumber(omero.rtypes.rstring("lot number"));
-    	detector.setOffsetValue(omero.rtypes.rdouble(0));
+    	detector.setOffset(omero.rtypes.rdouble(0));
     	detector.setType((DetectorType) types.get(0));
     	return detector;
-    }
-    
-    /**
-     * Creates an Optical Transfer Function object.
-     * 
-     * @param filterSet The filter set linked to it.
-     * @param objective The objective linked to it.
-     * @return See above.
-     * @throws Exception Thrown if an error occurred.
-     */
-    public OTF createOTF(FilterSet filterSet, Objective objective)
-    	throws Exception
-    {
-    	//already tested see PixelsService enumeration.
-    	List<IObject> types = pixelsService.getAllEnumerations(
-    			PixelsType.class.getName());
-    	OTF otf = new OTFI();
-    	otf.setFilterSet(filterSet);
-    	otf.setObjective(objective);
-    	otf.setPath(omero.rtypes.rstring("/OMERO"));
-    	otf.setOpticalAxisAveraged(omero.rtypes.rbool(true));
-    	otf.setPixelsType((PixelsType) types.get(0));
-    	otf.setSizeX(omero.rtypes.rint(10));
-    	otf.setSizeY(omero.rtypes.rint(10));
-    	return otf;
     }
     
     /**
@@ -493,9 +466,9 @@ public class ModelMockFactory
     {
     	StageLabel label = new StageLabelI();
     	label.setName(omero.rtypes.rstring("label"));
-    	label.setPositionX(omero.rtypes.rdouble(1));
-    	label.setPositionY(omero.rtypes.rdouble(1));
-    	label.setPositionZ(omero.rtypes.rdouble(1));
+    	label.setX(omero.rtypes.rdouble(1));
+    	label.setY(omero.rtypes.rdouble(1));
+    	label.setZ(omero.rtypes.rdouble(1));
     	return label;
     }
 
@@ -531,7 +504,7 @@ public class ModelMockFactory
     	settings.setBinning((Binning) types.get(0));
     	settings.setDetector(detector);
     	settings.setGain(omero.rtypes.rdouble(1));
-    	settings.setOffsetValue(omero.rtypes.rdouble(1));
+    	settings.setOffset(omero.rtypes.rdouble(1));
     	settings.setReadOutRate(omero.rtypes.rdouble(1));
     	settings.setVoltage(omero.rtypes.rdouble(1));
     	return settings;
@@ -740,7 +713,6 @@ public class ModelMockFactory
     	FilterSet filterSet = createFilterSet();
     	instrument.addObjective(objective);
     	instrument.addFilterSet(filterSet);
-    	instrument.addOTF(createOTF(filterSet, objective));
     	if (LASER.equals(light)) {
     		Laser laser = createLaser();
     		instrument.addLightSource(laser);
@@ -847,7 +819,7 @@ public class ModelMockFactory
 		pixels.setSizeT(omero.rtypes.rint(sizeT));
 		pixels.setSizeC(omero.rtypes.rint(sizeC));
 		pixels.setSha1(omero.rtypes.rstring("Pending..."));
-		pixels.setPixelsType(type);
+		pixels.setType(type);
 		pixels.setDimensionOrder(order);
 		List<Channel> channels = new ArrayList<Channel>();
 		for (int j = 0; j < sizeC; j++) {
@@ -858,7 +830,6 @@ public class ModelMockFactory
 		for (int z = 0; z < sizeZ; z++) {
 		    for (int t = 0; t < sizeT; t++) {
 		        for (int c = 0; c < sizeC; c++) {
-		            PlaneInfo info = new PlaneInfoI();
 		            pixels.addPlaneInfo(createPlaneInfo(z, t, c));
 		        }
 		    }
@@ -878,7 +849,7 @@ public class ModelMockFactory
 	{
 		Channel channel = new ChannelI();
 		LogicalChannel lc = new LogicalChannelI();
-		lc.setEmissionWave(omero.rtypes.rint(200));
+		lc.setEmissionWavelength(omero.rtypes.rint(200));
 		List<IObject> types = pixelsService.getAllEnumerations(
     			ContrastMethod.class.getName());
 		ContrastMethod cm = (ContrastMethod) types.get(0);
@@ -890,8 +861,8 @@ public class ModelMockFactory
     			AcquisitionMode.class.getName());
     	AcquisitionMode mode = (AcquisitionMode) types.get(0);
     	lc.setContrastMethod(cm);
-    	lc.setIllumination(illumination);
-    	lc.setMode(mode);
+    	lc.setIlluminationType(illumination);
+    	lc.setAcquisitionMode(mode);
 		channel.setLogicalChannel(lc);
 		StatsInfo info = new StatsInfoI();
 		info.setGlobalMin(omero.rtypes.rdouble(0.0));

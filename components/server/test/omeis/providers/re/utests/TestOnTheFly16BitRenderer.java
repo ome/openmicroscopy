@@ -20,7 +20,7 @@ public class TestOnTheFly16BitRenderer extends BaseRenderingTest
 	{
 		TestQuantumFactory qf = new TestQuantumFactory();
 		qf.setStratgey(new OnTheFlyStrategy(settings.getQuantization(),
-				                            pixels.getPixelsType()));
+				                            pixels.getType()));
 		return qf;
 	}
 
