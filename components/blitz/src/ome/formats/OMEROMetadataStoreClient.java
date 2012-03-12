@@ -112,6 +112,7 @@ import omero.constants.METADATASTORE;
 import omero.grid.InteractiveProcessorPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.AcquisitionMode;
+import omero.model.AffineTransform;
 import omero.model.Annotation;
 import omero.model.Arc;
 import omero.model.ArcType;
@@ -3854,7 +3855,7 @@ public class OMEROMetadataStoreClient
             int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setTransform(toRType(transform));
+        //o.setTransform(toRType(transform));
     }
 
     /* (non-Javadoc)
@@ -5091,7 +5092,7 @@ public class OMEROMetadataStoreClient
     public void setLineTransform(String transform, int ROIIndex, int shapeIndex)
     {
         Line o = getLine(ROIIndex, shapeIndex);
-        o.setTransform(toRType(transform));
+        //o.setTransform(toRType(transform));
     }
 
     /* (non-Javadoc)
@@ -5368,7 +5369,7 @@ public class OMEROMetadataStoreClient
     public void setMaskTransform(String transform, int ROIIndex, int shapeIndex)
     {
         Mask o = getMask(ROIIndex, shapeIndex);
-        o.setTransform(toRType(transform));
+        //o.setTransform(toRType(transform));
     }
 
     /* (non-Javadoc)
@@ -6590,7 +6591,7 @@ public class OMEROMetadataStoreClient
     public void setPointTransform(String transform, int ROIIndex, int shapeIndex)
     {
         Point o = getPoint(ROIIndex, shapeIndex);
-        o.setTransform(toRType(transform));
+        //o.setTransform(toRType(transform));
     }
 
     /* (non-Javadoc)
@@ -6772,7 +6773,7 @@ public class OMEROMetadataStoreClient
             int shapeIndex)
     {
         Polyline o = getPolyline(ROIIndex, shapeIndex);
-        o.setTransform(toRType(transform));
+        //o.setTransform(toRType(transform));
     }
 
     //////// Project /////////
@@ -7117,7 +7118,7 @@ public class OMEROMetadataStoreClient
             int shapeIndex)
     {
     	Rectangle o = getRectangle(ROIIndex, shapeIndex);
-        o.setTransform(toRType(transform));
+        //o.setTransform(toRType(transform));
     }
 
     /* (non-Javadoc)
@@ -7518,7 +7519,7 @@ public class OMEROMetadataStoreClient
     public void setTextTransform(String transform, int ROIIndex, int shapeIndex)
     {
         Label o = getText(ROIIndex, shapeIndex);
-        o.setTransform(toRType(transform));
+        //o.setTransform(toRType(transform));
     }
 
     /* (non-Javadoc)

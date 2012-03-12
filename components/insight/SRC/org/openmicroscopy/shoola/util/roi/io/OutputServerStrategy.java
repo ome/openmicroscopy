@@ -490,98 +490,17 @@ class OutputServerStrategy
 	 * specified in
 	 * http://www.w3.org/TR/SVGMobile12/coords.html#TransformAttribute
 	 */
-	private static String toTransform(AffineTransform t)
+	private double[] toTransform(AffineTransform t)
 			throws ParsingException
 	{
-		StringBuilder buf=new StringBuilder();
-		switch (t.getType())
-		{
-			case AffineTransform.TYPE_IDENTITY:
-				buf.append("none");
-				break;
-			case AffineTransform.TYPE_TRANSLATION:
-				// translate(<tx> [<ty>]), specifies a translation by tx and ty.
-				// If <ty> is not provided, it is assumed to be zero.
-				buf.append("translate(");
-				buf.append(toNumber(t.getTranslateX()));
-				if (t.getTranslateY()!=0d)
-				{
-					buf.append(' ');
-					buf.append(toNumber(t.getTranslateY()));
-				}
-				buf.append(')');
-				break;
-			/*
-			 * case AffineTransform.TYPE_GENERAL_ROTATION : case
-			 * AffineTransform.TYPE_QUADRANT_ROTATION : case
-			 * AffineTransform.TYPE_MASK_ROTATION : // rotate(<rotate-angle> [<cx>
-			 * <cy>]), specifies a rotation by // <rotate-angle> degrees about a
-			 * given point. // If optional parameters <cx> and <cy> are not
-			 * supplied, the // rotate is about the origin of the current user
-			 * coordinate // system. The operation corresponds to the matrix //
-			 * [cos(a) sin(a) -sin(a) cos(a) 0 0]. // If optional parameters
-			 * <cx> and <cy> are supplied, the rotate // is about the point (<cx>,
-			 * <cy>). The operation represents the // equivalent of the
-			 * following specification: // translate(<cx>, <cy>) rotate(<rotate-angle>) //
-			 * translate(-<cx>, -<cy>). buf.append("rotate(");
-			 * buf.append(toNumber(t.getScaleX())); buf.append(')'); break;
-			 */
-			case AffineTransform.TYPE_UNIFORM_SCALE:
-				// scale(<sx> [<sy>]), specifies a scale operation by sx
-				// and sy. If <sy> is not provided, it is assumed to be equal
-				// to <sx>.
-				buf.append("scale(");
-				buf.append(toNumber(t.getScaleX()));
-				buf.append(')');
-				break;
-			case AffineTransform.TYPE_GENERAL_SCALE:
-			case AffineTransform.TYPE_MASK_SCALE:
-				// scale(<sx> [<sy>]), specifies a scale operation by sx
-				// and sy. If <sy> is not provided, it is assumed to be equal
-				// to <sx>.
-				buf.append("scale(");
-				buf.append(toNumber(t.getScaleX()));
-				buf.append(' ');
-				buf.append(toNumber(t.getScaleY()));
-				buf.append(')');
-				break;
-			default:
-				// matrix(<a> <b> <c> <d> <e> <f>), specifies a transformation
-				// in the form of a transformation matrix of six values.
-				// matrix(a,b,c,d,e,f) is equivalent to applying the
-				// transformation matrix [a b c d e f].
-				buf.append("matrix(");
-				double[] matrix = new double[6];
-				t.getMatrix(matrix);
-				for (int i = 0; i < matrix.length; i++)
-				{
-					if (i != 0)
-					{
-						buf.append(' ');
-					}
-					buf.append(toNumber(matrix[i]));
-				}
-				buf.append(')');
-				break;
+		double[] matrix = new double[6];
+		for (int i = 0; i < matrix.length; i++) {
+			matrix[i] = 0;
 		}
-		
-		return buf.toString();
+		t.getMatrix(matrix);
+		return matrix;
 	}
 
-	/**
-	 * Returns a double array as a number attribute value.
-	 * 
-	 * @param number the number to convert.
-	 * @return See above.
-	 */
-	private static String toNumber(double number)
-	{
-		String str = Double.toString(number);
-		if (str.endsWith(".0"))
-			str = str.substring(0, str.length()-2);
-		return str;
-	}
-	
 	/** Creates a new instance. */
 	OutputServerStrategy() {}
 
