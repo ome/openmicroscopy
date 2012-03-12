@@ -43,6 +43,31 @@
                 }
             });
         };
+        
+        var update_tree_selection = function() {
+            var datatree = $.jstree._focused();
+            var toSelectIds = new Array();
+            $("#dataTable tr.ui-selected").each(function(i){
+                var iId = $(this).attr('id').split("-")[1];
+                toSelectIds[i] = "image-"+iId;
+            });
+            // find the matching child nodes from the tree
+            var $children = datatree._get_children('#'+$('#content_details').attr('rel'));
+            var toSelect = $children.filter(function(index) {
+                return ($.inArray($(this).attr('id'),toSelectIds)!=-1);
+            });
+
+            // we want to manually select a bunch of nodes, firing only a single selection event (when we're done)
+            datatree.data.ui.selected.children("a").removeClass("jstree-clicked");
+            // choose the first of our selection
+            var $first = toSelect.first();
+            toSelect = toSelect.slice(1);   // the rest
+            // manually select all apart from the first
+            datatree.data.ui.selected = toSelect;
+            toSelect.children("a").addClass("jstree-clicked");
+            // select the first (triggers selection event)
+            datatree.select_node($first);
+        }
 
         $(document).ready(function(){
 
@@ -53,7 +78,7 @@
 
             // double-click handler on image - launches image viewer
             $("table#dataTable tbody tr").dblclick(function(event) {
-                openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
+                openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1] )));
             });
 
             // single click handler on image (container). Selection then update toolbar & metadata pane
@@ -62,6 +87,8 @@
             });
 
             // handles selection for 'clicks' (not drags) including multi-select for shift and meta keys
+            // We indicate selection with "ui-selected" class, then update tree in one go, using ids
+            // in case the order in the table is not the same as in the tree.
             var handleClickSelection = function(event) {
 
                 var $clickedRow = $(event.target).parents('tr:first');
@@ -69,9 +96,6 @@
 
                 var rows = $("table#dataTable tbody tr");
                 var $images = $("table#dataTable tbody tr td img");
-
-                //rows.css('background', 'green');
-                //$clickedRow.css('background', 'red');
 
                 var primaryIndex = -1;
                 var lastSelected = datatree.data.ui.last_selected;
@@ -85,16 +109,6 @@
 
                 if ( event.shiftKey ) {
                     // user tried to select a range, but we don't have a first selection yet...
-                    //if ( primaryIndex == -1 ) {
-                    //    primaryIndex = selIndex;
-                    //    $clickedImage.parent().addClass("ui-selected");
-                    //    return;
-                    //}
-                    // select range
-                    //var start = Math.min(primaryIndex,selIndex);
-                    //var end = Math.max(primaryIndex,selIndex);
-                    //thumbs.slice(start, end+1).parent().addClass("ui-selected");
-
                     var branch = datatree._get_children('#'+$('#image_table').attr('rel'));
 
                     if ( primaryIndex == -1 ) {
@@ -102,7 +116,6 @@
                         var selectee = $(branch[selIndex]);
                         if(!datatree.is_selected(selectee)) {
                             $clickedRow.addClass("ui-selected");
-                            datatree.select_node(selectee);
                         }
                         return;
                     }
@@ -113,17 +126,10 @@
                     rows.slice(start, end+1).addClass("ui-selected");
                     for (var i = start; i< end+1; i++) {
                         var selectee = $(branch[i]);
-                        if(!datatree.is_selected(selectee)) datatree.select_node(selectee);
                     }
 
                 }
                 else if (event.metaKey) {
-                    // user wants to add a single image to selection
-                    //if ( primaryIndex == -1 ) {
-                    //    primaryIndex = selIndex;
-                    //}
-                    //$clickedImage.parent().addClass("ui-selected");
-
                     // user wants to add a single image to selection
                     if ( primaryIndex == -1 ) {
                         primaryIndex = selIndex;
@@ -134,31 +140,23 @@
 
                     if(!datatree.is_selected(selectee)) {
                         $clickedRow.addClass("ui-selected");
-                        datatree.select_node(selectee);
                     } else {
                         $clickedRow.removeClass("ui-selected");
-                        datatree.deselect_node(selectee);
                     }
                 }
                 else {
                     // regular click - remove selection
-                    //thumbs.parent().removeClass("ui-selected");
-                    //$("#dataIcons li input").each(function(){
-                    //    this.checked = false;
-                    //});
-                    // and select a single image
-                    //$clickedImage.parent().addClass("ui-selected");
-                    //primaryIndex = selIndex;
                     datatree.deselect_all();
                     rows.removeClass("ui-selected");
 
                     var branch = datatree._get_children('#'+$('#image_table').attr('rel'))
                     var selectee = $(branch[selIndex]);
                     $clickedRow.addClass("ui-selected");
-                    if(!datatree.is_selected(selectee)) datatree.select_node(selectee);
                     primaryIndex = selIndex;
 
                 }
+                // finally, apply all the changes to the tree
+                update_tree_selection();
             }
 
             // plugin to handle drag-select of images
@@ -166,18 +164,8 @@
                 filter: 'tr',
                 distance: 2,
                 stop: function(){
-                    var toSelect = new Array();
-                    $("tr.ui-selected", this).each(function(i){
-                        var imgId = $(this).attr('id').split("-")[1];
-                        toSelect[i] = "image-"+imgId;
-                    });
-
-                    datatree.deselect_all();
-                    datatree._get_children('#'+$('#image_table').attr('rel')).each(function(){
-                        if($.inArray($(this).attr('id'),toSelect)!=-1) {
-                            if(!datatree.is_selected(this)) datatree.select_node(this);
-                        }
-                    });
+                    // get the image ids from the rows
+                    update_tree_selection();
                 },
                 start: function(){
                 }
