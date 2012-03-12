@@ -172,12 +172,10 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 
 		// Copy basic metadata
 		to.setDimensionOrder(from.getDimensionOrder());
-		//to.setMethodology(methodology);
 		to.setPhysicalSizeX(from.getPhysicalSizeX());
 		to.setPhysicalSizeY(from.getPhysicalSizeY());
 		to.setPhysicalSizeZ(from.getPhysicalSizeZ());
 		to.setType(from.getType());
-		//to.setRelatedTo(from);
 		to.setSizeX(sizeX != null? sizeX : from.getSizeX());
 		to.setSizeY(sizeY != null? sizeY : from.getSizeY());
 		to.setSizeZ(sizeZ != null? sizeZ : from.getSizeZ());

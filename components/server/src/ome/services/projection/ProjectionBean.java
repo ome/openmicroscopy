@@ -276,9 +276,6 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                     si.setGlobalMin(ctx.minimum);
                     si.setGlobalMax(ctx.maximum);
                     channel.setStatsInfo(si);
-                    // Set our methodology
-                    //newPixels.setMethodology(
-                      //      IProjection.METHODOLOGY_STRINGS[algorithm]);
                     newC++;
                 }
             }
