@@ -266,29 +266,6 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         factory.getDeleteService().deleteSettings(i1.getId());
     }
 
-    @Test(groups = "ticket:1228")
-    public void testDeleteWithProjectionRemovesRelatedTo() throws Exception {
-
-        Experimenter e1 = loginNewUser();
-        Image i1 = makeImage(false);
-        Pixels p1 = i1.getPixels(0);
-
-        Image i2 = makeImage(false);
-        Pixels p2 = i2.getPixels(0);
-
-        p2.setRelatedTo(p1);
-        assertEquals(p1.getId(), iUpdate.saveAndReturnObject(p2).getRelatedTo()
-                .getId());
-
-        /*
-         * Leads to deadlock: IProjection prj =
-         * this.factory.getProjectionService(); prj.projectPixels(p1.getId(),
-         * p1.getPixelsType(), IProjection.MAXIMUM_INTENSITY, 0, p1.getSizeT(),
-         * // T Arrays.asList(0), 0, 0, p1.getSizeZ(), // Z "projection");
-         */
-        factory.getDeleteService().deleteImage(i1.getId(), true);
-    }
-
     // 4.1 - Plates
     // =========================================================================
 

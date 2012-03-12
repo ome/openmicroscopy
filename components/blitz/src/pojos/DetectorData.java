@@ -108,7 +108,7 @@ public class DetectorData
 	public Double getOffset()
 	{
 		Detector detector = (Detector) asIObject();
-		RDouble value = detector.getOffsetValue();
+		RDouble value = detector.getOffset();
 		if (value == null) return null;
 		return value.getValue();
 	}

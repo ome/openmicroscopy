@@ -54,9 +54,7 @@
 		<properties>
 			<!-- Acquisition Context 1 -->
 			<manyone name="image" type="ome.model.core.Image" ordered="true"/>
-			<optional name="relatedTo" type="ome.model.core.Pixels"/>
-			<!-- Note: relatedTo is not used in model-->
-			<required name="pixelsType" type="ome.model.enums.PixelsType"/>
+			<required name="type" type="ome.model.enums.PixelsType"/>
 			<!-- Note: pixelsType is called PixelType in model and uses enum PixelTypes -->
 			<required name="sizeX" type="PositiveInteger"/>
 			<required name="sizeY" type="PositiveInteger"/>
@@ -68,10 +66,7 @@
 			<optional name="physicalSizeX" type="double"/>
 			<optional name="physicalSizeY" type="double"/>
 			<optional name="physicalSizeZ" type="double"/>
-			<optional name="waveStart" type="int"/>
-			<optional name="waveIncrement" type="int"/>
 			<optional name="timeIncrement" type="double"/>
-			<optional name="methodology" type="string"/>
 			<!-- Note: planeInfo is called Plane in model and is zeromany -->
 			<onemany name="planeInfo" type="ome.model.core.PlaneInfo" inverse="pixels"/>
 			<!-- TODO: storage -->
@@ -156,11 +151,11 @@
 	</type>
 	<type id="ome.model.acquisition.StageLabel" named="true">
 		<properties>
-			<optional name="positionX" type="double"/>
+			<optional name="x" type="double"/>
 			<!-- Note: positionX is called X in model-->
-			<optional name="positionY" type="double"/>
+			<optional name="y" type="double"/>
 			<!-- Note: positionY is called Y in model-->
-			<optional name="positionZ" type="double"/>
+			<optional name="z" type="double"/>
 			<!-- Note: positionZ is called Z in model-->
 		</properties>
 	</type>
@@ -192,18 +187,16 @@
 	<type id="ome.model.core.LogicalChannel">
 		<properties>
 			<optional name="name" type="string"/>
-			<optional name="pinHoleSize" type="double"/>
-			<optional name="illumination" type="ome.model.enums.Illumination"/>
+			<optional name="pinholeSize" type="double"/>
+			<optional name="illuminationType" type="ome.model.enums.Illumination"/>
 			<!-- Note: illumination is called IlluminationType in model-->
 			<optional name="contrastMethod" type="ome.model.enums.ContrastMethod"/>
-			<optional name="excitationWave" type="PositiveInteger"/>
+			<optional name="excitationWavelength" type="PositiveInteger"/>
 			<!-- Note: excitationWave is called exWave in model-->
-			<optional name="emissionWave" type="PositiveInteger"/>
+			<optional name="emissionWavelength" type="PositiveInteger"/>
 			<!-- Note: emissionWave is called emWave in model-->
 			<optional name="fluor" type="string"/>
 			<optional name="ndFilter" type="double"/>
-			<optional name="otf" type="ome.model.acquisition.OTF"/>
-			<!-- Note: oft is called OTFRef (ID only Ref) in model-->
 			<optional name="detectorSettings" type="ome.model.acquisition.DetectorSettings"/>
 			<!-- Note: detectorSettings is called DetectorRef (ID and values) in model-->
 			<optional name="lightSourceSettings" type="ome.model.acquisition.LightSettings"/>
@@ -212,7 +205,7 @@
 			<!-- Note: filterSet is called FilterSetRef (ID only Ref) in model-->
 			<optional name="samplesPerPixel" type="PositiveInteger"/>
 			<optional name="photometricInterpretation" type="ome.model.enums.PhotometricInterpretation"/>
-			<optional name="mode" type="ome.model.enums.AcquisitionMode"/>
+			<optional name="acquisitionMode" type="ome.model.enums.AcquisitionMode"/>
 			<optional name="pockelCellSetting" type="int"/>
 			<onemany name="channels" type="ome.model.core.Channel" inverse="logicalChannel"/>
 			<optional name="lightPath" type="ome.model.acquisition.LightPath"/>
@@ -230,27 +223,11 @@
 		<properties>
 			<optional name="voltage" type="double"/>
 			<optional name="gain" type="double"/>
-			<optional name="offsetValue" type="double"/>
-			<!-- Note: offsetValue is called Offset in model-->
+			<optional name="offset" type="double"/>
 			<optional name="readOutRate" type="double"/>
 			<optional name="binning" type="ome.model.enums.Binning"/>
 			<required name="detector" type="ome.model.acquisition.Detector"/>
 			<!-- Note: detector is ID in model-->
-		</properties>
-	</type>
-	<type id="ome.model.acquisition.OTF">
-		<properties>
-			<required name="sizeX" type="PositiveInteger"/>
-			<required name="sizeY" type="PositiveInteger"/>
-			<required name="opticalAxisAveraged" type="boolean"/>
-			<required name="pixelsType" type="ome.model.enums.PixelsType"/>
-			<!-- Note: pixelsType is called PixelType and using ExtendedPixelTypes in model-->
-			<required name="path" type="string"/><!-- TODO: no FK? -->
-			<!-- Note: path is not in model-->
-			<!-- Note: BinaryFile is in model but not used in the DB  -->
-			<optional name="filterSet" type="ome.model.acquisition.FilterSet"/>
-			<required name="objective" type="ome.model.acquisition.Objective"/>
-			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
 	</type>
 	<type id="ome.model.acquisition.LightSettings">
@@ -317,7 +294,7 @@
 			<optional name="serialNumber" type="string"/>
 			<optional name="voltage" type="double"/>
 			<optional name="gain" type="double"/>
-			<optional name="offsetValue" type="double"/>
+			<optional name="offset" type="double"/>
 			<!-- Note: offsetValue is called Offset in model-->
 			<optional name="zoom" type="double"/>
 			<optional name="amplificationGain" type="double"/>
@@ -359,7 +336,6 @@
 			<zeromany name="filter" type="ome.model.acquisition.Filter" inverse="instrument"/>
 			<zeromany name="dichroic" type="ome.model.acquisition.Dichroic" inverse="instrument"/>
 			<zeromany name="filterSet" type="ome.model.acquisition.FilterSet" inverse="instrument"/>
-			<zeromany name="otf" type="ome.model.acquisition.OTF" inverse="instrument"/>
 		</properties>
 	</type>
 <!-- 

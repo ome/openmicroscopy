@@ -46,7 +46,7 @@ public class PlanarDataTest
 		p.setSizeZ(5);
 		p.setSizeC(1);
 		p.setSizeT(6);
-		p.setPixelsType(pType);
+		p.setType(pType);
 		
     	RomioPixelBuffer buffer = new RomioPixelBuffer(PIXELS_PATH, p);
     	return buffer;

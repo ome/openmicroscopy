@@ -115,7 +115,7 @@ public class DataSink
 		this.source = source;
 		this.service = service;
 		this.source = source;
-		String type = source.getPixelsType().getValue().getValue();
+		String type = source.getType().getValue().getValue();
 		bytesPerPixels = getBytesPerPixels(type);
 //		cache = CachingService.createPixelsCache(source.id.getValue(), 
 //				source.sizeX.getValue()*source.sizeY.getValue()*bytesPerPixels);

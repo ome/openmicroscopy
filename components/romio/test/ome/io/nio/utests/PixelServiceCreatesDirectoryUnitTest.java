@@ -46,7 +46,7 @@ public class PixelServiceCreatesDirectoryUnitTest {
 
         PixelsType type = new PixelsType();
         type.setValue("uint16");
-        pixels.setPixelsType(type);
+        pixels.setType(type);
         service = new PixelsService(ROOT);
     }
 

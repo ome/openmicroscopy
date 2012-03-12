@@ -39,7 +39,6 @@ import omero.model.Instrument;
 import omero.model.LightSource;
 import omero.model.Microscope;
 import omero.model.MicroscopeType;
-import omero.model.OTF;
 import omero.model.Objective;
 
 /**
@@ -76,9 +75,6 @@ public class InstrumentData
 	
 	/** The collection of detectors. */
 	private List<DetectorData> detectors;
-	
-	/** The collection of detectors. */
-	private List<OTFData> otfs;
 	
 	/**
 	 * Creates a new instance.
@@ -160,26 +156,6 @@ public class InstrumentData
 		RString v = m.getManufacturer();
 		if (v == null) return "";
 		return v.getValue();
-	}
-	
-	/**
-	 * Returns the collection of OTFs.
-	 * 
-	 * @return See above.
-	 */
-	public List<OTFData> getOTF()
-	{ 
-		if (otfs != null) return otfs;
-		otfs = new ArrayList<OTFData>(); 
-		Instrument instrument = (Instrument) asIObject();
-		if (instrument.sizeOfOtf() > 0) {
-			List<OTF> list = instrument.copyOtf();
-			Iterator<OTF> i = list.iterator();
-			while (i.hasNext()) {
-				otfs.add(new OTFData(i.next()));
-			}
-		}
-		return otfs; 
 	}
 	
 	/**

@@ -501,7 +501,7 @@ public class ImportCandidates extends DirectoryWalker
             pixels.setSizeZ(rint(reader.getSizeZ()));
             pixels.setSizeC(rint(reader.getSizeC()));
             pixels.setSizeT(rint(reader.getSizeT()));
-            pixels.setPixelsType(pixelsType);
+            pixels.setType(pixelsType);
             toReturn.add(pixels);
         }
         return toReturn;

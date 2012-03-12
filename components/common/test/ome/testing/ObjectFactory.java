@@ -99,7 +99,7 @@ public class ObjectFactory {
             p.setVersion(example.getVersion());
 
             // everything else unloaded.
-            pt.setId(example.getPixelsType().getId());
+            pt.setId(example.getType().getId());
             pt.unload();
             dO.setId(example.getDimensionOrder().getId());
             dO.unload();
@@ -154,7 +154,7 @@ public class ObjectFactory {
         p.setPhysicalSizeY(1.0);
         p.setPhysicalSizeZ(1.0);
         p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356"); // "pixels"
-        p.setPixelsType(pt);
+        p.setType(pt);
         p.setDimensionOrder(dO);
         p.setPhysicalSizeX(new Double(1.0));
         p.setPhysicalSizeY(new Double(1.0));

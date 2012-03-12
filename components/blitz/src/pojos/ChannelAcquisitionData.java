@@ -85,9 +85,6 @@ public class ChannelAcquisitionData
 	/** The detector used. */
 	private DetectorData		detector;
 	
-	/** The otf used. */
-	private OTFData				otf;
-	
 	/** The binning factor. */
 	private Binning 			binning;
 	
@@ -108,8 +105,6 @@ public class ChannelAcquisitionData
         if (set != null) filterSet = new FilterSetData(set);
         LightPath path = channel.getLightPath();
         if (path != null) lightPath = new LightPathData(path);
-        if (channel.getOtf() != null) 
-			otf = new OTFData(channel.getOtf());
 	}
 	
 	/**
@@ -126,13 +121,6 @@ public class ChannelAcquisitionData
 	}
 	
 	/**
-	 * Returns the OTF used for that channel.
-	 * 
-	 * @return See above.
-	 */
-	public OTFData getOTF() { return otf; }
-	
-	/**
 	 * Returns the offset set on the detector.
 	 * 
 	 * @return See above.
@@ -140,7 +128,7 @@ public class ChannelAcquisitionData
 	public Double getDetectorSettingsOffset()
 	{
 		if (detectorSettings == null) return null;
-		RDouble value = detectorSettings.getOffsetValue();
+		RDouble value = detectorSettings.getOffset();
 		if (value == null) return null;
 		return value.getValue();
 	}
@@ -283,7 +271,7 @@ public class ChannelAcquisitionData
 		detectorSettingsDirty = true;
 		if (detectorSettings == null) 
 			detectorSettings = new DetectorSettingsI();
-		detectorSettings.setOffsetValue(omero.rtypes.rdouble(value));
+		detectorSettings.setOffset(omero.rtypes.rdouble(value));
 	}
 	
 	/**
@@ -408,7 +396,7 @@ public class ChannelAcquisitionData
     { 
     	LogicalChannel lc = (LogicalChannel) asIObject();
     	if (lc == null) return null;
-    	Illumination value =  lc.getIllumination();
+    	Illumination value =  lc.getIlluminationType();
     	if (value != null) return value.getValue().getValue();
     	return null; 
     }
@@ -436,7 +424,7 @@ public class ChannelAcquisitionData
     { 
     	LogicalChannel lc = (LogicalChannel) asIObject();
     	if (lc == null) return null;
-    	AcquisitionMode value =  lc.getMode();
+    	AcquisitionMode value =  lc.getAcquisitionMode();
     	if (value != null) return value.getValue().getValue();
     	return null; 
     }

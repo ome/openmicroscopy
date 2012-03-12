@@ -1136,7 +1136,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         // Use the same for all Pixels for now.
         DimensionOrder dimOrder = getDimensionOrder("XYZCT");
         pix.setDimensionOrder(dimOrder);
-        pix.setPixelsType(getPixelsType(pix.getPixelsType().getValue().getValue()));
+        pix.setType(getPixelsType(pix.getType().getValue().getValue()));
         pix.setSha1(rstring("UNKNOWN"));
         return pix;
     }

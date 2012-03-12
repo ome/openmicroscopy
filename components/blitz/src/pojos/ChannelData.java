@@ -162,7 +162,7 @@ public class ChannelData
     { 
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return index;
-    	RInt value  = lc.getEmissionWave();
+    	RInt value  = lc.getEmissionWavelength();
 		if (value != null) return value.getValue();
 		return -1;//index;
     }
@@ -176,7 +176,7 @@ public class ChannelData
     { 
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return getEmissionWavelength();
-    	RInt value = lc.getExcitationWave();
+    	RInt value = lc.getExcitationWavelength();
     	if (value != null) return value.getValue();
     	return -1;//getEmissionWavelength();
     }
@@ -190,7 +190,7 @@ public class ChannelData
     { 
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return -1;
-    	RDouble value = lc.getPinHoleSize();
+    	RDouble value = lc.getPinholeSize();
     	if (value != null) return value.getValue();
     	return -1; 
     }
@@ -247,7 +247,7 @@ public class ChannelData
     	if (illumination != null) return illumination.getValue().getValue();
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return null;
-    	Illumination value =  lc.getIllumination();
+    	Illumination value =  lc.getIlluminationType();
     	if (value != null) return value.getValue().getValue();
     	return null; 
     }
@@ -277,7 +277,7 @@ public class ChannelData
     	if (mode != null) return mode.getValue().getValue();
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return null;
-    	AcquisitionMode value =  lc.getMode();
+    	AcquisitionMode value =  lc.getAcquisitionMode();
     	if (value != null) return value.getValue().getValue();
     	return null; 
     }
@@ -319,7 +319,7 @@ public class ChannelData
     {
     	if (value < 0) return;
         setDirty(true);
-        asChannel().getLogicalChannel().setPinHoleSize(
+        asChannel().getLogicalChannel().setPinholeSize(
         		omero.rtypes.rdouble(value));
     }
     
@@ -356,7 +356,7 @@ public class ChannelData
     {
     	if (value < 0) return;
         setDirty(true);
-        asChannel().getLogicalChannel().setEmissionWave(
+        asChannel().getLogicalChannel().setEmissionWavelength(
         		omero.rtypes.rint(value));
     }
     
@@ -369,7 +369,7 @@ public class ChannelData
     {
     	if (value < 0) return;
         setDirty(true);
-        asChannel().getLogicalChannel().setExcitationWave(
+        asChannel().getLogicalChannel().setExcitationWavelength(
         		omero.rtypes.rint(value));
     }
  

@@ -172,12 +172,10 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 
 		// Copy basic metadata
 		to.setDimensionOrder(from.getDimensionOrder());
-		to.setMethodology(methodology);
 		to.setPhysicalSizeX(from.getPhysicalSizeX());
 		to.setPhysicalSizeY(from.getPhysicalSizeY());
 		to.setPhysicalSizeZ(from.getPhysicalSizeZ());
-		to.setPixelsType(from.getPixelsType());
-		to.setRelatedTo(from);
+		to.setType(from.getType());
 		to.setSizeX(sizeX != null? sizeX : from.getSizeX());
 		to.setSizeY(sizeY != null? sizeY : from.getSizeY());
 		to.setSizeZ(sizeZ != null? sizeZ : from.getSizeZ());
@@ -282,7 +280,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		pixels.setPhysicalSizeX(1.0);
 		pixels.setPhysicalSizeY(1.0);
 		pixels.setPhysicalSizeZ(1.0);
-		pixels.setPixelsType(pixelsType);
+		pixels.setType(pixelsType);
 		pixels.setSizeX(sizeX);
 		pixels.setSizeY(sizeY);
 		pixels.setSizeZ(sizeZ);
@@ -410,7 +408,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 			info.setGlobalMin(0.0);
 			info.setGlobalMax(1.0);
 			channel.setStatsInfo(info);
-			lc.setEmissionWave(wavelength+1); //need positive integer
+			lc.setEmissionWavelength(wavelength+1); //need positive integer
 			channels.add(channel);
 		}
 		return channels;

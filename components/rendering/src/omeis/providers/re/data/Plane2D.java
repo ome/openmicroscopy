@@ -109,7 +109,7 @@ public class Plane2D {
         this.data = data;
 
         // Grab the pixel type from the pixels set
-        PixelsType type = pixels.getPixelsType();
+        PixelsType type = pixels.getType();
 
         this.bytesPerPixel = PlaneFactory.bytesPerPixel(type);
         this.javaType = PlaneFactory.javaType(type);
