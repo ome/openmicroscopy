@@ -578,7 +578,7 @@
 				</xsd:element>
 			</xsd:sequence>
 			<xsd:attribute name="ID" use="required" type="WellSampleID"/>
-			<xsd:attribute name="X" use="optional" type="xsd:float">
+			<xsd:attribute name="PositionX" use="optional" type="xsd:float">
 				<xsd:annotation>
 					<xsd:documentation>
 						The X position of the field (image) within the well relative to
@@ -586,7 +586,7 @@
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="Y" use="optional" type="xsd:float">
+			<xsd:attribute name="PositionY" use="optional" type="xsd:float">
 				<xsd:annotation>
 					<xsd:documentation>
 						The Y position of the field (image) within the well relative to
