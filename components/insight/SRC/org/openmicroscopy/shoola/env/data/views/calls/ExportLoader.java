@@ -30,6 +30,7 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -52,7 +53,12 @@ public class ExportLoader
 {
 
 	/** Indicates to export the image as OME TIFF. */
-	public static final int	EXPORT_AS_OMETIFF = 0;
+	public static final int	EXPORT_AS_OMETIFF = 
+		OmeroImageService.EXPORT_AS_OMETIFF;
+	
+	/** Indicates to export the image as OME XML. */
+	public static final int	EXPORT_AS_OME_XML = 
+		OmeroImageService.EXPORT_AS_OME_XML;
 	
 	/** Loads the specified annotations. */
     private BatchCall loadCall;
@@ -68,16 +74,18 @@ public class ExportLoader
      * 
 	 * @param file    The file where to export the image.
 	 * @param imageID The id of the image to export.
+	 * @param target The selected schema.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeAsOMETiffBatchCall(final File file, 
-    						final long imageID)
+    private BatchCall makeAsOMETiffBatchCall(final int index, final File file, 
+    						final long imageID, final Target target)
     {
-        return new BatchCall("Export image as OME-TIFF.") {
+        return new BatchCall("Export image as OME-TIFF or OME-XML.") {
             public void doCall() throws Exception
             {
                 OmeroImageService service = context.getImageService();
-                result = service.exportImageAsOMETiff(ctx, imageID, file);
+                result = service.exportImageAsOMEFormat(ctx, index, imageID,
+                		file, target);
             }
         };
     }
@@ -101,15 +109,13 @@ public class ExportLoader
 	 * @param imageID The id of the image to export.
 	 * @param file    The file where to store the exported file.
 	 * @param index	  One of the constants defined by this class.
+	 * @param target The selected schema.
      */
-    public ExportLoader(SecurityContext ctx, long imageID, File file, int index)
+    public ExportLoader(SecurityContext ctx, long imageID, File file, int index,
+    		Target target)
     {
     	this.ctx = ctx;
-    	switch (index) {
-			case EXPORT_AS_OMETIFF:
-				loadCall = makeAsOMETiffBatchCall(file, imageID);
-				break;
-		}
+    	loadCall = makeAsOMETiffBatchCall(index, file, imageID, target);
     }
-    
+
 }

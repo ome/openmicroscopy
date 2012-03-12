@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
+import org.openmicroscopy.shoola.agents.util.ui.DowngradeChooser;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
@@ -71,8 +72,11 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.Target;
+import org.openmicroscopy.shoola.env.data.util.TransformsParser;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
@@ -360,7 +364,7 @@ class EditorControl
 	private void export()
 	{
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+		DowngradeChooser chooser = new DowngradeChooser(f, FileChooser.SAVE, 
 				"Export", "Select where to export the image as OME-TIFF.",
 				exportFilters);
 		String s = UIUtilities.removeFileExtension(view.getRefObjectName());
@@ -378,11 +382,18 @@ class EditorControl
 					if (folder == null)
 						folder = UIUtilities.getDefaultFolder();
 					Object src = evt.getSource();
-					if (src instanceof FileChooser) {
+					Target target = null;
+					if (src instanceof DowngradeChooser) {
 						((FileChooser) src).setVisible(false);
 						((FileChooser) src).dispose();
+						target = ((DowngradeChooser) src).getSelectedSchema();
 					}
-					model.exportImageAsOMETIFF(folder);
+					model.exportImageAsOMETIFF(folder, target);
+				} else if (DowngradeChooser.HELP_DOWNGRADE_PROPERTY.equals(
+						name)) {
+					Registry reg = MetadataViewerAgent.getRegistry();
+					String url = (String) reg.lookup("HelpDowngrade");
+					reg.getTaskBar().openURL(url);
 				}
 			}
 		});

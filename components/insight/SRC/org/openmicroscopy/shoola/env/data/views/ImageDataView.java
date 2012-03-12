@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -382,11 +383,12 @@ public interface ImageDataView
 	 * @param ctx The security context.
 	 * @param imageID	The image's id.
 	 * @param file		The file where to export the image.
+	 * @param target The selected schema.
 	 * @param observer 	Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle exportImageAsOMETiff(SecurityContext ctx, long imageID,
-			File file, AgentEventListener observer);
+			File file, Target target, AgentEventListener observer);
 
 	/**
 	 * Loads the ROI if possible from the server.
