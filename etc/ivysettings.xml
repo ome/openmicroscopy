@@ -69,7 +69,6 @@
   configuration in local.properties to point to "loci-resolver" as configured above. -->
 
   <modules>
-    <module organisation="omero" name="bio-formats" resolver="${loci.resolver}" />
     <module organisation="omero" name="omejava" resolver="${loci.resolver}" />
     <module organisation="omero" name="*-test" resolver="test-resolver" matcher="glob"/>
   </modules>
