@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.util.ui;
 
 //Java imports
 import java.awt.FlowLayout;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JComboBox;
@@ -52,7 +53,7 @@ public class DowngradeChooser
 	extends FileChooser
 {
 
-	 /** The possible downgrade schema.*/
+	/** The possible downgrade schema.*/
     private List<Target> targets;
     
     /** The selection of downgrade sheets.*/
@@ -66,6 +67,7 @@ public class DowngradeChooser
 		try {
 			parser.parse();
 			targets = parser.getTargets();
+			Collections.reverse(targets);
 			//Build the UI
 			Iterator<Target> i = targets.iterator();
 			Object[] values = new Object[targets.size()+1];
