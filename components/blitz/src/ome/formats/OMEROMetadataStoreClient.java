@@ -7916,7 +7916,7 @@ public class OMEROMetadataStoreClient
             int wellIndex, int wellSampleIndex)
     {
         WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
-        o.setX(toRType(positionX));
+        o.setPositionX(toRType(positionX));
     }
 
     /* (non-Javadoc)
@@ -7926,7 +7926,7 @@ public class OMEROMetadataStoreClient
             int wellIndex, int wellSampleIndex)
     {
         WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
-        o.setY(toRType(positionY));
+        o.setPositionY(toRType(positionY));
     }
 
     /* (non-Javadoc)

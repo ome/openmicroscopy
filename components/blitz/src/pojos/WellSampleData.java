@@ -112,7 +112,7 @@ public class WellSampleData extends DataObject {
      */
     public double getPositionX()
     {
-    	RDouble value = asWellSample().getX();
+    	RDouble value = asWellSample().getPositionX();
     	if (value == null) return 0;
     	return value.getValue();
     }
@@ -124,7 +124,7 @@ public class WellSampleData extends DataObject {
      */
     public double getPositionY()
     {
-    	RDouble value = asWellSample().getY();
+    	RDouble value = asWellSample().getPositionY();
     	if (value == null) return 0;
     	return value.getValue();
     }

@@ -523,9 +523,9 @@ public class ImporterTest
 	 */
 	private void validateWellSample(WellSample ws, ome.xml.model.WellSample xml)
 	{
-		assertEquals(ws.getX().getValue(), 
+		assertEquals(ws.getPositionX().getValue(), 
 				xml.getPositionX().doubleValue());
-		assertEquals(ws.getY().getValue(), 
+		assertEquals(ws.getPositionY().getValue(), 
 				xml.getPositionY().doubleValue());
 		Timestamp ts = timestampFromXmlString(xml.getTimepoint());
 		assertEquals(ws.getTimepoint().getValue(), ts.getTime());
