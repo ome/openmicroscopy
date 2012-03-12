@@ -66,6 +66,20 @@ ${obj_or_prop.omeroPackage}.${obj_or_prop.javaType}\
                 return False
             return True
         return filter(f, properties)
+
+    def sorted_enumerations():
+        enumerations = list()
+        for o in model.objects.values():
+            for prop in o.properties.values():
+                if prop.isEnumeration:
+                    enumerations.append(prop)
+        return sorted(enumerations, lambda x, y: cmp(x.name, y.name))
+
+    def sorted_and_filtered_enumerations():
+        enumerations = sorted_enumerations()
+        def f(x):
+            return True
+        return filter(f, enumerations)
 %}\
 \
 \
@@ -159,5 +173,14 @@ ${obj_or_prop.omeroPackage}.${obj_or_prop.javaType}\
     </type>
 
 {% end %}\
+{% end %}\
+\
+{% for o in sorted_and_filtered_enumerations() %}\
+    <enum id="${fq_class_name(o)}">
+{% for value in o.possibleValues %}\
+        <entry name="${value}"/>
+{% end %}\
+    </enum>
+
 {% end %}\
 </types>

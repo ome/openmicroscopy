@@ -146,6 +146,7 @@ OMERO_DEFAULT_PACKAGE = "omero.model"
 # The OMERO package overrides.
 OMERO_PACKAGE_OVERRIDES = {
         "OME": "omero.model.core",
+        "enum": "omero.model.enums",
 }
 
 # The default template for enum class processing.
@@ -292,6 +293,11 @@ class OMEModelEntity(object):
         except AttributeError:  # OMEModelObject not OMEModelProperty
             pass
         suffix = PACKAGE_NAMESPACE_RE.match(namespace).group(1)
+        try:
+            if self.isEnumeration:
+                suffix = 'enum'
+        except AttributeError:
+            pass
         try:
             return OMERO_PACKAGE_OVERRIDES[suffix]
         except:
