@@ -2035,7 +2035,7 @@ class _BlitzGateway (object):
         @return:    omero.gateway.ProxyObjectWrapper
         """
         
-        return self._proxies['rawpixels']
+        return ProxyObjectWrapper(self, 'createRawPixelsStore')
 
     def createThumbnailStore (self):
         """
