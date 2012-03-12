@@ -45,8 +45,10 @@ ${obj_or_prop.omeroPackage}.${obj_or_prop.javaType}\
     def sorted_and_filtered_objects():
         objects = sorted_objects()
         def f(x):
+            if x.isReference:
+                return False
             if x.name in ('BinaryOnly', 'Contact', 'Leader', 'MetadataOnly',
-                          'OME', 'TiffData', 'UUID'):
+                          'OME', 'TiffData', 'UUID', 'Annotation'):
                 return False
             return True
         return filter(f, objects)
@@ -88,7 +90,7 @@ ${obj_or_prop.omeroPackage}.${obj_or_prop.javaType}\
 
 <types>
 {% for o in sorted_and_filtered_objects() %}\
-{% if o.name not in fu.METADATA_OBJECT_IGNORE %}\
+    <!-- OME model object ${o.name} -->
 {% choose %}\
 {% when parent_object(o.name) is not None and parent_object(o.name).isAbstractProprietary %}\
     <type id="${fq_class_name(o)}" superclass="${fq_class_name(parent_object(o.name))}" ${type_attributes(o)}>
@@ -151,10 +153,11 @@ ${obj_or_prop.omeroPackage}.${obj_or_prop.javaType}\
         </properties>
 {% if o.isAbstractProprietary or o.isAbstract %}\
     </abstract>
-{% end %}
+
+{% end %}\
 {% if not o.isAbstractProprietary and not o.isAbstract %}\
     </type>
-{% end %}
+
 {% end %}\
 {% end %}\
 </types>
