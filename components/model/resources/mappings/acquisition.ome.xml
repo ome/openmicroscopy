@@ -187,7 +187,7 @@
 	<type id="ome.model.core.LogicalChannel">
 		<properties>
 			<optional name="name" type="string"/>
-			<optional name="pinHoleSize" type="double"/>
+			<optional name="pinholeSize" type="double"/>
 			<optional name="illuminationType" type="ome.model.enums.Illumination"/>
 			<!-- Note: illumination is called IlluminationType in model-->
 			<optional name="contrastMethod" type="ome.model.enums.ContrastMethod"/>

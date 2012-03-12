@@ -3236,7 +3236,7 @@ public class OMEROMetadataStoreClient
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setPinHoleSize(toRType(pinholeSize));
+        o.getLogicalChannel().setPinholeSize(toRType(pinholeSize));
     }
 
     /* (non-Javadoc)

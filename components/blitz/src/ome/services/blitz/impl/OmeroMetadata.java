@@ -780,7 +780,7 @@ public class OmeroMetadata extends DummyMetadata {
     {
         Channel o = getChannel(imageIndex, channelIndex);
         return o != null? fromRType(
-                o.getLogicalChannel().getPinHoleSize()) : null;
+                o.getLogicalChannel().getPinholeSize()) : null;
     }
 
     @Override

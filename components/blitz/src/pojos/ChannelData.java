@@ -190,7 +190,7 @@ public class ChannelData
     { 
     	LogicalChannel lc = asChannel().getLogicalChannel();
     	if (lc == null) return -1;
-    	RDouble value = lc.getPinHoleSize();
+    	RDouble value = lc.getPinholeSize();
     	if (value != null) return value.getValue();
     	return -1; 
     }
@@ -319,7 +319,7 @@ public class ChannelData
     {
     	if (value < 0) return;
         setDirty(true);
-        asChannel().getLogicalChannel().setPinHoleSize(
+        asChannel().getLogicalChannel().setPinholeSize(
         		omero.rtypes.rdouble(value));
     }
     
