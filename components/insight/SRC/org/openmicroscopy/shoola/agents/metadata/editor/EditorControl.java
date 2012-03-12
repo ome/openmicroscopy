@@ -72,6 +72,7 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -388,6 +389,11 @@ class EditorControl
 						target = ((DowngradeChooser) src).getSelectedSchema();
 					}
 					model.exportImageAsOMETIFF(folder, target);
+				} else if (DowngradeChooser.HELP_DOWNGRADE_PROPERTY.equals(
+						name)) {
+					Registry reg = MetadataViewerAgent.getRegistry();
+					String url = (String) reg.lookup("HelpDowngrade");
+					reg.getTaskBar().openURL(url);
 				}
 			}
 		});

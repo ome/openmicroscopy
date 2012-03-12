@@ -26,9 +26,13 @@ package org.openmicroscopy.shoola.agents.util.ui;
 
 //Java imports
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -40,6 +44,8 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.data.util.TransformsParser;
+import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 /** 
@@ -53,16 +59,36 @@ public class DowngradeChooser
 	extends FileChooser
 {
 
+	/** Flag indicating to display the help page.*/
+	public static final String HELP_DOWNGRADE_PROPERTY = "helpDowngrade";
+	
 	/** The possible downgrade schema.*/
     private List<Target> targets;
     
     /** The selection of downgrade sheets.*/
     private JComboBox box;
     
+    /** The button to bring up the help page.*/
+    private JButton helpButton;
+    
 	/** Loads the specification if available.*/
 	private void parseData()
 	{
+		helpButton = new JButton();
+		UIUtilities.unifiedButtonLookAndFeel(helpButton);
+		helpButton.setIcon(IconManager.getInstance().getIcon(IconManager.HELP));
 		//Load the specification folder and parse the file.
+		helpButton.addActionListener(new ActionListener() {
+			
+			/**
+			 * Brings up the URL.
+			 * @see ActionListener#actionPerformed(ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				firePropertyChange(HELP_DOWNGRADE_PROPERTY,
+						Boolean.valueOf(false), Boolean.valueOf(true));
+			}
+		});
 		TransformsParser parser = new TransformsParser();
 		try {
 			parser.parse();
@@ -82,6 +108,7 @@ public class DowngradeChooser
 			p.setLayout(new FlowLayout(FlowLayout.LEFT));
 			p.add(new JLabel("Version:"));
 			p.add(box);
+			p.add(helpButton);
 			addComponentToControls(p);
 		} catch (Exception e) {
 			//ignore
