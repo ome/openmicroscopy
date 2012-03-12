@@ -79,7 +79,7 @@ import org.apache.commons.logging.LogFactory;
  * @see IObserver
  * @since 3.0-M3
  */
-public class ImportLibrary implements IObservable
+public class ImportLibrary implements IObservable, IObserver
 {
     private static Log log = LogFactory.getLog(ImportLibrary.class);
 
@@ -232,7 +232,7 @@ public class ImportLibrary implements IObservable
     }
 
     //
-    // Observable methods
+    // Observable/Observer methods
     //
 
     public boolean addObserver(IObserver object)
@@ -256,6 +256,27 @@ public class ImportLibrary implements IObservable
         }
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObserver#update(ome.formats.importer.IObservable, ome.formats.importer.ImportEvent)
+     */
+    public final void update(IObservable observable, ImportEvent event) {
+        if (event instanceof ImportEvent.FILE_UPLOAD_STARTED) {
+            ImportEvent.FILE_UPLOAD_STARTED ev = (ImportEvent.FILE_UPLOAD_STARTED) event;
+            log.info("File upload started");
+        } else if (event instanceof ImportEvent.FILE_UPLOAD_FINISHED) {
+            ImportEvent.FILE_UPLOAD_FINISHED ev = (ImportEvent.FILE_UPLOAD_FINISHED) event;
+            log.info("File upload finished");
+        } else if (event instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
+            ImportEvent.FILE_UPLOAD_COMPLETE ev = (ImportEvent.FILE_UPLOAD_COMPLETE) event;
+            log.info("Uploaded: " + ev.filename);
+        } else if (event instanceof ImportEvent.LOADED_IMAGE) {
+            ImportEvent.LOADED_IMAGE ev = (ImportEvent.LOADED_IMAGE) event;
+            log.info("Loaded: " + ev.shortName);
+        } else if (event instanceof ImportEvent.IMPORT_DONE) {
+            ImportEvent.IMPORT_DONE ev = (ImportEvent.IMPORT_DONE) event;
+            log.info("Import done");
+        }
+    }
 
     // ~ Actions
     // =========================================================================
@@ -265,6 +286,7 @@ public class ImportLibrary implements IObservable
      */
     public boolean importCandidates(ImportConfig config, ImportCandidates candidates)
     {
+        boolean success = true;
         List<ImportContainer> containers = candidates.getContainers();
         if (containers != null) {
             int numDone = 0;
@@ -280,7 +302,7 @@ public class ImportLibrary implements IObservable
                     ic.setTarget(store.getTarget(
                             Screen.class, config.targetId.get()));
                 }
-
+                addObserver(this);
                 try {
                     if(!ic.getMetadataOnly()) {
                         ic = uploadFilesToRepository(ic);
@@ -292,14 +314,16 @@ public class ImportLibrary implements IObservable
                     log.error("Error on import", t);
                     if (!config.contOnError.get()) {
                         log.info("Exiting on error");
-                        return false;
+                        success = false;
                     } else {
                         log.info("Continuing after error");
                     }
+                } finally {
+                    deleteObserver(this);
                 }
             }
         }
-        return true;
+        return success;
     }
 
     /**
@@ -455,28 +479,30 @@ public class ImportLibrary implements IObservable
         List<String> srcFiles = Arrays.asList(usedFiles);
         List<String> destFiles = repo.getCurrentRepoDir(srcFiles);
         int fileTotal = srcFiles.size();
+        notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
+                null, 0, fileTotal, null, null, null));
         for (int i = 0; i < fileTotal; i++) {
             File file = new File(srcFiles.get(i));
             long length = file.length();
             FileInputStream stream = null;
             try {
-                notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
-                        file.getName(), i, fileTotal, null, length, null));
                 stream = new FileInputStream(file);
                 file = new File(destFiles.get(i));
                 repo.makeDir(file.getParent());
                 rawFileStore = repo.file(file.getAbsolutePath(), "rw");
                 int rlen = 0;
                 long offset = 0;
+                notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
+                        file.getAbsolutePath(), i, fileTotal, offset, length, null));
                 while (stream.available() != 0) {
                     rlen = stream.read(buf);
                     rawFileStore.write(buf, offset, rlen);
                     offset += rlen;
                     notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                            file.getName(), i, fileTotal, offset, length, null));
+                            file.getAbsolutePath(), i, fileTotal, offset, length, null));
                 }
                 notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
-                        file.getName(), i, fileTotal, offset, length, null));
+                        file.getAbsolutePath(), i, fileTotal, offset, length, null));
                 // FIXME: This is for testing only. See #6349
                 try {
                     rawFileStore.close();
@@ -487,7 +513,7 @@ public class ImportLibrary implements IObservable
             }
             catch (Exception e) {
                 notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
-                        file.getName(), i, fileTotal, null, null, e));
+                        file.getAbsolutePath(), i, fileTotal, null, null, e));
                 log.error("I/O or server error uploading file.", e);
                 break;
             }
