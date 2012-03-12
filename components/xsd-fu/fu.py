@@ -111,6 +111,7 @@ def updateTypeMaps(namespace):
         namespace + 'anyURI': 'String',
         namespace + 'hexBinary': 'String',
         'PercentFraction': 'PercentFraction',
+        'Color': 'Color',
     }
     global JAVA_TYPE_MAP
     JAVA_TYPE_MAP = copy.deepcopy(JAVA_PRIMITIVE_TYPE_MAP)
