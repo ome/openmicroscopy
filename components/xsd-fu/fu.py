@@ -321,6 +321,19 @@ class OMEModelEntity(object):
     javaMethodName = property(_get_javaMethodName,
         doc="""The property's Java method name.""")
 
+    def _get_isManyToMany(self):
+        try:
+            if self.isBackReference:
+                reference_to = self.model.getObjectByName(self.type)
+                for prop in reference_to.properties.values():
+                    if prop.type == self.parent.name + 'Ref':
+                        return prop.isManyToMany
+        except AttributeError:
+            pass
+        return self.manyToMany
+    isManyToMany = property(_get_isManyToMany,
+        doc="""Whether or not the entity is a many-to-many reference.""")
+
 class OMEModelProperty(OMEModelEntity):
     """
     An aggregate type representing either an OME XML Schema element, 
@@ -337,9 +350,12 @@ class OMEModelProperty(OMEModelEntity):
         self.isAttribute = False
         self.isBackReference = False
         self.plural = None
+        self.manyToMany = False
         try:
             root = ElementTree.fromstring(delegate.appinfo)
             self.plural = root.findtext('plural')
+            if root.find('manytomany') is not None:
+                self.manyToMany = True
         except AttributeError:
             pass
 
@@ -466,7 +482,7 @@ class OMEModelProperty(OMEModelEntity):
         if self.maxOccurs > 1:
             plural = self.plural
             if plural is None:
-                plural = self.model.getObjectByName(self.type).plural
+                plural = self.model.getObjectByName(self.javaMethodName).plural
             return plural[0].lower() + plural[1:]
         return self.javaArgumentName
     javaInstanceVariableName = property(_get_javaInstanceVariableName,
@@ -527,6 +543,7 @@ class OMEModelObject(OMEModelEntity):
         self.isAbstract = False
         self.isAbstractProprietary = False
         self.plural = None
+        self.manyToMany = False
         try:
             root = ElementTree.fromstring(element.appinfo)
             if root.find('abstract') is not None:

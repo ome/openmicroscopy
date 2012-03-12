@@ -59,9 +59,7 @@ ${obj_or_prop.omeroPackage}.${obj_or_prop.javaType}\
     def sorted_and_filtered_properties(o):
         properties = sorted_properties(o)
         def f(x):
-            if x.isReference:
-                return False
-            if x.name in ('ID', 'Description', 'Name',
+            if x.name in ('ID', 'Description', 'Name', 'AnnotationRef',
                           'BinData', 'TiffData', 'MetadataOnly'):
                 return False
             return True
@@ -133,13 +131,13 @@ ${obj_or_prop.omeroPackage}.${obj_or_prop.javaType}\
 {% choose %}\
 {% when prop.isReference and prop.maxOccurs > 1 %}\
             <!--
-            // Reference ${prop.name}
+            // Reference ${prop.name} Is many-to-many? ${prop.isManyToMany}
             -->
             <onemany name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.name}" ordered="TODO"/>
 {% end %}\
 {% when prop.isBackReference %}\
             <!--
-            // Back reference ${prop.name}
+            // Back reference ${prop.name} Is many-to-many? ${prop.isManyToMany}
             -->
             <{% if prop.minOccurs == 0 %}manyzero{% end %}{% if prop.minOccurs == 1 %}manyone{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.name}" ordered="TODO"/>
 {% end %}\
