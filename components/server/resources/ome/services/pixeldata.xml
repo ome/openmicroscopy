@@ -61,6 +61,7 @@
     <constructor-arg ref="roles"/>
     <constructor-arg ref="internalServiceFactory"/>
     <constructor-arg ref="tokenHolder"/>
+    <constructor-arg ref="securityFilterHolder"/>
   </bean>
 
   <bean id="eventHandler" class="ome.security.basic.NullEventHandler">
