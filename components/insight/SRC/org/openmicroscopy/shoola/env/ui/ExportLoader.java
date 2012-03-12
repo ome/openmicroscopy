@@ -30,6 +30,7 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ImageData;
@@ -69,6 +70,9 @@ public class ExportLoader
     /** One of the constants defined by this class. */
     private int						index;
     
+    /** The selected schema.*/
+    private Target target;
+    
     /**
      * Notifies that an error occurred.
      * @see UserNotifierLoader#onException(String, Throwable)
@@ -96,15 +100,17 @@ public class ExportLoader
      * @param image		The image to export.
      * @param file		The file where to export the image.
      * @param index	 	One of the constants defined by this class.
+     * @param target The selected schema.
      * @param activity 	The activity associated to this loader.
      */
 	public ExportLoader(UserNotifier viewer,  Registry registry,
 			SecurityContext ctx, ImageData image, File file, int index,
-			ActivityComponent activity)
+			Target target, ActivityComponent activity)
 	{
 		super(viewer, registry, ctx, activity);
 		if (image == null)
 			throw new IllegalArgumentException("Image not valid.");
+		this.target = target;
 		this.image = image;
 		this.file = file;
 		this.index = index;
@@ -116,7 +122,8 @@ public class ExportLoader
      */
     public void load()
     {
-    	handle = ivView.exportImageAsOMETiff(ctx, image.getId(), file, this);
+    	handle = ivView.exportImageAsOMETiff(ctx, image.getId(), file, target,
+    			this);
     }
     
     /**

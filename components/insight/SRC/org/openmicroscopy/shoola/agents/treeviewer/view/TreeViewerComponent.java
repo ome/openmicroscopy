@@ -92,6 +92,7 @@ import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -108,6 +109,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -3333,9 +3335,13 @@ class TreeViewerComponent
 				//TODO: review
 				
 				File f = new File(
-						folder.getAbsolutePath()+File.separator+image.getName()+".ome.tiff");
-				TreeViewerAgent.getRegistry().getImageService().exportImageAsOMETiff(
-						model.getSecurityContext(), image.getId(), f);
+						folder.getAbsolutePath()+File.separator+
+						image.getName()+OMETIFFFilter.OME_TIFF);
+				OmeroImageService svc =
+					TreeViewerAgent.getRegistry().getImageService();
+				svc.exportImageAsOMEFormat(model.getSecurityContext(), 
+						OmeroImageService.EXPORT_AS_OMETIFF,
+						image.getId(), f, null);
 				TreeViewerAgent.getRegistry().getUserNotifier().openApplication(
 						data, f.getAbsolutePath());
 			} catch (Exception e) {

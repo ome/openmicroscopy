@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -353,8 +354,9 @@ public interface Editor
 	 * Exports the image.
 	 * 
 	 * @param folder The folder where to export the image.
+	 * @param target The selected schema or <code>null</code>.
 	 */
-	public void exportImageAsOMETIFF(File folder);
+	public void exportImageAsOMETIFF(File folder, Target target);
 
 	/**
 	 * Indicates that the color of the passed channel has changed.

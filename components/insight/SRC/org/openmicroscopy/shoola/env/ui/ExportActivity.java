@@ -129,9 +129,9 @@ public class ExportActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		loader = new ExportLoader(viewer,  registry, ctx, 
-				parameters.getImage(), 
-				new File(getFileName()), ExportLoader.EXPORT_AS_OME_TIFF, this);
+		loader = new ExportLoader(viewer, registry, ctx, parameters.getImage(),
+				new File(getFileName()), ExportLoader.EXPORT_AS_OME_TIFF,
+				parameters.getTarget(), this);
 		return loader;
 	}
 
