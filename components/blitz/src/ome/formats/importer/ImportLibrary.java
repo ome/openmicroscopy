@@ -15,6 +15,7 @@
 package ome.formats.importer;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -45,8 +46,10 @@ import ome.formats.importer.util.ErrorHandler;
 import ome.formats.model.InstanceProvider;
 import ome.util.PixelData;
 import omero.ServerError;
+import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.grid.RepositoryImportContainer;
+import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.Annotation;
 import omero.model.Dataset;
@@ -89,6 +92,8 @@ public class ImportLibrary implements IObservable
 
     private final OMEROWrapper reader;
 
+    private final RepositoryPrx repo;
+
     private byte[] arrayBuf = new byte[DEFAULT_ARRAYBUF_SIZE];
 
     /** Whether or not to import as metadata only. */
@@ -120,6 +125,7 @@ public class ImportLibrary implements IObservable
 
         this.store = client;
         this.reader = reader;
+        repo = getLegacyRepository();
         String fsLiteReadersString =
             store.getConfigValue("omero.pixeldata.fs_lite_readers");
         if (fsLiteReadersString == null || fsLiteReadersString.length() == 0)
@@ -280,7 +286,6 @@ public class ImportLibrary implements IObservable
                     if(!ic.getMetadataOnly()) {
                         ic = uploadFilesToRepository(ic);
                     }
-                    RepositoryPrx repo = store.getLegacyRepository();
                     RepositoryImportContainer repoIc = createRepositoryImportContainer(ic);
                     repo.importMetadata(repoIc);
                     numDone++;
@@ -434,7 +439,10 @@ public class ImportLibrary implements IObservable
      * @return Rewritten container after files have been copied to repository.
      */
     public ImportContainer uploadFilesToRepository(ImportContainer container)
+            throws ServerError
     {
+        ServiceFactoryPrx sf = store.getServiceFactory();
+        RawFileStorePrx rawFileStore = sf.createRawFileStore();
         String[] usedFiles = container.getUsedFiles();
         File target = container.getFile();
         if (log.isDebugEnabled()) {
@@ -444,11 +452,61 @@ public class ImportLibrary implements IObservable
                 log.debug(f);
             }
         }
-        notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
-                target.getName(), 0, 0, null, null, null));
-        usedFiles = store.writeFilesToFileStore(usedFiles, target);
-        notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
-                target.getName(), 0, 0, null, null, null));
+        byte[] buf = new byte[1048576];  // 1 MB buffer
+        List<String> srcFiles = Arrays.asList(usedFiles);
+        List<String> destFiles = repo.getCurrentRepoDir(srcFiles);
+        int fileTotal = srcFiles.size();
+        for (int i = 0; i < fileTotal; i++) {
+            File file = new File(srcFiles.get(i));
+            long length = file.length();
+            FileInputStream stream = null;
+            try {
+                notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
+                        file.getName(), i, fileTotal, null, length, null));
+                stream = new FileInputStream(file);
+                file = new File(destFiles.get(i));
+                repo.makeDir(file.getParent());
+                rawFileStore = repo.file(file.getAbsolutePath(), "rw");
+                int rlen = 0;
+                long offset = 0;
+                while (stream.available() != 0) {
+                    rlen = stream.read(buf);
+                    rawFileStore.write(buf, offset, rlen);
+                    offset += rlen;
+                    notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
+                            file.getName(), i, fileTotal, offset, length, null));
+                }
+                notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
+                        file.getName(), i, fileTotal, offset, length, null));
+                // FIXME: This is for testing only. See #6349
+                try {
+                    rawFileStore.close();
+                }
+                catch (Exception npe) {
+                    log.error("Ignoring NPE due to rawFileStore.close() bug, see #6349");
+                }
+            }
+            catch (Exception e) {
+                notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
+                        file.getName(), i, fileTotal, null, null, e));
+                log.error("I/O or server error uploading file.", e);
+                break;
+            }
+            finally {
+                if (stream != null) {
+                    try {
+                        stream.close();
+                    }
+                    catch (Exception e) {
+                        log.error("I/O error closing stream.", e);
+                    }
+                }
+            }
+        }
+        notifyObservers(new ImportEvent.FILE_UPLOAD_FINISHED(
+                null, fileTotal, fileTotal, null, null, null));
+
+        usedFiles = destFiles.toArray(new String[destFiles.size()]);
         if (log.isDebugEnabled()) {
             log.debug("Used files after:");
             for (String f : usedFiles) {
@@ -736,6 +794,34 @@ public class ImportLibrary implements IObservable
 
     // ~ Helpers
     // =========================================================================
+
+    /**
+     * Retrieves the legacy repository (the one that is backed by the OMERO
+     * binary repository) from the list of current active repositories.
+     * @return Active proxy for the legacy repository.
+     */
+    private RepositoryPrx getLegacyRepository()
+    {
+        try
+        {
+            ServiceFactoryPrx sf = store.getServiceFactory();
+            RepositoryMap map = sf.sharedResources().repositories();
+            for (int i = 0; i < map.proxies.size(); i++)
+            {
+                RepositoryPrx proxy = map.proxies.get(i);
+                String repo = proxy.toString();
+                if (!repo.startsWith("PublicRepository-ScriptRepo"))
+                {
+                    return proxy;
+                }
+            }
+            return null;
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Writes data to the server for a given plane in a tile based manner.

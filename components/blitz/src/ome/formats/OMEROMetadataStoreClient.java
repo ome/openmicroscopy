@@ -116,8 +116,6 @@ import omero.api.ServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.METADATASTORE;
 import omero.grid.InteractiveProcessorPrx;
-import omero.grid.RepositoryMap;
-import omero.grid.RepositoryPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.AcquisitionMode;
 import omero.model.Annotation;
@@ -1792,88 +1790,6 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * Writes binary original file data to the OMERO server.
-     * @param files Files to populate against an original file list.
-     * @param originalFileMap Map of absolute path against original file
-     * objects that we are to populate.
-     * @param target The <code>setId()</code> target.
-     * @returns The prefix file path that was calculated by the server.
-     */
-    public String[] writeFilesToFileStore(String[] usedFiles, File target)
-    {
-        // Lookup each source file in our hash map and write it to the
-        // correct original file object server side.
-        byte[] buf = new byte[1048576];  // 1 MB buffer
-        RepositoryPrx repo = getLegacyRepository();
-        File repositoryRoot;
-        File directory;
-        List<String> destFiles;
-        List<String> srcFiles = Arrays.asList(usedFiles);
-
-        try
-        {
-            OriginalFile ofRoot = repo.root();
-            repositoryRoot = new File(ofRoot.getPath().getValue(),
-                            ofRoot.getName().getValue());
-            destFiles = repo.getCurrentRepoDir(srcFiles);
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
-
-        for (int i = 0; i < srcFiles.size(); i++)
-        {
-            File file = new File(srcFiles.get(i));
-            FileInputStream stream = null;
-            try
-            {
-                stream = new FileInputStream(file);
-                file = new File(destFiles.get(i));
-                repo.makeDir(file.getParent());
-                rawFileStore = repo.file(file.getAbsolutePath(), "rw");
-                int rlen = 0;
-                long offset = 0;
-                while (stream.available() != 0)
-                {
-                    rlen = stream.read(buf);
-                    rawFileStore.write(buf, offset, rlen);
-                    offset += rlen;
-                }
-                // FIXME: This is for testing only. See #6349
-                try 
-                {
-                    rawFileStore.close();
-                } 
-                catch (Exception npe)
-                {
-                    log.error("Ignoring NPE due to rawFileStore.close() bug, see #6349");
-                }
-            }
-            catch (Exception e)
-            {
-                log.error("I/O or server error populating file store.", e);
-                break;
-            }
-            finally
-            {
-                if (stream != null)
-                {
-                    try
-                    {
-                        stream.close();
-                    }
-                    catch (Exception e)
-                    {
-                        log.error("I/O error closing stream.", e);
-                    }
-                }
-            }
-        }
-        return destFiles.toArray(new String[destFiles.size()]);
-    }
-
-    /**
      * Sets extended the properties on a pixel set.
      * @param pixelsId The pixels set identifier.
      * @param series The series number to populate.
@@ -2179,33 +2095,6 @@ public class OMEROMetadataStoreClient
             long grpID = obj.getDetails().getGroup().getId().getValue();
             setCurrentGroup(grpID);
             return obj;
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Retrieves the legacy repository (the one that is backed by the OMERO
-     * binary repository) from the list of current active repositories.
-     * @return Active proxy for the legacy repository.
-     */
-    public RepositoryPrx getLegacyRepository()
-    {
-        try
-        {
-            RepositoryMap map = serviceFactory.sharedResources().repositories();
-            for (int i = 0; i < map.proxies.size(); i++)
-            {
-                RepositoryPrx proxy = map.proxies.get(i);
-                String repo = proxy.toString();
-                if (!repo.startsWith("PublicRepository-ScriptRepo"))
-                {
-                    return proxy;
-                }
-            }
-            return null;
         }
         catch (ServerError e)
         {
