@@ -6,10 +6,11 @@
  
  #tree_details {
      position: absolute;
-     top:25px;
+     top:23px;
      left:0px; right:0px; bottom:0px;
      padding-top: 3px;
      overflow: auto;
+	 border-right:solid 1px hsl(210,10%,85%);
  }
  
  

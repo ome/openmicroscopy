@@ -94,7 +94,7 @@
 				color: rgba(255,255,255,.5);
 				color: hsl(210,20%,15%);
 				text-shadow: 0 1px 0px hsl(215,75%,20%);
-				text-shadow: 0 1px 0px rgba(255,255,255,.2);
+				text-shadow: 0 1px 0px rgba(255,255,255,.5);
 			}
 			
 			#middle_header a:hover {
@@ -133,7 +133,6 @@
 	#queue, #baskets {
 	    padding:0;
 	    float:left;
-		border:solid 1px blue;
 	    top: -1px;
 	}
 
@@ -357,11 +356,6 @@
     overflow: auto;
 }
 
-body {
-	background:hsl(210,10%,83%);
-	background:red;
-}
-
 #left_panel {
     left:0px; top:0px; bottom:0px;right:0px;
     width:350px;
@@ -370,12 +364,12 @@ body {
 #center_panel {
     left:0px; right:0px; top:0px; bottom:0px;
 	background:hsl(210,1%,98%);
+	position:absolute;
 	/* I wish that background: hsl(220,8%,16%);*/
 }
 #right_panel {
     width:370px;
     right:0px; top:0px; bottom:0px;
-    border-right: none;
 }
 
 
@@ -452,8 +446,8 @@ body {
 #dragRight {
     cursor: col-resize;
     position:absolute;
-    bottom:0px;
-    top: 20px;
+    bottom: 20px;
+    top: 0px;
     left: 0px;
     right: 0px;
 }

@@ -97,9 +97,9 @@
         clear:left;
         background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210, 15%, 80%)), to(hsl(210, 15%, 85%)));
         background-image: -moz-linear-gradient(90deg, hsl(210, 25%, 15%) 0%, hsl(210, 25%, 20%) 100%);
-        border-bottom: solid 1px hsl(210,20%,65%);
+        border-bottom: solid 1px hsl(210,15%,70%);
         -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.1);
-        border-right:solid 1px hsl(210,10%,75%);
+        border-right:solid 1px hsl(210,15%,75%);
     }
     
         #navigator a, #navigator dl {
@@ -220,7 +220,9 @@
     #annotation_tab, #metadata_tab, #preview_tab {
         padding: 15px;
         overflow: auto;
-        
+        font-size:1.1em;
+        top:33px;
+        border-left: solid 1px hsl(210,10%,85%);
     }
     
     #right_panel .tabslist {
@@ -580,6 +582,40 @@
     
            
     
+    
+    /*   Acquisition Details */
+    
+    .can-collapse {
+        background:transparent url(/static/webgateway/img/table/desc-big.gif) no-repeat scroll bottom right;
+        border: 1px solid #bbb;
+        -webkit-box-shadow:0 1px 0 rgba(255,255,255,.7);
+        background-color: #fff;
+        background: #fff;
+        cursor:pointer;
+        -webkit-border-radius:4px;
+        padding: 7px;
+        margin:5px 0;
+    }
+    
+    .defclosed,.closed{
+        background:transparent url(/static/webgateway/img/table/asc-big.gif) no-repeat scroll top right;
+        background-color: #fff;
+        background: #fff -webkit-gradient(linear, left bottom, left top, from(rgba(0,0,0,.05)), to(rgba(0,0,0,0)));
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
             
     
     
@@ -597,7 +633,11 @@
     #center_panel_header {
         background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(212, 10%, 40%)), to(hsl(212, 10%, 45%)));
         height:31px;
-        border-bottom:solid 1px rgba(0,0,0,.6);
+        position:absolute;
+        top:0px;
+        left:0px;
+        right:0px;
+        border-bottom:solid 1px rgba(0,0,0,.4);
         border-top:solid 1px rgba(0,0,0,.3);
         -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
         border-left:solid 1px rgba(255,255,255,.1);
@@ -627,25 +667,11 @@
     
     /* Center Panel Content */  
     
-    #content_details {
-        padding: 0 20px 0 10px;
+    .center_panel_content {
         position: absolute;
-        top:20px; bottom:0px; left:0px; right:0px;
+        top:33px; bottom:0px; left:0px; right:0px;
         overflow: auto;
     }
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
 
     
     img.thumbnail {
@@ -685,18 +711,7 @@
         padding: 1px 4px
     }
 
-    .can-collapse {
-        background:transparent url(/static/webgateway/img/table/desc-big.gif) no-repeat scroll bottom right;
-        border: 1px solid #bbb;
-        background-color: #fff;
-        cursor:pointer;
-        padding: 5px;
-        margin:5px 0;
-    }
-    .defclosed,.closed{
-        background:transparent url(/static/webgateway/img/table/asc-big.gif) no-repeat scroll top right;
-        background-color: #fff;
-    }
+    
 
     .show_xml {
         color: #1B7BC7;
@@ -967,6 +982,7 @@ select.existing {
 div.plane_info {
     width:100%;
     overflow: auto;
+    border:solid 1px red;
     background: white;
     border: solid #ccc 1px;
 }
@@ -977,18 +993,6 @@ div.plane_info table div {
     padding: 1px 4px
 }
 
-.can-collapse {
-    background:transparent url(../../3rdparty/jquery.tablesorter/desc-big.gif) no-repeat scroll bottom right;
-    border: 1px solid #bbb;
-    background-color: #fff;
-    cursor:pointer;
-    padding: 5px;
-    margin:5px 0;
-}
-.defclosed,.closed{
-    background:transparent url(../../3rdparty/jquery.tablesorter/asc-big.gif) no-repeat scroll top right;
-    background-color: #fff;
-}
 
 .show_xml {
     color: #1B7BC7;

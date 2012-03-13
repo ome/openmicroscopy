@@ -36,6 +36,7 @@ body {
     padding: 0px;
     margin: 0px;
     position: relative;
+	background:hsl(215,7%,94%);
 	-webkit-transition: color .2s linear;
 }
 

@@ -24,7 +24,6 @@
 {% endcomment %}
 
     <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
     
     <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
@@ -182,27 +181,28 @@
 
 {% if manager.containers.images %}
 
-    
-    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
-    
+    <!--
+    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
+    --> 
+	
     <table id="dataTable" class="tablesorter">
         <thead> 
             <tr> 
-                <th class="action">{% trans "Image" %}</th> 
-                <th class="desc">{% trans "Name" %}</th> 
-                <th class="roles">{% trans "Date" %}</th> 
+                <th class="table_images">{% trans "Images" %}</th> 
+                <th class="table_desc">{% trans "Name" %}</th> 
+                <th class="table_date">{% trans "Date" %}</th> 
             </tr> 
         </thead>
         <tbody>
             {% for c in manager.containers.images %}
                 <tr id="image_row-{{ c.id }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
-                    <td class="action">
+                    <td class="image">
                         {% comment %}<img src="{% url render_thumbnail_resize 32 c.id  %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>{% endcomment %}
                         <img src="{% static "webclient/image/image16.png" %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
                         <input type="checkbox" name="image" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="roles">{{ c.getDate }}</td>                    
+                    <td class="date">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
         </tbody>
