@@ -2141,6 +2141,12 @@ def get_rois_json(request, imageId, server_id=None):
                     if s.getFontFamily() and s.getFontFamily().getValue():
                         shape['fontFamily'] = s.getFontFamily().getValue()
             except AttributeError: pass
+            try:
+                if s.getMarkerStart():
+                    shape['markerStart'] = s.getMarkerStart().getValue()
+                if s.getMarkerEnd():
+                    shape['markerEnd'] = s.getMarkerEnd().getValue()
+            except AttributeError: pass
             if s.getTransform():
                 t = s.getTransform().getValue()
                 if t and t != 'none':
