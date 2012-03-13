@@ -79,7 +79,7 @@ import org.apache.commons.logging.LogFactory;
  * @see IObserver
  * @since 3.0-M3
  */
-public class ImportLibrary implements IObservable, IObserver
+public class ImportLibrary implements IObservable
 {
     private static Log log = LogFactory.getLog(ImportLibrary.class);
 
@@ -233,7 +233,7 @@ public class ImportLibrary implements IObservable, IObserver
     }
 
     //
-    // Observable/Observer methods
+    // Observable methods
     //
 
     public boolean addObserver(IObserver object)
@@ -257,27 +257,6 @@ public class ImportLibrary implements IObservable, IObserver
         }
     }
 
-    /* (non-Javadoc)
-     * @see ome.formats.importer.IObserver#update(ome.formats.importer.IObservable, ome.formats.importer.ImportEvent)
-     */
-    public final void update(IObservable observable, ImportEvent event) {
-        if (event instanceof ImportEvent.FILE_UPLOAD_STARTED) {
-            ImportEvent.FILE_UPLOAD_STARTED ev = (ImportEvent.FILE_UPLOAD_STARTED) event;
-            log.info("File upload started");
-        } else if (event instanceof ImportEvent.FILE_UPLOAD_FINISHED) {
-            ImportEvent.FILE_UPLOAD_FINISHED ev = (ImportEvent.FILE_UPLOAD_FINISHED) event;
-            log.info("File upload finished");
-        } else if (event instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
-            ImportEvent.FILE_UPLOAD_COMPLETE ev = (ImportEvent.FILE_UPLOAD_COMPLETE) event;
-            log.info("Uploaded: " + ev.filename);
-        } else if (event instanceof ImportEvent.LOADED_IMAGE) {
-            ImportEvent.LOADED_IMAGE ev = (ImportEvent.LOADED_IMAGE) event;
-            log.info("Loaded: " + ev.shortName);
-        } else if (event instanceof ImportEvent.IMPORT_DONE) {
-            ImportEvent.IMPORT_DONE ev = (ImportEvent.IMPORT_DONE) event;
-            log.info("Import done");
-        }
-    }
 
     // ~ Actions
     // =========================================================================
@@ -287,7 +266,6 @@ public class ImportLibrary implements IObservable, IObserver
      */
     public boolean importCandidates(ImportConfig config, ImportCandidates candidates)
     {
-        boolean success = true;
         List<ImportContainer> containers = candidates.getContainers();
         if (containers != null) {
             int numDone = 0;
@@ -303,28 +281,36 @@ public class ImportLibrary implements IObservable, IObserver
                     ic.setTarget(store.getTarget(
                             Screen.class, config.targetId.get()));
                 }
-                addObserver(this);
+
                 try {
                     if(!ic.getMetadataOnly()) {
                         ic = uploadFilesToRepository(ic);
                     }
-                    RepositoryImportContainer repoIc = createRepositoryImportContainer(ic);
-                    repo.importMetadata(repoIc);
+                    importMetadataOnly(ic,index,numDone,containers.size());
                     numDone++;
                 } catch (Throwable t) {
                     log.error("Error on import", t);
                     if (!config.contOnError.get()) {
                         log.info("Exiting on error");
-                        success = false;
+                        return false;
                     } else {
                         log.info("Continuing after error");
                     }
-                } finally {
-                    deleteObserver(this);
                 }
             }
         }
-        return success;
+        return true;
+    }
+
+    public List<Pixels> importMetadataOnly(ImportContainer container, int index,
+                                    int numDone, int total)
+            throws Exception
+    {
+        RepositoryImportContainer repoIc = createRepositoryImportContainer(container);
+        List<Pixels> pixList = repo.importMetadata(repoIc);
+        notifyObservers(new ImportEvent.IMPORT_DONE(
+                index, null, null, null, 0, null, pixList));
+        return pixList;
     }
 
     /**
@@ -774,8 +760,6 @@ public class ImportLibrary implements IObservable, IObserver
             }
 
             store.launchProcessing(); // Use or return value here later. TODO
-            notifyObservers(new ImportEvent.IMPORT_DONE(
-                    index, null, userSpecifiedTarget, null, 0, null, pixList));
 
             return pixList;
 
