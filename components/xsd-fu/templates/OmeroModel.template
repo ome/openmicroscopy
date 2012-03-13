@@ -19,7 +19,12 @@ ${obj_or_prop.omeroPackage}.${obj_or_prop.javaType}\
 {% end %}\
 \
 {% def fq_link_class_name(o, prop) %}\
+{% if prop.isReference %}\
 ${o.omeroPackage}.${o.javaMethodName}${prop.javaMethodName}Link\
+{% end %}\
+{% if prop.isBackReference %}\
+${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
+{% end %}\
 {% end %}\
 \
 {% python
