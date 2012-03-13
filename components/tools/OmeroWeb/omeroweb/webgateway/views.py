@@ -708,10 +708,10 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
         # TODO: support for mask
     elif type(s) == omero.model.EllipseI:
         shape['type'] = 'Ellipse'
-        shape['cx'] = int(s.getCx().getValue())
-        shape['cy'] = int(s.getCy().getValue())
-        shape['rx'] = int(s.getRx().getValue())
-        shape['ry'] = int(s.getRy().getValue())
+        shape['cx'] = int(s.getX().getValue())
+        shape['cy'] = int(s.getY().getValue())
+        shape['rx'] = int(s.getRadiusX().getValue())
+        shape['ry'] = int(s.getRadiusY().getValue())
         bBox = (shape['cx']-shape['rx'], shape['cy']-shape['ry'], 2*shape['rx'], 2*shape['ry'])
     elif type(s) == omero.model.PolylineI:
         shape['type'] = 'PolyLine'
@@ -2100,10 +2100,10 @@ def get_rois_json(request, imageId, server_id=None):
                 # TODO: support for mask
             elif type(s) == omero.model.EllipseI:
                 shape['type'] = 'Ellipse'
-                shape['cx'] = s.getCx().getValue()
-                shape['cy'] = s.getCy().getValue()
-                shape['rx'] = s.getRx().getValue()
-                shape['ry'] = s.getRy().getValue()
+                shape['cx'] = s.getX().getValue()
+                shape['cy'] = s.getY().getValue()
+                shape['rx'] = s.getRadiusX().getValue()
+                shape['ry'] = s.getRadiusY().getValue()
             elif type(s) == omero.model.PolylineI:
                 shape['type'] = 'PolyLine'
                 shape['points'] = stringToSvg(s.getPoints().getValue())
