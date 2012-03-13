@@ -12,8 +12,10 @@
   </publications>
   <dependencies defaultconfmapping="build,client->default">
     <!-- Internal -->
+    <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true" conf="build->build;client->runtime" transitive="false">
+        <artifact name="ome-io"/>
+    </dependency>
     <dependency org="omero" name="omero_client" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
-    <dependency org="ome" name="ome-io" rev="${omero.version}" changing="true" conf="build->build;client->runtime" transitive="false"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}"/>
     <dependency org="ij" name="ij" rev="${versions.ij}"/>
     <!-- dependency org="i5d" name="Image_5D" rev="${versions.i5d}"/ -->
