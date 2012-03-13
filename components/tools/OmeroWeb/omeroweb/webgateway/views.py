@@ -669,15 +669,11 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
         """
         Method for converting the string returned from omero.model.ShapeI.getPoints()
         into list of (x,y) points.
-        E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491] points2[309,427, 366,503, 190,491]"
+        E.g: "309,427 366,503 190,491"
         """
-        pointLists = string.strip().split("points")
-        if len(pointLists) < 2:
-            logger.error("Unrecognised ROI shape 'points' string: %s" % string)
-            return ""
-        firstList = pointLists[1]
+        pointLists = string.strip().split(" ")
         xyList = []
-        for xy in firstList.strip(" []").split(", "):
+        for xy in pointLists.split(" "):
             x, y = xy.split(",")
             xyList.append( ( int( x.strip() ), int(y.strip() ) ) )
         return xyList
@@ -2057,16 +2053,11 @@ def get_rois_json(request, imageId, server_id=None):
         """
         Method for converting the string returned from omero.model.ShapeI.getPoints()
         into an SVG for display on web.
-        E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491] points2[309,427, 366,503, 190,491]"
-        To: M 309 427 L 366 503 L 190 491 z
+        E.g: "309,427 366,503 190,491"
+        To: M309 427 L366 503 L190 491
         """
-        pointLists = string.strip().split("points")
-        if len(pointLists) < 2:
-            logger.error("Unrecognised ROI shape 'points' string: %s" % string)
-            return ""
-        firstList = pointLists[1]
-        nums = firstList.strip("[]").replace(", ", " L").replace(",", " ")
-        return "M" + nums
+        pointLists = string.strip().replace(" ", " L").replace(",", " ")
+        return "M" + pointLists
 
     def rgb_int2css(rgbint):
         """
