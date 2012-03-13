@@ -2091,21 +2091,15 @@ def get_rois_json(request, imageId, server_id=None):
             shape['theZ'] = s.getTheZ().getValue()
             if type(s) == omero.model.RectI:
                 shape['type'] = 'Rectangle'
-                shape['x'] = s.getX().getValue()
-                shape['y'] = s.getY().getValue()
                 shape['width'] = s.getWidth().getValue()
                 shape['height'] = s.getHeight().getValue()
             elif type(s) == omero.model.MaskI:
                 shape['type'] = 'Mask'
-                shape['x'] = s.getX().getValue()
-                shape['y'] = s.getY().getValue()
                 shape['width'] = s.getWidth().getValue()
                 shape['height'] = s.getHeight().getValue()
                 # TODO: support for mask
             elif type(s) == omero.model.EllipseI:
                 shape['type'] = 'Ellipse'
-                shape['cx'] = s.getX().getValue()
-                shape['cy'] = s.getY().getValue()
                 shape['rx'] = s.getRadiusX().getValue()
                 shape['ry'] = s.getRadiusY().getValue()
             elif type(s) == omero.model.PolylineI:
@@ -2119,17 +2113,17 @@ def get_rois_json(request, imageId, server_id=None):
                 shape['y2'] = s.getY2().getValue()
             elif type(s) == omero.model.PointI:
                 shape['type'] = 'Point'
-                shape['cx'] = s.getX().getValue()
-                shape['cy'] = s.getY().getValue()
             elif type(s) == omero.model.PolygonI:
                 shape['type'] = 'Polygon'
                 shape['points'] = stringToSvg(s.getPoints().getValue()) + "z" # z = closed line
             elif type(s) == omero.model.LabelI:
                 shape['type'] = 'Label'
-                shape['x'] = s.getX().getValue()
-                shape['y'] = s.getY().getValue()
             else:
                 logger.debug("Shape type not supported: %s" % str(type(s)))
+            try:
+                shape['x'] = s.getX().getValue()
+                shape['y'] = s.getY().getValue()
+            except AttributeError: pass
             try:
                 if s.getText() and s.getText().getValue():
                     shape['textValue'] = s.getText().getValue()
