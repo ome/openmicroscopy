@@ -2100,8 +2100,8 @@ def get_rois_json(request, imageId, server_id=None):
                 # TODO: support for mask
             elif type(s) == omero.model.EllipseI:
                 shape['type'] = 'Ellipse'
-                shape['rx'] = s.getRadiusX().getValue()
-                shape['ry'] = s.getRadiusY().getValue()
+                shape['radiusX'] = s.getRadiusX().getValue()
+                shape['radiusY'] = s.getRadiusY().getValue()
             elif type(s) == omero.model.PolylineI:
                 shape['type'] = 'PolyLine'
                 shape['points'] = stringToSvg(s.getPoints().getValue())
