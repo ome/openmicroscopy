@@ -564,7 +564,7 @@
 		</xsd:annotation> 
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element ref="ImageRef" minOccurs="0" maxOccurs="1">
+				<xsd:element ref="OME:ImageRef" minOccurs="0" maxOccurs="1">
 					<xsd:annotation>
 						<xsd:documentation>
 							This is the main link to the core Image element
@@ -621,23 +621,6 @@
 			<xsd:pattern value="(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:WellSample:\S+)|(WellSample:\S+)"/>
 		</xsd:restriction>
 	</xsd:simpleType>
-
-	<xsd:element name="ImageRef"> <!-- top level definition -->
-		<xsd:annotation>
-			<xsd:documentation>
-				The ImageRef element is a reference to a OME:Image element.
-				Note: at present this is only used from SPW. If it is used more 
-				widely in the future it will be moved into the main OME schema.
-			</xsd:documentation>
-		</xsd:annotation>
-		<xsd:complexType>
-			<xsd:complexContent>
-				<xsd:extension base="OME:Reference">
-					<xsd:attribute name="ID" use="required" type="OME:ImageID"/>
-				</xsd:extension>
-			</xsd:complexContent>
-		</xsd:complexType>
-	</xsd:element>
 	
 	<xsd:element name="WellSampleRef"> <!-- top level definition -->
 		<xsd:annotation>

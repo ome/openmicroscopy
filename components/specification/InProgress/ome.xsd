@@ -263,11 +263,6 @@
 				</xsd:element>
 				<xsd:element ref="ExperimentRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="ExperimenterGroupRef" minOccurs="0" maxOccurs="1"/>
-				<xsd:element ref="DatasetRef" minOccurs="0" maxOccurs="unbounded">
-					<xsd:annotation>
-						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
-					</xsd:annotation>
-				</xsd:element>
 				<xsd:element ref="InstrumentRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="ObjectiveSettings" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="ImagingEnvironment" minOccurs="0" maxOccurs="1"/>
@@ -963,6 +958,11 @@
 				</xsd:element>
 				<xsd:element ref="ExperimenterRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="ExperimenterGroupRef" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="DatasetRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
 						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
@@ -1070,7 +1070,11 @@
 				</xsd:element>
 				<xsd:element ref="ExperimenterRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="ExperimenterGroupRef" minOccurs="0" maxOccurs="1"/>
-				<xsd:element ref="ProjectRef" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="ImageRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
 						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
@@ -2026,6 +2030,21 @@
 			</xsd:documentation>
 		</xsd:annotation>
 	</xsd:complexType>
+	
+	<xsd:element name="ImageRef"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:documentation>
+				The ImageRef element is a reference to a OME:Image element.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="Reference">
+					<xsd:attribute name="ID" use="required" type="ImageID"/>
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
 	
 	<xsd:complexType name="FilterRef" > <!-- top level definition -->
 		<xsd:complexContent>
