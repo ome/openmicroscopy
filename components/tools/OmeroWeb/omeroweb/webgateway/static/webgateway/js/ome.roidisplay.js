@@ -100,10 +100,10 @@ $.fn.roi_display = function(options) {
               newShape = paper.path("M"+ shape['x1'] +" "+ shape['y1'] +"L"+ shape['x2'] +" "+ shape['y2'] );
             }
             else if (shape['type'] == 'PolyLine') {
-              newShape = paper.path( shape['points'] );
+              newShape = paper.path( shape['svg'] );
             }
             else if (shape['type'] == 'Polygon') {
-              newShape = paper.path( shape['points'] );
+              newShape = paper.path( shape['svg'] );
             }
             else if (shape['type'] == 'Label') {
               if (shape['text']) {

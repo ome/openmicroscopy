@@ -648,6 +648,20 @@ def render_shape_thumbnail (request, shapeId, server_id=None, w=None, h=None, _c
     return get_shape_thumbnail (request, _conn, image, shape, compress_quality)
 
 
+def pointsStringToXYlist(string):
+    """
+    Method for converting the string returned from omero.model.ShapeI.getPoints()
+    into list of (x,y) points.
+    E.g: "309,427 366,503 190,491"
+    """
+    pointLists = string.strip().split(" ")
+    xyList = []
+    for xy in pointLists.split(" "):
+        x, y = xy.split(",")
+        xyList.append( [int(x.strip()), int(y.strip())] )
+    return xyList
+
+
 def get_shape_thumbnail (request, conn, image, s, compress_quality):
     """
     Render a region around the specified Shape, scale to width and height (or default size) and draw the
@@ -664,19 +678,6 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
     if color in colours:
         lineColour = colours[color]
     bg_color = (221,221,221)        # used for padding if we go outside the image area
-    
-    def pointsStringToXYlist(string):
-        """
-        Method for converting the string returned from omero.model.ShapeI.getPoints()
-        into list of (x,y) points.
-        E.g: "309,427 366,503 190,491"
-        """
-        pointLists = string.strip().split(" ")
-        xyList = []
-        for xy in pointLists.split(" "):
-            x, y = xy.split(",")
-            xyList.append( ( int( x.strip() ), int(y.strip() ) ) )
-        return xyList
 
     def xyListToBbox(xyList):
         """ Returns a bounding box (x,y,w,h) that will contain the shape represented by the XY points list """
@@ -2104,7 +2105,8 @@ def get_rois_json(request, imageId, server_id=None):
                 shape['radiusY'] = s.getRadiusY().getValue()
             elif type(s) == omero.model.PolylineI:
                 shape['type'] = 'PolyLine'
-                shape['points'] = stringToSvg(s.getPoints().getValue())
+                shape['svg'] = stringToSvg(s.getPoints().getValue())
+                shape['points'] = pointsStringToXYlist(s.getPoints().getValue())
             elif type(s) == omero.model.LineI:
                 shape['type'] = 'Line'
                 shape['x1'] = s.getX1().getValue()
@@ -2115,7 +2117,8 @@ def get_rois_json(request, imageId, server_id=None):
                 shape['type'] = 'Point'
             elif type(s) == omero.model.PolygonI:
                 shape['type'] = 'Polygon'
-                shape['points'] = stringToSvg(s.getPoints().getValue()) + "z" # z = closed line
+                shape['svg'] = stringToSvg(s.getPoints().getValue()) + "z" # z = closed line
+                shape['points'] = pointsStringToXYlist(s.getPoints().getValue())
             elif type(s) == omero.model.LabelI:
                 shape['type'] = 'Label'
             else:
