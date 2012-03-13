@@ -142,7 +142,7 @@ public class ColorsFactory {
     		boolean full)
     {
     	if (lc == null) return false;
-    	if (lc.getEmissionWave() != null) return true;
+    	if (lc.getEmissionWavelength() != null) return true;
     	//Need to check the light path.
     	List<Filter> filters;
     	Iterator<Filter> j;
@@ -191,7 +191,7 @@ public class ColorsFactory {
     			if (laser.getWavelength() != null) return true;
     		}
     	}
-    	if (lc.getExcitationWave() != null) return true;
+    	if (lc.getExcitationWavelength() != null) return true;
     	//ligth path
     	if (lp != null) {
     		if (lp.sizeOfExcitationFilterLink() > 0) {
@@ -251,7 +251,7 @@ public class ColorsFactory {
     		}
     		return null;
     	}
-    	Integer value = lc.getEmissionWave();
+    	Integer value = lc.getEmissionWavelength();
     	//First we check the emission wavelength.
     	if (value != null) return determineColor(value);
 
@@ -298,7 +298,7 @@ public class ColorsFactory {
     	if (value != null) return determineColor(value);
 
     	//Excitation
-    	value = lc.getExcitationWave();
+    	value = lc.getExcitationWavelength();
     	if (value != null) return determineColor(value);
 
     	//light path first

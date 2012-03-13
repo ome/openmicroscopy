@@ -158,7 +158,7 @@ public class ColorsFactory {
     {
 	LogicalChannel lc = channelData.getLogicalChannel();
 	if (lc == null) return false;
-	if (lc.getEmissionWave() != null) return true;
+	if (lc.getEmissionWavelength() != null) return true;
 
 	List<Filter> filters = channelData.getLightPathEmissionFilters();
 	Iterator<Filter> i;
@@ -184,7 +184,7 @@ public class ColorsFactory {
 			if (laser.getWavelength() != null) return true;
 		}
 	}
-	if (lc.getExcitationWave() != null) return true;
+	if (lc.getExcitationWavelength() != null) return true;
 	filters = channelData.getLightPathExcitationFilters();
 	if (filters != null) {
 		i = filters.iterator();
@@ -254,7 +254,7 @@ public class ColorsFactory {
             // XXX: Is commenting this out right?
             //return null;
 	}
-	Integer value = getValue(lc.getEmissionWave());
+	Integer value = getValue(lc.getEmissionWavelength());
         //First we check the emission wavelength.
         if (value != null) return determineColor(value);
 
@@ -284,7 +284,7 @@ public class ColorsFactory {
 	if (value != null) return determineColor(value);
 
 	//Excitation
-	value = getValue(lc.getExcitationWave());
+	value = getValue(lc.getExcitationWavelength());
 	if (value != null) return determineColor(value);
 
 	if (value == null) {

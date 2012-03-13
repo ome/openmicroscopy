@@ -393,7 +393,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         Image test = (Image) iQuery.execute(q);
         assertNotNull(test);
         assertNotNull(test.getPrimaryPixels());
-        assertNotNull(test.getPrimaryPixels().getPixelsType());
+        assertNotNull(test.getPrimaryPixels().getType());
     }
 
     @Test(groups = { "ticket:296" })

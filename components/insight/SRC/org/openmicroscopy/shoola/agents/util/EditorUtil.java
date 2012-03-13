@@ -2208,11 +2208,6 @@ public class EditorUtil
     			v = "<b>"+EXTERNAL_IDENTIFIER+": </b>"+v;
     			l.add(v);
     		}
-    		v = well.getStatus();
-    		if (v != null && v.trim().length() > 0) {
-    			v = "<b>"+STATUS+": </b>"+v;
-    			l.add(v);
-    		}
     	}
     	if (img == null) return l;
 		v = "<b>"+ACQUISITION_DATE+": </b>"+formatDate(img);

@@ -54,7 +54,6 @@ import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.MicrobeamManipulation;
 import omero.model.Microscope;
-import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
@@ -320,7 +319,7 @@ public class ImporterTest
 		assertEquals(settings.getBinning().getValue().getValue(), 
 				xml.getBinning().getValue());
 		assertEquals(settings.getGain().getValue(), xml.getGain());
-		assertEquals(settings.getOffsetValue().getValue(), xml.getOffset());
+		assertEquals(settings.getOffset().getValue(), xml.getOffset());
 		assertEquals(settings.getReadOutRate().getValue(), 
 				xml.getReadOutRate());
 		assertEquals(settings.getVoltage().getValue(), 
@@ -388,9 +387,9 @@ public class ImporterTest
 			ome.xml.model.StageLabel xml)
 	{
 		assertEquals(label.getName().getValue(), xml.getName());
-		assertEquals(label.getPositionX().getValue(), xml.getX().doubleValue());
-		assertEquals(label.getPositionY().getValue(), xml.getY().doubleValue());
-		assertEquals(label.getPositionZ().getValue(), xml.getZ().doubleValue());
+		assertEquals(label.getX().getValue(), xml.getX().doubleValue());
+		assertEquals(label.getY().getValue(), xml.getY().doubleValue());
+		assertEquals(label.getZ().getValue(), xml.getZ().doubleValue());
 	}
 	
 	/**
@@ -424,15 +423,15 @@ public class ImporterTest
 			ome.xml.model.Channel xml)
 	{
 		assertEquals(lc.getName().getValue(), xml.getName());
-		assertEquals(lc.getIllumination().getValue().getValue(), 
+		assertEquals(lc.getIlluminationType().getValue().getValue(), 
 				xml.getIlluminationType().getValue());
-		assertEquals(lc.getMode().getValue().getValue(), 
+		assertEquals(lc.getAcquisitionMode().getValue().getValue(), 
 				xml.getAcquisitionMode().getValue());
 		assertEquals(lc.getContrastMethod().getValue().getValue(), 
 				xml.getContrastMethod().getValue());
-		assertEquals(lc.getEmissionWave().getValue(), 
+		assertEquals(lc.getEmissionWavelength().getValue(), 
 				xml.getEmissionWavelength().getValue().intValue());
-		assertEquals(lc.getExcitationWave().getValue(), 
+		assertEquals(lc.getExcitationWavelength().getValue(), 
 				xml.getExcitationWavelength().getValue().intValue());
 		assertEquals(lc.getFluor().getValue(), xml.getFluor());
 		assertEquals(lc.getNdFilter().getValue(), xml.getNDFilter());
@@ -524,9 +523,9 @@ public class ImporterTest
 	 */
 	private void validateWellSample(WellSample ws, ome.xml.model.WellSample xml)
 	{
-		assertEquals(ws.getPosX().getValue(), 
+		assertEquals(ws.getPositionX().getValue(), 
 				xml.getPositionX().doubleValue());
-		assertEquals(ws.getPosY().getValue(), 
+		assertEquals(ws.getPositionY().getValue(), 
 				xml.getPositionY().doubleValue());
 		Timestamp ts = timestampFromXmlString(xml.getTimepoint());
 		assertEquals(ws.getTimepoint().getValue(), ts.getTime());
@@ -587,24 +586,6 @@ public class ImporterTest
 				xml.getDescription());
 	}
 	
-	/**
-	 * Validates if the inserted object corresponds to the XML object.
-	 * 
-	 * @param otf The otf to check.
-	 * @param xml The XML version.
-	 */
-	private void validateOTF(OTF otf, ome.xml.model.OTF xml)
-	{
-		assertEquals(otf.getOpticalAxisAveraged().getValue(), 
-				xml.getOpticalAxisAveraged().booleanValue());
-		assertEquals(otf.getSizeX().getValue(), 
-				xml.getSizeX().getValue().intValue());
-		assertEquals(otf.getSizeY().getValue(), 
-				xml.getSizeY().getValue().intValue());
-		assertEquals(otf.getPixelsType().getValue().getValue(), 
-				xml.getType().getValue());
-	}
-
 	/**
 	 * Overridden to initialize the list.
 	 * @see AbstractServerTest#setUp()
@@ -697,7 +678,7 @@ public class ImporterTest
 		assertTrue(p.getSizeZ().getValue() == XMLMockObjects.SIZE_Z);
 		assertTrue(p.getSizeC().getValue() == XMLMockObjects.SIZE_C);
 		assertTrue(p.getSizeT().getValue() == XMLMockObjects.SIZE_T);
-		assertTrue(p.getPixelsType().getValue().getValue().equals(
+		assertTrue(p.getType().getValue().getValue().equals(
 				XMLMockObjects.PIXEL_TYPE.getValue()));
 		assertTrue(p.getDimensionOrder().getValue().getValue().equals(
 				XMLMockObjects.DIMENSION_ORDER.getValue()));
@@ -894,7 +875,6 @@ public class ImporterTest
     	assertEquals(XMLMockObjects.NUMBER_OF_FILTERS, 
     			instrument.sizeOfFilter());
     	assertEquals(1, instrument.sizeOfFilterSet());
-    	assertEquals(1, instrument.sizeOfOtf());
     	
     	List<Detector> detectors = instrument.copyDetector();
     	List<Long> detectorIds = new ArrayList<Long>();
@@ -999,8 +979,6 @@ public class ImporterTest
     	while (k.hasNext()) {
 			lc = k.next();
 			validateChannel(lc, xmlChannel);
-			assertNotNull(lc.getOtf());
-			validateOTF(lc.getOtf(), xmlOTF);
 			ds = lc.getDetectorSettings();
 			assertNotNull(ds);
 			assertNotNull(ds.getDetector());

@@ -35,6 +35,8 @@ import omero.RBool;
 import omero.rtypes;
 import omero.RInt;
 import omero.RString;
+import omero.model.AffineTransform;
+import omero.model.AffineTransformI;
 import omero.model.IObject;
 import omero.model.Ellipse;
 import omero.model.Label;
@@ -384,16 +386,16 @@ public abstract class ShapeData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		RString value = shape.getTransform();
+		AffineTransform value = shape.getTransform();
 		if (value == null) return null;
 		double[] values = new double[6];
 		//for now return identity
-		values[0] = 1;
-		values[1] = 0;
-		values[2] = 0;
-		values[3] = 1;
-		values[4] = 0;
-		values[5] = 0;
+		values[0] = value.getA00().getValue();
+		values[1] = value.getA10().getValue();
+		values[2] = value.getA01().getValue();
+		values[3] = value.getA11().getValue();
+		values[4] = value.getA02().getValue();
+		values[5] = value.getA12().getValue();
 		return values;
 	}
 	
@@ -402,13 +404,21 @@ public abstract class ShapeData
 	 * 
 	 * @param See above.
 	 */
-	public void setTransform(String transform)
+	public void setTransform(double[] transform)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		if (transform == null) return;
-		shape.setTransform(rtypes.rstring(transform));
+		if (transform.length < 6) 
+			throw new IllegalArgumentException("Not a valid transformation.");
+		AffineTransform value = new AffineTransformI();
+		value.setA00(rtypes.rdouble(transform[0]));
+		value.setA10(rtypes.rdouble(transform[1]));
+		value.setA01(rtypes.rdouble(transform[2]));
+		value.setA11(rtypes.rdouble(transform[3]));
+		value.setA02(rtypes.rdouble(transform[4]));
+		value.setA12(rtypes.rdouble(transform[5]));
 		setDirty(true);
 	}
 

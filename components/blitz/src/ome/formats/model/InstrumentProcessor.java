@@ -34,7 +34,6 @@ import omero.model.Detector;
 import omero.model.Filament;
 import omero.model.Instrument;
 import omero.model.Laser;
-import omero.model.OTF;
 import omero.model.Objective;
 
 import org.apache.commons.logging.Log;
@@ -64,7 +63,6 @@ public class InstrumentProcessor implements ModelProcessor
         List<IObjectContainer> containers =
             store.getIObjectContainers(Detector.class);
         containers.addAll(store.getIObjectContainers(Objective.class));
-        containers.addAll(store.getIObjectContainers(OTF.class));
         containers.addAll(store.getIObjectContainers(Arc.class));
         containers.addAll(store.getIObjectContainers(Laser.class));
         containers.addAll(store.getIObjectContainers(Filament.class));

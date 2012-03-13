@@ -62,7 +62,7 @@ public class BfPixelBufferUnitTest {
         pixels.setSizeT(sizeT);
         PixelsType type = new PixelsType();
         type.setValue(pixelType);
-        pixels.setPixelsType(type);
+        pixels.setType(type);
     }
 
     @AfterClass

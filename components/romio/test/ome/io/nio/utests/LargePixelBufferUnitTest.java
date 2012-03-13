@@ -52,7 +52,7 @@ public class LargePixelBufferUnitTest {
 
         PixelsType type = new PixelsType();
         type.setValue("uint16");
-        pixels.setPixelsType(type);
+        pixels.setType(type);
 
         PixelsService service = new PixelsService(ROOT);
         pixelBuffer = service.getPixelBuffer(pixels);

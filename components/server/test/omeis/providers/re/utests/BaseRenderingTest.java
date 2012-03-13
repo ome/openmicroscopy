@@ -160,7 +160,7 @@ public class BaseRenderingTest extends TestCase
 		pixels.setSizeZ(getSizeZ());
 		pixels.setSizeC(getSizeC());
 		pixels.setSizeT(getSizeT());
-		pixels.setPixelsType(pixelsType);
+		pixels.setType(pixelsType);
 
 		double[] minAndMax = calculateMinMax(plane);
 		for (int c = 0; c < pixels.getSizeC(); c++)

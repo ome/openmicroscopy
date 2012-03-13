@@ -399,14 +399,6 @@ class PropertiesUI
     	if (v == null || v.length() == 0) v = NO_SET_TEXT;
     	value.setText(v);
     	components.put(l, value);
-    	l = UIUtilities.setTextFont(EditorUtil.STATUS, Font.BOLD, size);
-    	value = UIUtilities.createComponent(null);
-    	value.setFont(font.deriveFont(font.getStyle(), size));
-    	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	v = well.getStatus();
-    	if (v == null || v.length() == 0) v = NO_SET_TEXT;
-    	value.setText(v);
-    	components.put(l, value);
     	layoutComponents(content, components);
     	return content;
     }

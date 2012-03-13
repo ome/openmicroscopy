@@ -20,6 +20,16 @@
                         <optional name="name" type="string"/>
                 </properties>
         </type>
+        <type id="ome.model.roi.AffineTransform">
+                <properties>
+                       <required name="a00" type="double"/>
+                       <required name="a01" type="double"/>
+                       <required name="a02" type="double"/>
+                       <required name="a10" type="double"/>
+                       <required name="a11" type="double"/>
+                       <required name="a12" type="double"/>
+                </properties>
+        </type>
         <abstract id="ome.model.roi.Shape" discriminator="">
                 <properties>
                         <!-- ====== OME SPECIFIC ====== -->
@@ -41,7 +51,7 @@
                                Color keyword : red, blue, black, ...
                         -->
                         <!-- Global -->
-                        <optional name="transform" type="string"/><!-- e.g. [cos(a) sin(a) -sin(a) cos(a) 0 0] -->
+                        <optional name="transform" type="ome.model.roi.AffineTransform"/><!-- e.g. [cos(a) sin(a) -sin(a) cos(a) 0 0] -->
                         <optional name="visibility" type="boolean"/>
                         <!-- Fill -->
                         <optional name="fillColor" type="int"/>

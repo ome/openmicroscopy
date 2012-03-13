@@ -263,10 +263,10 @@ public class PixelsServiceTest
         	p.getPhysicalSizeY().getValue());
         assertTrue(pixels.getPhysicalSizeZ().getValue() == 
         	p.getPhysicalSizeZ().getValue());
-        assertNotNull(pixels.getPixelsType());
-        assertNotNull(p.getPixelsType());
-        assertTrue(pixels.getPixelsType().getValue().getValue().equals(
-        	p.getPixelsType().getValue().getValue()));
+        assertNotNull(pixels.getType());
+        assertNotNull(p.getType());
+        assertTrue(pixels.getType().getValue().getValue().equals(
+        	p.getType().getValue().getValue()));
         Channel channel;
         LogicalChannel lc;
         List<Long> ids = new ArrayList<Long>();
@@ -278,8 +278,8 @@ public class PixelsServiceTest
 			lc = channel.getLogicalChannel();
 			assertNotNull(lc);
 			assertNotNull(lc.getContrastMethod().getValue().getValue());
-			assertNotNull(lc.getIllumination().getValue().getValue());
-			assertNotNull(lc.getMode().getValue().getValue());
+			assertNotNull(lc.getIlluminationType().getValue().getValue());
+			assertNotNull(lc.getAcquisitionMode().getValue().getValue());
 		}
         for (int j = 0; j < pixels.sizeOfChannels(); j++) {
 			channel = pixels.getChannel(j);

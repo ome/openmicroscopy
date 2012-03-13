@@ -253,7 +253,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                 byteOrder == ByteOrder.BIG_ENDIAN? true : false, series, 0);
         metadata.setPixelsDimensionOrder(DimensionOrder.XYZCT, series);
         metadata.setPixelsType(ome.xml.model.enums.PixelType.fromString(
-                pixels.getPixelsType().getValue()), series);
+                pixels.getType().getValue()), series);
         metadata.setPixelsSizeX(new PositiveInteger(sizeX), series);
         metadata.setPixelsSizeY(new PositiveInteger(sizeY), series);
         metadata.setPixelsSizeZ(new PositiveInteger(1), series);

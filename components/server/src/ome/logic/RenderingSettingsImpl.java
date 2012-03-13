@@ -659,7 +659,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     private String getChannelName(LogicalChannel lc)
     {
 	String name = null;
-    	Integer value = lc.getEmissionWave();
+    	Integer value = lc.getEmissionWavelength();
     	if (value != null) return ""+value.intValue();
     	if (lc.getFilterSet() != null) {
 	    Iterator<Filter> it = lc.getFilterSet().linkedEmissionFilterIterator();
@@ -677,7 +677,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			if (value != null) return ""+value.intValue();
     		}
     	}
-    	value = lc.getExcitationWave();
+    	value = lc.getExcitationWavelength();
     	if (value != null) return ""+value.intValue();
     	if (lc.getFilterSet() != null) {
 	    Iterator<Filter> it = lc.getFilterSet().linkedExcitationFilterIterator();
@@ -817,7 +817,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         	StatsInfo stats;
         	double min, max;
             QuantumStrategy qs;
-            PixelsType pt = pixels.getPixelsType();
+            PixelsType pt = pixels.getType();
             for (int w = 0; w < pixels.sizeOfChannels(); w++) {
                 // FIXME: This is where we need to have the ChannelBinding -->
                 // Channel linkage. Without it, we have to assume that the order in
@@ -872,7 +872,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         ChannelBinding cb;
         double min, max;
         QuantumStrategy qs;
-        PixelsType pt = pixels.getPixelsType();
+        PixelsType pt = pixels.getType();
         for (int w = 0; w < pixels.sizeOfChannels(); w++) {
             // FIXME: This is where we need to have the ChannelBinding -->
             // Channel linkage. Without it, we have to assume that the order in
@@ -1019,8 +1019,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     public boolean sanityCheckPixels(Pixels pFrom, Pixels pTo) {
         if (pTo == null || pFrom == null)
             return false;
-        String vFrom = pFrom.getPixelsType().getValue();
-        String vTo = pTo.getPixelsType().getValue();
+        String vFrom = pFrom.getType().getValue();
+        String vTo = pTo.getType().getValue();
         if (!vFrom.equals(vTo))
             return false;
         if (pFrom.getSizeC().compareTo(pTo.getSizeC()) != 0)
@@ -1035,14 +1035,14 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             c = i.next();
             lc = c.getLogicalChannel();
             if (lc != null)
-                wavelengths.add(lc.getEmissionWave());
+                wavelengths.add(lc.getEmissionWavelength());
         }
         i = pTo.iterateChannels();
         int r = 0;
         while (i.hasNext()) {
             c = i.next();
             lc = c.getLogicalChannel();
-            if (lc != null && wavelengths.contains(lc.getEmissionWave()))
+            if (lc != null && wavelengths.contains(lc.getEmissionWavelength()))
                 r++;
         }
         if (r != wavelengths.size())
