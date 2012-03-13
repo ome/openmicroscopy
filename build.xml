@@ -375,7 +375,7 @@ java component.
             <fileset dir="components/insight/target" includes="editor*.zip"/>
             <mapper type="regexp" from="editor(.*).zip"  to="OMERO.editor-${omero.version}\1.zip"/>
         </copy>
-       <fileset dir="components/insight/target" includes="insight*.zip" excludes="*-ij*.zip"/>
+       	<copy file="components/insight/target/insight-ij.zip" tofile="target/OMERO.insight-ij-${omero.version}.zip"/>
     </target>
 
     <target name="release-src" description="Zip the git source into OMERO.source-${omero.version}.zip">
