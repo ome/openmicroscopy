@@ -2076,6 +2076,10 @@ def get_rois_json(request, imageId, server_id=None):
     for r in result.rois:
         roi = {}
         roi['id'] = r.getId().getValue()
+        if r.getName():
+            roi['name'] = r.getName().getValue()
+        if r.getDescription():
+            roi['description'] = r.getDescription().getValue()
         # go through all the shapes of the ROI
         shapes = []
         for s in r.copyShapes():
