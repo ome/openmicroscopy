@@ -729,6 +729,7 @@
                                     this.close_node(o);
                                 } else if (this._get_parent(o)) {
                                     var new_select = this._get_parent(o);
+                                    this.hover_node(new_select);
                                     new_select.children("a:eq(0)").click();
                                 }
                             }
