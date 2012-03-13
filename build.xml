@@ -368,13 +368,14 @@ java component.
         </copy>
         <!-- These should eventually be removed in favor of an ivy-based approach -->
         <copy todir="target">
-            <fileset dir="components/insight/target" includes="insight*.zip"/>
+            <fileset dir="components/insight/target" includes="insight*.zip" excludes="*-ij*.zip"/>
             <mapper type="regexp" from="insight(.*).zip"  to="OMERO.insight-${omero.version}\1.zip"/>
         </copy>
         <copy todir="target">
             <fileset dir="components/insight/target" includes="editor*.zip"/>
             <mapper type="regexp" from="editor(.*).zip"  to="OMERO.editor-${omero.version}\1.zip"/>
         </copy>
+       <fileset dir="components/insight/target" includes="insight*.zip" excludes="*-ij*.zip"/>
     </target>
 
     <target name="release-src" description="Zip the git source into OMERO.source-${omero.version}.zip">
