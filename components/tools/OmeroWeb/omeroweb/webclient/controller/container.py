@@ -210,6 +210,7 @@ class BaseContainer(BaseController):
         # TODO: hardcoded values.
         self.global_metadata = list()
         self.series_metadata = list()
+        self.companion_files =  list()
         if self.image is not None:
             om = self.image.loadOriginalMetadata()
         elif self.well.getWellSample().image is not None:
@@ -218,6 +219,18 @@ class BaseContainer(BaseController):
             self.original_metadata = om[0]
             self.global_metadata = om[1]
             self.series_metadata = om[2]
+        # Look for companion files on the Image
+        if self.image is not None:
+            comp_obj = self.image
+            p = self.image.getPlate()
+            # in SPW model, companion files can be found on Plate
+            if p is not None:
+                comp_obj = p
+            for ann in comp_obj.listAnnotations():
+                if hasattr(ann._obj, "file") and ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
+                    if ann.getFileName() != omero.constants.annotation.file.ORIGINALMETADATA:
+                        self.companion_files.append(ann)
+
 
     def channelMetadata(self):
         self.channel_metadata = None
@@ -451,7 +464,7 @@ class BaseContainer(BaseController):
                 if ann.ns == omero.constants.metadata.NSINSIGHTRATING:
                     self.rating_annotations.append(ann)
                 elif ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
-                    if ann.getFileName != omero.constants.annotation.file.ORIGINALMETADATA:
+                    if ann.getFileName() != omero.constants.annotation.file.ORIGINALMETADATA:
                         self.companion_files.append(ann)
                 else:
                     annTypes[annClass].append(ann)

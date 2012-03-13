@@ -25,6 +25,8 @@
     <!-- For UpgradeCheck -->
     <dependency org="omero" name="common" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
     <dependency org="omero" name="model-${omero.db.profile}" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
+    <!-- For Schema -->
+    <dependency org="omero" name="specification" rev="${omero.version}" changing="true" conf="build->build;client->build"/>
     <!-- For build -->
     <dependency org="insight" name="jarbundler" rev="${versions.jarbundler}" conf="build->default"/>
     <!-- From classpath -->

@@ -202,6 +202,10 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
             return false;
         }
 
+        public boolean isInProgress() {
+            return false;
+        }
+
         public void setRenderingDefId(Long renderingDefId) {
         }
 
