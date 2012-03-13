@@ -728,8 +728,8 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
         bBox = (x, y, max(shape['x1'],shape['x2'])-x, max(shape['y1'],shape['y2'])-y)
     elif type(s) == omero.model.PointI:
         shape['type'] = 'Point'
-        shape['cx'] = s.getCx().getValue()
-        shape['cy'] = s.getCy().getValue()
+        shape['cx'] = s.getX().getValue()
+        shape['cy'] = s.getY().getValue()
         bBox = (shape['cx']-50, shape['cy']-50, 100, 100)
     elif type(s) == omero.model.PolygonI:
         shape['type'] = 'Polygon'
@@ -2115,8 +2115,8 @@ def get_rois_json(request, imageId, server_id=None):
                 shape['y2'] = s.getY2().getValue()
             elif type(s) == omero.model.PointI:
                 shape['type'] = 'Point'
-                shape['cx'] = s.getCx().getValue()
-                shape['cy'] = s.getCy().getValue()
+                shape['cx'] = s.getX().getValue()
+                shape['cy'] = s.getY().getValue()
             elif type(s) == omero.model.PolygonI:
                 shape['type'] = 'Polygon'
                 shape['points'] = stringToSvg(s.getPoints().getValue()) + "z" # z = closed line
