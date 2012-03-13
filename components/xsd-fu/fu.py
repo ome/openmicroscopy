@@ -479,11 +479,20 @@ class OMEModelProperty(OMEModelEntity):
         doc="""If the property is an enumeration, it's possible values.""")
     
     def _get_javaInstanceVariableName(self):
-        if self.maxOccurs > 1:
-            plural = self.plural
-            if plural is None:
-                plural = self.model.getObjectByName(self.javaMethodName).plural
-            return plural[0].lower() + plural[1:]
+        if self.isManyToMany:
+            name = self.javaArgumentName
+            if self.isBackReference:
+                name = self.model.getObjectByName(self.javaMethodName)
+                name = name.javaInstanceVariableName
+            return name + 'Links'
+        try:
+            if self.maxOccurs > 1:
+                plural = self.plural
+                if plural is None:
+                    plural = self.model.getObjectByName(self.javaMethodName).plural
+                return plural[0].lower() + plural[1:]
+        except AttributeError:
+            pass
         return self.javaArgumentName
     javaInstanceVariableName = property(_get_javaInstanceVariableName,
         doc="""The property's Java instance variable name.""")
@@ -652,8 +661,13 @@ class OMEModelObject(OMEModelEntity):
     javaType = property(_get_javaType, doc="""The property's Java type.""")
 
     def _get_javaInstanceVariableName(self):
-        if self.maxOccurs > 1:
-            return self.plural[0].lower() + self.plural[1:]
+        if self.isManyToMany:
+            return self.javaArgumentName + 'Links'
+        try:
+            if self.maxOccurs > 1:
+                return self.plural[0].lower() + self.plural[1:]
+        except AttributeError:
+            pass
         return self.javaArgumentName
     javaInstanceVariableName = property(_get_javaInstanceVariableName,
         doc="""The property's Java instance variable name.""")

@@ -18,6 +18,10 @@ ${obj_or_prop.omeroPackage}.${obj_or_prop.javaType}\
 {% end %}\
 {% end %}\
 \
+{% def fq_link_class_name(o, prop) %}\
+${o.omeroPackage}.${o.javaMethodName}${prop.javaMethodName}Link\
+{% end %}\
+\
 {% python
     def parent_object(name):
         try:
@@ -129,15 +133,27 @@ ${obj_or_prop.omeroPackage}.${obj_or_prop.javaType}\
 \
 {% for prop in sorted_and_filtered_properties(o) %}\
 {% choose %}\
+{% when prop.isReference and prop.isManyToMany %}\
+            <!--
+            // Many-to-many reference ${prop.name}
+            -->
+            <child name="${prop.javaInstanceVariableName}" type="${fq_link_class_name(o, prop)}" target="${fq_class_name(prop)}"/>
+{% end %}\
 {% when prop.isReference and prop.maxOccurs > 1 %}\
             <!--
-            // Reference ${prop.name} Is many-to-many? ${prop.isManyToMany}
+            // Reference ${prop.name}
             -->
             <onemany name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.name}" ordered="TODO"/>
 {% end %}\
+{% when prop.isBackReference and prop.isManyToMany %}\
+            <!--
+            // Many-to-many back reference ${prop.name}
+            -->
+            <parent name="${prop.javaInstanceVariableName}" type="${fq_link_class_name(o, prop)}" target="${fq_class_name(prop)}"/>
+{% end %}\
 {% when prop.isBackReference %}\
             <!--
-            // Back reference ${prop.name} Is many-to-many? ${prop.isManyToMany}
+            // Back reference ${prop.name}
             -->
             <{% if prop.minOccurs == 0 %}manyzero{% end %}{% if prop.minOccurs == 1 %}manyone{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.name}" ordered="TODO"/>
 {% end %}\
