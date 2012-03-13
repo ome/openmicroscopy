@@ -2127,8 +2127,8 @@ def get_rois_json(request, imageId, server_id=None):
             else:
                 logger.debug("Shape type not supported: %s" % str(type(s)))
             try:
-                if s.getTextValue() and s.getTextValue().getValue():
-                    shape['textValue'] = s.getTextValue().getValue()
+                if s.getText() and s.getText().getValue():
+                    shape['textValue'] = s.getText().getValue()
                     # only populate json with font styles if we have some text
                     if s.getFontSize() and s.getFontSize().getValue():
                         shape['fontSize'] = s.getFontSize().getValue()
