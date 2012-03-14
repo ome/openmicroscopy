@@ -364,6 +364,7 @@ def processMetadataTemplate(template, outputFilename, namespace, args):
 	fu.METADATA_OBJECT_IGNORE = METADATA_OBJECT_IGNORE
 	fu.METADATA_COUNT_IGNORE = METADATA_COUNT_IGNORE
 	fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE = BACK_REFERENCE_CLASS_NAME_OVERRIDE
+	fu.ABSTRACT_PROPRIETARY_OVERRIDE = ABSTRACT_PROPRIETARY_OVERRIDE
 	base, filename = os.path.split(template)
 	name, extension = os.path.splitext(filename)
 	template = NewTextTemplate(open(template).read())

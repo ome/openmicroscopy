@@ -106,6 +106,10 @@ BACK_REFERENCE_CLASS_NAME_OVERRIDE = {
     'LightPath.EmissionFilter': 'LightPathEmissionFilterLink',
 }
 
+# Properties within abstract proprietary types that should be code generated
+# for.
+ABSTRACT_PROPRIETARY_OVERRIDE = ('Transform',)
+
 def updateTypeMaps(namespace):
     """
     Updates the type maps with a new namespace. **Must** be executed at least 
