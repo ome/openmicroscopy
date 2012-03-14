@@ -1,12 +1,15 @@
 /*
- *   $Id$
- *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2012 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
 
 package omero.model;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 import ome.util.Utils;
 import Ice.Object;
@@ -52,6 +55,10 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
             throw new IllegalStateException(representation + " produced null");
         }
         this.perm1 = l.longValue();
+    }
+
+    public PermissionsI(PermissionsI perms) {
+        this.perm1 = perms.getPerm1();
     }
 
     public long getPerm1(Ice.Current current) {
@@ -144,6 +151,111 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
         } else {
             perm1 = perm1 & (-1L ^ (mask << shift));
         }
+    }
+
+    // ~ Overrides
+    // =========================================================================
+
+    /**
+     * produces a String representation of the {@link PermissionsI} similar to
+     * those on a Unix filesystem. Unset bits are represented by a dash, while
+     * other bits are represented by a symbolic value in the correct bit
+     * position. For example, a Permissions with all rights
+     * granted to all but WORLD roles would look like: rwrw--
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(16);
+        sb.append(isUserRead(null) ? "r" : "-");
+        sb.append(isUserWrite(null) ? "w" : "-");
+        sb.append(isGroupRead(null) ? "r" : "-");
+        sb.append(isGroupWrite(null) ? "w" : "-");
+        sb.append(isWorldRead(null) ? "r" : "-");
+        sb.append(isWorldWrite(null) ? "w" : "-");
+        return sb.toString();
+    }
+
+    /**
+     * Based on the implementation of ome.model.internal.Permissions#ImmutablePermissions
+     */
+    private final static class ImmutablePermissionsI extends PermissionsI {
+
+        /**
+         * Factory method to create an immutable Permissions object.
+         */
+        public static PermissionsI immutable(PermissionsI p) {
+            return new ImmutablePermissionsI(p);
+        }
+
+        /**
+         * the delegate {@link PermissionsI} which this immutable wrapper bases
+         * all of its logic on. Not final for reasons of serialization.
+         */
+        private PermissionsI delegate;
+
+        /**
+         * the sole constructor for an {@link ImmutablePermissionsI}. Note: this
+         * does not behave like {@link PermissionsI#PermissionsI(PermissionsI)} --
+         * the copy constructor. Rather stores the {@link PermissionsI} instance
+         * for delegation
+         *
+         * @param p
+         *            Non-null {@link PermissionsI} instance.
+         */
+        ImmutablePermissionsI(PermissionsI p) {
+            if (p == null) {
+                throw new IllegalArgumentException(
+                        "Permissions may not be null");
+            }
+
+            this.delegate = new PermissionsI(p);
+        }
+
+        // ~ Disallows
+        // =====================================================================
+
+        @Override
+        public void setPerm1(long perm1, Ice.Current current) {
+            throw new omero.ClientError("ImmutablePermissionsI: " + this);
+        }
+
+        @Override
+        public void setPerm1(Long perm1) {
+            throw new omero.ClientError("ImmutablePermissionsI: " + this);
+        }
+
+        @Override
+        protected void set(int mask, int shift, boolean on) {
+            throw new omero.ClientError("ImmutablePermissionsI: " + this);
+        }
+
+        /**
+         * delegates to {@link #toString()}
+         */
+        @Override
+        public String toString() {
+            return delegate.toString();
+        }
+
+        // ~ Serialization
+        // =====================================================================
+
+        private void readObject(ObjectInputStream s) throws IOException,
+                ClassNotFoundException {
+            PermissionsI p = (PermissionsI) s.readObject();
+            if (p == null) {
+                throw new IllegalArgumentException(
+                        "Permissions may not be null");
+            }
+
+            this.delegate = new PermissionsI(p);
+        }
+
+        private void writeObject(ObjectOutputStream s) throws IOException {
+            s.writeObject(delegate);
+        }
+
+
     }
 
 }

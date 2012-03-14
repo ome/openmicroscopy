@@ -329,7 +329,7 @@ public class Permissions implements Serializable {
      * those on a Unix filesystem. Unset bits are represented by a dash, while
      * other bits are represented by a symbolic value in the correct bit
      * position. For example, a Permissions with all {@link Right rights}
-     * granted to all but WORLD {@link Role roles} would look like: rwurwu---
+     * granted to all but WORLD {@link Role roles} would look like: rwrw--
      */
     @Override
     public String toString() {
