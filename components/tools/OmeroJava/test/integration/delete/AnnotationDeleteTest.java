@@ -32,7 +32,7 @@ import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import omero.model.Roi;
 import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
@@ -287,7 +287,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         newUserAndGroup("rw----");
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .createImage());
-        PlaneInfo info = image.getPixels(0).copyPlaneInfo().get(0);
+        Plane info = image.getPixels(0).copyPlane().get(0);
         annotateSaveDeleteAndCheck(info, DeleteServiceTest.REF_IMAGE,
                 image.getId());
     }

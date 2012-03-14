@@ -21,7 +21,6 @@ import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 //import ome.model.core.PixelsDimensions;
-import ome.model.core.PlaneInfo;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
 

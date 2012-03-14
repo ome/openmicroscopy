@@ -440,7 +440,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
                 Pixels p = (Pixels) object;
 
                 p.eachLinkedOriginalFile(delete);
-                p.collectPlaneInfo(delete);
+                p.collectPlane(delete);
 
                 for (RenderingDef rdef : p
                         .collectSettings((CBlock<RenderingDef>) null)) {

@@ -17,7 +17,7 @@ import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
-import ome.model.core.PlaneInfo;
+import ome.model.core.Plane;
 import ome.model.display.Thumbnail;
 import ome.model.jobs.ImportJob;
 import ome.model.jobs.JobOriginalFileLink;
@@ -171,9 +171,9 @@ public class SetsAndLinksTest extends TestCase {
         Channel c = new Channel(1L, false);
         p.addChannel(c);
 
-        PlaneInfo pi = new PlaneInfo(1L, false);
+        Plane pi = new Plane(1L, false);
         try {
-            p.addPlaneInfo(pi);
+            p.addPlane(pi);
             fail("This should not be accepted.");
         } catch (IllegalStateException ise) {
             // good.

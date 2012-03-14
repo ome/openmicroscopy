@@ -89,8 +89,8 @@ import omero.model.OriginalFileI;
 import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.model.PixelsType;
-import omero.model.PlaneInfo;
-import omero.model.PlaneInfoI;
+import omero.model.Plane;
+import omero.model.PlaneI;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
@@ -743,7 +743,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    public PlaneInfo createPlaneInfo()
+    public Plane createPlaneInfo()
    		throws Exception
     {
         return createPlaneInfo(0, 0, 0);
@@ -758,10 +758,10 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    public PlaneInfo createPlaneInfo(int z, int t, int c)
+    public Plane createPlaneInfo(int z, int t, int c)
    		throws Exception
     {
-        PlaneInfo planeInfo = new PlaneInfoI();
+    	Plane planeInfo = new PlaneI();
         planeInfo.setTheZ(omero.rtypes.rint(z));
         planeInfo.setTheC(omero.rtypes.rint(c));
         planeInfo.setTheT(omero.rtypes.rint(t));
@@ -830,7 +830,7 @@ public class ModelMockFactory
 		for (int z = 0; z < sizeZ; z++) {
 		    for (int t = 0; t < sizeT; t++) {
 		        for (int c = 0; c < sizeC; c++) {
-		            pixels.addPlaneInfo(createPlaneInfo(z, t, c));
+		            pixels.addPlane(createPlaneInfo(z, t, c));
 		        }
 		    }
 		}

@@ -56,7 +56,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import omero.model.AcquisitionMode;
 import omero.model.ContrastMethod;
 import omero.model.Illumination;
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -484,11 +484,11 @@ class ChannelAcquisitionComponent
 		String[] names = new String[result.size()];
 		int i = 0;
 		Iterator j = result.iterator();
-		PlaneInfo info;
+		Plane info;
 		Map<String, Object> details;
 		List<String> notSet;
 		while (j.hasNext()) {
-			info = (PlaneInfo) j.next();
+			info = (Plane) j.next();
 			details = EditorUtil.transformPlaneInfo(info);
 			notSet = (List<String>) details.get(EditorUtil.NOT_SET);
 			if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {

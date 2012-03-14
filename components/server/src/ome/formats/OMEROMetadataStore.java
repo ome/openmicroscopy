@@ -43,7 +43,7 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
-import ome.model.core.PlaneInfo;
+import ome.model.core.Plane;
 import ome.model.experiment.Experiment;
 import ome.model.experiment.MicrobeamManipulation;
 import ome.model.roi.Roi;
@@ -154,9 +154,9 @@ public class OMEROMetadataStore
     	{
     		handle(lsid, (LogicalChannel) sourceObject, indexes);
     	}
-    	else if (sourceObject instanceof PlaneInfo)
+    	else if (sourceObject instanceof Plane)
     	{
-    		handle(lsid, (PlaneInfo) sourceObject, indexes);
+    		handle(lsid, (Plane) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof Instrument)
     	{
@@ -567,12 +567,12 @@ public class OMEROMetadataStore
      * @param indexes Any indexes that should be used to reference the model
      * object.
      */
-    private void handle(String LSID, PlaneInfo sourceObject,
+    private void handle(String LSID, Plane sourceObject,
     		            Map<String, Integer> indexes)
     {
     	int imageIndex = indexes.get("imageIndex");
     	Pixels p = imageList.get(imageIndex).getPrimaryPixels();
-    	p.addPlaneInfo(sourceObject);
+    	p.addPlane(sourceObject);
     }
 
     /**

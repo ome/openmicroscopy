@@ -28,7 +28,7 @@ import java.util.List;
 import ome.formats.Index;
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,10 +54,10 @@ public class PlaneInfoProcessor implements ModelProcessor
     throws ModelException
     {
         List<IObjectContainer> containers =
-            store.getIObjectContainers(PlaneInfo.class);
+            store.getIObjectContainers(Plane.class);
         for (IObjectContainer container : containers)
         {
-		PlaneInfo pi = (PlaneInfo) container.sourceObject;
+		Plane pi = (Plane) container.sourceObject;
 		if (pi.getDeltaT() == null
 			&& pi.getExposureTime() == null
 			&& pi.getPositionX() == null
@@ -65,7 +65,7 @@ public class PlaneInfoProcessor implements ModelProcessor
 			&& pi.getPositionZ() == null)
 		{
 			LSID lsid = new LSID(
-			        PlaneInfo.class,
+			        Plane.class,
 			        container.indexes.get(Index.IMAGE_INDEX.getValue()),
 			        container.indexes.get(Index.PLANE_INDEX.getValue()));
 			log.debug("Removing empty PlaneInfo: " + lsid);

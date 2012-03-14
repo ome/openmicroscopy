@@ -68,7 +68,7 @@ import omero.model.LogicalChannel;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import omero.model.Plate;
 import omero.model.Well;
 import omero.model.WellSample;
@@ -439,10 +439,10 @@ public class MetadataValidatorTest
     public void testPlaneInfoZCT()
     {
         List<IObjectContainer> containers = 
-            store.getIObjectContainers(PlaneInfo.class);
+            store.getIObjectContainers(Plane.class);
         for (IObjectContainer container : containers)
         {
-            PlaneInfo planeInfo = (PlaneInfo) container.sourceObject;
+        	Plane planeInfo = (Plane) container.sourceObject;
             assertNotNull("theZ is null", planeInfo.getTheZ());
             assertNotNull("theC is null", planeInfo.getTheC());
             assertNotNull("theT is null", planeInfo.getTheT());

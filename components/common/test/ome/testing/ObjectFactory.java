@@ -13,7 +13,7 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
-import ome.model.core.PlaneInfo;
+import ome.model.core.Plane;
 import ome.model.display.ChannelBinding;
 import ome.model.display.PlaneSlicingContext;
 import ome.model.display.QuantumDef;
@@ -86,12 +86,12 @@ public class ObjectFactory {
         Channel[] c = new Channel[channelCount];
         LogicalChannel[] lc = new LogicalChannel[channelCount];
         StatsInfo[] si = new StatsInfo[channelCount];
-        PlaneInfo[] pl = new PlaneInfo[channelCount];
+        Plane[] pl = new Plane[channelCount];
         for (int w = 0; w < channelCount; w++) {
             c[w] = new Channel();
             lc[w] = new LogicalChannel();
             si[w] = new StatsInfo();
-            pl[w] = new PlaneInfo();
+            pl[w] = new Plane();
         }
 
         if (example != null) {
@@ -110,8 +110,8 @@ public class ObjectFactory {
                 c[w].unload();
             }
             // Not needed but useful
-            p.addPlaneInfo(example.iteratePlaneInfo().next());
-            (p.iteratePlaneInfo().next()).unload();
+            p.addPlane(example.iteratePlane().next());
+            (p.iteratePlane().next()).unload();
         }
 
         else {
@@ -136,7 +136,7 @@ public class ObjectFactory {
                 pl[w].setTheZ(new Integer(0));
                 pl[w].setTheT(new Integer(0));
                 pl[w].setDeltaT(new Double(0.0));
-                p.addPlaneInfo(pl[w]);
+                p.addPlane(pl[w]);
 
             }
 
