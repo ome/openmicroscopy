@@ -816,7 +816,8 @@ class OMEModel(object):
                     delegate = ReferenceDelegate(
                             ref['data_type'], ref['plural'])
                     prop = OMEModelProperty.fromReference(delegate, o, self)
-                    o.properties[ref['data_type']] = prop
+                    key = '%s.%s' % (ref['data_type'], ref['property_name'])
+                    o.properties[key] = prop
 
     def process(klass, contentHandler):
         """
