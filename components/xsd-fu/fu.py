@@ -88,6 +88,13 @@ BACK_REFERENCE_OVERRIDE = {'Screen': ['Plate'], 'Plate': ['Screen'], 'Annotation
 # should not be code generated for.
 BACK_REFERENCE_LINK_OVERRIDE = {'ScreenRef': ['Plate'], 'Pump': ['Laser'], 'AnnotationRef': ['Annotation']}
 
+BACK_REFERENCE_NAME_OVERRIDE = {
+    'FilterSet.ExcitationFilter': 'excitationFilter',
+    'FilterSet.EmissionFilter': 'emissionFilter',
+    'LightPath.ExcitationFilter': 'excitationFilter',
+    'LightPath.EmissionFilter': 'emissionFilter',
+}
+
 def updateTypeMaps(namespace):
     """
     Updates the type maps with a new namespace. **Must** be executed at least 
@@ -225,8 +232,8 @@ class ReferenceDelegate(object):
     interface as a delegate coming from generateDS (ie. an "attribute" or
     an "element").
     """
-    def __init__(self, dataType, plural):
-        self.name = dataType + "_BackReference"
+    def __init__(self, name, dataType, plural):
+        self.name = name + "_BackReference"
         self.dataType = dataType
         self.plural = plural
         # Ensures property code which is looking for elements or attributes
@@ -485,6 +492,7 @@ class OMEModelProperty(OMEModelEntity):
             if self.isBackReference:
                 name = self.model.getObjectByName(self.type)
                 name = name.javaInstanceVariableName
+                name = BACK_REFERENCE_NAME_OVERRIDE.get(self.key, name)
             return name + 'Links'
         try:
             if self.maxOccurs > 1:
@@ -811,13 +819,15 @@ class OMEModel(object):
         logging.debug("Model references: %s" % references)
 
         for o in self.objects.values():
-            if o.name in references:
-                for ref in references[o.name]:
-                    delegate = ReferenceDelegate(
-                            ref['data_type'], ref['plural'])
-                    prop = OMEModelProperty.fromReference(delegate, o, self)
-                    key = '%s.%s' % (ref['data_type'], ref['property_name'])
-                    o.properties[key] = prop
+            if o.name not in references:
+                continue
+            for ref in references[o.name]:
+                key = '%s.%s' % (ref['data_type'], ref['property_name'])
+                delegate = ReferenceDelegate(
+                        ref['data_type'], ref['data_type'], ref['plural'])
+                prop = OMEModelProperty.fromReference(delegate, o, self)
+                prop.key = key
+                o.properties[key] = prop
 
     def process(klass, contentHandler):
         """
