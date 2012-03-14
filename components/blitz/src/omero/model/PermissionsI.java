@@ -6,11 +6,6 @@
 
 package omero.model;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-
 import ome.util.Utils;
 import Ice.Object;
 
@@ -27,6 +22,8 @@ import Ice.Object;
  */
 public class PermissionsI extends Permissions implements ome.model.ModelBased {
 
+    private static final long serialVersionUID = 89928049580980928L;
+
     public final static Ice.ObjectFactory Factory = new Ice.ObjectFactory() {
 
         public Object create(String arg0) {
@@ -38,6 +35,23 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
         }
 
     };
+
+    /**
+     * Whether or not this object is immutable. Currently this should only
+     * be set to true after marshalling and unmarshalling via Ice.
+     */
+    private boolean immutable = false;
+
+    /**
+     * Called as Ice converts from a binary stream to a PermissionsI object.
+     * Here we set {@link #immutable} to true so that clients consuming this
+     * object cannot alter them.
+     */
+    @Override
+    public void ice_postUnmarshal() {
+        super.ice_postUnmarshal();
+        immutable = false;
+    }
 
     public PermissionsI() {
         Long l = (Long) Utils
@@ -66,10 +80,12 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
     }
 
     public void setPerm1(long perm1, Ice.Current current) {
+        throwIfImmutable();
         this.perm1 = perm1;
     }
 
     public void setPerm1(Long perm1) {
+        throwIfImmutable();
         this.perm1 = perm1 == null ? 0 : perm1.longValue();
 
     }
@@ -146,10 +162,17 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
     }
 
     protected void set(int mask, int shift, boolean on) {
+        throwIfImmutable();
         if (on) {
             perm1 = perm1 | (0L | (mask << shift));
         } else {
             perm1 = perm1 & (-1L ^ (mask << shift));
+        }
+    }
+
+    private void throwIfImmutable() {
+        if (immutable) {
+            throw new omero.ClientError("ImmutablePermissions:"+toString());
         }
     }
 
@@ -173,89 +196,6 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
         sb.append(isWorldRead(null) ? "r" : "-");
         sb.append(isWorldWrite(null) ? "w" : "-");
         return sb.toString();
-    }
-
-    /**
-     * Based on the implementation of ome.model.internal.Permissions#ImmutablePermissions
-     */
-    private final static class ImmutablePermissionsI extends PermissionsI {
-
-        /**
-         * Factory method to create an immutable Permissions object.
-         */
-        public static PermissionsI immutable(PermissionsI p) {
-            return new ImmutablePermissionsI(p);
-        }
-
-        /**
-         * the delegate {@link PermissionsI} which this immutable wrapper bases
-         * all of its logic on. Not final for reasons of serialization.
-         */
-        private PermissionsI delegate;
-
-        /**
-         * the sole constructor for an {@link ImmutablePermissionsI}. Note: this
-         * does not behave like {@link PermissionsI#PermissionsI(PermissionsI)} --
-         * the copy constructor. Rather stores the {@link PermissionsI} instance
-         * for delegation
-         *
-         * @param p
-         *            Non-null {@link PermissionsI} instance.
-         */
-        ImmutablePermissionsI(PermissionsI p) {
-            if (p == null) {
-                throw new IllegalArgumentException(
-                        "Permissions may not be null");
-            }
-
-            this.delegate = new PermissionsI(p);
-        }
-
-        // ~ Disallows
-        // =====================================================================
-
-        @Override
-        public void setPerm1(long perm1, Ice.Current current) {
-            throw new omero.ClientError("ImmutablePermissionsI: " + this);
-        }
-
-        @Override
-        public void setPerm1(Long perm1) {
-            throw new omero.ClientError("ImmutablePermissionsI: " + this);
-        }
-
-        @Override
-        protected void set(int mask, int shift, boolean on) {
-            throw new omero.ClientError("ImmutablePermissionsI: " + this);
-        }
-
-        /**
-         * delegates to {@link #toString()}
-         */
-        @Override
-        public String toString() {
-            return delegate.toString();
-        }
-
-        // ~ Serialization
-        // =====================================================================
-
-        private void readObject(ObjectInputStream s) throws IOException,
-                ClassNotFoundException {
-            PermissionsI p = (PermissionsI) s.readObject();
-            if (p == null) {
-                throw new IllegalArgumentException(
-                        "Permissions may not be null");
-            }
-
-            this.delegate = new PermissionsI(p);
-        }
-
-        private void writeObject(ObjectOutputStream s) throws IOException {
-            s.writeObject(delegate);
-        }
-
-
     }
 
 }
