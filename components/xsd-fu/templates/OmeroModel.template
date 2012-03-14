@@ -64,7 +64,9 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
             if x.name.endswith('Annotation'):
                 return False
             if x.name in ('BinaryOnly', 'Contact', 'Leader', 'MetadataOnly',
-                          'OME', 'TiffData', 'UUID', 'Annotation'):
+                          'OME', 'TiffData', 'UUID', 'Annotation',
+                          'StructuredAnnotations', 'Experimenter',
+                          'ExperimenterGroup', 'Reference'):
                 return False
             return True
         return filter(f, objects)
@@ -76,7 +78,8 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
         properties = sorted_properties(o)
         def f(x):
             if x.name in ('ID', 'Description', 'Name', 'AnnotationRef',
-                          'BinData', 'TiffData', 'MetadataOnly'):
+                          'BinData', 'TiffData', 'MetadataOnly',
+                          'ExperimenterRef', 'ExperimenterGroupRef'):
                 return False
             return True
         return filter(f, properties)
