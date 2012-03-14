@@ -363,6 +363,7 @@ def processMetadataTemplate(template, outputFilename, namespace, args):
 	fu.resolve_hierarchy = resolve_hierarchy
 	fu.METADATA_OBJECT_IGNORE = METADATA_OBJECT_IGNORE
 	fu.METADATA_COUNT_IGNORE = METADATA_COUNT_IGNORE
+	fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE = BACK_REFERENCE_CLASS_NAME_OVERRIDE
 	base, filename = os.path.split(template)
 	name, extension = os.path.splitext(filename)
 	template = NewTextTemplate(open(template).read())

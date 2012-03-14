@@ -23,7 +23,12 @@ ${obj_or_prop.omeroPackage}.${obj_or_prop.javaType}\
 ${o.omeroPackage}.${o.javaMethodName}${prop.javaMethodName}Link\
 {% end %}\
 {% if prop.isBackReference %}\
+{% if prop.key in fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE %}\
+${o.omeroPackage}.${fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE[prop.key]}\
+{% end %}\
+{% if prop.key not in fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE %}\
 ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
+{% end %}\
 {% end %}\
 {% end %}\
 \

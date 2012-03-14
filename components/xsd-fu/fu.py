@@ -88,11 +88,22 @@ BACK_REFERENCE_OVERRIDE = {'Screen': ['Plate'], 'Plate': ['Screen'], 'Annotation
 # should not be code generated for.
 BACK_REFERENCE_LINK_OVERRIDE = {'ScreenRef': ['Plate'], 'Pump': ['Laser'], 'AnnotationRef': ['Annotation']}
 
+# Back reference instance variable name overrides which will be used in place
+# of the standard name translation logic.
 BACK_REFERENCE_NAME_OVERRIDE = {
     'FilterSet.ExcitationFilter': 'excitationFilter',
     'FilterSet.EmissionFilter': 'emissionFilter',
     'LightPath.ExcitationFilter': 'excitationFilter',
     'LightPath.EmissionFilter': 'emissionFilter',
+}
+
+# Back reference class name overrides which will be used when generating
+# fully qualified class names.
+BACK_REFERENCE_CLASS_NAME_OVERRIDE = {
+    'FilterSet.ExcitationFilter': 'FilterSetExcitationFilterLink',
+    'FilterSet.EmissionFilter': 'FilterSetEmissionFilterLink',
+    'LightPath.ExcitationFilter': 'LightPathExcitationFilterLink',
+    'LightPath.EmissionFilter': 'LightPathEmissionFilterLink',
 }
 
 def updateTypeMaps(namespace):
@@ -325,6 +336,11 @@ class OMEModelEntity(object):
         doc="""The property's Java argument name (camelCase).""")
 
     def _get_javaMethodName(self):
+        try:
+            name = BACK_REFERENCE_NAME_OVERRIDE[self.key]
+            return name[0].upper() + name[1:]
+        except (KeyError, AttributeError):
+            pass
         return BACKREF_REGEX.sub('', REF_REGEX.sub('', self.name))
     javaMethodName = property(_get_javaMethodName,
         doc="""The property's Java method name.""")
