@@ -35,6 +35,7 @@ class PermissionsI(_omero_model.Permissions):
 
       def __init__(self, l = None):
             super(PermissionsI, self).__init__()
+            self.__immutable = False
             if isinstance(l, str):
                 self._perm1 = -1
                 self.from_string(l)
@@ -47,6 +48,7 @@ class PermissionsI(_omero_model.Permissions):
             return (self._perm1 & (mask<<shift)) == (mask<<shift)
 
       def set(self, mask, shift, on):
+            self.throwIfImmutable()
             if on:
                   self._perm1 = (self._perm1 | ( 0L | (mask<<shift)))
             else:
@@ -94,6 +96,7 @@ class PermissionsI(_omero_model.Permissions):
           return self._perm1
 
       def setPerm1(self, _perm1):
+          self.throwIfImmutable()
           self._perm1 = _perm1
           pass
 
@@ -128,14 +131,22 @@ class PermissionsI(_omero_model.Permissions):
           vals.append(self.isWorldWrite() and "w" or "-")
           return "".join(vals)
 
+      def throwIfImmutable(self):
+          """
+          Check the __immutable field and throw a ClientError
+          if it's true.
+          """
+          if self.__immutable:
+              raise _omero.ClientError("ImmutablePermissions: %s" % \
+                      self.__str__())
 
       def ice_postUnmarshal(self):
           """
           Provides additional initialization once all data loaded
           Required due to __getattr__ implementation.
           """
-          pass # Currently unused
-
+          #_omero_model.Permissions.ice_postUnmarshal(self)
+          self.__immutable = True
 
       def ice_preMarshal(self):
           """

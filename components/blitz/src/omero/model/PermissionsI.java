@@ -40,17 +40,17 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
      * Whether or not this object is immutable. Currently this should only
      * be set to true after marshalling and unmarshalling via Ice.
      */
-    private boolean immutable = false;
+    private boolean __immutable = false;
 
     /**
      * Called as Ice converts from a binary stream to a PermissionsI object.
-     * Here we set {@link #immutable} to true so that clients consuming this
+     * Here we set {@link #__immutable} to true so that clients consuming this
      * object cannot alter them.
      */
     @Override
     public void ice_postUnmarshal() {
         super.ice_postUnmarshal();
-        immutable = false;
+        __immutable = true;
     }
 
     public PermissionsI() {
@@ -171,7 +171,7 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
     }
 
     private void throwIfImmutable() {
-        if (immutable) {
+        if (__immutable) {
             throw new omero.ClientError("ImmutablePermissions:"+toString());
         }
     }

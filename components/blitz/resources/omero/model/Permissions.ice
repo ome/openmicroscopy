@@ -38,6 +38,7 @@ module omero {
 
       /**
        * Do not use!
+       * Throws [omero::ClientError] if mutation not allowed.
        **/
       void setPerm1(long value);
 
@@ -48,12 +49,42 @@ module omero {
       bool isWorldRead();
       bool isWorldWrite();
 
+      // Mutators
+      //======================================================
+      // Note: unless you create the permissions object
+      // yourself, mutating the state of the object will
+      // throw a ClientError
+
+      /**
+       * Throws [omero::ClientError] if mutation not allowed.
+       **/
       void setUserRead(bool value);
+
+      /**
+       * Throws [omero::ClientError] if mutation not allowed.
+       **/
       void setUserWrite(bool value);
+
+      /**
+       * Throws [omero::ClientError] if mutation not allowed.
+       **/
       void setGroupRead(bool value);
+
+      /**
+       * Throws [omero::ClientError] if mutation not allowed.
+       **/
       void setGroupWrite(bool value);
+
+      /**
+       * Throws [omero::ClientError] if mutation not allowed.
+       **/
       void setWorldRead(bool value);
+
+      /**
+       * Throws [omero::ClientError] if mutation not allowed.
+       **/
       void setWorldWrite(bool value);
+
     };
   };
 };

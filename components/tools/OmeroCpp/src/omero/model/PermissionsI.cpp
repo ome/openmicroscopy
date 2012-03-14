@@ -6,6 +6,7 @@
  *
  */
 
+#include <omero/ClientErrors.h>
 #include <omero/model/PermissionsI.h>
 #include <omero/ClientErrors.h>
 
@@ -15,6 +16,7 @@ namespace omero {
 
 	PermissionsI::~PermissionsI() {}
 	PermissionsI::PermissionsI(const std::string& perms) : Permissions() {
+            __immutable = false;
             if (perms.empty()) {
                 perm1 = -1L;
             } else {
@@ -51,6 +53,16 @@ namespace omero {
                 }
             }
 	}
+
+        void PermissionsI::ice_postUnmarshal() {
+            __immutable = true;
+        }
+
+        void PermissionsI::throwIfImmutable() {
+            if (__immutable) {
+                throw omero::ClientError(__FILE__,__LINE__,"ImmutablePermissions");
+            }
+        }
 
 	// shift 8; mask 4
 	bool PermissionsI::isUserRead(const Ice::Current& c) {
@@ -105,6 +117,7 @@ namespace omero {
 	}
 
 	void PermissionsI::set(int mask, int shift, bool on) {
+	    throwIfImmutable();
 	    if (on) {
 		perm1 = perm1 | ( 0L  | (mask<<shift) );
 	    } else {

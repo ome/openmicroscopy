@@ -38,13 +38,17 @@ namespace omero { namespace model {
    */
 class OMERO_API PermissionsI : virtual public Permissions {
 
+private:
+    bool __immutable;
 protected:
     ~PermissionsI(); // protected as outlined in Ice docs.
     bool granted(int mask, int shift);
     void set(int mask, int shift, bool value);
+    void throwIfImmutable();
 public:
 
     PermissionsI(const std::string& perms = "");
+    virtual void ice_postUnmarshal(); // For setting __immutable
 
     /*
      * Central methods. The optional argument is a requirement
@@ -70,6 +74,7 @@ public:
 
     // Do not use !
     void setPerm1(Ice::Long _perm1, const Ice::Current& current = Ice::Current()) {
+        throwIfImmutable();
         perm1 =  _perm1 ;
 
     }
