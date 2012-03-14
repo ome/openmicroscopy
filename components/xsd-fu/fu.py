@@ -209,6 +209,9 @@ REF_REGEX = re.compile(r'Ref$|RefNode$')
 
 BACKREF_REGEX = re.compile(r'_BackReference')
 
+PREFIX_CASE_REGEX = re.compile(
+        r'^([A-Z]{1})[a-z0-9]+|([A-Z0-9]+)[A-Z]{1}[a-z]+|([A-Z]+$)')
+
 def resolve_parents(model, element_name):
     """
     Resolves the parents of an element and returns them as an ordered list.
@@ -276,8 +279,6 @@ class OMEModelEntity(object):
     common type resolution and text processing functionality.
     """
 
-    LOWER_CASE_REGEX = re.compile(r'[a-z]')
-
     def resolveJavaTypeFromSimpleType(self, simpleTypeName):
         getSimpleType = self.model.getTopLevelSimpleType
         while True:
@@ -309,6 +310,11 @@ class OMEModelEntity(object):
             except KeyError:
                 simpleTypeName = simpleType.getBase()
 
+    def lowerCasePrefix(self, v):
+        match = PREFIX_CASE_REGEX.match(v)
+        prefix, = filter(None, match.groups())
+        return prefix.lower() + v[len(prefix):]
+
     def _get_omeroPackage(self):
         namespace = self.namespace
         try:
@@ -331,11 +337,7 @@ class OMEModelEntity(object):
 
     def _get_javaArgumentName(self):
         argumentName = REF_REGEX.sub('', self.name)
-        m = self.LOWER_CASE_REGEX.search(argumentName)
-        if not m:
-            return argumentName.lower()
-        i = m.start()
-        return argumentName[:i].lower() + argumentName[i:]
+        return self.lowerCasePrefix(argumentName)
     javaArgumentName = property(_get_javaArgumentName,
         doc="""The property's Java argument name (camelCase).""")
 
@@ -519,12 +521,7 @@ class OMEModelProperty(OMEModelEntity):
                 plural = self.plural
                 if plural is None:
                     plural = self.model.getObjectByName(self.javaMethodName).plural
-                match = re.match(r'^([A-Z]+)', plural)
-                if match:
-                    match = match.group(1)
-                    offset = len(match)
-                    return match.lower() + plural[offset:]
-                return plural
+                return self.lowerCasePrefix(plural)
         except AttributeError:
             pass
         return self.javaArgumentName
@@ -699,7 +696,7 @@ class OMEModelObject(OMEModelEntity):
             return self.javaArgumentName + 'Links'
         try:
             if self.maxOccurs > 1:
-                return self.plural[0].lower() + self.plural[1:]
+                return self.lowerCasePrefix(self.plural)
         except AttributeError:
             pass
         return self.javaArgumentName
