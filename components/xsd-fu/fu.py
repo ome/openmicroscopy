@@ -183,6 +183,10 @@ OMERO_METADATA_TEMPLATE = "templates/OmeroMetadata.template"
 # The default template for OMERO metadata processing.
 OMERO_MODEL_TEMPLATE = "templates/OmeroModel.template"
 
+REF_REGEX = re.compile(r'Ref$|RefNode$')
+
+BACKREF_REGEX = re.compile(r'_BackReference')
+
 def resolve_parents(model, element_name):
     """
     Resolves the parents of an element and returns them as an ordered list.
@@ -221,9 +225,10 @@ class ReferenceDelegate(object):
     interface as a delegate coming from generateDS (ie. an "attribute" or
     an "element").
     """
-    def __init__(self, dataType):
+    def __init__(self, dataType, plural):
         self.name = dataType + "_BackReference"
         self.dataType = dataType
+        self.plural = plural
         # Ensures property code which is looking for elements or attributes
         # which conform to an enumeration can still function.
         self.values = None
@@ -248,10 +253,6 @@ class OMEModelEntity(object):
     An abstract root class for properties and model objects containing
     common type resolution and text processing functionality.
     """
-
-    REF_REGEX = re.compile(r'Ref$|RefNode$')
-
-    BACKREF_REGEX = re.compile(r'_BackReference')
 
     LOWER_CASE_REGEX = re.compile(r'[a-z]')
 
@@ -307,7 +308,7 @@ class OMEModelEntity(object):
         doc="""The OMERO package of the entity.""")
 
     def _get_javaArgumentName(self):
-        argumentName = self.REF_REGEX.sub('', self.name)
+        argumentName = REF_REGEX.sub('', self.name)
         m = self.LOWER_CASE_REGEX.search(argumentName)
         if not m:
             return argumentName.lower()
@@ -317,7 +318,7 @@ class OMEModelEntity(object):
         doc="""The property's Java argument name (camelCase).""")
 
     def _get_javaMethodName(self):
-        return self.BACKREF_REGEX.sub('', self.REF_REGEX.sub('', self.name))
+        return BACKREF_REGEX.sub('', REF_REGEX.sub('', self.name))
     javaMethodName = property(_get_javaMethodName,
         doc="""The property's Java method name.""")
 
@@ -428,7 +429,7 @@ class OMEModelProperty(OMEModelEntity):
             # useless OME XML 'Ref' suffix removed.
             if self.isBackReference or \
                (not self.isAttribute and self.delegate.isComplex()):
-                return self.REF_REGEX.sub('', self.type)
+                return REF_REGEX.sub('', self.type)
             # Hand back the type of complex types
             if not self.isAttribute and self.delegate.isComplex():
                 return self.type
@@ -482,7 +483,7 @@ class OMEModelProperty(OMEModelEntity):
         if self.isManyToMany:
             name = self.javaArgumentName
             if self.isBackReference:
-                name = self.model.getObjectByName(self.javaMethodName)
+                name = self.model.getObjectByName(self.type)
                 name = name.javaInstanceVariableName
             return name + 'Links'
         try:
@@ -796,7 +797,7 @@ class OMEModel(object):
             for prop in o.properties.values():
                 if not prop.isReference:
                     continue
-                shortName = prop.type[:-3]
+                shortName = REF_REGEX.sub('', prop.type)
                 try:
                     if o.name in BACK_REFERENCE_OVERRIDE[shortName]:
                         continue
@@ -804,15 +805,18 @@ class OMEModel(object):
                     pass
                 if shortName not in references:
                     references[shortName] = list()
-                references[shortName].append(o.name)
+                v = {'data_type': o.name, 'property_name': prop.javaMethodName,
+                     'plural': prop.plural}
+                references[shortName].append(v)
         logging.debug("Model references: %s" % references)
 
         for o in self.objects.values():
             if o.name in references:
                 for ref in references[o.name]:
-                    delegate = ReferenceDelegate(ref)
+                    delegate = ReferenceDelegate(
+                            ref['data_type'], ref['plural'])
                     prop = OMEModelProperty.fromReference(delegate, o, self)
-                    o.properties[ref] = prop
+                    o.properties[ref['data_type']] = prop
 
     def process(klass, contentHandler):
         """
