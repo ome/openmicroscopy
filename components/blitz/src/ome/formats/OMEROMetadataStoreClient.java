@@ -174,7 +174,7 @@ import omero.model.OriginalFile;
 import omero.model.Permissions;
 import omero.model.Pixels;
 import omero.model.PixelsType;
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.Point;
@@ -6104,13 +6104,13 @@ public class OMEROMetadataStoreClient
 
     //////// Plane /////////
 
-    private PlaneInfo getPlane(int imageIndex, int planeIndex)
+    private Plane getPlane(int imageIndex, int planeIndex)
     {
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.IMAGE_INDEX, imageIndex);
         indexes.put(Index.PLANE_INDEX, planeIndex);
-        return getSourceObject(PlaneInfo.class, indexes);
+        return getSourceObject(Plane.class, indexes);
     }
 
     /* (non-Javadoc)
@@ -6120,7 +6120,7 @@ public class OMEROMetadataStoreClient
             int planeIndex, int annotationRefIndex)
     {
         LSID key = new LSID(
-            PlaneInfo.class, imageIndex, planeIndex);
+            Plane.class, imageIndex, planeIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -6129,7 +6129,7 @@ public class OMEROMetadataStoreClient
      */
     public void setPlaneDeltaT(Double deltaT, int imageIndex, int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         o.setDeltaT(toRType(deltaT));
     }
 
@@ -6139,7 +6139,7 @@ public class OMEROMetadataStoreClient
     public void setPlaneExposureTime(Double exposureTime, int imageIndex,
             int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         o.setExposureTime(toRType(exposureTime));
     }
 
@@ -6157,7 +6157,7 @@ public class OMEROMetadataStoreClient
     public void setPlanePositionX(Double positionX, int imageIndex,
             int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         o.setPositionX(toRType(positionX));
     }
 
@@ -6167,7 +6167,7 @@ public class OMEROMetadataStoreClient
     public void setPlanePositionY(Double positionY, int imageIndex,
             int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         o.setPositionY(toRType(positionY));
     }
 
@@ -6177,7 +6177,7 @@ public class OMEROMetadataStoreClient
     public void setPlanePositionZ(Double positionZ, int imageIndex,
             int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         o.setPositionZ(toRType(positionZ));
     }
 
@@ -6186,7 +6186,7 @@ public class OMEROMetadataStoreClient
      */
     public void setPlaneTheC(NonNegativeInteger theC, int imageIndex, int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         o.setTheC(toRType(theC));
     }
 
@@ -6195,7 +6195,7 @@ public class OMEROMetadataStoreClient
      */
     public void setPlaneTheT(NonNegativeInteger theT, int imageIndex, int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         o.setTheT(toRType(theT));
     }
 
@@ -6204,7 +6204,7 @@ public class OMEROMetadataStoreClient
      */
     public void setPlaneTheZ(NonNegativeInteger theZ, int imageIndex, int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         o.setTheZ(toRType(theZ));
     }
 

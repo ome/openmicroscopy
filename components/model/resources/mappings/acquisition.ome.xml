@@ -20,7 +20,6 @@
 			<!-- Acquisition Context 1 -->
 			<required name="acquisitionDate" type="timestamp"/>
 			<optional name="archived" type="boolean"/>
-			<optional name="partial" type="boolean"/>
 			<optional name="format" type="ome.model.enums.Format"/>
 			<!-- Note: in the model acquisitionDate is called creationDate but the DB already has a creation date for the object -->
 			<!-- Note: in the model acquisitionDate(creationDate) is optional so if not available should be set to current time on import-->
@@ -68,7 +67,7 @@
 			<optional name="physicalSizeZ" type="double"/>
 			<optional name="timeIncrement" type="double"/>
 			<!-- Note: planeInfo is called Plane in model and is zeromany -->
-			<onemany name="planeInfo" type="ome.model.core.PlaneInfo" inverse="pixels"/>
+			<onemany name="plane" type="ome.model.core.Plane" inverse="pixels"/>
 			<!-- TODO: storage -->
 			<parent name="pixelsFileMaps" type="ome.model.core.PixelsOriginalFileMap" target="ome.model.core.OriginalFile"/>
 			<!-- Acquisition Context 2 -->
@@ -107,7 +106,7 @@
 			-->
 		</properties>
 	</type>
-	<type id="ome.model.core.PlaneInfo" annotated="true">
+	<type id="ome.model.core.Plane" annotated="true">
 		<!-- Note: PlaneInfo is called Plane in model-->
 		<properties>
 			<manyone name="pixels" type="ome.model.core.Pixels"/>

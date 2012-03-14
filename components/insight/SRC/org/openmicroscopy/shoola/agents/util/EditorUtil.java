@@ -46,7 +46,7 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import omero.RDouble;
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
@@ -1947,7 +1947,7 @@ public class EditorUtil
      * @param plane The plane to transform.
      * @return See above.
      */
-    public static Map<String, Object> transformPlaneInfo(PlaneInfo plane)
+    public static Map<String, Object> transformPlaneInfo(Plane plane)
     {
     	LinkedHashMap<String, Object> 
 		details = new LinkedHashMap<String, Object>(4);

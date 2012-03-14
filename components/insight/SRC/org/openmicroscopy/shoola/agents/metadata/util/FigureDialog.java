@@ -90,7 +90,7 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.Drawing;
 
 //Application-internal dependencies
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -2138,10 +2138,10 @@ public class FigureDialog
 		Iterator i = planes.iterator();
 		String value = "";
 		Map<String, Object> details;
-		PlaneInfo pi;
+		Plane pi;
 		List<String> notSet;
 		while (i.hasNext()) {
-			pi = (PlaneInfo) i.next();
+			pi = (Plane) i.next();
 			details = EditorUtil.transformPlaneInfo(pi);
 			notSet = (List<String> )details.get(EditorUtil.NOT_SET);
 			if (!notSet.contains(EditorUtil.DELTA_T)) {
