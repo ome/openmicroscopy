@@ -681,7 +681,52 @@
 
 
     
+    /* icons */
+    #dataIcons {
+        list-style-type: none;
+        margin: 0; 
+        padding: 2px; 
+        top: 0; 
+        left: 0;
+        position: relative;
+    }
+
+        #dataIcons li {
+            float: left;
+            text-align: center;
+            height: 85px;
+            width: 85px;
+            background-color:hsl(0,0%,95%);
+            padding: 3px;
+            margin:5px;
+            -webkit-border-radius:2px;
+            -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.2);
+            border:solid 1px white; 
+        }
+
+            #dataIcons img, #dataIcons .readonly img, #dataIcons .linkonly img {
+                padding: 2px; 
+            }
+
+            #dataIcons .ui-selecting {  
+                background-color:hsl(0,0%,90%);
+            }
     
+            #dataIcons .ui-selected { 
+                background-color:hsl(210,20%,78%);
+                border:solid 1px hsl(210,20%,70%);
+                -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.2); 
+            }
+        
+
+
+
+
+
+
+
+
+
 
     .ann_comment_wrapper {
         border:solid 1px red;
@@ -720,7 +765,7 @@
 
 
 
-
+    
 
 
 
@@ -868,32 +913,7 @@ ul.criteria li{
 
 
 
-/* icons */
-#dataIcons {
-    list-style-type: none;
-    margin: 0; 
-    padding: 2px; 
-    top: 0; 
-    left: 0;
-    position: relative;
-}
 
-#dataIcons li {
-    border: 0px;
-    float: left;
-    text-align: center;
-    height: 85px;
-    width: 85px;
-    padding: 5px; 
-}
-
-#dataIcons img, #dataIcons .readonly img, #dataIcons .linkonly img {
-    border: 1px solid #fff;
-    padding: 2px; 
-}
-
-#dataIcons .ui-selecting img{ border: 1px dashed #555; padding: 2px; background-color:#ccc; }
-#dataIcons .ui-selected img{ border: 1px dashed #555; padding: 2px; background-color:#ccc; }
 
 em {
     background-color: #fff;

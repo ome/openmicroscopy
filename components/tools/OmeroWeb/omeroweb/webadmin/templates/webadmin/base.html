@@ -29,42 +29,36 @@
 {% endblock %}
 
 
-{% block middle_header_left %}
-    {% include "webclient/base/menu.html" %}
-    {% if eventContext.isAdmin %}
-        <li class="menu_link admin"><a href="{% url waindex %}" title="Web-Admin: Edit users and groups">{% trans "Admin" %}</a></li>
-    {% endif %}
-{% endblock %}
 
 
-{% block middle_header_right %}
-    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-    <a href="{% url wamyaccount 'edit' %}" title="Edit Account">{{ eventContext.userName }}</a>
-    <a href="{% url load_template 'help' %}">{% trans "Help" %}</a>
-    {% include "webclient/base/logout.html" %}
-{% endblock %}
+
+        {% block middle_header %}
+        <div id="middle_header">
+
+            <a id="logo">
+                <img src="{% static "webgateway/img/logo2.png" %}"/>
+            </a>
+
+            <div id="middle_header_right">
+			    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
+
+			    {% include "webclient/base/logout.html" %}
+            </div>
+            
+            <div id="middle_header_left">
+				    {% include "webclient/base/menu.html" %}
+				    {% if eventContext.isAdmin %}
+				    <li class="menu_link admin"><a href="{% url waindex %}" title="Web-Admin: Edit users and groups">{% trans "Admin" %}</a></li>
+				    {% endif %}
+            </div>
+			
+        <div class="clear"></div> <!-- Silly div to prevent overflow:hidden from hiding info panels. Ask Dom why he did this if you're curious for more info. -->
+        
+		</div>
+        {% endblock %}
+        
 
 
-{% block thin_header_left %}
-    {% trans "Role" %}:
-    <strong>
-        {% if eventContext.isAdmin %}admin
-        {% else %}user{% endif %}
-    </strong>
-    {% trans "Version" %}:
-    <strong>OMERO {{ eventContext.version }}.</strong> |
-
-    {% if eventContext.isAdmin %}
-    <a href="{% url wagroups %}"{% if info.groups %} class="menu" {% endif %}>{% trans "Groups" %}</a> |
-    <a href="{% url waexperimenters %}"{% if info.experimenters %} class="menu" {% endif %}>{% trans "Scientists" %}</a> |
-    {% endif %}
-    <a href="{% url wadrivespace %}"{% if info.drivespace %} class="menu" {% endif %}>{% trans "Drive Space" %}</a>
-{% endblock %}
-
-
-{% block thin_header_right %}
-    {{ info.today }}
-{% endblock %}
 
 {% block content %}
     <div id="center_details" class="padding">

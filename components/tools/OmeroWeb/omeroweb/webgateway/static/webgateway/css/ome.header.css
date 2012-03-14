@@ -60,6 +60,21 @@
 	 font-family: "HelveticaNeue-Medium",Helvetica,Arial,sans-serif;
 	 padding:5px 0;
  }
+	
+	
+	#middle_header a { 
+		color: white;
+		color: rgba(255,255,255,.5);
+		color: hsl(210,20%,15%);
+		text-shadow: 0 1px 0px hsl(215,75%,20%);
+		text-shadow: 0 1px 0px rgba(255,255,255,.5);
+	}
+			
+	#middle_header a:hover {
+		color: hsl(215,15%,90%);
+		text-decoration:none;
+		text-shadow:none;
+	}
 		
 
  	#logo {
@@ -75,6 +90,11 @@
 		 overflow:hidden;
 	 }
 	 
+	 #middle_header_right li{
+		 float:left;
+	 }
+	 	
+	 
 	 
 		#middle_header_left li, #middle_header_right li {
 			float:left;
@@ -89,19 +109,7 @@
 				display: block;
 			}
 
-			#middle_header a { 
-				color: white;
-				color: rgba(255,255,255,.5);
-				color: hsl(210,20%,15%);
-				text-shadow: 0 1px 0px hsl(215,75%,20%);
-				text-shadow: 0 1px 0px rgba(255,255,255,.5);
-			}
 			
-			#middle_header a:hover {
-				color: hsl(215,15%,90%);
-				text-decoration:none;
-				text-shadow:none;
-			}
 
 				
 			#logout a{
