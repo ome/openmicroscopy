@@ -8,7 +8,7 @@ package ome.server.itests.update;
 
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
-import ome.model.core.PlaneInfo;
+import ome.model.core.Plane;
 import ome.parameters.Parameters;
 import ome.testing.ObjectFactory;
 
@@ -117,7 +117,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
     @Test
     public void testNewCollectionFieldOnDetachedPixels() throws Exception {
         // PREPARE -------------------------------------------------
-        PlaneInfo pi1 = new PlaneInfo(), pi2 = new PlaneInfo();
+        Plane pi1 = new Plane(), pi2 = new Plane();
 
         pi1.setTheC(new Integer(1));
         pi1.setTheT(new Integer(1));
@@ -133,15 +133,15 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         pi2.setExposureTime(new Double(100));
         pi2.setDeltaT(new Double(-193));
 
-        p.addPlaneInfo(pi1);
-        p.addPlaneInfo(pi2);
+        p.addPlane(pi1);
+        p.addPlane(pi2);
         p = iUpdate.saveAndReturnObject(p);
 
         // TEST ----------------------------------------------------
         // ObjectFactory now creations PlaneInfos, so this p already has one.
-        assertTrue("Need at least two pixInfos, please.", p.collectPlaneInfo(
+        assertTrue("Need at least two pixInfos, please.", p.collectPlane(
                 null).size() >= 2);
-        for (PlaneInfo pi : p.unmodifiablePlaneInfo()) {
+        for (Plane pi : p.unmodifiablePlane()) {
             assertTrue("Need an id, please.", pi.getId().longValue() > 0);
         }
     }

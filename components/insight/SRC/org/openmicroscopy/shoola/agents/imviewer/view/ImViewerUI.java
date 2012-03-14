@@ -74,7 +74,7 @@ import info.clearthought.layout.TableLayout;
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -1379,7 +1379,7 @@ class ImViewerUI
 		int t = model.getDefaultT();
 		
 			
-		PlaneInfo info;
+		Plane info;
 		String s, toolTipText;
 		Map<Integer, Color> colors = model.getChannelsColorMap();
 		JPanel panel = new JPanel();

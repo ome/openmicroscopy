@@ -35,7 +35,7 @@ import javax.imageio.stream.ImageOutputStream;
 import omero.model.StatsInfo;
 import omero.model.IObject;
 import omero.model.Pixels;
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.AfterClass;

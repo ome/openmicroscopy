@@ -82,7 +82,7 @@ import omero.model.ExternalInfoI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
@@ -798,7 +798,7 @@ public class OmeroMetadata extends DummyMetadata {
         return new PositiveInteger(1);
     }
 
-    private PlaneInfo getPlane(int imageIndex, int planeIndex)
+    private Plane getPlane(int imageIndex, int planeIndex)
     {
         Image i = _getImage(imageIndex);
         if (i == null)
@@ -812,7 +812,7 @@ public class OmeroMetadata extends DummyMetadata {
         }
         try
         {
-            return p.copyPlaneInfo().get(planeIndex);
+            return p.copyPlane().get(planeIndex);
         }
         catch (ArrayIndexOutOfBoundsException e)
         {
@@ -824,62 +824,62 @@ public class OmeroMetadata extends DummyMetadata {
     public int getPlaneCount(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o == null? 0 : o.getPrimaryPixels().sizeOfPlaneInfo();
+        return o == null? 0 : o.getPrimaryPixels().sizeOfPlane();
     }
 
     @Override
     public Double getPlaneDeltaT(int imageIndex, int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         return o != null? fromRType(o.getDeltaT()) : null;
     }
 
     @Override
     public Double getPlaneExposureTime(int imageIndex, int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         return o != null? fromRType(o.getExposureTime()) : null;
     }
 
     @Override
     public Double getPlanePositionX(int imageIndex, int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         return o != null? fromRType(o.getPositionX()) : null;
     }
 
     @Override
     public Double getPlanePositionY(int imageIndex, int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         return o != null? fromRType(o.getPositionY()) : null;
     }
 
     @Override
     public Double getPlanePositionZ(int imageIndex, int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         return o != null? fromRType(o.getPositionZ()) : null;
     }
 
     @Override
     public NonNegativeInteger getPlaneTheC(int imageIndex, int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         return toNonNegativeInteger(o.getTheC());
     }
 
     @Override
     public NonNegativeInteger getPlaneTheT(int imageIndex, int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         return toNonNegativeInteger(o.getTheT());
     }
 
     @Override
     public NonNegativeInteger getPlaneTheZ(int imageIndex, int planeIndex)
     {
-        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Plane o = getPlane(imageIndex, planeIndex);
         return toNonNegativeInteger(o.getTheZ());
     }
 

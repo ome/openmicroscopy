@@ -45,7 +45,7 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
@@ -355,7 +355,7 @@ class EditorModel
 		Comparator c = new Comparator() {
             public int compare(Object o1, Object o2)
             {
-                PlaneInfo i1 = (PlaneInfo) o1, i2 = (PlaneInfo) o2;
+                Plane i1 = (Plane) o1, i2 = (Plane) o2;
                 int t1 = i1.getTheT().getValue();
                 int t2 = i2.getTheT().getValue();
                 int v = 0;

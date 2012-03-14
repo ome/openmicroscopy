@@ -80,7 +80,7 @@ public abstract class Validator {
         Validation v = Validation.VALID();
 
         /** careful; collections! */
-        int planeInfoSize = pixels.sizeOfPlaneInfo();
+        int planeInfoSize = pixels.sizeOfPlane();
         int sizeC = pixels.getSizeC().intValue(); // TODO and sizeX null
         // (excep? or invalidate?)
         int sizeT = pixels.getSizeT().intValue();

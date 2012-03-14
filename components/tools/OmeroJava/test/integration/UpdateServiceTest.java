@@ -50,7 +50,7 @@ import omero.model.MaskI;
 import omero.model.Objective;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionAnnotationLink;
@@ -948,10 +948,10 @@ public class UpdateServiceTest
     	Image image = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
         Pixels pixels = image.getPrimaryPixels();
-        pixels.clearPlaneInfo();
-        PlaneInfo planeInfo = mmFactory.createPlaneInfo();
+        pixels.clearPlane();
+        Plane planeInfo = mmFactory.createPlaneInfo();
         planeInfo.setPixels(pixels);
-        planeInfo = (PlaneInfo) iUpdate.saveAndReturnObject(planeInfo);
+        planeInfo = (Plane) iUpdate.saveAndReturnObject(planeInfo);
         ParametersI param = new ParametersI();
     	param.addId(planeInfo.getId());
         Pixels test = (Pixels) iQuery.findByQuery(
@@ -973,9 +973,9 @@ public class UpdateServiceTest
     	Image image = mmFactory.createImage();
     	image = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixels = image.getPrimaryPixels();
-    	pixels.clearPlaneInfo();
-    	PlaneInfo planeInfo = mmFactory.createPlaneInfo();
-    	pixels.addPlaneInfo(planeInfo);
+    	pixels.clearPlane();
+    	Plane planeInfo = mmFactory.createPlaneInfo();
+    	pixels.addPlane(planeInfo);
     	pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
     	ParametersI param = new ParametersI();
     	param.addId(pixels.getId());

@@ -47,7 +47,7 @@ import java.util.Set;
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import omero.romio.PlaneDef;
 import omero.romio.RegionDef;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
@@ -235,7 +235,7 @@ class ImViewerModel
     private DataObject					grandParent;
     
     /** The plane information. */
-    private Map<Integer, PlaneInfo>		planeInfos;
+    private Map<Integer, Plane>		planeInfos;
     
     /** The id of the image. */
     private long						imageID;
@@ -2051,13 +2051,13 @@ class ImViewerModel
      */
     void setPlaneInfo(Collection objects)
     {
-    	if (planeInfos == null) planeInfos = new HashMap<Integer, PlaneInfo>();
+    	if (planeInfos == null) planeInfos = new HashMap<Integer, Plane>();
     	else planeInfos.clear();
     	Iterator i = objects.iterator();
-    	PlaneInfo object;
+    	Plane object;
     	Integer index;
     	while (i.hasNext()) {
-			object = (PlaneInfo) i.next();
+			object = (Plane) i.next();
 			if (object != null) {
 				index = linearize(object.getTheZ().getValue(), 
 					object.getTheC().getValue(), object.getTheT().getValue());
@@ -2074,7 +2074,7 @@ class ImViewerModel
 	 * @param t The t coordinate.  Must be in the range <code>[0, sizeT)</code>.
      * @return See above.
      */
-    PlaneInfo getPlane(int z, int c, int t)
+    Plane getPlane(int z, int c, int t)
     {
     	Integer index = null;
     	try {

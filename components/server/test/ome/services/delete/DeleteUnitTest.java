@@ -19,7 +19,7 @@ import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.core.PlaneInfo;
+import ome.model.core.Plane;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
 import ome.model.meta.Experimenter;
@@ -182,7 +182,7 @@ public class DeleteUnitTest extends MockObjectTestCase {
         deletes.add(i);
         deletes.add(p);
         deletes.addAll(p.linkedOriginalFileList());
-        deletes.addAll(p.collectPlaneInfo((CBlock<PlaneInfo>) null));
+        deletes.addAll(p.collectPlane((CBlock<Plane>) null));
         deletes.addAll(p.collectSettings((CBlock<RenderingDef>) null));
         deletes.addAll(p.collectThumbnails((CBlock<Thumbnail>) null));
 

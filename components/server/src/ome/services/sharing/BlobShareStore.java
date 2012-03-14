@@ -26,7 +26,7 @@ import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
-import ome.model.core.PlaneInfo;
+import ome.model.core.Plane;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
@@ -304,8 +304,8 @@ public class BlobShareStore extends ShareStore implements
                     return true;
                 }
             }
-        } else if (PlaneInfo.class.isAssignableFrom(kls)) {
-            PlaneInfo obj = (PlaneInfo) s.get(PlaneInfo.class, objId);
+        } else if (Plane.class.isAssignableFrom(kls)) {
+        	Plane obj = (Plane) s.get(Plane.class, objId);
             return imagesContainsPixels(s, images, obj.getPixels(), pixToImageCache);
         } else if (StatsInfo.class.isAssignableFrom(kls)
                 || QuantumDef.class.isAssignableFrom(kls) 
