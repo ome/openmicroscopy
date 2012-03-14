@@ -5,7 +5,7 @@ import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
 import ome.xml.model.primitives.NonNegativeInteger;
 import omero.api.ServiceFactoryPrx;
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import junit.framework.TestCase;
 
 import org.testng.annotations.BeforeMethod;
@@ -43,13 +43,13 @@ public class PlaneInfoProcessorTest extends TestCase
     @Test
     public void testPlaneInfoExists()
     {
-        assertEquals(3, store.countCachedContainers(PlaneInfo.class, null));
-        LSID planeInfoLSID1 = new LSID(PlaneInfo.class, IMAGE_INDEX, PLANE_INFO_INDEX);
-        LSID planeInfoLSID2 = new LSID(PlaneInfo.class, IMAGE_INDEX, PLANE_INFO_INDEX + 1);
-        LSID planeInfoLSID3 = new LSID(PlaneInfo.class, IMAGE_INDEX, PLANE_INFO_INDEX + 2);
-        PlaneInfo pi1 = (PlaneInfo) store.getSourceObject(planeInfoLSID1);
-        PlaneInfo pi2 = (PlaneInfo) store.getSourceObject(planeInfoLSID2);
-        PlaneInfo pi3 = (PlaneInfo) store.getSourceObject(planeInfoLSID3);
+        assertEquals(3, store.countCachedContainers(Plane.class, null));
+        LSID planeInfoLSID1 = new LSID(Plane.class, IMAGE_INDEX, PLANE_INFO_INDEX);
+        LSID planeInfoLSID2 = new LSID(Plane.class, IMAGE_INDEX, PLANE_INFO_INDEX + 1);
+        LSID planeInfoLSID3 = new LSID(Plane.class, IMAGE_INDEX, PLANE_INFO_INDEX + 2);
+        Plane pi1 = (Plane) store.getSourceObject(planeInfoLSID1);
+        Plane pi2 = (Plane) store.getSourceObject(planeInfoLSID2);
+        Plane pi3 = (Plane) store.getSourceObject(planeInfoLSID3);
         assertNotNull(pi1);
         assertNotNull(pi2);
         assertNotNull(pi3);
@@ -69,9 +69,9 @@ public class PlaneInfoProcessorTest extends TestCase
     public void testPlaneInfoCleanup()
     {
         store.postProcess();
-        assertEquals(1, store.countCachedContainers(PlaneInfo.class, null));
-        LSID planeInfoLSID = new LSID(PlaneInfo.class, IMAGE_INDEX, PLANE_INFO_INDEX + 2);
-        PlaneInfo pi = (PlaneInfo) store.getSourceObject(planeInfoLSID);
+        assertEquals(1, store.countCachedContainers(Plane.class, null));
+        LSID planeInfoLSID = new LSID(Plane.class, IMAGE_INDEX, PLANE_INFO_INDEX + 2);
+        Plane pi = (Plane) store.getSourceObject(planeInfoLSID);
         assertNotNull(pi);
         assertEquals(2, pi.getTheC().getValue());
         assertEquals(2, pi.getTheZ().getValue());

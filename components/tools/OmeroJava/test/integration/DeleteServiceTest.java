@@ -73,7 +73,7 @@ import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.model.PixelsOriginalFileMapI;
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionAnnotationLink;
@@ -3674,10 +3674,10 @@ public class DeleteServiceTest
     	Image image = (Image) iUpdate.saveAndReturnObject(
                 mmFactory.createImage());
         Pixels pixels = image.getPrimaryPixels();
-        pixels.clearPlaneInfo();
-        PlaneInfo planeInfo = mmFactory.createPlaneInfo();
+        pixels.clearPlane();
+        Plane planeInfo = mmFactory.createPlaneInfo();
         planeInfo.setPixels(pixels);
-        planeInfo = (PlaneInfo) iUpdate.saveAndReturnObject(planeInfo);
+        planeInfo = (Plane) iUpdate.saveAndReturnObject(planeInfo);
         //now Delete the image.
         assertExists(planeInfo);
         delete(new DeleteCommand(REF_IMAGE, image.getId().getValue(), null));

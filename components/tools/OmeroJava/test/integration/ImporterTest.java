@@ -57,7 +57,7 @@ import omero.model.Microscope;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
-import omero.model.PlaneInfo;
+import omero.model.Plane;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.Reagent;
@@ -690,14 +690,14 @@ public class ImporterTest
 		List<IObject> l = iQuery.findAllByQuery(sql, param);
 		assertEquals(size, l.size());
 		Iterator<IObject> i;
-		PlaneInfo plane;
+		Plane plane;
 		int found = 0;
 		for (int z = 0; z < XMLMockObjects.SIZE_Z; z++) {
 			for (int t = 0; t < XMLMockObjects.SIZE_T; t++) {
 				for (int c = 0; c < XMLMockObjects.SIZE_C; c++) {
 					i = l.iterator();
 					while (i.hasNext()) {
-						plane = (PlaneInfo) i.next();
+						plane = (Plane) i.next();
 						if (plane.getTheC().getValue() == c && 
 							plane.getTheZ().getValue() == z &&
 							plane.getTheT().getValue() == t)
