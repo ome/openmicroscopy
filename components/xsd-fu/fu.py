@@ -515,7 +515,12 @@ class OMEModelProperty(OMEModelEntity):
                 plural = self.plural
                 if plural is None:
                     plural = self.model.getObjectByName(self.javaMethodName).plural
-                return plural[0].lower() + plural[1:]
+                match = re.match(r'^([A-Z]+)', plural)
+                if match:
+                    match = match.group(1)
+                    offset = len(match)
+                    return match.lower() + plural[offset:]
+                return plural
         except AttributeError:
             pass
         return self.javaArgumentName
