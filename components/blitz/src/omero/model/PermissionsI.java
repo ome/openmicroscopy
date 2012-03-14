@@ -15,12 +15,12 @@ import Ice.Object;
  * Blitz wrapper around the {@link ome.model.internal.Permissions} class.
  * Currently, the internal representation is made public. (see the ZeroC thread
  * link below), but should not be used by clients.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/685">ticket:685</a>
  * @see <a href="http://www.zeroc.com/forums/showthread.php?t=3084">ZeroC Thread
  *      3084</a>
- * 
+ *
  */
 public class PermissionsI extends Permissions implements ome.model.ModelBased {
 
@@ -33,9 +33,9 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
         public void destroy() {
             // no-op
         }
-        
+
     };
-    
+
     public PermissionsI() {
         Long l = (Long) Utils
                 .internalForm(ome.model.internal.Permissions.EMPTY);
