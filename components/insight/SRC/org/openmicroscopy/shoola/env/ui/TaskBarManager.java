@@ -344,14 +344,14 @@ public class TaskBarManager
 	 * Views the image as an <code>ImageJ</code>.
 	 * 
 	 * @param image The image to view.
+	 * @param ctx The security context.
 	 */
-	private void runAsImageJ(ImageData image)
+	private void runAsImageJ(ImageData image, SecurityContext ctx)
 	{
 		UserCredentials lc = (UserCredentials) container.getRegistry().lookup(
 				LookupNames.USER_CREDENTIALS);
 		StringBuffer buffer = new StringBuffer();
 		try {
-			
 			buffer.append("location=[OMERO] open=[omero:server=");
 			buffer.append(lc.getHostName());
 			buffer.append("\nuser=");
@@ -360,6 +360,8 @@ public class TaskBarManager
 			buffer.append(lc.getPort());
 			buffer.append("\npass=");
 			buffer.append(lc.getPassword());
+			buffer.append("\ngroupID=");
+			buffer.append(ctx.getGroupID());
 			buffer.append("\niid=");
 			buffer.append(image.getId());
 			buffer.append("]");
@@ -383,7 +385,8 @@ public class TaskBarManager
 		if (evt == null) return;
 		switch (evt.getPlugin()) {
 			case ViewInPluginEvent.IMAGE_J:
-				runAsImageJ((ImageData) evt.getObject());
+				runAsImageJ((ImageData) evt.getObject(),
+						evt.getSecurityContext());
 				break;
 		}
 	}

@@ -113,7 +113,8 @@ public class ViewInPluginAction
 			case DataBrowser.IMAGE_J:
 				if (object instanceof ImageData) {
 					ViewInPluginEvent event = new ViewInPluginEvent(
-							(DataObject) object, plugin);
+						model.getSecurityContext(),
+						(DataObject) object, plugin);
 					DataBrowserAgent.getRegistry().getEventBus().post(event);
 				}
 				break;

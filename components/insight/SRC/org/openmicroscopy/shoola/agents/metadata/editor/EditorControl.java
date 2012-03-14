@@ -775,7 +775,8 @@ class EditorControl
 		        }
 				if (image != null) {
 					ViewInPluginEvent event = new ViewInPluginEvent(
-							(DataObject) object, MetadataViewer.IMAGE_J);
+						model.getSecurityContext(),
+						(DataObject) object, MetadataViewer.IMAGE_J);
 					MetadataViewerAgent.getRegistry().getEventBus().post(event);
 				}
 		}

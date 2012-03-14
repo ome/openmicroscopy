@@ -1583,6 +1583,15 @@ class DataBrowserComponent
 		}
 	}
 	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#getSecurityContext()
+	 */
+	public SecurityContext getSecurityContext()
+	{
+		return model.getSecurityContext();
+	}
+	
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()

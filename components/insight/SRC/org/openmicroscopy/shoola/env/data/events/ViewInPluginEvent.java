@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.data.events;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import pojos.DataObject;
 
@@ -53,17 +54,29 @@ public class ViewInPluginEvent
 	/** The object to view.*/
 	private DataObject object;
 	
+	/** The security context.*/
+	private SecurityContext ctx;
+	
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param ctx The security context.
 	 * @param object The object to view.
 	 * @param plugin The selected plugin.
 	 */
-	public ViewInPluginEvent(DataObject object, int plugin)
+	public ViewInPluginEvent(SecurityContext ctx, DataObject object, int plugin)
 	{
 		this.plugin = plugin;
 		this.object = object;
+		this.ctx = ctx;
 	}
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	public SecurityContext getSecurityContext() { return ctx; }
 	
 	/** 
 	 * Returns the selected plug-in.

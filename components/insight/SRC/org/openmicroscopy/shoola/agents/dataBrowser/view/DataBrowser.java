@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
@@ -716,4 +717,12 @@ public interface DataBrowser
 	 * @param node The node to handle.
 	 */
 	void viewDisplay(ImageDisplay node);
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext();
+
 }

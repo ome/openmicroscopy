@@ -23,8 +23,6 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
-import java.util.Set;
-
 
 //Java imports
 
@@ -36,6 +34,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 import pojos.DataObject;
 import pojos.ImageData;
@@ -79,7 +78,8 @@ public class ViewInPluginCmd
 		if (node == null) return;
 		Object object = node.getUserObject();
 		if (object instanceof ImageData) {
-			ViewInPluginEvent event = new ViewInPluginEvent(
+			SecurityContext ctx = browser.getSecurityContext(node);
+			ViewInPluginEvent event = new ViewInPluginEvent(ctx,
 					(DataObject) object, plugin);
 			TreeViewerAgent.getRegistry().getEventBus().post(event);
 		}
