@@ -44,7 +44,7 @@
                 } );
                 $('input#id_search').quicksearch('table#experimenterTable tbody tr', {
                     'delay': 300,
-                    'loader': 'span.loading'     
+                    'loader': 'span.loading'
                 });
         })
     </script>
@@ -60,7 +60,7 @@
     
     {% if controller.experimentersCount %}
 
-    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">{% trans "Filter:" %}</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
+    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">{% trans "Filter:" %}</label> <input type="text" id="id_search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
 
     <table id="experimenterTable" class="tablesorter">
         <thead> 
