@@ -30,33 +30,33 @@ TEST( ParametersTest, Basics )
 TEST( ParametersTest, Defaults )
 {
     ParametersIPtr p = new ParametersI();
-    // Removed: EXPECT_TRUE( ! p->isLeaves() );
-    EXPECT_TRUE( ! p->isGroup() );
-    EXPECT_TRUE( ! p->isExperimenter() );
-    EXPECT_TRUE( ! p->isEndTime() );
-    EXPECT_TRUE( ! p->isStartTime() );
-    EXPECT_TRUE( ! p->isPagination() );
+    // Removed: ASSERT_TRUE( ! p->isLeaves() );
+    ASSERT_TRUE( ! p->isGroup() );
+    ASSERT_TRUE( ! p->isExperimenter() );
+    ASSERT_TRUE( ! p->isEndTime() );
+    ASSERT_TRUE( ! p->isStartTime() );
+    ASSERT_TRUE( ! p->isPagination() );
 }
 
 TEST( ParametersTest, Experimenter )
 {
     ParametersIPtr p = new ParametersI();
     p->exp(rlong(1));
-    EXPECT_TRUE( p->isExperimenter() );
-    EXPECT_TRUE( 1L == p->getExperimenter()->getValue() );
+    ASSERT_TRUE( p->isExperimenter() );
+    ASSERT_TRUE( 1L == p->getExperimenter()->getValue() );
     p->allExps();
-    EXPECT_TRUE( 0 == p->getExperimenter() );
-    EXPECT_TRUE( ! p->isExperimenter() );
+    ASSERT_TRUE( 0 == p->getExperimenter() );
+    ASSERT_TRUE( ! p->isExperimenter() );
 }
 
 TEST( ParametersTest, ExperimenterGroup )
 {
     ParametersIPtr p = new ParametersI();
     p->grp(rlong(1));
-    EXPECT_TRUE( p->isGroup() );
-    EXPECT_TRUE( 1L == p->getGroup()->getValue() );
+    ASSERT_TRUE( p->isGroup() );
+    ASSERT_TRUE( 1L == p->getGroup()->getValue() );
     p->allGrps();
-    EXPECT_TRUE( 0 == p->getGroup() );
+    ASSERT_TRUE( 0 == p->getGroup() );
 }
 
 
@@ -69,24 +69,24 @@ TEST( ParametersTest, FilterLimitOffset )
 {
     ParametersIPtr p = new ParametersI();
     p->noPage();
-    EXPECT_TRUE( ! p->theFilter);
+    ASSERT_TRUE( ! p->theFilter);
     p->page(2,3);
-    EXPECT_EQ(2, p->theFilter->offset->getValue());
-    EXPECT_EQ(3, p->theFilter->limit->getValue());
+    ASSERT_EQ(2, p->theFilter->offset->getValue());
+    ASSERT_EQ(3, p->theFilter->limit->getValue());
     p->noPage();
-    EXPECT_TRUE( ! p->isPagination() );
-    EXPECT_TRUE( ! p->theFilter->offset);
-    EXPECT_TRUE( ! p->theFilter->limit);
-    EXPECT_TRUE( ! p->getLimit());
-    EXPECT_TRUE( ! p->getOffset());
+    ASSERT_TRUE( ! p->isPagination() );
+    ASSERT_TRUE( ! p->theFilter->offset);
+    ASSERT_TRUE( ! p->theFilter->limit);
+    ASSERT_TRUE( ! p->getLimit());
+    ASSERT_TRUE( ! p->getOffset());
 }
 
 TEST( ParametersTest, FilterUnique )
 {
     ParametersIPtr p = new ParametersI();
-    EXPECT_TRUE( 0 == p->getUnique() );
-    EXPECT_TRUE( p->unique()->getUnique()->getValue() );
-    EXPECT_TRUE( ! p->noUnique()->getUnique()->getValue() );
+    ASSERT_TRUE( 0 == p->getUnique() );
+    ASSERT_TRUE( p->unique()->getUnique()->getValue() );
+    ASSERT_TRUE( ! p->noUnique()->getUnique()->getValue() );
 }
 
 //
@@ -96,25 +96,25 @@ TEST( ParametersTest, FilterUnique )
 TEST( ParametersTest, OwnerId )
 {
     ParametersIPtr p = new ParametersI();
-    EXPECT_TRUE( ! p->theFilter );
+    ASSERT_TRUE( ! p->theFilter );
     p->exp(rlong(1));
-    EXPECT_TRUE( p->theFilter );
-    EXPECT_TRUE( p->theFilter->ownerId );
-    EXPECT_TRUE( 1 == p->getExperimenter()->getValue() );
-    EXPECT_TRUE( ! p->allExps()->getExperimenter() );
-    EXPECT_TRUE( p->theFilter );
+    ASSERT_TRUE( p->theFilter );
+    ASSERT_TRUE( p->theFilter->ownerId );
+    ASSERT_TRUE( 1 == p->getExperimenter()->getValue() );
+    ASSERT_TRUE( ! p->allExps()->getExperimenter() );
+    ASSERT_TRUE( p->theFilter );
 }
 
 TEST( ParametersTest, GroupId )
 {
     ParametersIPtr p = new ParametersI();
-    EXPECT_TRUE( ! p->theFilter );
+    ASSERT_TRUE( ! p->theFilter );
     p->grp(rlong(1));
-    EXPECT_TRUE( p->theFilter );
-    EXPECT_TRUE( p->theFilter->groupId );
-    EXPECT_TRUE( 1 == p->getGroup()->getValue() );
-    EXPECT_TRUE( ! p->allGrps()->getGroup() );
-    EXPECT_TRUE( p->theFilter );
+    ASSERT_TRUE( p->theFilter );
+    ASSERT_TRUE( p->theFilter->groupId );
+    ASSERT_TRUE( 1 == p->getGroup()->getValue() );
+    ASSERT_TRUE( ! p->allGrps()->getGroup() );
+    ASSERT_TRUE( p->theFilter );
 }
 
 //
@@ -124,16 +124,16 @@ TEST( ParametersTest, GroupId )
 TEST( ParametersTest, Times )
 {
     ParametersIPtr p = new ParametersI();
-    EXPECT_TRUE( ! p->theFilter );
+    ASSERT_TRUE( ! p->theFilter );
     p->startTime(rtime(0));
-    EXPECT_TRUE( p->theFilter );
-    EXPECT_TRUE( p->theFilter->startTime );
+    ASSERT_TRUE( p->theFilter );
+    ASSERT_TRUE( p->theFilter->startTime );
     p->endTime(rtime(1));
-    EXPECT_TRUE( p->theFilter->endTime );
+    ASSERT_TRUE( p->theFilter->endTime );
     p->allTimes();
-    EXPECT_TRUE( p->theFilter );
-    EXPECT_TRUE( ! p->theFilter->startTime );
-    EXPECT_TRUE( ! p->theFilter->endTime );
+    ASSERT_TRUE( p->theFilter );
+    ASSERT_TRUE( ! p->theFilter->startTime );
+    ASSERT_TRUE( ! p->theFilter->endTime );
 }
 
 //
@@ -143,25 +143,25 @@ TEST( ParametersTest, Times )
 TEST( ParametersTest, OptionsAcquisitionData )
 {
     ParametersIPtr p = new ParametersI();
-    EXPECT_TRUE( ! p->getAcquisitionData() );
-    EXPECT_TRUE( p->acquisitionData()->getAcquisitionData() );
-    EXPECT_TRUE( p->noAcquisitionData()->getAcquisitionData() );
+    ASSERT_TRUE( ! p->getAcquisitionData() );
+    ASSERT_TRUE( p->acquisitionData()->getAcquisitionData() );
+    ASSERT_TRUE( p->noAcquisitionData()->getAcquisitionData() );
 }
 
 TEST( ParametersTest, OptionsLeaves )
 {
     ParametersIPtr p = new ParametersI();
-    EXPECT_TRUE( ! p->getLeaves() );
-    EXPECT_TRUE( p->leaves()->getLeaves() );
-    EXPECT_TRUE( p->noLeaves()->getLeaves() );
+    ASSERT_TRUE( ! p->getLeaves() );
+    ASSERT_TRUE( p->leaves()->getLeaves() );
+    ASSERT_TRUE( p->noLeaves()->getLeaves() );
 }
 
 TEST( ParametersTest, OptionsOrphan )
 {
     ParametersIPtr p = new ParametersI();
-    EXPECT_TRUE( ! p->getOrphan() );
-    EXPECT_TRUE( p->orphan()->getOrphan() );
-    EXPECT_TRUE( p->noOrphan()->getOrphan() );
+    ASSERT_TRUE( ! p->getOrphan() );
+    ASSERT_TRUE( p->orphan()->getOrphan() );
+    ASSERT_TRUE( p->noOrphan()->getOrphan() );
 }
 
 //
@@ -172,47 +172,47 @@ TEST( ParametersTest, AddBasicString )
 {
     ParametersIPtr p = new ParametersI();
     p->add("string", rstring("a"));
-    EXPECT_EQ("a", RStringPtr::dynamicCast(p->map["string"])->getValue());
+    ASSERT_EQ("a", RStringPtr::dynamicCast(p->map["string"])->getValue());
 }
 
 TEST( ParametersTest, AddBasicInt )
 {
     ParametersIPtr p = new ParametersI();
     p->add("int", rint(1));
-    EXPECT_EQ(1, RIntPtr::dynamicCast(p->map["int"])->getValue());
+    ASSERT_EQ(1, RIntPtr::dynamicCast(p->map["int"])->getValue());
 }
 
 TEST( ParametersTest, AddIdRaw )
 {
     ParametersIPtr p = new ParametersI();
     p->addId(1);
-    EXPECT_EQ(1, RLongPtr::dynamicCast(p->map["id"])->getValue());
+    ASSERT_EQ(1, RLongPtr::dynamicCast(p->map["id"])->getValue());
 }
 
 TEST( ParametersTest, AddIdRType )
 {
     ParametersIPtr p = new ParametersI();
     p->addId(rlong(1));
-    EXPECT_EQ(1, RLongPtr::dynamicCast(p->map["id"])->getValue());
+    ASSERT_EQ(1, RLongPtr::dynamicCast(p->map["id"])->getValue());
 }
 
 TEST( ParametersTest, AddLongRaw )
 {
     ParametersIPtr p = new ParametersI();
     p->addLong("long",1L);
-    EXPECT_EQ(1, RLongPtr::dynamicCast(p->map["long"])->getValue());
+    ASSERT_EQ(1, RLongPtr::dynamicCast(p->map["long"])->getValue());
 }
 
 TEST( ParametersTest, AddLongRType )
 {
     ParametersIPtr p = new ParametersI();
     p->addLong("long",rlong(1L));
-    EXPECT_EQ(1, RLongPtr::dynamicCast(p->map["long"])->getValue());
+    ASSERT_EQ(1, RLongPtr::dynamicCast(p->map["long"])->getValue());
 }
 
 void find(long i, omero::RListPtr test) {
 
-    EXPECT_TRUE(test);
+    ASSERT_TRUE(test);
     omero::RTypeSeq seq = test->getValue();
 
     omero::RTypeSeq::iterator found;
@@ -224,7 +224,7 @@ void find(long i, omero::RListPtr test) {
         count++;
 	omero::RTypePtr t = *beg;
     }
-    EXPECT_NE(0, count);
+    ASSERT_NE(0, count);
 }
 
 TEST( ParametersTest, AddIds )

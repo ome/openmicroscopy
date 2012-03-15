@@ -16,7 +16,7 @@ TEST(OperatorsTest, EqualityOperatorOnPointers)
   Fixture f;
   ImagePtr img1 = new_ImageI();
   ImagePtr img2 = new_ImageI();
-  EXPECT_NE( img1, img2 );
+  ASSERT_NE( img1, img2 );
 }
 
 TEST(OperatorsTest, EqualityOperatorOnRawObject)

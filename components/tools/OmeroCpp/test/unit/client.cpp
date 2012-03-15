@@ -39,5 +39,5 @@ TEST(ClientTest, ClientWithInitializationData2 )
   id.properties->parseCommandLineOptions("omero", args);
   omero::client c(id);
   std::string s = c.getProperty("omero.host");
-  EXPECT_EQ("localhost", s);
+  ASSERT_EQ("localhost", s);
 }

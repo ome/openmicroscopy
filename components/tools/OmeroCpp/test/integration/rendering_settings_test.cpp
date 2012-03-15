@@ -90,7 +90,7 @@ public:
      */
     ImagePtr createBinaryImage(ImagePtr image) {
 
-        EXPECT_TRUE( image->sizeOfPixels() > 0);
+        ASSERT_TRUE( image->sizeOfPixels() > 0);
         PixelsPtr pixels = image->getPixels(0);
         RPSTileLoopPtr loop = new RPSTileLoop(client->getSession(), pixels);
         loop->forEachTile(256, 256, new MyIteration());
@@ -109,6 +109,6 @@ TEST(RenderingSettingsTest, testResetDefaultsInImage )
 
     RndFixture f;
     ImagePtr img = f.createBinaryImage();
-    EXPECT_TRUE( img->getId() );
+    ASSERT_TRUE( img->getId() );
     f.rndService()->resetDefaultsInImage(img->getId()->getValue());
 }

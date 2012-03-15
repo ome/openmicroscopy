@@ -57,7 +57,7 @@ TEST(AnnotationTest, tagAnnotation )
 	ImageAnnotationLinkIPtr link = ImageAnnotationLinkIPtr::dynamicCast(i->beginAnnotationLinks()[0]);
 	AnnotationPtr a = link->getChild();
 	tag = TagAnnotationIPtr::dynamicCast(a);
-	EXPECT_EQ( "my-first-tag", tag->getTextValue()->getValue() );
+	ASSERT_EQ( "my-first-tag", tag->getTextValue()->getValue() );
 
     } catch (omero::ApiUsageException& aue) {
 	cout << aue.message <<endl;
@@ -80,7 +80,7 @@ TEST(AnnotationTest, fileAnnotation )
 #ifdef _WIN32
         int err;
         err = _mktemp_s(pointer, 10); // Length plus one for null
-        EXPECT_FALSE( err );
+        ASSERT_FALSE( err );
 #else
 	mkstemp(pointer);
 #endif

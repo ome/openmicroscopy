@@ -41,7 +41,7 @@ TEST(CountsTest, Counts )
         q << img->getId()->getValue();
 	img = ImageIPtr::dynamicCast( query->findByQuery(q.str(), 0) );
 
-	EXPECT_TRUE( img->getAnnotationLinksCountPerOwner()[usr] > 0 );
+	ASSERT_TRUE( img->getAnnotationLinksCountPerOwner()[usr] > 0 );
 
     } catch (const omero::ApiUsageException& aue) {
         cout << aue.message <<endl;

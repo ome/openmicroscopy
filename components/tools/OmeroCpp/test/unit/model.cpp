@@ -25,7 +25,7 @@ using namespace std;
 TEST(ModelTest, DetailsPtrIsNull )
 {
     DetailsIPtr p;
-    EXPECT_FALSE(p);
+    ASSERT_FALSE(p);
 }
 
 TEST(ModelTest, Virtual )
@@ -40,24 +40,24 @@ TEST(ModelTest, Toggle )
 {
   Fixture f;
   PixelsIPtr pix = new PixelsI();
-  EXPECT_TRUE( pix->sizeOfSettings() >= 0 );
+  ASSERT_TRUE( pix->sizeOfSettings() >= 0 );
   pix->unloadCollections();
-  EXPECT_TRUE( pix->sizeOfSettings() < 0 );
+  ASSERT_TRUE( pix->sizeOfSettings() < 0 );
 }
 
 TEST(ModelTest, SimpleCtor )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  EXPECT_TRUE( img->isLoaded() );
-  EXPECT_TRUE( img->sizeOfPixels() >= 0 );
+  ASSERT_TRUE( img->isLoaded() );
+  ASSERT_TRUE( img->sizeOfPixels() >= 0 );
 }
 
 TEST(ModelTest, UnloadedCtor )
 {
   Fixture f;
   ImageIPtr img = new ImageI(rlong(1),false);
-  EXPECT_TRUE( !(img->isLoaded()) );
+  ASSERT_TRUE( !(img->isLoaded()) );
   ASSERT_THROW( img->sizeOfDatasetLinks(), omero::UnloadedEntityException );
 }
 
@@ -65,12 +65,12 @@ TEST(ModelTest, UnloadCheckPtr )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  EXPECT_TRUE( img->isLoaded() );
+  ASSERT_TRUE( img->isLoaded() );
   // operator bool() is overloaded
-  EXPECT_TRUE( img->getDetails() ); // details are auto instantiated
-  EXPECT_TRUE( ! img->getName() ); // no other single-valued field is
+  ASSERT_TRUE( img->getDetails() ); // details are auto instantiated
+  ASSERT_TRUE( ! img->getName() ); // no other single-valued field is
   img->unload();
-  EXPECT_TRUE( !img->isLoaded() );
+  ASSERT_TRUE( !img->isLoaded() );
   ASSERT_THROW( img->getDetails(), omero::UnloadedEntityException );
 }
 
@@ -78,16 +78,16 @@ TEST(ModelTest, UnloadField )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  EXPECT_TRUE( img->getDetails() );
+  ASSERT_TRUE( img->getDetails() );
   img->unloadDetails();
-  EXPECT_TRUE( ! img->getDetails() );
+  ASSERT_TRUE( ! img->getDetails() );
 }
 
 TEST(ModelTest, Sequences )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  EXPECT_EQ(0, img->sizeOfAnnotationLinks());
+  ASSERT_EQ(0, img->sizeOfAnnotationLinks());
   img->unloadAnnotationLinks();
   img->unload();
   ASSERT_THROW( img->sizeOfAnnotationLinks(), omero::UnloadedEntityException );
@@ -98,16 +98,16 @@ TEST(ModelTest, Accessors )
   Fixture f;
   RStringPtr name = rstring("name");
   ImageIPtr img = new ImageI();
-  EXPECT_TRUE( !img->getName() );
+  ASSERT_TRUE( !img->getName() );
   img->setName( name );
-  EXPECT_TRUE( img->getName() );
+  ASSERT_TRUE( img->getName() );
   RStringPtr str = img->getName();
-  EXPECT_EQ("name", str->getValue());
-  EXPECT_EQ(str, name );
+  ASSERT_EQ("name", str->getValue());
+  ASSERT_EQ(str, name );
 
   img->setName(rstring("name2"));
-  EXPECT_TRUE( img->getName() );
-  EXPECT_EQ("name2",  img->getName()->getValue());
+  ASSERT_TRUE( img->getName() );
+  ASSERT_EQ("name2",  img->getName()->getValue());
 
   img->unload();
   ASSERT_THROW( img->getName(), omero::UnloadedEntityException );
@@ -132,30 +132,30 @@ TEST(ModelTest, Iterators )
   for (;it != image->endDatasetLinks(); ++it) {
     count++;
   }
-  EXPECT_EQ(1, count);
+  ASSERT_EQ(1, count);
 }
 
 TEST(ModelTest, ClearSet )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  EXPECT_TRUE( img->sizeOfPixels() >= 0 );
+  ASSERT_TRUE( img->sizeOfPixels() >= 0 );
   img->addPixels( new PixelsI() );
-  EXPECT_EQ(1, img->sizeOfPixels());
+  ASSERT_EQ(1, img->sizeOfPixels());
   img->clearPixels();
-  EXPECT_TRUE( img->sizeOfPixels() >= 0 );
-  EXPECT_EQ(0, img->sizeOfPixels());
+  ASSERT_TRUE( img->sizeOfPixels() >= 0 );
+  ASSERT_EQ(0, img->sizeOfPixels());
 }
 
 TEST(ModelTest, UnloadSet )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  EXPECT_TRUE( img->sizeOfPixels() >= 0 );
+  ASSERT_TRUE( img->sizeOfPixels() >= 0 );
   img->addPixels( new PixelsI() );
-  EXPECT_EQ(1, img->sizeOfPixels());
+  ASSERT_EQ(1, img->sizeOfPixels());
   img->unloadPixels();
-  EXPECT_TRUE( img->sizeOfPixels() < 0 );
+  ASSERT_TRUE( img->sizeOfPixels() < 0 );
 }
 
 TEST(ModelTest, RemoveFromSet )
@@ -163,13 +163,13 @@ TEST(ModelTest, RemoveFromSet )
   Fixture f;
   PixelsIPtr pix = new PixelsI();
   ImageIPtr img = new ImageI();
-  EXPECT_TRUE( img->sizeOfPixels() >= 0 );
+  ASSERT_TRUE( img->sizeOfPixels() >= 0 );
 
   img->addPixels( pix );
-  EXPECT_EQ(1, img->sizeOfPixels());
+  ASSERT_EQ(1, img->sizeOfPixels());
 
   img->removePixels( pix );
-  EXPECT_EQ(0, img->sizeOfPixels());
+  ASSERT_EQ(0, img->sizeOfPixels());
 }
 
 TEST(ModelTest, LinkGroupAndUser )
@@ -192,7 +192,7 @@ TEST(ModelTest, LinkGroupAndUser )
   for( ; beg != end; beg++ ) {
     ++count;
   }
-  EXPECT_EQ(1, count);
+  ASSERT_EQ(1, count);
 
 }
 
@@ -224,24 +224,24 @@ TEST(ModelTest, LinkingAndUnlinking )
   ImageIPtr   i = new ImageI();
 
   d->linkImage(i);
-  EXPECT_EQ(1, d->sizeOfImageLinks());
+  ASSERT_EQ(1, d->sizeOfImageLinks());
   d->unlinkImage(i);
-  EXPECT_EQ(0, d->sizeOfImageLinks());
+  ASSERT_EQ(0, d->sizeOfImageLinks());
 
   d = new DatasetI();
   i = new ImageI();
   d->linkImage(i);
-  EXPECT_EQ(1, i->sizeOfDatasetLinks());
+  ASSERT_EQ(1, i->sizeOfDatasetLinks());
   i->unlinkDataset(d);
-  EXPECT_EQ(0, d->sizeOfImageLinks());
+  ASSERT_EQ(0, d->sizeOfImageLinks());
 
   d = new DatasetI();
   i = new ImageI();
   dil = new DatasetImageLinkI();
   dil->link(d,i);
   d->addDatasetImageLinkToBoth(dil, false);
-  EXPECT_EQ(1, d->sizeOfImageLinks());
-  EXPECT_EQ(0, i->sizeOfDatasetLinks());
+  ASSERT_EQ(1, d->sizeOfImageLinks());
+  ASSERT_EQ(0, i->sizeOfDatasetLinks());
 
 }
 
@@ -268,8 +268,8 @@ TEST(ModelTest, PrimaryPixels ) {
 
     ImageIPtr i = new ImageI();
 
-    EXPECT_EQ( true, i->isPixelsLoaded() );
-    EXPECT_EQ( 0, i->sizeOfPixels() );
+    ASSERT_EQ( true, i->isPixelsLoaded() );
+    ASSERT_EQ( 0, i->sizeOfPixels() );
     bool called = false;
     ImagePixelsSeq::iterator beg = i->beginPixels();
     ImagePixelsSeq::iterator end = i->endPixels();
@@ -277,28 +277,28 @@ TEST(ModelTest, PrimaryPixels ) {
         called = true;
         beg++;
     }
-    EXPECT_EQ( false, called );
+    ASSERT_EQ( false, called );
 
 
     PixelsIPtr p = new PixelsI();
     i->addPixels( p );
 
-    EXPECT_EQ( true, i->isPixelsLoaded() );
-    EXPECT_EQ( 1, i->sizeOfPixels() );
-    EXPECT_EQ( p, i->beginPixels()[0] );
+    ASSERT_EQ( true, i->isPixelsLoaded() );
+    ASSERT_EQ( 1, i->sizeOfPixels() );
+    ASSERT_EQ( p, i->beginPixels()[0] );
     beg = i->beginPixels();
     end = i->endPixels();
     while (beg != end) {
         called = true;
         beg++;
     }
-    EXPECT_EQ( true, called );
+    ASSERT_EQ( true, called );
 
 
     i->unloadPixels();
 
-    EXPECT_EQ( false, i->isPixelsLoaded() );
-    EXPECT_EQ( -1, i->sizeOfPixels() );
+    ASSERT_EQ( false, i->isPixelsLoaded() );
+    ASSERT_EQ( -1, i->sizeOfPixels() );
     try {
         i->beginPixels();
         FAIL() << "Should have thrown an exception ";
@@ -314,8 +314,8 @@ TEST(ModelTest, OrderedCollectionsTicket2547 ) {
     ChannelPtr channel1 = new ChannelI();
     ChannelPtr channel2 = new ChannelI();
     pixels->addChannel(channel0);
-    EXPECT_EQ(1, pixels->sizeOfChannels());
+    ASSERT_EQ(1, pixels->sizeOfChannels());
     ChannelPtr old = pixels->setChannel(0, channel1);
-    EXPECT_EQ(old, channel0);
-    EXPECT_EQ(1, pixels->sizeOfChannels());
+    ASSERT_EQ(old, channel0);
+    ASSERT_EQ(1, pixels->sizeOfChannels());
 }

@@ -47,7 +47,7 @@ TEST(ConcurrencyTest, testEvent )
         BaseThreadPtr w = new WriterThread();
         IceUtil::ThreadControl wc = w->start();
         wc.join();
-        EXPECT_TRUE( (*w).passed );
+        ASSERT_TRUE( (*w).passed );
 
         for (int i = 0; i < 10; i++) {
             BaseThreadPtr r = rs.front();
@@ -55,6 +55,6 @@ TEST(ConcurrencyTest, testEvent )
             rs.pop_front();
             rcs.pop_front();
             tc.join();
-            EXPECT_TRUE( (*r).passed );
+            ASSERT_TRUE( (*r).passed );
         }
 }

@@ -32,13 +32,13 @@ TEST(ClientUsageTest, testUseSharedMemory )
     omero::client_ptr client = new omero::client();
     client->createSession();
 
-    EXPECT_EQ(0, (int)client->getInputKeys().size());
+    ASSERT_EQ(0, (int)client->getInputKeys().size());
     client->setInput("a", rstring("b"));
-    EXPECT_EQ(1, (int)client->getInputKeys().size());
+    ASSERT_EQ(1, (int)client->getInputKeys().size());
     std::vector<std::string> keys = client->getInputKeys();
     std::vector<std::string>::iterator it = find(keys.begin(), keys.end(), "a");
-    EXPECT_NE( it, keys.end() );
-    EXPECT_EQ("b", omero::RStringPtr::dynamicCast(client->getInput("a"))->getValue());
+    ASSERT_NE( it, keys.end() );
+    ASSERT_EQ("b", omero::RStringPtr::dynamicCast(client->getInput("a"))->getValue());
 
     client->closeSession();
 }
@@ -46,11 +46,11 @@ TEST(ClientUsageTest, testUseSharedMemory )
 TEST(ClientUsageTest, testCreateInsecureClientTicket2099 )
 {
     omero::client_ptr secure = new omero::client();
-    EXPECT_TRUE(secure->isSecure());
+    ASSERT_TRUE(secure->isSecure());
     secure->createSession()->getAdminService()->getEventContext();
     omero::client_ptr insecure = secure->createClient(false);
     insecure->getSession()->getAdminService()->getEventContext();
-    EXPECT_FALSE( insecure->isSecure());
+    ASSERT_FALSE( insecure->isSecure());
 }
 
 TEST(ClientUsageTest, testGetStatefulServices )
@@ -61,7 +61,7 @@ TEST(ClientUsageTest, testGetStatefulServices )
     sf->setSecurityContext(new omero::model::ExperimenterGroupI(0L, false));
     sf->createRenderingEngine();
     std::vector<omero::api::StatefulServiceInterfacePrx> srvs = root->getStatefulServices();
-    EXPECT_EQ(1L, srvs.size());
+    ASSERT_EQ(1L, srvs.size());
     try {
         sf->setSecurityContext(new omero::model::ExperimenterGroupI(1L, false));
         FAIL() << "Should not be allowed";
@@ -70,6 +70,6 @@ TEST(ClientUsageTest, testGetStatefulServices )
     }
     srvs.at(0)->close();
     srvs = root->getStatefulServices();
-    EXPECT_EQ(0, srvs.size());
+    ASSERT_EQ(0, srvs.size());
     sf->setSecurityContext(new omero::model::ExperimenterGroupI(1L, false));
 }

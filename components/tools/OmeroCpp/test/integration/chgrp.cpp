@@ -32,7 +32,7 @@ TEST(ChgrpTest, testSimpleChgrp ) {
     client_ptr c = f.login(user->getOmeName()->getValue());
     ServiceFactoryPrx sf = c->getSession();
     IAdminPrx admin = sf->getAdminService();
-    EXPECT_EQ(g1->getId()->getValue(), admin->getEventContext()->groupId);
+    ASSERT_EQ(g1->getId()->getValue(), admin->getEventContext()->groupId);
 
     IQueryPrx iquery = sf->getQueryService();
     IUpdatePrx iupdate = sf->getUpdateService();

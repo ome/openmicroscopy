@@ -134,17 +134,17 @@ public:
 #define assertAtLeastResults(count, search) _assertResults(count, search, false)
 #define _assertResults(count, search, exact) \
     if (count  > 0) { \
-        EXPECT_TRUE( search->hasNext() ); \
+        ASSERT_TRUE( search->hasNext() ); \
         if (search->hasNext()) { \
 	    if (exact) { \
-		EXPECT_EQ((unsigned int) count, search->results().size() ); \
+		ASSERT_EQ((unsigned int) count, search->results().size() ); \
 	    } else { \
-		EXPECT_TRUE( search->results().size() > count ); \
+		ASSERT_TRUE( search->results().size() > count ); \
 	    } \
         } \
     } else { \
 	if (search->hasNext()) { \
-            EXPECT_EQ(0, search->results().size()); \
+            ASSERT_EQ(0, search->results().size()); \
         } \
     } \
 
@@ -185,7 +185,7 @@ TEST(SearchTest, IQuerySearch )
     // IQuery provides a simple, stateless method for search
     IObjectList list;
     list = f.query()->findAllByFullText("Image",uuid,0);
-    EXPECT_EQ((unsigned int)1, list.size());
+    ASSERT_EQ((unsigned int)1, list.size());
 }
 
 
@@ -315,14 +315,14 @@ TEST( SearchTest, testByGroupForTags ) {
     tag = TagAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(tag));
 
     // All queries finished?
-    EXPECT_EQ(0, search->activeQueries());
+    ASSERT_EQ(0, search->activeQueries());
     assertResults(0, search);
 
     DetailsIPtr d = new DetailsI();
     d->setOwner(new ExperimenterI(secondUser->getId(), false));
     search->onlyOwnedBy(d);
     search->byGroupForTags(groupStr);
-    EXPECT_FALSE( search->hasNext() );
+    ASSERT_FALSE( search->hasNext() );
 
     d->setOwner(initialUser);
     search->onlyOwnedBy(d);
@@ -399,7 +399,7 @@ TEST(SearchTest, testByTagForGroup ) {
     tag = TagAnnotationIPtr::dynamicCast(f2.update()->saveAndReturnObject(tag));
 
     // All queries finished?
-    EXPECT_EQ(0, search->activeQueries());
+    ASSERT_EQ(0, search->activeQueries());
     assertResults(0, search);
 
     DetailsIPtr d = new DetailsI();
@@ -449,9 +449,9 @@ TEST(SearchTest, testSimpleFullTextSearch ) {
     while (search->hasNext()) {
 	obj = search->next();
 	count++;
-	EXPECT_TRUE( obj );
+	ASSERT_TRUE( obj );
     }
-    EXPECT_EQ(1, count);
+    ASSERT_EQ(1, count);
 
     search->onlyType("Image");
     search->byFullText(i->getName()->getValue());
@@ -496,7 +496,7 @@ TEST(SearchTest, testSomeMustNone ) {
 
     // Make sure we can find it simply
     search->bySomeMustNone(sa("abc"), sa(), sa());
-    EXPECT_EQ(search->results().size() >= 1);
+    ASSERT_EQ(search->results().size() >= 1);
 
     //
     // Now we'll try more complicated queries
@@ -852,7 +852,7 @@ TEST(SearchTest, testOnlyOwnedByOwner ) {
     search->onlyOwnedBy(rootd);
     // full text
     search->byFullText(name);
-    EXPECT_FALSE(search->hasNext());
+    ASSERT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -965,7 +965,7 @@ TEST(SearchTest, testOnlyOwnedByGroup ) {
     search->notOwnedBy(DetailsIPtr());
     // full text
     search->byFullText(name);
-    EXPECT_FALSE(search->hasNext());
+    ASSERT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1087,7 +1087,7 @@ TEST(SearchTest, testOnlyCreateBetween ) {
     search->onlyCreatedBetween(omero::RTimePtr(), oneHourAgo());
     // full text
     search->byFullText(name);
-    EXPECT_FALSE(search->hasNext());
+    ASSERT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1102,7 +1102,7 @@ TEST(SearchTest, testOnlyCreateBetween ) {
     search->onlyCreatedBetween(inOneHour(), omero::RTimePtr());
     // full text
     search->byFullText(name);
-    EXPECT_FALSE(search->hasNext());
+    ASSERT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1132,7 +1132,7 @@ TEST(SearchTest, testOnlyCreateBetween ) {
     search->onlyCreatedBetween(omero::RTimePtr(), start);
     // full text
     search->byFullText(name);
-    EXPECT_FALSE(search->hasNext());
+    ASSERT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1202,7 +1202,7 @@ TEST(SearchTest, testOnlyModifiedBetween ) {
     search->onlyModifiedBetween(omero::RTimePtr(), oneHourAgo());
     // full text
     search->byFullText(name);
-    EXPECT_FALSE(search->hasNext());
+    ASSERT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1217,7 +1217,7 @@ TEST(SearchTest, testOnlyModifiedBetween ) {
     search->onlyModifiedBetween(inOneHour(), omero::RTimePtr());
     // full text
     search->byFullText(name);
-    EXPECT_FALSE(search->hasNext());
+    ASSERT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1247,7 +1247,7 @@ TEST(SearchTest, testOnlyModifiedBetween ) {
     search->onlyModifiedBetween(omero::RTimePtr(), start);
     // full text
     search->byFullText(name);
-    EXPECT_FALSE(search->hasNext());
+    ASSERT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1314,7 +1314,7 @@ TEST(SearchTest, testOnlyAnnotatedBetween ) {
     search->onlyAnnotatedBetween(omero::RTimePtr(), oneHourAgo());
     // full text
     search->byFullText(name);
-    EXPECT_FALSE(search->hasNext());
+    ASSERT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1329,7 +1329,7 @@ TEST(SearchTest, testOnlyAnnotatedBetween ) {
     search->onlyAnnotatedBetween(inOneHour(), omero::RTimePtr());
     // full text
     search->byFullText(name);
-    EXPECT_FALSE(search->hasNext());
+    ASSERT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1359,7 +1359,7 @@ TEST(SearchTest, testOnlyAnnotatedBetween ) {
     search->onlyAnnotatedBetween(omero::RTimePtr(), start);
     // full text
     search->byFullText(name);
-    EXPECT_FALSE(search->hasNext());
+    ASSERT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1430,7 +1430,7 @@ TEST(SearchTest, testOnlyAnnotatedBy ) {
     search->notAnnotatedBy(DetailsIPtr());
     // full text
     search->byFullText(name);
-    EXPECT_FALSE(search->hasNext());
+    ASSERT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, t);
     assertResults(0, search);
@@ -1478,7 +1478,7 @@ TEST(SearchTest, testOnlyAnnotatedWith ) {
     search->onlyAnnotatedWith(stringSet("TagAnnotation"));
     search->onlyType("Image");
     search->byFullText(name);
-    EXPECT_FALSE(search->hasNext());
+    ASSERT_FALSE(search->hasNext());
 
     // But if we ask for Images which aren't annotated it should appear
     search->onlyAnnotatedWith(StringSet());
@@ -1500,7 +1500,7 @@ TEST(SearchTest, testOnlyAnnotatedWith ) {
 
     // Since we're looking for "no annotations" there should be no results
     search->byFullText(name);
-    EXPECT_FALSE(search->hasNext());
+    ASSERT_FALSE(search->hasNext());
 
     // And if we turn the annotations back on?
     search->onlyAnnotatedWith(stringSet("TagAnnotation"));
@@ -1547,11 +1547,11 @@ TEST(SearchTest, testOnlyAnnotatedWithMultiple ) {
 
     search->onlyAnnotatedWith(stringSet("TagAnnotation"));
     search->byFullText(name);
-    EXPECT_EQ( (unsigned int) 2, search->results().size());
+    ASSERT_EQ( (unsigned int) 2, search->results().size());
 
     search->onlyAnnotatedWith(stringSet("BooleanAnnotation"));
     search->byFullText(name);
-    EXPECT_EQ( (unsigned int) 2, search->results().size());
+    ASSERT_EQ( (unsigned int) 2, search->results().size());
 
     search->onlyAnnotatedWith(stringSet("BooleanAnnotation", "TagAnnotation"));
     search->byFullText(name);
@@ -1638,7 +1638,7 @@ TEST SearchTest,( testOrderBy ) {
     desc.push_back(i2->getDescription()->getValue());
     desc.push_back(i1->getDescription()->getValue());
     while (search->hasNext()) {
-	EXPECT_EQ(desc.remove(0), ((Image) search->next())
+	ASSERT_EQ(desc.remove(0), ((Image) search->next())
 		     .getDescription());
     }
     // annotated with
@@ -1647,7 +1647,7 @@ TEST SearchTest,( testOrderBy ) {
     desc.add(i2.getDescription());
     desc.add(i1.getDescription());
     while (search->hasNext()) {
-	EXPECT_EQ(desc.remove(0), ((Image) search->next())
+	ASSERT_EQ(desc.remove(0), ((Image) search->next())
 		     .getDescription());
     }
 
@@ -1660,7 +1660,7 @@ TEST SearchTest,( testOrderBy ) {
     asc.add(i1.getDescription());
     asc.add(i2.getDescription());
     while (search->hasNext()) {
-	EXPECT_EQ(asc.remove(0), ((Image) search->next())
+	ASSERT_EQ(asc.remove(0), ((Image) search->next())
 		     .getDescription());
     }
     // annotated with
@@ -1669,7 +1669,7 @@ TEST SearchTest,( testOrderBy ) {
     asc.add(i1.getDescription());
     asc.add(i2.getDescription());
     while (search->hasNext()) {
-	EXPECT_EQ(asc.remove(0), ((Image) search->next())
+	ASSERT_EQ(asc.remove(0), ((Image) search->next())
 		     .getDescription());
     }
 
@@ -1682,7 +1682,7 @@ TEST SearchTest,( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	EXPECT_EQ(ids.remove(0), search->next().getId());
+	ASSERT_EQ(ids.remove(0), search->next().getId());
     }
     // annotated with
     byAnnotatedWith(search, tag);
@@ -1690,7 +1690,7 @@ TEST SearchTest,( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	EXPECT_EQ(ids.remove(0), search->next().getId());
+	ASSERT_EQ(ids.remove(0), search->next().getId());
     }
 
     // Ordered by creation event id
@@ -1702,7 +1702,7 @@ TEST SearchTest,( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	EXPECT_EQ(ids.remove(0), search->next().getId());
+	ASSERT_EQ(ids.remove(0), search->next().getId());
     }
     // annotated with
     byAnnotatedWith(search, tag);
@@ -1710,7 +1710,7 @@ TEST SearchTest,( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	EXPECT_EQ(ids.remove(0), search->next().getId());
+	ASSERT_EQ(ids.remove(0), search->next().getId());
     }
 
     // ordered by creation event time
@@ -1722,7 +1722,7 @@ TEST SearchTest,( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	EXPECT_EQ(ids.remove(0), search->next().getId());
+	ASSERT_EQ(ids.remove(0), search->next().getId());
     }
     // annotated with
     byAnnotatedWith(search, tag);
@@ -1730,7 +1730,7 @@ TEST SearchTest,( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	EXPECT_EQ(ids.remove(0), search->next().getId());
+	ASSERT_EQ(ids.remove(0), search->next().getId());
     }
 
     // To test multiple sort fields, we add another image with an "a"
@@ -1758,7 +1758,7 @@ TEST SearchTest,( testOrderBy ) {
     multi.add(i1.getId());
     multi.add(i2.getId());
     while (search->hasNext()) {
-	EXPECT_EQ(multi.remove(0), search->next().getId());
+	ASSERT_EQ(multi.remove(0), search->next().getId());
     }
     // full text
     search->byFullText(uuid);
@@ -1767,7 +1767,7 @@ TEST SearchTest,( testOrderBy ) {
     multi.add(i1.getId());
     multi.add(i2.getId());
     while (search->hasNext()) {
-	EXPECT_EQ(multi.remove(0), search->next().getId());
+	ASSERT_EQ(multi.remove(0), search->next().getId());
     }
 
 }
@@ -1801,44 +1801,44 @@ TEST(SearchTest, testFetchAnnotations ) {
     // full text
     search->byFullText(uuid);
     ImagePtr t = ImagePtr::dynamicCast( search->results().at(0) );
-    EXPECT_EQ(-1, t->sizeOfAnnotationLinks());
+    ASSERT_EQ(-1, t->sizeOfAnnotationLinks());
     // annotated with
     byAnnotatedWith(search, tag);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    EXPECT_EQ(-1, t->sizeOfAnnotationLinks());
+    ASSERT_EQ(-1, t->sizeOfAnnotationLinks());
 
     // Fetch only a given type
     search->fetchAnnotations(stringSet("TagAnnotation"));
     // annotated with
     byAnnotatedWith(search, tag);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    EXPECT_EQ(1, t->sizeOfAnnotationLinks());
+    ASSERT_EQ(1, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    EXPECT_EQ(3, t->sizeOfAnnotationLinks());
+    ASSERT_EQ(3, t->sizeOfAnnotationLinks());
 
     // fetch only a given type different from annotated-with type
     search->fetchAnnotations(stringSet("DoubleAnnotation"));
     // annotated with
     byAnnotatedWith(search, tag);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    EXPECT_EQ(1, t->sizeOfAnnotationLinks());
+    ASSERT_EQ(1, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    EXPECT_EQ(3, t->sizeOfAnnotationLinks());
+    ASSERT_EQ(3, t->sizeOfAnnotationLinks());
 
     // fetch two types
     search->fetchAnnotations(stringSet("TagAnnotation", "DoubleAnnotation"));
     // annotated with
     byAnnotatedWith(search, tag);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    EXPECT_EQ(2, t->sizeOfAnnotationLinks());
+    ASSERT_EQ(2, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    EXPECT_EQ(3, t->sizeOfAnnotationLinks());
+    ASSERT_EQ(3, t->sizeOfAnnotationLinks());
 
     // Fetch all
     // FIXME: "Annotation" causes an IceMapper error, had to use the full
@@ -1849,11 +1849,11 @@ TEST(SearchTest, testFetchAnnotations ) {
     byAnnotatedWith(search, tag);
     assertResults(1, search);
     // TODO t = ImagePtr::dynamicCast( search->results().get(0) );
-    // TODO EXPECT_EQ(3, t->sizeOfAnnotationLinks());
+    // TODO ASSERT_EQ(3, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    EXPECT_EQ(3, t->sizeOfAnnotationLinks());
+    ASSERT_EQ(3, t->sizeOfAnnotationLinks());
 
     // resave and see if there is data loss
     search->fetchAnnotations(stringSet("TagAnnotation"));
@@ -1870,7 +1870,7 @@ TEST(SearchTest, testFetchAnnotations ) {
     t = ImagePtr::dynamicCast(f.query()->findByQuery
 	("select t from Image t join fetch t.annotationLinks where t.id = :id",
 	 params));
-    EXPECT_EQ(4, t->sizeOfAnnotationLinks());
+    ASSERT_EQ(4, t->sizeOfAnnotationLinks());
     } catch (const omero::InternalException& ie) {
 	FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
