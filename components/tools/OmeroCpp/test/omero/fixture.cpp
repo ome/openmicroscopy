@@ -16,6 +16,7 @@
 #include <omero/model/StatsInfoI.h>
 #include <omero/model/PlaneInfoI.h>
 
+using namespace omero::api;
 using namespace omero::model;
 using namespace omero::rtypes;
 
@@ -32,6 +33,7 @@ omero::model::ImagePtr new_ImageI()
 
 Fixture::Fixture()
 {
+    root = root_login();
 }
 
 Fixture::~Fixture()
@@ -84,7 +86,8 @@ omero::client_ptr Fixture::root_login() {
     return login("root", rootpass);
 }
 
-omero::model::ExperimenterPtr Fixture::newUser(const omero::api::IAdminPrx& admin, const omero::model::ExperimenterGroupPtr& _g) {
+omero::model::ExperimenterPtr Fixture::newUser(const omero::model::ExperimenterGroupPtr& _g) {
+        IAdminPrx admin = root->getSession()->getAdminService();
 	omero::model::ExperimenterGroupPtr g(_g);
 	omero::RStringPtr name = omero::rtypes::rstring(uuid());
 	omero::RStringPtr groupName = name;
@@ -103,6 +106,29 @@ omero::model::ExperimenterPtr Fixture::newUser(const omero::api::IAdminPrx& admi
 	e->setLastName( name );
 	long id = admin->createUser(e, groupName->getValue());
 	return admin->getExperimenter(id);
+}
+
+omero::model::ExperimenterGroupPtr Fixture::newGroup(const std::string& perms) {
+    IAdminPrx admin = root->getSession()->getAdminService();
+    std::string gname = uuid();
+    ExperimenterGroupPtr group = new ExperimenterGroupI();
+    group->setName( rstring(gname) );
+    if (!perms.empty()) {
+        group->getDetails()->setPermissions( new PermissionsI(perms) );
+    }
+    long gid = admin->createGroup(group);
+    group = admin->getGroup(gid);
+    return group;
+}
+
+void Fixture::addExperimenter(
+        const omero::model::ExperimenterGroupPtr& group,
+        const omero::model::ExperimenterPtr& user) {
+
+        IAdminPrx admin = root->getSession()->getAdminService();
+        std::vector<ExperimenterGroupPtr> groups;
+        groups.push_back(group);
+        admin->addGroups(user, groups);
 }
 
 omero::model::PixelsIPtr Fixture::pixels() {

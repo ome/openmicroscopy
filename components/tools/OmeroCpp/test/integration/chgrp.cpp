@@ -24,22 +24,29 @@ using namespace omero::sys;
 
 TEST(ChgrpTest, testSimpleChgrp ) {
     Fixture f;
-    client_ptr c = f.login();
+    ExperimenterGroupPtr g1 = f.newGroup();
+    ExperimenterGroupPtr g2 = f.newGroup();
+    ExperimenterPtr user = f.newUser(g1);
+    f.addExperimenter(g2, user);
+
+    client_ptr c = f.login(user->getOmeName()->getValue());
     ServiceFactoryPrx sf = c->getSession();
+    IAdminPrx admin = sf->getAdminService();
+    EXPECT_EQ(g1->getId()->getValue(), admin->getEventContext()->groupId);
 
     IQueryPrx iquery = sf->getQueryService();
     IUpdatePrx iupdate = sf->getUpdateService();
 
     ImagePtr image = new ImageI();
-    image->setName( rstring("testSimpleDelete") );
+    image->setName( rstring("testSimpleChgrp") );
     image->setAcquisitionDate( rtime(0) );
     image = ImagePtr::dynamicCast( iupdate->saveAndReturnObject( image ) );
 
     std::map<string, string> options;
-    ChgrpPtr chgrp;
+    ChgrpPtr chgrp = new Chgrp();
     chgrp->type = "/Image";
     chgrp->id = image->getId()->getValue();
-    chgrp->grp = -1L;
+    chgrp->grp = g2->getId()->getValue();
     chgrp->options = options;
 
     HandlePrx handle = sf->submit( chgrp );

@@ -123,7 +123,7 @@ public:
 	return file;
     }
     ExperimenterPtr newUser(const ExperimenterGroupPtr& g = ExperimenterGroupPtr()) {
-	return f.newUser(admin(), g);
+	return f.newUser(g);
     }
 };
 

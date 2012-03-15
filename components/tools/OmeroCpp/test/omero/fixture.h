@@ -40,16 +40,51 @@ struct Fixture
     public:
         Fixture();
         ~Fixture();
+
+        // Fields which should always be present
+        omero::client_ptr root;
+
+        // Data graphs
+        omero::model::PixelsIPtr pixels();
+
+        // Semi-working debugging tools
         void show_stackframe();
         void printUnexpected();
-        bool passed();
+
+        /*
+         *
+         */
         std::string uuid();
+
+        /*
+         *
+         */
         omero::client_ptr login(
                 const std::string& username = std::string(),
                 const std::string& password = std::string());
+
+        /*
+         *
+         */
         omero::client_ptr root_login();
-	omero::model::ExperimenterPtr newUser(const omero::api::IAdminPrx& admin, const omero::model::ExperimenterGroupPtr& g = omero::model::ExperimenterGroupPtr());
-	omero::model::PixelsIPtr pixels();
+
+        /*
+         *
+         */
+	omero::model::ExperimenterPtr newUser(
+                const omero::model::ExperimenterGroupPtr& g = omero::model::ExperimenterGroupPtr());
+
+        /*
+         *
+         */
+        omero::model::ExperimenterGroupPtr newGroup(const std::string& perms = "");
+
+        /*
+         *
+         */
+        void addExperimenter(
+                const omero::model::ExperimenterGroupPtr& group,
+                const omero::model::ExperimenterPtr& user);
 };
 
 #endif // OMERO_FIXTURE_H
