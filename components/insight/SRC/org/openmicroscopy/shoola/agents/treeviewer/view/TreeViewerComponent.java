@@ -66,8 +66,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ActionCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.UpdateVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewInPluginCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
@@ -2859,39 +2861,13 @@ class TreeViewerComponent
 			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
 				model.browseTag(node);
 		} else if (uo instanceof ImageData) {
-			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-			ViewImageObject vo = new ViewImageObject((ImageData) uo);
-			TreeImageDisplay p = node.getParentDisplay();
-			TreeImageDisplay gp = null;
-			DataObject po = null;
-			DataObject gpo = null;
-			if (p != null) {
-				uo = p.getUserObject();
-				gp = p.getParentDisplay();
-				if (uo instanceof DataObject) 
-					po = (DataObject) uo;
-				if (gp != null) {
-					//gp = gp.getParentDisplay();
-					//if (gp != null) {
-					uo = gp.getUserObject();
-					if (uo instanceof DataObject) {
-						gpo = (DataObject) uo;
-					}
-					//}	
-				}
-			}
-			vo.setContext(po, gpo);
-			SecurityContext ctx = model.getSecurityContext();
-			
+			ActionCmd cmd;
 			if (TreeViewerAgent.runAsPlugin() == TreeViewer.IMAGE_J) {
-				ViewInPluginCmd cmd = new ViewInPluginCmd(this,
-						TreeViewer.IMAGE_J);
-				cmd.execute();
+				cmd = new ViewInPluginCmd(this, TreeViewer.IMAGE_J);
 			} else {
-				ViewImage evt = new ViewImage(ctx, vo, view.getBounds());
-				evt.setSeparateWindow(model.isFullScreen());
-				bus.post(evt);
+				cmd = new ViewCmd(this, true);
 			}
+			cmd.execute();
 		} else if (node instanceof TreeImageTimeSet) {
 			model.browseTimeInterval((TreeImageTimeSet) node);
 		} else if (uo instanceof PlateData) {

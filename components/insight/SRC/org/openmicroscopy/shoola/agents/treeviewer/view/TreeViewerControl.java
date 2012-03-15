@@ -113,6 +113,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.CutCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteRndSettingsCmd;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
@@ -1096,6 +1097,9 @@ class TreeViewerControl
 				TreeImageDisplay node = browser.getLastSelectedDisplay();
 				model.browse(node, (DataObject) pce.getNewValue(), false);
 			}
+		} else if (DataBrowser.INTERNAL_VIEW_NODE_PROPERTY.equals(name)) {
+			ViewCmd cmd = new ViewCmd(model, true);
+			cmd.execute();
 		} else if (Finder.RESULTS_FOUND_PROPERTY.equals(name)) {
 			model.setSearchResult(pce.getNewValue());
 		} else if (GenericDialog.SAVE_GENERIC_PROPERTY.equals(name)) {

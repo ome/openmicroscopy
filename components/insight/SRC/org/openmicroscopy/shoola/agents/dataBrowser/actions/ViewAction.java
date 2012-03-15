@@ -97,7 +97,7 @@ public class ViewAction
     {
     	Browser browser = model.getBrowser();
     	if (browser != null) {
-    		browser.viewDisplay(browser.getLastSelectedDisplay());
+    		browser.viewDisplay(browser.getLastSelectedDisplay(), true);
     	}
     }
 	

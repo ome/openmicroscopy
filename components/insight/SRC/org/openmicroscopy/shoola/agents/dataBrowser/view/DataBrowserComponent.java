@@ -1533,9 +1533,9 @@ class DataBrowserComponent
 	
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#viewDisplay(ImageDisplay)
+	 * @see DataBrowser#viewDisplay(ImageDisplay, boolean)
 	 */
-	public void viewDisplay(ImageDisplay node)
+	public void viewDisplay(ImageDisplay node, boolean internal)
 	{
 		if (!(node instanceof ImageNode)) return;
 		EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
@@ -1561,18 +1561,10 @@ class DataBrowserComponent
 					bus.post(new ViewImage(ctx, object, null));
 				}
 			} else {
-				firePropertyChange(VIEW_IMAGE_NODE_PROPERTY, null, uo);
+				if (internal)
+					firePropertyChange(INTERNAL_VIEW_NODE_PROPERTY, null, uo);
+				else firePropertyChange(VIEW_IMAGE_NODE_PROPERTY, null, uo);
 			}
-			/*
-			object = new ViewImageObject((ImageData) uo);
-			go =  view.getParentOfNodes();
-			if (go instanceof DataObject) 
-				data = (DataObject) go;
-			object.setContext(data, null);
-			bus.post(new ViewImage(object, null));
-			if (go instanceof DataObject) data = (DataObject) go;
-			*/
-			
 		} else if (uo instanceof WellSampleData) {
 			WellSampleData wellSample = (WellSampleData) uo;
 			object = new ViewImageObject(wellSample);

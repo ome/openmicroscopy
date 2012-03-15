@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.GroupData;
+import pojos.ImageData;
 
 /** 
  * The DataBrowser's Controller.
@@ -381,7 +382,7 @@ class DataBrowserControl
 	 * 
 	 * @param node The node to handle.
 	 */
-	void viewDisplay(ImageDisplay node) { model.viewDisplay(node); }
+	void viewDisplay(ImageDisplay node) { model.viewDisplay(node, false); }
 	
 	/**
 	 * Loads data, filters nodes or sets the selected node.
@@ -473,6 +474,10 @@ class DataBrowserControl
 					p.isMultipleSelection());
 		} else if (Browser.VIEW_DISPLAY_PROPERTY.equals(name)) {
 			viewDisplay((ImageDisplay) evt.getNewValue());
+		} else if (Browser.MAIN_VIEW_DISPLAY_PROPERTY.equals(name)) {
+			ImageDisplay node = (ImageDisplay) evt.getNewValue();
+			Object ho = node.getHierarchyObject();
+			if (ho instanceof ImageData) model.viewDisplay(node, true);
 		}
 	}
 	

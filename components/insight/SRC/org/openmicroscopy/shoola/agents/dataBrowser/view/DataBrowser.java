@@ -208,6 +208,10 @@ public interface DataBrowser
 	/** Bound property indicating to view the image node. */
 	public static final String		VIEW_IMAGE_NODE_PROPERTY = "viewImageNode";
 	
+	/** Bound property indicating to view the image node. */
+	public static final String INTERNAL_VIEW_NODE_PROPERTY =
+		"internalViewImageNode";
+	
 	/** Indicates to lay out the nodes as thumbnails. */
 	public static final int			THUMBNAIL_VIEW = 0;
 	
@@ -715,8 +719,10 @@ public interface DataBrowser
 	 * Views the passed node if supported.
 	 * 
 	 * @param node The node to handle.
+	 * @param internal Pass <code>true</code> to open using the internal viewer.
+	 * <code>false</code> otherwise.
 	 */
-	void viewDisplay(ImageDisplay node);
+	void viewDisplay(ImageDisplay node, boolean internal);
 	
 	/**
 	 * Returns the security context.
