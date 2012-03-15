@@ -46,11 +46,11 @@
 	
 	<div class="attachment_actions">
 	    {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}
-	        <a class='removeFile action' id="{{ fileann.id }}-file" title="Unlink">-</a>
+	        <a class='removeFile action' id="{{ fileann.id }}-file" title="Remove File">-</a>
 	    {% endif %}
 	
 	    {% if fileann.canDelete and not fileann.isOriginalMetadata %}
-	        <a id="{{ fileann.id }}-file" type="image" class="action" alt="Delete" title="Delete"> &#215 </a>
+	        <a id="{{ fileann.id }}-file" type="image" class="action" alt="Delete File" title="Delete File"> &#215 </a>
 	    {% endif %}
 	
 	    <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
