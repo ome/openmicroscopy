@@ -40,9 +40,11 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
@@ -93,6 +95,9 @@ public interface DataBrowser
 	extends ObservableComponent
 {
 
+	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
+	public static final int		IMAGE_J = ViewInPluginEvent.IMAGE_J;
+	
 	/** 
 	 * Bound property indicating to launch the editor to create a new 
 	 * experiment. 
@@ -202,6 +207,10 @@ public interface DataBrowser
 
 	/** Bound property indicating to view the image node. */
 	public static final String		VIEW_IMAGE_NODE_PROPERTY = "viewImageNode";
+	
+	/** Bound property indicating to view the image node. */
+	public static final String INTERNAL_VIEW_NODE_PROPERTY =
+		"internalViewImageNode";
 	
 	/** Indicates to lay out the nodes as thumbnails. */
 	public static final int			THUMBNAIL_VIEW = 0;
@@ -710,6 +719,16 @@ public interface DataBrowser
 	 * Views the passed node if supported.
 	 * 
 	 * @param node The node to handle.
+	 * @param internal Pass <code>true</code> to open using the internal viewer.
+	 * <code>false</code> otherwise.
 	 */
-	void viewDisplay(ImageDisplay node);
+	void viewDisplay(ImageDisplay node, boolean internal);
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext();
+
 }

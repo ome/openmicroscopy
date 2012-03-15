@@ -201,7 +201,7 @@ class BrowserControl
             if (d == view) return;
             if (d instanceof ImageNode && !(d.getTitleBar() == src)
                 && isSelectionValid(d)) {
-            	model.viewDisplay(d);
+            	model.viewDisplay(d, false);
             }
     	}
     }

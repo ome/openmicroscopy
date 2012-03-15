@@ -161,19 +161,6 @@ public class ImageNode
     }
     
     /**
-     * Adds a {@link MouseListener} to the components composing the 
-     * node.
-     * 
-     * @param listener The listener to add.
-     */
-    public void addMouseListenerToComponents(MouseListener listener)
-    {
-    	 getTitleBar().addMouseListener(listener);
-    	 //addMouseListener(listener);
-    	 if (canvas != null) canvas.addMouseListener(listener);
-    }
-    
-    /**
      * Adds the specified listener to the components.
      * 
      * @param listener The listener to handle.
