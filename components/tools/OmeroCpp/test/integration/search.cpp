@@ -130,30 +130,23 @@ public:
 /*
  * Clears one result from the current queue.
  */
-#define assertResults(count, search) _assertResults(__LINE__, count, search, true) 
-#define assertAtLeastResults(count, search) _assertResults(__LINE__, count, search, false) 
-void _assertResults(int line, unsigned int count, SearchPrx search, bool exact) {
-    stringstream out;
-    out << "line " << line << ":";
-    if (count  > 0) {
-	out << "Search should have results" << endl;
-        EXPECT_TRUE( search->hasNext() );
-        if (search->hasNext()) {
-	    if (exact) {
-		EXPECT_EQ( count, search->results().size() );
-	    } else {
-		EXPECT_TRUE( search->results().size() > count );
-	    }
-        }
-    } else {
-	out << "Search shouldn't have results. Found";
-	if (search->hasNext()) {
-            int size = search->results().size();
-	    out << size << endl;
-            FAIL() << out.str();
-        }
-    }
-}
+#define assertResults(count, search) _assertResults(count, search, true)
+#define assertAtLeastResults(count, search) _assertResults(count, search, false)
+#define _assertResults(count, search, exact) \
+    if (count  > 0) { \
+        EXPECT_TRUE( search->hasNext() ); \
+        if (search->hasNext()) { \
+	    if (exact) { \
+		EXPECT_EQ((unsigned int) count, search->results().size() ); \
+	    } else { \
+		EXPECT_TRUE( search->results().size() > count ); \
+	    } \
+        } \
+    } else { \
+	if (search->hasNext()) { \
+            EXPECT_EQ(0, search->results().size()); \
+        } \
+    } \
 
 TEST(SearchTest, RootSearch )
 {
@@ -178,39 +171,21 @@ TEST(SearchTest, RootSearch )
 
 TEST(SearchTest, IQuerySearch )
 {
-    try {
-        SearchFixture f;
-	SearchFixture root = f.root();
-        IUpdatePrx update = f.update();
+    SearchFixture f;
+    SearchFixture root = f.root();
+    IUpdatePrx update = f.update();
 
-	string uuid = f.uuid();
-        ImagePtr i = new_ImageI();
-        i->setName(rstring(uuid));
-	i = ImagePtr::dynamicCast( update->saveAndReturnObject(i) );
+    string uuid = f.uuid();
+    ImagePtr i = new_ImageI();
+    i->setName(rstring(uuid));
+    i = ImagePtr::dynamicCast( update->saveAndReturnObject(i) );
 
-	/*
-	 *
-	 */
-	try {
-	    root.update()->indexObject(i);
-	} catch (const Glacier2::PermissionDeniedException& pde) {
-	    FAIL() << "permission denied:" << pde.reason;
-	}
+    root.update()->indexObject(i);
 
-	/*
-	 * IQuery provides a simple, stateless method for search
-	 */
-        IObjectList list;
-        list = f.query()->findAllByFullText("Image",uuid,0);
-	EXPECT_EQ( (unsigned int) 1, list.size() );
-    } catch (const omero::InternalException& ie) {
-	FAIL() << "internal exception:"+ie.message;
-    } catch (const omero::ApiUsageException& aue) {
-        FAIL() << "api usage exception thrown:" << aue.message;
-    } catch (const Ice::UnknownException& ue) {
-	cout << ue << endl;
-	FAIL() << "unknown exception thrown";
-    }
+    // IQuery provides a simple, stateless method for search
+    IObjectList list;
+    list = f.query()->findAllByFullText("Image",uuid,0);
+    EXPECT_EQ((unsigned int)1, list.size());
 }
 
 
@@ -1936,7 +1911,7 @@ TEST(SearchTest, testLookingForExperimenterWithOwner ) {
     SearchFixture f;
     SearchPrx search = f.search();
     search->onlyType("Experimenter");
-    
+
     // Just root should work
     search->byFullText("root");
     assertAtLeastResults(1, search);
