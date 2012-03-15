@@ -5,6 +5,7 @@
  *
  */
 
+#include <algorithm>
 #include <IceUtil/UUID.h>
 #include <omero/fixture.h>
 #include <omero/model/PixelsTypeI.h>
@@ -60,7 +61,9 @@ void Fixture::show_stackframe() {
 
 std::string Fixture::uuid()
 {
-  return IceUtil::generateUUID();
+    std::string s = IceUtil::generateUUID();
+    std::replace(s.begin(), s.end(), '-', 'X');
+    return s;
 }
 
 void Fixture::printUnexpected()

@@ -61,7 +61,7 @@ TEST(ClientUsageTest, testGetStatefulServices )
     sf->setSecurityContext(new omero::model::ExperimenterGroupI(0L, false));
     sf->createRenderingEngine();
     std::vector<omero::api::StatefulServiceInterfacePrx> srvs = root->getStatefulServices();
-    ASSERT_EQ(1L, srvs.size());
+    ASSERT_EQ((unsigned int)1, srvs.size());
     try {
         sf->setSecurityContext(new omero::model::ExperimenterGroupI(1L, false));
         FAIL() << "Should not be allowed";
@@ -70,6 +70,6 @@ TEST(ClientUsageTest, testGetStatefulServices )
     }
     srvs.at(0)->close();
     srvs = root->getStatefulServices();
-    ASSERT_EQ(0, srvs.size());
+    ASSERT_EQ((unsigned int)0, srvs.size());
     sf->setSecurityContext(new omero::model::ExperimenterGroupI(1L, false));
 }

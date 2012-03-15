@@ -133,18 +133,16 @@ public:
 #define assertResults(count, search) _assertResults(count, search, true)
 #define assertAtLeastResults(count, search) _assertResults(count, search, false)
 #define _assertResults(count, search, exact) \
-    if (count  > 0) { \
+    if (count > 0) { \
         ASSERT_TRUE( search->hasNext() ); \
-        if (search->hasNext()) { \
-	    if (exact) { \
-		ASSERT_EQ((unsigned int) count, search->results().size() ); \
-	    } else { \
-		ASSERT_TRUE( search->results().size() > count ); \
-	    } \
+        if (exact) { \
+            ASSERT_EQ((unsigned int) count, search->results().size() ); \
+        } else { \
+            ASSERT_GT(search->results().size(), count); \
         } \
     } else { \
 	if (search->hasNext()) { \
-            ASSERT_EQ(0, search->results().size()); \
+            ASSERT_EQ((unsigned int)0, search->results().size()); \
         } \
     } \
 

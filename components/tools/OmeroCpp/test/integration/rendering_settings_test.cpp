@@ -88,17 +88,16 @@ public:
     /**
      * Create the binary data for the given image.
      */
-    ImagePtr createBinaryImage(ImagePtr image) {
+    ImagePtr createBinaryImage(ImagePtr _image) {
 
-        ASSERT_TRUE( image->sizeOfPixels() > 0);
-        PixelsPtr pixels = image->getPixels(0);
+        PixelsPtr pixels = _image->getPixels(0);
         RPSTileLoopPtr loop = new RPSTileLoop(client->getSession(), pixels);
         loop->forEachTile(256, 256, new MyIteration());
         // This block will change the updateEvent on the pixels
         // therefore we're going to reload the pixels.
 
-        image->setPixels(0, loop->getPixels());
-        return image;
+        _image->setPixels(0, loop->getPixels());
+        return _image;
 
     }
 
