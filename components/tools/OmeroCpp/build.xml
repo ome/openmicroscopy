@@ -39,24 +39,47 @@
         <available file="test/integration.exe" property="integration.exe-exists"/>
     </target>
 
+    <macrodef name="gtest_run">
+        <attribute name="file" default="test.exe"/>
+        <element name="args" implicit="yes"/>
+        <sequential>
+            <mkdir dir="${basedir}/target/reports"/>
+            <exec dir="${basedir}" executable="${basedir}/test/@{file}" failonerror="${test.with.fail}">
+                <env key="ICE_HOME" value="${ice.home}"/>
+                <env key="LD_LIBRARY_PATH" value="${env.LD_LIBRARY_PATH}:${basedir}"/>
+                <env key="DYLD_LIBRARY_PATH" value="${env.DYLD_LIBRARY_PATH}:${basedir}"/>
+                <arg line="--gtest_output=xml:${testreports.dir}/test_results.xml"/>
+                <args/>
+            </exec>
+        </sequential>
+    </macrodef>
+
     <target name="test" depends="test-compile" if="unit.exe-exists" unless="env.NOMAKE">
-        <!-- http://forums.sun.com/thread.jspa?threadID=416069 -->
-        <exec dir="${basedir}" executable="${basedir}/test/unit.exe" failonerror="${test.with.fail}">
-            <env key="ICE_HOME" value="${ice.home}"/>
-	    <env key="LD_LIBRARY_PATH" value="${env.LD_LIBRARY_PATH}:${basedir}"/>
-	    <env key="DYLD_LIBRARY_PATH" value="${env.DYLD_LIBRARY_PATH}:${basedir}"/>
-        </exec>
+        <if>
+            <isset property="TEST"/>
+            <then>
+                <gtest_run file="unit.exe">
+                    <arg value="--gtest_filter=${TEST}"/>
+                </gtest_run>
+            </then>
+            <else>
+                <gtest_run file="unit.exe"/>
+            </else>
+        </if>
     </target>
 
     <target name="integration" depends="test-compile" if="integration.exe-exists" unless="env.NOMAKE">
-        <!-- http://forums.sun.com/thread.jspa?threadID=416069 -->
-        <mkdir dir="${basedir}/target/reports"/>
-        <exec dir="${basedir}" executable="${basedir}/test/integration.exe" failonerror="${test.with.fail}">
-            <env key="ICE_HOME" value="${ice.home}"/>
-	    <env key="LD_LIBRARY_PATH" value="${env.LD_LIBRARY_PATH}:${basedir}"/>
-	    <env key="DYLD_LIBRARY_PATH" value="${env.DYLD_LIBRARY_PATH}:${basedir}"/>
-            <arg line="--gtest_output=xml:${testreports.dir}/test_results.xml"/>
-        </exec>
+        <if>
+            <isset property="TEST"/>
+            <then>
+                <gtest_run file="integration.exe">
+                    <arg value="--gtest_filter=${TEST}"/>
+                </gtest_run>
+            </then>
+            <else>
+                <gtest_run file="integration.exe"/>
+            </else>
+        </if>
     </target>
 
     <target name="tools-build" depends="tools-init,build" description="Use scons to build the libraries" unless="env.NOMAKE"/>
