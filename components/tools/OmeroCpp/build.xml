@@ -51,13 +51,11 @@
     <target name="integration" depends="test-compile" if="integration.exe-exists" unless="env.NOMAKE">
         <!-- http://forums.sun.com/thread.jspa?threadID=416069 -->
         <mkdir dir="${basedir}/target/reports"/>
-        <exec dir="${basedir}" executable="${basedir}/test/integration.exe" failonerror="${test.with.fail}"
-            output="${basedir}/target/reports/boost-integration.xml"
-            error="${basedir}/target/reports/boost-integration.err">
+        <exec dir="${basedir}" executable="${basedir}/test/integration.exe" failonerror="${test.with.fail}">
             <env key="ICE_HOME" value="${ice.home}"/>
 	    <env key="LD_LIBRARY_PATH" value="${env.LD_LIBRARY_PATH}:${basedir}"/>
 	    <env key="DYLD_LIBRARY_PATH" value="${env.DYLD_LIBRARY_PATH}:${basedir}"/>
-	    <arg line="--output_format=XML --log_level=message --report_level=detailed"/><!-- for hudson xunit -->
+            <arg line="--gtest_output=xml:${testreports.dir}/test_results.xml"/>
         </exec>
     </target>
 
