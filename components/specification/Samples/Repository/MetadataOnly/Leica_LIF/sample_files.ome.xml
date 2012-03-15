@@ -658,7 +658,9 @@
         <ObjectiveSettings ID="Objective:6:0" RefractiveIndex="1.0"/>
         <Pixels DimensionOrder="XYZCT" ID="Pixels:6" PhysicalSizeX="3.124996875" PhysicalSizeY="3.124996875" SizeC="1" SizeT="1" SizeX="128" SizeY="128" SizeZ="31" Type="uint8">
             <Channel Color="-16776961" ID="Channel:6:0" PinholeSize="106.08964270380099" SamplesPerPixel="1">
-                <LightPath/>
+                <LightPath>
+                    <EmissionFilterRef ID="Filter:6:3"/>
+                </LightPath>
             </Channel>
             <MetadataOnly/>
             <Plane DeltaT="0.0" PositionX="0.06320412291291" PositionY="0.0436177999333" PositionZ="0.0" TheC="0" TheT="0" TheZ="0"/>
