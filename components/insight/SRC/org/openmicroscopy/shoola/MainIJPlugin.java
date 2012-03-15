@@ -36,8 +36,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.security.CodeSource;
 
-import javax.swing.JMenu;
-
 //Third-party libraries
 import ij.IJ;
 import ij.ImageJ;
