@@ -54,8 +54,6 @@ import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
@@ -815,7 +813,6 @@ class TreeViewerComponent
 					model.getMetadataViewer().setRootObject(null,
 							exp.getId(), null);
 				}
-					
 			}
 			removeEditor();
 			model.getMetadataViewer().setSelectionMode(false);
@@ -971,7 +968,7 @@ class TreeViewerComponent
 		cancel();
 		if (TreeViewerFactory.isLastViewer()) {
 			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-			bus.post(new ExitApplication());
+			bus.post(new ExitApplication(!(TreeViewerAgent.isRunAsPlugin())));
 		} else discard();
 
 	}

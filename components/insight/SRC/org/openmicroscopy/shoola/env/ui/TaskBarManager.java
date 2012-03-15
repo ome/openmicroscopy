@@ -565,6 +565,7 @@ public class TaskBarManager
         int option = MessageBox.YES_OPTION; 
         Map<Agent, AgentSaveInfo> instances = getInstancesToSave();
         CheckoutBox msg = null;
+        if (env.isRunAsPlugin()) askQuestion = false;
 		if (askQuestion) {
 			msg = new CheckoutBox(view, title, message,
 					icons.getIcon(IconManager.QUESTION), instances);

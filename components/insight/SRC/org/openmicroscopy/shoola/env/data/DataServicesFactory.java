@@ -664,7 +664,8 @@ public class DataServicesFactory
 				box.setNoText("OK");
 				box.setYesText("Force Quit");
 				box.setSize(400, 250);
-				if (box.centerMsgBox() == MessageBox.NO_OPTION)
+				if (!env.isRunAsPlugin() && 
+						box.centerMsgBox() == MessageBox.NO_OPTION)
 					return;
 			}
 		}

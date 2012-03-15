@@ -106,7 +106,8 @@ public class ExitApplicationAction
     {
     	model.cancel();
     	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-    	ExitApplication a = new ExitApplication();
+    	ExitApplication a = new ExitApplication(
+    			!(TreeViewerAgent.isRunAsPlugin()));
     	a.setSecurityContext(new SecurityContext(
     			model.getSelectedGroup().getId()));
         bus.post(a);
