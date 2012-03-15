@@ -46,10 +46,10 @@
         <LightSource ID="LightSource:2:7">
             <Laser LaserMedium="Other" Type="Other" Wavelength="633"/>
         </LightSource>
-        <Detector ID="Detector:2:0" Model="PMT 1" Type="PMT" Voltage="0.0" Zoom="1.0"/>
-        <Detector ID="Detector:2:1" Model="PMT 2" Type="PMT" Voltage="0.0" Zoom="1.0"/>
-        <Detector ID="Detector:2:2" Model="PMT Trans" Type="PMT" Voltage="0.0" Zoom="1.0"/>
-        <Detector ID="Detector:2:3" Model="PMT 4" Offset="0.466666666666669" Type="PMT" Voltage="382.658121614405" Zoom="1.0"/>
+        <Detector ID="Detector:2:0" Model="PMT 1" Offset="0.466666666666669" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:2:1" Model="PMT 2" Offset="0.0" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:2:2" Model="PMT Trans" Offset="1.18000000000001" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:2:3" Model="PMT 4" Offset="0.0" Type="PMT" Zoom="1.0"/>
         <Objective Correction="UV" ID="Objective:2:0" Immersion="Air" LensNA="0.4" Model="HCX PL APO CS" NominalMagnification="10" SerialNumber="11506285"/>
         <Filter ID="Filter:2:0" Model="SP Mirror Channel 1">
             <TransmittanceRange CutIn="420" CutOut="480"/>
@@ -103,10 +103,8 @@
         <LightSource ID="LightSource:4:7">
             <Laser LaserMedium="Other" Type="Other" Wavelength="633"/>
         </LightSource>
-        <Detector ID="Detector:4:0" Model="PMT 1" Type="PMT" Voltage="0.0" Zoom="3.8750036954915"/>
-        <Detector ID="Detector:4:1" Model="PMT Trans" Type="PMT" Voltage="0.0" Zoom="3.8750036954915"/>
-        <Detector ID="Detector:4:2" Model="PMT 4" Type="PMT" Voltage="0.0" Zoom="3.8750036954915"/>
-        <Detector ID="Detector:4:3" Model="PMT 4" Offset="0.0" Type="PMT" Voltage="402.265964751659" Zoom="3.8750036954915"/>
+        <Detector ID="Detector:4:0" Model="PMT 4" Offset="0.0" Type="PMT" Zoom="3.8750036954915"/>
+        <Detector ID="Detector:4:1" Model="PMT 4" Offset="0.0" Type="PMT" Zoom="3.8750036954915"/>
         <Objective Correction="UV" ID="Objective:4:0" Immersion="Air" LensNA="0.4" Model="HCX PL APO CS" NominalMagnification="10" SerialNumber="11506285"/>
         <Filter ID="Filter:4:0" Model="SP Mirror Channel 1">
             <TransmittanceRange CutIn="420" CutOut="480"/>
@@ -180,10 +178,10 @@
         <LightSource ID="LightSource:8:7">
             <Laser LaserMedium="Other" Type="Other" Wavelength="633"/>
         </LightSource>
-        <Detector ID="Detector:8:0" Model="PMT 1" Type="PMT" Voltage="0.0" Zoom="1.0"/>
-        <Detector ID="Detector:8:1" Model="PMT 2" Type="PMT" Voltage="0.0" Zoom="1.0"/>
-        <Detector ID="Detector:8:2" Model="PMT 3" Offset="0.38666666666667" Type="PMT" Voltage="535.915922789349" Zoom="1.0"/>
-        <Detector ID="Detector:8:3" Model="PMT 4" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:8:0" Model="PMT 1" Offset="0.38666666666667" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:8:1" Model="PMT 2" Offset="-1.48666666666666" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:8:2" Model="PMT 3" Offset="-0.546666666666667" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:8:3" Model="PMT 4" Offset="-0.233333333333334" Type="PMT" Zoom="1.0"/>
         <Objective Correction="UV" ID="Objective:8:0" Immersion="Air" LensNA="0.4" Model="HCX PL APO CS" NominalMagnification="10" SerialNumber="11506285"/>
         <Filter ID="Filter:8:0" Model="SP Mirror Channel 1">
             <TransmittanceRange CutIn="420" CutOut="480"/>
@@ -236,11 +234,10 @@
         <LightSource ID="LightSource:9:7">
             <Laser LaserMedium="Other" Type="Other" Wavelength="633"/>
         </LightSource>
-        <Detector ID="Detector:9:0" Model="PMT 1" Offset="0.38666666666667" Type="PMT" Voltage="407.434958419165" Zoom="1.0"/>
-        <Detector ID="Detector:9:1" Model="PMT 1" Type="PMT" Zoom="1.0"/>
-        <Detector ID="Detector:9:2" Model="PMT 2" Type="PMT" Zoom="1.0"/>
-        <Detector ID="Detector:9:3" Model="PMT 3" Type="PMT" Zoom="1.0"/>
-        <Detector ID="Detector:9:4" Model="PMT 4" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:9:0" Model="PMT 1" Offset="0.38666666666667" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:9:1" Model="PMT 2" Offset="-1.48666666666666" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:9:2" Model="PMT 3" Offset="-0.546666666666667" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:9:3" Model="PMT 4" Offset="-0.233333333333334" Type="PMT" Zoom="1.0"/>
         <Objective Correction="UV" ID="Objective:9:0" Immersion="Air" LensNA="0.7" Model="HCX PL APO CS" NominalMagnification="20" SerialNumber="11506513"/>
         <Filter ID="Filter:9:0" Model="SP Mirror Channel 1">
             <TransmittanceRange CutIn="420" CutOut="480"/>
@@ -296,10 +293,10 @@
         <LightSource ID="LightSource:10:7">
             <Laser LaserMedium="Other" Type="Other" Wavelength="633"/>
         </LightSource>
-        <Detector ID="Detector:10:0" Model="PMT 1" Type="PMT" Voltage="0.0" Zoom="1.0"/>
-        <Detector ID="Detector:10:1" Model="PMT 2" Type="PMT" Voltage="0.0" Zoom="1.0"/>
-        <Detector ID="Detector:10:2" Model="PMT 3" Offset="0.38666666666667" Type="PMT" Voltage="444.743266956588" Zoom="1.0"/>
-        <Detector ID="Detector:10:3" Model="PMT 4" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:10:0" Model="PMT 1" Offset="0.38666666666667" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:10:1" Model="PMT 2" Offset="-1.48666666666666" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:10:2" Model="PMT 3" Offset="-0.546666666666667" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:10:3" Model="PMT 4" Offset="-0.233333333333334" Type="PMT" Zoom="1.0"/>
         <Objective Correction="UV" ID="Objective:10:0" Immersion="Oil" LensNA="1.25" Model="HCX PL APO CS" NominalMagnification="40" SerialNumber="11506251"/>
         <Filter ID="Filter:10:0" Model="SP Mirror Channel 1">
             <TransmittanceRange CutIn="420" CutOut="480"/>
@@ -352,11 +349,10 @@
         <LightSource ID="LightSource:11:7">
             <Laser LaserMedium="Other" Type="Other" Wavelength="633"/>
         </LightSource>
-        <Detector ID="Detector:11:0" Model="PMT 3" Type="PMT" Voltage="0.0" Zoom="1.0"/>
-        <Detector ID="Detector:11:1" Model="PMT 1" Type="PMT" Voltage="0.0" Zoom="1.0"/>
-        <Detector ID="Detector:11:2" Model="PMT 2" Offset="-0.546666666666667" Type="PMT" Voltage="444.743266956588" Zoom="1.0"/>
-        <Detector ID="Detector:11:3" Model="PMT 3" Type="PMT" Zoom="1.0"/>
-        <Detector ID="Detector:11:4" Model="PMT 4" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:11:0" Model="PMT 1" Offset="0.38666666666667" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:11:1" Model="PMT 2" Offset="-1.48666666666666" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:11:2" Model="PMT 3" Offset="-0.546666666666667" Type="PMT" Zoom="1.0"/>
+        <Detector ID="Detector:11:3" Model="PMT 4" Offset="-0.233333333333334" Type="PMT" Zoom="1.0"/>
         <Objective Correction="UV" ID="Objective:11:0" Immersion="Oil" LensNA="1.25" Model="HCX PL APO CS" NominalMagnification="40" SerialNumber="11506251"/>
         <Filter ID="Filter:11:0" Model="SP Mirror Channel 1">
             <TransmittanceRange CutIn="420" CutOut="480"/>
@@ -627,14 +623,14 @@
         <Pixels DimensionOrder="XYCZT" ID="Pixels:4" PhysicalSizeX="0.78124921875" PhysicalSizeY="0.78125" SizeC="2" SizeT="1" SizeX="512" SizeY="512" SizeZ="1" Type="uint8">
             <Channel Color="-16776961" ExcitationWavelength="405" ID="Channel:4:0" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.7999756" ID="LightSource:4:0"/>
-                <DetectorSettings Gain="362.058442053864" ID="Detector:4:0" Offset="0"/>
+                <DetectorSettings Gain="362.058442053864" ID="Detector:4:0" Offset="0.0"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:4:5"/>
                 </LightPath>
             </Channel>
             <Channel Color="-16776961" ExcitationWavelength="633" ID="Channel:4:1" Name="" PinholeSize="106.08964270380099" SamplesPerPixel="1">
                 <LightSourceSettings Attenuation="0.5599707" ID="LightSource:4:7"/>
-                <DetectorSettings Gain="402.265964751659" ID="Detector:4:1" Offset="0"/>
+                <DetectorSettings Gain="402.265964751659" ID="Detector:4:1" Offset="0.0"/>
                 <LightPath>
                     <EmissionFilterRef ID="Filter:4:6"/>
                 </LightPath>
