@@ -32,10 +32,10 @@ TEST(ClientTest, ClientWithInitializationData2 )
 {
   Fixture f;
   int argc = 2;
-  char* argv[] = {"program", "--omero.host=localhost",0};
-  Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+  const char* argv[] = {"program", "--omero.host=localhost",0};
+  Ice::StringSeq args = Ice::argsToStringSeq(argc, const_cast<char**>(argv));
   Ice::InitializationData id;
-  id.properties = Ice::createProperties(argc, argv);
+  id.properties = Ice::createProperties(argc, const_cast<char**>(argv));
   id.properties->parseCommandLineOptions("omero", args);
   omero::client c(id);
   std::string s = c.getProperty("omero.host");

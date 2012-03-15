@@ -138,7 +138,7 @@ public:
         if (exact) { \
             ASSERT_EQ((unsigned int) count, search->results().size() ); \
         } else { \
-            ASSERT_GT(search->results().size(), count); \
+            ASSERT_GT(search->results().size(), (unsigned int)count); \
         } \
     } else { \
 	if (search->hasNext()) { \
