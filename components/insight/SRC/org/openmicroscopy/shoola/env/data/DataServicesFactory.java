@@ -585,6 +585,7 @@ public class DataServicesFactory
 	public void shutdown(SecurityContext ctx)
     { 
 		//Need to write the current group.
+		if (!omeroGateway.isConnected()) return;
 		Set groups = (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 		if (groups != null && groups.size() > 0) {
 			ExperimenterData exp = (ExperimenterData) 
@@ -607,7 +608,7 @@ public class DataServicesFactory
 		} else ScreenLogin.registerGroup(null);
 		CacheServiceFactory.shutdown(container);
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
-        omeroGateway.logout(); 
+		omeroGateway.logout(); 
         if (executor != null) executor.shutdown();
         executor = null;
     }

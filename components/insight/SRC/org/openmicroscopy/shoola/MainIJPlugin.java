@@ -25,12 +25,18 @@ package org.openmicroscopy.shoola;
 
 
 //Java imports
+import java.awt.Menu;
+import java.awt.MenuItem;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.security.CodeSource;
+
+import javax.swing.JMenu;
 
 //Third-party libraries
 import ij.IJ;
@@ -70,12 +76,11 @@ public class MainIJPlugin
 	{
 		if (container == null) return;
 		try {
-			DataServicesFactory.getInstance(container).exitApplication(true,
-					true);
+			DataServicesFactory.getInstance(container).shutdown(null);
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 			msg.println("Exit Plugin:"+UIUtilities.printErrorText(e));
-			container.getRegistry().getLogger().info(this, msg);
+			if (IJ.debugMode) IJ.log(msg.toString());
 		}
 	}
 	
@@ -88,6 +93,22 @@ public class MainIJPlugin
 				onImageJClosing();
 			}
 		});
+		if (view.getMenuBar().getMenuCount() > 0) {
+			Menu menu = view.getMenuBar().getMenu(0);
+			int count  = menu.getItemCount();
+			if (count > 0) {
+				MenuItem item = menu.getItem(count-1);
+				//Add listener to the quit menu.
+				item.addActionListener(new ActionListener() {
+					
+					/** Make sure we shut down the server.*/
+					public void actionPerformed(ActionEvent arg0) {
+						onImageJClosing();
+					}
+				});
+			}
+		}
+		
 		if (UIUtilities.isMacOS()) {
 			try {
 				MacOSMenuHandler handler = new MacOSMenuHandler(view);
@@ -102,8 +123,8 @@ public class MainIJPlugin
 					}
 				});
 			} catch (Throwable e) {
-				container.getRegistry().getLogger().info(this, 
-						"Cannot listen to the Quit action of the menu.");
+				if (IJ.debugMode)
+					IJ.log("Cannot listen to the Quit action of the menu.");
 			}
 		}
 	}
