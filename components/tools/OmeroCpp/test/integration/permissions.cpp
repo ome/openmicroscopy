@@ -56,3 +56,11 @@ TEST( PermissionsTest, testImmutablePermissions ) {
     ASSERT_THROW(p->setWorldRead(true), omero::ClientError);
 
 }
+
+TEST( PermissionsTest, testDisallow ) {
+
+    PermissionsIPtr p = new PermissionsI();
+    ASSERT_TRUE(p->canAnnotate());
+    ASSERT_TRUE(p->canEdit());
+
+}

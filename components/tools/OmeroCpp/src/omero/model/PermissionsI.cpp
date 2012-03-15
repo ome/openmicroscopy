@@ -17,6 +17,8 @@ namespace omero {
 	PermissionsI::~PermissionsI() {}
 	PermissionsI::PermissionsI(const std::string& perms) : Permissions() {
             __immutable = false;
+            disallowAnnotate = false;
+            disallowEdit = false;
             if (perms.empty()) {
                 perm1 = -1L;
             } else {
@@ -66,6 +68,14 @@ namespace omero {
 
         void PermissionsI::unload(const Ice::Current& current) {
             // no-op
+        }
+
+        bool PermissionsI::canAnnotate(const Ice::Current& current) {
+            return ! disallowAnnotate;
+        }
+
+        bool PermissionsI::canEdit(const Ice::Current& current) {
+            return ! disallowEdit;
         }
 
         Ice::Long PermissionsI::getPerm1(const Ice::Current& current) {

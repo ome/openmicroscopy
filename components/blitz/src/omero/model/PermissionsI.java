@@ -71,6 +71,14 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
         this.perm1 = l.longValue();
     }
 
+    public boolean canAnnotate(Ice.Current c) {
+        return ! disallowAnnotate;
+    }
+
+    public boolean canEdit(Ice.Current c) {
+        return ! disallowEdit;
+    }
+
     public PermissionsI(PermissionsI perms) {
         this.perm1 = perms.getPerm1();
     }

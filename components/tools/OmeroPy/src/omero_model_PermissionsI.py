@@ -36,6 +36,8 @@ class PermissionsI(_omero_model.Permissions):
       def __init__(self, l = None):
             super(PermissionsI, self).__init__()
             self.__immutable = False
+            self._disallowAnnotate = False
+            self._disallowEdit = False
             if isinstance(l, str):
                 self._perm1 = -1
                 self.from_string(l)
@@ -89,6 +91,14 @@ class PermissionsI(_omero_model.Permissions):
             return self.granted(2,0)
       def setWorldWrite(self, value):
             self.set(2,0,value)
+
+      # Calculated values
+
+      def canAnnotate(self):
+          return not self._disallowAnnotate
+
+      def canEdit(self):
+          return not self._disallowEdit
 
       # Accessors; do not use
 

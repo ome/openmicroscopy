@@ -49,6 +49,9 @@ public:
     PermissionsI(const std::string& perms = "");
     virtual void ice_postUnmarshal(); // For setting __immutable
 
+    virtual bool canAnnotate(const Ice::Current& current = Ice::Current());
+    virtual bool canEdit(const Ice::Current& current = Ice::Current());
+
     /*
      * Central methods. The optional argument is a requirement
      * of the Ice runtime and can safely be omitted.

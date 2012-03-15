@@ -627,6 +627,10 @@ class TestPermissions(lib.ITest):
         self.assertRaises(omero.ClientError, \
                 p.setPerm1, 1)
 
+    def testDisallow(self):
+        p = omero.model.PermissionsI()
+        self.assertTrue(p.canAnnotate())
+        self.assertTrue(p.canEdit())
 
 if __name__ == '__main__':
     unittest.main()
