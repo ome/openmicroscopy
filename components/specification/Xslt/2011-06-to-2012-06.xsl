@@ -43,12 +43,12 @@
 	xmlns:exsl="http://exslt.org/common"
 	extension-element-prefixes="exsl" version="1.0">
 	
-	<xsl:variable name="newOMENS">http://www.openmicroscopy.org/Schemas/OME/2012-InProgress</xsl:variable>
-	<xsl:variable name="newSPWNS">http://www.openmicroscopy.org/Schemas/SPW/2012-InProgress</xsl:variable>
+	<xsl:variable name="newOMENS">http://www.openmicroscopy.org/Schemas/OME/2012-06</xsl:variable>
+	<xsl:variable name="newSPWNS">http://www.openmicroscopy.org/Schemas/SPW/2012-06</xsl:variable>
 	<xsl:variable name="newBINNS"
-		>http://www.openmicroscopy.org/Schemas/BinaryFile/2012-InProgress</xsl:variable>
-	<xsl:variable name="newROINS">http://www.openmicroscopy.org/Schemas/ROI/2012-InProgress</xsl:variable>
-	<xsl:variable name="newSANS">http://www.openmicroscopy.org/Schemas/SA/2012-InProgress</xsl:variable>
+		>http://www.openmicroscopy.org/Schemas/BinaryFile/2012-06</xsl:variable>
+	<xsl:variable name="newROINS">http://www.openmicroscopy.org/Schemas/ROI/2012-06</xsl:variable>
+	<xsl:variable name="newSANS">http://www.openmicroscopy.org/Schemas/SA/2012-06</xsl:variable>
 	
 	<xsl:output method="xml" indent="yes"/>
 	<xsl:preserve-space elements="*"/>
@@ -68,13 +68,13 @@
 	<!-- Rewriting all namespaces -->
 	
 	<xsl:template match="OME:OME">
-		<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2012-InProgress"
-			xmlns:Bin="http://www.openmicroscopy.org/Schemas/BinaryFile/2012-InProgress"
-			xmlns:SPW="http://www.openmicroscopy.org/Schemas/SPW/2012-InProgress"
-			xmlns:SA="http://www.openmicroscopy.org/Schemas/SA/2012-InProgress"
-			xmlns:ROI="http://www.openmicroscopy.org/Schemas/ROI/2012-InProgress"
+		<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+			xmlns:Bin="http://www.openmicroscopy.org/Schemas/BinaryFile/2012-06"
+			xmlns:SPW="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
+			xmlns:SA="http://www.openmicroscopy.org/Schemas/SA/2012-06"
+			xmlns:ROI="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
 			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2012-InProgress 
+			xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2012-06 
 			../../../InProgress/ome.xsd">
 			<xsl:apply-templates/>
 		</OME>
