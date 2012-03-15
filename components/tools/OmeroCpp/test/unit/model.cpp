@@ -6,7 +6,7 @@
  *
  */
 
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 #include <omero/model/ProjectI.h>
 #include <omero/model/ProjectDatasetLinkI.h>
 #include <omero/model/DatasetI.h>
@@ -22,13 +22,13 @@ using namespace omero::model;
 using namespace omero;
 using namespace std;
 
-BOOST_AUTO_TEST_CASE( DetailsPtrIsNull )
+TEST(ModelTest, DetailsPtrIsNull )
 {
     DetailsIPtr p;
-    BOOST_CHECK( ! p );
+    EXPECT_FALSE(p);
 }
 
-BOOST_AUTO_TEST_CASE( Virtual )
+TEST(ModelTest, Virtual )
 {
   ImagePtr img = new ImageI();
   ImageIPtr imgI = new ImageI();
@@ -36,92 +36,91 @@ BOOST_AUTO_TEST_CASE( Virtual )
   imgI->unload();
 }
 
-BOOST_AUTO_TEST_CASE( Toggle )
+TEST(ModelTest, Toggle )
 {
   Fixture f;
   PixelsIPtr pix = new PixelsI();
-  BOOST_CHECK( pix->sizeOfSettings() >= 0 );
+  EXPECT_TRUE( pix->sizeOfSettings() >= 0 );
   pix->unloadCollections();
-  BOOST_CHECK( pix->sizeOfSettings() < 0 );
+  EXPECT_TRUE( pix->sizeOfSettings() < 0 );
 }
 
-BOOST_AUTO_TEST_CASE( SimpleCtor )
+TEST(ModelTest, SimpleCtor )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->isLoaded() );
-  BOOST_CHECK( img->sizeOfPixels() >= 0 );
+  EXPECT_TRUE( img->isLoaded() );
+  EXPECT_TRUE( img->sizeOfPixels() >= 0 );
 }
 
-BOOST_AUTO_TEST_CASE( UnloadedCtor )
+TEST(ModelTest, UnloadedCtor )
 {
   Fixture f;
   ImageIPtr img = new ImageI(rlong(1),false);
-  BOOST_CHECK( !(img->isLoaded()) );
-  BOOST_CHECK_THROW( img->sizeOfDatasetLinks(), omero::UnloadedEntityException );
+  EXPECT_TRUE( !(img->isLoaded()) );
+  ASSERT_THROW( img->sizeOfDatasetLinks(), omero::UnloadedEntityException );
 }
 
-BOOST_AUTO_TEST_CASE( UnloadCheckPtr )
+TEST(ModelTest, UnloadCheckPtr )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->isLoaded() );
+  EXPECT_TRUE( img->isLoaded() );
   // operator bool() is overloaded
-  BOOST_CHECK( img->getDetails() ); // details are auto instantiated
-  BOOST_CHECK( ! img->getName() ); // no other single-valued field is
+  EXPECT_TRUE( img->getDetails() ); // details are auto instantiated
+  EXPECT_TRUE( ! img->getName() ); // no other single-valued field is
   img->unload();
-  BOOST_CHECK( !img->isLoaded() );
-  BOOST_CHECK_THROW( img->getDetails(), omero::UnloadedEntityException );
+  EXPECT_TRUE( !img->isLoaded() );
+  ASSERT_THROW( img->getDetails(), omero::UnloadedEntityException );
 }
 
-BOOST_AUTO_TEST_CASE( UnloadField )
+TEST(ModelTest, UnloadField )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->getDetails() );
+  EXPECT_TRUE( img->getDetails() );
   img->unloadDetails();
-  BOOST_CHECK( ! img->getDetails() );
+  EXPECT_TRUE( ! img->getDetails() );
 }
 
-BOOST_AUTO_TEST_CASE( Sequences )
+TEST(ModelTest, Sequences )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->sizeOfAnnotationLinks() == 0 );
+  EXPECT_EQ(0, img->sizeOfAnnotationLinks());
   img->unloadAnnotationLinks();
   img->unload();
-  BOOST_CHECK_THROW( img->sizeOfAnnotationLinks(), omero::UnloadedEntityException );
+  ASSERT_THROW( img->sizeOfAnnotationLinks(), omero::UnloadedEntityException );
 }
 
-BOOST_AUTO_TEST_CASE( Accessors )
+TEST(ModelTest, Accessors )
 {
   Fixture f;
   RStringPtr name = rstring("name");
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( !img->getName() );
+  EXPECT_TRUE( !img->getName() );
   img->setName( name );
-  BOOST_CHECK( img->getName() );
+  EXPECT_TRUE( img->getName() );
   RStringPtr str = img->getName();
-  BOOST_CHECK( str->getValue() == "name" );
-  BOOST_CHECK( str == name );
+  EXPECT_EQ("name", str->getValue());
+  EXPECT_EQ(str, name );
 
   img->setName(rstring("name2"));
-  BOOST_CHECK( img->getName()->getValue() == "name2" );
-  BOOST_CHECK( img->getName() );
+  EXPECT_TRUE( img->getName() );
+  EXPECT_EQ("name2",  img->getName()->getValue());
 
   img->unload();
-  BOOST_CHECK_THROW( img->getName(), omero::UnloadedEntityException );
-  
+  ASSERT_THROW( img->getName(), omero::UnloadedEntityException );
 }
 
-BOOST_AUTO_TEST_CASE( UnloadedAccessThrows )
+TEST(ModelTest, UnloadedAccessThrows )
 {
   Fixture f;
   ImageIPtr unloaded = new ImageI(rlong(1),false);
-  BOOST_CHECK_THROW( unloaded->getName(), omero::UnloadedEntityException );
+  ASSERT_THROW( unloaded->getName(), omero::UnloadedEntityException );
 }
 
-BOOST_AUTO_TEST_CASE( Iterators )
+TEST(ModelTest, Iterators )
 {
   Fixture f;
 
@@ -133,48 +132,47 @@ BOOST_AUTO_TEST_CASE( Iterators )
   for (;it != image->endDatasetLinks(); ++it) {
     count++;
   }
-  BOOST_CHECK( count == 1 );
+  EXPECT_EQ(1, count);
 }
 
-BOOST_AUTO_TEST_CASE( ClearSet )
+TEST(ModelTest, ClearSet )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->sizeOfPixels() >= 0 );
+  EXPECT_TRUE( img->sizeOfPixels() >= 0 );
   img->addPixels( new PixelsI() );
-  BOOST_CHECK( 1==img->sizeOfPixels() );
+  EXPECT_EQ(1, img->sizeOfPixels());
   img->clearPixels();
-  BOOST_CHECK( img->sizeOfPixels() >= 0 );
-  BOOST_CHECK( 0==img->sizeOfPixels() );
+  EXPECT_TRUE( img->sizeOfPixels() >= 0 );
+  EXPECT_EQ(0, img->sizeOfPixels());
 }
 
-BOOST_AUTO_TEST_CASE( UnloadSet )
+TEST(ModelTest, UnloadSet )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->sizeOfPixels() >= 0 );
+  EXPECT_TRUE( img->sizeOfPixels() >= 0 );
   img->addPixels( new PixelsI() );
-  BOOST_CHECK( 1==img->sizeOfPixels() );
+  EXPECT_EQ(1, img->sizeOfPixels());
   img->unloadPixels();
-  BOOST_CHECK( img->sizeOfPixels() < 0 );
-  // Can't check size BOOST_CHECK( 0==img->sizeOfPixels() );
+  EXPECT_TRUE( img->sizeOfPixels() < 0 );
 }
 
-BOOST_AUTO_TEST_CASE( RemoveFromSet )
+TEST(ModelTest, RemoveFromSet )
 {
   Fixture f;
   PixelsIPtr pix = new PixelsI();
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->sizeOfPixels() >= 0 );
+  EXPECT_TRUE( img->sizeOfPixels() >= 0 );
 
   img->addPixels( pix );
-  BOOST_CHECK( 1==img->sizeOfPixels() );
+  EXPECT_EQ(1, img->sizeOfPixels());
 
   img->removePixels( pix );
-  BOOST_CHECK( 0==img->sizeOfPixels() );
+  EXPECT_EQ(0, img->sizeOfPixels());
 }
 
-BOOST_AUTO_TEST_CASE( LinkGroupAndUser )
+TEST(ModelTest, LinkGroupAndUser )
 {
   Fixture f;
 
@@ -194,11 +192,11 @@ BOOST_AUTO_TEST_CASE( LinkGroupAndUser )
   for( ; beg != end; beg++ ) {
     ++count;
   }
-  BOOST_CHECK( count == 1 );
+  EXPECT_EQ(1, count);
 
 }
 
-BOOST_AUTO_TEST_CASE( LinkViaMap )
+TEST(ModelTest, LinkViaMap )
 {
   Fixture f;
   ExperimenterIPtr user = new ExperimenterI();
@@ -216,7 +214,7 @@ BOOST_AUTO_TEST_CASE( LinkViaMap )
   map->setChild( user );
 }
 
-BOOST_AUTO_TEST_CASE( LinkingAndUnlinking )
+TEST(ModelTest, LinkingAndUnlinking )
 {
   Fixture f;
 
@@ -226,28 +224,28 @@ BOOST_AUTO_TEST_CASE( LinkingAndUnlinking )
   ImageIPtr   i = new ImageI();
 
   d->linkImage(i);
-  BOOST_CHECK( d->sizeOfImageLinks() == 1 );
+  EXPECT_EQ(1, d->sizeOfImageLinks());
   d->unlinkImage(i);
-  BOOST_CHECK( d->sizeOfImageLinks() == 0 );
+  EXPECT_EQ(0, d->sizeOfImageLinks());
 
   d = new DatasetI();
   i = new ImageI();
   d->linkImage(i);
-  BOOST_CHECK( i->sizeOfDatasetLinks() == 1 );
+  EXPECT_EQ(1, i->sizeOfDatasetLinks());
   i->unlinkDataset(d);
-  BOOST_CHECK( d->sizeOfImageLinks() == 0 );
+  EXPECT_EQ(0, d->sizeOfImageLinks());
 
   d = new DatasetI();
   i = new ImageI();
   dil = new DatasetImageLinkI();
   dil->link(d,i);
   d->addDatasetImageLinkToBoth(dil, false);
-  BOOST_CHECK( d->sizeOfImageLinks() == 1 );
-  BOOST_CHECK( i->sizeOfDatasetLinks() == 0 );
+  EXPECT_EQ(1, d->sizeOfImageLinks());
+  EXPECT_EQ(0, i->sizeOfDatasetLinks());
 
 }
 
-BOOST_AUTO_TEST_CASE( UnloadedEntityTermination ) {
+TEST(ModelTest, UnloadedEntityTermination ) {
 
   Fixture f;
 
@@ -264,14 +262,14 @@ BOOST_AUTO_TEST_CASE( UnloadedEntityTermination ) {
 
 }
 
-BOOST_AUTO_TEST_CASE( PrimaryPixels ) {
+TEST(ModelTest, PrimaryPixels ) {
 
     Fixture f;
 
     ImageIPtr i = new ImageI();
 
-    BOOST_CHECK_EQUAL( true, i->isPixelsLoaded() );
-    BOOST_CHECK_EQUAL( 0, i->sizeOfPixels() );
+    EXPECT_EQ( true, i->isPixelsLoaded() );
+    EXPECT_EQ( 0, i->sizeOfPixels() );
     bool called = false;
     ImagePixelsSeq::iterator beg = i->beginPixels();
     ImagePixelsSeq::iterator end = i->endPixels();
@@ -279,45 +277,45 @@ BOOST_AUTO_TEST_CASE( PrimaryPixels ) {
         called = true;
         beg++;
     }
-    BOOST_CHECK_EQUAL( false, called );
+    EXPECT_EQ( false, called );
 
 
     PixelsIPtr p = new PixelsI();
     i->addPixels( p );
 
-    BOOST_CHECK_EQUAL( true, i->isPixelsLoaded() );
-    BOOST_CHECK_EQUAL( 1, i->sizeOfPixels() );
-    BOOST_CHECK_EQUAL( p, i->beginPixels()[0] );
+    EXPECT_EQ( true, i->isPixelsLoaded() );
+    EXPECT_EQ( 1, i->sizeOfPixels() );
+    EXPECT_EQ( p, i->beginPixels()[0] );
     beg = i->beginPixels();
     end = i->endPixels();
     while (beg != end) {
         called = true;
         beg++;
     }
-    BOOST_CHECK_EQUAL( true, called );
+    EXPECT_EQ( true, called );
 
 
     i->unloadPixels();
 
-    BOOST_CHECK_EQUAL( false, i->isPixelsLoaded() );
-    BOOST_CHECK_EQUAL( -1, i->sizeOfPixels() );
+    EXPECT_EQ( false, i->isPixelsLoaded() );
+    EXPECT_EQ( -1, i->sizeOfPixels() );
     try {
         i->beginPixels();
-        BOOST_FAIL( "Should have thrown an exception ");
+        FAIL() << "Should have thrown an exception ";
     } catch (const std::exception& ex) {
         // ok
     }
 
 }
 
-BOOST_AUTO_TEST_CASE( OrderedCollectionsTicket2547 ) {
+TEST(ModelTest, OrderedCollectionsTicket2547 ) {
     PixelsPtr pixels = new PixelsI();
     ChannelPtr channel0 = new ChannelI();
     ChannelPtr channel1 = new ChannelI();
     ChannelPtr channel2 = new ChannelI();
     pixels->addChannel(channel0);
-    BOOST_CHECK_EQUAL(1, pixels->sizeOfChannels());
+    EXPECT_EQ(1, pixels->sizeOfChannels());
     ChannelPtr old = pixels->setChannel(0, channel1);
-    BOOST_CHECK_EQUAL(old, channel0);
-    BOOST_CHECK_EQUAL(1, pixels->sizeOfChannels());
+    EXPECT_EQ(old, channel0);
+    EXPECT_EQ(1, pixels->sizeOfChannels());
 }

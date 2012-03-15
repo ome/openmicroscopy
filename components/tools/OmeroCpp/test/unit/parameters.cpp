@@ -7,7 +7,7 @@
  */
 
 #include <algorithm>
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 #include <omero/sys/ParametersI.h>
 
 using namespace omero::rtypes;
@@ -19,7 +19,7 @@ using namespace std;
 // From PojoOptionsTest
 //
 
-BOOST_AUTO_TEST_CASE( Basics )
+TEST( ParametersTest, Basics )
 {
     ParametersIPtr p = new ParametersI();
     p->exp(rlong(1));
@@ -27,36 +27,36 @@ BOOST_AUTO_TEST_CASE( Basics )
     p->endTime(rtime(1));
 }
 
-BOOST_AUTO_TEST_CASE( Defaults )
+TEST( ParametersTest, Defaults )
 {
     ParametersIPtr p = new ParametersI();
-    // Removed: BOOST_CHECK( ! p->isLeaves() );
-    BOOST_CHECK( ! p->isGroup() );
-    BOOST_CHECK( ! p->isExperimenter() );
-    BOOST_CHECK( ! p->isEndTime() );
-    BOOST_CHECK( ! p->isStartTime() );
-    BOOST_CHECK( ! p->isPagination() );
+    // Removed: EXPECT_TRUE( ! p->isLeaves() );
+    EXPECT_TRUE( ! p->isGroup() );
+    EXPECT_TRUE( ! p->isExperimenter() );
+    EXPECT_TRUE( ! p->isEndTime() );
+    EXPECT_TRUE( ! p->isStartTime() );
+    EXPECT_TRUE( ! p->isPagination() );
 }
 
-BOOST_AUTO_TEST_CASE( Experimenter )
+TEST( ParametersTest, Experimenter )
 {
     ParametersIPtr p = new ParametersI();
     p->exp(rlong(1));
-    BOOST_CHECK( p->isExperimenter() );
-    BOOST_CHECK( 1L == p->getExperimenter()->getValue() );
+    EXPECT_TRUE( p->isExperimenter() );
+    EXPECT_TRUE( 1L == p->getExperimenter()->getValue() );
     p->allExps();
-    BOOST_CHECK( 0 == p->getExperimenter() );
-    BOOST_CHECK( ! p->isExperimenter() );
+    EXPECT_TRUE( 0 == p->getExperimenter() );
+    EXPECT_TRUE( ! p->isExperimenter() );
 }
 
-BOOST_AUTO_TEST_CASE( ExperimenterGroup )
+TEST( ParametersTest, ExperimenterGroup )
 {
     ParametersIPtr p = new ParametersI();
     p->grp(rlong(1));
-    BOOST_CHECK( p->isGroup() );
-    BOOST_CHECK( 1L == p->getGroup()->getValue() );
+    EXPECT_TRUE( p->isGroup() );
+    EXPECT_TRUE( 1L == p->getGroup()->getValue() );
     p->allGrps();
-    BOOST_CHECK( 0 == p->getGroup() );
+    EXPECT_TRUE( 0 == p->getGroup() );
 }
 
 
@@ -65,154 +65,154 @@ BOOST_AUTO_TEST_CASE( ExperimenterGroup )
 // Parameters.theFilter.limit, offset
 //
 
-BOOST_AUTO_TEST_CASE( FilterLimitOffset )
+TEST( ParametersTest, FilterLimitOffset )
 {
     ParametersIPtr p = new ParametersI();
     p->noPage();
-    BOOST_CHECK( ! p->theFilter);
+    EXPECT_TRUE( ! p->theFilter);
     p->page(2,3);
-    BOOST_CHECK_EQUAL(2, p->theFilter->offset->getValue());
-    BOOST_CHECK_EQUAL(3, p->theFilter->limit->getValue());
+    EXPECT_EQ(2, p->theFilter->offset->getValue());
+    EXPECT_EQ(3, p->theFilter->limit->getValue());
     p->noPage();
-    BOOST_CHECK( ! p->isPagination() );
-    BOOST_CHECK( ! p->theFilter->offset);
-    BOOST_CHECK( ! p->theFilter->limit);
-    BOOST_CHECK( ! p->getLimit());
-    BOOST_CHECK( ! p->getOffset());
+    EXPECT_TRUE( ! p->isPagination() );
+    EXPECT_TRUE( ! p->theFilter->offset);
+    EXPECT_TRUE( ! p->theFilter->limit);
+    EXPECT_TRUE( ! p->getLimit());
+    EXPECT_TRUE( ! p->getOffset());
 }
 
-BOOST_AUTO_TEST_CASE( FilterUnique )
+TEST( ParametersTest, FilterUnique )
 {
     ParametersIPtr p = new ParametersI();
-    BOOST_CHECK( 0 == p->getUnique() );
-    BOOST_CHECK( p->unique()->getUnique()->getValue() );
-    BOOST_CHECK( ! p->noUnique()->getUnique()->getValue() );
+    EXPECT_TRUE( 0 == p->getUnique() );
+    EXPECT_TRUE( p->unique()->getUnique()->getValue() );
+    EXPECT_TRUE( ! p->noUnique()->getUnique()->getValue() );
 }
 
 //
 // Parameters.theFilter.ownerId, groupId
 //
 
-BOOST_AUTO_TEST_CASE( OwnerId )
+TEST( ParametersTest, OwnerId )
 {
     ParametersIPtr p = new ParametersI();
-    BOOST_CHECK( ! p->theFilter );
+    EXPECT_TRUE( ! p->theFilter );
     p->exp(rlong(1));
-    BOOST_CHECK( p->theFilter );
-    BOOST_CHECK( p->theFilter->ownerId );
-    BOOST_CHECK( 1 == p->getExperimenter()->getValue() );
-    BOOST_CHECK( ! p->allExps()->getExperimenter() );
-    BOOST_CHECK( p->theFilter );
+    EXPECT_TRUE( p->theFilter );
+    EXPECT_TRUE( p->theFilter->ownerId );
+    EXPECT_TRUE( 1 == p->getExperimenter()->getValue() );
+    EXPECT_TRUE( ! p->allExps()->getExperimenter() );
+    EXPECT_TRUE( p->theFilter );
 }
 
-BOOST_AUTO_TEST_CASE( GroupId )
+TEST( ParametersTest, GroupId )
 {
     ParametersIPtr p = new ParametersI();
-    BOOST_CHECK( ! p->theFilter );
+    EXPECT_TRUE( ! p->theFilter );
     p->grp(rlong(1));
-    BOOST_CHECK( p->theFilter );
-    BOOST_CHECK( p->theFilter->groupId );
-    BOOST_CHECK( 1 == p->getGroup()->getValue() );
-    BOOST_CHECK( ! p->allGrps()->getGroup() );
-    BOOST_CHECK( p->theFilter );
+    EXPECT_TRUE( p->theFilter );
+    EXPECT_TRUE( p->theFilter->groupId );
+    EXPECT_TRUE( 1 == p->getGroup()->getValue() );
+    EXPECT_TRUE( ! p->allGrps()->getGroup() );
+    EXPECT_TRUE( p->theFilter );
 }
 
 //
 // Parameters.theFilter.startTime, endTime
 //
 
-BOOST_AUTO_TEST_CASE( Times )
+TEST( ParametersTest, Times )
 {
     ParametersIPtr p = new ParametersI();
-    BOOST_CHECK( ! p->theFilter );
+    EXPECT_TRUE( ! p->theFilter );
     p->startTime(rtime(0));
-    BOOST_CHECK( p->theFilter );
-    BOOST_CHECK( p->theFilter->startTime );
+    EXPECT_TRUE( p->theFilter );
+    EXPECT_TRUE( p->theFilter->startTime );
     p->endTime(rtime(1));
-    BOOST_CHECK( p->theFilter->endTime );
+    EXPECT_TRUE( p->theFilter->endTime );
     p->allTimes();
-    BOOST_CHECK( p->theFilter );
-    BOOST_CHECK( ! p->theFilter->startTime );
-    BOOST_CHECK( ! p->theFilter->endTime );
+    EXPECT_TRUE( p->theFilter );
+    EXPECT_TRUE( ! p->theFilter->startTime );
+    EXPECT_TRUE( ! p->theFilter->endTime );
 }
 
 //
 // Parameters.theOptions
 //
 
-BOOST_AUTO_TEST_CASE( OptionsAcquisitionData )
+TEST( ParametersTest, OptionsAcquisitionData )
 {
     ParametersIPtr p = new ParametersI();
-    BOOST_CHECK( ! p->getAcquisitionData() );
-    BOOST_CHECK( p->acquisitionData()->getAcquisitionData() );
-    BOOST_CHECK( p->noAcquisitionData()->getAcquisitionData() );
+    EXPECT_TRUE( ! p->getAcquisitionData() );
+    EXPECT_TRUE( p->acquisitionData()->getAcquisitionData() );
+    EXPECT_TRUE( p->noAcquisitionData()->getAcquisitionData() );
 }
 
-BOOST_AUTO_TEST_CASE( OptionsLeaves )
+TEST( ParametersTest, OptionsLeaves )
 {
     ParametersIPtr p = new ParametersI();
-    BOOST_CHECK( ! p->getLeaves() );
-    BOOST_CHECK( p->leaves()->getLeaves() );
-    BOOST_CHECK( p->noLeaves()->getLeaves() );
+    EXPECT_TRUE( ! p->getLeaves() );
+    EXPECT_TRUE( p->leaves()->getLeaves() );
+    EXPECT_TRUE( p->noLeaves()->getLeaves() );
 }
 
-BOOST_AUTO_TEST_CASE( OptionsOrphan )
+TEST( ParametersTest, OptionsOrphan )
 {
     ParametersIPtr p = new ParametersI();
-    BOOST_CHECK( ! p->getOrphan() );
-    BOOST_CHECK( p->orphan()->getOrphan() );
-    BOOST_CHECK( p->noOrphan()->getOrphan() );
+    EXPECT_TRUE( ! p->getOrphan() );
+    EXPECT_TRUE( p->orphan()->getOrphan() );
+    EXPECT_TRUE( p->noOrphan()->getOrphan() );
 }
 
 //
 // Parameters.map
 //
 
-BOOST_AUTO_TEST_CASE( AddBasicString )
+TEST( ParametersTest, AddBasicString )
 {
     ParametersIPtr p = new ParametersI();
     p->add("string", rstring("a"));
-    BOOST_CHECK_EQUAL("a", RStringPtr::dynamicCast(p->map["string"])->getValue());
+    EXPECT_EQ("a", RStringPtr::dynamicCast(p->map["string"])->getValue());
 }
 
-BOOST_AUTO_TEST_CASE( AddBasicInt )
+TEST( ParametersTest, AddBasicInt )
 {
     ParametersIPtr p = new ParametersI();
     p->add("int", rint(1));
-    BOOST_CHECK_EQUAL(1, RIntPtr::dynamicCast(p->map["int"])->getValue());
+    EXPECT_EQ(1, RIntPtr::dynamicCast(p->map["int"])->getValue());
 }
 
-BOOST_AUTO_TEST_CASE( AddIdRaw )
+TEST( ParametersTest, AddIdRaw )
 {
     ParametersIPtr p = new ParametersI();
     p->addId(1);
-    BOOST_CHECK_EQUAL(1, RLongPtr::dynamicCast(p->map["id"])->getValue());
+    EXPECT_EQ(1, RLongPtr::dynamicCast(p->map["id"])->getValue());
 }
 
-BOOST_AUTO_TEST_CASE( AddIdRType )
+TEST( ParametersTest, AddIdRType )
 {
     ParametersIPtr p = new ParametersI();
     p->addId(rlong(1));
-    BOOST_CHECK_EQUAL(1, RLongPtr::dynamicCast(p->map["id"])->getValue());
+    EXPECT_EQ(1, RLongPtr::dynamicCast(p->map["id"])->getValue());
 }
 
-BOOST_AUTO_TEST_CASE( AddLongRaw )
+TEST( ParametersTest, AddLongRaw )
 {
     ParametersIPtr p = new ParametersI();
     p->addLong("long",1L);
-    BOOST_CHECK_EQUAL(1, RLongPtr::dynamicCast(p->map["long"])->getValue());
+    EXPECT_EQ(1, RLongPtr::dynamicCast(p->map["long"])->getValue());
 }
 
-BOOST_AUTO_TEST_CASE( AddLongRType )
+TEST( ParametersTest, AddLongRType )
 {
     ParametersIPtr p = new ParametersI();
     p->addLong("long",rlong(1L));
-    BOOST_CHECK_EQUAL(1, RLongPtr::dynamicCast(p->map["long"])->getValue());
+    EXPECT_EQ(1, RLongPtr::dynamicCast(p->map["long"])->getValue());
 }
 
 void find(long i, omero::RListPtr test) {
 
-    BOOST_CHECK(test);
+    EXPECT_TRUE(test);
     omero::RTypeSeq seq = test->getValue();
 
     omero::RTypeSeq::iterator found;
@@ -224,12 +224,10 @@ void find(long i, omero::RListPtr test) {
         count++;
 	omero::RTypePtr t = *beg;
     }
-    if (count==0) {
-       BOOST_ERROR("Not found");
-    }
+    EXPECT_NE(0, count);
 }
-    
-BOOST_AUTO_TEST_CASE( AddIds )
+
+TEST( ParametersTest, AddIds )
 {
     ParametersIPtr p = new ParametersI();
     omero::sys::LongList list;
@@ -241,7 +239,7 @@ BOOST_AUTO_TEST_CASE( AddIds )
     find(2, test);
 }
 
-BOOST_AUTO_TEST_CASE( AddLongs )
+TEST( ParametersTest, AddLongs )
 {
     ParametersIPtr p = new ParametersI();
     omero::sys::LongList list;

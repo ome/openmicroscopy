@@ -1,5 +1,6 @@
-#include <boost_fixture.h>
+#include <list>
 #include <IceUtil/Thread.h>
+#include <omero/fixture.h>
 #include <omero/util/concurrency.h>
 
 using namespace omero::util::concurrency;
@@ -33,7 +34,7 @@ class WriterThread : public BaseThread {
     }
 };
 
-BOOST_AUTO_TEST_CASE( testEvent )
+TEST(ConcurrencyTest, testEvent )
 {
         list<BaseThreadPtr> rs;
         list<IceUtil::ThreadControl> rcs;
@@ -46,7 +47,7 @@ BOOST_AUTO_TEST_CASE( testEvent )
         BaseThreadPtr w = new WriterThread();
         IceUtil::ThreadControl wc = w->start();
         wc.join();
-        BOOST_CHECK( (*w).passed );
+        EXPECT_TRUE( (*w).passed );
 
         for (int i = 0; i < 10; i++) {
             BaseThreadPtr r = rs.front();
@@ -54,6 +55,6 @@ BOOST_AUTO_TEST_CASE( testEvent )
             rs.pop_front();
             rcs.pop_front();
             tc.join();
-            BOOST_CHECK( (*r).passed );
+            EXPECT_TRUE( (*r).passed );
         }
 }

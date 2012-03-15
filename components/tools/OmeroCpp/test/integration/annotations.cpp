@@ -6,7 +6,7 @@
  *
  */
 #include <IceUtil/UUID.h>
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 #include <omero/model/TagAnnotationI.h>
 #include <omero/model/ImageAnnotationLinkI.h>
 #include <omero/model/ImageI.h>
@@ -30,7 +30,7 @@ using namespace omero::model;
 using namespace omero::sys;
 using namespace omero::rtypes;
 
-BOOST_AUTO_TEST_CASE( tagAnnotation )
+TEST(AnnotationTest, tagAnnotation )
 {
     try {
 
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( tagAnnotation )
 	ImageAnnotationLinkIPtr link = ImageAnnotationLinkIPtr::dynamicCast(i->beginAnnotationLinks()[0]);
 	AnnotationPtr a = link->getChild();
 	tag = TagAnnotationIPtr::dynamicCast(a);
-	BOOST_CHECK_EQUAL( "my-first-tag", tag->getTextValue()->getValue() );
+	EXPECT_EQ( "my-first-tag", tag->getTextValue()->getValue() );
 
     } catch (omero::ApiUsageException& aue) {
 	cout << aue.message <<endl;
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( tagAnnotation )
     }
 }
 
-BOOST_AUTO_TEST_CASE( fileAnnotation )
+TEST(AnnotationTest, fileAnnotation )
 {
     try {
 
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 #ifdef _WIN32
         int err;
         err = _mktemp_s(pointer, 10); // Length plus one for null
-        BOOST_CHECK( ! err );
+        EXPECT_FALSE( err );
 #else
 	mkstemp(pointer);
 #endif
@@ -146,10 +146,10 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 	attachment = FileAnnotationPtr::dynamicCast(a);
 
     } catch (omero::OptimisticLockException& ole) {
-	BOOST_ERROR( ole.message );
+	FAIL() << ole.message;
     } catch (omero::ApiUsageException& aue) {
 	cout << aue.message << endl;
 	cout << aue.serverStackTrace << endl;
-	BOOST_ERROR( "api usage exception");
+	FAIL() << "api usage exception";
     }
 }

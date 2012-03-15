@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 #include <omero/util/tiles.h>
 
 using namespace std;
@@ -90,7 +90,7 @@ public:
      */
     ImagePtr createBinaryImage(ImagePtr image) {
 
-        BOOST_CHECK( image->sizeOfPixels() > 0);
+        EXPECT_TRUE( image->sizeOfPixels() > 0);
         PixelsPtr pixels = image->getPixels(0);
         RPSTileLoopPtr loop = new RPSTileLoop(client->getSession(), pixels);
         loop->forEachTile(256, 256, new MyIteration());
@@ -104,11 +104,11 @@ public:
 
 };
 
-BOOST_AUTO_TEST_CASE( testResetDefaultsInImage )
+TEST(RenderingSettingsTest, testResetDefaultsInImage )
 {
 
     RndFixture f;
     ImagePtr img = f.createBinaryImage();
-    BOOST_CHECK( img->getId() );
+    EXPECT_TRUE( img->getId() );
     f.rndService()->resetDefaultsInImage(img->getId()->getValue());
 }

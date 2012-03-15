@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 #include <omero/model/AcquisitionModeI.h>
 #include <omero/model/ChannelI.h>
 #include <omero/model/DimensionOrderI.h>
@@ -21,7 +21,7 @@ using namespace omero::api;
 using namespace omero::model;
 using namespace omero::rtypes;
 
-BOOST_AUTO_TEST_CASE( SavingPixels )
+TEST(Beta3Test, SavingPixels )
 {
     Fixture f;
 
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
     // At this point trying to save throws a ValidationException
     try {
         sf->getUpdateService()->saveObject(pix);
-        BOOST_ERROR("Should fail");
+        FAIL() << "Should fail";
     } catch (const omero::ValidationException& ve) {
         // ok
     }
@@ -43,10 +43,10 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
     i->setName( rstring("test1") );
 
     try {
-    	sf->getUpdateService()->saveObject(i);
+        sf->getUpdateService()->saveObject(i);
     } catch (const omero::ValidationException& ve) {
         // ok
-        BOOST_ERROR(ve.serverStackTrace);
+        FAIL() << ve.serverStackTrace;
     }
 
 }

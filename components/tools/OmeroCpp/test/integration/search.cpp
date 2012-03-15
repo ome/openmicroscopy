@@ -7,7 +7,7 @@
  */
 #include <IceUtil/UUID.h>
 #include <Glacier2/Glacier2.h>
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 #include <time.h>
 #include <omero/Collections.h>
 #include <omero/api/IAdmin.h>
@@ -137,12 +137,12 @@ void _assertResults(int line, unsigned int count, SearchPrx search, bool exact) 
     out << "line " << line << ":";
     if (count  > 0) {
 	out << "Search should have results" << endl;
-        BOOST_CHECK_MESSAGE( search->hasNext(), out.str());
+        EXPECT_TRUE( search->hasNext() );
         if (search->hasNext()) {
 	    if (exact) {
-		BOOST_CHECK_EQUAL( count, search->results().size() );
+		EXPECT_EQ( count, search->results().size() );
 	    } else {
-		BOOST_CHECK_MESSAGE( search->results().size() > count, "Not enough results");
+		EXPECT_TRUE( search->results().size() > count );
 	    }
         }
     } else {
@@ -150,12 +150,12 @@ void _assertResults(int line, unsigned int count, SearchPrx search, bool exact) 
 	if (search->hasNext()) {
             int size = search->results().size();
 	    out << size << endl;
-            BOOST_ERROR( out.str() );
+            FAIL() << out.str();
         }
     }
 }
 
-BOOST_AUTO_TEST_CASE( RootSearch )
+TEST(SearchTest, RootSearch )
 {
     try {
         SearchFixture f;
@@ -166,17 +166,17 @@ BOOST_AUTO_TEST_CASE( RootSearch )
         if (search->hasNext()) {
             ExperimenterIPtr e = ExperimenterIPtr::dynamicCast(search->next());
         }
-
+    } catch (const omero::InternalException& ie) {
+	FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
-        cout << aue.message <<endl;
-	BOOST_ERROR ( "api usage exception thrown" );
+        FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
-        cout << ue << endl;
-	BOOST_ERROR( "unknown exception thrown" );
+	cout << ue << endl;
+	FAIL() << "unknown exception thrown";
     }
 }
 
-BOOST_AUTO_TEST_CASE( IQuerySearch )
+TEST(SearchTest, IQuerySearch )
 {
     try {
         SearchFixture f;
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE( IQuerySearch )
 	try {
 	    root.update()->indexObject(i);
 	} catch (const Glacier2::PermissionDeniedException& pde) {
-	    BOOST_ERROR("permission denied:"+pde.reason);
+	    FAIL() << "permission denied:" << pde.reason;
 	}
 
 	/*
@@ -202,19 +202,19 @@ BOOST_AUTO_TEST_CASE( IQuerySearch )
 	 */
         IObjectList list;
         list = f.query()->findAllByFullText("Image",uuid,0);
-	BOOST_CHECK_EQUAL( (unsigned int) 1, list.size() );
-	
+	EXPECT_EQ( (unsigned int) 1, list.size() );
+    } catch (const omero::InternalException& ie) {
+	FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
-        cout << aue.message <<endl;
-	BOOST_ERROR ( "api usage exception thrown" );
+        FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
-        cout << ue << endl;
-	BOOST_ERROR( "unknown exception thrown" );
+	cout << ue << endl;
+	FAIL() << "unknown exception thrown";
     }
 }
 
 
-BOOST_AUTO_TEST_CASE( Filtering )
+TEST(SearchTest, Filtering )
 {
     try {
         SearchFixture f;
@@ -263,14 +263,13 @@ BOOST_AUTO_TEST_CASE( Filtering )
         // Reset for coming searches
         search->onlyOwnedBy(DetailsIPtr());
 
-
     } catch (const omero::InternalException& ie) {
-	BOOST_ERROR ( "internal exception:"+ie.message );
+	FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
-	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+        FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
 	cout << ue << endl;
-	BOOST_ERROR( "unknown exception thrown");
+	FAIL() << "unknown exception thrown";
     }
 }
 
@@ -283,7 +282,7 @@ BOOST_AUTO_TEST_CASE( Filtering )
 // This section tests each query method with various combinations of
 // restrictions
 
-BOOST_AUTO_TEST_CASE ( testByGroupForTags ) {
+TEST( SearchTest, testByGroupForTags ) {
     try {
     // Set up user and group
     SearchFixture root = SearchFixture("root");
@@ -341,14 +340,14 @@ BOOST_AUTO_TEST_CASE ( testByGroupForTags ) {
     tag = TagAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(tag));
 
     // All queries finished?
-    BOOST_CHECK_EQUAL(0, search->activeQueries());
+    EXPECT_EQ(0, search->activeQueries());
     assertResults(0, search);
 
     DetailsIPtr d = new DetailsI();
     d->setOwner(new ExperimenterI(secondUser->getId(), false));
     search->onlyOwnedBy(d);
     search->byGroupForTags(groupStr);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE( search->hasNext() );
 
     d->setOwner(initialUser);
     search->onlyOwnedBy(d);
@@ -359,16 +358,16 @@ BOOST_AUTO_TEST_CASE ( testByGroupForTags ) {
     search->byGroupForTags(groupStr);
     assertResults(1, search);
     } catch (const omero::InternalException& ie) {
-	BOOST_ERROR ( "internal exception:"+ie.message );
+	FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
-	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+        FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
 	cout << ue << endl;
-	BOOST_ERROR( "unknown exception thrown");
+	FAIL() << "unknown exception thrown";
     }
 }
 
-BOOST_AUTO_TEST_CASE( testByTagForGroup ) {
+TEST(SearchTest, testByTagForGroup ) {
     try {
     // Set up user and group
     SearchFixture root = SearchFixture("root");
@@ -425,7 +424,7 @@ BOOST_AUTO_TEST_CASE( testByTagForGroup ) {
     tag = TagAnnotationIPtr::dynamicCast(f2.update()->saveAndReturnObject(tag));
 
     // All queries finished?
-    BOOST_CHECK_EQUAL(0, search->activeQueries());
+    EXPECT_EQ(0, search->activeQueries());
     assertResults(0, search);
 
     DetailsIPtr d = new DetailsI();
@@ -447,17 +446,16 @@ BOOST_AUTO_TEST_CASE( testByTagForGroup ) {
     //search->byTagForGroups(tagStr);
     //assertResults(1, search);
     } catch (const omero::InternalException& ie) {
-	BOOST_ERROR ( "internal exception:"+ie.message );
+	FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
-	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+        FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
 	cout << ue << endl;
-	BOOST_ERROR( "unknown exception thrown");
+	FAIL() << "unknown exception thrown";
     }
-
 }
 
-BOOST_AUTO_TEST_CASE( testSimpleFullTextSearch ) {
+TEST(SearchTest, testSimpleFullTextSearch ) {
     
     try {
     SearchFixture f;
@@ -476,9 +474,9 @@ BOOST_AUTO_TEST_CASE( testSimpleFullTextSearch ) {
     while (search->hasNext()) {
 	obj = search->next();
 	count++;
-	BOOST_CHECK( obj );
+	EXPECT_TRUE( obj );
     }
-    BOOST_CHECK(count == 1);
+    EXPECT_EQ(1, count);
 
     search->onlyType("Image");
     search->byFullText(i->getName()->getValue());
@@ -486,12 +484,12 @@ BOOST_AUTO_TEST_CASE( testSimpleFullTextSearch ) {
 
     search->close();
     } catch (const omero::InternalException& ie) {
-	BOOST_ERROR ( "internal exception:"+ie.message );
+	FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
-	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+        FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
 	cout << ue << endl;
-	BOOST_ERROR( "unknown exception thrown");
+	FAIL() << "unknown exception thrown";
     }
 }
 
@@ -506,7 +504,7 @@ vector<string> sa(string array...) {
     return v;
 }
 
-BOOST_AUTO_TEST_CASE( testSomeMustNone ) {
+TEST(SearchTest, testSomeMustNone ) {
     string contained[] = { "abc", "def", "ghi", "123" };
     string missing[] =  { "jkl", "mno", "pqr", "456" };
 
@@ -523,7 +521,7 @@ BOOST_AUTO_TEST_CASE( testSomeMustNone ) {
 
     // Make sure we can find it simply
     search->bySomeMustNone(sa("abc"), sa(), sa());
-    BOOST_CHECK(search->results().size() >= 1);
+    EXPECT_EQ(search->results().size() >= 1);
 
     //
     // Now we'll try more complicated queries
@@ -638,7 +636,7 @@ BOOST_AUTO_TEST_CASE( testSomeMustNone ) {
 
 */
 
-BOOST_AUTO_TEST_CASE( testAnnotatedWith ) {
+TEST(SearchTest, testAnnotatedWith ) {
     try {
     SearchFixture f;
     SearchFixture root = f.root();
@@ -688,20 +686,20 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWith ) {
     byAnnotatedWith(search, txtAnn);
     assertResults(1, search);
     } catch (const omero::InternalException& ie) {
-	BOOST_ERROR ( "internal exception:"+ie.message );
+	FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
-	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+        FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
 	cout << ue << endl;
-	BOOST_ERROR( "unknown exception thrown");
+	FAIL() << "unknown exception thrown";
     }
 }
 
-BOOST_AUTO_TEST_CASE( testAnnotatedWithNamespace ) {
-    BOOST_CHECK_MESSAGE( false, "via namespace");
+TEST(SearchTest, testAnnotatedWithNamespace ) {
+    FAIL() << "NYI: via namespace";
 }
 
-BOOST_AUTO_TEST_CASE( testAnnotatedWithMultiple ) {
+TEST(SearchTest, testAnnotatedWithMultiple ) {
     try {
     ImagePtr i1 = new_ImageI();
     i1->setName( rstring("i1") );
@@ -741,12 +739,12 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWithMultiple ) {
     search->byAnnotatedWith(list);
     assertResults(1, search);
     } catch (const omero::InternalException& ie) {
-	BOOST_ERROR ( "internal exception:"+ie.message );
+	FAIL() << "internal exception:" << ie.message;
     } catch (const omero::ApiUsageException& aue) {
-	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+	FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
 	cout << ue << endl;
-	BOOST_ERROR( "unknown exception thrown");
+	FAIL() << "unknown exception thrown";
     }
 
 }
@@ -756,7 +754,7 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWithMultiple ) {
 // The tests in the following sections should include all the by* methods
 // each testing a specific restriction
 
-BOOST_AUTO_TEST_CASE( testOnlyIds ) {
+TEST(SearchTest, testOnlyIds ) {
 
     // ignored by
     // byTagForGroups, byGroupForTags
@@ -829,7 +827,7 @@ BOOST_AUTO_TEST_CASE( testOnlyIds ) {
     //assertResults(2, search);
 }
 
-BOOST_AUTO_TEST_CASE( testOnlyOwnedByOwner ) {
+TEST(SearchTest, testOnlyOwnedByOwner ) {
 
     SearchFixture root("root");
     ExperimenterPtr e = root.newUser();
@@ -879,7 +877,7 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByOwner ) {
     search->onlyOwnedBy(rootd);
     // full text
     search->byFullText(name);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -939,7 +937,7 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByOwner ) {
     assertResults(0, search);
 }
 
-BOOST_AUTO_TEST_CASE( testOnlyOwnedByGroup ) {
+TEST(SearchTest, testOnlyOwnedByGroup ) {
     
     SearchFixture root("root");
     ExperimenterPtr e = root.newUser();
@@ -992,7 +990,7 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByGroup ) {
     search->notOwnedBy(DetailsIPtr());
     // full text
     search->byFullText(name);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1075,7 +1073,7 @@ omero::RTimePtr now() {
     return rtime(millis);
 }
 
-BOOST_AUTO_TEST_CASE( testOnlyCreateBetween ) {
+TEST(SearchTest, testOnlyCreateBetween ) {
     SearchFixture f;
     SearchFixture root = f.root();
     string name = f.uuid();;
@@ -1114,7 +1112,7 @@ BOOST_AUTO_TEST_CASE( testOnlyCreateBetween ) {
     search->onlyCreatedBetween(omero::RTimePtr(), oneHourAgo());
     // full text
     search->byFullText(name);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1129,7 +1127,7 @@ BOOST_AUTO_TEST_CASE( testOnlyCreateBetween ) {
     search->onlyCreatedBetween(inOneHour(), omero::RTimePtr());
     // full text
     search->byFullText(name);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1159,7 +1157,7 @@ BOOST_AUTO_TEST_CASE( testOnlyCreateBetween ) {
     search->onlyCreatedBetween(omero::RTimePtr(), start);
     // full text
     search->byFullText(name);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1186,7 +1184,7 @@ BOOST_AUTO_TEST_CASE( testOnlyCreateBetween ) {
     assertResults(1, search);
 }
 
-BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
+TEST(SearchTest, testOnlyModifiedBetween ) {
 
     // Ignored by
     // byTagForGroups, byGroupForTags (tags are immutable) results always 1
@@ -1229,7 +1227,7 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
     search->onlyModifiedBetween(omero::RTimePtr(), oneHourAgo());
     // full text
     search->byFullText(name);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1244,7 +1242,7 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
     search->onlyModifiedBetween(inOneHour(), omero::RTimePtr());
     // full text
     search->byFullText(name);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1274,7 +1272,7 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
     search->onlyModifiedBetween(omero::RTimePtr(), start);
     // full text
     search->byFullText(name);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1301,7 +1299,7 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
     assertResults(1, search);
 }
 
-BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBetween ) {
+TEST(SearchTest, testOnlyAnnotatedBetween ) {
 
     SearchFixture f;
     SearchFixture root = f.root();
@@ -1341,7 +1339,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBetween ) {
     search->onlyAnnotatedBetween(omero::RTimePtr(), oneHourAgo());
     // full text
     search->byFullText(name);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1356,7 +1354,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBetween ) {
     search->onlyAnnotatedBetween(inOneHour(), omero::RTimePtr());
     // full text
     search->byFullText(name);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1386,7 +1384,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBetween ) {
     search->onlyAnnotatedBetween(omero::RTimePtr(), start);
     // full text
     search->byFullText(name);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, tag);
     assertResults(0, search);
@@ -1413,7 +1411,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBetween ) {
     assertResults(1, search);
 }
 
-BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBy ) {
+TEST(SearchTest, testOnlyAnnotatedBy ) {
 
     SearchFixture f;
     SearchFixture root = f.root();
@@ -1457,7 +1455,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBy ) {
     search->notAnnotatedBy(DetailsIPtr());
     // full text
     search->byFullText(name);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE(search->hasNext());
     // annotated with
     byAnnotatedWith(search, t);
     assertResults(0, search);
@@ -1485,7 +1483,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBy ) {
     assertResults(1, search);
 }
 
-BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWith ) {
+TEST(SearchTest, testOnlyAnnotatedWith ) {
 
     // ignored by byAnnotatedWith
     // ignored by byTagForGroups, byGroupForTags
@@ -1505,7 +1503,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWith ) {
     search->onlyAnnotatedWith(stringSet("TagAnnotation"));
     search->onlyType("Image");
     search->byFullText(name);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE(search->hasNext());
 
     // But if we ask for Images which aren't annotated it should appear
     search->onlyAnnotatedWith(StringSet());
@@ -1527,7 +1525,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWith ) {
 
     // Since we're looking for "no annotations" there should be no results
     search->byFullText(name);
-    BOOST_CHECK( ! search->hasNext());
+    EXPECT_FALSE(search->hasNext());
 
     // And if we turn the annotations back on?
     search->onlyAnnotatedWith(stringSet("TagAnnotation"));
@@ -1535,7 +1533,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWith ) {
     assertResults(1, search);
 }
 
-BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWithMultiple ) {
+TEST(SearchTest, testOnlyAnnotatedWithMultiple ) {
 
     try {
     SearchFixture f;
@@ -1574,30 +1572,29 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWithMultiple ) {
 
     search->onlyAnnotatedWith(stringSet("TagAnnotation"));
     search->byFullText(name);
-    BOOST_CHECK_EQUAL( (unsigned int) 2, search->results().size());
+    EXPECT_EQ( (unsigned int) 2, search->results().size());
 
     search->onlyAnnotatedWith(stringSet("BooleanAnnotation"));
     search->byFullText(name);
-    BOOST_CHECK_EQUAL( (unsigned int) 2, search->results().size());
+    EXPECT_EQ( (unsigned int) 2, search->results().size());
 
     search->onlyAnnotatedWith(stringSet("BooleanAnnotation", "TagAnnotation"));
     search->byFullText(name);
     assertResults(1, search);
     } catch (const omero::InternalException& ie) {
-	BOOST_ERROR ( "internal exception:"+ie.message );
+	FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
-	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+        FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
 	cout << ue << endl;
-	BOOST_ERROR( "unknown exception thrown");
+	FAIL() << "unknown exception thrown";
     }
-
 }
 
 // other
 // =========================================================================
 
-BOOST_AUTO_TEST_CASE( testMergedBatches ) {
+TEST(SearchTest, testMergedBatches ) {
 
     SearchFixture f;
     SearchFixture root = f.root();
@@ -1631,7 +1628,7 @@ BOOST_AUTO_TEST_CASE( testMergedBatches ) {
 }
 
 /* FIXME
-BOOST_AUTO_TEST_CASE ( testOrderBy ) {
+TEST SearchTest,( testOrderBy ) {
 
     SearchFixture f;
     SearchFixture root = f.root();
@@ -1666,7 +1663,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     desc.push_back(i2->getDescription()->getValue());
     desc.push_back(i1->getDescription()->getValue());
     while (search->hasNext()) {
-	BOOST_CHECK_EQUAL(desc.remove(0), ((Image) search->next())
+	EXPECT_EQ(desc.remove(0), ((Image) search->next())
 		     .getDescription());
     }
     // annotated with
@@ -1675,7 +1672,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     desc.add(i2.getDescription());
     desc.add(i1.getDescription());
     while (search->hasNext()) {
-	BOOST_CHECK_EQUAL(desc.remove(0), ((Image) search->next())
+	EXPECT_EQ(desc.remove(0), ((Image) search->next())
 		     .getDescription());
     }
 
@@ -1688,7 +1685,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     asc.add(i1.getDescription());
     asc.add(i2.getDescription());
     while (search->hasNext()) {
-	BOOST_CHECK_EQUAL(asc.remove(0), ((Image) search->next())
+	EXPECT_EQ(asc.remove(0), ((Image) search->next())
 		     .getDescription());
     }
     // annotated with
@@ -1697,7 +1694,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     asc.add(i1.getDescription());
     asc.add(i2.getDescription());
     while (search->hasNext()) {
-	BOOST_CHECK_EQUAL(asc.remove(0), ((Image) search->next())
+	EXPECT_EQ(asc.remove(0), ((Image) search->next())
 		     .getDescription());
     }
 
@@ -1710,7 +1707,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	BOOST_CHECK_EQUAL(ids.remove(0), search->next().getId());
+	EXPECT_EQ(ids.remove(0), search->next().getId());
     }
     // annotated with
     byAnnotatedWith(search, tag);
@@ -1718,7 +1715,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	BOOST_CHECK_EQUAL(ids.remove(0), search->next().getId());
+	EXPECT_EQ(ids.remove(0), search->next().getId());
     }
 
     // Ordered by creation event id
@@ -1730,7 +1727,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	BOOST_CHECK_EQUAL(ids.remove(0), search->next().getId());
+	EXPECT_EQ(ids.remove(0), search->next().getId());
     }
     // annotated with
     byAnnotatedWith(search, tag);
@@ -1738,7 +1735,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	BOOST_CHECK_EQUAL(ids.remove(0), search->next().getId());
+	EXPECT_EQ(ids.remove(0), search->next().getId());
     }
 
     // ordered by creation event time
@@ -1750,7 +1747,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	BOOST_CHECK_EQUAL(ids.remove(0), search->next().getId());
+	EXPECT_EQ(ids.remove(0), search->next().getId());
     }
     // annotated with
     byAnnotatedWith(search, tag);
@@ -1758,7 +1755,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	BOOST_CHECK_EQUAL(ids.remove(0), search->next().getId());
+	EXPECT_EQ(ids.remove(0), search->next().getId());
     }
 
     // To test multiple sort fields, we add another image with an "a"
@@ -1786,7 +1783,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     multi.add(i1.getId());
     multi.add(i2.getId());
     while (search->hasNext()) {
-	BOOST_CHECK_EQUAL(multi.remove(0), search->next().getId());
+	EXPECT_EQ(multi.remove(0), search->next().getId());
     }
     // full text
     search->byFullText(uuid);
@@ -1795,13 +1792,13 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
     multi.add(i1.getId());
     multi.add(i2.getId());
     while (search->hasNext()) {
-	BOOST_CHECK_EQUAL(multi.remove(0), search->next().getId());
+	EXPECT_EQ(multi.remove(0), search->next().getId());
     }
 
 }
 */
 
-BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
+TEST(SearchTest, testFetchAnnotations ) {
     try {
     SearchFixture f;
     SearchFixture root = f.root();
@@ -1829,44 +1826,44 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
     // full text
     search->byFullText(uuid);
     ImagePtr t = ImagePtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(-1, t->sizeOfAnnotationLinks());
+    EXPECT_EQ(-1, t->sizeOfAnnotationLinks());
     // annotated with
     byAnnotatedWith(search, tag);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(-1, t->sizeOfAnnotationLinks());
+    EXPECT_EQ(-1, t->sizeOfAnnotationLinks());
 
     // Fetch only a given type
     search->fetchAnnotations(stringSet("TagAnnotation"));
     // annotated with
     byAnnotatedWith(search, tag);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(1, t->sizeOfAnnotationLinks());
+    EXPECT_EQ(1, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
+    EXPECT_EQ(3, t->sizeOfAnnotationLinks());
 
     // fetch only a given type different from annotated-with type
     search->fetchAnnotations(stringSet("DoubleAnnotation"));
     // annotated with
     byAnnotatedWith(search, tag);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(1, t->sizeOfAnnotationLinks());
+    EXPECT_EQ(1, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
+    EXPECT_EQ(3, t->sizeOfAnnotationLinks());
 
     // fetch two types
     search->fetchAnnotations(stringSet("TagAnnotation", "DoubleAnnotation"));
     // annotated with
     byAnnotatedWith(search, tag);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(2, t->sizeOfAnnotationLinks());
+    EXPECT_EQ(2, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
+    EXPECT_EQ(3, t->sizeOfAnnotationLinks());
 
     // Fetch all
     // FIXME: "Annotation" causes an IceMapper error, had to use the full
@@ -1877,11 +1874,11 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
     byAnnotatedWith(search, tag);
     assertResults(1, search);
     // TODO t = ImagePtr::dynamicCast( search->results().get(0) );
-    // TODO BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
+    // TODO EXPECT_EQ(3, t->sizeOfAnnotationLinks());
     // full text
     search->byFullText(uuid);
     t = ImagePtr::dynamicCast( search->results().at(0) );
-    BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
+    EXPECT_EQ(3, t->sizeOfAnnotationLinks());
 
     // resave and see if there is data loss
     search->fetchAnnotations(stringSet("TagAnnotation"));
@@ -1898,21 +1895,21 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
     t = ImagePtr::dynamicCast(f.query()->findByQuery
 	("select t from Image t join fetch t.annotationLinks where t.id = :id",
 	 params));
-    BOOST_CHECK_EQUAL(4, t->sizeOfAnnotationLinks());
+    EXPECT_EQ(4, t->sizeOfAnnotationLinks());
     } catch (const omero::InternalException& ie) {
-	BOOST_ERROR ( "internal exception:"+ie.message );
+	FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
-	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+        FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
 	cout << ue << endl;
-	BOOST_ERROR( "unknown exception thrown");
+	FAIL() << "unknown exception thrown";
     }
 }
 
 // bugs
 // =========================================================================
 
-BOOST_AUTO_TEST_CASE( testCommentAnnotationDoesntTryToLoadUpdateEvent ) {
+TEST(SearchTest, testCommentAnnotationDoesntTryToLoadUpdateEvent ) {
     SearchFixture f;
     SearchFixture root = f.root();
     string uuid = f.uuid();;
@@ -1927,7 +1924,7 @@ BOOST_AUTO_TEST_CASE( testCommentAnnotationDoesntTryToLoadUpdateEvent ) {
     assertResults(1, search);
 }
 
-BOOST_AUTO_TEST_CASE( testExperimenterDoesntTryToLoadOwner ) {
+TEST(SearchTest, testExperimenterDoesntTryToLoadOwner ) {
     SearchFixture f;
     SearchPrx search = f.search();
     search->onlyType("Experimenter");
@@ -1935,7 +1932,7 @@ BOOST_AUTO_TEST_CASE( testExperimenterDoesntTryToLoadOwner ) {
     assertAtLeastResults(1, search);
 }
 
-BOOST_AUTO_TEST_CASE( testLookingForExperimenterWithOwner ) {
+TEST(SearchTest, testLookingForExperimenterWithOwner ) {
     SearchFixture f;
     SearchPrx search = f.search();
     search->onlyType("Experimenter");

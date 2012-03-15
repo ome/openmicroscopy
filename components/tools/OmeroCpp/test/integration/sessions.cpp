@@ -11,11 +11,11 @@
 #include <omero/model/GroupExperimenterMapI.h>
 #include <omero/model/ExperimenterGroupI.h>
 #include <omero/model/SessionI.h>
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 
 using namespace omero::rtypes;
 
-BOOST_AUTO_TEST_CASE( RootCanCreateSessionForUser )
+TEST(SessionsTest, RootCanCreateSessionForUser )
 {
   Fixture f;
 

@@ -7,49 +7,49 @@
  */
 
 #include <omero/model/PermissionsI.h>
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 
-BOOST_AUTO_TEST_CASE( Perm1 )
+TEST( PermsTest, Perm1 )
 {
   Fixture f;
   omero::model::PermissionsIPtr p = new omero::model::PermissionsI();
 
   // The default
-  BOOST_CHECK( p->isUserRead() );
-  BOOST_CHECK( p->isUserWrite() );
-  BOOST_CHECK( p->isGroupRead() );
-  BOOST_CHECK( p->isGroupWrite() );
-  BOOST_CHECK( p->isWorldRead() );
-  BOOST_CHECK( p->isWorldWrite() );
+  EXPECT_TRUE( p->isUserRead() );
+  EXPECT_TRUE( p->isUserWrite() );
+  EXPECT_TRUE( p->isGroupRead() );
+  EXPECT_TRUE( p->isGroupWrite() );
+  EXPECT_TRUE( p->isWorldRead() );
+  EXPECT_TRUE( p->isWorldWrite() );
 
   // All off
   p->setPerm1( 0L );
-  BOOST_CHECK( ! p->isUserRead() );
-  BOOST_CHECK( ! p->isUserWrite() );
-  BOOST_CHECK( ! p->isGroupRead() );
-  BOOST_CHECK( ! p->isGroupWrite() );
-  BOOST_CHECK( ! p->isWorldRead() );
-  BOOST_CHECK( ! p->isWorldWrite() );
+  EXPECT_TRUE( ! p->isUserRead() );
+  EXPECT_TRUE( ! p->isUserWrite() );
+  EXPECT_TRUE( ! p->isGroupRead() );
+  EXPECT_TRUE( ! p->isGroupWrite() );
+  EXPECT_TRUE( ! p->isWorldRead() );
+  EXPECT_TRUE( ! p->isWorldWrite() );
   
   // All on
   p->setPerm1( -1L );
-  BOOST_CHECK( p->isUserRead() );
-  BOOST_CHECK( p->isUserWrite() );
-  BOOST_CHECK( p->isGroupRead() );
-  BOOST_CHECK( p->isGroupWrite() );
-  BOOST_CHECK( p->isWorldRead() );
-  BOOST_CHECK( p->isWorldWrite() );
+  EXPECT_TRUE( p->isUserRead() );
+  EXPECT_TRUE( p->isUserWrite() );
+  EXPECT_TRUE( p->isGroupRead() );
+  EXPECT_TRUE( p->isGroupWrite() );
+  EXPECT_TRUE( p->isWorldRead() );
+  EXPECT_TRUE( p->isWorldWrite() );
   
   // Various swaps
   p->setUserRead(false);
-  BOOST_CHECK( !p->isUserRead() );
+  EXPECT_TRUE( !p->isUserRead() );
   p->setGroupWrite(true);
-  BOOST_CHECK( p->isGroupWrite() );
+  EXPECT_TRUE( p->isGroupWrite() );
 
   // Now reverse each of the above
   p->setUserRead(true);
-  BOOST_CHECK( p->isUserRead() );
+  EXPECT_TRUE( p->isUserRead() );
   p->setGroupWrite(false);
-  BOOST_CHECK( !p->isGroupWrite() );
+  EXPECT_TRUE( !p->isGroupWrite() );
 
 }

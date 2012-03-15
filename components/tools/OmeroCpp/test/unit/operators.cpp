@@ -7,23 +7,23 @@
  */
 
 #include <omero/model/ImageI.h>
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 
 using omero::model::ImagePtr;
 
-BOOST_AUTO_TEST_CASE( EqualityOperatorOnPointers )
+TEST(OperatorsTest, EqualityOperatorOnPointers)
 {
   Fixture f;
   ImagePtr img1 = new_ImageI();
   ImagePtr img2 = new_ImageI();
-  BOOST_CHECK( img1 != img2 );
+  EXPECT_NE( img1, img2 );
 }
 
-BOOST_AUTO_TEST_CASE( EqualityOperatorOnRawObject )
+TEST(OperatorsTest, EqualityOperatorOnRawObject)
 {
   Fixture f;
   ImagePtr img1 = new_ImageI();
   ImagePtr img2 = new_ImageI();
-  // BOOST_CHECK( *img1 != *img2 );
+  // CHECK( *img1 != *img2 );
 }
 

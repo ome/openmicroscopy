@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 #include <omero/model/ImageI.h>
 #include <omero/model/TagAnnotationI.h>
 
@@ -15,7 +15,7 @@ using namespace omero::model;
 using namespace omero::rtypes;
 using namespace omero::sys;
 
-BOOST_AUTO_TEST_CASE( Counts )
+TEST(CountsTest, Counts )
 {
     try {
         Fixture f;
@@ -41,13 +41,13 @@ BOOST_AUTO_TEST_CASE( Counts )
         q << img->getId()->getValue();
 	img = ImageIPtr::dynamicCast( query->findByQuery(q.str(), 0) );
 
-	BOOST_CHECK( img->getAnnotationLinksCountPerOwner()[usr] > 0 );
+	EXPECT_TRUE( img->getAnnotationLinksCountPerOwner()[usr] > 0 );
 
     } catch (const omero::ApiUsageException& aue) {
         cout << aue.message <<endl;
-	BOOST_ERROR ( "api usage exception thrown" );
+	FAIL() << "api usage exception thrown";
     } catch (const Ice::UnknownException& ue) {
         cout << ue << endl;
-	BOOST_ERROR( "unknown exception thrown" );
+	FAIL() << "unknown exception thrown";
     }
 }
