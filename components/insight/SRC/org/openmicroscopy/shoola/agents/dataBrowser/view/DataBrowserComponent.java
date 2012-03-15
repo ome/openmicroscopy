@@ -59,10 +59,9 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
@@ -865,7 +864,7 @@ class DataBrowserComponent
 		boolean b = EditorUtil.isUserOwner(ho, id);
 		if (b) return b; //user it the owner.
 		int level = 
-			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+			DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel();
 		switch (level) {
 			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
@@ -1554,7 +1553,13 @@ class DataBrowserComponent
 				if (go instanceof DataObject) 
 					data = (DataObject) go;
 				object.setContext(data, null);
-				bus.post(new ViewImage(ctx, object, null));
+				if (DataBrowserAgent.runAsPlugin() == DataBrowser.IMAGE_J) {
+					ViewInPluginEvent evt = new ViewInPluginEvent(ctx,
+							img, DataBrowser.IMAGE_J);
+					bus.post(evt);
+				} else {
+					bus.post(new ViewImage(ctx, object, null));
+				}
 			} else {
 				firePropertyChange(VIEW_IMAGE_NODE_PROPERTY, null, uo);
 			}
@@ -1569,7 +1574,8 @@ class DataBrowserComponent
 			*/
 			
 		} else if (uo instanceof WellSampleData) {
-			object = new ViewImageObject((WellSampleData) uo);
+			WellSampleData wellSample = (WellSampleData) uo;
+			object = new ViewImageObject(wellSample);
 			WellSampleNode wsn = (WellSampleNode) node;
 			Object parent = wsn.getParentObject();
 			
@@ -1579,7 +1585,16 @@ class DataBrowserComponent
 					data = (DataObject) go;
 				object.setContext((DataObject) parent, data);
 			}
-			bus.post(new ViewImage(model.getSecurityContext(), object, null));
+			if (DataBrowserAgent.runAsPlugin() == DataBrowser.IMAGE_J) {
+				
+				ViewInPluginEvent evt = new ViewInPluginEvent(
+						model.getSecurityContext(),
+						wellSample.getImage(), DataBrowser.IMAGE_J);
+				bus.post(evt);
+			} else {
+				bus.post(new ViewImage(model.getSecurityContext(), object, 
+						null));
+			}
 		}
 	}
 	

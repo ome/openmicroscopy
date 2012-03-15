@@ -35,7 +35,6 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
-import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
@@ -79,7 +78,7 @@ public class DataBrowserAgent
      * @return A reference to the <code>Registry</code>.
      */
     public static Registry getRegistry() { return registry; }
-    
+
 	/**
 	 * Returns the available user groups.
 	 * 

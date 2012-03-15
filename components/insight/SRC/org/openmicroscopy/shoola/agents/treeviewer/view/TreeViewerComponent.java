@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.UpdateVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewInPluginCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
@@ -2880,10 +2881,17 @@ class TreeViewerComponent
 				}
 			}
 			vo.setContext(po, gpo);
-			ViewImage evt = new ViewImage(model.getSecurityContext(), vo,
-					view.getBounds());
-			evt.setSeparateWindow(model.isFullScreen());
-			bus.post(evt);
+			SecurityContext ctx = model.getSecurityContext();
+			
+			if (TreeViewerAgent.runAsPlugin() == TreeViewer.IMAGE_J) {
+				ViewInPluginCmd cmd = new ViewInPluginCmd(this,
+						TreeViewer.IMAGE_J);
+				cmd.execute();
+			} else {
+				ViewImage evt = new ViewImage(ctx, vo, view.getBounds());
+				evt.setSeparateWindow(model.isFullScreen());
+				bus.post(evt);
+			}
 		} else if (node instanceof TreeImageTimeSet) {
 			model.browseTimeInterval((TreeImageTimeSet) node);
 		} else if (uo instanceof PlateData) {
