@@ -681,27 +681,30 @@
 
 
     
-    /* icons */
+    /* Thumbnails */
+    
     #dataIcons {
         list-style-type: none;
         margin: 0; 
         padding: 2px; 
         top: 0; 
         left: 0;
+        padding:10px;
         position: relative;
     }
 
         #dataIcons li {
             float: left;
             text-align: center;
-            height: 85px;
-            width: 85px;
+            max-width:85px;
+            max-height:85px;
             background-color:hsl(0,0%,95%);
             padding: 3px;
             margin:5px;
             -webkit-border-radius:2px;
             -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.2);
             border:solid 1px white; 
+            -webkit-
         }
 
             #dataIcons img, #dataIcons .readonly img, #dataIcons .linkonly img {
