@@ -64,6 +64,19 @@ namespace omero {
             }
         }
 
+        void PermissionsI::unload(const Ice::Current& current) {
+            // no-op
+        }
+
+        Ice::Long PermissionsI::getPerm1(const Ice::Current& current) {
+            return perm1;
+        }
+
+        void PermissionsI::setPerm1(Ice::Long _perm1, const Ice::Current& current) {
+            throwIfImmutable();
+            perm1 =  _perm1;
+        }
+
 	// shift 8; mask 4
 	bool PermissionsI::isUserRead(const Ice::Current& c) {
 	    return granted(4,8);

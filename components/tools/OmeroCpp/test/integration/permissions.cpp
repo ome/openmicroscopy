@@ -31,21 +31,28 @@ using namespace omero::model;
 using namespace omero::rtypes;
 using namespace omero::sys;
 
-
 TEST( PermissionsTest, testImmutablePermissions ) {
 
-    PermissionsIPtr p;
+    PermissionsIPtr p = new PermissionsI();
+    p->setPerm1(1L);
+    p->setWorldRead(true);
+
+    p = new PermissionsI();
     p->ice_postUnmarshal();
+
+    ASSERT_THROW(p->setPerm1(1L), omero::ClientError);
     ASSERT_THROW(p->setWorldRead(true), omero::ClientError);
 
     Fixture f;
-    client_ptr client = f.login();
+    const omero::client_ptr client = f.login();
     ServiceFactoryPrx sf = client->getSession();
     IUpdatePrx iupdate = sf->getUpdateService();
 
     CommentAnnotationPtr c = new CommentAnnotationI();
     c = CommentAnnotationPtr::dynamicCast( iupdate->saveAndReturnObject( c ) );
     p = PermissionsIPtr::dynamicCast( c->getDetails()->getPermissions() );
+
+    ASSERT_THROW(p->setPerm1(1L), omero::ClientError);
     ASSERT_THROW(p->setWorldRead(true), omero::ClientError);
 
 }

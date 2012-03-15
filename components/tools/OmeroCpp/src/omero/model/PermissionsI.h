@@ -38,13 +38,12 @@ namespace omero { namespace model {
    */
 class OMERO_API PermissionsI : virtual public Permissions {
 
-private:
-    bool __immutable;
 protected:
-    ~PermissionsI(); // protected as outlined in Ice docs.
+    virtual ~PermissionsI(); // protected as outlined in Ice docs.
     bool granted(int mask, int shift);
     void set(int mask, int shift, bool value);
     void throwIfImmutable();
+    bool __immutable;
 public:
 
     PermissionsI(const std::string& perms = "");
@@ -54,33 +53,27 @@ public:
      * Central methods. The optional argument is a requirement
      * of the Ice runtime and can safely be omitted.
      */
-    bool isUserRead(const Ice::Current& c = Ice::Current());
-    bool isUserWrite(const Ice::Current& c = Ice::Current());
-    bool isGroupRead(const Ice::Current& c = Ice::Current());
-    bool isGroupWrite(const Ice::Current& c = Ice::Current());
-    bool isWorldRead(const Ice::Current& c = Ice::Current());
-    bool isWorldWrite(const Ice::Current& c = Ice::Current());
-    void setUserRead(bool value, const Ice::Current& c = Ice::Current());
-    void setUserWrite(bool value, const Ice::Current& c = Ice::Current());
-    void setGroupRead(bool value, const Ice::Current& c = Ice::Current());
-    void setGroupWrite(bool value, const Ice::Current& c = Ice::Current());
-    void setWorldRead(bool value, const Ice::Current& c = Ice::Current());
-    void setWorldWrite(bool value, const Ice::Current& c = Ice::Current());
+    virtual bool isUserRead(const Ice::Current& c = Ice::Current());
+    virtual bool isUserWrite(const Ice::Current& c = Ice::Current());
+    virtual bool isGroupRead(const Ice::Current& c = Ice::Current());
+    virtual bool isGroupWrite(const Ice::Current& c = Ice::Current());
+    virtual bool isWorldRead(const Ice::Current& c = Ice::Current());
+    virtual bool isWorldWrite(const Ice::Current& c = Ice::Current());
+    virtual void setUserRead(bool value, const Ice::Current& c = Ice::Current());
+    virtual void setUserWrite(bool value, const Ice::Current& c = Ice::Current());
+    virtual void setGroupRead(bool value, const Ice::Current& c = Ice::Current());
+    virtual void setGroupWrite(bool value, const Ice::Current& c = Ice::Current());
+    virtual void setWorldRead(bool value, const Ice::Current& c = Ice::Current());
+    virtual void setWorldWrite(bool value, const Ice::Current& c = Ice::Current());
 
     // Do not use !
-    Ice::Long getPerm1(const Ice::Current& current = Ice::Current()) {
-        return  perm1 ;
-    }
+    virtual Ice::Long getPerm1(const Ice::Current& current = Ice::Current());
 
     // Do not use !
-    void setPerm1(Ice::Long _perm1, const Ice::Current& current = Ice::Current()) {
-        throwIfImmutable();
-        perm1 =  _perm1 ;
-
-    }
+    virtual void setPerm1(Ice::Long _perm1, const Ice::Current& current = Ice::Current());
 
     // Meaningless for Permissions. No complex state.
-    void unload(const Ice::Current& c = Ice::Current());
+    virtual void unload(const Ice::Current& c = Ice::Current());
 
   };
 
