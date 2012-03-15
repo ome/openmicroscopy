@@ -516,6 +516,23 @@ public class PublicRepositoryI extends _RepositoryDisp {
         FileUtils.deleteQuietly(file);
     }
 
+    public List<String> deleteFiles(String[] files, Current __current) throws ServerError {
+        List<String> undeleted = new ArrayList<String>();
+        for (String path : files) {
+            File file = checkPath(path);
+            if (file.delete()) {
+                file = file.getParentFile();
+                while(!file.equals(root) && file.delete()) {
+                    file = file.getParentFile();
+                }
+            }
+            else {
+                undeleted.add(path);
+            }
+        }
+        return undeleted;
+    }
+
     @SuppressWarnings("unchecked")
 
     /**
@@ -706,7 +723,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
     public boolean create(String path, Current __current) throws ServerError {
         File file = checkPath(path);
         try {
-            return file.createNewFile();
+            FileUtils.touch(file);
+            return true;
         } catch (Exception e) {
             throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
         }

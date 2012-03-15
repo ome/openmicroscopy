@@ -180,6 +180,8 @@ module omero {
 
             omero::api::StringSet getCurrentRepoDir(omero::api::StringSet paths) throws ServerError;
 
+            omero::api::StringSet deleteFiles(omero::api::StringArray paths) throws ServerError;
+
             /* TODO for both methods: These methods should both be removed
               in favour of a full implementation of thumbs()*/
             /**

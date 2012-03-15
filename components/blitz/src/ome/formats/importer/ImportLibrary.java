@@ -316,7 +316,7 @@ public class ImportLibrary implements IObservable
     /**
      * Create a RepositoryImportContainer from an ImportContainer
      */
-    public RepositoryImportContainer createRepositoryImportContainer(ImportContainer ic) {
+    private RepositoryImportContainer createRepositoryImportContainer(ImportContainer ic) {
         RepositoryImportContainer repoIC = new RepositoryImportContainer();
         repoIC.file = ic.getFile().getAbsolutePath();
         repoIC.projectId = (ic.getProjectID() == null) ? -1L : ic.getProjectID().longValue();
@@ -441,6 +441,18 @@ public class ImportLibrary implements IObservable
                 reader.setMetadataStore(store);
             }
         }
+    }
+
+    /**
+     * Delete files from the managed repository.
+     * @param container The current import container containg usedFiles to be deleted.
+     * @return List of files that could not be deleted.
+     */
+    public List<String> deleteFilesFromRepository(ImportContainer container)
+            throws ServerError
+    {
+        List<String> undeleted = repo.deleteFiles(container.getUsedFiles());
+        return undeleted;
     }
 
     /**
