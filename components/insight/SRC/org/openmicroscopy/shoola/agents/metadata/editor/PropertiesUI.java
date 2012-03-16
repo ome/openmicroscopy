@@ -32,14 +32,14 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
@@ -76,7 +76,6 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEve
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -208,6 +207,12 @@ class PropertiesUI
 	/** The menu displaying the view options.*/
 	private JPopupMenu			viewMenu;
 	
+	/** The component listener.*/
+	private ComponentListener listener;
+	
+	/** The visible rectangle.*/
+	private Rectangle visibleRectangle;
+	
 	/** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -279,12 +284,11 @@ class PropertiesUI
     	descriptionPane.setEnabled(false);
     	descriptionPane.setAllowOneClick(true);
     	descriptionPane.addFocusListener(this);
-    	addComponentListener(new ComponentAdapter() {
+    	listener = new ComponentAdapter() {
 
-			public void componentResized(ComponentEvent e) {
-				wrap();
-			}
-		});
+			public void componentResized(ComponentEvent e) { wrap(); }
+		};
+    	addComponentListener(listener);
     	defaultBorder = namePane.getBorder();
     	namePane.setFont(f.deriveFont(Font.BOLD));
     	typePane.setFont(f.deriveFont(Font.BOLD));
@@ -299,7 +303,6 @@ class PropertiesUI
     	f = wellLabel.getFont();
     	wellLabel.setFont(f.deriveFont(Font.BOLD));
     	wellLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	
     	
     	f = ownerLabel.getFont();
     	ownerLabel.setFont(f.deriveFont(Font.BOLD, f.getSize()-2));
@@ -823,16 +826,16 @@ class PropertiesUI
         	refObject instanceof WellSampleData ||
         	refObject instanceof PlateData ||
         	refObject instanceof ScreenData) {
-        	 p.add(Box.createVerticalStrut(5));
-        	 descriptionPanel = layoutEditablefield(editDescription, 
+        	p.add(Box.createVerticalStrut(5));
+        	descriptionPanel = layoutEditablefield(editDescription, 
         			 descriptionPane, 5);
         	 //descriptionPanel.setBorder(AnnotationUI.EDIT_BORDER);
-
-        	 pane = new JScrollPane(descriptionPanel);
-        	 pane.setBorder(AnnotationUI.EDIT_BORDER);
-        	 Dimension d = pane.getPreferredSize();
-        	 pane.getViewport().setPreferredSize(new Dimension(d.width, 60));
-        	 p.add(pane);
+		
+        	pane = new JScrollPane(descriptionPanel);
+        	pane.setBorder(AnnotationUI.EDIT_BORDER);
+        	Dimension d = pane.getPreferredSize();
+        	pane.getViewport().setPreferredSize(new Dimension(d.width, 60));
+        	p.add(pane);
          } else if (refObject instanceof FileData) {
         	 /*
         	 FileData f = (FileData) refObject;
@@ -1030,11 +1033,21 @@ class PropertiesUI
     private void wrap()
     {
     	if (descriptionPanel != null && descriptionPanel.getSize() != null) {
+    		int w = descriptionPanel.getSize().width;
+    		if (w > namePanel.getSize().width)
+    			w = namePanel.getSize().width;
     		String newLineStr = null;
     		if (pane.getVerticalScrollBar().isVisible())
     			newLineStr = "";
-			descriptionPane.wrapText(descriptionPanel.getSize().width,
-					newLineStr);
+    		Dimension d = pane.getPreferredSize();
+    		if (visibleRectangle != null) {
+    			if (w > visibleRectangle.width)
+    				w = visibleRectangle.width;
+    		}
+    		removeComponentListener(listener);
+    		pane.setSize(new Dimension(w, d.height));
+			descriptionPane.wrapText(w, newLineStr);
+			addComponentListener(listener);
 		}
     }
     
@@ -1044,11 +1057,12 @@ class PropertiesUI
 	 */
 	protected void buildUI()
 	{
-		if (!init) {
-			buildGUI();
-			init = true;
-		}
 		removeAll();
+		//if (!init) {
+			//buildGUI();
+			//init = true;
+		//}
+		//removeAll();
 		if (model.isMultiSelection()) return;
 		namePane.getDocument().removeDocumentListener(this);
 		//descriptionPane.getDocument().removeDocumentListener(this);
@@ -1241,6 +1255,16 @@ class PropertiesUI
 		channelsArea.setText(buffer.toString());
 		channelsArea.revalidate();
 		channelsArea.repaint();
+	}
+	
+	/** 
+	 * Sets the visible rectangle.
+	 * 
+	 * @param topDimension The value to set.
+	 */
+	void setVisibleRect(Rectangle rectangle)
+	{
+		visibleRectangle = rectangle;
 	}
 	
 	/**
