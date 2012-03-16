@@ -5,49 +5,11 @@
 package integration;
 
 
-//Java imports
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
-//Third-party libraries
 import org.testng.annotations.Test;
 
-//Application-internal dependencies
-import omero.RLong;
-import omero.api.IPixelsPrx;
-import omero.api.IRenderingSettingsPrx;
-import omero.model.AcquisitionMode;
-import omero.model.ArcType;
-import omero.model.Binning;
-import omero.model.Channel;
-import omero.model.ContrastMethod;
-import omero.model.Correction;
-import omero.model.DetectorType;
-import omero.model.DimensionOrder;
-import omero.model.ExperimentType;
-import omero.model.Family;
-import omero.model.FilamentType;
-import omero.model.FilterType;
-import omero.model.Format;
-import omero.model.IObject;
-import omero.model.Illumination;
-import omero.model.Image;
-import omero.model.Immersion;
-import omero.model.LaserMedium;
-import omero.model.LaserType;
-import omero.model.LogicalChannel;
-import omero.model.Medium;
-import omero.model.MicrobeamManipulationType;
-import omero.model.MicroscopeType;
-import omero.model.PhotometricInterpretation;
-import omero.model.Pixels;
-import omero.model.PixelsType;
-import omero.model.Pulse;
-import omero.model.RenderingDef;
-import omero.model.RenderingModel;
-import omero.sys.ParametersI;
+import omero.model.CommentAnnotationI;
+import omero.model.DetailsI;
+import omero.model.PermissionsI;
 
 /**
  * Tests for the updated group permissions of
@@ -56,9 +18,9 @@ import omero.sys.ParametersI;
  * @since 4.4.0
  */
 @Test(groups = { "client", "integration", "permissions" })
-public class PermissionsServiceTest
+public class PermissionsTest
 	extends AbstractServerTest {
-}
+
     // chmod
     // ==============================================
 
@@ -66,10 +28,10 @@ public class PermissionsServiceTest
      * See #8277 permissions returned from the server
      * should now be immutable.
      */
-    public void testImmutablePermissions() {
+    public void testImmutablePermissions() throws Exception {
 
         // Test on the raw object
-        PermissionI p = new omero.model.PermissionsI();
+        PermissionsI p = new omero.model.PermissionsI();
         p.ice_postUnmarshal();
         try {
             p.setPerm1(1);
@@ -80,8 +42,8 @@ public class PermissionsServiceTest
 
         // and on one returned from the server
         CommentAnnotationI c = new omero.model.CommentAnnotationI();
-        c = self.update.saveAndReturnObject(c)
-        p = c.details.permissions
+        c = (CommentAnnotationI) this.iUpdate.saveAndReturnObject(c);
+        p = (PermissionsI) c.getDetails().getPermissions();
         try {
                 p.setPerm1(1);
         } catch (omero.ClientError err) {
@@ -95,12 +57,14 @@ public class PermissionsServiceTest
         assertTrue(p.canEdit());
     }
 
-    public void testClientSet() {
+    public void testClientSet() throws Exception {
         CommentAnnotationI c = new omero.model.CommentAnnotationI();
-        c = self.update.saveAndReturnObject(c)
-        DetailsI d = c.getDetails();
+        c = (CommentAnnotationI) this.iUpdate.saveAndReturnObject(c);
+        DetailsI d = (DetailsI) c.getDetails();
         assertTrue( d.getClient() != null);
         //self.assertTrue( d.getSession() is not None)
         //self.assertTrue( d.getCallContext() is not None)
         //self.assertTrue( d.getEventContext() is not None)
     }
+
+}

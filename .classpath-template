@@ -20,6 +20,7 @@
 	<classpathentry kind="src" path="components/romio/resources"/>
 	<classpathentry kind="src" path="components/romio/src"/>
 	<classpathentry kind="src" path="components/romio/test"/>
+	<classpathentry kind="src" path="components/specification/test"/>
 	<classpathentry kind="src" output="target/eclipse-insight" path="components/insight/SRC"/>
 	<classpathentry kind="src" output="target/eclipse-insight" path="components/insight/TEST"/>
 	<classpathentry kind="src" output="target/eclipse-server" path="components/server/src"/>

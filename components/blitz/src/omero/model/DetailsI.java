@@ -42,6 +42,10 @@ public class DetailsI extends Details implements ome.model.ModelBased {
         this.client = client;
     }
 
+    public omero.client getClient() {
+        return this.client;
+    }
+
     public omero.model.Experimenter getOwner(Ice.Current current) {
         return this.owner;
     }
