@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
@@ -54,6 +55,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
@@ -61,7 +63,6 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.file.IOUtil;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -584,6 +585,7 @@ public class DataServicesFactory
 	public void shutdown(SecurityContext ctx)
     { 
 		//Need to write the current group.
+		if (!omeroGateway.isConnected()) return;
 		Set groups = (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 		if (groups != null && groups.size() > 0) {
 			ExperimenterData exp = (ExperimenterData) 
@@ -605,8 +607,8 @@ public class DataServicesFactory
 			ScreenLogin.registerGroup(names);
 		} else ScreenLogin.registerGroup(null);
 		CacheServiceFactory.shutdown(container);
-        ((OmeroImageServiceImpl) is).shutDown(ctx);
-        omeroGateway.logout(); 
+		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
+		omeroGateway.logout(); 
         if (executor != null) executor.shutdown();
         executor = null;
     }
@@ -650,16 +652,20 @@ public class DataServicesFactory
 				String message = "The following components " +
 				"could not be closed safely:\n"+buffer.toString()+"\n" +
 				"Please check.";
-
+				String title = "Exit Application";
+				Environment env = (Environment) registry.lookup(LookupNames.ENV);
+				if (env != null && env.isRunAsPlugin())
+					title = "Exit Plugin";
 				MessageBox box = new MessageBox(
 						singleton.registry.getTaskBar().getFrame(),
-						"Exit Application", message,
+						title, message,
 						IconManager.getInstance().getIcon(
 								IconManager.INFORMATION_MESSAGE_48));
 				box.setNoText("OK");
 				box.setYesText("Force Quit");
 				box.setSize(400, 250);
-				if (box.centerMsgBox() == MessageBox.NO_OPTION)
+				if (!env.isRunAsPlugin() && 
+						box.centerMsgBox() == MessageBox.NO_OPTION)
 					return;
 			}
 		}

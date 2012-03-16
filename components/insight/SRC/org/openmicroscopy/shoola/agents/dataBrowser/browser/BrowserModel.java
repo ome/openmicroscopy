@@ -690,14 +690,16 @@ class BrowserModel
 
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#viewDisplay(ImageDisplay)
+	 * @see Browser#viewDisplay(ImageDisplay, boolean)
 	 */
-	public void viewDisplay(ImageDisplay node)
+	public void viewDisplay(ImageDisplay node, boolean internal)
 	{
 		if (node == null) return;
-		firePropertyChange(VIEW_DISPLAY_PROPERTY, null, node);
+		if (internal)
+			firePropertyChange(MAIN_VIEW_DISPLAY_PROPERTY, null, node);
+		else firePropertyChange(VIEW_DISPLAY_PROPERTY, null, node);
 	}
-	
+
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#setComponentTitle(String)

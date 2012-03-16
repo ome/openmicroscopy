@@ -39,6 +39,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -187,6 +188,9 @@ class BrowserUI
     /** Flag indicating if it is a right-click.*/
     private boolean rightClickPad;
     
+    /** Identifies the key event.*/
+    private int keyEvent;
+    
     /**
      * Builds the tool bar.
      * 
@@ -308,18 +312,19 @@ class BrowserUI
     /** 
      * Reacts to node expansion event.
      * 
-     * @param tee       The event to handle.
-     * @param expanded 	Pass <code>true</code> is the node is expanded,
-     * 					<code>false</code> otherwise.
+     * @param node     The node to handle.
+     * @param expanded Pass <code>true</code> is the node is expanded,
+     *                 <code>false</code> otherwise.
      */
-    private void onNodeNavigation(TreeExpansionEvent tee, boolean expanded)
+    private void onNodeNavigation(TreeImageDisplay node, boolean expanded)
     {
-        TreeImageDisplay node = (TreeImageDisplay) 
-        							tee.getPath().getLastPathComponent();
         node.setExpanded(expanded);
         controller.onNodeNavigation(node, expanded);
         treeDisplay.clearSelection();
-        treeDisplay.setSelectionPath(new TreePath(node.getPath()));
+        try {
+        	treeDisplay.setSelectionPath(new TreePath(node.getPath()));
+		} catch (Exception e) {}
+        
 		treeDisplay.repaint();
     }
     
@@ -373,15 +378,15 @@ class BrowserUI
                 if (d == null) return;
                 Object o = d.getUserObject();
                 if (o instanceof ImageData) {
-                	model.browser(d);
+                	model.browse(d);
                 } else if (o instanceof FileAnnotationData) {
                 	model.openFile(d);
                 } else if (o instanceof PlateData) {
                 	if (!d.hasChildrenDisplay() || 
                 			d.getChildrenDisplay().size() == 1) 
-                		model.browser(d);
+                		model.browse(d);
                 } else if (o instanceof PlateAcquisitionData) {
-                	model.browser(d);
+                	model.browse(d);
                 }
             }
         }
@@ -934,36 +939,13 @@ class BrowserUI
             public void valueChanged(TreeSelectionEvent e)
             {
             	event = e;
-            	/*
-            	if (ctrl && leftMouseButton) {
-            		TreePath[] paths = treeDisplay.getSelectionPaths();
-            		List<TreePath> added = new ArrayList<TreePath>();
-            		TreePath[] all = null;
-            		if (paths != null) {
-            			all = new TreePath[paths.length];
-                		for (int i = 0; i < paths.length; i++) {
-                			all[i] = new TreePath(paths[i].getPath());
-    					}
-            		}
-            		treeDisplay.removeTreeSelectionListener(selectionListener);
-            		if (all != null) treeDisplay.setSelectionPaths(all);
-            		treeDisplay.addTreeSelectionListener(selectionListener);
-            		if (all != null) {
-            			for (int i = 0; i < all.length; i++)
-                    		added.add(all[i]);
-            		}
-                	controller.onClick(added);
-            		return;
-            	}
-            	
-            	TreePath[] paths = e.getPaths();
-            	List<TreePath> added = new ArrayList<TreePath>();
-            	for (int i = 0; i < paths.length; i++) {
-            		if (e.isAddedPath(paths[i])) added.add(paths[i]);
+            	switch (keyEvent) {
+					case KeyEvent.VK_DOWN:
+					case KeyEvent.VK_UP:
+						controller.onClick(
+	            				Arrays.asList(treeDisplay.getSelectionPaths()));
+						break; 
 				}
-            	//if (!ctrl) 
-            	controller.onClick(added);
-            	*/
             }
         };
         treeDisplay.addTreeSelectionListener(selectionListener);
@@ -999,12 +981,31 @@ class BrowserUI
 							!UIUtilities.isWindowsOS() && e.isMetaDown()) {
 							handleMultiSelection();
 						}
-					}
+						break;
+					case KeyEvent.VK_DOWN:
+					case KeyEvent.VK_UP:
+					case KeyEvent.VK_RIGHT:
+						keyEvent = e.getKeyCode();
+						break;
+					case KeyEvent.VK_LEFT:
+						TreePath[] paths = treeDisplay.getSelectionPaths();
+						TreeImageDisplay node;
+						Object o;
+						for (int i = 0; i < paths.length; i++) {
+							o = paths[i].getLastPathComponent();
+							if (o instanceof TreeImageDisplay) {
+								node = (TreeImageDisplay) o;
+								if (node.isExpanded())
+									node.setExpanded(false);
+							}
+						}
+				}
 			}
 			
 			public void keyReleased(KeyEvent e)
 			{
 				ctrl = false;
+				keyEvent = -1;
 			}
 			
 		});
@@ -1328,10 +1329,12 @@ class BrowserUI
         nodesToReset = new HashSet<TreeImageDisplay>();
         listener = new TreeExpansionListener() {
             public void treeCollapsed(TreeExpansionEvent e) {
-                onNodeNavigation(e, false);
+                onNodeNavigation((TreeImageDisplay) 
+						e.getPath().getLastPathComponent(), false);
             }
             public void treeExpanded(TreeExpansionEvent e) {
-                onNodeNavigation(e, true);  
+                onNodeNavigation((TreeImageDisplay) 
+						e.getPath().getLastPathComponent(), true);  
             }   
         };
     }

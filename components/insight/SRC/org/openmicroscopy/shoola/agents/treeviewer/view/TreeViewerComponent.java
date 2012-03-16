@@ -54,8 +54,6 @@ import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
@@ -66,8 +64,11 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ActionCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.UpdateVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewInPluginCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
@@ -92,6 +93,7 @@ import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -108,6 +110,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -674,6 +677,13 @@ class TreeViewerComponent
 		if (mv != null) mv.onRndSettingsCopied(imageIds);
 	}
 	
+	void shutDown()
+	{
+		view.setVisible(false);
+		view.dispose();
+		discard();
+		model.setState(NEW);
+	}
 	/**
 	 * Returns the Model sub-component.
 	 * 
@@ -730,9 +740,9 @@ class TreeViewerComponent
 				model.getSelectedBrowser().activate();
 				model.setState(READY);
 				break;
-			case DISCARDED:
-				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED state.");
+			//case DISCARDED:
+				//throw new IllegalStateException(
+					//	"This method can't be invoked in the DISCARDED state.");
 		} 
 	}
 
@@ -803,7 +813,6 @@ class TreeViewerComponent
 					model.getMetadataViewer().setRootObject(null,
 							exp.getId(), null);
 				}
-					
 			}
 			removeEditor();
 			model.getMetadataViewer().setSelectionMode(false);
@@ -937,7 +946,7 @@ class TreeViewerComponent
 	{
 		switch (model.getState()) {
 		case DISCARDED:
-			throw new IllegalStateException("This method should cannot " +
+			throw new IllegalStateException("This method cannot " +
 			"be invoked in the DISCARDED state.");
 		}
 		if (model.getSelectedBrowser() == null) return;
@@ -959,7 +968,7 @@ class TreeViewerComponent
 		cancel();
 		if (TreeViewerFactory.isLastViewer()) {
 			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-			bus.post(new ExitApplication());
+			bus.post(new ExitApplication(!(TreeViewerAgent.isRunAsPlugin())));
 		} else discard();
 
 	}
@@ -1643,6 +1652,7 @@ class TreeViewerComponent
 			case CREATE_MENU_ADMIN:
 			case PERSONAL_MENU:
 			case CREATE_MENU_SCREENS:
+			case VIEW_MENU:
 				break;
 			case AVAILABLE_SCRIPTS_MENU:
 				if (model.getAvailableScripts() == null) {
@@ -1840,9 +1850,11 @@ class TreeViewerComponent
 	 */
 	public JFrame getUI()
 	{
+		/*
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException("This method cannot be invoked " +
 			"in the DISCARDED state.");
+			*/
 		return view;
 	}
 
@@ -2846,32 +2858,13 @@ class TreeViewerComponent
 			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
 				model.browseTag(node);
 		} else if (uo instanceof ImageData) {
-			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-			ViewImageObject vo = new ViewImageObject((ImageData) uo);
-			TreeImageDisplay p = node.getParentDisplay();
-			TreeImageDisplay gp = null;
-			DataObject po = null;
-			DataObject gpo = null;
-			if (p != null) {
-				uo = p.getUserObject();
-				gp = p.getParentDisplay();
-				if (uo instanceof DataObject) 
-					po = (DataObject) uo;
-				if (gp != null) {
-					//gp = gp.getParentDisplay();
-					//if (gp != null) {
-					uo = gp.getUserObject();
-					if (uo instanceof DataObject) {
-						gpo = (DataObject) uo;
-					}
-					//}	
-				}
+			ActionCmd cmd;
+			if (TreeViewerAgent.runAsPlugin() == TreeViewer.IMAGE_J) {
+				cmd = new ViewInPluginCmd(this, TreeViewer.IMAGE_J);
+			} else {
+				cmd = new ViewCmd(this, true);
 			}
-			vo.setContext(po, gpo);
-			ViewImage evt = new ViewImage(model.getSecurityContext(), vo,
-					view.getBounds());
-			evt.setSeparateWindow(model.isFullScreen());
-			bus.post(evt);
+			cmd.execute();
 		} else if (node instanceof TreeImageTimeSet) {
 			model.browseTimeInterval((TreeImageTimeSet) node);
 		} else if (uo instanceof PlateData) {
@@ -3333,9 +3326,13 @@ class TreeViewerComponent
 				//TODO: review
 				
 				File f = new File(
-						folder.getAbsolutePath()+File.separator+image.getName()+".ome.tiff");
-				TreeViewerAgent.getRegistry().getImageService().exportImageAsOMETiff(
-						model.getSecurityContext(), image.getId(), f);
+						folder.getAbsolutePath()+File.separator+
+						image.getName()+OMETIFFFilter.OME_TIFF);
+				OmeroImageService svc =
+					TreeViewerAgent.getRegistry().getImageService();
+				svc.exportImageAsOMEFormat(model.getSecurityContext(), 
+						OmeroImageService.EXPORT_AS_OMETIFF,
+						image.getId(), f, null);
 				TreeViewerAgent.getRegistry().getUserNotifier().openApplication(
 						data, f.getAbsolutePath());
 			} catch (Exception e) {
@@ -4159,6 +4156,7 @@ class TreeViewerComponent
 			moveData(new SecurityContext(groupID), otData, trans);
 		}
 	}
+
 	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.

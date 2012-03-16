@@ -28,19 +28,32 @@ package org.openmicroscopy.shoola.env.data;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.Map.Entry;
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 //Third-party libraries
+import loci.common.RandomAccessInputStream;
 import loci.formats.ImageReader;
+import loci.formats.tiff.TiffParser;
+import loci.formats.tiff.TiffSaver;
+
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
@@ -61,6 +74,9 @@ import omero.model.ScreenI;
 import omero.model.TagAnnotation;
 import omero.romio.PlaneDef;
 import omero.sys.Parameters;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -77,10 +93,13 @@ import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
+import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
@@ -520,12 +539,6 @@ class OmeroImageServiceImpl
 			throw new IllegalArgumentException("No gateway.");
 		context = registry;
 		this.gateway = gateway;
-	}
-
-	/** Shuts down all active rendering engines. */
-	void shutDown(SecurityContext ctx)
-	{
-		PixelsServicesFactory.shutDownRenderingControls(context);
 	}
 
 	/** 
@@ -1456,17 +1469,114 @@ class OmeroImageServiceImpl
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#exportImageAsOMETiff(SecurityContext, long, File)
+	 * @see OmeroImageService#exportImageAsOMEObject(SecurityContext, int, long,
+	 * File, Target)
 	 */
-	public Object exportImageAsOMETiff(SecurityContext ctx, long imageID,
-		File file)
-		throws DSOutOfServiceException, DSAccessException
+	public Object exportImageAsOMEFormat(SecurityContext ctx, int index,
+			long imageID, File file, Target target)
+			throws DSOutOfServiceException, DSAccessException
 	{
 		if (imageID <= 0)
 			throw new IllegalArgumentException("No image specified.");
 		if (file == null)
 			throw new IllegalArgumentException("No File specified.");
-		return gateway.exportImageAsOMETiff(ctx, file, imageID);
+		//To be modified
+		//check file name and index.
+		String path = file.getAbsolutePath();
+		switch (index) {
+			case EXPORT_AS_OMETIFF:
+				if (!(path.endsWith(OMETIFFFilter.OME_TIFF) || 
+						path.endsWith(OMETIFFFilter.OME_TIF))) {
+					path += "."+OMETIFFFilter.OME_TIFF;
+					file.delete();
+					file = new File(path);
+				}
+				break;
+			case EXPORT_AS_OME_XML:
+				if (!(path.endsWith(XMLFilter.OME_XML))) {
+					path += "."+XMLFilter.OME_XML;
+					file.delete();
+					file = new File(path);
+				}
+		}
+		File f = gateway.exportImageAsOMEObject(ctx, index, file, imageID);
+		if (target == null) return f;
+		//Apply the transformations
+		List<InputStream> transforms = target.getTransforms();
+		if (transforms == null || transforms.size() == 0) return f;
+		//Apply each transform one after another.
+		Iterator<InputStream> i = transforms.iterator();
+		//Create a tmp file then we will copy to the correct location
+		
+		TransformerFactory factory;
+        Transformer transformer;
+		InputStream stream;
+		File r;
+		File output = null;
+		String ext = "."+XMLFilter.OME_XML;
+		List<File> files = new ArrayList<File>();
+		InputStream in = null;
+		OutputStream out = null;
+		File tmp = null;
+		try {
+			File inputXML = File.createTempFile(RandomStringUtils.random(10),
+					ext);
+			files.add(inputXML);
+			if (index == EXPORT_AS_OMETIFF) {
+				tmp = File.createTempFile(RandomStringUtils.random(10),
+						"."+OMETIFFFilter.OME_TIFF);
+				files.add(tmp);
+				FileUtils.copyFile(f, tmp);
+				String c = new TiffParser(f.getAbsolutePath()).getComment();
+				FileUtils.writeStringToFile(inputXML, c);
+			} else {
+				FileUtils.copyFile(f, inputXML);
+			}
+			while (i.hasNext()) {
+				factory = TransformerFactory.newInstance();
+				stream = i.next();
+				output = File.createTempFile(RandomStringUtils.random(10), ext);
+				transformer = factory.newTransformer(new StreamSource(stream));
+				out = new FileOutputStream(output);
+				in =  new FileInputStream(inputXML);
+				transformer.transform(new StreamSource(in),
+						new StreamResult(out));
+				files.add(output);
+				inputXML = output;
+				stream.close();
+				out.close();
+				in.close();
+			}
+			
+			file.delete();
+			//Copy the result
+			r = new File(path);
+			if (index == EXPORT_AS_OME_XML)
+				FileUtils.copyFile(inputXML, r);
+			else {
+				FileUtils.copyFile(tmp, r);
+				TiffSaver saver = new TiffSaver(path);
+				RandomAccessInputStream ra = new RandomAccessInputStream(path);
+				saver.overwriteComment(ra, 
+						FileUtils.readFileToString(inputXML));
+				ra.close();
+			}
+			//delete file
+			Iterator<File> j = files.iterator();
+			while (j.hasNext()) {
+				j.next().delete();
+			}
+		} catch (Exception e) {
+			try {
+				if (in != null) in.close();
+				if (out != null) out.close();
+			} catch (Exception ex) {}
+			
+			throw new IllegalArgumentException("Unable to apply the transforms",
+					e);
+		}
+		
+		return r;
 	}
 
 	/** 

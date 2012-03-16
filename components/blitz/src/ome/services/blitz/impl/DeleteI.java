@@ -194,6 +194,7 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
     public DeleteHandleI makeAndLaunchHandle(final Ice.Current current, final Ice.Identity id,
             final DeleteCommand...commands) {
         DeleteHandleI handle = new DeleteHandleI(loadSpecs(), id, sf, afs, commands, cancelTimeoutMs, current.ctx);
+        handle.setApplicationContext(ctx);
         threadPool.getExecutor().execute(handle);
         return handle;
     }
@@ -204,6 +205,7 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
 
     public void makeAndRun(final Ice.Current current, final Ice.Identity id, final DeleteCommand...commands) {
         DeleteHandleI handle = new DeleteHandleI(loadSpecs(), id, sf, afs, commands, cancelTimeoutMs, current.ctx);
+        handle.setApplicationContext(ctx);
         handle.run();
     }
 

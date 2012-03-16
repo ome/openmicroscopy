@@ -6,7 +6,6 @@ from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webclient.views import isUserConnected
 from omeroweb.webadmin.custom_models import Server
 
-from webtest_utils import getSpimData
 from cStringIO import StringIO
 
 import settings

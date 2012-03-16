@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -71,6 +72,12 @@ import pojos.WorkflowData;
 public interface OmeroImageService
 {
   
+	/** Indicates to export the image as OME TIFF. */
+	public static final int EXPORT_AS_OMETIFF = 0;
+	
+	/** Indicates to export the image as OME XML. */
+	public static final int EXPORT_AS_OME_XML = 1;
+	
 	/** The maximum number of plane info objects.*/
 	public static final int    MAX_PLANE_INFO = 6000;
 	
@@ -558,17 +565,22 @@ public interface OmeroImageService
 	/**
 	 * Exports the passed image as an XML file.
 	 * 
+	 * @param index One of the export contants defined by this class.
+	 * @param imageID The ID of the image.
+	 * @param folder  The folder where to export the image.
+	 * @param target The selected schema.
 	 * @param ctx The security context.
 	 * @param imageID The ID of the image.
 	 * @param folder The folder where to export the image.
+	 * @param target Host information about the downgrade style sheets.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object exportImageAsOMETiff(SecurityContext ctx, long imageID,
-		File folder)
+	public Object exportImageAsOMEFormat(SecurityContext ctx, int index,
+			long imageID, File folder, Target target)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

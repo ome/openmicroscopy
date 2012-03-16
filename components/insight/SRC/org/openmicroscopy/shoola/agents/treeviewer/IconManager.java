@@ -520,10 +520,10 @@ public class IconManager
     
     /** The <code>Tag</code> icon. */
     public static final int			TAG_OTHER_OWNER = 155;
-    
+
     /** The <code>Login</code> icon. */
     public static final int			LOGIN = 156;
-    
+
     /** The <code>Analysis</code> icon. */
     public static final int         ANALYSIS_RUN = 157;
     
@@ -542,11 +542,15 @@ public class IconManager
     /** The 48x48 <code>Move</code> icon. */
     public static final int           MOVE_48 = 162;
     
+    /** The <code>ImageJ Viewer</code> icon. */
+    public static final int          VIEWER_IJ = 163;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 162;
+    private static final int          MAX_ID = 163;
+
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -720,6 +724,7 @@ public class IconManager
         relPaths[PLATE_ACQUISITION_ANNOTATED] = "plateAcquisition_annotated16.png";
         relPaths[TAG_OTHER_OWNER] = "nuvola_knotes_group16.png";
         relPaths[LOGIN] = "nuvola_login16.png";
+        relPaths[VIEWER_IJ] = "imageJ16.png";
         relPaths[ANALYSIS_RUN] = "nuvola_script_run16.png";
         relPaths[ANALYSIS_48] = "nuvola_kcmsystem48.png";
         relPaths[ANALYSIS] = "nuvola_kcmsystem16.png";

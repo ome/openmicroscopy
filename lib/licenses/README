@@ -633,11 +633,19 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    components/tools/OmeroCpp/test/gtest
+  Project:      Google's framework for writing C++ tests on a variety of platforms
+  Web Site:     https://code.google.com/p/googletest/
+  License:      BSD
+  License File: gtest.txt
+
+
   Artifacts:    components/tools/OmeroImporter/src/ome/formats/importer/util/ETable.java
   Project:      Salma-Hayek Java Repository
   Web Site:     http://software.jessies.org/salma-hayek/
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
+
 
   Artifact:     components/tools/OmeroImporter/src/ome/formats/importer/util/BareBonesBrowserLaunch.java
   Project:      Bare Bones Browser Launch

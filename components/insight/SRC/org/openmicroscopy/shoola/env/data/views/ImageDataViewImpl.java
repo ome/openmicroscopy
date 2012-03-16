@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataSaver;
@@ -146,11 +147,11 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#analyseShapes(PixelsData, List, List, 
+     * @see ImageDataView#analyseShapes(PixelsData, Collection, List, 
      * 									AgentEventListener)
      */
 	public CallHandle analyseShapes(SecurityContext ctx, PixelsData pixels,
-			List channels, List shapes, AgentEventListener observer)
+			Collection channels, List shapes, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new Analyser(ctx, pixels, channels, shapes);
 		return cmd.exec(observer);
@@ -367,13 +368,14 @@ class ImageDataViewImpl
 	}
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#exportImageAsOMETiff(long, File, AgentEventListener)
+     * @see ImageDataView#exportImageAsOMETiff(SecurityContext, long, File, Target,
+     * AgentEventListener)
      */
 	public CallHandle exportImageAsOMETiff(SecurityContext ctx, long imageID,
-			File file, AgentEventListener observer)
+			File file, Target target, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ExportLoader(ctx, imageID, file,
-				ExportLoader.EXPORT_AS_OMETIFF);
+				ExportLoader.EXPORT_AS_OMETIFF, target);
 		return cmd.exec(observer);
 	}
 
