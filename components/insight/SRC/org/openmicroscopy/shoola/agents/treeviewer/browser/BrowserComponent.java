@@ -1412,7 +1412,10 @@ class BrowserComponent
 			}
 	    }
 	    
-	    if (m.size() == 0) return;
+	    if (m.size() == 0) { //for new data the first time.
+	    	loadExperimenterData(getLoggedExperimenterNode(), null);
+	    	return;
+	    }
 	    model.loadRefreshExperimenterData(m, null, -1, refNode, toBrowse);
 		fireStateChange();
     }
