@@ -67,7 +67,9 @@
   <property name="dist.name" value="OMERO.insight"/>
   <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="dist.jar.file" value="omero.insight.jar"/>
+   <property name="dist.jar.ij.file" value="omero_ij.jar"/>
   <property name="dist.bundle.name" value="OMERO.insight"/>
+  <property name="dist.bundle.ij.name" value="OMERO.ij"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
@@ -113,9 +115,9 @@
     * First the whole app and test dirs are removed and then new ones are
     * re-generated with all app and test code.  Tests are run and if a failure
     * occurs, the build is halted.  This way, the app can't be released unless 
-    * all tests pass.  
+    * all tests pass.  ,test
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-  <target name="dist-init" depends="app.clean,test.clean,test">
+  <target name="dist-init" depends="app.clean,test.clean, test">
     <mkdir dir="${dist.dir}"/>
     <property name="main-dist-prefix" value="${dist.bundle.name}-${dist.bundle.version}"/>
   </target>
@@ -170,8 +172,8 @@
                  pathsep=" " 
                  dirsep="/" 
                  refid="app.libs">
-      <map from="${base.runtimelib.dir}" to="${dist.app.lib.dir.name}"/>                
-    </pathconvert>      
+      <map from="${base.runtimelib.dir}" to="${dist.app.lib.dir.name}"/>
+    </pathconvert>
     <jar destfile="${dist.dir}/${dist.jar.file}">
       <fileset dir="${app.compiled.dir}"/>
       <manifest>
@@ -180,7 +182,23 @@
         <attribute name="Main-Class" value="${app.mainclass}"/>
       </manifest> 
     </jar>
-  </target> 
+  </target>
+  <target name="jar-ij" depends="dist-init">
+    <pathconvert property="dist.jar.manifest.cp" 
+                 pathsep=" " 
+                 dirsep="/" 
+                 refid="app.libs">
+      <map from="${base.lib.dir}" to="${dist.app.lib.dir.name}"/>
+    </pathconvert>
+    <jar destfile="${dist.dir}/${dist.jar.ij.file}">
+      <fileset dir="${app.compiled.dir}"/>
+      <manifest>
+        <attribute name="Created-By" value="OMERO Development Team"/>
+        <attribute name="Class-Path" value="${dist.jar.manifest.cp}"/>
+        <attribute name="Main-Class" value="${app.mainclass.ij}"/>
+      </manifest> 
+    </jar>
+  </target>
   <target name="jar-util" depends="dist-init">
      <pathconvert property="dist.jar.manifest.cp" 
         pathsep=" " 
@@ -211,8 +229,8 @@
    *   + The license file, ${base.licensefile}. 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="dist"
-          depends="jar, jar-util, dist-osx-openGL, dist-osx, dist-win, 
-  	dist-win-openGL,dist-win64-openGL,distEditor-win,distEditor-osx"
+          depends="jar, jar-util, jar-ij, dist-osx-openGL, dist-osx, dist-win, 
+  	dist-win-openGL,dist-win64-openGL,distEditor-win,distEditor-osx, dist-ij"
           description="Build and package the app for distribution."> 
 
     <!-- Main zip -->
@@ -223,6 +241,32 @@
       <zipfileset refid="dist.launch.scripts" prefix="${main-dist-prefix}" filemode="775"/>
       <zipfileset file="${dist.installfile}" prefix="${main-dist-prefix}"/>
       <zipfileset file="${base.licensefile}" fullpath="${main-dist-prefix}/LICENSE"/>
+    </zip>
+  </target>
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Creates the default distribution bundle under ${dist.dir}.
+   * This is a zip file whose name is set to 
+   * ${dist.bundle.name}-${dist.bundle.version}.zip 
+   * and whose contents are:
+   *   + A config dir, containing all the app.config files.  The dir name is
+   *     set to the name of the ${app.config.dir}.
+   *   + A lib dir, containing all the app.libs files.  The dir name is set
+   *     to the name of the ${app.lib.dir}.
+   *   + The app jar file, ${dist.jar.file}.
+   *   + The launch scripts, dist.launch.scripts.
+   *   + The install instructions, ${dist.installfile}.
+   *   + The license file, ${base.licensefile}. 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <target name="dist-ij"
+          depends="jar-ij"
+          description="Build and package the app for distribution."> 
+  	<property name="main-dist-ij-prefix" value="${dist.bundle.ij.name}-${dist.bundle.version}"/>
+    <zip destfile="${dist.dir}/${main-dist-ij-prefix}.zip">
+      <zipfileset dir="${app.config.dir}" prefix="${main-dist-ij-prefix}/${dist.app.config.dir.name}"/>
+      <zipfileset refid="app.libs" prefix="${main-dist-ij-prefix}/${dist.app.lib.dir.name}"/>
+      <zipfileset dir="${dist.dir}" prefix="${main-dist-ij-prefix}" includes="${dist.jar.ij.file}"/>
+      <zipfileset file="${base.licensefile}" fullpath="${main-dist-ij-prefix}/LICENSE"/>
     </zip>
   </target>
  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 

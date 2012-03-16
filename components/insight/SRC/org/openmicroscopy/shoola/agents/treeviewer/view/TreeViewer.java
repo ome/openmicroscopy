@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -94,6 +95,9 @@ public interface TreeViewer
 	extends ObservableComponent
 {
 
+	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
+	public static final int		IMAGE_J = ViewInPluginEvent.IMAGE_J;
+	
 	/** Indicates to open the editor without selection. */
 	public static final int		NO_SELECTION = 0;
 	
@@ -179,8 +183,11 @@ public interface TreeViewer
 	/** Identifies the <code>Create popUp menu</code> menu. */
 	public static final int         CREATE_MENU_SCREENS = 8;
 
+	/** Identifies the <code>View pop-up menu</code> menu. */
+	public static final int         VIEW_MENU = 9;
+	
 	/** Identifies the <code>Available Scripts</code> menu. */
-	public static final int         AVAILABLE_SCRIPTS_MENU = 9;
+	public static final int         AVAILABLE_SCRIPTS_MENU = 10;
 	
 	/** Identifies the <code>Copy and Paste</code> action. */
 	public static final int         COPY_AND_PASTE = 400;
@@ -497,8 +504,7 @@ public interface TreeViewer
 	 * Brings up the menu on top of the specified component at 
 	 * the specified location.
 	 * 
-	 * @param menuID    The id of the menu. One out of the following constants:
-	 *                  {@link #MANAGER_MENU}, {@link #CLASSIFIER_MENU}.
+	 * @param menuID    The id of the menu.
 	 * @param invoker   The component that requested the pop-up menu.
 	 * @param loc       The point at which to display the menu, relative to the
 	 *                  <code>component</code>'s coordinates.

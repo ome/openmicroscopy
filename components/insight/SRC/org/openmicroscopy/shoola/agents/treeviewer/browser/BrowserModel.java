@@ -703,7 +703,7 @@ class BrowserModel
 	 * 
 	 * @param node The node to handle
 	 */
-	void browser(TreeImageDisplay node)
+	void browse(TreeImageDisplay node)
 	{ 
 		if (node == null) return;
 		Object object = node.getUserObject();

@@ -378,15 +378,15 @@ class BrowserUI
                 if (d == null) return;
                 Object o = d.getUserObject();
                 if (o instanceof ImageData) {
-                	model.browser(d);
+                	model.browse(d);
                 } else if (o instanceof FileAnnotationData) {
                 	model.openFile(d);
                 } else if (o instanceof PlateData) {
                 	if (!d.hasChildrenDisplay() || 
                 			d.getChildrenDisplay().size() == 1) 
-                		model.browser(d);
+                		model.browse(d);
                 } else if (o instanceof PlateAcquisitionData) {
-                	model.browser(d);
+                	model.browse(d);
                 }
             }
         }

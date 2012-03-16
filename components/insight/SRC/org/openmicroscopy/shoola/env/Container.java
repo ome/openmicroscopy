@@ -36,8 +36,11 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
+import org.openmicroscopy.shoola.env.data.login.LoginService;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * Oversees the functioning of the whole container, holds the container's
@@ -268,6 +271,33 @@ public final class Container
 		return agentsPool.add(a);
 	}
 	
+	/** Activates the agents.*/
+	private void activateAgents()
+	{
+		Integer v = (Integer) singleton.registry.lookup(
+				LookupNames.ENTRY_POINT);
+		int value = LookupNames.TREE_VIEWER_ENTRY;
+		if (v != null) {
+			switch (v.intValue()) {
+				case LookupNames.EDITOR_ENTRY:
+				case LookupNames.IMPORTER_ENTRY:
+				case LookupNames.TREE_VIEWER_ENTRY:
+					value = v.intValue();
+			}
+		}
+		List agents = (List) singleton.registry.lookup(LookupNames.AGENTS);
+		Iterator i = agents.iterator();
+		AgentInfo agentInfo;
+		Agent a;
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) i.next();
+			if (agentInfo.isActive() && agentInfo.getNumber() == value) {
+				a = agentInfo.getAgent();
+				a.activate(true);
+			}
+		}
+	}
+	
 	/**
 	 * Activates all services, all agents and starts interacting with the
 	 * user. 
@@ -292,26 +322,9 @@ public final class Container
 				a.setContext(r);
 			}
 		}
-		Integer v = (Integer) singleton.registry.lookup(
-				LookupNames.ENTRY_POINT);
-		int value = LookupNames.TREE_VIEWER_ENTRY;
-		if (v != null) {
-			switch (v.intValue()) {
-				case LookupNames.EDITOR_ENTRY:
-				case LookupNames.IMPORTER_ENTRY:
-				case LookupNames.TREE_VIEWER_ENTRY:
-					value = v.intValue();
-			}
-		}
+		
 		//Agents activation phase.
-		i = agents.iterator();
-		while (i.hasNext()) {
-			agentInfo = (AgentInfo) i.next();
-			if (agentInfo.isActive() && agentInfo.getNumber() == value) {
-				a = agentInfo.getAgent();
-				a.activate(true);
-			}
-		}
+		activateAgents();
 		
 		//TODO: activate services (EventBus, what else?).
 			
@@ -325,9 +338,63 @@ public final class Container
 	 */
 	public void exit()
 	{	
-		System.exit(0);
+		Environment env = (Environment) registry.lookup(LookupNames.ENV);
+		if (env != null && !env.isRunAsPlugin())
+			System.exit(0);
 	}
     
+    
+	/**
+     * Entry point to launch the container and bring up the whole client
+     * in the same thread as the caller's.
+     * 
+     * <p>The absolute path to the installation directory is obtained from
+     * <code>home</code>.  If this parameter doesn't specify an absolute path,
+     * then it'll be translated into an absolute path.  Translation is system 
+     * dependent &#151; in many cases, the path is resolved against the user 
+     * directory (typically the directory in which the JVM was invoked).</p>
+     * <p>This method rolls back all executed tasks and terminates the program
+     * if an error occurs during the initialization procedure.</p>
+     * 
+     * @param home  Path to the installation directory.  If <code>null<code> or
+     *              empty, then the user directory is assumed.
+     * @return A reference to the newly created singleton Container.
+     */
+    public static Container startupInPluginMode(String home, String configFile,
+    		int plugin)
+    {
+        if (Container.getInstance() != null) {
+        	//reconnect.
+        	LoginService loginSvc = (LoginService) singleton.registry.lookup(
+        			LookupNames.LOGIN);
+        	int v = loginSvc.login((UserCredentials) singleton.registry.lookup(
+        			LookupNames.USER_CREDENTIALS));
+        	if (v == LoginService.CONNECTED) {
+        		singleton.activateAgents();
+        	} else {
+        		UserNotifier un = singleton.registry.getUserNotifier();
+        		un.notifyInfo("Reconnect", "Unable to reconnect to server.");
+        	}
+        	return Container.getInstance();
+        }
+        
+        //Initialize services as usual though.
+        Initializer initManager = null;
+        try {
+            singleton = new Container(home, CONFIG_FILE);
+            singleton.registry.bind(LookupNames.PLUGIN, plugin);
+            initManager = new Initializer(singleton);
+            initManager.configure();
+            initManager.doInit();
+            //startService() called by Initializer at end of doInit().
+        } catch (StartupException se) {
+            if (initManager != null) initManager.rollback();
+            singleton = null;
+            throw new RuntimeException(
+                    "Failed to intialize the Container in test mode.", se);
+        }
+        return singleton;
+    }
     
 /* 
  * ==============================================================

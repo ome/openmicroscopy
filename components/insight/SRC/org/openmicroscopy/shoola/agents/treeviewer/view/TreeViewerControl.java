@@ -105,6 +105,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.UploadScriptAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewImageAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewInPlugin;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
@@ -112,6 +113,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.CutCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteRndSettingsCmd;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
@@ -351,18 +353,21 @@ class TreeViewerControl
 	
 	/** Identifies the <code>Import</code> action. */
 	static final Integer    IMPORT_NO_SELECTION = Integer.valueOf(67);
-	
+
 	/** Identifies the <code>Log off</code> action. */
 	static final Integer    LOG_OFF = Integer.valueOf(68);
 	
 	/** Identifies the <code>Create dataset</code> in the File menu. */
 	static final Integer    CREATE_DATASET_FROM_SELECTION = Integer.valueOf(69);
-	
+
 	/** Identifies the <code>Available scripts/code>. */
 	static final Integer    AVAILABLE_SCRIPTS = Integer.valueOf(70);
 	
 	/** Identifies the <code>Remove the group/code>. */
 	static final Integer    REMOVE_GROUP = Integer.valueOf(71);
+	
+	/** Identifies the <code>View In ImageJ</code> in the menu. */
+	static final Integer    VIEW_IN_IJ = Integer.valueOf(72);
 	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
@@ -555,6 +560,7 @@ class TreeViewerControl
 		actionsMap.put(CREATE_DATASET_FROM_SELECTION,  
 				new CreateObjectWithChildren(model, 
 						CreateObjectWithChildren.DATASET));
+		actionsMap.put(VIEW_IN_IJ, new ViewInPlugin(model, TreeViewer.IMAGE_J));
 		actionsMap.put(AVAILABLE_SCRIPTS, new RunScriptAction(model));
 		actionsMap.put(REMOVE_GROUP, new RemoveGroupNode(model));
 	}
@@ -903,6 +909,20 @@ class TreeViewerControl
 	}
 	
 	/**
+	 * Brings up the menu on top of the specified component at 
+	 * the specified location.
+	 * 
+	 * @param menuID    The id of the menu.
+	 * @param invoker   The component that requested the pop-up menu.
+	 * @param loc       The point at which to display the menu, relative to the
+	 *                  <code>component</code>'s coordinates.
+	 */
+	void showMenu(int menuID, Component invoker, Point loc)
+	{
+		model.showMenu(menuID, invoker, loc);
+	}
+	
+	/**
 	 * Reacts to property changed. 
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
@@ -1077,6 +1097,9 @@ class TreeViewerControl
 				TreeImageDisplay node = browser.getLastSelectedDisplay();
 				model.browse(node, (DataObject) pce.getNewValue(), false);
 			}
+		} else if (DataBrowser.INTERNAL_VIEW_NODE_PROPERTY.equals(name)) {
+			ViewCmd cmd = new ViewCmd(model, true);
+			cmd.execute();
 		} else if (Finder.RESULTS_FOUND_PROPERTY.equals(name)) {
 			model.setSearchResult(pce.getNewValue());
 		} else if (GenericDialog.SAVE_GENERIC_PROPERTY.equals(name)) {

@@ -29,6 +29,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -197,6 +198,29 @@ class ToolBar
     	return saveAsMenu;
     }
     
+    /** 
+     * Creates or recycles the view menu.
+     * 
+     * @param source The source of the mouse event.
+     * @param p The location of the mouse pressed.
+     */
+    private void showViewMenu(Component source, Point p)
+    {
+    	JPopupMenu menu = new JPopupMenu();
+    	IconManager icons = IconManager.getInstance();
+    	JMenuItem item = new JMenuItem(icons.getIcon(IconManager.VIEWER));
+    	item.setText("View...");
+    	item.setActionCommand(""+EditorControl.VIEW_IMAGE);
+    	item.addActionListener(controller);
+    	menu.add(item);
+    	item = new JMenuItem(icons.getIcon(IconManager.VIEWER_IJ));
+    	item.setText("View in ImageJ...");
+    	item.setActionCommand(""+EditorControl.VIEW_IMAGE_IN_IJ);
+    	item.addActionListener(controller);
+    	menu.add(item);
+    	menu.show(source, p.x, p.y);
+    }
+    
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -321,8 +345,22 @@ class ToolBar
 		
 		viewButton = new JButton(icons.getIcon(IconManager.VIEW));
 		viewButton.setToolTipText("Open the Image Viewer");
-		viewButton.setActionCommand(""+EditorControl.VIEW_IMAGE);
-    	viewButton.addActionListener(controller);
+		if (MetadataViewerAgent.runAsPlugin() == MetadataViewer.IMAGE_J) {
+			viewButton.addMouseListener(new MouseAdapter() {
+				
+				/**
+				 * Displays the <code>view</code> menu.
+				 * @see MouseListener#mouseReleased(MouseEvent)
+				 */
+				public void mouseReleased(MouseEvent e) {
+					showViewMenu((Component) e.getSource(), e.getPoint());
+				}
+			});
+		} else {
+			viewButton.setActionCommand(""+EditorControl.VIEW_IMAGE);
+	    	viewButton.addActionListener(controller);
+		}
+		
     	UIUtilities.unifiedButtonLookAndFeel(viewButton);
     	
 		UIUtilities.unifiedButtonLookAndFeel(saveAsButton);
