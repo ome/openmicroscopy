@@ -6,7 +6,7 @@
  *
  */
 
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 #include <iterator>
 #include <algorithm>
 #include <omero/API.h>
@@ -14,10 +14,10 @@
 
 using namespace omero::rtypes;
 
-// DISABLED 
+// DISABLED
 // cgb taken out the std output
 
-BOOST_AUTO_TEST_CASE( VectorArgs )
+TEST(ApiTest, VectorArgs )
 {
   Ice::Long ids[] = {1L, 2L, 3L};
   omero::sys::LongList idList(ids,ids+3);

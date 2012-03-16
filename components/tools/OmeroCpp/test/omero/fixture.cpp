@@ -1,14 +1,13 @@
 
 /*
- *   $Id$
- *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007-2012 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
 
+#include <algorithm>
 #include <IceUtil/UUID.h>
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 #include <omero/model/PixelsTypeI.h>
 #include <omero/model/PhotometricInterpretationI.h>
 #include <omero/model/AcquisitionModeI.h>
@@ -18,6 +17,7 @@
 #include <omero/model/StatsInfoI.h>
 #include <omero/model/PlaneInfoI.h>
 
+using namespace omero::api;
 using namespace omero::model;
 using namespace omero::rtypes;
 
@@ -34,23 +34,7 @@ omero::model::ImagePtr new_ImageI()
 
 Fixture::Fixture()
 {
-  /*     log_successful_tests     = 0,
-	 log_test_suites          = 1,
-	 log_messages             = 2,
-	 log_warnings             = 3,
-	 log_all_errors           = 4, // reported by unit test macros
-	 log_cpp_exception_errors = 5, // uncaught C++ exceptions
-	 log_system_errors        = 6, // including timeouts, signals, traps
-	 log_fatal_errors         = 7, // including unit test macros or
-	 // fatal system errors
-	 log_progress_only        = 8, // only unit test progress to be reported
-	 log_nothing              = 9
-  */
-
-  // NOT WORKING AS IT SHOULD
-  b_ut::unit_test_monitor.register_exception_translator<std::string>( &stringHandler );
-  b_ut::unit_test_log.set_threshold_level( b_ut::log_messages );
-  //    set_unexpected(printUnexpected);
+    root = root_login();
 }
 
 Fixture::~Fixture()
@@ -77,7 +61,9 @@ void Fixture::show_stackframe() {
 
 std::string Fixture::uuid()
 {
-  return IceUtil::generateUUID();
+    std::string s = IceUtil::generateUUID();
+    std::replace(s.begin(), s.end(), '-', 'X');
+    return s;
 }
 
 void Fixture::printUnexpected()
@@ -90,29 +76,11 @@ void Fixture::printUnexpected()
   */
 }
 
-b_ut::test_case const & Fixture::current() {
-  return b_ut::framework::current_test_case();
-}
-
-
-b_ut::unit_test_monitor_t& Fixture::monitor() {
-  return b_ut::unit_test_monitor;
-}
-
-b_ut::unit_test_log_t& Fixture::log() {
-  return b_ut::unit_test_log;
-}
-
 omero::client_ptr Fixture::login(const std::string& username, const std::string& password) {
-    try {
-        omero::client_ptr client = new omero::client();
-        client->createSession(username, password);
-        client->getSession()->closeOnDestroy();
-        return client;
-    } catch (const Glacier2::CannotCreateSessionException& ccse) {
-        BOOST_FAIL("Threw CannotCreateSessionException:" + ccse.reason);
-        return 0; // Can't reach here
-    }
+    omero::client_ptr client = new omero::client();
+    client->createSession(username, password);
+    client->getSession()->closeOnDestroy();
+    return client;
 }
 
 omero::client_ptr Fixture::root_login() {
@@ -121,7 +89,8 @@ omero::client_ptr Fixture::root_login() {
     return login("root", rootpass);
 }
 
-omero::model::ExperimenterPtr Fixture::newUser(const omero::api::IAdminPrx& admin, const omero::model::ExperimenterGroupPtr& _g) {
+omero::model::ExperimenterPtr Fixture::newUser(const omero::model::ExperimenterGroupPtr& _g) {
+        IAdminPrx admin = root->getSession()->getAdminService();
 	omero::model::ExperimenterGroupPtr g(_g);
 	omero::RStringPtr name = omero::rtypes::rstring(uuid());
 	omero::RStringPtr groupName = name;
@@ -140,6 +109,29 @@ omero::model::ExperimenterPtr Fixture::newUser(const omero::api::IAdminPrx& admi
 	e->setLastName( name );
 	long id = admin->createUser(e, groupName->getValue());
 	return admin->getExperimenter(id);
+}
+
+omero::model::ExperimenterGroupPtr Fixture::newGroup(const std::string& perms) {
+    IAdminPrx admin = root->getSession()->getAdminService();
+    std::string gname = uuid();
+    ExperimenterGroupPtr group = new ExperimenterGroupI();
+    group->setName( rstring(gname) );
+    if (!perms.empty()) {
+        group->getDetails()->setPermissions( new PermissionsI(perms) );
+    }
+    long gid = admin->createGroup(group);
+    group = admin->getGroup(gid);
+    return group;
+}
+
+void Fixture::addExperimenter(
+        const omero::model::ExperimenterGroupPtr& group,
+        const omero::model::ExperimenterPtr& user) {
+
+        IAdminPrx admin = root->getSession()->getAdminService();
+        std::vector<ExperimenterGroupPtr> groups;
+        groups.push_back(group);
+        admin->addGroups(user, groups);
 }
 
 omero::model::PixelsIPtr Fixture::pixels() {
