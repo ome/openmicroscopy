@@ -893,7 +893,8 @@ class TreeViewerComponent
         			 return;
         		 }
     		}
-			d = new AdminDialog(view, object.getClass(), uo, nodes);
+			d = new AdminDialog(view, model.getAdminContext(),
+					object.getClass(), uo, nodes);
 		}
 		
 		if (d != null) {

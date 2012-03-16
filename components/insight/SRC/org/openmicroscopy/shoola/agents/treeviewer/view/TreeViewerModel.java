@@ -488,7 +488,7 @@ class TreeViewerModel
 		state = TreeViewer.LOADING_DATA;
 		SecurityContext ctx = getSecurityContext();
 		if (TreeViewerAgent.isAdministrator()) 
-			ctx = adminContext;
+			ctx = getAdminContext();
 		//if (TreeViewerAgent.isAdministrator()) ctx = adminC
 		currentLoader = new ExistingObjectsLoader(component, ctx, ho);
 		currentLoader.load();
@@ -1108,11 +1108,24 @@ class TreeViewerModel
 	{
 		SecurityContext ctx = getSecurityContext();
 		if (TreeViewerAgent.isAdministrator())
-			ctx = adminContext;
+			ctx = getAdminContext();
 		currentLoader = new AdminCreator(component, ctx, object);
 		currentLoader.load();
 	}
 
+	/**
+	 * Returns the security context for the administrator
+	 * 
+	 * @return See above
+	 */
+	SecurityContext getAdminContext()
+	{ 
+		if (adminContext == null) 
+			adminContext = new SecurityContext(
+				TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+		return adminContext; 
+	}
+	
 	/**
 	 * Returns <code>true</code> if on-going imports, <code>false</code>
 	 * otherwise.
