@@ -29,8 +29,8 @@ The purpose of these scripts is to automate the process of building an OMERO vir
 	DL_LOC stores the URL from which to retrieve our build:
 		DL_LOC="http://url-of-your-download-folder"
 	e.g.
-		DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-trunk-qa-builds/lastSuccessfulBuild/artifact/"
-	
+		DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-trunk/lastSuccessfulBuild/artifact/"
+
 	DL_ARCHIVE stores the name of the zip archive to retrieve from DL_LOC because the build process could deploy many archives to that location and we must specify the particular one that we want to retrieve.
 	DL_ARCHIVE="omero.server.archive.zip"
 	e.g.
