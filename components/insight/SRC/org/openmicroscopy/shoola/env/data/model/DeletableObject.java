@@ -140,6 +140,17 @@ public class DeletableObject
 	public pojos.DataObject getObjectToDelete() { return objectToDelete; }
 	
 	/**
+	 * Returns the identifier of the group.
+	 * 
+	 * @return See above.
+	 */
+	public long getGroupId()
+	{
+		if (ctx != null) return ctx.getGroupID();
+		return objectToDelete.getGroupId();
+	}
+	
+	/**
 	 * Sets the report of the delete action.
 	 * 
 	 * @param report The value to set.
