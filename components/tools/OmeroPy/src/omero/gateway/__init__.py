@@ -716,7 +716,7 @@ class BlitzObjectWrapper (object):
 
         # Using queueDelete rather than deleteObjects since we need
         # spec/id pairs rather than spec+id_list as arguments
-        handle = self._conn.getDeleteService().queueDelete(dcs)
+        handle = self._conn.getDeleteService().queueDelete(dcs, self._conn.CONFIG['SERVICE_OPTS'])
         callback = omero.callbacks.DeleteCallbackI(self._conn.c, handle)
         # Maximum wait time 5 seconds, will raise a LockTimeout if the
         # delete has not finished by then.
@@ -825,7 +825,7 @@ class BlitzObjectWrapper (object):
         lnk = getattr(omero.model, lnkobjtype)()
         lnk.setParent(self._obj.__class__(self._obj.id, False))
         lnk.setChild(obj._obj.__class__(obj._obj.id, False))
-        self._conn.getUpdateService().saveObject(lnk)
+        self._conn.getUpdateService().saveObject(lnk, self._conn.CONFIG['SERVICE_OPTS'])
         return obj
         
     def _linkAnnotation (self, ann):
@@ -5424,7 +5424,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 sopts['omero.group'] = str(self.getDetails().getGroup().getId())
                 re.resetDefaults(sopts)
                 re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS'])
-                self._onResetDefaults(re.getRenderingDefId(self._conn.CONFIG['SERVICE_OPTS']))
+            self._onResetDefaults(re.getRenderingDefId(self._conn.CONFIG['SERVICE_OPTS']))
         else:
             re.loadRenderingDef(rdid, self._conn.CONFIG['SERVICE_OPTS'])
         re.load()
@@ -5455,7 +5455,11 @@ class _ImageWrapper (BlitzObjectWrapper):
     def resetRDefs (self):
         logger.debug('resetRDefs')
         if self.canWrite():
-            self._conn.getDeleteService().deleteSettings(self.getId())
+            self._conn.getDeleteService().deleteSettings(self.getId(), self._conn.CONFIG['SERVICE_OPTS'])
+            rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
+            logger.debug(rdefns)
+            if rdefns:
+                self.removeAnnotations(rdefns)
             return True
         return False
 
@@ -6786,7 +6790,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             c.unloadBlue()
             c.unloadAlpha()
             c.save()
-        self._conn.getDeleteService().deleteSettings(self.getId())
+        self._conn.getDeleteService().deleteSettings(self.getId(), self._conn.CONFIG['SERVICE_OPTS'])
         return True
 
     def _collectRenderOptions (self):
