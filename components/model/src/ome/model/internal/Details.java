@@ -124,17 +124,45 @@ public abstract class Details implements Filterable, Serializable {
             throw new IllegalArgumentException("argument may not be null");
         }
         setContext(copy.getContext());
-        Permissions p = null;
-        if (copy.getPermissions() != null) {
-            p = new Permissions().revokeAll(copy.getPermissions());
-        }
-        setPermissions(p);
+        possiblySetPermissions(copy);
         setCreationEvent(copy.getCreationEvent());
         setOwner(copy.getOwner());
         setGroup(copy.getGroup());
         setUpdateEvent(copy.getUpdateEvent());
         // Non-entity fields
         _filteredCollections = copy.filteredSet();
+    }
+
+    private void possiblySetPermissions(Details copy) {
+        Permissions p = null;
+        if (copy.getPermissions() != null) {
+            p = new Permissions().revokeAll(copy.getPermissions());
+        }
+        setPermissions(p);
+    }
+
+    public void copyWhereUnset(Details copy) {
+        if (copy == null) {
+            throw new IllegalArgumentException("argument may not be null");
+        }
+        if (getContext() == null) {
+            setContext(copy.getContext());
+        }
+        if (getPermissions() == null) {
+            possiblySetPermissions(copy);
+        }
+        if (getCreationEvent() == null) {
+            setCreationEvent(copy.getCreationEvent());
+        }
+        if (getOwner() == null) {
+            setOwner(copy.getOwner());
+        }
+        if (getGroup() == null) {
+            setGroup(copy.getGroup());
+        }
+        if (getUpdateEvent() == null) {
+            setUpdateEvent(copy.getUpdateEvent());
+        }
     }
 
     /**

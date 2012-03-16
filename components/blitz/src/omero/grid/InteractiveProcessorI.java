@@ -15,6 +15,13 @@ import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.annotation.Transactional;
+
+import Glacier2.SessionControlPrx;
+import Ice.Current;
+
 import ome.api.JobHandle;
 import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
@@ -26,6 +33,7 @@ import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+
 import omero.ApiUsageException;
 import omero.RMap;
 import omero.RType;
@@ -37,13 +45,6 @@ import omero.model.ParseJob;
 import omero.util.CloseableServant;
 import omero.util.IceMapper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.transaction.annotation.Transactional;
-
-import Glacier2.SessionControlPrx;
-import Ice.Current;
-
 /**
  * {@link Processor} implementation which delegates to an omero.grid.Processor
  * servant. Functions as a state machine. A single {@link ProcessPrx} can be
@@ -54,8 +55,8 @@ import Ice.Current;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class InteractiveProcessorI extends _InteractiveProcessorDisp
-    implements CloseableServant {
+public class InteractiveProcessorI implements _InteractiveProcessorOperations,
+    CloseableServant {
 
     private static Session UNINITIALIZED = new Session();
 
@@ -107,7 +108,6 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp
             ProcessorPrx prx, Job job, long timeout, SessionControlPrx control,
             ParamsHelper helper)
         throws ServerError {
-
         this.helper = helper;
         this.principal = p;
         this.ex = ex;
@@ -484,7 +484,7 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp
     }
 
     public void close(Current current) throws Exception {
-        stop();
+        stop(current);
     }
 
 }

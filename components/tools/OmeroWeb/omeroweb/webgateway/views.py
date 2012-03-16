@@ -15,9 +15,11 @@ import omero
 import omero.clients
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
 from django.utils import simplejson
+from django.utils.encoding import smart_str
 from django.utils.http import urlquote
 from django.core import template_loader
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.template import RequestContext as Context
 from omero.rtypes import rlong
 
@@ -44,6 +46,8 @@ except: #pragma: nocover
         logger.error('No PIL installed')
     
 
+import settings
+
 #from models import StoredConnection
 
 from webgateway_cache import webgateway_cache, CacheBase, webgateway_tempfile
@@ -61,6 +65,9 @@ import logging, os, traceback, time, zipfile, shutil
 logger = logging.getLogger(__name__)
 
 logger.debug("INIT")
+
+def _safestr (s):
+    return unicode(s).encode('utf-8')
 
 def _session_logout (request, server_id, force_key=None):
     """
@@ -201,6 +208,9 @@ def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=N
     @rtype:             L{omero.gateway.BlitzGateway}
     """
     try:
+        if anonymous:
+            username = settings.PUBLIC_USER
+            passwd = settings.PUBLIC_PASSWORD
         blitzcon = client_wrapper(username, passwd, host=host, port=port, group=None, try_super=try_super, secure=secure, anonymous=anonymous, useragent=useragent)
         blitzcon.connect(sUuid=sUuid)
         blitzcon.server_id = server_id
@@ -262,22 +272,53 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     """
     
     r = request.REQUEST
-    if server_id is None:
-        # If no server id is passed, the db entry will not be used and instead we'll depend on the
-        # request.session and request.REQUEST values
-        with_session = True
-        server_id = request.session.get('server',None)
-        if server_id is None:
-            return None
     
+    ## blitz will hold the settings.SERVER_LIST server entry, if we're using one
+    blitz = None
+
+    ####
+    ## Host and Port from request - server_id or 0, server = 0
+    server = None
+    host = r.get('host', None)
+    port = r.get('port', None)
+
+    if host is None or port is None:
+        from webadmin.custom_models import Server
+        ## Server from request - server_id or server.host, server = r.server OR
+        ## Server from session - server_id or session.server.host, server = session.server
+        server = r.get('server', request.session.get('server', None))
+        if server is not None:
+            with_session = True
+            blitz = Server.get(server)
+
+        ## Use server_id arg- server_id = server_id, server = serverlist.find(server=server_id)
+        if blitz is None and server_id is not None:
+            blitz = Server.find(server=server_id)
+            if len(blitz):
+                blitz = blitz[0]
+            else:
+                blitz = None
+
+        if blitz is not None:
+            server = blitz.id
+            host = blitz.host
+            port = blitz.port
+            server_id = blitz.server or server_id
+
+    if server_id is None:
+        server_id = '1'
+
+    # If we couldn't resolve host and port at this point, give up
+    if host is None or port is None:
+        return None
+
     browsersession_connection_key = 'cuuid#%s'%server_id
     browsersession_key = request.session.session_key
     blitz_session = None
 
+    ## TODO: stop storing username and password, right now we need it for shares
     username = request.session.get('username', r.get('username', None))
     passwd = request.session.get('password', r.get('password', None))
-    host = request.session.get('host', r.get('host', None))
-    port = request.session.get('port', r.get('port', None))
     secure = request.session.get('ssl', r.get('ssl', False))
     logger.debug(':: (session) %s %s %s' % (str(request.session.get('username', None)),
                                             str(request.session.get('host', None)),
@@ -285,10 +326,9 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     logger.debug(':: (request) %s %s %s' % (str(r.get('username', None)),
                                             str(r.get('host', None)),
                                             str(r.get('port', None))))
-    #logger.debug(':: %s %s :: %s' % (str(username), str(passwd), str(browsersession_connection_key)))
+    #logger.debug(':: %s %s :: %s' % (_safestr(username), _safestr(passwd), str(browsersession_connection_key)))
+    logger.debug(':: server_id=%s, with_session=%s, retry=%s, force_key=%s, group=%s, try_super=%s, useragent=%s' % (server_id, with_session, retry, force_key, group, try_super, useragent))
 
-#    if r.has_key('logout'):
-#        logger.debug('logout required by HTTP GET or POST')
     if r.has_key('bsession'):
         blitz_session = r['bsession']
         request.session[browsersession_connection_key] = blitz_session
@@ -355,6 +395,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                 ####
                 # Have a blitzcon, but it doesn't connect.
                 if username:
+                    _session_logout(request, server_id)
                     logger.debug('connection failed with provided login information, bail out')
                     return None
                 logger.debug('Failed connection, logging out')
@@ -375,6 +416,12 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                     # Because it was a login, store some data
                     if not force_key:
                         request.session[browsersession_connection_key] = blitzcon._sessionUuid
+                        request.session['server'] = server
+                        request.session['host'] = host
+                        request.session['port'] = port
+                        request.session['username'] = smart_str(username)
+                        request.session['password'] = smart_str(passwd)
+                        request.session['ssl'] = secure
                     logger.debug('blitz session key: ' + blitzcon._sessionUuid)
                     logger.debug('stored as session.' + ckey)
                     blitzcon.user.logIn()
@@ -390,9 +437,10 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         #_session_logout(request, server_id)
         #return blitzcon
         return getBlitzConnection(request, server_id, with_session, retry=False, group=group, try_super=try_super, useragent=useragent)
-    if blitzcon and ckey.startswith('C:') and not blitzcon.isConnected():
+    if blitzcon and ckey.startswith('C:') and not (blitzcon.isConnected() and blitzcon.keepAlive()):
         logger.info("Something killed the base connection, recreating")
         del connectors[ckey]
+        return getBlitzConnection(request, server_id, with_session, retry=False, group=group, try_super=try_super, useragent=useragent)
         return None
         #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored, useragent=useragent)
     if r.has_key('logout') and not ckey.startswith('C:'):
@@ -512,9 +560,7 @@ def render_birds_eye_view (request, iid, server_id=None, size=None,
     if blitzcon is None or not blitzcon.isConnected():
         logger.debug("failed connect, HTTP404")
         raise Http404
-    USE_SESSION = False
-    img = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn,
-                              with_session=USE_SESSION)
+    img = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn)
     if img is None:
         logger.debug("(b)Image %s not found..." % (str(iid)))
         raise Http404
@@ -568,6 +614,8 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, _conn=None, 
                     prevent_cache = True
                 else:
                     return HttpResponseServerError('Failed to render thumbnail')
+            else:
+                prevent_cache = img._thumbInProgress
         if not prevent_cache:
             webgateway_cache.setThumb(request, server_id, user_id, iid, jpeg_data, size)
     else:
@@ -612,7 +660,7 @@ def render_roi_thumbnail (request, roiId, server_id=None, w=None, h=None, _conn=
     midZ = zList[len(zList)/2]
     s = shapes[(midZ, minT)]
     
-    pi = _get_prepared_image(request, imageId, server_id=server_id, _conn=_conn, with_session=False)
+    pi = _get_prepared_image(request, imageId, server_id=server_id, _conn=_conn)
     
     if pi is None:
         raise Http404
@@ -640,7 +688,7 @@ def render_shape_thumbnail (request, shapeId, server_id=None, w=None, h=None, _c
 
     imageId = shape.roi.image.id.val
 
-    pi = _get_prepared_image(request, imageId, server_id=server_id, _conn=_conn, with_session=False)
+    pi = _get_prepared_image(request, imageId, server_id=server_id, _conn=_conn)
     if pi is None:
         raise Http404
     image, compress_quality = pi
@@ -885,7 +933,7 @@ def _get_signature_from_request (request):
     return rv
 
 @serverid
-def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=True, saveDefs=False, retry=True):
+def _get_prepared_image (request, iid, server_id=None, _conn=None, saveDefs=False, retry=True):
     """
     Fetches the Image object for image 'iid' and prepares it according to the request query, setting the channels,
     rendering model and projection arguments. The compression level is parsed and returned too.
@@ -901,11 +949,11 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
     @return:            Tuple (L{omero.gateway.ImageWrapper} image, quality)
     """
     r = request.REQUEST
-    logger.debug('Preparing Image:%r with_session=%r saveDefs=%r ' \
-                 'retry=%r request=%r' % (iid, with_session, saveDefs, retry,
-                 r))
+    logger.debug('Preparing Image:%r saveDefs=%r ' \
+                 'retry=%r request=%r conn=%s' % (iid, saveDefs, retry,
+                 r, str(_conn)))
     if _conn is None:
-        _conn = getBlitzConnection(request, server_id=server_id, with_session=with_session, useragent="OMERO.webgateway")
+        _conn = getBlitzConnection(request, server_id=server_id, useragent="OMERO.webgateway")
     if _conn is None or not _conn.isConnected():
         return HttpResponseServerError('""', mimetype='application/javascript')
     img = _conn.getObject("Image", iid)
@@ -935,7 +983,7 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
                 if x.message.find('Session is dirty') >= 0:
                     if retry:
                         # retry once, to get around "Session is dirty" exceptions
-                        return _get_prepared_image(request, iid=iid, server_id=server_id, _conn=_conn, with_session=with_session, saveDefs=saveDefs, retry=False)
+                        return _get_prepared_image(request, iid=iid, server_id=server_id, _conn=_conn, saveDefs=saveDefs, retry=False)
                     logger.debug("Session is dirty, bailing out")
                     raise
             else:
@@ -962,9 +1010,7 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
     # alternatively, could return a 404?    
     #if h == None:
     #    return render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs)
-    
-    USE_SESSION = False
-    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn, with_session=USE_SESSION)
+    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn)
     
     if pi is None:
         raise Http404
@@ -1031,8 +1077,7 @@ def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
     @return:            http response wrapping jpeg
     """
     
-    USE_SESSION = False
-    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn, with_session=USE_SESSION)
+    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn)
     if pi is None:
         raise Http404
     img, compress_quality = pi
@@ -1068,9 +1113,8 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
     @param _conn:       L{omero.gateway.BlitzGateway} connection
     @return:            http response wrapping the tiff (or zip for multiple files), or redirect to temp file/zip
     """
-    USE_SESSION = False
     if _conn is None:
-        _conn = getBlitzConnection(request, server_id=server_id, with_session=USE_SESSION, useragent="OMERO.webgateway")
+        _conn = getBlitzConnection(request, server_id=server_id, with_session=False, useragent="OMERO.webgateway")
     if _conn is None or not _conn.isConnected():
         return HttpResponseServerError('""', mimetype='application/javascript')
     imgs = []
@@ -1115,7 +1159,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
         fpath, rpath, fobj = webgateway_tempfile.new(str(obj.getId()) + '-'+obj.getName() + '.ome.tiff', key=key)
         if fobj is True:
             # already exists
-            return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
+            return HttpResponseRedirect('/static/webgateway/tfiles/' + rpath)
         tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, imgs[0])
         if tiff_data is None:
             try:
@@ -1135,14 +1179,14 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
         else:
             fobj.write(tiff_data)
             fobj.close()
-            return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
+            return HttpResponseRedirect('/static/webgateway/tfiles/' + rpath)
     else:
         try:
             img_ids = '+'.join((str(x.getId()) for x in imgs))
             key = '_'.join((str(x.getId()) for x in imgs[0].getAncestry())) + '_' + md5(img_ids).hexdigest() + '_ome_tiff_zip'
             fpath, rpath, fobj = webgateway_tempfile.new(name + '.zip', key=key)
             if fobj is True:
-                return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
+                return HttpResponseRedirect('/static/webgateway/tfiles/' + rpath)
             logger.debug(fpath)
             if fobj is None:
                 fobj = StringIO()
@@ -1165,7 +1209,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
         except:
             logger.debug(traceback.format_exc())
             raise
-        return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
+        return HttpResponseRedirect('/static/webgateway/tfiles/' + rpath)
 
 @serverid
 def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs):
@@ -1191,9 +1235,8 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
         key = "%s-%s-%s-%d-%s-%s" % (iid, axis, pos, opts['fps'], _get_signature_from_request(request),
                                   request.REQUEST.get('format', 'quicktime'))
         
-        USE_SESSION = False
         pos = int(pos)
-        pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn, with_session=USE_SESSION)
+        pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn)
         if pi is None:
             raise Http404
         img, compress_quality = pi
@@ -1201,7 +1244,7 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
         fpath, rpath, fobj = webgateway_tempfile.new(img.getName() + ext, key=key)
         logger.debug(fpath, rpath, fobj)
         if fobj is True:
-            return HttpResponseRedirect('/appmedia/tfiles/' + rpath)#os.path.join(rpath, img.getName() + ext))
+            return HttpResponseRedirect('/static/webgateway/tfiles/' + rpath)#os.path.join(rpath, img.getName() + ext))
 
         if kwargs.has_key('optsCB'):
             opts.update(kwargs['optsCB'](img))
@@ -1231,7 +1274,7 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
         else:
             fobj.close()
             #shutil.move(fn, fn + ext)
-            return HttpResponseRedirect('/appmedia/tfiles/' + rpath)#os.path.join(rpath, img.getName() + ext))
+            return HttpResponseRedirect('/static/webgateway/tfiles/' + rpath)#os.path.join(rpath, img.getName() + ext))
     except:
         logger.debug(traceback.format_exc())
         raise
@@ -1252,8 +1295,7 @@ def render_split_channel (request, iid, z, t, server_id=None, _conn=None, **kwar
     @return:            http response wrapping a jpeg
     """
     
-    USE_SESSION = False
-    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn, with_session=USE_SESSION)
+    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn)
     if pi is None:
         raise Http404
     img, compress_quality = pi
@@ -1367,7 +1409,11 @@ def render_row_plot (request, iid, z, t, y, server_id=None, _conn=None, w=1, **k
     if pi is None:
         raise Http404
     img, compress_quality = pi
-    gif_data = img.renderRowLinePlotGif(int(z),int(t),int(y), int(w))
+    try:
+        gif_data = img.renderRowLinePlotGif(int(z),int(t),int(y), int(w))
+    except:
+        logger.debug('a', exc_info=True)
+        raise
     if gif_data is None:
         raise Http404
     rsp = HttpResponse(gif_data, mimetype='image/gif')
@@ -1508,10 +1554,15 @@ def imageMarshal (image, key=None):
                            'invertAxis': image.isInvertedAxis()}
         except TypeError:
             # Will happen if an image has bad or missing pixel data
+            logger.error('imageMarshal', exc_info=True)
             rv['pixel_range'] = (0, 0)
             rv['channels'] = ()
             rv['split_channel'] = ()
-            rv['rdefs'] = {'model': 'color', 'projection': image.getProjection(), 'invertAxis': image.isInvertedAxis()}
+            rv['rdefs'] = {'model': 'color',
+                           'projection': image.getProjection(),
+                           'defaultZ': 0,
+                           'defaultT': 0,
+                           'invertAxis': image.isInvertedAxis()}
     except AttributeError:
         rv = None
         raise
@@ -1793,9 +1844,9 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     pks = None
     try:
         if opts['ctx'] == 'imgs':
-            sr = _conn.searchObjects(["image"], opts['search'])
+            sr = _conn.searchObjects(["image"], opts['search'], _conn.CONFIG['SERVICE_OPTS'])
         else:
-            sr = _conn.searchObjects(None, opts['search'])  # searches P/D/I
+            sr = _conn.searchObjects(None, opts['search'], _conn.CONFIG['SERVICE_OPTS'])  # searches P/D/I
     except ApiUsageException:
         return HttpResponseServerError('"parse exception"', mimetype='application/javascript')
     def marshal ():
@@ -1837,7 +1888,7 @@ def save_image_rdef_json (request, iid, server_id=None, **kwargs):
     """
     
     r = request.REQUEST
-    pi = _get_prepared_image(request, iid, server_id=server_id, with_session=True, saveDefs=True)
+    pi = _get_prepared_image(request, iid, server_id=server_id, saveDefs=True)
     if pi is None:
         json_data = 'false'
     else:
@@ -1935,32 +1986,19 @@ def copy_image_rdef_json (request, server_id=None, _conn=None, _internal=False, 
         blitzcon = _conn
             
         fromimg = blitzcon.getObject("Image", fromid)
-        details = fromimg.getDetails()
         frompid = fromimg.getPixelsId()
-        newConn = None
-        if blitzcon.isAdmin():
-            p = omero.sys.Principal()
-            p.name = details.getOwner().omeName
-            p.group = details.getGroup().name
-            p.eventType = "User"
-            # This connection will have a 20 minute timeout
-            newConnId = blitzcon.getSessionService().createSessionWithTimeout(p, 1200000)
-            newConn = blitzcon.clone()
-            newConn.connect(sUuid=newConnId.getUuid().val)
-        elif fromimg.isEditable():
-            newConn = blitzcon
-            newConn.setGroupForSession(details.getGroup().getId())
-
-        if newConn is not None and newConn.isConnected():
-            frompid = newConn.getObject("Image", fromid).getPixelsId()
-            rsettings = newConn.getRenderingSettingsService()
-            json_data = rsettings.applySettingsToImages(frompid, list(toids))
+        userid = fromimg.getOwner().getId()
+        if fromimg.canWrite():
+            sopts = dict(blitzcon.CONFIG['SERVICE_OPTS'] or {})
+            sopts['omero.group'] = str(fromimg.getDetails().getGroup().getId())
+            sopts['omero.user'] = str(userid)
+            rsettings = blitzcon.getRenderingSettingsService()
+            json_data = rsettings.applySettingsToImages(frompid, list(toids), sopts)
             if fromid in json_data[True]:
                 del json_data[True][json_data[True].index(fromid)]
             for iid in json_data[True]:
-                img = newConn.getObject("Image", iid)
-                user_id = newConn.getEventContext().userId
-                img is not None and webgateway_cache.invalidateObject(server_id, user_id, img)
+                img = blitzcon.getObject("Image", iid)
+                img is not None and webgateway_cache.invalidateObject(server_id, userid, img)
     return json_data
 #
 #            json_data = simplejson.dumps(json_data)
@@ -2036,7 +2074,7 @@ def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
              'viewport_server': kwargs.get('viewport_server', '/webgateway'),
              'object': 'image:%i' % int(iid)}
 
-        template = kwargs.get('template', "webgateway/omero_image.html")
+        template = kwargs.get('template', "webgateway/viewport/omero_image.html")
         t = template_loader.get_template(template)
         c = Context(request,d)
         rsp = t.render(c)
@@ -2177,7 +2215,7 @@ def test (request):
     
     context = {}
 
-    t = template_loader.get_template('webgateway/omero_image.html')
+    t = template_loader.get_template('webgateway/viewport/omero_image.html')
     c = Context(request,context)
     return HttpResponse(t.render(c))
 

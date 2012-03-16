@@ -96,6 +96,10 @@
             <fileset dir="${basedir}/OUT/dist" includes="OMERO.editor*-win.zip"/>
             <mapper type="regexp" from="OMERO.editor-[^-]+(.*).zip"  to="editor-win.zip"/>
         </copy>
+    	<copy todir="${target.dir}">
+    	    <fileset dir="${basedir}/OUT/dist" includes="OMERO.ij*.zip"/>
+    	    <mapper type="regexp" from="OMERO.ij-[^-]+(.*).zip"  to="insight-ij.zip"/>
+    	</copy>
     </target>
 
     <target name="publish-artifacts" depends="prepare">

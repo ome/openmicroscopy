@@ -33,10 +33,10 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.border.BevelBorder;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewOtherAction;
@@ -170,7 +170,17 @@ class PopupMenu
 	private void buildGUI() 
 	{
 		setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-		add(view);
+		switch (DataBrowserAgent.runAsPlugin()) {
+			case DataBrowser.IMAGE_J:
+				JMenu menu = new JMenu("View");
+				menu.setIcon(view.getIcon());
+				menu.add(view);
+				menu.add(controller.getAction(DataBrowserControl.VIEW_IN_IJ));
+				add(menu);
+				break;
+			default:
+				add(view);
+		};
 		add(openWithMenu);
 		add(new JSeparator(JSeparator.HORIZONTAL));
 		add(cutElement);

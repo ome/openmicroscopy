@@ -7,15 +7,9 @@
 
 package omero.cmd;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-
-import ome.conditions.InternalException;
-import ome.services.util.Executor;
-import ome.system.Principal;
-import ome.system.ServiceFactory;
-import ome.util.SqlAction;
-import omero.LockTimeout;
-import omero.ServerError;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,6 +20,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 import Ice.Identity;
+
+import ome.conditions.InternalException;
+import ome.services.util.Executor;
+import ome.system.Principal;
+import ome.system.ServiceFactory;
+import ome.util.SqlAction;
+
+import omero.LockTimeout;
+import omero.ServerError;
+import omero.util.CloseableServant;
 
 /**
  * Servant for the handle proxy from the Command API. This is also a
@@ -47,8 +51,8 @@ import Ice.Identity;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.3.2
  */
-public class HandleI extends _HandleDisp implements IHandle,
-        SessionAware {
+public class HandleI implements _HandleOperations, IHandle,
+       SessionAware, CloseableServant {
 
     private static enum State {
         CREATED, READY, RUNNING, CANCELLING, CANCELLED, FINISHED;
@@ -240,7 +244,10 @@ public class HandleI extends _HandleDisp implements IHandle,
 
         StopWatch sw = new CommonsLogStopWatch();
         try {
-            executor.execute(principal, new Executor.SimpleWork(this, "run",
+            Map<String, String> callContext = new HashMap<String, String>();
+            callContext.put("omero.group", "-1");
+            executor.execute(callContext, principal,
+                    new Executor.SimpleWork(this, "run",
                     Ice.Util.identityToString(id), req) {
                 @Transactional(readOnly = false)
                 public Object doWork(Session session, ServiceFactory sf) {

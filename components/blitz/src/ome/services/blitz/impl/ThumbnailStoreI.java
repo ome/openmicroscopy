@@ -29,6 +29,7 @@ import omero.api.AMD_ThumbnailStore_getThumbnailDirect;
 import omero.api.AMD_ThumbnailStore_getThumbnailForSectionByLongestSideDirect;
 import omero.api.AMD_ThumbnailStore_getThumbnailForSectionDirect;
 import omero.api.AMD_ThumbnailStore_getThumbnailSet;
+import omero.api.AMD_ThumbnailStore_isInProgress;
 import omero.api.AMD_ThumbnailStore_resetDefaults;
 import omero.api.AMD_ThumbnailStore_setPixelsId;
 import omero.api.AMD_ThumbnailStore_setRenderingDefId;
@@ -139,6 +140,12 @@ public class ThumbnailStoreI extends AbstractAmdServant implements
     public void setPixelsId_async(AMD_ThumbnailStore_setPixelsId __cb,
             long pixelsId, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, pixelsId);
+
+    }
+
+    public void isInProgress_async(AMD_ThumbnailStore_isInProgress __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 

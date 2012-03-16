@@ -10,6 +10,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+
 import ome.api.ITypes;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
@@ -18,11 +23,13 @@ import ome.model.enums.EventType;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.security.SecurityFilter;
 import ome.security.SystemTypes;
 import ome.security.basic.BasicACLVoter;
 import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.CurrentDetails;
 import ome.security.basic.OmeroInterceptor;
+import ome.security.basic.OneGroupSecurityFilter;
 import ome.security.basic.TokenHolder;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.stats.NullSessionStats;
@@ -31,12 +38,6 @@ import ome.system.Principal;
 import ome.system.Roles;
 import ome.testing.MockServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
-import ome.tools.hibernate.SecurityFilter;
-
-import org.jmock.Mock;
-import org.jmock.MockObjectTestCase;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 
 public abstract class AbstractBasicSecuritySystemTest extends
         MockObjectTestCase {
@@ -90,9 +91,10 @@ public abstract class AbstractBasicSecuritySystemTest extends
         OmeroInterceptor oi = new OmeroInterceptor(new Roles(),
                 st, new ExtendedMetadata.Impl(),
                 cd, th, new NullSessionStats());
+        SecurityFilter filter = new OneGroupSecurityFilter();
         sec = new BasicSecuritySystem(oi, st, cd, mgr, new Roles(), sf,
-                new TokenHolder());
-        aclVoter = new BasicACLVoter(cd, st, th, new SecurityFilter());
+                new TokenHolder(), filter);
+        aclVoter = new BasicACLVoter(cd, st, th, filter);
     }
 
     protected void prepareMocksWithUserDetails(boolean readOnly) {

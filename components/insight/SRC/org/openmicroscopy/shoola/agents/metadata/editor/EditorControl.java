@@ -54,7 +54,6 @@ import javax.swing.filechooser.FileFilter;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
@@ -64,6 +63,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
+import org.openmicroscopy.shoola.agents.util.ui.DowngradeChooser;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
@@ -71,8 +71,11 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
@@ -192,6 +195,9 @@ class EditorControl
 	
 	/** Action ID to view the image.*/
 	static final int	VIEW_IMAGE = 22;
+	
+	/** Action ID to view the image.*/
+	static final int	VIEW_IMAGE_IN_IJ = 23;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -360,7 +366,7 @@ class EditorControl
 	private void export()
 	{
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+		DowngradeChooser chooser = new DowngradeChooser(f, FileChooser.SAVE, 
 				"Export", "Select where to export the image as OME-TIFF.",
 				exportFilters);
 		String s = UIUtilities.removeFileExtension(view.getRefObjectName());
@@ -378,11 +384,18 @@ class EditorControl
 					if (folder == null)
 						folder = UIUtilities.getDefaultFolder();
 					Object src = evt.getSource();
-					if (src instanceof FileChooser) {
+					Target target = null;
+					if (src instanceof DowngradeChooser) {
 						((FileChooser) src).setVisible(false);
 						((FileChooser) src).dispose();
+						target = ((DowngradeChooser) src).getSelectedSchema();
 					}
-					model.exportImageAsOMETIFF(folder);
+					model.exportImageAsOMETIFF(folder, target);
+				} else if (DowngradeChooser.HELP_DOWNGRADE_PROPERTY.equals(
+						name)) {
+					Registry reg = MetadataViewerAgent.getRegistry();
+					String url = (String) reg.lookup("HelpDowngrade");
+					reg.getTaskBar().openURL(url);
 				}
 			}
 		});
@@ -748,8 +761,23 @@ class EditorControl
 		        }
 				if (img != null) {
 					ViewImageObject vio = new ViewImageObject(img);
-					EditorAgent.getRegistry().getEventBus().post(
+					MetadataViewerAgent.getRegistry().getEventBus().post(
 						new ViewImage(model.getSecurityContext(), vio, null));
+				}
+				break;
+			case VIEW_IMAGE_IN_IJ:
+				Object object = view.getRefObject();
+				ImageData image = null;
+				if (object instanceof ImageData) {
+					image = (ImageData) object;
+		        } else if (object instanceof WellSampleData) {
+		        	image = ((WellSampleData) object).getImage();
+		        }
+				if (image != null) {
+					ViewInPluginEvent event = new ViewInPluginEvent(
+						model.getSecurityContext(),
+						(DataObject) object, MetadataViewer.IMAGE_J);
+					MetadataViewerAgent.getRegistry().getEventBus().post(event);
 				}
 		}
 	}

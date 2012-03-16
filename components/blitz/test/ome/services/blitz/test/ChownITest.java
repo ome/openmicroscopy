@@ -21,6 +21,7 @@ import omero.ServerError;
 import omero.api.IDeletePrx;
 import omero.cmd.Chown;
 import omero.cmd.HandleI;
+import omero.cmd._HandleTie;
 import omero.cmd.RequestObjectFactoryRegistry;
 import omero.cmd.State;
 import omero.cmd.graphs.ChownI;
@@ -103,7 +104,7 @@ public class ChownITest extends AbstractGraphTest {
 
         // Do chown and wait on completion.
         ChownI chown = newChown("/Image", imageId, newUserId);
-        HandleI handle = doChown(chown);
+        _HandleTie handle = doChown(chown);
         block(handle, 5, 1000);
 
         // Non-null response signals completion.
@@ -139,7 +140,7 @@ public class ChownITest extends AbstractGraphTest {
         Map<String, String> options = new HashMap<String, String>();
         options.put("/DatasetImageLink", "KEEP");
         ChownI chown = newChown("/Image", i.getId().getValue(), newUserId, options);
-        HandleI handle = doChown(chown);
+        _HandleTie handle = doChown(chown);
         block(handle, 5, 1000);
 
         assertFailure(handle);
@@ -162,7 +163,7 @@ public class ChownITest extends AbstractGraphTest {
         i = assertSaveAndReturn(i);
 
         ChownI chown = newChown("/Image", i.getId().getValue(), newUserId);
-        HandleI handle = doChown(chown);
+        _HandleTie handle = doChown(chown);
         block(handle, 5, 1000);
 
         assertSuccess(handle);
@@ -186,7 +187,7 @@ public class ChownITest extends AbstractGraphTest {
         // Perform chown
         ChownI chown = newChown("/Image/Pixels/Channel",
                 imageId, newUserId);
-        HandleI handle = doChown(chown);
+        _HandleTie handle = doChown(chown);
         block(handle, 5, 500);
         assertFailure(handle);
 
@@ -209,7 +210,7 @@ public class ChownITest extends AbstractGraphTest {
         // Perform chown
         ChownI chown = newChown("/Image/Pixels/RenderingDef", imageId,
                 newUserId);
-        HandleI handle = doChown(chown);
+        _HandleTie handle = doChown(chown);
         block(handle, 5, 500);
         assertFailure(handle);
     }
@@ -222,7 +223,7 @@ public class ChownITest extends AbstractGraphTest {
         long imageId = makeImage();
         ChownI chown = newChown("/Image", imageId, newUserId);
 
-        HandleI handle = doChown(chown);
+        _HandleTie handle = doChown(chown);
         block(handle, 5, 500);
         assertSuccess(handle);
 
@@ -260,7 +261,7 @@ public class ChownITest extends AbstractGraphTest {
 
         // Perform chown
         ChownI chown = newChown("/Image", imageId, newUserId);
-        HandleI handle = doChown(chown);
+        _HandleTie handle = doChown(chown);
         block(handle, 5, 500);
         assertSuccess(handle);
 
@@ -301,7 +302,7 @@ public class ChownITest extends AbstractGraphTest {
 
         // Perform chown
         ChownI chown = newChown("/Image", imageId1, newUserId);
-        HandleI handle = doChown(chown);
+        _HandleTie handle = doChown(chown);
         block(handle, 5, 500);
         assertSuccess(handle);
 
@@ -677,14 +678,14 @@ public class ChownITest extends AbstractGraphTest {
         user_sf.setSecurityContext(new ExperimenterGroupI(newUserId, false), null);
     }
 
-    private HandleI doChown(ChownI chown) throws Exception {
+    private _HandleTie doChown(ChownI chown) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", "chown");
         HandleI handle = new HandleI(1000);
         handle.setSession(user_sf);
         handle.initialize(id, chown);
         handle.run();
         // Client side this would need a try/finally { handle.close() }
-        return handle;
+        return new _HandleTie(handle);
     }
 
     Plate createPlate(long imageId) throws Exception {

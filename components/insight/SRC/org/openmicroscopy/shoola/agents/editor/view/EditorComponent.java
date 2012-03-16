@@ -610,7 +610,7 @@ class EditorComponent
 			if (g.getId() == ctx.getGroupID())
 				return g;
 		}
-		return null;
+		return EditorAgent.getUserDetails().getDefaultGroup();
 	}
 	
 	/**

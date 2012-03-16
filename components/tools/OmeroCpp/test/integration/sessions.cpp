@@ -11,11 +11,11 @@
 #include <omero/model/GroupExperimenterMapI.h>
 #include <omero/model/ExperimenterGroupI.h>
 #include <omero/model/SessionI.h>
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 
 using namespace omero::rtypes;
 
-BOOST_AUTO_TEST_CASE( RootCanCreateSessionForUser )
+TEST(SessionsTest, RootCanCreateSessionForUser )
 {
   Fixture f;
 
@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE( RootCanCreateSessionForUser )
   omero::api::ISessionPrx sess = sf->getSessionService();
 
 
-  omero::model::ExperimenterPtr e = f.newUser(sf->getAdminService());
+  omero::model::ExperimenterPtr e = f.newUser();
 
   omero::sys::PrincipalPtr p = new omero::sys::Principal();
   p->name = e->getOmeName()->getValue();

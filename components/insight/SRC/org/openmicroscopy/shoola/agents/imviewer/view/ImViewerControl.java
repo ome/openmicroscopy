@@ -877,12 +877,10 @@ class ImViewerControl
 			return;
 		}
 		int state = model.getState();
-		LoadingWindow window;
+		LoadingWindow window = view.getLoadingWindow();
 		switch (state) {
 			case ImViewer.DISCARDED:
-				window = view.getLoadingWindow();
-				window.setVisible(false);
-				window.dispose();
+				window.close();
 				view.setVisible(false);
 				if (view.isLensVisible())
 					view.setLensVisible(false, model.getSelectedIndex());
@@ -891,18 +889,16 @@ class ImViewerControl
 				break;
 			case ImViewer.LOADING_RND:
 			case ImViewer.LOADING_BIRD_EYE_VIEW:
-				//view.onStateChange(false);
-				window = view.getLoadingWindow();
 				if (!window.isVisible())
 					UIUtilities.centerAndShow(window);
 				break;
 			case ImViewer.CANCELLED:
-				view.getLoadingWindow().setVisible(false);
+				window.setVisible(false);
 			case ImViewer.LOADING_IMAGE:
 				if (historyState == ImViewer.LOADING_METADATA)
-					view.getLoadingWindow().setVisible(false);
+					window.setVisible(false);
 				view.onStateChange(false);
-				view.getLoadingWindow().setVisible(false);
+				window.setVisible(false);
 				/*
 				window = view.getLoadingWindow();
 				if (!window.isVisible())
@@ -918,7 +914,7 @@ class ImViewerControl
 				break;
 			case ImViewer.READY:
 				view.setStatus(false);
-				view.getLoadingWindow().setVisible(false);
+				window.setVisible(false);
 				if (historyState == ImViewer.CHANNEL_MOVIE)
 					view.onStateChange(false);
 				else {
@@ -927,7 +923,7 @@ class ImViewerControl
 				}
 				break;
 			case ImViewer.LOADING_TILES:
-				view.getLoadingWindow().setVisible(false);
+				window.setVisible(false);
 				view.onStateChange(false);
 				break;
 			case ImViewer.CHANNEL_MOVIE:

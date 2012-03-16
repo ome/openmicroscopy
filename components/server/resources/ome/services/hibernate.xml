@@ -130,7 +130,8 @@
     <property name="eventListeners" ref="eventListeners"/>
     <property name="filterDefinitions">
         <list>
-            <ref bean="securityFilter"/>
+            <ref bean="OneGroupSecurityFilter"/>
+            <ref bean="AllGroupsSecurityFilter"/>
         </list>
     </property>
     <property name="lobHandler" ref="lobHandler"/>

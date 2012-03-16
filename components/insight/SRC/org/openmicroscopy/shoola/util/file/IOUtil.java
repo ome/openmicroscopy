@@ -34,7 +34,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 
@@ -71,6 +75,8 @@ public class IOUtil
 	/** Filter for PDF documents. */
 	private static final PDFFilter PDF_FILTER;
 	
+	/** The class path.*/
+	private static String CLASS_PATH_PROPERTY_NAME = "java.class.path";
 	
 	static {
 		WORD_FILTER = new WordFilter();
@@ -301,4 +307,46 @@ public class IOUtil
 		}
 	}
 	
+	/**
+	 * Extracts the specified jar name from the class path.
+	 * 
+	 * @param name Value contained in the jar name.
+	 * @return See above.
+	 */
+	public static Map<String, InputStream> extractJar(String name)
+	throws Exception
+	{
+		Map<String, InputStream> values = new HashMap<String, InputStream>();
+		if (name == null) return values;
+		String fullPath = System.getProperties().getProperty(
+				CLASS_PATH_PROPERTY_NAME);
+		String[] jars = fullPath.split(File.pathSeparator);
+		
+		try {
+			File f;
+			ZipFile zfile;
+			Enumeration<? extends ZipEntry> entries;
+			ZipEntry entry;
+			for (String jarName : jars) {
+				jarName = jarName.trim();
+				f = new File(jarName);
+				if (f.getName().contains(name)) {
+					zfile = new ZipFile(f);
+					entries = zfile.entries();
+					while (entries.hasMoreElements()) {
+				        entry = entries.nextElement();
+				        if (!entry.isDirectory()) {
+				        	values.put(entry.getName(), 
+				        			zfile.getInputStream(entry));
+				        }
+				      }
+				}
+			}
+		} catch (Exception e) {
+			throw new Exception("Cannot read the requested jar.", e);
+		}
+		
+		return values;
+	}
+
 }

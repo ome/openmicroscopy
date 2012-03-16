@@ -1,4 +1,4 @@
-{% extends "common/base/base_html.html" %}
+{% extends "webgateway/core_html.html" %}
 {% load i18n %}
 
 {% comment %}
@@ -90,8 +90,8 @@
 
 {% block script %}
     {{ block.super }}
-    {% include "common/base/includes/script_src_jquery.html" %}
-    {% include "common/base/includes/script_src_popup.html" %}
+    {% include "webgateway/base/includes/script_src_jquery.html" %}
+    {% include "webgateway/base/includes/script_src_popup.html" %}
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
     <script type="text/javascript">
 

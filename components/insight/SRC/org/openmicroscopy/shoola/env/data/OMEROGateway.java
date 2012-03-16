@@ -3824,7 +3824,6 @@ class OMEROGateway
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-		
 	}
 	
 	/** 
@@ -6349,7 +6348,7 @@ class OMEROGateway
 		while (i.hasNext()) {
 			c = i.next();
 			if (c.isSame(ctx)) {
-				//c.shutDownRendering(pixelsID);
+				c.shutDownRenderingEngine(pixelsID);
 			}
 		}
 	}
@@ -6831,6 +6830,9 @@ class OMEROGateway
 	/**
 	 * Returns the file 
 	 * 
+	 * @param index Either OME-XML or OME-TIFF.
+	 * @param file		The file to write the bytes.
+	 * @param imageID	The id of the image.
 	 * @param ctx The security context.
 	 * @param file The file to write the bytes.
 	 * @param imageID The id of the image.
@@ -6840,7 +6842,8 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	File exportImageAsOMETiff(SecurityContext ctx, File f, long imageID)
+	File exportImageAsOMEObject(SecurityContext ctx, int index, File f, 
+			long imageID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
@@ -6854,7 +6857,10 @@ class OMEROGateway
 				store = getExporterService(ctx);
 				store.addImage(imageID);
 				try {
-					long size = store.generateTiff();
+					long size = 0;
+					if (index == OmeroImageService.EXPORT_AS_OME_XML)
+						size = store.generateXml();
+					else size = store.generateTiff();
 					long offset = 0;
 					try {
 						for (offset = 0; (offset+INC) < size;) {
@@ -6869,7 +6875,7 @@ class OMEROGateway
 					if (stream != null) stream.close();
 					if (f != null) f.delete();
 					exception = new DSAccessException(
-							"Cannot export the image as an OME-TIFF ", e);
+							"Cannot export the image as an OME-formats ", e);
 				}
 			} finally {
 				try {

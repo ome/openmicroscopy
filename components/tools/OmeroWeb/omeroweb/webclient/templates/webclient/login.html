@@ -1,4 +1,4 @@
-{% extends "common/base/base_html.html" %}
+{% extends "webgateway/core_html.html" %}
 {% load i18n %}
 
 {% comment %}
@@ -23,9 +23,8 @@
 
 {% block link %}
     {{ block.super }}
-    {% include "common/base/includes/css_link_body.html" %}
     <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" />
-    <link rel="stylesheet" href="{% static "common/css/login.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.login.css" %}" type="text/css" />
 {% endblock %}
 
 {% block title %}
@@ -34,7 +33,7 @@
 
 {% block head %}
     {{ block.super }}
-    {% include "common/base/includes/shortcut_icon.html" %}
+    {% include "webgateway/base/includes/shortcut_icon.html" %}
 {% endblock %}
 
 {% block body %}

@@ -191,32 +191,20 @@
                 }
 
                 // handle submit of Add Comment form
-                $("#add_comment_form").submit(function() {
-                    var $form = $(this);
-                    var add_comment_url = $form.attr('action');
-                    var postData = $form.serialize();
-                    var textArea = $('textarea', $form);
-                    if (textArea.val().trim().length == 0) {
-                        return false;
-                    }
-                    $.ajax({
-                        type: "POST",
-                        url: add_comment_url,
-                        data:postData,
-                        contentType:'html',
-                        success: function(html){
-                            var $comment = $(html)
-                            $('#comments_container').prepend( $comment ).show();
-                            $(".removeComment", $comment).click(function(event) {
-                                removeItem(event, "ann_comment_wrapper");
-                            });
-                            textArea.val('');
-                        },
-                        error: function(html) {
-                            alert("Internal server error. Cannot add comment.");
-                        }
-                    });
-                    return false;
+                $("#add_comment_form").ajaxForm({
+                    beforeSubmit: function(data) {
+                        var textArea = $('#add_comment_form textarea');
+                        if ($.trim(textArea.val()).length == 0) return false;
+                    },
+                    success: function(html) {
+                        var $comment = $(html)
+                        $('#comments_container').prepend( $comment ).show();
+                        $(".removeComment", $comment).click(function(event) {
+                            removeItem(event, "ann_comment_wrapper");
+                        });
+                        var textArea = $('#add_comment_form textarea');
+                        textArea.val('');
+                    },
                 });
 
                 // bind removeItem to various [-] buttons
@@ -420,14 +408,14 @@
         {% if manager.image %}
         <!-- VIEWER "Preview"-->
         <div id="preview_tab">
-            <img id="preview_spinner" src="{% static "common/image/spinner.gif" %}" style='display:none'/>
+            <img id="preview_spinner" src="{% static "webgateway/img/spinner.gif" %}" style='display:none'/>
         </div>
         {% endif %}
         {% if manager.well %}
         <!-- VIEWER "Preview" -->
         <div id="preview_tab">
             <a id="preview-link" href="{% url load_metadata_preview manager.well.getWellSample.image.id %}" style='display:none'>Preview</a>
-            <img id="preview_spinner" src="{% static "common/image/spinner.gif" %}" style='display:none'/>
+            <img id="preview_spinner" src="{% static "webgateway/img/spinner.gif" %}" style='display:none'/>
         </div>
         {% endif %}
         
@@ -780,7 +768,7 @@
                             <img src="{% static "webclient/image/plus_11.png" %}" alt="e" title="Attach new or existing files."/>
                         </a>
                     {% endif %}
-                    <img id='fileann_spinner' src="{% static "common/image/spinner.gif" %}" style="display:none"/>
+                    <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
                     
                     <!-- hidden form for choosing files in dialog - load form via AJAX when we show dialog -->
                     <form id="choose_attachments_form" title="Select Attachments" style="display:none" action="{% url annotate_file %}" method="post">
@@ -909,7 +897,7 @@
             <div id="hierarchy-pane">
                 <!-- content is loaded by ajax when this tab is first displayed -->
                 <a id="hierarchy-link" href="{% url load_metadata_hierarchy 'image' manager.image.id %}">Load hierarchy...</a>
-                <img id="hierarchy-spinner" style="display:none" src="{% static "common/image/spinner.gif" %}" />
+                <img id="hierarchy-spinner" style="display:none" src="{% static "webgateway/img/spinner.gif" %}" />
             </div>
             {% endif %}
             

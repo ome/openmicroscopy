@@ -1,21 +1,23 @@
-To add a test, add the cpp file to the test_SOURCES section of Makefile.am.
-"make" will run "make test" and execute the generated "test" binary.
+To add a test, add a cpp file under either the test/unit
+or test/integration directory. Do not add a main method
+but rather use the TEST() macro -- available from either
+the gtest.h header or the omero/fixture.h -- to create
+a test:
 
-Several parameters are available for when running boost tests. E.g.
+TEST(TestName, methodName) {
+    ASSERT_EQ(1, 1);
+    ASSERT_NE(1, 2);
+    ASSERT_GT(2, 1);
+    ASSERT_LE(1, 1);
+    FAIL() << "This will never succeed.";
+}
 
-./integration --report_level=detailed --catch_system_errors=no --detect_memory_leak=0 --build_info=yes
+These can be run either manually:
 
-See http://beta.boost.org/doc/libs/1_34_1/libs/test/doc/components/utf/parameters/index.html for more.
+    DYLD_LIBRARY_PATH=. test/integration.exe
+    DYLD_LIBRARY_PATH=. test/unit.exe --gtest_filter=Model*
 
-    * build_info
-    * catch_system_errors
-    * detect_memory_leaks
-    * log_format
-    * log_level
-    * no_result_code
-    * output_format
-    * random
-    * report_format
-    * report_level = "no", "confirm", "short", "detailed"
-    * show_progress
+or via the build:
 
+    ./build.py -f components/tools/OmeroCpp/build.xml integration
+    ./build.py -f components/tools/OmeroCpp/build.xml test -DTEST=Model*

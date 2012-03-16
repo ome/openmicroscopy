@@ -101,36 +101,29 @@ public class ChgrpValidation extends GraphStep {
     }
 
     private Long findImproperOutgoingLinks(Session session, String[] lock) {
-        Long old = share.setShareId(-1L);
-        share.resetReadFilter(session);
-        try {
+        CommonsLogStopWatch sw = new CommonsLogStopWatch();
+        String str = String.format(
+                "select count(*) from %s target, %s source " +
+                "where target.id = source.%s.id and source.id = ? " +
+                "and not (target.details.group.id = ? " +
+                "  or target.details.group.id = ?)",
+                lock[0], iObjectType.getName(), lock[1]);
 
-            CommonsLogStopWatch sw = new CommonsLogStopWatch();
-            String str = String.format(
-                    "select count(*) from %s target, %s source " +
-                    "where target.id = source.%s.id and source.id = ? " +
-                    "and not (target.details.group.id = ? " +
-                    "  or target.details.group.id = ?)",
-                    lock[0], iObjectType.getName(), lock[1]);
-
-            Query q = session.createQuery(str);
-            q.setLong(0, id);
-            q.setLong(1, grp);
-            q.setLong(2, userGroup);
-            Long rv = (Long) q.list().get(0);
+        Query q = session.createQuery(str);
+        q.setLong(0, id);
+        q.setLong(1, grp);
+        q.setLong(2, userGroup);
+        Long rv = (Long) q.list().get(0);
 
 
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("%s<==%s, id=%s, grp=%s, userGroup=%s",
-                        rv, str, id, grp, userGroup));
-            }
-
-            sw.stop("omero.chgrp.validation." + lock[0] + "." + lock[1]);
-
-            return rv;
-        } finally {
-            share.setShareId(old);
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("%s<==%s, id=%s, grp=%s, userGroup=%s",
+                    rv, str, id, grp, userGroup));
         }
+
+        sw.stop("omero.chgrp.validation." + lock[0] + "." + lock[1]);
+
+        return rv;
     }
 
     @Override

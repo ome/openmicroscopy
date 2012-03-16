@@ -1,4 +1,4 @@
-{% extends "common/base/base_frame.html" %}
+{% extends "webgateway/base/base_frame.html" %}
 {% load i18n %}
 
 {% comment %}
@@ -28,11 +28,11 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.tooltip/jquery.tooltip.pack.js" %}"></script>
     
-    <script type="text/javascript" src="{% static "webclient/javascript/ui/jquery.ui.datepicker.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.12/ui/jquery.ui.datepicker.js" %}"></script>
 
-    <script type="text/javascript" src="{% static "webclient/javascript/actions.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
     <script>
       $(document).ready(function(){
           $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
