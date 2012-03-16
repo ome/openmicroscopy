@@ -1121,8 +1121,7 @@ class TreeViewerModel
 	SecurityContext getAdminContext()
 	{ 
 		if (adminContext == null) 
-			adminContext = new SecurityContext(
-				TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+			adminContext = TreeViewerAgent.getAdminContext();
 		return adminContext; 
 	}
 	

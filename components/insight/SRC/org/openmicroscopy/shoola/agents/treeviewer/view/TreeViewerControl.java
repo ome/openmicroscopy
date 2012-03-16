@@ -1226,13 +1226,26 @@ class TreeViewerControl
 			
 			i = l.iterator();
 			int n = 0;
+			List<Long> groupIds = new ArrayList<Long>();
+			boolean canRun = true;
 			while (i.hasNext()) {
 				obj = (DataObject) i.next();
-				ids.add(obj.getId());
-				if (n == 0) p = obj;
-				n++;
+				if (groupIds.size() == 0)
+					groupIds.add(obj.getGroupId());
+				if (groupIds.contains(obj.getGroupId())) {
+					ids.add(obj.getId());
+					if (n == 0) p = obj;
+					n++;
+				} else {
+					canRun = false;
+					break;
+				}
 			}
-			
+			if (!canRun) {
+				un.notifyInfo("Script", "You can run the script only\non" +
+						"objects from the same group");
+				return;
+			}
 			if (ids.size() == 0) return;
 			// not set
 			if (param.getIndex() != FigureParam.THUMBNAILS) 
@@ -1241,10 +1254,8 @@ class TreeViewerControl
 			activity = new FigureActivityParam(object, ids, klass,
 					FigureActivityParam.SPLIT_VIEW_FIGURE);
 			activity.setIcon(icon);
-			//TODO:review
-			//un.notifyActivity(activity);
+			un.notifyActivity(new SecurityContext(groupIds.get(0)), activity);
 		} else if (MetadataViewer.HANDLE_SCRIPT_PROPERTY.equals(name)) {
-			/*
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			ScriptActivityParam p = (ScriptActivityParam) pce.getNewValue();
 			int index = p.getIndex();
@@ -1260,14 +1271,10 @@ class TreeViewerControl
 						p.getScript().getScriptID(), 
 						DownloadActivityParam.ORIGINAL_FILE, f, null);
 				activity.setApplicationData(new ApplicationData(""));
-				//TODO:review
-				//un.notifyActivity(activity);
+				un.notifyActivity(model.getSecurityContext(), activity);
 			} else if (index == ScriptActivityParam.DOWNLOAD) {
 				downloadScript(p);
-			} else {
-				//TODO:review
-				//un.notifyActivity(pce.getNewValue());
-			}*/
+			}
 		} else if (OpenWithDialog.OPEN_DOCUMENT_PROPERTY.equals(name)) {
 			ApplicationData data = (ApplicationData) pce.getNewValue();
 			//Register 
