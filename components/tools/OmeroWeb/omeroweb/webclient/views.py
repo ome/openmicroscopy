@@ -420,30 +420,15 @@ def change_active_group(request, conn, **kwargs):
     
     return HttpResponseRedirect(url)
 
-def _session_logout (request, server_id):
-    """ 
-    Delegates to the webgateway _session_logout, while also using this to log out any share sessions.
-    Used internally by logout and 
-    """
-
-    webgateway_views._session_logout(request, server_id)
-     
-    try:
-        if request.session.get('shares') is not None:
-            for key in request.session.get('shares').iterkeys():
-                session_key = "S:%s#%s#%s" % (request.session.session_key,server_id, key)
-                webgateway_views._session_logout(request,server_id, force_key=session_key)
-        for k in request.session.keys():
-            if request.session.has_key(k):
-                del request.session[k]      
-    except:
-        logger.error(traceback.format_exc())
-    
 @login_required()
-def logout(request, **kwargs):
+def logout(request, conn=None, **kwargs):
     """ Logout of the session and redirects to the homepage (will redirect to login first) """
-    _session_logout(request, request.session.get('server'))
-    #request.session.set_expiry(1)
+    try:
+        conn.seppuku()
+    except:
+        logger.error('Exception during logout.', exc_info=True)
+    finally:
+        request.session.flush()
     return HttpResponseRedirect(reverse("webindex"))
 
 
