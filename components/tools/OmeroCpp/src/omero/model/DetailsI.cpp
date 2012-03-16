@@ -12,7 +12,9 @@ namespace omero {
 
     namespace model {
 
-	DetailsI::DetailsI() : Details()  {}
+	DetailsI::DetailsI(
+                const omero::client_ptr& client)
+                    : Details(), client(client)  {}
 	DetailsI::~DetailsI() {}
 
     }

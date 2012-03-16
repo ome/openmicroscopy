@@ -14,18 +14,12 @@ _omero_model = Ice.openModule("omero.model")
 __name__ = "omero.model"
 class DetailsI(_omero_model.Details):
 
-      class DetailsI_generator:
-          def __iter__(self):
-              return self
-          def next(self):
-              return DetailsI()
-
-      def generator(cls):
-          return cls.DetailsI_generator()
-      generator = classmethod(generator)
-
-      def __init__(self):
+      def __init__(self, client = None):
           super(DetailsI, self).__init__()
+          self.__client = client
+
+      def getClient(self):
+          return self.__client
 
       def getOwner(self):
           return self._owner

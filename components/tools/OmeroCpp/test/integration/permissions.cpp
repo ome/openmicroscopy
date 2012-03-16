@@ -64,3 +64,23 @@ TEST( PermissionsTest, testDisallow ) {
     ASSERT_TRUE(p->canEdit());
 
 }
+
+TEST( PermissionsTest, testClientSet ) {
+
+    Fixture f;
+    const omero::client_ptr client = f.login();
+    ServiceFactoryPrx sf = client->getSession();
+    IUpdatePrx iupdate = sf->getUpdateService();
+
+    CommentAnnotationPtr c = new CommentAnnotationI();
+    c = CommentAnnotationPtr::dynamicCast( iupdate->saveAndReturnObject( c ) );
+
+    DetailsPtr d = c->getDetails();
+    ASSERT_TRUE(d);
+
+    DetailsIPtr di = DetailsIPtr::dynamicCast(d);
+    ASSERT_TRUE(di->getClient());
+    //ASSERT_TRUE(d->getSession());
+    //ASSERT_TRUE(d->getEventContext());
+    //ASSERT_TRUE(d->getCallContext());
+}

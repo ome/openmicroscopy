@@ -15,18 +15,33 @@ import Ice.Object;
 
 public class DetailsI extends Details implements ome.model.ModelBased {
 
-    public final static Ice.ObjectFactory Factory = new Ice.ObjectFactory() {
+    public static final Ice.ObjectFactory makeFactory(final omero.client client) {
 
-        public Object create(String arg0) {
-            return new DetailsI();
-        }
+        return new Ice.ObjectFactory() {
 
-        public void destroy() {
-            // no-op
-        }
-        
+            public Object create(String arg0) {
+                return new DetailsI(client);
+            }
+
+            public void destroy() {
+                // no-op
+            }
+
+        };
     };
+
+    public final static Ice.ObjectFactory Factory = makeFactory(null);
+
+    protected final omero.client client;
     
+    public DetailsI() {
+        this(null);
+    }
+
+    public DetailsI(omero.client client) {
+        this.client = client;
+    }
+
     public omero.model.Experimenter getOwner(Ice.Current current) {
         return this.owner;
     }

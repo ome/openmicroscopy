@@ -25,17 +25,13 @@
 #end
 
 namespace omero {
-    
+
 #foreach($type in $types)
 #if(!$type.abstract)
 #set( $ObjFac = "${type.shortname}ObjectFactory" )
     class ${ObjFac} : virtual public Ice::ObjectFactory {
-    protected:
-	std::string id;
     public:
-	${ObjFac}() : Ice::ObjectFactory() {
-	    this->id = omero::model::${type.shortname}I::ice_staticId();
-	}
+	${ObjFac}() : Ice::ObjectFactory() { }
 
 	~${ObjFac}() {}
 
@@ -49,17 +45,13 @@ namespace omero {
 #end
 
     class PermissionsObjectFactory : virtual public Ice::ObjectFactory {
-    protected:
-	std::string id;
     public:
-	PermissionsObjectFactory() : Ice::ObjectFactory() {
-	    this->id = omero::model::PermissionsI::ice_staticId();
-	}
+	PermissionsObjectFactory() : Ice::ObjectFactory() { }
 
 	~PermissionsObjectFactory() {}
-	
+
 	Ice::ObjectPtr create(const std::string& type) {
-	    return new omero::model::PermissionsI();	    
+	    return new omero::model::PermissionsI();
 	}
 
 	void destroy() {}
@@ -68,16 +60,16 @@ namespace omero {
 
     class DetailsObjectFactory : virtual public Ice::ObjectFactory {
     protected:
-	std::string id;
+	const omero::client_ptr client;
     public:
-	DetailsObjectFactory() : Ice::ObjectFactory() {
-	    this->id = omero::model::DetailsI::ice_staticId();
-	}
+	DetailsObjectFactory(
+            const omero::client_ptr& client = omero::client_ptr())
+                : Ice::ObjectFactory(), client(client) { }
 
 	~DetailsObjectFactory() {}
-	
+
 	Ice::ObjectPtr create(const std::string& type) {
-	    return new omero::model::DetailsI();	    
+	    return new omero::model::DetailsI(client);
 	}
 
 	void destroy() {}
@@ -92,9 +84,10 @@ namespace omero {
 
   }
 
-  void registerObjectFactory(const Ice::CommunicatorPtr ic) {
+  void registerObjectFactory(const Ice::CommunicatorPtr ic,
+        const omero::client_ptr& client) {
     conditionalAdd("::omero::model::Permissions", ic, new PermissionsObjectFactory());
-    conditionalAdd("::omero::model::Details", ic, new DetailsObjectFactory());
+    conditionalAdd("::omero::model::Details", ic, new DetailsObjectFactory(client));
 #foreach($type in $types)
 #if(!$type.abstract)
     conditionalAdd("::omero::model::${type.shortname}", ic,  new ${type.shortname}ObjectFactory());

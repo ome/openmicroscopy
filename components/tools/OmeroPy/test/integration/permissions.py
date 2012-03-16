@@ -632,5 +632,14 @@ class TestPermissions(lib.ITest):
         self.assertTrue(p.canAnnotate())
         self.assertTrue(p.canEdit())
 
+    def testClientSet(self):
+        c = omero.model.CommentAnnotationI()
+        c = self.update.saveAndReturnObject(c)
+        d = c.getDetails()
+        self.assertTrue( d.getClient() is not None)
+        #self.assertTrue( d.getSession() is not None)
+        #self.assertTrue( d.getCallContext() is not None)
+        #self.assertTrue( d.getEventContext() is not None)
+
 if __name__ == '__main__':
     unittest.main()

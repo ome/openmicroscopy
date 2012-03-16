@@ -23,16 +23,6 @@ object #0 (::omero::model::Permissions)
 """
 class PermissionsI(_omero_model.Permissions):
 
-      class PermissionsI_generator:
-          def __iter__(self):
-              return self
-          def next(self):
-              return PermissionsI()
-
-      def generator(cls):
-          return cls.PermissionsI_generator()
-      generator = classmethod(generator)
-
       def __init__(self, l = None):
             super(PermissionsI, self).__init__()
             self.__immutable = False
