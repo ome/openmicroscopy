@@ -85,6 +85,8 @@ public class ProxyCleanupFilter extends ContextFilter {
             return new Node((((Node) f).getId()), false);
         }
         
+        final Details withContexts = currentDetails.createDetails();
+
         // A proxy; send over the wire in altered form.
         if (!Hibernate.isInitialized(f)) {
 
@@ -97,7 +99,9 @@ public class ProxyCleanupFilter extends ContextFilter {
                 return unloaded;
             } else if (f instanceof Details) {
                 // Currently Details is only "known" non-IObject Filterable
-                return super.filter(fieldId, ((Details) f).shallowCopy());
+                Details d = (Details) f;
+                withContexts.applyContext(d);
+                return super.filter(fieldId, d.shallowCopy());
             } else {
                 // TODO Here there's not much we can do. copy constructor?
                 throw new RuntimeException(
@@ -135,6 +139,9 @@ public class ProxyCleanupFilter extends ContextFilter {
                 }
             }
 
+            if (f instanceof Details) {
+                withContexts.applyContext((Details) f);
+            }
             // Any clean up here.
             return super.filter(fieldId, f);
 

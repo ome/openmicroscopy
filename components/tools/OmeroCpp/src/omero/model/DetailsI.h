@@ -42,12 +42,25 @@ namespace omero {
 	protected:
 	    virtual ~DetailsI(); // protected as outlined in Ice docs.
             const omero::client_ptr client;
+            /*const*/ omero::api::ServiceFactoryPrx session;
 	public:
 
           DetailsI(const omero::client_ptr& client = omero::client_ptr());
 
           const omero::client_ptr getClient() const {
               return client;
+          }
+
+          const omero::api::ServiceFactoryPrx getSession() const {
+              return session;
+          }
+
+          /*const*/ omero::sys::EventContextPtr getEventContext() const {
+              return event;
+          }
+
+          /*const*/ std::map<std::string, std::string> getCallContext() const {
+              return call;
           }
 
           virtual omero::model::ExperimenterPtr getOwner(const Ice::Current& current = Ice::Current()) {

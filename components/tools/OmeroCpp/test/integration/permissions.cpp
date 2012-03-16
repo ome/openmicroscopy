@@ -67,20 +67,23 @@ TEST( PermissionsTest, testDisallow ) {
 
 TEST( PermissionsTest, testClientSet ) {
 
+    std::map<std::string, std::string> myctx;
+    myctx["test"] = "value";
+
     Fixture f;
     const omero::client_ptr client = f.login();
     ServiceFactoryPrx sf = client->getSession();
     IUpdatePrx iupdate = sf->getUpdateService();
 
     CommentAnnotationPtr c = new CommentAnnotationI();
-    c = CommentAnnotationPtr::dynamicCast( iupdate->saveAndReturnObject( c ) );
+    c = CommentAnnotationPtr::dynamicCast( iupdate->saveAndReturnObject( c, myctx ) );
 
     DetailsPtr d = c->getDetails();
     ASSERT_TRUE(d);
 
     DetailsIPtr di = DetailsIPtr::dynamicCast(d);
     ASSERT_TRUE(di->getClient());
-    //ASSERT_TRUE(d->getSession());
-    //ASSERT_TRUE(d->getEventContext());
-    //ASSERT_TRUE(d->getCallContext());
+    ASSERT_TRUE(di->getSession());
+    ASSERT_TRUE(di->getEventContext());
+    ASSERT_EQ("value", di->getCallContext()["test"]);
 }

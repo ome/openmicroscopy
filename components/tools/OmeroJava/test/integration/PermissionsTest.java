@@ -62,9 +62,9 @@ public class PermissionsTest
         c = (CommentAnnotationI) this.iUpdate.saveAndReturnObject(c);
         DetailsI d = (DetailsI) c.getDetails();
         assertTrue( d.getClient() != null);
-        //self.assertTrue( d.getSession() is not None)
-        //self.assertTrue( d.getCallContext() is not None)
-        //self.assertTrue( d.getEventContext() is not None)
+        assertTrue( d.getSession() != null);
+        assertTrue( d.getCallContext() != null);
+        assertTrue( d.getEventContext() != null);
     }
 
 }

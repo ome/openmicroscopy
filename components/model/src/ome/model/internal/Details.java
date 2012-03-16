@@ -44,17 +44,24 @@ public abstract class Details implements Filterable, Serializable {
     private static final long serialVersionUID = 1176546684904748977L;
 
     /**
+     * Call {@link #create(Object[])} with null.
+     */
+    public final static Details create() {
+        return create(null);
+    }
+
+    /**
      * Factory method which returns a {@link Details} implementation for passing
      * in API calls, but cannot be stored within an {@link IObject} instance.
      * Use {@link #copy(Details)} or {@link #shallowCopy(Details)} instead.
      */
-    public final static Details create() {
-        return new Details() {
+    public final static Details create(final Object[] contexts) {
+        return new Details(contexts) {
             private static final long serialVersionUID = Details.serialVersionUID;
 
             @Override
             public Details newInstance() {
-                return Details.create();
+                return Details.create(contexts);
             }
 
         };
@@ -87,18 +94,38 @@ public abstract class Details implements Filterable, Serializable {
     protected ExperimenterGroup _group;
 
     @Transient
-    Set<String> _filteredCollections;
+    protected Set<String> _filteredCollections;
 
     @Transient
-    Map _dynamicFields;
+    protected Map _dynamicFields;
+
+    @Transient
+    protected Object[] contexts;
 
     /** default constructor. Leaves values null to save resources. */
     public Details() {
+        this((Object[])null);
+    }
+
+    public Details(Object[] contexts) {
+        this.contexts = contexts;
     }
 
     /** copy-constructor */
     public Details(Details copy) {
+        this();
         copy(copy);
+    }
+
+    public Object contextAt(int i) {
+        if (contexts == null || i >= contexts.length) {
+            return null;
+        }
+        return contexts[i];
+    }
+
+    public void applyContext(Details target) {
+        target.contexts = this.contexts;
     }
 
     public Details shallowCopy() {

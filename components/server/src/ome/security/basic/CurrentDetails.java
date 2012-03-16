@@ -349,7 +349,7 @@ public class CurrentDetails implements PrincipalHolder {
      */
     public Details createDetails() {
         BasicEventContext c = current();
-        Details d = Details.create();
+        Details d = Details.create(new Object[]{c, c.getCallContext()});
         d.setCreationEvent(c.getEvent());
         d.setUpdateEvent(c.getEvent());
         d.setOwner(c.getOwner());

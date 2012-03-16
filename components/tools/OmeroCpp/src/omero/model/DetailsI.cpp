@@ -7,6 +7,7 @@
  */
 
 #include <omero/model/DetailsI.h>
+#include <omero/API.h>
 
 namespace omero {
 
@@ -14,7 +15,11 @@ namespace omero {
 
 	DetailsI::DetailsI(
                 const omero::client_ptr& client)
-                    : Details(), client(client)  {}
+                    : Details(), client(client) {
+            if (client) {
+                session = client->getSession();
+            }
+        }
 	DetailsI::~DetailsI() {}
 
     }
