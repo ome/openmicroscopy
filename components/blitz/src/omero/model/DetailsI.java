@@ -136,22 +136,20 @@ public class DetailsI extends Details implements ome.model.ModelBased {
         omero.util.IceMapper mapper = (omero.util.IceMapper) _mapper;
         ome.model.internal.Details target = ome.model.internal.Details.create();
         mapper.store(this, target);
-        target.putAt(ome.model.internal.Details.OWNER,
+        target.setOwner(
                 (ome.model.meta.Experimenter) mapper
                         .reverse((ome.model.ModelBased) this.getOwner()));
-        target.putAt(ome.model.internal.Details.GROUP,
+        target.setGroup(
                 (ome.model.meta.ExperimenterGroup) mapper
                         .reverse((ome.model.ModelBased) this.getGroup()));
-        target
-                .putAt(ome.model.internal.Details.CREATIONEVENT,
+        target.setCreationEvent(
                         (ome.model.meta.Event) mapper
                                 .reverse((ome.model.ModelBased) this
                                         .getCreationEvent()));
-        target.putAt(ome.model.internal.Details.UPDATEEVENT,
+        target.setUpdateEvent(
                 (ome.model.meta.Event) mapper
                         .reverse((ome.model.ModelBased) this.getUpdateEvent()));
-        target
-                .putAt(ome.model.internal.Details.EXTERNALINFO,
+        target.setExternalInfo(
                         (ome.model.meta.ExternalInfo) mapper
                                 .reverse((ome.model.ModelBased) this
                                         .getExternalInfo()));
