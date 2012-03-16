@@ -18,19 +18,19 @@
  */
 
 
- #center_panel table {
+ #dataTable {
 	 width:100%;
  }
  
  
  
-	  #center_panel thead {
+	  #dataTable thead {
 		 font-size:1.1em;
 		 border-top:solid 1px rgba(255,255,255,.8);
 		 background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210, 10%, 85%)), to(hsl(210, 10%, 90%)));
 	 }
  
-		   #center_panel th {
+		  #dataTable th {
 			 text-shadow:0 1px 0 rgba(255,255,255,.6);
 			 padding:2px 3px 3px;
 			 cursor:pointer;
@@ -40,36 +40,36 @@
 			 border-bottom:solid 1px hsl(210,10%,78%);
 		 }
 		 
-		 #center_panel th:hover {
+		 #dataTable th:hover {
 			 background-color:rgba(255,255,255,.2);
 		 }
 
  
-		 .table_images {
+		 #dataTable .table_images {
 			 width:10%;
 		 }
 	 
-		 .table_desc {
+		 #dataTable .table_desc {
 			 width:50%;
 		 }
 	 
-			 #center_panel a{
+			 #dataTable a{
 				 color:#666;
 				 color:hsl(210,30%,30%);
 				 text-shadow:0 1px 1px rgba(255,255,255,.6);
 			 }
 	 
 	 
-		 .table_date {
+		 #dataTable .table_date {
 			 width:30%;
 		 }
 	 
 	 
-		 .headerSortUp {
+		 #dataTable .headerSortUp {
 			 background: rgba(255,255,255,.3) url(../img/arrow_down.png) 98% 60% no-repeat;
 		 }
 		 
-		 .headerSortDown {
+		 #dataTable .headerSortDown {
 			 background:rgba(255,255,255,.3) url(../img/arrow_up.png) 98% 60% no-repeat;
 			 
 		 }
@@ -79,53 +79,53 @@
 	 
 	 
 	 
-		 tbody tr {
+		 #dataTable tbody tr {
 			 border-top:solid 1px transparent;
 			 border-bottom:solid 1px transparent;
 		 }
 	 
-		 tbody tr:nth-child(even) {
+		 #dataTable tbody tr:nth-child(even) {
 			 background-color:hsl(210,3%,94%);
 		 }
 	 
-		 tbody tr:hover {
+		 #dataTable tbody tr:hover {
 		 	background-color:hsl(210,15%,85%);
 			cursor:pointer;
 			-webkit-transition: background .2s linear;
 		 }
 		 
-		 tbody tr.ui-selected { 
+		 #dataTable tbody tr.ui-selected { 
 			 background-color:hsl(210,30%,70%);
 			 border-bottom:solid 1px hsl(210,15%,65%);
 			 background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210, 20%, 75%)), to(hsl(210, 20%, 78%))); 
 		 }
 		 
-		 tbody .ui-selected td {
+		 #dataTable tbody .ui-selected td {
 		 	border-top:solid 1px hsl(210,15%,68%);
 			-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.1);
 		 }
 	
 		 
-			 tbody tr td{
+			 #dataTable tbody tr td{
 				 font-size:1.1em;
 				 padding:10px 0;
 				 line-height:1.6em;
 			 }
 			 
-			 tbody .desc {
+			 #dataTable tbody .desc {
 			 	
 			 }
 			 
-			 tbody .image {
+			 #dataTable tbody .image {
 				 margin:0 auto;
 				 text-align:center;
 			 }
 		 
-			 tbody .date {
+			 #dataTable tbody .date {
 				color:hsl(210,10%,65%);
 			 }
 			 
-			 tbody tr.ui-selected .date {
+			 #dataTable tbody tr.ui-selected .date {
 			 	color:hsl(210,15%,50%);
 			 }
 			 

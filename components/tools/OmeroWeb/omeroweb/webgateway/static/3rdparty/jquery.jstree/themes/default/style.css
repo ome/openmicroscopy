@@ -81,11 +81,19 @@
 	padding:1px 3px !important;
 	}
 
-.jstree-default .jstree-hovered, .jstree-default .jstree-clicked { 
-	background:hsl(215,20%,85%);
-	border:solid 1px hsl(215,20%,65%);
+.jstree-default .jstree-hovered { 
+	background:hsl(215,20%,90%);
+	border:solid 1px transparent;
 	-webkit-transition: .1s background linear; 
 	}
+	
+.jstree-default .jstree-clicked { 
+	background:hsl(215,20%,75%);
+	border:solid 1px hsl(215,20%,60%);
+	text-shadow:0 1px 0 rgba(255,255,255,.5);
+	-webkit-transition: .1s background linear; 
+	}
+	
 	
 	
 	

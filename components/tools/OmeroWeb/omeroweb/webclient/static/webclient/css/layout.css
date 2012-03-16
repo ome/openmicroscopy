@@ -17,12 +17,7 @@
  *
  */
  
- .header_chooser {
-    float:left;
-    position:relative;
-    top:0px;
-    padding:0px 5px;
-}
+ 
 
 .error {
     color: #e3646f;
@@ -58,6 +53,39 @@
 
 
 
+/*
+	===============================================
+	:: Generic
+	===============================================
+*/
+
+
+    /* Left and Right Panel Tabs */
+    
+    #left_panel_tab_list li:last, #annotation_tabs_list li:last {
+        border-right:none;
+    }
+    
+        #left_panel_tab_list li a, #annotation_tabs_list li a{
+            padding:4px 12px 5px;
+            border-radius:inherit;
+            line-height: 2em;
+            font-weight:bold;
+        }
+        
+        #left_panel_tab_list li a:hover, #annotation_tabs_list li a:hover;{
+            text-decoration: none;
+            background:rgba(255,255,255,.1);
+			color:white;
+        }
+        
+        #left_panel_tab_list .ui-tabs-selected a, #annotation_tabs_list .ui-tabs-selected a{
+			color:white;
+        }
+        
+
+
+
 
 
 /*
@@ -67,23 +95,47 @@
 */
 
 
-/* Base Left Panel Styles can be found at header.css */
 
 
-#annotation_tabs, #left_panel_tabs {
-    border: 0;
-    background: hsl(220,20%,95%);
-    padding: 0px;
-    position: absolute;
-}
 
-
-    #left_panel_tabs .ui-tabs-nav {
-        border-right:solid 1px hsl(210,10%,10%);
-    }
 
     
-
+        
+    /* Left Panel Tabs */    
+    
+    
+    #left_panel_tab_list{
+        background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(212, 20%, 20%)), to(hsl(212, 20%, 25%))) !important;
+        background-image: -moz-linear-gradient(90deg, hsl(212, 20%, 20%) 0%, hsl(212, 20%, 25%) 100%);
+        border-top: solid 1px hsl(210,20%,11%);
+        -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+        border-bottom: solid 1px hsl(210,20%,1%); 
+        border-right:solid 1px hsl(210,10%,10%);
+    }
+    
+        #left_panel_tab_list li {
+            border-left:solid 1px hsl(210,20%,15%);
+        }
+        
+        
+            #left_panel_tab_list a {
+                border-left:solid 1px rgba(255,255,255,.05);
+    			color:hsl(210,10%,60%);
+                text-shadow: 0 -1px 0 rgba(0,0,0,.7);
+            }
+    
+    		#left_panel_tab_list a:hover { 
+                color:hsl(210,10%,70%);
+    		}
+            
+            #left_panel_tab_list .ui-tabs-selected a {
+        			background: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 25%, 18%)), to(hsl(215, 25%, 10%))) !important;
+            }
+            
+            
+            
+            
+            
 
     /*
     	------------------------------------------------
@@ -204,6 +256,7 @@
 
 
 
+   
 
 
 
@@ -213,22 +266,71 @@
 	===============================================
 */
     
-#right_panel {
-    overflow:auto;
-}
+
+
+    /* Right & Center Panel Headers */
     
-    #annotation_tab, #metadata_tab, #preview_tab {
+    #center_panel_header, #annotation_tabs_list {
+        background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(212, 15%, 35%)), to(hsl(212, 15%, 40%))) !important;
+        background-image: -moz-linear-gradient(90deg, hsl(212, 15%, 35%) 0%, hsl(212, 15%, 40%) 100%);
+    }
+    
+   
+
+
+    /* Right Tab Menu */
+    
+    #annotation_tabs_list{
+        border-top: solid 1px hsl(210,20%,11%);
+        -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+        border-bottom: solid 1px hsl(210,20%,1%); 
+        border-right:solid 1px hsl(210,10%,10%);
+    }
+    
+        #annotation_tabs_list li {
+            border-left:solid 1px hsl(210,15%,26%);
+            opacity:1;
+        }
+        
+        
+            #annotation_tabs_list a {
+                border-left:solid 1px rgba(255,255,255,.05);
+    			color:hsl(210,10%,60%);
+                text-shadow: 0 -1px 0 rgba(0,0,0,.3);
+            }
+    
+    		#annotation_tabs_list a:hover { 
+                color:white;
+    		}
+            
+            #annotation_tabs_list .ui-tabs-selected a{
+    			//background: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 15%, 30%)), to(hsl(215, 15%, 25%))) !important;
+                background:rgba(255,255,255,.1);
+            }
+            
+            
+    
+
+
+    
+    
+    
+    /* Right Inner Content */
+    
+    .right_tab_inner {
         padding: 15px;
         overflow: auto;
+        top:6px ;bottom:0px; left:0px; right:0px;
+        position: absolute;
         font-size:1.1em;
-        top:33px;
         border-left: solid 1px hsl(210,10%,85%);
-    }
-    
-    #right_panel .tabslist {
         min-width:240px;
     }
+    
    
+   
+   
+    /* Seperator */
     
     #right_panel hr {
         margin:15px 0;
@@ -239,159 +341,146 @@
         background: hsl(210,10%,90%);
     }
     
+        
+        
+    /* Tables */
     
-        #right_panel table {
-            width:100%;
+    
+    #right_panel table {
+        width:100%;
+    }
+    
+        #right_panel th, #right_panel td {
+            padding: 0 0 5px 0;
         }
     
-            #right_panel th, #right_panel td {
-                padding: 0 0 5px 0;
+        #right_panel th{
+            color:hsl(210,10%,30%);
+            vertical-align:top;
+        }
+    
+        #right_panel td{
+            color:hsl(210,10%,70%);
+        }
+    
+    
+            
+    
+    
+    /* Title */
+    
+    
+    .data_heading h1 {
+        overflow:hidden;
+    }
+    
+        .data_heading span {
+            display:inline-block;
+            width:90%;
+            line-height:1.2em;
+            float:left;
+            overflow:hidden;
+        }
+            
+            .data_heading img {
+                float:right;
+            }
+                
+            .data_heading form input[type=text] {
+                font-size:1.3em;
+                margin-top:10px;
+                width:90%;
             }
     
-            #right_panel th{
+    
+    #image_id {
+        font-size:1em;
+        color:hsl(210,5%,60%);
+    }
+    
+    #image_id strong {
+        font-weight:bold;
+        color:hsl(210,10%,30%);
+    }
+    
+    
+    
+    
+    
+    /* Description */
+    
+   .description {
+        font-size:1.1em;
+        color:hsl(210,10%,30%);
+        text-shadow: 0 1px 0 rgba(255,255,255,.8);
+        line-height:1.4em;
+        overflow:hidden;
+    }
+    
+        .description span {
+            overflow:hidden;
+            float:left;
+            width:90%;
+        }
+            
+        .description img {
+            float:right;
+        }
+            
+    
+            .description form {
+                overflow:hidden;
+                clear:left;
+                top:0px;
+                left:0px;
+                width:89%;
+            }
+    
+            .description textarea {
+                width:95%;
+                font-size:.9em;
+                display:block;
+                margin:0;
+            }
+                
+            .description input[type=submit] {
+                margin-right:5px;
+            }
+    
+            .description input[type=button] {
+                border:none;
+                background: transparent;
+                color:#999;
+                cursor:pointer;
+                font-size:.8em;
+                border-bottom:solid 1px rgba(0,0,0,0.2);
+                display:inline-block;
+                padding: 0 0 2px 0;
+            }
+    
+    
+    
+    
+    
+    /* Meta Data Values */
+    
+    .metadata_details {
+        text-shadow: 0 1px 0 rgba(255,255,255,.8);
+    }
+    
+            .metadata_details th {
                 color:hsl(210,10%,30%);
-                vertical-align:top;
             }
-    
-            #right_panel td{
+            
+            .metadata_details td{
                 color:hsl(210,10%,70%);
             }
     
     
-            
-    
-    
-    /*
-    	------------------------------------------------
-    	:: Right Panel - Title
-    	------------------------------------------------
-    */
-    
-    
-    
-        .data_heading h1 {
-            overflow:hidden;
-        }
-    
-            .data_heading span {
-                display:inline-block;
-                width:90%;
-                line-height:1.2em;
-                float:left;
-                overflow:hidden;
-            }
-            
-                .data_heading img {
-                    float:right;
-                }
-                
-                .data_heading form input[type=text] {
-                    font-size:1.3em;
-                    margin-top:10px;
-                    width:90%;
-                }
-    
-    
-        #image_id {
-            font-size:1em;
-            color:hsl(210,5%,60%);
-        }
-    
-        #image_id strong {
-            font-weight:bold;
-            color:hsl(210,10%,30%);
-        }
-    
-    
-    
-    
-    
-    /*
-    	------------------------------------------------
-    	:: Right Panel - Description
-    	------------------------------------------------
-    */
-    
-       .description {
-            font-size:1.1em;
-            color:hsl(210,10%,30%);
-            text-shadow: 0 1px 0 rgba(255,255,255,.8);
-            line-height:1.4em;
-            overflow:hidden;
-        }
-    
-            .description span {
-                overflow:hidden;
-                float:left;
-                width:90%;
-            }
-            
-            .description img {
-                float:right;
-            }
-            
-    
-                .description form {
-                    overflow:hidden;
-                    clear:left;
-                    top:0px;
-                    left:0px;
-                    width:89%;
-                }
-    
-                .description textarea {
-                    width:95%;
-                    font-size:.9em;
-                    display:block;
-                    margin:0;
-                }
-                
-                .description input[type=submit] {
-                    margin-right:5px;
-                }
-    
-                .description input[type=button] {
-                    border:none;
-                    background: transparent;
-                    color:#999;
-                    cursor:pointer;
-                    font-size:.8em;
-                    border-bottom:solid 1px rgba(0,0,0,0.2);
-                    display:inline-block;
-                    padding: 0 0 2px 0;
-                }
-    
-    
-    
-    
-    
-    /*
-    	------------------------------------------------
-    	:: Right Panel - Metadata Values
-    	------------------------------------------------
-    */
-    
-        .metadata_details {
-            text-shadow: 0 1px 0 rgba(255,255,255,.8);
-        }
-    
-                .metadata_details th {
-                    color:hsl(210,10%,30%);
-                }
-            
-                .metadata_details td{
-                    color:hsl(210,10%,70%);
-                }
-    
-    
     
         
         
-    /*
-    	------------------------------------------------
-    	:: Tags, Attachments, Ratings, Comments
-    	------------------------------------------------
-    */
+    /* Tags, Attachments, Ratings, Comments */
             
       
     .annotations_section {
@@ -483,45 +572,45 @@
                     }
 					
 					
-				/* Actions for Attachments */
+    			/* Actions for Attachments */
 				
-				.attachment_actions {
-					float:right;
-					margin-right:10px;
-					//display:none;
-					opacity:0;
-				}
+    			.attachment_actions {
+    				float:right;
+    				margin-right:10px;
+    				//display:none;
+    				opacity:0;
+    			}
 				
-				.lnfiles li:hover .attachment_actions {
-					//display:block;
-					opacity:1;
-					-webkit-transition: all .2s linear;
-				}
+    			.lnfiles li:hover .attachment_actions {
+    				//display:block;
+    				opacity:1;
+    				-webkit-transition: all .2s linear;
+    			}
 				
-					.action {
-						width:18px;
-						height:18px;
-						cursor:pointer;
-						display:inline-block;
-						text-align:center;
-						font-size:1.2em;
-						font-weight:bold;
-						margin-top:5px;
-						background: hsl(210,25%,75%);
-						-webkit-border-radius:3px;
-						color:hsl(210,40%,30%);
-						line-height:1.3em;
-						text-shadow: 0 1px 0 rgba(255,255,255,.5);
-					}
+    				.action {
+    					width:18px;
+    					height:18px;
+    					cursor:pointer;
+    					display:inline-block;
+    					text-align:center;
+    					font-size:1.2em;
+    					font-weight:bold;
+    					margin-top:5px;
+    					background: hsl(210,25%,75%);
+    					-webkit-border-radius:3px;
+    					color:hsl(210,40%,30%);
+    					line-height:1.3em;
+    					text-shadow: 0 1px 0 rgba(255,255,255,.5);
+    				}
 					
-					.action:hover {
-						background: hsl(210,25%,65%);
-						color:hsl(210,40%,20%);
-					}
+    				.action:hover {
+    					background: hsl(210,25%,65%);
+    					color:hsl(210,40%,20%);
+    				}
 				
-				.removeFile {
+    			.removeFile {
 					
-				}	
+    			}	
         
     
     
@@ -605,6 +694,16 @@
     
     
     
+    /*   Preview */
+    
+    .miniview {
+        /* This is for the miniviewer in image_details */
+        width: 300px;
+        height:300px
+        position: relative;
+        border:solid 1px red;
+    }
+    
     
     
     
@@ -631,7 +730,6 @@
     /* Center Panel Header */   
     
     #center_panel_header {
-        background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(212, 10%, 40%)), to(hsl(212, 10%, 45%)));
         height:31px;
         position:absolute;
         top:0px;
@@ -662,8 +760,10 @@
                 -webkit-box-shadow:0 1px 0 rgba(255,255,255,.1), inset 0 1px 0 rgba(255,255,255,.1);
             }
     
-        
-    
+       
+       
+       
+      
     
     /* Center Panel Content */  
     
@@ -721,6 +821,120 @@
                 -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.2); 
             }
         
+
+
+
+
+
+
+
+
+
+
+
+/*
+	===============================================
+	:: Admin
+	===============================================
+*/
+
+
+    #admin {
+        -webkit-border-radius:4px;
+        background-color: #fff;
+        margin-top:20px;
+        -webkit-box-shadow:0 1px 1px rgba(0,0,0,.1);
+    }
+
+
+    
+    /* Settings Tabs */
+    #settings_tabs {
+        -webkit-border-top-left-radius: 4px;
+        -webkit-border-top-right-radius: 4px;
+        border-left:solid 1px rgba(0,0,0,.1);
+        border-right:solid 1px rgba(0,0,0,.1);
+        border-top:solid 1px rgba(0,0,0,.05);
+        border-bottom:solid 1px rgba(0,0,0,.1);
+        -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
+       	background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(212, 10%, 85%)), to(hsl(212, 10%, 90%)));
+       	background-image: -moz-linear-gradient(90deg, hsl(212, 10%, 85%) 0%, hsl(212, 10%, 90%) 100%);
+    }
+    
+        #settings_tabs a{
+            padding: 46px 18px 8px;
+            color:hsl(212, 6%, 60%);
+            font-weight:medium;
+            font-size:1.1em;
+            text-shadow: 0 1px 0 rgba(255,255,255,.7);
+        }
+        
+        #settings_tabs .ui-tabs-selected a {
+            color:hsl(212, 9%, 30%);
+            background-color:rgba(255,255,255,.2);
+        }
+        
+        #settings_tabs li:first-child.ui-tabs-selected a {
+            -webkit-border-top-left-radius:4px;
+        }
+        
+        
+        /* Individual Images */
+        
+        #personal_settings_tab {
+            background:url(/static/webclient/image/icon_settings_user.png) center 14px no-repeat;
+        }
+        
+        #group_settings_tab {
+            background:url(/static/webclient/image/icon_settings_groups.png) center 14px no-repeat;
+        }
+        
+        
+        #drivespace_settings_tab {
+            background:url(/static/webclient/image/icon_settings_drivespace.png) center 14px no-repeat;
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+    /* Settings Content */
+    #admin .ui-tabs-panel {
+        padding:20px 30px;
+        background-color: rgba(0,0,0,.04);
+        border-top:solid 1px white;
+        border-bottom:solid 1px rgba(0,0,0,.2);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -928,13 +1142,6 @@ em {
     display: none;
 }
 
-.miniview {
-    /* This is for the miniviewer in image_details */
-    width: 300px;
-    height: 300px;
-    position: relative;
-    border:solid 1px red;
-}
 
 div.paging {
     font-size: 12px;

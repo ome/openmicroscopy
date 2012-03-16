@@ -26,8 +26,9 @@
 <head>
 
     {% block link %}
-        <!-- block for css <link> elements etc -->
-        {% include "webgateway/base/includes/css_link_body.html" %}
+		<link rel="stylesheet" href="{% static "webgateway/css/reset.css" %}" type="text/css" />   
+		<link rel="stylesheet" href="{% static "webgateway/css/ome.body.css" %}" type="text/css" />
+		<link rel="stylesheet" href="{% static "3rdparty/jquery-ui-1.8.12/jquery-ui-1.8.12.custom.css" %}" type="text/css" media="screen"/>
     {% endblock %}
 
 

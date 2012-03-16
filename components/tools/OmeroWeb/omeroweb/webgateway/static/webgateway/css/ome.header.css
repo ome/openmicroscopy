@@ -112,12 +112,7 @@
 			
 
 				
-			#logout a{
-				background: url(../img/logout.png) center center no-repeat;
-				display:block;
-				text-indent: -9999px;
-				width:8px;
-			}
+			
 
 
 
@@ -126,9 +121,34 @@
 
 /*
 	------------------------------------------------
-	:: Header Left Menu items
+	:: Header Right Menu Items
 	------------------------------------------------
 */
+
+
+
+	
+
+	
+	#user_dropdown img{
+		border:solid 1px hsl(210,25%,30%);
+		-webkit-box-shadow: 0 1px 0 rgba(255,255,255,.4);
+		width:20px;
+		height:20px;
+		-webkit-border-radius:3px;
+		margin-right:5px;
+	}
+	
+
+	#logout a{
+		background: url(../img/logout.png) center center no-repeat;
+		display:block;
+		text-indent: -9999px;
+		width:8px;
+	}
+
+
+
 
 	
 	/* Script Button */
@@ -241,6 +261,7 @@
 	
 
 
+	
 
 
 
@@ -337,24 +358,29 @@
 
 /* left and right panels that go under tabs */
 
-#Projects, #Tags, #Public, #annotation_tab, #metadata_tab, #preview_tab {
+
+
+#annotation_tabs, #left_panel_tabs {
+    background: hsl(220,20%,95%);
     position:absolute;
-    top:28px;
-    bottom:0px; left:0px; right:0px;
+    padding:0;
 }
 
-.tab_content {
-    position:absolute;
-    top:28px;
-    bottom:0px; left:0px; right:0px;
+	#Projects, #Tags, #Public, .right_tab_content {
+	    position:absolute;
+	    top:28px;
+	    bottom:0px; left:0px; right:0px;
+	}
+
+
+
+/* One Column Layout */
+
+#center_details  {
+	width:660px;
+	margin:0 auto;
 }
-
-/* overwrite content and thin_header styles */
-
-
-#footer {
-    border-top: none;
-}
+    
 
 
 
@@ -379,6 +405,7 @@
 #right_panel {
     width:370px;
     right:0px; top:0px; bottom:0px;
+	overflow:auto;
 }
 
 

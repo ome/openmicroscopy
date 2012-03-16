@@ -51,6 +51,12 @@
 
     </script>
     
+	<script>
+		$(function() {
+			$( "#admin" ).tabs();
+		});
+	</script>
+	
     
 {% endblock %}
 
@@ -59,42 +65,81 @@
 
 {% block center_details %}
 {{ block.super }}
-    <div>
+    <div id="admin">
 	    
-		
-        <div>
-            <h1>{% trans "My account" %}</h1>
+		<div>
+			<ul id="settings_tabs">
+				<li id="personal_settings_tab"><a href="#personal_settings" title="Personal Settings">Personal</a></li>
+				<li id="group_settings_tab"><a href="#groups_settings" title="Groups Settings">Groups</a></li>
+				<li id="drivespace_settings_tab"><a href="{% url wadrivespace %}" title="Drivespace">Drivespace</a></li>
+			</ul>
+		</div>
+		 
+        <div id="personal_settings" class="settings_content">
+         <!--<h1>{% trans "My account" %}</h1>-->
 
 	    <a href="{% url wadrivespace %}">{% trans "Drive Space" %}</a> | 
 	    {{ block.super }}
 
 
-            <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
-            <br/>
+        <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
+        <br/>
             
-            <form action="{% url wamyaccount "save" %}" method="POST">
-            <table>
-              <tbody>
-                <tr><td class="form"><img src="{% url wamyphoto %}" width="50" height="50" class="imgzoom"/></td><td colspan="2">&nbsp;</td></tr>
-                <tr><td class="form"><label>Avatar</label></td><td colspan="2"><a href="{% url wamanageavatar eventContext.userId %}">edit <img title="Edit avatar" src="{% static "webclient/image/color_line16.png" %}" /></a> {% if myaccount.hasAvatar %}or <a href="{% url wamanageavatar eventContext.userId "deletephoto" %}">delete <img title="Change avatar" src="{% static "webclient/image/cancel16.png" %}" /></a>{% endif %}</td></tr>
-                {% for field in form %}
-                <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
-                {% endfor %}
-                {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>
-                {% else %}<tr><td class="form"><label>Password:</label> </td><td colspan="2"><a href="{% url wamanagechangepasswordid eventContext.userId %}">change password <img title="Change password" src="{% static "webclient/image/color_line16.png" %}" /></a></td></tr>
-                {% endif %}
-              </tbody>
-              <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-            </table>
-            </form>
+        <form action="{% url wamyaccount "save" %}" method="POST">
+        
+		<img src="{% url wamyphoto %}" width="50" height="50" class="imgzoom"/>
+		
+         <label>Avatar</label>
+		 <a href="{% url wamanageavatar eventContext.userId %}">edit 
+			 <img title="Edit avatar" src="{% static "webclient/image/color_line16.png" %}" />
+		 </a> 
+		 
+		 {% if myaccount.hasAvatar %}or 
+		 <a href="{% url wamanageavatar eventContext.userId "deletephoto" %}">delete 
+			 <img title="Change avatar" src="{% static "webclient/image/cancel16.png" %}" />
+		 </a>
+		 {% endif %}
+		 
+		 
+            {% for field in form %}
+           	    {{ field.label_tag }}
+                {% if field.field.required %}*{% endif %}
+                {{ field }}
+                {% if field.errors %}{{ field.errors }}{% endif %}
+                {{ field.help_text|safe }}
+            {% endfor %}
+            
+            {% if ldapAuth %}
+            LDAP: {{ ldapAuth }}
+            {% else %}
+            
+            <label>Password:</label>
+            <a href="{% url wamanagechangepasswordid eventContext.userId %}">change password 
+                <img title="Change password" src="{% static "webclient/image/color_line16.png" %}" />
+            </a>
+            {% endif %}
+         
+         
+          <input type="submit" value="{% trans 'Save' %}" />
+          
+          <!-- See. Much nicer without blasted tables. -->
+          
+        </form>
+        
     </div>
 
-    <div class="clear"></div>
+
+    
+    
+    
+    
+    
     
     
     {% if myaccount.groupsCount %}
-    <div>
-        <h1>{% trans "Owned Groups" %}</h1><br/>
+    <div id="groups_settings" class="settings_content">
+        
+		<!--<h1>{% trans "Owned Groups" %}</h1><br/>-->
     
         <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
     

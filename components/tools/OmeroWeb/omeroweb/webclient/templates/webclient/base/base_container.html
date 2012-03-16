@@ -89,7 +89,12 @@
 {% block middle_header_right %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
 	{% include "webclient/base/search_field.html" %}
-    <li><a href="{% url wamyaccount 'edit' %}" title="Edit Account"> {{ eContext.user.getFullName }}</a></li>
+    <li id="user_dropdown">
+		<a href="{% url wamyaccount 'edit' %}" title="Edit Account"> 
+		<img src="{% url wamyphoto %}" />
+		{{ eContext.user.getFullName }}
+		</a>
+	</li>
     <li><a href="{% url load_template 'help' %}">{% trans "Help" %}</a></li>
 	{% include "webclient/base/script_launch.html" %}
     {% include "webclient/base/logout.html" %}
@@ -106,21 +111,26 @@
 
 
 
+
+
 {% block right %}
 <div>
     <div id="annotation_tabs" class="absolute_fill">
-        <ul class="tabslist">
+        <ul id="annotation_tabs_list">
             <li><a href="#metadata_general">{% trans "General" %}</a></li>
             <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
             {% for rt in nav.right_plugins %}
                 <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
             {% endfor %}
         </ul>
-        <div id="metadata_general"></div>
+        <div id="metadata_general" class="right_tab_content" ></div>
         <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
         {% for rt in nav.right_plugins %}
-            <div id="{{ rt.plugin_id }}" class="tab_content" style="padding:10px"></div>
+        <div id="{{ rt.plugin_id }}" class="right_tab_content"></div>
         {% endfor %}
     </div>
 </div>
 {% endblock %}
+
+
+
