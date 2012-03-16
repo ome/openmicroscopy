@@ -70,6 +70,10 @@ public class NotificationDialog
 	extends JDialog
 {
 
+	/** Bound property indication to close the notification dialog.*/
+	public static final String CLOSE_NOTIFICATION_PROPERTY = 
+		"closeNotification";
+	
 	/** 
 	 * The preferred size of the widget that displays the notification message.
 	 * Only the part of text that fits into this display area will be displayed.
@@ -139,6 +143,8 @@ public class NotificationDialog
 	/** Hides and disposes of the dialog. */
 	private void close()
 	{
+		firePropertyChange(CLOSE_NOTIFICATION_PROPERTY,
+				Boolean.valueOf(false), Boolean.valueOf(true));
 		setVisible(false);
 		dispose();
 	}
@@ -160,8 +166,11 @@ public class NotificationDialog
     					null));
     					*/
 		contentPanel.setDescription(msg);
-		contentPanel.setIcon(icon);
-		contentPanel.setIconPosition(IconPosition.LEFT);
+		if (icon != null) {
+			contentPanel.setIcon(icon);
+			contentPanel.setIconPosition(IconPosition.LEFT);
+		}
+		
 		return contentPanel;
 	}
 	
