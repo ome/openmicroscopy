@@ -65,6 +65,84 @@
 		</xsl:element>
 	</xsl:template>
 	
+	<xsl:template match="SPW:ImageRef">
+		<xsl:element name="OME:ImageRef" namespace="{$newOMENS}">
+			<xsl:apply-templates select="@*|node()"/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="SPW:Well">
+		<xsl:element name="SPW:Well" namespace="{$newSPWNS}">
+			<xsl:for-each select="@* [not(name() = 'Status')]">
+				<xsl:attribute name="{local-name(.)}">
+					<xsl:value-of select="."/>
+				</xsl:attribute>
+			</xsl:for-each>
+			<xsl:for-each select="@* [name() = 'Status']">
+				<xsl:attribute name="Type">
+					<xsl:value-of select="."/>
+				</xsl:attribute>
+			</xsl:for-each>
+			<xsl:apply-templates select="node()"/>
+		</xsl:element>
+	</xsl:template>
+
+	<xsl:template match="ROI:Shape">
+		<xsl:element name="ROI:Shape" namespace="{$newROINS}">
+			<xsl:for-each select="@* [not(name() = 'Fill' or name() = 'Stroke')]">
+				<xsl:attribute name="{local-name(.)}">
+					<xsl:value-of select="."/>
+				</xsl:attribute>
+			</xsl:for-each>
+			<xsl:for-each select="@* [name() = 'Fill']">
+				<xsl:attribute name="FillColor">
+					<xsl:value-of select="."/>
+				</xsl:attribute>
+			</xsl:for-each>
+			<xsl:for-each select="@* [name() = 'Stroke']">
+				<xsl:attribute name="StrokeColor">
+					<xsl:value-of select="."/>
+				</xsl:attribute>
+			</xsl:for-each>
+			<!-- end of attributes -->
+			<xsl:for-each select="@* [name() = 'Transform']">
+				<xsl:element name="Transform">
+					<xsl:value-of select="."/>
+				</xsl:element>
+			</xsl:for-each>
+			<xsl:apply-templates select="node()"/>
+		</xsl:element>
+	</xsl:template>
+	
+
+	<xsl:template match="ROI:Text">
+		<xsl:element name="ROI:Label" namespace="{$newROINS}">
+			<xsl:apply-templates select="@*"/>
+			<xsl:for-each select="* [not(local-name(.) = 'Value')]">
+				<xsl:element name="{local-name(.)}" namespace="{$newROINS}">
+					<xsl:apply-templates select="@*"/>
+					<xsl:value-of select="."/>
+				</xsl:element>
+				
+			</xsl:for-each>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="ROI:Path">
+		<xsl:comment>Path elements cannot be converted to 2012-06 Schema, they are not supported.</xsl:comment>
+	</xsl:template>
+
+	<xsl:template match="ROI:Polyline">
+		<!-- if closed -->
+		<xsl:element name="ROI:Polygon" namespace="{$newROINS}">
+			<xsl:apply-templates select="@*|node()"/>
+		</xsl:element>
+		<!-- if not closed -->
+		<xsl:element name="ROI:Polyline" namespace="{$newROINS}">
+			<xsl:apply-templates select="@*|node()"/>
+		</xsl:element>
+	</xsl:template>
+	
 	<!-- Rewriting all namespaces -->
 	
 	<xsl:template match="OME:OME">

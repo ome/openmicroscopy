@@ -64,6 +64,67 @@
 			<xsl:apply-templates select="node()"/>
 		</xsl:element>
 	</xsl:template>
+
+	<xsl:template match="OME:ImageRef">
+		<xsl:element name="SPW:ImageRef" namespace="{$newSPWNS}">
+			<xsl:apply-templates select="@*|node()"/>
+		</xsl:element>
+	</xsl:template>
+
+	<xsl:template match="SPW:Well">
+		<xsl:element name="SPW:Well" namespace="{$newSPWNS}">
+			<xsl:for-each select="@* [not(name() = 'Type')]">
+				<xsl:attribute name="{local-name(.)}">
+					<xsl:value-of select="."/>
+				</xsl:attribute>
+			</xsl:for-each>
+			<xsl:for-each select="@* [name() = 'Type']">
+				<xsl:attribute name="Status">
+					<xsl:value-of select="."/>
+				</xsl:attribute>
+			</xsl:for-each>
+			<xsl:apply-templates select="node()"/>
+		</xsl:element>
+	</xsl:template>
+
+	<xsl:template match="ROI:Label">
+		<xsl:element name="ROI:Text" namespace="{$newROINS}">
+			<xsl:apply-templates select="@*|node()"/>
+		</xsl:element>
+	</xsl:template>
+
+	<xsl:template match="ROI:Polygon">
+		<xsl:element name="ROI:Polyline" namespace="{$newROINS}">
+			<xsl:apply-templates select="@*|node()"/>
+			<!-- make closed -->
+		</xsl:element>
+	</xsl:template>
+
+	<xsl:template match="ROI:Polyline">
+		<xsl:element name="ROI:Polyline" namespace="{$newROINS}">
+			<xsl:apply-templates select="@*|node()"/>
+			<!-- make open -->
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="SA:BasicAnnotation">
+		<xsl:comment>BasicAnnotation elements cannot be converted to 2011-06 Schema, they are not supported.</xsl:comment>
+		<xsl:message terminate="yes">OME-XSLT: 2012-06-to-2011-06.xsl - ERROR - BasicAnnotation elements cannot be converted to 2011-06 Schema, they are not supported.</xsl:message>
+	</xsl:template>
+	<xsl:template match="SA:NumericAnnotation">
+		<xsl:comment>NumericAnnotation elements cannot be converted to 2011-06 Schema, they are not supported.</xsl:comment>
+		<xsl:message terminate="yes">OME-XSLT: 2012-06-to-2011-06.xsl - ERROR - NumericAnnotation elements cannot be converted to 2011-06 Schema, they are not supported.</xsl:message>
+	</xsl:template>
+	
+	<xsl:template match="SA:TextAnnotation">
+		<xsl:comment>TextAnnotation elements cannot be converted to 2011-06 Schema, they are not supported.</xsl:comment>
+		<xsl:message terminate="yes">OME-XSLT: 2012-06-to-2011-06.xsl - ERROR - TextAnnotation elements cannot be converted to 2011-06 Schema, they are not supported.</xsl:message>
+	</xsl:template>
+	
+	<xsl:template match="SA:TypeAnnotation">
+		<xsl:comment>TypeAnnotation elements cannot be converted to 2011-06 Schema, they are not supported.</xsl:comment>
+		<xsl:message terminate="yes">OME-XSLT: 2012-06-to-2011-06.xsl - ERROR - TypeAnnotation elements cannot be converted to 2011-06 Schema, they are not supported.</xsl:message>
+	</xsl:template>
 	
 	<!-- Rewriting all namespaces -->
 	
