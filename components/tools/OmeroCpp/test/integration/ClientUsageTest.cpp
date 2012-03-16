@@ -6,20 +6,20 @@
  */
 
 #include <Ice/Initialize.h>
+#include <omero/fixture.h>
 #include <omero/client.h>
-#include <boost_fixture.h>
 #include <algorithm>
 
 using namespace omero::rtypes;
 
-BOOST_AUTO_TEST_CASE( testClientClosedAutomatically)
+TEST(ClientUsageTest, testClientClosedAutomatically)
 {
     omero::client_ptr client = new omero::client();
     client->createSession();
     client->getSession()->closeOnDestroy();
 }
 
-BOOST_AUTO_TEST_CASE( testClientClosedManually )
+TEST(ClientUsageTest, testClientClosedManually )
 {
     omero::client_ptr client = new omero::client();
     client->createSession();
@@ -27,33 +27,33 @@ BOOST_AUTO_TEST_CASE( testClientClosedManually )
     client->closeSession();
 }
 
-BOOST_AUTO_TEST_CASE( testUseSharedMemory )
+TEST(ClientUsageTest, testUseSharedMemory )
 {
     omero::client_ptr client = new omero::client();
     client->createSession();
 
-    BOOST_CHECK_EQUAL(0, (int)client->getInputKeys().size());
+    ASSERT_EQ(0, (int)client->getInputKeys().size());
     client->setInput("a", rstring("b"));
-    BOOST_CHECK_EQUAL(1, (int)client->getInputKeys().size());
+    ASSERT_EQ(1, (int)client->getInputKeys().size());
     std::vector<std::string> keys = client->getInputKeys();
     std::vector<std::string>::iterator it = find(keys.begin(), keys.end(), "a");
-    BOOST_CHECK( it != keys.end() );
-    BOOST_CHECK_EQUAL("b", omero::RStringPtr::dynamicCast(client->getInput("a"))->getValue());
+    ASSERT_NE( it, keys.end() );
+    ASSERT_EQ("b", omero::RStringPtr::dynamicCast(client->getInput("a"))->getValue());
 
     client->closeSession();
 }
 
-BOOST_AUTO_TEST_CASE( testCreateInsecureClientTicket2099 )
+TEST(ClientUsageTest, testCreateInsecureClientTicket2099 )
 {
     omero::client_ptr secure = new omero::client();
-    BOOST_CHECK(secure->isSecure());
+    ASSERT_TRUE(secure->isSecure());
     secure->createSession()->getAdminService()->getEventContext();
     omero::client_ptr insecure = secure->createClient(false);
     insecure->getSession()->getAdminService()->getEventContext();
-    BOOST_CHECK( ! insecure->isSecure());
+    ASSERT_FALSE( insecure->isSecure());
 }
 
-BOOST_AUTO_TEST_CASE( testGetStatefulServices )
+TEST(ClientUsageTest, testGetStatefulServices )
 {
     Fixture f;
     omero::client_ptr root = f.root_login();
@@ -61,15 +61,15 @@ BOOST_AUTO_TEST_CASE( testGetStatefulServices )
     sf->setSecurityContext(new omero::model::ExperimenterGroupI(0L, false));
     sf->createRenderingEngine();
     std::vector<omero::api::StatefulServiceInterfacePrx> srvs = root->getStatefulServices();
-    BOOST_CHECK( 1 == srvs.size());
+    ASSERT_EQ((unsigned int)1, srvs.size());
     try {
         sf->setSecurityContext(new omero::model::ExperimenterGroupI(1L, false));
-        BOOST_FAIL("Should not be allowed");
+        FAIL() << "Should not be allowed";
     } catch (const omero::SecurityViolation& sv) {
         // good
     }
     srvs.at(0)->close();
     srvs = root->getStatefulServices();
-    BOOST_CHECK(0 == srvs.size());
+    ASSERT_EQ((unsigned int)0, srvs.size());
     sf->setSecurityContext(new omero::model::ExperimenterGroupI(1L, false));
 }

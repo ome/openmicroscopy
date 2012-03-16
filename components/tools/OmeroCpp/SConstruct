@@ -10,16 +10,6 @@ blitz = os.path.abspath( os.path.join(os.path.curdir, os.path.pardir, os.path.pa
 sys.path.append( blitz )
 from blitz_tools import *
 
-BOOST_ALL=[
-    # 1.39
-    "boost_unit_test_framework-mt-d",
-    "boost_unit_test_framework-mt",
-    "boost_unit_test_framework-xgcc40-mt",
-    "boost_unit_test_framework-vc90-mt-gd-1_39",
-    # 1.40
-    "boost_unit_test_framework"
-    ]
-
 #
 # At the moment, execution of this script requires,
 # ant tools-init to have been run
@@ -27,55 +17,12 @@ BOOST_ALL=[
 
 env = OmeroEnvironment(CPPPATH=["src","target"])
 
-boost_check = """
-//
-// boost_check function from OmeroCpp/SConstruct
-// Checks for the existnce of the unit_test.hpp
-// header in the current INCLUDE paths. If found,
-// A search will be made for the following
-// dynamic libs:
-//
-// %s
-//
-// INCLUDE paths: %s
-// LIBRARY paths: %s
-//
-#define BOOST_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
-#include <boost/test/included/unit_test.hpp>
-""" % (BOOST_ALL, env["CPPPATH"], env["LIBPATH"])
-
-def CheckBoost(context):
-    context.Message('Checking for boost_unit_test...')
-    result = context.TryLink(boost_check, '.cpp')
-    context.Result(result)
-    return result
-
-boost_libs = []
-
 if not env.GetOption('clean'):
-    conf = Configure(env, custom_tests = {'CheckBoost':CheckBoost})
+    conf = Configure(env)
     if not conf.CheckCXXHeader(os.path.join("Ice","Ice.h")):
         print 'Ice/Ice.h not found'
         env.Exit(1)
-    has_boost = conf.CheckBoost()
-    if has_boost:
-        found = False
-        for b in BOOST_ALL:
-            if conf.CheckLib(b):
-                print "Using %s" % b
-                boost_libs.append(b)
-                found = True
-                break
-        if not found:
-            print "*"*50
-            print " boost_unit_test header found but no library!"
-            print " checked: %s" % BOOST_ALL
-            print "*"*50
-            env.Exit(1)
     conf.Finish()
-else:
-    has_boost = True
 
 f = open("scons.log", "w")
 f.write(env.Dump())
@@ -171,25 +118,18 @@ else:
 #
 # Build tests
 #
-if not has_boost:
-    if "test" in COMMAND_LINE_TARGETS:
-        print "*" * 55
-        print " WARNING: boost_unit_test_framework not installed"
-        print "*" * 55
-        # env.Exit(1)
-else:
-    tenv = env.Clone()
-    tenv["CPPPATH"].append("test")
-    tenv["ENV"]["BOOST_TEST_DYN_LINK"] = "1"
+tenv = env.Clone()
+tenv["CPPPATH"].append("test")
 
-    main = tenv.Object("test/boost_main.cpp")
-    fixture = tenv.Object("test/boost_fixture.cpp")
+gtest = tenv.Object("test/gtest/gtest-all.cc")
+main = tenv.Object("test/gtest/gtest_main.cc")
+fixture = tenv.Object("test/omero/fixture.cpp")
 
-    def define_test(dir):
-        test =  tenv.Program("test/%s.exe" % dir,
-            [main, fixture] + tenv.Glob("test/%s/*.cpp" % dir),
-            LIBS = ["omero_client"]+env.icelibs()+boost_libs)
-        return test
+def define_test(dir):
+    test =  tenv.Program("test/%s.exe" % dir,
+        [gtest, main, fixture] + tenv.Glob("test/%s/*.cpp" % dir),
+        LIBS = ["omero_client"]+env.icelibs())
+    return test
 
-    unit = define_test("unit")
-    integration = define_test("integration")
+unit = define_test("unit")
+integration = define_test("integration")
