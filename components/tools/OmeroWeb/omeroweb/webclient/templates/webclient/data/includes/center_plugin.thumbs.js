@@ -158,7 +158,7 @@ $(document).ready(function() {
     };
     
     // on change of selection in tree OR switching pluginupdate center panel
-    $("#dataTree").bind("select_node.jstree", update_thumbnails_panel);
+    $("#dataTree").bind("select_node.jstree deselect_node.jstree", update_thumbnails_panel);
     
     $('#center_panel_chooser').bind('change', update_thumbnails_panel);
 

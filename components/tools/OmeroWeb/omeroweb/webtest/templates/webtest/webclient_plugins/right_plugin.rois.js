@@ -49,7 +49,7 @@ $(document).ready(function() {
     $("#annotation_tabs").bind( "tabsshow", update_rois_tab);
 
     // on change of selection in tree, update which tabs are enabled
-    $("#dataTree").bind("select_node.jstree", function(e, data) {
+    $("#dataTree").bind("select_node.jstree deselect_node.jstree", function(e, data) {
 
         // clear contents of all panels
         $("#image_roi_tab").empty();

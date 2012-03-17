@@ -91,7 +91,7 @@ $(function () {
     $("#annotation_tabs").bind( "tabsshow", update_metadata_general_tab);
 
     // on change of selection in tree, clear tab
-    $("#dataTree").bind("select_node.jstree", function(e, data) {
+    $("#dataTree").bind("select_node.jstree deselect_node.jstree", function(e, data) {
 
         // clear contents of panel
         $("#metadata_general").empty();

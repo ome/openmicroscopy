@@ -50,7 +50,7 @@ $(document).ready(function() {
     $('#center_panel_chooser').bind('change', update_channel_overlay);
 
     // on change of selection in tree, update which tabs are enabled
-    $("#dataTree").bind("select_node.jstree", function(e, data) {
+    $("#dataTree").bind("select_node.jstree deselect_node.jstree", function(e, data) {
 
         // clear contents of plugin
         $("#channel_overlay_panel").empty();

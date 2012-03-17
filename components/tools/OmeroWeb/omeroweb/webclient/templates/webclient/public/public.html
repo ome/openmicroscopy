@@ -219,7 +219,7 @@
                         data.open_node(data.get_selected());
                     }
                 })
-                .bind("select_node.jstree", function (e, data) {
+                .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     buttonsShowHide(data.rslt.obj);
                 })
                 .bind("remove.jstree", function (e, data) {

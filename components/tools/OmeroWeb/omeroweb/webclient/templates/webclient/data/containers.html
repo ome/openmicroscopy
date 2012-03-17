@@ -26,8 +26,7 @@
 <!--
   This page is the 'home page' of the 3-column data layout for webclient.
   It loads the tree in the left panel. This is then used to load data into the middle and right panels (via AJAX)
-  using functions in the actions.js file.
-  E.g. On selection change: loadOtherPanels() calls loadMetadataPanel()
+  Plugins for the centre or right panels add themselves as selection listeners to the tree.
 -->
 {% endcomment %}
 
@@ -766,17 +765,8 @@
                         openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                 })
-                .bind("select_node.jstree", function (e, data) {
+                .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
-                })
-                .bind("deselect_node.jstree", function (e, data) {
-                    var selected = data.inst.get_selected();
-                    buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
-                    if (selected.length === 1 && data.args[0].length > 0) {
-                        data.rslt.obj = selected;
-                        loadOtherPanels(data.inst, '{% url webindex %}');
-                    }
-                    syncPanels(selected);
                 })
                 .bind("open_node.jstree", function (e, data) {
 

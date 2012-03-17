@@ -62,7 +62,7 @@ $(document).ready(function() {
     $('#center_panel_chooser').bind('change', update_dataset_split_viewer);
 
     // on change of selection in tree, update which plugins are enabled
-    $("#dataTree").bind("select_node.jstree", function(e, data) {
+    $("#dataTree").bind("select_node.jstree deselect_node.jstree", function(e, data) {
 
         // clear contents of all panels
         $("#split_view_panel").empty();
