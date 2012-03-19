@@ -819,7 +819,7 @@ class BlitzObjectWrapper (object):
         @param obj:     The object to link
         @type obj:      L{BlitzObjectWrapper}
         """
-        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'])
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
         sopts['omero.group'] = str(self._obj.getDetails().getGroup().id.val)
         if not obj.getId():
             # Not yet in db, save it
