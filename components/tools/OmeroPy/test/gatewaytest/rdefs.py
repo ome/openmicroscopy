@@ -179,5 +179,26 @@ class RDefsTest (lib.GTest):
             i2c[0].setWindowStart(t)
             i2.saveDefaults()
 
+    def testGroupBasedPermissions (self):
+        """
+        Test that images belonging to experimenters on collaborative rw group can be
+        reset and rdef created by admin and then edited by owner of image.
+        """
+        self.loginAsAdmin()
+        self.gateway.CONFIG['IMG_RDEFNS'] = 'omeropy.gatewaytest.img_rdefns'
+        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group': '-1'}
+        self.image = self.getTestImage()
+        self.assert_(self.image.resetRDefs())
+        self.assert_(self.image.saveDefaults())
+        self.loginAsAuthor()
+        self.gateway.CONFIG['IMG_RDEFNS'] = 'omeropy.gatewaytest.img_rdefns'
+        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group': '-1'}
+        self.image = self.getTestImage()
+        self.assert_(self.image.resetRDefs())
+        self.assert_(self.image.saveDefaults())
+
+        
+        
+
 if __name__ == '__main__':
     unittest.main()
