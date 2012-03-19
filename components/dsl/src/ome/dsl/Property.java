@@ -111,12 +111,14 @@ public abstract class Property { // TODO need to define equality so that two
     public final static String STRINGS2 = "string[][]";
 
     public final static String INTEGERS = "int[]";
-    
+
     public final static String POSITIVEINTEGER = "PositiveInteger";
-    
+
     public final static String NONNEGATIVEINTEGER = "NonNegativeInteger";
 
     public final static String PERCENTFRACTION = "PercentFraction";
+
+    public final static String COLOR = "ome.model.core.Color";
 
     public final static Map<String, String> JAVATYPES = new HashMap<String, String>();
     static {
