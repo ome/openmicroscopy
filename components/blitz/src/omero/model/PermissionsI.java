@@ -83,6 +83,12 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
         this.perm1 = perms.getPerm1();
     }
 
+    public PermissionsI(ome.model.internal.Permissions sourceP) {
+        setPerm1((Long) ome.util.Utils.internalForm(sourceP));
+        this.disallowAnnotate = sourceP.isDisallowAnnotate();
+        this.disallowEdit = sourceP.isDisallowEdit();
+    }
+
     public long getPerm1(Ice.Current current) {
         return this.perm1;
     }

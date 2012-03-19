@@ -1,0 +1,176 @@
+/*
+ * Copyright 2012 Glencoe Software, Inc. All rights reserved.
+ * Use is subject to license terms supplied in LICENSE.txt
+ */
+package ome.server.utests.sec;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+
+import org.jmock.MockObjectTestCase;
+import org.testng.annotations.Test;
+
+import ome.model.internal.Details;
+import ome.model.internal.Permissions;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.Session;
+import ome.security.basic.BasicEventContext;
+import ome.security.basic.CurrentDetails;
+import ome.services.sessions.SessionContext;
+import ome.services.sessions.SessionContextImpl;
+import ome.services.sessions.state.SessionCache;
+import ome.services.sessions.stats.NullSessionStats;
+import ome.system.Principal;
+import ome.system.SimpleEventContext;
+
+/**
+ * Intended to test the "write-ability" granted to users based on the current
+ * context and the object in question. These permissions should be passed
+ * back via the "disallowAnnotate" and "disallowEdit" flags.
+ *
+ * @since 4.4.0
+ * @see ticket 8277
+ */
+@Test(groups = { "unit", "permissions", "ticket:8277" })
+public class WritePermissionsTest extends MockObjectTestCase {
+
+    final Long ROOT = 0L;
+
+    final Long THE_GROUP = 2L;
+
+    final Long THE_OWNER = 2L;
+
+    final Long GROUP_MEMBER = 3L;
+
+    final SessionCache cache = new SessionCache();
+
+    final CurrentDetails cd = new CurrentDetails(cache);
+
+    protected Session login(String perms, long user, boolean leader) {
+
+        Session s = sess(perms, user, THE_GROUP);
+        SessionContext sc = context(s, leader);
+        cache.putSession(s.getUuid(), sc);
+        BasicEventContext bec = new BasicEventContext(new Principal(s.getUuid()),
+                new NullSessionStats(), sc);
+        bec.setGroup(s.getDetails().getGroup());
+        bec.setOwner(s.getDetails().getOwner());
+        cd.login(bec);
+        return s;
+    }
+
+    /**
+     * Creates an object which is in the group given by the {@link Session}
+     * object, but which belongs to the given {@link Experimenter}.
+     *
+     * @param session
+     *            Session which the object was created during.
+     * @param user
+     *            User who owns this object.
+     */
+    protected Details objectBelongingTo(Session session, long user) {
+        Details d = Details.create();
+        d.setOwner(new Experimenter(user, true));
+        d.setGroup(session.getDetails().getGroup());
+        d.setPermissions(session.getDetails().getPermissions());
+        cd.applyContext(d);
+        return d;
+    }
+
+    // rwr, non-system owner
+    // =========================================================================
+
+    public void testOwnerCanAllByDefault() {
+        Session s = login("rwr---", THE_OWNER, false);
+        Details d = objectBelongingTo(s, THE_OWNER);
+        assertCanAnnotate(d);
+        assertCanEdit(d);
+    }
+
+    public void testAdminCanAllByDefault() {
+        Session s = login("rwr---", ROOT, false);
+        Details d = objectBelongingTo(s, THE_OWNER);
+        assertCanAnnotate(d);
+        assertCanEdit(d);
+    }
+
+    public void testGroupMemberCannotByDefault() {
+        Session s = login("rwr---", GROUP_MEMBER, false);
+        Details d = objectBelongingTo(s, THE_OWNER);
+        assertCannotAnnotate(d);
+        assertCannotEdit(d);
+    }
+
+    public void testGroupLeaderCannotByDefault() {
+        Session s = login("rwr---", GROUP_MEMBER, true);
+        Details d = objectBelongingTo(s, THE_OWNER);
+        assertCanAnnotate(d);
+        assertCanEdit(d);
+    }
+
+    // Helpers
+    // =========================================================================
+
+    void assertCanAnnotate(Details d) {
+        assertFalse(d.getPermissions().isDisallowAnnotate());
+    }
+
+    void assertCanEdit(Details d) {
+        assertFalse(d.getPermissions().isDisallowEdit());
+    }
+
+    void assertCannotAnnotate(Details d) {
+        assertTrue(d.getPermissions().isDisallowAnnotate());
+    }
+
+    void assertCannotEdit(Details d) {
+        assertTrue(d.getPermissions().isDisallowEdit());
+    }
+
+    Session sess(String perms, long user, long group) {
+        Permissions p = Permissions.parseString(perms);
+        Session s = new Session();
+        s.setStarted(new Timestamp(System.currentTimeMillis()));
+        s.setTimeToIdle(0L);
+        s.setTimeToLive(0L);
+        s.setUuid(UUID.randomUUID().toString());
+        s.getDetails().setPermissions(p);
+        // group
+        ExperimenterGroup g = new ExperimenterGroup(group, true);
+        g.getDetails().setPermissions(Permissions.parseString(perms));
+        s.getDetails().setGroup(g);
+        // user
+        Experimenter e = new Experimenter(user, true);
+        s.getDetails().setOwner(e);
+        return s;
+    }
+
+    SessionContext context(Session s, boolean leader) {
+
+        final Long user = s.getDetails().getOwner().getId();
+        final Long group = s.getDetails().getGroup().getId();
+        List<String> roles = new ArrayList<String>();
+        List<Long> memberOf = new ArrayList<Long>();
+        List<Long> leaderOf = new ArrayList<Long>();
+
+        roles.add("user");
+        memberOf.add(1L);
+        memberOf.add(group);
+
+        if (user.equals(0L)) { // use "root" as proxy for "admin"
+            memberOf.add(0L); // system
+            roles.add("system");
+        }
+
+        if (leader) {
+            leaderOf = Arrays.asList(group);
+        }
+
+        return new SessionContextImpl(s, leaderOf, memberOf, roles,
+                new NullSessionStats(), null);
+    }
+}

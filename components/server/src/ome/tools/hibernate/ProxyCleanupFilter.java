@@ -1,7 +1,5 @@
 /*
- * ome.tools.hibernate.ProxyCleanupFilter
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2012 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -23,6 +21,7 @@ import ome.model.internal.Details;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
+import ome.security.WriteStrategy;
 import ome.security.basic.CurrentDetails;
 import ome.system.EventContext;
 import ome.util.ContextFilter;
@@ -42,11 +41,13 @@ import org.hibernate.collection.AbstractPersistentCollection;
  * Note: we aren't setting the filtered collections here because it's "either
  * null/unloaded or filtered". We will definitiely filter here, so it would just
  * increase bandwidth.
- * 
- * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ *
+ * As of 4.4.0, this class is also responsible for various security-based
+ * modifications to returned {@link Details} objects.
+ *
+ * @author Josh Moore, josh at glencoesoftware.com
  * @since 1.0
+ * @see ticket 8277
  */
 public class ProxyCleanupFilter extends ContextFilter {
 
@@ -85,8 +86,6 @@ public class ProxyCleanupFilter extends ContextFilter {
             return new Node((((Node) f).getId()), false);
         }
         
-        final Details withContexts = currentDetails.createDetails();
-
         // A proxy; send over the wire in altered form.
         if (!Hibernate.isInitialized(f)) {
 
@@ -100,7 +99,7 @@ public class ProxyCleanupFilter extends ContextFilter {
             } else if (f instanceof Details) {
                 // Currently Details is only "known" non-IObject Filterable
                 Details d = (Details) f;
-                withContexts.applyContext(d);
+                currentDetails.applyContext(d);
                 return super.filter(fieldId, d.shallowCopy());
             } else {
                 // TODO Here there's not much we can do. copy constructor?
@@ -140,7 +139,7 @@ public class ProxyCleanupFilter extends ContextFilter {
             }
 
             if (f instanceof Details) {
-                withContexts.applyContext((Details) f);
+                currentDetails.applyContext((Details) f);
             }
             // Any clean up here.
             return super.filter(fieldId, f);

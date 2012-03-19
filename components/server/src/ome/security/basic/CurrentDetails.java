@@ -363,6 +363,37 @@ public class CurrentDetails implements PrincipalHolder {
         return d;
     }
 
+    public void applyContext(Details details) {
+        final BasicEventContext c = current();
+        final Permissions p = details.getPermissions();
+        if (p == null) {
+            // If there are no permissions then there's nothing to be
+            // applied.
+            return; // Early exit.
+        }
+
+        // ticket:8277
+        if (c.getGroup() == null && c.getOwner() == null) {
+            return; // sec-system not initialized
+        }
+        final Long ownerID = details.getOwner().getId();
+        final Long groupID = c.getGroup().getId();
+        final boolean owner = c.getCurrentUserId().equals(ownerID);
+        final boolean leader = c.getLeaderOfGroupsList().contains(groupID);
+        final boolean admin = c.isCurrentUserAdmin();
+        final boolean groupWrite = p.isGranted(Role.GROUP, Right.WRITE);
+        final boolean worldWrite = p.isGranted(Role.WORLD, Right.WRITE);
+        if (!worldWrite) {
+            if (!owner && !leader && !admin) {
+                if (!groupWrite) {
+                    p.setDisallowAnnotate(true);
+                    p.setDisallowEdit(true);
+                }
+            }
+        }
+    }
+
+
     public Experimenter getOwner() {
         return current().getOwner();
     }

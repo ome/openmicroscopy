@@ -155,9 +155,7 @@ public class DetailsI extends Details implements ome.model.ModelBased {
 
             ome.model.internal.Permissions sourceP = source.getPermissions();
             if (sourceP != null) {
-                PermissionsI targetP = new PermissionsI();
-                targetP.setPerm1((Long) ome.util.Utils.internalForm(sourceP));
-                this.setPermissions(targetP);
+                this.setPermissions(new PermissionsI(sourceP));
             }
         } else {
             throw new IllegalArgumentException("Details cannot copy from "
