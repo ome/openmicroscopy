@@ -27,25 +27,24 @@ $(document).ready(function() {
 
     var update_preview_tab = function() {
         
-        // this may have been called before datatree was initialised...
-        var datatree = $.jstree._focused();
-        if (!datatree) return;
-        
         // get the selected id etc
-        var selected = datatree.data.ui.selected;
-        var oid = selected.attr('id');
-        var orel = selected.attr('rel').replace("-locked", "");
-        if (orel!="image") return;
-        
+        var selected = $("body").data("selected_objects.ome");
+        if (!selected) return;
+        var orel = selected[0]["id"].split("-")[0];
+        if ((orel!="image") && (orel != "well")) return;
+
+        if (selected.length > 1) return;
+        var oid = selected[0]["id"];
+
         // if the tab is visible and not loaded yet...
         $metadata_preview = $("#preview_tab");
         if ($metadata_preview.is(":visible") && $metadata_preview.is(":empty")) {
+            var well_index = selected[0]["index"];
             var url = null;
-            var pr = selected.parent().parent();
-            if (pr.length>0 && pr.attr('rel').replace("-locked", "")==="share") {
-                url = '{% url webindex %}metadata_preview/'+oid.split("-")[1]+'/'+pr.attr("id").split("-")[1]+'/';
+            if (selected[0]["share"]) {
+                url = '{% url webindex %}metadata_preview/'+orel+'/'+oid.split("-")[1]+'/'+selected[0]["share"]+'/?index='+well_index;
             } else {
-                url = '{% url webindex %}metadata_preview/'+oid.split("-")[1]+'/';
+                url = '{% url webindex %}metadata_preview/'+orel+'/'+oid.split("-")[1]+'/?index='+well_index;
             }
             $metadata_preview.load(url);
         };
@@ -54,29 +53,29 @@ $(document).ready(function() {
     // update tabs when tree selection changes or tabs switch
     $("#annotation_tabs").bind( "tabsshow", update_preview_tab);
 
-    // on change of selection in tree, update which tabs are enabled
-    $("#dataTree").bind("select_node.jstree deselect_node.jstree", function(e, data) {
+    // on change of selection, update which tabs are enabled
+    $("body").bind("selection_change.ome", function(event) {
 
         // clear contents of all panels
         $("#preview_tab").empty();
 
-        var selected = data.inst.get_selected();
-        var orel = selected.attr('rel').replace("-locked", "");
+        var selected = $("body").data("selected_objects.ome");
+        var orel = selected[0]["id"].split("-")[0];
 
         // we only care about changing selection if this tab is selected...
         var select_tab = $("#annotation_tabs").tabs( "option", "selected" );
         if (preview_tab_index == select_tab) {
             // we don't want to select this tab if multiple selected
-            if ((orel!="image") || (selected.length > 1)) {
+            if (((orel!="image") && (orel != "well")) || (selected.length > 1)) {
                 $("#annotation_tabs").tabs("select", 0);
             }
         }
 
         // update enabled state
-        if((orel!="image") || (selected.length > 1)) {
-            $("#annotation_tabs").tabs("disable", preview_tab_index);
-        } else {
+        if((orel=="image" || orel=="well") && (selected.length == 1)) {
             $("#annotation_tabs").tabs("enable", preview_tab_index);
+        } else {
+            $("#annotation_tabs").tabs("disable", preview_tab_index);
         }
 
         // update tab content

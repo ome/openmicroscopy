@@ -32,17 +32,102 @@ var addToBasket = function(selected, prefix) {
     });
 };
 
+// called on selection changes in jstree
+var tree_selection_changed = function(data) {
+    
+    var selected = data.inst.get_selected();
+    var share_id = null;
+    if (selected.length == 1) {
+        var pr = selected.parent().parent();
+        if (pr.length>0 && pr.attr && pr.attr('rel').replace("-locked", "")==="share") {
+            share_id = pr.attr("id").split("-")[1];
+        }
+    }
+    var selected_objs = [];
+    selected.each(function(){
+        var selected_obj = {"id":$(this).attr('id'), "rel":$(this).attr('rel')}
+        if (share_id) selected_obj["share"] = share_id;
+        selected_objs.push(selected_obj);
+    });
+    
+    $("body")
+        .data("selected_objects.ome", selected_objs)
+        .trigger("selection_change.ome");
+}
+
+// called when we change the index of a plate or acquisition
+var field_selection_changed = function(field) {
+    
+    var datatree = $.jstree._focused();
+    datatree.data.ui.last_selected;
+    $("body")
+        .data("selected_objects.ome", [{"id":datatree.data.ui.last_selected.attr("id"), "index":field}])
+        .trigger("selection_change.ome", $(this).attr('id'));
+}
+
+// change in seletion of search results - only single object selection
+var search_selection_changed = function($row) {
+    $("body")
+        .data("selected_objects.ome", [{"id": $row.attr("id")}])
+        .trigger("selection_change.ome");
+}
+
+// change in seletion of history results - only single object selection
+var history_selection_changed = function($row) {
+    $("body")
+        .data("selected_objects.ome", [{"id": $row.attr("id")}])
+        .trigger("selection_change.ome");
+}
+
+// actually called when share is edited, to refresh right-hand panel
+var share_selection_changed = function(share_id) {
+    //loadMetadataPanel("{% url load_metadata_details c_type='share' c_id=manager.share.id %}");
+    $("body")
+        .data("selected_objects.ome", [{"id": share_id}])
+        .trigger("selection_change.ome");
+}
+
+var basket_selection_changed = function($selected) {
+
+    var selected_objs = [];
+    $selected.each(function(i){
+        selected_objs.push( {"id":$(this).attr('id'), "rel":$(this).attr('rel')} );
+    });
+    
+    $("body")
+        .data("selected_objects.ome", selected_objs)
+        .trigger("selection_change.ome");
+        
+    //loadMetadataPanel('{% url load_metadata_details %}image/'+$("tr.ui-selected td input", this).first().attr("id")+'/');
+}
+
+// called from click events on plate. Selected wells 
+var well_selection_changed = function($selected, well_index) {
+    var selected_objs = [];
+    $selected.each(function(i){
+        selected_objs.push( {"id":$(this).attr('id').replace("=","-"), "rel":$(this).attr('rel'), "index":well_index} );
+    });
+    
+    $("body")
+        .data("selected_objects.ome", selected_objs)
+        .trigger("selection_change.ome");
+}
+
 var multipleAnnotation = function(selected, index, prefix){
     if (selected != null && selected.length > 0) {
         var productListQuery = new Array(); 
         selected.each( function(i){
-            productListQuery[i] = $(this).attr('id').replace("-","=");
+            productListQuery[i] = {"id":$(this).attr('id').replace("-","=")};
         });
         var query = prefix+"?"+productListQuery.join("&")
         if (index != null && index > -1) {
             query += "&index="+index;
         }
-        loadMetadataPanel(query);
+        //loadMetadataPanel(query);
+        $("body")
+            .data("selected_objects.ome", productListQuery)
+            .trigger("selection_change.ome");
+        
     } else {
         alert ("Please select at least one element."); 
     }

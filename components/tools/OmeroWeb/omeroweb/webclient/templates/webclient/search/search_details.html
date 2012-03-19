@@ -61,9 +61,9 @@
                 else {
                     rows.removeClass("ui-selected");
                     $clickedRow.addClass("ui-selected");
-                    var obj = $clickedRow.attr('id').split("-");
-                    loadMetadataPanel('{% url load_metadata_details %}'+obj[0]+'/'+obj[1]+'/');
+                    //var obj = $clickedRow.attr('id').split("-");
                     primaryIndex = selIndex;
+                    search_selection_changed($clickedRow);
                 }
             }
             

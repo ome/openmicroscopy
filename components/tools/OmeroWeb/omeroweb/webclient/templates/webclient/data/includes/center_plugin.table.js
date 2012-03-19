@@ -22,6 +22,9 @@
 
 $(document).ready(function() {
 
+    // this script is an 'include' within a django for-loop, so we can get our index:
+    var table_plugin_index = {{ forloop.counter }};
+
     // updates the selected images in the table
     var syncTableSelection = function(get_selected) {
         $("#dataTable .ui-selectee").removeClass('ui-selected');    // clear selection
@@ -62,7 +65,7 @@ $(document).ready(function() {
         var oid = selected.attr('id');                              // E.g. 'dataset-501'
         var orel = selected.attr('rel').replace("-locked", "");     // E.g. 'dataset'
         var page = selected.data("page") || null;                   // Check for pagination
-        //console.log(orel, oid);
+
         if (!oid) return;
 
         // Check what we've currently loaded: E.g. 'dataset-501'
@@ -110,7 +113,6 @@ $(document).ready(function() {
 
         // need to refresh if page or E.g. dataset has changed
         var need_refresh = ((oid!==crel) || (page!==cpage));
-        //console.log(oid, crel, page, cpage, "need_refresh", need_refresh);
 
         // if nothing to show - clear panel
         if (update.empty) {
@@ -134,9 +136,24 @@ $(document).ready(function() {
         
         syncTableSelection(selected); // update selected images in table
     };
-    
-    // on change of selection in tree OR switching pluginupdate center panel
-    $("#dataTree").bind("select_node.jstree deselect_node.jstree", update_image_table);
+
+
+    // on change of selection in tree, update which plugins are enabled
+    $("#dataTree").bind("select_node.jstree deselect_node.jstree", function(e, data) {
+
+        var selected = data.inst.get_selected();
+        var orel = selected.attr('rel').replace("-locked", "");
+
+        // update enabled state... table supports datase
+        if ($.inArray(orel, ["image", "dataset", "orphaned", "share"])>-1) {
+            set_center_plugin_enabled(table_plugin_index, true);
+        } else {
+            // otherwise, disable this option
+            set_center_plugin_enabled(table_plugin_index, false);
+        }
+
+        update_image_table();
+    });
     
     $('#center_panel_chooser').bind('change', update_image_table);
 

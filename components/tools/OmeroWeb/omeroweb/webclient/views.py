@@ -1169,7 +1169,7 @@ def load_metadata_details(request, c_type, c_id, conn, share_id=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def load_metadata_preview(request, imageId, share_id=None, **kwargs):
+def load_metadata_preview(request, c_type, c_id, share_id=None, **kwargs):
     """
     This is the image 'Preview' tab for the right-hand panel. 
     Currently this doesn't do much except launch the view-port plugin using the image Id (and share Id if necessary)
@@ -1203,14 +1203,16 @@ def load_metadata_preview(request, imageId, share_id=None, **kwargs):
     try:
         template = "webclient/annotations/metadata_preview.html"
         if conn_share is not None:
-            manager = BaseContainer(conn_share, index=index, image=long(imageId))
+            manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
         else:
-            manager = BaseContainer(conn, index=index, image=long(imageId))
+            manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(x)
     
-    context = {'imageId':imageId, 'manager':manager}
+    if c_type == "well":
+        manager.image = manager.well.getImage(index)
+    context = {'imageId':manager.image.id, 'manager':manager}
 
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1331,6 +1333,8 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
     corrections = None
 
     if c_type == 'well' or c_type == 'image':
+        if c_type == "well":
+            manager.image = manager.well.getImage(index)
         if conn_share is None:
             manager.originalMetadata()
         manager.channelMetadata()

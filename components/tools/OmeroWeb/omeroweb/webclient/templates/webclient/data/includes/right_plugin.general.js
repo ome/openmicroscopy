@@ -32,9 +32,9 @@ $(function () {
 
     // this is called on change in jstree selection, or switching tabs
     var update_metadata_general_tab = function() {
-        var datatree = $.jstree._focused();
-        var selected = datatree.data.ui.selected;
-        
+
+        var selected = $("body").data("selected_objects.ome");
+
         var $metadata_general = $("#metadata_general");
         var $metadata_acquisition = $("#metadata_tab");
         var prefix = '{% url webindex %}';
@@ -44,18 +44,20 @@ $(function () {
         }
         if (selected.length > 1) {
             // handle batch annotation...
-            var productListQuery = new Array(); 
-            selected.each( function(i){
-                productListQuery[i] = $(this).attr('id').replace("-","=");
-            });
+            var productListQuery = new Array();
+            for (var i=0; i<selected.length; i++) {
+                productListQuery[i] = selected[i]["id"];
+            }
             var query = '{% url batch_annotate %}'+"?"+productListQuery.join("&")
             $metadata_general.load(query);
             
         } else {
             $("#annotation_tabs").tabs("enable", 0);    // always want metadata_general enabled
             var url = null;
-            var oid = selected.attr('id');
-            var orel = selected.attr('rel').replace("-locked", "");
+            //var oid = selected.attr('id');
+            //var orel = selected[0].attr('rel').replace("-locked", "");
+            var oid = selected[0]["id"];
+            var orel = oid.split("-")[0];
             if (typeof oid =="undefined" || oid==false) return
             
             // handle loading of GENERAL tab
@@ -66,16 +68,18 @@ $(function () {
                     //return;
                 // experimenter
                 } else if (oid.indexOf("experimenter")>=0) {
-                    $metadata_general.html('<p>'+selected.children().eq(1).text()+'</p>');
+                    //$metadata_general.html('<p>'+selected.children().eq(1).text()+'</p>');
                 // everything else
                 } else {
                     if(orel=="image") {
-                        var pr = selected.parent().parent();
-                        if (pr.length>0 && pr.attr('rel').replace("-locked", "")==="share") {
-                            url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/'+pr.attr("id").split("-")[1]+'/';
+                        if (selected[0]["share"]) {
+                            url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/'+selected[0]["share"]+'/';
                         } else {
                             url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
                         }
+                    } else if(orel=="well"){
+                        var well_index = selected[0]["index"];
+                        url = '{% url load_metadata_details %}well/'+oid.split('-')[1]+'/?index='+ well_index;
                     } else {
                         url = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
                     }
@@ -87,16 +91,16 @@ $(function () {
         }
     }
 
-    // update tabs when tree selection changes or tabs switch
+    // update tabs when tabs switch
     $("#annotation_tabs").bind( "tabsshow", update_metadata_general_tab);
 
-    // on change of selection in tree, clear tab
-    $("#dataTree").bind("select_node.jstree deselect_node.jstree", function(e, data) {
+    // always select this tab if multiple objects selected - then update
+    $("body").bind("selection_change.ome", function(event) {
 
         // clear contents of panel
         $("#metadata_general").empty();
-        
-        var selected = data.inst.get_selected();
+
+        var selected = $("body").data("selected_objects.ome");
         if (selected.length > 1) {
             // handle batch annotation - select first tab
             $("#annotation_tabs").tabs("select", 0);

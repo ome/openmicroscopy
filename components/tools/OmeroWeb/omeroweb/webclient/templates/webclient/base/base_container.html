@@ -53,6 +53,19 @@
     <script type="text/javascript" src="{% static "3rdparty/jquery.tooltip/jquery.tooltip.pack.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
+    
+    
+    <!-- set-up right panel tabs -->
+    {% include "webclient/data/includes/right_plugin.general.js" %}
+
+    <!-- include scripts for loading data into right-hand tabs -->
+    <!-- these are configured in settings.py under "omero.web.ui.right_tabs" -->
+    {% for rt in nav.right_plugins %}
+        {% include rt.include %}
+    {% endfor %}
+    
+    
+    
 {% endblock %}
 
 
@@ -89,7 +102,22 @@
 {% endblock %}
 
 
+
 {% block right %}
-<!-- This element loads the metadata_general.html etc via AJAX -->
-<div id="metadata_details"></div>
+<div>
+    <div id="annotation_tabs" class="absolute_fill">
+        <ul class="tabslist">
+            <li><a href="#metadata_general">{% trans "General" %}</a></li>
+            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
+            {% for rt in nav.right_plugins %}
+                <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
+            {% endfor %}
+        </ul>
+        <div id="metadata_general"></div>
+        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
+        {% for rt in nav.right_plugins %}
+            <div id="{{ rt.plugin_id }}" class="tab_content" style="padding:10px"></div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

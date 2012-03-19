@@ -34,7 +34,6 @@ $(document).ready(function() {
             var dtype = $(this).attr("rel").replace("-locked", "");
             if (dtype == "image") {
                 var imgId = $(this).attr("id").split("-")[1];
-                //console.log(imgId, $("#image_icon-"+imgId));
                 $("#image_icon-"+imgId).addClass('ui-selected');
             }
         });
@@ -47,8 +46,12 @@ $(document).ready(function() {
         var datatree = $.jstree._focused();
         if (!datatree) return;
 
-        // get the selected id etc
+        // we use the tree to access selected objects, since we can traverse to check parents etc...
         var selected = datatree.data.ui.selected;
+        // ...but changes to field will be stored in $("body").data
+        //var s = $("body").data("selected_objects.ome");
+        //var well_index = s.length > 0 && s[0]["index"] || 0;
+        
 
         if (selected.length == 0) {
             $("div#content_details").empty();
@@ -67,11 +70,13 @@ $(document).ready(function() {
         var oid = selected.attr('id');                              // E.g. 'dataset-501'
         var orel = selected.attr('rel').replace("-locked", "");     // E.g. 'dataset'
         var page = selected.data("page") || null;                   // Check for pagination
-        //console.log("thumbs update ", oid);
+        var well_index = selected.data("well_index") || 0;       // and well index
+
         // Check what we've currently loaded: E.g. 'dataset-501'
         var crel = $("div#content_details").attr('rel');
         var cpage = $("div#page").attr('rel') || null;
-        //console.log(crel, cpage, $("#content_details").is(":visible"));
+        var current_well_index = $("#well_index").text() || 0;
+
         if (!oid) return;
         
         var update = {'url': null, 'rel': null, 'empty':false };
@@ -88,14 +93,14 @@ $(document).ready(function() {
         } else if(orel == "plate") {
             if (datatree.is_leaf(selected)) {   // Load Plate if it's a 'leaf' (No PlateAcquisition)...
                 update['rel'] = oid;
-                update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/';
+                update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?index='+well_index;
             } else {
                 update['empty'] = true;
             }
         } else if (orel == "acquisition"){
             var plate = datatree._get_parent(selected).attr('id').replace("-", "/");
             update['rel'] = oid;
-            update['url'] = prefix+'load_data/'+plate+'/'+orel+'/'+oid.split("-")[1]+'/';
+            update['url'] = prefix+'load_data/'+plate+'/'+orel+'/'+oid.split("-")[1]+'/?index='+well_index;
         } else if (orel == "dataset") {
             update['rel'] = oid;
             update['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
@@ -105,6 +110,8 @@ $(document).ready(function() {
         } else if (orel == "tag") {     // when this script is used in tags page (see comments above)
             update['rel'] = oid;
             update['url'] = prefix+'load_tags/?view=icon&o_type=tag&o_id='+oid.split("-")[1];
+        } else if (orel == "well") {
+            
         } else if (orel=="image") {
             var pr = selected.parent().parent();
             if (page == null) {
@@ -130,10 +137,8 @@ $(document).ready(function() {
         }
 
         var $content_details = $("#content_details");
-        var need_refresh = ((oid!==crel) || (page!==cpage));
-        //console.log("need_refresh? ", oid, crel, "page", page, cpage, need_refresh);
-        //console.log(update);
-        
+        var need_refresh = ((oid!==crel) || (page!==cpage) || (current_well_index != well_index));
+
         // if nothing to show - clear panel
         if (update.empty) {
             $("div#content_details").empty();
@@ -157,8 +162,8 @@ $(document).ready(function() {
         syncPanels(selected); // update selected thumbs
     };
     
-    // on change of selection in tree OR switching pluginupdate center panel
-    $("#dataTree").bind("select_node.jstree deselect_node.jstree", update_thumbnails_panel);
+    // on change of selection (in tree) OR switching pluginupdate center panel
+    $("body").bind("selection_change.ome", update_thumbnails_panel);
     
     $('#center_panel_chooser').bind('change', update_thumbnails_panel);
 

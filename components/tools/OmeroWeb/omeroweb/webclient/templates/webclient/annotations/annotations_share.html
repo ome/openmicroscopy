@@ -117,7 +117,7 @@
                         $("#edit_share_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
                         // update the UI  - only available if the owner is editing share
                         {% if manager.share.id %}
-                        loadMetadataPanel("{% url load_metadata_details c_type='share' c_id=manager.share.id %}");
+                        share_selection_changed({{ manager.share.id }});
                         {% endif %}
                     }
                 });
