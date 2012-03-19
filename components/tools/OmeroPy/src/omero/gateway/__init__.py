@@ -819,13 +819,15 @@ class BlitzObjectWrapper (object):
         @param obj:     The object to link
         @type obj:      L{BlitzObjectWrapper}
         """
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'])
+        sopts['omero.group'] = str(self._obj.getDetails().getGroup().id.val)
         if not obj.getId():
             # Not yet in db, save it
-            obj = obj.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(obj._obj))
+            obj = obj.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(obj._obj, sopts))
         lnk = getattr(omero.model, lnkobjtype)()
         lnk.setParent(self._obj.__class__(self._obj.id, False))
         lnk.setChild(obj._obj.__class__(obj._obj.id, False))
-        self._conn.getUpdateService().saveObject(lnk, self._conn.CONFIG['SERVICE_OPTS'])
+        self._conn.getUpdateService().saveObject(lnk, sopts)
         return obj
         
     def _linkAnnotation (self, ann):
