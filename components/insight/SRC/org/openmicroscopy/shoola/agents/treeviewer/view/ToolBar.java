@@ -320,6 +320,7 @@ class ToolBar
 						menu.add(i.next());
 					}
     				selectionMenu.add(menu);
+    				/*
     				menu = new JMenu(GroupSelectionAction.NAME);
     				menu.setToolTipText(GroupSelectionAction.DESCRIPTION);
     				items = createMenuItem(false);
@@ -328,6 +329,7 @@ class ToolBar
 						menu.add(i.next());
 					}
     				selectionMenu.add(menu);
+    				*/
         			selectionMenu.show((JComponent) me.getSource(), 
         					me.getX(), me.getY());
         		}
