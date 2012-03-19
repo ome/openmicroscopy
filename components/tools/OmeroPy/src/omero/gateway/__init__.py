@@ -6858,6 +6858,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             self.linkAnnotation(ann)
         sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
         sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+        sopts['omero.user'] = str(self.getDetails().getOwner().getId())
         self._re.saveCurrentSettings(sopts)
         return True
 
