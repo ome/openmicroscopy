@@ -1915,8 +1915,22 @@ class TreeViewerComponent
 			}
 		}
 		if (experimenters == null) return;
+		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+		ExperimenterVisitor visitor = new ExperimenterVisitor(browser, -1, 
+				group.getId());
+		browser.accept(visitor);
+		List<TreeImageDisplay> nodes = visitor.getNodes();
+		List<ExperimenterData> users = new ArrayList<ExperimenterData>();
+		Iterator<TreeImageDisplay> j = nodes.iterator();
+		TreeImageDisplay n;
+		while (j.hasNext()) {
+			n = j.next();
+			if (n.getUserObject() instanceof ExperimenterData) {
+				users.add((ExperimenterData) n.getUserObject());
+			}
+		}
 		switchUserDialog = new UserManagerDialog(f, model.getUserDetails(), 
-				group, icons.getIcon(IconManager.OWNER),
+				group, users, icons.getIcon(IconManager.OWNER),
 				icons.getIcon(IconManager.OWNER_48));
 		switchUserDialog.addPropertyChangeListener(controller);
 		switchUserDialog.setDefaultSize();

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.UserManagerDialog 
+ * org.openmicroscopy.shoola.agents.util.UserManagerDialog 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -110,10 +110,7 @@ public class UserManagerDialog
 	
 	/** Action command ID indicating to apply the selection. */
 	private static final int		APPLY = 1;
-	
-	/** Action command ID indicating to display content of a group. */
-	private static final int		GROUPS = 2;
-	
+
 	/** 
 	 * The size of the invisible components used to separate buttons
 	 * horizontally.
@@ -137,6 +134,9 @@ public class UserManagerDialog
 	
 	/** The group currently selected.*/
 	private GroupData group;
+	
+	/** The collection of selected users.*/
+	private List<ExperimenterData> selectedUsers;
 	
 	/** Closes and disposes. */
 	private void cancel()
@@ -261,7 +261,7 @@ public class UserManagerDialog
 		fillList(group);
 		users.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		users.setLayoutOrientation(JList.VERTICAL);
-		users.setCellRenderer(new UserListRenderer(userIcon));
+		users.setCellRenderer(new UserListRenderer(this, userIcon));
 		attachListeners();
 	}
 	
@@ -329,20 +329,34 @@ public class UserManagerDialog
 	 * @param parent The parent of this dialog.
 	 * @param loggedUser The user currently logged in.
 	 * @param selected The selected group.
+	 * @param selectedUsers The collection of users already displayed.
 	 * @param userIcon The icon representing an user.
 	 * @param icon The icon displayed in the title panel.
 	 */
 	public UserManagerDialog(JFrame parent, ExperimenterData loggedUser, 
-							GroupData selected, Icon userIcon, Icon icon)
+		GroupData selected, List<ExperimenterData> selectedUsers,
+		Icon userIcon, Icon icon)
 	{
 		super(parent);
 		setProperties();
 		this.loggedUser = loggedUser;
 		group = selected;
+		if (selectedUsers == null)
+			selectedUsers = new ArrayList<ExperimenterData>();
+		this.selectedUsers = selectedUsers;
 		initComponents(userIcon);
 		buildGUI(selected, icon);
 	}
 
+	/**
+	 * Returns the users already selected.
+	 * 
+	 * @return See above.
+	 */
+	List<ExperimenterData> getSelectedUsers()
+	{
+		return selectedUsers;
+	}
 	
 	/** Sets the default size of window. */
 	public void setDefaultSize()
