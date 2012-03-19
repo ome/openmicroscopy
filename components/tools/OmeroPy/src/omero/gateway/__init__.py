@@ -441,7 +441,7 @@ class BlitzObjectWrapper (object):
         @rtype:     Boolean
         @return:    see above
         """
-        g = self._obj.details.group or self._obj.details 
+        g = self.getDetails().getGroup().details or self._obj.details
         return g.permissions.isWorldRead()
     
     def isShared(self):
@@ -453,7 +453,7 @@ class BlitzObjectWrapper (object):
                     object permissions allow group read.
         """
         if not self.isPublic():
-            g = self._obj.details.group or self._obj.details 
+            g = self.getDetails().getGroup().details or self._obj.details
             return g.permissions.isGroupRead()
         return False
     
@@ -466,7 +466,7 @@ class BlitzObjectWrapper (object):
                     permissions allow user to read.
         """
         if not self.isPublic() and not self.isShared():
-            g = self._obj.details.group or self._obj.details 
+            g = self.getDetails().getGroup().details or self._obj.details
             return g.permissions.isUserRead()
         return False
     
@@ -479,7 +479,7 @@ class BlitzObjectWrapper (object):
                     True if shared but not group writable
                     True if private but not user writable
         """
-        g = self._obj.details.group or self._obj.details 
+        g = self.getDetails().getGroup().details or self._obj.details
         if self.isPublic() and not g.permissions.isWorldWrite():
             return True
         elif self.isShared() and not g.permissions.isGroupWrite():
