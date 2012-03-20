@@ -39,10 +39,8 @@ def dataset(request, datasetId, **kwargs):
     return render_to_response('webtest/dataset.html', {'dataset': ds})    # generate html from template
 
 
-@isUserConnected    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
+@login_required()    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
 def index(request, **kwargs):
-    conn = kwargs['conn']
-    
     # use Image IDs from request...
     if request.REQUEST.get("Image", None):
         imageIds = request.REQUEST.get("Image", None)
