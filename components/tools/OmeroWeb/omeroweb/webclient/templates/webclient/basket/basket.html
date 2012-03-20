@@ -83,7 +83,11 @@
                     $("tr.ui-selected td input", this).each(function(){
                         this.checked = true;
                     });
-                    $("#toolbar").html('<input class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% static "webclient/image/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare(\'{% url basket_action "toshare" %}\');"> <input class="button" type="image" src="{% static "webclient/image/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% static "webclient/image/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% static "webclient/image/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
+                    if (l > 0) {
+                        $("input.toggleEnabled").attr("disabled", null);
+                    } else {
+                        $("input.toggleEnabled").attr("disabled", "true");
+                    }
                     basket_selection_changed($("tr.ui-selected td input", this));
                 },
                 start: function(){
@@ -111,9 +115,11 @@
     {% if basket.sizeOfBasket %}
 
         <div id="toolbar" class="toolbar_noborder">
-            <input class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url basket_action %}';">
-            <input class="button" type="image" src="{% static "webclient/image/wp_protocol16.png" %}" alt="Discuss" title="Discuss" onclick="makeDiscussion();"/>
-            <input class="button" type="image" src="{% static "webclient/image/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href='{% url empty_basket %}';">
+            <input type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url basket_action %}';">
+            <input type="image" src="{% static "webclient/image/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();">
+            <input disabled="true" class="toggleEnabled" type="image" src="{% static "webclient/image/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();">
+            <input type="image" src="{% static "webclient/image/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href='{% url empty_basket %}';">
+            <input disabled="true" class="toggleEnabled" type="button" value="Create Share" title="Create a 'Share' with the selected images" onclick="makeShare('{% url basket_action 'toshare' %}');">
         </div>
         <div class="clear"> </div>
 
