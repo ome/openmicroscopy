@@ -106,9 +106,10 @@
         overflow:hidden;
         clear:left;
         background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210, 15%, 80%)), to(hsl(210, 15%, 85%)));
-        background-image: -moz-linear-gradient(90deg, hsl(210, 25%, 15%) 0%, hsl(210, 25%, 20%) 100%);
+        background-image: -moz-linear-gradient(90deg, hsl(210, 15%, 80%) 0%, hsl(210, 15%, 85%) 100%);
         border-bottom: solid 1px hsl(210,15%,70%);
         -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.1);
+		-moz-box-shadow: 0 1px 1px rgba(0,0,0,.1);
         border-right:solid 1px hsl(210,15%,75%);
     }
     
@@ -181,7 +182,6 @@
         background-color:#fff;
         background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210, 15%, 77%)), to(hsl(210, 15%, 85%)));
         left:0px; right:0px;
-        //-webkit-box-shadow: 0 -1px 1px hsl(210,20%,80%);
         border-top:solid 1px rgba(255,255,255,.5);
         border-top: solid 1px hsl(210,20%,75%);
         bottom:0px; 
@@ -234,6 +234,8 @@
         background-image: -moz-linear-gradient(90deg, hsl(212, 15%, 35%) 0%, hsl(212, 15%, 40%) 100%);
         border-top: solid 1px hsl(210,20%,30%);
 		-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+		-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+		box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
     }
     
    
@@ -263,7 +265,6 @@
     		}
             
             #annotation_tabs_list .ui-tabs-selected a{
-    			//background: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 15%, 30%)), to(hsl(215, 15%, 25%))) !important;
                 background:rgba(255,255,255,.1);
             }
             
@@ -495,6 +496,8 @@
             overflow:hidden;
             border: solid 1px hsl(210,20%,85%);
             -webkit-border-radius: 5px;
+			-moz-border-radius: 5px;
+			border-radius: 5px;
         }
 
             .lnfiles li {

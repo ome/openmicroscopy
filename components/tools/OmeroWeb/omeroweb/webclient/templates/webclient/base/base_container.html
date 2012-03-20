@@ -90,14 +90,15 @@
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
 	{% include "webclient/base/search_field.html" %}
     <li id="user_dropdown">
-		<a href="{% url wamyaccount 'edit' %}" title="Edit Account"> 
 			<img src="{% url wamyphoto %}" />
 			<span>{{ eContext.user.getFullName }}</span>
-		</a>
+		<ul>
+			<li><a href="{% url wamyaccount 'edit' %}" title="Account Settings"> Accounts Settings</a></li>
+			<li><a href="{% url load_template 'help' %}">{% trans "Help" %}</a></li>
+			{% include "webclient/base/logout.html" %}
+		</ul>
 	</li>
-    <!--<li><a href="{% url load_template 'help' %}">{% trans "Help" %}</a></li>-->
 	{% include "webclient/base/script_launch.html" %}
-    {% include "webclient/base/logout.html" %}
 {% endblock %}
 
 

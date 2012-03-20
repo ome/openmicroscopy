@@ -346,6 +346,7 @@
 /* workarounds */
 * html .ui-autocomplete { width:1px; } /* without this, the menu expands to 100% in IE6 */
 
+
 /*
  * jQuery UI Menu 1.8.17
  *
@@ -530,7 +531,7 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 
 .ui-tabs .ui-tabs-nav { 
 	overflow:hidden;
-	-webkit-border-radius:0;
+	border-radius:0;
 }
 
 	.ui-tabs .ui-tabs-nav li { 
@@ -538,7 +539,7 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 		border: none;
 		background:none;
 		cursor:pointer;
-		-webkit-border-radius:inherit;
+		border-radius:0;
 	}
 
 
