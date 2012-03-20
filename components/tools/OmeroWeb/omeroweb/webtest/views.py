@@ -524,8 +524,8 @@ def image_dimensions (request, imageId, **kwargs):
         'xFrames':xFrames, 'yFrames':yFrames})
 
 
-@isUserConnected
-def image_rois (request, imageId, conn=None, **kwargs):
+@login_required()
+def image_rois (request, imageId, **kwargs):
     """ Simply shows a page of ROI thumbnails for the specified image """
     roiService = conn.getRoiService()
     result = roiService.findByImage(long(imageId), None)
