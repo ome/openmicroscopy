@@ -278,7 +278,7 @@ def add_annotations (request, **kwargs):
     return render_to_response('webtest/util/add_annotations.html', {'images':images, 'comment':comment})
     
 
-@isUserConnected
+@login_required()
 def split_view_figure (request, **kwargs):
     """
     Generates an html page displaying a number of images in a grid with channels split into different columns. 
@@ -292,9 +292,6 @@ def split_view_figure (request, **kwargs):
     
     @return:            The http response - html page displaying split view figure.  
     """
-    
-    conn = kwargs['conn']
-    
     query_string = request.META["QUERY_STRING"]
     
     
