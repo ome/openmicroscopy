@@ -383,7 +383,7 @@
         
 		
 		<!-- ANNOTATIONS "General" -->
-        <div class="right_tab_inner" id="annotation_tab">
+        <div id="general_tab" class="right_tab_inner" >
            
 		    {% if manager.image %}            
             {% if manager.image.isOwned %}
@@ -1004,7 +1004,7 @@
         {% endif %}
 
         {% if manager.tag %}
-            <div id="annotation_tab" class="right_tab_inner" >
+            <div id="general_tab" class="right_tab_inner" >
                 {% if manager.tag.isOwned %}<div id="tagname-{{ manager.tag.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="tagname-{{ manager.tag.id }}-name" style="word-wrap: break-word;">{{ manager.tag.getValue }}</p></h1></div>{% else %}<p style="word-wrap: break-word;">{{ manager.tag.getValue }}</p>{% endif %}
         
                 <h2 id='tag_id'>Tag ID: {{ manager.tag.id }}</h2>   

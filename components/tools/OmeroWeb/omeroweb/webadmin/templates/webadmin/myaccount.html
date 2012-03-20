@@ -56,6 +56,42 @@
 			$( "#admin" ).tabs();
 		});
 	</script>
+    
+    
+    <script>
+    	// increase the default animation speed to exaggerate the effect
+    	$.fx.speeds._default = 1000;
+    	$(function() {
+    		$( "#password_change_dialog" ).dialog({
+    			autoOpen: false,
+                draggable: false,
+                resizable: false,
+                closeOnEscape: true,
+                modal: false,
+                dialogClass: 'reddit'
+    		});
+            
+            // Activates
+    		$( "#change_password" ).click(function() {
+    			$( "#password_change_dialog" ).dialog( "open" );
+    			return false;
+    		});
+            
+            // Controls positioning of modal box
+            $('#password_change_dialog').dialog({
+                position: { 
+                    my: 'left center',
+                    at: 'right center',
+                    of: $('#change_password'),
+                    collision: "flip",
+                    offset: "10 0"
+                }
+            });
+
+                
+    		
+    	});
+    </script>
 	
     
 {% endblock %}
@@ -75,53 +111,74 @@
 			</ul>
 		</div>
 		 
+		 
+		 
+		 <!-- Personal Settings -->
         <div id="personal_settings" class="settings_content">
          <!--<h1>{% trans "My account" %}</h1>-->
-
-	    <a href="{% url wadrivespace %}">{% trans "Drive Space" %}</a> | 
 	    {{ block.super }}
 
-
-        <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
-        <br/>
             
-        <form action="{% url wamyaccount "save" %}" method="POST">
+        <form class="standard_form" action="{% url wamyaccount "save" %}" method="POST">
         
-		<img src="{% url wamyphoto %}" width="50" height="50" class="imgzoom"/>
-		
-         <label>Avatar</label>
-		 <a href="{% url wamanageavatar eventContext.userId %}">edit 
-			 <img title="Edit avatar" src="{% static "webclient/image/color_line16.png" %}" />
-		 </a> 
+			<div id="avatar">
+                <img src="{% url wamyphoto %}" class="imgzoom"/>    			 
+                <a class="btn silver" href="{% url wamanageavatar eventContext.userId %}">
+                    <span>Change</span>
+                </a> 
 		 
-		 {% if myaccount.hasAvatar %}or 
-		 <a href="{% url wamanageavatar eventContext.userId "deletephoto" %}">delete 
-			 <img title="Change avatar" src="{% static "webclient/image/cancel16.png" %}" />
-		 </a>
-		 {% endif %}
-		 
-		 
-            {% for field in form %}
-           	    {{ field.label_tag }}
-                {% if field.field.required %}*{% endif %}
-                {{ field }}
-                {% if field.errors %}{{ field.errors }}{% endif %}
-                {{ field.help_text|safe }}
-            {% endfor %}
+    			{% if myaccount.hasAvatar %} 
+    			<a class="btn silver" href="{% url wamanageavatar eventContext.userId "deletephoto" %}">
+                    <span>Delete</span>
+                </a>
+    			{% endif %}
+             </div>
+			
+		     
+             
+		    <div id="personal_details">
+                
+                {% for field in form %}
+               	    {{ field.label_tag }}
+                    <!-- Commented out until this can sit inside the label -->
+                    <!--{% if field.field.required %}*{% endif %} -->
+                    {{ field }}
+                    {% if field.errors %}{{ field.errors }}{% endif %}
+                    {{ field.help_text|safe }}
+                {% endfor %}
             
-            {% if ldapAuth %}
-            LDAP: {{ ldapAuth }}
-            {% else %}
-            
-            <label>Password:</label>
-            <a href="{% url wamanagechangepasswordid eventContext.userId %}">change password 
-                <img title="Change password" src="{% static "webclient/image/color_line16.png" %}" />
-            </a>
-            {% endif %}
+                {% if ldapAuth %}
+                LDAP: {{ ldapAuth }}
+                {% else %}
+                
+                <div id="password">
+                    
+                    <div id="password_change_dialog">
+							{% block change_password %}
+							    {% include "webadmin/password.html" %}
+                            {% endblock %}
+                    </div>
+					
+                    <div id="password_change">
+                        <label>Password:</label>
+                        <a class="btn silver" id="change_password">
+                            <span>Change  Password</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <a href="{% url wamanagechangepasswordid eventContext.userId %}">Boom</a>
+                
+                {% endif %}
          
+                <!--<p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>-->
          
-          <input type="submit" value="{% trans 'Save' %}" />
-          
+                <input type="submit" value="{% trans 'Save' %}" />
+              </div>
+              
+              
+              
+              
           <!-- See. Much nicer without blasted tables. -->
           
         </form>

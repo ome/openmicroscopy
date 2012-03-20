@@ -49,6 +49,7 @@
 
 	.btn {
 		-webkit-border-radius:3px;
+		display:inline-block;
 	}
 	
 		.btn span {
@@ -95,13 +96,17 @@
 		.btn.silver {
 			background-color:hsl(210,8%,85%);
 			border:solid 1px hsl(210,8%,70%);
+			color:hsl(210,5%,30%);
+			text-shadow: 0 1px 0 white;
 		}
 			
 			
 			.btn.silver span {
 				color:hsl(210,5%,30%);
+				padding:4px 10px;
+				line-height:1.3em;
+				display:inline-block;
 				border-top:solid 1px rgba(255,255,255,.8);
-				text-shadow: 0 1px 0 white;
 				background-image: -webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0)), to(rgba(255,255,255,.4)));
 			}
 
@@ -116,12 +121,13 @@
 		/* Active, Focus */
 		
 		.btn.silver:active, .btn.silver:focus {
-			background-color:hsl(210,8%,80%);
+			background-color:hsl(210,8%,70%);
 		}
 		
 		
-			.btn.silver:active, .btn.silver:focus {
-				background-color:hsl(210,8%,80%);
+			.btn.silver:active span, .btn.silver:focus span{
+				border-top:solid 1px transparent;
+				background-image:-webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0.4)), to(rgba(255,255,255,0)))
 			}
 			
 		
@@ -204,6 +210,33 @@ a.tag:hover {
 
 
 
+/*
+	------------------------------------------------
+	:: Form
+	------------------------------------------------
+*/
+
+	
+	.standard_form {
+		overflow:hidden;
+	}
+	
+	
+		.standard_form label {
+			width:25%;
+			display:inline-block;
+			color:hsl(210,10%,50%);
+			font-size:1.2em;
+			text-shadow: 0 1px 0 white;
+		}
+		
+		.standard_form input, .standard_form select, .standard_form textarea {
+			display:inline-block;
+			font-size:1.6em;
+			margin-bottom:5px;
+			
+		}
+		
 
 
 
@@ -214,10 +247,114 @@ a.tag:hover {
 
 
 
+/*
+	------------------------------------------------
+	:: Input
+	------------------------------------------------
+*/
+
+
+
+.standard_form input[type=text], input[type=password] {
+	width:70%;
+	border: solid 1px rgba(0,0,0,.2);
+	border-top: solid 1px rgba(0,0,0,.3);
+	-webkit-box-shadow: 0 1px 0 white, inset 0 1px 1px rgba(0,0,0,.1);
+	-webkit-border-radius: 2px;
+	padding:5px 2px;
+}
+			
+.standard_form input[type=text]:focus, input[type=password]:focus, input[type=text]:active, input[type=password]:active {
+	border:solid 1px hsl(210,20%,50%);
+}
+			
+			
+			
+.standard_form input[type="submit"] {
+	cursor: pointer;
+	float:right;
+	margin-right:2px;
+	display:block;
+	background-color:hsl(210,50%,60%);
+	background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,60%)), to(hsl(210,40%,70%)));
+	border-top:solid 1px hsl(210,40%,50%);
+	border-right:solid 1px hsl(210,40%,40%);
+	border-left:solid 1px hsl(210,40%,40%);
+	border-bottom:solid 1px hsl(210,40%,35%);
+	-webkit-border-radius:3px;
+	-moz-border-radius:3px;
+	-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 1px rgba(0,0,0,.3);
+	padding:5px 20px;
+	font-size:1.3em;
+	font-weight:bold;
+	color: hsl(210,70%,10%);
+	text-shadow: 0 1px 0 rgba(255,255,255,.3);
+	border-radius:3px;
+	font-family: Helvetica, Arial;
+}
+			
+			
+			
+.standard_form input[type="submit"]:hover {
+	background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,60%)), to(hsl(210,40%,76%)));
+}
+			
+.standard_form input[type="submit"]:active, input[type="submit"]:focus {
+	background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,65%)), to(hsl(210,40%,60%)));
+	-webkit-box-shadow: none;
+	border:solid 1px hsl(210,40%,40%);
+}
 
 
 
 
+
+
+
+
+
+/*
+	------------------------------------------------
+	:: Search
+	------------------------------------------------
+*/
+
+#search {
+	float:left;
+	margin-top: 8px;
+	margin-right: 8px;
+	position:relative;
+}
+
+
+	#search input[type=text] {
+		-webkit-border-radius:50px;
+		-moz-border-radius:50px;
+		border-radius:50px;
+		border:solid 1px hsl(215, 10%,55%);
+		padding: .2em .5em;
+		-webkit-box-shadow: 0 1px 0 rgba(255,255,255,.2), inset 0 1px 1px rgba(0,0,0,.2);
+	}
+
+	#search input[type=submit] {
+		text-indent: -9999px;
+		position:absolute;
+		top:4px;
+		right:7px;
+		background: url(../image//search.png) no-repeat;
+		width:20px;
+		height:20px;
+		border:none;
+		display:block;
+		opacity:.2;
+		-webkit-transition:opacity .2s linear;
+	}
+	
+	#search input[type=submit]:hover {
+		opacity:.6;
+		cursor:pointer;
+		-webkit-transition:opacity .2s linear;
+	}
 
 
 
@@ -336,14 +473,14 @@ a.tag:hover {
 	 
 	
 	This saddens him. I know this, because as I ride with 
-	him around town, talking about fascinating 
+	him around town talking about fascinating 
 	subjects, he opens up to me. He wants to leave something 
 	on this earth to be remembered by. He wants... 
 	permanence.
 	
 	So, it is with great pleasure, that I, as the author of this 
 	stylesheet dedicate the OME Interface Element stylesheet to 
-	Dusty the Bicycle. He is our 'bootstrap'. 
+	Dusty the Bicycle. He is our 'bootstrap'.
 	
 	Here's to you, Dusty. May your name be remembered as 
 	long as OME uses this stylesheet.

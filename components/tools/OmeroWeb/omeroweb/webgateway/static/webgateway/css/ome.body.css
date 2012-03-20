@@ -42,6 +42,7 @@ body {
 
 a:hover, a, a:visited {
     color: #1B7BC7;
+	color: hsl(200,60%,30%);
 	-webkit-transition: all .2s linear;
     text-decoration: none;
 }
@@ -58,61 +59,8 @@ h2 {
     text-align: left;
 }
 
-p {
-    margin: 0px;
-    padding: 5px;
-}
 
-img {
-    border: 0px;
-    padding: 0px;
-    margin: 0px;
-    vertical-align: middle;
-}
 
-table {
-    border: 0px;
-    table-layout: auto;
-}
-th {
-    font-weight: bold;
-    vertical-align:middle;
-    text-align: left;
-}
-td {
-    vertical-align:top;
-    text-align: left;
-}
-
-form td {
-    padding: 2px;
-}
-
-form th {
-    border: 0px;
-}
-
-input[type="text"]{
-    border: 1px solid #bbb;
-    background-color: #fff;
-}
-input{
-    margin: 0;
-    font-size: 12px;
-    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
-    color: #444;
-}
-
-select {
-    margin: 0;
-    background-color: #fff;
-    border: 1px solid #bbb;
-}
-textarea {
-    margin: 0;
-    background-color: #fff;
-    border: 1px solid #bbb;
-}
 
 ul.errorlist {
     list-style: none;
@@ -132,9 +80,39 @@ label {
     padding: 0px;
 }
 
-.gray_border {
-    border: solid 1px #bbb;
+
+
+
+.error {
+    color: #e3646f;
 }
+
+.disabled {
+    background: #dcdcdc;
+    color: #777777;
+}
+
+.toolbar_noborder {
+    height:20px;
+    padding:5px;
+    width: 100%; 
+}
+.align_left {
+    float:left;
+}
+.align_right {
+    float:right;
+    text-align: right;
+}
+.align_center {
+    text-align: center;
+}
+.padding {
+    padding: 10px;
+}
+
+
+
 
 /* hidden div to specify which parent tab is 'current' */
 #parent_id {

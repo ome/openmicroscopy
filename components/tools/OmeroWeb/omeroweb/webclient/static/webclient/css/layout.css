@@ -19,40 +19,6 @@
  
  
 
-.error {
-    color: #e3646f;
-}
-
-.disabled {
-    background: #dcdcdc;
-    color: #777777;
-}
-
-.toolbar_noborder {
-    height:20px;
-    padding:5px;
-    width: 100%; 
-}
-.align_left {
-    float:left;
-}
-.align_right {
-    float:right;
-    text-align: right;
-}
-.align_center {
-    text-align: center;
-}
-.padding {
-    padding: 10px;
-}
-
-
-
-
-
-
-
 /*
 	===============================================
 	:: Generic
@@ -95,10 +61,6 @@
 */
 
 
-
-
-
-
     
         
     /* Left Panel Tabs */    
@@ -137,11 +99,7 @@
             
             
 
-    /*
-    	------------------------------------------------
-    	:: Left Panel - Navigator
-    	------------------------------------------------
-    */
+    /* Navigator */
 
 
     #navigator {
@@ -212,11 +170,7 @@
 
 
 
-    /*
-    	------------------------------------------------
-    	:: Left Panel - Toolbar
-    	------------------------------------------------
-    */
+    /* Left Panel - Toolbar */
     
     
     .toolbar {
@@ -260,6 +214,11 @@
 
 
 
+
+
+
+
+
 /*
 	===============================================
 	:: Right Panel
@@ -271,8 +230,10 @@
     /* Right & Center Panel Headers */
     
     #center_panel_header, #annotation_tabs_list {
-        background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(212, 15%, 35%)), to(hsl(212, 15%, 40%))) !important;
+        background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(212, 15%, 35%)), to(hsl(212, 15%, 45%))) !important;
         background-image: -moz-linear-gradient(90deg, hsl(212, 15%, 35%) 0%, hsl(212, 15%, 40%) 100%);
+        border-top: solid 1px hsl(210,20%,30%);
+		-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
     }
     
    
@@ -281,9 +242,7 @@
     /* Right Tab Menu */
     
     #annotation_tabs_list{
-        border-top: solid 1px hsl(210,20%,11%);
-        -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-        border-bottom: solid 1px hsl(210,20%,1%); 
+        border-bottom: solid 1px hsl(210,20%,25%); 
         border-right:solid 1px hsl(210,10%,10%);
     }
     
@@ -318,7 +277,7 @@
     /* Right Inner Content */
     
     .right_tab_inner {
-        padding: 15px;
+		padding:15px;
         overflow: auto;
         top:6px ;bottom:0px; left:0px; right:0px;
         position: absolute;
@@ -620,10 +579,6 @@
     
     /* Modal Dialog */
     
-    
-    
-    
-    
     #choose_attachments_form {
         padding:0 !important;
     }
@@ -671,7 +626,9 @@
     
            
     
-    
+	
+	
+	
     /*   Acquisition Details */
     
     .can-collapse {
@@ -693,6 +650,9 @@
     }
     
     
+	
+	
+	
     
     /*   Preview */
     
@@ -736,8 +696,6 @@
         left:0px;
         right:0px;
         border-bottom:solid 1px rgba(0,0,0,.4);
-        border-top:solid 1px rgba(0,0,0,.3);
-        -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
         border-left:solid 1px rgba(255,255,255,.1);
     } 
     
@@ -910,15 +868,54 @@
     #admin .ui-tabs-panel {
         padding:20px 30px;
         background-color: rgba(0,0,0,.04);
-        border-top:solid 1px white;
-        border-bottom:solid 1px rgba(0,0,0,.2);
+        border:solid 1px white;
     }
 
 
+	
 
 
+	#avatar {
+		width:30%;
+		float:left;
+	}
+	
+		#avatar img {
+			background-color:#fff;
+			background-color: hsl(210,1%,99%);
+			border-top:solid 1px white;
+			border-bottom:solid 1px rgba(0,0,0,.15);
+			padding:5px;
+			width:80%;
+			-webkit-box-shadow: 0 2px 1px -1px rgba(0,0,0,.1);
+			margin-bottom:8px;
+		}
+		
+		#avatar a, #password_change a {
+			font-size:1.1em;
+		}
 
+		#avatar a:nth-of-type(1) {
+			margin-left:14px;
+		}
 
+	#personal_details {
+		overflow:hidden;
+	}
+	
+	#personal_details select {
+		width:71.5%;
+	}
+	
+	
+	#password {
+		position:relative;
+	}
+	
+		#password_change {
+			margin-top:2px;
+		}
+	
 
 
 

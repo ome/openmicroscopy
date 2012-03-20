@@ -38,12 +38,13 @@
 
 {% block body %}
 
+
 <div id="login-logo">
     <img src="{% static "webclient/image/logo_login.png" %}" />
 </div>
 
 <div id="login">
-    <form action="{% url weblogin %}{% if url %}?url={{url}}{% endif %}" method="post">
+    <form class="standard_form" action="{% url weblogin %}{% if url %}?url={{url}}{% endif %}" method="post">
         
 			
             {% if error %}
@@ -72,9 +73,6 @@
 		   </div>
 		   
 		   
-			
-           
-           
             
 			<div>
 				{% trans form.username.label_tag %}
@@ -112,9 +110,9 @@
 		&copy; 2007-2011 University of Dundee &amp; Open Microscopy Environment<br/><br/>
 		OMERO is developed under the GPL. For more information, visit <a href="http://www.openmicroscopy.org">Open Microscopy</a>
 	</p>
-
-</div>
 {% endblock %}
+</div>
+
 
 
 

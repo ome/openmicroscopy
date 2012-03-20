@@ -771,6 +771,7 @@ def my_account(request, action=None, **kwargs):
     eventContext = {'userId':conn.getEventContext().userId,'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
     myaccount = BaseExperimenter(conn)
+    password_form = ChangePassword()
     myaccount.getMyDetails()
     myaccount.getOwnedGroups()
     
@@ -804,7 +805,7 @@ def my_account(request, action=None, **kwargs):
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
         
-    context = {'info':info, 'eventContext':eventContext, 'form':form, 'ldapAuth': myaccount.ldapAuth, 'myaccount':myaccount}
+    context = {'info':info, 'eventContext':eventContext, 'form':form, 'ldapAuth': myaccount.ldapAuth, 'myaccount':myaccount, 'password_form':password_form }
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))

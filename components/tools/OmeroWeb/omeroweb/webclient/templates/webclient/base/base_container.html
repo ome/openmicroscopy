@@ -91,11 +91,11 @@
 	{% include "webclient/base/search_field.html" %}
     <li id="user_dropdown">
 		<a href="{% url wamyaccount 'edit' %}" title="Edit Account"> 
-		<img src="{% url wamyphoto %}" />
-		{{ eContext.user.getFullName }}
+			<img src="{% url wamyphoto %}" />
+			<span>{{ eContext.user.getFullName }}</span>
 		</a>
 	</li>
-    <li><a href="{% url load_template 'help' %}">{% trans "Help" %}</a></li>
+    <!--<li><a href="{% url load_template 'help' %}">{% trans "Help" %}</a></li>-->
 	{% include "webclient/base/script_launch.html" %}
     {% include "webclient/base/logout.html" %}
 {% endblock %}

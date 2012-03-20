@@ -165,17 +165,17 @@
         
         {% if manager.image %}
         <!-- VIEWER "Preview"-->
-        <div id="preview_tab"></div>
+        <div class="right_tab_inner" id="preview_tab"></div>
         {% endif %}
         
         <!-- METADATA "Acquisition" TAB  - only show for images -->
         {% if manager.image %}
-        <div id="metadata_tab"></div>
+        <div class="right_tab_inner" id="metadata_tab"></div>
         {% endif %}
         
         {% if not manager.tag %}
         <!-- ANNOTATIONS "General" -->
-        <div id="annotation_tab">
+        <div class="right_tab_inner" id="general_tab">
             
             {% if manager.image %}            
             <h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>
