@@ -309,7 +309,8 @@ public class ImportLibrary implements IObservable
         RepositoryImportContainer repoIc = createRepositoryImportContainer(container);
         List<Pixels> pixList = repo.importMetadata(repoIc);
         notifyObservers(new ImportEvent.IMPORT_DONE(
-                index, null, null, null, 0, null, pixList));
+                index, container.getFile().getAbsolutePath(),
+                null, null, 0, null, pixList));
         return pixList;
     }
 

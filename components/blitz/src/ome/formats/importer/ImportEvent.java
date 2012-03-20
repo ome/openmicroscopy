@@ -353,6 +353,18 @@ public class ImportEvent {
             super(index, filename, target, pixId, series, size, null, null);
             this.pixels = pixels;
         }
+
+        @Override
+        public String toLog() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(super.toLog());
+            sb.append(String.format("\nImported file: %s", filename));
+            sb.append("\nImported pixels:");
+            for (Pixels p : pixels) {
+                sb.append(String.format("\n%s", p.getId().getValue()));
+            }
+            return sb.toString();
+        }
     }
 
     //
