@@ -1991,10 +1991,12 @@ class BrowserUI
 			TreeImageDisplay groupNode)
 	{
 		TreeImageSet node = createExperimenterNode(experimenter, groupNode);
-		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-		dtm.reload();
-		if (model.isSelected())
-			treeDisplay.expandPath(new TreePath(node.getPath()));
+		//DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+		//dtm.reload();
+		if (model.isSelected()) {
+			//expandNode(node, false);
+		}
+			//treeDisplay.expandPath(new TreePath(node.getPath()));
 		/*
 		TreeImageSet node = createExperimenterNode(experimenter);
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
