@@ -28,7 +28,7 @@ else
 
     	wget -q "$URL"artifact/$FILE
 
-        DL_ARCHIVE=$FILE
+        DL_ARCHIVE=`basename $FILE`
     	DL_FOLDER=${DL_ARCHIVE%.zip}
     else
         DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-trunk/lastSuccessfulBuild/artifact/"
