@@ -894,36 +894,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     /**
-     * Append a block to a file into the repository.
-     *
-     * @param fileId
-     *            A file path on a repository.
-     * @param data
-     *            A block of data.
-     * @param __current
-     *            ice context.
-     */
-    public void writeBlock(String fileId, byte[] data, Current __current)
-            throws ServerError {
-        File file = checkPath(fileId);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (Exception e) {
-                throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
-            }
-        }
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(file, true);
-            out.write(data);
-            out.close();
-        } catch (Exception e) {
-            throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
-        }
-    }
-
-    /**
      * Return a template based directory path.
      * (an option here would be to create the dir if it doesn't exist??)
      */

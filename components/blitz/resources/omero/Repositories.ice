@@ -176,7 +176,6 @@ module omero {
                     throws ServerError;
 
             omero::api::PixelsList importMetadata(RepositoryImportContainer ic) throws ServerError;
-            void writeBlock(string fileId, Ice::ByteSeq data) throws ServerError;
 
             omero::api::StringSet getCurrentRepoDir(omero::api::StringSet paths) throws ServerError;
 
