@@ -37,6 +37,7 @@ Kymographs are created in the form of new OMERO Images, single Z and T, same siz
 
 from omero.gateway import BlitzGateway
 import omero
+from omero.util.imageUtil import getLineData
 from omero.rtypes import *
 import omero.scripts as scripts
 from cStringIO import StringIO
@@ -64,113 +65,9 @@ def pointsStringToXYlist(string):
         x, y = xy.split(",")
         xyList.append( ( int( x.strip() ), int(y.strip() ) ) )
     return xyList
-    
-def numpyToImage(plane):
-    """
-    Converts the numpy plane to a PIL Image, scaling to cMinMax (minVal, maxVal) and changing data type if needed.
-    Need plane dtype to be uint8 (or int8) for conversion to tiff by PIL
-    """
-
-    if plane.dtype.name not in ('uint8', 'int8'):
-        convArray = zeros(plane.shape, dtype=int32)     # int32 is handled by PIL (not uint32 etc). TODO: support floats
-        convArray += plane
-        return Image.fromarray(convArray)
-    return Image.fromarray(plane)
-
-    
-def getLineData(pixels, x1,y1,x2,y2, cMinMax, lineW=2, theZ=0, theC=0, theT=0):
-    """
-    Grabs pixel data covering the specified line, and rotates it horizontally so that x1,y1 is to the left.
-    Uses PIL to handle rotating and interpolating the data. Converts to numpy to PIL and back (may change dtype.)
-    cMinMax is the (min, max) values of Channel pixel data, to use for scaling numpy to PIL. 
-    """
-    
-    sizeX = pixels.getSizeX()
-    sizeY = pixels.getSizeY()
-
-    centreX = (x1+x2)/2
-    centreY = (y1+y2)/2
-    lineX = x2-x1
-    lineY = y2-y1
-
-    rads = math.atan(float(lineX)/lineY)
-
-    # How much extra Height do we need, top and bottom?
-    extraH = abs(math.sin(rads) * lineW)
-    bottom = int(max(y1,y2) + extraH/2)
-    top = int(min(y1,y2) - extraH/2)
-
-    # How much extra width do we need, left and right?
-    extraW = abs(math.cos(rads) * lineW)
-    left = int(min(x1,x2) - extraW)
-    right = int(max(x1,x2) + extraW)
-
-    # What's the larger area we need? - Are we outside the image?
-    pad_left, pad_right, pad_top, pad_bottom = 0,0,0,0
-    if left < 0:
-        pad_left = abs(left)
-        left = 0
-    x = left
-    if top < 0:
-        pad_top = abs(top)
-        top = 0
-    y = top
-    if right > sizeX:
-        pad_right = right-sizeX
-        right = sizeX
-    w = int(right - left)
-    if bottom > sizeY:
-        pad_bottom = bottom-sizeY
-        bottom = sizeY
-    h = int(bottom - top)
-    tile = (x, y, w, h)
-    
-    # get the Tile
-    plane = pixels.getTile(theZ, theC, theT, tile)
-    
-    # pad if we wanted a bigger region
-    if pad_left > 0:
-        data_h, data_w = plane.shape
-        pad_data = zeros( (data_h, pad_left), dtype=plane.dtype)
-        plane = hstack( (pad_data, plane) )
-    if pad_right > 0:
-        data_h, data_w = plane.shape
-        pad_data = zeros( (data_h, pad_right), dtype=plane.dtype)
-        plane = hstack( (plane, pad_data) )
-    if pad_top > 0:
-        data_h, data_w = plane.shape
-        pad_data = zeros( (pad_top, data_w), dtype=plane.dtype)
-        plane = vstack( (pad_data, plane) )
-    if pad_bottom > 0:
-        data_h, data_w = plane.shape
-        pad_data = zeros( (pad_bottom, data_w), dtype=plane.dtype)
-        plane = vstack( (plane, pad_data) )
-    
-        
-    pil = numpyToImage(plane)
-    #pil.show()
-
-    # Now need to rotate so that x1,y1 is horizontally to the left of x2,y2
-    toRotate = 90 - math.degrees(rads)
-
-    if x1 > x2:
-        toRotate += 180
-    rotated = pil.rotate(toRotate, expand=True)  # filter=Image.BICUBIC see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2172449/
-    #rotated.show()
-
-    # finally we need to crop to the length of the line
-    length = int(math.sqrt(math.pow(lineX, 2) + math.pow(lineY, 2)))
-    rotW, rotH = rotated.size
-    cropX = (rotW - length)/2
-    cropX2 = cropX + length
-    cropY = (rotH - lineW)/2
-    cropY2 = cropY + lineW
-    cropped = rotated.crop( (cropX, cropY, cropX2, cropY2))
-    #cropped.show()
-    return asarray(cropped)
 
 
-def polyLineKymograph(conn, scriptParams, image, polylines, channelMinMax, lineWidth, dataset):
+def polyLineKymograph(conn, scriptParams, image, polylines, lineWidth, dataset):
     """
     Creates a new kymograph Image from one or more polylines.
     
@@ -199,7 +96,6 @@ def polyLineKymograph(conn, scriptParams, image, polylines, channelMinMax, lineW
         for theC in range(sizeC):
             shape = firstShape
             tRows = []
-            cMinMax = channelMinMax[theC]
             for theT in range(sizeT):
                 # update shape if specified for this timepoint
                 if theT in polylines:
@@ -212,7 +108,7 @@ def polyLineKymograph(conn, scriptParams, image, polylines, channelMinMax, lineW
                 for l in range(len(points)-1):
                     x1, y1 = points[l]
                     x2, y2 = points[l+1]
-                    ld = getLineData(pixels, x1,y1,x2,y2, cMinMax, lineWidth, theZ, theC, theT)
+                    ld = getLineData(pixels, x1,y1,x2,y2, lineWidth, theZ, theC, theT)
                     lineData.append(ld)
                 rowData = hstack(lineData)
                 tRows.append( rowData )
@@ -235,7 +131,7 @@ def polyLineKymograph(conn, scriptParams, image, polylines, channelMinMax, lineW
     return newImg
 
 
-def linesKymograph(conn, scriptParams, image, lines, channelMinMax, lineWidth, dataset):
+def linesKymograph(conn, scriptParams, image, lines, lineWidth, dataset):
     """
     Creates a new kymograph Image from one or more lines.
     If one line, use this for every time point.
@@ -266,7 +162,6 @@ def linesKymograph(conn, scriptParams, image, lines, channelMinMax, lineWidth, d
             shape = firstLine
             r_length = None           # set this for first line
             tRows = []
-            cMinMax = channelMinMax[theC]
             for theT in range(sizeT):
                 if theT in lines:
                     shape = lines[theT]
@@ -274,7 +169,7 @@ def linesKymograph(conn, scriptParams, image, lines, channelMinMax, lineWidth, d
                     continue
                 theZ = shape['theZ']
                 x1,y1,x2,y2 = shape['x1'], shape['y1'], shape['x2'], shape['y2']
-                rowData = getLineData(pixels, x1,y1,x2,y2, cMinMax, lineWidth, theZ, theC, theT)
+                rowData = getLineData(pixels, x1,y1,x2,y2, lineWidth, theZ, theC, theT)
                 # if the row is too long, crop - if it's too short, pad
                 row_height, row_length = rowData.shape
                 if r_length is None:  r_length = row_length
@@ -316,12 +211,6 @@ def processImages(conn, scriptParams):
 
         dataset = image.getDataset()
 
-        channelMinMax = []
-        for c in image.getChannels():
-            minC = c.getWindowMin()
-            maxC = c.getWindowMax()
-            channelMinMax.append((minC, maxC))
-
         roiService = conn.getRoiService()
         result = roiService.findByImage(image.getId(), None)
         
@@ -352,11 +241,11 @@ def processImages(conn, scriptParams):
 
 
             if len(lines) > 0:
-                newImg = linesKymograph(conn, scriptParams, image, lines, channelMinMax, lineWidth, dataset)
+                newImg = linesKymograph(conn, scriptParams, image, lines, lineWidth, dataset)
                 newImages.append(newImg)
                 lines = []
             elif len(polylines) > 0:
-                newImg = polyLineKymograph(conn, scriptParams, image, polylines, channelMinMax, lineWidth, dataset)
+                newImg = polyLineKymograph(conn, scriptParams, image, polylines, lineWidth, dataset)
                 newImages.append(newImg)
             else:
                 print "ROI: %s had no lines or polylines" % roi.getId().getValue()
