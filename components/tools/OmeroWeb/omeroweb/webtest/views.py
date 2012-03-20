@@ -116,14 +116,12 @@ def channel_overlay_viewer(request, imageId, **kwargs):
         'image': image, 'channels':channels, 'default_z':default_z, 'red': red, 'green': green, 'blue': blue})
 
 
-@isUserConnected
+@login_required()
 def render_channel_overlay (request, **kwargs):
     """
     Overlays separate channels (red, green, blue) from the same image or different images
     manipulating each indepdently (translate, scale, rotate etc? )
     """
-    conn = kwargs['conn']
-
     # request holds info on all the planes we are working on and offset (may not all be visible)
     # planes=0|imageId:z:c:t$x:shift_y:shift_rot:etc,1|imageId...
     # E.g. planes=0|2305:7:0:0$x:-50_y:10,1|2305:7:1:0,2|2305:7:2:0&red=2&blue=0&green=1
