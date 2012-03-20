@@ -457,46 +457,40 @@ def manage_experimenter(request, action, eid=None, **kwargs):
 @isUserConnected
 def manage_password(request, eid, **kwargs):
     experimenters = True
-    template = "webadmin/password.html"
     
     conn = None
     try:
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
-    
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
 
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
-    
     error = None
-    if request.method != 'POST':
-        password_form = ChangePassword()
-    else:
+    if request.method == 'POST':
         password_form = ChangePassword(data=request.POST.copy())            
         if password_form.is_valid():
             old_password = password_form.cleaned_data['old_password']
             password = password_form.cleaned_data['password']
-            if conn.isAdmin():
+            # if we're trying to change our own password...
+            if conn.getEventContext().userId == int(eid):
+                try:
+                    conn.changeMyPassword(password, old_password) 
+                except Exception, x:
+                    error = x.message
+            elif conn.isAdmin():
                 exp = conn.getObject("Experimenter", eid)
                 try:
                     conn.changeUserPassword(exp.omeName, password, old_password)
                 except Exception, x:
                     error = x.message
                 else:
-                    request.session['password'] = password
                     return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", eid]))
             else:
-                try:
-                    conn.changeMyPassword(password, old_password) 
-                except Exception, x:
-                    error = x.message
-                else:
-                    request.session['password'] = password
-                    return HttpResponseRedirect(reverse("wamyaccount"))
-                
-    context = {'info':info, 'error':error, 'eventContext':eventContext, 'password_form':password_form, 'eid': eid}
-    context['nav'] = request.session['nav']
+                raise AttributeError("Can't change another user's password unless you are an Admin")
+    else:
+        raise AttributeError("Need to 'POST' to change password")
+
+    template = "webadmin/password.html"
+    context = {'error':error}
     
     t = template_loader.get_template(template)
     c = Context(request, context)

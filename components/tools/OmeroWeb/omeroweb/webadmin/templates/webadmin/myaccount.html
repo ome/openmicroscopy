@@ -35,6 +35,7 @@
 
     <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
     
     <script type="text/javascript">
     
@@ -47,38 +48,54 @@
             'delay': 300,
             'loader': 'span.loading'
         });
+        
+        // set up dialog box for password...
+        $( "#password_change_dialog" ).dialog({ autoOpen: false });
+        // will be handled by AJAX
+        $("#change_password_form").ajaxForm({
+            success: function(html) {
+                $("#password_change_message").html(html);
+            }
+        });
+        
+        {% if edit_mode %}
+        $('#save_thumb').click(function() {
+            var x1 = $('#x1').val();
+            var y1 = $('#y1').val();
+            var x2 = $('#x2').val();
+            var y2 = $('#y2').val();
+            var w = $('#w').val();
+            var h = $('#h').val();
+            if(x1=="" || y1=="" || x2=="" || y2=="" || w=="" || h==""){
+                alert("You must make a selection first");
+                return false;
+            }else{
+                return true;
+            }
+        });
+        {% endif %}
     }); 
 
     </script>
     
-	<script>
-		$(function() {
-			$( "#admin" ).tabs();
-		});
-	</script>
+    <script>
+        $(function() {
+            $( "#admin" ).tabs();
+        });
+    </script>
     
     
     <script>
-    	// increase the default animation speed to exaggerate the effect
-    	$.fx.speeds._default = 1000;
-    	$(function() {
-    		$( "#password_change_dialog" ).dialog({
-    			autoOpen: false,
+        // increase the default animation speed to exaggerate the effect
+        $.fx.speeds._default = 1000;
+        $(function() {
+            $( "#password_change_dialog" ).dialog({
+                autoOpen: false,
                 draggable: false,
                 resizable: false,
                 closeOnEscape: true,
                 modal: false,
-                dialogClass: 'reddit'
-    		});
-            
-            // Activates
-    		$( "#change_password" ).click(function() {
-    			$( "#password_change_dialog" ).dialog( "open" );
-    			return false;
-    		});
-            
-            // Controls positioning of modal box
-            $('#password_change_dialog').dialog({
+                dialogClass: 'reddit',
                 position: { 
                     my: 'left center',
                     at: 'right center',
@@ -87,12 +104,29 @@
                     offset: "10 0"
                 }
             });
+            
+            $( "#change_password" ).click(function() {
+                $( "#password_change_dialog" ).dialog( "open" );
+                return false;
+            });
+            $("#password_cancel").click(function() {
+                $( "#password_change_dialog" ).dialog( "close" );
+                return false;
+            });
+            
+            $("#password_change_message").hide();
+            $("#change_password_form").ajaxForm({
+                beforeSubmit: function(data) {
+                    $( "#password_change_dialog" ).dialog( "close" );
+                },
+                success: function(html) {
+                    $("#password_change_message").html(html).show().delay(1200).fadeOut(1000);
+                }
+            });
 
-                
-    		
-    	});
+        });
     </script>
-	
+    
     
 {% endblock %}
 
@@ -102,44 +136,44 @@
 {% block center_details %}
 {{ block.super }}
     <div id="admin">
-	    
-		<div>
-			<ul id="settings_tabs">
-				<li id="personal_settings_tab"><a href="#personal_settings" title="Personal Settings">Personal</a></li>
-				<li id="group_settings_tab"><a href="#groups_settings" title="Groups Settings">Groups</a></li>
-				<li id="drivespace_settings_tab"><a href="{% url wadrivespace %}" title="Drivespace">Drivespace</a></li>
-			</ul>
-		</div>
-		 
-		 
-		 
-		 <!-- Personal Settings -->
+        
+        <div>
+            <ul id="settings_tabs">
+                <li id="personal_settings_tab"><a href="#personal_settings" title="Personal Settings">Personal</a></li>
+                <li id="group_settings_tab"><a href="#groups_settings" title="Groups Settings">Groups</a></li>
+                <li id="drivespace_settings_tab"><a href="{% url wadrivespace %}" title="Drivespace">Drivespace</a></li>
+            </ul>
+        </div>
+         
+         
+         
+         <!-- Personal Settings -->
         <div id="personal_settings" class="settings_content">
          <!--<h1>{% trans "My account" %}</h1>-->
-	    {{ block.super }}
+        {{ block.super }}
 
             
         <form class="standard_form" action="{% url wamyaccount "save" %}" method="POST">
         
-			<div id="avatar">
-                <img src="{% url wamyphoto %}" class="imgzoom"/>    			 
+            <div id="avatar">
+                <img src="{% url wamyphoto %}" class="imgzoom"/>                 
                 <a class="btn silver" href="{% url wamanageavatar eventContext.userId %}">
                     <span>Change</span>
                 </a> 
-		 
-    			{% if myaccount.hasAvatar %} 
-    			<a class="btn silver" href="{% url wamanageavatar eventContext.userId "deletephoto" %}">
+         
+                {% if myaccount.hasAvatar %} 
+                <a class="btn silver" href="{% url wamanageavatar eventContext.userId "deletephoto" %}">
                     <span>Delete</span>
                 </a>
-    			{% endif %}
+                {% endif %}
              </div>
-			
-		     
+            
              
-		    <div id="personal_details">
+             
+            <div id="personal_details">
                 
                 {% for field in form %}
-               	    {{ field.label_tag }}
+                       {{ field.label_tag }}
                     <!-- Commented out until this can sit inside the label -->
                     <!--{% if field.field.required %}*{% endif %} -->
                     {{ field }}
@@ -152,19 +186,15 @@
                 {% else %}
                 
                 <div id="password">
-                    
-                    <div id="password_change_dialog">
-							{% block change_password %}
-							    {% include "webadmin/password.html" %}
-                            {% endblock %}
-                    </div>
-					
+
                     <div id="password_change">
                         <label>Password:</label>
                         <a class="btn silver" id="change_password">
                             <span>Change  Password</span>
                         </a>
                     </div>
+
+                    <span id="password_change_message"></span>
                 </div>
                 
                 <a href="{% url wamanagechangepasswordid eventContext.userId %}">Boom</a>
@@ -185,7 +215,38 @@
         
     </div>
 
+    <!-- hidden dialog for password change -->
+    <div id="password_change_dialog">
+        <h1>{% trans "Change Password" %}</h1>
 
+        <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
+        <br/>
+
+        <form id="change_password_form" action="{% url wamanagechangepasswordid eventContext.userId %}" method="POST">
+
+            {% if error %}<div class="error">{{ error|safe|linebreaks }}</div>{% endif %}
+
+            <table>
+                <tbody>
+                    {% for field in password_form %}
+                    <tr>
+                        <td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td class="input">{{ field }}</td>
+                        <td>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="2" class="input"><br/>
+                            <input type="submit" value="{% trans 'Save' %}" />
+                            <input id="password_cancel" type="button" value="{% trans 'Cancel' %}" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
     
     
     
@@ -196,7 +257,7 @@
     {% if myaccount.groupsCount %}
     <div id="groups_settings" class="settings_content">
         
-		<!--<h1>{% trans "Owned Groups" %}</h1><br/>-->
+        <!--<h1>{% trans "Owned Groups" %}</h1><br/>-->
     
         <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
     
