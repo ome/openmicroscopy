@@ -128,51 +128,6 @@ def getShareConnection (request, share_id):
 ################################################################################
 # decorators
 
-def isUserConnected (f):
-    def wrapped (request, *args, **kwargs):
-        #this check the connection exist, if not it will redirect to login page
-        server = string_to_dict(request.REQUEST.get('path')).get('server',request.REQUEST.get('server', None))
-        url = request.REQUEST.get('url')
-        if url is None or len(url) == 0:
-            url = request.get_full_path()
-        
-        conn = None
-        try:
-            conn = getBlitzConnection(request, useragent="OMERO.web")
-        except Exception, x:
-            logger.error(traceback.format_exc())
-        if conn is None:
-            # TODO: Should be changed to use HttpRequest.is_ajax()
-            # http://docs.djangoproject.com/en/dev/ref/request-response/
-            # Thu  6 Jan 2011 09:57:27 GMT -- callan at blackcat dot ca
-            if request.is_ajax():
-                return HttpResponseForbidden("Could not get connection to OMERO");
-            _session_logout(request, request.REQUEST.get('server', None))
-            if server is not None:
-                return HttpLoginRedirect(reverse("weblogin")+(("?url=%s&server=%s") % (url,server)))
-            return HttpLoginRedirect(reverse("weblogin")+(("?url=%s") % url))
-        
-        conn_share = None
-        share_id = kwargs.get('share_id', None)
-        if share_id is not None:
-            sh = conn.getShare(share_id)
-            if sh is not None:
-                try:
-                    if sh.getOwner().id != conn.getEventContext().userId:
-                        conn_share = getShareConnection(request, share_id)
-                except Exception, x:
-                    logger.error(traceback.format_exc())
-        
-        sessionHelper(request)
-        navHelper(request, conn)
-        kwargs["error"] = request.REQUEST.get('error')
-        kwargs["conn"] = conn
-        kwargs["conn_share"] = conn_share
-        kwargs["url"] = url
-        return f(request, *args, **kwargs)
-    return wrapped
-
-
 def navHelper(request, conn):
     
     from django.conf import settings

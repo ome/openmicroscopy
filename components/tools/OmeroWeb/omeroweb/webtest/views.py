@@ -3,7 +3,6 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
-from omeroweb.webclient.views import isUserConnected
 from omeroweb.webadmin.custom_models import Server
 
 from omeroweb.webclient.decorators import login_required
