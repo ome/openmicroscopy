@@ -227,7 +227,7 @@ def render_channel_overlay (request, **kwargs):
     return rsp
 
 
-@isUserConnected
+@login_required()
 def add_annotations (request, **kwargs):
     """
     Creates a L{omero.gateway.CommentAnnotationWrapper} and adds it to the images according 
@@ -241,9 +241,6 @@ def add_annotations (request, **kwargs):
                             
     @return:            A simple html page with a success message 
     """
-    
-    conn = kwargs['conn']
-    
     idList = request.REQUEST.get('imageIds', None)    # comma - delimited list
     if idList:
         imageIds = [long(i) for i in idList.split(",")]
