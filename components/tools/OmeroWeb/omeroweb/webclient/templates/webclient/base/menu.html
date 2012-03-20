@@ -20,7 +20,7 @@
 {% endcomment %}
 
 <ul>
-	<li class="home"><a href="{% url webindex %}" title="Home">{% trans "Home" %}</a></li>
+	<li class="home"><a href="{% url webindex %}" title="Feed">{% trans "Feed" %}</a></li>
     <li class="userdata usertags basket status"><a href="{% url load_template "userdata" %}" title="Browse Data via Projects, Tags etc">{% trans "Data" %}</a></li>
     <!--<li class="history"><a href="{% url load_template "history" %}" title="History">{% trans "History" %}</a></li>-->
     {% if eContext.context.isAdmin %}
