@@ -30,10 +30,6 @@ public class LoggingImportMonitor implements IObserver
         if (event instanceof IMPORT_DONE) {
             IMPORT_DONE ev = (IMPORT_DONE) event;
             log.info(event.toLog());
-            System.err.println("Imported pixels:");
-            for (Pixels p : ev.pixels) {
-                System.out.println(p.getId().getValue());
-            }
         } else if (event instanceof FILE_UPLOAD_STARTED) {
             FILE_UPLOAD_STARTED ev = (FILE_UPLOAD_STARTED) event;
             log.info(event.toLog());
