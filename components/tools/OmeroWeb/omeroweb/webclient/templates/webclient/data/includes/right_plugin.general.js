@@ -46,7 +46,7 @@ $(function () {
             // handle batch annotation...
             var productListQuery = new Array();
             for (var i=0; i<selected.length; i++) {
-                productListQuery[i] = selected[i]["id"];
+                productListQuery[i] = selected[i]["id"].replace("-","=");
             }
             var query = '{% url batch_annotate %}'+"?"+productListQuery.join("&")
             $metadata_general.load(query);

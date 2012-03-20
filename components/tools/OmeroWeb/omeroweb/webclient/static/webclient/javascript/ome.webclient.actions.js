@@ -3,6 +3,14 @@ var multi_key = function() {
     else return "ctrl";
 };
 
+jQuery.fn.hide_if_empty = function() {
+    if ($(this).children().length == 0) {
+        $(this).hide();
+    } else {
+        $(this).show();
+    }
+  return this;
+};
 
 var addToBasket = function(selected, prefix) {
     var productListQuery = new Array("action=add");
@@ -91,7 +99,8 @@ var basket_selection_changed = function($selected) {
 
     var selected_objs = [];
     $selected.each(function(i){
-        selected_objs.push( {"id":$(this).attr('id'), "rel":$(this).attr('rel')} );
+        // we only support images in basket:
+        selected_objs.push( {"id":"image-"+$(this).attr('id'), "rel":"image"} );
     });
     
     $("body")
@@ -123,7 +132,6 @@ var multipleAnnotation = function(selected, index, prefix){
         if (index != null && index > -1) {
             query += "&index="+index;
         }
-        //loadMetadataPanel(query);
         $("body")
             .data("selected_objects.ome", productListQuery)
             .trigger("selection_change.ome");
@@ -231,27 +239,6 @@ function doPagination(view, page) {
     return false;
 }
 
-function makeShare(prefix) {
-    if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
-        alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
-    } else { 
-        var productArray = $("input[type='checkbox']:checked");
-        var productListQuery = "";
-        if (productArray.length > 0 ) {
-            productArray.each(function() {
-                if(this.checked) {
-                    productListQuery += "&"+this.name+"="+this.id;
-                }
-            });
-        } else {
-            productListQuery += "&"+productArray.name+"="+productArray.id;
-        }
-    }
-    
-    src = prefix+'?'+productListQuery+'';
-    loadMetadataPanel(src);
-    return false;
-}
 
 function makeDiscussion() {
     src = '/webclient/basket/todiscuss/';

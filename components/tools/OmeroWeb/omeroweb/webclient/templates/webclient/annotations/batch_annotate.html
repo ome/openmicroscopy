@@ -31,16 +31,18 @@
 {% block script %}
 
     <script type="text/javascript">
-        var show_batch_msg = function(text) {
-            $("#batch_ann_msg").html(text).show().delay(1200).fadeOut(1000);
-        }
-        var show_batch_error = function(text) {
-            $("#batch_ann_error").html(text + "<div><u>Click to Close</u></div>").show().click(function(){
-                $(this).hide();
-            })
-        }
-        $(document).ready(function() 
-            {
+
+        $(document).ready(function() {
+            
+                var show_batch_msg = function(text) {
+                    $("#batch_ann_msg").html(text).show().delay(1200).fadeOut(1000);
+                }
+                var show_batch_error = function(text) {
+                    $("#batch_ann_error").html(text + "<div><u>Click to Close</u></div>").show().click(function(){
+                        $(this).hide();
+                    });
+                }
+
                 $("#comments_container").hide_if_empty();
                 $("#fileanns_container").hide_if_empty();
                 $("#tags_container").hide_if_empty();

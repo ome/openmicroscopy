@@ -73,8 +73,53 @@
                 });
             }
         };
+
+        function makeShare(prefix) {
+            if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
+                alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
+            } else { 
+                var productArray = $("input[type='checkbox']:checked");
+                var productListQuery = "";
+                if (productArray.length > 0 ) {
+                    productArray.each(function() {
+                        if(this.checked) {
+                            productListQuery += "&"+this.name+"="+this.id;
+                        }
+                    });
+                } else {
+                    productListQuery += "&"+productArray.name+"="+productArray.id;
+                }
+            }
+
+            src = prefix+'?'+productListQuery+'';
+            $("#create_share_form").dialog("open");
+            // load form via AJAX...
+            $("#create_share_form").load(src);
+            return false;
+        }
         
         $(document).ready(function(){
+            
+            // since we are using 3-column layout (to extend the )
+            hide_left_panel();
+            
+            $("#create_share_form").dialog({
+                autoOpen: false,
+                resizable: true,
+                height: 470,
+                width:420,
+                modal: true,
+                buttons: {
+                    "Accept": function() {
+                        // simply submit the form
+                        $("#create_share_form").submit();
+                        $( this ).dialog( "close" );
+                    },
+                    "Cancel": function() {
+                        $( this ).dialog( "close" );
+                    }
+                }
+            });
             
             $("table#dataTable tbody").selectable({
                 filter: 'tr',
@@ -154,28 +199,12 @@
     {% else %}
         <p>{% trans "Basket is empty." %}</p>
     {% endif %}
-</div>    
+</div>
+
+<!-- hidden form for creating share - shown in dialog & loaded by AJAX -->
+<form id="create_share_form" action="{% url basket_action 'createshare' %}" method="post" title="Create Share">
+</form>
     
 {% endblock %}
 
-{% block right %}
-    
-    <div id="metadata_details">
-        <div id="metadata_description">
-            <h1>{% trans "Basket" %}</h1>
-                <p>{% trans "This page shows the current contents of your basket." %}
-                    {% if not basket.sizeOfBasket %}
-                        {% trans "Your basket is empty. Please add some of your bio-data from" %}
-                        <a href="{% url load_template "userdata" %}">{% trans "Data" %}</a>
-                        {% trans "or initiate a discussion." %}
-                    {% else %}
-                        <p><img class="loader" alt="Loading" src="{% static "webclient/image/help/basket1.gif" %}" /></p>
-                        {% trans "Now you can manage items from your basket by selecting them and then clicking the button on the toolbar." %}
-                        {% trans "To select more then one item just click and move mouse over them or use CTRL key and select each individual." %}
-                        {% trans "Selected items are market by gray." %}
-                    {% endif %}
-                </p>
-        </div>
-    </div>
-    
-{% endblock %}
+

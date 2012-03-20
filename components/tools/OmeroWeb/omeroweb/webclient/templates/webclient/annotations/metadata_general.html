@@ -27,16 +27,7 @@
     <script type="text/javascript">
         
         $(document).ready(function()
-            {   
-                jQuery.fn.hide_if_empty = function() {
-                    if ($(this).children().length == 0) {
-                        $(this).hide();
-                    } else {
-                        $(this).show();
-                    }
-                  return this;
-                };
-
+            {
                 jQuery.fn.tooltip_init = function() {
                     $(this).tooltip({
                         bodyHandler: function() {
