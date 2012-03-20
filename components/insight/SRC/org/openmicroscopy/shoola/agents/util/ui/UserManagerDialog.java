@@ -36,21 +36,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
+import javax.swing.JTable;
 import javax.swing.WindowConstants;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout; 
@@ -124,7 +120,10 @@ public class UserManagerDialog
 	private JButton apply;
 
 	/** The component hosting the users for a given group. */
-	private JList users;
+	private JTable members;
+	
+	/** The component hosting the users for a given group. */
+	private JTable owners;
 	
 	/** The current user. */
 	private ExperimenterData loggedUser;
@@ -148,15 +147,25 @@ public class UserManagerDialog
 	/** Switches the user. */
 	private void apply()
 	{
-		Map<Long, ExperimenterData> 
-		r = new HashMap<Long, ExperimenterData>(1);
-		Object user = users.getSelectedValue();
-		if (user == null) {
-			firePropertyChange(NO_USER_SWITCH_PROPERTY, Boolean.valueOf(false), 
-					Boolean.valueOf(true));
-			return;
+		Map<Long, List<ExperimenterData>> 
+		r = new HashMap<Long, List<ExperimenterData>>();
+		//Check the selected users
+		Boolean b;
+		List<ExperimenterData> users = new ArrayList<ExperimenterData>();
+		for (int i = 0; i < owners.getRowCount(); i++) {
+			b = (Boolean) owners.getValueAt(i, 1);
+			if (b.booleanValue()) {
+				users.add((ExperimenterData) owners.getValueAt(i, 0));
+			}
 		}
-		r.put(group.getId(), (ExperimenterData) user);
+		
+		for (int i = 0; i < members.getRowCount(); i++) {
+			b = (Boolean) members.getValueAt(i, 1);
+			if (b.booleanValue()) {
+				users.add((ExperimenterData) members.getValueAt(i, 0));
+			}
+		}
+		r.put(group.getId(), users);
 		firePropertyChange(USER_SWITCH_PROPERTY, null, r);
 		cancel();
 	}
@@ -169,6 +178,25 @@ public class UserManagerDialog
 	}
 	
 	/**
+	 * Returns <code>true</code> if the experimenter is already displayed.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param experimenter The experimenter to handle.
+	 * @return See above.
+	 */
+	private boolean isAlreadyDisplayed(ExperimenterData experimenter)
+	{
+		Iterator<ExperimenterData> i = selectedUsers.iterator();
+		ExperimenterData exp;
+		long id = experimenter.getId();
+		while (i.hasNext()) {
+			exp = i.next();
+			if (exp.getId() == id) return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Fills the users' list with the specified objects.
 	 * 
 	 * @param group The group to handle.
@@ -176,35 +204,34 @@ public class UserManagerDialog
 	private void fillList(GroupData group)
 	{
 		if (group == null) return;
-		DefaultListModel model = (DefaultListModel) users.getModel();
+		DefaultTableModel model = (DefaultTableModel) owners.getModel();
 		int index = 0;
 		List l = sorter.sort(group.getLeaders());
 		Iterator i = l.iterator();
 		ExperimenterData exp;
 		List<Long> ids = new ArrayList<Long>();
-		if (l.size() > 0) {
-			model.add(index, "Group's owners");
-			index++;
-		}
 		while (i.hasNext()) {
 			exp = (ExperimenterData) i.next();
 			if (exp.getId() != loggedUser.getId()) {
-				model.add(index, exp);
-				index++;
+				model.insertRow(index, new Object[]{exp, 
+						new Boolean(isAlreadyDisplayed(exp))});
 				ids.add(exp.getId());
+				index++;
 			}
 		}
 		if (group.getLeaders().size() == group.getExperimenters().size())
 			return;
-		model.add(index, "Members");
-		index++;
+		//model.add(index, "Members");
+		model = (DefaultTableModel) members.getModel();
 		l = sorter.sort(group.getExperimenters());
 		i = l.iterator();
+		index = 0;
 		while (i.hasNext()) {
 			exp = (ExperimenterData) i.next();
 			if (exp.getId() != loggedUser.getId() &&
 				!ids.contains(exp.getId())) {
-				model.add(index, exp);
+				model.insertRow(index, new Object[]{exp, 
+						new Boolean(isAlreadyDisplayed(exp))});
 				index++;
 			}
 		}
@@ -224,16 +251,15 @@ public class UserManagerDialog
 				cancel();
 			}
 		});
+		/*
 		users.addListSelectionListener(new ListSelectionListener() {
 			
-			/**
-			 * Sets the enabled flag of the apply button.
-			 */
 			public void valueChanged(ListSelectionEvent e) {
 				Object value = users.getSelectedValue();
 				apply.setEnabled(value instanceof ExperimenterData);
 			}
 		});
+		*/
 		cancel.setActionCommand(""+CANCEL);
 		cancel.addActionListener(this);
 		apply.setActionCommand(""+APPLY);
@@ -253,15 +279,13 @@ public class UserManagerDialog
 		cancel.setToolTipText(
 				UIUtilities.formatToolTipText(CANCEL_DESCRIPTION));
 		apply = new JButton("Apply");
-		apply.setEnabled(false);
+		//apply.setEnabled(false);
 		apply.setToolTipText(
 				UIUtilities.formatToolTipText(APPLY_DESCRIPTION));
 		getRootPane().setDefaultButton(apply);
-		users = new JList(new DefaultListModel());
+		members = new SelectionTable(userIcon);
+		owners = new SelectionTable(userIcon);
 		fillList(group);
-		users.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		users.setLayoutOrientation(JList.VERTICAL);
-		users.setCellRenderer(new UserListRenderer(this, userIcon));
 		attachListeners();
 	}
 	
@@ -284,7 +308,24 @@ public class UserManagerDialog
 		}
 		//content.add(UIUtilities.setTextFont("Experimenters "),
 		//		"0, 2, LEFT, TOP");
-		content.add(new JScrollPane(users), "0, 2, 1, 2");
+		int rows = owners.getRowCount();
+		JPanel p = new JPanel();
+		
+		p.setBackground(UIUtilities.BACKGROUND);
+		double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
+				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5,
+			TableLayout.PREFERRED, TableLayout.PREFERRED}};
+		p.setLayout(new TableLayout(size));
+		if (rows > 0) {
+			p.add(UIUtilities.setTextFont("Group's owners"), "0, 0");
+			p.add(owners, "0, 1, 1, 1");
+		}
+		rows = members.getRowCount();
+		if (rows > 0) {
+			p.add(UIUtilities.setTextFont("Members"), "0, 3");
+			p.add(members, "0, 4, 1, 4");
+		}
+		content.add(new JScrollPane(p), "0, 2, 1, 2");
 		return content;
 	}
 	

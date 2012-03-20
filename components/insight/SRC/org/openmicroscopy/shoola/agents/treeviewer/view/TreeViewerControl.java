@@ -977,13 +977,13 @@ class TreeViewerControl
 			Map m = (Map) pce.getNewValue();
 			Iterator i = m.entrySet().iterator();
 			Long groupID;
-			ExperimenterData d;
+			List<ExperimenterData> users;
 			Entry entry;
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				groupID = (Long) entry.getKey();
-				d = (ExperimenterData) entry.getValue();
-				model.setHierarchyRoot(groupID, d);
+				users = (List<ExperimenterData>) entry.getValue();
+				model.setHierarchyRoot(groupID, users);
 			}
 		} else if (UserManagerDialog.NO_USER_SWITCH_PROPERTY.equals(name)) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();

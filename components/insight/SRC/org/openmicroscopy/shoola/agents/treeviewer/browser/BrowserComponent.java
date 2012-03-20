@@ -1210,7 +1210,6 @@ class BrowserComponent
 			node = view.getTreeRoot();
 		} else {
 			//Find the group
-			System.err.println("group:"+groupID);
 			ExperimenterVisitor v = new ExperimenterVisitor(this, groupID);
 			accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 			List<TreeImageDisplay> list = v.getNodes();

@@ -447,10 +447,11 @@ public interface TreeViewer
 	 * Sets the root of the retrieved hierarchies. 
 	 * 
 	 * @param rootID    	The Id of the root.
-	 * @param experimenter	The experimenter or <code>null</code> if 
+	 * @param experimenters	The experimenters or <code>null</code> if 
 	 * 						the level is {@link #GROUP_ROOT}.
 	 */
-	public void setHierarchyRoot(long rootID, ExperimenterData experimenter);
+	public void setHierarchyRoot(long rootID, 
+			List<ExperimenterData> experimenters);
 
 	/**
 	 * Returns <code>true</code> if the specified object is writable,

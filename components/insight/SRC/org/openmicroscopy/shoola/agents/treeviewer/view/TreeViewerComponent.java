@@ -1454,24 +1454,66 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setHierarchyRoot(long, ExperimenterData)
+	 * @see TreeViewer#setHierarchyRoot(long, List)
 	 */
 	public void setHierarchyRoot(long userGroupID, 
-			ExperimenterData experimenter)
+			List<ExperimenterData> experimenters)
 	{
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
-		if (experimenter == null) return;
+		if (experimenters == null) return;
+		List<Long> ids = new ArrayList<Long>();
+		Iterator<ExperimenterData> ii = experimenters.iterator();
+		while (ii.hasNext()) {
+			ids.add(ii.next().getId());
+		}
 		Map<Integer, Browser> browsers = model.getBrowsers();
-		Iterator i = browsers.entrySet().iterator();
-		Browser browser;
+		Iterator i;
+		//first remove all the users displayed.
+		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+		ExperimenterVisitor visitor = new ExperimenterVisitor(browser, -1, 
+				userGroupID);
+		browser.accept(visitor);
+		List<TreeImageDisplay> nodes = visitor.getNodes();
+		List<ExperimenterData> users = new ArrayList<ExperimenterData>();
+		Iterator<TreeImageDisplay> k = nodes.iterator();
+		TreeImageDisplay n;
+		ExperimenterData exp;
+		long currentUser = model.getExperimenter().getId();
+		while (k.hasNext()) {
+			n = k.next();
+			if (n.getUserObject() instanceof ExperimenterData) {
+				exp = (ExperimenterData) n.getUserObject();
+				if (!ids.contains(exp.getId()) && exp.getId() != currentUser) {
+					users.add(exp);
+				}
+			}
+		}
 		Entry entry;
 		userGroupID = model.getSelectedGroupId();
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			browser = (Browser) entry.getValue();
-			browser.addExperimenter(experimenter, userGroupID);
+		
+		//First remove;
+		Iterator<ExperimenterData> j = users.iterator();
+		while (j.hasNext()) {
+			exp = j.next();
+			i = browsers.entrySet().iterator();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				browser = (Browser) entry.getValue();
+				browser.removeExperimenter(exp);
+			}
+		}
+		//Add
+		j = experimenters.iterator();
+		while (j.hasNext()) {
+			exp = j.next();
+			i = browsers.entrySet().iterator();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				browser = (Browser) entry.getValue();
+				browser.addExperimenter(exp, userGroupID);
+			}
 		}
 	}
 
