@@ -35,11 +35,14 @@ import javax.swing.table.DefaultTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.util.ui.IconManager;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
- * 
+ * Displays the object added to the selection table.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,6 +52,63 @@ class SelectionTableRenderer
 	extends DefaultTableCellRenderer
 {
 
+	/** The private group icon.*/
+	private static Icon PRIVATE;
+	
+	/** The private group icon.*/
+	private static Icon READ_GROUP;
+	
+	/** The private group icon.*/
+	private static Icon READ_LINK;
+	
+	/** The private group icon.*/
+	private static Icon PUBLIC;
+	
+	static {
+		IconManager icons = IconManager.getInstance();
+		PRIVATE = icons.getIcon(IconManager.PRIVATE_GROUP);
+		READ_GROUP = icons.getIcon(IconManager.READ_GROUP);
+		READ_LINK = icons.getIcon(IconManager.READ_LINK_GROUP);
+		PUBLIC = icons.getIcon(IconManager.PUBLIC_GROUP);
+	}
+	
+	/** The ref table.*/
+	private SelectionTable model;
+	
+	/**
+	 * Sets the icon corresponding to the permissions of the specified group.
+	 * 
+	 * @param group The group to handle.
+	 */
+	private void setGroupIcon(GroupData group)
+	{
+		Integer level = model.getLevel(group);
+		if (level == null) return;
+		switch (level.intValue()) {
+			case AdminObject.PERMISSIONS_PRIVATE:
+				setIcon(PRIVATE);
+				break;
+			case AdminObject.PERMISSIONS_GROUP_READ:
+				setIcon(READ_GROUP);
+				break;
+			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+				setIcon(READ_LINK);
+				break;
+			case AdminObject.PERMISSIONS_PUBLIC_READ:
+				setIcon(PUBLIC);
+		}
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model The value to set.
+	 */
+	SelectionTableRenderer(SelectionTable model)
+	{
+		this.model = model;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -56,7 +116,7 @@ class SelectionTableRenderer
 	 */
 	SelectionTableRenderer(Icon icon)
 	{
-		setIcon(icon);
+		if (icon != null) setIcon(icon);
 	}
 	
 	/**
@@ -78,6 +138,7 @@ class SelectionTableRenderer
 			} else if (element instanceof GroupData) {
 				GroupData group = (GroupData) element;
 				setText(group.getName());
+				setGroupIcon(group);
 			}
 		} 
 		return this;

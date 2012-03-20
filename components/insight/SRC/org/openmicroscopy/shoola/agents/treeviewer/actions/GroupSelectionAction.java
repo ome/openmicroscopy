@@ -172,7 +172,7 @@ public class GroupSelectionAction
 	 */
     public void actionPerformed(ActionEvent e)
     {
-    	model.setUserGroup(group, add);
+    	//model.setUserGroup(group, add);
     }
 	
 }

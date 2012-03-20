@@ -99,6 +99,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RunScriptAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SendFeedbackAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchGroup;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
@@ -124,6 +125,7 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
+import org.openmicroscopy.shoola.agents.util.ui.GroupManagerDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
@@ -370,6 +372,12 @@ class TreeViewerControl
 	static final Integer    VIEW_IN_IJ = Integer.valueOf(72);
 	
 	/** 
+	 * Identifies the <code>Switch group action</code> in the 
+	 * File menu.
+	 */
+	static final Integer    SWITCH_GROUP = Integer.valueOf(73);
+	
+	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
 	 */
@@ -563,6 +571,7 @@ class TreeViewerControl
 		actionsMap.put(VIEW_IN_IJ, new ViewInPlugin(model, TreeViewer.IMAGE_J));
 		actionsMap.put(AVAILABLE_SCRIPTS, new RunScriptAction(model));
 		actionsMap.put(REMOVE_GROUP, new RemoveGroupNode(model));
+		actionsMap.put(SWITCH_GROUP, new SwitchGroup(model));
 	}
 
 	/** 
@@ -1356,6 +1365,15 @@ class TreeViewerControl
 			ActionEvent event = 
 				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
 			a.actionPerformed(event);
+		} else if (GroupManagerDialog.GROUP_SWITCH_PROPERTY.equals(name)) {
+			List<GroupData> groups = (List<GroupData>) pce.getNewValue();
+			if (groups.size() == 0) {
+				UserNotifier un = 
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo(GroupManagerDialog.TITLE, "At least one group " +
+						"must be selected.");
+				return;
+			}
 		}
 	}
 	

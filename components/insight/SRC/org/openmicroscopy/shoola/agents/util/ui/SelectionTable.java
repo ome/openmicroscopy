@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.util.ui;
 
 
 //Java imports
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.Icon;
@@ -39,6 +40,8 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.GroupData;
 
 /** 
  * Customized table to display the groups/users to select.
@@ -60,6 +63,15 @@ class SelectionTable
 		COLUMNS.add("");
 	}
 	
+	/** The groups to display.*/
+	private Map<GroupData, Integer> groups;
+	
+	/** Creates a new instance.*/
+	SelectionTable()
+	{
+		this(null);
+	}
+	
 	/** 
 	 * Creates a new instance.
 	 * 
@@ -71,13 +83,34 @@ class SelectionTable
 		setModel(new SelectionTableModel(COLUMNS));
 		TableColumnModel tcm = getColumnModel();
 		TableColumn tc = tcm.getColumn(0);
-		tc.setCellRenderer(new SelectionTableRenderer(icon));
+		if (icon != null) tc.setCellRenderer(new SelectionTableRenderer(icon));
+		else tc.setCellRenderer(new SelectionTableRenderer(this));
 		Highlighter h = HighlighterFactory.createAlternateStriping(
 				UIUtilities.BACKGROUND_COLOUR_EVEN, 
 				UIUtilities.BACKGROUND_COLOUR_ODD);
 		addHighlighter(h);
 	}
 
+	/**
+	 * Sets the groups.
+	 * 
+	 * @param groups The groups to set.
+	 */
+	void setGroups(Map<GroupData, Integer> groups)
+	{
+		this.groups = groups;
+	}
+	
+	/**
+	 * Returns the permissions level of the group.
+	 * 
+	 * @param group The group to handle.
+	 * @return See above.
+	 */
+	Integer getLevel(GroupData group)
+	{
+		return groups.get(group);
+	}
 	
 	/** Inner class to display checkbox.*/
 	class SelectionTableModel 

@@ -894,12 +894,11 @@ public interface TreeViewer
 	void openWith(ApplicationData data);
 
 	/**
-	 * Adds the group to the display if not already displayed
+	 * Adds/Removes the groups to/from the display.
 	 * 
-	 * @param group The group to set.
-	 * @param add Pass <code>true</code> to add, <code>false</code> otherwise.
+	 * @param groups The groups to set.
 	 */
-	void setUserGroup(GroupData group, boolean add);
+	void setUserGroup(List<GroupData> groups);
 
 	/** Opens the image in a separate window or in the main viewer. */
 	void setFullScreen();
@@ -1076,5 +1075,12 @@ public interface TreeViewer
 	 * @param group The data to move.
 	 */
 	void moveTo(GroupData group, List<DataObject> nodes);
+
+	/**
+	 * Displays the groups to select.
+	 * 
+	 * @param point The location of the mouse pressed.
+	 */
+	void displayUserGroups(Point point);
 
 }

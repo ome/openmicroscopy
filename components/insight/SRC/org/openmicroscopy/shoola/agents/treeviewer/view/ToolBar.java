@@ -67,6 +67,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RunScriptAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchGroup;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -312,6 +313,12 @@ class ToolBar
     				JMenuItem item = new JMenuItem(a);
     				item.setText(SwitchUserAction.NAME);
     				selectionMenu.add(item);
+    				a = controller.getAction(TreeViewerControl.SWITCH_GROUP);
+    				a.putValue(Action.SMALL_ICON, null);
+    				item = new JMenuItem(a);
+    				item.setText(SwitchGroup.NAME);
+    				selectionMenu.add(item);
+    				/*
     				JMenu menu = new JMenu(GroupSelectionAction.NAME_ADD);
     				menu.setToolTipText(GroupSelectionAction.DESCRIPTION_ADD);
     				List<JMenuItem> items = createMenuItem(true);
@@ -320,6 +327,7 @@ class ToolBar
 						menu.add(i.next());
 					}
     				selectionMenu.add(menu);
+    				*/
     				/*
     				menu = new JMenu(GroupSelectionAction.NAME);
     				menu.setToolTipText(GroupSelectionAction.DESCRIPTION);

@@ -85,6 +85,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
+import org.openmicroscopy.shoola.agents.util.ui.GroupManagerDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
@@ -93,6 +94,7 @@ import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -3468,23 +3470,22 @@ class TreeViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setUserGroup(GroupData, boolean)
+	 * @see TreeViewer#setUserGroup(List)
 	 */
-	public void setUserGroup(GroupData group, boolean add)
+	public void setUserGroup(List<GroupData> groups)
 	{
 		if (model.getState() != READY) return;
-		if (group == null) return;
+		if (groups == null || groups.size() == 0) return;
 		ExperimenterData exp = TreeViewerAgent.getUserDetails();
 		//if (group.getId() == model.getSelectedGroupId()) return;
 		//Scan browser and check if group is there.
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
 		if (browser == null) return;
-		if (add) {
-			ExperimenterVisitor v = new ExperimenterVisitor(browser, 
-					group.getId());
-			browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
-			if (v.getNodes().size() != 0) return;
-		}
+		/*
+		ExperimenterVisitor v = new ExperimenterVisitor(browser, 
+				group.getId());
+		browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
+		if (v.getNodes().size() != 0) return;
 		
 		//Add the group to the display and set it as the default group.
 		long gid = model.getSelectedGroupId();
@@ -3495,6 +3496,7 @@ class TreeViewerComponent
 			i.next().setUserGroup(group, add);
 		}
 		notifyChangeGroup(gid);
+		*/
 	}
 
 	/** 
@@ -4314,6 +4316,48 @@ class TreeViewerComponent
 			UIUtilities.centerAndShow(dialog);
 			model.fireMoveDataLoading(ctx, dialog, b);
 		}
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#displayUserGroups(Point)
+	 */
+	public void displayUserGroups(Point location)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
+		IconManager icons = IconManager.getInstance();
+		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		if (groups.size() <= 1) return;
+		Map<GroupData, Integer> map = new HashMap<GroupData, Integer>();
+		Iterator k = groups.iterator();
+		GroupData g;
+		int level;
+		AdminService svc = TreeViewerAgent.getRegistry().getAdminService();
+		while (k.hasNext()) {
+			g = (GroupData) k.next();
+			map.put(g, svc.getPermissionLevel(g));
+		}
+		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+		ExperimenterVisitor visitor = new ExperimenterVisitor(browser, -1);
+		browser.accept(visitor);
+		List<TreeImageDisplay> nodes = visitor.getNodes();
+		List<GroupData> selected = new ArrayList<GroupData>();
+		Iterator<TreeImageDisplay> j = nodes.iterator();
+		TreeImageDisplay n;
+		while (j.hasNext()) {
+			n = j.next();
+			if (n.getUserObject() instanceof GroupData) {
+				selected.add((GroupData) n.getUserObject());
+			}
+		}
+		GroupManagerDialog dialog = new GroupManagerDialog(f, map, selected,
+				icons.getIcon(IconManager.OWNER_GROUP_48));
+		dialog.addPropertyChangeListener(controller);
+		dialog.setDefaultSize();
+		UIUtilities.showOnScreen(dialog, location);
 	}
 
 }

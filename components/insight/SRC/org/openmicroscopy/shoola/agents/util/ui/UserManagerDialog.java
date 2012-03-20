@@ -86,20 +86,20 @@ public class UserManagerDialog
 	public static final String		NO_USER_SWITCH_PROPERTY = "noUserSwitch";
 	
 	/** The default size of the window. */
-	private static final Dimension	DEFAULT_SIZE = new Dimension(400, 400);
+	static final Dimension	DEFAULT_SIZE = new Dimension(400, 400);
 	
 	/** The window's title. */
-	private static final String		TITLE = "Experimenter Selection";
+	private static final String		TITLE = "Experimenters Selection";
 	
 	/** The window's description. */
-	private static final String		TEXT = "Select an experimenter.";
+	private static final String		TEXT = "Select the experimenters.";
 	
 	/** The description of the {@link #cancel} button. */
 	private static final String		CANCEL_DESCRIPTION = "Close the window.";
 	
 	/** The description of the {@link #apply} button. */
-	private static final String		APPLY_DESCRIPTION = "View selected " +
-			"user's data.";
+	private static final String		APPLY_DESCRIPTION = "Select the " +
+			"experimenters.";
 	
 	/** Action command ID indicating to close the window. */
 	private static final int		CANCEL = 0;
@@ -111,7 +111,7 @@ public class UserManagerDialog
 	 * The size of the invisible components used to separate buttons
 	 * horizontally.
 	 */
-	private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
+	static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
   
 	/** Button to close without applying the selection. */
 	private JButton cancel;
