@@ -6,6 +6,9 @@ from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webclient.views import isUserConnected
 from omeroweb.webadmin.custom_models import Server
 
+from omeroweb.webclient.decorators import login_required
+from omeroweb.connector import Connector
+
 from cStringIO import StringIO
 
 import settings
