@@ -461,15 +461,12 @@ def dataset_split_view (request, datasetId, **kwargs):
         'channels':channels, 'size': size, 'c_left': c_left, 'c_right': c_right})
 
 
-@isUserConnected
+@login_required()
 def image_dimensions (request, imageId, **kwargs):
     """
     Prepare data to display various dimensions of a multi-dim image as axes of a grid of image planes. 
     E.g. x-axis = Time, y-axis = Channel.
     """
-        
-    conn = kwargs['conn']
-    
     image = conn.getObject("Image", imageId)
     if image is None:
         return render_to_response('webtest/demo_viewers/image_dimensions.html', {}) 
