@@ -857,8 +857,12 @@ class TreeViewerControl
 			downloadScript(new ScriptActivityParam(script,
 					ScriptActivityParam.DOWNLOAD));
 		} else {
-			//un.notifyActivity(new ScriptActivityParam(script,
-			//		ScriptActivityParam.RUN));
+			GroupData g = model.getSelectedGroup();
+			if (g == null) 
+				g = TreeViewerAgent.getUserDetails().getDefaultGroup();
+			ctx = new SecurityContext(g.getId());
+			un.notifyActivity(ctx, new ScriptActivityParam(script,
+					ScriptActivityParam.RUN));
 		}
 	}
 	
