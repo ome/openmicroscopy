@@ -376,7 +376,7 @@ def split_view_figure (request, **kwargs):
         'channels': channels, 'split_grey':split_grey, 'merged_names': merged_names, 'proj': proj, 'size': size, 'query_string':query_string})
 
 
-@isUserConnected
+@login_required()
 def dataset_split_view (request, datasetId, **kwargs):
     """
     Generates a web page that displays a dataset in two panels, with the option to choose different
@@ -392,9 +392,6 @@ def dataset_split_view (request, datasetId, **kwargs):
     
     @return:            The http response - html page displaying split view figure.
     """
-    
-    conn = kwargs['conn']
-        
     dataset = conn.getObject("Dataset", datasetId)
     
     try:
