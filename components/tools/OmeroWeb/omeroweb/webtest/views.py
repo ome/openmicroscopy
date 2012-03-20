@@ -60,14 +60,12 @@ def index(request, **kwargs):
     return render_to_response('webtest/index.html', {'images': images, 'imgIds': imgIds, 'dataset': dataset})
 
 
-@isUserConnected
+@login_required()
 def channel_overlay_viewer(request, imageId, **kwargs):
     """
     Viewer for overlaying separate channels from the same image or different images
     and adjusting horizontal and vertical alignment of each
     """
-    conn = kwargs['conn']
-
     image = conn.getObject("Image", imageId)
     default_z = image.getSizeZ()/2
     
