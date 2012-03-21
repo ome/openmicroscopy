@@ -44,7 +44,7 @@ protected:
     void set(int mask, int shift, bool value);
 public:
 
-    PermissionsI();
+    PermissionsI(const std::string& perms = "");
 
     /*
      * Central methods. The optional argument is a requirement

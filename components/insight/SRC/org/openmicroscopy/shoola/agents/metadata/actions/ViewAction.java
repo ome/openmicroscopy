@@ -52,9 +52,19 @@ public class ViewAction
 	extends RndAction
 {
 
-	/** The description of the action. */
-	private static final String DESCRIPTION = "Open the viewer.";
+	/** The name of the action. */
+	public static final String NAME = "View...";
 	
+	/** The description of the action. */
+	public static final String DESCRIPTION = "Open the viewer.";
+	
+	/** Name of the action. */
+	public static final String NAME_IJ = "View in ImageJ...";
+
+    /** Description of the action. */
+	public static final String DESCRIPTION_IJ = "View the selected image " +
+    		"in ImageJ.";
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -66,7 +76,7 @@ public class ViewAction
 		setEnabled(true);
 		IconManager icons = IconManager.getInstance();
 		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.VIEWER));
-        putValue(Action.SHORT_DESCRIPTION, 
+        putValue(Action.SHORT_DESCRIPTION,
                 UIUtilities.formatToolTipText(DESCRIPTION));
 	}
 	

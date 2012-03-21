@@ -5,14 +5,14 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
-#include <boost_fixture.h>
+#include <omero/fixture.h>
 
 using namespace std;
 using namespace omero::api;
 using namespace omero::model;
 using namespace omero::sys;
 
-BOOST_AUTO_TEST_CASE( GuestLogin )
+TEST(GuestTest, GuestLogin )
 {
     try {
         Fixture f;

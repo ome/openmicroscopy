@@ -28,11 +28,6 @@ from integration.helpers import createTestImage
 
 class TestThumbnailPerms(lib.ITest):
 
-    def set_context(self, client, gid):
-        rv = client.getStatefulServices()
-        for prx in rv:
-            prx.close()
-        client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
 
     def testThumbs(self):
 
