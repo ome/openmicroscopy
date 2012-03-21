@@ -67,32 +67,47 @@
     
     
     #left_panel_tab_list{
-        background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(212, 20%, 20%)), to(hsl(212, 20%, 25%))) !important;
+        background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 15%, 30%)), to(hsl(215, 15%, 35%))) !important;
         background-image: -moz-linear-gradient(90deg, hsl(212, 20%, 20%) 0%, hsl(212, 20%, 25%) 100%);
-        border-top: solid 1px hsl(210,20%,11%);
+        border-top: solid 1px hsl(210,20%,25%);
         -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-        border-bottom: solid 1px hsl(210,20%,1%); 
-        border-right:solid 1px hsl(210,10%,10%);
+        border-bottom: solid 1px hsl(210,20%,20%); 
+        border-right:solid 1px hsl(210,10%,25%);
     }
     
         #left_panel_tab_list li {
-            border-left:solid 1px hsl(210,20%,15%);
+            border-right:solid 1px hsl(210,20%,25%);
+        }
+        
+        #left_panel_tab_list li:last-child {
+            border-right: none;
         }
         
         
+        
             #left_panel_tab_list a {
-                border-left:solid 1px rgba(255,255,255,.05);
+                border-left: solid 1px rgba(255,255,255,.05);
     			color:hsl(210,10%,60%);
-                text-shadow: 0 -1px 0 rgba(0,0,0,.7);
+                text-shadow: 0 1px 0 rgba(0,0,0,.4);
             }
     
     		#left_panel_tab_list a:hover { 
-                color:hsl(210,10%,70%);
+                color:hsl(210,10%,85%);
+                background-color:rgba(255,255,255,.1);
     		}
             
-            #left_panel_tab_list .ui-tabs-selected a {
-        			background: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 25%, 18%)), to(hsl(215, 25%, 10%))) !important;
-            }
+            #left_panel_tab_list .ui-tabs-selected {
+				border-right:solid 1px black;
+                position:relative;
+			}
+            
+			
+            
+    			#left_panel_tab_list .ui-tabs-selected a {
+            		background: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 25%, 20%)), to(hsl(215, 25%, 15%))) !important;
+                    -webkit-box-shadow: inset 0 2px 3px rgba(0,0,0,.7);
+                    border-left:solid 1px black;
+                }
             
             
             
@@ -230,12 +245,12 @@
     /* Right & Center Panel Headers */
     
     #center_panel_header, #annotation_tabs_list {
-        background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(212, 15%, 35%)), to(hsl(212, 15%, 45%))) !important;
-        background-image: -moz-linear-gradient(90deg, hsl(212, 15%, 35%) 0%, hsl(212, 15%, 40%) 100%);
+        background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 10%, 75%)), to(hsl(215, 10%, 85%))) !important;
+        background-image: -moz-linear-gradient(90deg, hsl(215, 10%, 75%) 0%, hsl(215, 10%, 85%) 100%);
         border-top: solid 1px hsl(210,20%,30%);
-		-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
-		-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
-		box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+		-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
+		-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
+		box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
     }
     
    
@@ -244,28 +259,30 @@
     /* Right Tab Menu */
     
     #annotation_tabs_list{
-        border-bottom: solid 1px hsl(210,20%,25%); 
-        border-right:solid 1px hsl(210,10%,10%);
+        border-bottom: solid 1px hsl(210,10%,55%); 
+        border-right:solid 1px hsl(210,10%,100%);
     }
     
         #annotation_tabs_list li {
-            border-left:solid 1px hsl(210,15%,26%);
+            border-left:solid 1px hsl(215,10%,60%);
             opacity:1;
         }
         
         
             #annotation_tabs_list a {
-                border-left:solid 1px rgba(255,255,255,.05);
-    			color:hsl(210,10%,60%);
-                text-shadow: 0 -1px 0 rgba(0,0,0,.3);
+                border-left:solid 1px rgba(255,255,255,.15);
+    			color:hsl(210,10%,40%);
+                text-shadow: 0 1px 0 rgba(255,255,255,.6);
             }
     
     		#annotation_tabs_list a:hover { 
-                color:white;
+				background:rgba(255,255,255,.1);
     		}
             
             #annotation_tabs_list .ui-tabs-selected a{
-                background:rgba(255,255,255,.1);
+                background:rgba(255,255,255,.3);
+				color:hsl(210,10%,30%);
+				text-shadow: 0 1px 0 rgba(255,255,255,1);
             }
             
             
@@ -714,11 +731,17 @@
                 background:transparent;
                 -webkit-appearance:none;
                 padding:2px 10px;
-                background:rgba(0,0,0,.2);
+                background:rgba(0,0,0,.1);
                 -webkit-border-radius:3px;
+				top:-1px;
+				position:relative;
+				-moz-border-radius:3px;
+				border-radius:3px;
                 color:white;
-                border:solid 1px rgba(0,0,0,.4);
-                -webkit-box-shadow:0 1px 0 rgba(255,255,255,.1), inset 0 1px 0 rgba(255,255,255,.1);
+                border:solid 1px rgba(0,0,0,.3);
+                -webkit-box-shadow:0 1px 0 rgba(255,255,255,.2), inset 0 1px 0 rgba(255,255,255,.2);
+				-moz-box-shadow:0 1px 0 rgba(255,255,255,.2), inset 0 1px 0 rgba(255,255,255,.2);
+				box-shadow:0 1px 0 rgba(255,255,255,.2), inset 0 1px 0 rgba(255,255,255,.2);
             }
     
        

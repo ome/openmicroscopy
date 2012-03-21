@@ -30,7 +30,7 @@ html body {
 
 body {
     color: #555555;
-	-webkit-font-smoothing:antialiased; /* Deliciously smooths text for webkit browsers */
+	-webkit-font-smoothing: antialiased; /* Deliciously smooths text for webkit browsers */
     font-family: 'HelveticaNeue-Medium', Arial, Verdana, Lucida, Helvetica, sans-serif;
     height: 100%;
     padding: 0px;
@@ -106,9 +106,6 @@ label {
 }
 .align_center {
     text-align: center;
-}
-.padding {
-    padding: 10px;
 }
 
 

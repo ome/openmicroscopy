@@ -136,7 +136,7 @@
                                 "tagset" : {
                                     "valid_children" : [ "tag", "tag-locked" ],
                                     "icon" : {
-                                        "image" : '{% static "webclient/image/knotesred16.png" %}'
+                                        "image" : '{% static "webclient/image/tagset.png" %}'
                                     },
                                     "create_node" : true,
                                     "start_drag" : false,
@@ -156,7 +156,7 @@
                                 "tag" : {
                                     "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{% static "webgateway/img/knotes16.png" %}'
+                                        "image" : '{% static "webclient/image/tag.png" %}'
                                     },
                                     "create_node" : true,
                                     "start_drag" : true,
@@ -398,7 +398,7 @@
     
     <div id="Tags">
         <div class="toolbar">
-            <div id="buttons" class="align_left">
+            <div id="buttons">
                 <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> | 
                 <input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/cancel16.png" %}" alt="Delete" title="Delete" /> 
             </div>
@@ -412,20 +412,39 @@
 </div>
 {% endblock %}
 
+
+
+
+
+
+
 {% block center %}
 
-<!--<div id="content_action"></div>
-<div class="clear"> </div>-->
+<div id="center_panel_header">
+	<div id="center_panel_chooser">
+	    <select>
+	        <option value="#content_details">Thumbnails</option>
+	        {% for cp in nav.center_plugins %}
+	            <option value="#{{ cp.plugin_id }}">{{ cp.label }}</option>
+	        {% endfor %}
+	    </select>
+	</div>
+</div>
 
-<div id="content_details"> </div>
+<div id="content_details" class="center_panel_content"> </div>
+
+{% for cp in nav.center_plugins %}
+    <div id="{{ cp.plugin_id }}" class="center_panel_content"></div>
+{% endfor %}
 
 {% endblock %}
+
 
 
 {% block right %}
 <div>
     <div id="annotation_tabs" class="absolute_fill">
-        <ul class="tabslist">
+        <ul id="annotation_tabs_list">
             <li><a href="#metadata_general">{% trans "General" %}</a></li>
             <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
             {% for rt in nav.right_plugins %}

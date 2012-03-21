@@ -343,7 +343,7 @@ a.tag:hover {
 		-webkit-border-radius:50px;
 		-moz-border-radius:50px;
 		border-radius:50px;
-		border:solid 1px hsl(215, 10%,55%);
+		border:solid 1px hsl(215, 35%,35%);
 		padding: .2em .5em;
 		-webkit-box-shadow: 0 1px 0 rgba(255,255,255,.2), inset 0 1px 1px rgba(0,0,0,.2);
 		-moz-box-shadow: 0 1px 0 rgba(255,255,255,.2), inset 0 1px 1px rgba(0,0,0,.2);
