@@ -228,14 +228,10 @@ public class OMEROMetadataStoreClient
     private MetadataStorePrx delegate;
 
     /**
-     * Begins as "-1" to allow access to all groups. Once a target object
+     * Begins empty to allow access to all groups. Once a target object
      * has been chosen, the map will be updated to reflect the chosen target.
      */
-    private final Map<String, String> callCtx;
-    {
-        callCtx= new HashMap<String, String>();
-        callCtx.put("omero.group", "-1");
-    }
+    private final Map<String, String> callCtx = new HashMap<String, String>();
 
     /** Our IObject container cache. */
     private Map<LSID, IObjectContainer> containerCache =
@@ -401,7 +397,7 @@ public class OMEROMetadataStoreClient
      *
      *  @param group
      *
-     *            Value to pass to {@link #setCurrentGroup(long)} if not null.
+     *            Value to pass set in {@link #callCtx}
      *
      * @throws ServerError
      */
@@ -409,13 +405,17 @@ public class OMEROMetadataStoreClient
         throws ServerError
     {
 
+        if (group == null) {
+            callCtx.clear();
+        } else {
+            callCtx.put("omero.group", group.toString());
+            log.info(String.format("Call context: {omero.group:%s}", group));
+        }
+
         // Blitz services
         iAdmin = (IAdminPrx) serviceFactory.getAdminService().ice_context(callCtx);
         iQuery = (IQueryPrx) serviceFactory.getQueryService().ice_context(callCtx);
         eventContext = iAdmin.getEventContext();
-        if (group != null) {
-            setCurrentGroup(group);
-        }
         iUpdate = (IUpdatePrx) serviceFactory.getUpdateService().ice_context(callCtx);
         rawFileStore = (RawFileStorePrx) serviceFactory.createRawFileStore().ice_context(callCtx);
         rawPixelStore = (RawPixelsStorePrx) serviceFactory.createRawPixelsStore().ice_context(callCtx);
@@ -1918,29 +1918,7 @@ public class OMEROMetadataStoreClient
 	public void setCurrentGroup(long groupID)
 		throws ServerError
 	{
-		ExperimenterGroup currentDefaultGroup = iAdmin.getDefaultGroup(eventContext.userId);
-		if (currentDefaultGroup.getId().getValue() == groupID)
-			return; // Already set so return
-
-		Experimenter exp = iAdmin.getExperimenter(eventContext.userId);
-		List<ExperimenterGroup> groups = getUserGroups();
-		Iterator<ExperimenterGroup> i = groups.iterator();
-		ExperimenterGroup group = null;
-		boolean in = false;
-		while (i.hasNext()) {
-			group = i.next();
-			if (group.getId().getValue() == groupID) {
-				in = true;
-				break;
-			}
-		}
-		if (!in) {
-			log.error("Can't modify the current group.\n\n");
-		} else
-		{
-			iAdmin.setDefaultGroup(exp, iAdmin.getGroup(groupID));
-			serviceFactory.setSecurityContext(new ExperimenterGroupI(groupID, false));
-		}
+                initializeServices(false, groupID);
 	}
 
 	/**
@@ -2202,12 +2180,15 @@ public class OMEROMetadataStoreClient
     {
         try
         {
-            T obj = (T) iQuery.get(klass.getName(), id, callCtx);
-            String grp = Long.toString(
-                    obj.getDetails().getGroup().getId().getValue());
-            callCtx.put("omero.group", grp);
-            initializeServices(false);
-            log.info(String.format("Call context: {omero.group:%s}", grp));
+            Map<String, String> allGroups = new HashMap<String, String>();
+            allGroups.put("omero.group", "-1");
+            T obj = (T) iQuery.get(klass.getName(), id, allGroups);
+            if (obj == null) {
+                throw new RuntimeException(String.format("Cannot find target: %s:%s",
+                            klass.getName(), id));
+            }
+            long grpID = obj.getDetails().getGroup().getId().getValue();
+            initializeServices(false, grpID);
             return obj;
         }
         catch (ServerError e)
