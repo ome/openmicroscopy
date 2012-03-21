@@ -65,9 +65,12 @@ public class SwitchUserAction
 	/** The name of the action. */
 	public static final String NAME = "Add User...";
 	
+	/** The name of the action. */
+	public static final String NAME_TO = "Add User to";
+	
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Select another " +
-			"user and view his/her data.";
+	public static final String DESCRIPTION = "Select users and view their" +
+			" data.";
 	
     /** The location of the mouse pressed. */
     private Point point;
@@ -178,7 +181,7 @@ public class SwitchUserAction
     		SwingUtilities.convertPointToScreen(point, 
     				((Component) e.getSource()));
     	}
-    	model.retrieveUserGroups(point);
+    	model.retrieveUserGroups(point, null);
     }
     
     /** 

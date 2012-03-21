@@ -306,54 +306,12 @@ class ToolBar
         		 */
         		public void mousePressed(MouseEvent me)
         		{
-        			TreeViewerAction a = 
-    		        	controller.getAction(TreeViewerControl.SWITCH_USER);
-    				a.putValue(Action.SMALL_ICON, null);
-    				JPopupMenu selectionMenu = new JPopupMenu();
-    				JMenuItem item = new JMenuItem(a);
-    				item.setText(SwitchUserAction.NAME);
-    				selectionMenu.add(item);
-    				a = controller.getAction(TreeViewerControl.SWITCH_GROUP);
-    				a.putValue(Action.SMALL_ICON, null);
-    				item = new JMenuItem(a);
-    				item.setText(SwitchGroup.NAME);
-    				selectionMenu.add(item);
-    				/*
-    				JMenu menu = new JMenu(GroupSelectionAction.NAME_ADD);
-    				menu.setToolTipText(GroupSelectionAction.DESCRIPTION_ADD);
-    				List<JMenuItem> items = createMenuItem(true);
-    				Iterator<JMenuItem> i = items.iterator();
-    				while (i.hasNext()) {
-						menu.add(i.next());
-					}
-    				selectionMenu.add(menu);
-    				*/
-    				/*
-    				menu = new JMenu(GroupSelectionAction.NAME);
-    				menu.setToolTipText(GroupSelectionAction.DESCRIPTION);
-    				items = createMenuItem(false);
-    				i = items.iterator();
-    				while (i.hasNext()) {
-						menu.add(i.next());
-					}
-    				selectionMenu.add(menu);
-    				*/
-        			selectionMenu.show((JComponent) me.getSource(), 
-        					me.getX(), me.getY());
+        			createSelectionOption(me);
         		}
 			});
         	bar.add(b);
         	bar.add(Box.createHorizontalStrut(5));
         	bar.add(groupContext);
-        	//menu attached to the button.
-        	/*
-        	a = controller.getAction(TreeViewerControl.PERSONAL);
-            b = new JButton(a);
-            BorderFactory.createCompoundBorder(new EmptyBorder(2, 2, 2, 2), 
-            		BorderFactory.createLineBorder(Color.GRAY));
-            b.addMouseListener((PersonalManagementAction) a);
-            bar.add(b);
-            */
         } else {
         	a = controller.getAction(TreeViewerControl.SWITCH_USER);
             b = new JButton(a);
@@ -363,6 +321,55 @@ class ToolBar
         }
         
         return bar;
+    }
+    
+    /** 
+     * Creates the selection menu.
+     * 
+     * @param me The event to handle.
+     */
+    private void createSelectionOption(MouseEvent me)
+    {
+		JPopupMenu selectionMenu = new JPopupMenu();
+		
+		JMenu menu = new JMenu(SwitchUserAction.NAME_TO);
+		menu.setToolTipText(SwitchUserAction.DESCRIPTION);
+		//Check the groups that already in the view.
+		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+		List<Long> ids = new ArrayList<Long>();
+		ExperimenterVisitor v = new ExperimenterVisitor(browser, -1);
+		browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
+		List<TreeImageDisplay> nodes = v.getNodes();
+		Iterator<TreeImageDisplay> j = nodes.iterator();
+		TreeImageDisplay node;
+		while (j.hasNext()) {
+			node = j.next();
+			ids.add(((GroupData) node.getUserObject()).getId());
+		}
+		ButtonGroup buttonGroup = new ButtonGroup();
+		List<GroupSelectionAction> l = controller.getUserGroupAction(false);
+    	Iterator<GroupSelectionAction> i = l.iterator();
+    	long id = model.getSelectedGroupId();
+    	GroupSelectionAction a;
+    	JMenuItem item;
+		while (i.hasNext()) {
+			a = i.next();
+			item = new JCheckBoxMenuItem(a);
+			item.setEnabled(ids.contains(a.getGroupId()));
+			item.setSelected(a.isSameGroup(id));
+			initMenuItem(item);
+			buttonGroup.add(item);
+			menu.add(item);
+		}
+		
+		selectionMenu.add(menu);
+		TreeViewerAction action = 
+			controller.getAction(TreeViewerControl.SWITCH_GROUP);
+		action.putValue(Action.SMALL_ICON, null);
+		item = new JMenuItem(action);
+		item.setText(SwitchGroup.NAME);
+		selectionMenu.add(item);
+		selectionMenu.show((JComponent) me.getSource(), me.getX(), me.getY());
     }
     
     /**

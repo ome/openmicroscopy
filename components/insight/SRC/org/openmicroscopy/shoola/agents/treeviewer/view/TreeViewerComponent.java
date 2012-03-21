@@ -1465,6 +1465,17 @@ class TreeViewerComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		if (experimenters == null) return;
+		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+		//Check that the group is displayed.
+		ExperimenterVisitor visitor = new ExperimenterVisitor(browser, 
+				userGroupID);
+		browser.accept(visitor);
+		if (visitor.getNodes().size() == 0) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Add experimenter", 
+					"The group is not displayed.");
+			return;
+		}
 		List<Long> ids = new ArrayList<Long>();
 		Iterator<ExperimenterData> ii = experimenters.iterator();
 		while (ii.hasNext()) {
@@ -1473,9 +1484,8 @@ class TreeViewerComponent
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Iterator i;
 		//first remove all the users displayed.
-		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
-		ExperimenterVisitor visitor = new ExperimenterVisitor(browser, -1, 
-				userGroupID);
+		
+		visitor = new ExperimenterVisitor(browser, -1, userGroupID);
 		browser.accept(visitor);
 		List<TreeImageDisplay> nodes = visitor.getNodes();
 		List<ExperimenterData> users = new ArrayList<ExperimenterData>();
@@ -1938,9 +1948,9 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#retrieveUserGroups(Point)
+	 * @see TreeViewer#retrieveUserGroups(Point, GroupData)
 	 */
-	public void retrieveUserGroups(Point location)
+	public void retrieveUserGroups(Point location, GroupData group)
 	{
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException(
@@ -1949,7 +1959,7 @@ class TreeViewerComponent
 		IconManager icons = IconManager.getInstance();
 		Set groups = TreeViewerAgent.getAvailableUserGroups();
 		Iterator i = groups.iterator();
-		GroupData group = model.getSelectedGroup();
+		if (group == null) group = model.getSelectedGroup();
 		GroupData g;
 		Set experimenters = null;
 		while (i.hasNext()) {

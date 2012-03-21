@@ -172,6 +172,7 @@ public class GroupSelectionAction
 	 */
     public void actionPerformed(ActionEvent e)
     {
+    	model.retrieveUserGroups(null, group);
     	//model.setUserGroup(group, add);
     }
 	
