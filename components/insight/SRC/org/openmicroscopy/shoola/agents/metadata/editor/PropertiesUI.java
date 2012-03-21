@@ -1040,6 +1040,7 @@ class PropertiesUI
     		if (pane.getVerticalScrollBar().isVisible())
     			newLineStr = "";
     		Dimension d = pane.getPreferredSize();
+    		System.err.println(w+" "+visibleRectangle);
     		if (visibleRectangle != null) {
     			if (w > visibleRectangle.width)
     				w = visibleRectangle.width;
@@ -1057,12 +1058,12 @@ class PropertiesUI
 	 */
 	protected void buildUI()
 	{
-		removeAll();
-		//if (!init) {
-			//buildGUI();
-			//init = true;
-		//}
 		//removeAll();
+		if (!init) {
+			buildGUI();
+			init = true;
+		}
+		removeAll();
 		if (model.isMultiSelection()) return;
 		namePane.getDocument().removeDocumentListener(this);
 		//descriptionPane.getDocument().removeDocumentListener(this);
