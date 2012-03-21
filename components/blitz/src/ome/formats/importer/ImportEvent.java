@@ -358,11 +358,7 @@ public class ImportEvent {
         public String toLog() {
             StringBuilder sb = new StringBuilder();
             sb.append(super.toLog());
-            sb.append(String.format("\nImported file: %s", filename));
-            sb.append("\nImported pixels:");
-            for (Pixels p : pixels) {
-                sb.append(String.format("\n%s", p.getId().getValue()));
-            }
+            sb.append(String.format(" Imported file: %s", filename));
             return sb.toString();
         }
     }
