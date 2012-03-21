@@ -238,8 +238,6 @@
                                 if(eval(r.bad)) {
                                       $.jstree.rollback(data.rlbk);
                                       alert(r.errs);
-                                  } else {
-                                      refreshCenterPanel();
                                   }
                             },
                             error: function(response) {
@@ -279,7 +277,6 @@
                     break;
                 case "refreshButton":
                     $("#dataTree").jstree("refresh");
-                    refreshCenterPanel();
                     break;
                 default:
                     break;

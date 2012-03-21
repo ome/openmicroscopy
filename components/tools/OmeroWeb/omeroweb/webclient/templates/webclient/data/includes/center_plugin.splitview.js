@@ -68,6 +68,10 @@ $(document).ready(function() {
         $("#split_view_panel").empty();
 
         var selected = data.inst.get_selected();
+        if (selected.length == 0) {
+            set_center_plugin_enabled(splitview_plugin_index, false);
+            return;
+        }
         var orel = selected.attr('rel').replace("-locked", "");
 
         // update enabled state... split-view supports multiple 'image' or single dataset

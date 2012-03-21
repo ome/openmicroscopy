@@ -154,36 +154,6 @@ var loadMetadataPanel = function(src, html) {
     }
 };
 
-var refreshCenterPanel = function() {
-    var rel = $("div#content_details").attr("rel");
-    var page = parseInt($("div#content_details").find("#page").attr("rel"));
-    
-    if (typeof rel!=="undefined") {
-        if (rel.indexOf("orphaned")>=0) {
-            $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/webgateway/img/spinner.gif"/></p>');
-            url = '/webclient/load_data/'+rel.split('-')[0]+'/';
-        } else if (rel.indexOf("share")>=0) {
-            $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/webgateway/img/spinner.gif"/></p>');
-            url = '/webclient/load_public/'+rel.split('-')[1]+'/';
-        } else if(rel.indexOf('tag')>=0) {
-            $("div#content_details").html('<p>Loading data... please wait <img src="../../static/webgateway/img/spinner.gif"/></p>');
-            url = '/webclient/load_tags/tag/'+rel.split('-')[1]+'/';
-        } else {
-            $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/webgateway/img/spinner.gif"/></p>');
-            url = '/webclient/load_data/'+rel.replace('-', '/')+'/';
-        }
-        
-        var view = $("div#content_details").find("#toolbar").attr('rel') ? $("div#content_details").find("#toolbar").attr('rel') : "icon";
-        
-        $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/webgateway/img/spinner.gif"/></p>');
-        url = url+'?view='+view
-        if (page!=null && page > 0) {
-            url = url+"&page="+page;
-        }        
-        $("div#content_details").load(url);
-        if(rel.indexOf('tag')<0) $("div#content_details").attr('rel', rel);
-    }
-};
 
 function changeView(view, page) { 
     var rel = $("div#content_details").attr('rel').split("-");
