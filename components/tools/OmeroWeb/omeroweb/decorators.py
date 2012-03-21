@@ -60,7 +60,13 @@ class login_required(object):
     login_url = property(get_login_url)
 
     def get_share_connection (self, request, conn, share_id):
-        raise NotImplementedError('login_required.get_share_connection see #8118')
+        try:
+            conn.CONFIG['SERVICE_OPTS']= {'omero.share': str(share_id)}
+            share = conn.getShare(share_id)
+            conn.getShareService().activate(long(share_id))
+        except:
+            logger.error('Error activating share.', exc_info=True)
+            return None
     
     def prepare_share_connection(self, request, conn, share_id):
         """Prepares the share connection if we have a valid share ID."""
