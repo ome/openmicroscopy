@@ -309,6 +309,21 @@ class ToolBar
         			createSelectionOption(me);
         		}
 			});
+        	
+        	groupContext.addMouseListener(new MouseAdapter() {
+        		
+        		/**
+        		 * Shows the menu with the various 
+        		 */
+        		public void mousePressed(MouseEvent me)
+        		{
+        			SwitchGroup action = (SwitchGroup)
+        				controller.getAction(TreeViewerControl.SWITCH_GROUP);
+        			action.setPoint(me.getPoint());
+        			action.actionPerformed(new ActionEvent(me.getSource(), 0, 
+        					""));
+        		}
+			});
         	bar.add(b);
         	bar.add(Box.createHorizontalStrut(5));
         	bar.add(groupContext);

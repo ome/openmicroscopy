@@ -79,6 +79,13 @@ public class SwitchGroup
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.OWNER_GROUP));
 	}
 	
+	/** 
+	 * Sets the mouse pressed point.
+	 * 
+	 * @param point The value to set.
+	 */
+	public void setPoint(Point point) { this.point = point; }
+	
     /**
      * Brings up the switch user dialog.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
