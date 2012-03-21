@@ -83,7 +83,7 @@ def processImages(conn, scriptParams):
         else: micronsPerSec = None
         
         # for each line or polyline, create a row in csv table: y(t), x, dy(dt), dx, x/t (line), x/t (average)
-        colNames = "\ny_start, x_start, y_end, x_end, dy, dx, x/y, average x/y, speed(um/sec)"
+        colNames = "\nt_start (pixels), x_start (pixels), t_end (pixels), x_end (pixels), dt (pixels), dx (pixels), x/t, average x/t, speed(um/sec)"
         tableData = ""
         for roi in result.rois:
             for s in roi.copyShapes():
