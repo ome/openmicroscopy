@@ -258,9 +258,6 @@
     $(function () { 
         $("#buttons input").click(function () {
             switch(this.id) {
-                case "adddiscussionButton":
-                    makeDiscussion();
-                    break;
                 case "removecontentButton":
                     var confirm_remove = confirm_dialog('Remove Image?',
                         function() {
@@ -312,7 +309,6 @@
         <div class="toolbar">
             <div id="buttons" class="align_left">
                 <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
-                <input id="adddiscussionButton" class="button button-disabled" type="image" src="{% static "webclient/image/wp_protocol16.png" %}" alt="Create discussion" title="Create discussion" /> 
                 <input id="removecontentButton" class="button button-disabled" type="image" src="{% static "webclient/image/cancel16.png" %}" alt="Remove content" title="Remove content" /> 
             </div>
         </div>

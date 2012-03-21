@@ -89,7 +89,6 @@ var history_selection_changed = function($row) {
 
 // actually called when share is edited, to refresh right-hand panel
 var share_selection_changed = function(share_id) {
-    //loadMetadataPanel("{% url load_metadata_details c_type='share' c_id=manager.share.id %}");
     $("body")
         .data("selected_objects.ome", [{"id": share_id}])
         .trigger("selection_change.ome");
@@ -106,8 +105,6 @@ var basket_selection_changed = function($selected) {
     $("body")
         .data("selected_objects.ome", selected_objs)
         .trigger("selection_change.ome");
-        
-    //loadMetadataPanel('{% url load_metadata_details %}image/'+$("tr.ui-selected td input", this).first().attr("id")+'/');
 }
 
 // called from click events on plate. Selected wells 
@@ -138,19 +135,6 @@ var multipleAnnotation = function(selected, index, prefix){
         
     } else {
         alert ("Please select at least one element."); 
-    }
-};
-
-var loadMetadataPanel = function(src, html) {
-    
-    console.log("DEPRECATED! loadMetadataPanel()", src, html);
-    
-    var $metadataPanel = $("#right_panel");
-
-    if (src!=null) {
-        $metadataPanel.load(src);
-    } else {
-        $metadataPanel.html(html);
     }
 };
 
@@ -187,12 +171,5 @@ function doPagination(view, page) {
     $parent.data("page", page);     // let the parent node keep track of current page
     $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
     $parent.children("a:eq(0)").click();    // this will cause center and right panels to update
-    return false;
-}
-
-
-function makeDiscussion() {
-    src = '/webclient/basket/todiscuss/';
-    loadMetadataPanel(src);
     return false;
 }
