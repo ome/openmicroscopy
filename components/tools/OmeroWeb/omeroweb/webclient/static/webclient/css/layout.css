@@ -686,7 +686,9 @@
     
     
     
-    
+    .ui-state-disabled {
+        display:none;
+    }
     
     
     
