@@ -157,7 +157,6 @@ class ChgrpTest (lib.GTest):
         image = self.image
         dataset = image.getParent()
         orig_gid = dataset.getDetails().getGroup().id
-        print "Original Group", orig_gid
         update = self.gateway.getUpdateService()
 
         new_ds = omero.model.DatasetI()
@@ -203,7 +202,7 @@ class ChgrpTest (lib.GTest):
 
     def testChgrpAsync(self):
         """
-        Try to "race condition" reproduce bugs seen in web
+        Try to reproduce "race condition" bugs seen in web #8037 (fails to reproduce)
         """
         image = self.image
         ctx = self.gateway.getAdminService().getEventContext()
@@ -212,7 +211,6 @@ class ChgrpTest (lib.GTest):
         self.loginAsAdmin()
         gid = self.gateway.createGroup("chgrp-test-%s" % uuid, member_Ids=[ctx.userId], perms=COLLAB)
         self.loginAsAuthor()
-        print ctx.groupId
         original_group = ctx.groupId
         self.assertNotEqual(None, self.gateway.getObject("Image", image.id))
 
@@ -222,15 +220,9 @@ class ChgrpTest (lib.GTest):
         while rsp.getResponse() is None:
             # while waiting, try various things to reproduce race condition seen in web.
             img = self.gateway.getObject("Image", image.id)
-            if img is None:
-                print "NO Image"
-            else:
-                print img.getDetails().getGroup().id
             c = BlitzGateway()
-            print c.connect(sUuid=uuid)
+            c.connect(sUuid=uuid)
             #self.gateway.setGroupForSession(gid)
-        
-        print rsp.getResponse()
 
         # Image should no-longer be available in current group
         self.assertEqual(None, self.gateway.getObject("Image", image.id), "Image should not be available in original group")
