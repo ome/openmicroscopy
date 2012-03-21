@@ -84,7 +84,7 @@ public class ExitApplicationAction
     {
         super(model);
         setEnabled(true);
-        if (TreeViewerAgent.isRunAsPlugin()) {
+        if (!TreeViewerAgent.isRunAsPlugin()) {
             putValue(Action.NAME, NAME);
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION));
