@@ -107,23 +107,8 @@ from omeroweb.connector import Connector
 logger = logging.getLogger(__name__)
 
 connectors = {}
-share_connectors = {}
 
 logger.info("INIT '%s'" % os.getpid())
-
-
-################################################################################
-# Blitz Gateway Connection
-
-def getShareConnection (request, share_id):
-    browsersession_key = request.session.session_key
-    share_conn_key = "S:%s#%s#%s" % (browsersession_key, request.session.get('server'), share_id)
-    share = getBlitzConnection(request, force_key=share_conn_key, useragent="OMERO.web")
-    share.attachToShare(share_id)
-    request.session['shares'][share_id] = share._sessionUuid
-    request.session.modified = True    
-    logger.debug('shared connection: %s : %s' % (share_id, share._sessionUuid))
-    return share
 
 ################################################################################
 # decorators
@@ -877,7 +862,7 @@ def open_astex_viewer(request, obj_type, obj_id, conn, **kwargs):
 
 
 @login_required()
-def load_metadata_details(request, c_type, c_id, conn=None, conn_share=None, **kwargs):
+def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwargs):
     """
     This page is the right-hand panel 'general metadata', first tab only.
     Shown for Projects, Datasets, Images, Screens, Plates, Wells, Tags etc.
@@ -924,21 +909,19 @@ def load_metadata_details(request, c_type, c_id, conn=None, conn_share=None, **k
     try:
         if c_type in ("share", "discussion"):
             template = "webclient/annotations/annotations_share.html"
-            manager = BaseShare(conn, conn_share, c_id)
+            manager = BaseShare(conn, c_id)
             manager.getAllUsers(c_id)
             manager.getComments(c_id)
             form_comment = ShareCommentForm()
         else:
-            if conn_share is not None:
-                # We are using a share connection to view Images etc
-                template = "webclient/annotations/annotations_share.html"
-                manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
-            else:
+            manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+            if share_id is None:
                 template = "webclient/annotations/metadata_general.html"
-                manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
                 manager.annotationList()
                 form_comment = CommentAnnotationForm(initial=initial)
-                
+            else:
+                template = "webclient/annotations/annotations_share.html"
+            
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(request, x)    
@@ -946,7 +929,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, conn_share=None, **k
     if c_type in ("tag"):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'index':index}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'index':index, 'share_id':share_id}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -954,7 +937,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, conn_share=None, **k
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_metadata_preview(request, imageId, conn=None, conn_share=None, **kwargs):
+def load_metadata_preview(request, imageId, conn=None, share_id=None, **kwargs):
     """
     This is the image 'Preview' tab for the right-hand panel. 
     Currently this doesn't do much except launch the view-port plugin using the image Id (and share Id if necessary)
@@ -973,10 +956,7 @@ def load_metadata_preview(request, imageId, conn=None, conn_share=None, **kwargs
 
     try:
         template = "webclient/annotations/metadata_preview.html"
-        if conn_share is not None:
-            manager = BaseContainer(conn_share, index=index, image=long(imageId))
-        else:
-            manager = BaseContainer(conn, index=index, image=long(imageId))
+        manager = BaseContainer(conn, index=index, image=long(imageId))
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(request, x)
@@ -989,7 +969,7 @@ def load_metadata_preview(request, imageId, conn=None, conn_share=None, **kwargs
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_metadata_hierarchy(request, c_type, c_id, conn=None, conn_share=None, **kwargs):
+def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
     """
     This loads the ancestors of the specified object and displays them in a static tree.
     Used by an AJAX call from the metadata_general panel.
@@ -1007,10 +987,7 @@ def load_metadata_hierarchy(request, c_type, c_id, conn=None, conn_share=None, *
 
     try:
         template = "webclient/annotations/metadata_hierarchy.html"
-        if conn_share is not None:
-            manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
-        else:
-            manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+        manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(request, x)
@@ -1023,7 +1000,7 @@ def load_metadata_hierarchy(request, c_type, c_id, conn=None, conn_share=None, *
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_metadata_acquisition(request, c_type, c_id, conn=None, conn_share=None, **kwargs):  
+def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, **kwargs):  
     """
     The acquisition tab of the right-hand panel. Only loaded for images.
     TODO: urls regex should make sure that c_type is only 'image' OR 'well'
@@ -1042,16 +1019,12 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, conn_share=None,
     try:
         if c_type in ("share", "discussion"):
             template = "webclient/annotations/annotations_share.html"
-            manager = BaseShare(conn, conn_share, c_id)
+            manager = BaseShare(conn, c_id)
             manager.getAllUsers(c_id)
             manager.getComments(c_id)
         else:
-            if conn_share is not None:
-                template = "webclient/annotations/metadata_acquisition.html"                
-                manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
-            else:
-                template = "webclient/annotations/metadata_acquisition.html"
-                manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+            template = "webclient/annotations/metadata_acquisition.html"
+            manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(request, x)
@@ -1073,7 +1046,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, conn_share=None,
     corrections = None
 
     if c_type == 'well' or c_type == 'image':
-        if conn_share is None:
+        if share_id is None:
             manager.originalMetadata()
         manager.channelMetadata()
         for theC, ch in enumerate(manager.channel_metadata):
@@ -1394,7 +1367,7 @@ def annotate_tags(request, conn, **kwargs):
                 logger.error(traceback.format_exc())
                 return handlerInternalError(request, x)
         elif o_type in ("share", "sharecomment"):
-            manager = BaseShare(conn, None, o_id)
+            manager = BaseShare(conn, o_id)
 
     if manager is None:
         manager = BaseContainer(conn)
@@ -1479,7 +1452,7 @@ def manage_action_containers(request, action, conn, o_type=None, o_id=None, **kw
             logger.error(traceback.format_exc())
             return handlerInternalError(request, x)
     elif o_type in ("share", "sharecomment"):
-        manager = BaseShare(conn, None, o_id)
+        manager = BaseShare(conn, o_id)
     else:
         manager = BaseContainer(conn)
         
@@ -1921,9 +1894,8 @@ def download_annotation(request, action, iid, conn, **kwargs):
     return rsp
 
 @login_required()
-def load_public(request, share_id=None, conn=None, conn_share=None, **kwargs):
+def load_public(request, share_id=None, conn=None, **kwargs):
     """ Loads data for the tree in the 'public' main page. """
-
     request.session.modified = True
     
     # SUBTREE TODO:
@@ -1956,18 +1928,16 @@ def load_public(request, share_id=None, conn=None, conn_share=None, **kwargs):
     try:
         page = int(request.REQUEST['page'])
     except:
-        page = 1    
+        page = 1
     
     if share_id is not None:
         if view == 'tree':
             template = "webclient/public/share_subtree.html"
         elif view == 'icon':
             template = "webclient/public/share_content_icon.html"
-        controller = BaseShare(conn, conn_share, share_id)
-        if conn_share is None:
-            controller.loadShareOwnerContent()
-        else:
-            controller.loadShareContent()
+        controller = BaseShare(conn, share_id)
+        controller.loadShareContent()
+        
     else:
         template = "webclient/public/share_tree.html"
         controller = BaseShare(conn)
@@ -2499,9 +2469,16 @@ def avatar(request, conn, oid=None, **kwargs):
 # webgateway extention
 
 @login_required()
-def render_thumbnail_resize (request, size, iid, conn=None, conn_share=None, **kwargs):
+def render_thumbnail_resize (request, size, iid, conn=None, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_thumbnail(request, iid, w=size, _defcb=conn.defaultThumbnail, **kwargs)
+
+@login_required()
+def render_thumbnail (request, iid, conn=None, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+    return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, **kwargs)
+
+
 
 ####################################################################################
 # scripting service....

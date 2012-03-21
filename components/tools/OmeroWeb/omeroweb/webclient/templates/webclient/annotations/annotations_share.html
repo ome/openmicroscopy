@@ -162,10 +162,10 @@
         <ul class="tabslist">
             <li><a href="#annotation_tab">{% trans "General" %}</a></li>
             {% if manager.image %}
-                <li><a title="metadata tab" id='acquisition' href="{% if manager.getShareId %}{% url load_metadata_acquisition 'image' manager.image.id manager.getShareId %}
-                {% else %}{% url load_metadata_acquisition 'image' manager.image.id share_id %}{% endif %}">{% trans "Acquisition" %}</a></li>                
-                <li><a title="preview tab" id='preview' href="{% if manager.getShareId %}{% url load_metadata_preview manager.image.id manager.getShareId %}
-                {% else %}{% url load_metadata_preview manager.image.id share_id %}{% endif %}">{% trans "Preview" %}</a></li>
+                <li><a title="metadata tab" id='acquisition' href="{% if share_id %}{% url load_metadata_acquisition 'image' manager.image.id share_id %}
+                {% else %}{% url load_metadata_acquisition 'image' manager.image.id %}{% endif %}">{% trans "Acquisition" %}</a></li>
+                <li><a title="preview tab" id='preview' href="{% if manager.share.id %}{% url load_metadata_preview manager.image.id share_id %}
+                {% else %}{% url load_metadata_preview manager.image.id %}{% endif %}">{% trans "Preview" %}</a></li>
             {% endif %}
         </ul>
         <div class="clear"></div>        

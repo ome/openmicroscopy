@@ -138,7 +138,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         is disabled, then an ValidationException is thrown.
         
         @param shareId:     share id
-        @type shareId:      Long        
+        @type shareId:      Long
         """
         
         sh = self._proxies['share'].getShare(long(share_id))
