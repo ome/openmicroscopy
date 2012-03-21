@@ -30,10 +30,10 @@ $(document).ready(function() {
         // get the selected id etc
         var selected = $("body").data("selected_objects.ome");
         if (!selected) return;
+        if (selected.length != 1) return;
         var orel = selected[0]["id"].split("-")[0];
         if ((orel!="image") && (orel!="well")) return;
 
-        if (selected.length > 1) return;
         var oid = selected[0]["id"];
 
         // if the tab is visible and not loaded yet...
@@ -60,6 +60,11 @@ $(document).ready(function() {
         $("#metadata_tab").empty();
 
         var selected = $("body").data("selected_objects.ome");
+        // if nothing selected, disable and we're done.
+        if (selected.length == 0) {
+            $("#annotation_tabs").tabs("disable", acquisition_tab_index);
+            return;
+        }
         var orel = selected[0]["id"].split("-")[0];
 
         // we only care about changing selection if this tab is selected...

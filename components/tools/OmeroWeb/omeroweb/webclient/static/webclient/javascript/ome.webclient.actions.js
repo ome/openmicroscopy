@@ -47,7 +47,7 @@ var tree_selection_changed = function(data) {
     var share_id = null;
     if (selected.length == 1) {
         var pr = selected.parent().parent();
-        if (pr.length>0 && pr.attr && pr.attr('rel').replace("-locked", "")==="share") {
+        if (pr.length>0 && pr.attr('rel') && pr.attr('rel').replace("-locked", "")==="share") {
             share_id = pr.attr("id").split("-")[1];
         }
     }

@@ -142,9 +142,16 @@ $(document).ready(function() {
     $("#dataTree").bind("select_node.jstree deselect_node.jstree", function(e, data) {
 
         var selected = data.inst.get_selected();
+        // if nothing selected, disable, clear view and we're done.
+        if (selected.length == 0) {
+            set_center_plugin_enabled(table_plugin_index, false);
+            $("#image_table").empty();
+            return;
+        }
+        
         var orel = selected.attr('rel').replace("-locked", "");
 
-        // update enabled state... table supports datase
+        // update enabled state... table supports various types...
         if ($.inArray(orel, ["image", "dataset", "orphaned", "share"])>-1) {
             set_center_plugin_enabled(table_plugin_index, true);
         } else {
