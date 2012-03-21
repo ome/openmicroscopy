@@ -111,7 +111,7 @@ import pojos.WellSampleData;
  * </small>
  * @since OME3.0
  */
-class PropertiesUI   
+class PropertiesUI
 	extends AnnotationUI
 	implements ActionListener, DocumentListener, FocusListener, 
 	PropertyChangeListener
@@ -134,6 +134,9 @@ class PropertiesUI
     
     /** Action ID indicating to edit the description.*/
     private static final int	EDIT_DESC = 1;
+    
+    /** The default height of the description.*/
+    private static final int HEIGHT = 60;
     
     /** Button to edit the name. */
 	private JButton				editName;
@@ -834,7 +837,7 @@ class PropertiesUI
         	pane = new JScrollPane(descriptionPanel);
         	pane.setBorder(AnnotationUI.EDIT_BORDER);
         	Dimension d = pane.getPreferredSize();
-        	pane.getViewport().setPreferredSize(new Dimension(d.width, 60));
+        	pane.getViewport().setPreferredSize(new Dimension(d.width, HEIGHT));
         	p.add(pane);
          } else if (refObject instanceof FileData) {
         	 /*
@@ -1039,15 +1042,13 @@ class PropertiesUI
     		String newLineStr = null;
     		if (pane.getVerticalScrollBar().isVisible())
     			newLineStr = "";
-    		Dimension d = pane.getPreferredSize();
-    		System.err.println(w+" "+visibleRectangle);
     		if (visibleRectangle != null) {
     			if (w > visibleRectangle.width)
     				w = visibleRectangle.width;
     		}
     		removeComponentListener(listener);
-    		pane.setSize(new Dimension(w, d.height));
-			descriptionPane.wrapText(w, newLineStr);
+    		pane.getViewport().setPreferredSize(new Dimension(w, HEIGHT));
+			descriptionPane.wrapText(w-10, newLineStr);
 			addComponentListener(listener);
 		}
     }
