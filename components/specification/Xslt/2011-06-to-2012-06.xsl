@@ -65,6 +65,38 @@
 		</xsl:element>
 	</xsl:template>
 	
+	<xsl:template match="OME:Experimenter">
+		<xsl:element name="OME:Experimenter" namespace="{$newOMENS}">
+			<!-- Strip DisplayName -->
+			<xsl:for-each select="@* [not(name() = 'DisplayName')]">
+				<xsl:attribute name="{local-name(.)}">
+					<xsl:value-of select="."/>
+				</xsl:attribute>
+			</xsl:for-each>
+			<xsl:apply-templates select="node()"/>
+		</xsl:element>
+	</xsl:template>
+
+	<xsl:template match="OME:Group">
+		<xsl:element name="OME:ExperimenterGroup" namespace="{$newOMENS}">
+			<xsl:apply-templates select="@*[not(local-name(.)='ID')]"/>
+			<xsl:for-each select="@* [name() = 'ID']">
+				<xsl:attribute name="ID">ExperimenterGroup:<xsl:value-of select="."/></xsl:attribute>
+			</xsl:for-each>
+			<xsl:apply-templates select="node()"/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="OME:GroupRef">
+		<xsl:element name="OME:ExperimenterGroupRef" namespace="{$newOMENS}">
+			<xsl:apply-templates select="@*[not(local-name(.)='ID')]"/>
+			<xsl:for-each select="@* [name() = 'ID']">
+				<xsl:attribute name="ID">ExperimenterGroup:<xsl:value-of select="."/></xsl:attribute>
+			</xsl:for-each>
+			<xsl:apply-templates select="node()"/>
+		</xsl:element>
+	</xsl:template>
+	
 	<xsl:template match="SPW:ImageRef">
 		<xsl:element name="OME:ImageRef" namespace="{$newOMENS}">
 			<xsl:apply-templates select="@*|node()"/>
@@ -89,7 +121,7 @@
 
 	<xsl:template match="ROI:Shape">
 		<xsl:element name="ROI:Shape" namespace="{$newROINS}">
-			<xsl:for-each select="@* [not(name() = 'Fill' or name() = 'Stroke')]">
+			<xsl:for-each select="@* [not(name() = 'Fill' or name() = 'Stroke' or name() = 'Name'  or name() = 'MarkerStart' or name() = 'MarkerEnd' or name() = 'Label' or name() = 'Transform')]">
 				<xsl:attribute name="{local-name(.)}">
 					<xsl:value-of select="."/>
 				</xsl:attribute>
@@ -104,13 +136,23 @@
 					<xsl:value-of select="."/>
 				</xsl:attribute>
 			</xsl:for-each>
+			<xsl:for-each select="@* [name() = 'Label']">
+				<xsl:attribute name="Text">
+					<xsl:value-of select="."/>
+				</xsl:attribute>
+			</xsl:for-each>
 			<!-- end of attributes -->
 			<xsl:for-each select="@* [name() = 'Transform']">
 				<xsl:element name="Transform">
 					<xsl:value-of select="."/>
 				</xsl:element>
 			</xsl:for-each>
-			<xsl:apply-templates select="node()"/>
+			<xsl:for-each select="* [not(local-name(.) = 'Description' or local-name(.) = 'Path')]">
+				<xsl:apply-templates select="."/>
+			</xsl:for-each>
+			<xsl:for-each select="* [local-name(.) = 'Path']">
+				<xsl:comment>Path elements cannot be converted to 2012-06 Schema, they are not supported.</xsl:comment>
+			</xsl:for-each>
 		</xsl:element>
 	</xsl:template>
 	
@@ -123,25 +165,53 @@
 					<xsl:apply-templates select="@*"/>
 					<xsl:value-of select="."/>
 				</xsl:element>
-				
 			</xsl:for-each>
 		</xsl:element>
 	</xsl:template>
 	
-	<xsl:template match="ROI:Path">
-		<xsl:comment>Path elements cannot be converted to 2012-06 Schema, they are not supported.</xsl:comment>
+	<xsl:template match="ROI:Line">
+		<xsl:element name="ROI:Line" namespace="{$newROINS}">
+			<xsl:apply-templates select="@*"/>
+			<!-- Fix markers -->
+			<xsl:for-each select="../@MarkerStart">
+				<xsl:attribute name="MarkerStart"><xsl:value-of select="../@MarkerStart"/></xsl:attribute>
+			</xsl:for-each>
+			<xsl:for-each select="../@MarkerEnd">
+				<xsl:attribute name="MarkerEnd"><xsl:value-of select="../@MarkerEnd"/></xsl:attribute>
+			</xsl:for-each>
+		</xsl:element>
 	</xsl:template>
 
 	<xsl:template match="ROI:Polyline">
 		<!-- if closed -->
-		<xsl:element name="ROI:Polygon" namespace="{$newROINS}">
-			<xsl:apply-templates select="@*|node()"/>
-		</xsl:element>
+		<xsl:if test="@Closed = 'true'">
+			<xsl:element name="ROI:Polygon" namespace="{$newROINS}">
+				<xsl:apply-templates select="@* [ not(name() = 'Closed')]"/>
+			</xsl:element>
+		</xsl:if>
 		<!-- if not closed -->
-		<xsl:element name="ROI:Polyline" namespace="{$newROINS}">
-			<xsl:apply-templates select="@*|node()"/>
-		</xsl:element>
+		<xsl:if test="@Closed = 'false'">
+			<xsl:element name="ROI:Polyline" namespace="{$newROINS}">
+				<xsl:apply-templates select="@* [ not(name() = 'Closed')]"/>
+				<!-- Fix markers -->
+				<xsl:for-each select="../@MarkerStart">
+					<xsl:attribute name="MarkerStart"><xsl:value-of select="../@MarkerStart"/></xsl:attribute>
+				</xsl:for-each>
+				<xsl:for-each select="../@MarkerEnd">
+					<xsl:attribute name="MarkerEnd"><xsl:value-of select="../@MarkerEnd"/></xsl:attribute>
+				</xsl:for-each>
+			</xsl:element>
+		</xsl:if>
 	</xsl:template>
+	
+	<xsl:template match="OME:OTF">
+		<xsl:comment>OTF elements cannot be converted to 2012-06 Schema, they are not supported.</xsl:comment>
+	</xsl:template>
+	
+	<xsl:template match="OME:OTFRef">
+		<xsl:comment>OTFRef elements cannot be converted to 2012-06 Schema, they are not supported.</xsl:comment>
+	</xsl:template>
+	
 	
 	<!-- Rewriting all namespaces -->
 	

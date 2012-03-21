@@ -65,6 +65,33 @@
 		</xsl:element>
 	</xsl:template>
 
+	<xsl:template match="OME:Experimenter">
+		<xsl:element name="OME:Experimenter" namespace="{$newOMENS}">
+			<!-- Calculate DisplayName -->
+			<xsl:apply-templates select="@*|node()"/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="OME:ExperimenterGroup">
+		<xsl:element name="OME:Group" namespace="{$newOMENS}">
+			<xsl:apply-templates select="@*[not(local-name(.)='ID')]"/>
+			<xsl:for-each select="@* [name() = 'ID']">
+				<xsl:attribute name="ID">Group:<xsl:value-of select="."/></xsl:attribute>
+			</xsl:for-each>
+			<xsl:apply-templates select="node()"/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="OME:ExperimenterGroupRef">
+		<xsl:element name="OME:GroupRef" namespace="{$newOMENS}">
+			<xsl:apply-templates select="@*[not(local-name(.)='ID')]"/>
+			<xsl:for-each select="@* [name() = 'ID']">
+				<xsl:attribute name="ID">Group:<xsl:value-of select="."/></xsl:attribute>
+			</xsl:for-each>
+			<xsl:apply-templates select="node()"/>
+		</xsl:element>
+	</xsl:template>
+	
 	<xsl:template match="OME:ImageRef">
 		<xsl:element name="SPW:ImageRef" namespace="{$newSPWNS}">
 			<xsl:apply-templates select="@*|node()"/>
