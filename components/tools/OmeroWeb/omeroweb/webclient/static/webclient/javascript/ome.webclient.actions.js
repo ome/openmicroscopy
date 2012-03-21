@@ -155,25 +155,6 @@ var loadMetadataPanel = function(src, html) {
 };
 
 
-function changeView(view, page) { 
-    var rel = $("div#content_details").attr('rel').split("-");
-    if(rel.indexOf('orphaned')>=0) {
-        url = '/webclient/load_data/orphaned/?view='+view;
-    } else if(rel.indexOf('tag')>=0) {
-        $("div#content_details").html('<p>Loading data... please wait <img src="../../static/webgateway/img/spinner.gif"/></p>');
-        url = '/webclient/load_tags/tag/'+rel[1]+'/?view='+view;
-    } else {
-        $("div#content_details").html('<p>Loading data... please wait <img src="../../static/webgateway/img/spinner.gif"/></p>');
-        url = '/webclient/load_data/dataset/'+rel[1]+'/?view='+view;
-    }
-    if (page!=null && page > 0) {
-        url = url+"&page="+page;
-    }
-    $("div#content_details").html('<p>Loading data... please wait <img src="../../static/webgateway/img/spinner.gif"/></p>');
-    $("div#content_details").load(url);
-    return false;
-};
-
 function saveMetadata (image_id, metadata_type, metadata_value) {
     if (image_id == null) {
         alert("No image selected.")
