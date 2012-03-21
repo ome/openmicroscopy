@@ -1374,6 +1374,7 @@ class TreeViewerControl
 						"must be selected.");
 				return;
 			}
+			model.setUserGroup(groups);
 		}
 	}
 	

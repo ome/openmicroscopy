@@ -799,7 +799,7 @@ public interface Browser
 	 * 
 	 * @param group The selected group.
 	 */
-	void setUserGroup(GroupData group, boolean add);
+	void setUserGroup(GroupData group);
 
 	/**
 	 * Removes the specified group from the display

@@ -2121,13 +2121,13 @@ class BrowserComponent
 
 	/**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setUserGroup(GroupData, boolean)
+     * @see Browser#setUserGroup(GroupData)
      */
-	public void setUserGroup(GroupData group, boolean add)
+	public void setUserGroup(GroupData group)
 	{
 		if (group == null)
 			throw new IllegalArgumentException("Group cannot be null.");
-		view.setUserGroup(group, add);
+		view.setUserGroup(group);
 	}
 
 	/**

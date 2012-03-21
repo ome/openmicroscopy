@@ -2263,34 +2263,21 @@ class BrowserUI
 	 * Adds the specified group to the tree.
 	 * 
 	 * @param group The group to add.
-	 * @param add Pass <code>true</code> to add, <code>false</code> otherwise.
 	 */
-	void setUserGroup(GroupData group, boolean add)
+	void setUserGroup(GroupData group)
 	{
 		if (group == null) return;
 		ExperimenterData exp = model.getUserDetails();
 		TreeImageSet node;
-		TreeImageDisplay root = getTreeRoot();
-		if (add) {
-			//Collapses previous group.
-			List children = root.getChildrenDisplay();
-			Iterator i = children.iterator();
-			TreeImageDisplay n;
-			while (i.hasNext()) {
-				n = (TreeImageDisplay) i.next();
-				n.setExpanded(false);
-				collapsePath(n);
-			}
-			node = createGroup(model.getSelectedGroup());
-	    	node = createExperimenterNode(exp, node);
-	    	if (model.isSelected()) expandNode(node, true);
-		} else {
-			root.removeAllChildren();
-			root.removeAllChildrenDisplay();
-			node = createGroup(model.getSelectedGroup());
-	    	node = createExperimenterNode(exp, node);
-	    	if (model.isSelected()) expandNode(node, true);
+		int count = getTreeRoot().getChildCount();
+		node = createGroup(group);
+		node = createExperimenterNode(exp, node);
+    	//if (model.isSelected()) expandNode(node, true);
+		if (count == 0) {
+			DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+			dtm.reload();
 		}
+    	
 	}
 	
     /**

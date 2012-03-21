@@ -3481,22 +3481,56 @@ class TreeViewerComponent
 		//Scan browser and check if group is there.
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
 		if (browser == null) return;
-		/*
-		ExperimenterVisitor v = new ExperimenterVisitor(browser, 
-				group.getId());
+		//First check if groups already displayed
+		ExperimenterVisitor v = new ExperimenterVisitor(browser, -1);
 		browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
-		if (v.getNodes().size() != 0) return;
+		List<TreeImageDisplay> nodes = v.getNodes();
+		Iterator<TreeImageDisplay> i = nodes.iterator();
+		//ids of the groups to add
+		List<Long> ids = new ArrayList<Long>();
 		
-		//Add the group to the display and set it as the default group.
-		long gid = model.getSelectedGroupId();
-		model.setSelectedGroupId(group.getId());
-		Map<Integer, Browser> browsers = model.getBrowsers();
-		Iterator<Browser> i = browsers.values().iterator();
-		while (i.hasNext()) {
-			i.next().setUserGroup(group, add);
+		Iterator<GroupData> k = groups.iterator();
+		while (k.hasNext()) {
+			ids.add(k.next().getId());
 		}
-		notifyChangeGroup(gid);
-		*/
+		Object o;
+		GroupData group;
+		//Displayed.
+		List<GroupData> toRemove = new ArrayList<GroupData>();
+		List<Long> already = new ArrayList<Long>();
+		while (i.hasNext()) {
+			o = i.next().getUserObject();
+			if (o instanceof GroupData) {
+				group = (GroupData) o;
+				if (!ids.contains(group.getId()))
+					toRemove.add(group);
+				else already.add(group.getId());
+			}
+		}
+		
+		Map<Integer, Browser> browsers = model.getBrowsers();
+		Iterator<Browser> j = browsers.values().iterator();
+
+		//First remove the one that no longer in the list.
+		while (j.hasNext()) {
+			browser = j.next();
+			k = toRemove.iterator();
+			while (k.hasNext()) {
+				group = k.next();
+				browser.removeGroup(group);
+			}
+			//now add.
+			k = groups.iterator();
+			while (k.hasNext()) {
+				group = k.next();
+				if (!already.contains(group.getId())) {
+					browser.setUserGroup(group);
+					model.setSelectedGroupId(group.getId());
+					notifyChangeGroup(group.getId());
+				}
+			}
+			view.setPermissions();
+		}
 	}
 
 	/** 
