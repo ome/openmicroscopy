@@ -25,6 +25,9 @@ import ConfigParser
 import omero
 import omero.clients
 from omero.util.decorators import timeit, TimeIt, setsessiongroup
+from omero.cmd import Chgrp
+from omero.callbacks import CmdCallbackI
+
 import Ice
 import Glacier2
 
@@ -2209,7 +2212,39 @@ class _BlitzGateway (object):
                 pass
             else:
                 yield ExperimenterGroupWrapper(self, e)
- 
+
+
+    def createGroup(self, name, owner_Ids=None, member_Ids=None, perms=None, description=None):
+        """
+        Creates a new ExperimenterGroup. Must have Admin permissions to call this.
+        
+        @param name:        New group name
+        @param owner_Ids:   Option to add existing Experimenters as group owners
+        @param member_Ids:  Option to add existing Experimenters as group members
+        @param perms:       New group permissions. E.g. 'rw----' (private), 'rwr---'(read-only), 'rwrw--'
+        @param description: Group description
+        """
+        admin_serv = self.getAdminService()
+
+        group = omero.model.ExperimenterGroupI()
+        group.name = rstring(str(name))
+        group.description = (description!="" and description is not None) and rstring(str(description)) or None
+        if perms is not None:
+            group.details.permissions = omero.model.PermissionsI(perms)
+
+        gr_id = admin_serv.createGroup(group)
+
+        if owner_Ids is not None:
+            group_owners = [owner._obj for owner in self.getObjects("Experimenter", owner_Ids)]
+            admin_serv.addGroupOwners(omero.model.ExperimenterGroupI(gr_id, False), group_owners)
+
+        if member_Ids is not None:
+            group_members = [member._obj for member in self.getObjects("Experimenter", member_Ids)]
+            for user in group_members:
+                admin_serv.addGroups(user, [omero.model.ExperimenterGroupI(gr_id, False)])
+
+        return gr_id
+
     # EXPERIMENTERS
 
     def findExperimenters (self, start=''):
@@ -3002,6 +3037,30 @@ class _BlitzGateway (object):
                 graph_spec, long(oid), op))
         handle = self.getDeleteService().queueDelete(dcs, self.CONFIG['SERVICE_OPTS'])
         return handle
+
+
+    def chgrpObject(self, graph_spec, obj_id, group_id):
+        """
+        Change the Group for a specified object using queue.
+
+        @param graph_spec:      String to indicate the object type or graph
+                                specification. Examples include:
+                                 * '/Image'
+                                 * '/Project'   # will move contents too.
+                                 * NB: Also supports 'Image' etc for convenience
+        @param obj_id:          ID for the object to move.
+        @param group_id:        The group to move the data to.
+        """
+
+        if not graph_spec.startswith('/'):
+            graph_spec = '/%s' % graph_spec
+            logger.debug('chgrp Received object type, using "%s"' % graph_spec)
+
+        chgrp = omero.cmd.Chgrp(type=graph_spec, id=obj_id, options=None, grp=group_id)
+
+        prx = self.c.sf.submit(chgrp)
+        return prx
+
 
     ###################
     # Searching stuff #
