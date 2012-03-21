@@ -36,6 +36,7 @@
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
 
+
     <!-- preview viewer... -->
     <script type="text/javascript" src="{% static "webgateway/js/ome.viewport.js" %}"></script>
     <script type="text/javascript" src="{% static "webgateway/js/ome.viewportImage.js" %}"></script>
@@ -52,6 +53,25 @@
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_info.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_svg.js" %}"></script>
 
+    <script>
+        $(document).ready(function(){
+            // initially hidden
+            $("#user_dropdown ul").css('visibility', 'hidden');
+            // show on click
+            $("#show_user_dropdown").click(function(e) {
+                
+                $("ul", $(this).parent()).css('visibility', 'visible');
+                e.preventDefault();
+                return false;
+            });
+            // on hover-out, hide drop-down menus
+            $("#user_dropdown ul").hover(function(){}, function(){
+                $(this).css('visibility', 'hidden');
+            });
+        });
+    </script>
+
+
     <!-- set-up right panel tabs -->
     {% include "webclient/data/includes/right_plugin.general.js.html" %}
 
@@ -66,27 +86,28 @@
 
 
 {% block middle_header_right %}
-    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-	{% include "webclient/base/search_field.html" %}
+    {% include "webclient/base/search_field.html" %}
     <li id="user_dropdown">
-			<img src="{% url wamyphoto %}" />
-			<span>{{ eContext.user.getFullName }}</span>
-		<ul>
-			<li><a href="{% url wamyaccount 'edit' %}" title="Account Settings"> Accounts Settings</a></li>
-			<li><a href="{% url load_template 'help' %}">{% trans "Help" %}</a></li>
-			{% include "webclient/base/logout.html" %}
-		</ul>
-	</li>
-	{% include "webclient/base/script_launch.html" %}
+        <div id="show_user_dropdown">
+            <img src="{% url wamyphoto %}" />
+            <span>{{ eContext.user.getFullName }}</span>
+        </div>
+        <ul>
+            <li><a href="{% url wamyaccount 'edit' %}" title="Account Settings"> Accounts Settings</a></li>
+            <li><a href="{% url load_template 'help' %}">{% trans "Help" %}</a></li>
+            {% include "webclient/base/logout.html" %}
+        </ul>
+    </li>
+    {% include "webclient/base/script_launch.html" %}
 {% endblock %}
 
 
 {% block middle_header_left %}
     {% include "webclient/base/menu.html" %}
-	<div style="overflow:hidden;">
+    <div style="overflow:hidden;">
     <!--{% include "webclient/base/basket_info.html" %} -->
     <!--{% include "webclient/base/activities_info.html" %} -->
-	</div>
+    </div>
 {% endblock %}
 
 
