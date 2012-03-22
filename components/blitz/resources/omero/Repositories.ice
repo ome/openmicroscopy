@@ -22,29 +22,6 @@ module omero {
     //
     module grid {
         
-        class RepositoryListConfig 
-        {
-            int depth;
-            bool files;
-            bool dirs;
-            bool hidden;
-            bool registered;
-            bool showOriginalFiles;
-        };
-
-        class FileSet 
-        {
-            bool importableImage;
-            string fileName;
-            omero::model::OriginalFile parentFile;
-            bool hidden;
-            bool dir;
-            string reader;
-	        int imageCount;
-            omero::api::IObjectList usedFiles;
-            omero::api::ImageList imageList;
-        };
-
         class RepositoryImportContainer
         {
             string file;
@@ -65,9 +42,6 @@ module omero {
             omero::api::AnnotationList customAnnotationList;
         };
 
-        ["java:type:java.util.ArrayList<FileSet>:java.util.List<FileSet>"]
-            sequence<FileSet> FileSetList;
-        
         /**
          * Client-accessible interface representing a single mount point on the server-side.
          **/
@@ -79,18 +53,6 @@ module omero {
              **/
             omero::model::OriginalFile root() throws ServerError;
 
-            /*
-             * Directory listing methods. 
-             */
-
-            // A list of all files and/or directories, registered or not depending on cnfig.
-            omero::api::OriginalFileList listFiles(string path, RepositoryListConfig config) 
-                    throws ServerError;
-            
-            // A list of importable and non-importable file sets in a directory depending on config.
-            FileSetList listFileSets(string path, RepositoryListConfig config) 
-                    throws ServerError;
-            
             /**
              * Returns the best-guess mimetype for the given path.
              *
@@ -104,38 +66,6 @@ module omero {
             omero::model::OriginalFile register(string path, omero::RString mimetype)
                     throws ServerError;
 
-           /**
-             * Create an entry in the database for the given OriginalFile.
-             *
-             * If the given OriginalFile is null a ValidationException is thrown. 
-             * Otherwise, an entry is added and an unloaded IObject returned with id set.
-             *
-             **/
-            omero::model::OriginalFile registerOriginalFile(omero::model::OriginalFile omeroFile) 
-                    throws ServerError;
-            
-           /**
-             * Create entries in the database for the OriginalFile and Images in the imageList.
-             *
-             * If the given ImageList is null or empty the OriginalFile is registered only. 
-             * If the OriginalFile is null a ValidationException is thrown. 
-             * Otherwise, objects are added and list containing a loaded OriginalFile followed 
-             * by the loaded Images is returned with ids set.
-             *
-             **/
-            omero::api::IObjectList registerFileSet(omero::model::OriginalFile keyFile, omero::api::ImageList imageList) 
-                    throws ServerError;
-            
-           /**
-             * Import image metadata using the parent orginal file.
-             *
-             * If the id does not exist a ValidationException is thrown. 
-             * Otherwise, the image set linked to that original file will have its metadata imported.
-             * The imported pixels list is returned.
-             *
-             **/
-            omero::api::ImageList importFileSet(omero::model::OriginalFile keyFile) throws ServerError;
-            
             /**
              * Load the OriginalFile at the given path with annotations and
              * associated Pixels (if present). If the path does not point to
@@ -181,21 +111,6 @@ module omero {
 
             omero::api::StringSet deleteFiles(omero::api::StringArray paths) throws ServerError;
 
-            /* TODO for both methods: These methods should both be removed
-              in favour of a full implementation of thumbs()*/
-            /**
-             * Return the full path of a jpg thumbnail of the image file
-             * given in the path argument.
-             **/
-            ["deprecated:currently for testing only"] string getThumbnail(string path) throws ServerError;
-            
-            /**
-             * Return the full path of a jpg thumbnail of the image 
-             * at the imageIndex in the file set represented by
-             * the file given in the path argument.
-             **/
-            ["deprecated:currently for testing only"] string getThumbnailByIndex(string path, int imageIndex) throws ServerError;
-            
         };
 
         /**
