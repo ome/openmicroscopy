@@ -1041,7 +1041,7 @@ class PropertiesUI
     			w = namePanel.getSize().width;
     		String newLineStr = null;
     		if (pane.getVerticalScrollBar().isVisible())
-    			newLineStr = "";
+    			newLineStr = " ";
     		if (visibleRectangle != null) {
     			if (w > visibleRectangle.width)
     				w = visibleRectangle.width;
