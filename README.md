@@ -2,12 +2,15 @@ INSTALL
 =======
 
 Install OS X Developer Tools. This procedure has been tested with the the following XCode distributions:
+
     xcode_3.2.6_and_ios_sdk_4.3.dmg
 
 On Mac OS X versions:
+
     10.6.8
 
 On the following Hardware:
+
     MacBook
     MacBookPro1,1 (Intel Core Duo, 2.16GHz, 2GB RAM)
     MacBookPro8,2 (Intel Core i7, 2.3 GHz, 8 GB RAM)
@@ -40,6 +43,7 @@ Run OMERO.homebrew script, specifying an existing directory to install into, e.g
 NB. The omero_homebrew.sh script may need to be run several times before it completes, albeit successfully. This is due to the homebrew script pulling code archives from many different places as it retrieves the various components that you have asked it to install. Occasionally the remote repositories are temporarily unavailable and can cause the script to fail. Under normal circumstances simply rerunning the script should be sufficient. Occasionally you may have to wait for a short period then try running the script again. Rarely you may have to find a different location for the remote repository (NB. This should involve getting in touch with the homebrew project/OMERO.homebrew team members so that homebrew formulae can be updated in the event of a permanent failure of a resource).
 
 Install PostGres
+
     $ brew update
     $ brew install postgres
 
@@ -51,16 +55,20 @@ Error: No such file or directory - /usr/bin/cc
 2) make sure Xcode Command Line Tools are installed (https://github.com/mxcl/homebrew/issues/10244#issuecomment-4013781)
 
 At this point you have a choice. If you just want a deployment of the current release of OMERO.server then a simple homebrew install is sufficient, e.g.
+
     $ ~/app/OMERO.libs/bin/brew install omero43
 
 However if you wish to pull OMERO.server from the git repo for development purposes then it is worth setting up OMERO.server manually rather than using homebrew. Prepare a place for your OMERO code to live, e.g.
+
     $ mkdir -p ~/code/projects/OMERO
     $ cd ~/code/projects/OMERO
 
 Now clone the OMERO git repo:
+
     $ git clone git://github.com/openmicroscopy/openmicroscopy
 
 NB. If you have a github account & you plan to develop code for OMERO then you should make a fork into your own account then clone to your local development machine, e.g.
+
     $ git clone git://github.com/YOURNAMEHERE/openmicroscopy
 
 
@@ -109,6 +117,7 @@ Should give similar output to the following:
 
 
 Now tell OMERO.server about our database
+
     $ omero config set omero.db.name omero
     $ omero config set omero.db.user omero
     $ omero config set omero.db.pass omero
@@ -118,15 +127,19 @@ Now tell OMERO.server about our database
     $ psql -h localhost -U omero omero < OMERO4.3__0.sql
 
 Now create a location to store OMERO data, e.g.
+
     $ mkdir -p ~/var/OMERO.data
 
 and tell OMERO.server this location:
+
     $ omero config set omero.data.dir ~/var/OMERO.data
 
 We can inspect the OMERO.server configuration settings using:
+
     $ omero config get
 
 Now Start OMERO.server
+
     $ omero admin {start|stop}
 
 Now connect to your OMERO.server using insight with the following credentials:
