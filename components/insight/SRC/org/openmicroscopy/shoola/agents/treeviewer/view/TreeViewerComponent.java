@@ -1502,6 +1502,8 @@ class TreeViewerComponent
 				}
 			}
 		}
+		model.setSelectedGroupId(userGroupID);
+		view.setPermissions();
 		Entry entry;
 		userGroupID = model.getSelectedGroupId();
 		
@@ -1958,22 +1960,20 @@ class TreeViewerComponent
 		JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
 		IconManager icons = IconManager.getInstance();
 		Set groups = TreeViewerAgent.getAvailableUserGroups();
-		Iterator i = groups.iterator();
 		if (group == null) group = model.getSelectedGroup();
-		GroupData g;
-		Set experimenters = null;
-		while (i.hasNext()) {
-			g = (GroupData) i.next();
-			if (g.getId() == group.getId()) {
-				experimenters = g.getExperimenters();
-			}
-		}
-		if (experimenters == null) return;
+		Set experimenters = group.getExperimenters();
+		if (experimenters == null || experimenters.size() == 0) return;
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
-		ExperimenterVisitor visitor = new ExperimenterVisitor(browser, -1, 
+		ExperimenterVisitor visitor = new ExperimenterVisitor(browser,
 				group.getId());
 		browser.accept(visitor);
 		List<TreeImageDisplay> nodes = visitor.getNodes();
+		if (nodes.size() != 1) return;
+		TreeImageDisplay groupNode = nodes.get(0);
+
+		visitor = new ExperimenterVisitor(browser, -1, -1);
+		groupNode.accept(visitor);
+		nodes = visitor.getNodes();
 		List<ExperimenterData> users = new ArrayList<ExperimenterData>();
 		Iterator<TreeImageDisplay> j = nodes.iterator();
 		TreeImageDisplay n;
