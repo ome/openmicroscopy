@@ -1051,7 +1051,7 @@
 				Once a Dataset has been processed in any way, its collection of images cannot be altered.
 				The ExperimenterRef and ExperimenterGroupRef elements specify the person and group this Dataset belongs to.
 				Projects may contain one or more Datasets, and Datasets may belong to one or more Projects.
-				This relationship is specified by listing ProjectRef elements within the Dataset element.
+				This relationship is specified by listing DatasetRef elements within the Project element.
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>

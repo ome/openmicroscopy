@@ -3,10 +3,12 @@
 
 	<Project ID="Project:1">
 		<GroupRef ID="Group:1"/>
+		<SA:AnnotationRef ID="Annotation:1"/>
 	</Project>
 	<Dataset ID="Dataset:1">
 		<GroupRef ID="Group:1"/>
 		<ProjectRef ID="Project:1"/>
+		<SA:AnnotationRef ID="Annotation:2"/>
 	</Dataset>
 	<SPW:Plate ID="Plate:1">
 		<SPW:Well ID="Well:1" Column="1" Row="1" Status="TheWellStatus" Color="-2147483648">
@@ -63,6 +65,14 @@ Complete with basic formating, like new lines.</Description>
 		<ROI:ROIRef ID="ROI:2"/>
 		<ROI:ROIRef ID="ROI:3"/>
 	</Image>
+	<SA:StructuredAnnotations>
+		<SA:XMLAnnotation ID="Annotation:1">
+			<SA:Value><test1/></SA:Value>
+		</SA:XMLAnnotation>
+		<SA:XMLAnnotation ID="Annotation:2">
+			<SA:Value><test2/></SA:Value>
+		</SA:XMLAnnotation>
+	</SA:StructuredAnnotations>
 	<ROI:ROI ID="ROI:1">
 		<ROI:Union>
 			<ROI:Shape ID="Shape:1" TheC="0">

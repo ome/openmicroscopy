@@ -59,6 +59,49 @@
 	
 	<!-- Actual schema changes -->
 	
+	<xsl:template match="OME:Dataset">
+		<xsl:element name="OME:Dataset" namespace="{$newOMENS}">
+			<xsl:apply-templates select="@*"/>
+			<xsl:apply-templates select="* [not (local-name(.) = 'ProjectRef' or local-name(.) = 'AnnotationRef')]"/>
+			<xsl:comment>Insert ImageRef elements</xsl:comment>
+			<!-- Insert ImageRef elements -->
+			<xsl:variable name="datasetID" select="@ID"/>
+			<xsl:for-each select="exsl:node-set(//OME:Image/OME:DatasetRef[@ID=$datasetID])">
+				<xsl:element name="OME:ImageRef" namespace="{$newOMENS}">
+					<xsl:attribute name="ID"><xsl:for-each select=" parent::node()">
+						<xsl:value-of select="@ID"/>
+					</xsl:for-each></xsl:attribute>
+				</xsl:element>
+			</xsl:for-each>
+			<xsl:apply-templates select="* [local-name(.) = 'AnnotationRef']"/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="OME:Project">
+		<xsl:element name="OME:Project" namespace="{$newOMENS}">
+			<xsl:apply-templates select="@*"/>
+			<xsl:apply-templates select="* [not (local-name(.) = 'AnnotationRef')]"/>
+			<xsl:comment>Insert DatasetRef elements</xsl:comment>
+			<!-- Insert DatasetRef elements -->
+			<xsl:variable name="projectID" select="@ID"/>
+			<xsl:for-each select="exsl:node-set(//OME:Dataset/OME:ProjectRef[@ID=$projectID])">
+				<xsl:element name="OME:DatasetRef" namespace="{$newOMENS}">
+					<xsl:attribute name="ID"><xsl:for-each select=" parent::node()">
+						<xsl:value-of select="@ID"/>
+					</xsl:for-each></xsl:attribute>
+				</xsl:element>
+			</xsl:for-each>
+			<xsl:apply-templates select="* [local-name(.) = 'AnnotationRef']"/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="OME:Image">
+		<xsl:element name="OME:Image" namespace="{$newOMENS}">
+			<xsl:apply-templates select="@*"/>
+			<xsl:apply-templates select="* [not (local-name(.) = 'DatasetRef')]"/>
+		</xsl:element>
+	</xsl:template>
+
 	<xsl:template match="OME:AcquiredDate">
 		<xsl:element name="OME:AcquisitionDate" namespace="{$newOMENS}">
 			<xsl:apply-templates select="node()"/>
@@ -123,11 +166,12 @@
 		<xsl:element name="ROI:ROI" namespace="{$newROINS}">
 			<xsl:apply-templates select="@*"/>
 			<xsl:if test="count(descendant::ROI:Path) != count(descendant::ROI:Shape)">
-				<xsl:apply-templates select="node()" mode="stripPaths"/>
+				<xsl:apply-templates select="* [local-name(.) = 'Union']" mode="stripPaths"/>
 			</xsl:if>
 			<xsl:if test="count(descendant::ROI:Path) = count(descendant::ROI:Shape)">
-				<xsl:apply-templates select="node()" mode="replacePaths"/>
+				<xsl:apply-templates select="* [local-name(.) = 'Union']" mode="replacePaths"/>
 			</xsl:if>
+			<xsl:apply-templates select="* [local-name(.) = 'Descriptiom']"/>
 		</xsl:element>
 	</xsl:template>
 	
@@ -168,11 +212,6 @@
 					</xsl:attribute>
 				</xsl:for-each>
 				<!-- end of attributes -->
-				<xsl:for-each select="@* [name() = 'Transform']">
-					<xsl:element name="Transform">
-						<xsl:value-of select="."/>
-					</xsl:element>
-				</xsl:for-each>
 				<xsl:for-each
 					select="* [not(local-name(.) = 'Description' or local-name(.) = 'Path')]">
 					<xsl:apply-templates select="."/>
@@ -180,6 +219,27 @@
 				<xsl:for-each select="* [local-name(.) = 'Path']">
 					<xsl:comment>Path elements cannot be converted to 2012-06 Schema, they are not
 						supported.</xsl:comment>
+				</xsl:for-each>
+				<xsl:for-each select="@* [name() = 'Transform']">
+					<xsl:element name="ROI:Transform" namespace="{$newROINS}">
+						<xsl:variable name="fullString"><xsl:value-of select="."/></xsl:variable>
+						<xsl:variable name="valA"><xsl:value-of select="substring-before($fullString, ',')"/></xsl:variable>
+						<xsl:variable name="partBstarting"><xsl:value-of select="substring-after($fullString, ', ')"/></xsl:variable>
+						<xsl:variable name="valB"><xsl:value-of select="substring-before($partBstarting, ',')"/></xsl:variable>
+						<xsl:variable name="partCstarting"><xsl:value-of select="substring-after($partBstarting, ', ')"/></xsl:variable>
+						<xsl:variable name="valC"><xsl:value-of select="substring-before($partCstarting, ',')"/></xsl:variable>
+						<xsl:variable name="partDstarting"><xsl:value-of select="substring-after($partCstarting, ', ')"/></xsl:variable>
+						<xsl:variable name="valD"><xsl:value-of select="substring-before($partDstarting, ',')"/></xsl:variable>
+						<xsl:variable name="partEstarting"><xsl:value-of select="substring-after($partDstarting, ', ')"/></xsl:variable>
+						<xsl:variable name="valE"><xsl:value-of select="substring-before($partEstarting, ',')"/></xsl:variable>
+						<xsl:variable name="valF"><xsl:value-of select="substring-after($partEstarting, ', ')"/></xsl:variable>
+						<xsl:attribute name="A00"><xsl:value-of select="$valA"/></xsl:attribute>
+						<xsl:attribute name="A10"><xsl:value-of select="$valB"/></xsl:attribute>
+						<xsl:attribute name="A01"><xsl:value-of select="$valC"/></xsl:attribute>
+						<xsl:attribute name="A11"><xsl:value-of select="$valD"/></xsl:attribute>
+						<xsl:attribute name="A02"><xsl:value-of select="$valE"/></xsl:attribute>
+						<xsl:attribute name="A12"><xsl:value-of select="$valF"/></xsl:attribute>
+					</xsl:element>
 				</xsl:for-each>
 			</xsl:element>
 		</xsl:if>
