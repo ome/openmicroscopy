@@ -14,17 +14,21 @@ On the following Hardware:
     MacMini1,1 (Intel Core Duo, 1.66GHz, 2GB RAM)
 
 Install homebrew:
+
     $ ruby -e "$(curl -fsSLk https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
     $ brew install git
 
 Prepare a place to store the OMERO homebrew scripts, e.g.
+
     $ mkdir -p ~/code/projects/omero
     $ cd ~/code/projects/omero
 
 Clone the OMERO homebrew repo:
+
     $ git clone git://gist.github.com/1213688.git OMERO.homebrew
 
 Prepare a place to store the OMERO prerequisites, e.g.
+
     $ mkdir -p ~/apps/OMERO.libs
 
 Run OMERO.homebrew script, specifying an existing directory to install into, e.g.
