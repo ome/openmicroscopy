@@ -29,7 +29,8 @@ Prepare a place to store the OMERO prerequisites, e.g.
 
 Run OMERO.homebrew script, specifying an existing directory to install into, e.g.
 
-$ cd OMERO.homebrew
+    $ cd OMERO.homebrew
+    $ chmod +x omero_homebrew.sh
     $ ./omero_homebrew.sh ~/apps/OMERO.libs
 
 NB. The omero_homebrew.sh script may need to be run several times before it completes, albeit successfully. This is due to the homebrew script pulling code archives from many different places as it retrieves the various components that you have asked it to install. Occasionally the remote repositories are temporarily unavailable and can cause the script to fail. Under normal circumstances simply rerunning the script should be sufficient. Occasionally you may have to wait for a short period then try running the script again. Rarely you may have to find a different location for the remote repository (NB. This should involve getting in touch with the homebrew project/OMERO.homebrew team members so that homebrew formulae can be updated in the event of a permanent failure of a resource).
@@ -37,6 +38,13 @@ NB. The omero_homebrew.sh script may need to be run several times before it comp
 Install PostGres
     $ brew update
     $ brew install postgres
+
+NB. If you get the following error message
+Warning: Xcode is not installed! Builds may fail!
+==> Installing postgresql dependency: readline
+Error: No such file or directory - /usr/bin/cc
+1) make sure Xcode is installed
+2) make sure Xcode Command Line Tools are installed (https://github.com/mxcl/homebrew/issues/10244#issuecomment-4013781)
 
 At this point you have a choice. If you just want a deployment of the current release of OMERO.server then a simple homebrew install is sufficient, e.g.
     $ ~/app/OMERO.libs/bin/brew install omero43
