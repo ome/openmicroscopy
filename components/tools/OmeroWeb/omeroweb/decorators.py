@@ -25,7 +25,8 @@ Decorators for use with OMERO.web applications.
 
 import logging
 
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
+
 from django.conf import settings
 from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
@@ -86,7 +87,7 @@ class login_required(object):
         """Called whenever the user is not logged in."""
         if request.is_ajax():
             logger.debug('Request is Ajax, returning HTTP 403.')
-            raise Http403
+            return HttpResponseForbidden()
         args = {'url': url}
         logger.debug('Request is not Ajax, redirecting to %s' % self.login_url)
         return HttpResponseRedirect('%s?%s' % (self.login_url, urlencode(args)))
@@ -238,7 +239,7 @@ class login_required(object):
                 except Http403:
                     # An authentication error should go all the way up the
                     # stack.
-                    raise
+                    return ctx.on_not_logged_in(request, url, error)
                 except Exception, x:
                     logger.error('Error retrieving connection.', exc_info=True)
                     error = str(x)
