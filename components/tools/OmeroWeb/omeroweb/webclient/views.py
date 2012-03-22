@@ -238,7 +238,7 @@ def login(request):
         return HttpResponse(rsp)
 
 @login_required()
-def index(request, conn, **kwargs):
+def index(request, conn=None, **kwargs):
     """
     The webclient home page. 
     Viewing this page doesn't perform any action. All we do here is assemble various data for display, including form for changing current group.
@@ -272,7 +272,7 @@ def index(request, conn, **kwargs):
     return HttpResponse(rsp)
 
 @login_required()
-def index_context(request, conn, **kwargs):
+def index_context(request, conn=None, **kwargs):
     """ NOT USED? TODO: remove this, url and template """
 
     template = "webclient/index/index_context.html"
@@ -286,7 +286,7 @@ def index_context(request, conn, **kwargs):
     return HttpResponse(rsp)
 
 @login_required()
-def index_last_imports(request, conn, **kwargs):
+def index_last_imports(request, conn=None, **kwargs):
     """
     Gets the most recent imports - Used in an AJAX call by home page.
     """
@@ -302,7 +302,7 @@ def index_last_imports(request, conn, **kwargs):
     return HttpResponse(rsp)
 
 @login_required()
-def index_most_recent(request, conn, **kwargs):
+def index_most_recent(request, conn=None, **kwargs):
     """ Gets the most recent 'shares' and 'share' comments. Used by the homepage via AJAX call """
 
     template = "webclient/index/index_most_recent.html"
@@ -317,7 +317,7 @@ def index_most_recent(request, conn, **kwargs):
     return HttpResponse(rsp)
 
 @login_required()
-def index_tag_cloud(request, conn, **kwargs):
+def index_tag_cloud(request, conn=None, **kwargs):
     """ Gets the most used Tags. Used by the homepage via AJAX call """
 
     template = "webclient/index/index_tag_cloud.html"
@@ -332,7 +332,7 @@ def index_tag_cloud(request, conn, **kwargs):
     return HttpResponse(rsp)
 
 @login_required()
-def change_active_group(request, conn, **kwargs):
+def change_active_group(request, conn=None, **kwargs):
     """
     Changes the active group of the OMERO connection, using conn.changeActiveGroup() with 'active_group' from request.REQUEST.
     First we log out and log in again, to force closing of any processes?
@@ -374,7 +374,7 @@ def logout(request, conn=None, **kwargs):
 
 ###########################################################################
 @login_required()
-def load_template(request, menu, conn, **kwargs):
+def load_template(request, menu, conn=None, **kwargs):
     """
     This view handles most of the top-level pages, as specified by 'menu' E.g. userdata, usertags, history, search etc.
     Query string 'path' that specifies an object to display in the data tree is parsed.
@@ -473,7 +473,7 @@ def load_template(request, menu, conn, **kwargs):
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_data(request, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kwargs):
+def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, conn=None, **kwargs):
     """
     This loads data for the tree, via AJAX calls. 
     The template is specified by query string. E.g. icon, table, tree.
@@ -590,7 +590,7 @@ def load_data(request, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_searching(request, conn, form=None, **kwargs):
+def load_searching(request, form=None, conn=None, **kwargs):
     """
     Handles AJAX calls to search 
     """
@@ -674,7 +674,7 @@ def load_searching(request, conn, form=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_data_by_tag(request, conn, o_type=None, o_id=None, **kwargs):
+def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     """ 
     Loads data for the tag tree and center panel.
     Either get the P/D/I etc under tags, or the images etc under a tagged Dataset or Project.
@@ -766,7 +766,7 @@ def load_data_by_tag(request, conn, o_type=None, o_id=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @login_required()
-def autocomplete_tags(request, conn, **kwargs):
+def autocomplete_tags(request, conn=None, **kwargs):
     """ Autocomplete for tag. Not used now? TODO: remove this? """
     
     eid = conn.getGroupFromContext().isReadOnly() and conn.getEventContext().userId or None
@@ -776,7 +776,7 @@ def autocomplete_tags(request, conn, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @login_required()
-def open_astex_viewer(request, obj_type, obj_id, conn, **kwargs):
+def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
     """
     Opens the Open Astex Viewer applet, to display volume masks in a couple of formats:
     - mrc.map files that are attached to images. obj_type = 'file'
@@ -1180,7 +1180,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
 # In each case, the form itself contains hidden fields to specify the object(s) being annotated
 # All forms inherit from a single form that has these fields.
 
-def getObjects(request, conn):
+def getObjects(request, conn=None):
     """ 
     Prepare objects for use in the annotation forms. 
     These objects are required by the form superclass to populate hidden fields, so we know what we're annotating on submission
@@ -1209,7 +1209,7 @@ def getIds(request):
 
 
 @login_required()
-def batch_annotate(request, conn, **kwargs):
+def batch_annotate(request, conn=None, **kwargs):
     """
     This page gives a form for batch annotation. 
     Local File form and Comment form are loaded. Other forms are loaded via AJAX
@@ -1239,7 +1239,7 @@ def batch_annotate(request, conn, **kwargs):
 
 
 @login_required()
-def annotate_file(request, conn, **kwargs):
+def annotate_file(request, conn=None, **kwargs):
     """ 
     On 'POST', This handles attaching an existing file-annotation(s) and/or upload of a new file to one or more objects 
     Otherwise it generates the form for choosing file-annotations & local files.
@@ -1308,7 +1308,7 @@ def annotate_file(request, conn, **kwargs):
     return HttpResponse(t.render(c))
     
 @login_required()
-def annotate_comment(request, conn, **kwargs):
+def annotate_comment(request, conn=None, **kwargs):
     """ Handle adding Comments to one or more objects 
     Unbound instance of Comment form not available. 
     If the form has been submitted, a bound instance of the form 
@@ -1343,7 +1343,7 @@ def annotate_comment(request, conn, **kwargs):
         return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
 
 @login_required()
-def annotate_tags(request, conn, **kwargs):
+def annotate_tags(request, conn=None, **kwargs):
     """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
 
     index = int(request.REQUEST.get('index', 0))
@@ -1412,7 +1412,7 @@ def annotate_tags(request, conn, **kwargs):
     return HttpResponse(t.render(c))
 
 @login_required()
-def manage_action_containers(request, action, conn, o_type=None, o_id=None, **kwargs):
+def manage_action_containers(request, action, o_type=None, o_id=None, conn=None, **kwargs):
     """
     Handles many different actions on various objects.
     
@@ -1727,7 +1727,7 @@ def manage_action_containers(request, action, conn, o_type=None, o_id=None, **kw
     return HttpResponse(t.render(c))
 
 @login_required()
-def get_original_file(request, fileId, conn, **kwargs):
+def get_original_file(request, fileId, conn=None, **kwargs):
     """ Returns the specified original file as an http response. Used for displaying text or png/jpeg etc files in browser """
 
     orig_file = conn.getObject("OriginalFile", fileId)
@@ -1745,7 +1745,7 @@ def get_original_file(request, fileId, conn, **kwargs):
 
 
 @login_required()
-def image_as_map(request, imageId, conn, **kwargs):
+def image_as_map(request, imageId, conn=None, **kwargs):
     """ Converts OMERO image into mrc.map file (using tiltpicker utils) and returns the file """
 
     from omero_ext.tiltpicker.pyami import mrc
@@ -1819,7 +1819,7 @@ def image_as_map(request, imageId, conn, **kwargs):
 
 
 @login_required()
-def archived_files(request, iid, conn, **kwargs):
+def archived_files(request, iid, conn=None, **kwargs):
     """
     Downloads the archived file(s) as a single file or as a zip (if more than one file)
     """
@@ -1884,7 +1884,7 @@ def archived_files(request, iid, conn, **kwargs):
     return rsp
 
 @login_required()
-def download_annotation(request, action, iid, conn, **kwargs):
+def download_annotation(request, action, iid, conn=None, **kwargs):
     """ Returns the file annotation as an http response for download """
     ann = conn.getObject("Annotation", iid)
     if ann is None:
@@ -1956,7 +1956,7 @@ def load_public(request, share_id=None, conn=None, **kwargs):
 # Basket
 
 @login_required()
-def basket_action (request, conn, action=None, **kwargs):
+def basket_action (request, action=None, conn=None, **kwargs):
     """
     Various actions for creating a 'share' or 'discussion' (no images).
     
@@ -2130,7 +2130,7 @@ def update_basket(request, **kwargs):
         return handlerInternalError(request, "Request method error in Basket.")
 
 @login_required()
-def help(request, conn, **kwargs):
+def help(request, conn=None, **kwargs):
     """ Displays help page. Includes the choosers for changing current group and current user. """
 
     template = "webclient/help.html"
@@ -2153,7 +2153,7 @@ def help(request, conn, **kwargs):
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_calendar(request, conn, year=None, month=None, **kwargs):
+def load_calendar(request, year=None, month=None, conn=None, **kwargs):
     """ 
     Loads the calendar which is displayed in the left panel of the history page. 
     Shows current month by default. Filter by experimenter 
@@ -2176,7 +2176,7 @@ def load_calendar(request, conn, year=None, month=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @login_required()
-def load_history(request, year, month, day, conn, **kwargs):
+def load_history(request, year, month, day, conn=None, **kwargs):
     """ The data for a particular date that is loaded into the center panel """
 
     template = "webclient/history/history_details.html"
@@ -2264,7 +2264,7 @@ def getObjectUrl(conn, obj):
 ######################
 # Activities window & Progressbar
 @login_required()
-def activities(request, conn, **kwargs):
+def activities(request, conn=None, **kwargs):
     """
     This refreshes callback handles (delete, scripts, chgrp etc) and provides html to update Activities window & Progressbar.
     The returned html contains details for ALL callbacks in web session, regardless of their status.
@@ -2463,7 +2463,7 @@ def activities_update (request, action, **kwargs):
 # User Photo
 
 @login_required()
-def avatar(request, conn, oid=None, **kwargs):
+def avatar(request, oid=None, conn=None, **kwargs):
     """ Returns the experimenter's photo """
     photo = conn.getExperimenterPhoto(oid)
     return HttpResponse(photo, mimetype='image/jpeg')
@@ -2486,7 +2486,7 @@ def render_thumbnail (request, iid, conn=None, share_id=None, **kwargs):
 ####################################################################################
 # scripting service....
 @login_required()
-def list_scripts (request, conn, **kwargs):
+def list_scripts (request, conn=None, **kwargs):
     """ List the available scripts - Just officical scripts for now """
     scriptService = conn.getScriptService()
     scripts = scriptService.getScripts()
@@ -2524,7 +2524,7 @@ def list_scripts (request, conn, **kwargs):
     return render_to_response("webclient/scripts/list_scripts.html", {'scriptMenu': scriptList})
 
 @login_required()
-def script_ui(request, scriptId, conn, **kwargs):
+def script_ui(request, scriptId, conn=None, **kwargs):
     """
     Generates an html form for the parameters of a defined script.
     """
@@ -2619,8 +2619,8 @@ def script_ui(request, scriptId, conn, **kwargs):
         context_instance=Context(request))
 
 
-@isUserConnected
-def chgrp(request, conn, **kwargs):
+@login_required()
+def chgrp(request, conn=None, **kwargs):
     """
     Moves data to a new group, using the chgrp queue.
     Handles submission of chgrp form: all data in POST.
