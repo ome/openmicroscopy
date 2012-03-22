@@ -37,7 +37,7 @@ else
         bin/git checkout -b "$OMERO_BRANCH"
     fi
 fi
-exit 0
+
 
 # Python virtualenv/pip support ===================================
 if (bin/pip --version)
