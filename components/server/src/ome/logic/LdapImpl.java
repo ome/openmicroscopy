@@ -424,7 +424,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         } else if (grpSpec.startsWith(":query:")) {
             handleGroupSpecQuery(username, grpSpec, groups);
         } else if (grpSpec.startsWith(":bean:")) {
-            handleGroupSpecBean(username, grpSpec, groups);
+            handleGroupSpecBean(username, grpSpec.substring(6), groups);
         } else if (grpSpec.startsWith(":")) {
             throw new ValidationException(grpSpec + " spec currently not supported.");
         } else {
