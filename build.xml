@@ -49,10 +49,18 @@ java component.
         </then></if>
         <installIvy/>
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**"/>
         </ivy:buildlist>
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
+            <fileset dir="${omero.home}/components/blitz/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/common/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/dsl/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/model/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/rendering/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/romio/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/server/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/specification/" includes="build.xml"/>
+            <fileset dir="${omero.home}/components/xsd-fu/" includes="build.xml"/>
         </ivy:buildlist>
         <ivy:buildlist reference="all-tools.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
