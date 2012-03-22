@@ -181,6 +181,20 @@
 					<xsl:value-of select="."/>
 				</xsl:attribute>
 			</xsl:for-each>
+
+			<xsl:for-each select="* [local-name(.) = 'Line' or local-name(.) = 'Polyline']">
+				<xsl:for-each select="@* [name(.) = 'MarkerStart']">
+					<xsl:attribute name="MarkerStart">
+						<xsl:value-of select="."/>
+					</xsl:attribute>
+				</xsl:for-each>
+				<xsl:for-each select="@* [name(.) = 'MarkerEnd']">
+					<xsl:attribute name="MarkerEnd">
+						<xsl:value-of select="."/>
+					</xsl:attribute>
+				</xsl:for-each>
+			</xsl:for-each>
+			
 			<xsl:for-each select="* [local-name(.) = 'Transform']">
 				<xsl:attribute name="Transform"><xsl:value-of select="@A00"/>, <xsl:value-of
 					select="@A10"/>, <xsl:value-of select="@A01"/>, <xsl:value-of select="@A11"
@@ -204,15 +218,21 @@
 
 	<xsl:template match="ROI:Polygon">
 		<xsl:element name="ROI:Polyline" namespace="{$newROINS}">
-			<xsl:apply-templates select="@*|node()"/>
-			<!-- make closed -->
+			<xsl:apply-templates select="@* [not(name(.) = 'MarkerStart' or name(.) = 'MarkerEnd')]"/>
+			<xsl:attribute name="Closed">true</xsl:attribute>
 		</xsl:element>
 	</xsl:template>
 
 	<xsl:template match="ROI:Polyline">
 		<xsl:element name="ROI:Polyline" namespace="{$newROINS}">
-			<xsl:apply-templates select="@*|node()"/>
-			<!-- make open -->
+			<xsl:apply-templates select="@* [not(name(.) = 'MarkerStart' or name(.) = 'MarkerEnd')]"/>
+			<xsl:attribute name="Closed">false</xsl:attribute>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="ROI:Line">
+		<xsl:element name="ROI:Line" namespace="{$newROINS}">
+			<xsl:apply-templates select="@* [not(name(.) = 'MarkerStart' or name(.) = 'MarkerEnd')]"/>
 		</xsl:element>
 	</xsl:template>
 	
