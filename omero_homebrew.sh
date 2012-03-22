@@ -8,6 +8,7 @@ shift
 
 OMERO_GIT=${OMERO_URL:-git://github.com/joshmoore/homebrew.git}
 OMERO_URL=${OMERO_URL:-https://github.com/joshmoore/homebrew/tarball/omero}
+OMERO_BRANCH=${OMERO_BRANCH:-omero-only}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
 TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
 
@@ -16,26 +17,27 @@ TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
 ###################################################################
 
 # Brew support ===================================================
-if ($DIR/bin/brew --version)
+if ("$DIR/bin/brew" --version)
 then
     echo "Using brew installed in $DIR"
-    cd $DIR
+    cd "$DIR"
 else
     if (git --version)
     then
-        git clone -b omero "$OMERO_GIT" $DIR
-        cd $DIR
+        git clone -b "$OMERO_BRANCH" "$OMERO_GIT" "$DIR"
+        cd "$DIR"
     else
-        mkdir $DIR
-        cd $DIR
+        mkdir -p "$DIR"
+        cd "$DIR"
         curl -L "$OMERO_URL" | /usr/bin/tar --strip-components=1 -xvf -
         bin/brew install git
         bin/git init
         bin/git remote add omero "$OMERO_GIT"
-        bin/git fetch omero omero
-        bin/git reset FETCH_HEAD
+        bin/git fetch omero
+        bin/git checkout -b "$OMERO_BRANCH"
     fi
 fi
+exit 0
 
 # Python virtualenv/pip support ===================================
 if (bin/pip --version)
