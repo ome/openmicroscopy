@@ -59,6 +59,49 @@
 	
 	<!-- Actual schema changes -->
 	
+	<xsl:template match="OME:Dataset">
+		<xsl:element name="OME:Dataset" namespace="{$newOMENS}">
+			<xsl:apply-templates select="@*"/>
+			<xsl:apply-templates select="* [not (local-name(.) = 'ImageRef' or local-name(.) = 'AnnotationRef')]"/>
+			<xsl:comment>Insert ProjectRef elements</xsl:comment>
+			<!-- Insert ProjectRef elements -->
+			<xsl:variable name="datasetID" select="@ID"/>
+			<xsl:for-each select="exsl:node-set(//OME:Project/OME:DatasetRef[@ID=$datasetID])">
+				<xsl:element name="OME:ProjectRef" namespace="{$newOMENS}">
+					<xsl:attribute name="ID"><xsl:for-each select=" parent::node()">
+						<xsl:value-of select="@ID"/>
+					</xsl:for-each></xsl:attribute>
+				</xsl:element>
+			</xsl:for-each>
+			<xsl:apply-templates select="* [local-name(.) = 'AnnotationRef']"/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="OME:Project">
+		<xsl:element name="OME:Project" namespace="{$newOMENS}">
+			<xsl:apply-templates select="@*"/>
+			<xsl:apply-templates select="* [not (local-name(.) = 'DatasetRef')]"/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="OME:Image">
+		<xsl:element name="OME:Image" namespace="{$newOMENS}">
+			<xsl:apply-templates select="@*"/>
+			<xsl:apply-templates select="* [local-name(.) = 'AcquiredDate' or local-name(.) = 'ExperimenterRef' or local-name(.) = 'Description' or local-name(.) = 'ExperimentRef' or local-name(.) = 'GroupRef']"/>
+			<xsl:comment>Insert DatasetRef elements</xsl:comment>
+			<!-- Insert DatasetRef elements -->
+			<xsl:variable name="imageID" select="@ID"/>
+			<xsl:for-each select="exsl:node-set(//OME:Dataset/OME:ImageRef[@ID=$imageID])">
+				<xsl:element name="OME:DatasetRef" namespace="{$newOMENS}">
+					<xsl:attribute name="ID"><xsl:for-each select=" parent::node()">
+						<xsl:value-of select="@ID"/>
+					</xsl:for-each></xsl:attribute>
+				</xsl:element>
+			</xsl:for-each>
+			<xsl:apply-templates select="* [local-name(.) = 'InstrumentRef' or local-name(.) = 'ObjectiveSettings' or local-name(.) = 'ImagingEnvironment' or local-name(.) = 'StageLabel' or local-name(.) = 'Pixels' or local-name(.) = 'ROIRef' or local-name(.) = 'MicrobeamManipulationRef' or local-name(.) = 'AnnotationRef']"/>
+		</xsl:element>
+	</xsl:template>
+
 	<xsl:template match="OME:AcquisitionDate">
 		<xsl:element name="OME:AcquiredDate" namespace="{$newOMENS}">
 			<xsl:apply-templates select="node()"/>
@@ -68,6 +111,7 @@
 	<xsl:template match="OME:Experimenter">
 		<xsl:element name="OME:Experimenter" namespace="{$newOMENS}">
 			<!-- Calculate DisplayName -->
+			<xsl:attribute name="DisplayName"><xsl:value-of select="@FirstName"/>/<xsl:value-of select="@MiddleName"/>/<xsl:value-of select="@LastName"/>(<xsl:value-of select="@UserName"/>)[<xsl:value-of select="@Email"/>]</xsl:attribute>
 			<xsl:apply-templates select="@*|node()"/>
 		</xsl:element>
 	</xsl:template>
@@ -114,9 +158,47 @@
 		</xsl:element>
 	</xsl:template>
 
+	<xsl:template match="ROI:Shape">
+		<xsl:element name="ROI:Shape" namespace="{$newROINS}">
+			<xsl:for-each
+				select="@* [not(name() = 'FillColor' or name() = 'StrokeColor' or name() = 'Text' or name() =  'Visibility')]">
+				<xsl:attribute name="{local-name(.)}">
+					<xsl:value-of select="."/>
+				</xsl:attribute>
+			</xsl:for-each>
+			<xsl:for-each select="@* [name() = 'FillColor']">
+				<xsl:attribute name="Fill">
+					<xsl:value-of select="."/>
+				</xsl:attribute>
+			</xsl:for-each>
+			<xsl:for-each select="@* [name() = 'StrokeColor']">
+				<xsl:attribute name="Stroke">
+					<xsl:value-of select="."/>
+				</xsl:attribute>
+			</xsl:for-each>
+			<xsl:for-each select="@* [name() = 'Text']">
+				<xsl:attribute name="Label">
+					<xsl:value-of select="."/>
+				</xsl:attribute>
+			</xsl:for-each>
+			<xsl:for-each select="* [local-name(.) = 'Transform']">
+				<xsl:attribute name="Transform"><xsl:value-of select="@A00"/>, <xsl:value-of
+					select="@A10"/>, <xsl:value-of select="@A01"/>, <xsl:value-of select="@A11"
+					/>, <xsl:value-of select="@A02"/>, <xsl:value-of select="@A12"/></xsl:attribute>
+			</xsl:for-each>
+			<!-- end of attributes -->
+			<xsl:for-each select="* [not(local-name(.) = 'Transform')]">
+				<xsl:apply-templates select="."/>
+			</xsl:for-each>
+		</xsl:element>
+	</xsl:template>
+	
 	<xsl:template match="ROI:Label">
 		<xsl:element name="ROI:Text" namespace="{$newROINS}">
 			<xsl:apply-templates select="@*|node()"/>
+			<xsl:element name="ROI:Value" namespace="{$newROINS}"><xsl:for-each select=" parent::node()">
+				<xsl:value-of select="@Text"/>
+			</xsl:for-each></xsl:element>
 		</xsl:element>
 	</xsl:template>
 
@@ -163,7 +245,7 @@
 			xmlns:ROI="http://www.openmicroscopy.org/Schemas/ROI/2011-06"
 			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2011-06 
-			ome.xsd">
+			../../../Released-Schema/2011-06/V1/ome.xsd">
 			<xsl:apply-templates/>
 		</OME>
 	</xsl:template>
