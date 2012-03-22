@@ -119,44 +119,91 @@
 		</xsl:element>
 	</xsl:template>
 
-	<xsl:template match="ROI:Shape">
+	<xsl:template match="ROI:ROI">
+		<xsl:element name="ROI:ROI" namespace="{$newROINS}">
+			<xsl:apply-templates select="@*"/>
+			<xsl:if test="count(descendant::ROI:Path) != count(descendant::ROI:Shape)">
+				<xsl:apply-templates select="node()" mode="stripPaths"/>
+			</xsl:if>
+			<xsl:if test="count(descendant::ROI:Path) = count(descendant::ROI:Shape)">
+				<xsl:apply-templates select="node()" mode="replacePaths"/>
+			</xsl:if>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="ROI:Union" mode="replacePaths">
+		<xsl:element name="ROI:Union" namespace="{$newROINS}">
+			<xsl:apply-templates select="@*|node()" mode="replacePaths"/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="ROI:Union" mode="stripPaths">
+		<xsl:element name="ROI:Union" namespace="{$newROINS}">
+			<xsl:apply-templates select="@*|node()" mode="stripPaths"/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="ROI:Shape" mode="stripPaths">
+		<xsl:if test="count(child::ROI:Path) = 0">
+			<xsl:element name="ROI:Shape" namespace="{$newROINS}">
+				<xsl:for-each
+					select="@* [not(name() = 'Fill' or name() = 'Stroke' or name() = 'Name'  or name() = 'MarkerStart' or name() = 'MarkerEnd' or name() = 'Label' or name() = 'Transform')]">
+					<xsl:attribute name="{local-name(.)}">
+						<xsl:value-of select="."/>
+					</xsl:attribute>
+				</xsl:for-each>
+				<xsl:for-each select="@* [name() = 'Fill']">
+					<xsl:attribute name="FillColor">
+						<xsl:value-of select="."/>
+					</xsl:attribute>
+				</xsl:for-each>
+				<xsl:for-each select="@* [name() = 'Stroke']">
+					<xsl:attribute name="StrokeColor">
+						<xsl:value-of select="."/>
+					</xsl:attribute>
+				</xsl:for-each>
+				<xsl:for-each select="@* [name() = 'Label']">
+					<xsl:attribute name="Text">
+						<xsl:value-of select="."/>
+					</xsl:attribute>
+				</xsl:for-each>
+				<!-- end of attributes -->
+				<xsl:for-each select="@* [name() = 'Transform']">
+					<xsl:element name="Transform">
+						<xsl:value-of select="."/>
+					</xsl:element>
+				</xsl:for-each>
+				<xsl:for-each
+					select="* [not(local-name(.) = 'Description' or local-name(.) = 'Path')]">
+					<xsl:apply-templates select="."/>
+				</xsl:for-each>
+				<xsl:for-each select="* [local-name(.) = 'Path']">
+					<xsl:comment>Path elements cannot be converted to 2012-06 Schema, they are not
+						supported.</xsl:comment>
+				</xsl:for-each>
+			</xsl:element>
+		</xsl:if>
+	</xsl:template>
+	
+	<xsl:template match="ROI:Shape" mode="replacePaths">
 		<xsl:element name="ROI:Shape" namespace="{$newROINS}">
-			<xsl:for-each select="@* [not(name() = 'Fill' or name() = 'Stroke' or name() = 'Name'  or name() = 'MarkerStart' or name() = 'MarkerEnd' or name() = 'Label' or name() = 'Transform')]">
+			<xsl:for-each select="@* [name() = 'ID']">
 				<xsl:attribute name="{local-name(.)}">
 					<xsl:value-of select="."/>
 				</xsl:attribute>
 			</xsl:for-each>
-			<xsl:for-each select="@* [name() = 'Fill']">
-				<xsl:attribute name="FillColor">
-					<xsl:value-of select="."/>
-				</xsl:attribute>
-			</xsl:for-each>
-			<xsl:for-each select="@* [name() = 'Stroke']">
-				<xsl:attribute name="StrokeColor">
-					<xsl:value-of select="."/>
-				</xsl:attribute>
-			</xsl:for-each>
-			<xsl:for-each select="@* [name() = 'Label']">
-				<xsl:attribute name="Text">
-					<xsl:value-of select="."/>
-				</xsl:attribute>
-			</xsl:for-each>
-			<!-- end of attributes -->
-			<xsl:for-each select="@* [name() = 'Transform']">
-				<xsl:element name="Transform">
-					<xsl:value-of select="."/>
-				</xsl:element>
-			</xsl:for-each>
-			<xsl:for-each select="* [not(local-name(.) = 'Description' or local-name(.) = 'Path')]">
-				<xsl:apply-templates select="."/>
-			</xsl:for-each>
-			<xsl:for-each select="* [local-name(.) = 'Path']">
-				<xsl:comment>Path elements cannot be converted to 2012-06 Schema, they are not supported.</xsl:comment>
-			</xsl:for-each>
+			<xsl:attribute name="Visibility">false</xsl:attribute>
+			<xsl:attribute name="Text">Removed Path</xsl:attribute>
+			<xsl:comment>
+				Path elements cannot be converted to 2012-06 Schema, they are not
+				supported.</xsl:comment>
+			<xsl:element name="ROI:Label" namespace="{$newROINS}">
+				<xsl:attribute name="X">0</xsl:attribute>
+				<xsl:attribute name="Y">0</xsl:attribute>
+			</xsl:element>
 		</xsl:element>
 	</xsl:template>
 	
-
 	<xsl:template match="ROI:Text">
 		<xsl:element name="ROI:Label" namespace="{$newROINS}">
 			<xsl:apply-templates select="@*"/>

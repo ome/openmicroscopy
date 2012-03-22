@@ -112,4 +112,21 @@ Complete with basic formating, like new lines.</Description>
 			</ROI:Shape>
 		</ROI:Union>
 	</ROI:ROI>
+	<ROI:ROI ID="ROI:4">
+		<ROI:Union>
+			<ROI:Shape ID="Shape:9" MarkerStart="Square" MarkerEnd="Circle" Stroke="1" StrokeWidth="2">
+				<ROI:Path Definition="M1,1 L2,2"/>
+			</ROI:Shape>
+		</ROI:Union>
+	</ROI:ROI>
+	<ROI:ROI ID="ROI:5">
+		<ROI:Union>
+			<ROI:Shape ID="Shape:10" MarkerStart="Square" MarkerEnd="Circle" Stroke="1" StrokeWidth="2">
+				<ROI:Path Definition="M1,1 L2,2"/>
+			</ROI:Shape>
+			<ROI:Shape ID="Shape:11" MarkerStart="Square" MarkerEnd="Circle" Stroke="1" StrokeWidth="2">
+				<ROI:Path Definition="M1,1 L2,2"/>
+			</ROI:Shape>
+		</ROI:Union>
+	</ROI:ROI>
 </OME>
