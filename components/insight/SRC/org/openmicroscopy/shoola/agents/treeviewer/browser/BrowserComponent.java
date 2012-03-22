@@ -1230,13 +1230,21 @@ class BrowserComponent
 
 	/**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#removeExperimenter(ExperimenterData)
+     * @see Browser#removeExperimenter(ExperimenterData, GroupData)
      */
-	public void removeExperimenter(ExperimenterData exp)
+	public void removeExperimenter(ExperimenterData exp, long groupID)
 	{
 		if (exp == null)
 			throw new IllegalArgumentException("Experimenter cannot be null.");
-		view.removeExperimenter(exp);
+		TreeImageDisplay node = null;
+		if (groupID >= 0) {
+			ExperimenterVisitor v = new ExperimenterVisitor(this, groupID);
+			accept(v);
+			List<TreeImageDisplay> nodes = v.getNodes();
+			if (nodes.size() == 1) node = nodes.get(0);
+		}
+		
+		view.removeExperimenter(exp, node);
 	}
 
 	/**

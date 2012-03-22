@@ -2010,68 +2010,52 @@ class BrowserUI
 	 * Removes the specified experimenter from the tree.
 	 * 
 	 * @param exp The experimenter data to remove.
+	 * @param refNode The node to remove the experimenter from.
 	 */
-	void removeExperimenter(ExperimenterData exp)
+	void removeExperimenter(ExperimenterData exp, TreeImageDisplay refNode)
 	{
 		if (model.getBrowserType() == Browser.ADMIN_EXPLORER) return;
-		TreeImageDisplay root = getTreeRoot();
+		if (refNode == null) refNode = getTreeRoot();
+
 		List<TreeImageDisplay> nodesToKeep;
-		List l = root.getChildrenDisplay();
+		List l = refNode.getChildrenDisplay();
 		if (l == null || l.size() == 0) return;
 		Iterator j = l.iterator();
-		TreeImageDisplay element, n, node;
+		TreeImageDisplay element, node;
 		Object ho;
 		ExperimenterData expElement;
 		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
 		Iterator k;
+		node = null;
+		nodesToKeep = new ArrayList<TreeImageDisplay>();
+		List<TreeImageDisplay> toExpand = new ArrayList<TreeImageDisplay>();
 		while (j.hasNext()) {
-			node = null;
 			element = (TreeImageDisplay) j.next();
-			nodesToKeep = new ArrayList<TreeImageDisplay>();
-			for (int i = 0; i < element.getChildCount(); i++) {
-				n = (TreeImageDisplay) element.getChildAt(i);
-				ho = n.getUserObject();
-				if (ho instanceof ExperimenterData) {
-					expElement = (ExperimenterData) ho;
-					if (expElement.getId() == exp.getId())
-						node = n;
-					else nodesToKeep.add(n);
-				}
-			}
-			if (node != null) element.removeChildDisplay(node);
-			k = nodesToKeep.iterator();
-			element.removeAllChildren();
-			while (k.hasNext()) {
-				tm.insertNodeInto((TreeImageSet) k.next(), element,
-								element.getChildCount());
-			}
-		}
-		tm.reload();
-		/*
-		List<TreeImageDisplay> nodesToKeep = new ArrayList<TreeImageDisplay>();
-		TreeImageDisplay element, node = null;
-		Object ho;
-		ExperimenterData expElement;
-		for (int i = 0; i < root.getChildCount(); i++) {
-			element = (TreeImageDisplay) root.getChildAt(i);
 			ho = element.getUserObject();
 			if (ho instanceof ExperimenterData) {
 				expElement = (ExperimenterData) ho;
 				if (expElement.getId() == exp.getId())
 					node = element;
-				else nodesToKeep.add(element);
+				else {
+					nodesToKeep.add(element);
+					if (element.isExpanded())
+						toExpand.add(element);
+				}
 			}
 		}
-		if (node != null) root.removeChildDisplay(node);
-		Iterator i = nodesToKeep.iterator();
-		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
-		root.removeAllChildren();
-		while (i.hasNext()) {
-			tm.insertNodeInto((TreeImageSet) i.next(), root, 
-							root.getChildCount());
+		if (node != null) refNode.removeChildDisplay(node);
+		k = nodesToKeep.iterator();
+		refNode.removeAllChildren();
+		while (k.hasNext()) {
+			tm.insertNodeInto((TreeImageSet) k.next(), refNode,
+					refNode.getChildCount());
 		}
-		tm.reload();
-		*/
+		
+		tm.reload(refNode);
+		k = toExpand.iterator();
+		while (k.hasNext()) {
+			expandNode((TreeImageSet) k.next(), false);
+		}
 	}
 
 	/**

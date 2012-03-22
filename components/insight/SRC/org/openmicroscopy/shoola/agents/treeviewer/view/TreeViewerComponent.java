@@ -1470,7 +1470,8 @@ class TreeViewerComponent
 		ExperimenterVisitor visitor = new ExperimenterVisitor(browser, 
 				userGroupID);
 		browser.accept(visitor);
-		if (visitor.getNodes().size() == 0) {
+		List<TreeImageDisplay> nodes = visitor.getNodes();
+		if (nodes.size() == 0) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Add experimenter", 
 					"The group is not displayed.");
@@ -1484,10 +1485,10 @@ class TreeViewerComponent
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Iterator i;
 		//first remove all the users displayed.
-		
-		visitor = new ExperimenterVisitor(browser, -1, userGroupID);
-		browser.accept(visitor);
-		List<TreeImageDisplay> nodes = visitor.getNodes();
+		TreeImageDisplay groupNode = nodes.get(0);
+		visitor = new ExperimenterVisitor(browser, -1, -1);
+		groupNode.accept(visitor);
+		nodes = visitor.getNodes();
 		List<ExperimenterData> users = new ArrayList<ExperimenterData>();
 		Iterator<TreeImageDisplay> k = nodes.iterator();
 		TreeImageDisplay n;
@@ -1515,7 +1516,7 @@ class TreeViewerComponent
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				browser = (Browser) entry.getValue();
-				browser.removeExperimenter(exp);
+				browser.removeExperimenter(exp, userGroupID);
 			}
 		}
 		//Add
@@ -2066,6 +2067,12 @@ class TreeViewerComponent
 		if (model.getState() == DISCARDED) return;
 		Browser browser = model.getSelectedBrowser();
 		TreeImageDisplay expNode = browser.getLastSelectedDisplay();
+		TreeImageDisplay parent = expNode.getParentDisplay();
+		long groupID = -1;
+		if (parent != null && parent.getUserObject() instanceof GroupData) {
+			GroupData g = (GroupData) parent.getUserObject();
+			groupID = g.getId();
+		}
 		Object uo = expNode.getUserObject();
 		if (uo == null || !(uo instanceof ExperimenterData)) return;
 		ExperimenterData exp = (ExperimenterData) uo;
@@ -2075,7 +2082,7 @@ class TreeViewerComponent
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			browser = (Browser) entry.getValue();
-			browser.removeExperimenter(exp);
+			browser.removeExperimenter(exp, groupID);
 		}
 	}
 
