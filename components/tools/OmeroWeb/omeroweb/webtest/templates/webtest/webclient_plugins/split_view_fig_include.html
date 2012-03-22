@@ -27,15 +27,15 @@
 }
 </style>
 
-<table>
+<table style="margin-left:auto; margin-right:auto">
     <tr>
         
         {% for c in channels %}
             {% if c.active %} 
-                <td class="channel_name" valign='bottom'>
-                    <div {% if split_grey %} style="color:#{{c.colour}}" {% endif %}>
+                <td class="channel_name" valign='bottom' style="vertical-align: bottom">
+                    <span {% if split_grey %} style="color:#{{c.colour}}" {% endif %}>
                     {{c.name}}
-                    </div>
+                    </span>
                 </td> 
             {% endif %}
         {% endfor %}
