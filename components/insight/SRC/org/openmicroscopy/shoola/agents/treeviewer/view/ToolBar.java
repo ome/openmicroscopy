@@ -158,6 +158,12 @@ class ToolBar
 	
 	/** The label displaying the group context.*/
 	private JLabel groupContext;
+	
+	/** The button to display the menu.*/
+	private JButton menuButton;
+	
+	/** The button to display the users.*/
+	private JButton usersButton;
 
     /**
      * Sets the defaults of the specified menu item.
@@ -291,67 +297,59 @@ class ToolBar
         
         bar.add(new JSeparator(JSeparator.VERTICAL));
         
-        Set set = TreeViewerAgent.getAvailableUserGroups();
-        if (set != null && set.size() > 1) {
-        	groupContext = new JLabel();
-        	setPermissions();
-			IconManager icons = IconManager.getInstance();
-        	b = new JButton(icons.getIcon(IconManager.OWNER_GROUP));
-        	 UIUtilities.unifiedButtonLookAndFeel(b);
-        	b.addMouseListener(new MouseAdapter() {
-        		
-        		/**
-        		 * Shows the menu with the various 
-        		 */
-        		public void mousePressed(MouseEvent me)
-        		{
-        			TreeViewerAction a = 
-    		        	controller.getAction(TreeViewerControl.SWITCH_USER);
-    				a.putValue(Action.SMALL_ICON, null);
-    				JPopupMenu selectionMenu = new JPopupMenu();
-    				JMenuItem item = new JMenuItem(a);
-    				item.setText(SwitchUserAction.NAME);
-    				selectionMenu.add(item);
-    				JMenu menu = new JMenu(GroupSelectionAction.NAME_ADD);
-    				menu.setToolTipText(GroupSelectionAction.DESCRIPTION_ADD);
-    				List<JMenuItem> items = createMenuItem(true);
-    				Iterator<JMenuItem> i = items.iterator();
-    				while (i.hasNext()) {
-						menu.add(i.next());
-					}
-    				selectionMenu.add(menu);
-    				menu = new JMenu(GroupSelectionAction.NAME);
-    				menu.setToolTipText(GroupSelectionAction.DESCRIPTION);
-    				items = createMenuItem(false);
-    				i = items.iterator();
-    				while (i.hasNext()) {
-						menu.add(i.next());
-					}
-    				selectionMenu.add(menu);
-        			selectionMenu.show((JComponent) me.getSource(), 
-        					me.getX(), me.getY());
-        		}
-			});
-        	bar.add(b);
-        	bar.add(Box.createHorizontalStrut(5));
-        	bar.add(groupContext);
-        	//menu attached to the button.
-        	/*
-        	a = controller.getAction(TreeViewerControl.PERSONAL);
-            b = new JButton(a);
-            BorderFactory.createCompoundBorder(new EmptyBorder(2, 2, 2, 2), 
-            		BorderFactory.createLineBorder(Color.GRAY));
-            b.addMouseListener((PersonalManagementAction) a);
-            bar.add(b);
-            */
-        } else {
-        	a = controller.getAction(TreeViewerControl.SWITCH_USER);
-            b = new JButton(a);
-            b.addMouseListener((SwitchUserAction) a);
-            UIUtilities.unifiedButtonLookAndFeel(b);
-            bar.add(b);
-        }
         
+        groupContext = new JLabel();
+        groupContext.setVisible(false);
+       
+        a = controller.getAction(TreeViewerControl.SWITCH_USER);
+        usersButton = new JButton(a);
+        usersButton.addMouseListener((SwitchUserAction) a);
+        UIUtilities.unifiedButtonLookAndFeel(usersButton);
+        
+        IconManager icons = IconManager.getInstance();
+    	menuButton = new JButton(icons.getIcon(IconManager.OWNER_GROUP));
+    	menuButton.setVisible(false);
+    	usersButton.setVisible(false);
+    	UIUtilities.unifiedButtonLookAndFeel(menuButton);
+    	menuButton.addMouseListener(new MouseAdapter() {
+    		
+    		/**
+    		 * Shows the menu with the various 
+    		 */
+    		public void mousePressed(MouseEvent me)
+    		{
+    			TreeViewerAction a = 
+		        	controller.getAction(TreeViewerControl.SWITCH_USER);
+				a.putValue(Action.SMALL_ICON, null);
+				JPopupMenu selectionMenu = new JPopupMenu();
+				JMenuItem item = new JMenuItem(a);
+				item.setText(SwitchUserAction.NAME);
+				selectionMenu.add(item);
+				JMenu menu = new JMenu(GroupSelectionAction.NAME_ADD);
+				menu.setToolTipText(GroupSelectionAction.DESCRIPTION_ADD);
+				List<JMenuItem> items = createMenuItem(true);
+				Iterator<JMenuItem> i = items.iterator();
+				while (i.hasNext()) {
+					menu.add(i.next());
+				}
+				selectionMenu.add(menu);
+				menu = new JMenu(GroupSelectionAction.NAME);
+				menu.setToolTipText(GroupSelectionAction.DESCRIPTION);
+				items = createMenuItem(false);
+				i = items.iterator();
+				while (i.hasNext()) {
+					menu.add(i.next());
+				}
+				selectionMenu.add(menu);
+    			selectionMenu.show((JComponent) me.getSource(), 
+    					me.getX(), me.getY());
+    		}
+		});
+    	bar.add(menuButton);
+    	bar.add(usersButton);
+    	bar.add(Box.createHorizontalStrut(5));
+    	bar.add(groupContext);
+    	setPermissions();
         return bar;
     }
     
@@ -684,6 +682,13 @@ class ToolBar
 		if (icon != null) groupContext.setIcon(icon);
 		groupContext.setText(group.getName());
 		groupContext.setToolTipText(desc);
+
+        Set set = TreeViewerAgent.getAvailableUserGroups();
+        boolean b = set != null && set.size() > 1;
+        menuButton.setVisible(b);
+    	groupContext.setVisible(b);
+    	usersButton.setVisible(!b);
 		repaint();
     }
+
 }
