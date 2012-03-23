@@ -71,6 +71,9 @@ For Xcode 4.3.2 make sure Xcode Command Line Tools are installed [[link](https:/
 
 4. Error: You must `brew link ossp-uuid' before postgresql can be installed    
 Try brew cleanup then brew link ossp-uuid
+
+5. Error: Failed executing: cd cpp && make MCPP_HOME=/Users/sebastien/apps/OMERO.libs/Cellar/mcpp/2.7.2 DB_HOME=/Users/sebastien/apps/OMERO.libs/Cellar/berkeley-db46/4.6.21 OPTIMIZE=yes prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 embedded_runpath_prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 install  
+We have had problems building zeroc-ice33 under MacOS 10.7.3 [[ticket](http://trac.openmicroscopy.org.uk/ome/ticket/8075)]. Try installing zeroc-ice34 instead
  
 OMERO server
 -----------
@@ -102,12 +105,17 @@ Edit your .profile as appropriate. NB. The following are indicators of required 
 
     export OMERO_HOME=$OMEROLIBS/Cellar/omero43/4.3/
     export ICE_CONFIG=$OMERO_HOME/etc/ice.config
-    export PYTHONPATH=$OMERO_HOME/lib/python:$OMEROLIBS/Cellar/zeroc-ice33/3.3.1/python
-
     export ICE_HOME=$OMEROLIBS/Cellar/zeroc-ice33
+    export PYTHONPATH=$OMERO_HOME/lib/python:$ICE_HOME/3.3.1/python
+ 
 
     export PATH=/usr/local/bin:$OMEROLIBS/bin:$OMERO_HOME/bin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
     export DYLD_LIBRARY_PATH=$OMEROLIBS/lib
+
+NB: if you installed zeroc-ice34,use the following paths
+
+    export ICE_HOME=$OMEROLIBS/Cellar/zeroc-ice34
+    export PYTHONPATH=$OMERO_HOME/lib/python:$ICE_HOME/3.4.2/python
 
 CONFIG
 ======
@@ -117,6 +125,7 @@ CONFIG
     $ launchctl load -w ~/Library/LaunchAgents/org.postgresql.postgres.plist
     $ pg_ctl -D /usr/local/var/postgres/ -l /usr/local/var/postgres/server.log start
 
+NB: under Mac OS X 10.7.3, installed postgresql version is now 9.1.3 and the file is called homebrew.mxcl.postgresql.plist 
 
     $ createuser -P -D -R -S omero
     $ createdb -O omero omero
