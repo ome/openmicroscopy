@@ -1,20 +1,24 @@
 INSTALL
 =======
-
-Install OS X Developer Tools. This procedure has been tested with the the following XCode distributions:
-
-    xcode_3.2.6_and_ios_sdk_4.3.dmg
-
-On Mac OS X versions:
+This procedure has been tested on the following Mac OS X versions:
 
     10.6.8
+    10.7.3
+    
+Install OS X Developer Tools. This procedure has been tested with the the following Xcode distributions:
 
-On the following Hardware:
+    xcode_3.2.6_and_ios_sdk_4.3.dmg
+    Xcode 4.3.2 (for Mac OS X 10.7.3)
+
+on the following Hardware:
 
     MacBook
     MacBookPro1,1 (Intel Core Duo, 2.16GHz, 2GB RAM)
     MacBookPro8,2 (Intel Core i7, 2.3 GHz, 8 GB RAM)
     MacMini1,1 (Intel Core Duo, 1.66GHz, 2GB RAM)
+
+Homebrew installation
+---------------------
 
 Install homebrew:
 
@@ -47,12 +51,29 @@ Install PostGres
     $ brew update
     $ brew install postgres
 
-NB. If you get the following error message
-Warning: Xcode is not installed! Builds may fail!
-==> Installing postgresql dependency: readline
-Error: No such file or directory - /usr/bin/cc
-1) make sure Xcode is installed
-2) make sure Xcode Command Line Tools are installed (https://github.com/mxcl/homebrew/issues/10244#issuecomment-4013781)
+Common issues
+------------
+If you run into problems with Homebrew, you can always run
+
+    $ brew doctor
+
+Below is a non-exhaustive list of errors/warnings 
+
+1. Warning: Xcode is not installed! Builds may fail!  
+Solution: install Xcode
+	
+2. Warning: It appears you have MacPorts or Fink installed.  
+Follow uninstall instructions [[link](http://guide.macports.org/chunked/installing.macports.uninstalling.html)]
+
+3. ==> Installing postgresql dependency: readline  
+ Error: No such file or directory - /usr/bin/cc`
+For Xcode 4.3.2 make sure Xcode Command Line Tools are installed [[link](https://github.com/mxcl/homebrew/issues/10244#issuecomment-4013781)]
+
+4. Error: You must `brew link ossp-uuid' before postgresql can be installed    
+Try brew cleanup then brew link ossp-uuid
+ 
+OMERO server
+-----------
 
 At this point you have a choice. If you just want a deployment of the current release of OMERO.server then a simple homebrew install is sufficient, e.g.
 
@@ -143,6 +164,7 @@ Now Start OMERO.server
     $ omero admin {start|stop}
 
 Now connect to your OMERO.server using insight with the following credentials:
+    
     U: root
     P: omero
 
