@@ -443,14 +443,16 @@
     
     .metadata_details {
         text-shadow: 0 1px 0 rgba(255,255,255,.8);
+        text-align:left;
     }
     
             .metadata_details th {
                 color:hsl(210,10%,30%);
+                font-weight:bold;
             }
             
             .metadata_details td{
-                color:hsl(210,10%,70%);
+                color:hsl(210,10%,40%) !important;
             }
     
     
@@ -719,6 +721,7 @@
         right:0px;
         border-bottom:solid 1px rgba(0,0,0,.4);
         border-left:solid 1px rgba(255,255,255,.1);
+        -webkit-box-shadow:0 1px 1px rgba(0,0,0,.1);
     } 
     
     

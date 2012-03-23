@@ -70,17 +70,11 @@
 		display:inline-block;
 		padding: 1.1em 1em;
 		font-size:1.2em;
-		margin-left:5px;
 	}
 	
-	#middle_header li:hover {
-		border:none;
-	}
-			
-	#middle_header li a:hover {
+	#middle_header > li > a:hover, #user_dropdown:hover {
 		text-decoration:none;
-		background-color:rgba(255,255,255,.2);
-		-webkit-box-shadow: 0 1px 0 hsl(212,25%,85%), inset 0 1px 0 rgba(255,255,255,.4);
+		background-color:rgba(255,255,255,.1);
 	}
 		
 
@@ -108,7 +102,7 @@
 		} 
 
 
-			#middle_header_left li a, #middle_header_right li a {
+			#middle_header_left > li > a, #middle_header_right > li > a {
 				display: block;
 			}
 			
@@ -132,39 +126,43 @@
 
 
 #user_dropdown {
+	cursor:pointer;
+	padding-left:6px;
 }
 
 
-	/* User Dropdown */
-	#user_dropdown img{
-		-webkit-box-shadow: 0 1px 0 rgba(255,255,255,.4);
+	/* Link for User Dropdown */
+	#show_user_dropdown img{
+		-webkit-box-shadow: 0 1px 0 rgba(255,255,255,.2);
 		width:25px;
 		height:25px;
-		-webkit-border-radius:5px;
-		top:7px;
+		-webkit-border-radius:2px;
+		top:5px;
 		display:inline-block;
 		float:left;
 		position:relative;
 		border:solid 1px hsl(212,22%,24%);
 	}
 	
-	#user_dropdown span {
+	#show_user_dropdown span {
 		position:relative;
+		padding-left:2px;
 	}
 	
 
-
+	/* Actual Dropdown */
 	#user_dropdown ul {
 		overflow:hidden;
 		width:200px;
-		top:36px;
+		top:39px;
 		right:45px;
+		border-left:solid 1px #d3d3d3;
+		border-right: solid 1px #999;
+		border-bottom:solid 1px #999;
 		background: hsl(0,0%,97%);
-		-webkit-border-top-left-radius:3px;
-		-webkit-border-bottom-left-radius:3px;
-		-webkit-border-bottom-right-radius:3px;
+		-webkit-border-radius:3px;;
 		position:absolute;
-		//display:none;
+		-webkit-box-shadow: 4px 4px 6px rgba(0,0,0,.2);
 	}
 
 		#user_dropdown li {
@@ -187,7 +185,6 @@
 			#user_dropdown li a {
 				display:block;
 				background-color:#fff;
-				border:solid 1px red;
 				margin:0;
 				font-size:1.1em;
 				color:#666;
@@ -195,7 +192,7 @@
 
 				
 			#user_dropdown li a:hover {
-				background: hsla(115,20%,50%,.5);
+				background: #e6e6e6;
 				color: hsl(105,20%,10%);
 			}
 
@@ -218,12 +215,113 @@
 
 	
 	/* Script Button */
-	.toolbar_button a{
+	
+	
+	.script_launch > a{
 	    float: left;
 		width:16px;
 		text-indent:-9999px;
+		margin:0 !important;
 		background: url(../img/nuvola_script-run16.png) center center no-repeat;
 	}
+	
+    
+		/* Script Sub Menu */
+		
+	    .script_launch ul {
+			width: 170px; 
+			visibility: hidden; 
+			position: absolute; 
+			top: 100%; 
+			left: 0px; 
+			z-index:50;
+	        margin: 0;
+			background-color:#fff;
+			padding: 1px; 
+			list-style:none; 
+			border:solid #d3d3d3 1px;
+			border-top:none;
+			border-left:solid 1px rgba(0,0,0,.2);
+			border-right:solid 1px rgba(0,0,0,.2);
+			border-bottom:solid 1px rgba(0,0,0,.4);
+			-webkit-box-shadow: 0 5px 9px -3px rgba(0,0,0,.3);
+			-webkit-border-bottom-left-radius:4px;
+			-webkit-border-bottom-right-radius:4px;
+		}
+				
+		    .script_launch ul li {
+				background: #f2f2f2;
+				border-bottom: solid 1px #d3d3d3;
+				border-bottom: solid 1px rgba(0,0,0,.05);
+				border-top: solid 1px rgba(255,255,255,.2); 
+				color: #000; 
+				width:100%;
+				display:block;
+			}
+		
+		    .script_launch li:hover { 
+				background-color:hsl(210,50%,50%);
+				background-color:hsl(210,50%,50%);
+				border-top:solid 1px hsl(210,50%,50%);
+				border-bottom:solid 1px hsl(210,50%,40%);
+				background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210, 50%, 50%)), to(hsl(210, 50%, 60%)));
+				color: black; 
+				position: relative; 
+			}
+		
+			
+			.script_launch li:last-child {
+				border-bottom:none;
+			}
+		
+			    .script_launch ul li a {
+					width: 100%; 
+					display: inline-block; 
+					font-weight: normal;
+					font-size:1.3em !important;
+					padding: .7em 0 .7em 8px !important;
+				} 
+		
+	
+			    .script_launch li a { 
+					display: block; 
+					color: #222; 
+				}
+				
+				
+    
+				.script_launch li:last-child a {
+					border-right: none;
+				} 
+	
+		    
+
+
+			/* Sub menu */
+			    
+		    ul.sub_menu li ul {
+				left: 170px; 
+				top: 0;
+			}
+		
+		    ul.sub_menu li:hover > ul{
+				visibility: visible;
+			}
+			
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 

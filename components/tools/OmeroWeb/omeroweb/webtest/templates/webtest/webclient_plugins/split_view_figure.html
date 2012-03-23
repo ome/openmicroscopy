@@ -70,6 +70,8 @@ function hideHeader() {
             <input type="text" name="imageIds" {% if imageIds %} value="{{ imageIds }}" {% endif %} /> 
             <a href="{% url webtest_split_view_figure %}">Clear</a>
         </div>
+		
+		
     {% if imageIds %}
         <div style="margin-left:auto; margin-right:auto; width:500px">
             <div style="float:left; padding-right:20px">
@@ -80,10 +82,12 @@ function hideHeader() {
                 <input type="radio" name="proj" value="intmean" {% ifequal proj 'intmean' %} checked="true" {% endifequal %} /> 
                     Mean Intensity Projection
             </div>
+
             <div>
                 Image size:
                 <input type="text" name="width" size="9" {% if size.width %} value="{{ size.width }}" {% endif %} /> <br />
                 <input type="text" name="height" {% if size.height %} value="{{ size.height }}" {% endif %} style="display:none"/>
+
             
                 Split Channels Grey
                 <input type="checkbox" name="split_grey" {% if split_grey %} checked="true" {% endif %} /> <br />
@@ -92,6 +96,8 @@ function hideHeader() {
             </div>
         </div>
         <div style="clear: both"></div>
+		
+		
         <div>
             <table cellspacing='3' style="margin-left:auto; margin-right:auto">
             <tr>

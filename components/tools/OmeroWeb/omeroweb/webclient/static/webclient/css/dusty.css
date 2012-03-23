@@ -158,8 +158,8 @@ a.tag {
 	border:solid 1px red;
 	display:inline-block;
 	margin:2px 0;
-	padding:0 .7em;
-	line-height:1.5em;
+	padding:.1em .7em 0;
+	line-height:1.3em;
     -webkit-border-radius: 30px;
 	-moz-border-radius: 30px;
 	border-radius: 30px;

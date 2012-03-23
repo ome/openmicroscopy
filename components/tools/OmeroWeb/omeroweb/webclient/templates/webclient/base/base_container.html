@@ -107,7 +107,8 @@
 
 {% block middle_header_right %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-    {% include "webclient/base/search_field.html" %}
+	{% include "webclient/base/script_launch.html" %}
+	{% include "webclient/base/search_field.html" %}
     <li id="user_dropdown">
         <div id="show_user_dropdown">
             <img src="{% url wamyphoto %}" />
@@ -119,7 +120,6 @@
             {% include "webclient/base/logout.html" %}
         </ul>
     </li>
-    {% include "webclient/base/script_launch.html" %}
 {% endblock %}
 
 

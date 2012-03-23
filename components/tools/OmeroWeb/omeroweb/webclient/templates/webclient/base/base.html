@@ -88,10 +88,10 @@
 {% block middle_header_right %}
     {% include "webclient/base/search_field.html" %}
     <li id="user_dropdown">
-        <div id="show_user_dropdown">
+        <a id="show_user_dropdown">
             <img src="{% url wamyphoto %}" />
             <span>{{ eContext.user.getFullName }}</span>
-        </div>
+        </a>
         <ul>
             <li><a href="{% url wamyaccount 'edit' %}" title="Account Settings"> Accounts Settings</a></li>
             <li><a href="{% url load_template 'help' %}">{% trans "Help" %}</a></li>
