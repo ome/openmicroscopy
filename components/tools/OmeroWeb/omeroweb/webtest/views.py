@@ -472,7 +472,9 @@ def dataset_split_view (request, datasetId, **kwargs):
     c_left = ",".join(leftFlags)
     c_right = ",".join(rightFlags)
     
-    return render_to_response('webtest/demo_viewers/dataset_split_view.html', {'dataset': dataset, 'images': images, 
+    template = kwargs.get('template', 'webtest/webclient_plugins/dataset_split_view.html')
+
+    return render_to_response(template, {'dataset': dataset, 'images': images, 
         'channels':channels, 'size': size, 'c_left': c_left, 'c_right': c_right})
 
 

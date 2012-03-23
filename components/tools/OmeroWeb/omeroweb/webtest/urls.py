@@ -22,6 +22,8 @@ urlpatterns = patterns('django.views.generic.simple',
 
     # View a dataset as two panels of images, each with a different rendering setting
     url( r'^dataset_split_view/(?P<datasetId>[0-9]+)/', views.dataset_split_view, name='webtest_dataset_split_view' ),
+    url( r'^dataset_split_include/(?P<datasetId>[0-9]+)/', views.dataset_split_view,
+            {"template":"webtest/webclient_plugins/dataset_split_include.html"}, name='webtest_dataset_split_include' ),
 
     # view an image in grid with the Z, C, T dimensions split over the x or y axes as chosen by user.
     url( r'^image_dimensions/(?P<imageId>[0-9]+)/', views.image_dimensions, name='webtest_image_dimensions' ),
