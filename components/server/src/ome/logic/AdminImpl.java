@@ -1380,19 +1380,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         final Log log = getBeanHelper().getLogger();
 
-        for (String className : classes()) {
-            String table = table(className);
-            if (table == null) {
-                continue;
-            }
-            int changed = sql.changeTablePermissionsForGroup(table, id, internal);
-            if (changed > 0) {
-                log.info(
-                        String.format("# of perms changed for %s: %s",
-                                className, changed));
-            }
-        }
-
         sql.changeGroupPermissions(id, internal);
         log.info(String.format("Changed permissions for %s to %s", id, internal));
 
