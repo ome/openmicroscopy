@@ -5428,6 +5428,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             if not re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS']):
                 sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
                 sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+                sopts['omero.user'] = str(self.getDetails().getOwner().getId())
                 re.resetDefaults(sopts)
                 re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS'])
             self._onResetDefaults(re.getRenderingDefId(self._conn.CONFIG['SERVICE_OPTS']))
@@ -5465,7 +5466,12 @@ class _ImageWrapper (BlitzObjectWrapper):
             rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
             logger.debug(rdefns)
             if rdefns:
+                # Use the same group as the image in the context
+                defsopts = self._conn.CONFIG['SERVICE_OPTS']
+                self._conn.CONFIG['SERVICE_OPTS'] = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
+                self._conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(self.getDetails().getGroup().getId())
                 self.removeAnnotations(rdefns)
+                self._conn.CONFIG['SERVICE_OPTS'] = defsopts
             return True
         return False
 
