@@ -128,12 +128,18 @@ public class DataObjectRemover
     	while (i.hasNext()) {
 			o = i.next();
 			ho = o.getObjectToDelete();
-			groupId = ho.getGroupId();
-			ctx = getKey(map, groupId);
+			ctx = o.getSecurityContext();
 			if (ctx == null) {
-				l = new ArrayList<DeletableObject>();
-				ctx = new SecurityContext(groupId);
-				map.put(ctx, l);
+				groupId = ho.getGroupId();
+				ctx = getKey(map, groupId);
+				if (ctx == null) {
+					ctx = new SecurityContext(groupId);
+					map.put(ctx, new ArrayList<DeletableObject>());
+				}
+			} else {
+				if (getKey(map, ctx.getGroupID()) == null) {
+					map.put(ctx, new ArrayList<DeletableObject>());
+				}
 			}
 			l = map.get(ctx);
 			l.add(o);

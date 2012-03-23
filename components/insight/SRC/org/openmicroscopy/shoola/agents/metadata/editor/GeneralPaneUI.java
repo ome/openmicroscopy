@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -186,13 +189,16 @@ class GeneralPaneUI
 		annotationTaskPane.add(p);
 	}
 	
+	/** The Component hosting the container.*/
+	private JScrollPane pane;
+	
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout(0, 0));
 		container.add(propertiesTaskPane);
 		container.add(annotationTaskPane);
-		JScrollPane pane = new JScrollPane();
+		pane = new JScrollPane();
 		JViewport viewport = pane.getViewport();
 		viewport.add(container);
 		viewport.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -594,4 +600,10 @@ class GeneralPaneUI
 		annotationUI.onRelatedNodesSet();
 	}
 
+	void setExtentWidth(int width)
+	{
+		if (propertiesUI != null)
+			propertiesUI.setExtentWidth(width);
+	}
+	
 }

@@ -375,7 +375,8 @@ class BrowserModel
         }
         //state = Browser.COUNTING_ITEMS;
         SecurityContext ctx = getSecurityContext(refNode);
-        if (TreeViewerAgent.isAdministrator())
+        if (TreeViewerAgent.isAdministrator() &&
+        		getBrowserType() == Browser.ADMIN_EXPLORER)
         	ctx = TreeViewerAgent.getAdminContext();;
         ContainerCounterLoader loader = new ContainerCounterLoader(component,
         		ctx, containers, nodes);

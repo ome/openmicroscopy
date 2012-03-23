@@ -24,6 +24,8 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +39,9 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -61,6 +66,8 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.NotificationDialog;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import pojos.ExperimenterData;
@@ -96,7 +103,7 @@ public class DataServicesFactory
 	private static DataServicesFactory		singleton;
 	
 	/** The dialog indicating that the connection is lost.*/
-	private MessageBox connectionDialog;
+	private JDialog connectionDialog;
 	
 	/** Flag indicating that the client and server are not compatible.*/
 	private boolean compatible;
@@ -320,6 +327,33 @@ public class DataServicesFactory
     		registry.lookup(LookupNames.USER_CREDENTIALS);
     }
     
+    /**
+     * Brings up a notification dialog.
+     * 
+     * @param title     The dialog title.
+     * @param message   The dialog message.
+     */
+    private void showNotificationDialog(String title, String message)
+    {
+        connectionDialog = new NotificationDialog(new JFrame(), 
+        		title, message, null);
+        connectionDialog.setModal(false);
+        connectionDialog.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (NotificationDialog.CLOSE_NOTIFICATION_PROPERTY.equals(name))
+				{
+					connectionDialog = null;
+					exitApplication(true, true);
+				}
+					
+			}
+		});
+        UIUtilities.centerAndShow(connectionDialog);
+    }
+    
 	/** 
 	 * Brings up a dialog indicating that the session has expired and
 	 * quits the application.
@@ -346,7 +380,7 @@ public class DataServicesFactory
 						registry.getTaskBar().getFrame(), "Lost Connection", 
 						message);
 				connectionDialog.setModal(true);
-				int v = connectionDialog.centerMsgBox();
+				int v = ((MessageBox) connectionDialog).centerMsgBox();
 				if (v == MessageBox.NO_OPTION) {
 					connectionDialog = null;
 					exitApplication(true, true);
@@ -381,8 +415,7 @@ public class DataServicesFactory
 					} else {
 						message = "A failure occurred while attempting to " +
 								"reconnect.\nThe application will now exit.";
-						un.notifyInfo("Reconnection Failure", message);
-						exitApplication(true, true);
+						showNotificationDialog("Reconnection Failure", message);
 					}
 				}
 				break;
@@ -390,9 +423,7 @@ public class DataServicesFactory
 				message = "The server is no longer " +
 				"running. \nPlease contact your system administrator." +
 				"\nThe application will now exit.";
-				un.notifyInfo("Connection Refused", message);
-				exitApplication(true, true);
-				break;	
+				showNotificationDialog("Connection Refused", message);
 		}
 	}
 	

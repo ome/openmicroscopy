@@ -893,7 +893,8 @@ class TreeViewerComponent
         			 return;
         		 }
     		}
-			d = new AdminDialog(view, object.getClass(), uo, nodes);
+			d = new AdminDialog(view, model.getAdminContext(),
+					object.getClass(), uo, nodes);
 		}
 		
 		if (d != null) {
@@ -3635,9 +3636,12 @@ class TreeViewerComponent
 		model.setNodesToCopy(null, -1);
 		view.removeAllFromWorkingPane();
 		model.setDataViewer(null);
+		
 		ExperimenterData exp = model.getUserDetails();
 		model.setSelectedGroupId(exp.getDefaultGroup().getId());
 		model.getMetadataViewer().onGroupSwitched(true);
+		view.createTitle();
+		view.setPermissions();
 		//model.resetMetadataViewer();
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Entry entry;
@@ -4260,4 +4264,13 @@ class TreeViewerComponent
 		}
 	}
 
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#getSecurityContext()
+	 */
+	public SecurityContext getSecurityContext()
+	{
+		return model.getSecurityContext();
+	}
+	
 }
