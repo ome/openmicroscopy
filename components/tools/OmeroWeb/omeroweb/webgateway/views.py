@@ -35,16 +35,6 @@ from omero.gateway import timeit, TimeIt
 
 import Ice
 
-try:
-    import Image
-    import ImageDraw
-except: #pragma: nocover
-    try:
-        from PIL import Image
-        from PIL import ImageDraw
-    except:
-        logger.error('No PIL installed')
-    
 
 import settings
 
@@ -65,6 +55,17 @@ import logging, os, traceback, time, zipfile, shutil
 logger = logging.getLogger(__name__)
 
 logger.debug("INIT")
+
+try:
+    import Image
+    import ImageDraw
+except: #pragma: nocover
+    try:
+        from PIL import Image
+        from PIL import ImageDraw
+    except:
+        logger.error('No PIL installed')
+
 
 def _safestr (s):
     return unicode(s).encode('utf-8')
