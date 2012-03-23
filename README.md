@@ -1,20 +1,24 @@
 INSTALL
 =======
-
-Install OS X Developer Tools. This procedure has been tested with the the following XCode distributions:
-
-    xcode_3.2.6_and_ios_sdk_4.3.dmg
-
-On Mac OS X versions:
+This procedure has been tested on the following Mac OS X versions:
 
     10.6.8
+    10.7.3
+    
+Install OS X Developer Tools. This procedure has been tested with the the following Xcode distributions:
 
-On the following Hardware:
+    xcode_3.2.6_and_ios_sdk_4.3.dmg
+    Xcode 4.3.2 (for Mac OS X 10.7.3)
+
+on the following Hardware:
 
     MacBook
     MacBookPro1,1 (Intel Core Duo, 2.16GHz, 2GB RAM)
     MacBookPro8,2 (Intel Core i7, 2.3 GHz, 8 GB RAM)
     MacMini1,1 (Intel Core Duo, 1.66GHz, 2GB RAM)
+
+Homebrew installation
+---------------------
 
 Install homebrew:
 
@@ -47,12 +51,32 @@ Install PostGres
     $ brew update
     $ brew install postgres
 
-NB. If you get the following error message
-Warning: Xcode is not installed! Builds may fail!
-==> Installing postgresql dependency: readline
-Error: No such file or directory - /usr/bin/cc
-1) make sure Xcode is installed
-2) make sure Xcode Command Line Tools are installed (https://github.com/mxcl/homebrew/issues/10244#issuecomment-4013781)
+Common issues
+------------
+If you run into problems with Homebrew, you can always run
+
+    $ brew doctor
+
+Below is a non-exhaustive list of errors/warnings 
+
+1. Warning: Xcode is not installed! Builds may fail!  
+Solution: install Xcode
+	
+2. Warning: It appears you have MacPorts or Fink installed.  
+Follow uninstall instructions [[link](http://guide.macports.org/chunked/installing.macports.uninstalling.html)]
+
+3. ==> Installing postgresql dependency: readline  
+ Error: No such file or directory - /usr/bin/cc`
+For Xcode 4.3.2 make sure Xcode Command Line Tools are installed [[link](https://github.com/mxcl/homebrew/issues/10244#issuecomment-4013781)]
+
+4. Error: You must `brew link ossp-uuid' before postgresql can be installed    
+Try brew cleanup then brew link ossp-uuid
+
+5. Error: Failed executing: cd cpp && make MCPP_HOME=/Users/sebastien/apps/OMERO.libs/Cellar/mcpp/2.7.2 DB_HOME=/Users/sebastien/apps/OMERO.libs/Cellar/berkeley-db46/4.6.21 OPTIMIZE=yes prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 embedded_runpath_prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 install  
+We have had problems building zeroc-ice33 under MacOS 10.7.3 [[ticket](http://trac.openmicroscopy.org.uk/ome/ticket/8075)]. Try installing zeroc-ice34 instead
+ 
+OMERO server
+-----------
 
 At this point you have a choice. If you just want a deployment of the current release of OMERO.server then a simple homebrew install is sufficient, e.g.
 
@@ -81,12 +105,17 @@ Edit your .profile as appropriate. NB. The following are indicators of required 
 
     export OMERO_HOME=$OMEROLIBS/Cellar/omero43/4.3/
     export ICE_CONFIG=$OMERO_HOME/etc/ice.config
-    export PYTHONPATH=$OMERO_HOME/lib/python:$OMEROLIBS/Cellar/zeroc-ice33/3.3.1/python
-
     export ICE_HOME=$OMEROLIBS/Cellar/zeroc-ice33
+    export PYTHONPATH=$OMERO_HOME/lib/python:$ICE_HOME/3.3.1/python
+ 
 
     export PATH=/usr/local/bin:$OMEROLIBS/bin:$OMERO_HOME/bin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
     export DYLD_LIBRARY_PATH=$OMEROLIBS/lib
+
+NB: if you installed zeroc-ice34,use the following paths
+
+    export ICE_HOME=$OMEROLIBS/Cellar/zeroc-ice34
+    export PYTHONPATH=$OMERO_HOME/lib/python:$ICE_HOME/3.4.2/python
 
 CONFIG
 ======
@@ -96,6 +125,7 @@ CONFIG
     $ launchctl load -w ~/Library/LaunchAgents/org.postgresql.postgres.plist
     $ pg_ctl -D /usr/local/var/postgres/ -l /usr/local/var/postgres/server.log start
 
+NB: under Mac OS X 10.7.3, installed postgresql version is now 9.1.3 and the file is called homebrew.mxcl.postgresql.plist 
 
     $ createuser -P -D -R -S omero
     $ createdb -O omero omero
@@ -143,6 +173,7 @@ Now Start OMERO.server
     $ omero admin {start|stop}
 
 Now connect to your OMERO.server using insight with the following credentials:
+    
     U: root
     P: omero
 
