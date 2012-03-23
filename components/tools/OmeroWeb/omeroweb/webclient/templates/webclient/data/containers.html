@@ -41,6 +41,10 @@
         String.prototype.capitalize = function() {
             return this.charAt(0).toUpperCase() + this.slice(1);
         }
+        
+        var handleChgrp = function() {
+            $("#chgrp-form").dialog('open');
+        }
 
         var handleDelete = function() {
             var selected = $.jstree._focused().get_selected();
@@ -129,6 +133,7 @@
             }
         }
 
+        // Stuff to do on load...
         $(function() 
             {
                 $("#left_panel_tabs").tabs({
@@ -141,6 +146,45 @@
                         return true;
                     }
                 });
+
+
+                $("#chgrp-form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 310,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "OK": function() {
+                            $("#chgrp-form").submit();
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                // handle chgrp 
+                $("#chgrp-form").submit(function(e){
+                    $("#chgrp-form").dialog("close");
+                    var selected = $.jstree._focused().get_selected();
+                    var postData = $(this).serialize();
+                    if ($(".group_option input[checked=true]", $(this)).length < 1) return false;   // no group chosen
+                    var actionUrl= $(this).attr('action') + "?" + get_tree_selection(); // E.g. ?Dataset=34,56$Image=12
+                    $.post(actionUrl, postData, function(data){
+                        showActivities();
+                        $("#dataTree").jstree('remove', selected);
+                        
+                    });
+                    
+                    return false
+                });
+                // chgrp form behavior
+                $("#chgrp-form .group_option").click(function(){
+                    $("#chgrp-form .group_option").removeClass('selected');
+                    $(this).addClass('selected');
+                    $("input[type='radio']", $(this)).attr('checked', true);
+                });
+                $("#chgrp-form .group_option :first").click();  // select first option
 
 
                 var buttonsShowHide = function(selected, inst) {
@@ -504,6 +548,12 @@
                                 "action": handleDelete
                             };
                             
+                            config["chgrp"] = {
+                                "label" : "Move to Group...",
+                                "icon"  : '{% static "webclient/image/kuser16.png" %}',
+                                "action": handleChgrp
+                            };
+                            
                             config["basket"] = {
                                 "label" : "Add to Basket",
                                 "icon"  : '{% static "webclient/image/basket16.png" %}',                                    
@@ -523,6 +573,7 @@
                                     config["ccp"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
+                                    config["chgrp"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("experimenter")>=0) {
                                     config["delete"]["_disabled"] = true;
                                     config["ccp"]["_disabled"] = true;
@@ -941,6 +992,38 @@
             </fieldset>
             </form>
         </div>
+
+        <!-- hidden form for chgrp -->
+        <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}">
+            {% if eContext.allGroups|length_is:"1" %}
+                <p>
+                    You are only in a single group.<br>
+                    You cannot move data to another group.
+                </p>
+            {% else %}
+                <p>Choose group to move data</p>
+
+                <div class="gray_border">
+                {% for grp in eContext.allGroups %}
+                    {% ifnotequal grp.id eContext.context.groupId %}
+                        <div class='group_option'>
+                            <input type="radio" name="group_id" value="{{ grp.id }}" style="display:none"/>
+                            <img
+                            {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static "webclient/image/nuvola_ledorange16.png" %}"
+                            {% else %}
+                                {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/nuvola_ledorange_readOnly16.png" %}"
+                                {% else %}
+                                    src="{% static "webclient/image/nuvola_ledred16.png" %}"
+                                {% endif %}
+                            {% endif %} />
+                            {{ grp.name }}
+                        </div>
+                    {% endifnotequal %}
+                {% endfor %}
+                </div>
+            {% endif %}
+        </form>
+
     </div>
 {% endblock %}
 

@@ -88,7 +88,7 @@ class GridBICanvas
         
         SplitImage channel;
         String v = model.getUnitBarValue(); 
-        int s = (int) (model.getGridBarSize()*model.getGridRatio());
+        int s = (int) (model.getGridBarSize());
         Color c = model.getUnitBarColor();
         Font font = getFont();;
         FontMetrics fm = getFontMetrics(font);

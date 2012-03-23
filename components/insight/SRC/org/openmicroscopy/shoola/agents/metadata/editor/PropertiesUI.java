@@ -34,12 +34,8 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
@@ -61,6 +57,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -76,7 +73,6 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEve
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -112,7 +108,7 @@ import pojos.WellSampleData;
  * </small>
  * @since OME3.0
  */
-class PropertiesUI   
+class PropertiesUI
 	extends AnnotationUI
 	implements ActionListener, DocumentListener, FocusListener, 
 	PropertyChangeListener
@@ -135,6 +131,9 @@ class PropertiesUI
     
     /** Action ID indicating to edit the description.*/
     private static final int	EDIT_DESC = 1;
+    
+    /** The default height of the description.*/
+    private static final int HEIGHT = 60;
     
     /** Button to edit the name. */
 	private JButton				editName;
@@ -207,6 +206,9 @@ class PropertiesUI
 
 	/** The menu displaying the view options.*/
 	private JPopupMenu			viewMenu;
+
+	/** The visible width.*/
+	private int width = 0;
 	
 	/** Initializes the components composing this display. */
     private void initComponents()
@@ -279,12 +281,6 @@ class PropertiesUI
     	descriptionPane.setEnabled(false);
     	descriptionPane.setAllowOneClick(true);
     	descriptionPane.addFocusListener(this);
-    	addComponentListener(new ComponentAdapter() {
-
-			public void componentResized(ComponentEvent e) {
-				wrap();
-			}
-		});
     	defaultBorder = namePane.getBorder();
     	namePane.setFont(f.deriveFont(Font.BOLD));
     	typePane.setFont(f.deriveFont(Font.BOLD));
@@ -299,7 +295,6 @@ class PropertiesUI
     	f = wellLabel.getFont();
     	wellLabel.setFont(f.deriveFont(Font.BOLD));
     	wellLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	
     	
     	f = ownerLabel.getFont();
     	ownerLabel.setFont(f.deriveFont(Font.BOLD, f.getSize()-2));
@@ -823,16 +818,18 @@ class PropertiesUI
         	refObject instanceof WellSampleData ||
         	refObject instanceof PlateData ||
         	refObject instanceof ScreenData) {
-        	 p.add(Box.createVerticalStrut(5));
-        	 descriptionPanel = layoutEditablefield(editDescription, 
+        	p.add(Box.createVerticalStrut(5));
+        	descriptionPanel = layoutEditablefield(editDescription, 
         			 descriptionPane, 5);
         	 //descriptionPanel.setBorder(AnnotationUI.EDIT_BORDER);
-
-        	 pane = new JScrollPane(descriptionPanel);
-        	 pane.setBorder(AnnotationUI.EDIT_BORDER);
-        	 Dimension d = pane.getPreferredSize();
-        	 pane.getViewport().setPreferredSize(new Dimension(d.width, 60));
-        	 p.add(pane);
+		
+        	pane = new JScrollPane(descriptionPanel);
+        	pane.setHorizontalScrollBarPolicy(
+        			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        	pane.setBorder(AnnotationUI.EDIT_BORDER);
+        	Dimension d = pane.getPreferredSize();
+        	pane.getViewport().setPreferredSize(new Dimension(d.width, HEIGHT));
+        	p.add(pane);
          } else if (refObject instanceof FileData) {
         	 /*
         	 FileData f = (FileData) refObject;
@@ -1024,26 +1021,15 @@ class PropertiesUI
        title = TITLE;
        initComponents();
        init = false;
-    }   
-
-    /** Wraps the text.*/
-    private void wrap()
-    {
-    	if (descriptionPanel != null && descriptionPanel.getSize() != null) {
-    		String newLineStr = null;
-    		if (pane.getVerticalScrollBar().isVisible())
-    			newLineStr = "";
-			descriptionPane.wrapText(descriptionPanel.getSize().width,
-					newLineStr);
-		}
     }
-    
+
     /**
 	 * Overridden to lay out the tags.
 	 * @see AnnotationUI#buildUI()
 	 */
 	protected void buildUI()
 	{
+		//removeAll();
 		if (!init) {
 			buildGUI();
 			init = true;
@@ -1241,6 +1227,33 @@ class PropertiesUI
 		channelsArea.setText(buffer.toString());
 		channelsArea.revalidate();
 		channelsArea.repaint();
+	}
+
+	/** 
+	 * Sets the extent size
+	 * 
+	 * @param width The value to set.
+	 */
+	void setExtentWidth(int width)
+	{
+		if (this.width == width) return;
+		this.width = width;
+		
+		if (descriptionPanel != null) {
+			String newLineStr = null;
+			if (pane.getVerticalScrollBar().isVisible())
+				newLineStr = " ";
+			Dimension d = new Dimension(width, HEIGHT);
+			pane.getViewport().setPreferredSize(d);
+			d = pane.getSize();
+			if (this.width > d.width) this.width = d.width;
+			int h = d.height;
+			if (h < HEIGHT) h = HEIGHT;
+			d = new Dimension(this.width, h);
+			descriptionPane.setSize(d);
+			//descriptionPane.setPreferredSize(d);
+			descriptionPane.wrapText(this.width-20, newLineStr);
+		}
 	}
 	
 	/**

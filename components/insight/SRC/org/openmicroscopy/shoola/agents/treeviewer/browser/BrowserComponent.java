@@ -451,9 +451,14 @@ class BrowserComponent
             		return;
             	}
             	TreeImageDisplay node = getLoggedExperimenterNode();
-            	if (model.isSingleGroup()) node.setExpanded(true);
-            	else node.getParentDisplay().setExpanded(true);
-            	view.expandNode(node, true);
+            	if (node != null) {
+            		if (model.isSingleGroup()) node.setExpanded(true);
+                	else {
+                		TreeImageDisplay p = node.getParentDisplay();
+                		if (p != null) p.setExpanded(true);
+                	}
+            		view.expandNode(node, true);
+            	}
                 break;
             case READY:
             	refreshBrowser(); //do we want to automatically refresh?
@@ -1419,7 +1424,10 @@ class BrowserComponent
 			}
 	    }
 	    
-	    if (m.size() == 0) return;
+	    if (m.size() == 0) { //for new data the first time.
+	    	loadExperimenterData(getLoggedExperimenterNode(), null);
+	    	return;
+	    }
 	    model.loadRefreshExperimenterData(m, null, -1, refNode, toBrowse);
 		fireStateChange();
     }

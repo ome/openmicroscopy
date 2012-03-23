@@ -2592,8 +2592,8 @@ def getObjectUrl(conn, obj):
 @isUserConnected
 def activities(request, **kwargs):
     """
-    Refresh callbacks (delete, scripts etc) and provide json to update Activities window & Progressbar.
-    The returned json contains details for ALL callbacks in web session, regardless of their status.
+    This refreshes callback handles (delete, scripts, chgrp etc) and provides html to update Activities window & Progressbar.
+    The returned html contains details for ALL callbacks in web session, regardless of their status.
     We also add counts of jobs, failures and 'in progress' to update status bar.
     """
     conn = None
@@ -2607,7 +2607,7 @@ def activities(request, **kwargs):
     failure = 0
     _purgeCallback(request)
 
-    rv = {}
+
     # test each callback for failure, errors, completion, results etc
     for cbString in request.session.get('callback').keys():
         job_type = request.session['callback'][cbString]['job_type']
@@ -2616,8 +2616,27 @@ def activities(request, **kwargs):
         if status == "failed":
             failure+=1
 
+        # update chgrp
+        if job_type == 'chgrp':
+            if status not in ("failed", "finished"):
+                prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                #cb = CmdCallbackI(conn.c, prx)
+                #cb.loop(20, 500)
+                rsp = prx.getResponse()
+                # if response is None, then we're still in progress, otherwise...
+                if rsp is not None:
+                    if isinstance(rsp, omero.cmd.ERR):
+                        request.session['callback'][cbString]['status'] = "failed"
+                        rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
+                        request.session['callback'][cbString]['results'] = "%s %s" % (rsp.name, rsp_params)
+                    elif isinstance(rsp, omero.cmd.OK):
+                        request.session['callback'][cbString]['status'] = "finished"
+                        request.session['callback'][cbString]['results'] = "Moved OK"
+                else:
+                    in_progress+=1
+
         # update delete
-        if job_type == 'delete':
+        elif job_type == 'delete':
             if status not in ("failed", "finished"):
                 try:
                     handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
@@ -2658,9 +2677,6 @@ def activities(request, **kwargs):
                     request.session['callback'][cbString]['dreport'] = str(x)
                     failure+=1
                 request.session.modified = True
-            # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
-            rv[cbString] = copy.copy(request.session['callback'][cbString])
-            rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
 
         # update scripts
         elif job_type == 'script':
@@ -2710,12 +2726,16 @@ def activities(request, **kwargs):
                 else:
                     in_progress+=1
 
-            # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
-            rv[cbString] = copy.copy(request.session['callback'][cbString])
-            rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
-
+    # having updated the request.session, we can now prepare the data for http response
+    rv = {}
+    for cbString in request.session.get('callback').keys():
+        # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
+        rv[cbString] = copy.copy(request.session['callback'][cbString])
     
+    # return json (not used now, but still an option)
     if 'template' in kwargs and kwargs['template'] == 'json':
+        for cbString in request.session.get('callback').keys():
+            rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
         rv['inprogress'] = in_progress
         rv['failure'] = failure
         rv['jobs'] = len(request.session['callback'])
@@ -3191,6 +3211,44 @@ def script_ui(request, scriptId, **kwargs):
 
     return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData, 'scriptId': scriptId}, 
         context_instance=Context(request))
+
+
+@isUserConnected
+def chgrp(request, conn, **kwargs):
+    """
+    Moves data to a new group, using the chgrp queue.
+    Handles submission of chgrp form: all data in POST.
+    Adds the callback handle to the request.session['callback']['jobId']
+    """
+    
+    group_id = request.POST.get('group_id', None)
+    if group_id is None:
+        raise AttributeError("chgrp: No group_id specified")
+    group_id = long(group_id)
+
+    group = conn.getObject("ExperimenterGroup", group_id)
+
+    dtypes = ["Project", "Dataset", "Image"]
+    for dtype in dtypes:
+        oids = request.REQUEST.get(dtype, None)
+        if oids is not None:
+            for obj_id in oids.split(","):
+                obj_id = long(obj_id)
+                logger.debug("chgrp to group:%s %s-%s" % (group_id, dtype, obj_id))
+                handle = conn.chgrpObject(dtype, obj_id, group_id)
+                jobId = str(handle)
+                request.session['callback'][jobId] = {
+                    'job_type': "chgrp",
+                    'group': group.getName(),
+                    'dtype': dtype,
+                    'obj_id': obj_id,
+                    'job_name': "Change group",
+                    'start_time': datetime.datetime.now(),
+                    'status':'in progress'}
+                request.session.modified = True
+
+    return HttpResponse("OK")
+
 
 @isUserConnected
 def script_run(request, scriptId, **kwargs):

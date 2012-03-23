@@ -467,18 +467,24 @@ public class DnDTree
 		TreePath path = getPathForLocation(dropPoint.x, dropPoint.y);
 		dropLocation = getRowForPath(path);
 		setCursor(defaultCursor);
-		if (!dropAllowed) {
-			dtde.rejectDrop();
-			repaint();
-			return;
-		}
-		Transferable transferable = dtde.getTransferable();
-		if (!transferable.isDataFlavorSupported(localFlavor)) {
-			dtde.rejectDrop();
-			repaint();
+		Transferable transferable;
+		try {
+			if (!dropAllowed) {
+				dtde.rejectDrop();
+				repaint();
+				return;
+			}
+			transferable = dtde.getTransferable();
+			if (!transferable.isDataFlavorSupported(localFlavor)) {
+				dtde.rejectDrop();
+				repaint();
+				return;
+			}
+		} catch (Exception e) {
 			return;
 		}
 		boolean dropped = false;
+		
 		try {
 			dtde.acceptDrop(DnDConstants.ACTION_MOVE);
 			Object droppedObject = transferable.getTransferData(localFlavor);
@@ -519,7 +525,11 @@ public class DnDTree
 			//}
 			dropped = true;
 		} catch (Exception e) {
-			dtde.rejectDrop();
+			try {
+				dtde.rejectDrop();
+			} catch (Exception ex) {
+				//ignore
+			}
 			repaint();
 		}
 		dtde.dropComplete(dropped);

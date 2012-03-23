@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.env.data.model;
 //Java imports
 import java.util.List;
 
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -74,6 +76,9 @@ public class DeletableObject
 	
 	/** The number of errors. */
 	private int		            numberOfErrors;
+	
+	/** The security context.*/
+	private SecurityContext ctx;
 	
 	/**
 	 * Creates a new instance.
@@ -126,13 +131,24 @@ public class DeletableObject
 	{
 		this.annotations = annotations;
 	}
-	
+
 	/**
 	 * Returns the object to delete.
 	 * 
 	 * @return See above.
 	 */
 	public pojos.DataObject getObjectToDelete() { return objectToDelete; }
+	
+	/**
+	 * Returns the identifier of the group.
+	 * 
+	 * @return See above.
+	 */
+	public long getGroupId()
+	{
+		if (ctx != null) return ctx.getGroupID();
+		return objectToDelete.getGroupId();
+	}
 	
 	/**
 	 * Sets the report of the delete action.
@@ -218,4 +234,18 @@ public class DeletableObject
 		return "";
 	}
 
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	public SecurityContext getSecurityContext() { return ctx; }
+	
+	/**
+	 * Sets the security context.
+	 * 
+	 * @param ctx The security context.
+	 */
+	public void setSecurityContext(SecurityContext ctx) { this.ctx = ctx; }
+	
 }

@@ -159,6 +159,12 @@ class ToolBar
 	
 	/** The label displaying the group context.*/
 	private JLabel groupContext;
+	
+	/** The button to display the menu.*/
+	private JButton menuButton;
+	
+	/** The button to display the users.*/
+	private JButton usersButton;
 
     /**
      * Sets the defaults of the specified menu item.
@@ -292,49 +298,47 @@ class ToolBar
         
         bar.add(new JSeparator(JSeparator.VERTICAL));
         
-        Set set = TreeViewerAgent.getAvailableUserGroups();
-        if (set != null && set.size() > 1) {
-        	groupContext = new JLabel();
-        	setPermissions();
-			IconManager icons = IconManager.getInstance();
-        	b = new JButton(icons.getIcon(IconManager.OWNER_GROUP));
-        	 UIUtilities.unifiedButtonLookAndFeel(b);
-        	b.addMouseListener(new MouseAdapter() {
-        		
-        		/**
-        		 * Shows the menu with the various 
-        		 */
-        		public void mousePressed(MouseEvent me)
-        		{
-        			createSelectionOption(me);
-        		}
-			});
-        	
-        	groupContext.addMouseListener(new MouseAdapter() {
-        		
-        		/**
-        		 * Shows the menu with the various 
-        		 */
-        		public void mousePressed(MouseEvent me)
-        		{
-        			SwitchGroup action = (SwitchGroup)
-        				controller.getAction(TreeViewerControl.SWITCH_GROUP);
-        			action.setPoint(me.getPoint());
-        			action.actionPerformed(new ActionEvent(me.getSource(), 0, 
-        					""));
-        		}
-			});
-        	bar.add(b);
-        	bar.add(Box.createHorizontalStrut(5));
-        	bar.add(groupContext);
-        } else {
-        	a = controller.getAction(TreeViewerControl.SWITCH_USER);
-            b = new JButton(a);
-            b.addMouseListener((SwitchUserAction) a);
-            UIUtilities.unifiedButtonLookAndFeel(b);
-            bar.add(b);
-        }
+        groupContext = new JLabel();
+        groupContext.setVisible(false);
+       
+        a = controller.getAction(TreeViewerControl.SWITCH_USER);
+        usersButton = new JButton(a);
+        usersButton.addMouseListener((SwitchUserAction) a);
+        UIUtilities.unifiedButtonLookAndFeel(usersButton);
         
+        IconManager icons = IconManager.getInstance();
+    	menuButton = new JButton(icons.getIcon(IconManager.OWNER_GROUP));
+    	menuButton.setVisible(false);
+    	usersButton.setVisible(false);
+    	UIUtilities.unifiedButtonLookAndFeel(menuButton);
+    	menuButton.addMouseListener(new MouseAdapter() {
+    		
+    		/**
+    		 * Shows the menu with the various 
+    		 */
+    		public void mousePressed(MouseEvent me)
+    		{
+    			createSelectionOption(me);
+    		}
+		});
+    	groupContext.addMouseListener(new MouseAdapter() {
+    		
+    		/**
+    		 * Shows the menu with the various 
+    		 */
+    		public void mousePressed(MouseEvent me)
+    		{
+    			SwitchGroup action = (SwitchGroup)
+    				controller.getAction(TreeViewerControl.SWITCH_GROUP);
+    			action.setPoint(me.getPoint());
+    			action.actionPerformed(new ActionEvent(me.getSource(), 0, ""));
+    		}
+		});
+    	bar.add(menuButton);
+    	bar.add(usersButton);
+    	bar.add(Box.createHorizontalStrut(5));
+    	bar.add(groupContext);
+    	setPermissions();
         return bar;
     }
     
@@ -716,6 +720,13 @@ class ToolBar
 		if (icon != null) groupContext.setIcon(icon);
 		groupContext.setText(group.getName());
 		groupContext.setToolTipText(desc);
+
+        Set set = TreeViewerAgent.getAvailableUserGroups();
+        boolean b = set != null && set.size() > 1;
+        menuButton.setVisible(b);
+    	groupContext.setVisible(b);
+    	usersButton.setVisible(!b);
 		repaint();
     }
+
 }
