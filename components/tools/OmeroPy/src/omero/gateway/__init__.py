@@ -5428,8 +5428,10 @@ class _ImageWrapper (BlitzObjectWrapper):
             if not re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS']):
                 sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
                 sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+                if self._conn.canBeAdmin():
+                    sopts['omero.user'] = str(self.getDetails().getOwner().getId())
                 re.resetDefaults(sopts)
-                re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS'])
+                re.lookupRenderingDef(pid, sopts)
             self._onResetDefaults(re.getRenderingDefId(self._conn.CONFIG['SERVICE_OPTS']))
         else:
             re.loadRenderingDef(rdid, self._conn.CONFIG['SERVICE_OPTS'])
