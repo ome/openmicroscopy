@@ -42,6 +42,8 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 //Third-party libraries
@@ -173,6 +175,26 @@ public class GroupManagerDialog
 					new Boolean(ids.contains(g.getId()))});
 			index++;
 		}
+		ListSelectionListener listener = new ListSelectionListener() {
+			
+			/** 
+			 * Listen to the selection of the nodes.
+			 * @see ListSelectionListener#valueChanged(ListSelectionEvent)
+			 */
+			public void valueChanged(ListSelectionEvent evt)
+			{
+				int rows = groupsTable.getModel().getRowCount();
+				int count =  0;
+				for (int j = 0; j < rows; j++) {
+					if ((Boolean) groupsTable.getValueAt(j, 1))
+						count++;
+				}
+				apply.setEnabled(count != 0);
+			}
+		};
+		groupsTable.getSelectionModel().addListSelectionListener(listener);
+		groupsTable.getColumnModel().getSelectionModel().
+		addListSelectionListener(listener);
 	}
 	
 	/** Sets the groups. */
