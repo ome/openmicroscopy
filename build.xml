@@ -181,41 +181,67 @@ java component.
     <target name="build-all-dev" description="build-all, then test-compile and build-eclipse"
         depends="clean,init,build-default,test-compile,build-eclipse"/>
 
-    <target name="build-blitz" description="Build blitz and copy to dist/blitz" depends="init">
+    <target name="build-blitz" description="Alias for 'build-server'" depends="build-server"/>
+
+    <target name="build-server" description="Build blitz and copy to dist/blitz" depends="init">
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <!-- Must also build python since it provides our command lines -->
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroFs.buildpath" target="tools-dist"/>
+        <!-- TODO: importer too?? -->
         <iterate buildpathref="tools.buildpath" target="dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+        <!-- Parts of build-dist -->
+        <antcall target="copy-licenses" inheritRefs="true" inheritAll="true"/>
+        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
+        <antcall target="copy-sql" inheritRefs="true" inheritAll="true"/>
+        <antcall target="copy-server" inheritRefs="true" inheritAll="true"/>
+        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-importer" description="Build importer and copy to dist/lib and dist/bin" depends="init">
+    <target name="build-java" description="Build Java bindings to the OMERO server" depends="init">
+        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+    </target>
+
+    <target name="build-py" description="Build Python bindings to the OMERO server" depends="init">
+        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
+        <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+    </target>
+
+    <target name="build-importer" description="Build importer and copy to dist/lib and dist/bin. May require 'build-java'" depends="init">
         <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+        <!-- Parts of build-dist -->
+        <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
+        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
+        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-insight" description="Build insight and copy to dist/lib and dist/bin" depends="init">
-        <!--
-        <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
+    <target name="build-insight" description="Build insight and copy to dist/lib and dist/bin. May require 'build-java'" depends="init">
         <iterate buildpathref="tools.buildpath" target="dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
-        -->
         <iterate buildpathref="insight.buildpath" target="dist"/>
+        <!-- Parts of build-dist -->
+        <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
+        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
+        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-web" description="Build OmeroWeb and copy to dist" depends="init">
+    <target name="build-web" description="Build OmeroWeb and copy to dist. May require 'build-py'" depends="init">
         <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+        <!-- Parts of build-dist -->
+        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
+        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-cpp" description="Build OmeroCpp bindings and copy to dist/lib" depends="init">
+        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="OmeroCpp.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+        <!-- Parts of build-dist -->
+        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
         <if><isset property="env.NOMAKE"/><then>
             <echo>
 +------------------------------------------------------------------------+
@@ -234,36 +260,28 @@ java component.
         </if>
     </target>
 
-    <target name="build-java" description="Build OmeroJava bindings and copy to dist/lib" depends="init">
-        <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
-        <iterate buildpathref="tools.buildpath" target="dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
-    </target>
-
-    <target name="build-py" description="Build OmeroPy bindings and copy to dist/lib" depends="init">
-        <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
-        <iterate buildpathref="tools.buildpath" target="dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
-    </target>
-
     <target name="build-schema" description="Build new DB schema and copy to sql/" depends="init">
         <iterate buildpathref="dsl.buildpath" target="clean"/>
         <iterate buildpathref="model.buildpath" target="clean"/>
         <iterate buildpathref="dsl.buildpath" target="install"/>
         <iterate buildpathref="model.buildpath" target="install"/>
         <iterate buildpathref="model.buildpath" target="publish-schema"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+        <!-- Parts of build-dist -->
+        <antcall target="copy-sql" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-model" description="Generate model code for all language bindings" depends="init">
         <ant antfile="${blitz.comp}/build.xml" dir="${blitz.comp}" target="icegen" inheritAll="false"/>
+        <!-- Parts of build-dist: updates both server and client -->
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-matlab" description="Provides a matlab toolbox under target" depends="init">
-        <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
+    <target name="build-matlab" description="Provides a matlab toolbox under target. May required 'build-java'" depends="init">
         <iterate buildpathref="OmeroMatlab.buildpath" target="tools-dist"/>
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+        <!-- Parts of build-dist -->
+        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
+        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="eclipse" depends="init">
@@ -704,11 +722,17 @@ java component.
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
     -->
-    <target name="build-dist" depends="init" description="Copy all components to dist/; called at the end of build-* targets">
+    <target name="build-dist" depends="init,copy-licenses,copy-etc,copy-sql,copy-server,copy-client,update-version"
+        description="Copy all components to dist/; called at the end of build-* targets"/>
+
+    <target name="copy-licenses" depends="init">
             <copy file="${omero.home}/LICENSE.txt" todir="${dist.dir}/"/>
             <copy todir="${dist.dir}">
                 <fileset dir="${omero.home}/lib/" includes="licenses/**"/>
             </copy>
+    </target>
+
+    <target name="copy-etc" depends="init">
             <copy todir="${dist.dir}/etc">
                 <fileset dir="${omero.home}/etc">
                     <exclude name="local.properties"/>
@@ -716,49 +740,83 @@ java component.
             </copy>
 
             <replace dir="${dist.dir}/etc" token="@ICE_LIB_VERSION@" value="${versions.ice_lib}"/>
+    </target>
 
+    <target name="copy-sql" depends="init">
             <copy todir="${dist.dir}">
                 <fileset dir="${omero.home}">
                     <include name="sql/**"/>
                 </fileset>
             </copy>
+    </target>
 
+    <target name="copy-client" depends="init">
             <mkdir dir="${dist.dir}/lib/client"/>
+            <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
+            <ivy:resolve file="ivy.xml" type="jar,egg" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
+            <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[module].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+
+            <dist_check_version/>
+            <if><not><equals arg1="${dist.check.omero.version}" arg2="${omero.version}"/></not>
+            <then>
+                <dist_set_version/>
+
+            </then>
+            </if>
+    </target>
+
+    <target name="copy-server" depends="init">
             <mkdir dir="${dist.dir}/lib/server"/>
             <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
             <ivy:resolve file="ivy.xml" type="jar,egg" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
             <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[module].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
-            <ivy:resolve file="ivy.xml" type="jar,egg" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
-            <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[module].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+    </target>
 
-            <loadproperties srcFile="${dist.dir}/etc/omero.properties">
-                <filterchain>
-                    <headfilter skip="20" lines="-1"/>
-                    <prefixlines prefix="dist.check."/>
-                </filterchain>
-            </loadproperties>
-            <if><not><equals arg1="${dist.check.omero.version}" arg2="${omero.version}"/></not>
-            <then>
-                <!-- Setting version -->
-                <copy todir="${dist.dir}/etc" overwrite="true">
-                    <fileset dir="${omero.home}/etc" includes="omero.properties"/>
-                </copy>
-                <echo file="${dist.dir}/etc/omero.properties" append="true">
-omero.version=${omero.version}
-                </echo>
-
-                <!-- Must update the jars with the modified omero.properties file in order for the version to be updated -->
-                <jar update="true" destfile="${dist.dir}/lib/server/blitz.jar">
-                    <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
-                </jar>
-                <jar update="true" destfile="${dist.dir}/lib/client/omero_client.jar">
-                    <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
-                </jar>
-                <jar update="true" destfile="${dist.dir}/lib/client/OmeroImporter.jar">
-                    <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
-                </jar>
-            </then>
+    <macrodef name="jar_update_if">
+        <attribute name="destfile"/>
+        <element name="filesets" implicit="yes"/>
+        <sequential>
+            <if>
+                <available file="@{destfile}"/>
+                <then>
+                    <jar update="true" destfile="@{destfile}">
+                        <filesets/>
+                    </jar>
+                </then>
             </if>
+        </sequential>
+    </macrodef>
+
+    <target name="update-version">
+        <loadproperties srcFile="${dist.dir}/etc/omero.properties">
+            <filterchain>
+                <headfilter skip="20" lines="-1"/>
+                <prefixlines prefix="dist.check."/>
+            </filterchain>
+        </loadproperties>
+
+        <if><not><equals arg1="${dist.check.omero.version}" arg2="${omero.version}"/></not>
+        <then>
+            <!-- Setting version -->
+            <copy todir="${dist.dir}/etc" overwrite="true">
+                <fileset dir="${omero.home}/etc" includes="omero.properties"/>
+            </copy>
+            <echo file="${dist.dir}/etc/omero.properties" append="true">
+omero.version=${omero.version}
+            </echo>
+
+            <!-- Must update the jars with the modified omero.properties file in order for the version to be updated -->
+            <jar_update_if destfile="${dist.dir}/lib/server/blitz.jar">
+                <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
+            </jar_update_if>
+            <jar_update_if destfile="${dist.dir}/lib/client/omero_client.jar">
+                <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
+            </jar_update_if>
+            <jar_update_if destfile="${dist.dir}/lib/client/OmeroImporter.jar">
+                <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
+            </jar_update_if>
+        </then>
+        </if>
     </target>
 
     <target name="version">
