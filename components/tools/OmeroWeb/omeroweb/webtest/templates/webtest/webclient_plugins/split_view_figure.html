@@ -37,6 +37,9 @@ form dir {
     padding:0px;
     margin:0px;
 }
+.toggle_channel {
+    padding:4px; margin:2px; padding-left:6px; border-radius: 6px;
+}
 </style>
 
 <!-- this page is designed to work without jQuery, but use jQuery when this page is loaded E.g. into webclient -->
@@ -103,7 +106,7 @@ function hideHeader() {
             <tr>
             {% for c in channels %}
                 <td>
-                    <div style="background:#{{c.colour}}; padding:4px; padding-left:6px; border-radius: 6px;">
+                    <div class="toggle_channel" style="background:#{{c.colour}}">
                         <input style="font-size:10px; border:solid white 1px; opacity:0.8" type="text" size='10' name="cName{{c.index}}" {% if c.name %} value="{{ c.name }}" {% endif %} />
                         <input type="checkbox" name="cActive{{c.index}}" {% if c.active %} checked="true" {% endif %} />
                     </div>
@@ -118,10 +121,12 @@ function hideHeader() {
             {% endfor %}
                 <td valign="top">
                     <table style="padding-left:10px">
-                        <tr>
+                        <tr><td width="15"> </td>
                             {% for c in channels %}
-                                <td bgcolor="#{{c.colour}}" style="padding:4px; padding-left:6px; border-radius: 6px">
-                                    <input type="checkbox" name="cMerged{{c.index}}" {% if c.merged %} checked="true" {% endif %} />
+                                <td>
+                                    <div class="toggle_channel" style="background:#{{c.colour}}">
+                                        <input type="checkbox" name="cMerged{{c.index}}" {% if c.merged %} checked="true" {% endif %} />
+                                    </div>
                                 </td> 
                             {% endfor %}
                         </tr>
