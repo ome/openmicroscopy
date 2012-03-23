@@ -190,12 +190,19 @@ class RDefsTest (lib.GTest):
         self.image = self.getTestImage()
         self.assert_(self.image.resetRDefs())
         self.assert_(self.image.saveDefaults())
+        admin = self.gateway.getAdminService()
         self.loginAsAuthor()
-        self.gateway.CONFIG['IMG_RDEFNS'] = 'omeropy.gatewaytest.img_rdefns'
-        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group': '-1'}
-        self.image = self.getTestImage()
-        self.assert_(self.image.resetRDefs())
-        self.assert_(self.image.saveDefaults())
+        admin.setGroupOwner(self.image.getDetails().getGroup()._obj, self.gateway._user._obj)
+        self.loginAsAuthor()
+        try:
+            self.gateway.CONFIG['IMG_RDEFNS'] = 'omeropy.gatewaytest.img_rdefns'
+            self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group': '-1'}
+            self.image = self.getTestImage()
+            self.assert_(self.image.resetRDefs())
+            self.assert_(self.image.saveDefaults())
+        finally:
+            admin.unsetGroupOwner(self.image.getDetails().getGroup()._obj,
+                                  self.gateway._user._obj)
 
         
         
