@@ -989,19 +989,24 @@
 
 			-->
 
-
-            {% if manager.image %}
-            <!-- HIERARCHY - Contained In -->
-            <h1>Contained in Datasets</h1>
-            <div id="hierarchy-pane">
-                <!-- content is loaded by ajax when this tab is first displayed -->
-                <a id="hierarchy-link" href="{% url load_metadata_hierarchy 'image' manager.image.id %}">Load hierarchy...</a>
-                <img id="hierarchy-spinner" style="display:none" src="{% static "webgateway/img/spinner.gif" %}" />
-            </div>
-            {% endif %}
+			<div class="annotations_section">
+	            {% if manager.image %}
+	            <!-- HIERARCHY - Contained In -->
+	            <h2>Contained in Datasets</h2>
+	            <div id="hierarchy-pane">
+	                <!-- content is loaded by ajax when this tab is first displayed -->
+	                <a id="hierarchy-link" href="{% url load_metadata_hierarchy 'image' manager.image.id %}">Load hierarchy...</a>
+	                <img id="hierarchy-spinner" style="display:none" src="{% static "webgateway/img/spinner.gif" %}" />
+	            </div>
+	            {% endif %}
+			</div>
             
         </div>
         {% endif %}
+
+
+
+
 
         {% if manager.tag %}
             <div id="general_tab" class="right_tab_inner" >

@@ -104,9 +104,10 @@
 			
             
     			#left_panel_tab_list .ui-tabs-selected a {
-            		background: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 25%, 20%)), to(hsl(215, 25%, 15%))) !important;
-                    -webkit-box-shadow: inset 0 2px 3px rgba(0,0,0,.7);
-                    border-left:solid 1px black;
+            		background: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 25%, 18%)), to(hsl(215, 25%, 22%))) !important;
+                    -webkit-box-shadow: inset 0 3px 5px rgba(0,0,0,.4);
+                    border-left:solid 1px rgba(0,0,0,.7);
+					border-top:solid 1px black;
                 }
             
             
@@ -681,7 +682,7 @@
     .miniview {
         /* This is for the miniviewer in image_details */
         width: 300px;
-        height:300px
+        height:300px;
         position: relative;
         border:solid 1px red;
     }

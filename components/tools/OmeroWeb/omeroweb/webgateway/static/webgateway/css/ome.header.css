@@ -204,11 +204,14 @@
 
 
 		/* Logout */
-		#logout a{
-			//background: url(../img/logout.png) 6% center no-repeat;
-			display:block;
-			//padding-left:30px !important;
-		}
+		
+		
+			#logout a{
+				background: url(../img/logout.png) center center no-repeat;
+				display:block;
+				width:10px !important;
+				text-indent:-9999px;
+			}
 
 
 
@@ -280,12 +283,14 @@
 					font-weight: normal;
 					font-size:1.3em !important;
 					padding: .7em 0 .7em 8px !important;
+					display: block; 
+					color: #222; 
 				} 
 		
 	
-			    .script_launch li a { 
-					display: block; 
-					color: #222; 
+			    .script_launch li:hover a { 
+					color:white !important;
+					text-shadow:none !important;
 				}
 				
 				

@@ -971,11 +971,17 @@
 		
 		
         <ul id="left_panel_tab_list">
+			
+			<!-- Remember to update this in public/public.html as well. We should change this, but for the meantime, you need to manually update the menu there too -->
+			
 	        <li><a href="#Projects" title="Explore">{% trans "Explore" %}</a></li>
 	        <li><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
 			<li><a href="{% url load_template 'usertags' %}">{% trans "History" %}</a></li>
 	        <li><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>
         </ul>
+		
+		
+		
 
 		<div id="navigator">
 			<a href="#" id="back">Back</a>
