@@ -35,11 +35,10 @@ import java.util.Vector;
 import java.util.Map.Entry;
 import javax.swing.filechooser.FileSystemView;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.grid.FileSet;
-import omero.grid.RepositoryListConfig;
 import omero.grid.RepositoryPrx;
 import omero.model.Image;
 import omero.model.IObject;
@@ -77,7 +76,7 @@ public class FSFileSystemView
 	private long userID;
 	
 	/** Default configuration. */
-	private RepositoryListConfig config;
+	//private RepositoryListConfig config;
 	
 	/**
 	 * Returns the repository corresponding to the passed file.
@@ -126,6 +125,7 @@ public class FSFileSystemView
      * @param files 	The files to handle.
      * @param elements  The elements from the <code>FileSystem</code>
      */
+    /*
     private void populate(FileData root, 
     		Vector<DataObject> files, List<FileSet> elements)
     {
@@ -198,7 +198,7 @@ public class FSFileSystemView
 			}
 		}
     }
-   
+   */
     /**
      * Sorts the passed images by index. This should only be invoked to 
      * handle.
@@ -234,7 +234,7 @@ public class FSFileSystemView
 			throw new IllegalArgumentException("No repositories specified.");
 		this.userID = userID;
 		this.repositories = repositories;
-		config = new RepositoryListConfig(1, true, true, false, true, false);
+		//config = new RepositoryListConfig(1, true, true, false, true, false);
 	}
 
 	/**
@@ -293,6 +293,7 @@ public class FSFileSystemView
     public DataObject register(DataObject file)
     	throws FSAccessException
     {
+    	/*
     	if (file == null) return null;
     	if (!(file instanceof FileData || file instanceof ImageData)) 
     		return null;
@@ -360,6 +361,7 @@ public class FSFileSystemView
 						""+f.getAbsolutePath(), e);
 			}
     	}
+    	*/
     	return null;
     }
     
@@ -373,6 +375,7 @@ public class FSFileSystemView
     public String getThumbnail(DataObject object)
     	throws FSAccessException
     {
+    	/*
     	if (object == null) return null;
     	Entry entry;
     	RepositoryPrx proxy;
@@ -394,6 +397,7 @@ public class FSFileSystemView
     					"for: "+name, e);
     		}
     	}
+    	*/
     	return null;
     }
     
@@ -408,6 +412,7 @@ public class FSFileSystemView
     public DataObject[] getFiles(FileData dir, boolean useFileHiding)
     	throws FSAccessException
     {
+    	/*
     	if (dir == null) return null;
     	if (!dir.isDirectory()) return null;
     	Entry entry = getRepository(dir);
@@ -425,6 +430,8 @@ public class FSFileSystemView
 					dir.getAbsolutePath(), e);
 		}
     	return (DataObject[]) files.toArray(new DataObject[files.size()]);
+    	*/
+    	return null;
     }
     
     /**
@@ -434,6 +441,5 @@ public class FSFileSystemView
      * @return See above.
      */
     public boolean isHiddenFile(FileData f) { return f.isHidden(); }
-    
-    
+
 }
