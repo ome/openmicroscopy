@@ -57,6 +57,7 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
@@ -550,14 +551,25 @@ class TreeViewerWin
     private void handleDividerMoved()
     {
 		DataBrowser db = model.getDataViewer();
+		JViewport viewPort = workingPane.getViewport();
+		JComponent component;
 		if (db != null) {
-			JViewport viewPort = workingPane.getViewport();
-			JComponent component = db.getBrowser().getUI();
+			component = db.getBrowser().getUI();
 			component.setPreferredSize(viewPort.getExtentSize());
 			component.setSize(viewPort.getExtentSize());
 			component.validate();
 			component.repaint();
 			db.layoutDisplay();
+		}
+		MetadataViewer mv = model.getMetadataViewer();
+		if (mv != null && metadataVisible) {
+			component = mv.getEditorUI();
+			Dimension d = rightPane.getSize();
+			Dimension dd = viewPort.getExtentSize();
+			Dimension nd = new Dimension(Math.abs(d.width-dd.width), d.height);
+			component.setSize(nd);
+			component.validate();
+			component.repaint();
 		}
     }
     

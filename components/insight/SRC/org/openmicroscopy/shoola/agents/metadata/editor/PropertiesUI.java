@@ -32,12 +32,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
@@ -61,6 +57,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -209,12 +206,9 @@ class PropertiesUI
 
 	/** The menu displaying the view options.*/
 	private JPopupMenu			viewMenu;
-	
-	/** The component listener.*/
-	private ComponentListener listener;
-	
-	/** The visible rectangle.*/
-	private Rectangle visibleRectangle;
+
+	/** The visible width.*/
+	private int width = 0;
 	
 	/** Initializes the components composing this display. */
     private void initComponents()
@@ -287,11 +281,6 @@ class PropertiesUI
     	descriptionPane.setEnabled(false);
     	descriptionPane.setAllowOneClick(true);
     	descriptionPane.addFocusListener(this);
-    	listener = new ComponentAdapter() {
-
-			public void componentResized(ComponentEvent e) { wrap(); }
-		};
-    	addComponentListener(listener);
     	defaultBorder = namePane.getBorder();
     	namePane.setFont(f.deriveFont(Font.BOLD));
     	typePane.setFont(f.deriveFont(Font.BOLD));
@@ -835,6 +824,8 @@ class PropertiesUI
         	 //descriptionPanel.setBorder(AnnotationUI.EDIT_BORDER);
 		
         	pane = new JScrollPane(descriptionPanel);
+        	pane.setHorizontalScrollBarPolicy(
+        			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         	pane.setBorder(AnnotationUI.EDIT_BORDER);
         	Dimension d = pane.getPreferredSize();
         	pane.getViewport().setPreferredSize(new Dimension(d.width, HEIGHT));
@@ -1030,29 +1021,8 @@ class PropertiesUI
        title = TITLE;
        initComponents();
        init = false;
-    }   
-
-    /** Wraps the text.*/
-    private void wrap()
-    {
-    	if (descriptionPanel != null && descriptionPanel.getSize() != null) {
-    		int w = descriptionPanel.getSize().width;
-    		if (w > namePanel.getSize().width)
-    			w = namePanel.getSize().width;
-    		String newLineStr = null;
-    		if (pane.getVerticalScrollBar().isVisible())
-    			newLineStr = " ";
-    		if (visibleRectangle != null) {
-    			if (w > visibleRectangle.width)
-    				w = visibleRectangle.width;
-    		}
-    		removeComponentListener(listener);
-    		pane.getViewport().setPreferredSize(new Dimension(w, HEIGHT));
-			descriptionPane.wrapText(w-10, newLineStr);
-			addComponentListener(listener);
-		}
     }
-    
+
     /**
 	 * Overridden to lay out the tags.
 	 * @see AnnotationUI#buildUI()
@@ -1258,15 +1228,32 @@ class PropertiesUI
 		channelsArea.revalidate();
 		channelsArea.repaint();
 	}
-	
+
 	/** 
-	 * Sets the visible rectangle.
+	 * Sets the extent size
 	 * 
-	 * @param topDimension The value to set.
+	 * @param width The value to set.
 	 */
-	void setVisibleRect(Rectangle rectangle)
+	void setExtentWidth(int width)
 	{
-		visibleRectangle = rectangle;
+		if (this.width == width) return;
+		this.width = width;
+		
+		if (descriptionPanel != null) {
+			String newLineStr = null;
+			if (pane.getVerticalScrollBar().isVisible())
+				newLineStr = " ";
+			Dimension d = new Dimension(width, HEIGHT);
+			pane.getViewport().setPreferredSize(d);
+			d = pane.getSize();
+			if (this.width > d.width) this.width = d.width;
+			int h = d.height;
+			if (h < HEIGHT) h = HEIGHT;
+			d = new Dimension(this.width, h);
+			descriptionPane.setSize(d);
+			//descriptionPane.setPreferredSize(d);
+			descriptionPane.wrapText(this.width-20, newLineStr);
+		}
 	}
 	
 	/**
