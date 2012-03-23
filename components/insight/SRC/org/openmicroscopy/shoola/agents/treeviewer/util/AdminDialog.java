@@ -52,6 +52,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -115,6 +117,9 @@ public class AdminDialog
 	/** The parent of the data object. */
 	private Object parent;
 	
+	/** The security context.*/
+	private SecurityContext ctx;
+	
 	/** 
 	 * The main component displaying parameters required to 
 	 * create a group or an experimenter. 
@@ -149,15 +154,15 @@ public class AdminDialog
 	private boolean isExistingObject(String name, boolean group)
 	{
 		AdminService svc = TreeViewerAgent.getRegistry().getAdminService();
-		/* TODO: review
 		try {
-			if (group) return svc.lookupGroup(name) != null;
-			return svc.lookupExperimenter(name) != null;
+			if (group) return svc.lookupGroup(ctx, name) != null;
+			return svc.lookupExperimenter(ctx, name) != null;
 		} catch (Exception e) {
-			// TODO: handle exception
+			LogMessage msg = new LogMessage();
+			msg.print(e);
+			TreeViewerAgent.getRegistry().getLogger().debug(this, msg);
 		}
-		*/
-		return true;
+		return false;
 	}
 	
 	/**
@@ -316,15 +321,17 @@ public class AdminDialog
 	 * Creates a new instance.
 	 * 
 	 * @param owner  The owner of the frame.
+	 * @param ctx The security context.
 	 * @param type   The type of object to create.
 	 * @param parent The parent of the data object or <code>null</code>.
 	 * @param groups The groups to add the experimenter to.
 	 */
-	public AdminDialog(JFrame owner, Class type, Object parent, 
-			Collection<DataObject> groups)
+	public AdminDialog(JFrame owner, SecurityContext ctx, Class type,
+			Object parent, Collection<DataObject> groups)
 	{
 		super(owner);
 		setProperties(type);
+		this.ctx = ctx;
 		this.type = type;
 		this.parent = parent;
 		if (ExperimenterData.class.equals(type)) {

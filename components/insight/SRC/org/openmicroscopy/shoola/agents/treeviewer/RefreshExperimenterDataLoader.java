@@ -171,12 +171,12 @@ public class RefreshExperimenterDataLoader
     /**
      * Formats the results.
      * 
-     * @param expId		The user's id.
-     * @param result	The result of the call for the passed user.
+     * @param ctx The security context.
+     * @param result The result of the call for the passed user.
      */
-    private void formatSmartFolderResult(long expId, List result)
+    private void formatSmartFolderResult(SecurityContext ctx, List result)
     {
-    	RefreshExperimenterDef node = expNodes.get(expId);
+    	RefreshExperimenterDef node = expNodes.get(ctx);
     	List nodes = node.getExpandedNodes();
     	int n = nodes.size();
     	TreeImageSet display;
@@ -343,16 +343,16 @@ public class RefreshExperimenterDataLoader
         Map m = (Map) result;
         Entry entry;
         Iterator i = m.entrySet().iterator();
+        SecurityContext ctx;
         long expId;
         if (ImageData.class.equals(rootNodeType) || 
         		FileAnnotationData.class.equals(rootNodeType)) {
         	while (i.hasNext()) {
         		entry = (Entry) i.next();
-            	expId = (Long) entry.getKey();
-            	formatSmartFolderResult(expId, (List) entry.getValue());
+        		ctx = (SecurityContext) entry.getKey();
+            	formatSmartFolderResult(ctx, (List) entry.getValue());
     		}
         } else {
-        	SecurityContext ctx;
         	while (i.hasNext()) {
         		entry = (Entry) i.next();
         		ctx = (SecurityContext) entry.getKey();

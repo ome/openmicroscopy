@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -519,13 +520,17 @@ class MeasurementViewerComponent
 			Iterator<ROI> i = l.iterator();
 			ROI roi;
 			ROIData data;
+			SecurityContext ctx = model.getSecurityContext();
+			DeletableObject d;
 			while (i.hasNext()) {
 				roi = i.next();
 				if (!roi.isClientSide()) {
 					data = new ROIData();
 					data.setId(roi.getID());
 					data.setImage(model.getImage().asImage());
-					objects.add(new DeletableObject(data));
+					d = new DeletableObject(data);
+					d.setSecurityContext(ctx);
+					objects.add(d);
 				}
 			}
 			if (objects.size() == 0) {
@@ -999,10 +1004,15 @@ class MeasurementViewerComponent
 		List<DeletableObject> l = new ArrayList<DeletableObject>();
 		Iterator<ROIData> i = list.iterator();
 		ROIData roi;
+		SecurityContext ctx = model.getSecurityContext();
+		DeletableObject d;
 		while (i.hasNext()) {
 			roi = i.next();
-			if (roi.getId() > 0)
-				l.add(new DeletableObject(roi));
+			if (roi.getId() > 0) {
+				d = new DeletableObject(roi);
+				d.setSecurityContext(ctx);
+				l.add(d);
+			}
 		}
 		//if (l.size() == 0) return;
 		//clear view. and table.

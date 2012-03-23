@@ -57,6 +57,7 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
@@ -316,20 +317,20 @@ class TreeViewerWin
         	menus.add(createViewMenu());
        
         JMenuBar bar = tb.getTaskBarMenuBar();
-        JMenu[] existingMenus = new JMenu[bar.getMenuCount()];
-        
-		for (int i = 0; i < existingMenus.length; i++) {
-			existingMenus[i] = bar.getMenu(i);
+        List<JMenu> existingMenus = new ArrayList<JMenu>();
+        for (int i = 0; i < bar.getMenuCount(); i++) {
+			if (i != TaskBar.FILE_MENU)
+				existingMenus.add(bar.getMenu(i));
 		}
 		bar.removeAll();
 		
 		Iterator<JMenu> k = menus.iterator();
 		while (k.hasNext()) 
 			bar.add(k.next());
-			
-		for (int i = 0; i < existingMenus.length; i++) {
-			bar.add(existingMenus[i]);
-		}
+		
+		k = existingMenus.iterator();
+		while (k.hasNext()) 
+			bar.add(k.next());
         return bar;
     }
     
@@ -550,14 +551,25 @@ class TreeViewerWin
     private void handleDividerMoved()
     {
 		DataBrowser db = model.getDataViewer();
+		JViewport viewPort = workingPane.getViewport();
+		JComponent component;
 		if (db != null) {
-			JViewport viewPort = workingPane.getViewport();
-			JComponent component = db.getBrowser().getUI();
+			component = db.getBrowser().getUI();
 			component.setPreferredSize(viewPort.getExtentSize());
 			component.setSize(viewPort.getExtentSize());
 			component.validate();
 			component.repaint();
 			db.layoutDisplay();
+		}
+		MetadataViewer mv = model.getMetadataViewer();
+		if (mv != null && metadataVisible) {
+			component = mv.getEditorUI();
+			Dimension d = rightPane.getSize();
+			Dimension dd = viewPort.getExtentSize();
+			Dimension nd = new Dimension(Math.abs(d.width-dd.width), d.height);
+			component.setSize(nd);
+			component.validate();
+			component.repaint();
 		}
     }
     

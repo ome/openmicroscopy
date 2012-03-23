@@ -31,6 +31,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -939,4 +940,15 @@ class EditorUI
 		generalPane.onRelatedNodesSet();
 	}
 
+	/**
+	 * Overridden to wrap the description.
+	 * @see JComponent#setSize(Dimension)
+	 */
+	public void setSize(Dimension d)
+	{
+		super.setSize(d);
+		if (generalPane != null) 
+			generalPane.setExtentWidth(getVisibleRect().width);
+	}
+	
 }
