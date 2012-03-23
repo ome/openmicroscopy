@@ -21,13 +21,14 @@ build-* targets.
 -->
     <description>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Top-level OMERO build. "ant" will suffice for most builds. If you need
-OmeroCpp (the C++ bindings for OMERO) use "build-all" or "build-cpp".
+Top-level OMERO build. The default build with a target ("./build.py" will suffice
+for most builds. If you need OmeroCpp (the C++ bindings for OMERO) use "build-all"
+or "build-cpp" targets:
 
-To get started using Eclipse, execute "ant" and then import the top-level
-project. If the build is failing, use "ant build-eclipse" to generate
-all needed directories. Eclipse projects also exist for each individual
-java component.
+  ./build.py build-all
+
+To get started using Eclipse, execute "./build.py build-dev" and import the top-level
+.project file. Eclipse projects also exist for each individual java component.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     </description>
 
@@ -66,15 +67,6 @@ java component.
             <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
         </ivy:buildlist>
         <!-- Single file paths defined in antlib/resources/directories.xml -->
-    </target>
-
-    <target name="quick" description="Deprecated">
-        <echo>
-
-        Deprecated: Tests are no longer run by default
-
-        </echo>
-        <property name="test.skip" value="true"/>
     </target>
 
     <target name="clean" description="Calls 'clean' on all components" depends="check-ivy">
