@@ -578,8 +578,8 @@ public class ImportLibrary implements IObservable
                     return;
                 }
             }
-            log.info("Big image, enabling metadata only and archiving.");
-            container.setMetadataOnly(true);
+            log.info("Big image, enabling big image import.");
+            container.setBigImage(true);
         }
         else
         {
@@ -658,6 +658,7 @@ public class ImportLibrary implements IObservable
                 log.info("File format: " + format);
                 log.info("Base reader: " + baseReader.getClass().getName());
                 log.info("Metadata only import? " + isMetadataOnly);
+                log.info("Big image? " + container.getBigImage());
             }
             notifyObservers(new ImportEvent.LOADED_IMAGE(
                     shortName, index, numDone, total));
@@ -694,7 +695,23 @@ public class ImportLibrary implements IObservable
                 pixelsIds.add(pixels.getId().getValue());
             }
             boolean saveSha1 = false;
-
+            // Parse the binary data to generate min/max values
+            if (!container.getBigImage()) {
+                int seriesCount = reader.getSeriesCount();
+                for (int series = 0; series < seriesCount; series++) {
+                    ImportSize size = new ImportSize(fileName,
+                            pixList.get(series), reader.getDimensionOrder());
+                    Pixels pixels = pixList.get(series);
+                    long pixId = pixels.getId().getValue();
+                    MessageDigest md = parseData(fileName, series, size);
+                    if (md != null) {
+                        String s = OMEROMetadataStoreClient.byteArrayToHexString(
+                                md.digest());
+                        pixels.setSha1(store.toRType(s));
+                        saveSha1 = true;
+                    }
+                }
+            }
             // Original file absolute path to original file map for uploading
             Map<String, OriginalFile> originalFileMap =
                 new HashMap<String, OriginalFile>();
@@ -847,88 +864,44 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * Writes data to the server for a given plane in a tile based manner.
-     * @param pixId Pixels ID to write to.
-     * @param size Sizes of the Pixels set.
-     * @param z The Z-section offset to write to.
-     * @param c The channel offset to write to.
-     * @param t The timepoint offset to write to.
-     * @param tileWidth Width of the tiles to write.
-     * @param tileHeight Height of the tiles to write.
-     * @param bytesPerPixel Number of bytes per pixel.
-     * @param fileName Name of the file.
-     * @param md Current Pixels set message digest.
-     * @return The new offset to use for the next plane.
-     * @throws FormatException If there is an error reading Pixel data via
-     * Bio-Formats.
-     * @throws IOException If there is an I/O error reading Pixel data via
-     * Bio-Formats.
-     * @throws ServerError If there is an error writing the data to the
-     * OMERO.server instance.
+     * Parse the binary data to generate min/max values and 
+     * allow an md to be calculated.
+     *
+     * @param series
+     * @return The SHA1 message digest for the binary data.
      */
-    private void writeDataTileBased(long pixId, ImportSize size,
-                                    int z, int c, int t, int tileWidth,
-                                    int tileHeight, int bytesPerPixel,
-                                    String fileName, MessageDigest md)
+    public MessageDigest parseData(String fileName, int series,
+                                        ImportSize size)
         throws FormatException, IOException, ServerError
     {
-        int planeNumber, x, y, w, h;
-        for (int tileOffsetY = 0;
-             tileOffsetY < (size.sizeY + tileHeight - 1) / tileHeight;
-             tileOffsetY++)
-        {
-            for (int tileOffsetX = 0;
-                 tileOffsetX < (size.sizeX + tileWidth - 1) / tileWidth;
-                 tileOffsetX++)
-            {
-                x = tileOffsetX * tileWidth;
-                y = tileOffsetY * tileHeight;
-                w = tileWidth;
-                h = tileHeight;
-                if ((x + tileWidth) > size.sizeX)
-                {
-                    w = size.sizeX - x;
+        reader.setSeries(series);
+        int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
+        MessageDigest md;
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+        }
+        catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(
+                "Required SHA-1 message digest algorithm unavailable.");
+        }
+        int planeNo = 1;
+        for (int t = 0; t < size.sizeT; t++) {
+            for (int c = 0; c < size.sizeC; c++) {
+                for (int z = 0; z < size.sizeZ; z++) {
+                    parseDataByPlane(size, z, c, t,
+                            bytesPerPixel, fileName, md);
+                    notifyObservers(new ImportEvent.IMPORT_STEP(
+                            planeNo, series, reader.getSeriesCount()));
+                    planeNo++;
                 }
-                if ((y + tileHeight) > size.sizeY)
-                {
-                    h = size.sizeY - y;
-                }
-                int bytesToRead = w * h * bytesPerPixel;
-                if (arrayBuf.length != bytesToRead)
-                {
-                    arrayBuf = new byte[bytesToRead];
-                }
-                planeNumber = reader.getIndex(z, c, t);
-                if (log.isDebugEnabled())
-                {
-                    log.debug(String.format(
-                            "Plane:%d X:%d Y:%d TileWidth:%d TileHeight:%d " +
-                            "arrayBuf.length:%d", planeNumber, x, y, w, h,
-                            arrayBuf.length));
-                }
-                arrayBuf = reader.openBytes(
-                        planeNumber, arrayBuf, x, y, w, h);
-                ByteBuffer buf = ByteBuffer.wrap(arrayBuf);
-                arrayBuf = swapIfRequired(buf, fileName);
-                try
-                {
-                    md.update(arrayBuf, 0, arrayBuf.length);
-                }
-                catch (Exception e)
-                {
-                    // This better not happen. :)
-                    throw new RuntimeException(e);
-                }
-                store.setTile(
-                        pixId, arrayBuf, z, c, t, x, y, w, h);
             }
         }
+        return md;
     }
 
     /**
-     * Writes data to the server for a given plane in a <i>full plane</i>
-     * manner.
-     * @param pixId Pixels ID to write to.
+     * Read a plane to cause min/max valus to be calculated.
+     *
      * @param size Sizes of the Pixels set.
      * @param z The Z-section offset to write to.
      * @param c The channel offset to write to.
@@ -940,34 +913,27 @@ public class ImportLibrary implements IObservable
      * Bio-Formats.
      * @throws IOException If there is an I/O error reading Pixel data via
      * Bio-Formats.
-     * @throws ServerError If there is an error writing the data to the
-     * OMERO.server instance.
      */
-    private void writeDataPlanarBased(long pixId, ImportSize size,
-                                      int z, int c, int t,
+    private void parseDataByPlane(ImportSize size, int z, int c, int t,
                                       int bytesPerPixel, String fileName,
                                       MessageDigest md)
         throws FormatException, IOException, ServerError
     {
         int bytesToRead = size.sizeX * size.sizeY * bytesPerPixel;
-        if (arrayBuf.length != bytesToRead)
-        {
+        if (arrayBuf.length != bytesToRead) {
             arrayBuf = new byte[bytesToRead];
         }
         int planeNumber = reader.getIndex(z, c, t);
         PixelData data = reader.openPlane2D(fileName, planeNumber, arrayBuf);
         ByteBuffer buf = data.getData();
         arrayBuf = swapIfRequired(buf, fileName);
-        try
-        {
+        try {
             md.update(arrayBuf);
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             // This better not happen. :)
             throw new RuntimeException(e);
         }
-        store.setPlane(pixId, arrayBuf, z, c, t);
     }
 
     /**
