@@ -2589,7 +2589,7 @@ def getObjectUrl(conn, obj):
     """
     This provides a url to browse to the specified omero.model.ObjectI P/D/I, S/P, FileAnnotation etc.
     used to display results from the scripting service
-    E.g webclient/userdata/?path=project=1|dataset=5|image=12601:selected
+    E.g webclient/userdata/?path=project=1|dataset=5|image=12601
     If the object is a file annotation, try to browse to the parent P/D/I
     """
     base_url = reverse(viewname="load_template", args=['userdata'])
@@ -2607,27 +2607,27 @@ def getObjectUrl(conn, obj):
         image = conn.getObject("Image", obj.id.val)
         for d in image.listParents():
             for p in d.listParents():
-                return "%s?path=project=%d|dataset=%d|image=%d:selected" % (base_url, p.id, d.id, image.id)
+                return "%s?path=project=%d|dataset=%d|image=%d" % (base_url, p.id, d.id, image.id)
         return None
 
     if isinstance(obj, omero.model.DatasetI):
         dataset = conn.getObject("Dataset", obj.id.val)
         for p in dataset.listParents():
-            return "%s?path=project=%d|dataset=%d:selected" % (base_url, p.id, dataset.id)
+            return "%s?path=project=%d|dataset=%d" % (base_url, p.id, dataset.id)
         return None
 
     if isinstance(obj, omero.model.ProjectI):
-        return "%s?path=project=%d:selected" % (base_url, obj.id.val)
+        return "%s?path=project=%d" % (base_url, obj.id.val)
 
     if isinstance(obj, omero.model.PlateI):
         plate = conn.getObject("Plate", obj.id.val)
         screen = plate.getParent()
         if screen is not None:
-            return "%s?path=screen=%d|plate=%d:selected" % (base_url, screen.id, plate.id)
+            return "%s?path=screen=%d|plate=%d" % (base_url, screen.id, plate.id)
         return "%s?path=plate=%d:selected" % (base_url, obj.id.val)
 
     if isinstance(obj, omero.model.ScreenI):
-        return "%s?path=screen=%d:selected" % (base_url, obj.id.val)
+        return "%s?path=screen=%d" % (base_url, obj.id.val)
 
 
 ######################
