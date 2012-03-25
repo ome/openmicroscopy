@@ -51,7 +51,8 @@
                 toSelectIds[i] = "image-"+iId;
             });
             // find the matching child nodes from the tree
-            var $children = datatree._get_children('#'+$('#content_details').attr('rel'));
+            var parent_id = $('#image_table').attr('rel');
+            var $children = datatree._get_children('#'+parent_id);
             var toSelect = $children.filter(function(index) {
                 return ($.inArray($(this).attr('id'),toSelectIds)!=-1);
             });
