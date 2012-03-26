@@ -8,6 +8,7 @@
 ##
 ## * The "(C)" is preferred but optional, and need not
 ##   be added to files missing it, but in general should be
+##   present.
 ##
 ## * Shorter copyright lines (80 or less) can have the
 ##   "All rights reserved." on the "Copyright" line. E.g.,
@@ -34,6 +35,8 @@
 ##   can be omitted.
 ##
 
+
+
 ###
 ### OMERO Java (Server, Insight, Etc)
 ###
@@ -46,6 +49,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -55,6 +59,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
+
 
 ###
 ### OmeroMatlab
@@ -67,12 +73,13 @@ function [arg1, arg2] = myfunc %%% If a function; otherwise omit.
 %
 
 % Copyright (C) <year> University of Dundee & Open Microscopy Environment.
-% All rights reversed.
+% All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
 % the Free Software Foundation; either version 2 of the License, or
 % (at your option) any later version.
+%
 % This program is distributed in the hope that it will be useful,
 % but WITHOUT ANY WARRANTY; without even the implied warranty of
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -81,6 +88,8 @@ function [arg1, arg2] = myfunc %%% If a function; otherwise omit.
 % You should have received a copy of the GNU General Public License along
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
 
 ###
 ### OmeroPy
@@ -91,12 +100,13 @@ function [arg1, arg2] = myfunc %%% If a function; otherwise omit.
 
 #
 # Copyright (C) <year> University of Dundee & Open Microscopy Environment.
-# All Rights Reserved.
+# All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -109,6 +119,7 @@ function [arg1, arg2] = myfunc %%% If a function; otherwise omit.
 """
 Module documentation
 """
+
 
 
 ###
@@ -136,6 +147,8 @@ Module documentation
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+
+
 ###
 ### OMERO.web JavaScript
 ###
@@ -157,6 +170,8 @@ Module documentation
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
+
+
 
 ###
 ### OMERO.web CSS
@@ -181,28 +196,31 @@ Module documentation
  *
  */
 
+
+
 ###
 ### OMERO.web HTML / Templates
 ###
 ### {% comment %} {% endcomment %} should be used ONLY for django templates
 ### using standard <!-- ... --> html comment tags within the HTML code affects
 ### Internet Explorer.
+###
 
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) <year> University of Dundee & Open Microscopy Environment.
   All rights reserved.
-  
+
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU Affero General Public License as
   published by the Free Software Foundation, either version 3 of the
   License, or (at your option) any later version.
-  
+
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Affero General Public License for more details.
-  
+
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
