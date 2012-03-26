@@ -1468,27 +1468,36 @@ class TreeViewerComponent
 		if (experimenters == null) return;
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
 		//Check that the group is displayed.
-		ExperimenterVisitor visitor = new ExperimenterVisitor(browser, 
-				userGroupID);
-		browser.accept(visitor);
-		List<TreeImageDisplay> nodes = visitor.getNodes();
-		if (nodes.size() == 0) {
-			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Add experimenter", 
-					"The group is not displayed.");
-			return;
+		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		if (groups == null) return;
+		TreeImageDisplay refNode = null;
+		ExperimenterVisitor visitor;
+		List<TreeImageDisplay> nodes;
+		if (groups.size() > 1) {
+			visitor = new ExperimenterVisitor(browser, userGroupID);
+			browser.accept(visitor);
+			nodes = visitor.getNodes();
+			if (nodes.size() == 0) {
+				UserNotifier un = 
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Add experimenter", 
+						"The group is not displayed.");
+				return;
+			}
+			refNode = nodes.get(0);
 		}
+		
 		List<Long> ids = new ArrayList<Long>();
 		Iterator<ExperimenterData> ii = experimenters.iterator();
 		while (ii.hasNext()) {
 			ids.add(ii.next().getId());
 		}
 		Map<Integer, Browser> browsers = model.getBrowsers();
-		Iterator i;
+
 		//first remove all the users displayed.
-		TreeImageDisplay groupNode = nodes.get(0);
 		visitor = new ExperimenterVisitor(browser, -1, -1);
-		groupNode.accept(visitor);
+		if (refNode != null) refNode.accept(visitor);
+		else browser.accept(visitor);
 		nodes = visitor.getNodes();
 		List<ExperimenterData> users = new ArrayList<ExperimenterData>();
 		Iterator<TreeImageDisplay> k = nodes.iterator();
@@ -1511,6 +1520,7 @@ class TreeViewerComponent
 		
 		//First remove;
 		Iterator<ExperimenterData> j = users.iterator();
+		Iterator i;
 		while (j.hasNext()) {
 			exp = j.next();
 			i = browsers.entrySet().iterator();
@@ -1966,15 +1976,19 @@ class TreeViewerComponent
 		Set experimenters = group.getExperimenters();
 		if (experimenters == null || experimenters.size() == 0) return;
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
-		ExperimenterVisitor visitor = new ExperimenterVisitor(browser,
-				group.getId());
-		browser.accept(visitor);
-		List<TreeImageDisplay> nodes = visitor.getNodes();
-		if (nodes.size() != 1) return;
-		TreeImageDisplay groupNode = nodes.get(0);
-
+		TreeImageDisplay refNode = null;
+		List<TreeImageDisplay> nodes;
+		ExperimenterVisitor visitor;
+		if (groups.size() > 1) {
+			visitor = new ExperimenterVisitor(browser, group.getId());
+			browser.accept(visitor);
+			nodes = visitor.getNodes();
+			if (nodes.size() != 1) return;
+			refNode = nodes.get(0);
+		}
 		visitor = new ExperimenterVisitor(browser, -1, -1);
-		groupNode.accept(visitor);
+		if (refNode != null) refNode.accept(visitor);
+		else browser.accept(visitor);
 		nodes = visitor.getNodes();
 		List<ExperimenterData> users = new ArrayList<ExperimenterData>();
 		Iterator<TreeImageDisplay> j = nodes.iterator();

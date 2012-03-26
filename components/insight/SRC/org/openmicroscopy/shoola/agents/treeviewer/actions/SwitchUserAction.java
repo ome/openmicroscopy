@@ -87,7 +87,10 @@ public class SwitchUserAction
     		return;
     	}
     	Collection l = group.getExperimenters();
-    	if (l == null) return;
+    	if (l == null) {
+    		setEnabled(false);
+    		return;
+    	}
     	int level = model.getGroupPermissions(group);
     	boolean b = false;
 		if (level == AdminObject.PERMISSIONS_PRIVATE) {
@@ -163,7 +166,7 @@ public class SwitchUserAction
 	public SwitchUserAction(TreeViewer model)
 	{
 		super(model);
-		setEnabled(true);
+		setEnabled(false);
 		name = NAME;
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
