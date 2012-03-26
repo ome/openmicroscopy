@@ -16,6 +16,7 @@ import unittest
 from path import path
 
 import omero
+
 from omero.grid import *
 from omero.scripts import *
 from omero.util.temp_files import create_path
@@ -65,6 +66,34 @@ class TestParse(unittest.TestCase):
         self.assertEquals(1, unwrap(longParam.min), str(longParam.min))
         self.assertEquals(10, unwrap(longParam.max), str(longParam.max))
         self.assertEquals([5], unwrap(longParam.values), str(longParam.values))
+
+    def testObjectType(self):
+        SCRIPT = """if True:
+            import omero
+            import omero.all
+            import omero.scripts as scripts
+            from omero.rtypes import robject
+
+            client = scripts.client('RObjectExample.py', 'Example script passing an robject',
+            scripts.Object('objParam', True, description='theDesc'))"""
+        params = parse_text(SCRIPT)
+        objParam = params.inputs["objParam"]
+        self.assertTrue(isinstance(objParam.prototype, omero.RObject))
+        self.assertTrue(objParam.prototype.val is None)
+
+    def testObjectTypeWithDefault(self):
+        SCRIPT = """if True:
+            import omero
+            import omero.all
+            import omero.scripts as scripts
+            from omero.rtypes import robject
+
+            client = scripts.client('RObjectExampleWithDefault.py', 'Example script passing an robject',
+            scripts.Object('objParam', True, description='theDesc', default=omero.model.ImageI()))"""
+        params = parse_text(SCRIPT)
+        objParam = params.inputs["objParam"]
+        self.assertTrue(isinstance(objParam.prototype, omero.RObject))
+        self.assertTrue(isinstance(objParam.prototype.val, omero.model.ImageI))
 
     def testListOfType(self):
         SCRIPT = """if True:

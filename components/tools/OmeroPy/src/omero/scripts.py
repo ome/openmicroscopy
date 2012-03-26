@@ -49,7 +49,8 @@ class Type(omero.grid.Param):
 
     def __init__(self, name, optional = True, out = False, description = None, default = None, **kwargs):
 
-	omero.grid.Param.__init__(self)
+        # Non-Param attributes
+        omero.grid.Param.__init__(self)
 
         # Non-Param attributes
         self._name = name
@@ -155,6 +156,13 @@ class Type(omero.grid.Param):
                 return val.im_func
             else:
                 return val
+
+class Object(Type):
+    """
+    Wraps an robject
+    """
+    PROTOTYPE_FUNCTION = robject
+    PROTOTYPE_DEFAULT = None
 
 
 class Long(Type):
