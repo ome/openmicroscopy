@@ -370,9 +370,9 @@ def prepareWatermark(conn, commandArgs, sizeX, sizeY):
     @return:        PIL Image to use as watermark.
     """
 
-    wm_id = commandArgs["Watermark"]
+    wm_orig_file = commandArgs["Watermark"]
     # get Original File as Image
-    wm_file = conn.getObject("OriginalFile", wm_id)
+    wm_file = conn.getObject("OriginalFile", wm_orig_file.id.val)
     wm_data = "".join( wm_file.getFileInChunks() )
     i = StringIO(wm_data)
     wm = Image.open(i)
@@ -454,7 +454,7 @@ def writeMovie(commandArgs, conn):
     # add intro...
     if "Intro_Slide" in commandArgs:
         intro_duration = commandArgs["Intro_Duration"]
-        intro_fileId = commandArgs["Intro_Slide"]
+        intro_fileId = commandArgs["Intro_Slide"].id.val
         intro_filenames = write_intro_end_slides(conn, commandArgs, intro_fileId, intro_duration, sizeX, sizeY)
         fileNames.extend(intro_filenames)
 
@@ -495,7 +495,7 @@ def writeMovie(commandArgs, conn):
     # add intro...
     if "Ending_Slide" in commandArgs:
         end_duration = commandArgs["Ending_Duration"]
-        end_fileId = commandArgs["Ending_Slide"]
+        end_fileId = commandArgs["Ending_Slide"].id.val
         end_filenames = write_intro_end_slides(conn, commandArgs, end_fileId, end_duration, sizeX, sizeY)
         fileNames.extend(end_filenames)
 
@@ -544,10 +544,13 @@ def runAsScript():
     scripts.String("Format", description="Format to save movie", values=formats, default=QT, grouping="10"),
     scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=cOptions, grouping="11"),
     scripts.Map("Plane_Map", description="Specify the individual planes (instead of using T_Start, T_End, Z_Start and Z_End)", grouping="12"),
-    scripts.Long("Watermark", description="Specifiy a watermark as an Original File (png or jpeg)"),
-    scripts.Long("Intro_Slide", description="Specifiy an Intro slide as an Original File (png or jpeg)"),
+    scripts.Object("Watermark", description="Specifiy a watermark as an Original File (png or jpeg)", 
+            default=omero.model.OriginalFileI()),
+    scripts.Object("Intro_Slide", description="Specifiy an Intro slide as an Original File (png or jpeg)",
+            default=omero.model.OriginalFileI()),
     scripts.Int("Intro_Duration", default=3, description="Duration of Intro in seconds. Default is 3 secs."),
-    scripts.Long("Ending_Slide", description="Specifiy a finishing slide as an Original File, (png or jpeg)"),
+    scripts.Object("Ending_Slide", description="Specifiy a finishing slide as an Original File, (png or jpeg)",
+            default=omero.model.OriginalFileI()),
     scripts.Int("Ending_Duration", default=3, description="Duration of finishing slide in seconds. Default is 3 secs."),
 
     version = "4.2.0",
