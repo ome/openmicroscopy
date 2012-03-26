@@ -361,9 +361,12 @@ class ToolBar
 		List<TreeImageDisplay> nodes = v.getNodes();
 		Iterator<TreeImageDisplay> j = nodes.iterator();
 		TreeImageDisplay node;
+		GroupData g;
 		while (j.hasNext()) {
 			node = j.next();
-			ids.add(((GroupData) node.getUserObject()).getId());
+			g = (GroupData) node.getUserObject();
+			if (g.getExperimenters().size() > 1)
+				ids.add(g.getId());
 		}
 		ButtonGroup buttonGroup = new ButtonGroup();
 		List<GroupSelectionAction> l = controller.getUserGroupAction(false);
