@@ -509,7 +509,7 @@ def parse_input(input_string, params):
             kls = getattr(omero.model, kls)
         except:
             raise ValueError("Format for objects: Class:id or ClassI:id. Not:%s" % val)
-        val = kls(_id, False)
+        val = omero.rtypes.robject(kls(_id, False))
     else:
         raise ValueError("No converter for: %s (type=%s)" % (key, param.prototype.__class__))
 

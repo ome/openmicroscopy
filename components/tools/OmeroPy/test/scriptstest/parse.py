@@ -82,8 +82,8 @@ class TestParse(unittest.TestCase):
         self.assertTrue(objParam.prototype.val is None)
 
         rv = parse_inputs(["objParam=OriginalFile:1"], params)
-        self.assertEquals(rv["objParam"].__class__, omero.model.OriginalFileI)
-        self.assertEquals(rv["objParam"].id.val, 1)
+        self.assertEquals(rv["objParam"].val.__class__, omero.model.OriginalFileI)
+        self.assertEquals(rv["objParam"].val.id.val, 1)
 
     def testObjectTypeWithDefault(self):
         SCRIPT = """if True:
