@@ -499,6 +499,17 @@ def parse_input(input_string, params):
         else:
             p = param.prototype.val[0]
             val = omero.rtypes.rlist([p.__class__(x) for x in items])
+    elif isinstance(param.prototype, omero.RObject):
+        try:
+            parts2 = val.split(":")
+            kls = parts2[0]
+            _id = long(parts2[1])
+            if not kls.endswith("I"):
+                kls = "%sI" % kls
+            kls = getattr(omero.model, kls)
+        except:
+            raise ValueError("Format for objects: Class:id or ClassI:id. Not:%s" % val)
+        val = kls(_id, False)
     else:
         raise ValueError("No converter for: %s (type=%s)" % (key, param.prototype.__class__))
 
