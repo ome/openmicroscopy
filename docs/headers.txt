@@ -42,7 +42,34 @@
 
 
 ###
-### OMERO Java (Server, Insight, Etc)
+### OME.model (XSD, etc)
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!-- style sheet OFF -->
+<!--
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #
+    # Copyright (C) 2003-2012 Open Microscopy Environment
+    #       Massachusetts Institute of Technology,
+    #       National Institutes of Health,
+    #       University of Dundee,
+    #       University of Wisconsin at Madison
+    #
+    # This work is licensed under the
+    #       Creative Commons Attribution 3.0 Unported License.
+    # To view a copy of this license, visit
+    #       http://creativecommons.org/licenses/by/3.0/
+    # or send a letter to
+    #       Creative Commons, 444 Castro Street, Suite 900,
+    #       Mountain View, California, 94041, USA.
+    # For attribution instructions, visit
+    #       http://www.openmicroscopy.org/info/attribution
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+
+
+###
+### OMERO.java (Server, Insight, Etc)
 ###
 
 /*
@@ -67,7 +94,7 @@
 
 
 ###
-### OmeroMatlab
+### OMERO.matlab
 ###
 function [arg1, arg2] = myfunc %%% If a function; otherwise omit.
 % Function/file documentation ...
@@ -96,7 +123,7 @@ function [arg1, arg2] = myfunc %%% If a function; otherwise omit.
 
 
 ###
-### OmeroPy
+### OMERO.py
 ###
 
 #!/usr/bin/env python
