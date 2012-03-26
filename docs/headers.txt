@@ -18,6 +18,10 @@
 ##   in which case there doesn't have to be a blank line
 ##   before the license block.
 ##
+## * The copyright chosen should be that for the institute
+##   of the creator of the file. Once a copyright has been
+##   assigned, it should not be modified.
+##
 ## * When a file is modified in a year not covered in the
 ##   copyright, the year range should be updated to reflect
 ##   the new year. The copyright itself should not be
@@ -32,7 +36,7 @@
 ##   defined in docs/styles/headers.xml
 ##
 ## * For non-licensed files (XSL, XSD), the license block
-##   can be omitted.
+##   can be omitted, but the copyright should be present.
 ##
 
 
