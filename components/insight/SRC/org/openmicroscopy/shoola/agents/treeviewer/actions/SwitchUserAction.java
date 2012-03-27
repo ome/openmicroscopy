@@ -63,10 +63,10 @@ public class SwitchUserAction
 {
 
 	/** The name of the action. */
-	public static final String NAME = "Add User...";
+	public static final String NAME = "Display User...";
 	
 	/** The name of the action. */
-	public static final String NAME_TO = "Add User to";
+	public static final String NAME_TO = "Display User from";
 	
 	/** The description of the action. */
 	public static final String DESCRIPTION = "Select users and view their" +

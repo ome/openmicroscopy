@@ -54,7 +54,7 @@ public class SwitchGroup
 {
 
 	/** The name of the action. */
-	public static final String NAME = "Add Group...";
+	public static final String NAME = "Display Group...";
 
 	/** The description of the action. */
 	public static final String DESCRIPTION = "Select the groups to " +
