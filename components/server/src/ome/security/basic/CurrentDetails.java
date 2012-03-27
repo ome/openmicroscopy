@@ -211,7 +211,12 @@ public class CurrentDetails implements PrincipalHolder {
             throw new ApiUsageException("Object can't be null");
         }
         final Long o = HibernateUtils.nullSafeOwnerId(object);
-        final Long g = HibernateUtils.nullSafeGroupId(object);
+        final Long g; // see 2874 and chmod
+        if (object instanceof ExperimenterGroup) {
+            g = object.getId();
+        } else {
+            g = HibernateUtils.nullSafeGroupId(object);
+        }
 
         final EventContext ec = getCurrentEventContext();
         final boolean isAdmin = ec.isCurrentUserAdmin();

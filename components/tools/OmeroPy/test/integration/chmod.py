@@ -85,6 +85,7 @@ class TestChmodHard(BaseChmodTest):
     """
 
     pass
+    # What to do about non-group chmod
 
 
 if __name__ == '__main__':
