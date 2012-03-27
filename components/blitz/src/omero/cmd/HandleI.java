@@ -52,7 +52,7 @@ import omero.util.CloseableServant;
  * @since 4.3.2
  */
 public class HandleI implements _HandleOperations, IHandle,
-       SessionAware, CloseableServant {
+       SessionAware {
 
     private static enum State {
         CREATED, READY, RUNNING, CANCELLING, CANCELLED, FINISHED;
