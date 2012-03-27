@@ -29,8 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 
-import ome.model.IObject;
-import ome.model.meta.ExperimenterGroup;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 
@@ -76,10 +74,6 @@ public class Helper {
         this.sf = sf;
     }
 
-    public void finish() {
-        rsp.compareAndSet(null, new OK());
-    }
-
     public int getSteps() {
         return status.steps;
     }
@@ -88,9 +82,35 @@ public class Helper {
         return rsp.get();
     }
 
+    /**
+     * Set the response if there is not currently run, in which case true
+     * is returned. Otherwise, false.
+     *
+     * @param rsp
+     *            Can be null.
+     * @return
+     */
+    public boolean setResponse(Response rsp) {
+        return this.rsp.compareAndSet(null, rsp);
+    }
+
+    //
+    // REPORTING
+    // =========================================================================
+    //
+
+    public ServiceFactory getServiceFactory() {
+        return sf;
+    }
+
     public Session getSession() {
         return session;
     }
+
+    //
+    // REPORTING
+    // =========================================================================
+    //
 
     /**
      * Converts pairs of values from the varargs list into a map. Any leftover

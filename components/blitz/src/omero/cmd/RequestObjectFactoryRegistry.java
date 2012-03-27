@@ -21,6 +21,7 @@ import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 
+import omero.cmd.basic.DoAllI;
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.graphs.ChgrpI;
 import omero.cmd.graphs.ChmodI;
@@ -55,6 +56,14 @@ public class RequestObjectFactoryRegistry extends
 
     public Map<String, ObjectFactory> createFactories() {
         Map<String, ObjectFactory> factories = new HashMap<String, ObjectFactory>();
+        factories.put(DoAllI.ice_staticId(), new ObjectFactory(
+                DoAllI.ice_staticId()) {
+            @Override
+            public Ice.Object create(String name) {
+                return new DoAllI();
+            }
+
+        });
         factories.put(ListRequestsI.ice_staticId(), new ObjectFactory(
                 ListRequestsI.ice_staticId()) {
             @Override

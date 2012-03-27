@@ -23,6 +23,7 @@ import omero.cmd.OK;
 import omero.cmd.RequestObjectFactoryRegistry;
 import omero.cmd.Response;
 import omero.cmd.State;
+import omero.cmd.Status;
 import omero.cmd._HandleTie;
 import omero.sys.ParametersI;
 
@@ -76,14 +77,21 @@ public class AbstractGraphTest extends AbstractServantTest {
         }
     }
 
-    protected void assertSuccess(_HandleTie handle) {
+    protected Response assertSuccess(_HandleTie handle) {
         Response rsp = handle.getResponse();
+        Status status = handle.getStatus();
+        assertSuccess(rsp);
+        assertFalse(status.flags.contains(State.FAILURE));
+        return rsp;
+    }
+
+    protected Response assertSuccess(Response rsp) {
         assertNotNull(rsp);
         if (rsp instanceof ERR) {
             ERR err = (ERR) rsp;
             fail(err.category + ":" + err.name + ":" + err.parameters);
         }
-        assertFalse(handle.getStatus().flags.contains(State.FAILURE));
+        return rsp;
     }
 
     protected void assertFailure(_HandleTie handle, String...allowedMessages) {

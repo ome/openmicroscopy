@@ -37,6 +37,7 @@ import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
+import omero.cmd.OK;
 import omero.cmd.Response;
 import omero.cmd.Status;
 
@@ -114,7 +115,7 @@ public class ChmodI extends Chmod implements IRequest {
     }
 
     public void finish() {
-        helper.finish();
+        helper.setResponse(new OK());
     }
 
     public Response getResponse() {
