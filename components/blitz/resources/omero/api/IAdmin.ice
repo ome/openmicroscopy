@@ -65,8 +65,14 @@ module omero {
                 idempotent void removeGroupOwners(omero::model::ExperimenterGroup group, ExperimenterList owners) throws ServerError;
                 idempotent void deleteExperimenter(omero::model::Experimenter user) throws ServerError;
                 idempotent void deleteGroup(omero::model::ExperimenterGroup group) throws ServerError;
+
+                ["deprecated:changeOwner() is deprecated. use omero::cmd::Chown() instead."]
                 idempotent void changeOwner(omero::model::IObject obj, string omeName) throws ServerError;
+
+                ["deprecated:changeGroup() is deprecated. use omero::cmd::Chgrp() instead."]
                 idempotent void changeGroup(omero::model::IObject obj, string omeName) throws ServerError;
+
+                ["deprecated:changePermissions() is deprecated. use omero::cmd::Chmod() instead."]
                 idempotent void changePermissions(omero::model::IObject obj, omero::model::Permissions perms) throws ServerError;
                 idempotent void moveToCommonSpace(IObjectList objects) throws ServerError;
 
