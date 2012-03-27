@@ -365,11 +365,12 @@ public class CurrentDetails implements PrincipalHolder {
 
     public void applyContext(Details details) {
         final BasicEventContext c = current();
-        final Permissions p = details.getPermissions();
-        if (p == null) {
-            // If there are no permissions then there's nothing to be
-            // applied.
-            return; // Early exit.
+        final Permissions groupPerms = c.getCurrentGroupPermissions();
+        final Permissions p;
+        if (details.getPermissions() == null) {
+            p = new Permissions(groupPerms);
+        }   else {
+            p = details.getPermissions();
         }
 
         // ticket:8277
@@ -377,7 +378,7 @@ public class CurrentDetails implements PrincipalHolder {
             return; // sec-system not initialized
         }
         final Long ownerID = details.getOwner().getId();
-        final Long groupID = c.getGroup().getId();
+        final Long groupID = c.getGroup().getId(); // Also USER group!
         final boolean owner = c.getCurrentUserId().equals(ownerID);
         final boolean leader = c.getLeaderOfGroupsList().contains(groupID);
         final boolean admin = c.isCurrentUserAdmin();

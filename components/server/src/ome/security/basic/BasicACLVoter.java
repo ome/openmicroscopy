@@ -33,6 +33,7 @@ import ome.security.ACLVoter;
 import ome.security.SecurityFilter;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
+import ome.system.EventContext;
 
 /**
  * 
@@ -243,6 +244,14 @@ public class BasicACLVoter implements ACLVoter {
         */
 
         return false;
+    }
+
+    public EventContext getEventContext() {
+        return this.currentUser.getCurrentEventContext();
+    }
+
+    public void postProcess(Details details) {
+        this.currentUser.applyContext(details);
     }
 
     /**
