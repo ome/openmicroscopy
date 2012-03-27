@@ -452,14 +452,14 @@ def writeMovie(commandArgs, conn):
     fileNames = []
 
     # add intro...
-    if "Intro_Slide" in commandArgs:
+    if "Intro_Slide" in commandArgs and commandArgs["Intro_Slide"].id:
         intro_duration = commandArgs["Intro_Duration"]
         intro_fileId = commandArgs["Intro_Slide"].id.val
         intro_filenames = write_intro_end_slides(conn, commandArgs, intro_fileId, intro_duration, sizeX, sizeY)
         fileNames.extend(intro_filenames)
 
     # prepare watermark
-    if "Watermark" in commandArgs:
+    if "Watermark" in commandArgs and commandArgs["Watermark"].id:
         watermark = prepareWatermark(conn, commandArgs, sizeX, sizeY)
 
     # add movie frames...
@@ -480,7 +480,7 @@ def writeMovie(commandArgs, conn):
             image = addTimePoints(time, pixels, image, overlayColour)
         if "Show_Plane_Info" in commandArgs and commandArgs["Show_Plane_Info"]:
             image = addPlaneInfo(z, t, pixels, image, overlayColour)
-        if "Watermark" in commandArgs:
+        if "Watermark" in commandArgs and commandArgs["Watermark"].id:
             image = pasteWatermark(image, watermark)
         if format==QT:
             filename = str(frameNo)+'.png'
@@ -493,7 +493,7 @@ def writeMovie(commandArgs, conn):
 
     # add exit frames... "outro"
     # add intro...
-    if "Ending_Slide" in commandArgs:
+    if "Ending_Slide" in commandArgs and commandArgs["Ending_Slide"].id:
         end_duration = commandArgs["Ending_Duration"]
         end_fileId = commandArgs["Ending_Slide"].id.val
         end_filenames = write_intro_end_slides(conn, commandArgs, end_fileId, end_duration, sizeX, sizeY)
