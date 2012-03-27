@@ -92,11 +92,11 @@ class login_required(object):
         logger.debug('Request is not Ajax, redirecting to %s' % self.login_url)
         return HttpResponseRedirect('%s?%s' % (self.login_url, urlencode(args)))
 
-    def on_logged_in(self, request):
+    def on_logged_in(self, request, conn):
         """Called whenever the users is successfully logged in."""
         pass
 
-    def on_share_connection_prepared(self, request):
+    def on_share_connection_prepared(self, request, conn_share):
         """Called whenever a share connection is successfully prepared."""
         pass
 
@@ -247,13 +247,14 @@ class login_required(object):
             if conn is None:
                 return ctx.on_not_logged_in(request, url, error)
             else:
-                ctx.on_logged_in(request)
+                ctx.on_logged_in(request, conn)
             ctx.verify_is_admin(conn)
             ctx.verify_is_group_owner(conn, kwargs.get('gid'))
 
             share_id = kwargs.get('share_id')
             conn_share = ctx.prepare_share_connection(request, conn, share_id)
-            ctx.on_share_connection_prepared(request)
+            if conn_share is not None:
+                ctx.on_share_connection_prepared(request, conn_share)
             kwargs['error'] = request.REQUEST.get('error')
             kwargs['conn'] = conn
             kwargs['conn_share'] = conn_share

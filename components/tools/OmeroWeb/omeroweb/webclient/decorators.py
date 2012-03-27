@@ -50,9 +50,9 @@ class login_required(omeroweb.decorators.login_required):
         """
         super(login_required, self).__init__(useragent, isAdmin, isGroupOwner)
 
-    def on_share_connection_prepared(self, request):
-        """Called whenever a share connection is successfully prepared."""
-        super(login_required, self).on_share_connection_prepared(request)
+    def on_logged_in(self, request, conn):
+        """Called whenever the users is successfully logged in."""
+        super(login_required, self).on_logged_in(request, conn)
         self.prepare_session(request)
 
     def prepare_session(self, request):
