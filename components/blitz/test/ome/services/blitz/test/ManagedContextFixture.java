@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import ome.api.IAdmin;
 import ome.logic.HardWiredInterceptor;
+import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
@@ -98,17 +99,31 @@ public class ManagedContextFixture {
     // =========================================================================
 
     public long newGroup() {
+        return newGroup(Permissions.USER_PRIVATE);
+    }
+
+    public long newGroup(Permissions permissions) {
         IAdmin admin = managedSf.getAdminService();
         String groupName = uuid();
         ExperimenterGroup g = new ExperimenterGroup();
+        g.getDetails().setPermissions(permissions);
         g.setName(groupName);
         return admin.createGroup(g);
     }
 
     public void addUserToGroup(long user, long group) {
-        managedSf.getAdminService().addGroups(
-                new Experimenter(user, false),
-                new ExperimenterGroup(group, false));
+        addUserToGroup(user, group, false);
+    }
+
+    public void addUserToGroup(long user, long group, boolean admin) {
+        final IAdmin iAdmin = managedSf.getAdminService();
+        final Experimenter e = new Experimenter(user, false);
+        final ExperimenterGroup g = new ExperimenterGroup(group, false);
+
+        iAdmin.addGroups(e, g);
+        if (admin) {
+            iAdmin.addGroupOwners(g, e);
+        }
     }
 
     /**

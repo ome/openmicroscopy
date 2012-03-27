@@ -23,9 +23,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import omero.ClientError;
-import omero.cmd.Chown;
+import omero.cmd._HandleTie;
+import omero.cmd.graphs.ChmodI;
 import omero.cmd.graphs.ChownI;
-import omero.model.CommentAnnotationI;
 import omero.model.PermissionsI;
 
 
@@ -39,28 +39,28 @@ import omero.model.PermissionsI;
 @Test(groups = { "integration", "chmod" })
 public class ChmodITest extends AbstractGraphTest {
 
-    long newUserId = 0L;
+    long newGrpId = -1L;
 
     @BeforeMethod
     protected void setupNewGroup() throws Exception {
-        newUserId = root.newGroup();
-        root.addUserToGroup(
-                user.getCurrentEventContext().getCurrentUserId(), newUserId);
-        user.getCurrentEventContext(); // RELOAD.
+        newGrpId = root.newGroup();
+        root.addUserToGroup(user.getCurrentEventContext().getCurrentUserId(),
+                newGrpId, true);
+        user.managedSf.getAdminService().getEventContext(); // Refresh
     }
 
-    ChownI newChown(String type, long id, long user) {
-        return newChown(type, id, user, null);
+    ChmodI newChmod(String perms) {
+        return newChmod("/ExperimenterGroup", newGrpId, perms, null);
     }
 
-    ChownI newChown(String type, long id, long user,
+    ChmodI newChmod(String type, long id, String perms,
             Map<String, String> options) {
-        ChownI chown = (ChownI) ic.findObjectFactory(Chown.ice_staticId()).create("");
-        chown.type = type;
-        chown.id = id;
-        chown.options = options;
-        chown.user = user;
-        return chown;
+        ChmodI chmod = (ChmodI) ic.findObjectFactory(ChmodI.ice_staticId()).create("");
+        chmod.type = type;
+        chmod.id = id;
+        chmod.options = options;
+        chmod.permissions = perms;
+        return chmod;
     }
 
     @Test
@@ -85,7 +85,13 @@ public class ChmodITest extends AbstractGraphTest {
         } catch (ClientError err) {
             // good;
         }
-
     }
 
+    @Test
+    public void testSimple() throws Exception {
+        ChmodI chmod = newChmod("rwr---");
+        _HandleTie handle = submit(chmod);
+        block(handle, 5, 1000);
+        assertSuccess(handle);
+    }
 }

@@ -9,20 +9,23 @@ package omero.cmd;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import ome.security.ChmodStrategy;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
+
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.graphs.ChgrpI;
+import omero.cmd.graphs.ChmodI;
 import omero.cmd.graphs.ChownI;
 import omero.cmd.graphs.GraphSpecListI;
-
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * SPI type picked up from the Spring configuration and given a chance to
@@ -77,6 +80,15 @@ public class RequestObjectFactoryRegistry extends
                                 ctx);
                         ChgrpStepFactory factory = new ChgrpStepFactory(ctx, em, roles);
                         return new ChgrpI(factory, specs);
+                    }
+
+                });
+        factories.put(ChmodI.ice_staticId(),
+                new ObjectFactory(ChmodI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return new ChmodI(
+                                ctx.getBean("chmodStrategy", ChmodStrategy.class));
                     }
 
                 });

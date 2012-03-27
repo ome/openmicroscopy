@@ -5,78 +5,25 @@
 
 package ome.services.blitz.test;
 
-import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import ome.services.delete.DeleteStepFactory;
-import ome.services.graphs.BaseGraphSpec;
-import ome.services.graphs.GraphEntry;
-import ome.services.graphs.GraphState;
-import ome.services.util.Executor;
+import org.jmock.Mock;
+import org.testng.annotations.BeforeClass;
+
 import ome.system.Roles;
-import ome.system.ServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
-import omero.RLong;
+
 import omero.RType;
-import omero.ServerError;
-import omero.api.AMD_IDelete_queueDelete;
 import omero.api.IDeletePrx;
-import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteHandlePrx;
-import omero.cmd.Chgrp;
 import omero.cmd.ERR;
 import omero.cmd.HandleI;
-import omero.cmd._HandleTie;
+import omero.cmd.IRequest;
 import omero.cmd.OK;
 import omero.cmd.RequestObjectFactoryRegistry;
 import omero.cmd.Response;
 import omero.cmd.State;
-import omero.cmd.graphs.ChgrpI;
-import omero.model.AnnotationAnnotationLink;
-import omero.model.AnnotationAnnotationLinkI;
-import omero.model.Dataset;
-import omero.model.DatasetI;
-import omero.model.ExperimenterGroupI;
-import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
-import omero.model.IObject;
-import omero.model.Image;
-import omero.model.ImageAnnotationLink;
-import omero.model.ImageAnnotationLinkI;
-import omero.model.ImageI;
-import omero.model.Plate;
-import omero.model.PlateI;
-import omero.model.Project;
-import omero.model.ProjectI;
-import omero.model.Screen;
-import omero.model.ScreenAnnotationLink;
-import omero.model.ScreenAnnotationLinkI;
-import omero.model.ScreenI;
-import omero.model.TagAnnotation;
-import omero.model.TagAnnotationI;
-import omero.model.TermAnnotation;
-import omero.model.TermAnnotationI;
-import omero.model.Well;
-import omero.model.WellI;
-import omero.model.WellSample;
-import omero.model.WellSampleI;
+import omero.cmd._HandleTie;
 import omero.sys.ParametersI;
-
-import org.hibernate.Session;
-import org.jmock.Mock;
-import org.jmock.core.InvocationMatcher;
-import org.jmock.core.matcher.InvokeOnceMatcher;
-import org.springframework.context.ApplicationContext;
-import org.springframework.transaction.annotation.Transactional;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 
 /**
@@ -110,6 +57,16 @@ public class AbstractGraphTest extends AbstractServantTest {
     //
     // Helpers
     //
+
+    protected _HandleTie submit(IRequest req) throws Exception {
+        Ice.Identity id = new Ice.Identity("handle", req.toString());
+        HandleI handle = new HandleI(1000);
+        handle.setSession(user_sf);
+        handle.initialize(id, req);
+        handle.run();
+        // Client side this would need a try/finally { handle.close() }
+        return new _HandleTie(handle);
+    }
 
     protected void block(_HandleTie handle, int loops, long pause)
             throws InterruptedException {
