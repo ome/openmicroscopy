@@ -20,13 +20,16 @@ package ome.security.basic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.GroupSecurityViolation;
@@ -38,6 +41,8 @@ import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ChmodStrategy;
+import ome.services.messages.EventLogMessage;
+import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.SessionFactory;
 import ome.util.SqlAction;
@@ -50,7 +55,8 @@ import ome.util.Utils;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.4
  */
-public class GroupChmodStrategy implements ChmodStrategy {
+public class GroupChmodStrategy implements ChmodStrategy,
+        ApplicationContextAware {
 
     private static class Check {
         final String perms;
@@ -76,12 +82,19 @@ public class GroupChmodStrategy implements ChmodStrategy {
 
     private final ExtendedMetadata em;
 
+    private/* final */OmeroContext ctx;
+
     public GroupChmodStrategy(BasicACLVoter voter, SessionFactory osf,
             SqlAction sql, ExtendedMetadata em) {
         this.voter = voter;
         this.osf = osf;
         this.sql = sql;
         this.em = em;
+    }
+
+    public void setApplicationContext(ApplicationContext ctx)
+            throws BeansException {
+        this.ctx = (OmeroContext) ctx;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -191,6 +204,27 @@ public class GroupChmodStrategy implements ChmodStrategy {
         sql.changeGroupPermissions(obj.getId(), internal);
         log.info(String.format("Changed permissions for %s to %s", obj.getId(),
                 internal));
+        eventlog(obj.getId(), newPerms.toString());
+
+    }
+
+    private void eventlog(long id, String perms) {
+
+        EventLogMessage elm = new EventLogMessage(this, String.format(
+                "CHMOD(%s)", perms), ExperimenterGroup.class,
+                Collections.singletonList(id));
+
+        try {
+            ctx.publishMessage(elm);
+        }
+        catch (Throwable t) {
+            if (t instanceof RuntimeException) {
+                throw (RuntimeException) t;
+            }
+            else {
+                throw new RuntimeException(t);
+            }
+        }
 
     }
 
