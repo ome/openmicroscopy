@@ -34,6 +34,8 @@ import omero.model.Arc;
 import omero.model.BooleanAnnotation;
 import omero.model.Channel;
 import omero.model.CommentAnnotation;
+import omero.model.Dataset;
+import omero.model.DatasetImageLink;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.Dichroic;
@@ -72,6 +74,7 @@ import omero.model.TransmittanceRange;
 import omero.model.Well;
 import omero.model.WellReagentLink;
 import omero.model.WellSample;
+import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import spec.XMLMockObjects;
@@ -1453,4 +1456,83 @@ public class ImporterTest
 				screen.copyReagents().get(0).getId().getValue());
 	}
 	
+	/**
+     * Tests the import of an image into a specified dataset.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageIntoDataset()
+		throws Exception
+	{
+    	//First create a dataset
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+
+    	File f = File.createTempFile("testImportImageIntoDataset", 
+				"."+OME_FORMAT);
+		files.add(f);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT, d);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getImage().getId().getValue();
+		
+		//Now check that we have an image link.
+		ParametersI param = new ParametersI();
+    	param.addId(d.getId().getValue());
+    	String sql = "select i from DatasetImageLink as i where i.parent.id = :id";
+    	DatasetImageLink link = (DatasetImageLink) 
+    	iQuery.findByQuery(sql, param);
+    	assertNotNull(link);
+    	assertEquals(link.getChild().getId().getValue(), id);
+	}
+
+	/**
+     * Tests the import of an image into a specified dataset.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageIntoDatasetFromOtherGroup()
+		throws Exception
+	{
+    	EventContext ownerEc = newUserAndGroup("rw----");
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	
+    	//group owner deletes it
+		disconnect();
+    	//First create a dataset
+    	newUserInGroup(ownerEc);
+
+    	File f = File.createTempFile("testImportImageIntoDataset", 
+				"."+OME_FORMAT);
+		files.add(f);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT, d);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getImage().getId().getValue();
+		
+		//Now check that we have an image link.
+		ParametersI param = new ParametersI();
+    	param.addId(d.getId().getValue());
+    	String sql = "select i from DatasetImageLink as i where i.parent.id = :id";
+    	DatasetImageLink link = (DatasetImageLink) 
+    	iQuery.findByQuery(sql, param);
+    	assertNotNull(link);
+    	assertEquals(link.getChild().getId().getValue(), id);
+	}
+
 }
