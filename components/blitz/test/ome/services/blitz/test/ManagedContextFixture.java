@@ -8,7 +8,9 @@ package ome.services.blitz.test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.api.IAdmin;
 import ome.logic.HardWiredInterceptor;
@@ -18,7 +20,17 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
 import ome.security.basic.PrincipalHolder;
+import ome.services.blitz.fire.AopContextInitializer;
+import ome.services.blitz.impl.AbstractAmdServant;
+import ome.services.blitz.impl.AdminI;
+import ome.services.blitz.impl.ConfigI;
+import ome.services.blitz.impl.DeleteI;
+import ome.services.blitz.impl.QueryI;
 import ome.services.blitz.impl.ServiceFactoryI;
+import ome.services.blitz.impl.ShareI;
+import ome.services.blitz.impl.UpdateI;
+import ome.services.blitz.util.BlitzExecutor;
+import ome.services.scheduler.ThreadPool;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.EventContext;
@@ -43,13 +55,25 @@ public class ManagedContextFixture {
     public OmeroContext ctx;
     public SessionManager mgr;
     public Executor ex;
+    public ServiceFactoryI sf;
     public ServiceFactory managedSf;
     public ServiceFactory internalSf;
     public SecuritySystem security;
     public PrincipalHolder holder;
     public LoginInterceptor login;
+    public AopContextInitializer init;
+    public BlitzExecutor be;
+    protected List<HardWiredInterceptor> cptors;
 
-    public ManagedContextFixture() {
+    // Servants
+    public AdminI admin;
+    public ConfigI config;
+    public DeleteI delete;
+    public QueryI query;
+    public ShareI share;
+    public UpdateI update;
+
+    public ManagedContextFixture() throws Exception {
         this(OmeroContext.getManagedServerContext());
     }
 
@@ -57,8 +81,20 @@ public class ManagedContextFixture {
         ctx.closeAll();
     }
 
-    public ManagedContextFixture(OmeroContext ctx) {
+    public ManagedContextFixture(OmeroContext ctx) throws Exception {
+       this(ctx, false);
+    }
+
+    /**
+     * Create the fixture. Based on {@link #newUser} either creates a new
+     * user or logins the root user.
+     * @param ctx
+     * @param newUser
+     */
+    public ManagedContextFixture(OmeroContext ctx, boolean newUser)
+        throws Exception {
         this.ctx = ctx;
+        be = (BlitzExecutor) ctx.getBean("throttlingStrategy");
         adapter = (Ice.ObjectAdapter) ctx.getBean("adapter");
         mgr = (SessionManager) ctx.getBean("sessionManager");
         ex = (Executor) ctx.getBean("executor");
@@ -68,11 +104,35 @@ public class ManagedContextFixture {
         managedSf = new ServiceFactory(ctx);
         managedSf = new InterceptingServiceFactory(managedSf, login);
         internalSf = new InternalServiceFactory(ctx);
-        setCurrentUser("root");
-        loginNewUserNewGroup();;
+
+        cptors = HardWiredInterceptor
+            .parse(new String[] { "ome.security.basic.BasicSecurityWiring" });
+        HardWiredInterceptor.configure(cptors, ctx);
+
+
+        if (newUser) {
+            loginNewUserNewGroup();
+        } else {
+            setCurrentUserAndGroup("root", "system");
+        }
+        sf = createServiceFactoryI();
+        init = new AopContextInitializer(
+                new ServiceFactory(ctx), login.p, new AtomicBoolean(true));
+        delete = delete();
+        update = new UpdateI(managedSf.getUpdateService(), be);
+        query = new QueryI(managedSf.getQueryService(), be);
+        admin = new AdminI(managedSf.getAdminService(), be);
+        config = new ConfigI(managedSf.getConfigService(), be);
+        share = new ShareI(managedSf.getShareService(), be);
+        configure(delete, init);
+        configure(update, init);
+        configure(query, init);
+        configure(admin, init);
+        configure(config, init);
+        configure(share, init);
     }
 
-    public ServiceFactoryI createServiceFactoryI()
+    private ServiceFactoryI createServiceFactoryI()
             throws omero.ApiUsageException {
         Ice.Current current = new Ice.Current();
         current.adapter = adapter;
@@ -81,6 +141,23 @@ public class ManagedContextFixture {
         ServiceFactoryI factory = new ServiceFactoryI(current, null, ctx, mgr, ex,
                 getPrincipal(), new ArrayList<HardWiredInterceptor>(), null, null);
         return factory;
+    }
+
+
+    protected DeleteI delete() throws Exception {
+        String out = ctx.getProperty("omero.threads.cancel_timeout");
+        int timeout = Integer.valueOf(out);
+        DeleteI d = new DeleteI(managedSf.getDeleteService(), be,
+                ctx.getBean("threadPool", ThreadPool.class),
+                timeout, ctx.getProperty("omero.data.dir"));
+        d.setServiceFactory(sf);
+        return d;
+    }
+
+    protected void configure(AbstractAmdServant servant,
+            AopContextInitializer ini) {
+        servant.setApplicationContext(ctx);
+        servant.applyHardWiredInterceptors(cptors, ini);
     }
 
     public void tearDown() throws Exception {

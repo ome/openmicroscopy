@@ -17,15 +17,21 @@
 
 package ome.services.blitz.test;
 
+import java.sql.Timestamp;
 import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ome.api.IAdmin;
+import ome.model.containers.Dataset;
+import ome.model.core.Image;
+import ome.model.internal.Permissions;
+import ome.model.meta.ExperimenterGroup;
+
 import omero.ClientError;
 import omero.cmd._HandleTie;
 import omero.cmd.graphs.ChmodI;
-import omero.cmd.graphs.ChownI;
 import omero.model.PermissionsI;
 
 
@@ -39,14 +45,21 @@ import omero.model.PermissionsI;
 @Test(groups = { "integration", "chmod" })
 public class ChmodITest extends AbstractGraphTest {
 
-    long newGrpId = -1L;
+    Long newGrpId = null;
 
     @BeforeMethod
-    protected void setupNewGroup() throws Exception {
-        newGrpId = root.newGroup();
+    protected void nullGroup() {
+        newGrpId = null;
+    }
+
+    protected ExperimenterGroup setupNewGroup(String perms) throws Exception {
+        newGrpId = root.newGroup(Permissions.parseString(perms));
         root.addUserToGroup(user.getCurrentEventContext().getCurrentUserId(),
                 newGrpId, true);
-        user.managedSf.getAdminService().getEventContext(); // Refresh
+
+        IAdmin admin = user.managedSf.getAdminService();
+        admin.getEventContext(); // Refresh
+        return admin.getGroup(newGrpId);
     }
 
     ChmodI newChmod(String perms) {
@@ -89,9 +102,48 @@ public class ChmodITest extends AbstractGraphTest {
 
     @Test
     public void testSimple() throws Exception {
+        setupNewGroup("rw----");
         ChmodI chmod = newChmod("rwr---");
         _HandleTie handle = submit(chmod);
         block(handle, 5, 1000);
         assertSuccess(handle);
     }
+
+    @Test
+    public void testReducingPermissionsOk() throws Exception {
+        setupNewGroup("rwr---");
+        ChmodI chmod = newChmod("rw----");
+        _HandleTie handle = submit(chmod);
+        block(handle, 5, 1000);
+        assertSuccess(handle);
+    }
+
+    @Test
+    public void testReducingPermissionsErr() throws Exception {
+        ExperimenterGroup grp = setupNewGroup("rwrw--");
+
+        // Add data as user
+        Image i = new Image();
+        i.setName("testReducingPermissionsErr");
+        i.setAcquisitionDate(new Timestamp(0L));
+        i = user.managedSf.getUpdateService().saveAndReturnObject(i);
+
+        // Cross-link as another user
+        String name = root.newUser(grp.getName());
+        ManagedContextFixture other = new ManagedContextFixture(ctx);
+        other.setCurrentUser(name);
+
+        Dataset d = new Dataset();
+        d.setName("testReducingPermissionsErr");
+        i = new Image(i.getId(), false);
+        d.linkImage(i);
+        d = other.managedSf.getUpdateService().saveAndReturnObject(d);
+
+        ChmodI chmod = newChmod("rw----");
+        _HandleTie handle = submit(chmod);
+        block(handle, 5, 1000);
+        assertFailure(handle);
+    }
+
+
 }
