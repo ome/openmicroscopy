@@ -49,15 +49,6 @@
             'loader': 'span.loading'
         });
         
-        // set up dialog box for password...
-        $( "#password_change_dialog" ).dialog({ autoOpen: false });
-        // will be handled by AJAX
-        $("#change_password_form").ajaxForm({
-            success: function(html) {
-                $("#password_change_message").html(html);
-            }
-        });
-        
         {% if edit_mode %}
         $('#save_thumb').click(function() {
             var x1 = $('#x1').val();
@@ -96,6 +87,15 @@
                 closeOnEscape: true,
                 modal: false,
                 dialogClass: 'reddit',
+                buttons: {
+                    "OK": function() {
+                        // simply submit the form (AJAX handling set-up above)
+                        $("#change_password_form").submit();
+                    },
+                    "Cancel": function() {
+                        $( this ).dialog( "close" );
+                    }
+                },
                 position: { 
                     my: 'left center',
                     at: 'right center',
@@ -106,6 +106,13 @@
             });
             
             $( "#change_password" ).click(function() {
+                // clear fields
+                var $pw_form = $("#change_password_form");
+                $("div.error", $pw_form).text("");
+                $("input[name='password']", $pw_form).val("");
+                $("input[name='confirmation']", $pw_form).val("");
+                $("input[name='old_password']", $pw_form).val("");
+                // show dialog
                 $( "#password_change_dialog" ).dialog( "open" );
                 return false;
             });
@@ -117,10 +124,31 @@
             $("#password_change_message").hide();
             $("#change_password_form").ajaxForm({
                 beforeSubmit: function(data) {
+                    // check that both new passwords match, fields aren't empty etc.
+                    var $pw_form = $("#change_password_form");
+                    var new_pw = $("input[name='password']", $pw_form).val();
+                    var conf_pw = $("input[name='confirmation']", $pw_form).val();
+                    var old_pw = $("input[name='old_password']", $pw_form).val();
+                    if ($.trim(new_pw).length==0 || $.trim(conf_pw).length==0 || $.trim(old_pw).length==0) {
+                        $("div.error", $pw_form).text("All fields must be filled in.");
+                        return false;
+                    }
+                    if (new_pw != conf_pw) {
+                        $("div.error", $pw_form).text("New passwords don't match.");
+                        return false;
+                    }
+                    if (new_pw == old_pw) {
+                        $("div.error", $pw_form).text("New password is the same as Old password");
+                        return false;
+                    }
+                    if ($.trim(new_pw).length<3 || $.trim(conf_pw).length<3 || $.trim(old_pw).length==0) {
+                        $("div.error", $pw_form).text("Passwords should be at least 3 characters long.");
+                        return false;
+                    }
                     $( "#password_change_dialog" ).dialog( "close" );
                 },
                 success: function(html) {
-                    $("#password_change_message").html(html).show().delay(1200).fadeOut(1000);
+                    $("#password_change_message").html(html).show().delay(3000).fadeOut(2000);
                 }
             });
 
@@ -196,9 +224,6 @@
 
                     <span id="password_change_message"></span>
                 </div>
-                
-                <a href="{% url wamanagechangepasswordid eventContext.userId %}">Boom</a>
-                
                 {% endif %}
          
                 <!--<p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>-->
@@ -216,15 +241,13 @@
     </div>
 
     <!-- hidden dialog for password change -->
-    <div id="password_change_dialog">
+    <div id="password_change_dialog" title="Change Password">
         <h1>{% trans "Change Password" %}</h1>
 
         <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
         <br/>
 
         <form id="change_password_form" action="{% url wamanagechangepasswordid eventContext.userId %}" method="POST">
-
-            {% if error %}<div class="error">{{ error|safe|linebreaks }}</div>{% endif %}
 
             <table>
                 <tbody>
@@ -236,13 +259,9 @@
                     </tr>
                     {% endfor %}
 
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td colspan="2" class="input"><br/>
-                            <input type="submit" value="{% trans 'Save' %}" />
-                            <input id="password_cancel" type="button" value="{% trans 'Cancel' %}" />
-                        </td>
-                    </tr>
+                    <tr><td colspan="3">
+                        <div class="error"></div>
+                    </td></tr>
                 </tbody>
             </table>
         </form>

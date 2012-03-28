@@ -466,16 +466,18 @@ def manage_password(request, eid, **kwargs):
 
     error = None
     if request.method == 'POST':
-        password_form = ChangePassword(data=request.POST.copy())            
-        if password_form.is_valid():
+        password_form = ChangePassword(data=request.POST.copy())
+        if not password_form.is_valid():
+            error = password_form.errors
+        else:
             old_password = password_form.cleaned_data['old_password']
             password = password_form.cleaned_data['password']
             # if we're trying to change our own password...
             if conn.getEventContext().userId == int(eid):
                 try:
-                    conn.changeMyPassword(password, old_password) 
+                    conn.changeMyPassword(password, old_password)
                 except Exception, x:
-                    error = x.message
+                    error = x.message   # E.g. old_password not valid
             elif conn.isAdmin():
                 exp = conn.getObject("Experimenter", eid)
                 try:
