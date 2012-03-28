@@ -46,7 +46,8 @@
                     'delay': 300,
                     'loader': 'span.loading'
                 });
-        })
+                $("#webadmin_main_tabs").tabs();
+            })
     </script>
     
     
@@ -54,8 +55,12 @@
 
 {% block center_details %}
 {{ block.super }}
-    <h1>{% trans "Scientists" %}</h1>
-    
+
+    <ul id="webadmin_main_tabs">
+        <li id="experimenters_tab"><a title="Edit Scientists">{% trans "Scientists" %}</a></li>
+        <li id="groups_tab"><a href="{% url wagroups %}" title="Edit Groups">{% trans "Groups" %}</a></li>
+    </ul>
+
     <div class="add_button"><img src="{% static "webadmin/image/add.png" %}" alt="add" title="add"> <a href="{% url wamanageexperimenterid "new" %}">{% trans "Add new scientist" %}</a></div>
     
     {% if controller.experimentersCount %}
@@ -66,6 +71,7 @@
         <thead> 
             <tr>
                 <th class="action">{% trans "ID" %}</th>
+                <th></th>
                 <th class="link">{% trans "Full name" %}</th> 
                 <th class="link">{% trans "Username" %}</th>
                 <th class="desc">{% trans "Institution" %}</th>
@@ -77,6 +83,8 @@
             <tr>
                 <td class="action">
                     {{ dict.experimenter.id }}
+                </td>
+                <td>
                     {% if dict.experimenter.isEditable %}<a href="{% url wamanageexperimenterid "edit" dict.experimenter.id %}">
                         <img src="{% static "webadmin/image/edit.png" %}" alt="edit" title="edit">
                     </a>{% endif %}
@@ -99,16 +107,4 @@
     <p>{% trans "No scientists in OMERO." %}</p>
     {% endif %}
 
-{% endblock %}
-
-{% block metadata_details %}
-
-    <h1>{% trans "Legend" %}:</h1>
-    <div><img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> - Admin; <img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> - Guest; <img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> - ldap; <img src="{% static "webadmin/image/active.png" %}" alt="active" title="active"> - active; <img src="{% static "webadmin/image/notactive.png" %}" alt="notactive" title="notactive"> - not active</div>
-    
-    <h1>{% trans "Summary" %}</h1>
-    <p>Currently there are <strong>{{ controller.experimentersCount.experimenters }} {% plural controller.experimentersCount.experimenters 'account' 'accounts' %}</strong> in total including following roles: {{ controller.experimentersCount.active }} active, {{ controller.experimentersCount.admin }} admin, {{ controller.experimentersCount.guest }} guest, {{ controller.experimentersCount.ldap }} ldap.
-    </p>
-
-    
 {% endblock %}

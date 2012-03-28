@@ -46,6 +46,7 @@
                     'delay': 300,
                     'loader': 'span.loading'
                 });
+                $("#webadmin_main_tabs").tabs();
         })
     </script>
     
@@ -53,7 +54,10 @@
 
 {% block center_details %}
 {{ block.super }}
-    <h1>{% trans "Groups" %}</h1>
+    <ul id="webadmin_main_tabs">
+        <li id="experimenters_tab"><a href="{% url waexperimenters %}" title="Edit Scientists">{% trans "Scientists" %}</a></li>
+        <li id="groups_tab"><a title="Edit Groups">{% trans "Groups" %}</a></li>
+    </ul>
     
     <div class="add_button"><img src="{% static "webadmin/image/add.png" %}" alt="add" title="add"> <a href="{% url wamanagegroupid "new" %}">{% trans "Add new group" %}</a></div>
     
@@ -65,6 +69,7 @@
         <thead> 
             <tr> 
                 <th class="action">{% trans "ID" %}</th>
+                <th></th>
                 <th class="link">{% trans "Name" %}</th> 
                 <th class="link">{% trans "Permissions" %}</th> 
                 <th class="desc">{% trans "Description" %}</th>
@@ -75,6 +80,8 @@
             <tr>
                 <td class="action">
                     {{ dict.group.id }}
+                </td>
+                <td>
                     {% if dict.group.isEditable %}{% if not dict.locked %}
                         <a href="{% url wamanagegroupid "edit" dict.group.id %}"><img src="{% static "webadmin/image/edit.png" %}" alt="edit" title="edit"></a>
                     {% endif %}
