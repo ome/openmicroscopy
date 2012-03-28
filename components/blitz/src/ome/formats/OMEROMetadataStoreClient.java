@@ -405,6 +405,7 @@ public class OMEROMetadataStoreClient
         throws ServerError
     {
 
+        closeServices();
         if (group == null) {
             callCtx.clear();
         } else {
@@ -1036,6 +1037,7 @@ public class OMEROMetadataStoreClient
         try
         {
             log.debug("Creating root!");
+            initializeServices(false, null); // Reset group
             authoritativeContainerCache =
 		new HashMap<Class<? extends IObject>, Map<String, IObjectContainer>>();
             containerCache =
