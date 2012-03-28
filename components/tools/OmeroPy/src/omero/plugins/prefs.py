@@ -20,6 +20,7 @@ from path import path
 from omero.cli import CLI
 from omero.cli import BaseControl
 from omero.cli import ExistingFile
+from omero.cli import NonZeroReturnCode
 from omero.config import ConfigXml
 from omero_ext.strings import shlex
 from omero.util import edit_path, get_user_dir
@@ -206,6 +207,8 @@ class PrefsControl(BaseControl):
                         previous = self.handle_line(line, config, keys)
                 finally:
                     f.close()
+        except NonZeroReturnCode, nzrc:
+            raise
         except Exception, e:
             self.ctx.die(968, "Cannot read %s: %s" % (args.file, e))
 
@@ -290,11 +293,18 @@ class PrefsControl(BaseControl):
             return
         if len(parts) == 1:
             parts.append("")
-        if keys and parts[0] in keys:
-            self.ctx.die(502, "Duplicate property: %s (%s => %s)"\
-                % (parts[0], config[parts[0]], parts[1]))
-            keys.append(parts[0])
-        config[parts[0]] = parts[1]
+
+        _key = parts[0]
+        _new = parts[1]
+        _old = config[_key]
+
+        if keys and _key in keys and _new != _old:
+
+            self.ctx.die(502, "Duplicate property: %s ('%s' => '%s')"\
+                % (_key, _old, _new))
+            keys.append(_key)
+
+        config[_key] = _new
 
     def old(self, args):
         self.ctx.out(getprefs(args.target, str(self.ctx.dir / "lib")))
