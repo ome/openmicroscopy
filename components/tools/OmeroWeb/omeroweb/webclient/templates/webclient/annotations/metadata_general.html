@@ -408,10 +408,12 @@
                     </div>
                 {% endif %}
 				
-                {% trans "Launch full viewer" %} 
-                <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')">
-                    <img id="{{ manager.image.id }}" src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/>
-                </a>
+				<button class="btn silver" href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')">
+					<span>
+	                {% trans "Launch full viewer" %} 
+					</span>
+				</button>
+				
                 {% if manager.openAstexViewerCompatible %}
                 | Volume viewer
                 <a href="#" onclick="return openPopup('{% url open_astex_viewer 'image_8bit' manager.image.id %}')">
@@ -953,9 +955,9 @@
 					
 			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
 
-
-			<!--
-
+			
+			
+			<!-- COMMENTS -->
             <div class="annotations_section">
 				<h2>{% trans "Comment:" %}</h2>
 				
@@ -987,7 +989,10 @@
            
             <div class="clear"></div>          
 
-			-->
+
+
+
+
 
 			<div class="annotations_section">
 	            {% if manager.image %}

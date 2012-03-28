@@ -55,7 +55,7 @@
  #middle_header {
      color: white;
      background: hsl(215,20%,20%);
-	 background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 16%, 50%)), to(hsl(215, 16%, 65%)));
+	 background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(212, 19%, 54%)), to(hsl(212, 19%, 69%)));
 	 background-image: -moz-linear-gradient(90deg, hsl(215, 16%, 50%) 0%, hsl(215, 16%, 65%) 100%);
 	 font-family: Helvetica,Arial,sans-serif;
  }
@@ -260,16 +260,17 @@
 				color: #000; 
 				width:100%;
 				display:block;
+				float:none;
+				position:relative;
 			}
 		
 		    .script_launch li:hover { 
 				background-color:hsl(210,50%,50%);
 				background-color:hsl(210,50%,50%);
-				border-top:solid 1px hsl(210,50%,50%);
+				border-top:solid 1px hsl(210,50%,45%);
 				border-bottom:solid 1px hsl(210,50%,40%);
 				background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210, 50%, 50%)), to(hsl(210, 50%, 60%)));
 				color: black; 
-				position: relative; 
 			}
 		
 			
@@ -281,22 +282,22 @@
 					width: 100%; 
 					display: inline-block; 
 					font-weight: normal;
-					font-size:1.3em !important;
+					font-size:1.2em !important;
 					padding: .7em 0 .7em 8px !important;
 					display: block; 
-					color: #222; 
+					color: #222;
+					-webkit-transition:none !important; 
 				} 
 		
 	
-			    .script_launch li:hover a { 
+			    .script_launch li:hover > a { 
 					color:white !important;
 					text-shadow:none !important;
 				}
 				
-				
-    
 				.script_launch li:last-child a {
 					border-right: none;
+					-webkit-transition:none !important;
 				} 
 	
 		    
@@ -307,6 +308,7 @@
 		    ul.sub_menu li ul {
 				left: 170px; 
 				top: 0;
+				position:absolute;
 			}
 		
 		    ul.sub_menu li:hover > ul{

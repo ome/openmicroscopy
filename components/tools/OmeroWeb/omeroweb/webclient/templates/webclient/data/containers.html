@@ -974,10 +974,9 @@
 			
 			<!-- Remember to update this in public/public.html as well. We should change this, but for the meantime, you need to manually update the menu there too -->
 			
-	        <li><a href="#Projects" title="Explore">{% trans "Explore" %}</a></li>
-	        <li><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
-			<li><a href="{% url load_template 'usertags' %}">{% trans "History" %}</a></li>
-	        <li><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>
+	        <li id="explore_tab"><a href="#Projects" title="Explore">{% trans "Explore" %}</a></li>
+	        <li id="tags_tab"><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
+	        <li id="public_tab"><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>
         </ul>
 		
 		
