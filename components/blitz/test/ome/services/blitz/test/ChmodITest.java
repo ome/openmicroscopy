@@ -45,21 +45,13 @@ import omero.model.PermissionsI;
 @Test(groups = { "integration", "chmod" })
 public class ChmodITest extends AbstractGraphTest {
 
-    Long newGrpId = null;
-
-    @BeforeMethod
-    protected void nullGroup() {
-        newGrpId = null;
-    }
+    ManagedContextFixture user; // Overrides super class
+    Long newGrpId;
 
     protected ExperimenterGroup setupNewGroup(String perms) throws Exception {
-        newGrpId = root.newGroup(Permissions.parseString(perms));
-        root.addUserToGroup(user.getCurrentEventContext().getCurrentUserId(),
-                newGrpId, true);
-
-        IAdmin admin = user.managedSf.getAdminService();
-        admin.getEventContext(); // Refresh
-        return admin.getGroup(newGrpId);
+        user = new ManagedContextFixture(ctx, true, perms);
+        newGrpId = user.getCurrentEventContext().getCurrentGroupId();
+        return user.managedSf.getAdminService().getGroup(newGrpId);
     }
 
     ChmodI newChmod(String perms) {
@@ -110,7 +102,7 @@ public class ChmodITest extends AbstractGraphTest {
     }
 
     @Test
-    public void testReducingPermissionsOk() throws Exception {
+    public void testReducingPermissionsOkNoData() throws Exception {
         setupNewGroup("rwr---");
         ChmodI chmod = newChmod("rw----");
         _HandleTie handle = submit(chmod);
@@ -119,12 +111,34 @@ public class ChmodITest extends AbstractGraphTest {
     }
 
     @Test
-    public void testReducingPermissionsErr() throws Exception {
+    public void testReducingPermissionsOkUserOnlyData() throws Exception {
+        setupNewGroup("rwr---");
+
+        // Add data as user
+        Image i = new Image();
+        i.setName("testReducingPermissionsOkUserOnlyData");
+        i.setAcquisitionDate(new Timestamp(0L));
+        i = user.managedSf.getUpdateService().saveAndReturnObject(i);
+
+        Dataset d = new Dataset();
+        d.setName("testReducingPermissionsErrOkUserOnlyData");
+        i = new Image(i.getId(), false);
+        d.linkImage(i);
+        d = user.managedSf.getUpdateService().saveAndReturnObject(d);
+
+        ChmodI chmod = newChmod("rw----");
+        _HandleTie handle = submit(chmod);
+        block(handle, 5, 1000);
+        assertSuccess(handle);
+    }
+
+    @Test
+    public void testReducingPermissionsErrGroupDrop() throws Exception {
         ExperimenterGroup grp = setupNewGroup("rwrw--");
 
         // Add data as user
         Image i = new Image();
-        i.setName("testReducingPermissionsErr");
+        i.setName("testReducingPermissionsErrGroupDrop");
         i.setAcquisitionDate(new Timestamp(0L));
         i = user.managedSf.getUpdateService().saveAndReturnObject(i);
 
@@ -134,7 +148,7 @@ public class ChmodITest extends AbstractGraphTest {
         other.setCurrentUser(name);
 
         Dataset d = new Dataset();
-        d.setName("testReducingPermissionsErr");
+        d.setName("testReducingPermissionsErrGroupDrop");
         i = new Image(i.getId(), false);
         d.linkImage(i);
         d = other.managedSf.getUpdateService().saveAndReturnObject(d);
@@ -142,8 +156,35 @@ public class ChmodITest extends AbstractGraphTest {
         ChmodI chmod = newChmod("rw----");
         _HandleTie handle = submit(chmod);
         block(handle, 5, 1000);
-        assertFailure(handle);
+        assertFailure(handle, "check failed");
     }
 
+    @Test
+    public void testReducingPermissionsErrWorldDrop() throws Exception {
+        ExperimenterGroup grp1 = setupNewGroup("rwrwrw");
+        Long grp2 = root.newGroup(Permissions.parseString("rw----"));
+        String grp2Name = root.managedSf.getAdminService().getGroup(grp2).getName();
 
+        // Add data as user
+        Image i = new Image();
+        i.setName("testReducingPermissionsErrWorldDrop");
+        i.setAcquisitionDate(new Timestamp(0L));
+        i = user.managedSf.getUpdateService().saveAndReturnObject(i);
+
+        // Cross-link as another user
+        String name = root.newUser(grp2Name);
+        ManagedContextFixture other = new ManagedContextFixture(ctx);
+        other.setCurrentUser(name);
+
+        Dataset d = new Dataset();
+        d.setName("testReducingPermissionsErrWorldDrop");
+        i = new Image(i.getId(), false);
+        d.linkImage(i);
+        d = other.managedSf.getUpdateService().saveAndReturnObject(d);
+
+        ChmodI chmod = newChmod("rwrw--");
+        _HandleTie handle = submit(chmod);
+        block(handle, 5, 1000);
+        assertFailure(handle, "check failed");
+    }
 }

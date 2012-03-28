@@ -86,12 +86,21 @@ public class ManagedContextFixture {
     }
 
     /**
+     * Calls {@link #ManagedContextFixture(OmeroContext, boolean, String)} with
+     * private permissions.
+     */
+    public ManagedContextFixture(OmeroContext ctx, boolean newUser) throws Exception {
+        this(ctx, false, "rw----");
+    }
+
+
+    /**
      * Create the fixture. Based on {@link #newUser} either creates a new
      * user or logins the root user.
      * @param ctx
      * @param newUser
      */
-    public ManagedContextFixture(OmeroContext ctx, boolean newUser)
+    public ManagedContextFixture(OmeroContext ctx, boolean newUser, String permissions)
         throws Exception {
         this.ctx = ctx;
         be = (BlitzExecutor) ctx.getBean("throttlingStrategy");
@@ -110,11 +119,11 @@ public class ManagedContextFixture {
         HardWiredInterceptor.configure(cptors, ctx);
 
 
+        setCurrentUserAndGroup("root", "system");
         if (newUser) {
-            loginNewUserNewGroup();
-        } else {
-            setCurrentUserAndGroup("root", "system");
+            loginNewUserNewGroup(permissions);
         }
+
         sf = createServiceFactoryI();
         init = new AopContextInitializer(
                 new ServiceFactory(ctx), login.p, new AtomicBoolean(true));
@@ -219,15 +228,21 @@ public class ManagedContextFixture {
     }
 
     /**
-     * Login a new user into a new group and return
-     * 
-     * @return
+     * Login a new user into a new private group and return
      */
     public String loginNewUserNewGroup() {
+        return loginNewUserNewGroup("rw----");
+    }
+
+    /**
+     * Long a new user into a new group with the given permissions and return
+     */
+    public String loginNewUserNewGroup(String perms) {
         IAdmin admin = managedSf.getAdminService();
         String groupName = uuid();
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(groupName);
+        g.getDetails().setPermissions(Permissions.parseString(perms));
         admin.createGroup(g);
         String name = newUser(groupName);
         setCurrentUser(name);

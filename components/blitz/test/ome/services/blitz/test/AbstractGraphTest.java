@@ -5,6 +5,7 @@
 
 package ome.services.blitz.test;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.jmock.Mock;
@@ -85,13 +86,21 @@ public class AbstractGraphTest extends AbstractServantTest {
         assertFalse(handle.getStatus().flags.contains(State.FAILURE));
     }
 
-    protected void assertFailure(_HandleTie handle) {
-        Response rsp = handle.getResponse();
+    protected void assertFailure(_HandleTie handle, String...allowedMessages) {
+        final List<String> msgs = Arrays.asList(allowedMessages);
+        final Response rsp = handle.getResponse();
         assertNotNull(rsp);
         if (rsp instanceof OK) {
             OK ok = (OK) rsp;
             fail(ok.toString());
+        } else {
+            ERR err = (ERR) rsp;
+            if (msgs.size() > 0) {
+                assertTrue(String.format("%s not in %s: %s", err.name,
+                        msgs, printErr(err)), msgs.contains(err.name));
+            }
         }
+
         assertTrue(handle.getStatus().flags.contains(State.FAILURE));
     }
 
@@ -107,6 +116,24 @@ public class AbstractGraphTest extends AbstractServantTest {
                 "select x.id from " +table+" x where x.id = :id",
                 new ParametersI().addId(id));
         assertEquals(0, ids.size());
+    }
+
+    private String printErr(ERR err) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(err.toString());
+        sb.append("\n");
+        sb.append("==========================================\n");
+        sb.append("category=");
+        sb.append(err.category);
+        sb.append("\n");
+        sb.append("name=");
+        sb.append(err.name);
+        sb.append("\n");
+        sb.append("params=");
+        sb.append(err.parameters);
+        sb.append("\n");
+        sb.append("==========================================\n");
+        return sb.toString();
     }
 
 }

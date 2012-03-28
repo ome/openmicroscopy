@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 
 import ome.api.IAdmin;
+import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ChmodStrategy;
@@ -77,8 +78,8 @@ public class ChmodI extends Chmod implements IRequest {
             checks = strategy.getChecks(target, permissions);
             // Here checks cannot be null.
         }
-        catch (Exception e) {
-            helper.cancel(new ERR(), e, "not allowed");
+        catch (SecurityViolation sv) {
+            helper.cancel(new ERR(), sv, "not permitted");
         }
 
         status.steps = 1 + checks.length;
@@ -95,8 +96,15 @@ public class ChmodI extends Chmod implements IRequest {
                 strategy.chmod(target, permissions);
             }
             else {
-                strategy.check(target, checks[i - 1]);
+                try {
+                    strategy.check(target, checks[i - 1]);
+                } catch (SecurityViolation sv) {
+                    helper.cancel(new ERR(), sv, "check failed");
+                }
             }
+        }
+        catch (Cancel c) {
+            throw c;
         }
         catch (Throwable t) {
             Map<String, String> rv = params();

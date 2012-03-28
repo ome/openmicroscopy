@@ -133,12 +133,25 @@ public interface ExtendedMetadata {
      * Takes the lock checks returned by {@link #getLockChecks(Class)} and
      * performs the actual check returning a map from class to total number
      * of locks. The key "*" contains the total value.
+     *
+     * If the id argument is null, then checks will be against all rows rather
+     * than individual objects, e.g.
+     * <pre>
+     * select count(x) from Linker x, Linked y where x.$FIELD.id = y.id $CLAUSE;
+     * </pre>
+     * otherwise
+     * <pre>
+     * select count(x) from Linker x where x.$FIELD.id = :id $CLAUSE'
+     * </pre>
+     *
+     * If the clause argument is null or empty it will be omitted.
+     *
      * @param id
      * @param lockChecks
      * @param clause
      * @return
      */
-    Map<String, Long> countLocks(Session session, long id, String[][] lockChecks, String clause);
+    Map<String, Long> countLocks(Session session, Long id, String[][] lockChecks, String clause);
 
     /**
      * Walks both the {@link #locksHolder} and the {@link #lockedByHolder} data
@@ -371,39 +384,54 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
         return checks;
     }
 
-    public Map<String, Long> countLocks(final Session session, final long id,
-            String[][] checks, final String clause) {
+    public Map<String, Long> countLocks(final Session session, final Long id,
+            String[][] checks, String clause) {
 
+        final QueryBuilder qb = new QueryBuilder();
+        qb.select("count(x.id)");
+        qb.from("%s", "x");
+
+        // Only one of the these two will happen, so the second replacement
+        // argument to String.format will have to be check[1].
+        if (id == null) {
+            qb.join("x.%s", "y", false, false);
+        }
+
+
+        if (id != null) {
+            qb.where();
+            qb.and("%s.id = :id");
+        }
+
+        if (clause != null && clause.length() > 0) {
+            qb.where();
+            qb.and(clause);
+            qb.appendSpace();
+        }
+
+
+        final String queryString = qb.queryString();
         final Map<String, Long> counts = new HashMap<String, Long>();
-        final long total[] = new long[] { 0L };
+        long total = 0L;
 
         // run the individual queries
         for (final String[] check : checks) {
-            final String hql = String.format(
-                    "select id from %s where %s%s = :id %s",
-                    check[0], check[1], ".id", clause);
+
+            final String hql = String.format(queryString, check[0], check[1]);
 
             org.hibernate.Query q = session.createQuery(hql);
-            q.setLong("id", id);
-
-            long count = 0L;
-            Iterator<Long> it = q.iterate();
-
-            // This is a slower implementation with the intent
-            // that the actual ids will be returned soon.
-            while (it.hasNext()) {
-                Long countedId = it.next();
-                count++;
-
+            if (id != null) {
+                q.setLong("id", id);
             }
 
-            if (count > 0) {
-                total[0] += count;
+            Long count = (Long) q.uniqueResult();
+
+            if (count != null && count.longValue() > 0) {
+                total += count;
                 counts.put(check[0], count);
             }
-            return null;
         }
-        counts.put("*", total[0]);
+        counts.put("*", total);
         return counts;
 
     }

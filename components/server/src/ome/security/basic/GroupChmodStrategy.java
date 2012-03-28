@@ -58,17 +58,87 @@ import ome.util.Utils;
 public class GroupChmodStrategy implements ChmodStrategy,
         ApplicationContextAware {
 
+    /**
+     * States whether or not the permissions passed in have a reduction of
+     * one of the read permissions. If so, then more checks will be needed
+     * during {@link GroupChmodStrategy#check(IObject, Object)}.
+     */
+    private static class PermDrop {
+
+        static final Role u = Role.USER;
+        static final Role g = Role.GROUP;
+        static final Role a = Role.WORLD;
+        static final Right r = Right.READ;
+
+        final Permissions oldPerms; // = trusted.getDetails().getPermissions();
+        final Permissions newPerms; // = Permissions.parseString(permissions);
+
+        final boolean reduceGroup;
+
+        // Dropping world permissions should not incur any issues since
+        // this simply means that external users will no longer be allowed
+        // to log into the group. There data can remain in the group
+        // and still be viewed by other group members.
+        // final boolean reduceWorld; // IGNORED.
+
+        PermDrop(ExperimenterGroup trusted, String permissions) {
+            oldPerms = trusted.getDetails().getPermissions();
+            newPerms = Permissions.parseString(permissions);
+
+            if (!newPerms.isGranted(u, r)) {
+                throw new GroupSecurityViolation("Cannot remove user read: "
+                        + trusted);
+            }
+
+            if (oldPerms.isGranted(g, r) && !newPerms.isGranted(g, r)) {
+                reduceGroup = true;
+            }
+            else {
+                reduceGroup = false;
+            }
+
+        }
+
+        boolean found() {
+            return reduceGroup;
+        }
+    }
+
+    /**
+     * Opaque object passed out to consumers of the
+     * {@link ChmodStrategy#getChecks(IObject, String)} method. When passed
+     * back in, these are responsible for checking what DB state may possible
+     * disallow a chmod to be performed.
+     */
     private static class Check {
+        final long groupID;
         final String perms;
-        final String className;
         final Class<?> k;
         final String[][] lockChecks;
+        final PermDrop drop;
 
-        Check(String perms, String className, Class<?> k, String[][] lockChecks) {
+        Check(long groupID, String perms, Class<?> k, String[][] lockChecks,
+                PermDrop drop) {
+            this.groupID = groupID;
             this.perms = perms;
-            this.className = className;
             this.k = k;
             this.lockChecks = lockChecks;
+            this.drop = drop;
+        }
+
+        public Map<String, Long> run(Session session, ExtendedMetadata em) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("x.details.group.id = ");
+            sb.append(groupID);
+            sb.append(" and ");
+            sb.append("y.details.group.id = ");
+            sb.append(groupID);
+
+            if (drop.reduceGroup) {
+                sb.append(" and x.details.owner.id <> y.details.owner.id");
+            }
+
+            return em.countLocks(session, null, lockChecks, sb.toString());
         }
     }
 
@@ -105,7 +175,8 @@ public class GroupChmodStrategy implements ChmodStrategy,
             throw new SecurityViolation("chmod not permitted");
         }
 
-        if (!isReducePermissions(trusted, permissions)) {
+        PermDrop drop = new PermDrop(trusted, permissions);
+        if (!drop.found()) {
             return new Object[0]; // none needed.
         }
 
@@ -113,8 +184,12 @@ public class GroupChmodStrategy implements ChmodStrategy,
         Collection<String> classeNames = em.getClasses();
         for (String className : classeNames) {
             Class k = em.getHibernateClass(className);
+            if (voter.sysTypes.isSystemType(k)) {
+                continue; // Skip experimenters, etc.
+            }
             String[][] lockChecks = em.getLockChecks(k);
-            checks.add(new Check(permissions, className, k, lockChecks));
+            checks.add(new Check(trusted.getId(), permissions, k, lockChecks,
+                    drop));
         }
 
         return checks.toArray(new Object[checks.size()]);
@@ -125,13 +200,18 @@ public class GroupChmodStrategy implements ChmodStrategy,
         handleGroupChange(obj, Permissions.parseString(permissions));
     }
 
+    /**
+     * Here we used the checks returned from {@link ExtendedMetadata} to iterate
+     * through every non-system table and check that it has no FKs which point
+     * to back to its rows and violate the read permissions which are being
+     * reduced.
+     */
     public void check(IObject obj, Object check) {
         if (!(check instanceof Check)) {
             throw new InternalException("Bad check:" + check);
         }
         Check c = ((Check) check);
-        Map<String, Long> counts = em.countLocks(osf.getSession(), obj.getId(),
-                c.lockChecks, null);
+        Map<String, Long> counts = c.run(osf.getSession(), em);
 
         long total = counts.get("*");
         if (total > 0) {
@@ -156,32 +236,6 @@ public class GroupChmodStrategy implements ChmodStrategy,
 
         final Session s = osf.getSession();
         return (ExperimenterGroup) s.get(ExperimenterGroup.class, obj.getId());
-    }
-
-    private boolean isReducePermissions(ExperimenterGroup trusted,
-            String permissions) {
-
-        final Permissions oldPerms = trusted.getDetails().getPermissions();
-        final Permissions newPerms = Permissions.parseString(permissions);
-
-        final Role u = Role.USER;
-        final Role g = Role.GROUP;
-        final Role a = Role.WORLD;
-        final Right r = Right.READ;
-
-        if (!newPerms.isGranted(u, r)) {
-            throw new GroupSecurityViolation("Cannot remove user read: "
-                    + trusted);
-        }
-        else if (oldPerms.isGranted(g, r) && !newPerms.isGranted(g, r)) {
-            return true;
-        }
-        else if (oldPerms.isGranted(a, r) && !newPerms.isGranted(a, r)) {
-            return true;
-        }
-        else {
-            return false;
-        }
     }
 
     private void handleGroupChange(IObject obj, Permissions newPerms) {
