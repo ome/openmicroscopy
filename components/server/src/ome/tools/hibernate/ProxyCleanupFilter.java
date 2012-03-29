@@ -98,9 +98,9 @@ public class ProxyCleanupFilter extends ContextFilter {
                 return unloaded;
             } else if (f instanceof Details) {
                 // Currently Details is only "known" non-IObject Filterable
+                // Unlikely that this is ever reached.
                 Details d = (Details) f;
                 d = (Details) super.filter(fieldId, d.shallowCopy());
-                acl.postProcess(d);
                 return d;
             } else {
                 // TODO Here there's not much we can do. copy constructor?
@@ -110,6 +110,10 @@ public class ProxyCleanupFilter extends ContextFilter {
 
             // Not a proxy; it will be serialized and sent over the wire.
         } else {
+
+            if (f instanceof IObject) {
+                acl.postProcess((IObject) f);
+            }
 
             // Also for security reasons, we're now checking ownership
             // of sessions.
@@ -139,9 +143,6 @@ public class ProxyCleanupFilter extends ContextFilter {
                 }
             }
 
-            if (f instanceof Details) {
-                acl.postProcess((Details) f);
-            }
             // Any clean up here.
             return super.filter(fieldId, f);
 

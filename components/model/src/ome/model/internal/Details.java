@@ -124,8 +124,8 @@ public abstract class Details implements Filterable, Serializable {
         return contexts[i];
     }
 
-    public void applyContext(Details target) {
-        target.contexts = this.contexts;
+    public void setContexts(Object[] contexts) {
+        this.contexts = contexts;
     }
 
     public Details shallowCopy() {
@@ -150,6 +150,7 @@ public abstract class Details implements Filterable, Serializable {
         if (copy == null) {
             throw new IllegalArgumentException("argument may not be null");
         }
+        setContexts(copy.contexts);
         setContext(copy.getContext());
         possiblySetPermissions(copy);
         setCreationEvent(copy.getCreationEvent());
@@ -162,8 +163,11 @@ public abstract class Details implements Filterable, Serializable {
 
     private void possiblySetPermissions(Details copy) {
         Permissions p = null;
-        if (copy.getPermissions() != null) {
-            p = new Permissions().revokeAll(copy.getPermissions());
+        Permissions copy_p = copy.getPermissions();
+        if (copy_p != null) {
+            p = new Permissions().revokeAll(copy_p);
+            p.setDisallowAnnotate(copy_p.isDisallowAnnotate());
+            p.setDisallowEdit(copy_p.isDisallowEdit());
         }
         setPermissions(p);
     }

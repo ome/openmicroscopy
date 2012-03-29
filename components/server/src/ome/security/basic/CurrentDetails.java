@@ -353,52 +353,32 @@ public class CurrentDetails implements PrincipalHolder {
      * @see <a href="https://trac.openmicroscopy.org.uk/trac/omero/ticket:1434">ticket:1434</a>
      */
     public Details createDetails() {
-        BasicEventContext c = current();
-        Details d = Details.create(new Object[]{c, c.getCallContext()});
+        final BasicEventContext c = current();
+        final Details d = Details.create(new Object[]{c, c.getCallContext()});
         d.setCreationEvent(c.getEvent());
         d.setUpdateEvent(c.getEvent());
         d.setOwner(c.getOwner());
         d.setGroup(c.getGroup());
         // ticket:1434
-        Permissions groupPerms = c.getCurrentGroupPermissions();
-        Permissions userUmask = c.getCurrentUmask();
-        Permissions p = new Permissions(groupPerms);
+        final Permissions groupPerms = c.getCurrentGroupPermissions();
+        final Permissions userUmask = c.getCurrentUmask();
+        final Permissions p = new Permissions(groupPerms);
         p.revokeAll(userUmask);
         d.setPermissions(p);
         return d;
     }
 
-    public void applyContext(Details details) {
+    public void applyContext(Details details, boolean changePerms) {
         final BasicEventContext c = current();
-        final Permissions groupPerms = c.getCurrentGroupPermissions();
-        final Permissions p;
-        if (details.getPermissions() == null) {
-            p = new Permissions(groupPerms);
-        }   else {
-            p = details.getPermissions();
+        details.setContexts(new Object[]{c, c.getCallContext()});
+        if (changePerms) {
+            // Make the permissions match (#8277)
+            final Permissions groupPerms = c.getCurrentGroupPermissions();
+            Permissions copy = new Permissions(groupPerms);
+            details.setPermissions(copy);
         }
 
-        // ticket:8277
-        if (c.getGroup() == null && c.getOwner() == null) {
-            return; // sec-system not initialized
-        }
-        final Long ownerID = details.getOwner().getId();
-        final Long groupID = c.getGroup().getId(); // Also USER group!
-        final boolean owner = c.getCurrentUserId().equals(ownerID);
-        final boolean leader = c.getLeaderOfGroupsList().contains(groupID);
-        final boolean admin = c.isCurrentUserAdmin();
-        final boolean groupWrite = p.isGranted(Role.GROUP, Right.WRITE);
-        final boolean worldWrite = p.isGranted(Role.WORLD, Right.WRITE);
-        if (!worldWrite) {
-            if (!owner && !leader && !admin) {
-                if (!groupWrite) {
-                    p.setDisallowAnnotate(true);
-                    p.setDisallowEdit(true);
-                }
-            }
-        }
     }
-
 
     public Experimenter getOwner() {
         return current().getOwner();

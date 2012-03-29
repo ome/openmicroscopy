@@ -21,35 +21,75 @@ class BaseChmodTest(lib.ITest):
 
     def init(self, from_perms, to_perms):
         self.group = self.new_group(perms=from_perms)
-        self.client, self.user = \
-                self.new_client_and_user(group=self.group, admin=True)
+        self.owner = self.new_client(group=self.group, admin=True)
+        self.member = self.new_client(group=self.group, admin=False)
         self.from_perms = from_perms
         self.to_perms = to_perms
 
+    def refresh(self, client):
+        client.sf.getAdminService().getEventContext()  # Refresh
+
+    def assertEqPerms(self, a, b):
+        self.assertTrue(a.__class__ in
+                (omero.model.PermissionsI, str))
+        self.assertTrue(b.__class__ in
+                (omero.model.PermissionsI, str))
+        a = str(a)
+        b = str(b)
+        self.assertEquals(a, b)
+
     def addData(self):
         c = omero.model.CommentAnnotationI()
-        up = self.client.sf.getUpdateService()
+        up = self.owner.sf.getUpdateService()
         self.comment = up.saveAndReturnObject(c)
 
-    def chmod(self):
+    def load(self, client):
+        query = client.sf.getQueryService()
+        return query.get("CommentAnnotation", self.comment.id.val)
+
+    def chmod(self, client):
         self.start = time.time()
         try:
-            admin = self.client.sf.getAdminService()
+            admin = client.sf.getAdminService()
             perms = omero.model.PermissionsI(self.to_perms)
+            old_ctx = admin.getEventContext()
+            old_grp = admin.getGroup(self.group.id.val)
             admin.changePermissions(self.group, perms)
+            new_ctx = admin.getEventContext()  # Refresh
+            new_grp = admin.getGroup(self.group.id.val)
         finally:
             self.stop = time.time()
             self.elapsed = (self.stop - self.start)
 
+        # Check old
+        old_perms = old_grp.details.permissions
+        self.assertEqPerms(old_ctx.groupPermissions, self.from_perms)
+        self.assertEqPerms(old_ctx.groupPermissions, old_perms)
+
+        # Check new
+        new_perms = new_grp.details.permissions
+        self.assertEqPerms(new_ctx.groupPermissions, self.to_perms)
+        self.assertEqPerms(new_ctx.groupPermissions, new_perms)
+
     def assertChmod(self):
-        query = self.client.sf.getQueryService()
         old_comment = self.comment
-        new_comment = query.get("CommentAnnotation", old_comment.id.val)
+        new_comment = self.load(self.owner)
         old_obj_perms = old_comment.details.permissions
         new_obj_perms = new_comment.details.permissions
 
-        self.assertEquals(self.from_perms, str(old_obj_perms))
-        self.assertEquals(self.to_perms, str(new_obj_perms))
+        self.assertEqPerms(self.from_perms, old_obj_perms)
+        self.assertEqPerms(self.to_perms, new_obj_perms)
+
+    def assertState(self, client, canAnnotate, canEdit):
+        obj = self.load(client)
+        details = obj.details
+        perms = details.permissions
+
+        # Check the new perms state
+        self.assertEquals(canAnnotate, perms.canAnnotate())
+        self.assertEquals(canEdit, perms.canEdit())
+        self.assertTrue(details.getCallContext() is not None)
+        self.assertTrue(details.getEventContext() is not None)
 
 
 class TestChmodEasy(BaseChmodTest):
@@ -66,14 +106,12 @@ class TestChmodEasy(BaseChmodTest):
     def test_chmod_rw_rwr(self):
         self.init("rw----", "rwr---")
         self.addData()
-        self.chmod()
+        self.chmod(self.owner)
         self.assertChmod()
+        self.assertState(self.owner, True, True)
 
-    def test_chmod_rw_rwre(self):
-        self.init("rw----", "rwr---")
-        self.addData()
-        self.chmod()
-        self.assertChmod()
+        self.refresh(self.member)
+        self.assertState(self.member, False, False)
 
 
 class TestChmodHard(BaseChmodTest):

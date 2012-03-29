@@ -13,19 +13,22 @@ import java.util.UUID;
 import org.jmock.MockObjectTestCase;
 import org.testng.annotations.Test;
 
+import ome.model.core.Image;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
+import ome.security.SystemTypes;
+import ome.security.basic.BasicACLVoter;
 import ome.security.basic.BasicEventContext;
 import ome.security.basic.CurrentDetails;
+import ome.security.basic.TokenHolder;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.NullSessionStats;
 import ome.system.Principal;
-import ome.system.SimpleEventContext;
 
 /**
  * Intended to test the "write-ability" granted to users based on the current
@@ -50,6 +53,9 @@ public class WritePermissionsTest extends MockObjectTestCase {
 
     final CurrentDetails cd = new CurrentDetails(cache);
 
+    final BasicACLVoter voter = new BasicACLVoter(cd, new SystemTypes(),
+            new TokenHolder(), null);
+
     protected Session login(String perms, long user, boolean leader) {
 
         Session s = sess(perms, user, THE_GROUP);
@@ -63,22 +69,49 @@ public class WritePermissionsTest extends MockObjectTestCase {
         return s;
     }
 
+    protected Details objectBelongingTo(Session session, long user) {
+        return objectBelongingTo(session, user,
+                session.getDetails().getPermissions());
+    }
+
+    protected Details objectBelongingTo(Session session, long user, String s) {
+        return objectBelongingTo(session, user, Permissions.parseString(s));
+    }
+
     /**
      * Creates an object which is in the group given by the {@link Session}
-     * object, but which belongs to the given {@link Experimenter}.
+     * object, but which belongs to the given {@link Experimenter} and has
+     * the given {@link Permissions}
      *
      * @param session
      *            Session which the object was created during.
      * @param user
      *            User who owns this object.
+     * @param p
+     *            Permissions to set on the object details.
      */
-    protected Details objectBelongingTo(Session session, long user) {
-        Details d = Details.create();
+    protected Details objectBelongingTo(Session session, long user, Permissions p) {
+        Image i = new Image();
+        Details d = i.getDetails();
         d.setOwner(new Experimenter(user, true));
         d.setGroup(session.getDetails().getGroup());
-        d.setPermissions(session.getDetails().getPermissions());
-        cd.applyContext(d);
+        d.setPermissions(p);
+        voter.postProcess(i);
         return d;
+    }
+
+    // object setting differs from group
+    // =========================================================================
+    // Since in 4.4, it's possible for permissions settings of an object to
+    // differ from those of the group, we need to make sure that post-processing
+    // properly maps to the group permissions.
+
+    public void testDifferentPerms() {
+        Session s = login("rwr---", THE_OWNER, false);
+        Details d = objectBelongingTo(s, THE_OWNER, "r-r-r-");
+        assertCanAnnotate(d);
+        assertCanEdit(d);
+        assertEquals("rwr---", d.getPermissions().toString());
     }
 
     // rwr, non-system owner
