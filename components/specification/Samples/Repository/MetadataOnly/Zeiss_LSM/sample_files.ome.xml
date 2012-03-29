@@ -220,8 +220,8 @@
                 <LightPath/>
             </Channel>
             <MetadataOnly/>
-            <Plane DeltaT="0.0" ExposureTime="0.0" TheC="0" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" ExposureTime="0.0" TheC="1" TheT="0" TheZ="0"/>
+            <Plane TheC="0" TheT="0" TheZ="0"/>
+            <Plane TheC="1" TheT="0" TheZ="0"/>
         </Pixels>
     </Image>
     <Image ID="Image:1" Name="XY-ch-03">
@@ -253,10 +253,10 @@
                 <LightPath/>
             </Channel>
             <MetadataOnly/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="0"/>
+            <Plane TheC="0" TheT="0" TheZ="0"/>
+            <Plane TheC="1" TheT="0" TheZ="0"/>
+            <Plane TheC="2" TheT="0" TheZ="0"/>
+            <Plane TheC="3" TheT="0" TheZ="0"/>
         </Pixels>
     </Image>
     <Image ID="Image:2" Name="XY-ch">
@@ -288,10 +288,10 @@
                 </LightPath>
             </Channel>
             <MetadataOnly/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="0"/>
+            <Plane TheC="0" TheT="0" TheZ="0"/>
+            <Plane TheC="1" TheT="0" TheZ="0"/>
+            <Plane TheC="2" TheT="0" TheZ="0"/>
+            <Plane TheC="3" TheT="0" TheZ="0"/>
         </Pixels>
     </Image>
     <Image ID="Image:3" Name="XYT">
@@ -308,214 +308,214 @@
             </Channel>
             <MetadataOnly/>
             <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
-            <Plane TheC="0" TheT="1" TheZ="0"/>
-            <Plane DeltaT="-4213.009547636363" TheC="0" TheT="2" TheZ="0"/>
-            <Plane DeltaT="-4761.9743505454535" ExposureTime="10.00012509090908" TheC="0" TheT="3" TheZ="0"/>
-            <Plane DeltaT="-4751.9742254545445" ExposureTime="10.00132654545456" TheC="0" TheT="4" TheZ="0"/>
-            <Plane DeltaT="-4741.97289890909" ExposureTime="10.001326545454504" TheC="0" TheT="5" TheZ="0"/>
-            <Plane DeltaT="-4731.9715723636355" ExposureTime="10.000125090909137" TheC="0" TheT="6" TheZ="0"/>
-            <Plane DeltaT="-4721.971447272726" ExposureTime="10.001326545454504" TheC="0" TheT="7" TheZ="0"/>
-            <Plane DeltaT="-4711.970120727272" ExposureTime="10.000125090909137" TheC="0" TheT="8" TheZ="0"/>
-            <Plane DeltaT="-4701.969995636363" ExposureTime="10.001326545454504" TheC="0" TheT="9" TheZ="0"/>
-            <Plane DeltaT="-4691.968669090908" ExposureTime="10.000125090909137" TheC="0" TheT="10" TheZ="0"/>
-            <Plane DeltaT="-4681.968543999999" ExposureTime="10.001326545454504" TheC="0" TheT="11" TheZ="0"/>
-            <Plane DeltaT="-4671.967217454545" ExposureTime="10.000125090909137" TheC="0" TheT="12" TheZ="0"/>
-            <Plane DeltaT="-4661.967092363636" ExposureTime="10.001325575757562" TheC="0" TheT="13" TheZ="0"/>
-            <Plane DeltaT="-4651.965766787878" ExposureTime="10.00132654545456" TheC="0" TheT="14" TheZ="0"/>
-            <Plane DeltaT="-4641.964440242424" ExposureTime="10.00012509090908" TheC="0" TheT="15" TheZ="0"/>
-            <Plane DeltaT="-4631.964315151515" ExposureTime="10.00132654545456" TheC="0" TheT="16" TheZ="0"/>
-            <Plane DeltaT="-4621.96298860606" ExposureTime="10.001326545454504" TheC="0" TheT="17" TheZ="0"/>
-            <Plane DeltaT="-4611.961662060606" ExposureTime="10.00012509090908" TheC="0" TheT="18" TheZ="0"/>
-            <Plane DeltaT="-4601.961536969697" ExposureTime="10.00132654545456" TheC="0" TheT="19" TheZ="0"/>
-            <Plane DeltaT="-4591.960210424242" ExposureTime="10.00132654545456" TheC="0" TheT="20" TheZ="0"/>
-            <Plane DeltaT="-4581.958883878788" ExposureTime="10.00012509090908" TheC="0" TheT="21" TheZ="0"/>
-            <Plane DeltaT="-4571.958758787878" ExposureTime="10.00132654545456" TheC="0" TheT="22" TheZ="0"/>
-            <Plane DeltaT="-4561.957432242423" ExposureTime="10.00132654545456" TheC="0" TheT="23" TheZ="0"/>
-            <Plane DeltaT="-4551.956105696969" ExposureTime="10.00012509090908" TheC="0" TheT="24" TheZ="0"/>
-            <Plane DeltaT="-4541.95598060606" ExposureTime="10.00132654545456" TheC="0" TheT="25" TheZ="0"/>
-            <Plane DeltaT="-4531.954654060605" ExposureTime="10.00012509090908" TheC="0" TheT="26" TheZ="0"/>
-            <Plane DeltaT="-4521.954528969696" ExposureTime="10.00132654545456" TheC="0" TheT="27" TheZ="0"/>
-            <Plane DeltaT="-4511.953202424242" ExposureTime="10.001326545454504" TheC="0" TheT="28" TheZ="0"/>
-            <Plane DeltaT="-4501.951875878787" ExposureTime="10.000125090909137" TheC="0" TheT="29" TheZ="0"/>
-            <Plane DeltaT="-4491.951750787878" ExposureTime="10.001326545454504" TheC="0" TheT="30" TheZ="0"/>
-            <Plane DeltaT="-4481.950424242424" ExposureTime="10.000125090909023" TheC="0" TheT="31" TheZ="0"/>
-            <Plane DeltaT="-4471.950299151515" ExposureTime="10.001326545454617" TheC="0" TheT="32" TheZ="0"/>
-            <Plane DeltaT="-4461.94897260606" ExposureTime="10.001325575757505" TheC="0" TheT="33" TheZ="0"/>
-            <Plane DeltaT="-4451.9476470303025" ExposureTime="10.000126060606135" TheC="0" TheT="34" TheZ="0"/>
-            <Plane DeltaT="-4441.947520969697" ExposureTime="10.001325575757505" TheC="0" TheT="35" TheZ="0"/>
-            <Plane DeltaT="-4431.946195393939" ExposureTime="10.001326545454617" TheC="0" TheT="36" TheZ="0"/>
-            <Plane DeltaT="-4421.9448688484845" ExposureTime="10.001326545454504" TheC="0" TheT="37" TheZ="0"/>
-            <Plane DeltaT="-4411.94354230303" ExposureTime="10.000125090909137" TheC="0" TheT="38" TheZ="0"/>
-            <Plane DeltaT="-4401.943417212121" ExposureTime="10.001326545454504" TheC="0" TheT="39" TheZ="0"/>
-            <Plane DeltaT="-4391.942090666666" ExposureTime="10.000125090909137" TheC="0" TheT="40" TheZ="0"/>
-            <Plane DeltaT="-4381.941965575757" ExposureTime="10.001326545454504" TheC="0" TheT="41" TheZ="0"/>
-            <Plane DeltaT="-4371.940639030303" ExposureTime="10.000125090909137" TheC="0" TheT="42" TheZ="0"/>
-            <Plane DeltaT="-4361.940513939393" ExposureTime="10.001326545454504" TheC="0" TheT="43" TheZ="0"/>
-            <Plane DeltaT="-4351.9391873939385" ExposureTime="10.001326545454617" TheC="0" TheT="44" TheZ="0"/>
-            <Plane DeltaT="-4341.937860848484" ExposureTime="10.000125090909023" TheC="0" TheT="45" TheZ="0"/>
-            <Plane DeltaT="-4331.937735757575" ExposureTime="10.001326545454504" TheC="0" TheT="46" TheZ="0"/>
-            <Plane DeltaT="-4321.93640921212" ExposureTime="10.001326545454617" TheC="0" TheT="47" TheZ="0"/>
-            <Plane DeltaT="-4311.935082666666" ExposureTime="10.000125090909023" TheC="0" TheT="48" TheZ="0"/>
-            <Plane DeltaT="-4301.934957575757" ExposureTime="10.001326545454617" TheC="0" TheT="49" TheZ="0"/>
-            <Plane DeltaT="-4291.933631030302" ExposureTime="10.001326545454504" TheC="0" TheT="50" TheZ="0"/>
-            <Plane DeltaT="-4281.932304484848" ExposureTime="10.001326545454617" TheC="0" TheT="51" TheZ="0"/>
-            <Plane DeltaT="-4271.930977939393" ExposureTime="10.000125090909023" TheC="0" TheT="52" TheZ="0"/>
-            <Plane DeltaT="-4261.930852848484" ExposureTime="10.001325575757619" TheC="0" TheT="53" TheZ="0"/>
-            <Plane DeltaT="-4251.929527272727" ExposureTime="10.000125090909023" TheC="0" TheT="54" TheZ="0"/>
-            <Plane DeltaT="-4241.929402181818" ExposureTime="10.001326545454617" TheC="0" TheT="55" TheZ="0"/>
-            <Plane DeltaT="-4231.928075636363" ExposureTime="10.000125090909023" TheC="0" TheT="56" TheZ="0"/>
-            <Plane DeltaT="-4221.927950545454" ExposureTime="10.001326545454617" TheC="0" TheT="57" TheZ="0"/>
-            <Plane DeltaT="-4211.926624" ExposureTime="10.001326545454504" TheC="0" TheT="58" TheZ="0"/>
-            <Plane DeltaT="-4201.925297454545" ExposureTime="10.000125090909137" TheC="0" TheT="59" TheZ="0"/>
-            <Plane DeltaT="-4191.925172363635" ExposureTime="10.001326545454504" TheC="0" TheT="60" TheZ="0"/>
-            <Plane DeltaT="-4181.923845818181" ExposureTime="10.001326545454504" TheC="0" TheT="61" TheZ="0"/>
-            <Plane DeltaT="-4171.922519272726" ExposureTime="10.001326545454617" TheC="0" TheT="62" TheZ="0"/>
-            <Plane DeltaT="-4161.921192727272" ExposureTime="10.000125090909023" TheC="0" TheT="63" TheZ="0"/>
-            <Plane DeltaT="-4151.921067636363" ExposureTime="10.001326545454617" TheC="0" TheT="64" TheZ="0"/>
-            <Plane DeltaT="-4141.919741090908" ExposureTime="10.000125090909023" TheC="0" TheT="65" TheZ="0"/>
-            <Plane DeltaT="-4131.919615999999" ExposureTime="10.001326545454617" TheC="0" TheT="66" TheZ="0"/>
-            <Plane DeltaT="-4121.918289454545" ExposureTime="10.001326545454504" TheC="0" TheT="67" TheZ="0"/>
-            <Plane DeltaT="-4111.91696290909" ExposureTime="10.000125090909137" TheC="0" TheT="68" TheZ="0"/>
-            <Plane DeltaT="-4101.916837818181" ExposureTime="10.001326545454504" TheC="0" TheT="69" TheZ="0"/>
-            <Plane DeltaT="-4091.9155112727267" ExposureTime="10.001326545454617" TheC="0" TheT="70" TheZ="0"/>
-            <Plane DeltaT="-4081.914184727272" ExposureTime="10.000125090909023" TheC="0" TheT="71" TheZ="0"/>
-            <Plane DeltaT="-4071.914059636363" ExposureTime="10.001326545454617" TheC="0" TheT="72" TheZ="0"/>
-            <Plane DeltaT="-4061.9127330909087" ExposureTime="10.001326545454504" TheC="0" TheT="73" TheZ="0"/>
-            <Plane DeltaT="-4051.911406545454" ExposureTime="10.001325575757619" TheC="0" TheT="74" TheZ="0"/>
-            <Plane DeltaT="-4041.9100809696965" ExposureTime="10.000125090909023" TheC="0" TheT="75" TheZ="0"/>
-            <Plane DeltaT="-4031.9099558787875" ExposureTime="10.001326545454504" TheC="0" TheT="76" TheZ="0"/>
-            <Plane DeltaT="-4021.908629333333" ExposureTime="10.000125090909137" TheC="0" TheT="77" TheZ="0"/>
-            <Plane DeltaT="-4011.9085042424235" ExposureTime="10.001326545454504" TheC="0" TheT="78" TheZ="0"/>
-            <Plane DeltaT="-4001.907177696969" ExposureTime="10.000125090909137" TheC="0" TheT="79" TheZ="0"/>
-            <Plane DeltaT="-3991.90705260606" ExposureTime="10.001326545454504" TheC="0" TheT="80" TheZ="0"/>
-            <Plane DeltaT="-3981.9057260606055" ExposureTime="10.001326545454504" TheC="0" TheT="81" TheZ="0"/>
-            <Plane DeltaT="-3971.904399515151" ExposureTime="10.001326545454504" TheC="0" TheT="82" TheZ="0"/>
-            <Plane DeltaT="-3961.9030729696965" ExposureTime="10.00012509090925" TheC="0" TheT="83" TheZ="0"/>
-            <Plane DeltaT="-3951.902947878787" ExposureTime="10.001326545454504" TheC="0" TheT="84" TheZ="0"/>
-            <Plane DeltaT="-3941.9016213333325" ExposureTime="10.001326545454504" TheC="0" TheT="85" TheZ="0"/>
-            <Plane DeltaT="-3931.900294787878" ExposureTime="10.000125090909023" TheC="0" TheT="86" TheZ="0"/>
-            <Plane DeltaT="-3921.900169696969" ExposureTime="10.00132654545473" TheC="0" TheT="87" TheZ="0"/>
-            <Plane DeltaT="-3911.8988431515145" ExposureTime="10.000125090909023" TheC="0" TheT="88" TheZ="0"/>
-            <Plane DeltaT="-3901.8987180606055" ExposureTime="10.001326545454504" TheC="0" TheT="89" TheZ="0"/>
-            <Plane DeltaT="-3891.897391515151" ExposureTime="10.001326545454504" TheC="0" TheT="90" TheZ="0"/>
-            <Plane DeltaT="-3881.8960649696965" ExposureTime="10.000125090909023" TheC="0" TheT="91" TheZ="0"/>
-            <Plane DeltaT="-3871.8959398787874" ExposureTime="10.00132654545473" TheC="0" TheT="92" TheZ="0"/>
-            <Plane DeltaT="-3861.894613333333" ExposureTime="10.001325575757392" TheC="0" TheT="93" TheZ="0"/>
-            <Plane DeltaT="-3851.8932877575753" ExposureTime="10.00132654545473" TheC="0" TheT="94" TheZ="0"/>
-            <Plane DeltaT="-3841.891961212121" ExposureTime="10.000125090909023" TheC="0" TheT="95" TheZ="0"/>
-            <Plane DeltaT="-3831.891836121212" ExposureTime="10.001326545454504" TheC="0" TheT="96" TheZ="0"/>
-            <Plane DeltaT="-3821.8905095757573" ExposureTime="10.001326545454504" TheC="0" TheT="97" TheZ="0"/>
-            <Plane DeltaT="-3811.889183030303" ExposureTime="10.00012509090925" TheC="0" TheT="98" TheZ="0"/>
-            <Plane DeltaT="-3801.8890579393933" ExposureTime="10.001326545454504" TheC="0" TheT="99" TheZ="0"/>
-            <Plane DeltaT="-3791.887731393939" ExposureTime="10.000125090909023" TheC="0" TheT="100" TheZ="0"/>
-            <Plane DeltaT="-3781.8876063030298" ExposureTime="10.001326545454504" TheC="0" TheT="101" TheZ="0"/>
-            <Plane DeltaT="-3771.8862797575753" ExposureTime="10.00132654545473" TheC="0" TheT="102" TheZ="0"/>
-            <Plane DeltaT="-3761.8849532121203" ExposureTime="10.001326545454504" TheC="0" TheT="103" TheZ="0"/>
-            <Plane DeltaT="-3751.883626666666" ExposureTime="10.000125090909023" TheC="0" TheT="104" TheZ="0"/>
-            <Plane DeltaT="-3741.883501575757" ExposureTime="10.001326545454504" TheC="0" TheT="105" TheZ="0"/>
-            <Plane DeltaT="-3731.8821750303023" ExposureTime="10.001326545454504" TheC="0" TheT="106" TheZ="0"/>
-            <Plane DeltaT="-3721.880848484848" ExposureTime="10.00012509090925" TheC="0" TheT="107" TheZ="0"/>
-            <Plane DeltaT="-3711.8807233939388" ExposureTime="10.001326545454504" TheC="0" TheT="108" TheZ="0"/>
-            <Plane DeltaT="-3701.8793968484842" ExposureTime="10.000125090909023" TheC="0" TheT="109" TheZ="0"/>
-            <Plane DeltaT="-3691.879271757575" ExposureTime="10.001326545454504" TheC="0" TheT="110" TheZ="0"/>
-            <Plane DeltaT="-3681.8779452121207" ExposureTime="10.00132654545473" TheC="0" TheT="111" TheZ="0"/>
-            <Plane DeltaT="-3671.876618666666" ExposureTime="10.001325575757392" TheC="0" TheT="112" TheZ="0"/>
-            <Plane DeltaT="-3661.8752930909086" ExposureTime="10.00012509090925" TheC="0" TheT="113" TheZ="0"/>
-            <Plane DeltaT="-3651.8751679999996" ExposureTime="10.001326545454504" TheC="0" TheT="114" TheZ="0"/>
-            <Plane DeltaT="-3641.873841454545" ExposureTime="10.001326545454504" TheC="0" TheT="115" TheZ="0"/>
-            <Plane DeltaT="-3631.8725149090906" ExposureTime="10.000125090909023" TheC="0" TheT="116" TheZ="0"/>
-            <Plane DeltaT="-3621.8723898181815" ExposureTime="10.00132654545473" TheC="0" TheT="117" TheZ="0"/>
-            <Plane DeltaT="-3611.8710632727266" ExposureTime="10.000125090909023" TheC="0" TheT="118" TheZ="0"/>
-            <Plane DeltaT="-3601.8709381818176" ExposureTime="10.001326545454504" TheC="0" TheT="119" TheZ="0"/>
-            <Plane DeltaT="-3591.869611636363" ExposureTime="10.001326545454504" TheC="0" TheT="120" TheZ="0"/>
-            <Plane DeltaT="-3581.8682850909086" ExposureTime="10.001326545454504" TheC="0" TheT="121" TheZ="0"/>
-            <Plane DeltaT="-3571.866958545454" ExposureTime="10.00012509090925" TheC="0" TheT="122" TheZ="0"/>
-            <Plane DeltaT="-3561.8668334545446" ExposureTime="10.001326545454504" TheC="0" TheT="123" TheZ="0"/>
-            <Plane DeltaT="-3551.86550690909" ExposureTime="10.001326545454504" TheC="0" TheT="124" TheZ="0"/>
-            <Plane DeltaT="-3541.8641803636356" ExposureTime="10.000125090909023" TheC="0" TheT="125" TheZ="0"/>
-            <Plane DeltaT="-3531.8640552727265" ExposureTime="10.00132654545473" TheC="0" TheT="126" TheZ="0"/>
-            <Plane DeltaT="-3521.862728727272" ExposureTime="10.001326545454504" TheC="0" TheT="127" TheZ="0"/>
-            <Plane DeltaT="-3511.8614021818175" ExposureTime="10.000125090909023" TheC="0" TheT="128" TheZ="0"/>
-            <Plane DeltaT="-3501.8612770909085" ExposureTime="10.001326545454504" TheC="0" TheT="129" TheZ="0"/>
-            <Plane DeltaT="-3491.859950545454" ExposureTime="10.001326545454504" TheC="0" TheT="130" TheZ="0"/>
-            <Plane DeltaT="-3481.8586239999995" ExposureTime="10.00012509090925" TheC="0" TheT="131" TheZ="0"/>
-            <Plane DeltaT="-3471.8584989090905" ExposureTime="10.001325575757619" TheC="0" TheT="132" TheZ="0"/>
-            <Plane DeltaT="-3461.857173333333" ExposureTime="10.001326545454504" TheC="0" TheT="133" TheZ="0"/>
-            <Plane DeltaT="-3451.8558467878784" ExposureTime="10.000125090909023" TheC="0" TheT="134" TheZ="0"/>
-            <Plane DeltaT="-3441.8557216969693" ExposureTime="10.001326545454504" TheC="0" TheT="135" TheZ="0"/>
-            <Plane DeltaT="-3431.854395151515" ExposureTime="10.001326545454504" TheC="0" TheT="136" TheZ="0"/>
-            <Plane DeltaT="-3421.8530686060603" ExposureTime="10.00012509090925" TheC="0" TheT="137" TheZ="0"/>
-            <Plane DeltaT="-3411.852943515151" ExposureTime="10.001326545454504" TheC="0" TheT="138" TheZ="0"/>
-            <Plane DeltaT="-3401.8516169696964" ExposureTime="10.001326545454504" TheC="0" TheT="139" TheZ="0"/>
-            <Plane DeltaT="-3391.850290424242" ExposureTime="10.001326545454504" TheC="0" TheT="140" TheZ="0"/>
-            <Plane DeltaT="-3381.8489638787873" ExposureTime="10.00012509090925" TheC="0" TheT="141" TheZ="0"/>
-            <Plane DeltaT="-3371.848838787878" ExposureTime="10.001326545454504" TheC="0" TheT="142" TheZ="0"/>
-            <Plane DeltaT="-3361.8475122424234" ExposureTime="10.001326545454504" TheC="0" TheT="143" TheZ="0"/>
-            <Plane DeltaT="-3351.846185696969" ExposureTime="10.000125090909023" TheC="0" TheT="144" TheZ="0"/>
-            <Plane DeltaT="-3341.84606060606" ExposureTime="10.001326545454504" TheC="0" TheT="145" TheZ="0"/>
-            <Plane DeltaT="-3331.8447340606053" ExposureTime="10.00012509090925" TheC="0" TheT="146" TheZ="0"/>
-            <Plane DeltaT="-3321.8446089696963" ExposureTime="10.001326545454504" TheC="0" TheT="147" TheZ="0"/>
-            <Plane DeltaT="-3311.843282424242" ExposureTime="10.001326545454504" TheC="0" TheT="148" TheZ="0"/>
-            <Plane DeltaT="-3301.8419558787873" ExposureTime="10.001325575757619" TheC="0" TheT="149" TheZ="0"/>
-            <Plane DeltaT="-3291.8406303030297" ExposureTime="10.001326545454504" TheC="0" TheT="150" TheZ="0"/>
-            <Plane DeltaT="-3281.839303757575" ExposureTime="10.000125090909023" TheC="0" TheT="151" TheZ="0"/>
-            <Plane DeltaT="-3271.839178666666" ExposureTime="10.00132654545473" TheC="0" TheT="152" TheZ="0"/>
-            <Plane DeltaT="-3261.8378521212117" ExposureTime="10.000125090909023" TheC="0" TheT="153" TheZ="0"/>
-            <Plane DeltaT="-3251.8377270303026" ExposureTime="10.001326545454504" TheC="0" TheT="154" TheZ="0"/>
-            <Plane DeltaT="-3241.836400484848" ExposureTime="10.001326545454504" TheC="0" TheT="155" TheZ="0"/>
-            <Plane DeltaT="-3231.8350739393936" ExposureTime="10.00012509090925" TheC="0" TheT="156" TheZ="0"/>
-            <Plane DeltaT="-3221.834948848484" ExposureTime="10.001326545454504" TheC="0" TheT="157" TheZ="0"/>
-            <Plane DeltaT="-3211.8336223030296" ExposureTime="10.001326545454504" TheC="0" TheT="158" TheZ="0"/>
-            <Plane DeltaT="-3201.832295757575" ExposureTime="10.001326545454504" TheC="0" TheT="159" TheZ="0"/>
-            <Plane DeltaT="-3191.8309692121206" ExposureTime="10.000125090909023" TheC="0" TheT="160" TheZ="0"/>
-            <Plane DeltaT="-3181.8308441212116" ExposureTime="10.00132654545473" TheC="0" TheT="161" TheZ="0"/>
-            <Plane DeltaT="-3171.8295175757567" ExposureTime="10.000125090909023" TheC="0" TheT="162" TheZ="0"/>
-            <Plane DeltaT="-3161.8293924848476" ExposureTime="10.001326545454504" TheC="0" TheT="163" TheZ="0"/>
-            <Plane DeltaT="-3151.828065939393" ExposureTime="10.001326545454504" TheC="0" TheT="164" TheZ="0"/>
-            <Plane DeltaT="-3141.8267393939386" ExposureTime="10.001326545454504" TheC="0" TheT="165" TheZ="0"/>
-            <Plane DeltaT="-3131.825412848484" ExposureTime="10.00012509090925" TheC="0" TheT="166" TheZ="0"/>
-            <Plane DeltaT="-3121.825287757575" ExposureTime="10.001326545454504" TheC="0" TheT="167" TheZ="0"/>
-            <Plane DeltaT="-3111.8239612121206" ExposureTime="10.001325575757619" TheC="0" TheT="168" TheZ="0"/>
-            <Plane DeltaT="-3101.822635636363" ExposureTime="10.000125090909023" TheC="0" TheT="169" TheZ="0"/>
-            <Plane DeltaT="-3091.822510545454" ExposureTime="10.001326545454504" TheC="0" TheT="170" TheZ="0"/>
-            <Plane DeltaT="-3081.8211839999994" ExposureTime="10.00012509090925" TheC="0" TheT="171" TheZ="0"/>
-            <Plane DeltaT="-3071.8210589090904" ExposureTime="10.001326545454504" TheC="0" TheT="172" TheZ="0"/>
-            <Plane DeltaT="-3061.819732363636" ExposureTime="10.001326545454504" TheC="0" TheT="173" TheZ="0"/>
-            <Plane DeltaT="-3051.8184058181814" ExposureTime="10.001326545454504" TheC="0" TheT="174" TheZ="0"/>
-            <Plane DeltaT="-3041.817079272727" ExposureTime="10.000125090909023" TheC="0" TheT="175" TheZ="0"/>
-            <Plane DeltaT="-3031.816954181818" ExposureTime="10.00012509090925" TheC="0" TheT="176" TheZ="0"/>
-            <Plane DeltaT="-3021.8168290909084" ExposureTime="10.001326545454504" TheC="0" TheT="177" TheZ="0"/>
-            <Plane DeltaT="-3011.815502545454" ExposureTime="10.001326545454504" TheC="0" TheT="178" TheZ="0"/>
-            <Plane DeltaT="-3001.8141759999994" ExposureTime="10.000125090909023" TheC="0" TheT="179" TheZ="0"/>
-            <Plane DeltaT="-2991.8140509090904" ExposureTime="10.00132654545473" TheC="0" TheT="180" TheZ="0"/>
-            <Plane DeltaT="-2981.8127243636354" ExposureTime="10.001326545454504" TheC="0" TheT="181" TheZ="0"/>
-            <Plane DeltaT="-2971.811397818181" ExposureTime="10.001326545454276" TheC="0" TheT="182" TheZ="0"/>
-            <Plane DeltaT="-2961.810071272727" ExposureTime="10.000125090909023" TheC="0" TheT="183" TheZ="0"/>
-            <Plane DeltaT="-2951.809946181818" ExposureTime="10.001326545454504" TheC="0" TheT="184" TheZ="0"/>
-            <Plane DeltaT="-2941.8086196363633" ExposureTime="10.000125090909478" TheC="0" TheT="185" TheZ="0"/>
-            <Plane DeltaT="-2931.808494545454" ExposureTime="10.001326545454504" TheC="0" TheT="186" TheZ="0"/>
-            <Plane DeltaT="-2921.8071679999994" ExposureTime="10.000125090909023" TheC="0" TheT="187" TheZ="0"/>
-            <Plane DeltaT="-2911.8070429090903" ExposureTime="10.001326545454504" TheC="0" TheT="188" TheZ="0"/>
-            <Plane DeltaT="-2901.805716363636" ExposureTime="10.001326545454504" TheC="0" TheT="189" TheZ="0"/>
-            <Plane DeltaT="-2891.8043898181813" ExposureTime="10.000125090909023" TheC="0" TheT="190" TheZ="0"/>
-            <Plane DeltaT="-2881.8042647272723" ExposureTime="10.001325575757619" TheC="0" TheT="191" TheZ="0"/>
-            <Plane DeltaT="-2871.8029391515147" ExposureTime="10.000125090909023" TheC="0" TheT="192" TheZ="0"/>
-            <Plane DeltaT="-2861.8028140606057" ExposureTime="10.001326545454504" TheC="0" TheT="193" TheZ="0"/>
-            <Plane DeltaT="-2851.801487515151" ExposureTime="10.001326545454504" TheC="0" TheT="194" TheZ="0"/>
-            <Plane DeltaT="-2841.8001609696967" ExposureTime="10.001326545454958" TheC="0" TheT="195" TheZ="0"/>
-            <Plane DeltaT="-2831.7988344242417" ExposureTime="10.001326545454504" TheC="0" TheT="196" TheZ="0"/>
-            <Plane DeltaT="-2821.797507878787" ExposureTime="10.000125090909023" TheC="0" TheT="197" TheZ="0"/>
-            <Plane DeltaT="-2811.797382787878" ExposureTime="10.001326545454504" TheC="0" TheT="198" TheZ="0"/>
-            <Plane DeltaT="-2801.7960562424237" ExposureTime="10.000125090909023" TheC="0" TheT="199" TheZ="0"/>
-            <Plane DeltaT="-2791.7959311515147" ExposureTime="10.001326545454504" TheC="0" TheT="200" TheZ="0"/>
-            <Plane DeltaT="-2781.79460460606" ExposureTime="10.001326545454504" TheC="0" TheT="201" TheZ="0"/>
-            <Plane DeltaT="-2771.7932780606056" ExposureTime="10.001326545454504" TheC="0" TheT="202" TheZ="0"/>
-            <Plane DeltaT="-2761.791951515151" ExposureTime="10.000125090909023" TheC="0" TheT="203" TheZ="0"/>
-            <Plane DeltaT="-2751.791826424242" ExposureTime="10.001326545454958" TheC="0" TheT="204" TheZ="0"/>
-            <Plane DeltaT="-2741.790499878787" ExposureTime="10.001326545454504" TheC="0" TheT="205" TheZ="0"/>
-            <Plane DeltaT="-2731.7891733333327" ExposureTime="10.000125090909023" TheC="0" TheT="206" TheZ="0"/>
-            <Plane DeltaT="-2721.7890482424236" ExposureTime="10.001326545454504" TheC="0" TheT="207" TheZ="0"/>
-            <Plane DeltaT="-2711.787721696969" ExposureTime="20.001451636363527" TheC="0" TheT="208" TheZ="0"/>
+            <Plane DeltaT="10.00012509090908" TheC="0" TheT="1" TheZ="0"/>
+            <Plane DeltaT="20.00145163636364" TheC="0" TheT="2" TheZ="0"/>
+            <Plane DeltaT="30.002778181818144" TheC="0" TheT="3" TheZ="0"/>
+            <Plane DeltaT="40.00290327272728" TheC="0" TheT="4" TheZ="0"/>
+            <Plane DeltaT="50.004229818181784" TheC="0" TheT="5" TheZ="0"/>
+            <Plane DeltaT="60.00435490909092" TheC="0" TheT="6" TheZ="0"/>
+            <Plane DeltaT="70.00568145454542" TheC="0" TheT="7" TheZ="0"/>
+            <Plane DeltaT="80.00580654545456" TheC="0" TheT="8" TheZ="0"/>
+            <Plane DeltaT="90.00713309090906" TheC="0" TheT="9" TheZ="0"/>
+            <Plane DeltaT="100.0072581818182" TheC="0" TheT="10" TheZ="0"/>
+            <Plane DeltaT="110.00858375757576" TheC="0" TheT="11" TheZ="0"/>
+            <Plane DeltaT="120.00991030303032" TheC="0" TheT="12" TheZ="0"/>
+            <Plane DeltaT="130.0100353939394" TheC="0" TheT="13" TheZ="0"/>
+            <Plane DeltaT="140.01136193939396" TheC="0" TheT="14" TheZ="0"/>
+            <Plane DeltaT="150.01268848484847" TheC="0" TheT="15" TheZ="0"/>
+            <Plane DeltaT="160.01281357575755" TheC="0" TheT="16" TheZ="0"/>
+            <Plane DeltaT="170.0141401212121" TheC="0" TheT="17" TheZ="0"/>
+            <Plane DeltaT="180.01546666666667" TheC="0" TheT="18" TheZ="0"/>
+            <Plane DeltaT="190.01559175757575" TheC="0" TheT="19" TheZ="0"/>
+            <Plane DeltaT="200.0169183030303" TheC="0" TheT="20" TheZ="0"/>
+            <Plane DeltaT="210.01824484848487" TheC="0" TheT="21" TheZ="0"/>
+            <Plane DeltaT="220.01836993939395" TheC="0" TheT="22" TheZ="0"/>
+            <Plane DeltaT="230.0196964848485" TheC="0" TheT="23" TheZ="0"/>
+            <Plane DeltaT="240.0198215757576" TheC="0" TheT="24" TheZ="0"/>
+            <Plane DeltaT="250.02114812121215" TheC="0" TheT="25" TheZ="0"/>
+            <Plane DeltaT="260.02247466666665" TheC="0" TheT="26" TheZ="0"/>
+            <Plane DeltaT="270.0225997575758" TheC="0" TheT="27" TheZ="0"/>
+            <Plane DeltaT="280.0239263030303" TheC="0" TheT="28" TheZ="0"/>
+            <Plane DeltaT="290.0240513939393" TheC="0" TheT="29" TheZ="0"/>
+            <Plane DeltaT="300.02537793939393" TheC="0" TheT="30" TheZ="0"/>
+            <Plane DeltaT="310.02670351515144" TheC="0" TheT="31" TheZ="0"/>
+            <Plane DeltaT="320.0268295757576" TheC="0" TheT="32" TheZ="0"/>
+            <Plane DeltaT="330.0281551515151" TheC="0" TheT="33" TheZ="0"/>
+            <Plane DeltaT="340.0294816969697" TheC="0" TheT="34" TheZ="0"/>
+            <Plane DeltaT="350.0308082424242" TheC="0" TheT="35" TheZ="0"/>
+            <Plane DeltaT="360.03093333333334" TheC="0" TheT="36" TheZ="0"/>
+            <Plane DeltaT="370.03225987878784" TheC="0" TheT="37" TheZ="0"/>
+            <Plane DeltaT="380.032384969697" TheC="0" TheT="38" TheZ="0"/>
+            <Plane DeltaT="390.0337115151515" TheC="0" TheT="39" TheZ="0"/>
+            <Plane DeltaT="400.0338366060606" TheC="0" TheT="40" TheZ="0"/>
+            <Plane DeltaT="410.0351631515151" TheC="0" TheT="41" TheZ="0"/>
+            <Plane DeltaT="420.03648969696974" TheC="0" TheT="42" TheZ="0"/>
+            <Plane DeltaT="430.03661478787876" TheC="0" TheT="43" TheZ="0"/>
+            <Plane DeltaT="440.03794133333326" TheC="0" TheT="44" TheZ="0"/>
+            <Plane DeltaT="450.0392678787879" TheC="0" TheT="45" TheZ="0"/>
+            <Plane DeltaT="460.0393929696969" TheC="0" TheT="46" TheZ="0"/>
+            <Plane DeltaT="470.0407195151515" TheC="0" TheT="47" TheZ="0"/>
+            <Plane DeltaT="480.042046060606" TheC="0" TheT="48" TheZ="0"/>
+            <Plane DeltaT="490.04337260606064" TheC="0" TheT="49" TheZ="0"/>
+            <Plane DeltaT="500.04349769696967" TheC="0" TheT="50" TheZ="0"/>
+            <Plane DeltaT="510.0448232727273" TheC="0" TheT="51" TheZ="0"/>
+            <Plane DeltaT="520.0449483636363" TheC="0" TheT="52" TheZ="0"/>
+            <Plane DeltaT="530.0462749090909" TheC="0" TheT="53" TheZ="0"/>
+            <Plane DeltaT="540.0464" TheC="0" TheT="54" TheZ="0"/>
+            <Plane DeltaT="550.0477265454546" TheC="0" TheT="55" TheZ="0"/>
+            <Plane DeltaT="560.0490530909091" TheC="0" TheT="56" TheZ="0"/>
+            <Plane DeltaT="570.0491781818182" TheC="0" TheT="57" TheZ="0"/>
+            <Plane DeltaT="580.0505047272727" TheC="0" TheT="58" TheZ="0"/>
+            <Plane DeltaT="590.0518312727272" TheC="0" TheT="59" TheZ="0"/>
+            <Plane DeltaT="600.0531578181818" TheC="0" TheT="60" TheZ="0"/>
+            <Plane DeltaT="610.0532829090909" TheC="0" TheT="61" TheZ="0"/>
+            <Plane DeltaT="620.0546094545455" TheC="0" TheT="62" TheZ="0"/>
+            <Plane DeltaT="630.0547345454545" TheC="0" TheT="63" TheZ="0"/>
+            <Plane DeltaT="640.0560610909091" TheC="0" TheT="64" TheZ="0"/>
+            <Plane DeltaT="650.0573876363636" TheC="0" TheT="65" TheZ="0"/>
+            <Plane DeltaT="660.0575127272728" TheC="0" TheT="66" TheZ="0"/>
+            <Plane DeltaT="670.0588392727273" TheC="0" TheT="67" TheZ="0"/>
+            <Plane DeltaT="680.0601658181819" TheC="0" TheT="68" TheZ="0"/>
+            <Plane DeltaT="690.0602909090909" TheC="0" TheT="69" TheZ="0"/>
+            <Plane DeltaT="700.0616174545455" TheC="0" TheT="70" TheZ="0"/>
+            <Plane DeltaT="710.062944" TheC="0" TheT="71" TheZ="0"/>
+            <Plane DeltaT="720.0642695757576" TheC="0" TheT="72" TheZ="0"/>
+            <Plane DeltaT="730.0643946666667" TheC="0" TheT="73" TheZ="0"/>
+            <Plane DeltaT="740.0657212121212" TheC="0" TheT="74" TheZ="0"/>
+            <Plane DeltaT="750.0658463030303" TheC="0" TheT="75" TheZ="0"/>
+            <Plane DeltaT="760.0671728484848" TheC="0" TheT="76" TheZ="0"/>
+            <Plane DeltaT="770.0672979393939" TheC="0" TheT="77" TheZ="0"/>
+            <Plane DeltaT="780.0686244848484" TheC="0" TheT="78" TheZ="0"/>
+            <Plane DeltaT="790.069951030303" TheC="0" TheT="79" TheZ="0"/>
+            <Plane DeltaT="800.0712775757574" TheC="0" TheT="80" TheZ="0"/>
+            <Plane DeltaT="810.0714026666667" TheC="0" TheT="81" TheZ="0"/>
+            <Plane DeltaT="820.0727292121212" TheC="0" TheT="82" TheZ="0"/>
+            <Plane DeltaT="830.0740557575757" TheC="0" TheT="83" TheZ="0"/>
+            <Plane DeltaT="840.0741808484847" TheC="0" TheT="84" TheZ="0"/>
+            <Plane DeltaT="850.0755073939395" TheC="0" TheT="85" TheZ="0"/>
+            <Plane DeltaT="860.0756324848485" TheC="0" TheT="86" TheZ="0"/>
+            <Plane DeltaT="870.076959030303" TheC="0" TheT="87" TheZ="0"/>
+            <Plane DeltaT="880.0782855757575" TheC="0" TheT="88" TheZ="0"/>
+            <Plane DeltaT="890.0784106666665" TheC="0" TheT="89" TheZ="0"/>
+            <Plane DeltaT="900.0797372121212" TheC="0" TheT="90" TheZ="0"/>
+            <Plane DeltaT="910.0810627878786" TheC="0" TheT="91" TheZ="0"/>
+            <Plane DeltaT="920.0823893333334" TheC="0" TheT="92" TheZ="0"/>
+            <Plane DeltaT="930.0825144242424" TheC="0" TheT="93" TheZ="0"/>
+            <Plane DeltaT="940.0838409696969" TheC="0" TheT="94" TheZ="0"/>
+            <Plane DeltaT="950.0851675151514" TheC="0" TheT="95" TheZ="0"/>
+            <Plane DeltaT="960.0852926060606" TheC="0" TheT="96" TheZ="0"/>
+            <Plane DeltaT="970.0866191515152" TheC="0" TheT="97" TheZ="0"/>
+            <Plane DeltaT="980.0867442424242" TheC="0" TheT="98" TheZ="0"/>
+            <Plane DeltaT="990.0880707878787" TheC="0" TheT="99" TheZ="0"/>
+            <Plane DeltaT="1000.0893973333334" TheC="0" TheT="100" TheZ="0"/>
+            <Plane DeltaT="1010.0907238787879" TheC="0" TheT="101" TheZ="0"/>
+            <Plane DeltaT="1020.0908489696969" TheC="0" TheT="102" TheZ="0"/>
+            <Plane DeltaT="1030.0921755151514" TheC="0" TheT="103" TheZ="0"/>
+            <Plane DeltaT="1040.093502060606" TheC="0" TheT="104" TheZ="0"/>
+            <Plane DeltaT="1050.0936271515152" TheC="0" TheT="105" TheZ="0"/>
+            <Plane DeltaT="1060.0949536969697" TheC="0" TheT="106" TheZ="0"/>
+            <Plane DeltaT="1070.0950787878787" TheC="0" TheT="107" TheZ="0"/>
+            <Plane DeltaT="1080.0964053333332" TheC="0" TheT="108" TheZ="0"/>
+            <Plane DeltaT="1090.097731878788" TheC="0" TheT="109" TheZ="0"/>
+            <Plane DeltaT="1100.0990574545453" TheC="0" TheT="110" TheZ="0"/>
+            <Plane DeltaT="1110.0991825454546" TheC="0" TheT="111" TheZ="0"/>
+            <Plane DeltaT="1120.100509090909" TheC="0" TheT="112" TheZ="0"/>
+            <Plane DeltaT="1130.1018356363636" TheC="0" TheT="113" TheZ="0"/>
+            <Plane DeltaT="1140.1019607272726" TheC="0" TheT="114" TheZ="0"/>
+            <Plane DeltaT="1150.1032872727274" TheC="0" TheT="115" TheZ="0"/>
+            <Plane DeltaT="1160.1034123636364" TheC="0" TheT="116" TheZ="0"/>
+            <Plane DeltaT="1170.1047389090909" TheC="0" TheT="117" TheZ="0"/>
+            <Plane DeltaT="1180.1060654545454" TheC="0" TheT="118" TheZ="0"/>
+            <Plane DeltaT="1190.107392" TheC="0" TheT="119" TheZ="0"/>
+            <Plane DeltaT="1200.1075170909091" TheC="0" TheT="120" TheZ="0"/>
+            <Plane DeltaT="1210.1088436363636" TheC="0" TheT="121" TheZ="0"/>
+            <Plane DeltaT="1220.1101701818181" TheC="0" TheT="122" TheZ="0"/>
+            <Plane DeltaT="1230.1102952727272" TheC="0" TheT="123" TheZ="0"/>
+            <Plane DeltaT="1240.111621818182" TheC="0" TheT="124" TheZ="0"/>
+            <Plane DeltaT="1250.1129483636364" TheC="0" TheT="125" TheZ="0"/>
+            <Plane DeltaT="1260.1130734545454" TheC="0" TheT="126" TheZ="0"/>
+            <Plane DeltaT="1270.1144" TheC="0" TheT="127" TheZ="0"/>
+            <Plane DeltaT="1280.1157265454544" TheC="0" TheT="128" TheZ="0"/>
+            <Plane DeltaT="1290.1158516363637" TheC="0" TheT="129" TheZ="0"/>
+            <Plane DeltaT="1300.1171772121213" TheC="0" TheT="130" TheZ="0"/>
+            <Plane DeltaT="1310.1185037575758" TheC="0" TheT="131" TheZ="0"/>
+            <Plane DeltaT="1320.1186288484848" TheC="0" TheT="132" TheZ="0"/>
+            <Plane DeltaT="1330.1199553939393" TheC="0" TheT="133" TheZ="0"/>
+            <Plane DeltaT="1340.1212819393938" TheC="0" TheT="134" TheZ="0"/>
+            <Plane DeltaT="1350.121407030303" TheC="0" TheT="135" TheZ="0"/>
+            <Plane DeltaT="1360.1227335757576" TheC="0" TheT="136" TheZ="0"/>
+            <Plane DeltaT="1370.124060121212" TheC="0" TheT="137" TheZ="0"/>
+            <Plane DeltaT="1380.1253866666666" TheC="0" TheT="138" TheZ="0"/>
+            <Plane DeltaT="1390.1255117575759" TheC="0" TheT="139" TheZ="0"/>
+            <Plane DeltaT="1400.1268383030304" TheC="0" TheT="140" TheZ="0"/>
+            <Plane DeltaT="1410.1281648484849" TheC="0" TheT="141" TheZ="0"/>
+            <Plane DeltaT="1420.1282899393939" TheC="0" TheT="142" TheZ="0"/>
+            <Plane DeltaT="1430.1296164848484" TheC="0" TheT="143" TheZ="0"/>
+            <Plane DeltaT="1440.1297415757576" TheC="0" TheT="144" TheZ="0"/>
+            <Plane DeltaT="1450.1310681212121" TheC="0" TheT="145" TheZ="0"/>
+            <Plane DeltaT="1460.1323946666666" TheC="0" TheT="146" TheZ="0"/>
+            <Plane DeltaT="1470.1337202424243" TheC="0" TheT="147" TheZ="0"/>
+            <Plane DeltaT="1480.1350467878788" TheC="0" TheT="148" TheZ="0"/>
+            <Plane DeltaT="1490.1351718787878" TheC="0" TheT="149" TheZ="0"/>
+            <Plane DeltaT="1500.1364984242425" TheC="0" TheT="150" TheZ="0"/>
+            <Plane DeltaT="1510.1366235151515" TheC="0" TheT="151" TheZ="0"/>
+            <Plane DeltaT="1520.137950060606" TheC="0" TheT="152" TheZ="0"/>
+            <Plane DeltaT="1530.1392766060605" TheC="0" TheT="153" TheZ="0"/>
+            <Plane DeltaT="1540.1394016969698" TheC="0" TheT="154" TheZ="0"/>
+            <Plane DeltaT="1550.1407282424243" TheC="0" TheT="155" TheZ="0"/>
+            <Plane DeltaT="1560.1420547878788" TheC="0" TheT="156" TheZ="0"/>
+            <Plane DeltaT="1570.1433813333333" TheC="0" TheT="157" TheZ="0"/>
+            <Plane DeltaT="1580.1435064242423" TheC="0" TheT="158" TheZ="0"/>
+            <Plane DeltaT="1590.144832969697" TheC="0" TheT="159" TheZ="0"/>
+            <Plane DeltaT="1600.144958060606" TheC="0" TheT="160" TheZ="0"/>
+            <Plane DeltaT="1610.1462846060606" TheC="0" TheT="161" TheZ="0"/>
+            <Plane DeltaT="1620.147611151515" TheC="0" TheT="162" TheZ="0"/>
+            <Plane DeltaT="1630.1489376969696" TheC="0" TheT="163" TheZ="0"/>
+            <Plane DeltaT="1640.1490627878788" TheC="0" TheT="164" TheZ="0"/>
+            <Plane DeltaT="1650.1503893333334" TheC="0" TheT="165" TheZ="0"/>
+            <Plane DeltaT="1660.151714909091" TheC="0" TheT="166" TheZ="0"/>
+            <Plane DeltaT="1670.15184" TheC="0" TheT="167" TheZ="0"/>
+            <Plane DeltaT="1680.1531665454545" TheC="0" TheT="168" TheZ="0"/>
+            <Plane DeltaT="1690.1532916363637" TheC="0" TheT="169" TheZ="0"/>
+            <Plane DeltaT="1700.1546181818183" TheC="0" TheT="170" TheZ="0"/>
+            <Plane DeltaT="1710.1559447272728" TheC="0" TheT="171" TheZ="0"/>
+            <Plane DeltaT="1720.1572712727273" TheC="0" TheT="172" TheZ="0"/>
+            <Plane DeltaT="1730.1573963636363" TheC="0" TheT="173" TheZ="0"/>
+            <Plane DeltaT="1740.1575214545455" TheC="0" TheT="174" TheZ="0"/>
+            <Plane DeltaT="1750.158848" TheC="0" TheT="175" TheZ="0"/>
+            <Plane DeltaT="1760.1601745454545" TheC="0" TheT="176" TheZ="0"/>
+            <Plane DeltaT="1770.1602996363636" TheC="0" TheT="177" TheZ="0"/>
+            <Plane DeltaT="1780.1616261818183" TheC="0" TheT="178" TheZ="0"/>
+            <Plane DeltaT="1790.1629527272728" TheC="0" TheT="179" TheZ="0"/>
+            <Plane DeltaT="1800.164279272727" TheC="0" TheT="180" TheZ="0"/>
+            <Plane DeltaT="1810.164404363636" TheC="0" TheT="181" TheZ="0"/>
+            <Plane DeltaT="1820.1657309090906" TheC="0" TheT="182" TheZ="0"/>
+            <Plane DeltaT="1830.165856" TheC="0" TheT="183" TheZ="0"/>
+            <Plane DeltaT="1840.1671825454546" TheC="0" TheT="184" TheZ="0"/>
+            <Plane DeltaT="1850.1673076363636" TheC="0" TheT="185" TheZ="0"/>
+            <Plane DeltaT="1860.168634181818" TheC="0" TheT="186" TheZ="0"/>
+            <Plane DeltaT="1870.1699607272726" TheC="0" TheT="187" TheZ="0"/>
+            <Plane DeltaT="1880.1700858181816" TheC="0" TheT="188" TheZ="0"/>
+            <Plane DeltaT="1890.1714113939393" TheC="0" TheT="189" TheZ="0"/>
+            <Plane DeltaT="1900.1715364848483" TheC="0" TheT="190" TheZ="0"/>
+            <Plane DeltaT="1910.1728630303028" TheC="0" TheT="191" TheZ="0"/>
+            <Plane DeltaT="1920.1741895757573" TheC="0" TheT="192" TheZ="0"/>
+            <Plane DeltaT="1930.1755161212122" TheC="0" TheT="193" TheZ="0"/>
+            <Plane DeltaT="1940.1768426666667" TheC="0" TheT="194" TheZ="0"/>
+            <Plane DeltaT="1950.1769677575758" TheC="0" TheT="195" TheZ="0"/>
+            <Plane DeltaT="1960.1782943030303" TheC="0" TheT="196" TheZ="0"/>
+            <Plane DeltaT="1970.1784193939393" TheC="0" TheT="197" TheZ="0"/>
+            <Plane DeltaT="1980.1797459393938" TheC="0" TheT="198" TheZ="0"/>
+            <Plane DeltaT="1990.1810724848483" TheC="0" TheT="199" TheZ="0"/>
+            <Plane DeltaT="2000.1823990303028" TheC="0" TheT="200" TheZ="0"/>
+            <Plane DeltaT="2010.1825241212118" TheC="0" TheT="201" TheZ="0"/>
+            <Plane DeltaT="2020.1838506666668" TheC="0" TheT="202" TheZ="0"/>
+            <Plane DeltaT="2030.1851772121213" TheC="0" TheT="203" TheZ="0"/>
+            <Plane DeltaT="2040.1853023030303" TheC="0" TheT="204" TheZ="0"/>
+            <Plane DeltaT="2050.186628848485" TheC="0" TheT="205" TheZ="0"/>
+            <Plane DeltaT="2060.186753939394" TheC="0" TheT="206" TheZ="0"/>
+            <Plane DeltaT="2070.1880795151515" TheC="0" TheT="207" TheZ="0"/>
+            <Plane DeltaT="2080.189406060606" TheC="0" TheT="208" TheZ="0"/>
         </Pixels>
     </Image>
     <Image ID="Image:4" Name="XYZ-ch-20x">
@@ -531,21 +531,21 @@
                 </LightPath>
             </Channel>
             <MetadataOnly/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="14"/>
+            <Plane TheC="0" TheT="0" TheZ="0"/>
+            <Plane TheC="0" TheT="0" TheZ="1"/>
+            <Plane TheC="0" TheT="0" TheZ="2"/>
+            <Plane TheC="0" TheT="0" TheZ="3"/>
+            <Plane TheC="0" TheT="0" TheZ="4"/>
+            <Plane TheC="0" TheT="0" TheZ="5"/>
+            <Plane TheC="0" TheT="0" TheZ="6"/>
+            <Plane TheC="0" TheT="0" TheZ="7"/>
+            <Plane TheC="0" TheT="0" TheZ="8"/>
+            <Plane TheC="0" TheT="0" TheZ="9"/>
+            <Plane TheC="0" TheT="0" TheZ="10"/>
+            <Plane TheC="0" TheT="0" TheZ="11"/>
+            <Plane TheC="0" TheT="0" TheZ="12"/>
+            <Plane TheC="0" TheT="0" TheZ="13"/>
+            <Plane TheC="0" TheT="0" TheZ="14"/>
         </Pixels>
     </Image>
     <Image ID="Image:5" Name="XYZ-ch-zoom">
@@ -565,72 +565,72 @@
                 <LightPath/>
             </Channel>
             <MetadataOnly/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="17"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="17"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="18"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="18"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="19"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="19"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="20"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="20"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="21"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="21"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="22"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="22"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="23"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="23"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="24"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="24"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="25"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="25"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="26"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="26"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="27"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="27"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="28"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="28"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="29"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="29"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="30"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="30"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="31"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="31"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="32"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="32"/>
+            <Plane TheC="0" TheT="0" TheZ="0"/>
+            <Plane TheC="1" TheT="0" TheZ="0"/>
+            <Plane TheC="0" TheT="0" TheZ="1"/>
+            <Plane TheC="1" TheT="0" TheZ="1"/>
+            <Plane TheC="0" TheT="0" TheZ="2"/>
+            <Plane TheC="1" TheT="0" TheZ="2"/>
+            <Plane TheC="0" TheT="0" TheZ="3"/>
+            <Plane TheC="1" TheT="0" TheZ="3"/>
+            <Plane TheC="0" TheT="0" TheZ="4"/>
+            <Plane TheC="1" TheT="0" TheZ="4"/>
+            <Plane TheC="0" TheT="0" TheZ="5"/>
+            <Plane TheC="1" TheT="0" TheZ="5"/>
+            <Plane TheC="0" TheT="0" TheZ="6"/>
+            <Plane TheC="1" TheT="0" TheZ="6"/>
+            <Plane TheC="0" TheT="0" TheZ="7"/>
+            <Plane TheC="1" TheT="0" TheZ="7"/>
+            <Plane TheC="0" TheT="0" TheZ="8"/>
+            <Plane TheC="1" TheT="0" TheZ="8"/>
+            <Plane TheC="0" TheT="0" TheZ="9"/>
+            <Plane TheC="1" TheT="0" TheZ="9"/>
+            <Plane TheC="0" TheT="0" TheZ="10"/>
+            <Plane TheC="1" TheT="0" TheZ="10"/>
+            <Plane TheC="0" TheT="0" TheZ="11"/>
+            <Plane TheC="1" TheT="0" TheZ="11"/>
+            <Plane TheC="0" TheT="0" TheZ="12"/>
+            <Plane TheC="1" TheT="0" TheZ="12"/>
+            <Plane TheC="0" TheT="0" TheZ="13"/>
+            <Plane TheC="1" TheT="0" TheZ="13"/>
+            <Plane TheC="0" TheT="0" TheZ="14"/>
+            <Plane TheC="1" TheT="0" TheZ="14"/>
+            <Plane TheC="0" TheT="0" TheZ="15"/>
+            <Plane TheC="1" TheT="0" TheZ="15"/>
+            <Plane TheC="0" TheT="0" TheZ="16"/>
+            <Plane TheC="1" TheT="0" TheZ="16"/>
+            <Plane TheC="0" TheT="0" TheZ="17"/>
+            <Plane TheC="1" TheT="0" TheZ="17"/>
+            <Plane TheC="0" TheT="0" TheZ="18"/>
+            <Plane TheC="1" TheT="0" TheZ="18"/>
+            <Plane TheC="0" TheT="0" TheZ="19"/>
+            <Plane TheC="1" TheT="0" TheZ="19"/>
+            <Plane TheC="0" TheT="0" TheZ="20"/>
+            <Plane TheC="1" TheT="0" TheZ="20"/>
+            <Plane TheC="0" TheT="0" TheZ="21"/>
+            <Plane TheC="1" TheT="0" TheZ="21"/>
+            <Plane TheC="0" TheT="0" TheZ="22"/>
+            <Plane TheC="1" TheT="0" TheZ="22"/>
+            <Plane TheC="0" TheT="0" TheZ="23"/>
+            <Plane TheC="1" TheT="0" TheZ="23"/>
+            <Plane TheC="0" TheT="0" TheZ="24"/>
+            <Plane TheC="1" TheT="0" TheZ="24"/>
+            <Plane TheC="0" TheT="0" TheZ="25"/>
+            <Plane TheC="1" TheT="0" TheZ="25"/>
+            <Plane TheC="0" TheT="0" TheZ="26"/>
+            <Plane TheC="1" TheT="0" TheZ="26"/>
+            <Plane TheC="0" TheT="0" TheZ="27"/>
+            <Plane TheC="1" TheT="0" TheZ="27"/>
+            <Plane TheC="0" TheT="0" TheZ="28"/>
+            <Plane TheC="1" TheT="0" TheZ="28"/>
+            <Plane TheC="0" TheT="0" TheZ="29"/>
+            <Plane TheC="1" TheT="0" TheZ="29"/>
+            <Plane TheC="0" TheT="0" TheZ="30"/>
+            <Plane TheC="1" TheT="0" TheZ="30"/>
+            <Plane TheC="0" TheT="0" TheZ="31"/>
+            <Plane TheC="1" TheT="0" TheZ="31"/>
+            <Plane TheC="0" TheT="0" TheZ="32"/>
+            <Plane TheC="1" TheT="0" TheZ="32"/>
         </Pixels>
     </Image>
     <Image ID="Image:6" Name="XYZ-ch">
@@ -662,118 +662,118 @@
                 </LightPath>
             </Channel>
             <MetadataOnly/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="0"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="1"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="2"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="3"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="4"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="5"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="6"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="7"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="8"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="9"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="10"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="11"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="12"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="13"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="14"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="15"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="16"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="17"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="17"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="17"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="17"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="18"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="18"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="18"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="18"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="19"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="19"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="19"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="19"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="20"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="20"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="20"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="20"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="21"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="21"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="21"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="21"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="22"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="22"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="22"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="22"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="23"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="23"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="23"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="23"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="24"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="24"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="24"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="24"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="25"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="25"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="25"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="25"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="26"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="26"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="26"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="26"/>
-            <Plane DeltaT="0.0" TheC="0" TheT="0" TheZ="27"/>
-            <Plane DeltaT="0.0" TheC="1" TheT="0" TheZ="27"/>
-            <Plane DeltaT="0.0" TheC="2" TheT="0" TheZ="27"/>
-            <Plane DeltaT="0.0" TheC="3" TheT="0" TheZ="27"/>
+            <Plane TheC="0" TheT="0" TheZ="0"/>
+            <Plane TheC="1" TheT="0" TheZ="0"/>
+            <Plane TheC="2" TheT="0" TheZ="0"/>
+            <Plane TheC="3" TheT="0" TheZ="0"/>
+            <Plane TheC="0" TheT="0" TheZ="1"/>
+            <Plane TheC="1" TheT="0" TheZ="1"/>
+            <Plane TheC="2" TheT="0" TheZ="1"/>
+            <Plane TheC="3" TheT="0" TheZ="1"/>
+            <Plane TheC="0" TheT="0" TheZ="2"/>
+            <Plane TheC="1" TheT="0" TheZ="2"/>
+            <Plane TheC="2" TheT="0" TheZ="2"/>
+            <Plane TheC="3" TheT="0" TheZ="2"/>
+            <Plane TheC="0" TheT="0" TheZ="3"/>
+            <Plane TheC="1" TheT="0" TheZ="3"/>
+            <Plane TheC="2" TheT="0" TheZ="3"/>
+            <Plane TheC="3" TheT="0" TheZ="3"/>
+            <Plane TheC="0" TheT="0" TheZ="4"/>
+            <Plane TheC="1" TheT="0" TheZ="4"/>
+            <Plane TheC="2" TheT="0" TheZ="4"/>
+            <Plane TheC="3" TheT="0" TheZ="4"/>
+            <Plane TheC="0" TheT="0" TheZ="5"/>
+            <Plane TheC="1" TheT="0" TheZ="5"/>
+            <Plane TheC="2" TheT="0" TheZ="5"/>
+            <Plane TheC="3" TheT="0" TheZ="5"/>
+            <Plane TheC="0" TheT="0" TheZ="6"/>
+            <Plane TheC="1" TheT="0" TheZ="6"/>
+            <Plane TheC="2" TheT="0" TheZ="6"/>
+            <Plane TheC="3" TheT="0" TheZ="6"/>
+            <Plane TheC="0" TheT="0" TheZ="7"/>
+            <Plane TheC="1" TheT="0" TheZ="7"/>
+            <Plane TheC="2" TheT="0" TheZ="7"/>
+            <Plane TheC="3" TheT="0" TheZ="7"/>
+            <Plane TheC="0" TheT="0" TheZ="8"/>
+            <Plane TheC="1" TheT="0" TheZ="8"/>
+            <Plane TheC="2" TheT="0" TheZ="8"/>
+            <Plane TheC="3" TheT="0" TheZ="8"/>
+            <Plane TheC="0" TheT="0" TheZ="9"/>
+            <Plane TheC="1" TheT="0" TheZ="9"/>
+            <Plane TheC="2" TheT="0" TheZ="9"/>
+            <Plane TheC="3" TheT="0" TheZ="9"/>
+            <Plane TheC="0" TheT="0" TheZ="10"/>
+            <Plane TheC="1" TheT="0" TheZ="10"/>
+            <Plane TheC="2" TheT="0" TheZ="10"/>
+            <Plane TheC="3" TheT="0" TheZ="10"/>
+            <Plane TheC="0" TheT="0" TheZ="11"/>
+            <Plane TheC="1" TheT="0" TheZ="11"/>
+            <Plane TheC="2" TheT="0" TheZ="11"/>
+            <Plane TheC="3" TheT="0" TheZ="11"/>
+            <Plane TheC="0" TheT="0" TheZ="12"/>
+            <Plane TheC="1" TheT="0" TheZ="12"/>
+            <Plane TheC="2" TheT="0" TheZ="12"/>
+            <Plane TheC="3" TheT="0" TheZ="12"/>
+            <Plane TheC="0" TheT="0" TheZ="13"/>
+            <Plane TheC="1" TheT="0" TheZ="13"/>
+            <Plane TheC="2" TheT="0" TheZ="13"/>
+            <Plane TheC="3" TheT="0" TheZ="13"/>
+            <Plane TheC="0" TheT="0" TheZ="14"/>
+            <Plane TheC="1" TheT="0" TheZ="14"/>
+            <Plane TheC="2" TheT="0" TheZ="14"/>
+            <Plane TheC="3" TheT="0" TheZ="14"/>
+            <Plane TheC="0" TheT="0" TheZ="15"/>
+            <Plane TheC="1" TheT="0" TheZ="15"/>
+            <Plane TheC="2" TheT="0" TheZ="15"/>
+            <Plane TheC="3" TheT="0" TheZ="15"/>
+            <Plane TheC="0" TheT="0" TheZ="16"/>
+            <Plane TheC="1" TheT="0" TheZ="16"/>
+            <Plane TheC="2" TheT="0" TheZ="16"/>
+            <Plane TheC="3" TheT="0" TheZ="16"/>
+            <Plane TheC="0" TheT="0" TheZ="17"/>
+            <Plane TheC="1" TheT="0" TheZ="17"/>
+            <Plane TheC="2" TheT="0" TheZ="17"/>
+            <Plane TheC="3" TheT="0" TheZ="17"/>
+            <Plane TheC="0" TheT="0" TheZ="18"/>
+            <Plane TheC="1" TheT="0" TheZ="18"/>
+            <Plane TheC="2" TheT="0" TheZ="18"/>
+            <Plane TheC="3" TheT="0" TheZ="18"/>
+            <Plane TheC="0" TheT="0" TheZ="19"/>
+            <Plane TheC="1" TheT="0" TheZ="19"/>
+            <Plane TheC="2" TheT="0" TheZ="19"/>
+            <Plane TheC="3" TheT="0" TheZ="19"/>
+            <Plane TheC="0" TheT="0" TheZ="20"/>
+            <Plane TheC="1" TheT="0" TheZ="20"/>
+            <Plane TheC="2" TheT="0" TheZ="20"/>
+            <Plane TheC="3" TheT="0" TheZ="20"/>
+            <Plane TheC="0" TheT="0" TheZ="21"/>
+            <Plane TheC="1" TheT="0" TheZ="21"/>
+            <Plane TheC="2" TheT="0" TheZ="21"/>
+            <Plane TheC="3" TheT="0" TheZ="21"/>
+            <Plane TheC="0" TheT="0" TheZ="22"/>
+            <Plane TheC="1" TheT="0" TheZ="22"/>
+            <Plane TheC="2" TheT="0" TheZ="22"/>
+            <Plane TheC="3" TheT="0" TheZ="22"/>
+            <Plane TheC="0" TheT="0" TheZ="23"/>
+            <Plane TheC="1" TheT="0" TheZ="23"/>
+            <Plane TheC="2" TheT="0" TheZ="23"/>
+            <Plane TheC="3" TheT="0" TheZ="23"/>
+            <Plane TheC="0" TheT="0" TheZ="24"/>
+            <Plane TheC="1" TheT="0" TheZ="24"/>
+            <Plane TheC="2" TheT="0" TheZ="24"/>
+            <Plane TheC="3" TheT="0" TheZ="24"/>
+            <Plane TheC="0" TheT="0" TheZ="25"/>
+            <Plane TheC="1" TheT="0" TheZ="25"/>
+            <Plane TheC="2" TheT="0" TheZ="25"/>
+            <Plane TheC="3" TheT="0" TheZ="25"/>
+            <Plane TheC="0" TheT="0" TheZ="26"/>
+            <Plane TheC="1" TheT="0" TheZ="26"/>
+            <Plane TheC="2" TheT="0" TheZ="26"/>
+            <Plane TheC="3" TheT="0" TheZ="26"/>
+            <Plane TheC="0" TheT="0" TheZ="27"/>
+            <Plane TheC="1" TheT="0" TheZ="27"/>
+            <Plane TheC="2" TheT="0" TheZ="27"/>
+            <Plane TheC="3" TheT="0" TheZ="27"/>
         </Pixels>
     </Image>
     <Image ID="Image:7" Name="XYZ-ch0">
