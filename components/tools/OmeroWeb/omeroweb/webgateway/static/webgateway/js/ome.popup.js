@@ -22,6 +22,13 @@ String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
+jQuery.fn.alternateRowColors = function() {
+    var $rows = $(this).children().children('tr');
+    $rows.not('.hidden').filter(':odd').removeClass('even').addClass('odd');
+    $rows.not('.hidden').filter(':even').removeClass('odd').addClass('even');
+  return this;
+}
+
 function openPopup(url) {
     // IE8 doesn't support arbitrary text for 'name' 2nd arg.  #6118
     var owindow = window.open(url, '', config='height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');

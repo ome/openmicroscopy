@@ -24,14 +24,6 @@
 {% ifnotequal nav.menu "status" %}
 <script>
 
-    // TODO: This function should be moved up, to some general js file, since it is used by basket_info too.
-    jQuery.fn.alternateRowColors = function() {
-        var $rows = $(this).children().children('tr');
-        $rows.not('.hidden').filter(':odd').removeClass('even').addClass('odd');
-        $rows.not('.hidden').filter(':even').removeClass('odd').addClass('even');
-      return this;
-    };
-    
     var showActivities = function() {
         $("#activities_panel").toggle();
         if ($("#activities_panel").is(":visible")) {
