@@ -1537,7 +1537,7 @@ public class OMEROMetadataStoreClient
 			new LinkedHashMap<Index, Integer>();
 		imageIndexes.put(Index.IMAGE_INDEX, series);
 		Image image = getSourceObject(Image.class, imageIndexes);
-		image.setArchived(toRType(false));
+		image.setArchived(toRType(true));
 	}
 	// Create all original file objects for later population based on
 	// the existence or abscence of companion files and the archive
@@ -1601,7 +1601,7 @@ public class OMEROMetadataStoreClient
 		// ensures that an Image object (and corresponding container)
 		// exists.
 		Image image = getSourceObject(Image.class, imageIndexes);
-		image.setArchived(toRType(false));
+		image.setArchived(toRType(true));
 
 		// If we have been asked to create a metadata file with all the
 		// metadata dumped out, do so, add it to the collection we're to
