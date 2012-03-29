@@ -212,7 +212,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     public List<Pixels> importMetadata(RepositoryImportContainer repoIC, Current __current) throws ServerError {
-        OMEROMetadataStoreClient store;
+        OMEROMetadataStoreClient store = null;
         ImportConfig config = new ImportConfig();
         final String clientSessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
         List<Pixels> pix = null;
@@ -220,14 +220,24 @@ public class PublicRepositoryI extends _RepositoryDisp {
         config.hostname.set("localhost");
         config.port.set(new Integer(4064));
         config.sessionKey.set(clientSessionUuid);
+        OMEROWrapper reader = new OMEROWrapper(config);
         try {
             store = config.createStore();
-            OMEROWrapper reader = new OMEROWrapper(config);
             ImportLibrary library = new ImportLibrary(store, reader);
             ImportContainer ic = createImportContainer(repoIC);
             pix = library.importImage(ic, 0, 0, 1);
-        } catch (Throwable t) {
+        }
+        catch (Throwable t) {
             throw new omero.InternalException(stackTraceAsString(t), null, t.getMessage());
+        }
+        finally {
+            try {
+                reader.close();
+            }
+            catch (Exception e){
+                throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
+            }
+            store.closeServices();
         }
         return pix;
     }
