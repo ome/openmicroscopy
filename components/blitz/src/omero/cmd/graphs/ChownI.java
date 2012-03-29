@@ -66,6 +66,10 @@ public class ChownI extends Chown implements IRequest {
         this.specs = specs;
     }
 
+    public Map<String, String> getCallContext() {
+        return null;
+    }
+
     public void init(Status status, SqlAction sql, Session session, ServiceFactory sf) {
         synchronized (status) {
             if (status.flags == null) {

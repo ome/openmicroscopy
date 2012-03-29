@@ -19,6 +19,7 @@ package omero.cmd.basic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,6 +61,10 @@ public class DoAllI extends DoAll implements IRequest {
     private List<Response> responses = new ArrayList<Response>();
 
     private Helper helper;
+
+    public Map<String, String> getCallContext() {
+        return null;
+    }
 
     public void init(Status status, SqlAction sql, Session session, ome.system.ServiceFactory sf) {
         this.helper = new Helper(this, status, sql, session, sf);

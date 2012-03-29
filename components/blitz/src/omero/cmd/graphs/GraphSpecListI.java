@@ -49,6 +49,10 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
         this.ctx = ctx;
     }
 
+    public Map<String, String> getCallContext() {
+        return null;
+    }
+
     public void init(Status status, SqlAction sql, Session session, ServiceFactory sf) {
         status.steps = 1;
     }

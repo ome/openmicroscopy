@@ -45,6 +45,10 @@ public class ListRequestsI extends ListRequests implements IRequest {
         this.ctx = ctx;
     }
 
+    public Map<String, String> getCallContext() {
+        return null;
+    }
+
     public void init(Status status, SqlAction sql, Session session, ome.system.ServiceFactory sf) {
         status.steps = 1;
     }

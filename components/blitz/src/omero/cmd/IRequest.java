@@ -7,11 +7,14 @@
  */
 package omero.cmd;
 
-import ome.system.ServiceFactory;
-import ome.util.SqlAction;
-import omero.cmd.HandleI.Cancel;
+import java.util.Map;
 
 import org.hibernate.Session;
+
+import ome.system.ServiceFactory;
+import ome.util.SqlAction;
+
+import omero.cmd.HandleI.Cancel;
 
 /**
  * SPIOrthogonal interface hierarchy of types for working with the
@@ -20,6 +23,14 @@ import org.hibernate.Session;
  * @since Beta4.3.2
  */
 public interface IRequest {
+
+    /**
+     * Returns the desired call context for this request. Some request
+     * implementations will require "omero.group":"-1" for example and will
+     * hard-code that value. Others may permit users to pass in the desired
+     * values which will be merged into the static {@link Map} as desired.
+     */
+    Map<String, String> getCallContext();
 
     /**
      * Implementations must properly initialize the "step" field of the

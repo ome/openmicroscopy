@@ -67,6 +67,10 @@ public class ChmodI extends Chmod implements IRequest {
         this.strategy = strategy;
     }
 
+    public Map<String, String> getCallContext() {
+        return null;
+    }
+
     public void init(Status status, SqlAction sql, Session session,
             ServiceFactory sf) {
 

@@ -17,6 +17,8 @@
 
 package ome.services.blitz.impl.commands;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -47,6 +49,10 @@ public class SaveI extends Save implements IRequest {
     private static final long serialVersionUID = -3434345656L;
 
     private Helper helper;
+
+    public Map<String, String> getCallContext() {
+        return null;
+    }
 
     public void init(Status status, SqlAction sql, Session session,
             ome.system.ServiceFactory sf) {

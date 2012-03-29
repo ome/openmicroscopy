@@ -66,6 +66,12 @@ public class ChgrpI extends Chgrp implements IRequest {
         this.specs = specs;
     }
 
+    public Map<String, String> getCallContext() {
+        Map<String, String> negOne = new HashMap<String, String>();
+        negOne.put("omero.group", "-1");
+        return negOne;
+    }
+
     public void init(Status status, SqlAction sql, Session session, ServiceFactory sf) {
         synchronized (status) {
             if (status.flags == null) {

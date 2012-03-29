@@ -86,6 +86,13 @@ public class HandleI implements _HandleOperations, IHandle,
     private final Status status = new Status();
 
     /**
+     * Context to be passed to
+     * {@link Executor#execute(Map, Principal, ome.services.util.Executor.Work)}
+     * for properly setting the call context.
+     */
+    private final Map<String, String> callContext;
+
+    /**
      * The principal, i.e. the session information, about the current users
      * logins. This will be passed to the {@link #executor} instance for logging
      * in.
@@ -112,12 +119,20 @@ public class HandleI implements _HandleOperations, IHandle,
     //
 
     /**
+     * Calls {@link #HandleI(int, Map)} with a null call context.
+     */
+    public HandleI(int cancelTimeoutMs) {
+        this(cancelTimeoutMs, null);
+    }
+
+    /**
      * Create and
      *
      * @param cancelTimeoutMs
      */
-    public HandleI(int cancelTimeoutMs) {
+    public HandleI(int cancelTimeoutMs, Map<String, String> callContext) {
         this.cancelTimeoutMs = cancelTimeoutMs;
+        this.callContext = callContext;
         this.state.set(State.CREATED);
     }
 
@@ -244,9 +259,8 @@ public class HandleI implements _HandleOperations, IHandle,
 
         StopWatch sw = new CommonsLogStopWatch();
         try {
-            Map<String, String> callContext = new HashMap<String, String>();
-            callContext.put("omero.group", "-1");
-            executor.execute(callContext, principal,
+            Map<String, String> merged = mergeContexts();
+            executor.execute(merged, principal,
                     new Executor.SimpleWork(this, "run",
                     Ice.Util.identityToString(id), req) {
                 @Transactional(readOnly = false)
@@ -272,6 +286,22 @@ public class HandleI implements _HandleOperations, IHandle,
             rsp.set(req.getResponse());
             sw.stop("omero.request.tx");
         }
+    }
+
+    private Map<String, String> mergeContexts() {
+
+        final Map<String, String> merged = new HashMap<String, String>();
+        final Map<String, String> reqCctx = req.getCallContext();
+
+        if (callContext != null) {
+            merged.putAll(callContext);
+        }
+
+        if (reqCctx != null) {
+            merged.putAll(reqCctx);
+        }
+
+        return merged;
     }
 
     public void doRun(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {

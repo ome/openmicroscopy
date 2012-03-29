@@ -22,6 +22,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 import org.testng.annotations.Test;
@@ -156,6 +157,10 @@ public class DoAllITest extends AbstractGraphTest {
             for (int i = 0; i < expected.length; i++) {
                 this.expected.add(expected[i]);
             }
+        }
+
+        public Map<String, String> getCallContext() {
+            return null;
         }
 
         public void init(Status status, SqlAction sql, Session session,
