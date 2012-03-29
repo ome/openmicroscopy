@@ -40,6 +40,7 @@ import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.Dichroic;
 import omero.model.Experiment;
+import omero.model.ExperimenterGroup;
 import omero.model.Filament;
 import omero.model.Filter;
 import omero.model.IObject;
@@ -1508,7 +1509,9 @@ public class ImporterTest
     	//group owner deletes it
 		disconnect();
     	//First create a dataset
-    	newUserInGroup(ownerEc);
+		ExperimenterGroup group = newGroupAddUser("rw----", ownerEc.userId);
+		assertTrue(group.getId().getValue() != ownerEc.groupId);
+    	//newUserInGroup(ownerEc);
 
     	File f = File.createTempFile("testImportImageIntoDataset", 
 				"."+OME_FORMAT);
@@ -1533,6 +1536,39 @@ public class ImporterTest
     	iQuery.findByQuery(sql, param);
     	assertNotNull(link);
     	assertEquals(link.getChild().getId().getValue(), id);
+	}
+
+    /**
+     * Tests the import of an image into a specified dataset.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+	public void testImportImageIntoWrongDataset()
+		throws Exception
+	{
+    	EventContext ownerEc = newUserAndGroup("rw----");
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	d.setId(omero.rtypes.rlong(d.getId().getValue()*100));
+    	//group owner deletes it
+		disconnect();
+    	//First create a dataset
+		ExperimenterGroup group = newGroupAddUser("rw----", ownerEc.userId);
+		assertTrue(group.getId().getValue() != ownerEc.groupId);
+    	//newUserInGroup(ownerEc);
+
+    	File f = File.createTempFile("testImportImageIntoDataset", 
+				"."+OME_FORMAT);
+		files.add(f);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT, d);
+			fail("An exception should have been thrown");
+		} catch (Throwable e) {
+		}
 	}
 
 }
