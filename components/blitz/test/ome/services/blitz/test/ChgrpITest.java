@@ -698,14 +698,14 @@ public class ChgrpITest extends AbstractGraphTest {
 
     private void changeToOldGroup() throws ServerError {
         IObject old =
-            user_sf.setSecurityContext(
+            user.sf.setSecurityContext(
                     new ExperimenterGroupI(oldGroupId, false), null);
         old.getId().getValue();
     }
 
     private void changeToNewGroup() throws ServerError {
         IObject old =
-            user_sf.setSecurityContext(
+            user.sf.setSecurityContext(
                     new ExperimenterGroupI(newGroupId, false), null);
         old.getId().getValue();
     }

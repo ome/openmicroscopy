@@ -56,19 +56,7 @@ public abstract class AbstractServantTest extends TestCase {
         new AtomicReference<File>();
 
     protected ManagedContextFixture user, root;
-    protected SessionManager sm;
-    protected SecuritySystem ss;
-    protected BlitzExecutor be;
-    protected ServiceFactory sf;
     protected OmeroContext ctx;
-    protected ServiceFactoryI user_sf, root_sf;
-    protected AopContextInitializer user_initializer, root_initializer;
-    protected DeleteI user_delete, root_delete;
-    protected UpdateI user_update, root_update;
-    protected QueryI user_query, root_query;
-    protected AdminI user_admin, root_admin;
-    protected ConfigI user_config, root_config;
-    protected ShareI user_share, root_share;
 
     public class RV {
         public Exception ex;
@@ -100,32 +88,8 @@ public abstract class AbstractServantTest extends TestCase {
         ctx.setParent(inner);
         ctx.afterPropertiesSet();
 
-        sf = new ServiceFactory(ctx);
-        be = (BlitzExecutor) ctx.getBean("throttlingStrategy");
-        sm = (SessionManager) ctx.getBean("sessionManager");
-        ss = (SecuritySystem) ctx.getBean("securitySystem");
-
         user = new ManagedContextFixture(ctx);
-        user_sf = user.sf;
-        user_initializer = user.init;
-
-        user_delete = user.delete;
-        user_update = user.update;
-        user_query = user.query;
-        user_admin = user.admin;
-        user_config = user.config;
-        user_share = user.share;
-
         root = new ManagedContextFixture(ctx);
-        root_sf = root.sf;
-        root_initializer = root.init;
-
-        root_delete = root.delete;
-        root_update = root.update;
-        root_query = root.query;
-        root_admin = root.admin;
-        root_config = root.config;
-        root_share = root.share;
     }
 
     @Override
@@ -137,13 +101,13 @@ public abstract class AbstractServantTest extends TestCase {
     @SuppressWarnings("unchecked")
     protected List<IObject> assertFindByQuery(String q, omero.sys.Parameters p)
             throws Exception {
-        return assertFindByQuery(user_query, q, p);
+        return assertFindByQuery(user.query, q, p);
     }
 
     @SuppressWarnings("unchecked")
     protected List<List<RType>> assertProjection(String q, omero.sys.Parameters p)
             throws Exception {
-        return assertProjection(user_query, q, p);
+        return assertProjection(user.query, q, p);
     }
 
     @SuppressWarnings("unchecked")
@@ -193,7 +157,7 @@ public abstract class AbstractServantTest extends TestCase {
     }
 
     protected <T extends IObject> T assertSaveAndReturn(T t) throws Exception {
-        return assertSaveAndReturn(user_update, t);
+        return assertSaveAndReturn(user.update, t);
     }
 
     protected <T extends IObject> T assertSaveAndReturn(UpdateI up, T t)
@@ -244,9 +208,9 @@ public abstract class AbstractServantTest extends TestCase {
                             + "and that proxy given to the OMEROImportFixture");
         } else {
             long pixels = -1;
-            ServiceFactory _sf = new InterceptingServiceFactory(this.sf, user.login);
 
-            MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(_sf, "");
+            MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(
+                    user.managedSf, "");
             File tinyTest = getTinyFileName();
             List<Pixels> list = fixture.fullImport(tinyTest, "tinyTest");
             pixels = list.get(0).getId().getValue();
