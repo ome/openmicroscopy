@@ -28,6 +28,7 @@ from omero.util.decorators import timeit, TimeIt, setsessiongroup
 from omero.cmd import Chgrp
 from omero.callbacks import CmdCallbackI
 from omero.gateway.utils import ServiceOptsDict
+import omero.scripts as scripts
 
 import Ice
 import Glacier2
@@ -6450,95 +6451,54 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:    Tuple of (file-ext, format)
         @rtype:     (String, String)
         """
-        logger.warning('createMovie support is currently disabled.')
-        logger.warning('  - see https://trac.openmicroscopy.org.uk/ome/ticket/3857')
-        return None, None
-        if opts is None: opts = {}
-        slides = opts.get('slides', None)
-        minsize = opts.get('minsize', None)
-        w, h = self.getSizeX(), self.getSizeY()
-        watermark = opts.get('watermark', None)
-        if watermark:
-            watermark = Image.open(watermark)
-            if minsize is not None:
-                ratio = min(float(w) / minsize[0], float(h) / minsize[1])
-                if ratio > 1:
-                    watermark = watermark.resize(map(lambda x: x*ratio, watermark.size), Image.ANTIALIAS)
-            ww, wh = watermark.size
-        else:
-            ww, wh = 0, 0
-        if minsize is not None and (w < minsize[0] or h < minsize[1]):
-            w = max(w, minsize[0])
-            h = max(h, minsize[1])
-        else:
-            minsize = None
-        wmpos = 0, h - wh
-        fps = opts.get('fps', 4)
-        def recb (*args):
-            return self._re
-        fsizes = (8,8,12,18,24,32,32,40,48,56,56,64)
-        fsize = fsizes[max(min(int(w / 256)-1, len(fsizes)), 1) - 1]
-        scalebars = (1,1,2,2,5,5,5,5,10,10,10,10)
-        scalebar = scalebars[max(min(int(w / 256)-1, len(scalebars)), 1) - 1]
-        font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize) )
-        def introcb (pixels, commandArgs):
-            for t in slides:
-                slide = Image.new("RGBA", (w,h))
-                for i, line in enumerate(t[1:4]):
-                    line = line.decode('utf8').encode('iso8859-1')
-                    wwline = self._wordwrap(w, line, font)
-                    for j, line in enumerate(wwline):
-                        tsize = font.getsize(line)
-                        draw = ImageDraw.Draw(slide)
-                        if i == 0:
-                            y = 10+j*tsize[1]
-                        elif i == 1:
-                            y = h / 2 - ((len(wwline)-j)*tsize[1]) + (len(wwline)*tsize[1])/2
-                        else:
-                            y = h - (len(wwline) - j)*tsize[1] - 10
-                        draw.text((w/2-tsize[0]/2,y), line, font=font)
-                for i in range(t[0]*fps):
-                    yield slide
-        if minsize is not None:
-            bg = Image.new("RGBA", (w, h), minsize[2])
-            ovlpos = (w-self.getSizeX()) / 2, (h-self.getSizeY()) / 2
-            def resize (image):
-                img = bg.copy()
-                img.paste(image, ovlpos, image)
-                return img
-        else:
-            def resize (image):
-                return image
-        def imgcb (z, t, pixels, image, commandArgs, frameNo):
-            image = resize(image)
-            if watermark:
-                image.paste(watermark, wmpos, watermark)
-            return image
-        d = tempfile.mkdtemp()
-        orig = os.getcwd()
-        os.chdir(d)
-        ca = makemovie.buildCommandArgs(self.getId(), scalebar=scalebar)
-        ca['imageCB'] = imgcb
-        if slides:
-            ca['introCB'] = introcb
-        ca['fps'] = fps
-        ca['format'] = opts.get('format', 'video/quicktime')
-        ca['zStart'] = int(zstart)
-        ca['zEnd'] = int(zend)
-        ca['tStart'] = int(tstart)
-        ca['tEnd'] = int(tend)
-        ca['font'] = font
-        logger.debug(ca)
-        try:
-            fn = os.path.abspath(makemovie.buildMovie(ca, self._conn.c.getSession(), self, self.getPrimaryPixels()._obj, recb))
-        except:
-            logger.error(traceback.format_exc())
-            raise
-        os.chdir(orig)
-        shutil.move(fn, outpath)
-        shutil.rmtree(d)
-        return os.path.splitext(fn)[-1], ca['format']
+        svc = self._conn.getScriptService()
+        mms = filter(lambda x: x.name.val == 'Make_Movie.py', svc.getScripts())
+        if not len(mms):
+            logger.error('No Make_Movie.py script found!')
+            return None, None
+        mms = mms[0]
+        params = svc.getParams(mms.id.val)
+        args = ['Image_ID=%d' % self.getId()]
+        args.append('Do_Link=False')
+        rdid = self._getRDef()
+        if rdid is not None:
+            args.append('RenderingDef_ID=%d' % rdid)
+        m = scripts.parse_inputs(args, params)
 
+        try:
+            proc = svc.runScript(mms.id.val, m, None)
+            job = proc.getJob()
+        except omero.ValidationException, ve:
+            logger.error('Bad Parameters:\n%s' % ve)
+            return None, None
+
+        # Adding notification to wait on result
+        cb = scripts.ProcessCallbackI(self._conn.c, proc)
+        try:
+            while proc.poll() is None:
+                cb.block(1000)
+            rv = proc.getResults(3)
+        finally:
+            cb.close()
+
+        if not rv.has_key('File_Annotation'):
+            logger.error('Error in createMovie:')
+            if rv.has_key('stderr'):
+                x = StringIO()
+                self._conn.c.download(ofile=rv['stderr'].val, filehandle=x)
+                logger.error(x.getvalue())
+            return None, None
+
+        f = rv['File_Annotation'].val
+        ofw = OriginalFileWrapper(self._conn, f)
+        logger.debug('writing movie on %s' % (outpath,))
+        outfile = file(outpath, 'w')
+        for chunk in ofw.getFileInChunks():
+            outfile.write(chunk)
+        outfile.close()
+        self._conn.deleteObjects('/OriginalFile', [ofw.getId()])
+        return os.path.splitext(f.name.val)[-1], f.mimetype.val
+        
     def renderImage (self, z, t, compression=0.9):
         """
         Render the Image, (projected) and compressed. 
