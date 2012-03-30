@@ -252,17 +252,17 @@ public class BasicACLVoter implements ACLVoter {
     }
 
     public void postProcess(IObject object) {
+        if (object.isLoaded()) {
+            Details details = object.getDetails();
+            // Sets context values.s
+            this.currentUser.applyContext(details,
+                    !(object instanceof ExperimenterGroup));
 
-        Details details = object.getDetails();
-        // Sets context values.s
-        this.currentUser.applyContext(details,
-                !(object instanceof ExperimenterGroup));
-
-        final Permissions p = details.getPermissions();
-        final boolean edit = allowUpdateOrDelete(object, details, true);
-        p.setDisallowAnnotate(!edit);
-        p.setDisallowEdit(!edit);
-
+            final Permissions p = details.getPermissions();
+            final boolean edit = allowUpdateOrDelete(object, details, true);
+            p.setDisallowAnnotate(!edit);
+            p.setDisallowEdit(!edit);
+        }
     }
 
     /**
