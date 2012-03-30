@@ -332,13 +332,12 @@ $.fn.viewportImage = function(options) {
      * Handle Zoom by mousewheel (IE)
      */
 
-    dragdiv.bind("mousewheel", function(e){
+      dragdiv.bind("mousewheel", function(e){
       // Respond to mouse wheel in IE. (It returns up/dn motion in multiples of 120)
-      if (e.wheelDelta >= 120)
+      if (e.originalEvent.wheelDeltaY > 0)
         _this.doZoom(1, true);
-      else if (e.wheelDelta <= -120)
+      else if (e.originalEvent.wheelDeltaY < 0)
         _this.doZoom(-1, true);
-      
       e.preventDefault();
     })
   
@@ -357,6 +356,7 @@ $.fn.viewportImage = function(options) {
         e.preventDefault();
       }, false);
     }
+
 
     /**
      * Handle panning by mouse drag
