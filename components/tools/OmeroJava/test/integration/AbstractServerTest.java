@@ -1495,7 +1495,7 @@ public class AbstractServerTest
     }
 
 	/**
-	 * Moves the data.
+	 * Modifies the graph.
 	 *
 	 * @param change The object hosting information about data to modify.
 	 * @return See above.
@@ -1503,15 +1503,25 @@ public class AbstractServerTest
 	 */
 	protected Response doChange(GraphModify change)
 	    throws Exception {
-	    return doChange(change, true);
+	    return doChange(client, factory, change, true);
 	}
 
-	protected Response doChange(GraphModify change, boolean pass)
+	/**
+	 * 
+	 * @param c
+	 * @param f
+	 * @param change
+	 * @param pass
+	 * @return
+	 * @throws Exception
+	 */
+	protected Response doChange(omero.client c, ServiceFactoryPrx f,
+			GraphModify change, boolean pass)
 		throws Exception
 	{
-		final HandlePrx prx = factory.submit(change);
+		final HandlePrx prx = f.submit(change);
 		assertFalse(prx.getStatus().flags.contains(State.FAILURE));
-		new CmdCallbackI(client, prx).loop(20, 500);
+		new CmdCallbackI(c, prx).loop(20, 500);
 		assertNotNull(prx.getResponse());
 
 		Status status = prx.getStatus();
