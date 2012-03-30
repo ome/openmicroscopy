@@ -172,7 +172,7 @@
                                     type: "POST",
                                     url: url,
                                     data: {'parent':parentId},
-                                    contentType:'json',
+                                    dataType:'json',
                                     success: function(r){
                                         if(eval(r.bad)) {
                                             alert(r.errs);
@@ -233,7 +233,7 @@
                                 $.ajax({
                                     type: "POST",
                                     url: url,
-                                    contentType:'json',
+                                    dataType:'json',
                                     success: function(r){
                                         if(eval(r.bad)) {
                                             alert(r.errs);
