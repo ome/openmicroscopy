@@ -23,18 +23,11 @@ object #0 (::omero::model::Permissions)
 """
 class PermissionsI(_omero_model.Permissions):
 
-      class PermissionsI_generator:
-          def __iter__(self):
-              return self
-          def next(self):
-              return PermissionsI()
-
-      def generator(cls):
-          return cls.PermissionsI_generator()
-      generator = classmethod(generator)
-
       def __init__(self, l = None):
             super(PermissionsI, self).__init__()
+            self.__immutable = False
+            self._disallowAnnotate = False
+            self._disallowEdit = False
             if isinstance(l, str):
                 self._perm1 = -1
                 self.from_string(l)
@@ -47,6 +40,7 @@ class PermissionsI(_omero_model.Permissions):
             return (self._perm1 & (mask<<shift)) == (mask<<shift)
 
       def set(self, mask, shift, on):
+            self.throwIfImmutable()
             if on:
                   self._perm1 = (self._perm1 | ( 0L | (mask<<shift)))
             else:
@@ -88,12 +82,21 @@ class PermissionsI(_omero_model.Permissions):
       def setWorldWrite(self, value):
             self.set(2,0,value)
 
+      # Calculated values
+
+      def canAnnotate(self):
+          return not self._disallowAnnotate
+
+      def canEdit(self):
+          return not self._disallowEdit
+
       # Accessors; do not use
 
       def getPerm1(self):
           return self._perm1
 
       def setPerm1(self, _perm1):
+          self.throwIfImmutable()
           self._perm1 = _perm1
           pass
 
@@ -128,14 +131,22 @@ class PermissionsI(_omero_model.Permissions):
           vals.append(self.isWorldWrite() and "w" or "-")
           return "".join(vals)
 
+      def throwIfImmutable(self):
+          """
+          Check the __immutable field and throw a ClientError
+          if it's true.
+          """
+          if self.__immutable:
+              raise _omero.ClientError("ImmutablePermissions: %s" % \
+                      self.__str__())
 
       def ice_postUnmarshal(self):
           """
           Provides additional initialization once all data loaded
           Required due to __getattr__ implementation.
           """
-          pass # Currently unused
-
+          #_omero_model.Permissions.ice_postUnmarshal(self)
+          self.__immutable = True
 
       def ice_preMarshal(self):
           """

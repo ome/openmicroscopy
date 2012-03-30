@@ -346,4 +346,6 @@
       <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 
+  <bean class="ome.services.blitz.impl.commands.RequestObjectFactoryRegistry"/>
+
 </beans>

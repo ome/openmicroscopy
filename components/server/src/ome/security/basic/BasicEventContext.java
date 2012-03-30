@@ -38,7 +38,7 @@ import ome.system.SimpleEventContext;
  * 
  * Not-thread-safe. Intended to be held by a {@link ThreadLocal}
  */
-class BasicEventContext extends SimpleEventContext {
+public class BasicEventContext extends SimpleEventContext {
 
     private final static Log log = LogFactory.getLog(BasicEventContext.class);
 
@@ -75,6 +75,20 @@ class BasicEventContext extends SimpleEventContext {
         }
         this.p = p;
         this.stats = stats;
+    }
+
+    /**
+     * Copy-constructor to not have to allow the mutator {@link #copy(EventContext)}
+     * or {@link #copyContext(EventContext)} out of the {@link EventContext}
+     * hierarchy.
+     *
+     * @param p
+     * @param stats
+     * @param ec
+     */
+    public BasicEventContext(Principal p, SessionStats stats, EventContext ec) {
+        this(p, stats);
+        copyContext(ec);
     }
 
     void invalidate() {

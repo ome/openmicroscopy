@@ -26,13 +26,13 @@ import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.model.internal.Token;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
 import ome.security.SecurityFilter;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
+import ome.system.EventContext;
 
 /**
  * 
@@ -232,7 +232,9 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
         if (p.isGranted(USER, WRITE) && o != null
-                && o.equals(c.getOwner().getId())) {
+                && o.equals(c.getCurrentUserId())) {
+            // Using cuId rather than getOwner since postProcess is also
+            // post-login!
             return true;
         }
         /* ticket:1992 - removing concept of GROUP-WRITE
@@ -243,6 +245,24 @@ public class BasicACLVoter implements ACLVoter {
         */
 
         return false;
+    }
+
+    public EventContext getEventContext() {
+        return this.currentUser.getCurrentEventContext();
+    }
+
+    public void postProcess(IObject object) {
+        if (object.isLoaded()) {
+            Details details = object.getDetails();
+            // Sets context values.s
+            this.currentUser.applyContext(details,
+                    !(object instanceof ExperimenterGroup));
+
+            final Permissions p = details.getPermissions();
+            final boolean edit = allowUpdateOrDelete(object, details, true);
+            p.setDisallowAnnotate(!edit);
+            p.setDisallowEdit(!edit);
+        }
     }
 
     /**

@@ -7,10 +7,16 @@
 
 package omero.cmd.graphs;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
 
 import ome.api.local.LocalAdmin;
 import ome.model.IObject;
@@ -21,23 +27,16 @@ import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.HibernateUtils;
 import ome.util.SqlAction;
+
 import omero.cmd.Chgrp;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
+import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.OK;
 import omero.cmd.Response;
-import omero.cmd.State;
 import omero.cmd.Status;
 import omero.cmd.Unknown;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.context.ApplicationContext;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
@@ -53,26 +52,25 @@ public class ChgrpI extends Chgrp implements IRequest {
 
     private final ApplicationContext specs;
 
-    private final AtomicReference<Response> rsp = new AtomicReference<Response>();
-
     private/* final */GraphSpec spec;
 
-    private/* final */Status status;
-
     private/* final */GraphState state;
+    
+    private/* final */Helper helper;
 
     public ChgrpI(ChgrpStepFactory factory, ApplicationContext specs) {
         this.factory = factory;
         this.specs = specs;
     }
 
+    public Map<String, String> getCallContext() {
+        Map<String, String> negOne = new HashMap<String, String>();
+        negOne.put("omero.group", "-1");
+        return negOne;
+    }
+
     public void init(Status status, SqlAction sql, Session session, ServiceFactory sf) {
-        synchronized (status) {
-            if (status.flags == null) {
-                status.flags = new ArrayList<State>();
-            }
-        }
-        this.status = status;
+        helper = new Helper(this, status, sql, session, sf);
 
         //
         // initial security restrictions.
@@ -88,7 +86,8 @@ public class ChgrpI extends Chgrp implements IRequest {
         final boolean member = ec.getMemberOfGroupsList().contains(grp);
 
         if (!admin && !member) {
-            fail("non-member", "grp", ""+grp, "usr", ""+userId);
+            helper.cancel(new ERR(), null, "non-member",
+                    "grp", ""+grp, "usr", ""+userId);
             return; // EARLY EXIT!
         }
 
@@ -104,7 +103,7 @@ public class ChgrpI extends Chgrp implements IRequest {
             sw.stop("omero.chgrp.ids." + status.steps);
 
             if (status.steps == 0) {
-                rsp.set(new OK()); // TODO: Subclass?
+                helper.setResponse(new OK()); // TODO: Subclass?
             } else {
 
                 // security restrictions (#6620)
@@ -116,7 +115,8 @@ public class ChgrpI extends Chgrp implements IRequest {
                     obj.getDetails().getOwner();
                     Long owner = HibernateUtils.nullSafeOwnerId(obj);
                     if (owner != null && !owner.equals(userId)) {
-                        fail("non-owner", "owner", ""+owner);
+                        throw helper.cancel(new ERR(), null, "non-owner",
+                                "owner", ""+owner);
                     } else {
                         // SUCCESS
                         log.info(String.format(
@@ -127,50 +127,36 @@ public class ChgrpI extends Chgrp implements IRequest {
             }
         } catch (NoSuchBeanDefinitionException nsbde) {
             status.steps = 0;
-            status.flags.add(State.FAILURE);
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("message", "Unknown type: " + type);
-            rsp.set(new Unknown(ice_id(), "notype", params));
+            throw helper.cancel(new Unknown(), nsbde, "notype",
+                    "message", "Unknown type:" + type);
         } catch (Throwable t) {
             status.steps = 0;
-            status.flags.add(State.FAILURE);
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("message", t.getMessage());
-            rsp.set(new ERR(ice_id(), "INIT ERR", params));
+            throw helper.cancel(new ERR(), t, "INIT ERR");
         }
 
     }
 
-    public void step(int i) throws Cancel {
-        if (i < 0 || i >= status.steps) {
-            return;
+    public Object step(int i) throws Cancel {
+        if (i < 0 || i >= helper.getSteps()) {
+            throw helper.cancel(new ERR(), null, "bad-step", "step", ""+i);
         }
+
         try {
-            state.execute(i);
+            return state.execute(i);
         } catch (Throwable t) {
-            fail("STEP ERR", "id", ""+id, "step", ""+i);
-            Cancel cancel = new Cancel("STEP ERR");
-            cancel.initCause(t);
-            throw cancel;
+            throw helper.cancel(new ERR(), t, "STEP ERR", "step", ""+i, "id", ""+id);
         }
     }
 
-    public void finish() {
-        rsp.compareAndSet(null, new OK());
+    public void buildResponse(int step, Object object) {
+        helper.assertResponse(step);
+        if (helper.isLast(step)) {
+            helper.setResponse(new OK());
+        }
     }
-
+    
     public Response getResponse() {
-        return rsp.get();
-    }
-
-    protected void fail(final String msg, final String...paramList) {
-        status.steps = 0;
-        status.flags.add(State.FAILURE);
-        Map<String, String> params = new HashMap<String, String>();
-        for (int i = 0; i < paramList.length; i=i+2) {
-            params.put(paramList[i], paramList[i+1]);
-        }
-        rsp.set(new ERR(ice_id(), msg, params));
+        return helper.getResponse();
     }
 
 }

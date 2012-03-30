@@ -484,7 +484,7 @@ public class OmeroInterceptor implements Interceptor {
         final BasicEventContext bec = currentUser.current();
 
         // Allow values to be passed in.
-        newDetails.copyWhereUnset(currentUser.createDetails());
+        newDetails.copyWhereUnset(null, currentUser.createDetails());
 
         // OWNER
         // users *aren't* allowed to set the owner of an item.
@@ -637,7 +637,7 @@ public class OmeroInterceptor implements Interceptor {
         boolean altered = false;
 
         final Details currentDetails = iobj.getDetails();
-        newDetails.copyWhereUnset(currentUser.createDetails());
+        newDetails.copyWhereUnset(previousDetails, currentUser.createDetails());
 
         // This happens if all fields of details are null (which can't happen)
         // And is so uninteresting for all of our checks. The object can't be
@@ -701,14 +701,6 @@ public class OmeroInterceptor implements Interceptor {
                         previousDetails, currentDetails, newDetails, bec);
             }
 
-            // implies that Permissions dosn't matter
-            //if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
-            // ticket:1434 re-activating permission mgmt for globals.
-            // ticket:1791 moving after managedGroup to re-use newDetails
-                altered |= managedPermissions(privileged, iobj,
-                        previousDetails, currentDetails, newDetails, sysType);
-            //}
-
             // the event check needs to be last, because we need to test
             // whether or not it is necessary to change the updateEvent
             // (i.e. last modification)
@@ -718,7 +710,13 @@ public class OmeroInterceptor implements Interceptor {
                         previousDetails, currentDetails, newDetails);
             }
 
+
         }
+
+        // ticket:8277 all permissions are ignored. We simply don't trust
+        // any coming in from outside. In the case of chgrp, the value
+        // will be modified in the DB directly. They've been marked as
+        // immutable in the model.
 
         return altered ? newDetails : previousDetails;
 
@@ -770,107 +768,6 @@ public class OmeroInterceptor implements Interceptor {
         }
 
         return altered;
-    }
-
-    /**
-     * responsible for properly copying user-requested permissions taking into
-     * account the {@link Flag#LOCKED} status. This method does not need to
-     * (like {@link #newTransientDetails(IObject)} take into account the session
-     * umask available from {@link CurrentDetails#createDetails()}
-     *
-     * @param locked
-     * @param privileged
-     * @param obj
-     * @param previousDetails
-     *            details representing the known DB state
-     * @param currentDetails
-     *            details representing the user request (UNTRUSTED)
-     * @param newDetails
-     *            details from the current context. Holder for the merged
-     *            {@link Permissions}
-     * @return true if the {@link Permissions} of newDetails are changed.
-     */
-    protected boolean managedPermissions(boolean privileged,
-            IObject obj, Details previousDetails, Details currentDetails,
-            Details newDetails, boolean sysType) {
-
-        // setup
-
-        boolean altered = false;
-
-        Permissions previousP = previousDetails == null ? null
-                : previousDetails.getPermissions();
-
-        Permissions currentP = currentDetails == null ? null : currentDetails
-                .getPermissions();
-
-        // ignore newDetails permissions.
-
-        // If the stored perms are null, then we can't validate anything
-        // TODO : is this alright. Should only happen for system types.
-        // Then can silently ignore ??
-        if (previousP == null) {
-            if (currentP == null) {
-                newDetails.setPermissions(null);
-                altered |= false; // don't need to update
-            } else {
-                newDetails.setPermissions(currentP);
-                altered = true;
-            }
-        }
-
-        // Users did not enter permission (normal case) so is null.
-        else if (currentP == null) {
-            newDetails.setPermissions(previousP);
-            altered = true;
-        }
-
-        // if the user has set the permissions (currentDetails), then we should
-        // try to allow that. if it's identical to the current, then there
-        // is no reason to hit the DB.
-        else {
-
-            // if we need to filter any permissions, do it here!
-
-            newDetails.setPermissions(currentP);
-
-            // see https://trac.openmicroscopy.org.uk/omero/ticket/1434
-            // and https://trac.openmicroscopy.org.uk/omero/ticket/1731
-            if (!currentP.identical(previousP) &&
-                    obj instanceof ExperimenterGroup) {
-                throw new PermissionMismatchGroupSecurityViolation(
-                        "Group permissions must be changed via IAdmin");
-            }
-
-            // see https://trac.openmicroscopy.org.uk/omero/ticket/1776
-            Permissions groupPerms = currentUser.getCurrentEventContext()
-                .getCurrentGroupPermissions();
-            if ( !(sysType || sysTypes.isInUserGroup(newDetails)) // ticket:1791
-                && !groupPerms.sameRights(currentP)) { // ticket:1779
-                // ticket:2204. After work on permissions upgrade, it was
-                // decide to just ignore all incorrect permissions for the
-                // moment.
-                newDetails.setPermissions(previousP);
-                altered = true;
-            }
-
-            // finally, check isOwnerOrSupervisor.
-            if (!currentP.identical(previousP)) {
-                if (!currentUser.isOwnerOrSupervisor(obj)) {
-                    // remove from below??
-                    throw new SecurityViolation(String.format(
-                            "You are not authorized to change "
-                                    + "the permissions for %s from %s to %s",
-                            obj, previousP, currentP));
-                }
-            }
-        }
-
-        // privileged plays no role since everyone can alter their permissions
-        // (within bounds)
-
-        return altered;
-
     }
 
     protected boolean managedOwner(boolean privileged,

@@ -12,6 +12,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.Transient;
 
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
@@ -35,7 +36,7 @@ import static ome.model.internal.Permissions.Flag.*;
  */
 public class Permissions implements Serializable {
 
-    private static final long serialVersionUID = 7089149309186580238L;
+    private static final long serialVersionUID = 708953452345658023L;
 
     /**
      * enumeration of currently active roles. The {@link #USER} role is active
@@ -148,6 +149,18 @@ public class Permissions implements Serializable {
      */
     private long perm1 = -1; // all bits turned on.
 
+    /**
+     * Calculated field which is based on both the stored representation
+     * ({@link #perm1}) and the current calling context.
+     */
+    private boolean disallowAnnotate = false;
+
+    /**
+     * Calculated field which is based on both the stored representation
+     * ({@link #perm1}) and the current calling context.
+     */
+    private boolean disallowEdit = false;
+
     // ~ Getters
     // =========================================================================
 
@@ -221,6 +234,16 @@ public class Permissions implements Serializable {
         }
 
         return p;
+    }
+
+    @Transient
+    public boolean isDisallowAnnotate() {
+        return disallowAnnotate;
+    }
+
+    @Transient
+    public boolean isDisallowEdit() {
+        return disallowEdit;
     }
 
     // ~ Setters (return this)
@@ -321,6 +344,16 @@ public class Permissions implements Serializable {
         return this;
     }
 
+    public Permissions setDisallowAnnotate(boolean disallowAnnotate) {
+        this.disallowAnnotate = disallowAnnotate;
+        return this;
+    }
+
+    public Permissions setDisallowEdit(boolean disallowEdit) {
+        this.disallowEdit = disallowEdit;
+        return this;
+    }
+
     // ~ Overrides
     // =========================================================================
 
@@ -329,7 +362,7 @@ public class Permissions implements Serializable {
      * those on a Unix filesystem. Unset bits are represented by a dash, while
      * other bits are represented by a symbolic value in the correct bit
      * position. For example, a Permissions with all {@link Right rights}
-     * granted to all but WORLD {@link Role roles} would look like: rwurwu---
+     * granted to all but WORLD {@link Role roles} would look like: rwrw--
      */
     @Override
     public String toString() {
@@ -401,7 +434,7 @@ public class Permissions implements Serializable {
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================
 
-    @Column(name = "permissions", nullable = false)
+    @Column(name = "permissions", nullable = false, updatable = false)
     protected long getPerm1() {
         return this.perm1;
     }

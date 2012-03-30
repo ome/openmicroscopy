@@ -14,6 +14,7 @@ import ome.model.internal.Details;
 import ome.security.basic.BasicACLVoter;
 import ome.security.basic.CurrentDetails;
 import ome.security.sharing.SharingACLVoter;
+import ome.system.EventContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
