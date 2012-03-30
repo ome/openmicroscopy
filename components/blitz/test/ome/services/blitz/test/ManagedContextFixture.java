@@ -51,27 +51,29 @@ import ome.tools.spring.InternalServiceFactory;
  */
 public class ManagedContextFixture {
 
-    public Ice.ObjectAdapter adapter;
-    public OmeroContext ctx;
-    public SessionManager mgr;
-    public Executor ex;
-    public ServiceFactoryI sf;
-    public ServiceFactory managedSf;
-    public ServiceFactory internalSf;
-    public SecuritySystem security;
-    public PrincipalHolder holder;
-    public LoginInterceptor login;
-    public AopContextInitializer init;
-    public BlitzExecutor be;
-    protected List<HardWiredInterceptor> cptors;
+    public final Ice.ObjectAdapter adapter;
+    public final OmeroContext ctx;
+    public final SessionManager mgr;
+    public final Executor ex;
+    public final ServiceFactoryI sf;
+    public final ServiceFactory managedSf;
+    public final ServiceFactory internalSf;
+    public final SecuritySystem security;
+    public final PrincipalHolder holder;
+    public final LoginInterceptor login;
+    public final AopContextInitializer init;
+    public final BlitzExecutor be;
+    public final SessionManager sm;
+    public final SecuritySystem ss;
+    protected final List<HardWiredInterceptor> cptors;
 
     // Servants
-    public AdminI admin;
-    public ConfigI config;
-    public DeleteI delete;
-    public QueryI query;
-    public ShareI share;
-    public UpdateI update;
+    public final AdminI admin;
+    public final ConfigI config;
+    public final DeleteI delete;
+    public final QueryI query;
+    public final ShareI share;
+    public final UpdateI update;
 
     public ManagedContextFixture() throws Exception {
         this(OmeroContext.getManagedServerContext());
@@ -103,6 +105,9 @@ public class ManagedContextFixture {
     public ManagedContextFixture(OmeroContext ctx, boolean newUser, String permissions)
         throws Exception {
         this.ctx = ctx;
+        
+        sm = (SessionManager) ctx.getBean("sessionManager");
+        ss = (SecuritySystem) ctx.getBean("securitySystem");
         be = (BlitzExecutor) ctx.getBean("throttlingStrategy");
         adapter = (Ice.ObjectAdapter) ctx.getBean("adapter");
         mgr = (SessionManager) ctx.getBean("sessionManager");
@@ -110,8 +115,8 @@ public class ManagedContextFixture {
         security = (SecuritySystem) ctx.getBean("securitySystem");
         holder = (PrincipalHolder) ctx.getBean("principalHolder");
         login = new LoginInterceptor(holder);
-        managedSf = new ServiceFactory(ctx);
-        managedSf = new InterceptingServiceFactory(managedSf, login);
+        managedSf = new InterceptingServiceFactory(new ServiceFactory(ctx),
+                login);
         internalSf = new InternalServiceFactory(ctx);
 
         cptors = HardWiredInterceptor
@@ -124,15 +129,20 @@ public class ManagedContextFixture {
             loginNewUserNewGroup(permissions);
         }
 
+        
+
+      
         sf = createServiceFactoryI();
         init = new AopContextInitializer(
                 new ServiceFactory(ctx), login.p, new AtomicBoolean(true));
         delete = delete();
-        update = new UpdateI(managedSf.getUpdateService(), be);
-        query = new QueryI(managedSf.getQueryService(), be);
-        admin = new AdminI(managedSf.getAdminService(), be);
-        config = new ConfigI(managedSf.getConfigService(), be);
-        share = new ShareI(managedSf.getShareService(), be);
+
+        ServiceFactory regular = new ServiceFactory(ctx);
+        update = new UpdateI(regular.getUpdateService(), be);
+        query = new QueryI(regular.getQueryService(), be);
+        admin = new AdminI(regular.getAdminService(), be);
+        config = new ConfigI(regular.getConfigService(), be);
+        share = new ShareI(regular.getShareService(), be);
         configure(delete, init);
         configure(update, init);
         configure(query, init);
@@ -170,7 +180,6 @@ public class ManagedContextFixture {
     }
 
     public void tearDown() throws Exception {
-        managedSf = null;
         ctx.close();
     }
 

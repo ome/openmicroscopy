@@ -765,9 +765,9 @@ class Connector
 			return null;
 		DoAll all = new DoAll();
 		Iterator<Request> i = commands.iterator();
-		all.list = new ArrayList<Request>();
+		all.requests = new ArrayList<Request>();
 		while (i.hasNext()) {
-			all.list.add(i.next());
+			all.requests.add(i.next());
 		}
 		
 		if (entryUnencrypted != null) {

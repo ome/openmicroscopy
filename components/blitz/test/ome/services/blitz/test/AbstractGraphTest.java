@@ -6,7 +6,9 @@
 package ome.services.blitz.test;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jmock.Mock;
 import org.testng.annotations.BeforeClass;
@@ -23,6 +25,7 @@ import omero.cmd.OK;
 import omero.cmd.RequestObjectFactoryRegistry;
 import omero.cmd.Response;
 import omero.cmd.State;
+import omero.cmd.Status;
 import omero.cmd._HandleTie;
 import omero.sys.ParametersI;
 
@@ -60,9 +63,19 @@ public class AbstractGraphTest extends AbstractServantTest {
     //
 
     protected _HandleTie submit(IRequest req) throws Exception {
+        return submit(req, null);
+    }
+
+    protected _HandleTie submit(IRequest req, long groupID) throws Exception {
+        Map<String, String> callContext = new HashMap<String, String>();
+        callContext.put("omero.group", ""+groupID);
+        return submit(req, callContext);
+    }
+
+    protected _HandleTie submit(IRequest req, Map<String, String> callContext) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", req.toString());
-        HandleI handle = new HandleI(1000);
-        handle.setSession(user_sf);
+        HandleI handle = new HandleI(1000, callContext);
+        handle.setSession(user.sf);
         handle.initialize(id, req);
         handle.run();
         // Client side this would need a try/finally { handle.close() }
@@ -76,14 +89,21 @@ public class AbstractGraphTest extends AbstractServantTest {
         }
     }
 
-    protected void assertSuccess(_HandleTie handle) {
+    protected Response assertSuccess(_HandleTie handle) {
         Response rsp = handle.getResponse();
+        Status status = handle.getStatus();
+        assertSuccess(rsp);
+        assertFalse(status.flags.contains(State.FAILURE));
+        return rsp;
+    }
+
+    protected Response assertSuccess(Response rsp) {
         assertNotNull(rsp);
         if (rsp instanceof ERR) {
             ERR err = (ERR) rsp;
-            fail(err.category + ":" + err.name + ":" + err.parameters);
+            fail(printErr(err));
         }
-        assertFalse(handle.getStatus().flags.contains(State.FAILURE));
+        return rsp;
     }
 
     protected void assertFailure(_HandleTie handle, String...allowedMessages) {
