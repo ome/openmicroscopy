@@ -172,27 +172,43 @@ public abstract class Details implements Filterable, Serializable {
         setPermissions(p);
     }
 
-    public void copyWhereUnset(Details copy) {
-        if (copy == null) {
+    /**
+     * For any field of this which is null (and is NOT null on mask -- assuming
+     * mask is not null), copy the same value from copyFrom
+     * into this object.
+     * @param mask
+     * @param copyFrom
+     */
+    public void copyWhereUnset(Details mask, Details copyFrom) {
+        if (copyFrom == null) {
             throw new IllegalArgumentException("argument may not be null");
         }
-        if (getContext() == null) {
-            setContext(copy.getContext());
+
+        boolean skipMask = (mask == null);
+
+        if (getContext() == null &&
+                (skipMask || mask.getContext() != null)) {
+            setContext(copyFrom.getContext());
         }
-        if (getPermissions() == null) {
-            possiblySetPermissions(copy);
+        if (getPermissions() == null &&
+                (skipMask || mask.getPermissions() != null)) {
+            possiblySetPermissions(copyFrom);
         }
-        if (getCreationEvent() == null) {
-            setCreationEvent(copy.getCreationEvent());
+        if (getCreationEvent() == null &&
+                (skipMask || mask.getCreationEvent() != null)) {
+            setCreationEvent(copyFrom.getCreationEvent());
         }
-        if (getOwner() == null) {
-            setOwner(copy.getOwner());
+        if (getOwner() == null &&
+                (skipMask || mask.getOwner() != null)) {
+            setOwner(copyFrom.getOwner());
         }
-        if (getGroup() == null) {
-            setGroup(copy.getGroup());
+        if (getGroup() == null &&
+                (skipMask || mask.getGroup() != null)) {
+            setGroup(copyFrom.getGroup());
         }
-        if (getUpdateEvent() == null) {
-            setUpdateEvent(copy.getUpdateEvent());
+        if (getUpdateEvent() == null &&
+                (skipMask || mask.getUpdateEvent() != null)) {
+            setUpdateEvent(copyFrom.getUpdateEvent());
         }
     }
 

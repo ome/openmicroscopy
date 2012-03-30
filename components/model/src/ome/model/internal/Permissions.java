@@ -434,7 +434,7 @@ public class Permissions implements Serializable {
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================
 
-    @Column(name = "permissions", nullable = false)
+    @Column(name = "permissions", nullable = false, updatable = false)
     protected long getPerm1() {
         return this.perm1;
     }
