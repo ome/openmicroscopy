@@ -22,6 +22,8 @@ import org.testng.annotations.Test;
 //Application-internal dependencies
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
+import omero.cmd.Chmod;
+import omero.cmd.graphs.ChmodI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -50,6 +52,9 @@ import pojos.GroupData;
 public class AdminServiceTest 
 	extends AbstractServerTest
 {
+	
+	/** Identifies the image as root. */
+	public static final String REF_GROUP = "/ExperimenterGroup";
 	
 	/** The password of the user. */
 	private String PASSWORD = "password";
@@ -935,7 +940,8 @@ public class AdminServiceTest
         // First group rwr---
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(rstring(uuid));
-        g.getDetails().setPermissions(new PermissionsI("rwr---"));
+        String representation = "rwr---";
+        g.getDetails().setPermissions(new PermissionsI(representation));
         long id = prx.createGroup(g);
         g = prx.getGroup(id);
         Permissions permissions = g.getDetails().getPermissions();
@@ -943,16 +949,23 @@ public class AdminServiceTest
         assertFalse(permissions.isGroupWrite());
         
         //change permissions
-        permissions.setGroupWrite(true);
-        prx.changePermissions(g, permissions);
+        representation = "rwrw--";
+        
+        Chmod mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        		g.getId().getValue(), representation);
+        doChange(mod);
+        //prx.changePermissions(g, permissions);
         g = prx.getGroup(id);
         permissions = g.getDetails().getPermissions();
         assertTrue(permissions.isGroupRead());
         assertTrue(permissions.isGroupWrite());
         
         //now reduce the permissions.
-        permissions.setGroupWrite(false);
-        prx.changePermissions(g, permissions);
+        representation = "rwr---";
+        
+        mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        		g.getId().getValue(), representation);
+        doChange(mod);
         g = prx.getGroup(id);
         permissions = g.getDetails().getPermissions();
         assertTrue(permissions.isGroupRead());

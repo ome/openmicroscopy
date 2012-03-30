@@ -48,8 +48,10 @@ import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.api.delete.DeleteReport;
 import omero.cmd.Chgrp;
+import omero.cmd.Chmod;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.ERR;
+import omero.cmd.GraphModify;
 import omero.cmd.HandlePrx;
 import omero.cmd.OK;
 import omero.cmd.Response;
@@ -972,6 +974,21 @@ public class AbstractServerTest
     }
 
     /**
+     * Creates the command to change permissions.
+     * 
+     * @param session
+     * @param type
+     * @param id
+     * @param perms
+     * @return
+     */
+    Chmod createChmodCommand(String session, String type, long id, 
+    		String perms)
+    {
+    	return new Chmod(session, type, id, null, perms);
+    }
+    
+    /**
      * Asynchronous command for a single delete, this means a single 
      * report is returned for testing. 
      * 
@@ -1480,16 +1497,16 @@ public class AbstractServerTest
 	/**
 	 * Moves the data.
 	 *
-	 * @param change The object hosting information about data to move.
+	 * @param change The object hosting information about data to modify.
 	 * @return See above.
 	 * @throws Exception
 	 */
-	protected Response doChange(Chgrp change)
+	protected Response doChange(GraphModify change)
 	    throws Exception {
 	    return doChange(change, true);
 	}
 
-	protected Response doChange(Chgrp change, boolean pass)
+	protected Response doChange(GraphModify change, boolean pass)
 		throws Exception
 	{
 		final HandlePrx prx = factory.submit(change);
