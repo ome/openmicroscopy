@@ -26,7 +26,6 @@ import IceGrid
 import IceImport
 import Glacier2
 
-from omero.clients import ObjectFactory
 from omero.util import make_logname, ServerContext, Resources
 from omero.util.decorators import remoted, locked, perf
 from omero.util.import_candidates import as_dictionary

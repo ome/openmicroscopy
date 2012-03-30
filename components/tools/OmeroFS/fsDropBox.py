@@ -31,8 +31,7 @@ from omero.util import configure_server_logging
 IceImport.load("omero_FS_ice")
 monitors = Ice.openModule('omero.grid.monitors')
 
-from omero.clients import ObjectFactory
-
+import omero.ObjectFactoryRegistrar as ofr
 import fsDropBoxMonitorClient
 
 class DropBox(Ice.Application):
@@ -43,7 +42,7 @@ class DropBox(Ice.Application):
 
     def run(self, args):
         # Configure our communicator
-        ObjectFactory().registerObjectFactory(self.communicator())
+        ofr.registerObjectFactory(self.communicator())
         for of in omero.rtypes.ObjectFactories.values():
             of.register(self.communicator())
 
