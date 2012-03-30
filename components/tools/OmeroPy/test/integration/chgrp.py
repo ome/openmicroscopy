@@ -7,48 +7,17 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-import omero
+import omero, omero.gateway
 import integration.library as lib
 import unittest
 from omero.rtypes import *
-from omero.cmd import Chgrp, State, ERR, OK
-from omero.callbacks import CmdCallbackI
+from omero.cmd import Chgrp
 
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
 COLLAB = 'rwrw--'
 
 class TestChgrp(lib.ITest):
-
-
-    def doChange(self, chgrp, client, test_should_pass=True):
-        """
-        Performs the change-group action, waits on completion and checks that the 
-        result is not an error.
-        """
-        sf = client.sf
-        prx = sf.submit(chgrp)
-
-        self.assertFalse(State.FAILURE in prx.getStatus().flags)
-
-        cb = CmdCallbackI(client, prx)
-        cb.loop(20, 500)
-
-        self.assertNotEqual(prx.getResponse(), None)
-
-        status = prx.getStatus()
-        rsp = prx.getResponse()
-
-        if test_should_pass:
-            if isinstance(rsp, ERR):
-                self.fail("Found ERR when test_should_pass==true: %s (%s) params=%s" % (rsp.category, rsp.name, rsp.parameters))
-            self.assertFalse(State.FAILURE in prx.getStatus().flags)
-        else:
-            if isinstance(rsp, OK):
-                self.fail("Found OK when test_should_pass==false: %s", rsp)
-            self.assertTrue(State.FAILURE in prx.getStatus().flags)
-        return rsp
-
 
     def testChgrpImportedImage(self):
         """
@@ -63,13 +32,13 @@ class TestChgrp(lib.ITest):
         query = client.sf.getQueryService()
 
         # Import an image into the client context
-        pixID = self.import_image(client=client)[0]
+        pixID = long(self.import_image(client=client)[0])
         pixels = client.sf.getQueryService().get("Pixels", pixID)
         imageId = pixels.getImage().getId().getValue()
 
         # Chgrp
         chgrp = omero.cmd.Chgrp(type="/Image", id=imageId, options=None, grp=gid)
-        self.doChange(chgrp, client)
+        self.doSubmit(chgrp, client)
 
         # Change our context to new group...
         admin = client.sf.getAdminService()
@@ -98,7 +67,7 @@ class TestChgrp(lib.ITest):
 
         # Move image to new group
         chgrp = omero.cmd.Chgrp(type="/Image", id=img.id.val, options=None, grp=gid)
-        self.doChange(chgrp, client)
+        self.doSubmit(chgrp, client)
 
         # Change our context to new group...
         admin = client.sf.getAdminService()
@@ -143,7 +112,7 @@ class TestChgrp(lib.ITest):
 
         # Move Project to new group
         chgrp = omero.cmd.Chgrp(type="/Project", id=project.id.val, options=None, grp=gid)
-        self.doChange(chgrp, client)
+        self.doSubmit(chgrp, client)
 
         # Change our context to new group...
         admin = client.sf.getAdminService()
@@ -155,6 +124,54 @@ class TestChgrp(lib.ITest):
         # check Project
         prj = client.sf.getQueryService().get("Project", project.id.val)
         self.assertEqual(prj.details.group.id.val, gid)
+
+    def testChgrpRdef7825(self):
+
+        # One user in two groups
+        owner, owner_obj = self.new_client_and_user(perms="rwrw--")
+        admin = owner.sf.getAdminService()
+        ec = admin.getEventContext()
+        source_grp = admin.getGroup(ec.groupId)
+
+        target_grp = self.new_group([owner])
+        target_gid = target_grp.id.val
+
+        ec = admin.getEventContext() # Refresh
+
+        # Add another user to the source group
+        member = self.new_client(group=source_grp)
+
+        # Create an image as the owner
+        image = self.createTestImage(session=owner.sf)
+
+        # Render as both users
+        owner_g = omero.gateway.BlitzGateway(client_obj=owner)
+        member_g = omero.gateway.BlitzGateway(client_obj=member)
+        def render(g):
+            g.getObject("Image", image.id.val).getThumbnail()
+        render(owner_g)
+        render(member_g)
+
+        # Now chgrp and try to delete
+        chgrp = omero.cmd.Chgrp(type="/Image", id=image.id.val, grp=target_gid)
+        self.doSubmit(chgrp, owner)
+
+        # Delete
+        # TODO: delete = omero.cmd.Delete(type="/Image", id=image.id.val)
+        # TODO: self.doSubmit(delete, owner)
+
+        # Shouldn't be necessary to change group, but we're gonna
+        owner_g.CONFIG['SERVICE_OPTS'] = {"omero.group":"-1"}
+        handle = owner_g.deleteObjects("/Image", [image.id.val])
+        callback = omero.callbacks.DeleteCallbackI(owner, handle)
+        errors = None
+        count = 10
+        while errors is None:
+            errors = callback.block(500)
+            count -= 1
+            self.assert_( count != 0 )
+        self.assertEquals(0, errors)
+
 
 
 if __name__ == '__main__':
