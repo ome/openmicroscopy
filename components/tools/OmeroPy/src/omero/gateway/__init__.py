@@ -2678,18 +2678,17 @@ class _BlitzGateway (object):
 
         return ImageWrapper(self, image)
 
-
-    def createFileAnnfromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None, desc=None):
+    def createOriginalFileFromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None, desc=None):
         """
-        Class method to create a L{FileAnnotationWrapper} from a local file.
-        File is uploaded to create an omero.model.OriginalFileI referenced from this File Annotation.
-        Returns a new L{FileAnnotationWrapper}
+        Creates a L{OriginalFileWrapper} from a local file.
+        File is uploaded to create an omero.model.OriginalFileI.
+        Returns a new L{OriginalFileWrapper}
 
         @param conn:                    Blitz connection
         @param localPath:               Location to find the local file to upload
         @param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
         @param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
-        @return:                        New L{FileAnnotationWrapper}
+        @return:                        New L{OriginalFileWrapper}
         """
         updateService = self.getUpdateService()
         rawFileStore = self.createRawFileStore()
@@ -2734,10 +2733,28 @@ class _BlitzGateway (object):
             block = fileHandle.read(blockSize)
             rawFileStore.write(block, pos, blockSize)
         fileHandle.close()
+        return OriginalFileWrapper(self, originalFile)
+        
+    def createFileAnnfromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None, desc=None):
+        """
+        Class method to create a L{FileAnnotationWrapper} from a local file.
+        File is uploaded to create an omero.model.OriginalFileI referenced from this File Annotation.
+        Returns a new L{FileAnnotationWrapper}
 
+        @param conn:                    Blitz connection
+        @param localPath:               Location to find the local file to upload
+        @param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
+        @param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
+        @return:                        New L{FileAnnotationWrapper}
+        """
+        updateService = self.getUpdateService()
+
+        # create and upload original file
+        originalFile = self.createOriginalFileFromLocalFile(localPath, origFilePathAndName, mimetype, ns, desc)
+        
         # create FileAnnotation, set ns & description and return wrapped obj
         fa = omero.model.FileAnnotationI()
-        fa.setFile(originalFile)
+        fa.setFile(originalFile._obj)
         if desc:
             fa.setDescription(rstring(desc))
         if ns:
