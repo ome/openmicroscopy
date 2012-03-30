@@ -16,11 +16,12 @@ module omero {
     module cmd {
 
         class DoAll extends Request {
-            RequestList list;
+            RequestList requests;
         };
 
         class DoAllRsp extends OK {
-            ResponseList list;
+            ResponseList responses;
+            StatusList status;
         };
 
         class ListRequests extends Request {

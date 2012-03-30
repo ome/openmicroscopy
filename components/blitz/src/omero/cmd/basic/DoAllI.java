@@ -72,7 +72,7 @@ public class DoAllI extends DoAll implements IRequest {
             ome.system.ServiceFactory sf) {
         this.helper = new Helper(this, status, sql, session, sf);
         status.steps = 0;
-        for (Request req : this.list) {
+        for (Request req : this.requests) {
             Status substatus = new Status();
             if (req instanceof IRequest) {
                 IRequest ireq = (IRequest) req;
@@ -111,12 +111,12 @@ public class DoAllI extends DoAll implements IRequest {
         p.buildResponse(object);
 
         if (helper.isLast(step)) {
-            for (Request subreq : list) {
+            for (Request subreq : requests) {
                 // Again, must be an irequest
                 IRequest ireq = (IRequest) subreq;
                 responses.add(ireq.getResponse());
             }
-            DoAllRsp rsp = new DoAllRsp(responses);
+            DoAllRsp rsp = new DoAllRsp(responses, statuses);
             helper.setResponse(rsp);
         }
     }
@@ -168,7 +168,7 @@ public class DoAllI extends DoAll implements IRequest {
 
             // At this point, it must also be an IRequest, because otherwise the
             // offset would have not changed.
-            Request subrequest = doall.list.get(i);
+            Request subrequest = doall.requests.get(i);
             req = (IRequest) subrequest;
             substep = step - last;
         }
