@@ -1307,7 +1307,7 @@ def jsonp (f):
             rv = f(request, *args, **kwargs)
             if conn is not None and kwargs.get('_internal', False):
                 return rv
-            if isinstance(rv, HttpResponseServerError):
+            if isinstance(rv, HttpResponse):
                 return rv
             rv = simplejson.dumps(rv)
             c = request.REQUEST.get('callback', None)
