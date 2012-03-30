@@ -631,7 +631,7 @@ class MetadataViewerComponent
 			}
 			firePropertyChange(CLEAR_SAVE_DATA_PROPERTY, null, data);
 			setRootObject(null, -1, null);
-		} else setRootObject(o, model.getUserID(), model.getSecurityContext());
+		} else setRootObject(o, model.getUserID(), model.getAdminContext());
 		firePropertyChange(ADMIN_UPDATED_PROPERTY, null, data);
 		
 		/*
@@ -756,31 +756,6 @@ class MetadataViewerComponent
 			}
 		});
 		dialog.centerDialog();
-	}
-	
-	/**
-	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#uploadMovie(FileAnnotationData, File)
-	 */
-	public void uploadMovie(FileAnnotationData data, File folder)
-	{
-		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		if (data == null) {
-			if (folder == null) 
-				un.notifyInfo("Movie Creation", "A problem occured while " +
-					"creating the movie");
-		} else {
-			if (folder == null) folder = UIUtilities.getDefaultFolder();
-			OriginalFile f = (OriginalFile) data.getContent();
-			IconManager icons = IconManager.getInstance();
-			
-			DownloadActivityParam activity = new DownloadActivityParam(f,
-					folder, icons.getIcon(IconManager.DOWNLOAD_22));
-			un.notifyActivity(model.getSecurityContext(), activity);
-			//un.notifyDownload(data, folder);
-		}
-		firePropertyChange(CREATING_MOVIE_PROPERTY, Boolean.valueOf(true), 
-				Boolean.valueOf(false));
 	}
 
 	/**
@@ -920,30 +895,6 @@ class MetadataViewerComponent
 				index);
 		d.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(d);
-	}
-
-	/**
-	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#uploadFret(FileAnnotationData, File)
-	 */
-	public void uploadFret(FileAnnotationData data, File folder)
-	{
-		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		if (data == null) {
-			if (folder == null) 
-				un.notifyInfo("Data Analysis", "A problem occured while " +
-					"analyzing the data.");
-		} else {
-			if (folder == null) folder = UIUtilities.getDefaultFolder();
-			OriginalFile f = (OriginalFile) data.getContent();
-			IconManager icons = IconManager.getInstance();
-			
-			DownloadActivityParam activity = new DownloadActivityParam(f,
-					folder, icons.getIcon(IconManager.DOWNLOAD_22));
-			un.notifyActivity(model.getSecurityContext(), activity);
-		}
-		firePropertyChange(ANALYSE_PROPERTY, Boolean.valueOf(true), 
-				Boolean.valueOf(false));
 	}
 
 	/**

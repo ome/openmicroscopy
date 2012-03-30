@@ -903,11 +903,18 @@ class MetadataViewerModel
 	 * 
 	 * @return See above.
 	 */
-	SecurityContext getSecurityContext()
+	SecurityContext getSecurityContext() { return ctx; }
+
+	/** 
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getAdminContext()
 	{ 
 		if (MetadataViewerAgent.isAdministrator())
 			return MetadataViewerAgent.getAdminContext();
-		return ctx;
+		return null;
 	}
 
 }
