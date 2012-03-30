@@ -188,6 +188,7 @@ public class RolesTest
     	Permissions perms = d.getDetails().getPermissions();
     	long id = d.getId().getValue();
     	disconnect();
+
     	//Now a new member to the group.
     	newUserInGroup(ec);
     	String sql = "select i from Dataset as i ";
@@ -195,9 +196,15 @@ public class RolesTest
 		ParametersI param = new ParametersI();
     	param.addId(id);
     	List<IObject> images = iQuery.findAllByQuery(sql, param);
-    	assertEquals(images.size(), 1);
-    	assertTrue(perms.canAnnotate());
-        assertFalse(perms.canEdit());
+        assertEquals(images.size(), 1);
+
+    	// Just a member should be able to neither (for the moment)
+    	// Reload the perms (from the object that the member loaded)
+    	// and check status.
+    	perms = images.get(0).getDetails().getPermissions();
+    	assertFalse(perms.canAnnotate());
+    	assertFalse(perms.canEdit());
+
     	
     	//Try to link an image
     	try {
