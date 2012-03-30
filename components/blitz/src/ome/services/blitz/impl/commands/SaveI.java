@@ -74,7 +74,7 @@ public class SaveI extends Save implements IRequest {
             helper.setResponse(rsp);
         }
         catch (Throwable t) {
-            helper.fail(new ERR(), "error", "obj",
+            helper.cancel(new ERR(), t, "failed", "obj",
                     String.format("%s", this.obj));
         }
     }

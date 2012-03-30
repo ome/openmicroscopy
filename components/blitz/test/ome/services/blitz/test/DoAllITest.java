@@ -18,6 +18,8 @@
 
 package ome.services.blitz.test;
 
+import static omero.rtypes.rstring;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,9 +37,7 @@ import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 
-import omero.api.SaveRsp;
 import omero.cmd.Chgrp;
-import omero.cmd.ChgrpRsp;
 import omero.cmd.DoAllRsp;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
@@ -49,6 +49,7 @@ import omero.cmd._HandleTie;
 import omero.cmd.basic.DoAllI;
 import omero.cmd.graphs.ChgrpI;
 import omero.model.DatasetI;
+import omero.model.ImageI;
 import omero.util.IceMapper;
 
 /**
@@ -96,12 +97,11 @@ public class DoAllITest extends AbstractGraphTest {
      * @return
      */
     SaveI addImageToNewDataset(long newGroupID, Image i) throws Exception {
-        Dataset d = new Dataset("NewDoAllData");
-        d.linkImage(i.proxy());
-        IceMapper mapper = new IceMapper();
-        DatasetI dI = (DatasetI) mapper.map(d);
+        DatasetI d = new DatasetI();
+        d.setName(rstring("NewDoAllData"));
+        d.linkImage(new ImageI(i.getId(), false));
         SaveI save = new SaveI();
-        save.obj = dI;
+        save.obj = d;
         return save;
     }
 
@@ -123,19 +123,20 @@ public class DoAllITest extends AbstractGraphTest {
 
     @Test
     public void testSimple() throws Exception {
-        EventContext ec = user.getCurrentEventContext();
-        long userID = ec.getCurrentUserId();
+        EventContext before = user.getCurrentEventContext();
+        long userID = before.getCurrentUserId();
         long newGroupID = root.newGroup();
         root.addUserToGroup(userID, newGroupID);
-        user.getCurrentEventContext(); // Refresh
+        EventContext after = user.getCurrentEventContext(); // Refresh
 
-        Data data = new Data(user);
+        assertEquals(before.getCurrentGroupId(), after.getCurrentGroupId());
+        Data data = new Data(user); // Data in oldGroupID
         DoAllI all = new DoAllI();
-        Request chgrp = chgrp(data.i.getId(), newGroupID);
+        Request chgrp = chgrp(data.i.getId(), newGroupID); // Image in newGroupID
         Request save = addImageToNewDataset(newGroupID, data.i);
         all.list = Arrays.asList(chgrp, save);
 
-        _HandleTie handle = submit(all);
+        _HandleTie handle = submit(all, newGroupID); // Login to newGroupID
         block(handle, 5, 1000);
         DoAllRsp rsp = (DoAllRsp) assertSuccess(handle);
         assertSuccess(rsp.list.get(0));

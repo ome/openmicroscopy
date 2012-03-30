@@ -132,7 +132,7 @@ public class Helper {
      * @param name
      * @param paramList
      */
-    public void fail(ERR err, final String name, final String... paramList) {
+    protected void fail(ERR err, final String name, final String... paramList) {
         fail(err, name, params(paramList));
     }
 
@@ -143,7 +143,7 @@ public class Helper {
      * @param name
      * @param params
      */
-    public void fail(ERR err, final String name,
+    protected void fail(ERR err, final String name,
             final Map<String, String> params) {
         status.flags.add(State.FAILURE);
         err.category = request.ice_id();

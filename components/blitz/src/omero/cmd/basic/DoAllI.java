@@ -29,6 +29,7 @@ import ome.util.SqlAction;
 
 import omero.cmd.DoAll;
 import omero.cmd.DoAllRsp;
+import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Request;
@@ -105,10 +106,17 @@ public class DoAllI extends DoAll implements IRequest {
             return; // Nothing found
         }
 
-        Request subrequest = list.get(i);
         // At this point, it must also be an IRequest, because otherwise the
         // offset would have not changed.
-        ((IRequest) subrequest).step(step - last);
+        Request subrequest = list.get(i);
+        IRequest ireq = (IRequest) subrequest;
+        try {
+            ireq.step(step - last);
+        } catch (Cancel c) {
+            // TODO: Better to have our own response here with the responses
+            // of all the other subrequests for partial results.
+            helper.setResponse(ireq.getResponse());
+        }
     }
 
     public void finish() {

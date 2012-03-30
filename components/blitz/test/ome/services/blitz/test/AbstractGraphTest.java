@@ -6,7 +6,9 @@
 package ome.services.blitz.test;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jmock.Mock;
 import org.testng.annotations.BeforeClass;
@@ -61,8 +63,18 @@ public class AbstractGraphTest extends AbstractServantTest {
     //
 
     protected _HandleTie submit(IRequest req) throws Exception {
+        return submit(req, null);
+    }
+
+    protected _HandleTie submit(IRequest req, long groupID) throws Exception {
+        Map<String, String> callContext = new HashMap<String, String>();
+        callContext.put("omero.group", ""+groupID);
+        return submit(req, callContext);
+    }
+
+    protected _HandleTie submit(IRequest req, Map<String, String> callContext) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", req.toString());
-        HandleI handle = new HandleI(1000);
+        HandleI handle = new HandleI(1000, callContext);
         handle.setSession(user.sf);
         handle.initialize(id, req);
         handle.run();
@@ -89,7 +101,7 @@ public class AbstractGraphTest extends AbstractServantTest {
         assertNotNull(rsp);
         if (rsp instanceof ERR) {
             ERR err = (ERR) rsp;
-            fail(err.category + ":" + err.name + ":" + err.parameters);
+            fail(printErr(err));
         }
         return rsp;
     }
