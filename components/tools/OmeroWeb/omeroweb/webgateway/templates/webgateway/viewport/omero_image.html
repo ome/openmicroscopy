@@ -483,7 +483,7 @@
       var theT = viewport.getTPos();
         var theZ = viewport.getZPos();
         
-        // if the ROI plugin has not been initialised (method not available...)
+        // if the ROI plugin has not been initialised (method not available...) init and load ROIs...
       if (!viewport.viewportimg.get(0).show_rois) {
           var options = {'width':{{ image.getSizeX }}, 
                      'height':{{ image.getSizeY }},
@@ -495,11 +495,10 @@
           viewport.viewportimg.roi_display(options);
           viewport.viewportimg.get(0).setRoiZoom(viewport.getZoom());
       }
-      else {
-          // if ROIs already loaded, there won't be a callback to show table - do it manually
-          $("#roi_table_postit").show();
-      }                        
-             
+      
+      // Show postit. Table will be built on callback from loading
+      $("#roi_table_postit").show();
+
       // loads ROIs (if needed) and shows. 
     viewport.viewportimg.get(0).show_rois(theZ, theT);
   }
@@ -637,15 +636,12 @@
   
   // bound to call-back on roi plugin when ROIs loaded
   var handle_rois_loaded = function(e) {
+      $("#rois_loading_message").hide();
       build_roi_table();
-      $("#roi_table_postit").show();
       var $roi_table = $("#roi_small_table");
       $roi_table.find('tbody').hide();  // hides the shapes
       $roi_table.find('tbody.only_child').show();
-      
-      //var roi_count = $roi_table.find('thead').length;
-      //var shape_count = $roi_table.find('tbody tr').length;
-      //alert("ROIs: " + roi_count + " Shapes: " + shape_count);
+
   }
   
   // bound to clicks on shapes in the viewer
@@ -884,6 +880,7 @@
     <img id="roi_thumb_popup" style="border: solid #bbb 1px"/>
     <div id="roi_table_postit" class="postit">
         <h1>ROIs</h1>
+        <div id='rois_loading_message'>Loading ROI data...</div>
         <div id='roi_table_div'>
             <table id='roi_small_table' cellpadding='0' cellspacing='0'></table>
         </div>
