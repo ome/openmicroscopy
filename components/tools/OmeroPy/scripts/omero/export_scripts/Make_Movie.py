@@ -95,7 +95,7 @@ def log(text):
 def downloadPlane(gateway, pixels, pixelsId, x, y, z, c, t):
     """ Retrieves the selected plane """
     rawPlane = gateway.getPlane(pixelsId, z, c, t)
-    convertType ='>'+str(x*y)+pixelstypetopython.toPython(pixels.getPixelsType().getValue().getValue())
+    convertType ='>'+str(x*y)+pixelstypetopython.toPython(pixels.getPixelsType().getValue())
     convertedPlane = unpack(convertType, rawPlane)
     remappedPlane = numpy.array(convertedPlane,dtype=(pixels.getPixelsType().getValue().getValue()))
     remappedPlane.resize(x,y)
@@ -192,9 +192,9 @@ def addPlaneInfo(z, t, pixels, image, colour):
 def addTimePoints(time, pixels, image, colour):
     """ Displays the time-points. """
     draw = ImageDraw.Draw(image)
-    textY = pixels.getSizeY().getValue()-45
+    textY = pixels.getSizeY()-45
     textX = 20
-    if(textY<=0 or textX > pixels.getSizeX().getValue() or textY>pixels.getSizeY().getValue()):
+    if(textY<=0 or textX > pixels.getSizeX() or textY>pixels.getSizeY()):
         return image
     draw.text((textX, textY), str(time), fill=colour)
     return image
@@ -402,20 +402,33 @@ def writeMovie(commandArgs, conn):
     """
     log("Movie created by OMERO")
     log("")
+
     message=""
-    
-    omeroImage = conn.getObject("Image",commandArgs["Image_ID"])
+
+    sopts = conn.CONFIG['SERVICE_OPTS'] or {}
+    sopts['omero.group'] = '-1'
+    conn.CONFIG['SERVICE_OPTS'] = sopts
+    session = conn.c.sf
+    gateway = conn
+    scriptService = session.getScriptService()
+    queryService = session.getQueryService()
+    updateService = session.getUpdateService()
+    rawFileStore = session.createRawFileStore()
+
+    omeroImage = gateway.getObject('Image', commandArgs["Image_ID"])
     if not omeroImage:
         message += "No image found. "
         return None, message
-    pixels = omeroImage.getPrimaryPixels();
+    if commandArgs["RenderingDef_ID"] >= 0:
+        omeroImage._prepareRenderingEngine(rdid=commandArgs["RenderingDef_ID"])
+    pixels = omeroImage.getPrimaryPixels()
     pixelsId = pixels.getId()
 
-    sizeX = omeroImage.getSizeX()
-    sizeY = omeroImage.getSizeY()
-    sizeZ = omeroImage.getSizeZ()
-    sizeC = omeroImage.getSizeC()
-    sizeT = omeroImage.getSizeT()
+    sizeX = pixels.getSizeX()
+    sizeY = pixels.getSizeY()
+    sizeZ = pixels.getSizeZ()
+    sizeC = pixels.getSizeC()
+    sizeT = pixels.getSizeT()
 
     if (sizeX==None or sizeY==None or sizeZ==None or sizeT==None or sizeC==None):
         return
@@ -438,7 +451,8 @@ def writeMovie(commandArgs, conn):
 
     pixelTypeString = pixels.getPixelsType().getValue()
     frameNo = 1
-    renderingEngine = getRenderingEngine(conn, pixelsId, sizeC, cRange)
+    omeroImage.setActiveChannels(map(lambda x: x+1, cRange))
+    renderingEngine = omeroImage._re
 
     overlayColour = (255,255,255)
     if "Overlay_Colour" in commandArgs:
@@ -511,6 +525,11 @@ def writeMovie(commandArgs, conn):
     buildAVI(sizeX, sizeY, filelist, framesPerSec, movieName, format)
     figLegend = "\n".join(logLines)
     mimetype = formatMimetypes[format]
+
+    if not commandArgs["Do_Link"]:
+        originalFile = scriptUtil.createFile(updateService, movieName, mimetype, movieName);
+        scriptUtil.uploadFile(rawFileStore, originalFile, movieName)
+        return originalFile, message
     
     namespace = omero.constants.namespaces.NSCREATED+"/omero/export_scripts/Make_Movie"
     fileAnnotation, annMessage = scriptUtil.createLinkFileAnnotation(conn, movieName, omeroImage,
@@ -532,6 +551,7 @@ def runAsScript():
     
     client = scripts.client('Make_Movie','MakeMovie creates a movie of the image and attaches it to the originating image.',
     scripts.Long("Image_ID", description="The Image Identifier.", optional=False, grouping="1"),
+    scripts.Long("RenderingDef_ID", description="The Rendering Definitions for the Image.", default=-1, optional=True, grouping="1"),
     scripts.String("Movie_Name", description="The name of the movie", grouping="2"),
     scripts.Int("Z_Start", description="Projection range (if not specified, use defaultZ only - no projection)", min=0, default=0, grouping="3.1"),
     scripts.Int("Z_End", description="Projection range (if not specified or, use defaultZ only - no projection)", min=0, grouping="3.2"),
@@ -553,6 +573,7 @@ def runAsScript():
     scripts.Object("Ending_Slide", description="Specifiy a finishing slide as an Original File, (png or jpeg)",
             default=omero.model.OriginalFileI()),
     scripts.Int("Ending_Duration", default=3, description="Duration of finishing slide in seconds. Default is 3 secs."),
+    scripts.Bool("Do_Link", description="If true, creates a FileAnnotation with the OriginalFile holding the movie and links it to the Image.", default=True),
 
     version = "4.2.0",
     authors = ["Donald MacDonald", "OME Team"],
