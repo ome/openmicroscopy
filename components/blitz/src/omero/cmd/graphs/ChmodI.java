@@ -84,42 +84,44 @@ public class ChmodI extends Chmod implements IRequest {
             // Here checks cannot be null.
         }
         catch (SecurityViolation sv) {
-            helper.cancel(new ERR(), sv, "not permitted");
+            throw helper.cancel(new ERR(), sv, "not permitted");
         }
 
         status.steps = 1 + checks.length;
 
     }
 
-    public void step(int i) throws Cancel {
-        int steps = helper.getSteps();
-        if (i < 0 || i >= steps) {
-            return;
-        }
+    public Object step(int step) throws Cancel {
+        helper.assertStep(step);
+
         try {
-            if (i == 0) {
+            if (step == 0) {
                 strategy.chmod(target, permissions);
             }
             else {
                 try {
-                    strategy.check(target, checks[i - 1]);
+                    strategy.check(target, checks[step - 1]);
                 } catch (SecurityViolation sv) {
-                    helper.cancel(new ERR(), sv, "check failed");
+                    throw helper.cancel(new ERR(), sv, "check failed");
                 }
             }
+            throw null; // Nothing to return
         }
         catch (Cancel c) {
             throw c;
         }
         catch (Throwable t) {
-            Map<String, String> rv = params();
-            rv.put("" + id, "" + i);
-            helper.cancel(new ERR(), t, "STEP ERR", rv);
+            Map<String, String> rv = params(); // default params
+            rv.put("" + id, "" + step);
+            throw helper.cancel(new ERR(), t, "STEP ERR", "");
         }
     }
 
-    public void finish() {
-        helper.setResponse(new OK());
+    public void buildResponse(int step, Object object) {
+        helper.assertResponse(step);
+        if (helper.isLast(step)) {
+            helper.setResponse(new OK());
+        }
     }
 
     public Response getResponse() {

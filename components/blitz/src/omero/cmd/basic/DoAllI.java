@@ -1,15 +1,15 @@
 /*
  * Copyright (C) 2012 Glencoe Software, Inc. All rights reserved.
- *
+ * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -29,6 +29,7 @@ import ome.util.SqlAction;
 
 import omero.cmd.DoAll;
 import omero.cmd.DoAllRsp;
+import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
@@ -38,7 +39,7 @@ import omero.cmd.Status;
 
 /**
  * Permits performing multiple operations
- *
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.4.0
  */
@@ -67,10 +68,11 @@ public class DoAllI extends DoAll implements IRequest {
         return null;
     }
 
-    public void init(Status status, SqlAction sql, Session session, ome.system.ServiceFactory sf) {
+    public void init(Status status, SqlAction sql, Session session,
+            ome.system.ServiceFactory sf) {
         this.helper = new Helper(this, status, sql, session, sf);
         status.steps = 0;
-        for (Request req: this.list) {
+        for (Request req : this.list) {
             Status substatus = new Status();
             if (req instanceof IRequest) {
                 IRequest ireq = (IRequest) req;
@@ -78,7 +80,8 @@ public class DoAllI extends DoAll implements IRequest {
                 status.steps += substatus.steps;
                 statuses.add(substatus);
                 offsets.add(status.steps);
-            } else {
+            }
+            else {
                 log.error("Bad request: " + req);
                 substatus.steps = 0;
                 statuses.add(substatus);
@@ -87,50 +90,95 @@ public class DoAllI extends DoAll implements IRequest {
         }
     }
 
-    public void step(int step) {
+    public Object step(int step) {
+        helper.assertStep(step);
+        Pointer p = new Pointer(this, step);
 
-        // Find the right offset
-        int i = 0;
-        int last = 0;
-        int current = 0;
-        while (i < offsets.size()) {
-            current = offsets.get(i);
-            if (step < current) {
-                break;
-            }
-            ++i;
-            last = current;
-        }
-
-        if (i > offsets.size()) {
-            return; // Nothing found
-        }
-
-        // At this point, it must also be an IRequest, because otherwise the
-        // offset would have not changed.
-        Request subrequest = list.get(i);
-        IRequest ireq = (IRequest) subrequest;
         try {
-            ireq.step(step - last);
-        } catch (Cancel c) {
-            // TODO: Better to have our own response here with the responses
+            return p.step();
+        }
+        catch (Cancel c) {
+            // TODO: Better to have our own ERR here with the responses
             // of all the other subrequests for partial results.
-            helper.setResponse(ireq.getResponse());
+            helper.cancel(new ERR(), c, "subrequest-cancel");
+            return null; // Never reached.
         }
     }
 
-    public void finish() {
-        for (Request subreq: list) {
-            // Again, must be an irequest
-            IRequest ireq = (IRequest) subreq;
-            ireq.finish();
-            responses.add(ireq.getResponse());
+    public void buildResponse(int step, Object object) {
+        helper.assertResponse(step);
+        Pointer p = new Pointer(this, step);
+        p.buildResponse(object);
+
+        if (helper.isLast(step)) {
+            for (Request subreq : list) {
+                // Again, must be an irequest
+                IRequest ireq = (IRequest) subreq;
+                responses.add(ireq.getResponse());
+            }
+            DoAllRsp rsp = new DoAllRsp(responses);
+            helper.setResponse(rsp);
         }
-        DoAllRsp rsp = new DoAllRsp(responses);
-        helper.setResponse(rsp);
     }
 
     public Response getResponse() {
         return helper.getResponse();
+    }
+
+    /**
+     * Class to calculate which subrequest is intended by a given top-level
+     * step. For example, if the subrequests have the steps:
+     * 
+     * <pre>
+     * [0,1,2], [0,1,2,3], [0,1,2]
+     * </pre>
+     * 
+     * these would map to:
+     * 
+     * <pre>
+     * [0,1,2,  3,4,5,6,    7,8,9]
+     * </pre>
+     * 
+     * And if 5 were mapped in for "step" then the {@link #req} instance would
+     * be the second from {@link DoAllI#list} and the substep value would be 2.
+     */
+    static class Pointer {
+        IRequest req;
+        int substep;
+
+        Pointer(DoAllI doall, int step) {
+            List<Integer> offsets = doall.offsets;
+            // Find the right offset
+            int i = 0;
+            int last = 0;
+            int current = 0;
+            while (i < offsets.size()) {
+                current = offsets.get(i);
+                if (step < current) {
+                    break;
+                }
+                ++i;
+                last = current;
+            }
+
+            if (i > offsets.size()) {
+                throw new RuntimeException(
+                        "Wrong step! This should never happen!");
+            }
+
+            // At this point, it must also be an IRequest, because otherwise the
+            // offset would have not changed.
+            Request subrequest = doall.list.get(i);
+            req = (IRequest) subrequest;
+            substep = step - last;
+        }
+
+        Object step() {
+            return req.step(substep);
+        }
+
+        void buildResponse(Object object) {
+            req.buildResponse(substep, object);
+        }
     }
 }

@@ -37,6 +37,7 @@ import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 
+import omero.api.SaveRsp;
 import omero.cmd.Chgrp;
 import omero.cmd.DoAllRsp;
 import omero.cmd.HandleI.Cancel;
@@ -50,7 +51,6 @@ import omero.cmd.basic.DoAllI;
 import omero.cmd.graphs.ChgrpI;
 import omero.model.DatasetI;
 import omero.model.ImageI;
-import omero.util.IceMapper;
 
 /**
  * Tests around the changing of group-based permissions.
@@ -140,8 +140,12 @@ public class DoAllITest extends AbstractGraphTest {
         block(handle, 5, 1000);
         DoAllRsp rsp = (DoAllRsp) assertSuccess(handle);
         assertSuccess(rsp.list.get(0));
-        assertSuccess(rsp.list.get(1));
-
+        
+        // Specifically check the save
+        SaveRsp saveRsp = (SaveRsp) rsp.list.get(1);
+        assertSuccess(saveRsp);
+        assertEquals(newGroupID,
+                saveRsp.obj.getDetails().getGroup().getId().getValue());
     }
 
     class CheckSteps extends Request implements IRequest {
@@ -149,6 +153,8 @@ public class DoAllITest extends AbstractGraphTest {
         private Helper helper;
 
         private List<Integer> expected;
+        
+        private List<Object> responses = new ArrayList<Object>();
 
         private String name;
 
@@ -170,15 +176,22 @@ public class DoAllITest extends AbstractGraphTest {
             this.helper = new Helper(this, status, sql, session, sf);
         }
 
-        public void step(int i) throws Cancel {
+        public Object step(int i) throws Cancel {
             int j = expected.remove(0);
             if (j != i) {
                 throw new RuntimeException(String.format(
                         "[check:%s] Received: %s. Expected: %s", name, i, j));
             }
+            return null;
         }
 
-        public void finish() throws Cancel {
+        public void buildResponse(int i, Object object) {
+            if (responses.size() != i) {
+                throw new RuntimeException(String.format(
+                        "[check:%s] Response count: %s. Expected: %s", name,
+                        responses.size(), i));
+            }
+            responses.add(object);
             if (expected.size() != 0) {
                 throw new RuntimeException(String.format(
                         "[check:%s] leftovers: %s", name, expected));

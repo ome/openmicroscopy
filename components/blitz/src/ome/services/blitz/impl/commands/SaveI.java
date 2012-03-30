@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Glencoe Software, Inc. All rights reserved.
- *
+ * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -9,7 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -38,7 +38,7 @@ import omero.util.IceMapper;
 
 /**
  * Permits saving a single IObject instance.
- *
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.4.0
  */
@@ -60,27 +60,28 @@ public class SaveI extends Save implements IRequest {
         status.steps = 1;
     }
 
-    public void step(int step) {
-        if (step != 0) {
-            helper.cancel(new ERR(), null, "bad step", "step", ""+step);
-            return;
-        }
+    public Object step(int step) {
+        helper.assertStep(0, step);
         try {
             IceMapper mapper = new IceMapper();
             IObject iobj = (IObject) mapper.reverse(this.obj);
             IUpdate update = helper.getServiceFactory().getUpdateService();
-            iobj = update.saveAndReturnObject(iobj);
-            SaveRsp rsp = new SaveRsp((omero.model.IObject) mapper.map(iobj));
-            helper.setResponse(rsp);
+            return update.saveAndReturnObject(iobj);
         }
         catch (Throwable t) {
-            helper.cancel(new ERR(), t, "failed", "obj",
+            throw helper.cancel(new ERR(), t, "failed", "obj",
                     String.format("%s", this.obj));
         }
     }
 
-    public void finish() {
-        // no-op
+    public void buildResponse(int step, Object object) {
+        helper.assertStep(0, step);
+        if (helper.isLast(step)) {
+            IceMapper mapper = new IceMapper();
+            SaveRsp rsp = new SaveRsp(
+                    (omero.model.IObject) mapper.map((IObject) object));
+            helper.setResponse(rsp);
+        }
     }
 
     public Response getResponse() {

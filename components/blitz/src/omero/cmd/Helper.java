@@ -59,6 +59,10 @@ public class Helper {
     private final Session session;
 
     private final SqlAction sql;
+    
+    private int assertSteps = 0;
+    
+    private int assertResponses = 0;
 
     public Helper(Request request, Status status, SqlAction sql,
             Session session, ServiceFactory sf) {
@@ -156,14 +160,16 @@ public class Helper {
      * Calls {@link #cancel(ERR, Throwable, String, Map<String, String>)} with
      * the output of {@link #params(String...)}.
      *
+     * See the statement about the return value.
+     *
      * @param err
      * @param t
      * @param name
      * @param paramList
      */
-    public void cancel(ERR err, Throwable t, final String name,
+    public Cancel cancel(ERR err, Throwable t, final String name,
             final String... paramList) {
-        cancel(err, t, name, params(paramList));
+        return cancel(err, t, name, params(paramList));
     }
 
     /**
@@ -171,12 +177,22 @@ public class Helper {
      * and stacktrace of the throwable in the parameters and throws a
      * {@link Cancel} exception.
      *
+     * A {@link Cancel} is thrown, even though one is also specificed as the
+     * return value. This permits:
+     * <pre>
+     * } catch (Throwable t) {
+     *     throw helper.cancel(new ERR(), t);
+     * }
+     * </pre>
+     * since omitting the "throw" within the catch clauses forces one to enter
+     * a number of "return null; // Never reached" lines.
+     *
      * @param err
      * @param t
      * @param name
      * @param params
      */
-    public void cancel(ERR err, Throwable t, final String name,
+    public Cancel cancel(ERR err, Throwable t, final String name,
             final Map<String, String> params) {
         fail(err, name, params);
 
@@ -197,4 +213,50 @@ public class Helper {
         throw cancel;
     }
 
+    /**
+     * Throws an exception if the current step is not the expected value. The
+     * boolean returns value has been added so it can be used as:
+     * <pre>
+     * public boolean step(int i) {
+     *     if (helper.assertStep(0, i)) {
+     *         return null;
+     *     }
+     * </pre>
+     * 
+     * @param i
+     * @param step
+     * @return
+     */
+    public void assertStep(int i, int step) {
+        if (step != i) {
+            cancel(new ERR(), null, "bad step",
+                    "actual_step", "" + step,
+                    "expected_step", "" + i);
+        }
+    }
+
+    /**
+     * Checks the given steps against the number of times that this method
+     * has been called on this instance and then increments the call count.
+     */
+    public void assertStep(int step) {
+        assertStep(this.assertSteps, step);
+        this.assertSteps++;
+    }
+    
+    /**
+     * Checks the given steps against the number of times that this method
+     * has been called on this instance and then increments the call count.
+     */
+    public void assertResponse(int step) {
+        assertStep(this.assertResponses, step);
+        this.assertResponses++;
+    }
+
+    /**
+     * Returns true if this is the last step for the given request.
+     */
+    public boolean isLast(int step) {
+        return step == (status.steps - 1);
+    }
 }

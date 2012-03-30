@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import ome.system.OmeroContext;
 import ome.util.SqlAction;
+
+import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.ListRequests;
 import omero.cmd.ListRequestsRsp;
@@ -41,6 +43,8 @@ public class ListRequestsI extends ListRequests implements IRequest {
 
     private final OmeroContext ctx;
 
+    private Helper helper;
+
     public ListRequestsI(OmeroContext ctx) {
         this.ctx = ctx;
     }
@@ -51,13 +55,12 @@ public class ListRequestsI extends ListRequests implements IRequest {
 
     public void init(Status status, SqlAction sql, Session session, ome.system.ServiceFactory sf) {
         status.steps = 1;
+        helper = new Helper(this, status, sql, session, sf);
     }
 
-    public void step(int i) {
-        return;
-    }
+    public Object step(int i) {
+        helper.assertStep(0, i);
 
-    public void finish() {
         final List<Request> requestTypes = new ArrayList<Request>();
         final Map<String, ObjectFactoryRegistry> registries = ctx
                 .getBeansOfType(ObjectFactoryRegistry.class);
@@ -75,9 +78,14 @@ public class ListRequestsI extends ListRequests implements IRequest {
         }
 
         rsp.list = requestTypes;
-        this.rsp.set(rsp);
+        return rsp;
     }
 
+    public void buildResponse(int step, Object object) {
+        helper.assertStep(0, step);
+        helper.setResponse((Response) object);
+    }
+    
     public Response getResponse() {
         return rsp.get();
     }

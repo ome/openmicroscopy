@@ -21,6 +21,7 @@ import ome.util.SqlAction;
 import omero.cmd.GraphModify;
 import omero.cmd.GraphSpecList;
 import omero.cmd.GraphSpecListRsp;
+import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
 import omero.cmd.Status;
@@ -45,6 +46,8 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
 
     private final OmeroContext ctx;
 
+    private Helper helper;
+
     public GraphSpecListI(OmeroContext ctx) {
         this.ctx = ctx;
     }
@@ -55,14 +58,12 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
 
     public void init(Status status, SqlAction sql, Session session, ServiceFactory sf) {
         status.steps = 1;
+        helper = new Helper(this, status, sql, session, sf);
     }
 
-    public void step(int i) {
-        return;
-    }
-
-    public void finish() {
-
+    public Object step(int step) {
+        helper.assertStep(0, step);
+        
         final GraphSpecListRsp rsp = new GraphSpecListRsp();
         final ApplicationContext ctx = new ClassPathXmlApplicationContext(
             new String[]{"classpath:ome/services/spec.xml"}, this.ctx);
@@ -80,7 +81,12 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
         }
 
         rsp.list = cmds;
-        this.rsp.set(rsp);
+        return rsp;
+    }
+
+    public void buildResponse(int i, Object object) {
+        helper.assertStep(0, i);
+        helper.setResponse((Response) object);
     }
 
     public Response getResponse() {

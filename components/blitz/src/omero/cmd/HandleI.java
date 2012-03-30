@@ -7,7 +7,9 @@
 
 package omero.cmd;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -29,7 +31,6 @@ import ome.util.SqlAction;
 
 import omero.LockTimeout;
 import omero.ServerError;
-import omero.util.CloseableServant;
 
 /**
  * Servant for the handle proxy from the Command API. This is also a
@@ -260,21 +261,29 @@ public class HandleI implements _HandleOperations, IHandle,
         StopWatch sw = new CommonsLogStopWatch();
         try {
             Map<String, String> merged = mergeContexts();
-            executor.execute(merged, principal,
+            
+            @SuppressWarnings("unchecked")
+            List<Object> rv = (List<Object>) executor.execute(merged, principal,
                     new Executor.SimpleWork(this, "run",
                     Ice.Util.identityToString(id), req) {
                 @Transactional(readOnly = false)
-                public Object doWork(Session session, ServiceFactory sf) {
+                public List<Object> doWork(Session session, ServiceFactory sf) {
                     try {
-                        doRun(getSqlAction(), session, sf);
+                        List<Object> rv = doRun(getSqlAction(), session, sf);
                         state.compareAndSet(State.READY, State.FINISHED);
+                        return rv;
                     } catch (Cancel c) {
                         state.set(State.CANCELLED);
                         throw c; // Exception intended to rollback transaction
                     }
-                    return null;
                 }
             });
+
+            // Post-process
+            for (int step = 0; step < status.steps; step++) {
+                Object obj = rv.get(step);
+                req.buildResponse(step, obj);
+            }
 
         } catch (Throwable t) {
             if (t instanceof Cancel) {
@@ -304,12 +313,11 @@ public class HandleI implements _HandleOperations, IHandle,
         return merged;
     }
 
-    public void doRun(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {
+    public List<Object> doRun(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {
         log.info("Running " + req);
         StopWatch sw = new CommonsLogStopWatch();
         try {
-            steps(sql, session, sf);
-            req.finish();
+            return steps(sql, session, sf);
         } finally {
             sw.stop("omero.request");
             status.startTime = sw.getStartTime();
@@ -317,10 +325,11 @@ public class HandleI implements _HandleOperations, IHandle,
         }
     }
 
-    public void steps(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {
+    public List<Object> steps(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {
         try {
 
             // Initialize. Any exceptions should cancel the process
+            List<Object> rv = new ArrayList<Object>();
             StopWatch sw = new CommonsLogStopWatch();
             req.init(status, sql, session, sf);
 
@@ -330,7 +339,7 @@ public class HandleI implements _HandleOperations, IHandle,
                     if (!state.compareAndSet(State.READY, State.RUNNING)) {
                         throw new Cancel("Not ready");
                     }
-                    req.step(j);
+                    rv.add(req.step(j));
                 } finally {
                     sw.stop("omero.request.step." + j);
                     // If cancel was thrown, then this value will be overwritten
@@ -338,6 +347,7 @@ public class HandleI implements _HandleOperations, IHandle,
                     state.compareAndSet(State.RUNNING, State.READY);
                 }
             }
+            return rv;
         } catch (Cancel cancel) {
             throw cancel;
         } catch (Throwable t) {
