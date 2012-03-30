@@ -5175,9 +5175,9 @@ class _ChannelWrapper (BlitzObjectWrapper):
 
         lc = self.getLogicalChannel()
         rv = lc.name
-        if rv is None:
+        if rv is None or len(rv.strip())==0:
             rv = lc.emissionWave
-        if rv is None:
+        if rv is None or len(rv.strip())==0:
             rv = self._idx
         return unicode(rv)
 
