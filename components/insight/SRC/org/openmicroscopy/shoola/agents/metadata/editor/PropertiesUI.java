@@ -820,7 +820,7 @@ class PropertiesUI
         	refObject instanceof ScreenData) {
         	p.add(Box.createVerticalStrut(5));
         	descriptionPanel = layoutEditablefield(editDescription, 
-        			 descriptionPane, 5);
+        			descriptionPane, 5);
         	 //descriptionPanel.setBorder(AnnotationUI.EDIT_BORDER);
 		
         	pane = new JScrollPane(descriptionPanel);
@@ -1236,23 +1236,26 @@ class PropertiesUI
 	 */
 	void setExtentWidth(int width)
 	{
-		if (this.width == width) return;
+		width = width-10;
+		if (this.width != 0 && 
+				(this.width-10 <= width && width <= this.width+10)) return;
 		this.width = width;
-		
 		if (descriptionPanel != null) {
 			String newLineStr = null;
 			if (pane.getVerticalScrollBar().isVisible())
-				newLineStr = " ";
-			Dimension d = new Dimension(width, HEIGHT);
+				newLineStr = "\n";
+			//if (this.width < size.width) this.width = size.width;
+			Dimension d = new Dimension(this.width, HEIGHT);
 			pane.getViewport().setPreferredSize(d);
 			d = pane.getSize();
-			if (this.width > d.width) this.width = d.width;
 			int h = d.height;
 			if (h < HEIGHT) h = HEIGHT;
 			d = new Dimension(this.width, h);
 			descriptionPane.setSize(d);
-			//descriptionPane.setPreferredSize(d);
-			descriptionPane.wrapText(this.width-20, newLineStr);
+			descriptionPane.setPreferredSize(d);
+			descriptionPane.wrapText(this.width, newLineStr);
+			descriptionPanel.setSize(d);
+			descriptionPanel.setPreferredSize(d);
 		}
 	}
 	
