@@ -210,6 +210,9 @@ class PropertiesUI
 	/** The visible width.*/
 	private int width = 0;
 	
+	/** Flag indicating that the name is editable mode or not.*/
+	private boolean editableName;
+	
 	/** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -237,6 +240,7 @@ class PropertiesUI
        	ownerLabel = new JLabel();
        	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
     	namePane = createTextPane();
+    	editableName = false;
     	/*
     	namePane.addMouseListener(new MouseAdapter() {
     		public void mousePressed(MouseEvent e) {
@@ -247,7 +251,7 @@ class PropertiesUI
 		*/
     	typePane = createTextPane();
     	typePane.setEditable(false);
-    	namePane.setEditable(false);
+    	//namePane.setEditable(false);
     	namePane.addFocusListener(this);
     	f = namePane.getFont(); 
     	newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
@@ -910,7 +914,8 @@ class PropertiesUI
 			boolean editable)
 	{
 		if (field == namePane) {
-			button.setEnabled(editable);
+			//namePane.setEnabled(editable);
+			editableName = editable;
 			namePane.setEditable(editable);
 			if (editable) {
 				panel.setBorder(EDIT_BORDER_BLACK);
@@ -1377,7 +1382,7 @@ class PropertiesUI
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case EDIT_NAME:
-				editField(namePanel, namePane, editName, !namePane.isEditable());
+				editField(namePanel, namePane, editName, !editableName);
 				break;
 			case EDIT_DESC:
 				editField(descriptionPanel, descriptionPane, editDescription,
