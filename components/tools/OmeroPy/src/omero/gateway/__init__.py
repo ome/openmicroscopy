@@ -6442,8 +6442,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         @type opts: dict
         @param opts: dictionary of extra options. Currently processed options are:
                      - watermark:string: path to image to use as watermark
-                     - slides:tuple: tuple of tuples with slides to prefix video with
+                     - slides:tuple: tuple of tuples with slides to prefix and postfix video with
                        in format (secs:int, topline:text[, middleline:text[, bottomline:text]])
+                       If more than 2 slides are provided they will be ignored
                      - fps:int: frames per second
                      - minsize: tuple of (minwidth, minheight, bgcolor)
                     - format:string: one of video/mpeg or video/quicktime
@@ -6451,6 +6452,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:    Tuple of (file-ext, format)
         @rtype:     (String, String)
         """
+        todel = []
         svc = self._conn.getScriptService()
         mms = filter(lambda x: x.name.val == 'Make_Movie.py', svc.getScripts())
         if not len(mms):
@@ -6463,6 +6465,47 @@ class _ImageWrapper (BlitzObjectWrapper):
         rdid = self._getRDef()
         if rdid is not None:
             args.append('RenderingDef_ID=%d' % rdid)
+
+        watermark = opts.get('watermark', None)
+        logger.debug('watermark: %s' % watermark)
+        if watermark:
+            origFile = self._conn.createOriginalFileFromLocalFile(watermark)
+            args.append('Watermark=OriginalFile:%d' % origFile.getId())
+            todel.append(origFile.getId())
+            
+        w,h = self.getSizeX(), self.getSizeY()
+        fsizes = (8,8,12,18,24,32,32,40,48,56,56,64)
+        fsize = fsizes[max(min(int(w / 256)-1, len(fsizes)), 1) - 1]
+        font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize) )
+        slides = opts.get('slides', [])
+        for slidepos in range(min(2, len(slides))):
+            t = slides[slidepos]
+            slide = Image.new("RGBA", (w,h))
+            for i, line in enumerate(t[1:4]):
+                line = line.decode('utf8').encode('iso8859-1')
+                wwline = self._wordwrap(w, line, font)
+                for j, line in enumerate(wwline):
+                    tsize = font.getsize(line)
+                    draw = ImageDraw.Draw(slide)
+                    if i == 0:
+                        y = 10+j*tsize[1]
+                    elif i == 1:
+                        y = h / 2 - ((len(wwline)-j)*tsize[1]) + (len(wwline)*tsize[1])/2
+                    else:
+                        y = h - (len(wwline) - j)*tsize[1] - 10
+                    draw.text((w/2-tsize[0]/2,y), line, font=font)
+            fp = StringIO()
+            slide.save(fp, "JPEG")
+            fileSize = len(fp.getvalue())
+            origFile = self._conn.createOriginalFileFromFileObj(fp, 'slide', '', fileSize)
+            if slidepos == 0:
+                args.append('Intro_Slide=OriginalFile:%d' % origFile.getId())
+                args.append('Intro_Duration=%d' % t[0])
+            else:
+                args.append('Ending_Slide=OriginalFile:%d' % origFile.getId())
+                args.append('Ending_Duration=%d' % t[0])
+            todel.append(origFile.getId())
+
         m = scripts.parse_inputs(args, params)
 
         try:
@@ -6491,12 +6534,13 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         f = rv['File_Annotation'].val
         ofw = OriginalFileWrapper(self._conn, f)
+        todel.append(ofw.getId())
         logger.debug('writing movie on %s' % (outpath,))
         outfile = file(outpath, 'w')
         for chunk in ofw.getFileInChunks():
             outfile.write(chunk)
         outfile.close()
-        self._conn.deleteObjects('/OriginalFile', [ofw.getId()])
+        self._conn.deleteObjects('/OriginalFile', todel)
         return os.path.splitext(f.name.val)[-1], f.mimetype.val
         
     def renderImage (self, z, t, compression=0.9):
