@@ -2678,7 +2678,7 @@ class _BlitzGateway (object):
 
         return ImageWrapper(self, image)
 
-    def createOriginalFileFromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None, desc=None):
+    def createOriginalFileFromFileObj (self, fo, name, path, fileSize, mimetype=None, ns=None, desc=None):
         """
         Creates a L{OriginalFileWrapper} from a local file.
         File is uploaded to create an omero.model.OriginalFileI.
@@ -2694,15 +2694,11 @@ class _BlitzGateway (object):
         rawFileStore = self.createRawFileStore()
 
         # create original file, set name, path, mimetype
-        if origFilePathAndName is None:
-            origFilePathAndName = localPath
         originalFile = omero.model.OriginalFileI()
-        path, name = os.path.split(origFilePathAndName)
         originalFile.setName(rstring(name))
         originalFile.setPath(rstring(path))
         if mimetype:
             originalFile.mimetype = rstring(mimetype)
-        fileSize = os.path.getsize(localPath)
         originalFile.setSize(rlong(fileSize))
         # set sha1
         try:
@@ -2711,17 +2707,16 @@ class _BlitzGateway (object):
         except:
             import sha
             hash_sha1 = sha.new
-        fileHandle = open(localPath)
+        fo.seek(0)
         h = hash_sha1()
-        h.update(fileHandle.read())
+        h.update(fo.read())
         shaHast = h.hexdigest()
-        fileHandle.close()
         originalFile.setSha1(rstring(shaHast))
         originalFile = updateService.saveAndReturnObject(originalFile)
 
         # upload file
+        fo.seek(0)
         rawFileStore.setFileId(originalFile.getId().getValue())
-        fileHandle = open(localPath, 'rb')
         buf = 10000
         for pos in range(0,long(fileSize),buf):
             block = None
@@ -2729,12 +2724,33 @@ class _BlitzGateway (object):
                 blockSize = fileSize-pos
             else:
                 blockSize = buf
-            fileHandle.seek(pos)
-            block = fileHandle.read(blockSize)
+            fo.seek(pos)
+            block = fo.read(blockSize)
             rawFileStore.write(block, pos, blockSize)
-        fileHandle.close()
         return OriginalFileWrapper(self, originalFile)
         
+    def createOriginalFileFromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None, desc=None):
+        """
+        Creates a L{OriginalFileWrapper} from a local file.
+        File is uploaded to create an omero.model.OriginalFileI.
+        Returns a new L{OriginalFileWrapper}
+
+        @param conn:                    Blitz connection
+        @param localPath:               Location to find the local file to upload
+        @param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
+        @param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
+        @return:                        New L{OriginalFileWrapper}
+        """
+        if origFilePathAndName is None:
+            origFilePathAndName = localPath
+        path, name = os.path.split(origFilePathAndName)
+        fileSize = os.path.getsize(localPath)
+        fileHandle = open(localPath, 'rb')
+        try:
+            return self.createOriginalFileFromFileObj (fileHandle, path, name, fileSize, mimetype, ns, desc)
+        finally:
+            fileHandle.close()
+
     def createFileAnnfromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None, desc=None):
         """
         Class method to create a L{FileAnnotationWrapper} from a local file.
