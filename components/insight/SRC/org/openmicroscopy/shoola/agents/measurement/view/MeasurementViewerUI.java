@@ -92,8 +92,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
-import com.sun.org.apache.bcel.internal.classfile.Code;
-
 /** 
  * The {@link MeasurementViewer} view.
  *
@@ -138,7 +136,7 @@ class MeasurementViewerUI
 	private static final Dimension		MAXIMUM_SIZE = new Dimension(700, 300);
 	
 	/** The title for the measurement tool main window. */
-	private static final String			WINDOW_TITLE = "Measurement Tool ";
+	private static final String			WINDOW_TITLE = "";//"Measurement Tool ";
 	
 	/** index to identify inspector tab. */
 	public static final int				INSPECTOR_INDEX = 0;

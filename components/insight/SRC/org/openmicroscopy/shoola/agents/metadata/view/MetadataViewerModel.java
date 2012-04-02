@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -482,6 +483,10 @@ class MetadataViewerModel
 			return ((PlateData) ref).getName();
 		else if (ref instanceof ScreenData)
 			return ((ScreenData) ref).getName();
+		else if (ref instanceof ExperimenterData)
+			return EditorUtil.getExperimenterName((ExperimenterData) ref);
+		else if (ref instanceof GroupData)
+			return ((GroupData) ref).getName();
 		return "";
 	}
 

@@ -248,9 +248,9 @@ public class CheckoutBox
 		 */
 		CheckOutItem(String refName, Object instance)
 		{
-			super(instance.toString());
 			this.refName = refName;
 			this.instance = instance;
+			setText(instance.toString());
 			setSelected(true);
 		}
 		
