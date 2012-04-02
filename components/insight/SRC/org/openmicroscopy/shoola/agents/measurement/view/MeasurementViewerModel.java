@@ -639,21 +639,28 @@ class MeasurementViewerModel
 		Iterator<ROI> i = roiList.iterator();
 		ROI roi;
 		TreeMap<Coord3D, ROIShape> shapeList;
-		Iterator<ROIShape> shapeIterator;
+		Iterator j;
 		ROIShape shape;
-		Coord3D c;
+		Coord3D coord;
 		int sizeZ = pixels.getSizeZ();
 		int sizeT = pixels.getSizeT();
-		
+		Entry entry;
+		int c;
+		ROIFigure f;
 		while (i.hasNext()) {
 			roi = i.next();
 			shapeList = roi.getShapes();
-			shapeIterator = shapeList.values().iterator();
-			while (shapeIterator.hasNext()) {
-				shape = shapeIterator.next();
-				c = shape.getCoord3D();
-				if (c.getTimePoint() > sizeT) return false;
-				if (c.getZSection() > sizeZ) return false;
+			j = shapeList.entrySet().iterator();
+			while (j.hasNext()) {
+				entry = (Entry) j.next();
+				shape = (ROIShape) entry.getValue();
+				coord = shape.getCoord3D();
+				if (coord.getTimePoint() > sizeT) return false;
+				if (coord.getZSection() > sizeZ) return false;
+				c = coord.getChannel();
+				f = shape.getFigure();
+				if (c >= 0 && f.isVisible()) 
+					f.setVisible(isChannelActive(c));
 			}
 		}
 		component.attachListeners(roiList);

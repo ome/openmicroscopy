@@ -34,6 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
+
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
@@ -599,18 +601,52 @@ class MeasurementViewerComponent
 						"state: "+state);
 		}
 		model.setActiveChannels(activeChannels);
+		//Show or hide some shapes if they are visible on a channel or not
+		TreeMap<Long, ROI> rois = model.getROI();
+		Collection<ROIFigure> figures = model.getAllFigures();
+		ROIFigure figure, f;
+		Iterator<ROIFigure> i = figures.iterator();
+		ROI roi;
+		TreeMap<Coord3D, ROIShape> shapeMap;
+		
+		ROIShape shape;
+		Entry entry;
+		if (rois != null) {
+			Iterator j = rois.entrySet().iterator();
+			Iterator k;
+			Coord3D coord;
+			int c;
+			while (j.hasNext()) {
+				entry = (Entry) j.next();
+				roi = (ROI) entry.getValue();
+				shapeMap = roi.getShapes();
+				k = shapeMap.entrySet().iterator();
+				while (k.hasNext()) {
+					entry = (Entry) k.next();
+					coord = (Coord3D) entry.getKey();
+					shape = (ROIShape) entry.getValue();
+					f = shape.getFigure();
+					c = coord.getChannel();
+					if (c >= 0) {
+						f.setVisible(model.isChannelActive(c));
+					}
+				}
+			}
+			view.repaint();
+		}
 		
 		if (!view.inDataView() || !view.isVisible()) return;
-		Collection<ROIFigure> collection = getSelectedFigures();
-		if (collection.size() != 1) return;
-		ROIFigure figure = collection.iterator().next();
+		figures = getSelectedFigures();
+		if (figures.size() != 1) return;
+		figure = figures.iterator().next();
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
-		ROI roi = figure.getROI();
-		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
-		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
-		while (shapeIterator.hasNext())
-			shapeList.add(shapeMap.get(shapeIterator.next()));
-		
+		roi = figure.getROI();
+		shapeMap = roi.getShapes();
+		Iterator j = shapeMap.entrySet().iterator();
+		while (j.hasNext()) {
+			entry = (Entry) j.next();
+			shapeList.add( (ROIShape) entry.getValue());
+		}
 		if (shapeList.size() != 0) analyseShapeList(shapeList);
 	}
 
