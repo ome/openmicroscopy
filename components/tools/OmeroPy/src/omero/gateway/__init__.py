@@ -6462,6 +6462,15 @@ class _ImageWrapper (BlitzObjectWrapper):
         params = svc.getParams(mms.id.val)
         args = ['Image_ID=%d' % self.getId()]
         args.append('Do_Link=False')
+        if opts.has_key('fps'):
+            args.append('FPS=%d' % opts['fps'])
+        if opts.has_key('format'):
+            if opts['format'] == 'video/mpeg':
+                args.append('Format=MPEG')
+            elif opts['format'] == 'video/wmv':
+                args.append('Format=WMV')
+            else:
+                args.append('Format=Quicktime')
         rdid = self._getRDef()
         if rdid is not None:
             args.append('RenderingDef_ID=%d' % rdid)
@@ -6474,6 +6483,9 @@ class _ImageWrapper (BlitzObjectWrapper):
             todel.append(origFile.getId())
             
         w,h = self.getSizeX(), self.getSizeY()
+        scalebars = (1,1,2,2,5,5,5,5,10,10,10,10)
+        scalebar = scalebars[max(min(int(w / 256)-1, len(scalebars)), 1) - 1]
+        args.append('Scalebar=%d' % scalebar)
         fsizes = (8,8,12,18,24,32,32,40,48,56,56,64)
         fsize = fsizes[max(min(int(w / 256)-1, len(fsizes)), 1) - 1]
         font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize) )
