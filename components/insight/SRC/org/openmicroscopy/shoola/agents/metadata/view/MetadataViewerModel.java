@@ -37,6 +37,7 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
 import org.openmicroscopy.shoola.agents.metadata.AdminEditor;
 import org.openmicroscopy.shoola.agents.metadata.DataBatchSaver;
 import org.openmicroscopy.shoola.agents.metadata.DataSaver;
@@ -61,6 +62,7 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -512,6 +514,13 @@ class MetadataViewerModel
 						os.saveAcquisitionData(ctx, i.next()) ;
             	}
             	os.saveData(ctx, data, toAdd, toRemove, userID);
+            	boolean post = (toAdd != null && toAdd.size() != 0) || 
+				(toRemove != null && toRemove.size() != 0);
+            	if (post) {
+        			EventBus bus = 
+        				MetadataViewerAgent.getRegistry().getEventBus();
+        			bus.post(new AnnotatedEvent(data));
+        		}
 			} catch (Exception e) {
 				LogMessage msg = new LogMessage();
 				msg.print("Unable to save annotation and/or edited data");

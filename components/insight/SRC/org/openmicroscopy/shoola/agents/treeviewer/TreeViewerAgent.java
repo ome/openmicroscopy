@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
+import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.MoveToEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
@@ -487,6 +488,18 @@ public class TreeViewerAgent
     }
     
     /**
+     * Indicates that some objects have been annotated.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleAnnotatedEvent(AnnotatedEvent evt)
+    {
+    	ExperimenterData exp = (ExperimenterData) registry.lookup(
+    			LookupNames.CURRENT_USER_DETAILS);
+    	
+    }
+    
+    /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
      */
@@ -536,6 +549,7 @@ public class TreeViewerAgent
         bus.register(this, ViewObjectEvent.class);
         bus.register(this, ReconnectedEvent.class);
         bus.register(this, MoveToEvent.class);
+        bus.register(this, AnnotatedEvent.class);
     }
 
     /**
@@ -592,6 +606,8 @@ public class TreeViewerAgent
 			handleReconnectedEvent((ReconnectedEvent) e);
 		else if (e instanceof MoveToEvent)
 			handleMoveToEvent((MoveToEvent) e);
+		else if (e instanceof AnnotatedEvent)
+			handleAnnotatedEvent((AnnotatedEvent) e);
 	}
 
 }
