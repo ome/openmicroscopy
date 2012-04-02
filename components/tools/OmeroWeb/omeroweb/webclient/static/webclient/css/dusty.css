@@ -49,21 +49,80 @@ button {
 	padding:0 !important;
 }
 
-	.btn {
-		-webkit-border-radius:3px;
-		-moz-border-radius:3px;
-		border-radius:3px;
-		display:inline-block;
-		padding:0;
-	}
-	
-		.btn span {
-			font-weight:bold;
-			display:block;
-			-webkit-border-radius:inherit;
-			-moz-border-radius:inherit;
-			border-radius:inherit;
+
+		/* Singular Buttons */
+		.btn {
+			-webkit-border-radius:3px;
+			-moz-border-radius:3px;
+			border-radius:3px;
+			display:inline-block;
+			padding:0;
 		}
+	
+			.btn span {
+				font-weight:bold;
+				display:block;
+				-webkit-border-radius:inherit;
+				-moz-border-radius:inherit;
+				border-radius:inherit;
+			}
+		
+		
+		/* Menu Buttons */
+
+		.menu_btns {
+			overflow:hidden;
+		}
+			
+			.menu_btns li {
+				float:left;
+			}
+			
+			.menu_btns li:first-child {
+				border-left:none !important;
+				-webkit-border-top-left-radius:4px;
+				-webkit-border-bottom-left-radius:4px;
+			}
+			
+				.menu_btns li:first-child a {
+					-webkit-border-radius:inherit;
+				}	
+			
+			.menu_btns li:last-child {
+				border-right:none !important;
+				-webkit-border-top-right-radius:4px;
+				-webkit-border-bottom-right-radius:4px;
+			}
+			
+				.menu_btns li:last-child a {
+					-webkit-border-radius:inherit;
+				}
+		
+				.menu_btns li a {
+					display:block;
+					text-indent:-9999px;
+					width:10px;
+					height:20px;
+					-webkit-transition: none !important;
+				}
+				
+	
+	
+	
+	/* Specific Buttons Images*/  
+	
+	.btn_view {background: url(/static/webgateway/img/icon_view.png) center center no-repeat;}
+	.btn_folder {background: url(/static/webgateway/img/icon_folder.png) center center no-repeat;}
+	.btn_download {background: url(/static/webgateway/img/icon_download.png) center center no-repeat;}
+	.btn_filetype {background: url(/static/webgateway/img/icon_filetype.png) center center no-repeat;}
+	.btn_view_error {background: url(/static/webgateway/img/icon_view_error.png) center center no-repeat;}
+	.btn_info {background: url(/static/webgateway/img/icon_info.png )center center no-repeat;}
+	
+	
+	
+	
+	
+	
 	
 	
 
@@ -100,46 +159,89 @@ button {
 			
 			
 		/* State */	
-		.btn.silver {
-			background-color:hsl(210,8%,85%);
-			border:solid 1px hsl(210,8%,70%);
-			color:hsl(210,5%,30%);
-			text-shadow: 0 1px 0 white;
+		
+			
+			
+		.menu_btns.silver {
+			border-top:solid 1px rgba(0,0,0,.1);
+			border-left:solid 1px rgba(0,0,0,.2);
+			border-right:solid 1px rgba(0,0,0,.2);
+			border-bottom:solid 1px rgba(0,0,0,.3);
+			-webkit-border-radius:4px;
+			-webkit-box-shadow:0 1px 1px rgba(0,0,0,.1);
 		}
-			
-			
-			.btn.silver span {
+		
+		
+		
+			.btn.silver, .menu_btns.silver li {
+				background-color:hsl(210,8%,90%);
 				color:hsl(210,5%,30%);
-				padding:4px 10px;
-				line-height:1.3em;
-				display:inline-block;
-				border-top:solid 1px rgba(255,255,255,.8);
-				background-image: -webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0)), to(rgba(255,255,255,.4)));
+				text-shadow: 0 1px 0 white;
 			}
+		
+			.btn.silver {
+				border:solid 1px hsl(210,8%,70%);
+			}
+			
+			.menu_btns.silver li {
+				border-left: solid 1px rgba(255,255,255,.3);
+				border-right:solid 1px rgba(0,0,0,.1);
+				-webkit-transition: none !important;
+			}
+			
+			
+				.btn.silver span, .menu_btns.silver a {
+					color:hsl(210,5%,30%);
+					padding:4px 10px;
+					line-height:1.3em;
+					display:inline-block;
+					border-top:solid 1px rgba(255,255,255,.6);
+					background-image: -webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0)), to(rgba(255,255,255,.3)));
+				}
 
+				
+		
+		
+		
 		
 		/* Hover */	
 		
-		.btn.silver:hover {
-			background-color:hsl(210,8%,90%);
+		.btn.silver:hover, .menu_btns.silver li:hover {
+			background-color:hsl(210,8%,94%);
+			
 		}
+		
 		
 		
 		/* Active, Focus */
 		
-		.btn.silver:active, .btn.silver:focus {
+		.btn.silver:active, .btn.silver:focus, .menu_btns.silver li:active, .menu_btns.silver li:focus {
 			background-color:hsl(210,8%,70%);
+		}
+		
+		.menu_btns.silver li:active, .menu_btns.silver li:focus {
+			border-left:solid 1px rgba(0,0,0,.25) !important;
+			border-right:solid 1px rgba(0,0,0,.25) !important;
 		}
 		
 		
 			.btn.silver:active span, .btn.silver:focus span{
 				border-top:solid 1px transparent;
-				background-image:-webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0.4)), to(rgba(255,255,255,0)))
+				background-image:-webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0.4)), to(rgba(255,255,255,0)));
 			}
 			
-		
-			
+			.menu_btns.silver li:active a, .menu_btns.silver li:focus a {
+				border-top:solid 1px rgba(0,0,0,.4);
+				background-image:-webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0.4)), to(rgba(255,255,255,0)));
+				-webkit-box-shadow: inset 0 2px 5px rgba(0,0,0,.3);
+			}
 	
+	
+	
+	
+		
+				
+					
 
 
 
@@ -334,12 +436,7 @@ a.tag:hover {
 	------------------------------------------------
 */
 
-#search {
-	float:left;
-	margin-top: 8px;
-	margin-right: 8px;
-	position:relative;
-}
+
 
 
 	#search input[type=text] {
@@ -347,7 +444,7 @@ a.tag:hover {
 		-moz-border-radius:50px;
 		border-radius:50px;
 		border:solid 1px hsl(215,25%,40%);
-		border-top:solid 1px hsl(215,35%,35%);
+		border-top:solid 1px hsl(215,35%,38%);
 		padding: .2em .5em;
 		-webkit-box-shadow: 0 1px 0 rgba(255,255,255,.2), inset 0 1px 1px rgba(0,0,0,.2);
 		-moz-box-shadow: 0 1px 0 rgba(255,255,255,.2), inset 0 1px 1px rgba(0,0,0,.2);

@@ -1054,7 +1054,7 @@
 
 
    
-
+ /* ROGUE CSS */
     
 
 
@@ -1077,69 +1077,6 @@
         color: #1B7BC7;
         cursor: pointer;
     }
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1190,40 +1127,6 @@ ul.criteria li{
     
 
 
-
-
-.info_panel {
-    color: #000;
-    position: absolute;
-    top: 18px;
-    z-index: 20;
-    background: #fff;
-    border: solid 1px #444444;
-    max-height: 500px;
-    overflow: auto;
-    min-width: 500px;
-}
-.info_panel h3 {
-    padding: 5px 5px;
-    margin: 0px;
-    font-weight: normal;
-    border-bottom: solid gray 1px;
-}
-#activities_panel .message {
-    width: 200px;
-    color: #666;
-    font-size: 85%;
-}
-#activities_panel .activity_title {
-    font-weight:bold;
-}
-
-.info_panel tr.even {
-  background-color: #eef;
-}
-.info_panel tr.odd {
-  background-color: #fff;
-}
 
 
 

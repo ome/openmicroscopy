@@ -107,28 +107,20 @@
 
 {% block middle_header_right %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-	{% include "webclient/base/script_launch.html" %}
+	
+	<ul id="header_toolbar">
+		{% include "webclient/base/script_launch.html" %}
+	    <!--{% include "webclient/base/basket_info.html" %} -->
+	    {% include "webclient/base/activities_info.html" %}
+	</ul>
 	{% include "webclient/base/search_field.html" %}
-    <li id="user_dropdown">
-        <div id="show_user_dropdown">
-            <img src="{% url wamyphoto %}" />
-            <span>{{ eContext.user.getFullName }}</span>
-        </div>
-        <ul>
-            <li><a href="{% url wamyaccount 'edit' %}" title="Account Settings"> Accounts Settings</a></li>
-            <li><a href="{% url load_template 'help' %}">{% trans "Help" %}</a></li>
-        </ul>
-    </li>
+	{% include "webclient/base/user_dropdown.html" %}
 	{% include "webclient/base/logout.html" %}
 {% endblock %}
 
 
 {% block middle_header_left %}
     {% include "webclient/base/menu.html" %}
-    <div style="overflow:hidden;">
-    <!--{% include "webclient/base/basket_info.html" %} -->
-    {% include "webclient/base/activities_info.html" %}
-    </div>
 {% endblock %}
 
 
