@@ -287,6 +287,19 @@ public class TreeViewerFactory
 	}
 	
 	/**
+	 * Notifies the model that the user has annotated data
+	 */
+	public static void onAnnotated()
+	{
+		Iterator v = singleton.viewers.iterator();
+		TreeViewerComponent comp;
+		while (v.hasNext()) {
+			comp = (TreeViewerComponent) v.next();
+			comp.refreshTree();
+		}
+	}
+	
+	/**
 	 * Returns the {@link TreeViewer}.
 	 * 
 	 * @param exp The experiment the TreeViewer is for.

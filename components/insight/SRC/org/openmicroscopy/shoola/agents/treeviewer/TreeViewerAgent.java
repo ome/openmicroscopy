@@ -494,8 +494,9 @@ public class TreeViewerAgent
      */
     private void handleAnnotatedEvent(AnnotatedEvent evt)
     {
-    	ExperimenterData exp = (ExperimenterData) registry.lookup(
-    			LookupNames.CURRENT_USER_DETAILS);
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	TreeViewerFactory.onAnnotated();
     	
     }
     
