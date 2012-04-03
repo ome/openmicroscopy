@@ -512,7 +512,7 @@ class OmeroMetadataServiceImpl
 		String ioType;
 		TagAnnotation ho;
 		IObject link = null;
-		if (ann instanceof TagAnnotationData) {
+		if (ann instanceof TagAnnotationData && ann.isDirty()) {
 			TagAnnotationData tag = (TagAnnotationData) ann;
 			id = tag.getId();
 			ioType = gateway.convertPojos(TagAnnotationData.class).getName();
