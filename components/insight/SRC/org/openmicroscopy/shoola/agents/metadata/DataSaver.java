@@ -125,10 +125,13 @@ public class DataSaver
     	viewer.onDataSave((List) data);
     	boolean post = (toAdd != null && toAdd.size() != 0) || 
 				(toRemove != null && toRemove.size() != 0);
+    	int count = 0;
+    	if (toAdd != null) count += toAdd.size();
+    	if (toRemove != null) count -= toRemove.size();
     	if (post) {
 			EventBus bus = 
 				MetadataViewerAgent.getRegistry().getEventBus();
-			bus.post(new AnnotatedEvent(data));
+			bus.post(new AnnotatedEvent((List) data, count));
 		}
     }
     

@@ -655,6 +655,72 @@ class TreeViewerComponent
 	}
 
 	/**
+	 * Notifies the model that the user has annotated data.
+	 * 
+	 * @param containers The objects to handle.
+	 * @param count A positive value if annotations are added, a negative value
+	 * if annotations are removed.
+	 */
+	void onAnnotated(List<DataObject> containers, int count)
+	{
+		TreeImageDisplay node;
+		Browser browser = null;
+		Set<Long> groupIds = new HashSet<Long>();
+		if (containers != null && containers.size() > 0) {
+			NodesFinder finder = new NodesFinder(containers);
+			DataObject ho = containers.get(0);
+			if (ho instanceof DatasetData || ho instanceof ProjectData) {
+				browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+				browser.accept(finder);
+			} else if (ho instanceof ScreenData) {
+				browser = model.getBrowser(Browser.SCREENS_EXPLORER);
+				browser.accept(finder);
+			}
+			Set<TreeImageDisplay> nodes = finder.getNodes();
+			//mark
+			if (browser != null && nodes != null && nodes.size() > 0) {
+				Iterator<TreeImageDisplay> i = nodes.iterator();
+				TreeImageDisplay parent;
+				Object object;
+				while (i.hasNext()) {
+					node = i.next();
+					node.setAnnotationCount(count);
+					object = node.getUserObject();
+					if (object instanceof DataObject) {
+						groupIds.add(((DataObject) object).getGroupId());
+					}
+					parent = node.getParentDisplay();
+					if (parent != null && !parent.isExpanded())
+						browser.expand(parent);
+				}
+				ExperimenterData exp = TreeViewerAgent.getUserDetails();
+				ExperimenterVisitor v = new ExperimenterVisitor(browser, 
+						exp.getId(), groupIds);
+				browser.accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+				List<TreeImageDisplay> l = v.getNodes();
+				if (l != null) {
+					Iterator<TreeImageDisplay> j = l.iterator();
+					while (j.hasNext()) {
+						node = j.next();
+						node.setAnnotationCount(count);
+					}
+				}
+				browser.getUI().repaint();
+			}
+		}
+		/*
+		if (browser == null) browser = model.getSelectedBrowser();
+		if (browser != null) {
+			node = browser.getLoggedExperimenterNode();
+			if (node != null) {
+				node.setExpanded(true);
+				node.setToRefresh(refreshTree);
+				browser.getUI().repaint();
+			}
+		}*/
+	}
+	
+	/**
 	 * Sets the image to copy the rendering settings from.
 	 * 
 	 * @param image The image to copy the rendering settings from.

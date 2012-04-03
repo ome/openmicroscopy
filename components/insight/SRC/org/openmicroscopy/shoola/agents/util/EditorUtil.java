@@ -846,6 +846,18 @@ public class EditorUtil
 	 */
 	public static boolean isAnnotated(Object object)
 	{
+		return isAnnotated(object, 0);
+	}
+	
+    /**
+	 * Returns <code>true</code> it the object has been annotated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param object	The object to handle.
+	 * @return See above.
+	 */
+	public static boolean isAnnotated(Object object, int count)
+	{
 		if (object == null) return false;
 		Map<Long, Long> counts = null;
 		if (object instanceof DatasetData) 
@@ -855,7 +867,9 @@ public class EditorUtil
 		else if (object instanceof ImageData) {
 			ImageData image = (ImageData) object;
 			counts = image.getAnnotationsCounts();
-			if (counts == null || counts.size() <= 0) return false;
+			if (counts == null || counts.size() <= 0) {
+				return count > 0;
+			}
 			int n = 1;
 			try {
 				String format = image.getFormat();
@@ -871,6 +885,7 @@ public class EditorUtil
 				entry = i.next();
 				value += (Long) entry.getValue();
 			}
+			value += count;
 			return value > n;
 		} else if (object instanceof ScreenData)
 			counts = ((ScreenData) object).getAnnotationsCounts();
@@ -880,8 +895,10 @@ public class EditorUtil
 			counts = ((WellData) object).getAnnotationsCounts();
 		else if (object instanceof PlateAcquisitionData)
 			counts = ((PlateAcquisitionData) object).getAnnotationsCounts();
-		if (counts == null || counts.size() <= 0) return false;
-		return true;
+		if (counts == null || counts.size() <= 0) {
+			return count > 0;
+		}
+		return counts.size()+count > 0;
 	}
 	
 	/**

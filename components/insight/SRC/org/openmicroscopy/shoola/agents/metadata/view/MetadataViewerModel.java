@@ -519,12 +519,15 @@ class MetadataViewerModel
 						os.saveAcquisitionData(ctx, i.next()) ;
             	}
             	os.saveData(ctx, data, toAdd, toRemove, userID);
+            	int count = 0;
+            	if (toAdd != null) count += toAdd.size();
+            	if (toRemove != null) count -= toRemove.size();
             	boolean post = (toAdd != null && toAdd.size() != 0) || 
 				(toRemove != null && toRemove.size() != 0);
             	if (post) {
         			EventBus bus = 
         				MetadataViewerAgent.getRegistry().getEventBus();
-        			bus.post(new AnnotatedEvent(data));
+        			bus.post(new AnnotatedEvent(new ArrayList(data), count));
         		}
 			} catch (Exception e) {
 				LogMessage msg = new LogMessage();

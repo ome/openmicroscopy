@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.events.metadata;
 
 //Java imports
 import java.util.Collection;
+import java.util.List;
 
 //Third-party libraries
 
@@ -45,16 +46,22 @@ public class AnnotatedEvent
 {
 
 	/** The data object annotated.*/
-	private Collection<DataObject> data;
+	private List<DataObject> data;
+	
+	/** Indicates the annotation added or removed.*/
+	private int count;
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param data The annotated object.
+	 * @param count Pass <code>0</code> if no annotation, a positive value if
+	 * annotations are added, negative value if annotations are removed.
 	 */
-	public AnnotatedEvent(Collection<DataObject> data)
+	public AnnotatedEvent(List<DataObject> data, int count)
 	{
 		this.data = data;
+		this.count = count;
 	}
 	
 	/**
@@ -62,6 +69,14 @@ public class AnnotatedEvent
 	 * 
 	 * @return See above.
 	 */
-	public Collection<DataObject> getData() { return data; }
+	public List<DataObject> getData() { return data; }
+	
+	/**
+	 * Returns a positive value if annotations are added, a negative value
+	 * if annotations are removed.
+	 * 
+	 * @return See above.
+	 */
+	public int getCount() { return count; }
 	
 }

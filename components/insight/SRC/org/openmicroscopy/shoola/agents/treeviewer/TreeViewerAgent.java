@@ -496,8 +496,7 @@ public class TreeViewerAgent
     {
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	if (!env.isServerAvailable()) return;
-    	TreeViewerFactory.onAnnotated();
-    	
+    	TreeViewerFactory.onAnnotated(evt.getData(), evt.getCount());
     }
     
     /**
