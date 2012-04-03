@@ -23,12 +23,11 @@ READWRITE = 'rwrw--'
 import gatewaytest.library as lib
 
 
-class CustomUsersTest (lib.GTest):
+class ChmodBaseTest (lib.GTest):
 
     def assertCanEdit(self, blitzObject, expected=True):
         """ Checks the canEdit() method AND actual behavior (ability to edit) """
 
-        #self.assertEqual(blitzObject.canEdit(), expected, "Unexpected result of canEdit(). Expected: %s" % expected)
         nameEdited = False
         try:
             blitzObject.setName("new name")
@@ -37,11 +36,11 @@ class CustomUsersTest (lib.GTest):
         except:
             pass
         self.assertEqual(nameEdited, expected, "Unexpected ability to Edit. Expected: %s" % expected)
+        self.assertEqual(blitzObject.canEdit(), expected, "Unexpected result of canEdit(). Expected: %s" % expected)
 
     def assertCanAnnotate(self, blitzObject, expected=True):
         """ Checks the canAnnotate() method AND actual behavior (ability to annotate) """
 
-        self.assertEqual(blitzObject.canAnnotate(), expected, "Unexpected result of canAnnotate(). Expected: %s" % expected)
         annotated = False
         try:
             omero.gateway.CommentAnnotationWrapper.createAndLink(target=blitzObject, ns="gatewaytest.chmod.testCanAnnotate", val="Test Comment")
@@ -49,10 +48,17 @@ class CustomUsersTest (lib.GTest):
         except:
             pass
         self.assertEqual(annotated, expected, "Unexpected ability to Annotate. Expected: %s" % expected)
+        self.assertEqual(blitzObject.canAnnotate(), expected, "Unexpected result of canAnnotate(). Expected: %s" % expected)
+
+
+class CustomUsersTest (ChmodBaseTest):
+    """
+    Here we're creating 3 groups with different permissions (read-only, read-annotate, read-write).
+    Each group has a user who owns the data (Project), another user, an admin and a group leader (groupowner).
+    Then we have a test for each group, testing whether each user canEdit() and canAnnotate() the data.
+    """
 
     def setUp (self):
-        """ Here we're creating 3 groups, each with 2 users with data belonging to the first user in each"""
-
         # read-only users & data
         dbhelpers.USERS['read_only_owner'] = dbhelpers.UserEntry('r-_owner','ome', firstname='chmod', lastname='test', 
                    groupname="ReadOnly_chmod_test", groupperms=READONLY)
@@ -145,7 +151,7 @@ class CustomUsersTest (lib.GTest):
         self.assertCanAnnotate(p, True)
 
     def testReadWrite(self):
-        """ In a read-write group, user should be able to Annotate and Edit"""
+        """ In a read-write group, all should be able to Annotate and Edit"""
         # Login as owner...
         self.doLogin(dbhelpers.USERS['read_write_owner'])
         p = dbhelpers.getProject(self.gateway, 'read_write_proj')
@@ -170,6 +176,36 @@ class CustomUsersTest (lib.GTest):
         p = self.gateway.getObject("Project", pid)
         self.assertCanEdit(p, True)
         self.assertCanAnnotate(p, True)
+
+
+class ManualCreateEditTest (ChmodBaseTest):
+    """ Here we test whether an object created and saved using update service can be edited by another user """
+
+    def setUp (self):
+        """ Here we're creating 3 groups, each with 2 users with data belonging to the first user in each"""
+
+        # read-only users & data
+        dbhelpers.USERS['read_only_owner'] = dbhelpers.UserEntry('r-_owner','ome', firstname='chmod', lastname='test',
+                   groupname="ReadOnly_chmod_test", groupperms=READONLY)
+        dbhelpers.USERS['read_only_user'] = dbhelpers.UserEntry('r-_user','ome', firstname='chmod2', lastname='test',
+                   groupname="ReadOnly_chmod_test")
+
+        # Calling the superclass setUp processes the dbhelpers.USERS and dbhelpers.PROJECTS etc to populate DB
+        super(ManualCreateEditTest, self).setUp()
+
+    def testReadOnly(self):
+        """ In a read-only group, user should NOT be able to Edit or Annotate """
+        # Login as owner...
+        self.doLogin(dbhelpers.USERS['read_only_owner'])
+        p = omero.model.ProjectI()
+        p.setName(rstring("test_create_read_only_project"))
+        p = self.gateway.getUpdateService().saveAndReturnObject(p)
+
+        # Login as user...
+        self.doLogin(dbhelpers.USERS['read_only_user'])
+        project = self.gateway.getObject("Project", p.id.val)
+        self.assertCanEdit(project, False)
+        self.assertCanAnnotate(project, False)
 
 
 class DefaultSetupTest (lib.GTest):
