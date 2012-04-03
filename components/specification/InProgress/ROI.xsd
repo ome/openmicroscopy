@@ -228,7 +228,7 @@
 					</xsd:restriction>
 				</xsd:simpleType>
 			</xsd:attribute>
-			<xsd:attribute name="Visibility" use="optional" type="xsd:boolean">
+			<xsd:attribute name="Visible" use="optional" type="xsd:boolean">
 				<xsd:annotation>
 					<xsd:documentation>
 						Controls whether the shape is currently visible,

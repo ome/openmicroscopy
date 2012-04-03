@@ -161,7 +161,7 @@
 	<xsl:template match="ROI:Shape">
 		<xsl:element name="ROI:Shape" namespace="{$newROINS}">
 			<xsl:for-each
-				select="@* [not(name() = 'FillColor' or name() = 'StrokeColor' or name() = 'Text' or name() =  'Visibility')]">
+				select="@* [not(name() = 'FillColor' or name() = 'StrokeColor' or name() = 'Text' or name() =  'Visible')]">
 				<xsl:attribute name="{local-name(.)}">
 					<xsl:value-of select="."/>
 				</xsl:attribute>

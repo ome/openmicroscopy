@@ -252,7 +252,7 @@
 					<xsl:value-of select="."/>
 				</xsl:attribute>
 			</xsl:for-each>
-			<xsl:attribute name="Visibility">false</xsl:attribute>
+			<xsl:attribute name="Visible">false</xsl:attribute>
 			<xsl:attribute name="Text">Removed Path</xsl:attribute>
 			<xsl:comment>
 				Path elements cannot be converted to 2012-06 Schema, they are not
