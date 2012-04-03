@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.roi.figures;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -270,8 +269,7 @@ public class MeasureLineFigure
 					if (yLoc < p.y) yLoc = p.y;
 				}
 				Rectangle2D b = g.getFontMetrics().getStringBounds(v, g);
-				g.drawString(v, (int) ((maxX-minX)/2), 
-						(int) (yLoc+b.getHeight()));
+				g.drawString(v, (int) minX, (int) (yLoc+b.getHeight()));
 			}
 		}
 		if (MeasurementAttributes.SHOWID.get(this))
