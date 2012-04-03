@@ -72,7 +72,7 @@
     /* Left Panel Tabs */    
     
     
-    #left_panel_tab_list{
+    #left_panel_tab_list, .cal_nav{
         background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 15%, 30%)), to(hsl(215, 15%, 38%))) !important;
         background-image: -moz-linear-gradient(90deg, hsl(212, 20%, 20%) 0%, hsl(212, 20%, 25%) 100%);
         border-top: solid 1px hsl(210,20%,25%);
@@ -253,10 +253,10 @@
     #center_panel_header, #annotation_tabs_list {
         background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 10%, 75%)), to(hsl(215, 10%, 85%))) !important;
         background-image: -moz-linear-gradient(90deg, hsl(215, 10%, 75%) 0%, hsl(215, 10%, 85%) 100%);
-        border-top: solid 1px hsl(210,20%,30%);
+        border-top: solid 1px hsl(210,25%,35%);
 		-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
 		-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
-		box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
+		box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
     }
     
    
@@ -726,6 +726,29 @@
 	
 	
 	
+    /* Batch Annotation */
+
+    #batch_ann_msg_container {
+        position:absolute;
+        z-index:10;
+        top:10px; right:10px; 
+        background: #ffb;
+        width:200px;
+    }
+
+    #batch_ann_msg, #batch_ann_error {
+        background: #ffb;
+        padding:10px;
+        border: solid #ddd 1px;
+        display: none;
+    }
+    #batch_ann_msg, {
+        background: #ffb;
+    }
+    #batch_ann_error {
+        background: #fbb;
+        cursor: pointer;
+    }
 	
 	
 	
@@ -800,8 +823,7 @@
         left:0px;
         right:0px;
         border-bottom:solid 1px rgba(0,0,0,.4);
-        border-left:solid 1px rgba(255,255,255,.1);
-        -webkit-box-shadow:0 1px 1px rgba(0,0,0,.1);
+        border-left:solid 1px rgba(255,255,255,.2);
     } 
     
     
@@ -892,6 +914,49 @@
         
 
 
+
+
+
+/*
+	===============================================
+	:: History
+	===============================================
+*/
+
+
+    #history #center_panel_header {
+        position: relative;
+    }
+    
+        #history .filtersearch {
+            position:absolute;
+            top:3px;
+            left:3px;
+            width:20%;
+            height:25px;
+        }
+
+            #history .filtersearch input {
+                border:solid 1px rgba(0,0,0,.4);
+                border-top:solid 1px rgba(0,0,0,.6);
+                position:absolute;
+            }
+    
+
+        #history #center_panel_header h1{
+            text-align:center;
+            font-size:1.1em;
+            text-shadow:0 1px 0 rgba(255,255,255,.5);
+            overflow:hidden;
+            display:block;
+            margin:0 auto;
+            color:#666;
+            color:hsl(210,10%,40%);
+        }
+    
+        #toolbar {
+            border:solid 1px red;
+        }
 
 
 
@@ -1034,7 +1099,20 @@
 
 
 
+.center_message {
+    display:block;
+    width:190px;
+    padding-top:120px;
+    font-size:1.6em;
+    margin:50px auto;
+    text-align:center;
+    color:hsl(210,10%,50%);
+    text-shadow: 0 1px 0 white;
+}
 
+.message_nodata {
+    background:url(../image/message_nodata.png) center top no-repeat;
+}
 
 
 
@@ -1243,29 +1321,7 @@ width: 250px;
 #tooltip h3, #tooltip div { margin: 0; }
 
 
-/** Containers for displaying messages on batch annotation panel **/
 
-#batch_ann_msg_container {
-    position:absolute;
-    z-index:10;
-    top:10px; right:10px; 
-    background: #ffb;
-    width:200px;
-}
-
-#batch_ann_msg, #batch_ann_error {
-    background: #ffb;
-    padding:10px;
-    border: solid #ddd 1px;
-    display: none;
-}
-#batch_ann_msg, {
-    background: #ffb;
-}
-#batch_ann_error {
-    background: #fbb;
-    cursor: pointer;
-}
 
 /** Chgrp form **/
 #chgrp-form .selected {

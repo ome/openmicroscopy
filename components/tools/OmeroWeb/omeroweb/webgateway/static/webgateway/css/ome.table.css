@@ -48,6 +48,9 @@
 		 #dataTable .table_images {
 			 width:10%;
 		 }
+		 
+		
+		 	
 	 
 		 #dataTable .table_desc {
 			 width:50%;
@@ -120,7 +123,12 @@
 				 margin:0 auto;
 				 text-align:center;
 			 }
-		 
+			 
+			 	#dataTable tbody .image img{
+		 		    width:16px;
+				}
+				
+				   
 			 #dataTable tbody .date {
 				color:hsl(210,10%,65%);
 			 }

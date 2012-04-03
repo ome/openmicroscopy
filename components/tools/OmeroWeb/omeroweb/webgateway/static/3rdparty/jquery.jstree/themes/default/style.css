@@ -37,8 +37,8 @@
 
 
 .jstree-default .jstree-no-dots li, 
-.jstree-default .jstree-no-dots .jstree-leaf > ins { background:transparent; border solid 1px blue}
-.jstree-default .jstree-no-dots .jstree-open > ins { background-position:-18px 0; }
+.jstree-default .jstree-no-dots .jstree-leaf > ins { background:transparent; }
+.jstree-default .jstree-no-dots .jstree-open > ins { background-position:-18px 0;}
 .jstree-default .jstree-no-dots .jstree-closed > ins { background-position:0 0; }
 
 .jstree-default .jstree-no-icons a .jstree-icon { display:none; border:solid 5px red}
@@ -78,7 +78,9 @@
 	border: solid 1px transparent; 
 	color: hsl(220,30%,30%) !important; 
 	font-family:'HelveticaNeue-Bold';
-	padding:1px 3px !important;
+	padding:1px 1px !important;
+	left:-4px;
+	position:relative;
 	}
 
 .jstree-default .jstree-hovered { 
@@ -133,12 +135,24 @@
 	}
 
 
+/* Arrows */
+
+.jstree-default ins {
+	cursor:pointer;
+}
+
+.jstree-default li > ins {
+	background:url(/static/webgateway/img/folder_closed.png) center center no-repeat;
+}
 
 
+.jstree-open > ins {
+	background:url(/static/webgateway/img/folder_open.png) center center no-repeat !important;
+}
 
-
-
-
+.jstree-leaf > ins {
+	background:none !important;
+}
 
 
 

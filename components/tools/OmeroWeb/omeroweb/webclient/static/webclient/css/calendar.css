@@ -17,58 +17,165 @@
  *
  */
  
+
+
+ 
+ 
+ 
+ 
+ 
  .cal_nav {
     position:relative;
-    margin-bottom: 5px;
-}
-.calendar input {
-    border: 0;
-    background-color: transparent;
-    color: #1b7bc7;
-    font-weight: bold;
-    cursor: pointer;
+    height:31px;
+    text-align:center;
 }
 
-.calendar {
-    padding: 10px;
-}
+    .cal_nav h1 {
+        text-align:center;
+        display:inline-block;
+        color:#999;
+        font-size:1.4em;
+        text-shadow:0 -1px 1px rgba(0,0,0,.4);
+        color:hsl(210,10%,50%);
+    }
+    
+    .cal_nav strong {
+        color:white;
+        font-weight:bold;
+    }
+
+    .cal_nav input {
+    	border:solid 1px rgba(0,0,0,.4);
+        background-color:rgba(255,255,255,.1);
+        -webkit-border-radius:3px;
+        -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 1px 0 rgba(255,255,255,.1);
+        font-weight:bold;
+        top:3px;
+        color:white;
+        cursor:pointer;
+        text-shadow:0 -1px 0 rgba(0,0,0,.6);
+    }
+    
+    .cal_nav input:hover {
+        background-color:rgba(255,255,255,.15);
+    }
+    
+    .cal_nav input:active, .cal_nav input:focus {
+        background-color:rgba(0,0,0,.2);
+        -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.05);
+        border:solid 1px rgba(0,0,0,.6);
+        top:4px;
+    }
+    
+    
+
+	#prevMonth {
+		position:absolute;
+		left:4px;
+	}
+	
+	#nextMonth {
+		position:absolute;
+		right:4px;
+	}
+    
+    
+
+/* Header - Days */    
+    
+.calendar thead {
+    border-top:solid 1px rgba(255,255,255,.6);
+    border-bottom: solid 1px rgba(0,0,0,.05);
+    background-color:#f2f2f2;
+}    
+    
+    .calendar thead th {
+        padding:5px 0;
+        border-right: solid 1px rgba(0,0,0,.05);
+        text-shadow:0 1px 0 white;
+    }
+    
+
+
+
+/* Header - Top Days */
+
 .calendar table {
     text-align: center;
     width: 100%;
 }
 
-.calendar td.calendar_day {
-    height: 70px;
-    vertical-align: top;
-    width: 14.29%;
-    background-color: #f3f3f3;
-}
-.calendar td.not_calendar_day {
-    background-color: #fff;
-}
+
+    tbody .calendar_day {
+        height: 70px;
+        vertical-align: top;
+        width: 14.29%;
+        border-left:solid 1px rgba(0,0,0,.02);
+        border-bottom:solid 1px rgba(0,0,0,.02);
+        
+    }
+    
+    tbody .not_calendar_day {
+        background-color: #f2f2f2;
+        border-left:solid 1px rgba(0,0,0,.02);
+        border-bottom:solid 1px rgba(0,0,0,.02);
+        
+    }
+    
+
+        .calendar_day a {
+             display:block; 
+             height:100%;
+        }
+    
+        .calendar_day a:hover {
+             background-color:hsl(200,30%,95%);
+        }
+    
+
+
+
+
+/* Middle - Day Numbers */
+
 .calendar_numerical_day {
-    padding: 2px;
+    padding: 4px;
     text-align: right;
-    background-color: #fff;
-    border: 1px solid #f3f3f3;
+    font-size:1.1em;
+    color:rgba(0,0,0,.7);
+    text-shadow:0 1px 0 white;
+    
 }
+
+
+/* Middle - Individual Days */
+
 .calendar_items{
-    margin: 5px;
+    width:100%;
+    height:100%;
 }
-.calendar th {
-    font-weight: normal;
-    border: 0px;
-    color: #555;
-    background-color: #f3f3f3;
-    -moz-border-radius-topleft: 5px;
-    -moz-border-radius-topright: 5px;
-}
-.calendar th.calendar_day {
-    font-weight: bold;
-    background-color: #bbb;
-}
-.calendar_numerical_day a {
-    color: #555;
-    font-weight: bold;
-    text-decoration: none;
-}
+
+    /* Middle - If a day has contents */
+
+    .calendar_items table span{
+        font-size:1em;
+        font-weight:bold;
+        color:#999;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

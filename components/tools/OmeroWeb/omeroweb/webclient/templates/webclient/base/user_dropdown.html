@@ -23,11 +23,10 @@
             <img src="{% url wamyphoto %}" />
             <span>{{ eContext.user.getFullName }}</span>
         </div>
-        <ul>
-            <li><a href="{% url wamyaccount 'edit' %}" title="Account Settings"> Accounts Settings</a></li>
+        <ul class="dropdown">
+            <li id="user_settings"><a href="{% url wamyaccount 'edit' %}" title="Account Settings"> Accounts Settings</a></li>
 			<!-- Help -->
-			{% comment %}
-            <li><a href="{% url load_template 'help' %}">{% trans "Help" %}</a></li>
-			{% endcomment %}
+            <li id="help"><a href="{% url load_template 'help' %}">Help</a></li>
+			<li id="logout"><a href="{% url weblogout %}">Logout</a></li>
         </ul>
     </div>

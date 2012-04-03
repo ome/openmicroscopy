@@ -41,15 +41,23 @@
     </script>
     
 <div class="calendar">
+	
     <div class="cal_nav">
-        <div style="float: left; width: 20%; text-align:left; font-weight: bold;">
-            <input id="prevMonth" class="button" type="button" alt="{{ controller.last_month_name }}" value="{{ controller.last_month_name }}" >
-        </div>
-        <div style="float: right;width: 20%; text-align: right; font-weight: bold;">
-            <input id="nextMonth" class="button" type="button" alt="{{ controller.next_month_name }}" value="{{ controller.next_month_name }}">
-        </div>
-        <div style="text-align: center;">{{ controller.month_name }} {{ controller.year }}</div>
+       
+	   	<h1><strong>{{ controller.month_name }}</strong> {{ controller.year }}</h1>
+		
+		
+        <input id="prevMonth" class="button" type="button" alt="{{ controller.last_month_name}}" value="<" >
+        <input id="nextMonth" class="button" type="button" alt="{{ controller.next_month_name }}" value=">">
+		
+		
+		{% comment %}
+        <input id="prevMonth" class="button" type="button" alt="{{ controller.last_month_name}}" value="{{ controller.last_month_name }}" >
+        <input id="nextMonth" class="button" type="button" alt="{{ controller.next_month_name }}" value="{{ controller.next_month_name }}">
+        {% endcomment %}
+		
     </div>
+	
     <table>
         <thead>
         {% for day_label in  controller.week_day_labels %}
@@ -60,24 +68,58 @@
         {% for week in controller.cal_weeks %}
         <tr class="calendar_week">
             {% for day in week %}
-                {% if not day.cell.day %}<td class="not_calendar_day"></td>
-                {% else %}
+                {% if not day.cell.day %}
+					<td class="not_calendar_day"></td>
+               
+			    {% else %}
                     <td class="calendar_day">
-                        <div class="calendar_numerical_day"><input class="button" type="submit" onClick="load_details('{{ controller.year }}', '{{ controller.month }}', '{{ day.cell.day }}')" name="{{ day.cell.day }}" value="{{ day.cell.day }}"/></div>
-                        <div class="calendar_items">
-                            {% if day.cell.counter.imgCounter or day.cell.counter.dsCounter or  day.cell.counter.prCounter or day.cell.counter.rdCounter %}<table>
-                                <tr><td>{% if day.cell.counter.imgCounter %}<img src="{% static "webclient/image/image16.png" %}" />({{ day.cell.counter.imgCounter }}){% endif %}</td></tr>
-                                <tr><td>{% if day.cell.counter.dsCounter %}<img src="{% static "webclient/image/folder_image16.png" %}" />({{ day.cell.counter.dsCounter }}){% endif %}</td></tr>
-                                <tr><td>{% if day.cell.counter.prCounter %}<img src="{% static "webclient/image/folder16.png" %}" />({{ day.cell.counter.prCounter }}){% endif %}</td></tr>
-                            </table>{% endif %}
-                        </div>
-                </td>
+                       
+					   	<a href="#" onClick="load_details('{{ controller.year }}', '{{ controller.month }}', '{{ day.cell.day }}')" > 
+   
+							<div class="calendar_numerical_day">
+								<span>{{ day.cell.day }}</span>
+							</div>
+						
+						
+							<div class="calendar_items">
+	                            {% if day.cell.counter.imgCounter or day.cell.counter.dsCounter or  day.cell.counter.prCounter or day.cell.counter.rdCounter %}
+								<table>
+	                                <tr>
+										<td>
+											{% if day.cell.counter.imgCounter %}
+											<img src="{% static "webclient/image/image16.png" %}" />
+											<span>{{ day.cell.counter.imgCounter }}</span>
+											{% endif %}
+										</td>
+									</tr>
+	                                <tr>
+										<td>
+											{% if day.cell.counter.dsCounter %}
+											<img src="{% static "webclient/image/folder_image16.png" %}" />
+											<span>{{ day.cell.counter.dsCounter }}</span>
+											{% endif %}
+										</td>
+									</tr>
+	                                <tr>
+										<td>
+											{% if day.cell.counter.prCounter %}
+											<img src="{% static "webclient/image/folder16.png" %}" />
+											<span>{{ day.cell.counter.prCounter }}</span>
+											{% endif %}
+										</td>
+									</tr>
+	                            </table>
+								{% endif %}
+	                        </div>
+
+						</a>
+                	
+					</td>
                 {% endif %}
             {% endfor %}
         </tr>
         {% endfor %}</tbody>
     </table>
     
-    <p>{% trans "Calendar feature enables you to keep track of images, datasets and projects stored on the server all in one place." %}
     
 </div>
