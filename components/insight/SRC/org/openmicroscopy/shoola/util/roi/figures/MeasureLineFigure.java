@@ -226,7 +226,7 @@ public class MeasureLineFigure
 				g.drawString(lineAngle, (int) bounds.getX(), (int) bounds.getY());
 				boundsArray.add(bounds);
 			}
-			int total = 0;
+			double total = 0;
 			int n = getPointCount();
 			g.setColor(Color.black);
 			//MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
@@ -259,7 +259,7 @@ public class MeasureLineFigure
 			}
 			v += "="+formatter.format(total);
 			v = addUnits(v);
-			if (n > 1) {
+			if (n > 2) {
 				List<Point> l = getPoints();
 				Iterator<Point> j = l.iterator();
 				Point p;
