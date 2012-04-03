@@ -228,8 +228,7 @@ public class MeasureLineFigure
 			}
 			double total = 0;
 			int n = getPointCount();
-			g.setColor(Color.black);
-			//MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+			g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 			String v = "";
 			NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 			
