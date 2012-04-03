@@ -2653,7 +2653,7 @@ def chgrp(request, conn=None, **kwargs):
 
 
 @login_required()
-def script_run(request, scriptId, **kwargs):
+def script_run(request, scriptId, conn=None, **kwargs):
     """
     Runs a script using values in a POST
     """
