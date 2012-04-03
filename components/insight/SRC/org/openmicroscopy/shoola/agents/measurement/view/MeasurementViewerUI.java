@@ -1510,6 +1510,17 @@ class MeasurementViewerUI
 	/** Invokes when the figures are selected. */
 	void onSelectedFigures()
 	{
+		Collection<Figure> figures = model.getSelectedFigures();
+		if (figures != null) {
+			Iterator<Figure> i = figures.iterator();
+			Figure f;
+			while (i.hasNext()) {
+				f = i.next();
+				if (measurementShown != null && measurementShown.booleanValue())
+					MeasurementAttributes.SHOWMEASUREMENT.set(f, true);
+			}
+		}
+		
 		roiManager.onSelectedFigures();
 	}
 	
