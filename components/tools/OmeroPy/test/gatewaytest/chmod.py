@@ -17,47 +17,159 @@ from omero.gateway.scripts import dbhelpers
 
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
-COLLAB = 'rwrw--'
+READANN = 'rwra--'
+READWRITE = 'rwrw--'
 
 import gatewaytest.library as lib
 
 
 class CustomUsersTest (lib.GTest):
 
-    def setUp (self):
-        """ Here we're creating 2 additional users with data belonging to the first user """
+    def assertCanEdit(self, blitzObject, expected=True):
+        """ Checks the canEdit() method AND actual behavior (ability to edit) """
 
-        dbhelpers.USERS['chmod1'] = dbhelpers.UserEntry('chmod_user','foobar', firstname='chmod', lastname='test', 
-                   groupname="ReadOnly_chmod_test", groupperms="rwr---")
-        dbhelpers.USERS['chmod2'] = dbhelpers.UserEntry('chmod_user2','foobar', firstname='chmod2', lastname='test', 
-                   groupname="ReadOnly_chmod_test")
-        dbhelpers.PROJECTS['chmod_test'] = dbhelpers.ProjectEntry('chmod_test', 'chmod1')
-        super(CustomUsersTest, self).setUp()
-        self.doLogin(dbhelpers.USERS['chmod1'])
-
-    def testUsers(self):
-
-        p = dbhelpers.getProject(self.gateway, 'chmod_test')
-        pid = p.id
-        self.assertTrue(p.canEdit(), "User can Edit their own data")
-        self.assertTrue(p.canAnnotate(), "User can Annotate their own data")
-        # Editing shouldn't throw exception
-        p.setName("test name")
-        p.save()
-
-        # Login as user 2...
-        self.doLogin(dbhelpers.USERS['chmod2'])
-        p = self.gateway.getObject("Project", pid)
+        #self.assertEqual(blitzObject.canEdit(), expected, "Unexpected result of canEdit(). Expected: %s" % expected)
         nameEdited = False
         try:
-            p.setName("new name")
-            p.save()
+            blitzObject.setName("new name")
+            blitzObject.save()
             nameEdited = True
         except:
             pass
-        self.assertFalse(nameEdited, "Editing should throw exception above")
-        self.assertFalse(p.canEdit(), "User can NOT edit another's data in read-only group")
-        self.assertFalse(p.canAnnotate(), "User can NOT annotate another's data in read-only group")
+        self.assertEqual(nameEdited, expected, "Unexpected ability to Edit. Expected: %s" % expected)
+
+    def assertCanAnnotate(self, blitzObject, expected=True):
+        """ Checks the canAnnotate() method AND actual behavior (ability to annotate) """
+
+        self.assertEqual(blitzObject.canAnnotate(), expected, "Unexpected result of canAnnotate(). Expected: %s" % expected)
+        annotated = False
+        try:
+            omero.gateway.CommentAnnotationWrapper.createAndLink(target=blitzObject, ns="gatewaytest.chmod.testCanAnnotate", val="Test Comment")
+            annotated = True
+        except:
+            pass
+        self.assertEqual(annotated, expected, "Unexpected ability to Annotate. Expected: %s" % expected)
+
+    def setUp (self):
+        """ Here we're creating 3 groups, each with 2 users with data belonging to the first user in each"""
+
+        # read-only users & data
+        dbhelpers.USERS['read_only_owner'] = dbhelpers.UserEntry('r-_owner','ome', firstname='chmod', lastname='test', 
+                   groupname="ReadOnly_chmod_test", groupperms=READONLY)
+        dbhelpers.USERS['read_only_user'] = dbhelpers.UserEntry('r-_user','ome', firstname='chmod2', lastname='test', 
+                   groupname="ReadOnly_chmod_test")
+        dbhelpers.USERS['read_only_admin'] = dbhelpers.UserEntry('r-_admin','ome', firstname='chmod2', lastname='test', 
+                   groupname="ReadOnly_chmod_test", admin=True)
+        dbhelpers.USERS['read_only_leader'] = dbhelpers.UserEntry('r-_leader','ome', firstname='chmod2', lastname='test', 
+                   groupname="ReadOnly_chmod_test", groupowner=True)
+        dbhelpers.PROJECTS['read_only_proj'] = dbhelpers.ProjectEntry('read_only_proj', 'read_only_owner')
+
+        # read-annotate users & data
+        dbhelpers.USERS['read_ann_owner'] = dbhelpers.UserEntry('ra_owner','ome', firstname='chmod', lastname='test', 
+                   groupname="ReadAnn_chmod_test", groupperms=READANN)
+        dbhelpers.USERS['read_ann_user'] = dbhelpers.UserEntry('ra_user','ome', firstname='chmod2', lastname='test', 
+                   groupname="ReadAnn_chmod_test")
+        dbhelpers.USERS['read_ann_admin'] = dbhelpers.UserEntry('ra_admin','ome', firstname='chmod2', lastname='test', 
+                   groupname="ReadAnn_chmod_test", admin=True)
+        dbhelpers.USERS['read_ann_leader'] = dbhelpers.UserEntry('ra_leader','ome', firstname='chmod2', lastname='test', 
+                   groupname="ReadAnn_chmod_test", groupowner=True)
+        dbhelpers.PROJECTS['read_ann_proj'] = dbhelpers.ProjectEntry('read_ann_proj', 'read_ann_owner')
+        
+        # read-write users & data
+        dbhelpers.USERS['read_write_owner'] = dbhelpers.UserEntry('rw_owner','ome', firstname='chmod', lastname='test', 
+                   groupname="ReadWrite_chmod_test", groupperms=READWRITE)
+        dbhelpers.USERS['read_write_user'] = dbhelpers.UserEntry('rw_user','ome', firstname='chmod2', lastname='test', 
+                   groupname="ReadWrite_chmod_test")
+        dbhelpers.USERS['read_write_admin'] = dbhelpers.UserEntry('rw_admin','ome', firstname='chmod2', lastname='test', 
+                   groupname="ReadWrite_chmod_test", admin=True)
+        dbhelpers.USERS['read_write_leader'] = dbhelpers.UserEntry('rw_leader','ome', firstname='chmod2', lastname='test', 
+                   groupname="ReadWrite_chmod_test", groupowner=True)
+        dbhelpers.PROJECTS['read_write_proj'] = dbhelpers.ProjectEntry('read_write_proj', 'read_write_owner')
+        
+        # Calling the superclass setUp processes the dbhelpers.USERS and dbhelpers.PROJECTS etc to populate DB
+        super(CustomUsersTest, self).setUp()
+
+    def testReadOnly(self):
+        """ In a read-only group, user should NOT be able to Edit or Annotate """
+        # Login as owner...
+        self.doLogin(dbhelpers.USERS['read_only_owner'])
+        p = dbhelpers.getProject(self.gateway, 'read_only_proj')
+        pid = p.id
+        self.assertCanEdit(p, True)
+        self.assertCanAnnotate(p, True)
+
+        # Login as user...
+        self.doLogin(dbhelpers.USERS['read_only_user'])
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, False)
+        self.assertCanAnnotate(p, False)
+
+        # Login as admin...
+        self.doLogin(dbhelpers.USERS['read_only_admin'])
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, True)
+        self.assertCanAnnotate(p, True)
+
+        # Login as group leader...
+        self.doLogin(dbhelpers.USERS['read_only_leader'])
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, True)
+        self.assertCanAnnotate(p, False)
+
+
+    def testReadAnnotate(self):
+        """ In a read-annotate group, user should be able to Annotate but NOT Edit"""
+        # Login as owner...
+        self.doLogin(dbhelpers.USERS['read_ann_owner'])
+        p = dbhelpers.getProject(self.gateway, 'read_ann_proj')
+        pid = p.id
+        self.assertCanEdit(p, True)
+        self.assertCanAnnotate(p, True)
+
+        # Login as user...
+        self.doLogin(dbhelpers.USERS['read_ann_user'])
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, False)
+        self.assertCanAnnotate(p, True)
+
+        # Login as admin...
+        self.doLogin(dbhelpers.USERS['read_ann_admin'])
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, True)
+        self.assertCanAnnotate(p, True)
+
+        # Login as group leader...
+        self.doLogin(dbhelpers.USERS['read_ann_leader'])
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, True)
+        self.assertCanAnnotate(p, True)
+
+    def testReadWrite(self):
+        """ In a read-write group, user should be able to Annotate and Edit"""
+        # Login as owner...
+        self.doLogin(dbhelpers.USERS['read_write_owner'])
+        p = dbhelpers.getProject(self.gateway, 'read_write_proj')
+        pid = p.id
+        self.assertCanEdit(p, True)
+        self.assertCanAnnotate(p, True)
+
+        # Login as user...
+        self.doLogin(dbhelpers.USERS['read_write_user'])
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, True)
+        self.assertCanAnnotate(p, True)
+
+        # Login as admin...
+        self.doLogin(dbhelpers.USERS['read_write_admin'])
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, True)
+        self.assertCanAnnotate(p, True)
+
+        # Login as group leader...
+        self.doLogin(dbhelpers.USERS['read_write_leader'])
+        p = self.gateway.getObject("Project", pid)
+        self.assertCanEdit(p, True)
+        self.assertCanAnnotate(p, True)
 
 
 class DefaultSetupTest (lib.GTest):
