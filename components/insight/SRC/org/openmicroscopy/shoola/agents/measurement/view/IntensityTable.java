@@ -103,5 +103,3 @@ class IntensityTable
 	int getColumnWidth() { return columnWidth; }
 
 }
-
-
