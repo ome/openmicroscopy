@@ -110,6 +110,7 @@
   <property name="distImporter.jar.file" value="omero.importer.jar"/>
   <property name="distImporter.bundle.name" value="OMERO.importer"/>
   <property name="distImporter.win.exename" value="OMERO.importer"/>
+  <property name="distImporter.win64.exename" value="${distImporter.win.exename}_64"/>
   <property name="distImporter.win.icon"
 	            location="${base.launch.dir}/win/omeroImporterLogo.ico"/>
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -675,22 +676,14 @@
     <target name="distImporter-win" depends="jar,exe4j-init"
               if="dist.exe4j.exists"
               description="Build and package the app for Windows distribution.">
-        <echo message="Setting exe as: ${exe_location}."/>
-        <copy tofile="${build.dir}/Importer.exe4j"
-              file="build/Editor_template.exe4j"
-              overwrite="true">
-          <filterset>
-            <filter token="MAIN_CLASS" value="${app.mainclass}"/>
-            <!-- exe4j exe names have to be relative paths for some reason. Please
-                 leave the "app" directory prefix and do not replace with
-                 ${app.dir} or you will get strange errors. -->
-    		<filter token="EXE_NAME" value="app/${distImporter.win.exename}"/>
-            <filter token="APP_NAME" value="${distImporter.name}"/>
-            <filter token="ICON_FILE" value="${distImporter.win.icon}"/>
-            <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
-          </filterset>
-        </copy>
-        <exe4j projectfile="${build.dir}/Importer.exe4j"/>
+        <make-windows-executable tofile="${build.dir}/Importer.exe4j"
+                                 fromfile="build/Importer_template.exe4j"
+                                 is-64-bit="false"
+                                 exename="app/${distImporter.win.exename}"/>
+        <make-windows-executable tofile="${build.dir}/Importer.exe4j"
+                                 fromfile="build/Importer_template.exe4j"
+                                 is-64-bit="true"
+                                 exename="app/${distImporter.win64.exename}"/>
         <property name="dist.zip.prefix.importer.win"
                   value="${distImporter.bundle.name}-${dist.bundle.version}-win"/>
         <zip destfile="${dist.dir}/${dist.zip.prefix.importer.win}.zip">
@@ -700,6 +693,8 @@
                       includes="*"/>
           <zipfileset prefix="${dist.zip.prefix.importer.win}"
                       file="${app.dir}/${distImporter.win.exename}.exe"/>
+          <zipfileset prefix="${dist.zip.prefix.importer.win}"
+                      file="${app.dir}/${distImporter.win64.exename}.exe"/>
           <zipfileset file="${base.licensefile}"
                       fullpath="${dist.zip.prefix.importer.win}/LICENSE"/> 
           <zipfileset prefix="${dist.zip.prefix.importer.win}" dir="${dist.dir}"
