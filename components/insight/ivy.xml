@@ -62,7 +62,9 @@
     <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>
     <dependency org="insight" name="wsdl4j" rev="${versions.wsdl4j}"/>
     <dependency org="insight" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
-    
+    <dependency org="insight" name="jna" rev="${versions.jna}"/>
+    <dependency org="insight" name="platform" rev="${versions.platform}"/>
+        
     <!-- Loci -->
     <!-- TODO: copied from OmeroImporter -->
     <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/>
