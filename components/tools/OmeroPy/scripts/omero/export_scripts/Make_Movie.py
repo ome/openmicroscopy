@@ -97,7 +97,7 @@ def downloadPlane(gateway, pixels, pixelsId, x, y, z, c, t):
     rawPlane = gateway.getPlane(pixelsId, z, c, t)
     convertType ='>'+str(x*y)+pixelstypetopython.toPython(pixels.getPixelsType().getValue())
     convertedPlane = unpack(convertType, rawPlane)
-    remappedPlane = numpy.array(convertedPlane,dtype=(pixels.getPixelsType().getValue().getValue()))
+    remappedPlane = numpy.array(convertedPlane,dtype=(pixels.getPixelsType().getValue()))
     remappedPlane.resize(x,y)
     return remappedPlane
 
@@ -165,14 +165,14 @@ def addScalebar(scalebar, image, pixels, commandArgs):
     draw = ImageDraw.Draw(image)
     if (pixels.getPhysicalSizeX()==None):
        return image
-    pixelSizeX = pixels.getPhysicalSizeX().getValue()
+    pixelSizeX = pixels.getPhysicalSizeX()
     if(pixelSizeX<=0):
         return image
-    scaleBarY = pixels.getSizeY().getValue()-30
-    scaleBarX = pixels.getSizeX().getValue()-scalebar/pixelSizeX-20
+    scaleBarY = pixels.getSizeY()-30
+    scaleBarX = pixels.getSizeX()-scalebar/pixelSizeX-20
     scaleBarTextY = scaleBarY-15
     scaleBarX2 = scaleBarX+scalebar/pixelSizeX
-    if (scaleBarX<=0 or scaleBarX2<=0 or scaleBarY<=0 or scaleBarX2>pixels.getSizeX().getValue()):
+    if (scaleBarX<=0 or scaleBarX2<=0 or scaleBarY<=0 or scaleBarX2>pixels.getSizeX()):
         return image
     draw.line([(scaleBarX,scaleBarY), (scaleBarX2,scaleBarY)], fill=commandArgs["Overlay_Colour"])
     draw.text(((scaleBarX+scaleBarX2)/2, scaleBarTextY), str(scalebar), fill=commandArgs["Overlay_Colour"])
@@ -380,17 +380,17 @@ def prepareWatermark(conn, commandArgs, sizeX, sizeY):
     # only resize watermark if too big
     if wm_w > sizeX or wm_h > sizeY:
         wm = reshape_to_fit(wm, sizeX, sizeY)
-    wm = wm.convert("L")
+    #wm = wm.convert("L")
     return wm
 
 
 def pasteWatermark(image, watermark):
-    """ Paste the watermark onto the center of the image. Return image """
+    """ Paste the watermark onto the bottom left corner of the image. Return image """
 
     wm_w, wm_h = watermark.size
     w, h = image.size
-    offset = (w-wm_w) / 2, (h-wm_h) / 2
-    image.paste(watermark, offset, watermark)
+    wmpos = 0, h - wm_h
+    image.paste(watermark, wmpos, watermark)
     return image
 
 
