@@ -2648,6 +2648,7 @@ def activities(request, **kwargs):
 
     in_progress = 0
     failure = 0
+    new_results = 0
     _purgeCallback(request)
 
 
@@ -2668,6 +2669,7 @@ def activities(request, **kwargs):
                 rsp = prx.getResponse()
                 # if response is None, then we're still in progress, otherwise...
                 if rsp is not None:
+                    new_results+=1;
                     if isinstance(rsp, omero.cmd.ERR):
                         request.session['callback'][cbString]['status'] = "failed"
                         rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
@@ -2684,6 +2686,7 @@ def activities(request, **kwargs):
                 try:
                     handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                     cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
+                    new_results+=1;
                     if cb.block(0) is None: # ms #500
                         err = handle.errors()
                         request.session['callback'][cbString]['derror'] = err
@@ -2735,6 +2738,7 @@ def activities(request, **kwargs):
                     try:
                         results = proc.getResults(0)        # we can only retrieve this ONCE - must save results
                         request.session['callback'][cbString]['status'] = "finished"
+                        new_results+=1;
                     except Exception, x:
                         logger.error(traceback.format_exc())
                         continue
@@ -2800,8 +2804,8 @@ def activities(request, **kwargs):
     context = {'sizeOfJobs':len(request.session['callback']),
             'jobs':jobs,
             'inprogress':in_progress,
+            'new_results':new_results,
             'failure':failure}
-
     template = "webclient/activities/activitiesContent.html"
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -2833,7 +2837,7 @@ def activities_update (request, action, **kwargs):
             for key, data in request.session['callback'].items():
                 if data['status'] != "in progress":
                     del request.session['callback'][key]
-        return HttpResponseRedirect(reverse("status"))
+    return HttpResponse("OK")
 
 ####################################################################################
 # User Photo

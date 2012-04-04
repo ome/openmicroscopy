@@ -32,27 +32,28 @@
 
     $(document).ready(function(){
 
+        $('body').click(function(event) {
+            if (event.target.id != 'scriptButton') {
+                $(".sub_menu").css('visibility', 'hidden');
+            }
+        });
         // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
         // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
         $("#scriptButton").click(function(e){
+            // show menu - load if empty
+            $('ul.sub_menu').css('visibility', 'visible');
             if ($("#scriptList li").length == 0){  // if none loaded yet...
-                var $scriptLink = $(this).hide();
+                var $scriptLink = $(this);
                 var $scriptSpinner = $("#scriptSpinner").show();
                 var script_list_url = $(this).attr('href');
                 $("#scriptList").load(script_list_url, function(){
                     // Now show the menu and add ">>" to any <li> with child <ul>
-                    $('ul.sub_menu').css('visibility', 'visible');
                     $("ul.sub_menu li:has(ul)").find("a:first").append(" &raquo; ");
                     // bind links to openPopup
                     $("ul.sub_menu a").click(openScriptWindow);
-                    $scriptLink.show();
                     $scriptSpinner.hide();
                 });
-            } else {
-                $('ul.sub_menu').css('visibility', 'visible');
             }
-            e.preventDefault();
-            return false;
         });
         // on hover-out, hide drop-down menus
         $("#scriptList").hover(function(){}, function(){

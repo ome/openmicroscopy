@@ -30,6 +30,7 @@
 <div id='activities_content'>
     <div id="sizeOfJobs" style="display:none">{{ sizeOfJobs }}</div>
     <div id="inprogress" style="display:none">{{ inprogress }}</div>
+    <div id="new_results" style="display:none">{{ new_results }}</div>
     <div id="failure" style="display:none">{{ failure }}</div>
 
     <table id="jobsTable" width="100%" cellpadding="6" cellspacing="0" border="0">
@@ -72,12 +73,56 @@
                     </tr>
                 {% endifequal %}
 
-               
-			   
-			   
-			   
-			  
 
+                <!-- Delete jobs -->
+                {% ifequal j.job_type "delete" %}
+                    <tr id="{{ j.id }}">
+                        <td class="activities_state">
+                            {% ifequal j.status "in progress" %}
+                                <img alt="Deleting" src="{% static "webgateway/img/spinner.gif" %}" />
+                            {% else %}
+                                {% if j.error %}
+                                    <div class='script_error' title="{{ j.error }}">
+                                        <img alt="Failed to run script properly" src="{% static "webgateway/img/failed.png" %}" />
+                                    </div>
+                                {% else %}
+                                    <img alt="Success" src="{% static "webgateway/img/success.png" %}" />
+                                {% endif %}
+                            {% endifequal %}
+                        </td>
+                        <td class="script_description">
+                            {% if j.delmany %}
+                                <span class="activity_title">
+                                    Delete {{ j.delmany }} {{ j.dtype }}s
+                                </span>
+                                <span class="message">
+                                {% for iid in j.did %}
+                                    {% ifequal j.status "failed" %}
+                                        {{ j.dtype }} {{ iid }},
+                                    {% else %}
+                                        {{ j.dtype }} {{ iid }},
+                                    {% endifequal %}
+                                {% endfor %}
+                                </span>
+                            {% else %}
+                                <span class="activity_title">
+                                    Delete {{ j.dtype }}
+                                </span>
+                                <span class="message">
+                                {% ifequal j.status "failed" %}
+                                    {{ j.dtype }} {{ j.did }}
+                                {% else %}
+                                    {{ j.dtype }} {{ j.did }}
+                                {% endifequal %}
+                                </span>
+                            {% endif %}
+
+                        </td>
+                        <td class="results">
+                                {% if j.dreport %}{{ j.derror }} error(s) ({{ j.dreport }}){% endif %}
+                        </td>
+                    </tr>
+                {% endifequal %}
 
 
 

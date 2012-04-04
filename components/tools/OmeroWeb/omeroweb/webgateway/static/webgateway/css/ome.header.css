@@ -169,11 +169,11 @@
 		}
 
 
-		#header_toolbar > li > a {
+		#header_toolbar > li > .toolbar_button {
 			display:block;
 			min-width:32px !important;
 			height:25px;
-			text-indent:-9999px;
+			/*text-indent:-9999px; */
 			position:relative;	
 		}
 		
