@@ -88,6 +88,7 @@
             location="${base.launch.dir}/osx/INSTALL"/>
   <property name="dist.exe4j.home" value="/opt/exe4j"/>
   <property name="dist.win.exename" value="OMERO.insight"/>
+  <property name="dist.win64.exename" value="${dist.win.exename}_64"/>
   <property name="dist.win.icon"
             location="${base.launch.dir}/win/omeroinsight.ico"/>
   <property name="dist.util.name" value="omero-clients-util"/>
@@ -319,6 +320,34 @@
     <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-win64-openGL"/>
   </target>
 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * Creates Windows executables via exe4j.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <macrodef name="make-windows-executable">
+    <attribute name="tofile"/>
+    <attribute name="is-64-bit"/>
+    <attribute name="exename"/>
+    <sequential>
+      <echo message="Creating exe: @{exename}"/>
+      <copy tofile="@{tofile}"
+            file="build/Insight_template.exe4j"
+            overwrite="true">
+        <filterset>
+          <filter token="MAIN_CLASS" value="${app.mainclass}"/>
+          <!-- exe4j exe names have to be relative paths for some reason. Please
+               leave the "app" directory prefix and do not replace with
+               ${app.dir} or you will get strange errors. -->
+          <filter token="IS_64_BIT" value="@{is-64-bit}"/>
+          <filter token="EXE_NAME" value="@{exename}"/>
+          <filter token="APP_NAME" value="${dist.name}"/>
+          <filter token="ICON_FILE" value="${dist.win.icon}"/>
+          <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
+        </filterset>
+      </copy>
+      <exe4j projectfile="@{tofile}"/>
+    </sequential>
+  </macrodef>
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Creates the Windows distribution bundle under ${dist.dir}.
    * This is a zip file whose name is set to 
@@ -333,22 +362,12 @@
   <target name="dist-win" depends="jar,exe4j-init"
 	          if="dist.exe4j.exists"
 	          description="Build and package the app for Windows distribution.">
-	    <echo message="Setting exe as: ${exe_location}."/>
-	    <copy tofile="${build.dir}/Insight.exe4j"
-	          file="build/Insight_template.exe4j"
-	          overwrite="true">
-	      <filterset>
-	        <filter token="MAIN_CLASS" value="${app.mainclass}"/>
-	        <!-- exe4j exe names have to be relative paths for some reason. Please
-	             leave the "app" directory prefix and do not replace with
-	             ${app.dir} or you will get strange errors. -->
-			<filter token="EXE_NAME" value="app/${dist.win.exename}"/>
-	        <filter token="APP_NAME" value="${dist.name}"/>
-	        <filter token="ICON_FILE" value="${dist.win.icon}"/>
-	        <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
-	      </filterset>
-	    </copy>
-	    <exe4j projectfile="${build.dir}/Insight.exe4j"/>
+      <make-windows-executable tofile="${build.dir}/Insight.exe4j"
+                               is-64-bit="false"
+                               exename="app/${dist.win.exename}"/>
+      <make-windows-executable tofile="${build.dir}/Insight_64.exe4j"
+                               is-64-bit="true"
+                               exename="app/${dist.win64.exename}"/>
 	    <property name="dist.zip.prefix.win"
 	              value="${dist.bundle.name}-${dist.bundle.version}-win"/>
 	    <zip destfile="${dist.dir}/${dist.zip.prefix.win}.zip">
@@ -358,6 +377,8 @@
 	                  includes="*"/>
 	      <zipfileset prefix="${dist.zip.prefix.win}"
 	                  file="${app.dir}/${dist.win.exename}.exe"/>
+	      <zipfileset prefix="${dist.zip.prefix.win}"
+	                  file="${app.dir}/${dist.win64.exename}.exe"/>
 	      <zipfileset file="${base.licensefile}"
 	                  fullpath="${dist.zip.prefix.win}/LICENSE"/> 
 	      <zipfileset prefix="${dist.zip.prefix.win}" dir="${dist.dir}"
@@ -368,28 +389,18 @@
   <target name="dist-win-openGL" depends="jar,exe4j-init"
           if="dist.exe4j.exists"
           description="Build and package the app for Windows distribution with OpenGL support.">
-    <echo message="Setting exe as: ${exe_location}."/>
-    <copy tofile="${build.dir}/Insight.exe4j"
-          file="build/Insight_template.exe4j"
-          overwrite="true">
-      <filterset>
-        <filter token="MAIN_CLASS" value="${app.mainclass}"/>
-        <!-- exe4j exe names have to be relative paths for some reason. Please
-             leave the "app" directory prefix and do not replace with
-             ${app.dir} or you will get strange errors. -->
-		<filter token="EXE_NAME" value="app/${dist.win.exename}"/>
-        <filter token="APP_NAME" value="${dist.name}"/>
-        <filter token="ICON_FILE" value="${dist.win.icon}"/>
-        <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
-      </filterset>
-    </copy>
+    <make-windows-executable tofile="${build.dir}/Insight.exe4j"
+                             is-64-bit="false"
+                             exename="app/${dist.win.exename}"/>
+    <make-windows-executable tofile="${build.dir}/Insight_64.exe4j"
+                             is-64-bit="true"
+                             exename="app/${dist.win64.exename}"/>
     <copy file="${app.config.dir}/imviewer.xml"
       tofile="${dist.dir}/opengl-imviewer.xml"/>
     <replace file="${dist.dir}/opengl-imviewer.xml"
         token='entry name="/library/opengl" type="boolean"&gt;false&lt;/entry'
         value='entry name="/library/opengl" type="boolean"&gt;true&lt;/entry'>
     </replace>
-    <exe4j projectfile="${build.dir}/Insight.exe4j"/>
     <property name="dist.zip.prefix.win.openGL"
               value="${dist.bundle.name}-${dist.bundle.version}-win-openGL"/>
     <zip destfile=
@@ -402,6 +413,8 @@
                   includes="*"/>
       <zipfileset prefix="${dist.zip.prefix.win.openGL}"
                   file="${app.dir}/${dist.win.exename}.exe"/>
+      <zipfileset prefix="${dist.zip.prefix.win.openGL}"
+                  file="${app.dir}/${dist.win64.exename}.exe"/>
       <zipfileset fullpath="${dist.zip.prefix.win.openGL}/LICENSE"
                   file="${base.licensefile}"/> 
       <zipfileset prefix="${dist.zip.prefix.win.openGL}" dir="${dist.dir}"
@@ -427,28 +440,15 @@
    <target name="dist-win64-openGL" depends="jar,exe4j-init"
 	          if="dist.exe4j.exists"
 	          description="Build and package the app for Windows 64 distribution with OpenGL support.">
-	    <echo message="Setting exe as: ${exe_location}."/>
-	    <copy tofile="${build.dir}/Insight64.exe4j"
-	          file="build/Insight_template.exe4j"
-	          overwrite="true">
-	      <filterset>
-	        <filter token="MAIN_CLASS" value="${app.mainclass}"/>
-	        <!-- exe4j exe names have to be relative paths for some reason. Please
-	             leave the "app" directory prefix and do not replace with
-	             ${app.dir} or you will get strange errors. -->
-			<filter token="EXE_NAME" value="app/${dist.win.exename}"/>
-	        <filter token="APP_NAME" value="${dist.name}"/>
-	        <filter token="ICON_FILE" value="${dist.win.icon}"/>
-	        <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
-	      </filterset>
-	    </copy>
+      <make-windows-executable tofile="${build.dir}/Insight_64.exe4j"
+                               is-64-bit="true"
+                               exename="app/${dist.win.exename}"/>
       <copy file="${app.config.dir}/imviewer.xml"
         tofile="${dist.dir}/opengl-imviewer.xml"/>
       <replace file="${dist.dir}/opengl-imviewer.xml"
           token='entry name="/library/opengl" type="boolean"&gt;false&lt;/entry'
           value='entry name="/library/opengl" type="boolean"&gt;true&lt;/entry'>
       </replace>
-	    <exe4j projectfile="${build.dir}/Insight64.exe4j"/>
 	    <property name="dist.zip.prefix.win64.openGL"
                 value="${dist.bundle.name}-${dist.bundle.version}-win64-openGL"/>
 	    <zip destfile="${dist.dir}/${dist.zip.prefix.win64.openGL}.zip">
