@@ -43,7 +43,6 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
-import org.jhotdraw.draw.FigureListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
