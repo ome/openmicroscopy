@@ -346,23 +346,20 @@ public class TreeCellRenderer
             		icon = PROJECT_ANNOTATED_TO_REFRESH_ICON;
             	else icon = PROJECT_TO_REFRESH_ICON;
         	} else {
-        		if (node.isAnnotated())
-            		icon = PROJECT_ANNOTATED_ICON;
+        		if (node.isAnnotated()) icon = PROJECT_ANNOTATED_ICON;
             	else icon = PROJECT_ICON;
         	}
         } else if (usrObject instanceof DatasetData) {
         	if (node.isToRefresh()) {
         		if (node.isAnnotated())
-            		icon = DATASET_ANNOTATED_TO_REFRESH_ICON;
+        			icon = DATASET_ANNOTATED_TO_REFRESH_ICON;
                 else icon = DATASET_TO_REFRESH_ICON;
         	} else {
-        		if (EditorUtil.isAnnotated(usrObject))
-            		icon = DATASET_ANNOTATED_ICON;
+        		if (node.isAnnotated()) icon = DATASET_ANNOTATED_ICON;
                 else icon = DATASET_ICON;
         	}
         } else if (usrObject instanceof ImageData) {
-            if (node.isAnnotated())
-        		icon = IMAGE_ANNOTATED_ICON;
+            if (node.isAnnotated()) icon = IMAGE_ANNOTATED_ICON;
             else {
             	ImageData o = (ImageData) usrObject;
             	if (o.getId() < 0) icon = IMAGE_UNREGISTERED_ICON;
@@ -388,17 +385,14 @@ public class TreeCellRenderer
             		icon = SCREEN_ANNOTATED_TO_REFRESH_ICON;
             	else icon = SCREEN_TO_REFRESH_ICON;;
         	} else {
-        		if (node.isAnnotated())
-            		icon = SCREEN_ANNOTATED_ICON;
+        		if (node.isAnnotated()) icon = SCREEN_ANNOTATED_ICON;
             	else icon = SCREEN_ICON;
         	}
         } else if (usrObject instanceof PlateData) {
-        	if (node.isAnnotated())
-        		icon = PLATE_ANNOTATED_ICON;
+        	if (node.isAnnotated()) icon = PLATE_ANNOTATED_ICON;
         	else icon = PLATE_ICON; 
         } else if (usrObject instanceof PlateAcquisitionData) {
-        	if (node.isAnnotated())
-        		icon = PLATE_ACQUISITION_ANNOTATED_ICON;
+        	if (node.isAnnotated()) icon = PLATE_ACQUISITION_ANNOTATED_ICON;
         	else icon = PLATE_ACQUISITION_ICON; 
         } else if (usrObject instanceof GroupData) {
         	GroupData g = (GroupData) usrObject;
