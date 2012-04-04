@@ -100,6 +100,7 @@
   <property name="distEditor.jar.file" value="omero.editor.jar"/>
   <property name="distEditor.bundle.name" value="OMERO.editor"/>
   <property name="distEditor.win.exename" value="OMERO.editor"/>
+  <property name="distEditor.win.exename" value="${distEditor.win.exename}_64"/>
   <property name="distEditor.win.icon"
             location="${base.launch.dir}/win/omeroeditor.ico"/>
   <!-- importer -->
@@ -324,13 +325,14 @@
    * Creates Windows executables via exe4j.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <macrodef name="make-windows-executable">
+    <attribute name="fromfile"/>
     <attribute name="tofile"/>
     <attribute name="is-64-bit"/>
     <attribute name="exename"/>
     <sequential>
       <echo message="Creating exe: @{exename}"/>
       <copy tofile="@{tofile}"
-            file="build/Insight_template.exe4j"
+            file="@{fromfile}"
             overwrite="true">
         <filterset>
           <filter token="MAIN_CLASS" value="${app.mainclass}"/>
@@ -363,9 +365,11 @@
 	          if="dist.exe4j.exists"
 	          description="Build and package the app for Windows distribution.">
       <make-windows-executable tofile="${build.dir}/Insight.exe4j"
+                               fromfile="build/Insight_template.exe4j"
                                is-64-bit="false"
                                exename="app/${dist.win.exename}"/>
       <make-windows-executable tofile="${build.dir}/Insight_64.exe4j"
+                               fromfile="build/Insight_template.exe4j"
                                is-64-bit="true"
                                exename="app/${dist.win64.exename}"/>
 	    <property name="dist.zip.prefix.win"
@@ -390,9 +394,11 @@
           if="dist.exe4j.exists"
           description="Build and package the app for Windows distribution with OpenGL support.">
     <make-windows-executable tofile="${build.dir}/Insight.exe4j"
+                             fromfile="build/Insight_template.exe4j"
                              is-64-bit="false"
                              exename="app/${dist.win.exename}"/>
     <make-windows-executable tofile="${build.dir}/Insight_64.exe4j"
+                             fromfile="build/Insight_template.exe4j"
                              is-64-bit="true"
                              exename="app/${dist.win64.exename}"/>
     <copy file="${app.config.dir}/imviewer.xml"
@@ -441,6 +447,7 @@
 	          if="dist.exe4j.exists"
 	          description="Build and package the app for Windows 64 distribution with OpenGL support.">
       <make-windows-executable tofile="${build.dir}/Insight_64.exe4j"
+                               fromfile="build/Insight_template.exe4j"
                                is-64-bit="true"
                                exename="app/${dist.win.exename}"/>
       <copy file="${app.config.dir}/imviewer.xml"
@@ -580,22 +587,14 @@
     <target name="distEditor-win" depends="jar,exe4j-init"
               if="dist.exe4j.exists"
               description="Build and package the app for Windows distribution.">
-        <echo message="Setting exe as: ${exe_location}."/>
-        <copy tofile="${build.dir}/Editor.exe4j"
-              file="build/Editor_template.exe4j"
-              overwrite="true">
-          <filterset>
-            <filter token="MAIN_CLASS" value="${app.mainclass}"/>
-            <!-- exe4j exe names have to be relative paths for some reason. Please
-                 leave the "app" directory prefix and do not replace with
-                 ${app.dir} or you will get strange errors. -->
-    		<filter token="EXE_NAME" value="app/${distEditor.win.exename}"/>
-            <filter token="APP_NAME" value="${distEditor.name}"/>
-            <filter token="ICON_FILE" value="${distEditor.win.icon}"/>
-            <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
-          </filterset>
-        </copy>
-        <exe4j projectfile="${build.dir}/Editor.exe4j"/>
+        <make-windows-executable tofile="${build.dir}/Editor.exe4j"
+                                 fromfile="build/Editor_template.exe4j"
+                                 is-64-bit="false"
+                                 exename="app/${distEditor.win.exename}"/>
+        <make-windows-executable tofile="${build.dir}/Editor.exe4j"
+                                 fromfile="build/Editor_template.exe4j"
+                                 is-64-bit="true"
+                                 exename="app/${distEditor.win64.exename}"/>
         <property name="dist.zip.prefix.editor.win"
                   value="${distEditor.bundle.name}-${dist.bundle.version}-win"/>
         <zip destfile="${dist.dir}/${dist.zip.prefix.editor.win}.zip">
@@ -605,6 +604,8 @@
                       includes="*"/>
           <zipfileset prefix="${dist.zip.prefix.editor.win}"
                       file="${app.dir}/${distEditor.win.exename}.exe"/>
+          <zipfileset prefix="${dist.zip.prefix.editor.win}"
+                      file="${app.dir}/${distEditor.win64.exename}.exe"/>
           <zipfileset file="${base.licensefile}"
                       fullpath="${dist.zip.prefix.editor.win}/LICENSE"/> 
           <zipfileset prefix="${dist.zip.prefix.editor.win}" dir="${dist.dir}"
