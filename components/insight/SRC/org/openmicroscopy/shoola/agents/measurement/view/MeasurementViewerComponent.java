@@ -623,8 +623,8 @@ class MeasurementViewerComponent
 				k = shapeMap.entrySet().iterator();
 				while (k.hasNext()) {
 					entry = (Entry) k.next();
-					coord = (Coord3D) entry.getKey();
 					shape = (ROIShape) entry.getValue();
+					coord = shape.getCoord3D();
 					f = shape.getFigure();
 					c = coord.getChannel();
 					if (c >= 0) {
