@@ -353,6 +353,9 @@
 				-webkit-box-shadow: none;
 			}
 			
+			#activities_panel table tr.new_result {
+    		    background: #fdd;
+    		}
 		
 				#activities_panel table td{
 					padding: 8px 10px 11px;

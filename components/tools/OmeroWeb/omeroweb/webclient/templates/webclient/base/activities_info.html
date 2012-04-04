@@ -132,7 +132,7 @@
         var i = setInterval(function (){
                 activitiesUpdate(i);
         }, 5000);
-        activitiesUpdate();
+        activitiesUpdate(i);
     }
     $(document).ready(function() {
         displayStatus(-1);  // reset new_results
@@ -145,7 +145,10 @@
             //$(".info_panel").hide();
             if ((id == 'launch_activities') || (id == 'jobstatus') || (id == 'runningStatus')) {
                 showActivities();
-            } else $("#activities_panel").hide();
+            } else {
+                $("#activities_panel .new_result").removeClass('new_result');
+                $("#activities_panel").hide();
+            }
 
         }); // BUT also stop any events bubbling up from panel itself
         $("#activities_panel").click(function(event) {
