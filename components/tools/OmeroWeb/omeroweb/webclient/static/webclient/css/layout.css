@@ -924,11 +924,11 @@
 */
 
 
-    #history #center_panel_header {
+    #center_panel_header {
         position: relative;
     }
     
-        #history .filtersearch {
+        #center_panel_header .filtersearch {
             position:absolute;
             top:3px;
             left:3px;
@@ -936,14 +936,14 @@
             height:25px;
         }
 
-            #history .filtersearch input {
+            #center_panel_header .filtersearch input {
                 border:solid 1px rgba(0,0,0,.4);
                 border-top:solid 1px rgba(0,0,0,.6);
                 position:absolute;
             }
     
 
-        #history #center_panel_header h1{
+        #center_panel_header h1{
             text-align:center;
             font-size:1.1em;
             text-shadow:0 1px 0 rgba(255,255,255,.5);
