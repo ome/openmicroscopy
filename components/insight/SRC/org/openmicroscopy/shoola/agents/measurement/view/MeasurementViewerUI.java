@@ -1569,6 +1569,18 @@ class MeasurementViewerUI
 		model.getDrawingView().repaint();
 	}
 	
+	/**
+	 * Returns <code>true</code> if the channel is active, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param channel The channel to handle
+	 * @return See above.
+	 */
+	boolean isChannelActive(int channel) 
+	{
+		return model.isChannelActive(channel);
+	}
+	
  	/**
  	 * Indicates any on-going analysis.
  	 * 

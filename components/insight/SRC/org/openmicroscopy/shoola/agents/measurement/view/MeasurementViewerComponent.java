@@ -43,6 +43,7 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
+import org.jhotdraw.draw.FigureListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
@@ -628,13 +629,14 @@ class MeasurementViewerComponent
 					f = shape.getFigure();
 					c = coord.getChannel();
 					if (c >= 0) {
+						f.removeFigureListener(controller);
 						f.setVisible(model.isChannelActive(c));
+						f.addFigureListener(controller);
 					}
 				}
 			}
 			view.repaint();
 		}
-		
 		if (!view.inDataView() || !view.isVisible()) return;
 		figures = getSelectedFigures();
 		if (figures.size() != 1) return;
@@ -757,27 +759,6 @@ class MeasurementViewerComponent
 	public Collection getSelectedFigures()
 	{
 		return model.getSelectedFigures();
-	}
-	
-	/** 
-	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#attachListeners(List)
-	 */
-	public void attachListeners(List<ROI> roiList)
-	{
-		ROI roi;
-		Iterator<ROIShape> shapeIterator;
-		ROIShape shape;
-		for (int i = 0; i < roiList.size(); i++)
-		{
-			roi = roiList.get(i);
-			shapeIterator = roi.getShapes().values().iterator();
-			while (shapeIterator.hasNext())
-			{
-				shape = shapeIterator.next();
-				shape.getFigure().addFigureListener(controller);
-			}
-		}
 	}
 	
 	/** 

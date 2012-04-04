@@ -574,8 +574,6 @@ class MeasurementViewerModel
 			}
 			return false;
 		}
-		
-		component.attachListeners(roiList);
 		notifyDataChanged(true);
 		return true;
 	}
@@ -663,7 +661,6 @@ class MeasurementViewerModel
 					f.setVisible(isChannelActive(c));
 			}
 		}
-		component.attachListeners(roiList);
 		checkIfHasROIToDelete();
 		return true;
 	}
