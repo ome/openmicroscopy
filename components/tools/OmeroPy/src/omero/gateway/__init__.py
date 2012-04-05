@@ -3061,6 +3061,19 @@ class _BlitzGateway (object):
         return handle
 
 
+    def chmodGroup(self, group_Id, permissions):
+        """
+        Change the permissions of a particluar Group.
+        Returns the proxy 'prx' handle that can be processed like this:
+        callback = CmdCallbackI(self.gateway.c, prx)
+        callback.loop(20, 500)
+        rsp = prx.getResponse()
+        """
+        chmod = omero.cmd.Chmod(type="/ExperimenterGroup", id=group_Id, permissions=permissions)
+        prx = self.c.sf.submit(chmod)
+        return prx
+
+
     def chgrpObject(self, graph_spec, obj_id, group_id):
         """
         Change the Group for a specified object using queue.
