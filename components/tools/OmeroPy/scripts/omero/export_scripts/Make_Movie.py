@@ -162,17 +162,18 @@ def calculateAquisitionTime(conn, pixelsId, cList, tzList):
 
 def addScalebar(scalebar, image, pixels, commandArgs):
     """ Adds the scalebar. """
+    image_w, image_h = image.size
     draw = ImageDraw.Draw(image)
     if (pixels.getPhysicalSizeX()==None):
        return image
     pixelSizeX = pixels.getPhysicalSizeX()
     if(pixelSizeX<=0):
         return image
-    scaleBarY = pixels.getSizeY()-30
-    scaleBarX = pixels.getSizeX()-scalebar/pixelSizeX-20
+    scaleBarY = image_h-30
+    scaleBarX = image_w-scalebar/pixelSizeX-20
     scaleBarTextY = scaleBarY-15
     scaleBarX2 = scaleBarX+scalebar/pixelSizeX
-    if (scaleBarX<=0 or scaleBarX2<=0 or scaleBarY<=0 or scaleBarX2>pixels.getSizeX()):
+    if (scaleBarX<=0 or scaleBarX2<=0 or scaleBarY<=0 or scaleBarX2>image_w):
         return image
     draw.line([(scaleBarX,scaleBarY), (scaleBarX2,scaleBarY)], fill=commandArgs["Overlay_Colour"])
     draw.text(((scaleBarX+scaleBarX2)/2, scaleBarTextY), str(scalebar), fill=commandArgs["Overlay_Colour"])
@@ -180,10 +181,11 @@ def addScalebar(scalebar, image, pixels, commandArgs):
 
 def addPlaneInfo(z, t, pixels, image, colour):
     """ Displays the plane information. """
+    image_w, image_h = image.size
     draw = ImageDraw.Draw(image)
-    planeInfoTextY = pixels.getSizeY()-60
+    planeInfoTextY = image_h-60
     textX = 20
-    if(planeInfoTextY<=0 or textX > pixels.getSizeX() or planeInfoTextY>pixels.getSizeY()):
+    if(planeInfoTextY<=0 or textX > image_w or planeInfoTextY>image_h):
         return image
     planeCoord = "z:"+str(z+1)+" t:"+str(t+1)
     draw.text((textX, planeInfoTextY), planeCoord, fill=colour)
@@ -191,10 +193,11 @@ def addPlaneInfo(z, t, pixels, image, colour):
 
 def addTimePoints(time, pixels, image, colour):
     """ Displays the time-points. """
+    image_w, image_h = image.size
     draw = ImageDraw.Draw(image)
-    textY = pixels.getSizeY()-45
+    textY = image_h-45
     textX = 20
-    if(textY<=0 or textX > pixels.getSizeX() or textY>pixels.getSizeY()):
+    if(textY<=0 or textX > image_w or textY>image_h):
         return image
     draw.text((textX, textY), str(time), fill=colour)
     return image
@@ -458,7 +461,20 @@ def writeMovie(commandArgs, conn):
     if "Overlay_Colour" in commandArgs:
         r,g,b,a = COLOURS[commandArgs["Overlay_Colour"]]
         overlayColour = (r,g,b)
-    
+
+    canvasColour = tuple(COLOURS[commandArgs["Canvas_Colour"]][:3])
+    mw = commandArgs["Min_Width"]
+    if mw < sizeX:
+        mw = sizeX
+    mh = commandArgs["Min_Height"]
+    if mh < sizeY:
+        mh = sizeY
+    ovlpos = None
+    canvas = None
+    if sizeX < mw or sizeY < mh:
+        ovlpos = ((mw-sizeX) / 2, (mh-sizeY) / 2)
+        canvas = Image.new("RGBA", (mw,mh), canvasColour)
+        
     format = commandArgs["Format"]
     fileNames = []
 
@@ -466,12 +482,12 @@ def writeMovie(commandArgs, conn):
     if "Intro_Slide" in commandArgs and commandArgs["Intro_Slide"].id:
         intro_duration = commandArgs["Intro_Duration"]
         intro_fileId = commandArgs["Intro_Slide"].id.val
-        intro_filenames = write_intro_end_slides(conn, commandArgs, intro_fileId, intro_duration, sizeX, sizeY)
+        intro_filenames = write_intro_end_slides(conn, commandArgs, intro_fileId, intro_duration, mw, mh)
         fileNames.extend(intro_filenames)
 
     # prepare watermark
     if "Watermark" in commandArgs and commandArgs["Watermark"].id:
-        watermark = prepareWatermark(conn, commandArgs, sizeX, sizeY)
+        watermark = prepareWatermark(conn, commandArgs, mw, mh)
 
     # add movie frames...
     for tz in tzList:
@@ -482,6 +498,10 @@ def writeMovie(commandArgs, conn):
         planeImage = planeImage.byteswap()
         planeImage = planeImage.reshape(sizeX, sizeY)
         image = Image.frombuffer('RGBA',(sizeX,sizeY),planeImage.data,'raw','ARGB',0,1)
+        if ovlpos is not None:
+            image2 = canvas.copy()
+            image2.paste(image, ovlpos, image)
+            image = image2
         
         if "Scalebar" in commandArgs and commandArgs["Scalebar"]:
             image = addScalebar(commandArgs["Scalebar"], image, pixels, commandArgs)
@@ -507,7 +527,7 @@ def writeMovie(commandArgs, conn):
     if "Ending_Slide" in commandArgs and commandArgs["Ending_Slide"].id:
         end_duration = commandArgs["Ending_Duration"]
         end_fileId = commandArgs["Ending_Slide"].id.val
-        end_filenames = write_intro_end_slides(conn, commandArgs, end_fileId, end_duration, sizeX, sizeY)
+        end_filenames = write_intro_end_slides(conn, commandArgs, end_fileId, end_duration, mw, mh)
         fileNames.extend(end_filenames)
 
     filelist= ",".join(fileNames)
@@ -522,7 +542,7 @@ def writeMovie(commandArgs, conn):
     framesPerSec = 2
     if "FPS" in commandArgs:
         framesPerSec = commandArgs["FPS"]
-    buildAVI(sizeX, sizeY, filelist, framesPerSec, movieName, format)
+    buildAVI(mw, mh, filelist, framesPerSec, movieName, format)
     figLegend = "\n".join(logLines)
     mimetype = formatMimetypes[format]
 
@@ -564,6 +584,9 @@ def runAsScript():
     scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1, grouping="9"),
     scripts.String("Format", description="Format to save movie", values=formats, default=QT, grouping="10"),
     scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=cOptions, grouping="11"),
+    scripts.String("Canvas_Colour", description="The background colour when using minimum size.",default='Black',values=cOptions),
+    scripts.Int("Min_Width", description="Minimum width for output movie.", default=-1),
+    scripts.Int("Min_Height", description="Minimum height for output movie.", default=-1),
     scripts.Map("Plane_Map", description="Specify the individual planes (instead of using T_Start, T_End, Z_Start and Z_End)", grouping="12"),
     scripts.Object("Watermark", description="Specifiy a watermark as an Original File (png or jpeg)", 
             default=omero.model.OriginalFileI()),

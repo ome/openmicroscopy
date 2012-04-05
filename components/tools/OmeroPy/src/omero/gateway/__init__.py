@@ -6483,6 +6483,13 @@ class _ImageWrapper (BlitzObjectWrapper):
             todel.append(origFile.getId())
             
         w,h = self.getSizeX(), self.getSizeY()
+        if opts.has_key('minsize'):
+            args.append('Min_Width=%d' % opts['minsize'][0])
+            w = max(w, opts['minsize'][0])
+            args.append('Min_Height=%d' % opts['minsize'][1])
+            h = max(h, opts['minsize'][1])
+            args.append('Canvas_Colour=%s' % opts['minsize'][2])
+
         scalebars = (1,1,2,2,5,5,5,5,10,10,10,10)
         scalebar = scalebars[max(min(int(w / 256)-1, len(scalebars)), 1) - 1]
         args.append('Scalebar=%d' % scalebar)
