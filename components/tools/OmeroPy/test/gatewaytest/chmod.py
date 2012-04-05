@@ -25,6 +25,41 @@ import gatewaytest.library as lib
 
 class ChmodBaseTest (lib.GTest):
 
+    def doChange(self, group_id, permissions, test_should_pass=True, return_complete=True):
+        """
+        Performs the chmod action, waits on completion and checks that the
+        result is not an error.
+        """
+        prx = self.gateway.chmodGroup(group_id, permissions)
+        if not return_complete:
+            return prx
+
+        cb = CmdCallbackI(self.gateway.c, prx)
+        cb.loop(20, 500)    # This fails (see #8439). Can comment out this line and
+        # try a different way of waiting for result - This never completes...
+        import time
+        rsp = prx.getResponse()
+        i = 0
+        while (rsp is None):
+            time.sleep(10)
+            rsp = prx.getResponse()
+            i += 1
+            print "rsp", i, rsp
+
+        self.assertNotEqual(rsp, None)
+
+        status = prx.getStatus()
+
+        if test_should_pass:
+            if isinstance(rsp, ERR):
+                self.fail("Found ERR when test_should_pass==true: %s (%s) params=%s" % (rsp.category, rsp.name, rsp.parameters))
+            self.assertFalse(State.FAILURE in prx.getStatus().flags)
+        else:
+            if isinstance(rsp, OK):
+                self.fail("Found OK when test_should_pass==false: %s", rsp)
+            self.assertTrue(State.FAILURE in prx.getStatus().flags)
+        return rsp
+
     def assertCanEdit(self, blitzObject, expected=True):
         """ Checks the canEdit() method AND actual behavior (ability to edit) """
 
@@ -49,6 +84,32 @@ class ChmodBaseTest (lib.GTest):
             pass
         self.assertEqual(annotated, expected, "Unexpected ability to Annotate. Expected: %s" % expected)
         self.assertEqual(blitzObject.canAnnotate(), expected, "Unexpected result of canAnnotate(). Expected: %s" % expected)
+
+
+class ChmodGroupTest (ChmodBaseTest):
+
+    def setUp (self):
+        """ Create a group with Admin & Owner members"""
+        # readonly with an Admin user
+        dbhelpers.USERS['chmod_group_admin'] = dbhelpers.UserEntry('r-_chmod_admin','ome', firstname='chmod', lastname='admin',
+                   groupname="ReadOnly_chmod_group", groupperms=READONLY, admin=True)
+        dbhelpers.USERS['chmod_group_owner'] = dbhelpers.UserEntry('r-_chmod_owner','ome', firstname='chmod', lastname='owner',
+                   groupname="ReadOnly_chmod_group", groupowner=True)
+        # Calling the superclass setUp processes the dbhelpers.USERS etc to populate DB
+        super(ChmodGroupTest, self).setUp()
+
+    def testChmod(self):
+        """ Test change of group permissions """
+
+        # Login as group Admin to get group Id...
+        self.doLogin(dbhelpers.USERS['chmod_group_admin'])
+        group_Id = self.gateway.getEventContext().groupId
+        # do we need to log out of group when changing it's permissions??
+        self.tearDown()
+
+        # let another Admin change group permissions
+        self.loginAsAdmin()
+        self.doChange(group_Id, READWRITE)
 
 
 class CustomUsersTest (ChmodBaseTest):
