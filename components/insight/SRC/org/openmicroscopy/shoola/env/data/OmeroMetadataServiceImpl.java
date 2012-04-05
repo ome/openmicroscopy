@@ -1043,7 +1043,7 @@ class OmeroMetadataServiceImpl
 			if (object instanceof AnnotationData) {
 				updateAnnotationData(ctx, object);
 			} else {
-				if (object.isLoaded())
+				if (object.isLoaded() && object.isDirty())
 					service.updateDataObject(ctx, object);
 			}
 			if (annotations.size() > 0) {

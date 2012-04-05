@@ -346,6 +346,7 @@ class OmeroDataServiceImpl
 	{
 		if (object == null) 
 			throw new DSAccessException("No object to update.");
+		if (!object.isDirty()) return object;
 		ctx = gateway.checkContext(ctx, object);
 		if (object instanceof ExperimenterData) 
 			return updateExperimenter(ctx, (ExperimenterData) object, null);

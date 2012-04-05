@@ -164,7 +164,7 @@ class GeneralPaneUI
 		
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
-		annotationUI = new AnnotationDataUI(model, controller);
+		annotationUI = new AnnotationDataUI(view, model, controller);
 
 		components = new ArrayList<AnnotationUI>();
 		components.add(propertiesUI);

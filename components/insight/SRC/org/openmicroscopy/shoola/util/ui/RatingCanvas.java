@@ -73,6 +73,9 @@ class RatingCanvas
 	/** Handles the mouse release. */
 	private MouseAdapter	handler;
 	
+	/** Flag indicating an on-going dragging or not.*/
+	private boolean dragging;
+	
 	/** 
 	 * Sets the number of selected stars depending on the location 
 	 * of the mouse click.
@@ -117,6 +120,20 @@ class RatingCanvas
 	}
 
 	/**
+	 * Invokes when the mouse is released.
+	 * 
+	 * @param p The mouse location.
+	 */
+	private void handleMouseReleased(Point p)
+	{
+		if (dragging) {
+			handleClick(p);
+			model.onMouseReleased();
+			dragging = false;
+		}
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param model Reference to the model. Mustn't be <code>null</code>.
@@ -135,9 +152,10 @@ class RatingCanvas
 			 * depending on the location of the mouse click.
 			 */
 			public void mouseReleased(MouseEvent e) {
-				super.mouseReleased(e);
-				handleClick(e.getPoint());
+				//super.mouseReleased(e);
+				handleMouseReleased(e.getPoint());
 			}
+
 		};
 		installListeners();
 	}
@@ -192,7 +210,11 @@ class RatingCanvas
 	 * Sets the rating values when dragging the mouse over the component.
 	 * @see MouseMotionListener#mouseDragged(MouseEvent)
 	 */
-	public void mouseDragged(MouseEvent e) { handleClick(e.getPoint()); }
+	public void mouseDragged(MouseEvent e)
+	{ 
+		dragging = true;
+		handleClick(e.getPoint());
+	}
 
 	/**
 	 * Required by the {@link MouseMotionListener} I/F but no-operation 
