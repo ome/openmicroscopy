@@ -32,6 +32,7 @@
     clear: both;
     display: block;
     position: relative;
+    left: 30px;
 }
 
 #z-axis-legend {
@@ -91,14 +92,6 @@
 
         $(window).resize(calcResize);
 
-        /* Bind zoom changes to the zoom button */
-        viewport.bind('zoom', function(e, percent) {
-          $("#wblitz-zoom").attr('value', ''+percent /*+'%'*/);
-          $(".popped").removeClass('popped');
-        });
-
-
-          
 
     });
   /* ]]> */
