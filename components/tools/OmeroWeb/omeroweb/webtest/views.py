@@ -558,3 +558,25 @@ def common_templates (request, base_template):
     template_name = 'webtest/common/%s.html' % base_template
     from django.template import RequestContext
     return render_to_response(template_name, context_instance=RequestContext(request))
+
+@isUserConnected
+def image_viewer (request, iid=None, **kwargs):
+    """ This view is responsible for showing pixel data as images. Delegates to webgateway, using share connection if appropriate """
+    
+    if iid is None:
+        iid = request.REQUEST.get('image')
+        
+    conn = None
+    kwargs['viewport_server'] = reverse('webindex')
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+         
+    if conn is None:
+        raise Exception("Connection not available")
+
+    template = 'webtest/webclient_plugins/center_plugin.fullviewer.html'
+    
+    return webgateway_views.full_viewer(request, iid, _conn=conn, template=template, **kwargs)

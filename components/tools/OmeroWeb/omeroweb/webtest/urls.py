@@ -43,4 +43,6 @@ urlpatterns = patterns('django.views.generic.simple',
     
     # examples of using the 'common' templates
     url(r'^common/(?P<base_template>[a-z0-9_]+)/', views.common_templates, name='common'),
+    
+    url( r'^img_detail/(?:(?P<iid>[0-9]+)/)?$', views.image_viewer, name="webtest_image_viewer"),
 )
