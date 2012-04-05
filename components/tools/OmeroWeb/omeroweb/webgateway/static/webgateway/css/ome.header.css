@@ -550,9 +550,9 @@
 
 
 #left_panel_tabs, #annotation_tabs {
-    background: hsl(220,20%,95%);
     position:absolute;
     padding:0;
+    background: hsl(220,20%,95%);
 }
 
 	#Projects, #Tags, #Public, .right_tab_content {
@@ -583,7 +583,7 @@
 
 /** three main columns of the container layout **/
 #left_panel, #center_panel, #right_panel {
-    background-color: #ffffff;
+    background: hsl(220,20%,95%);
     position:absolute;
     overflow: auto;
 }
@@ -593,6 +593,16 @@
     width:350px;
     border-left: none;
 }
+
+	.left_panel_inner {
+	     position: absolute;
+	     left:0px; right:0px; bottom:0px; top:33px;
+	     padding:15px;
+	     overflow: auto;
+		 border-right:solid 1px hsl(210,10%,85%);
+	 }
+	
+
 #center_panel {
     left:0px; right:0px; top:0px; bottom:0px;
 	background:hsl(210,1%,98%);

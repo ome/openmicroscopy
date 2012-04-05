@@ -44,7 +44,7 @@
 {% endblock %}
 
 {% block left %}
-	<div id="history_calendar"> </div>
+	<div id="history_calendar"></div>
 {% endblock %}
 
 {% block center %}
@@ -58,7 +58,11 @@
 			</span>
 		</form>
 		
+		{% comment %}
 		<h1>{{ eContext.breadcrumb.2 }} {{ eContext.breadcrumb.1 }} {% if controller.day_items_size %}{{ controller.total_items_size }} {% plural controller.total_items_size 'item' 'items' %}{% endif %}</h1>
+		{% endcomment %}
+		
+	
 	</div>
 
 

@@ -20,29 +20,18 @@
 
 
  
+ .left_panel_inner > table { 
+	 -webkit-box-shadow:0 1px 1px rgba(0,0,0,.1);
+ }
  
  
  
  
  .cal_nav {
-    position:relative;
-    height:31px;
     text-align:center;
 }
 
-    .cal_nav h1 {
-        text-align:center;
-        display:inline-block;
-        color:#999;
-        font-size:1.4em;
-        text-shadow:0 -1px 1px rgba(0,0,0,.4);
-        color:hsl(210,10%,50%);
-    }
     
-    .cal_nav strong {
-        color:white;
-        font-weight:bold;
-    }
 
     .cal_nav input {
     	border:solid 1px rgba(0,0,0,.4);
@@ -84,15 +73,17 @@
 /* Header - Days */    
     
 .calendar thead {
-    border-top:solid 1px rgba(255,255,255,.6);
-    border-bottom: solid 1px rgba(0,0,0,.05);
+    border-top:solid 1px rgba(0,0,0,.1);
+    border-bottom: solid 1px rgba(0,0,0,.1);
     background-color:#f2f2f2;
+	background-color:hsl(210,20%,80%);
 }    
     
     .calendar thead th {
         padding:5px 0;
         border-right: solid 1px rgba(0,0,0,.05);
-        text-shadow:0 1px 0 white;
+        text-shadow:0 1px 0 rgba(255,255,255,.6);
+		color:hsl(210,20%,30%);
     }
     
 
@@ -103,6 +94,7 @@
 .calendar table {
     text-align: center;
     width: 100%;
+	-webkit-border-radius:4px;
 }
 
 
@@ -112,11 +104,11 @@
         width: 14.29%;
         border-left:solid 1px rgba(0,0,0,.02);
         border-bottom:solid 1px rgba(0,0,0,.02);
-        
+		background-color:white;
     }
     
     tbody .not_calendar_day {
-        background-color: #f2f2f2;
+		background-color:rgba(0,0,0,.05);
         border-left:solid 1px rgba(0,0,0,.02);
         border-bottom:solid 1px rgba(0,0,0,.02);
         

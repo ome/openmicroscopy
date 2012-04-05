@@ -4,13 +4,10 @@
  * Supported plugins: ui (hovered, clicked), checkbox, contextmenu, search
  */
  
+
  #tree_details {
-     position: absolute;
-     top:23px;
-     left:0px; right:0px; bottom:0px;
-     padding-top: 3px;
-     overflow: auto;
-	 border-right:solid 1px hsl(210,10%,85%);
+     top:38px;
+	 padding:0;
  }
  
  
@@ -81,6 +78,7 @@
 	padding:1px 1px !important;
 	left:-4px;
 	position:relative;
+	cursor:pointer;
 	}
 
 .jstree-default .jstree-hovered { 

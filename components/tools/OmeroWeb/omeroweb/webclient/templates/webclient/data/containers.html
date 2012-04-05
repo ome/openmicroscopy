@@ -981,7 +981,7 @@
 		
 		
 		
-
+		<!--
 		<div id="navigator">
 			<a href="#" id="back">Back</a>
 			<a href="#" id="forward">Back</a>
@@ -990,34 +990,42 @@
 			</dl>
 			<a href="#" id="settings">Settings</a>
 		</div>
-		
+		-->
 		
 		
 		
 
 
-            <!-- toolbar above tree -->
+        <!-- toolbar above tree -->
         <div id="Projects">
-            <div class="toolbar">
-                <div id="buttons" class="align_left">
-                    <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
-                    |
-                    <input id="addprojectButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder16.png" %}" alt="Create new project" title="Create new Project" /> 
-                    <input id="adddatasetButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_image16.png" %}" alt="Create new dataset" title="Create new Dataset" /> 
-                    <input id="addscreenButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_screen16.png" %}" alt="Create new screen" title="Create new Screen" /> |
+            <ul class="toolbar">
+					
+			<li><input id="addprojectButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder16.png" %}" alt="Create new project" title="Create new Project" /></li>
+			<li><input id="adddatasetButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_image16.png" %}" alt="Create new dataset" title="Create new Dataset" /></li>
+			<li><input id="addscreenButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_screen16.png" %}" alt="Create new screen" title="Create new Screen" /></li>
+			
+			<li class="seperator">
+			
+			<li><input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" alt="Copy" title="Copy" /> </li>
+			<li><input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Cut" title="Cut" /> </li>
+			<li><input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" alt="Paste" title="Paste" /> </li>
+			
+			<li class="seperator">
+			
+			<li><input id="unlinkButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_remove.png" %}" alt="Remove" title="Remove" /></li>
+			<li><input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete" /> </li>
+			<li><input id="basketButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_basket.png" %}" alt="Add to basket" title="Add to basket"></li>
+			
+			<li class="seperator">
+			
+			<li><input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> </li>
+					
+            </ul>
             
-                    <input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" /> 
-                    <input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/cut16.png" %}" alt="Cut" title="Cut" /> 
-                    <input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/eclipse_paste_edit16.png" %}" alt="Paste" title="Paste" /> 
-                    <input id="unlinkButton" class="button button-disabled" type="image" src="{% static "webclient/image/minus_15.png" %}" alt="Remove" title="Remove" />
-                    <input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/cancel16.png" %}" alt="Delete" title="Delete" /> 
-                    <input id="basketButton" class="button button-disabled" type="image" src="{% static "webclient/image/basket16.png" %}" alt="Add to basket" title="Add to basket">
-                </div>
-            </div>
 
             <div class="clear"> </div>
 
-            <div id="tree_details">
+            <div id="tree_details" class="left_panel_inner">
                 <div class="dataTree" id="dataTree"></div>
             </div>
         </div>

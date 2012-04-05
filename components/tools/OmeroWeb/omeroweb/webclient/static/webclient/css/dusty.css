@@ -344,83 +344,71 @@ a.tag:hover {
 			display:inline-block;
 			font-size:1.6em;
 			margin-bottom:5px;
-			
 		}
 		
 
 
 
 
-
-
-
-
-
-
-/*
-	------------------------------------------------
-	:: Input
-	------------------------------------------------
-*/
-
-
-
-.standard_form input[type=text], input[type=password] {
-	width:70%;
-	border: solid 1px rgba(0,0,0,.2);
-	border-top: solid 1px rgba(0,0,0,.3);
-	-webkit-box-shadow: 0 1px 0 white, inset 0 1px 1px rgba(0,0,0,.1);
-	-moz-box-shadow: 0 1px 0 white, inset 0 1px 1px rgba(0,0,0,.1);
-	box-shadow: 0 1px 0 white, inset 0 1px 1px rgba(0,0,0,.1);
-	-webkit-border-radius: 2px;
-	-moz-border-radius: 2px;
-	border-radius: 2px;
-	padding:5px 2px;
-}
+	.standard_form input[type=text], input[type=password], textarea {
+		width:70%;
+		border: solid 1px rgba(0,0,0,.2);
+		border-top: solid 1px rgba(0,0,0,.3);
+		-webkit-box-shadow: 0 1px 0 white, inset 0 1px 1px rgba(0,0,0,.1);
+		-moz-box-shadow: 0 1px 0 white, inset 0 1px 1px rgba(0,0,0,.1);
+		box-shadow: 0 1px 0 white, inset 0 1px 1px rgba(0,0,0,.1);
+		-webkit-border-radius: 2px;
+		-moz-border-radius: 2px;
+		border-radius: 2px;
+		padding:5px 2px;
+	}
 			
-.standard_form input[type=text]:focus, input[type=password]:focus, input[type=text]:active, input[type=password]:active {
-	border:solid 1px hsl(210,20%,50%);
-}
+	.standard_form input[type=text]:focus, input[type=password]:focus, input[type=text]:active, input[type=password]:active {
+		border:solid 1px hsl(210,20%,50%);
+	}
+	
 			
 			
 			
-.standard_form input[type="submit"] {
-	cursor: pointer;
-	float:right;
-	margin-right:2px;
-	display:block;
-	background-color:hsl(210,50%,60%);
-	background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,60%)), to(hsl(210,40%,70%)));
-	border-top:solid 1px hsl(210,40%,50%);
-	border-right:solid 1px hsl(210,40%,40%);
-	border-left:solid 1px hsl(210,40%,40%);
-	border-bottom:solid 1px hsl(210,40%,35%);
-	-webkit-border-radius:3px;
-	-moz-border-radius:3px;
-	border-radius:3px;
-	-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 1px rgba(0,0,0,.3);
-	-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 1px rgba(0,0,0,.3);
-	box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 1px rgba(0,0,0,.3);
-	padding:5px 20px;
-	font-size:1.3em;
-	font-weight:bold;
-	color: hsl(210,70%,10%);
-	text-shadow: 0 1px 0 rgba(255,255,255,.3);
-	border-radius:3px;
-	font-family: Helvetica, Arial;
-}
+	.standard_form input[type="submit"] {
+		cursor: pointer;
+		float:right;
+		margin-right:2px;
+		display:block;
+		background-color:hsl(210,50%,60%);
+		background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,60%)), to(hsl(210,40%,70%)));
+		border-top:solid 1px hsl(210,40%,50%);
+		border-right:solid 1px hsl(210,40%,40%);
+		border-left:solid 1px hsl(210,40%,40%);
+		border-bottom:solid 1px hsl(210,40%,35%);
+		-webkit-border-radius:3px;
+		-moz-border-radius:3px;
+		border-radius:3px;
+		-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 1px rgba(0,0,0,.3);
+		-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 1px rgba(0,0,0,.3);
+		box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 1px rgba(0,0,0,.3);
+		padding:5px 20px;
+		font-size:1.3em;
+		font-weight:bold;
+		color: hsl(210,70%,10%);
+		text-shadow: 0 1px 0 rgba(255,255,255,.3);
+		border-radius:3px;
+		font-family: Helvetica, Arial;
+	}
 			
 			
 			
-.standard_form input[type="submit"]:hover {
-	background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,60%)), to(hsl(210,40%,76%)));
-}
+	.standard_form input[type="submit"]:hover {
+		background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,60%)), to(hsl(210,40%,76%)));
+	}
 			
-.standard_form input[type="submit"]:active, input[type="submit"]:focus {
-	background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,65%)), to(hsl(210,40%,60%)));
-	-webkit-box-shadow: none;
-	border:solid 1px hsl(210,40%,40%);
-}
+	.standard_form input[type="submit"]:active, input[type="submit"]:focus {
+		background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,65%)), to(hsl(210,40%,60%)));
+		-webkit-box-shadow: none;
+		border:solid 1px hsl(210,40%,40%);
+	}
+	
+	
 
 
 
