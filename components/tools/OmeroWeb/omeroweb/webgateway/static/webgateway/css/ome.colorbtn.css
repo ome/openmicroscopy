@@ -10,16 +10,6 @@
  * jason@glencoesoftware.com.
  */
 
-.farbtastic .wheel {
-  background: url(../img/3rdparty/farbtastic/wheel.png) no-repeat;
-}
-.farbtastic .overlay {
-  background: url(../img/3rdparty/farbtastic/mask.png) no-repeat;
-}
-.farbtastic .marker {
-  background: url(../img/3rdparty/farbtastic/marker.png) no-repeat;
-}
-
 .cbpicker input {
   text-align: center;
   width: 6em;

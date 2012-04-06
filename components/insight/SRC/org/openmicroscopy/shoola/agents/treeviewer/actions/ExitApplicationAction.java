@@ -23,9 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
@@ -42,6 +39,8 @@ import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.GroupData;
 
 /** 
  * Exit the application.
@@ -85,7 +84,7 @@ public class ExitApplicationAction
     {
         super(model);
         setEnabled(true);
-        if (TreeViewerAgent.isRunAsPlugin()) {
+        if (!TreeViewerAgent.isRunAsPlugin()) {
             putValue(Action.NAME, NAME);
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION));
@@ -108,8 +107,9 @@ public class ExitApplicationAction
     	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
     	ExitApplication a = new ExitApplication(
     			!(TreeViewerAgent.isRunAsPlugin()));
-    	a.setSecurityContext(new SecurityContext(
-    			model.getSelectedGroup().getId()));
+    	GroupData group = model.getSelectedGroup();
+    	if (group != null)
+    		a.setSecurityContext(new SecurityContext(group.getId()));
         bus.post(a);
     }
 

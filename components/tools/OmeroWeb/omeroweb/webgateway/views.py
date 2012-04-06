@@ -1118,7 +1118,7 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
         fpath, rpath, fobj = webgateway_tempfile.new(str(obj.getId()) + '-'+obj.getName() + '.ome.tiff', key=key)
         if fobj is True:
             # already exists
-            return HttpResponseRedirect('/static/webgateway/tfiles/' + rpath)
+            return HttpResponseRedirect(settings.STATIC_URL + 'webgateway/tfiles/' + rpath)
         tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, imgs[0])
         if tiff_data is None:
             try:
@@ -1138,14 +1138,14 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
         else:
             fobj.write(tiff_data)
             fobj.close()
-            return HttpResponseRedirect('/static/webgateway/tfiles/' + rpath)
+            return HttpResponseRedirect(settings.STATIC_URL + 'webgateway/tfiles/' + rpath)
     else:
         try:
             img_ids = '+'.join((str(x.getId()) for x in imgs))
             key = '_'.join((str(x.getId()) for x in imgs[0].getAncestry())) + '_' + md5(img_ids).hexdigest() + '_ome_tiff_zip'
             fpath, rpath, fobj = webgateway_tempfile.new(name + '.zip', key=key)
             if fobj is True:
-                return HttpResponseRedirect('/static/webgateway/tfiles/' + rpath)
+                return HttpResponseRedirect(settings.STATIC_URL + 'webgateway/tfiles/' + rpath)
             logger.debug(fpath)
             if fobj is None:
                 fobj = StringIO()
@@ -1168,7 +1168,7 @@ def render_ome_tiff (request, ctx, cid, conn=None, **kwargs):
         except:
             logger.debug(traceback.format_exc())
             raise
-        return HttpResponseRedirect('/static/webgateway/tfiles/' + rpath)
+        return HttpResponseRedirect(settings.STATIC_URL + 'webgateway/tfiles/' + rpath)
 
 @login_required()
 def render_movie (request, iid, axis, pos, conn=None, **kwargs):
@@ -1202,7 +1202,7 @@ def render_movie (request, iid, axis, pos, conn=None, **kwargs):
         fpath, rpath, fobj = webgateway_tempfile.new(img.getName() + ext, key=key)
         logger.debug(fpath, rpath, fobj)
         if fobj is True:
-            return HttpResponseRedirect('/static/webgateway/tfiles/' + rpath)#os.path.join(rpath, img.getName() + ext))
+            return HttpResponseRedirect(settings.STATIC_URL + 'webgateway/tfiles/' + rpath)#os.path.join(rpath, img.getName() + ext))
 
         if kwargs.has_key('optsCB'):
             opts.update(kwargs['optsCB'](img))
@@ -1232,7 +1232,7 @@ def render_movie (request, iid, axis, pos, conn=None, **kwargs):
         else:
             fobj.close()
             #shutil.move(fn, fn + ext)
-            return HttpResponseRedirect('/static/webgateway/tfiles/' + rpath)#os.path.join(rpath, img.getName() + ext))
+            return HttpResponseRedirect(settings.STATIC_URL + 'webgateway/tfiles/' + rpath)#os.path.join(rpath, img.getName() + ext))
     except:
         logger.debug(traceback.format_exc())
         raise

@@ -30,6 +30,7 @@ import java.awt.Insets;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -94,8 +95,7 @@ class GroupPane
         content.setLayout(new GridBagLayout());
     	//content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	GridBagConstraints c = new GridBagConstraints();
-    	JLabel label = UIUtilities.setTextFont("Name"+
-        		EditorUtil.MANDATORY_SYMBOL);
+    	JComponent label = EditorUtil.getLabel("Name", true);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.fill = GridBagConstraints.HORIZONTAL;

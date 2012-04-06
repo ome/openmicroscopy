@@ -102,6 +102,7 @@ public class ContainerCounterLoader
 		        Map<Long, Long> m = new HashMap<Long, Long>();
 		        Map<Class, Map<Long, Long>> count = new HashMap<Class, 
 		        Map<Long, Long>>();
+		        AdminService svc = context.getAdminService();
 		        while (i.hasNext()) {
 					entry = (Entry) i.next();
 					type = (Class) entry.getKey();
@@ -116,7 +117,7 @@ public class ContainerCounterLoader
 						}
 			        	result = m;
 			        } else if (GroupData.class.equals(type)) {
-			        	AdminService svc = context.getAdminService();
+			        	svc = context.getAdminService();
 			        	result = count.put(type, svc.countExperimenters(ctx,
 			        			ids));
 			        } else {

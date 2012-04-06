@@ -22,7 +22,7 @@
 */
  
 // version: 0.1.2
-  
+
 (function( $ ) {
     $.fn.editable = function(form_url, save_url, field_id, options ) {
         // Defaults
@@ -96,7 +96,7 @@
                                         }); // this.each
                                         $("#form-"+field_id).find('textarea').each( function( ) {
                                             if ($(this).attr('name')!=null && $(this).attr('name')!=""){
-                                                $("#"+field_id+"-"+$(this).attr('name')).text($(this).val());
+                                                $("#"+field_id+"-"+$(this).attr('name')).html($(this).val().replace(/\n/g, "<br />"));
                                             }
                                         }); // this.each
                                         

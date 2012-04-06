@@ -99,6 +99,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RunScriptAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SendFeedbackAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchGroup;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
@@ -124,6 +125,7 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
+import org.openmicroscopy.shoola.agents.util.ui.GroupManagerDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
@@ -370,6 +372,12 @@ class TreeViewerControl
 	static final Integer    VIEW_IN_IJ = Integer.valueOf(72);
 	
 	/** 
+	 * Identifies the <code>Switch group action</code> in the 
+	 * File menu.
+	 */
+	static final Integer    SWITCH_GROUP = Integer.valueOf(73);
+	
+	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
 	 */
@@ -563,6 +571,7 @@ class TreeViewerControl
 		actionsMap.put(VIEW_IN_IJ, new ViewInPlugin(model, TreeViewer.IMAGE_J));
 		actionsMap.put(AVAILABLE_SCRIPTS, new RunScriptAction(model));
 		actionsMap.put(REMOVE_GROUP, new RemoveGroupNode(model));
+		actionsMap.put(SWITCH_GROUP, new SwitchGroup(model));
 	}
 
 	/** 
@@ -857,8 +866,12 @@ class TreeViewerControl
 			downloadScript(new ScriptActivityParam(script,
 					ScriptActivityParam.DOWNLOAD));
 		} else {
-			//un.notifyActivity(new ScriptActivityParam(script,
-			//		ScriptActivityParam.RUN));
+			GroupData g = model.getSelectedGroup();
+			if (g == null) 
+				g = TreeViewerAgent.getUserDetails().getDefaultGroup();
+			ctx = new SecurityContext(g.getId());
+			un.notifyActivity(ctx, new ScriptActivityParam(script,
+					ScriptActivityParam.RUN));
 		}
 	}
 	
@@ -977,13 +990,13 @@ class TreeViewerControl
 			Map m = (Map) pce.getNewValue();
 			Iterator i = m.entrySet().iterator();
 			Long groupID;
-			ExperimenterData d;
+			List<ExperimenterData> users;
 			Entry entry;
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				groupID = (Long) entry.getKey();
-				d = (ExperimenterData) entry.getValue();
-				model.setHierarchyRoot(groupID, d);
+				users = (List<ExperimenterData>) entry.getValue();
+				model.setHierarchyRoot(groupID, users);
 			}
 		} else if (UserManagerDialog.NO_USER_SWITCH_PROPERTY.equals(name)) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
@@ -1226,13 +1239,26 @@ class TreeViewerControl
 			
 			i = l.iterator();
 			int n = 0;
+			List<Long> groupIds = new ArrayList<Long>();
+			boolean canRun = true;
 			while (i.hasNext()) {
 				obj = (DataObject) i.next();
-				ids.add(obj.getId());
-				if (n == 0) p = obj;
-				n++;
+				if (groupIds.size() == 0)
+					groupIds.add(obj.getGroupId());
+				if (groupIds.contains(obj.getGroupId())) {
+					ids.add(obj.getId());
+					if (n == 0) p = obj;
+					n++;
+				} else {
+					canRun = false;
+					break;
+				}
 			}
-			
+			if (!canRun) {
+				un.notifyInfo("Script", "You can run the script only\non" +
+						"objects from the same group");
+				return;
+			}
 			if (ids.size() == 0) return;
 			// not set
 			if (param.getIndex() != FigureParam.THUMBNAILS) 
@@ -1241,10 +1267,8 @@ class TreeViewerControl
 			activity = new FigureActivityParam(object, ids, klass,
 					FigureActivityParam.SPLIT_VIEW_FIGURE);
 			activity.setIcon(icon);
-			//TODO:review
-			//un.notifyActivity(activity);
+			un.notifyActivity(new SecurityContext(groupIds.get(0)), activity);
 		} else if (MetadataViewer.HANDLE_SCRIPT_PROPERTY.equals(name)) {
-			/*
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			ScriptActivityParam p = (ScriptActivityParam) pce.getNewValue();
 			int index = p.getIndex();
@@ -1260,14 +1284,10 @@ class TreeViewerControl
 						p.getScript().getScriptID(), 
 						DownloadActivityParam.ORIGINAL_FILE, f, null);
 				activity.setApplicationData(new ApplicationData(""));
-				//TODO:review
-				//un.notifyActivity(activity);
+				un.notifyActivity(model.getSecurityContext(), activity);
 			} else if (index == ScriptActivityParam.DOWNLOAD) {
 				downloadScript(p);
-			} else {
-				//TODO:review
-				//un.notifyActivity(pce.getNewValue());
-			}*/
+			}
 		} else if (OpenWithDialog.OPEN_DOCUMENT_PROPERTY.equals(name)) {
 			ApplicationData data = (ApplicationData) pce.getNewValue();
 			//Register 
@@ -1356,6 +1376,16 @@ class TreeViewerControl
 			ActionEvent event = 
 				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
 			a.actionPerformed(event);
+		} else if (GroupManagerDialog.GROUP_SWITCH_PROPERTY.equals(name)) {
+			List<GroupData> groups = (List<GroupData>) pce.getNewValue();
+			if (groups.size() == 0) {
+				UserNotifier un = 
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo(GroupManagerDialog.TITLE, "At least one group " +
+						"must be selected.");
+				return;
+			}
+			model.setUserGroup(groups);
 		}
 	}
 	

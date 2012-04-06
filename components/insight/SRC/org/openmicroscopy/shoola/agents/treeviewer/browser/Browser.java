@@ -528,8 +528,9 @@ public interface Browser
 	 * Removes the experimenter's data from the display.
 	 * 
 	 * @param exp The experimenter to remove. Mustn't be <code>null</code>.
+	 * @param groupID The group's id the experimenter is member of.
 	 */
-	public void removeExperimenter(ExperimenterData exp);
+	public void removeExperimenter(ExperimenterData exp, long groupID);
 
 	/** Refreshes the experimenter node. */
 	public void refreshExperimenterData();
@@ -799,7 +800,7 @@ public interface Browser
 	 * 
 	 * @param group The selected group.
 	 */
-	void setUserGroup(GroupData group, boolean add);
+	void setUserGroup(GroupData group);
 
 	/**
 	 * Removes the specified group from the display

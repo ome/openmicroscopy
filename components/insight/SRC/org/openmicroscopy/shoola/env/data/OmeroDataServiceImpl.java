@@ -786,7 +786,7 @@ class OmeroDataServiceImpl
 		List<DeletableObject> l = new ArrayList<DeletableObject>();
 		while (i.hasNext()) {
 			object = i.next();
-			if (object.getObjectToDelete().getGroupId() == ctx.getGroupID()) {
+			if (object.getGroupId() == ctx.getGroupID()) {
 				l.add(object);
 			}
 		}
