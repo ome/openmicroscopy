@@ -845,7 +845,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         img = Image.open(settings.DEFAULT_IMG)
         img.thumbnail(size, Image.ANTIALIAS)
         draw = ImageDraw.Draw(img)
-        return img
+        f = cStringIO.StringIO()
+        img.save(f, "PNG")
+        f.seek(0)
+        return f.read()
     
     ##############################################
     ##   Sets methods                           ##
