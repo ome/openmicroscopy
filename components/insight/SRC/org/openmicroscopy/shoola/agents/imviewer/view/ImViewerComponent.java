@@ -3407,6 +3407,9 @@ class ImViewerComponent
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
-	public String toString() { return getTitle(); }
+	public String toString()
+	{ 
+		return "Image's Settings: "+model.getImageName();
+	}
 
 }

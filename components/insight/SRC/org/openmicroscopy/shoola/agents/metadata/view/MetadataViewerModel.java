@@ -75,6 +75,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -490,6 +491,44 @@ class MetadataViewerModel
 		return "";
 	}
 
+	/**
+	 * Returns the text indicating what to save.
+	 * 
+	 * @return See above.
+	 */
+	String getInstanceToSave()
+	{
+		Object ref = getRefObject();
+		String v = "";
+		if (ref instanceof ImageData) {
+			v = "Image's Data: ";
+			v += ((ImageData) ref).getName();
+		} else if (ref instanceof DatasetData) {
+			v = "Dataset's Data: ";
+			v += ((DatasetData) ref).getName();
+		} else if (ref instanceof ProjectData) {
+			v = "Project's Data: ";
+			v += ((ProjectData) ref).getName();
+		} else if (ref instanceof PlateData) {
+			v = "Plate's Data: ";
+			v += ((PlateData) ref).getName();
+		} else if (ref instanceof PlateAcquisitionData) {
+				v = "Run's Data: ";
+				v += ((PlateAcquisitionData) ref).getLabel();
+		} else if (ref instanceof ScreenData) {
+			v = "Screen's Data: ";
+			v += ((ScreenData) ref).getName();
+		} else if (ref instanceof ExperimenterData) {
+			v = EditorUtil.getExperimenterName((ExperimenterData) ref);
+			v += "'s details";
+		} if (ref instanceof GroupData) {
+			v = ((GroupData) ref).getName();
+			v += "'s details";
+		}	
+		return v;
+		
+	}
+	
 	/**
 	 * Fires an asynchronous call to save the data, add (resp. remove)
 	 * annotations to (resp. from) the object.

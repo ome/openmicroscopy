@@ -995,7 +995,10 @@ class MeasurementViewerComponent
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
-	public String toString() { return view.getTitle(); }
+	public String toString()
+	{ 
+		return "ROI for "+model.getImageName();
+	}
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.

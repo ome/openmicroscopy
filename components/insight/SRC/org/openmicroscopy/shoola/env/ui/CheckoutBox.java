@@ -37,6 +37,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -123,8 +124,8 @@ public class CheckoutBox
 	private JComponent buildAgentEntry(Agent agent, AgentSaveInfo info)
 	{
 		List<CheckOutItem> items = new ArrayList<CheckOutItem>();
-		JXTaskPane pane = UIUtilities.createTaskPane(info.getName(), null);
-		pane.setCollapsed(false);
+		//JXTaskPane pane = UIUtilities.createTaskPane(info.getName(), null);
+		//pane.setCollapsed(false);
 		List<Object> instances = info.getInstances();
 		Iterator<Object> i = instances.iterator();
 		CheckOutItem box;
@@ -136,8 +137,9 @@ public class CheckoutBox
 			p.add(box);
 		}
 		components.put(agent, items);
-		pane.add(UIUtilities.buildComponentPanel(p));
-		return pane;
+		return UIUtilities.buildComponentPanel(p);
+		//pane.add(UIUtilities.buildComponentPanel(p));
+		//return pane;
 	}
 	
 	/** Builds and lays out the UI. */
@@ -151,12 +153,14 @@ public class CheckoutBox
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(UIUtilities.buildComponentPanel(saveAll));
 		p.add(Box.createVerticalStrut(5));
+		p.add(new JSeparator());
+		JPanel content = new JPanel();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
-			p.add(buildAgentEntry((Agent) entry.getKey(),
+			content.add(buildAgentEntry((Agent) entry.getKey(),
 					(AgentSaveInfo) entry.getValue()));
 		}
-		
+		p.add(content);
 		addBodyComponent(p);
 	}
 	
