@@ -75,7 +75,7 @@ Params in render_col_plot/<iid>/<z>/<t>/<x>/<w> are:
     - w:    Optional line width of plot
 """
 
-render_thumbnail = url(r'^render_thumbnail/(?P<iid>[^/]+)/(?:(?P<w>[^/]+)/)?(?:(?P<h>[^/]+)/)?$', 'webgateway.views.render_thumbnail', name="webgateway_render_thumbnail")
+render_thumbnail = url(r'^render_thumbnail/(?P<iid>[^/]+)/(?:(?P<w>[^/]+)/)?(?:(?P<h>[^/]+)/)?$', 'webgateway.views.render_thumbnail')
 """
 Returns a thumbnail jpeg of the OMERO Image, optionally scaled to max-width and max-height.
 See L{views.render_thumbnail}. Uses current rendering settings. 
