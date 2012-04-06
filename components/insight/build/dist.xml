@@ -412,7 +412,7 @@
   <target name="dist-win-openGL" depends="jar,exe4j-init"
           if="dist.exe4j.exists"
           description="Build and package the app for Windows distribution with OpenGL support.">
-    <make-windows-executables type="Insight"/>
+    <make-windows-executables type="Insight" do-64-bit="false"/>
     <copy file="${app.config.dir}/imviewer.xml"
       tofile="${dist.dir}/opengl-imviewer.xml"/>
     <replace file="${dist.dir}/opengl-imviewer.xml"
