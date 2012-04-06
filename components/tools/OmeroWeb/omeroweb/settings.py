@@ -236,13 +236,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.ui.toolbar_links": ["TOOLBAR_LINKS", '[["webtest/img/figure_icon-16.png", "webtest_split_view_figure", "Split View Figure"]]', json.loads],
 
     # Add plugins to the right-hand & center panels: plugins are ['Label', 'include.js', 'div_id']. The javascript loads data into $('#div_id').
-    "omero.web.ui.right_plugins": ["RIGHT_PLUGINS", '[["Acquisition", "webclient/data/includes/right_plugin.acquisition.js", "metadata_tab"],'\
-            #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js", "image_roi_tab"],'\
-            '["Preview", "webclient/data/includes/right_plugin.preview.js", "preview_tab"]]', json.loads],
-    # E.g. Center plugin: ["Channel overlay", "webtest/webclient_plugins/center_plugin.overlay.js", "channel_overlay_panel"]
+    "omero.web.ui.right_plugins": ["RIGHT_PLUGINS", '[["Acquisition", "webclient/data/includes/right_plugin.acquisition.js.html", "metadata_tab"],'\
+            #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"],'\
+            '["Preview", "webclient/data/includes/right_plugin.preview.js.html", "preview_tab"]]', json.loads],
+    # E.g. Center plugin: ["Channel overlay", "webtest/webclient_plugins/center_plugin.overlay.js.html", "channel_overlay_panel"]
     "omero.web.ui.center_plugins": ["CENTER_PLUGINS", '['\
-            '["Table", "webclient/data/includes/center_plugin.table.js", "image_table"],'\
-            '["Split-view", "webclient/data/includes/center_plugin.splitview.js", "split_view_panel"]]', json.loads],
+            '["Table", "webclient/data/includes/center_plugin.table.js.html", "image_table"],'\
+            '["Split-view", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"]]', json.loads],
 
     # sharing no longer use this variable. replaced by request.build_absolute_uri
     # after testing this line should be removed.
