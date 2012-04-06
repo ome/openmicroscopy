@@ -328,35 +328,11 @@ $.fn.viewportImage = function(options) {
       this.setZoom(parseInt(increment));
     }
 
-    /**
-     * Handle Zoom by mousewheel (IE)
-     */
-
-    dragdiv.bind("mousewheel", function(e){
-      // Respond to mouse wheel in IE. (It returns up/dn motion in multiples of 120)
-      if (e.wheelDelta >= 120)
-        _this.doZoom(1, true);
-      else if (e.wheelDelta <= -120)
-        _this.doZoom(-1, true);
-      
+    dragdiv.mousewheel(function (e, delta) {
+      _this.doZoom(delta, true);
       e.preventDefault();
-    })
-  
-    /**
-     * Handle Zoom by mousewheel (FF)
-     */
+    });
 
-    if (dragdiv.get(0).addEventListener) {
-      // Respond to mouse wheel in Firefox
-      dragdiv.get(0).addEventListener('DOMMouseScroll', function(e) {
-        if (e.detail > 0)
-          _this.doZoom(-1, true);
-        else if (e.detail < 0)
-          _this.doZoom(1, true);
-        
-        e.preventDefault();
-      }, false);
-    }
 
     /**
      * Handle panning by mouse drag

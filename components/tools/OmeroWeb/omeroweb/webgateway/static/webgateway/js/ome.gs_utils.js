@@ -192,18 +192,15 @@ function gs_json (url, data, callback) {
       }
     }
   }
-  if (data === undefined) {
-    data='';
-  } else if (typeof data != "string") {
-    data = $.param(data);
-  }
+
   return jQuery.ajax({
-        type: "POST",
+      type: data ? "POST":"GET",
         url: url,
         data: data,
         success: cb(true),
         error: cb(false),
-        dataType: "jsonp"
+        dataType: "jsonp",
+        traditional: true
         });
 }
 
