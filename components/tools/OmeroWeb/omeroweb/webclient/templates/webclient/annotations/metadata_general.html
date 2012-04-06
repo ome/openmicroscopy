@@ -459,7 +459,16 @@
             </div>
                     
             <div class="description">
-                {% if manager.image.isOwned %}<div id="imagedescription-{{ manager.image.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='image_desc'>{{ manager.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                {% if manager.image.isOwned %}
+                    <div id="imagedescription-{{ manager.image.id }}">
+                        <p>
+                            <img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/>
+                            <span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default_if_none:""|linebreaksbr}}</span>
+                        </p>
+                    </div>
+                {% else %}
+                    <span id='image_desc'>{{ manager.image.description|default_if_none:""|linebreaks }}</span>
+                {% endif %}
             </div>
             <table>                    
                 {% if not manager.image.isOwned %}
@@ -510,12 +519,30 @@
             </table>
             {% else %}
                 {% if manager.dataset %}
-                {% if manager.dataset.isOwned %}<div id="datasetname-{{ manager.dataset.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="datasetname-{{ manager.dataset.id }}-name" style="word-wrap: break-word;">{{ manager.dataset.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.dataset.name }}</h1>{% endif %}
+                {% if manager.dataset.isOwned %}
+                    <div id="datasetname-{{ manager.dataset.id }}">
+                        <h1>
+                            <img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/>
+                            <p id="datasetname-{{ manager.dataset.id }}-name" style="word-wrap: break-word;">{{ manager.dataset.name }}</p>
+                        </h1>
+                    </div>
+                {% else %}
+                    <h1 style="word-wrap: break-word;">{{ manager.dataset.name }}</h1>
+                {% endif %}
 
                 <h2 id='dataset_id'>Dataset ID: {{ manager.dataset.id }}</h2>    
                 
                 <div class="description">
-                    {% if manager.dataset.isOwned %}<div id="datasetdescription-{{ manager.dataset.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="datasetdescription-{{ manager.dataset.id }}-description">{{ manager.dataset.description|default_if_none:""}}</span><p></div>{% else %}<span id='dataset_desc'>{{ manager.dataset.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                    {% if manager.dataset.isOwned %}
+                        <div id="datasetdescription-{{ manager.dataset.id }}">
+                            <p>
+                                <img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/>
+                                <span id="datasetdescription-{{ manager.dataset.id }}-description">{{ manager.dataset.description|default_if_none:""|linebreaksbr}}</span>
+                            </p>
+                        </div>
+                    {% else %}
+                        <span id='dataset_desc'>{{ manager.dataset.description|default_if_none:""|linebreaks }}</span>
+                    {% endif %}
                 </div>
                 
                 <table>
@@ -540,7 +567,16 @@
                     
                     <h2 id='project_id'>Project ID: {{ manager.project.id }}</h2>
                     <div class="description">
-                        {% if manager.project.isOwned %}<div id="projectdescription-{{ manager.project.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="projectdescription-{{ manager.project.id }}-description">{{ manager.project.description|default_if_none:""}}</span><p></div>{% else %}<span id='project_desc'>{{ manager.project.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                        {% if manager.project.isOwned %}
+                            <div id="projectdescription-{{ manager.project.id }}">
+                                <p>
+                                    <img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/>
+                                    <span id="projectdescription-{{ manager.project.id }}-description">{{ manager.project.description|default_if_none:""|linebreaksbr}}</span>
+                                </p>
+                            </div>
+                        {% else %}
+                            <span id='project_desc'>{{ manager.project.description|default_if_none:""|linebreaks }}</span>
+                        {% endif %}
                     </div>
                     <table>
                         {% if not manager.project.isOwned %}
@@ -568,7 +604,16 @@
             <h2 id='well_id'>Image ID: {{ manager.well.getWellSample.image.id }} Well ID: {{ manager.well.id }}</h2>
             <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
             <div class="description">
-                {% if manager.well.getWellSample.image.isOwned %}<div id="welldescription-{{ manager.well.getWellSample.image.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="welldescription-{{ manager.well.getWellSample.image.id }}-description">{{ manager.well.getWellSample.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='well_desc'>{{ manager.well.getWellSample.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                {% if manager.well.getWellSample.image.isOwned %}
+                    <div id="welldescription-{{ manager.well.getWellSample.image.id }}">
+                        <p>
+                            <img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/>
+                            <span id="welldescription-{{ manager.well.getWellSample.image.id }}-description">{{ manager.well.getWellSample.image.description|default_if_none:""|linebreaksbr}}</span>
+                        </p>
+                    </div>
+                {% else %}
+                    <span id='well_desc'>{{ manager.well.getWellSample.image.description|default_if_none:""|linebreaks }}</span>
+                {% endif %}
             </div>
             <table>                    
                 {% if not manager.well.getWellSample.image.isOwned %}
@@ -623,12 +668,30 @@
             </table>
             {% else %}
                 {% if manager.acquisition %}
-                {% if manager.acquisition.isOwned %}<div id="acquisitionname-{{ manager.acquisition.id }}"><h1><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/> <p id="acquisitionname-{{ manager.acquisition.id }}-name" style="word-wrap: break-word;">{{ manager.acquisition.name }}</p></h1></div>{% else %}<h1 style="word-wrap: break-word;">{{ manager.acquisition.name }}</h1>{% endif %}
+                {% if manager.acquisition.isOwned %}
+                    <div id="acquisitionname-{{ manager.acquisition.id }}">
+                        <h1>
+                            <img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit" class="pencil"/>
+                            <p id="acquisitionname-{{ manager.acquisition.id }}-name" style="word-wrap: break-word;">{{ manager.acquisition.name }}</p>
+                        </h1>
+                    </div>
+                {% else %}
+                    <h1 style="word-wrap: break-word;">{{ manager.acquisition.name }}</h1>
+                {% endif %}
                 
                 <h2 id='acquisition_id'>Plate acquisition ID: {{ manager.acquisition.id }}</h2>
                 
                 <div class="description">
-                    {% if manager.acquisition.isOwned %}<div id="acquisitiondescription-{{ manager.acquisition.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="acquisitiondescription-{{ manager.acquisition.id }}-description">{{ manager.acquisition.description|default_if_none:""}}</span><p></div>{% else %}<span id='acquisition_desc'>{{ manager.acquisition.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                    {% if manager.acquisition.isOwned %}
+                        <div id="acquisitiondescription-{{ manager.acquisition.id }}">
+                            <p>
+                                <img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/>
+                                <span id="acquisitiondescription-{{ manager.acquisition.id }}-description">{{ manager.acquisition.description|default_if_none:""|linebreaksbr}}</span>
+                            </p>
+                        </div>
+                    {% else %}
+                        <span id='acquisition_desc'>{{ manager.acquisition.description|default_if_none:""|linebreaks }}</span>
+                    {% endif %}
                 </div>
                 
                 <table>
@@ -655,7 +718,16 @@
               
                     <h2 id='plate_id'>Plate ID: {{ manager.plate.id }}</h2>
                     <div class="description">
-                        {% if manager.plate.isOwned %}<div id="platedescription-{{ manager.plate.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="platedescription-{{ manager.plate.id }}-description">{{ manager.plate.description|default_if_none:""}}</span><p></div>{% else %}<span id='plate_desc'>{{ manager.plate.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                        {% if manager.plate.isOwned %}
+                            <div id="platedescription-{{ manager.plate.id }}">
+                                <p>
+                                    <img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/>
+                                    <span id="platedescription-{{ manager.plate.id }}-description">{{ manager.plate.description|default_if_none:""|linebreaksbr}}</span>
+                                </p>
+                            </div>
+                        {% else %}
+                            <span id='plate_desc'>{{ manager.plate.description|default_if_none:""|linebreaks }}</span>
+                        {% endif %}
                     </div>
                     <table>
                         {% if not manager.plate.isOwned %}
@@ -681,7 +753,16 @@
             
                         <h2 id='screen_id'>Screen ID: {{ manager.screen.id }}</h2>
                         <div class="description">
-                            {% if manager.screen.isOwned %}<div id="screendescription-{{ manager.screen.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="screendescription-{{ manager.screen.id }}-description">{{ manager.screen.description|default_if_none:""}}</span><p></div>{% else %}<span id='screen_desc'>{{ manager.screen.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                            {% if manager.screen.isOwned %}
+                                <div id="screendescription-{{ manager.screen.id }}">
+                                    <p>
+                                        <img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/>
+                                        <span id="screendescription-{{ manager.screen.id }}-description">{{ manager.screen.description|default_if_none:""|linebreaksbr}}</span>
+                                    </p>
+                                </div>
+                            {% else %}
+                                <span id='screen_desc'>{{ manager.screen.description|default_if_none:""|linebreaks }}</span>
+                            {% endif %}
                         </div>
                         <table>
                             {% if not manager.screen.isOwned %}
@@ -911,7 +992,16 @@
                 <h2 id='tag_id'>Tag ID: {{ manager.tag.id }}</h2>   
 
                 <div class="description">
-                    {% if manager.tag.isOwned %}<div id="tagdescription-{{ manager.tag.id }}"><p><img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/> <span id="tagdescription-{{ manager.tag.id }}-description">{{ manager.tag.description|default_if_none:""}}</span><p></div>{% else %}<span id='tag_desc'>{{ manager.tag.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                    {% if manager.tag.isOwned %}
+                        <div id="tagdescription-{{ manager.tag.id }}">
+                            <p>
+                                <img src="{% static "webclient/image/color_line12.png" %}" alt="e" title="edit"/>
+                                <span id="tagdescription-{{ manager.tag.id }}-description">{{ manager.tag.description|default_if_none:""|linebreaksbr}}</span>
+                            </p>
+                        </div>
+                    {% else %}
+                        <span id='tag_desc'>{{ manager.tag.description|default_if_none:""|linebreaks }}</span>
+                    {% endif %}
                 </div>
         
                 <table>
