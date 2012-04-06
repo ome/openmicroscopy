@@ -59,7 +59,7 @@ $(document).ready(function() {
     };
     
     // update plugin when we switch between plugins
-    $('#center_panel_chooser').bind('change', update_dataset_split_viewer);
+    $('#center_panel_chooser').bind('center_plugin_changed.ome', update_dataset_split_viewer);
 
     // on change of selection in tree, update which plugins are enabled
     $("#dataTree").bind("select_node.jstree deselect_node.jstree", function(e, data) {

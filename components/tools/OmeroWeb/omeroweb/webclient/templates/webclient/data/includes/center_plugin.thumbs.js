@@ -165,7 +165,7 @@ $(document).ready(function() {
     // on change of selection (in tree) OR switching pluginupdate center panel
     $("body").bind("selection_change.ome", update_thumbnails_panel);
     
-    $('#center_panel_chooser').bind('change', update_thumbnails_panel);
+    $('#center_panel_chooser').bind('center_plugin_changed.ome', update_thumbnails_panel);
 
 });
 

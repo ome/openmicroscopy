@@ -938,7 +938,7 @@
                 $(".center_panel_content").hide();
                 $(panel_id).show();
                 // other listeners are bound to the parent element (independent of chooser being <select>)
-                $('#center_panel_chooser').trigger("change");
+                $('#center_panel_chooser').trigger("center_plugin_changed.ome");
             });
         });
     </script>
