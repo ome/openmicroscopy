@@ -108,11 +108,14 @@
 {% block middle_header_right %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
 	
-	<ul id="header_toolbar">
+	{% include "webclient/base/basket_info.html" %}
+	
+	<ul class="header_toolbar">
 		{% include "webclient/base/script_launch.html" %}
 	    <!--{% include "webclient/base/basket_info.html" %} -->
 	    {% include "webclient/base/activities_info.html" %}
 	</ul>
+	
 	{% include "webclient/base/search_field.html" %}
 	{% include "webclient/base/user_dropdown.html" %}
 	{% comment %}
@@ -128,6 +131,7 @@
 
 
 
+<!-- Right Tabs -->
 
 {% block right %}
 <div>

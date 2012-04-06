@@ -872,7 +872,7 @@
     <script type="text/javascript">
     
     $(function () {
-        $("#buttons input").click(function () {
+        $(".toolbar input").click(function () {
             switch(this.id) {
                 case "addprojectButton":
                     $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'project' }, "data":"New project" }, false, true);

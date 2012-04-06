@@ -70,24 +70,27 @@ $(document).ready(function() {
 </script>
 
 
-<div id="baskets">
-    <span id="launch_basket" title="Basket">
-        <img src="{% static "webgateway/img/basket_light_24.png" %}"/>
-        <div id="cartTotal">0</div>
-    </a>
+	<ul class="header_toolbar" id="basket">
+		<li id="launch_basket" title="Basket">
+	        <a href="#">Launch Basket
+		        <span id="cartTotal">0</span>
+			</a>
+	    
+		<div id="basket_panel" class="info_panel">
+				
+				<div class="info_panel_title">
+					<h3>Basket<img id='basket_spinner' src="{% static "webgateway/img/spinner.gif" %}"/></h3>
+					<a class="btn silver" href="{% url basket_action %}" title="Go to basket page to Share basket images etc"><span>{% trans "Manage Basket" %}</span></a>
+				</div>
+	            
+	            
+	        <div id="basket_content">
+	        </div>
+			
+	    </div>
+	
+	</li>
+</ul>
     
-    <div id="basket_panel" class="info_panel">
-        <h3>
-            Basket
-            
-            <a id="basket_panel_link" href="{% url basket_action %}" title="Go to basket page to Share basket images etc">{% trans "Manage Basket" %}</a>
-            <img id='basket_spinner' src="{% static "webgateway/img/spinner.gif" %}"/> 
-        </h3>
-        
-        
-        <div id="basket_content">
-        </div>
-        
-    </div>
-</div>
+    
 

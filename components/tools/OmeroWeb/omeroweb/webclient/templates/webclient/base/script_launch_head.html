@@ -48,7 +48,8 @@
                 var script_list_url = $(this).attr('href');
                 $("#scriptList").load(script_list_url, function(){
                     // Now show the menu and add ">>" to any <li> with child <ul>
-                    $("ul.sub_menu li:has(ul)").find("a:first").append(" &raquo; ");
+                    $('ul.sub_menu').css('visibility', 'visible');
+                    $("ul.sub_menu li:has(ul)").find("a:first").append("");
                     // bind links to openPopup
                     $("ul.sub_menu a").click(openScriptWindow);
                     $scriptSpinner.hide();
