@@ -601,8 +601,7 @@ def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kw
             webgateway_cache.setThumb(request, server_id, user_id, iid, jpeg_data, size)
     else:
         pass
-    rsp = HttpResponse(mimetype='image/jpeg')
-    jpeg_data.save(rsp, 'PNG')
+    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
 @login_required()
