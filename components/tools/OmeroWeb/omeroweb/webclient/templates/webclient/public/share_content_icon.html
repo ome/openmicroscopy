@@ -88,7 +88,7 @@
     <ul id="dataIcons">
         {% for c in share.imageInShare %}
         <li id="{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
-            <img id="{{ c.id }}" src="{% if c.isOwned %}{% url webgateway_render_thumbnail c.id %}{% else %}{% url render_thumbnail c.id share.share.id %}{% endif %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+            <img id="{{ c.id }}" src="{% if c.isOwned %}{% url render_thumbnail c.id %}{% else %}{% url render_thumbnail c.id share.share.id %}{% endif %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
         </li>
         {% endfor %}
     </ul>
