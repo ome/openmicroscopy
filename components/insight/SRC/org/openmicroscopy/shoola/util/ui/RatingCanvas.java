@@ -76,6 +76,9 @@ class RatingCanvas
 	/** Flag indicating an on-going dragging or not.*/
 	private boolean dragging;
 	
+	/** Flag indicating the mouse has been pressed.*/
+	private boolean pressed;
+	
 	/** 
 	 * Sets the number of selected stars depending on the location 
 	 * of the mouse click.
@@ -126,10 +129,11 @@ class RatingCanvas
 	 */
 	private void handleMouseReleased(Point p)
 	{
-		if (dragging) {
+		if (dragging || pressed) {
 			handleClick(p);
-			model.onMouseReleased();
+			//model.onMouseReleased();
 			dragging = false;
+			pressed = false;
 		}
 	}
 	
@@ -156,6 +160,11 @@ class RatingCanvas
 				handleMouseReleased(e.getPoint());
 			}
 
+			public void mousePressed(MouseEvent e) {
+				//super.mouseReleased(e);
+				pressed = true;
+				handleMouseReleased(e.getPoint());
+			}
 		};
 		installListeners();
 	}
@@ -213,6 +222,7 @@ class RatingCanvas
 	public void mouseDragged(MouseEvent e)
 	{ 
 		dragging = true;
+		pressed = false;
 		handleClick(e.getPoint());
 	}
 

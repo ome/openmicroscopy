@@ -1604,8 +1604,8 @@ class AnnotationDataUI
 			int newValue = (Integer) evt.getNewValue();
 			if (newValue != selectedValue) {
 				selectedValue = newValue;
-				//firePropertyChange(EditorControl.SAVE_PROPERTY,
-					//	Boolean.valueOf(false), Boolean.valueOf(true));
+				firePropertyChange(EditorControl.SAVE_PROPERTY,
+					Boolean.valueOf(false), Boolean.valueOf(true));
 			}
 		} else if (RatingComponent.RATE_END_PROPERTY.equals(name)) {
 			view.saveData(true);
