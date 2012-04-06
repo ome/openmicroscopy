@@ -23,10 +23,15 @@
 
 {% block title %}{% trans "Change avatar" %}{% endblock %}
 
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webadmin/javascript/jquery.imgareaselect-0.9.8/css/imgareaselect-default.css" %}" type="text/css" media="screen"/>
+{% endblock %}
+
 {% block script %}
     {{ block.super }}
 
-    <script type="text/javascript" src="{% static "webadmin/javascript/jquery.imgareaselect.js" %}"></script>
+    <script type="text/javascript" src="{% static "webadmin/javascript/jquery.imgareaselect-0.9.8/jquery.imgareaselect.js" %}"></script>
     
     <script type="text/javascript">
     
@@ -77,7 +82,7 @@
         var x2 = {{ photo_size.0.0 }}/2+dim
         var y1 = {{ photo_size.0.1 }}/2-dim
         var y2 = {{ photo_size.0.1 }}/2+dim
-        $('#thumbnail').imgAreaSelect({ x1: x1, y1: y1, x2: x2, y2: y2, selectionOpacity: 0.2, aspectRatio: '1:1', handles: true, onSelectChange: preview }); 
+        $('#thumbnail').imgAreaSelect({ x1: x1, y1: y1, x2: x2, y2: y2, selectionOpacity: 0.2, aspectRatio: '1:1', handles: 'corners', onSelectChange: preview }); 
     });
     {% endif %}
     </script>
