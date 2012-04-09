@@ -49,6 +49,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class ApplicationData {
 
+	private static ApplicationDataExtractor extractor;
+
 	/** The default location <code>Linux</code> platform. */
 	public static final String LOCATION_LINUX = "/Applications";
 
@@ -67,14 +69,22 @@ public class ApplicationData {
 	/** The commands to add. */
 	private List<String> commands;
 
-	private ApplicationDataExtractor extractor= null;
-	
+	/**
+	 * Static constructor that creates the platform specific app data extractor
+	 */
+	static {
+		if (UIUtilities.isWindowsOS())
+			extractor = new WindowsApplicationDataExtractor();
+		if (UIUtilities.isMacOS())
+			extractor = new MacApplicationDataExtractor();
+	}
+
 	/**
 	 * Returns the default location depending on the OS.
 	 * 
 	 * @return See above.
 	 */
-	public String getDefaultLocation() {
+	public static String getDefaultLocation() {
 		return extractor.getDefaultAppDirectory();
 	}
 
@@ -84,10 +94,9 @@ public class ApplicationData {
 	 * @param file
 	 *            the application.
 	 */
-	public ApplicationData(ApplicationDataExtractor extractor, File file) {
-		this.extractor = extractor;
+	public ApplicationData(File file) {
 		this.file = file;
-		
+
 		String name = file.getName();
 		if (name == null || name.length() == 0) {
 			applicationName = "";
@@ -95,7 +104,12 @@ public class ApplicationData {
 			executable = null;
 		}
 		try {
-			extractor.extractAppData(file);
+			ApplicationData data = extractor.extractAppData(file);
+
+			this.applicationName = data.applicationName;
+			this.executable = data.executable;
+			this.applicationIcon = data.applicationIcon;
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -184,10 +198,4 @@ public class ApplicationData {
 			return "";
 		return applicationName;
 	}
-	
-	public static ApplicationDataExtractor getPlatformSpecificApplicationDataExtractor()
-	{
-		
-	}
-
 }
