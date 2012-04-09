@@ -292,19 +292,16 @@ def index_most_recent(request, conn=None, **kwargs):
     return context
 
 @login_required()
+@render_response()
 def index_tag_cloud(request, conn=None, **kwargs):
     """ Gets the most used Tags. Used by the homepage via AJAX call """
-
-    template = "webclient/index/index_tag_cloud.html"
     
     controller = BaseIndex(conn)
     controller.loadTagCloud()
     
     context = {'controller':controller, 'eContext': controller.eContext }
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context['template'] = "webclient/index/index_tag_cloud.html"
+    return context
 
 @login_required()
 def change_active_group(request, conn=None, **kwargs):
@@ -349,6 +346,7 @@ def logout(request, conn=None, **kwargs):
 
 ###########################################################################
 @login_required()
+@render_response()
 def load_template(request, menu, conn=None, **kwargs):
     """
     This view handles most of the top-level pages, as specified by 'menu' E.g. userdata, usertags, history, search etc.
@@ -438,13 +436,12 @@ def load_template(request, menu, conn=None, **kwargs):
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups'], 'url':url})
     
     context = {'nav':request.session['nav'], 'url':url, 'init':init, 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users}
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
+
 
 @login_required()
+@render_response()
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, conn=None, **kwargs):
     """
     This loads data for the tree, via AJAX calls. 
@@ -555,13 +552,12 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             template = "webclient/data/containers.html"
 
     context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index, 'index':index}
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
+
 
 @login_required()
+@render_response()
 def load_searching(request, form=None, conn=None, **kwargs):
     """
     Handles AJAX calls to search 
@@ -639,13 +635,12 @@ def load_searching(request, form=None, conn=None, **kwargs):
         manager.batch_search(batch_query)
     
     context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager}
-        
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
+
 
 @login_required()
+@render_response()
 def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     """ 
     Loads data for the tag tree and center panel.
@@ -731,11 +726,9 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     
     
     context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index}
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
+
 
 @login_required()
 def autocomplete_tags(request, conn=None, **kwargs):
@@ -748,6 +741,7 @@ def autocomplete_tags(request, conn=None, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @login_required()
+@render_response()
 def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
     """
     Opens the Open Astex Viewer applet, to display volume masks in a couple of formats:
@@ -831,12 +825,15 @@ def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
                 data_storage_mode = 1   # E.g. uint16 image will get served as 8bit map
             data_url = reverse("webclient_image_as_map", args=[obj_id, DEFAULTMAPSIZE])
 
-    return render_to_response('webclient/annotations/open_astex_viewer.html', {'data_url': data_url, "image": image,
+    context = {'data_url': data_url, "image": image,
         "sizeOptions":sizeOptions, "contourSliderInit":contourSliderInit, "contourSliderIncr":contourSliderIncr,
-        "data_storage_mode": data_storage_mode,'pixelRange':pixelRange}, context_instance=Context(request))
+        "data_storage_mode": data_storage_mode,'pixelRange':pixelRange}
+    context['template'] = 'webclient/annotations/open_astex_viewer.html'
+    return context
 
 
 @login_required()
+@render_response()
 def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwargs):
     """
     This page is the right-hand panel 'general metadata', first tab only.
@@ -905,13 +902,12 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'index':index, 'share_id':share_id}
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
+
 
 @login_required()
+@render_response()
 def load_metadata_preview(request, imageId, conn=None, share_id=None, **kwargs):
     """
     This is the image 'Preview' tab for the right-hand panel. 
@@ -937,13 +933,12 @@ def load_metadata_preview(request, imageId, conn=None, share_id=None, **kwargs):
         return handlerInternalError(request, x)
     
     context = {'imageId':imageId, 'manager':manager}
+    context['template'] = template
+    return context
 
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
 
 @login_required()
+@render_response()
 def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
     """
     This loads the ancestors of the specified object and displays them in a static tree.
@@ -968,13 +963,12 @@ def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
         return handlerInternalError(request, x)
 
     context = {'manager':manager}
+    context['template'] = template
+    return context
 
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
 
 @login_required()
+@render_response()
 def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, **kwargs):  
     """
     The acquisition tab of the right-hand panel. Only loaded for images.
@@ -1132,12 +1126,9 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
         'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 
         'form_microscope':form_microscope, 'form_instrument_objectives': form_instrument_objectives, 'form_filters':form_filters,
         'form_dichroics':form_dichroics, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
+    context['template'] = template
+    return context
 
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
-    
 
 ###########################################################################
 # ACTIONS
@@ -1181,6 +1172,7 @@ def getIds(request):
 
 
 @login_required()
+@render_response()
 def batch_annotate(request, conn=None, **kwargs):
     """
     This page gives a form for batch annotation. 
@@ -1201,16 +1193,13 @@ def batch_annotate(request, conn=None, **kwargs):
         obj_ids += ["%s=%s"%(key,o.id) for o in oids[key]]
     obj_string = "&".join(obj_ids)
     
-    template = "webclient/annotations/batch_annotate.html"
     context = {'form_comment':form_comment, 'obj_string':obj_string}
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = "webclient/annotations/batch_annotate.html"
+    return context
 
 
 @login_required()
+@render_response()
 def annotate_file(request, conn=None, **kwargs):
     """ 
     On 'POST', This handles attaching an existing file-annotation(s) and/or upload of a new file to one or more objects 
@@ -1273,13 +1262,11 @@ def annotate_file(request, conn=None, **kwargs):
         form_file = FilesAnnotationForm(initial=initial)
         context = {'form_file': form_file}
         template = "webclient/annotations/files_form.html"
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
-    
+    context['template'] = template
+    return context
+
 @login_required()
+@render_response()
 def annotate_comment(request, conn=None, **kwargs):
     """ Handle adding Comments to one or more objects 
     Unbound instance of Comment form not available. 
@@ -1304,17 +1291,13 @@ def annotate_comment(request, conn=None, **kwargs):
         content = form_multi.cleaned_data['comment']
         if content is not None and content != "":
             textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
-            template = "webclient/annotations/comment.html"
-            context = {'tann': textAnn}
-            
-            t = template_loader.get_template(template)
-            c = Context(request,context)
-            logger.debug('TEMPLATE: '+template)
-            return HttpResponse(t.render(c))
+            context = {'tann': textAnn, 'template':"webclient/annotations/comment.html"}
+            return context
     else:
         return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
 
 @login_required()
+@render_response()
 def annotate_tags(request, conn=None, **kwargs):
     """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
 
@@ -1377,13 +1360,11 @@ def annotate_tags(request, conn=None, **kwargs):
         form_tags = TagsAnnotationForm(initial=initial)
         context = {'form_tags': form_tags}
         template = "webclient/annotations/tags_form.html"
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
 
 @login_required()
+@render_response()
 def manage_action_containers(request, action, o_type=None, o_id=None, conn=None, **kwargs):
     """
     Handles many different actions on various objects.
@@ -1692,11 +1673,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             rdict = {'bad':'false' }
         json = simplejson.dumps(rdict, ensure_ascii=False)
         return HttpResponse( json, mimetype='application/javascript')
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
 
 @login_required()
 def get_original_file(request, fileId, conn=None, **kwargs):
@@ -1869,6 +1847,7 @@ def download_annotation(request, action, iid, conn=None, **kwargs):
     return rsp
 
 @login_required()
+@render_response()
 def load_public(request, share_id=None, conn=None, **kwargs):
     """ Loads data for the tree in the 'public' main page. """
     request.session.modified = True
@@ -1919,15 +1898,14 @@ def load_public(request, share_id=None, conn=None, **kwargs):
         controller.getShares()
 
     context = {'nav':request.session['nav'], 'eContext':controller.eContext, 'share':controller}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
 
 ##################################################################
 # Basket
 
 @login_required()
+@render_response()
 def basket_action (request, action=None, conn=None, **kwargs):
     """
     Various actions for creating a 'share' or 'discussion' (no images).
@@ -2011,11 +1989,8 @@ def basket_action (request, action=None, conn=None, **kwargs):
         form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups'], 'url':url})
         
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form_active_group':form_active_group }
-
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
 
 @login_required()
 def empty_basket(request, **kwargs):
@@ -2102,6 +2077,7 @@ def update_basket(request, **kwargs):
         return handlerInternalError(request, "Request method error in Basket.")
 
 @login_required()
+@render_response()
 def help(request, conn=None, **kwargs):
     """ Displays help page. Includes the choosers for changing current group and current user. """
 
@@ -2119,12 +2095,11 @@ def help(request, conn=None, **kwargs):
     form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
     
     context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
 
 @login_required()
+@render_response()
 def load_calendar(request, year=None, month=None, conn=None, **kwargs):
     """ 
     Loads the calendar which is displayed in the left panel of the history page. 
@@ -2142,12 +2117,11 @@ def load_calendar(request, year=None, month=None, conn=None, **kwargs):
     controller.create_calendar()
     
     context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
 
 @login_required()
+@render_response()
 def load_history(request, year, month, day, conn=None, **kwargs):
     """ The data for a particular date that is loaded into the center panel """
 
@@ -2182,10 +2156,8 @@ def load_history(request, year, month, day, conn=None, **kwargs):
     #    form_history_type = HistoryTypeForm(initial={'data_type':cal_type})
     
     context = {'nav':request.session['nav'], 'url':url, 'eContext': controller.eContext, 'controller':controller}#, 'form_history_type':form_history_type}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
 
 
 def getObjectUrl(conn, obj):
@@ -2236,6 +2208,7 @@ def getObjectUrl(conn, obj):
 ######################
 # Activities window & Progressbar
 @login_required()
+@render_response()
 def activities(request, conn=None, **kwargs):
     """
     This refreshes callback handles (delete, scripts, chgrp etc) and provides html to update Activities window & Progressbar.
@@ -2398,11 +2371,8 @@ def activities(request, conn=None, **kwargs):
             'inprogress':in_progress,
             'failure':failure}
 
-    template = "webclient/activities/activitiesContent.html"
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = "webclient/activities/activitiesContent.html"
+    return context
 
 
 @login_required()
@@ -2458,6 +2428,7 @@ def render_thumbnail (request, iid, conn=None, share_id=None, **kwargs):
 ####################################################################################
 # scripting service....
 @login_required()
+@render_response()
 def list_scripts (request, conn=None, **kwargs):
     """ List the available scripts - Just officical scripts for now """
     scriptService = conn.getScriptService()
@@ -2492,10 +2463,10 @@ def list_scripts (request, conn=None, **kwargs):
         sData['path'] = path    # sData map has 'name', 'path', 'scripts'
         scriptList.append(sData)
     scriptList.sort(key=lambda x:x['name'])
-
-    return render_to_response("webclient/scripts/list_scripts.html", {'scriptMenu': scriptList})
+    return {'template':"webclient/scripts/list_scripts.html", 'scriptMenu': scriptList}
 
 @login_required()
+@render_response()
 def script_ui(request, scriptId, conn=None, **kwargs):
     """
     Generates an html form for the parameters of a defined script.
@@ -2587,8 +2558,7 @@ def script_ui(request, scriptId, conn=None, **kwargs):
 
     paramData["inputs"] = inputs
 
-    return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData, 'scriptId': scriptId}, 
-        context_instance=Context(request))
+    return {'template':'webclient/scripts/script_ui.html', 'paramData': paramData, 'scriptId': scriptId}
 
 @login_required()
 def chgrp(request, conn=None, **kwargs):
