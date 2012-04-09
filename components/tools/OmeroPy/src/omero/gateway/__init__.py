@@ -1488,8 +1488,6 @@ class _BlitzGateway (object):
         if self._ctx is not None:
             self._userid = self._ctx.userId
             self._username = self._ctx.userName
-            # "guest" user has no access that method.
-            self._user = self._ctx.userName!="guest" and self.getObject("Experimenter", self._userid) or None
         else:
             self._userid = None
             self._username = None
@@ -1730,7 +1728,10 @@ class _BlitzGateway (object):
         @return:    Current Experimenter
         @rtype:     L{ExperimenterWrapper}
         """
-        
+        if self._ctx is None:
+            return None
+        if self._user is None:
+            self._user = self._ctx.userName!="guest" and self.getObject("Experimenter", self._userid) or None
         return self._user
     
     def getGroupFromContext(self):
