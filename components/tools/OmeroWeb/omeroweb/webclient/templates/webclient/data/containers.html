@@ -165,7 +165,7 @@
                     modal: true,
                     buttons: {
                         "OK": function() {
-                             handleNewContainer();
+                             createNewContainer();
                              $( this ).dialog( "close" );
                         },
                         "Cancel": function() {
@@ -176,10 +176,10 @@
                 // same code is called from closing dialog or 'submit' of form
                 $("#new-container-form").submit(function() {
                     $("#new-container-form").dialog( "close" );
-                    handleNewContainer();
+                    createNewContainer();
                     return false;
                 });
-                var handleNewContainer = function() {
+                var createNewContainer = function() {
                     var cont_type = $("#new_container_type").text().toLowerCase();  // E.g. 'project'
                     var $f = $("#new-container-form");
                     var new_container_name = $("input[name='name']", $f).val();
@@ -196,18 +196,24 @@
                     } else { url = '{% url manage_action_containers "addnewcontainer" %}'; }
 
                     $.ajax({
-                      url: url,
-                      //data: $new_cont_form.serialize();
-                      data: {
+                        url: url,
+                        //data: $new_cont_form.serialize();
+                        data: {
                             "name" : new_container_name,
                             "folder_type" : cont_type,
                             "description" : new_container_desc
                         },
-                      dataType: "json",
-                      type: "POST",
-                      success: function(r){
-                          $("#dataTree").jstree("refresh");
-                      }
+                        dataType: "json",
+                        type: "POST",
+                        success: function(r){
+                            var cont_id = cont_type + "-" + r['id'];
+                            var display_index = 0;
+                            $("#dataTree").jstree("create", selected, display_index, 
+                                { "attr" : { "rel":cont_type, "id":cont_id}, "data":new_container_name }, 
+                                false, true);
+                            $("#dataTree").jstree("deselect_all");
+                            $("#dataTree").jstree("select_node", "#"+cont_id);
+                        }
                     });
                 }
 
