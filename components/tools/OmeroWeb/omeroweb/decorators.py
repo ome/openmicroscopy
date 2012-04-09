@@ -35,9 +35,6 @@ from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
 
-class Http403(Exception):
-    pass
-
 class login_required(object):
     """
     OMERO.web specific extension of the Django login_required() decorator,
@@ -176,12 +173,11 @@ class login_required(object):
             password = request['password']
         except KeyError:
             if not settings.PUBLIC_ENABLED and connector is None:
-                logger.debug('No username or password in request, raising ' \
-                             'HTTP 403')
+                logger.debug('No username or password in request, exiting.')
                 # We do not have an OMERO session or a username and password
                 # in the current request and we do not have a valid connector.
-                # Raise an error.
-                raise Http403
+                # Raise an error (return None).
+                return None
             # If OMERO.webpublic is enabled, pick up a username and
             # password from configuration.
             if settings.PUBLIC_ENABLED:
@@ -212,6 +208,7 @@ class login_required(object):
             # variables.
             logger.debug('Connector is no longer valid, destroying...')
             del session['connector']
+            return None
 
         session['connector'] = connector
         return connection
@@ -236,10 +233,6 @@ class login_required(object):
                 logger.debug('Connection not provided, attempting to get one.')
                 try:
                     conn = ctx.get_connection(server_id, request)
-                except Http403:
-                    # An authentication error should go all the way up the
-                    # stack.
-                    return ctx.on_not_logged_in(request, url, error)
                 except Exception, x:
                     logger.error('Error retrieving connection.', exc_info=True)
                     error = str(x)
