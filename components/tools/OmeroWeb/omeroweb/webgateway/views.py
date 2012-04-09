@@ -612,6 +612,8 @@ def render_roi_thumbnail (request, roiId, w=None, h=None, conn=None, **kwargs):
     a region around that shape, scale to width and height (or default size) and draw the
     shape on to the region
     """
+    server_id = request.session['connector'].server_id
+    
     # need to find the z indices of the first shape in T
     roiResult = conn.getRoiService().findByRoi(long(roiId), None)
     if roiResult is None or roiResult.rois is None:
@@ -652,6 +654,8 @@ def render_shape_thumbnail (request, shapeId, w=None, h=None, conn=None, **kwarg
     For the given Shape, redner a region around that shape, scale to width and height (or default size) and draw the
     shape on to the region. 
     """
+    server_id = request.session['connector'].server_id
+    
     # need to find the z indices of the first shape in T
     params = omero.sys.Parameters()
     params.map = {'id':rlong(shapeId)}
@@ -1302,7 +1306,7 @@ def jsonp (f):
         try:
             server_id = kwargs.get('server_id', None)
             if server_id is None:
-                server_id = request.session.get('server', None)
+                server_id = request.session['connector'].server_id
             kwargs['server_id'] = server_id
             conn = kwargs.get('conn', None)
             rv = f(request, *args, **kwargs)
@@ -1575,7 +1579,6 @@ def wellData_json (request, conn=None, _internal=False, **kwargs):
 def plateGrid_json (request, pid, field=0, conn=None, **kwargs):
     """
     """
-    server_id = request.session['connector'].server_id
     plate = conn.getObject('plate', long(pid))
     try:
         field = long(field or 0)
@@ -1781,7 +1784,6 @@ def search_json (request, conn=None, **kwargs):
     @return:            json search results
     TODO: cache
     """
-    server_id = request.session['connector'].server_id
     opts = searchOptFromRequest(request)
     rv = []
     logger.debug("searchObjects(%s)" % (opts['search']))
@@ -1969,7 +1971,6 @@ def reset_image_rdef_json (request, iid, conn=None, **kwargs):
 #    if blitzcon is None or not blitzcon.isConnected():
 #        img = None
 #    else:
-    server_id = request.session['connector'].server_id
     img = conn.getObject("Image", iid)
 
     if img is not None and img.resetRDefs():
