@@ -101,6 +101,7 @@ from omeroweb.webgateway import views as webgateway_views
 from omeroweb.feedback.views import handlerInternalError
 
 from omeroweb.webclient.decorators import login_required
+from omeroweb.webclient.decorators import render_response
 from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
@@ -111,24 +112,6 @@ logger.info("INIT '%s'" % os.getpid())
 
 ################################################################################
 # decorators
-
-def navHelper(request, conn):
-    
-    from django.conf import settings
-    top_links = settings.TOP_LINKS
-    links = []
-    for tl in top_links:
-        try:
-            label = tl[0]
-            link_id = tl[1]
-            link = reverse(link_id)
-            links.append( {"label":label, "link":link} )
-        except:
-            logger.error("Failed to reverse() tab_link: %s" % tl)
-    if request.session.get('nav') is None:
-        request.session['nav'] = {}
-    request.session['nav']['top_links'] = links
-    request.session.modified = True
 
 
 def sessionHelper(request):
@@ -237,6 +220,7 @@ def login(request):
         return HttpResponse(rsp)
 
 @login_required()
+@render_response()
 def index(request, conn=None, **kwargs):
     """
     The webclient home page. 
@@ -264,56 +248,48 @@ def index(request, conn=None, **kwargs):
     form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
     
     context = {'nav':request.session['nav'], 'controller':controller, 'eContext': controller.eContext, 'form_active_group':form_active_group}
+    context['template'] = template
+    return context
 
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
 
 @login_required()
+@render_response()
 def index_context(request, conn=None, **kwargs):
     """ NOT USED? TODO: remove this, url and template """
 
-    template = "webclient/index/index_context.html"
     
     controller = BaseIndex(conn)
     
     context = {'nav':request.session['nav'], 'controller':controller}
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context['template'] = "webclient/index/index_context.html"
+    return context
+
 
 @login_required()
+@render_response()
 def index_last_imports(request, conn=None, **kwargs):
     """
     Gets the most recent imports - Used in an AJAX call by home page.
     """
-    template = "webclient/index/index_last_imports.html"
     
     controller = BaseIndex(conn)
     controller.loadLastAcquisitions()
     
     context = {'controller':controller, 'eContext': controller.eContext }
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context['template'] = "webclient/index/index_last_imports.html"
+    return context
 
 @login_required()
+@render_response()
 def index_most_recent(request, conn=None, **kwargs):
     """ Gets the most recent 'shares' and 'share' comments. Used by the homepage via AJAX call """
 
-    template = "webclient/index/index_most_recent.html"
-    
     controller = BaseIndex(conn)
     controller.loadMostRecent()
     
     context = {'controller':controller, 'eContext': controller.eContext }
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context['template'] = "webclient/index/index_most_recent.html"
+    return context
 
 @login_required()
 def index_tag_cloud(request, conn=None, **kwargs):

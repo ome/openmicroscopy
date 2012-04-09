@@ -29,6 +29,7 @@ import omeroweb.decorators
 
 from django.http import HttpResponseServerError, Http404
 from django.utils.http import urlencode
+from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from omeroweb.webgateway import views as webgateway_views
@@ -76,3 +77,41 @@ class login_required(omeroweb.decorators.login_required):
         if changes:
             request.session.modified = True
 
+
+class render_response(omeroweb.decorators.render_response):
+    """ Subclass for adding additional data to the 'context' dict passed to templates """
+
+    def prepare_context(self, request, context, *args, **kwargs):
+        """
+        This allows templates to access the current eventContext and user from the L{omero.gateway.BlitzGateway}.
+        If these are not required by the template, then they will not need to be loaded by the Blitz Gateway.
+        The results are cached by Blitz Gateway, so repeated calls have no additional cost.
+        We also process some values from settings and add these to the context.
+        """
+
+        # we expect @login_required to pass us 'conn', but just in case...
+        if 'conn' not in kwargs:
+            return
+        conn = kwargs['conn']
+
+        context['ome'] = {}
+        context['ome']['eventContext'] = conn.getEventContext
+        context['ome']['user'] = conn.getUser
+
+        self.load_settings(request, context, conn)
+
+
+    def load_settings(self, request, context, conn):
+        # This is the new navHelper function...
+
+        top_links = settings.TOP_LINKS
+        links = []
+        for tl in top_links:
+            try:
+                label = tl[0]
+                link_id = tl[1]
+                link = reverse(link_id)
+                links.append( {"label":label, "link":link} )
+            except:
+                logger.error("Failed to reverse() tab_link: %s" % tl)
+        context['ome']['top_links'] = links

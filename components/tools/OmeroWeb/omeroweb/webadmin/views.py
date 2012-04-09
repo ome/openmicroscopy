@@ -71,7 +71,6 @@ from controller.drivespace import BaseDriveSpace, usersData
 from controller.uploadfile import BaseUploadFile
 from controller.enums import BaseEnums
 
-from omeroweb.webclient.views import navHelper
 from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck, getGuestConnection
 
 from omeroweb.webadmin.custom_models import Server
