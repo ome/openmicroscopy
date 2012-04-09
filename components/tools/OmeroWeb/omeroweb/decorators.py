@@ -25,11 +25,15 @@ Decorators for use with OMERO.web applications.
 
 import logging
 
-from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
+from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 
 from django.conf import settings
 from django.utils.http import urlencode
+from django.utils.functional import wraps
+from django.utils import simplejson
 from django.core.urlresolvers import reverse
+from django.core import template_loader
+from django.template import RequestContext
 
 from omeroweb.connector import Connector
 
@@ -272,3 +276,49 @@ class login_required(object):
             return f(request, *args, **kwargs)
         return wrapped
 
+
+class render_response(object):
+    """
+    This decorator handles the rendering of view methods to HttpResponse. It expects
+    that wrapped view methods return a dict. This allows:
+    - The template to be specified in the method arguments OR within the view method itself
+    - The dict to be returned as json if required
+    - The request is passed to the template context, as required by some tags etc
+    - A hook is provided for adding additional data to the context, from the L{omero.gateway.BlitzGateway}
+        or from the request.
+    """
+
+    def prepare_context(self, request, context, *args, **kwargs):
+        """ Hook for adding additional data to the context dict """
+        pass
+
+
+    def __call__(ctx, f):
+        """ Here we wrap the view method f and return the wrapped method """
+
+        def wrapper(request, *args, **kwargs):
+            """ Wrapper calls the view function, processes the result and returns HttpResponse """
+
+            # call the view function itself...
+            context = f(request, *args, **kwargs)
+
+            # if we happen to have a Response, return it
+            if isinstance(context, HttpResponse):
+                return context
+
+            # get template from view dict. Can be overridden from the **kwargs
+            template = 'template' in context and context['template'] or None
+            template = kwargs.get('template', template)
+            logger.debug("Rendering template: %s" % template)
+
+            # allows us to return the dict as json  (NB: BlitzGateway objects don't serialize)
+            if template is None or template == 'json':
+                json_data = simplejson.dumps(context)
+                return HttpResponse(json_data, mimetype='application/javascript')
+            else:
+                # allow additional processing of context dict
+                ctx.prepare_context(request, context, *args, **kwargs)
+                t = template_loader.get_template(template)
+                c = RequestContext(request, context)
+                return HttpResponse(t.render(c))
+        return wraps(f)(wrapper)
