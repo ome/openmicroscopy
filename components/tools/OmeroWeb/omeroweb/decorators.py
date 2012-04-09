@@ -274,7 +274,7 @@ class login_required(object):
             kwargs['conn_share'] = conn_share
             kwargs['url'] = url
             return f(request, *args, **kwargs)
-        return wrapped
+        return wraps(f)(wrapped)
 
 
 class render_response(object):
