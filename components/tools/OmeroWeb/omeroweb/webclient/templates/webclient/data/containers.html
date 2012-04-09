@@ -165,35 +165,7 @@
                     modal: true,
                     buttons: {
                         "OK": function() {
-                            var cont_type = $("#new_container_type").text().toLowerCase();  // E.g. 'project'
-                            var $f = $("#new-container-form");
-                            var new_container_name = $("input[name='name']", $f).val();
-                            var new_container_desc = $("textarea[name='description']", $f).val();
-                            if ($.trim(new_container_name).length == 0) {
-                                alert("Please enter a Name");
-                                return;
-                            }
-                            // if "project" is selected, createDataset under it
-                            var selected = $.jstree._focused().get_selected();
-                            if(selected.length==1 && selected.attr("rel") == "project" && cont_type == "dataset") {
-                                url = '{% url manage_action_containers "addnewcontainer" %}project/'+selected.attr("id").split("-")[1]+'/';
-                            // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen' etc. )
-                            } else { url = '{% url manage_action_containers "addnewcontainer" %}'; }
-
-                            $.ajax({
-                              url: url,
-                              //data: $new_cont_form.serialize();
-                              data: {
-                                    "name" : new_container_name,
-                                    "folder_type" : cont_type,
-                                    "description" : new_container_desc
-                                },
-                              dataType: "json",
-                              type: "POST",
-                              success: function(r){
-                                  $("#dataTree").jstree("refresh");
-                              }
-                            });
+                             handleNewContainer();
                              $( this ).dialog( "close" );
                         },
                         "Cancel": function() {
@@ -201,6 +173,43 @@
                         }
                     }
                 });
+                // same code is called from closing dialog or 'submit' of form
+                $("#new-container-form").submit(function() {
+                    $("#new-container-form").dialog( "close" );
+                    handleNewContainer();
+                    return false;
+                });
+                var handleNewContainer = function() {
+                    var cont_type = $("#new_container_type").text().toLowerCase();  // E.g. 'project'
+                    var $f = $("#new-container-form");
+                    var new_container_name = $("input[name='name']", $f).val();
+                    var new_container_desc = $("textarea[name='description']", $f).val();
+                    if ($.trim(new_container_name).length == 0) {
+                        alert("Please enter a Name");
+                        return;
+                    }
+                    // if "project" is selected, createDataset under it
+                    var selected = $.jstree._focused().get_selected();
+                    if(selected.length==1 && selected.attr("rel") == "project" && cont_type == "dataset") {
+                        url = '{% url manage_action_containers "addnewcontainer" %}project/'+selected.attr("id").split("-")[1]+'/';
+                    // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen' etc. )
+                    } else { url = '{% url manage_action_containers "addnewcontainer" %}'; }
+
+                    $.ajax({
+                      url: url,
+                      //data: $new_cont_form.serialize();
+                      data: {
+                            "name" : new_container_name,
+                            "folder_type" : cont_type,
+                            "description" : new_container_desc
+                        },
+                      dataType: "json",
+                      type: "POST",
+                      success: function(r){
+                          $("#dataTree").jstree("refresh");
+                      }
+                    });
+                }
 
 
                 $("#chgrp-form").dialog({
@@ -1027,7 +1036,7 @@
                 {{ new_container_form.name }}
             </p>
             <p>
-                <label for="id_description">Description:</label>
+                <label for="id_description">Description:</label><br />
                 {{ new_container_form.description }}
             </p>
         </form>
