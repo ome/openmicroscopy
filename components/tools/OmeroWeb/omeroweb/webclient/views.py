@@ -2806,7 +2806,7 @@ def activities(request, **kwargs):
     context = {'sizeOfJobs':len(request.session['callback']),
             'jobs':jobs,
             'inprogress':in_progress,
-            'new_results':len(new_results),
+            'new_results':1, # len(new_results),
             'failure':failure}
     template = "webclient/activities/activitiesContent.html"
     t = template_loader.get_template(template)

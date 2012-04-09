@@ -51,7 +51,7 @@ button {
 
 
 		/* Singular Buttons */
-		.btn {
+		.btn{
 			-webkit-border-radius:3px;
 			-moz-border-radius:3px;
 			border-radius:3px;
@@ -59,7 +59,7 @@ button {
 			padding:0;
 		}
 	
-			.btn span {
+			.btn span{
 				font-weight:bold;
 				display:block;
 				-webkit-border-radius:inherit;
@@ -117,10 +117,19 @@ button {
 	.btn_filetype {background: url(/static/webgateway/img/icon_filetype.png) center center no-repeat;}
 	.btn_view_error {background: url(/static/webgateway/img/icon_view_error.png) center center no-repeat;}
 	.btn_info {background: url(/static/webgateway/img/icon_info.png )center center no-repeat;}
+	.btn_add {background: url(/static/webgateway/img/icon_add.png )center center no-repeat;}
+	.btn_delete {background: url(/static/webgateway/img/icon_delete.png )center center no-repeat;}
+	.btn_edit {background: url(/static/webgateway/img/icon_edit.png )center center no-repeat;}
 	
+	button.btn_add span, button.btn_edit span {
+		width:5px;
+		height:14px;
+	}
 	
-	
-	
+	a.btn_add span, a.btn_edit span {
+		width:14px;
+		height:16px;
+	}
 	
 	
 	

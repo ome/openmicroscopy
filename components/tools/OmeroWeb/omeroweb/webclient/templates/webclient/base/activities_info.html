@@ -166,10 +166,10 @@
 
         <li id="queue">
 			
-            <div class="toolbar_button" id="launch_activities" title="Activities">
-                <div id="jobstatus">0</div>
-                <div id="runningStatus" style="display:none; position:absolute; bottom:0px; right:0px; width:10px; height:10px; background:green"></div>
-            </div>
+            <span class="toolbar_button" id="launch_activities" title="Activities">
+                <span id="jobstatus" class="notifier">0</span>
+                <span id="runningStatus" style="display:none; position:absolute; bottom:0px; right:0px; width:10px; height:10px; background:green"></span>
+            </span>
             
             <div id="activities_panel" class="info_panel">
 
@@ -178,18 +178,10 @@
                 <h3>
                     Activities
                     <img id='activities_spinner' src="{% static "webgateway/img/spinner.gif" %}"/>
-                    <button type="button" id="clear_activities" class="btn silver">Clear List</button>
+                    
                 </h3>
-             
+             <button type="button" id="clear_activities">Clear List</button>
 			 </div>
-			 
-			    
-				<div class="info_panel_title">
-					<h3>
-	                    Activities
-	                    <img id='activities_spinner' src="{% static "webgateway/img/spinner.gif" %}"/>
-	                </h3>
-                </div>
 				
                 <div id="activities_content">
                 </div>

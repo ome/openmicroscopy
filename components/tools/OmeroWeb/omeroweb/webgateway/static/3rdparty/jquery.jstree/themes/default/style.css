@@ -6,7 +6,7 @@
  
 
  #tree_details {
-     top:35px;
+     top:32px;
 	 padding:0;
  }
  
@@ -90,7 +90,8 @@
 .jstree-default .jstree-clicked { 
 	background:hsl(215,20%,75%);
 	border:solid 1px hsl(215,20%,60%);
-	text-shadow:0 1px 0 rgba(255,255,255,.5);
+	text-shadow:0 1px 0 rgba(255,255,255,.4);
+	color: hsl(220,30%,20%) !important;
 	-webkit-transition: .1s background linear; 
 	}
 	

@@ -130,7 +130,7 @@ $(document).ready(function() {
         else if (update.rel!==null && update.url!==null && need_refresh){
             if (page) update['url'] += "&page="+page;
             if ($image_table.is(":visible")) {
-                $image_table.html('<p>Loading data... please wait <img src ="../../static/webgateway/img/spinner.gif"/></p>');
+                $image_table.html('<p class="loading_center">Loading... please wait. <img src ="../../static/webgateway/img/spinner_big.gif"/></p>');
                 $image_table.attr('rel', update.rel);
                 $image_table.load(update.url, function() {
                     syncTableSelection(selected);

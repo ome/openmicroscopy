@@ -41,7 +41,7 @@
 					
 	            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
 
-	            <h1>{{ c.name|truncatebefor:"45" }}</h1>
+	            <h1>{{ c.name|truncatebefor:"35" }}</h1>
 	            {% if c.annotation_counter %}
 					<img src="{% static "webgateway/img/knotes16.png" %}" alt="a" title="annotation"/>
 				{% endif %}
