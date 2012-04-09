@@ -548,6 +548,7 @@ def render_birds_eye_view (request, iid, size=None,
     @param size:        Maximum size of the longest side of the resulting bird's eye view.
     @return:            http response containing jpeg
     """
+    server_id = request.session['connector'].server_id
     img = _get_prepared_image(request, iid, conn=conn, server_id=server_id)
     if img is None:
         logger.debug("(b)Image %s not found..." % (str(iid)))
