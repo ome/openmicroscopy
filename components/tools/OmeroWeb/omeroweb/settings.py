@@ -202,6 +202,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads],
     "omero.web.public.enabled": ["PUBLIC_ENABLED", "false", parse_boolean],
     "omero.web.public.root": ["PUBLIC_ROOT", "/", str],
+    "omero.web.public.server_id": ["PUBLIC_SERVER_ID", 1, int],
     "omero.web.public.user": ["PUBLIC_USER", None, leave_none_unset],
     "omero.web.public.password": ["PUBLIC_PASSWORD", None, leave_none_unset],
     "omero.web.databases": ["DATABASES", '{}', json.loads],

@@ -125,6 +125,30 @@ class login_required(object):
         Prepares a Blitz connection wrapper (from L{omero.gateway}) for
         use with a view function.
         """
+        connection = self.get_authenticated_connection(server_id, request)
+        if connection is None and settings.PUBLIC_ENABLED:
+            # If OMERO.webpublic is enabled, pick up a username and
+            # password from configuration and use those credentials to
+            # create a connection.
+            logger.debug('OMERO.webpublic enabled, attempting to login ' \
+                         'with configuration supplied credentials.')
+            if server_id is None:
+                server_id = settings.PUBLIC_SERVER_ID
+            username = settings.PUBLIC_USER
+            password = settings.PUBLIC_PASSWORD
+            is_secure = request.REQUEST.get('ssl', False)
+            logger.debug('Is SSL? %s' % is_secure)
+            connector = Connector(server_id, is_secure)
+            connection = connector.create_connection(
+                    self.useragent, username, password)
+            request.session['connector'] = connector
+        return connection
+
+    def get_authenticated_connection(self, server_id, request):
+        """
+        Prepares an authenticated Blitz connection wrapper (from
+        L{omero.gateway}) for use with a view function.
+        """
         # TODO: Handle previous try_super logic; is it still needed?
 
         session = request.session
@@ -172,19 +196,12 @@ class login_required(object):
             username = request['username']
             password = request['password']
         except KeyError:
-            if not settings.PUBLIC_ENABLED and connector is None:
+            if connector is None:
                 logger.debug('No username or password in request, exiting.')
                 # We do not have an OMERO session or a username and password
                 # in the current request and we do not have a valid connector.
                 # Raise an error (return None).
                 return None
-            # If OMERO.webpublic is enabled, pick up a username and
-            # password from configuration.
-            if settings.PUBLIC_ENABLED:
-                logger.debug('OMERO.webpublic enabled, attempting to login ' \
-                             'with configuration supplied credentials.')
-                username = settings.PUBLIC_USER
-                password = settings.PUBLIC_PASSWORD
 
         if username is not None and password is not None:
             # We have a username and password in the current request, or
