@@ -411,7 +411,7 @@ class Server(Ice.Application):
 
         try:
 
-            ofr.registerObjectFactory(self.communicator, self)
+            ofr.registerObjectFactory(self.communicator(), None) # No client
             for of in rFactories.values() + cFactories.values():
                 of.register(self.communicator())
 
