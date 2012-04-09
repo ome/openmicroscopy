@@ -1,4 +1,4 @@
-package org.openmicroscopy.shoola.env.data.model;
+package org.openmicroscopy.shoola.env.data.model.appdata;
 
 import com.sun.jna.Pointer;
 
