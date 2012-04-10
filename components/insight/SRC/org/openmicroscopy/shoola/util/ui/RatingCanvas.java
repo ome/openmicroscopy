@@ -57,7 +57,7 @@ import javax.swing.JPanel;
  * @since OME3.0
  */
 class RatingCanvas
-	extends JPanel 
+	extends JPanel
 	implements MouseMotionListener
 {
 
@@ -192,7 +192,7 @@ class RatingCanvas
 		int x = 0;
 		int w, h;
 		List<Image> l = model.getPlus();
-		Iterator i = l.iterator();
+		Iterator<Image> i = l.iterator();
 		Image img;
 		stars.clear();
 		while (i.hasNext()) {
@@ -200,7 +200,7 @@ class RatingCanvas
 			w = img.getWidth(null);
 			h = img.getHeight(null);
 			stars.add(new Rectangle(x, 0, w, h));
-			g2D.drawImage(img, x, 0, w, h, null); 
+			g2D.drawImage(img, x, 0, w, h, null);
 			x += w+SPACE;
 		}
 		l = model.getMinus();
@@ -210,7 +210,7 @@ class RatingCanvas
 			w = img.getWidth(null);
 			h = img.getHeight(null);
 			stars.add(new Rectangle(x, 0, w, h));
-			g2D.drawImage(img, x, 0, w, h, null); 
+			g2D.drawImage(img, x, 0, w, h, null);
 			x += w+SPACE;
 		}
 	}
@@ -221,9 +221,9 @@ class RatingCanvas
 	 */
 	public void mouseDragged(MouseEvent e)
 	{ 
-		dragging = true;
-		pressed = false;
-		handleClick(e.getPoint());
+		//dragging = true;
+		//pressed = false;
+		//handleClick(e.getPoint());
 	}
 
 	/**
@@ -232,5 +232,5 @@ class RatingCanvas
 	 * @see MouseMotionListener#mouseMoved(MouseEvent)
 	 */
 	public void mouseMoved(MouseEvent e) {}
-	
+
 }

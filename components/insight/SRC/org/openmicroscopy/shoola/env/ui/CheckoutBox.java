@@ -44,7 +44,6 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
