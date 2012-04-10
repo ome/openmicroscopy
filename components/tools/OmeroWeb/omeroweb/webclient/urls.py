@@ -35,7 +35,6 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^(?P<menu>((?i)userdata|public|history|search|help|usertags))/$', views.load_template, name="load_template" ),
     url( r'^userdata/$', views.load_template, {'menu':'userdata'}, name="userdata" ),
 
-    url( r'^context/$', views.index_context, name="index_context" ),
     url( r'^last_imports/$', views.index_last_imports, name="index_last_imports" ),
     url( r'^most_recent/$', views.index_most_recent, name="index_most_recent" ),
     url( r'^tag_cloud/$', views.index_tag_cloud, name="index_tag_cloud" ),

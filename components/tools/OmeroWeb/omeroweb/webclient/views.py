@@ -253,19 +253,6 @@ def index(request, conn=None, **kwargs):
 
 @login_required()
 @render_response()
-def index_context(request, conn=None, **kwargs):
-    """ NOT USED? TODO: remove this, url and template """
-
-    
-    controller = BaseIndex(conn)
-    
-    context = {'nav':request.session['nav'], 'controller':controller}
-    context['template'] = "webclient/index/index_context.html"
-    return context
-
-
-@login_required()
-@render_response()
 def index_last_imports(request, conn=None, **kwargs):
     """
     Gets the most recent imports - Used in an AJAX call by home page.
