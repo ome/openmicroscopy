@@ -103,6 +103,7 @@ class render_response(omeroweb.decorators.render_response):
 
         if 'nav' not in context:
             context['nav'] = {}
+        context['nav'] = request.session['nav']     # only needed for nav.basket
         # used for pagination
         context['nav']['view'] = request.REQUEST.get('view')
 

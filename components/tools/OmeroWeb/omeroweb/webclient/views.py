@@ -238,7 +238,7 @@ def index(request, conn=None, **kwargs):
     controller = BaseIndex(conn)
     #controller.loadData()
     
-    context = {'nav':request.session['nav'], 'controller':controller}
+    context = {'controller':controller}
     context['template'] = template
     return context
 
@@ -413,7 +413,7 @@ def load_template(request, menu, conn=None, **kwargs):
     myGroups.sort(key=lambda x: x.getName().lower())
     form_active_group = ActiveGroupForm(initial={'activeGroup':conn.getEventContext().groupId, 'mygroups':myGroups, 'url':url})
     
-    context = {'nav':request.session['nav'], 'url':url, 'init':init, 'myGroups':myGroups,
+    context = {'url':url, 'init':init, 'myGroups':myGroups,
         'form_active_group':form_active_group, 'form_users':form_users}
     context['isLeader'] = conn.isLeader()
     context['template'] = template
@@ -523,7 +523,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         else:
             template = "webclient/data/containers.html"
 
-    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form_well_index':form_well_index, 'index':index}
+    context = {'url':url, 'manager':manager, 'form_well_index':form_well_index, 'index':index}
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
@@ -594,7 +594,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
         template = "webclient/search/search_details.html"
         manager.batch_search(batch_query)
     
-    context = {'nav':request.session['nav'], 'url':url, 'manager':manager}
+    context = {'url':url, 'manager':manager}
     context['template'] = template
     return context
 
@@ -674,7 +674,7 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     form_well_index = None    
     
     
-    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form_well_index':form_well_index}
+    context = {'url':url, 'manager':manager, 'form_well_index':form_well_index}
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
@@ -849,9 +849,9 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         return handlerInternalError(request, x)    
 
     if c_type in ("tag"):
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager}
+        context = {'url':url, 'manager':manager}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form_comment':form_comment, 'index':index, 'share_id':share_id}
+        context = {'url':url, 'manager':manager, 'form_comment':form_comment, 'index':index, 'share_id':share_id}
     context['template'] = template
     return context
 
@@ -1070,9 +1070,9 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
 
     # TODO: remove this 'if' since we should only have c_type = 'image'?
     if c_type in ("share", "discussion", "tag"):
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager}
+        context = {'url':url, 'manager':manager}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 
+        context = {'url':url, 'manager':manager, 
         'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 
         'form_microscope':form_microscope, 'form_instrument_objectives': form_instrument_objectives, 'form_filters':form_filters,
         'form_dichroics':form_dichroics, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
@@ -1413,12 +1413,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             if manager.share.getExpireDate() is not None:
                 initial['expiration'] = manager.share.getExpireDate().strftime("%Y-%m-%d")
             form = ShareForm(initial=initial) #'guests': share.guestsInShare,
-            context = {'url':url, 'nav':request.session['nav'], 'share':manager, 'form':form}
+            context = {'url':url, 'share':manager, 'form':form}
         elif hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
             template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': obj.name, 'description':obj.description})
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
+            context = {'url':url, 'manager':manager, 'form':form}
     elif action == 'save':
         # Handles submission of the 'edit' form above. TODO: not used now?
         if not request.method == 'POST':
@@ -1439,7 +1439,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 return HttpResponse("DONE")
             else:
                 template = "webclient/public/share_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'share':manager, 'form':form}
+                context = {'url':url, 'share':manager, 'form':form}
         elif o_type == "sharecomment":
             form_sharecomments = ShareCommentForm(data=request.REQUEST.copy())
             if form_sharecomments.is_valid():
@@ -1451,15 +1451,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 context = {'cm': textAnn}
             else:
                 template = "webclient/annotations/annotation_new_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 
-                    'manager':manager, 'form_sharecomments':form_sharecomments}
+                context = {'url':url, 'manager':manager, 'form_sharecomments':form_sharecomments}
     elif action == 'editname':
         # start editing 'name' in-line
         if hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
             template = "webclient/ajax_form/container_form_ajax.html"
             form = ContainerNameForm(initial={'name': ((o_type != ("tag")) and obj.getName() or obj.textValue)})
-            context = {'nav':request.session['nav'], 'manager':manager, 'form':form}
+            context = {'manager':manager, 'form':form}
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'savename':
@@ -1490,7 +1489,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             obj = getattr(manager, o_type)
             template = "webclient/ajax_form/container_form_ajax.html"
             form = ContainerDescriptionForm(initial={'description': obj.description})
-            context = {'nav':request.session['nav'], 'manager':manager, 'form':form}
+            context = {'manager':manager, 'form':form}
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'savedescription':
@@ -1831,7 +1830,7 @@ def load_public(request, share_id=None, conn=None, **kwargs):
         controller = BaseShare(conn)
         controller.getShares()
 
-    context = {'nav':request.session['nav'], 'share':controller}
+    context = {'share':controller}
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
@@ -1864,7 +1863,7 @@ def basket_action (request, action=None, conn=None, **kwargs):
         experimenters.sort(key=lambda x: x.getOmeName().lower())
         selected = [long(i) for i in request.REQUEST.getlist('image')]        
         form = BasketShareForm(initial={'experimenters':experimenters, 'images':basket.imageInBasket, 'enable':True, 'selected':selected})            
-        context = {'nav':request.session['nav'], 'form':form}
+        context = {'form':form}
     elif action == "createshare":
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("basket_action"))
@@ -1886,14 +1885,14 @@ def basket_action (request, action=None, conn=None, **kwargs):
             return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
         else:
             template = "webclient/basket/basket_share_action.html"
-            context = {'nav':request.session['nav'], 'form':form}
+            context = {'form':form}
     elif action == "todiscuss":
         template = "webclient/basket/basket_discussion_action.html"
         basket = BaseBasket(conn)
         experimenters = list(conn.getExperimenters())
         experimenters.sort(key=lambda x: x.getOmeName().lower())
         form = ShareForm(initial={'experimenters':experimenters, 'enable':True})            
-        context = {'nav':request.session['nav'], 'form':form}
+        context = {'form':form}
     elif action == "createdisc":
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("basket_action"))
@@ -1913,14 +1912,14 @@ def basket_action (request, action=None, conn=None, **kwargs):
             return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
         else:
             template = "webclient/basket/basket_discussion_action.html"
-            context = {'nav':request.session['nav'], 'form':form}
+            context = {'form':form}
     else:
         template = kwargs.get("template", "webclient/basket/basket.html")
         
         basket = BaseBasket(conn)
         basket.load_basket(request)
         
-        context = {'nav':request.session['nav'], 'basket':basket }
+        context = {'basket':basket }
     context['template'] = template
     return context
 
@@ -2024,7 +2023,7 @@ def help(request, conn=None, **kwargs):
     
     controller = BaseHelp(conn)
     
-    context = {'nav':request.session['nav'], 'controller':controller}
+    context = {'controller':controller}
     context['template'] = template
     return context
 
@@ -2046,7 +2045,7 @@ def load_calendar(request, year=None, month=None, conn=None, **kwargs):
         controller = BaseCalendar(conn=conn, year=today.year, month=today.month, eid=filter_user_id)
     controller.create_calendar()
     
-    context = {'nav':request.session['nav'], 'controller':controller}
+    context = {'controller':controller}
     context['template'] = template
     return context
 
@@ -2085,7 +2084,7 @@ def load_history(request, year, month, day, conn=None, **kwargs):
     #else:
     #    form_history_type = HistoryTypeForm(initial={'data_type':cal_type})
     
-    context = {'nav':request.session['nav'], 'url':url, 'controller':controller}#, 'form_history_type':form_history_type}
+    context = {'url':url, 'controller':controller}#, 'form_history_type':form_history_type}
     context['template'] = template
     return context
 
