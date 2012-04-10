@@ -22,7 +22,7 @@ function [client,session,gateway]=loadOmero(varargin)
 %   c = loadOmero('localhost');
 %
 %   % Host string and port
-%   c = loadOmero('localhost','14064');
+%   c = loadOmero('localhost',14064);
 %
 %   % Via a Properties object
 %   props = java.util.Properties();
@@ -73,24 +73,24 @@ disp('');
 % Check if "omero.client" is already on the classpath, if not
 % then add the omero_client.jar to the javaclasspath.
 if exist('omero.client','class') == 0
-
+    
     % Add the omero_client jar to the Java dynamic classpath
     % This will allow the import omero.* statement to pass
     % successfully.
     OmeroClient_Jar = fullfile(findOmero, 'omero_client.jar');
     javaaddpath(OmeroClient_Jar);
     import omero.*;
-
+    
     % Also add the OmeroM directory and its subdirectories to the path
     % so that functions and demos are available even if the user changes
     % directories. See the unloadOmero function for how to remove these
     % values.
     addpath(genpath(findOmero)); % OmeroM and subdirectories
-
-% If it does exist, then check that there aren't more than one
-% version active.
+    
+    % If it does exist, then check that there aren't more than one
+    % version active.
 else
-
+    
     w = which('omeroVersion','-ALL');
     sz = size(w);
     sz = sz(1);
@@ -98,7 +98,7 @@ else
         warning('OMERO:loadOmero','More than one OMERO version found!');
         disp(char(w));
     end
-
+    
 end
 
 %
@@ -107,13 +107,12 @@ end
 %
 % Either first in the ICE_CONFIG environment variable
 ice_config = getenv('ICE_CONFIG');
-if strcmp(ice_config, '')
-  % Then in the current directory.
-  if exist('ice.config','file')
-      ice_config = fullfile('.', 'ice.config');
-  elseif exist(fullfile(findOmero, 'ice.config'), 'file')
-      ice_config = fullfile(findOmero, 'ice.config');
-  end
+if isempty(ice_config)
+    % Then in the current directory.
+    ice_config = which('ice.config');
+    if isempty(ice_config) && exist(fullfile(findOmero, 'ice.config'), 'file')==2
+        ice_config = fullfile(findOmero, 'ice.config');
+    end
 else
     % Clearing the ice_config now, since it is available
     % in the environment, and Ice will pick it up
@@ -123,38 +122,28 @@ end
 
 % If one or more return values are specified, then load some useful
 % objects and return them.
+
+% Create client
 if (nargout >=1 )
-    props = java.util.Properties();
-    for n = 1:length(varargin)
-        if strcmp(class(varargin{n}), 'java.util.Properties')
-            props = varargin{n};
-        end
-    end
-
-    % If we've found ice_config and there's no other
-    % Ice.Config property set, then set it.
-    if 0==strcmp(ice_config, '')
-        if strcmp(char(props.getProperty('Ice.Config')), '')
-            props.setProperty('Ice.Config', ice_config);
-        end
-    end
-
-    % If no properties in varargins but ice_config set
-    % then ice_config is not set. This is difficult to
-    % handle because we don't know what's in the varargin
-    % in order to pick the proper constructor (ticket:6892)
-
     if nargin > 0
+        % Call constructor passing arguments
         client = javaObject('omero.client', varargin{:});
-    else
-        client = javaObject('omero.client', props);
+    else        
+        assert(~isempty(ice_config),'No ice config found');        
+    
+        % If no properties in varargins but ice_config set
+        % then ice_config is not set. This is difficult to
+        % handle because we don't know what's in the varargin
+        % in order to pick the proper constructor (ticket:6892)
+        
+        ice_config_list=javaArray('java.io.File',1);
+        ice_config_list(1)=java.io.File(ice_config);
+        client = javaObject('omero.client', ice_config_list);
     end
 end
 
-if (nargout >= 2)
-    session = client.createSession();
-end
+% Create session
+if (nargout >= 2), session = client.createSession(); end
 
-if (nargout >= 3)
-    gateway = session.createGateway();
-end
+% Create gateway
+if (nargout >= 3), gateway = session.createGateway(); end 
