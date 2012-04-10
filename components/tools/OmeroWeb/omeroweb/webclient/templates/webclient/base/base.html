@@ -41,7 +41,7 @@
 
 {% block middle_header_right %}
     <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-    <a href="{% url wamyaccount 'edit' %}" title="Edit Account"> {{ eContext.user.getFullName }}</a>
+    <a href="{% url wamyaccount 'edit' %}" title="Edit Account"> {{ ome.user.getFullName }}</a>
     <a href="{% url load_template 'help' %}">{% trans "Help" %}</a>
     {% include "webclient/base/logout.html" %}
 {% endblock %}
