@@ -28,5 +28,4 @@ class BaseHelp(BaseController):
 
     def __init__(self, conn, **kw):
         BaseController.__init__(self, conn)
-        self.eContext['breadcrumb'] = ['Help'] 
 
