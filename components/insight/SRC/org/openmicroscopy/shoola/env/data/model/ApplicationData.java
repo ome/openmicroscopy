@@ -125,7 +125,8 @@ public class ApplicationData {
 		this(new File(path));
 	}
 
-	public ApplicationData(Icon icon, String applicationName, String executablePath) {
+	public ApplicationData(Icon icon, String applicationName,
+			String executablePath) {
 		this.applicationIcon = icon;
 		this.applicationName = applicationName;
 		this.executable = executablePath;

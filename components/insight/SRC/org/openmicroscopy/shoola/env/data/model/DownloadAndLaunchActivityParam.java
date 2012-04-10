@@ -1,5 +1,4 @@
 /*
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -20,20 +19,47 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.data.model.appdata;
+package org.openmicroscopy.shoola.env.data.model;
 
-import com.sun.jna.Pointer;
+import java.io.File;
+
+import javax.swing.Icon;
+
+import omero.model.OriginalFile;
 
 /**
- * Structure used to store enumerated languages and code pages on windows
- * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
+ * 
+ * 
+ * @author Scott Littlewood, <a
+ *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class LANGANDCODEPAGE extends com.sun.jna.Structure {
-	public short wLanguage;
-	public short wCodePage;
+public class DownloadAndLaunchActivityParam extends DownloadActivityParam {
 
-	public LANGANDCODEPAGE(Pointer p) {
-		super(p);
+	/** The third party application. */
+	private ApplicationData data;
+
+	public DownloadAndLaunchActivityParam(long id, int index, File folder,
+			Icon icon) {
+		super(id, index, folder, icon);
 	}
+
+	public DownloadAndLaunchActivityParam(OriginalFile originalFile, File file, Icon icon) {
+		super(originalFile,file,icon);
+	}
+
+	/**
+	 * Sets the application data.
+	 * 
+	 * @param data The third party application or <code>null</code>.
+	 */
+	public void setApplicationData(ApplicationData data) { this.data = data; }
+
+	/**
+	 * Returns the application data.
+	 * 
+	 * @return See above.
+	 */
+	public ApplicationData getApplicationData() { return data; }
+
 }

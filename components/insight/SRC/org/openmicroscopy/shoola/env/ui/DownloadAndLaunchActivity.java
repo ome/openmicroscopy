@@ -1,5 +1,4 @@
 /*
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -20,20 +19,14 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.data.model.appdata;
+package org.openmicroscopy.shoola.env.ui;
 
-import com.sun.jna.Pointer;
-
-/**
- * Structure used to store enumerated languages and code pages on windows
+/** 
+ * 
+ *
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class LANGANDCODEPAGE extends com.sun.jna.Structure {
-	public short wLanguage;
-	public short wCodePage;
+public class DownloadAndLaunchActivity {
 
-	public LANGANDCODEPAGE(Pointer p) {
-		super(p);
-	}
 }

@@ -114,16 +114,19 @@ public class DownloadActivity
     {
     	File folder = parameters.getFolder();
     	File directory = folder;
+    	
     	if (parameters.getApplicationData() == null)
     		directory = folder.getParentFile();
+    	
     	File[] files = directory.listFiles();
     	String dirPath = directory.getAbsolutePath()+File.separator;
     	String value = folder.getName();
+    	
     	if (parameters.getApplicationData() != null) {
     		value = parameters.getOriginalFileName();
     		return value;
     	}
-    		
+    	
     	if (parameters.getFileName() != null)
     		value = parameters.getFileName();
     	String extension = null;
