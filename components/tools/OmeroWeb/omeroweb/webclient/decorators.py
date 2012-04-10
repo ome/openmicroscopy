@@ -101,6 +101,8 @@ class render_response(omeroweb.decorators.render_response):
 
         self.load_settings(request, context, conn)
 
+        if 'nav' not in context:
+            context['nav'] = {}
         # used for pagination
         context['nav']['view'] = request.REQUEST.get('view')
 

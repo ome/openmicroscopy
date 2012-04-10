@@ -75,12 +75,12 @@
             <table>
               <tbody>
                 <tr><td class="form"><img src="{% url wamyphoto %}" width="50" height="50" class="imgzoom"/></td><td colspan="2">&nbsp;</td></tr>
-                <tr><td class="form"><label>Avatar</label></td><td colspan="2"><a href="{% url wamanageavatar eventContext.userId %}">edit <img title="Edit avatar" src="{% static "webclient/image/color_line16.png" %}" /></a> {% if myaccount.hasAvatar %}or <a href="{% url wamanageavatar eventContext.userId "deletephoto" %}">delete <img title="Change avatar" src="{% static "webclient/image/cancel16.png" %}" /></a>{% endif %}</td></tr>
+                <tr><td class="form"><label>Avatar</label></td><td colspan="2"><a href="{% url wamanageavatar ome.eventContext.userId %}">edit <img title="Edit avatar" src="{% static "webclient/image/color_line16.png" %}" /></a> {% if myaccount.hasAvatar %}or <a href="{% url wamanageavatar ome.eventContext.userId "deletephoto" %}">delete <img title="Change avatar" src="{% static "webclient/image/cancel16.png" %}" /></a>{% endif %}</td></tr>
                 {% for field in form %}
                 <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
                 {% endfor %}
                 {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>
-                {% else %}<tr><td class="form"><label>Password:</label> </td><td colspan="2"><a href="{% url wamanagechangepasswordid eventContext.userId %}">change password <img title="Change password" src="{% static "webclient/image/color_line16.png" %}" /></a></td></tr>
+                {% else %}<tr><td class="form"><label>Password:</label> </td><td colspan="2"><a href="{% url wamanagechangepasswordid ome.eventContext.userId %}">change password <img title="Change password" src="{% static "webclient/image/color_line16.png" %}" /></a></td></tr>
                 {% endif %}
               </tbody>
               <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
