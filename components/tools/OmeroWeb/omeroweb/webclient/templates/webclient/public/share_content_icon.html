@@ -40,20 +40,10 @@
             var handleClickSelection = function(event) {
                 
                 var $clickedImage = $(event.target);
-                //var thumbs = $("#dataIcons img");
-                //var selIndex = thumbs.index(event.target);
                 
                 var thumbs = $("#dataIcons img");
                 var selIndex = thumbs.index(event.target);
 
-                // regular click - remove selection
-                //thumbs.parent().removeClass("ui-selected");
-                //$("#dataIcons li input").each(function(){
-                //    this.checked = false;
-                //});
-                // and select a single image
-                //$clickedImage.parent().addClass("ui-selected");
-                //primaryIndex = selIndex;
                 datatree.deselect_all();
                 thumbs.parent().removeClass("ui-selected");
                 
@@ -63,18 +53,6 @@
                 if(!datatree.is_selected(selectee)) datatree.select_node(selectee);
                 primaryIndex = selIndex;
             }
-
-            // plugin to handle drag-select of images
-            $("ul#dataIcons").selectable({
-                filter: 'li',
-                distance: 2,
-                stop: function(){  
-                },
-                start: function(){
-                }
-            });
-            
-            
 
         });
 
@@ -88,7 +66,11 @@
     <ul id="dataIcons">
         {% for c in share.imageInShare %}
         <li id="{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
-            <img id="{{ c.id }}" src="{% if c.isOwned %}{% url render_thumbnail c.id %}{% else %}{% url render_thumbnail c.id share.share.id %}{% endif %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+            {% if share.share.isOwned %}
+            <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+            {% else %}
+            <img id="{{ c.id }}" src="{% url render_thumbnail c.id share.share.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+            {% endif %}
         </li>
         {% endfor %}
     </ul>
