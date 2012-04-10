@@ -439,10 +439,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     
     # check view
     view = request.REQUEST.get("view")
-    if view is not None:
-        request.session['nav']['view'] = view
-    else:
-        view = request.session['nav']['view']
     
     # get url to redirect. Not sure what this is used for?
     url = None
@@ -544,13 +540,6 @@ def load_searching(request, form=None, conn=None, **kwargs):
     """
     request.session.modified = True
     
-    # check view
-    view = request.REQUEST.get("view")
-    if view is not None:
-        request.session['nav']['view'] = view
-    else:
-        view = request.session['nav']['view']
-    
     # get url to redirect
     url = None
     try:
@@ -633,10 +622,6 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
             
     # check view
     view = request.REQUEST.get("view")
-    if view is not None:
-        request.session['nav']['view'] = view
-    else:
-        view = request.session['nav']['view']
     
     # get url to redirect
     url = None
@@ -1820,10 +1805,6 @@ def load_public(request, share_id=None, conn=None, **kwargs):
     
     # check view
     view = request.REQUEST.get("view")
-    if view is not None:
-        request.session['nav']['view'] = view
-    else:
-        view = request.session['nav']['view']
     
     # get url to redirect
     url = None
