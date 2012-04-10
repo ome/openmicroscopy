@@ -226,7 +226,7 @@
                     var pr = $(data.args[1]);
                     
                     data.args[0].each(function (i) {
-                        url = '/webclient/action/removefromshare/share/'+pr.attr('id').split('-')[1]+'/'
+                        url = '{% url manage_action_containers "removefromshare" "share" %}'+pr.attr('id').split('-')[1]+'/'
                         $.ajax({
                             async : false,
                             url: url,
