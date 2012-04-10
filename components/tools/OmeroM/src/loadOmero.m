@@ -62,18 +62,17 @@ function [client,session,gateway]=loadOmero(varargin)
 %   [client, session, gateway] = loadOmero;
 %
 
-disp('');
-disp('--------------------------');
-disp('OmeroMatlab Toolbox ');
-disp(omeroVersion);
-disp('--------------------------');
-disp('');
-
-
 % Check if "omero.client" is already on the classpath, if not
 % then add the omero_client.jar to the javaclasspath.
 if exist('omero.client','class') == 0
     
+    disp('');
+    disp('--------------------------');
+    disp('OmeroMatlab Toolbox ');
+    disp(omeroVersion);
+    disp('--------------------------');
+    disp('');
+
     % Add the omero_client jar to the Java dynamic classpath
     % This will allow the import omero.* statement to pass
     % successfully.
@@ -101,49 +100,49 @@ else
     
 end
 
-%
-% Try to find a valid configuration file and use it to create an initial
-% omero_client object.
-%
-% Either first in the ICE_CONFIG environment variable
-ice_config = getenv('ICE_CONFIG');
-if isempty(ice_config)
-    % Then in the current directory.
-    ice_config = which('ice.config');
-    if isempty(ice_config) && exist(fullfile(findOmero, 'ice.config'), 'file')==2
-        ice_config = fullfile(findOmero, 'ice.config');
-    end
-else
-    % Clearing the ice_config now, since it is available
-    % in the environment, and Ice will pick it up
-    % (assuming it was set before MATLAB started)
-    ice_config = '';
-end
 
 % If one or more return values are specified, then load some useful
 % objects and return them.
 
-% Create client
-if (nargout >=1 )
-    if nargin > 0
-        % Call constructor passing arguments
-        client = javaObject('omero.client', varargin{:});
-    else        
-        assert(~isempty(ice_config),'No ice config found');        
-    
-        % If no properties in varargins but ice_config set
-        % then ice_config is not set. This is difficult to
-        % handle because we don't know what's in the varargin
-        % in order to pick the proper constructor (ticket:6892)
-        
-        ice_config_list=javaArray('java.io.File',1);
-        ice_config_list(1)=java.io.File(ice_config);
-        client = javaObject('omero.client', ice_config_list);
+if nargout==0, return; end
+
+% Create client using constructor
+if nargin > 0
+    % Call constructor passing arguments
+    client = javaObject('omero.client', varargin{:});
+else
+    % Try to find a valid configuration file and use it to create an initial
+    % omero_client object.
+    %
+    % Either first in the ICE_CONFIG environment variable
+    ice_config = getenv('ICE_CONFIG');
+    if isempty(ice_config)
+        % Then in the current directory.
+        ice_config = which('ice.config');
+        if isempty(ice_config) && exist(fullfile(findOmero, 'ice.config'), 'file')==2
+            ice_config = fullfile(findOmero, 'ice.config');
+        end
+    else
+        % Clearing the ice_config now, since it is available
+        % in the environment, and Ice will pick it up
+        % (assuming it was set before MATLAB started)
+        ice_config = '';
     end
+
+    assert(~isempty(ice_config),'No ice config found');
+    
+    % If no properties in varargins but ice_config set
+    % then ice_config is not set. This is difficult to
+    % handle because we don't know what's in the varargin
+    % in order to pick the proper constructor (ticket:6892)
+    
+    ice_config_list=javaArray('java.io.File',1);
+    ice_config_list(1)=java.io.File(ice_config);
+    client = javaObject('omero.client', ice_config_list);
 end
 
-% Create session
-if (nargout >= 2), session = client.createSession(); end
+if (nargout <2), return; end
+session = client.createSession();
 
-% Create gateway
-if (nargout >= 3), gateway = session.createGateway(); end 
+if (nargout <3), return; end
+gateway = session.createGateway();  
