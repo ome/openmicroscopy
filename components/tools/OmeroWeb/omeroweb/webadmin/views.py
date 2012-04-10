@@ -76,6 +76,7 @@ from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoole
 from omeroweb.webadmin.custom_models import Server
 
 from omeroweb.webclient.decorators import login_required
+from omeroweb.webclient.decorators import render_response
 from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
@@ -85,15 +86,23 @@ logger.info("INIT '%s'" % os.getpid())
 ################################################################################
 # decorators
 
-def isAnythingCreated(f):
-    def wrapped (request, *args, **kwargs):
-        kwargs["firsttime"] = kwargs["conn"].isAnythingCreated()
-        if kwargs['firsttime']:
-            kwargs['msg'] = _('User must be in a group - You have not created any groups yet. Click <a href="%s">here</a> to create a group') % (reverse(viewname="wamanagegroupid", args=["new"]))
-        #return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["new"]))   
-        return f(request, *args, **kwargs)
+class render_response_admin(omeroweb.webclient.decorators.render_response):
+    """ Subclass for adding additional data to the 'context' dict passed to templates """
 
-    return wrapped
+    def prepare_context(self, request, context, *args, **kwargs):
+        """
+        We extend the webclient render_response to check if any groups are created.
+        If not, add an appropriate message to the template context
+        """
+        super(render_response_admin, self).prepare_context(request, context, *args, **kwargs)
+
+        if 'info' not in context:
+            context['info'] = {}
+        context['info']['today'] = _("Today is %(tday)s") % {'tday': datetime.date.today()}
+        noGroupsCreated = kwargs["conn"].isAnythingCreated()
+        if noGroupsCreated:
+            msg = _('User must be in a group - You have not created any groups yet. Click <a href="%s">here</a> to create a group') % (reverse(viewname="wamanagegroupid", args=["new"]))
+            context['info']['message'] = msg
 
 ################################################################################
 # views controll
@@ -139,7 +148,6 @@ def forgotten_password(request, **kwargs):
     return HttpResponse(rsp)
 
 @login_required()
-@isAnythingCreated
 def index(request, **kwargs):
     conn = None
     try:
@@ -161,34 +169,27 @@ def logout(request, **kwargs):
     return HttpResponseRedirect(reverse("waindex"))
 
 @login_required(isAdmin=True)
-@isAnythingCreated
+@render_response_admin()
 def experimenters(request, conn=None, **kwargs):
     experimenters = True
     template = "webadmin/experimenters.html"
     
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
-    if kwargs['firsttime']:
-        info['message'] = kwargs["msg"]
+    info = {'experimenters':experimenters}
     
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = BaseExperimenters(conn)
     
     context = {'nav':request.session['nav'], 'info':info, 'eventContext':eventContext, 'controller':controller}
-    
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context['template'] = template
+    return context
 
 @login_required(isAdmin=True)
-@isAnythingCreated
+@render_response_admin()
 def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     experimenters = True
     template = "webadmin/experimenter_form.html"
     
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
-    if kwargs['firsttime']:
-        info['message'] = kwargs["msg"]
+    info = {'experimenters':experimenters}
     
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
@@ -293,17 +294,17 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
         return HttpResponseRedirect(reverse("waexperimenters"))
     
     context['nav'] = request.session['nav']
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context['template'] = template
+    return context
+
 
 @login_required()
+@render_response_admin()
 def manage_password(request, eid, conn=None, **kwargs):
     experimenters = True
     template = "webadmin/password.html"
     
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
+    info = {'experimenters':experimenters}
 
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
@@ -335,45 +336,36 @@ def manage_password(request, eid, conn=None, **kwargs):
                 
     context = {'info':info, 'error':error, 'eventContext':eventContext, 'password_form':password_form, 'eid': eid}
     context['nav'] = request.session['nav']
-    
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context['template'] = template
+    return context
+
 
 @login_required(isAdmin=True)
-@isAnythingCreated
+@render_response_admin()
 def groups(request, conn=None, **kwargs):
     groups = True
     template = "webadmin/groups.html"
     
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'groups':groups}
-    if kwargs['firsttime']:
-        info['message'] = kwargs["msg"]
+    info = {'groups':groups}
     
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = BaseGroups(conn)
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
     context['nav'] = request.session['nav']
-    
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context['template'] = template
+    return context
+
 
 @login_required(isAdmin=True)
-@isAnythingCreated
+@render_response_admin()
 def manage_group(request, action, gid=None, conn=None, **kwargs):
     groups = True
     template = "webadmin/group_form.html"
     
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'groups':groups}
-    if kwargs['firsttime']:
-        info['message'] = kwargs["msg"]
-    
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
+    info = {'groups':groups}
     controller = BaseGroup(conn, gid)
     
     if action == 'new':
@@ -438,17 +430,17 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         return HttpResponseRedirect(reverse("wagroups"))
     
     context['nav'] = request.session['nav']
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context['template'] = template
+    return context
+
 
 @login_required(isGroupOwner=True)
+@render_response_admin()
 def manage_group_owner(request, action, gid, conn=None, **kwargs):
     myaccount = True
     template = "webadmin/group_form_owner.html"
     
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
+    info = {'myaccount':myaccount}
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
     controller = BaseGroup(conn, gid)
@@ -472,27 +464,25 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
         return HttpResponseRedirect(reverse("wamyaccount"))
     
     context['nav'] = request.session['nav']
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context['template'] = template
+    return context
+
 
 @login_required(isAdmin=True)
+@render_response_admin()
 def ldap(request, conn=None, **kwargs):
     scripts = True
     template = "webadmin/ldap_search.html"
     
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'scripts':scripts}
+    info = {'scripts':scripts}
+
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = None
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
     context['nav'] = request.session['nav']
-    
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context['template'] = template
+    return context
 
 #@login_required(isAdmin=True)
 #def enums(request, conn=None, **kwargs):
@@ -558,12 +548,14 @@ def ldap(request, conn=None, **kwargs):
 def imports(request, **kwargs):
     return HttpResponseRedirect(reverse("waindex"))
 
+
 @login_required()
+@render_response_admin()
 def my_account(request, action=None, conn=None, **kwargs):
     myaccount = True
     template = "webadmin/myaccount.html"
     
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
+    info = {'myaccount':myaccount}
     eventContext = {'userId':conn.getEventContext().userId,'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
     myaccount = BaseExperimenter(conn)
@@ -601,9 +593,9 @@ def my_account(request, action=None, conn=None, **kwargs):
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
         
     context = {'info':info, 'eventContext':eventContext, 'form':form, 'ldapAuth': myaccount.ldapAuth, 'myaccount':myaccount}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
+
 
 @login_required()
 def myphoto(request, conn=None, **kwargs):
@@ -612,11 +604,12 @@ def myphoto(request, conn=None, **kwargs):
 
 
 @login_required()
+@render_response_admin()
 def manage_avatar(request, action=None, conn=None, **kwargs):
     myaccount = True
     template = "webadmin/avatar.html"
     
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
+    info = {'myaccount':myaccount}
     eventContext = {'userId':conn.getEventContext().userId,'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
     myaccount = BaseExperimenter(conn)
@@ -652,27 +645,24 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
     
     photo_size = conn.getExperimenterPhotoSize()
     context = {'info':info, 'eventContext':eventContext, 'form_file':form_file, 'edit_mode':edit_mode, 'photo_size':photo_size, 'myaccount':myaccount}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
 
 
 @login_required()
+@render_response_admin()
 def drivespace(request, conn=None, **kwargs):
     drivespace = True
     template = "webadmin/drivespace.html"
     
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'drivespace':drivespace}
+    info = {'drivespace':drivespace}
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = BaseDriveSpace(conn)
         
     context = {'info':info, 'eventContext':eventContext, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace }}
     context['nav'] = request.session['nav']
-    
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context['template'] = template
+    return context
 
 
 @login_required()
