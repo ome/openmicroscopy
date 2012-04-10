@@ -22,7 +22,7 @@ function [client,session,gateway]=loadOmero(varargin)
 %   c = loadOmero('localhost');
 %
 %   % Host string and port
-%   c = loadOmero('localhost,'14064');
+%   c = loadOmero('localhost','14064');
 %
 %   % Via a Properties object
 %   props = java.util.Properties();
@@ -126,7 +126,7 @@ end
 if (nargout >=1 )
     props = java.util.Properties();
     for n = 1:length(varargin)
-        if strcmp(varargin{n}.class, 'java.util.Properties')
+        if strcmp(class(varargin{n}), 'java.util.Properties')
             props = varargin{n};
         end
     end
