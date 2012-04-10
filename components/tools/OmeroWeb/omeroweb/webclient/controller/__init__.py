@@ -33,7 +33,7 @@ class BaseController(object):
     def __init__(self, conn, **kw):
         self.conn = conn
         self.eContext['image_limit'] = PAGE
-        self.eContext['context'] = self.conn.getEventContext()
+        #self.eContext['context'] = self.conn.getEventContext()
         gr = self.conn.getObject("ExperimenterGroup", self.conn.getEventContext().groupId)
         self.eContext['isReadOnly'] = gr.isReadOnly()
         self.eContext['isLeader'] = gr.isLeader()

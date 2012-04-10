@@ -23,7 +23,7 @@
     <li class="menu_link userdata usertags basket status"><a href="{% url load_template "userdata" %}" title="Browse Data via Projects, Tags etc">{% trans "Data" %}</a></li>
     <li class="menu_link history"><a href="{% url load_template "history" %}" title="History">{% trans "History" %}</a></li>
     <li class="menu_link search"><a href="{% url load_template "search" %}" title="Search">{% trans "Search" %}</a></li>
-    {% if eContext.context.isAdmin %}
+    {% if ome.eventContext.isAdmin %}
     <li class="menu_link admin"><a href="{% url waindex %}" title="Web-Admin: Edit users and groups">{% trans "Admin" %}</a></li>
     {% endif %}
     

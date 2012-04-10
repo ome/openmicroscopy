@@ -245,9 +245,8 @@ def index(request, conn=None, **kwargs):
     
     controller = BaseIndex(conn)
     #controller.loadData()
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
     
-    context = {'nav':request.session['nav'], 'controller':controller, 'eContext': controller.eContext, 'form_active_group':form_active_group}
+    context = {'nav':request.session['nav'], 'controller':controller, 'eContext': controller.eContext}
     context['template'] = template
     return context
 
@@ -1986,7 +1985,7 @@ def basket_action (request, action=None, conn=None, **kwargs):
         basket = BaseBasket(conn)
         basket.load_basket(request)
         
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups'], 'url':url})
+        form_active_group = ActiveGroupForm(initial={'activeGroup':conn.getEventContext().groupId, 'mygroups': basket.eContext['allGroups'], 'url':url})
         
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form_active_group':form_active_group }
     context['template'] = template
@@ -2092,7 +2091,7 @@ def help(request, conn=None, **kwargs):
     
     controller = BaseHelp(conn)
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':conn.getEventContext().groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
     
     context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
     context['template'] = template

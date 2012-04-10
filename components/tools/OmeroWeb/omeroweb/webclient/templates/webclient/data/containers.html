@@ -1003,7 +1003,7 @@
 
                 <div class="gray_border">
                 {% for grp in eContext.allGroups %}
-                    {% ifnotequal grp.id eContext.context.groupId %}
+                    {% ifnotequal grp.id ome.eventContext.groupId %}
                         <div class='group_option'>
                             <input type="radio" name="group_id" value="{{ grp.id }}" style="display:none"/>
                             <img
