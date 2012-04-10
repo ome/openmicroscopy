@@ -97,6 +97,7 @@ class render_response(omeroweb.decorators.render_response):
         context['ome'] = {}
         context['ome']['eventContext'] = conn.getEventContext
         context['ome']['user'] = conn.getUser
+        context['ome']['request_error'] = request.REQUEST.get('error')
 
         self.load_settings(request, context, conn)
 

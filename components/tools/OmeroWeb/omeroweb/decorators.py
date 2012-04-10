@@ -269,7 +269,7 @@ class login_required(object):
             conn_share = ctx.prepare_share_connection(request, conn, share_id)
             if conn_share is not None:
                 ctx.on_share_connection_prepared(request, conn_share)
-            kwargs['error'] = request.REQUEST.get('error')
+            #kwargs['error'] = request.REQUEST.get('error')
             kwargs['conn'] = conn
             kwargs['conn_share'] = conn_share
             kwargs['url'] = url

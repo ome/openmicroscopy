@@ -229,8 +229,6 @@ def index(request, conn=None, **kwargs):
     """
     template = "webclient/index/index.html"
     
-    request.session['nav']['error'] = request.REQUEST.get('error')
-    
     url = None
     try:
         url = kwargs["url"]
@@ -341,7 +339,6 @@ def load_template(request, menu, conn=None, **kwargs):
         template = "webclient/data/container_tags.html"
     else:
         template = "webclient/%s/%s.html" % (menu,menu)
-    request.session['nav']['error'] = request.REQUEST.get('error')
     
     url = None
     try:
