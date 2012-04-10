@@ -431,10 +431,13 @@ def load_template(request, menu, conn=None, **kwargs):
             
     else:
         form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
-            
-    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups'], 'url':url})
+
+    myGroups = list(conn.getGroupsMemberOf())
+    myGroups.sort(key=lambda x: x.getName().lower())
+    form_active_group = ActiveGroupForm(initial={'activeGroup':conn.getEventContext().groupId, 'mygroups':myGroups, 'url':url})
     
-    context = {'nav':request.session['nav'], 'url':url, 'init':init, 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users}
+    context = {'nav':request.session['nav'], 'url':url, 'init':init, 'myGroups':myGroups,
+        'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users}
     context['template'] = template
     return context
 
@@ -1985,9 +1988,7 @@ def basket_action (request, action=None, conn=None, **kwargs):
         basket = BaseBasket(conn)
         basket.load_basket(request)
         
-        form_active_group = ActiveGroupForm(initial={'activeGroup':conn.getEventContext().groupId, 'mygroups': basket.eContext['allGroups'], 'url':url})
-        
-        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form_active_group':form_active_group }
+        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket }
     context['template'] = template
     return context
 
@@ -2091,9 +2092,7 @@ def help(request, conn=None, **kwargs):
     
     controller = BaseHelp(conn)
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':conn.getEventContext().groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
-    
-    context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
+    context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller}
     context['template'] = template
     return context
 

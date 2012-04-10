@@ -41,11 +41,11 @@ class BaseController(object):
             self.eContext['isEditable'] = True
         else:
             self.eContext['isEditable'] = False
-        self.eContext['user'] = self.conn.getUser()        
-        grs = list(self.conn.getGroupsMemberOf())
-        grs.sort(key=lambda x: x.getName().lower())
-        self.eContext['memberOfGroups'] = grs
-        self.eContext['allGroups'] = grs
+        #self.eContext['user'] = self.conn.getUser()        
+        #grs = list(self.conn.getGroupsMemberOf())
+        #grs.sort(key=lambda x: x.getName().lower())
+        #self.eContext['memberOfGroups'] = grs
+        #self.eContext['allGroups'] = grs
         self.eContext['advice'] = None
     
     def getShareId(self):

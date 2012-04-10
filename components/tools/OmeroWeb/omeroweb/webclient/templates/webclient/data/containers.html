@@ -993,7 +993,7 @@
 
         <!-- hidden form for chgrp -->
         <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}">
-            {% if eContext.allGroups|length_is:"1" %}
+            {% if myGroups|length_is:"1" %}
                 <p>
                     You are only in a single group.<br>
                     You cannot move data to another group.
@@ -1002,7 +1002,7 @@
                 <p>Choose group to move data</p>
 
                 <div class="gray_border">
-                {% for grp in eContext.allGroups %}
+                {% for grp in myGroups %}
                     {% ifnotequal grp.id ome.eventContext.groupId %}
                         <div class='group_option'>
                             <input type="radio" name="group_id" value="{{ grp.id }}" style="display:none"/>
