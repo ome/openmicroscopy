@@ -720,9 +720,10 @@
             {% else %}
                 {% if manager.acquisition %}
                 {% if manager.acquisition.isOwned %}
-				<div id="acquisitionname-{{ manager.acquisition.id }}">
+				<div id="acquisitionname-{{ manager.acquisition.id }}" class="data_heading">
 					<h1>
-						<p id="acquisitionname-{{ manager.acquisition.id }}-name" style="word-wrap: break-word;">{{ manager.acquisition.name }}</p></h1>
+						<p id="acquisitionname-{{ manager.acquisition.id }}-name" style="word-wrap: break-word;">{{ manager.acquisition.name }}</p>
+					</h1>
 					<button class="btn silver btn_edit" alt="e" title="edit">
 						<span></span>
 					</button>

@@ -184,48 +184,78 @@
 <div id="content_details">
     <h1>Basket</h1>
     
-    <div id="toolbar" class="toolbar_noborder">
-        <input type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url basket_action %}';">
-        <input type="image" src="{% static "webclient/image/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();">
-        <input disabled="true" class="toggleEnabled" type="image" src="{% static "webclient/image/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();">
-        <input type="image" src="{% static "webclient/image/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href='{% url empty_basket %}';">
-        <input disabled="true" class="toggleEnabled" type="button" value="Create Share" title="Create a 'Share' with the selected images" onclick="makeShare('{% url basket_action 'toshare' %}');">
-    </div>
+    
+	
     <div class="clear"> </div>
 
     {% if basket.sizeOfBasket %}
 
-        <form class="quicksearch" id="quicksearch" action="#">
-            <label for="id_search">Filter:</label>
-            <input type="text" id="id_search">
-            <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span>
-        </form>
+		
+		<div id="center_panel_header" >
+		
+				<form class="search filtersearch" id="filtersearch" action="#">
+					<input type="text" id="id_search" value="Filter">
+					<span class="loading">
+						<img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
+					</span>
+				</form>
+		
+				<h1>Basket</h1>
+		
+			    <ul class="toolbar">
+			        <li>
+						<input id="refreshButton" alt="Refresh" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" title="Refresh" onclick="document.location.href='{% url basket_action %}';">
+					</li>
+					
+			        <li>
+						<input id="chatButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_chat.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();">
+					</li>
+					
+					
+					<li>
+				        <input disabled="true" class="toggleEnabled button" type="image" src="{% static "webclient/image/icon_toolbar_remove.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();">
+					 </li>
+					 
+					 <li>
+					    <input type="image" class="button" src="{% static "webclient/image/icon_toolbar_clean.png" %}" alt="Clean" title="Clean" onclick="document.location.href='{% url empty_basket %}';">
+					</li>
+					
+			        <input disabled="true" class="toggleEnabled btn silver" type="button" value="Create Share" title="Create a 'Share' with the selected images" onclick="makeShare('{% url basket_action 'toshare' %}');">
+			    </ul>
+		
+		</div>
+		
 
+      
+		<div>
         <table id="dataTable" class="tablesorter">
             <thead> 
                 <tr> 
-                    <th class="action">{% trans "Image" %}</th> 
-                    <th class="desc">{% trans "Name" %}</th> 
-                    <th class="roles">{% trans "Date" %}</th> 
+                    <th class="table_images">{% trans "Image" %}</th> 
+                    <th class="table_desc">{% trans "Name" %}</th> 
+                    <th class="table_date">{% trans "Date" %}</th> 
                 </tr> 
             </thead>
             <tbody>
                 {% for c in basket.imageInBasket %}
                     <tr id="{{ c.id }}">
-                        <td class="action">
+                        <td class="image">
                             <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
                             <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
                         </td>
                         <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% static "webgateway/img/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% static "webclient/image/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
-                        <td class="roles">{{ c.getDate }}</td>                    
+                        <td class="date">{{ c.getDate }}</td>                    
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
 
     {% else %}
-        <p>{% trans "Basket is empty." %}</p>
+        <p class="center_message message_nodata">{% trans "Basket is empty" %}</p>
     {% endif %}
+    
+	</div>
+	
 </div>
 
 <!-- hidden form for creating share - shown in dialog & loaded by AJAX -->

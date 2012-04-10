@@ -84,31 +84,29 @@
 
 {% endblock %}
 
-
 {% block middle_header_right %}
-    {% include "webclient/base/search_field.html" %}
-    <li id="user_dropdown">
-        <a id="show_user_dropdown">
-            <img src="{% url wamyphoto %}" />
-            <span>{{ eContext.user.getFullName }}</span>
-        </a>
-        <ul>
-            <li><a href="{% url wamyaccount 'edit' %}" title="Account Settings"> Accounts Settings</a></li>
-            <li><a href="{% url load_template 'help' %}">{% trans "Help" %}</a></li>
-            {% include "webclient/base/logout.html" %}
-        </ul>
-    </li>
-    {% include "webclient/base/script_launch.html" %}
+    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
+	
+	{% include "webclient/base/basket_info.html" %}
+	
+	<ul class="header_toolbar">
+		{% include "webclient/base/script_launch.html" %}
+	    <!--{% include "webclient/base/basket_info.html" %} -->
+	    {% include "webclient/base/activities_info.html" %}
+	</ul>
+	
+	{% include "webclient/base/search_field.html" %}
+	{% include "webclient/base/user_dropdown.html" %}
+	{% comment %}
+		{% include "webclient/base/logout.html" %}
+	{% endcomment %}
 {% endblock %}
 
 
 {% block middle_header_left %}
     {% include "webclient/base/menu.html" %}
-    <div style="overflow:hidden;">
-    <!--{% include "webclient/base/basket_info.html" %} -->
-    <!--{% include "webclient/base/activities_info.html" %} -->
-    </div>
 {% endblock %}
+
 
 
 {% block right %}
@@ -121,7 +119,7 @@
                 <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
             {% endfor %}
         </ul>
-        <div id="metadata_general"></div>
+        <div id="metadata_general" class="right_tab_content"></div>
         <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
         {% for rt in nav.right_plugins %}
             <div id="{{ rt.plugin_id }}" class="right_tab_content" style="padding:10px"></div>

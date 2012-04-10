@@ -145,18 +145,16 @@
 	
 	.header_toolbar > li:hover {
 		background-color: hsla(210,40%,30%,.3);
-		cursor:pointer;
 	}
 	
+
 	.header_toolbar > li:active, .header_toolbar > li:focus, .active {
 		background-color: hsla(210,40%,25%,.3) !important;
 		-webkit-box-shadow:inset 0 1px 2px hsla(210,40%,20%,.4) !important;
 		background-image: -webkit-gradient(linear, left bottom, left top, from(hsla(210,40%,20%,.2)), to(hsla(210,40%,20%,0))) !important;		
 	}
 	
-	.active {
-		border:solid 3px red !important;
-	}
+	
 	
 	.header_toolbar > li:first-child{
 		-webkit-border-top-left-radius:3px;
@@ -187,8 +185,8 @@
 			display:block;
 			min-width:32px !important;
 			height:25px;
-			/*text-indent:-9999px; */
-			position:relative;	
+			position:relative;
+			cursor:pointer;	
 		}
 		
 		
@@ -735,7 +733,7 @@
 	}
 	
 	.right_tab_content {
-		top:28px;
+		top:27px;
 	}
 	
 

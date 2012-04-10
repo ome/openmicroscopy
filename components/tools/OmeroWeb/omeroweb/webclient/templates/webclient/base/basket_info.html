@@ -28,7 +28,6 @@ var calculateCartTotal = function(total){
     if ((typeof total == 'undefined') || (total == '0') || (total == 0)) {
         $("#basket").css('opacity', 0.2);
         $('#cartTotal').hide();
-		$('#basket_panel').hide();
     } else {
         $("#launch_basket").css('opacity', 1.0);
         $('#cartTotal').text(total + '').show();
@@ -72,6 +71,8 @@ $(document).ready(function() {
 
 
 	<ul class="header_toolbar" id="basket">
+		
+		
 		<li id="launch_basket" title="Basket">
 	        <a href="#" class="toolbar_button">
 		        <span id="cartTotal">0</span>
@@ -81,10 +82,11 @@ $(document).ready(function() {
 				
 				<div class="info_panel_title">
 					<h3>Basket<img id='basket_spinner' src="{% static "webgateway/img/spinner.gif" %}"/></h3>
-					<a href="{% url basket_action %}" title="Go to basket page to Share basket images etc"><span>{% trans "Manage Basket" %}</span></a>
+					<a href="{% url basket_action %}" title="Go to basket page to Share basket images etc">{% trans "Manage Basket" %}</a>
+				
+					
 				</div>
-	            
-	            
+				
 	        <div id="basket_content">
 	        </div>
 			
