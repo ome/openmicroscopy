@@ -26,17 +26,17 @@
         $(document).ready(function() {
             $("#prevMonth").click(function() { 
                 $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
-                $("div#history_calendar").load('{% url load_calendar controller.last_month.year controller.last_month.month %}?experimenter={{ nav.experimenter }}');     
+                $("div#history_calendar").load('{% url load_calendar controller.last_month.year controller.last_month.month %}');     
             });
             $("#nextMonth").click(function() { 
                 $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
-                $("div#history_calendar").load('{% url load_calendar controller.next_month.year controller.next_month.month %}?experimenter={{ nav.experimenter }}');
+                $("div#history_calendar").load('{% url load_calendar controller.next_month.year controller.next_month.month %}');
             });
         })
         
         function load_details(y,m,d) {
             $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
-            $("div#content_details").load('{% url load_history %}'+y+'/'+m+'/'+d+'/?experimenter={{ nav.experimenter }}'); 
+            $("div#content_details").load('{% url load_history %}'+y+'/'+m+'/'+d+'/'); 
         }
     </script>
     

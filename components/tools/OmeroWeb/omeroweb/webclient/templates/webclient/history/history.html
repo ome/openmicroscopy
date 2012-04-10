@@ -38,7 +38,7 @@
         $(document).ready(function() 
             {
                 $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
-                $("div#history_calendar").load('{% url load_calendar %}?experimenter={{ nav.experimenter }}');
+                $("div#history_calendar").load('{% url load_calendar %}');
         })
     </script>
 {% endblock %}
