@@ -101,6 +101,9 @@ class render_response(omeroweb.decorators.render_response):
 
         self.load_settings(request, context, conn)
 
+        # used for pagination
+        context['nav']['view'] = request.REQUEST.get('view')
+
 
     def load_settings(self, request, context, conn):
         # This is the new navHelper function...
