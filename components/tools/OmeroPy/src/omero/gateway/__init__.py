@@ -1753,6 +1753,17 @@ class _BlitzGateway (object):
         
         return self.getEventContext().isAdmin
     
+    def isLeader(self):
+        """
+        Is the current group led by the current user? 
+        
+        @return:    True if user leads the current group
+        @rtype:     Boolean
+        """
+        if self.getEventContext().groupId in self.getEventContext().leaderOfGroups:
+            return True
+        return False
+
     def canBeAdmin (self):
         """
         Checks if a user is in system group, i.e. can have administration privileges.
@@ -2300,7 +2311,7 @@ class _BlitzGateway (object):
         """
                 
         default = self.getObject("ExperimenterGroup", self.getEventContext().groupId)
-        if not default.isPrivate() or default.isLeader():
+        if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
                 if d.child.id.val != self.getEventContext().userId:
                     yield ExperimenterWrapper(self, d.child)
@@ -2322,7 +2333,7 @@ class _BlitzGateway (object):
         colleagues = []
         leaders = []
         default = self.getObject("ExperimenterGroup", gid)
-        if not default.isPrivate() or default.isLeader():
+        if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
                 if d.child.id.val == userId:
                     continue
@@ -2331,7 +2342,7 @@ class _BlitzGateway (object):
                 else:
                     colleagues.append(ExperimenterWrapper(self, d.child))
         else:
-            if  default.isLeader():
+            if  self.isLeader():
                 leaders =  [self.getUser()]
             else:
                 colleagues =  [self.getUser()]
@@ -4239,17 +4250,6 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         self.CHILD_WRAPPER_CLASS = 'ExperimenterWrapper'
         self.PARENT_WRAPPER_CLASS = None
 
-    def isLeader(self):
-        """
-        Is the current group led by the current user? 
-        
-        @return:    True if user leads the current group
-        @rtype:     Boolean
-        """
-        if self._conn.getEventContext().groupId in self._conn.getEventContext().leaderOfGroups:
-            return True
-        return False
-        
     def _getQueryString(self):
         """ 
         Returns string for building queries, loading Experimenters for each group. 
