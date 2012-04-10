@@ -472,65 +472,6 @@ def ldap(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
-#@login_required(isAdmin=True)
-#def enums(request, conn=None, **kwargs):
-#    enums = True
-#    template = "webadmin/enums.html"
-#    error = request.REQUEST.get('error') and request.REQUEST.get('error').replace("_", " ") or None
-#    
-#    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums, 'error':error}
-#    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
-#    
-#    controller = BaseEnums(conn)
-#    
-#    context = {'info':info, 'controller':controller}
-#    t = template_loader.get_template(template)
-#    c = Context(request, context)
-#    rsp = t.render(c)
-#    return HttpResponse(rsp)
-
-#@login_required(isAdmin=True)
-#def manage_enum(request, action, klass, eid=None, conn=None, **kwargs):
-#    enums = True
-#    template = "webadmin/enum_form.html"
-#    
-#    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums}
-#    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
-#    
-#    controller = BaseEnums(conn, klass)
-#    if action == "save":
-#        form = EnumerationEntries(entries=controller.entries, data=request.POST.copy())
-#        if form.is_valid():
-#            controller.saveEntries(form.data)
-#            return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
-#    elif action == "delete" and eid is not None:
-#        controller.deleteEntry(eid)
-#        return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
-#    elif action == "new":
-#        if request.method == "POST":
-#            form = EnumerationEntry(data=request.POST.copy())
-#            if form.is_valid():
-#                new_entry = form.cleaned_data['new_entry]
-#                controller.saveEntry(new_entry)
-#                return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
-#        else:
-#            form = EnumerationEntry()
-#    elif action == "reset":
-#        try:
-#            controller.resetEnumerations()
-#        except:
-#            logger.error(traceback.format_exc())
-#            return HttpResponseRedirect(reverse(viewname="waenums")+("?error=Enumeration_%s_cannot_be_reset" % (klass)))
-#        else:
-#            return HttpResponseRedirect(reverse("waenums"))
-#    else:
-#        form = EnumerationEntries(entries=controller.entries, initial={'entries':True})
-#    
-#    context = {'info':info, 'controller':controller, 'action':action, 'form':form}
-#    t = template_loader.get_template(template)
-#    c = Context(request, context)
-#    rsp = t.render(c)
-#    return HttpResponse(rsp)
 
 @login_required(isAdmin=True)
 def imports(request, **kwargs):
