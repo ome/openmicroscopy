@@ -156,10 +156,7 @@ def index(request, **kwargs):
         logger.error(traceback.format_exc())
     
     if conn.isAdmin():
-        if kwargs["firsttime"]:
-            return HttpResponseRedirect(reverse("wagroups"))
-        else:
-            return HttpResponseRedirect(reverse("waexperimenters"))
+        return HttpResponseRedirect(reverse("waexperimenters"))
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
 

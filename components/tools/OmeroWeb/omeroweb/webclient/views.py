@@ -237,12 +237,6 @@ def index(request, conn=None, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    try:
-        if request.session['nav']['menu'] != 'start':
-            request.session['nav']['menu'] = 'home'
-    except:
-        request.session['nav']['menu'] = 'start'
-    
     controller = BaseIndex(conn)
     #controller.loadData()
     
@@ -347,7 +341,6 @@ def load_template(request, menu, conn=None, **kwargs):
         template = "webclient/data/container_tags.html"
     else:
         template = "webclient/%s/%s.html" % (menu,menu)
-    request.session['nav']['menu'] = menu
     request.session['nav']['error'] = request.REQUEST.get('error')
     
     url = None
@@ -443,10 +436,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     
     # check menu
     menu = request.REQUEST.get("menu")
-    if menu is not None:
-        request.session['nav']['menu'] = menu
-    else:
-        menu = request.session['nav']['menu']
     
     # check view
     view = request.REQUEST.get("view")
@@ -555,12 +544,6 @@ def load_searching(request, form=None, conn=None, **kwargs):
     """
     request.session.modified = True
     
-    # check menu
-    menu = request.REQUEST.get("menu")
-    if menu is not None:
-        request.session['nav']['menu'] = menu
-    else:
-        menu = request.session['nav']['menu']
     # check view
     view = request.REQUEST.get("view")
     if view is not None:
@@ -648,13 +631,6 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
         except:
             pass
             
-    # check menu
-    menu = request.REQUEST.get("menu")
-    if menu is not None:
-        request.session['nav']['menu'] = menu
-    else:
-        menu = request.session['nav']['menu']
-    
     # check view
     view = request.REQUEST.get("view")
     if view is not None:
@@ -1369,12 +1345,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
     """
     template = None
     
-    # check menu
-    menu = request.REQUEST.get("menu")
-    if menu is not None:
-        request.session['nav']['menu'] = menu
-    else:
-        menu = request.session['nav']['menu']
     
     # Url is often used to redirect after performing action.
     url = None
@@ -1848,12 +1818,6 @@ def load_public(request, share_id=None, conn=None, **kwargs):
     if share_id is None:
         share_id = request.REQUEST.get("o_id") is not None and long(request.REQUEST.get("o_id")) or None
     
-    # check menu
-    menu = request.REQUEST.get("menu")
-    if menu is not None:
-        request.session['nav']['menu'] = menu
-    else:
-        menu = request.session['nav']['menu']
     # check view
     view = request.REQUEST.get("view")
     if view is not None:
@@ -1907,7 +1871,6 @@ def basket_action (request, action=None, conn=None, **kwargs):
                         'todiscuss', 'createdisc'    (form to create discussion and handling the action itself)
     """
     request.session.modified = True
-    request.session['nav']['menu'] = 'basket'
     
     url = None
     try:
