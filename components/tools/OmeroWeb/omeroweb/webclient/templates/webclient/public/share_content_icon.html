@@ -65,7 +65,7 @@
     
     <ul id="dataIcons">
         {% for c in share.imageInShare %}
-        <li id="{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
+        <li id="{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
             {% if share.share.isOwned %}
             <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
             {% else %}

@@ -49,7 +49,7 @@
                     
                     if(selected.length > 0) {
                         if(selected.attr("rel").indexOf("locked")>=0) {                            
-                            toolbar_config = {'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}};
+                            toolbar_config = {'delete':{% if isLeader %}true{% else %}false{% endif %}};
                         } else {
                             if(selected.attr("id").indexOf("experimenter")>=0) {
                                 toolbar_config = {'delete':false};

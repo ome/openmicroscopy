@@ -36,7 +36,7 @@ class BaseController(object):
         #self.eContext['context'] = self.conn.getEventContext()
         gr = self.conn.getObject("ExperimenterGroup", self.conn.getEventContext().groupId)
         self.eContext['isReadOnly'] = gr.isReadOnly()
-        self.eContext['isLeader'] = gr.isLeader()
+        #self.eContext['isLeader'] = conn.isLeader()
         if not gr.isPrivate() and not gr.isReadOnly():
             self.eContext['isEditable'] = True
         else:

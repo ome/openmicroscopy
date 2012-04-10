@@ -425,6 +425,7 @@ def load_template(request, menu, conn=None, **kwargs):
     
     context = {'nav':request.session['nav'], 'url':url, 'init':init, 'myGroups':myGroups,
         'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users}
+    context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
 
@@ -541,6 +542,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             template = "webclient/data/containers.html"
 
     context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index, 'index':index}
+    context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
 
@@ -715,6 +717,7 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     
     
     context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index}
+    context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
 
@@ -1887,6 +1890,7 @@ def load_public(request, share_id=None, conn=None, **kwargs):
         controller.getShares()
 
     context = {'nav':request.session['nav'], 'eContext':controller.eContext, 'share':controller}
+    context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
 

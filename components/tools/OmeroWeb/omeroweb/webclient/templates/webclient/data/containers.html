@@ -228,7 +228,7 @@
                             toolbar_config['paste'] = true;
                         }
                     } else {
-                        toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':{% if eContext.isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false};
+                        toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':{% if isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false};
                     }
                     
                     for (var sIndex in toolbar_config) { 
@@ -334,8 +334,8 @@
                                 "create_node" : true,
                                 "start_drag" : false,
                                 "move_node" : false,
-                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
-                                "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
+                                "delete_node" : {% if isLeader %}true{% else %}false{% endif %},
+                                "remove" : {% if isLeader %}true{% else %}false{% endif %}
                             },
                             "dataset" : {
                                 "valid_children" : [ "image", "image-locked" ],
@@ -356,8 +356,8 @@
                                 "create_node" : false,
                                 "start_drag" : false,
                                 "move_node" : false,
-                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
-                                "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
+                                "delete_node" : {% if isLeader %}true{% else %}false{% endif %},
+                                "remove" : {% if isLeader %}true{% else %}false{% endif %}
                             },
                             "image" : {
                                 "valid_children" : "none",
@@ -378,8 +378,8 @@
                                 "create_node" : false,
                                 "start_drag" : false,
                                 "move_node" : false,
-                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
-                                "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
+                                "delete_node" : {% if isLeader %}true{% else %}false{% endif %},
+                                "remove" : {% if isLeader %}true{% else %}false{% endif %}
                             },
                             "screen" : {
                                 "valid_children" : [ "plate", "plate-locked" ],
@@ -400,8 +400,8 @@
                                 "create_node" : true,
                                 "start_drag" : false,
                                 "move_node" : false,
-                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
-                                "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
+                                "delete_node" : {% if isLeader %}true{% else %}false{% endif %},
+                                "remove" : {% if isLeader %}true{% else %}false{% endif %}
                             },
                             "plate" : {
                                 "valid_children" : "acquisition",
@@ -422,8 +422,8 @@
                                 "create_node" : false,
                                 "start_drag" : false,
                                 "move_node" : false,
-                                "delete_node" : {% if eContext.isLeader %}true{% else %}false{% endif %},
-                                "remove" : {% if eContext.isLeader %}true{% else %}false{% endif %}
+                                "delete_node" : {% if isLeader %}true{% else %}false{% endif %},
+                                "remove" : {% if isLeader %}true{% else %}false{% endif %}
                             },
                             "acquisition" : {
                                 "valid_children" : "none",
@@ -563,7 +563,7 @@
                             };
                             
                             if(obj.attr("rel").indexOf("locked")>=0) {
-                                {% if not eContext.isLeader %}config["delete"]["_disabled"] = true;{% endif %}
+                                {% if not isLeader %}config["delete"]["_disabled"] = true;{% endif %}
                                 config["ccp"]["_disabled"] = true;
                                 config["create"]["_disabled"] = true;
                                 config["basket"]["_disabled"] = true;
