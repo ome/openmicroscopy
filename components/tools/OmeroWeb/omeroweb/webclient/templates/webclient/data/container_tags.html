@@ -115,7 +115,7 @@
                             }
                         },
                         // Using types - most of the time this is an overkill
-                        // Still meny people use them - here is how
+                        // Still many people use them - here is how
                         "types" : {
                             // I want only `drive` nodes to be root nodes 
                             // This will prevent moving or creating any other type as a root node
@@ -136,7 +136,7 @@
                                 "tagset" : {
                                     "valid_children" : [ "tag", "tag-locked" ],
                                     "icon" : {
-                                        "image" : '{% static "webclient/image/tagset.png" %}'
+                                        "image" : '{% static "webclient/image/left_sidebar_icon_tags.png" %}'
                                     },
                                     "create_node" : true,
                                     "start_drag" : false,
@@ -156,7 +156,7 @@
                                 "tag" : {
                                     "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "image", "image-locked", "screen", "screen-locked", "plate", "plate-locked" ],
                                     "icon" : {
-                                        "image" : '{% static "webclient/image/tag.png" %}'
+                                        "image" : '{% static "webclient/image/left_sidebar_icon_tag.png" %}'
                                     },
                                     "create_node" : true,
                                     "start_drag" : true,
@@ -453,10 +453,10 @@
                 <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
             {% endfor %}
         </ul>
-        <div id="metadata_general"></div>
+        <div id="metadata_general" class="right_tab_content" ></div>
         <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
         {% for rt in nav.right_plugins %}
-            <div id="{{ rt.plugin_id }}" class="right_tab_inner" style="padding:10px"></div>
+            <div id="{{ rt.plugin_id }}" class="right_tab_content" ></div>
         {% endfor %}
     </div>
 </div>

@@ -221,16 +221,20 @@
         z-index:99;
         background-color:#fff;
         background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210, 10%, 77%)), to(hsl(210, 10%, 85%)));
-        left:0px; 
-        right:0px;
         border-top:solid 1px rgba(255,255,255,.5);
         border-bottom: solid 1px hsl(210,10%,65%);
 		border-right:solid 1px hsl( 210, 20%, 65% );
         top:5px;
         overflow:hidden;
         -webkit-box-shadow:0 1px 1px rgba(0,0,0,.1);
-		min-width:300px;
     }
+	
+	#left_panel .toolbar {
+		left:0px;
+		right:0px;
+		min-width:300px;
+	}
+	
     
         .toolbar li {
             float:left;
@@ -401,7 +405,7 @@
         top:6px ;bottom:0px; left:0px; right:0px;
         position: absolute;
         font-size:1.1em;
-        border-left: solid 1px hsl(210,10%,85%);
+        //border-left: solid 1px hsl(210,10%,85%);
         min-width:240px;
     }
     
@@ -1005,13 +1009,24 @@
 	/* Center Panel Toolbar */  
 	
 	#center_panel_header .toolbar{
-		border:solid 1px green;
 		display:inline-block;
+		border:none;
+		background:none;
+		-webkit-box-shadow:none;
 		position:absolute;
 		right:10px;
+		top:3px;
 		background:none;
 		overflow:hidden !important;
 	}
+	
+		#center_panel_header .toolbar li{
+			-webkit-border-radius:3px;	
+		}
+		
+		#center_panel_header .toolbar input{
+			-webkit-border-radius:3px !important;
+		}
 	
     
     /* Center Panel Content */  
@@ -1020,6 +1035,7 @@
         position: absolute;
         top:33px; bottom:0px; left:0px; right:0px;
         overflow: auto;
+		border-right: solid 1px hsl(210,10%,85%);
     }
 
     

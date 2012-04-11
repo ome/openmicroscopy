@@ -69,16 +69,15 @@
 	 
 	 
 		 #dataTable .headerSortUp {
-			 background: rgba(255,255,255,.3) url(../img/arrow_down.png) 98% 60% no-repeat;
+			 background: rgba(255,255,255,.3) url(../img/table_arrow_down.png) 98% 60% no-repeat;
 		 }
 		 
 		 #dataTable .headerSortDown {
-			 background:rgba(255,255,255,.3) url(../img/arrow_up.png) 98% 60% no-repeat;
+			 background:rgba(255,255,255,.3) url(../img/table_arrow_up.png) 98% 60% no-repeat;
 			 
 		 }
 		 
 	 	
-	 
 	 
 	 
 	 
@@ -100,6 +99,7 @@
 		 #dataTable tbody tr.ui-selected { 
 			 background-color:hsl(210,30%,70%);
 			 border-bottom:solid 1px hsl(210,15%,65%);
+			 text-shadow:0 1px 0 rgba(255,255,255,.4);
 			 background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210, 20%, 75%)), to(hsl(210, 20%, 78%))); 
 		 }
 		 
@@ -107,6 +107,8 @@
 		 	border-top:solid 1px hsl(210,15%,68%);
 			-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.1);
 		 }
+		 
+		 
 	
 		 
 			 #dataTable tbody tr td{
@@ -115,8 +117,8 @@
 				 line-height:1.6em;
 			 }
 			 
-			 #dataTable tbody .desc {
-			 	
+			 #dataTable tbody .ui-selected .desc {
+			 	color:hsl(210,15%,20%);
 			 }
 			 
 			 #dataTable tbody .image {
