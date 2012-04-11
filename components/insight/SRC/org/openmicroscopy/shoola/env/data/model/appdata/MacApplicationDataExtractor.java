@@ -45,7 +45,6 @@ public class MacApplicationDataExtractor implements ApplicationDataExtractor {
 	/** The default location on <code>MAC</code> platform. */
 	public static final String LOCATION_MAC = "/Applications";
 
-	@Override
 	public String getDefaultAppDirectory() {
 		return LOCATION_MAC;
 	}
@@ -73,7 +72,6 @@ public class MacApplicationDataExtractor implements ApplicationDataExtractor {
 		return new ImageIcon(img);
 	}
 
-	@Override
 	public ApplicationData extractAppData(File file) throws Exception {
 		Map<String, Object> m = Parser.parseInfoPList(file.getAbsolutePath());
 

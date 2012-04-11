@@ -378,13 +378,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			comp = new ExportActivity(this, manager.getRegistry(), ctx, p);
 		} else if (activity instanceof DownloadAndLaunchActivityParam) {
 			DownloadAndLaunchActivityParam p = (DownloadAndLaunchActivityParam) activity;
-			register = (p.getApplicationData() == null);
-			if (register) {
-				if (!canWriteInFolder(p.getFolder().getParentFile()))
-					return;
-				uiRegister = p.isUIRegister();
-			}
-			comp = new DownloadActivity(this, manager.getRegistry(), ctx, p);
+			comp = new DownloadAndLaunchActivity(this, manager.getRegistry(), ctx, p);
 
 		} else if (activity instanceof DownloadActivityParam) {
 			DownloadActivityParam p = (DownloadActivityParam) activity;
@@ -463,32 +457,16 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	 * @see UserNotifier#notifyActivity(Object)
 	 */
 	public void openApplication(ApplicationData data, String path) {
+
 		if (data == null && path == null)
 			return;
-		Runtime run = Runtime.getRuntime();
+		
+		// run the application specified for the file @path
+		String runCommand = ApplicationData.buildCommand(data, new File(path));
+		
 		try {
-			String[] values;
-			if (data == null)
-				data = new ApplicationData("");
-			List<String> l = data.getArguments();
-			Iterator<String> i = l.iterator();
-			int index = 0;
-			if (path == null || path.length() == 0) {
-				values = new String[l.size()];
-				while (i.hasNext()) {
-					values[index] = i.next();
-					index++;
-				}
-			} else {
-				int n = 1;
-				values = new String[l.size() + n];
-				while (i.hasNext()) {
-					values[index] = i.next();
-					index++;
-				}
-				values[index] = path;
-			}
-			run.exec(values);
+			Runtime run = Runtime.getRuntime();
+			run.exec(runCommand);
 		} catch (Exception e) {
 		}
 	}

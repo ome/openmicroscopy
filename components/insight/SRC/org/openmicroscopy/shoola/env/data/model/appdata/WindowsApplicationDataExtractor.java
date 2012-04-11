@@ -48,7 +48,6 @@ public class WindowsApplicationDataExtractor implements
 	/** The default location on <code>Windows</code> platform. */
 	public static final String LOCATION_WINDOWS = "C:\\Program Files\\";
 
-	@Override
 	public ApplicationData extractAppData(File file) throws Exception {
 		Icon icon = getSystemIconFor(file);
 		String applicationName = getFilePropertyValue(file.getAbsolutePath(),
@@ -165,7 +164,6 @@ public class WindowsApplicationDataExtractor implements
 		return propertyValue;
 	}
 
-	@Override
 	public String getDefaultAppDirectory() {
 		return LOCATION_WINDOWS;
 	}

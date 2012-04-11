@@ -21,31 +21,60 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-import java.io.File;
-
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
-import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
-/** 
- * 
- *
- * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
- * @since Beta4.4
- */
-public class DownloadAndLaunchActivity {
+public class DownloadAndLaunchActivity extends DownloadActivity {
+	DownloadAndLaunchActivity(UserNotifier viewer, Registry registry,
+			SecurityContext ctx, DownloadAndLaunchActivityParam parameters) {
+		super(viewer, registry, ctx, parameters);
 
+		fileName = getFileName();
+		messageLabel.setText("Opening: " + fileName);
+	}
 
-	/** The parameters hosting information about the file to download. */
-	private DownloadAndLaunchActivityParam parameters;
-	
 	/**
-     * Returns the name of the file. 
-     * 
-     * @return See above.
-     */
-    private String getFileName()
-    {
-    	return parameters.getOriginalFileName();
-    }
-    
+	 * Returns the name of the file.
+	 * 
+	 * @return See above.
+	 */
+	private String getFileName() {
+		return parameters.getOriginalFileName();
+	}
+
+	/**
+	 * Modifies the text of the component.
+	 * 
+	 * @see ActivityComponent#notifyActivityEnd()
+	 */
+	protected void notifyActivityEnd() {
+		type.setText("Opening File");
+		DownloadAndLaunchActivityParam param = (DownloadAndLaunchActivityParam) parameters;
+		viewer.openApplication((ApplicationData) param.getApplicationData(),
+				file.getAbsolutePath());
+		if (parameters.getSource() != null)
+			parameters.getSource().setEnabled(true);
+	}
+
+	@Override
+	protected void notifyActivityCancelled() {
+		type.setText("Opening Cancelled");
+	}
+
+	/**
+	 * No-operation in this case.
+	 * 
+	 * @see ActivityComponent#notifyActivityError()
+	 */
+	@Override
+	protected void notifyActivityError() {
+	}
+
+	@Override
+	protected UserNotifierLoader createLoader() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

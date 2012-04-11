@@ -73,13 +73,13 @@ public class DownloadActivity extends ActivityComponent {
 	public static final String LEGEND_TEXT_CSV = "_legend.csv";
 
 	/** The parameters hosting information about the file to download. */
-	private DownloadActivityParam parameters;
+	protected DownloadActivityParam parameters;
 
 	/** The name of the file. */
-	private String fileName;
+	protected String fileName;
 
 	/** Reference to the file to load. */
-	private File file;
+	protected File file;
 
 	/** The local name of the file. */
 	private String localFileName;
@@ -224,20 +224,6 @@ public class DownloadActivity extends ActivityComponent {
 	 */
 	protected void notifyActivityEnd() {
 		type.setText(DESCRIPTION);
-		
-		/**
-		 * FIXME: SL - look at this code
-		 */
-		/*
-		if (parameters.getApplicationData() != null) {
-			viewer.openApplication(
-					(ApplicationData) parameters.getApplicationData(),
-					file.getAbsolutePath());
-			if (parameters.getSource() != null)
-				parameters.getSource().setEnabled(true);
-			return;
-		}
-		*/
 		String name = null;
 		String legend = parameters.getLegend();
 		if (legend != null && legend.trim().length() > 0) {

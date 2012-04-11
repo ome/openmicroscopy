@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -93,16 +92,15 @@ public class ApplicationData {
 	 * 
 	 * @param file
 	 *            the application.
+	 * @throws Exception
 	 */
-	public ApplicationData(File file) {
+	public ApplicationData(File file) throws Exception {
 		this.file = file;
 
-		String name = file.getName();
-		if (name == null || name.length() == 0) {
-			applicationName = "";
-			applicationIcon = null;
-			executable = null;
-		}
+		if (!file.exists())
+			throw new Exception("Application does nto exists @ "
+					+ file.getAbsolutePath());
+
 		try {
 			ApplicationData data = extractor.extractAppData(file);
 
@@ -113,16 +111,6 @@ public class ApplicationData {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param path
-	 *            The path to the application.
-	 */
-	public ApplicationData(String path) {
-		this(new File(path));
 	}
 
 	public ApplicationData(Icon icon, String applicationName,
@@ -160,32 +148,21 @@ public class ApplicationData {
 	}
 
 	/**
-	 * Returns the arguments.
+	 * Returns the command line arguments for the application.
 	 * 
 	 * @return See above.
 	 */
-	public List<String> getArguments() {
-		List<String> list = new ArrayList<String>();
-		if (UIUtilities.isMacOS()) {
-			if (executable != null && executable.length() > 0)
-				list.add(executable);
-			else
-				list.add("open");
-			if (commands != null && commands.size() > 0)
-				list.addAll(commands);
-		} else if (UIUtilities.isWindowsOS()) {
-
-		}
-		return list;
+	public Iterable<String> getCommandLineArguments() {
+		return commands;
 	}
 
 	/**
-	 * Sets the commands.
+	 * Sets the command line arguments for the application.
 	 * 
 	 * @param commands
 	 *            The commands to set.
 	 */
-	public void setCommands(List<String> commands) {
+	public void setCommandLineArguments(List<String> commands) {
 		this.commands = commands;
 	}
 
@@ -195,8 +172,32 @@ public class ApplicationData {
 	 * @see ApplicationData#toString()
 	 */
 	public String toString() {
-		if (applicationName == null)
-			return "";
 		return applicationName;
+	}
+
+	public static String buildCommand(ApplicationData data, File file) {
+		StringBuilder commandBuilder = new StringBuilder();
+
+		if (data == null) {
+			if (UIUtilities.isMacOS()) {
+				commandBuilder.append("open ");
+			}
+		} else if (data != null) {
+			commandBuilder.append(data.executable);
+			commandBuilder.append(" ");
+
+			Iterable<String> arguments = data.getCommandLineArguments();
+
+			if (arguments != null) {
+				for (String argument : arguments) {
+					commandBuilder.append(argument);
+					commandBuilder.append(" ");
+				}
+			}
+		}
+
+		commandBuilder.append(file.getAbsolutePath());
+
+		return commandBuilder.toString();
 	}
 }

@@ -666,7 +666,7 @@ public abstract class ActivityComponent
 	{
 		if (object instanceof FileAnnotationData || 
 				object instanceof OriginalFile) {
-			open(object, new ApplicationData(""), source);
+			open(object, null, source);
 		} else if (object instanceof File) {
 			viewer.openApplication(null, ((File) object).getAbsolutePath());
 			if (source != null) source.setEnabled(true);
