@@ -109,9 +109,10 @@ $(document).ready(function()
         .bind("drag", function(event, ui) {
             var moved = event.pageX - $(this).data("drag_start_x");
             var new_width = $(this).data("lp_width") + moved;
-            if ((moved < $(this).data("cp_width")) && (new_width > 0)) {
+            var new_center_w = $(this).data("cp_width") - moved;
+            if ((moved < $(this).data("cp_width")) && (new_width > 50) && (new_center_w > 50)) {
                 $("#left_panel").css('width', new_width+"px");
-                $("#center_container").css('left', new_width+"px");   // border 1px
+                $("#center_container").css('left', new_width+"px");
             }
         })
         .bind("dragstop", function(event, ui) {
@@ -131,9 +132,10 @@ $(document).ready(function()
         .bind("drag", function(event, ui) {
             var moved = event.pageX - $(this).data("drag_start_x");
             var new_width = $(this).data("rp_width") - moved;
-            if (((moved*-1) < $(this).data("cp_width")) && (new_width > 0)) {
+            var new_center_w = $(this).data("cp_width") + moved;
+            if (((moved*-1) < $(this).data("cp_width")) && (new_width > 50) && (new_center_w > 50)) {
                 $("#right_panel").css('width', new_width+"px");
-                $("#center_container").css('right', new_width +"px"); // border 1px
+                $("#center_container").css('right', new_width +"px");
             }
         })
         .bind("dragstop", function(event, ui) {
