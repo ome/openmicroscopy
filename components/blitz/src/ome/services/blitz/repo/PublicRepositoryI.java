@@ -237,7 +237,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
             catch (Exception e){
                 throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
             }
-            store.closeServices();
+            if (store != null) {
+                store.closeServices();
+            }
         }
         return pix;
     }
