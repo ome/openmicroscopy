@@ -3228,7 +3228,7 @@ def chgrp(request, conn, **kwargs):
 
     group = conn.getObject("ExperimenterGroup", group_id)
 
-    dtypes = ["Project", "Dataset", "Image"]
+    dtypes = ["Project", "Dataset", "Image", "Screen", "Plate"]
     for dtype in dtypes:
         oids = request.REQUEST.get(dtype, None)
         if oids is not None:
