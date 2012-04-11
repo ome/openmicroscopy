@@ -110,45 +110,7 @@ connectors = {}
 
 logger.info("INIT '%s'" % os.getpid())
 
-################################################################################
-# decorators
 
-
-def sessionHelper(request):
-    """
-    Makes sure that various dictionaries exist under request.session, so that we don't have to check each time.
-    they are used. These are:
-    - 'callback'    Used to hold job handles and extra data for delete and scripts. Added in manage_action_containers and script_run,
-                    Accessed in progress and status views.
-    - 'shares'      Reset in login and change_active_group, added to in get_share_connection. Not accessed Anyware??
-    - 'imageInBasket'   Reset in login, change_active_group and empty_basket. Changed in update_basket. Used in controller/basket.py load_basket().
-    - 'nav'         This is a collection of parameters required for rendering various templates. Passed to the template context
-                    using context = {'nav':request.session['nav']... etc.
-    
-    """
-    changes = False
-    if request.session.get('callback') is None:
-        request.session['callback'] = dict()
-        changes = True
-    if request.session.get('shares') is None:
-        request.session['shares'] = dict()
-        changes = True
-    if request.session.get('imageInBasket') is None:
-        request.session['imageInBasket'] = set()
-        changes = True
-    #if request.session.get('datasetInBasket') is None:
-    #    request.session['datasetInBasket'] = set()
-    if request.session.get('nav') is None:
-        if request.session.get('server') is not None:
-            blitz = Server.get(pk=request.session.get('server'))
-        elif request.session.get('host') is not None:
-            blitz = Server.get(host=request.session.get('host'))
-        blitz = "%s:%s" % (blitz.host, blitz.port)
-        request.session['nav']={"blitz": blitz, "menu": "mydata", "view": "tree", "basket": 0, "experimenter":None}
-        changes = True
-    if changes:
-        request.session.modified = True
-        
 ################################################################################
 # views controll
 
