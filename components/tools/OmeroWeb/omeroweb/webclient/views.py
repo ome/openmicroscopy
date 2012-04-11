@@ -532,11 +532,8 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     # check view
     view = request.REQUEST.get("view")
     
-    # get index of the plate
-    try:
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
+    # the index of a field within a well
+    index = int(request.REQUEST.get('index', 0))
     
     # prepare forms
     filter_user_id = request.session.get('nav')['experimenter']
@@ -678,11 +675,8 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     The data and annotations are loaded by the manager. Display of appropriate data is handled by the template.
     """
 
-    try:
-        # the index of a field within a well
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
+    # the index of a field within a well
+    index = int(request.REQUEST.get('index', 0))
 
     # we only expect a single object, but forms can take multiple objects
     images = c_type == "image" and list(conn.getObjects("Image", [c_id])) or list()
@@ -745,11 +739,8 @@ def load_metadata_preview(request, imageId, conn=None, share_id=None, **kwargs):
     Currently this doesn't do much except launch the view-port plugin using the image Id (and share Id if necessary)
     """
 
-    try:
-        # the index of a field within a well
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
+    # the index of a field within a well
+    index = int(request.REQUEST.get('index', 0))
 
     try:
         template = "webclient/annotations/metadata_preview.html"
@@ -771,10 +762,8 @@ def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
     Used by an AJAX call from the metadata_general panel.
     """
 
-    try:
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
+    # the index of a field within a well
+    index = int(request.REQUEST.get('index', 0))
 
     try:
         template = "webclient/annotations/metadata_hierarchy.html"
@@ -796,10 +785,8 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
     TODO: urls regex should make sure that c_type is only 'image' OR 'well'
     """
 
-    try:
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
+    # the index of a field within a well
+    index = int(request.REQUEST.get('index', 0))
 
     try:
         if c_type in ("share", "discussion"):
@@ -994,8 +981,6 @@ def batch_annotate(request, conn=None, **kwargs):
     This page gives a form for batch annotation. 
     Local File form and Comment form are loaded. Other forms are loaded via AJAX
     """
-
-    index = int(request.REQUEST.get('index', 0))
 
     oids = getObjects(request, conn)
     selected = getIds(request)
@@ -1193,10 +1178,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
     """
     template = None
     
-    try:
-        index = int(request.REQUEST['index'])
-    except:
-        index = None
+    # the index of a field within a well
+    index = int(request.REQUEST.get('index', 0))
     
     manager = None
     if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
