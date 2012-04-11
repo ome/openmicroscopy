@@ -578,16 +578,6 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
 
 
 @login_required()
-def autocomplete_tags(request, conn=None, **kwargs):
-    """ Autocomplete for tag. Not used now? TODO: remove this? """
-    
-    eid = conn.getGroupFromContext().isReadOnly() and conn.getEventContext().userId or None
-        
-    tags = [{'tag': t.textValue,'id':t.id, 'desc':t.description} for t in conn.listTags(eid)]
-    json_data = simplejson.dumps(tags)
-    return HttpResponse(json_data, mimetype='application/javascript')
-
-@login_required()
 @render_response()
 def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
     """

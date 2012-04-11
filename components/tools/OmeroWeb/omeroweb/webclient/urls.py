@@ -89,7 +89,6 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^archived_files/download/(?P<iid>[0-9]+)/$', views.archived_files, name="archived_files" ),
     
     url( r'^load_tags/(?:(?P<o_type>((?i)tag|dataset))/(?P<o_id>[0-9]+)/)?$', views.load_data_by_tag, name="load_data_by_tag" ),
-    url( r'^autocompletetags/$', views.autocomplete_tags, name="autocomplete_tags" ),
     
     # Open Astex Viewer will try to show file as volume, e.g. mrc.map file. 
     url( r'^open_astex_viewer/(?P<obj_type>((?i)image|image_8bit|file))/(?P<obj_id>[0-9]+)/$', views.open_astex_viewer, name='open_astex_viewer' ),  # 'data_url' to load in REQUEST
