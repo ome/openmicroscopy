@@ -240,6 +240,7 @@ def index(request, conn=None, **kwargs):
     
     context = {'controller':controller}
     context['nav'] = {'basket': request.session.get('nav')['basket']}
+    context['nav']['error'] = request.REQUEST.get('error')      # Displays alert() if error
     context['template'] = template
     return context
 
@@ -303,7 +304,7 @@ def change_active_group(request, conn=None, **kwargs):
         request.session.modified = True                
     else:
         error = 'You cannot change your group becuase the data is currently processing. You can force it by logging out and logging in again.'
-        url = reverse("webindex")+ ("?error=%s" % error)
+        url = reverse("webindex")+ ("?error=%s" % error)        # This is handled in index page with a javascript alert(error).
         if request.session.get('nav')['experimenter'] is not None:
             url += "&experimenter=%s" % request.session.get('nav')['experimenter']
     

@@ -84,6 +84,7 @@ class render_response(omeroweb.decorators.render_response):
     def prepare_context(self, request, context, *args, **kwargs):
         """
         This allows templates to access the current eventContext and user from the L{omero.gateway.BlitzGateway}.
+        E.g. <h1>{{ ome.user.getFullName }}</h1>
         If these are not required by the template, then they will not need to be loaded by the Blitz Gateway.
         The results are cached by Blitz Gateway, so repeated calls have no additional cost.
         We also process some values from settings and add these to the context.
@@ -97,7 +98,6 @@ class render_response(omeroweb.decorators.render_response):
         context['ome'] = {}
         context['ome']['eventContext'] = conn.getEventContext
         context['ome']['user'] = conn.getUser
-        context['ome']['request_error'] = request.REQUEST.get('error')
 
         self.load_settings(request, context, conn)
 

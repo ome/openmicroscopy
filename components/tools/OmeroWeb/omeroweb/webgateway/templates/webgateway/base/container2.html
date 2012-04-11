@@ -37,8 +37,8 @@
     <script type="text/javascript" src="{% static "webgateway/js/ome.nav.js" %}"></script> <!-- handles expand  / collapse columns -->
     
     <script type="text/javascript">
-    {% if ome.request_error %}
-        alert("{{ ome.request_error }}");
+    {% if nav.error %}
+        alert("{{ nav.error }}");
     {% endif %}
     </script>
 {% endblock %}
