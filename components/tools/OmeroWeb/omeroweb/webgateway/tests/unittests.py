@@ -65,12 +65,14 @@ def fakeRequest (**kwargs):
     return c.bogus_request(**kwargs)
 
 class WGTest (GTest):
-    def doLogin (self, user):
-        r = fakeRequest()
-        q = QueryDict('', mutable=True)
-        q.update({'username': user.name, 'password': user.passwd})
-        r.REQUEST.dicts += (q,)
-        self.gateway = views.getBlitzConnection(r, 1, group=user.groupname, try_super=user.admin)
+    def doLogin (self, user=None):
+        self.gateway = None
+        if user:
+            r = fakeRequest()
+            q = QueryDict('', mutable=True)
+            q.update({'username': user.name, 'password': user.passwd})
+            r.REQUEST.dicts += (q,)
+            self.gateway = views.getBlitzConnection(r, 1, group=user.groupname, try_super=user.admin)
         if self.gateway is None:
             # If the login framework was customized (using this app outside omeroweb) the above fails
             super(WGTest, self).doLogin(user)
