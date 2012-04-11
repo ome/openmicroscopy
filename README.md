@@ -134,7 +134,9 @@ NB: under Mac OS X 10.7.3, installed postgresql version is now 9.1.3 and the fil
     $ psql -h localhost -U omero -l
 
 Should give similar output to the following:
-                                  List of databases
+                                
+                            List of databases
+       
        Name    | Owner | Encoding |  Collation  |    Ctype    | Access privileges
     -----------+-------+----------+-------------+-------------+-------------------
      omero     | omero | UTF8     | en_GB.UTF-8 | en_GB.UTF-8 |
