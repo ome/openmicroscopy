@@ -1,7 +1,7 @@
 classdef TestLoadOmero < TestCase
     properties
         host
-        port 
+        port
         rootpasswd
         user
         passwd
@@ -23,14 +23,14 @@ classdef TestLoadOmero < TestCase
         
         function testHostConstructor(self)
             c=loadOmero(self.host);
-            assertEqual(c.getProperty('omero.host'),self.host);            
+            assertEqual(c.getProperty('omero.host'),self.host);
         end
         
-
+        
         function testHostPortConstructor(self)
             c=loadOmero(self.host,self.port);
-            assertEqual(c.getProperty('omero.host'),self.host);            
-            assertEqual(str2double(c.getProperty('omero.port')),self.port);              
+            assertEqual(c.getProperty('omero.host'),self.host);
+            assertEqual(str2double(c.getProperty('omero.port')),self.port);
         end
         
         function testPropsConstructor(self)
@@ -38,8 +38,8 @@ classdef TestLoadOmero < TestCase
             props.setProperty('omero.host', self.host);
             props.setProperty('omero.port', num2str(self.port));
             c=loadOmero(props);
-            assertEqual(c.getProperty('omero.host'),self.host);            
-            assertEqual(str2double(c.getProperty('omero.port')),self.port);              
+            assertEqual(c.getProperty('omero.host'),self.host);
+            assertEqual(str2double(c.getProperty('omero.port')),self.port);
         end
         
         function testPorts(self)
@@ -48,7 +48,7 @@ classdef TestLoadOmero < TestCase
             
             testPort=2222;
             c = loadOmero('localhost',testPort);
-            assertEqual(str2double(c.getProperty('omero.port')),testPort);        
+            assertEqual(str2double(c.getProperty('omero.port')),testPort);
         end
         
         function testConfigFile(self)
@@ -56,7 +56,7 @@ classdef TestLoadOmero < TestCase
             ice_config_list(1)=java.io.File(which('ice.config'));
             c=loadOmero(ice_config_list);
         end
-       
+        
     end
     
 end

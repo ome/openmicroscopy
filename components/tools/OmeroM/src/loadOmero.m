@@ -72,7 +72,7 @@ if exist('omero.client','class') == 0
     disp(omeroVersion);
     disp('--------------------------');
     disp('');
-
+    
     % Add the omero_client jar to the Java dynamic classpath
     % This will allow the import omero.* statement to pass
     % successfully.
@@ -128,7 +128,7 @@ else
         % (assuming it was set before MATLAB started)
         ice_config = '';
     end
-
+    
     assert(~isempty(ice_config),'No ice config found');
     
     % If no properties in varargins but ice_config set
@@ -145,4 +145,4 @@ if (nargout <2), return; end
 session = client.createSession();
 
 if (nargout <3), return; end
-gateway = session.createGateway();  
+gateway = session.createGateway();
