@@ -21,6 +21,11 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
+import java.io.File;
+
+import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
+import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
+
 /** 
  * 
  *
@@ -29,4 +34,18 @@ package org.openmicroscopy.shoola.env.ui;
  */
 public class DownloadAndLaunchActivity {
 
+
+	/** The parameters hosting information about the file to download. */
+	private DownloadAndLaunchActivityParam parameters;
+	
+	/**
+     * Returns the name of the file. 
+     * 
+     * @return See above.
+     */
+    private String getFileName()
+    {
+    	return parameters.getOriginalFileName();
+    }
+    
 }
