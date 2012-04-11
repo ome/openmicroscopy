@@ -71,9 +71,12 @@ class GTest(unittest.TestCase):
         self.assert_(self.gateway, 'Can not get gateway from connection')
         self._has_connected = False
 
-    def doLogin (self, user):
+    def doLogin (self, user=None):
         self.doDisconnect()
-        self.gateway = dbhelpers.login(user)
+        if user:
+            self.gateway = dbhelpers.login(user)
+        else:
+            self.gateway = dbhelpers.loginAsPublic()
 
     def loginAsAdmin (self):
         self.doLogin(self.ADMIN)
@@ -83,6 +86,9 @@ class GTest(unittest.TestCase):
 
     def loginAsUser (self):
         self.doLogin(self.USER)
+
+    def loginAsPublic (self):
+        self.doLogin()
 
     def tearDown(self):
         if self._has_connected:
