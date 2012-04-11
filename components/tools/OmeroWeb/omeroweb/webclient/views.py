@@ -211,8 +211,6 @@ def login(request):
                 form = LoginForm()
         
         context = {"version": omero_version, 'error':error, 'form':form, 'url': url}
-        if url is not None and len(url) != 0:
-            context['url'] = url
         
         t = template_loader.get_template(template)
         c = Context(request, context)
@@ -228,12 +226,6 @@ def index(request, conn=None, **kwargs):
     Last imports, tag cloud etc are retrived via separate AJAX calls.
     """
     template = "webclient/index/index.html"
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
     
     controller = BaseIndex(conn)
     #controller.loadData()
@@ -284,7 +276,7 @@ def index_tag_cloud(request, conn=None, **kwargs):
     return context
 
 @login_required()
-def change_active_group(request, conn=None, **kwargs):
+def change_active_group(request, conn=None, url=None, **kwargs):
     """
     Changes the active group of the OMERO connection, using conn.changeActiveGroup() with 'active_group' from request.REQUEST.
     First we log out and log in again, to force closing of any processes?
@@ -292,12 +284,6 @@ def change_active_group(request, conn=None, **kwargs):
     Finally this redirects to the 'url'.
     """
     #TODO: we need to handle exception while changing active group faild, see #
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
     
     active_group = request.REQUEST.get('active_group')
     if conn.changeActiveGroup(active_group):
@@ -327,7 +313,7 @@ def logout(request, conn=None, **kwargs):
 ###########################################################################
 @login_required()
 @render_response()
-def load_template(request, menu, conn=None, **kwargs):
+def load_template(request, menu, conn=None, url=None, **kwargs):
     """
     This view handles most of the top-level pages, as specified by 'menu' E.g. userdata, usertags, history, search etc.
     Query string 'path' that specifies an object to display in the data tree is parsed.
@@ -342,11 +328,6 @@ def load_template(request, menu, conn=None, **kwargs):
     else:
         template = "webclient/%s/%s.html" % (menu,menu)
     
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
     if url is None:
         url = reverse(viewname="load_template", args=[menu])
     
@@ -415,7 +396,7 @@ def load_template(request, menu, conn=None, **kwargs):
     myGroups.sort(key=lambda x: x.getName().lower())
     form_active_group = ActiveGroupForm(initial={'activeGroup':conn.getEventContext().groupId, 'mygroups':myGroups, 'url':url})
     
-    context = {'url':url, 'init':init, 'myGroups':myGroups,
+    context = {'init':init, 'myGroups':myGroups,
         'form_active_group':form_active_group, 'form_users':form_users}
     context['nav'] = {'basket': request.session.get('nav')['basket']}
     context['isLeader'] = conn.isLeader()
@@ -439,19 +420,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     
     # check view
     view = request.REQUEST.get("view")
-    
-    # get url to redirect. Not sure what this is used for?
-    url = None
-    if o1_type is None and o1_id is None:
-        args = [line for line in [o1_type, o1_id, o2_type, o2_id, o3_type, o3_id] if line is not None]
-        url = reverse(viewname="load_data", args=args)
-    else:
-        try:
-            url = kwargs["url"]
-        except:
-            logger.error(traceback.format_exc())
-        if url is None:
-            url = reverse(viewname="load_template", args=[menu])
     
     # get page 
     try:
@@ -526,7 +494,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         else:
             template = "webclient/data/containers.html"
 
-    context = {'url':url, 'manager':manager, 'form_well_index':form_well_index, 'index':index}
+    context = {'manager':manager, 'form_well_index':form_well_index, 'index':index}
     context['nav'] = {'view':view}          # for pagination controls
     context['isLeader'] = conn.isLeader()
     context['template'] = template
@@ -541,15 +509,6 @@ def load_searching(request, form=None, conn=None, **kwargs):
     """
     request.session.modified = True
     
-    # get url to redirect
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    if url is None:
-        url = reverse(viewname="load_template", args=[menu])
-
     # get page    
     try:
         page = int(request.REQUEST['page'])
@@ -598,7 +557,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
         template = "webclient/search/search_details.html"
         manager.batch_search(batch_query)
     
-    context = {'url':url, 'manager':manager}
+    context = {'manager':manager}
     context['template'] = template
     return context
 
@@ -623,15 +582,6 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
             
     # check view
     view = request.REQUEST.get("view")
-    
-    # get url to redirect
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    if url is None:
-        url = reverse(viewname="load_data_by_tag")
     
     # get page    
     try:
@@ -678,7 +628,7 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     form_well_index = None    
     
     
-    context = {'url':url, 'manager':manager, 'form_well_index':form_well_index}
+    context = {'manager':manager, 'form_well_index':form_well_index}
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
@@ -794,12 +744,6 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     Shown for Projects, Datasets, Images, Screens, Plates, Wells, Tags etc.
     The data and annotations are loaded by the manager. Display of appropriate data is handled by the template.
     """
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
 
     try:
         # the index of a field within a well
@@ -853,9 +797,9 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         return handlerInternalError(request, x)    
 
     if c_type in ("tag"):
-        context = {'url':url, 'manager':manager}
+        context = {'manager':manager}
     else:
-        context = {'url':url, 'manager':manager, 'form_comment':form_comment, 'index':index, 'share_id':share_id}
+        context = {'manager':manager, 'form_comment':form_comment, 'index':index, 'share_id':share_id}
     context['template'] = template
     return context
 
@@ -867,11 +811,6 @@ def load_metadata_preview(request, imageId, conn=None, share_id=None, **kwargs):
     This is the image 'Preview' tab for the right-hand panel. 
     Currently this doesn't do much except launch the view-port plugin using the image Id (and share Id if necessary)
     """
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
 
     try:
         # the index of a field within a well
@@ -898,11 +837,6 @@ def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
     This loads the ancestors of the specified object and displays them in a static tree.
     Used by an AJAX call from the metadata_general panel.
     """
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
 
     try:
         index = int(request.REQUEST['index'])
@@ -928,11 +862,6 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
     The acquisition tab of the right-hand panel. Only loaded for images.
     TODO: urls regex should make sure that c_type is only 'image' OR 'well'
     """
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
 
     try:
         index = int(request.REQUEST['index'])
@@ -1074,9 +1003,9 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
 
     # TODO: remove this 'if' since we should only have c_type = 'image'?
     if c_type in ("share", "discussion", "tag"):
-        context = {'url':url, 'manager':manager}
+        context = {'manager':manager}
     else:
-        context = {'url':url, 'manager':manager, 
+        context = {'manager':manager, 
         'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 
         'form_microscope':form_microscope, 'form_instrument_objectives': form_instrument_objectives, 'form_filters':form_filters,
         'form_dichroics':form_dichroics, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
@@ -1331,14 +1260,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
     """
     template = None
     
-    
-    # Url is often used to redirect after performing action.
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    
     try:
         index = int(request.REQUEST['index'])
     except:
@@ -1417,12 +1338,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             if manager.share.getExpireDate() is not None:
                 initial['expiration'] = manager.share.getExpireDate().strftime("%Y-%m-%d")
             form = ShareForm(initial=initial) #'guests': share.guestsInShare,
-            context = {'url':url, 'share':manager, 'form':form}
+            context = {'share':manager, 'form':form}
         elif hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
             template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': obj.name, 'description':obj.description})
-            context = {'url':url, 'manager':manager, 'form':form}
+            context = {'manager':manager, 'form':form}
     elif action == 'save':
         # Handles submission of the 'edit' form above. TODO: not used now?
         if not request.method == 'POST':
@@ -1443,7 +1364,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 return HttpResponse("DONE")
             else:
                 template = "webclient/public/share_form.html"
-                context = {'url':url, 'share':manager, 'form':form}
+                context = {'share':manager, 'form':form}
         elif o_type == "sharecomment":
             form_sharecomments = ShareCommentForm(data=request.REQUEST.copy())
             if form_sharecomments.is_valid():
@@ -1455,7 +1376,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 context = {'cm': textAnn}
             else:
                 template = "webclient/annotations/annotation_new_form.html"
-                context = {'url':url, 'manager':manager, 'form_sharecomments':form_sharecomments}
+                context = {'manager':manager, 'form_sharecomments':form_sharecomments}
     elif action == 'editname':
         # start editing 'name' in-line
         if hasattr(manager, o_type) and o_id > 0:
@@ -1806,15 +1727,6 @@ def load_public(request, share_id=None, conn=None, **kwargs):
     # check view
     view = request.REQUEST.get("view")
     
-    # get url to redirect
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    if url is None:
-        url = reverse(viewname="load_template", args=[menu])
-
     # get page    
     try:
         page = int(request.REQUEST['page'])
@@ -1852,12 +1764,6 @@ def basket_action (request, action=None, conn=None, **kwargs):
                         'todiscuss', 'createdisc'    (form to create discussion and handling the action itself)
     """
     request.session.modified = True
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
     
     if action == "toshare":
         template = "webclient/basket/basket_share_action.html"
@@ -2017,13 +1923,6 @@ def help(request, conn=None, **kwargs):
     """ Displays help page. Includes the choosers for changing current group and current user. """
 
     template = "webclient/help.html"
-    request.session.modified = True
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
     
     controller = BaseHelp(conn)
     
@@ -2060,12 +1959,6 @@ def load_history(request, year, month, day, conn=None, **kwargs):
 
     template = "webclient/history/history_details.html"
     
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    
     try:
         page = int(request.REQUEST['page'])
     except:
@@ -2088,7 +1981,7 @@ def load_history(request, year, month, day, conn=None, **kwargs):
     #else:
     #    form_history_type = HistoryTypeForm(initial={'data_type':cal_type})
     
-    context = {'url':url, 'controller':controller}#, 'form_history_type':form_history_type}
+    context = {'controller':controller}#, 'form_history_type':form_history_type}
     context['template'] = template
     return context
 
