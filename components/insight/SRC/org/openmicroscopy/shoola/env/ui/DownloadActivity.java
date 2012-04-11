@@ -61,7 +61,7 @@ public class DownloadActivity extends ActivityComponent {
 	private static final String FILE = "file://";
 
 	/** The description of the activity when finished. */
-	protected static final String DESCRIPTION = "File downloaded";
+	private static final String DESCRIPTION = "File downloaded";
 
 	/** The description of the activity when cancelled. */
 	private static final String DESCRIPTION_CANCEL = "Download cancelled";
@@ -82,7 +82,7 @@ public class DownloadActivity extends ActivityComponent {
 	private File file;
 
 	/** The local name of the file. */
-	protected String localFileName;
+	private String localFileName;
 
 	/** The supported file filters. */
 	private static final List<CustomizedFileFilter> FILTERS;
@@ -224,6 +224,11 @@ public class DownloadActivity extends ActivityComponent {
 	 */
 	protected void notifyActivityEnd() {
 		type.setText(DESCRIPTION);
+		
+		/**
+		 * FIXME: SL - look at this code
+		 */
+		/*
 		if (parameters.getApplicationData() != null) {
 			viewer.openApplication(
 					(ApplicationData) parameters.getApplicationData(),
@@ -232,6 +237,7 @@ public class DownloadActivity extends ActivityComponent {
 				parameters.getSource().setEnabled(true);
 			return;
 		}
+		*/
 		String name = null;
 		String legend = parameters.getLegend();
 		if (legend != null && legend.trim().length() > 0) {

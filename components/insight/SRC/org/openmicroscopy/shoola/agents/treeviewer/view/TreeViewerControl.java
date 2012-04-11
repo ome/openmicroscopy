@@ -860,7 +860,13 @@ class TreeViewerControl
 			activity = new DownloadActivityParam(
 					script.getScriptID(), 
 					DownloadActivityParam.ORIGINAL_FILE, f, null);
+
+			/**
+			 * FIXME: SL - look at this code
+			 */
+			/*
 			activity.setApplicationData(new ApplicationData(""));
+			*/
 			un.notifyActivity(ctx, activity);
 		} else if (index == ScriptActivityParam.DOWNLOAD) {
 			downloadScript(new ScriptActivityParam(script,
@@ -1283,7 +1289,13 @@ class TreeViewerControl
 				activity = new DownloadActivityParam(
 						p.getScript().getScriptID(), 
 						DownloadActivityParam.ORIGINAL_FILE, f, null);
+
+				/**
+				 * FIXME: SL - look at this code
+				 */
+				/*
 				activity.setApplicationData(new ApplicationData(""));
+				*/
 				un.notifyActivity(model.getSecurityContext(), activity);
 			} else if (index == ScriptActivityParam.DOWNLOAD) {
 				downloadScript(p);
