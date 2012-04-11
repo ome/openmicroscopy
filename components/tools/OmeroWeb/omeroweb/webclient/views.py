@@ -384,18 +384,11 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     view = request.REQUEST.get("view")
     
     # get page 
-    try:
-        page = int(request.REQUEST['page'])
-    except:
-        #page = (1, None)[view=="tree"]
-        page = 1
-        
+    page = int(request.REQUEST.get('page', 1))
+
     # get index of the plate
-    try:
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
-        
+    index = int(request.REQUEST.get('index', 0))
+
     # prepare data. E.g. kw = {}  or  {'dataset': 301L}  or  {'project': 151L, 'dataset': 301L}
     kw = dict()
     if o1_type is not None:
@@ -471,12 +464,6 @@ def load_searching(request, form=None, conn=None, **kwargs):
     """
     request.session.modified = True
     
-    # get page    
-    try:
-        page = int(request.REQUEST['page'])
-    except:
-        page = 1
-    
     manager = BaseSearch(conn)
     # form = 'form' if we are searching. Get query from request...
     if form is not None: 
@@ -544,12 +531,6 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
             
     # check view
     view = request.REQUEST.get("view")
-    
-    # get page    
-    try:
-        page = int(request.REQUEST['page'])
-    except:
-        page = None
     
     # get index of the plate
     try:
@@ -1689,12 +1670,6 @@ def load_public(request, share_id=None, conn=None, **kwargs):
     # check view
     view = request.REQUEST.get("view")
     
-    # get page    
-    try:
-        page = int(request.REQUEST['page'])
-    except:
-        page = 1
-    
     if share_id is not None:
         if view == 'tree':
             template = "webclient/public/share_subtree.html"
@@ -1921,10 +1896,8 @@ def load_history(request, year, month, day, conn=None, **kwargs):
 
     template = "webclient/history/history_details.html"
     
-    try:
-        page = int(request.REQUEST['page'])
-    except:
-        page = 1
+    # get page 
+    page = int(request.REQUEST.get('page', 1))
     
     cal_type = None
     try:
