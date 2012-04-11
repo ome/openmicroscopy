@@ -1494,12 +1494,45 @@ def imageMarshal (image, key=None):
         # or some other permissions related issue has tripped us up.
         logger.warn('Security violation while retrieving Dataset when ' \
                     'marshaling image metadata: %s' % e.message)
+    rv = {
+        'error': None,
+        'id': image.id,
+        'size': {'width': image.getSizeX(),
+                 'height': image.getSizeY(),
+                 'z': image.getSizeZ(),
+                 't': image.getSizeT(),
+                 'c': image.getSizeC(),},
+        'pixel_size': {'x': image.getPixelSizeX(),
+                       'y': image.getPixelSizeY(),
+                       'z': image.getPixelSizeZ(),},
+        'meta': {'imageName': image.name or '',
+                 'imageDescription': image.description or '',
+                 'imageAuthor': image.getAuthor(),
+                 'projectName': pr and pr.name or 'Multiple',
+                 'projectId': pr and pr.id or None,
+                 'projectDescription':pr and pr.description or '',
+                 'datasetName': ds and ds.name or 'Multiple',
+                 'datasetId': ds and ds.id or '',
+                 'datasetDescription': ds and ds.description or '',
+                 'imageTimestamp': time.mktime(image.getDate().timetuple()),
+                 'imageId': image.id,
+                 'pixel_range': (0, 0),
+                 'channels': (),
+                 'split_channel': (),
+                 'rdefs': {'model': 'color',
+                           'projection': image.getProjection(),
+                           'defaultZ': 0,
+                           'defaultT': 0,
+                           'invertAxis': image.isInvertedAxis()},
+                 },
+        }
 
     try:
         reOK = image._prepareRenderingEngine()
         if not reOK:
             logger.debug("Failed to prepare Rendering Engine for imageMarshal")
-            return None
+            rv['error'] = "Failed to prepare Rendering Engine for imageMarshal" 
+            return rv
     except omero.ConcurrencyException, ce:
         backOff = ce.backOff
         rv = {
@@ -1516,33 +1549,13 @@ def imageMarshal (image, key=None):
     init_zoom = image._re.getResolutionLevel()
 
     try:
-        rv = {
+        rv.update({
             'tiles': tiles,
             'tile_size': {'width': width,
                           'height': height},
             'init_zoom': init_zoom,
             'levels': levels,
-            'id': image.id,
-            'size': {'width': image.getSizeX(),
-                     'height': image.getSizeY(),
-                     'z': image.getSizeZ(),
-                     't': image.getSizeT(),
-                     'c': image.getSizeC(),},
-            'pixel_size': {'x': image.getPixelSizeX(),
-                           'y': image.getPixelSizeY(),
-                           'z': image.getPixelSizeZ(),},
-            'meta': {'imageName': image.name or '',
-                     'imageDescription': image.description or '',
-                     'imageAuthor': image.getAuthor(),
-                     'projectName': pr and pr.name or 'Multiple',
-                     'projectId': pr and pr.id or None,
-                     'projectDescription':pr and pr.description or '',
-                     'datasetName': ds and ds.name or 'Multiple',
-                     'datasetId': ds and ds.id or '',
-                     'datasetDescription': ds and ds.description or '',
-                     'imageTimestamp': time.mktime(image.getDate().timetuple()),
-                     'imageId': image.id,},
-            }
+            })
         try:
             rv['pixel_range'] = image.getPixelRange()
             rv['channels'] = map(lambda x: channelMarshal(x), image.getChannels())
@@ -1555,14 +1568,6 @@ def imageMarshal (image, key=None):
         except TypeError:
             # Will happen if an image has bad or missing pixel data
             logger.error('imageMarshal', exc_info=True)
-            rv['pixel_range'] = (0, 0)
-            rv['channels'] = ()
-            rv['split_channel'] = ()
-            rv['rdefs'] = {'model': 'color',
-                           'projection': image.getProjection(),
-                           'defaultZ': 0,
-                           'defaultT': 0,
-                           'invertAxis': image.isInvertedAxis()}
     except AttributeError:
         rv = None
         raise
