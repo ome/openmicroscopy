@@ -13,6 +13,7 @@ if omero.__import_style__ is None:
     import omero.min
     import omero.callbacks
     import omero.ObjectFactoryRegistrar
+    IceImport.load("omero_FS_ice")
     IceImport.load("omero_System_ice")
     IceImport.load("omero_Collections_ice")
     IceImport.load("omero_Repositories_ice")
