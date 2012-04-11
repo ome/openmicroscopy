@@ -239,6 +239,7 @@ def index(request, conn=None, **kwargs):
     #controller.loadData()
     
     context = {'controller':controller}
+    context['nav'] = {'basket': request.session.get('nav')['basket']}
     context['template'] = template
     return context
 
@@ -415,6 +416,7 @@ def load_template(request, menu, conn=None, **kwargs):
     
     context = {'url':url, 'init':init, 'myGroups':myGroups,
         'form_active_group':form_active_group, 'form_users':form_users}
+    context['nav'] = {'basket': request.session.get('nav')['basket']}
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
@@ -524,6 +526,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             template = "webclient/data/containers.html"
 
     context = {'url':url, 'manager':manager, 'form_well_index':form_well_index, 'index':index}
+    context['nav'] = {'view':view}          # for pagination controls
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context

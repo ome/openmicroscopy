@@ -101,12 +101,6 @@ class render_response(omeroweb.decorators.render_response):
 
         self.load_settings(request, context, conn)
 
-        if 'nav' not in context:
-            context['nav'] = {}
-        context['nav'] = request.session['nav']     # only needed for nav.basket
-        # used for pagination
-        context['nav']['view'] = request.REQUEST.get('view')
-
 
     def load_settings(self, request, context, conn):
         # This is the new navHelper function...
