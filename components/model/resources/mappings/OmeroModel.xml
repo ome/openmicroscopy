@@ -1950,4 +1950,10 @@
                         <to_child type="ome.model.core.Pixels"/>
                 </properties>
         </link>
+	<link id="ome.model.spw.ScreenPlateLink">
+		<properties>
+			<from_parent type="ome.model.spw.Screen"/>
+			<to_child type="ome.model.spw.Plate"/>
+		</properties>
+	</link>
 </types>
