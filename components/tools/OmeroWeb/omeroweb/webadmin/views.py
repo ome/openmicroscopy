@@ -480,15 +480,9 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
     return HttpResponse(rsp)
 
 @login_required(isAdmin=True)
-def ldap(request, **kwargs):
+def ldap(request, conn=None, **kwargs):
     scripts = True
     template = "webadmin/ldap_search.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'scripts':scripts}
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
