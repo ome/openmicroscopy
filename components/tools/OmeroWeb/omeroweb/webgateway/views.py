@@ -71,33 +71,6 @@ except: #pragma: nocover
 def _safestr (s):
     return unicode(s).encode('utf-8')
 
-def _session_logout (request, server_id, force_key=None):
-    """
-    Remove reference to old sUuid key and old blitz connection.
-    
-    @param request:     http request
-    @param server_id:   used to generate session_key
-    @param force_key:   If specified, use this as session_key
-    """
-    
-    if force_key:
-        session_key = force_key
-    else:
-        browsersession_connection_key = 'cuuid#%s'%server_id
-        session_key = 'S:' + request.session.get(browsersession_connection_key,'') + '#' + str(server_id)
-        if request.session.has_key(browsersession_connection_key):
-            logger.debug('logout: removing "%s"' % (request.session[browsersession_connection_key]))
-            del request.session[browsersession_connection_key]
-    for k in ('username', 'password', 'server', 'host', 'port', 'ssl'):
-        if request.session.has_key(k):
-            del request.session[k]
-    if connectors.has_key(session_key):
-        logger.debug('logout: killing connection "%s"' % (session_key))
-        if connectors[session_key]:
-            logger.info('logout request for "%s"' % connectors[session_key].getUser().omeName)
-            connectors[session_key] and connectors[session_key].seppuku()
-        del connectors[session_key]
-
 class UserProxy (object):
     """
     Represents the current user of the connection, with methods delegating to the connection itself. 
