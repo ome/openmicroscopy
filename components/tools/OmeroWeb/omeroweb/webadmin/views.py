@@ -184,15 +184,9 @@ def experimenters(request, conn=None, **kwargs):
 
 @login_required(isAdmin=True)
 @isAnythingCreated
-def manage_experimenter(request, action, eid=None, **kwargs):
+def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     experimenters = True
     template = "webadmin/experimenter_form.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
     if kwargs['firsttime']:
