@@ -708,7 +708,7 @@
             <!--
             // Many-to-many reference ROIRef
             -->
-            <child name="roiLinks" type="ome.model.core.MicrobeamManipulationROILink" target="ome.model.roi.ROI"/>
+            <child name="roiLinks" type="ome.model.roi.MicrobeamManipulationROILink" target="ome.model.roi.ROI"/>
             <!--
             // Property Type
             -->
