@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
@@ -447,10 +448,11 @@ public interface TreeViewer
 	 * Sets the root of the retrieved hierarchies. 
 	 * 
 	 * @param rootID    	The Id of the root.
-	 * @param experimenter	The experimenter or <code>null</code> if 
+	 * @param experimenters	The experimenters or <code>null</code> if 
 	 * 						the level is {@link #GROUP_ROOT}.
 	 */
-	public void setHierarchyRoot(long rootID, ExperimenterData experimenter);
+	public void setHierarchyRoot(long rootID, 
+			List<ExperimenterData> experimenters);
 
 	/**
 	 * Returns <code>true</code> if the specified object is writable,
@@ -573,8 +575,9 @@ public interface TreeViewer
 	 * Retrieves the user groups. 
 	 * 
 	 * @param location The location of the mouse pressed.
+	 * @param group The group to handle.
 	 */
-	public void retrieveUserGroups(Point location);
+	public void retrieveUserGroups(Point location, GroupData group);
 
 	/**
 	 * Returns the first name and the last name of the currently 
@@ -893,12 +896,11 @@ public interface TreeViewer
 	void openWith(ApplicationData data);
 
 	/**
-	 * Adds the group to the display if not already displayed
+	 * Adds/Removes the groups to/from the display.
 	 * 
-	 * @param group The group to set.
-	 * @param add Pass <code>true</code> to add, <code>false</code> otherwise.
+	 * @param groups The groups to set.
 	 */
-	void setUserGroup(GroupData group, boolean add);
+	void setUserGroup(List<GroupData> groups);
 
 	/** Opens the image in a separate window or in the main viewer. */
 	void setFullScreen();
@@ -1075,5 +1077,18 @@ public interface TreeViewer
 	 * @param group The data to move.
 	 */
 	void moveTo(GroupData group, List<DataObject> nodes);
+
+	/**
+	 * Displays the groups to select.
+	 * 
+	 * @param point The location of the mouse pressed.
+	 */
+	void displayUserGroups(Point point);
+
+	/** Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext();
 
 }

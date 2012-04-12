@@ -33,35 +33,12 @@
 {% block script %}
     {{ block.super }}
 
-    <script type="text/javascript" src="{% static "webadmin/javascript/jquery.imgareaselect.js" %}"></script>
-    
     <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
     
     <script type="text/javascript">
     
-    {% if edit_mode %}
-    function preview(img, selection) { 
-        var scaleX = 100 / (selection.width || 1); 
-        var scaleY = 100 / (selection.height || 1); 
-
-        $('#thumbnail + div > img').css({ 
-            width: Math.round(scaleX * {{ photo_size.0.0 }}) + 'px', 
-            height: Math.round(scaleY * {{ photo_size.0.1 }}) + 'px',
-            marginLeft: '-' + Math.round(scaleX * selection.x1) + 'px', 
-            marginTop: '-' + Math.round(scaleY * selection.y1) + 'px' 
-        });
-        $('#x1').val(selection.x1);
-        $('#y1').val(selection.y1);
-        $('#x2').val(selection.x2);
-        $('#y2').val(selection.y2);
-        $('#w').val(selection.width);
-        $('#h').val(selection.height);
-    } 
-    {% endif %}
-    
-    $(document).ready(function () { 
-        
+    $(document).ready(function () {
         $("#groupTable").tablesorter( {
             //sortList: [[1,0]]
             headers: {0: { sorter: 'digit' } }
@@ -70,35 +47,8 @@
             'delay': 300,
             'loader': 'span.loading'
         });
-        
-        {% if edit_mode %}
-        $('#save_thumb').click(function() {
-            var x1 = $('#x1').val();
-            var y1 = $('#y1').val();
-            var x2 = $('#x2').val();
-            var y2 = $('#y2').val();
-            var w = $('#w').val();
-            var h = $('#h').val();
-            if(x1=="" || y1=="" || x2=="" || y2=="" || w=="" || h==""){
-                alert("You must make a selection first");
-                return false;
-            }else{
-                return true;
-            }
-        });
-        {% endif %}
     }); 
 
-    {% if edit_mode %}
-    $(window).load(function () { 
-        var dim = {{ photo_size.0.0 }}/4
-        var x1 = {{ photo_size.0.0 }}/2-dim
-        var x2 = {{ photo_size.0.0 }}/2+dim
-        var y1 = {{ photo_size.0.1 }}/2-dim
-        var y2 = {{ photo_size.0.1 }}/2+dim
-        $('#thumbnail').imgAreaSelect({ x1: x1, y1: y1, x2: x2, y2: y2, selectionOpacity: 0.2, aspectRatio: '1:1', handles: true, onSelectChange: preview }); 
-    });
-    {% endif %}
     </script>
     
     
@@ -145,7 +95,7 @@
     <div>
         <h1>{% trans "Owned Groups" %}</h1><br/>
     
-        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
+        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
     
         <table id="groupTable" class="tablesorter"> 
             <thead> 

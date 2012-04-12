@@ -71,6 +71,7 @@ import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
 import omero.ResourceError;
+import ome.conditions.SessionTimeoutException;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
@@ -423,6 +424,9 @@ class OMEROGateway
 			int index = DataServicesFactory.SERVER_OUT_OF_SERVICE;
 			if (cause instanceof ConnectionLostException ||
 				e instanceof ConnectionLostException)
+				index = DataServicesFactory.LOST_CONNECTION;
+			else if (cause instanceof SessionTimeoutException ||
+				e instanceof SessionTimeoutException)
 				index = DataServicesFactory.LOST_CONNECTION;
 			connected = false;
 			dsFactory.sessionExpiredExit(index, cause);

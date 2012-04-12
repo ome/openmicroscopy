@@ -451,9 +451,14 @@ class BrowserComponent
             		return;
             	}
             	TreeImageDisplay node = getLoggedExperimenterNode();
-            	if (model.isSingleGroup()) node.setExpanded(true);
-            	else node.getParentDisplay().setExpanded(true);
-            	view.expandNode(node, true);
+            	if (node != null) {
+            		if (model.isSingleGroup()) node.setExpanded(true);
+                	else {
+                		TreeImageDisplay p = node.getParentDisplay();
+                		if (p != null) p.setExpanded(true);
+                	}
+            		view.expandNode(node, true);
+            	}
                 break;
             case READY:
             	refreshBrowser(); //do we want to automatically refresh?
@@ -1210,7 +1215,6 @@ class BrowserComponent
 			node = view.getTreeRoot();
 		} else {
 			//Find the group
-			System.err.println("group:"+groupID);
 			ExperimenterVisitor v = new ExperimenterVisitor(this, groupID);
 			accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 			List<TreeImageDisplay> list = v.getNodes();
@@ -1231,13 +1235,21 @@ class BrowserComponent
 
 	/**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#removeExperimenter(ExperimenterData)
+     * @see Browser#removeExperimenter(ExperimenterData, GroupData)
      */
-	public void removeExperimenter(ExperimenterData exp)
+	public void removeExperimenter(ExperimenterData exp, long groupID)
 	{
 		if (exp == null)
 			throw new IllegalArgumentException("Experimenter cannot be null.");
-		view.removeExperimenter(exp);
+		TreeImageDisplay node = null;
+		if (groupID >= 0) {
+			ExperimenterVisitor v = new ExperimenterVisitor(this, groupID);
+			accept(v);
+			List<TreeImageDisplay> nodes = v.getNodes();
+			if (nodes.size() == 1) node = nodes.get(0);
+		}
+		
+		view.removeExperimenter(exp, node);
 	}
 
 	/**
@@ -1412,7 +1424,10 @@ class BrowserComponent
 			}
 	    }
 	    
-	    if (m.size() == 0) return;
+	    if (m.size() == 0) { //for new data the first time.
+	    	loadExperimenterData(getLoggedExperimenterNode(), null);
+	    	return;
+	    }
 	    model.loadRefreshExperimenterData(m, null, -1, refNode, toBrowse);
 		fireStateChange();
     }
@@ -2122,13 +2137,13 @@ class BrowserComponent
 
 	/**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setUserGroup(GroupData, boolean)
+     * @see Browser#setUserGroup(GroupData)
      */
-	public void setUserGroup(GroupData group, boolean add)
+	public void setUserGroup(GroupData group)
 	{
 		if (group == null)
 			throw new IllegalArgumentException("Group cannot be null.");
-		view.setUserGroup(group, add);
+		view.setUserGroup(group);
 	}
 
 	/**

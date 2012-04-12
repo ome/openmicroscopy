@@ -790,7 +790,10 @@ OMERO Diagnostics %s
         self.ctx.out("OMERO data dir: '%s'\tExists? %s\tIs writable? %s" % \
             (omero_data_dir, exists, is_writable))
         from omero.plugins.web import WebControl
-        WebControl().status(args)
+        try:
+            WebControl().status(args)
+        except:
+            self.ctx.out("OMERO.web not installed!")
 
     def session_manager(self, communicator):
         import IceGrid, Glacier2

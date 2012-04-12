@@ -133,6 +133,10 @@ label {
     padding: 0px;
 }
 
+.gray_border {
+    border: solid 1px #bbb;
+}
+
 /* hidden div to specify which parent tab is 'current' */
 #parent_id {
     display: none;

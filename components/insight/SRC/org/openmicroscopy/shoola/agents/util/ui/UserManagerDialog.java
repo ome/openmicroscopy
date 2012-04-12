@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.UserManagerDialog 
+ * org.openmicroscopy.shoola.agents.util.UserManagerDialog 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -36,21 +36,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
+import javax.swing.JTable;
 import javax.swing.WindowConstants;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout; 
@@ -90,35 +87,32 @@ public class UserManagerDialog
 	public static final String		NO_USER_SWITCH_PROPERTY = "noUserSwitch";
 	
 	/** The default size of the window. */
-	private static final Dimension	DEFAULT_SIZE = new Dimension(400, 400);
+	static final Dimension	DEFAULT_SIZE = new Dimension(400, 400);
 	
 	/** The window's title. */
-	private static final String		TITLE = "Experimenter Selection";
+	private static final String		TITLE = "Experimenters Selection";
 	
 	/** The window's description. */
-	private static final String		TEXT = "Select an experimenter.";
+	private static final String		TEXT = "Select the experimenters.";
 	
 	/** The description of the {@link #cancel} button. */
 	private static final String		CANCEL_DESCRIPTION = "Close the window.";
 	
 	/** The description of the {@link #apply} button. */
-	private static final String		APPLY_DESCRIPTION = "View selected " +
-			"user's data.";
+	private static final String		APPLY_DESCRIPTION = "Select the " +
+			"experimenters.";
 	
 	/** Action command ID indicating to close the window. */
 	private static final int		CANCEL = 0;
 	
 	/** Action command ID indicating to apply the selection. */
 	private static final int		APPLY = 1;
-	
-	/** Action command ID indicating to display content of a group. */
-	private static final int		GROUPS = 2;
-	
+
 	/** 
 	 * The size of the invisible components used to separate buttons
 	 * horizontally.
 	 */
-	private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
+	static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
   
 	/** Button to close without applying the selection. */
 	private JButton cancel;
@@ -127,7 +121,10 @@ public class UserManagerDialog
 	private JButton apply;
 
 	/** The component hosting the users for a given group. */
-	private JList users;
+	private JTable members;
+	
+	/** The component hosting the users for a given group. */
+	private JTable owners;
 	
 	/** The current user. */
 	private ExperimenterData loggedUser;
@@ -137,6 +134,9 @@ public class UserManagerDialog
 	
 	/** The group currently selected.*/
 	private GroupData group;
+	
+	/** The collection of selected users.*/
+	private List<ExperimenterData> selectedUsers;
 	
 	/** Closes and disposes. */
 	private void cancel()
@@ -148,15 +148,25 @@ public class UserManagerDialog
 	/** Switches the user. */
 	private void apply()
 	{
-		Map<Long, ExperimenterData> 
-		r = new HashMap<Long, ExperimenterData>(1);
-		Object user = users.getSelectedValue();
-		if (user == null) {
-			firePropertyChange(NO_USER_SWITCH_PROPERTY, Boolean.valueOf(false), 
-					Boolean.valueOf(true));
-			return;
+		Map<Long, List<ExperimenterData>> 
+		r = new HashMap<Long, List<ExperimenterData>>();
+		//Check the selected users
+		Boolean b;
+		List<ExperimenterData> users = new ArrayList<ExperimenterData>();
+		for (int i = 0; i < owners.getRowCount(); i++) {
+			b = (Boolean) owners.getValueAt(i, 1);
+			if (b.booleanValue()) {
+				users.add((ExperimenterData) owners.getValueAt(i, 0));
+			}
 		}
-		r.put(group.getId(), (ExperimenterData) user);
+		
+		for (int i = 0; i < members.getRowCount(); i++) {
+			b = (Boolean) members.getValueAt(i, 1);
+			if (b.booleanValue()) {
+				users.add((ExperimenterData) members.getValueAt(i, 0));
+			}
+		}
+		r.put(group.getId(), users);
 		firePropertyChange(USER_SWITCH_PROPERTY, null, r);
 		cancel();
 	}
@@ -169,6 +179,25 @@ public class UserManagerDialog
 	}
 	
 	/**
+	 * Returns <code>true</code> if the experimenter is already displayed.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param experimenter The experimenter to handle.
+	 * @return See above.
+	 */
+	private boolean isAlreadyDisplayed(ExperimenterData experimenter)
+	{
+		Iterator<ExperimenterData> i = selectedUsers.iterator();
+		ExperimenterData exp;
+		long id = experimenter.getId();
+		while (i.hasNext()) {
+			exp = i.next();
+			if (exp.getId() == id) return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Fills the users' list with the specified objects.
 	 * 
 	 * @param group The group to handle.
@@ -176,35 +205,34 @@ public class UserManagerDialog
 	private void fillList(GroupData group)
 	{
 		if (group == null) return;
-		DefaultListModel model = (DefaultListModel) users.getModel();
+		DefaultTableModel model = (DefaultTableModel) owners.getModel();
 		int index = 0;
 		List l = sorter.sort(group.getLeaders());
 		Iterator i = l.iterator();
 		ExperimenterData exp;
 		List<Long> ids = new ArrayList<Long>();
-		if (l.size() > 0) {
-			model.add(index, "Group's owners");
-			index++;
-		}
 		while (i.hasNext()) {
 			exp = (ExperimenterData) i.next();
 			if (exp.getId() != loggedUser.getId()) {
-				model.add(index, exp);
-				index++;
+				model.insertRow(index, new Object[]{exp, 
+						new Boolean(isAlreadyDisplayed(exp))});
 				ids.add(exp.getId());
+				index++;
 			}
 		}
 		if (group.getLeaders().size() == group.getExperimenters().size())
 			return;
-		model.add(index, "Members");
-		index++;
+		//model.add(index, "Members");
+		model = (DefaultTableModel) members.getModel();
 		l = sorter.sort(group.getExperimenters());
 		i = l.iterator();
+		index = 0;
 		while (i.hasNext()) {
 			exp = (ExperimenterData) i.next();
 			if (exp.getId() != loggedUser.getId() &&
 				!ids.contains(exp.getId())) {
-				model.add(index, exp);
+				model.insertRow(index, new Object[]{exp, 
+						new Boolean(isAlreadyDisplayed(exp))});
 				index++;
 			}
 		}
@@ -224,16 +252,15 @@ public class UserManagerDialog
 				cancel();
 			}
 		});
+		/*
 		users.addListSelectionListener(new ListSelectionListener() {
 			
-			/**
-			 * Sets the enabled flag of the apply button.
-			 */
 			public void valueChanged(ListSelectionEvent e) {
 				Object value = users.getSelectedValue();
 				apply.setEnabled(value instanceof ExperimenterData);
 			}
 		});
+		*/
 		cancel.setActionCommand(""+CANCEL);
 		cancel.addActionListener(this);
 		apply.setActionCommand(""+APPLY);
@@ -253,15 +280,13 @@ public class UserManagerDialog
 		cancel.setToolTipText(
 				UIUtilities.formatToolTipText(CANCEL_DESCRIPTION));
 		apply = new JButton("Apply");
-		apply.setEnabled(false);
+		//apply.setEnabled(false);
 		apply.setToolTipText(
 				UIUtilities.formatToolTipText(APPLY_DESCRIPTION));
 		getRootPane().setDefaultButton(apply);
-		users = new JList(new DefaultListModel());
+		members = new SelectionTable(userIcon);
+		owners = new SelectionTable(userIcon);
 		fillList(group);
-		users.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		users.setLayoutOrientation(JList.VERTICAL);
-		users.setCellRenderer(new UserListRenderer(userIcon));
 		attachListeners();
 	}
 	
@@ -284,7 +309,24 @@ public class UserManagerDialog
 		}
 		//content.add(UIUtilities.setTextFont("Experimenters "),
 		//		"0, 2, LEFT, TOP");
-		content.add(new JScrollPane(users), "0, 2, 1, 2");
+		int rows = owners.getRowCount();
+		JPanel p = new JPanel();
+		
+		p.setBackground(UIUtilities.BACKGROUND);
+		double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
+				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5,
+			TableLayout.PREFERRED, TableLayout.PREFERRED}};
+		p.setLayout(new TableLayout(size));
+		if (rows > 0) {
+			p.add(UIUtilities.setTextFont("Group's owners"), "0, 0");
+			p.add(owners, "0, 1, 1, 1");
+		}
+		rows = members.getRowCount();
+		if (rows > 0) {
+			p.add(UIUtilities.setTextFont("Members"), "0, 3");
+			p.add(members, "0, 4, 1, 4");
+		}
+		content.add(new JScrollPane(p), "0, 2, 1, 2");
 		return content;
 	}
 	
@@ -329,20 +371,34 @@ public class UserManagerDialog
 	 * @param parent The parent of this dialog.
 	 * @param loggedUser The user currently logged in.
 	 * @param selected The selected group.
+	 * @param selectedUsers The collection of users already displayed.
 	 * @param userIcon The icon representing an user.
 	 * @param icon The icon displayed in the title panel.
 	 */
 	public UserManagerDialog(JFrame parent, ExperimenterData loggedUser, 
-							GroupData selected, Icon userIcon, Icon icon)
+		GroupData selected, List<ExperimenterData> selectedUsers,
+		Icon userIcon, Icon icon)
 	{
 		super(parent);
 		setProperties();
 		this.loggedUser = loggedUser;
 		group = selected;
+		if (selectedUsers == null)
+			selectedUsers = new ArrayList<ExperimenterData>();
+		this.selectedUsers = selectedUsers;
 		initComponents(userIcon);
 		buildGUI(selected, icon);
 	}
 
+	/**
+	 * Returns the users already selected.
+	 * 
+	 * @return See above.
+	 */
+	List<ExperimenterData> getSelectedUsers()
+	{
+		return selectedUsers;
+	}
 	
 	/** Sets the default size of window. */
 	public void setDefaultSize()
