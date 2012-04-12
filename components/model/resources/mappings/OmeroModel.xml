@@ -1132,6 +1132,7 @@
     <!-- OME model object Shape -->
     <abstract id="ome.model.roi.Shape" >
         <properties>
+            <manyone name="roi" type="ome.model.roi.ROI"/>
             <!--
             // *** WARNING *** Unhandled or skipped property Ellipse
             -->
@@ -1329,6 +1330,7 @@
             // Property Timepoint
             -->
             <optional name="timepoint" type="String"/>
+            <manyone name="well" type="ome.model.spw.Well"/>
         </properties>
     </type>
 
