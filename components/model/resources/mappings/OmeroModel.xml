@@ -1896,4 +1896,11 @@
 			<to_child type="ome.model.core.Image"/>
 		</properties>
 	</link>
+	<type id="ome.model.core.StatsInfo">
+		<!-- Note: StatsInfo is not in model-->
+		<properties>
+			<required name="globalMin" type="double"/>
+			<required name="globalMax" type="double"/>
+		</properties>
+	</type>
 </types>
