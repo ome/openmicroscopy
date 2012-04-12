@@ -62,7 +62,7 @@ public abstract class Validator {
     public static Validation validate(ImagingEnvironment imageEnvironment) {
         Validation v = Validation.VALID();
 
-        Double co2 = imageEnvironment.getCo2percent();
+        Double co2 = imageEnvironment.getCO2percent();
         if (null != co2 && (co2.floatValue() < 0 || co2.floatValue() > 1)) {
             v.invalidate("ImageEnvironment.co2percent must be between 0 and 1");
         }
