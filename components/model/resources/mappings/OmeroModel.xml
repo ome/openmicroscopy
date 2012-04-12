@@ -705,6 +705,7 @@
             // Property Type
             -->
             <optional name="type" type="ome.model.enums.MicrobeamManipulationType"/>
+            <manyzero name="experiment" type="ome.model.core.Experiment"/>
         </properties>
     </type>
 
