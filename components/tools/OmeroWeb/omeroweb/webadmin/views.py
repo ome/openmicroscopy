@@ -660,15 +660,9 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
 
 
 @login_required()
-def drivespace(request, **kwargs):
+def drivespace(request, conn=None, **kwargs):
     drivespace = True
     template = "webadmin/drivespace.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'drivespace':drivespace}
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
