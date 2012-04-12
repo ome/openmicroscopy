@@ -608,12 +608,7 @@ def my_account(request, action=None, conn=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @login_required()
-def myphoto(request, **kwargs):
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
+def myphoto(request, conn=None, **kwargs):
     photo = conn.getExperimenterPhoto()
     return HttpResponse(photo, mimetype='image/jpeg')
 
