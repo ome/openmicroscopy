@@ -514,15 +514,9 @@ def ldap(request, conn=None, **kwargs):
 #    return HttpResponse(rsp)
 
 #@login_required(isAdmin=True)
-#def manage_enum(request, action, klass, eid=None, **kwargs):
+#def manage_enum(request, action, klass, eid=None, conn=None, **kwargs):
 #    enums = True
 #    template = "webadmin/enum_form.html"
-#        
-#    conn = None
-#    try:
-#        conn = kwargs["conn"]
-#    except:
-#        logger.error(traceback.format_exc())
 #    
 #    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums}
 #    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
