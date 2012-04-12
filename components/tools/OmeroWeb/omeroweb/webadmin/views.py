@@ -446,15 +446,9 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
     return HttpResponse(rsp)
 
 @login_required(isGroupOwner=True)
-def manage_group_owner(request, action, gid, **kwargs):
+def manage_group_owner(request, action, gid, conn=None, **kwargs):
     myaccount = True
     template = "webadmin/group_form_owner.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
