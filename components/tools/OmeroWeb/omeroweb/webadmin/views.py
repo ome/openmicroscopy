@@ -614,15 +614,9 @@ def myphoto(request, conn=None, **kwargs):
 
 
 @login_required()
-def manage_avatar(request, action=None, **kwargs):
+def manage_avatar(request, action=None, conn=None, **kwargs):
     myaccount = True
     template = "webadmin/avatar.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
     eventContext = {'userId':conn.getEventContext().userId,'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
