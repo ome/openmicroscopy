@@ -1069,6 +1069,7 @@
             // Back reference Well_BackReference
             -->
             <manyzero name="wells" type="ome.model.spw.Well" inverse="Reagent" ordered="TODO"/>
+            <manyzero name="screens" type="ome.model.spw.Screen" inverse="Reagent" ordered="TODO"/>
         </properties>
     </type>
 
