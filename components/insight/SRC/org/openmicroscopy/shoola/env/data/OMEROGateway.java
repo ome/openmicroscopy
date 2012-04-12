@@ -3702,7 +3702,7 @@ class OMEROGateway
 		}
 
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
-		if (files == null || files.size() == 0) return result;
+		if (files == null || files.size() == 0) return null;
 		RawFileStorePrx store;
 		Iterator i = files.iterator();
 		OriginalFile of;
@@ -3720,7 +3720,7 @@ class OMEROGateway
 			} catch (Exception e) {
 				handleException(e, "Cannot set the file's id.");
 			}
-			fullPath = path+of.getName().getValue();
+			fullPath = folderPath+of.getName().getValue();
 			f = new File(fullPath);
 			try {
 				stream = new FileOutputStream(f);

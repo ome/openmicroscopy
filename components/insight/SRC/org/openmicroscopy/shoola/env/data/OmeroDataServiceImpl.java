@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -518,14 +519,15 @@ class OmeroDataServiceImpl
 		Pixels pixels = gateway.getPixels(ctx, pixelsID);
 		long imageID = pixels.getImage().getId().getValue();
 		ImageData image = gateway.getImage(ctx, imageID, null);
-		String name = image.getName()+OMETIFFFilter.OME_TIF;
-		if (image.isArchived())
-			return gateway.getArchivedFiles(ctx, folderPath, pixelsID);
+		String name = image.getName()+"."+OMETIFFFilter.OME_TIF;
+		Map<Boolean, Object> result = 
+			gateway.getArchivedFiles(ctx, folderPath, pixelsID);
+		if (result != null) return result;
 		Object file = context.getImageService().exportImageAsOMEFormat(ctx, 
 				OmeroImageService.EXPORT_AS_OMETIFF, imageID, 
 				new File(FilenameUtils.concat(folderPath, name)), null);
 		Map<Boolean, Object> files = new HashMap<Boolean, Object>();
-		files.put(Boolean.valueOf(true), file);
+		files.put(Boolean.valueOf(true), Arrays.asList(file));
 		return files;
 	}
 
