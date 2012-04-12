@@ -30,7 +30,7 @@
         </tstamp>
 
 	<!-- Patterns -->
-        <property name="dsl.pat" value="**/*.ome.xml"/>
+        <property name="dsl.pat" value="**/OmeroModel.xml"/>
         <property name="hbm.pat" value="**/*.hbm.xml"/>
         <property name="api.pat" value="**/*.java"/>
         <property name="ice.pat" value="**/*.ice"/>
