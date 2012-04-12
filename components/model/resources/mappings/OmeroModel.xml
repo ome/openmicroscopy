@@ -1043,10 +1043,8 @@
             // Property Namespace
             -->
             <optional name="namespace" type="String"/>
-            <!--
-            // Property Union
-            -->
-            <required name="union" type="ome.model.roi.Union"/>
+            <onemany name="shapes" type="ome.model.roi.Shape" inverse="shape" ordered="TODO"/>
+
         </properties>
     </type>
 
@@ -1251,16 +1249,6 @@
             // Property Transmittance
             -->
             <optional name="transmittance" type="PercentFraction"/>
-        </properties>
-    </type>
-
-    <!-- OME model object Union -->
-    <type id="ome.model.roi.Union" >
-        <properties>
-            <!--
-            // Property which occurs more than once Shape
-            -->
-            <onemany name="shapes" type="ome.model.roi.Shape" inverse="Union" ordered="TODO"/>
         </properties>
     </type>
 
