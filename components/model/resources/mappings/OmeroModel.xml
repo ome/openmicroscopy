@@ -1921,4 +1921,33 @@
                         <to_child type="ome.model.roi.ROI"/>
 		</properties>
 	</link>
+	<type id="ome.model.core.OriginalFile" named="true" annotated="true">
+		<properties>
+			<child name="pixelsFileMaps" type="ome.model.core.PixelsOriginalFileMap" target="ome.model.core.Pixels"/>
+			<!--
+			 path is the directory to the logical location of this file, i.e. `dirname <file>`
+			 name is the filename of the file, i.e. `basename <file>`
+			-->
+			<required name="path" type="text"/>
+			<required name="size" type="long"/>
+			<optional name="atime" type="timestamp"/>
+			<optional name="mtime" type="timestamp"/>
+			<optional name="ctime" type="timestamp"/>
+			<required name="sha1" type="string"/>
+			<optional name="mimetype" type="string"/>
+			<!--
+			Has a default set at the DB level of application/octet-stream.
+			Internal values in use are:
+			 * Repository
+			 * Directory
+			 * OMERO.tables
+			-->
+		</properties>
+	</type>
+        <link id="ome.model.core.PixelsOriginalFileMap">
+                <properties>
+                        <from_parent type="ome.model.core.OriginalFile"/>
+                        <to_child type="ome.model.core.Pixels"/>
+                </properties>
+        </link>
 </types>
