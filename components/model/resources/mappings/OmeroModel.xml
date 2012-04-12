@@ -614,6 +614,7 @@
             // Property Wavelength
             -->
             <optional name="wavelength" type="PositiveInteger"/>
+            <manyone name="microbeamManipulation" type="ome.model.core.MicrobeamManipulation"/>
         </properties>
     </type>
 
