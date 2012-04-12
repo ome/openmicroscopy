@@ -301,15 +301,9 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     return HttpResponse(rsp)
 
 @login_required()
-def manage_password(request, eid, **kwargs):
+def manage_password(request, eid, conn=None, **kwargs):
     experimenters = True
     template = "webadmin/password.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
 
