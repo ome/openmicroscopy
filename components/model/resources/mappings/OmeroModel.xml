@@ -940,7 +940,7 @@
             <!--
             // Many-to-many reference ScreenRef
             -->
-            <child name="screenLinks" type="ome.model.spw.PlateScreenLink" target="ome.model.spw.Screen"/>
+            <parent name="screenLinks" type="ome.model.spw.ScreenPlateLink" target="ome.model.spw.Screen"/>
             <!--
             // Property Status
             -->
