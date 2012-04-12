@@ -14,7 +14,7 @@ import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
 import ome.model.IObject;
-import ome.model.acquisition.ImagingEnvironment;
+import ome.model.core.ImagingEnvironment;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 
