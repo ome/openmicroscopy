@@ -941,6 +941,7 @@
             // Property which occurs more than once Well
             -->
             <zeromany name="wells" type="ome.model.spw.Well" inverse="Plate" ordered="TODO"/>
+
             <!--
             // Property WellOriginX
             -->
@@ -971,6 +972,7 @@
             // Reference WellSampleRef
             -->
             <onemany name="wellSamples" type="ome.model.spw.WellSample" inverse="PlateAcquisition" ordered="TODO"/>
+            <manyone name="plate" type="ome.model.spw.Plate" inverse="plateAcquisition"/>
         </properties>
     </type>
 
@@ -1297,6 +1299,7 @@
             // Property which occurs more than once WellSample
             -->
             <zeromany name="wellSamples" type="ome.model.spw.WellSample" inverse="Well" ordered="TODO"/>
+            <manyone name="plate" type="ome.model.spw.Plate" inverse="Well"/>
         </properties>
     </type>
 
