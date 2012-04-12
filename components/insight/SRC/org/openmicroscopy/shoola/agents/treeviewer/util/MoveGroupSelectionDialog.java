@@ -187,6 +187,7 @@ public class MoveGroupSelectionDialog
 			}
 		}
 		TransferableObject t = new TransferableObject(ctx, target, toMove);
+		t.setGroupName(group.getName());
 		IconManager icons = IconManager.getInstance();
 		TransferableActivityParam param = new TransferableActivityParam(
 				icons.getIcon(IconManager.MOVE_22), t);
