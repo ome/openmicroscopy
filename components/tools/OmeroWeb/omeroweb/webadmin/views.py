@@ -678,13 +678,7 @@ def drivespace(request, conn=None, **kwargs):
 
 
 @login_required()
-def load_drivespace(request, **kwargs):
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        return handlerInternalError(request, "Connection is not available. Please contact your administrator.")
-    
+def load_drivespace(request, conn=None, **kwargs):
     offset = request.REQUEST.get('offset', 0)
     rv = usersData(conn, offset)
     return HttpResponse(simplejson.dumps(rv),mimetype='application/json')
