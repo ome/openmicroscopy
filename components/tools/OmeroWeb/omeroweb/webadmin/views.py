@@ -164,15 +164,9 @@ def logout(request, **kwargs):
 
 @login_required(isAdmin=True)
 @isAnythingCreated
-def experimenters(request, **kwargs):
+def experimenters(request, conn=None, **kwargs):
     experimenters = True
     template = "webadmin/experimenters.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
     if kwargs['firsttime']:
