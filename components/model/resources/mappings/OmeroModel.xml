@@ -121,6 +121,7 @@
             // Property SamplesPerPixel
             -->
             <optional name="samplesPerPixel" type="PositiveInteger"/>
+            <manyone name="pixels" type="ome.model.core.Pixels"/>
         </properties>
     </type>
 
@@ -907,6 +908,7 @@
             // Property TheZ
             -->
             <required name="theZ" type="NonNegativeInteger"/>
+            <manyone name="pixels" type="ome.model.core.Pixels"/>
         </properties>
     </type>
 
