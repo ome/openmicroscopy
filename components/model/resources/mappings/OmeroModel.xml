@@ -1903,4 +1903,22 @@
 			<required name="globalMax" type="double"/>
 		</properties>
 	</type>
+        <link id="ome.model.core.ImageMicrobeamManipulationLink">
+		<properties>
+			<from_parent type="ome.model.core.Image"/>
+			<to_child type="ome.model.core.MicrobeamManipulation"/>
+		</properties>
+	</link>
+        <link id="ome.model.roi.ImageROILink">
+		<properties>
+			<from_parent type="ome.model.core.Image"/>
+                        <to_child type="ome.model.roi.ROI"/>
+		</properties>
+	</link>
+        <link id="ome.model.roi.MicrobeamManipulationROILink">
+		<properties>
+			<from_parent type="ome.model.core.MicrobeamManipulation"/>
+                        <to_child type="ome.model.roi.ROI"/>
+		</properties>
+	</link>
 </types>
