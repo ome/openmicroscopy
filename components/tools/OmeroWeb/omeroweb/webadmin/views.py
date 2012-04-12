@@ -366,15 +366,9 @@ def groups(request, conn=None, **kwargs):
 
 @login_required(isAdmin=True)
 @isAnythingCreated
-def manage_group(request, action, gid=None, **kwargs):
+def manage_group(request, action, gid=None, conn=None, **kwargs):
     groups = True
     template = "webadmin/group_form.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'groups':groups}
     if kwargs['firsttime']:
