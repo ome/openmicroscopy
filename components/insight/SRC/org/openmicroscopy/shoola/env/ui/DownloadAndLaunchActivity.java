@@ -26,10 +26,12 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
-/** 
+/**
+ * Activity to describe downloading a file and launching a specific application
+ * to open the downloaded file
  * 
- *
- * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
+ * @author Scott Littlewood, <a
+ *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
 public class DownloadAndLaunchActivity extends DownloadActivity {
@@ -78,6 +80,10 @@ public class DownloadAndLaunchActivity extends DownloadActivity {
 	protected void notifyActivityError() {
 	}
 
+	/**
+	 * calls the super class to create the loader and forces deleteOnExit() for
+	 * the temporary file
+	 */
 	@Override
 	protected UserNotifierLoader createLoader() {
 		UserNotifierLoader loader = super.createLoader();
