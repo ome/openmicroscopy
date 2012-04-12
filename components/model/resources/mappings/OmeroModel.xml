@@ -1314,7 +1314,7 @@
             <!--
             // Property ImageRef
             -->
-            <optional name="image" type="ome.model.spw.Image"/>
+            <optional name="image" type="ome.model.core.Image"/>
             <!--
             // Property Index
             -->
