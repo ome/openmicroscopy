@@ -38,9 +38,20 @@ body {
 	#login form {
     padding: 30px;
 	-webkit-border-radius:5px;
+	
+	-webkit-border-radius:5px; /* Saf3+, Chrome */
+	   -moz-border-radius:5px; /* FF1+ */
+	        border-radius:5px; /* Opera 10.5, IE 9 */ 
 	border-radius:5px;
 	background:hsl(215,4%,96%);
 	-webkit-box-shadow: 0 1px 1px rgba(0,0,0,.2);
+	
+	-webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Saf3.0+, Chrome */
+	   -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* FF3.5+ */
+	        box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Opera 10.5, IE 9.0 */
+	    filter:progid:DXImageTransform.Microsoft.dropshadow(OffX=, OffY=0, Color='#fff'); /* IE6,IE7 */
+	-ms-filter:"progid:DXImageTransform.Microsoft.dropshadow(OffX=, OffY=0, Color='#fff')"; /* IE8 */ 
+	
 	border-top:solid 1px white;
 	border-right:solid 1px white;
 	border-left:solid 1px white;
@@ -122,6 +133,16 @@ body {
 				display:block;
 				background-color:hsl(210,50%,60%);
 				background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,60%)), to(hsl(210,40%,70%)));
+				
+				background:hsl(210,50%,60%); /* Old browsers */
+				background-image:-moz-linear-gradient(top, hsl(210,40%,70%) 0%, hsl(210,40%,60%) 100%); /* FF3.6+ */
+				background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,hsl(210,40%,70%)), color-stop(100%,hsl(210,40%,60%))); /* Chrome,Safari4+ */
+				background-image:-webkit-linear-gradient(top, hsl(210,40%,70%) 0%,hsl(210,40%,60%) 100%); /* Chrome10+,Safari5.1+ */
+				background-image:-o-linear-gradient(top, hsl(210,40%,70%) 0%,hsl(210,40%,60%) 100%); /* Opera11.10+ */
+				background-image:-ms-linear-gradient(top, hsl(210,40%,70%) 0%,hsl(210,40%,60%) 100%); /* IE10+ */
+				filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='hsl(210,40%,70%)', endColorstr='hsl(210,40%,60%)',GradientType=0 ); /* IE6-9 */
+				background:linear-gradient(top, hsl(210,40%,70%) 0%,hsl(210,40%,60%) 100%); /* W3C */ 
+				
 				border-top:solid 1px hsl(210,40%,50%);
 				border-right:solid 1px hsl(210,40%,40%);
 				border-left:solid 1px hsl(210,40%,40%);
@@ -144,11 +165,34 @@ body {
 			
 			#login input[type="submit"]:hover {
 				background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,60%)), to(hsl(210,40%,76%)));
+				background:transparent; /* Old browsers */
+				background-image:-moz-linear-gradient(top, hsl(210,40%,76%) 0%, hsl(210,40%,60%) 100%); /* FF3.6+ */
+				background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,hsl(210,40%,76%)), color-stop(100%,hsl(210,40%,60%))); /* Chrome,Safari4+ */
+				background-image:-webkit-linear-gradient(top, hsl(210,40%,76%) 0%,hsl(210,40%,60%) 100%); /* Chrome10+,Safari5.1+ */
+				background-image:-o-linear-gradient(top, hsl(210,40%,76%) 0%,hsl(210,40%,60%) 100%); /* Opera11.10+ */
+				background-image:-ms-linear-gradient(top, hsl(210,40%,76%) 0%,hsl(210,40%,60%) 100%); /* IE10+ */
+				filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='hsl(210,40%,76%)', endColorstr='hsl(210,40%,60%)',GradientType=0 ); /* IE6-9 */
+				background:linear-gradient(top, hsl(210,40%,76%) 0%,hsl(210,40%,60%) 100%); /* W3C */ 
 			}
 			
 			#login input[type="submit"]:active, #login input[type="submit"]:focus {
 				background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,65%)), to(hsl(210,40%,60%)));
+				
+				background:transparent; /* Old browsers */
+				background-image:-moz-linear-gradient(top, hsl(210,40%,60%) 0%, hsl(210,40%,65%) 100%); /* FF3.6+ */
+				background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,hsl(210,40%,60%)), color-stop(100%,hsl(210,40%,65%))); /* Chrome,Safari4+ */
+				background-image:-webkit-linear-gradient(top, hsl(210,40%,60%) 0%,hsl(210,40%,65%) 100%); /* Chrome10+,Safari5.1+ */
+				background-image:-o-linear-gradient(top, hsl(210,40%,60%) 0%,hsl(210,40%,65%) 100%); /* Opera11.10+ */
+				background-image:-ms-linear-gradient(top, hsl(210,40%,60%) 0%,hsl(210,40%,65%) 100%); /* IE10+ */
+				filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='hsl(210,40%,60%)', endColorstr='hsl(210,40%,65%)',GradientType=0 ); /* IE6-9 */
+				background:linear-gradient(top, hsl(210,40%,60%) 0%,hsl(210,40%,65%) 100%); /* W3C */ 
+				
 				-webkit-box-shadow: none;
+				-webkit-box-shadow:none; /* Saf3.0+, Chrome */
+				   -moz-box-shadow:none; /* FF3.5+ */
+				        box-shadow:none ; /* Opera 10.5, IE 9.0 */
+				    filter:progid:DXImageTransform.Microsoft.dropshadow(OffX=none, OffY=, Color='#fff'); /* IE6,IE7 */
+				-ms-filter:"progid:DXImageTransform.Microsoft.dropshadow(OffX=none, OffY=, Color='#fff')"; /* IE8 */ 
 				border:solid 1px hsl(210,40%,40%);
 			}
 			
@@ -161,6 +205,9 @@ body {
 				line-height:1.3em;
 				padding:2px 5px;
 				-webkit-border-radius:2px;
+				-webkit-border-radius:2px; /* Saf3+, Chrome */
+				   -moz-border-radius:2px; /* FF1+ */
+				        border-radius:2px; /* Opera 10.5, IE 9 */ 
 				font-size:1.1em;
 				background-color: hsl(0,30%,80%);
 				

@@ -35,37 +35,42 @@
 
     .cal_nav input {
     	border:solid 1px rgba(0,0,0,.4);
-        background-color:rgba(255,255,255,.1);
+        background-color:rgba(0,0,0,.2);
         -webkit-border-radius:3px;
         -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 1px 0 rgba(255,255,255,.1);
         font-weight:bold;
-        top:3px;
+        top:2px;
         color:white;
         cursor:pointer;
+		width:26px;
+		height:26px;
         text-shadow:0 -1px 0 rgba(0,0,0,.6);
     }
     
     .cal_nav input:hover {
-        background-color:rgba(255,255,255,.15);
+        background:rgba(0,0,0,.1);
     }
     
     .cal_nav input:active, .cal_nav input:focus {
         background-color:rgba(0,0,0,.2);
         -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.05);
         border:solid 1px rgba(0,0,0,.6);
-        top:4px;
     }
     
     
 
 	#prevMonth {
 		position:absolute;
+		text-indent:-9999px;
 		left:4px;
+		background: url(../image/calendar_arrow_left.png) center center no-repeat;
 	}
 	
 	#nextMonth {
 		position:absolute;
 		right:4px;
+		text-indent:-9999px;
+		background: url(../image/calendar_arrow_right.png) center center no-repeat;
 	}
     
     

@@ -82,6 +82,13 @@ button {
 				border-left:none !important;
 				-webkit-border-top-left-radius:4px;
 				-webkit-border-bottom-left-radius:4px;
+				
+				 -webkit-border-bottom-left-radius:4px;
+				     -moz-border-radius-bottomleft:4px;
+				         border-bottom-left-radius:4px;
+				 -webkit-border-top-left-radius:4px; /* Saf3+, Chrome */
+					  -moz-border-radius-topleft:4px; /* FF1+ */
+					      border-top-left-radius:4px; /* Opera 10.5, IE 9 */ 
 			}
 			
 				.menu_btns li:first-child a {
@@ -538,7 +545,7 @@ a.tag:hover {
 						padding: 1em;
 						font-weight: lighter;
 						display: block;
-						font-family: 'Helveticaneue-Medium';
+						font-family: 'Helveticaneue-Medium', Helvetica, Arial, sans-serif;
 						color: hsl(0,0%,20%);
 						text-shadow: 0 1px 0 white;
 					}
@@ -591,8 +598,8 @@ a.tag:hover {
 	 
 	
 	This saddens him. I know this, because as I ride with 
-	him around town talking about fascinating 
-	subjects, he opens up to me. He wants to leave something 
+	him around town talking about the fascinating 
+	subjects of the world, he opens up to me. He wants to leave something 
 	on this earth to be remembered by. He wants... 
 	permanence.
 	

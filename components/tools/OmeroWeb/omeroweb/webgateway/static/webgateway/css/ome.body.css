@@ -31,9 +31,9 @@ html body {
 body {
     color: #555555;
 	-webkit-font-smoothing: antialiased; /* Deliciously smooths text for webkit browsers */
-    font-family: 'HelveticaNeue-Medium', Arial, Verdana, Lucida, Helvetica, sans-serif;
+    font-family: 'HelveticaNeue-Medium', Helvetica, Arial, Verdana, Lucida, sans-serif;
     height: 100%;
-    padding: 0px;u
+    padding: 0px;
     margin: 0px;
     position: relative;
 	background:hsl(215,9%,88%);
