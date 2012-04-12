@@ -19,7 +19,7 @@
 
 <types>
     <!-- OME model object AffineTransform -->
-    <type id="omero.model.roi.AffineTransform" >
+    <type id="ome.model.roi.AffineTransform" >
         <properties>
             <!--
             // Property A00
@@ -49,22 +49,22 @@
     </type>
 
     <!-- OME model object Arc -->
-    <type id="omero.model.core.Arc" superclass="omero.model.core.LightSource" >
+    <type id="ome.model.core.Arc" superclass="ome.model.core.LightSource" >
         <properties>
             <!--
             // Property Type
             -->
-            <optional name="type" type="omero.model.enums.ArcType"/>
+            <optional name="type" type="ome.model.enums.ArcType"/>
         </properties>
     </type>
 
     <!-- OME model object Channel -->
-    <type id="omero.model.core.Channel" annotated="true" named="true" >
+    <type id="ome.model.core.Channel" annotated="true" named="true" >
         <properties>
             <!--
             // Property AcquisitionMode
             -->
-            <optional name="acquisitionMode" type="omero.model.enums.AcquisitionMode"/>
+            <optional name="acquisitionMode" type="ome.model.enums.AcquisitionMode"/>
             <!--
             // Property Color
             -->
@@ -72,11 +72,11 @@
             <!--
             // Property ContrastMethod
             -->
-            <optional name="contrastMethod" type="omero.model.enums.ContrastMethod"/>
+            <optional name="contrastMethod" type="ome.model.enums.ContrastMethod"/>
             <!--
             // Property DetectorSettings
             -->
-            <optional name="detectorSettings" type="omero.model.core.DetectorSettings"/>
+            <optional name="detectorSettings" type="ome.model.core.DetectorSettings"/>
             <!--
             // Property EmissionWavelength
             -->
@@ -88,7 +88,7 @@
             <!--
             // Property FilterSetRef
             -->
-            <optional name="filterSet" type="omero.model.core.FilterSet"/>
+            <optional name="filterSet" type="ome.model.core.FilterSet"/>
             <!--
             // Property Fluor
             -->
@@ -96,15 +96,15 @@
             <!--
             // Property IlluminationType
             -->
-            <optional name="illuminationType" type="omero.model.enums.IlluminationType"/>
+            <optional name="illuminationType" type="ome.model.enums.IlluminationType"/>
             <!--
             // Property LightPath
             -->
-            <optional name="lightPath" type="omero.model.core.LightPath"/>
+            <optional name="lightPath" type="ome.model.core.LightPath"/>
             <!--
             // Property LightSourceSettings
             -->
-            <optional name="lightSourceSettings" type="omero.model.core.LightSourceSettings"/>
+            <optional name="lightSourceSettings" type="ome.model.core.LightSourceSettings"/>
             <!--
             // Property NDFilter
             -->
@@ -125,21 +125,21 @@
     </type>
 
     <!-- OME model object Dataset -->
-    <type id="omero.model.core.Dataset" annotated="true" named="true" described="true">
+    <type id="ome.model.core.Dataset" annotated="true" named="true" described="true">
         <properties>
             <!--
             // Many-to-many reference ImageRef
             -->
-            <child name="imageLinks" type="omero.model.core.DatasetImageLink" target="omero.model.core.Image"/>
+            <child name="imageLinks" type="ome.model.core.DatasetImageLink" target="ome.model.core.Image"/>
             <!--
             // Many-to-many back reference Project_BackReference
             -->
-            <parent name="projectLinks" type="omero.model.core.ProjectDatasetLink" target="omero.model.core.Project"/>
+            <parent name="projectLinks" type="ome.model.core.ProjectDatasetLink" target="ome.model.core.Project"/>
         </properties>
     </type>
 
     <!-- OME model object Detector -->
-    <type id="omero.model.core.Detector" >
+    <type id="ome.model.core.Detector" >
         <properties>
             <!--
             // Property AmplificationGain
@@ -172,7 +172,7 @@
             <!--
             // Property Type
             -->
-            <optional name="type" type="omero.model.enums.DetectorType"/>
+            <optional name="type" type="ome.model.enums.DetectorType"/>
             <!--
             // Property Voltage
             -->
@@ -185,12 +185,12 @@
     </type>
 
     <!-- OME model object DetectorSettings -->
-    <type id="omero.model.core.DetectorSettings" >
+    <type id="ome.model.core.DetectorSettings" >
         <properties>
             <!--
             // Property Binning
             -->
-            <optional name="binning" type="omero.model.enums.Binning"/>
+            <optional name="binning" type="ome.model.enums.Binning"/>
             <!--
             // Property Gain
             -->
@@ -211,16 +211,16 @@
     </type>
 
     <!-- OME model object Dichroic -->
-    <type id="omero.model.core.Dichroic" >
+    <type id="ome.model.core.Dichroic" >
         <properties>
             <!--
             // Back reference FilterSet_BackReference
             -->
-            <manyzero name="filterSets" type="omero.model.core.FilterSet" inverse="Dichroic" ordered="TODO"/>
+            <manyzero name="filterSets" type="ome.model.core.FilterSet" inverse="Dichroic" ordered="TODO"/>
             <!--
             // Back reference LightPath_BackReference
             -->
-            <manyzero name="lightPaths" type="omero.model.core.LightPath" inverse="Dichroic" ordered="TODO"/>
+            <manyzero name="lightPaths" type="ome.model.core.LightPath" inverse="Dichroic" ordered="TODO"/>
             <!--
             // Property LotNumber
             -->
@@ -241,7 +241,7 @@
     </type>
 
     <!-- OME model object Ellipse -->
-    <type id="omero.model.roi.Ellipse" superclass="omero.model.roi.Shape" >
+    <type id="ome.model.roi.Ellipse" superclass="ome.model.roi.Shape" >
         <properties>
             <!--
             // Property RadiusX
@@ -263,44 +263,44 @@
     </type>
 
     <!-- OME model object Experiment -->
-    <type id="omero.model.core.Experiment" described="true">
+    <type id="ome.model.core.Experiment" described="true">
         <properties>
             <!--
             // Back reference Image_BackReference
             -->
-            <manyzero name="images" type="omero.model.core.Image" inverse="Experiment" ordered="TODO"/>
+            <manyzero name="images" type="ome.model.core.Image" inverse="Experiment" ordered="TODO"/>
             <!--
             // Property which occurs more than once MicrobeamManipulation
             -->
-            <zeromany name="microbeamManipulations" type="omero.model.core.MicrobeamManipulation" inverse="Experiment" ordered="TODO"/>
+            <zeromany name="microbeamManipulations" type="ome.model.core.MicrobeamManipulation" inverse="Experiment" ordered="TODO"/>
             <!--
             // Property Type
             -->
-            <optional name="type" type="omero.model.enums.ExperimentType"/>
+            <optional name="type" type="ome.model.enums.ExperimentType"/>
         </properties>
     </type>
 
     <!-- OME model object Filament -->
-    <type id="omero.model.core.Filament" superclass="omero.model.core.LightSource" >
+    <type id="ome.model.core.Filament" superclass="ome.model.core.LightSource" >
         <properties>
             <!--
             // Property Type
             -->
-            <optional name="type" type="omero.model.enums.FilamentType"/>
+            <optional name="type" type="ome.model.enums.FilamentType"/>
         </properties>
     </type>
 
     <!-- OME model object Filter -->
-    <type id="omero.model.core.Filter" >
+    <type id="ome.model.core.Filter" >
         <properties>
             <!--
             // Many-to-many back reference FilterSet_BackReference
             -->
-            <parent name="excitationFilterLinks" type="omero.model.core.FilterSetExcitationFilterLink" target="omero.model.core.FilterSet"/>
+            <parent name="excitationFilterLinks" type="ome.model.core.FilterSetExcitationFilterLink" target="ome.model.core.FilterSet"/>
             <!--
             // Many-to-many back reference FilterSet_BackReference
             -->
-            <parent name="emissionFilterLinks" type="omero.model.core.FilterSetEmissionFilterLink" target="omero.model.core.FilterSet"/>
+            <parent name="emissionFilterLinks" type="ome.model.core.FilterSetEmissionFilterLink" target="ome.model.core.FilterSet"/>
             <!--
             // Property FilterWheel
             -->
@@ -308,11 +308,11 @@
             <!--
             // Many-to-many back reference LightPath_BackReference
             -->
-            <parent name="excitationFilterLinks" type="omero.model.core.LightPathExcitationFilterLink" target="omero.model.core.LightPath"/>
+            <parent name="excitationFilterLinks" type="ome.model.core.LightPathExcitationFilterLink" target="ome.model.core.LightPath"/>
             <!--
             // Many-to-many back reference LightPath_BackReference
             -->
-            <parent name="emissionFilterLinks" type="omero.model.core.LightPathEmissionFilterLink" target="omero.model.core.LightPath"/>
+            <parent name="emissionFilterLinks" type="ome.model.core.LightPathEmissionFilterLink" target="ome.model.core.LightPath"/>
             <!--
             // Property LotNumber
             -->
@@ -332,33 +332,33 @@
             <!--
             // Property TransmittanceRange
             -->
-            <optional name="transmittanceRange" type="omero.model.core.TransmittanceRange"/>
+            <optional name="transmittanceRange" type="ome.model.core.TransmittanceRange"/>
             <!--
             // Property Type
             -->
-            <optional name="type" type="omero.model.enums.FilterType"/>
+            <optional name="type" type="ome.model.enums.FilterType"/>
         </properties>
     </type>
 
     <!-- OME model object FilterSet -->
-    <type id="omero.model.core.FilterSet" >
+    <type id="ome.model.core.FilterSet" >
         <properties>
             <!--
             // Back reference Channel_BackReference
             -->
-            <manyzero name="channels" type="omero.model.core.Channel" inverse="FilterSet" ordered="TODO"/>
+            <manyzero name="channels" type="ome.model.core.Channel" inverse="FilterSet" ordered="TODO"/>
             <!--
             // Property DichroicRef
             -->
-            <optional name="dichroic" type="omero.model.core.Dichroic"/>
+            <optional name="dichroic" type="ome.model.core.Dichroic"/>
             <!--
             // Many-to-many reference EmissionFilterRef
             -->
-            <child name="emissionFilterLinks" type="omero.model.core.FilterSetEmissionFilterLink" target="omero.model.core.Filter"/>
+            <child name="emissionFilterLinks" type="ome.model.core.FilterSetEmissionFilterLink" target="ome.model.core.Filter"/>
             <!--
             // Many-to-many reference ExcitationFilterRef
             -->
-            <child name="excitationFilterLinks" type="omero.model.core.FilterSetExcitationFilterLink" target="omero.model.core.Filter"/>
+            <child name="excitationFilterLinks" type="ome.model.core.FilterSetExcitationFilterLink" target="ome.model.core.Filter"/>
             <!--
             // Property LotNumber
             -->
@@ -379,7 +379,7 @@
     </type>
 
     <!-- OME model object Image -->
-    <type id="omero.model.core.Image" annotated="true" named="true" described="true">
+    <type id="ome.model.core.Image" annotated="true" named="true" described="true">
         <properties>
             <!--
             // Property AcquisitionDate
@@ -388,48 +388,48 @@
             <!--
             // Many-to-many back reference Dataset_BackReference
             -->
-            <parent name="datasetLinks" type="omero.model.core.DatasetImageLink" target="omero.model.core.Dataset"/>
+            <parent name="datasetLinks" type="ome.model.core.DatasetImageLink" target="ome.model.core.Dataset"/>
             <!--
             // Property ExperimentRef
             -->
-            <optional name="experiment" type="omero.model.core.Experiment"/>
+            <optional name="experiment" type="ome.model.core.Experiment"/>
             <!--
             // Property ImagingEnvironment
             -->
-            <optional name="imagingEnvironment" type="omero.model.core.ImagingEnvironment"/>
+            <optional name="imagingEnvironment" type="ome.model.core.ImagingEnvironment"/>
             <!--
             // Property InstrumentRef
             -->
-            <optional name="instrument" type="omero.model.core.Instrument"/>
+            <optional name="instrument" type="ome.model.core.Instrument"/>
             <!--
             // Many-to-many reference MicrobeamManipulationRef
             -->
-            <child name="microbeamManipulationLinks" type="omero.model.core.ImageMicrobeamManipulationLink" target="omero.model.core.MicrobeamManipulation"/>
+            <child name="microbeamManipulationLinks" type="ome.model.core.ImageMicrobeamManipulationLink" target="ome.model.core.MicrobeamManipulation"/>
             <!--
             // Property ObjectiveSettings
             -->
-            <optional name="objectiveSettings" type="omero.model.core.ObjectiveSettings"/>
+            <optional name="objectiveSettings" type="ome.model.core.ObjectiveSettings"/>
             <!--
             // Property Pixels
             -->
-            <required name="pixels" type="omero.model.core.Pixels"/>
+            <required name="pixels" type="ome.model.core.Pixels"/>
             <!--
             // Many-to-many reference ROIRef
             -->
-            <child name="roiLinks" type="omero.model.roi.ImageROILink" target="omero.model.roi.ROI"/>
+            <child name="roiLinks" type="ome.model.roi.ImageROILink" target="ome.model.roi.ROI"/>
             <!--
             // Property StageLabel
             -->
-            <optional name="stageLabel" type="omero.model.core.StageLabel"/>
+            <optional name="stageLabel" type="ome.model.core.StageLabel"/>
             <!--
             // Back reference WellSample_BackReference
             -->
-            <manyzero name="wellSamples" type="omero.model.spw.WellSample" inverse="Image" ordered="TODO"/>
+            <manyzero name="wellSamples" type="ome.model.spw.WellSample" inverse="Image" ordered="TODO"/>
         </properties>
     </type>
 
     <!-- OME model object ImagingEnvironment -->
-    <type id="omero.model.core.ImagingEnvironment" >
+    <type id="ome.model.core.ImagingEnvironment" >
         <properties>
             <!--
             // Property AirPressure
@@ -451,45 +451,45 @@
     </type>
 
     <!-- OME model object Instrument -->
-    <type id="omero.model.core.Instrument" >
+    <type id="ome.model.core.Instrument" >
         <properties>
             <!--
             // Property which occurs more than once Detector
             -->
-            <zeromany name="detectors" type="omero.model.core.Detector" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="detectors" type="ome.model.core.Detector" inverse="Instrument" ordered="TODO"/>
             <!--
             // Property which occurs more than once Dichroic
             -->
-            <zeromany name="dichroics" type="omero.model.core.Dichroic" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="dichroics" type="ome.model.core.Dichroic" inverse="Instrument" ordered="TODO"/>
             <!--
             // Property which occurs more than once Filter
             -->
-            <zeromany name="filters" type="omero.model.core.Filter" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="filters" type="ome.model.core.Filter" inverse="Instrument" ordered="TODO"/>
             <!--
             // Property which occurs more than once FilterSet
             -->
-            <zeromany name="filterSets" type="omero.model.core.FilterSet" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="filterSets" type="ome.model.core.FilterSet" inverse="Instrument" ordered="TODO"/>
             <!--
             // Back reference Image_BackReference
             -->
-            <manyzero name="images" type="omero.model.core.Image" inverse="Instrument" ordered="TODO"/>
+            <manyzero name="images" type="ome.model.core.Image" inverse="Instrument" ordered="TODO"/>
             <!--
             // Property which occurs more than once LightSource
             -->
-            <zeromany name="lightSources" type="omero.model.core.LightSource" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="lightSources" type="ome.model.core.LightSource" inverse="Instrument" ordered="TODO"/>
             <!--
             // Property Microscope
             -->
-            <optional name="microscope" type="omero.model.core.Microscope"/>
+            <optional name="microscope" type="ome.model.core.Microscope"/>
             <!--
             // Property which occurs more than once Objective
             -->
-            <zeromany name="objectives" type="omero.model.core.Objective" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="objectives" type="ome.model.core.Objective" inverse="Instrument" ordered="TODO"/>
         </properties>
     </type>
 
     <!-- OME model object Label -->
-    <type id="omero.model.roi.Label" superclass="omero.model.roi.Shape" >
+    <type id="ome.model.roi.Label" superclass="ome.model.roi.Shape" >
         <properties>
             <!--
             // Property X
@@ -503,7 +503,7 @@
     </type>
 
     <!-- OME model object Laser -->
-    <type id="omero.model.core.Laser" superclass="omero.model.core.LightSource" >
+    <type id="ome.model.core.Laser" superclass="ome.model.core.LightSource" >
         <properties>
             <!--
             // Property FrequencyMultiplication
@@ -512,7 +512,7 @@
             <!--
             // Property LaserMedium
             -->
-            <optional name="laserMedium" type="omero.model.enums.LaserMedium"/>
+            <optional name="laserMedium" type="ome.model.enums.LaserMedium"/>
             <!--
             // Property PockelCell
             -->
@@ -520,11 +520,11 @@
             <!--
             // Property Pulse
             -->
-            <optional name="pulse" type="omero.model.enums.Pulse"/>
+            <optional name="pulse" type="ome.model.enums.Pulse"/>
             <!--
             // Property Pump
             -->
-            <optional name="pump" type="omero.model.core.LightSource"/>
+            <optional name="pump" type="ome.model.core.LightSource"/>
             <!--
             // Property RepetitionRate
             -->
@@ -536,7 +536,7 @@
             <!--
             // Property Type
             -->
-            <optional name="type" type="omero.model.enums.LaserType"/>
+            <optional name="type" type="ome.model.enums.LaserType"/>
             <!--
             // Property Wavelength
             -->
@@ -545,31 +545,31 @@
     </type>
 
     <!-- OME model object LightEmittingDiode -->
-    <type id="omero.model.core.LightEmittingDiode" superclass="omero.model.core.LightSource" >
+    <type id="ome.model.core.LightEmittingDiode" superclass="ome.model.core.LightSource" >
         <properties>
         </properties>
     </type>
 
     <!-- OME model object LightPath -->
-    <type id="omero.model.core.LightPath" >
+    <type id="ome.model.core.LightPath" >
         <properties>
             <!--
             // Property DichroicRef
             -->
-            <optional name="dichroic" type="omero.model.core.Dichroic"/>
+            <optional name="dichroic" type="ome.model.core.Dichroic"/>
             <!--
             // Many-to-many reference EmissionFilterRef
             -->
-            <child name="emissionFilterLinks" type="omero.model.core.LightPathEmissionFilterLink" target="omero.model.core.Filter"/>
+            <child name="emissionFilterLinks" type="ome.model.core.LightPathEmissionFilterLink" target="ome.model.core.Filter"/>
             <!--
             // Many-to-many reference ExcitationFilterRef
             -->
-            <child name="excitationFilterLinks" type="omero.model.core.LightPathExcitationFilterLink" target="omero.model.core.Filter"/>
+            <child name="excitationFilterLinks" type="ome.model.core.LightPathExcitationFilterLink" target="ome.model.core.Filter"/>
         </properties>
     </type>
 
     <!-- OME model object LightSource -->
-    <abstract id="omero.model.core.LightSource" >
+    <abstract id="ome.model.core.LightSource" >
         <properties>
             <!--
             // *** WARNING *** Unhandled or skipped property Arc
@@ -607,7 +607,7 @@
     </abstract>
 
     <!-- OME model object LightSourceSettings -->
-    <type id="omero.model.core.LightSourceSettings" >
+    <type id="ome.model.core.LightSourceSettings" >
         <properties>
             <!--
             // Property Attenuation
@@ -621,16 +621,16 @@
     </type>
 
     <!-- OME model object Line -->
-    <type id="omero.model.roi.Line" superclass="omero.model.roi.Shape" >
+    <type id="ome.model.roi.Line" superclass="ome.model.roi.Shape" >
         <properties>
             <!--
             // Property MarkerEnd
             -->
-            <optional name="markerEnd" type="omero.model.enums.Marker"/>
+            <optional name="markerEnd" type="ome.model.enums.Marker"/>
             <!--
             // Property MarkerStart
             -->
-            <optional name="markerStart" type="omero.model.enums.Marker"/>
+            <optional name="markerStart" type="ome.model.enums.Marker"/>
             <!--
             // Property X1
             -->
@@ -651,7 +651,7 @@
     </type>
 
     <!-- OME model object ManufacturerSpec -->
-    <abstract id="omero.model.core.ManufacturerSpec" >
+    <abstract id="ome.model.core.ManufacturerSpec" >
         <properties>
             <!--
             // Property LotNumber
@@ -673,7 +673,7 @@
     </abstract>
 
     <!-- OME model object Mask -->
-    <type id="omero.model.roi.Mask" superclass="omero.model.roi.Shape" >
+    <type id="ome.model.roi.Mask" superclass="ome.model.roi.Shape" >
         <properties>
             <!--
             // Property Height
@@ -695,29 +695,29 @@
     </type>
 
     <!-- OME model object MicrobeamManipulation -->
-    <type id="omero.model.core.MicrobeamManipulation" described="true">
+    <type id="ome.model.core.MicrobeamManipulation" described="true">
         <properties>
             <!--
             // Many-to-many back reference Image_BackReference
             -->
-            <parent name="imageLinks" type="omero.model.core.ImageMicrobeamManipulationLink" target="omero.model.core.Image"/>
+            <parent name="imageLinks" type="ome.model.core.ImageMicrobeamManipulationLink" target="ome.model.core.Image"/>
             <!--
             // Property which occurs more than once LightSourceSettings
             -->
-            <zeromany name="lightSourceSettingsCombinations" type="omero.model.core.LightSourceSettings" inverse="MicrobeamManipulation" ordered="TODO"/>
+            <zeromany name="lightSourceSettingsCombinations" type="ome.model.core.LightSourceSettings" inverse="MicrobeamManipulation" ordered="TODO"/>
             <!--
             // Many-to-many reference ROIRef
             -->
-            <child name="roiLinks" type="omero.model.core.MicrobeamManipulationROILink" target="omero.model.roi.ROI"/>
+            <child name="roiLinks" type="ome.model.core.MicrobeamManipulationROILink" target="ome.model.roi.ROI"/>
             <!--
             // Property Type
             -->
-            <optional name="type" type="omero.model.enums.MicrobeamManipulationType"/>
+            <optional name="type" type="ome.model.enums.MicrobeamManipulationType"/>
         </properties>
     </type>
 
     <!-- OME model object Microscope -->
-    <type id="omero.model.core.Microscope" >
+    <type id="ome.model.core.Microscope" >
         <properties>
             <!--
             // Property LotNumber
@@ -738,12 +738,12 @@
             <!--
             // Property Type
             -->
-            <optional name="type" type="omero.model.enums.MicroscopeType"/>
+            <optional name="type" type="ome.model.enums.MicroscopeType"/>
         </properties>
     </type>
 
     <!-- OME model object Objective -->
-    <type id="omero.model.core.Objective" >
+    <type id="ome.model.core.Objective" >
         <properties>
             <!--
             // Property CalibratedMagnification
@@ -752,11 +752,11 @@
             <!--
             // Property Correction
             -->
-            <optional name="correction" type="omero.model.enums.Correction"/>
+            <optional name="correction" type="ome.model.enums.Correction"/>
             <!--
             // Property Immersion
             -->
-            <optional name="immersion" type="omero.model.enums.Immersion"/>
+            <optional name="immersion" type="ome.model.enums.Immersion"/>
             <!--
             // Property Iris
             -->
@@ -793,7 +793,7 @@
     </type>
 
     <!-- OME model object ObjectiveSettings -->
-    <type id="omero.model.core.ObjectiveSettings" >
+    <type id="ome.model.core.ObjectiveSettings" >
         <properties>
             <!--
             // Property CorrectionCollar
@@ -802,7 +802,7 @@
             <!--
             // Property Medium
             -->
-            <optional name="medium" type="omero.model.enums.Medium"/>
+            <optional name="medium" type="ome.model.enums.Medium"/>
             <!--
             // Property RefractiveIndex
             -->
@@ -811,16 +811,16 @@
     </type>
 
     <!-- OME model object Pixels -->
-    <type id="omero.model.core.Pixels" annotated="true" >
+    <type id="ome.model.core.Pixels" annotated="true" >
         <properties>
             <!--
             // Property which occurs more than once Channel
             -->
-            <zeromany name="channels" type="omero.model.core.Channel" inverse="Pixels" ordered="TODO"/>
+            <zeromany name="channels" type="ome.model.core.Channel" inverse="Pixels" ordered="TODO"/>
             <!--
             // Property DimensionOrder
             -->
-            <required name="dimensionOrder" type="omero.model.enums.DimensionOrder"/>
+            <required name="dimensionOrder" type="ome.model.enums.DimensionOrder"/>
             <!--
             // Property PhysicalSizeX
             -->
@@ -836,7 +836,7 @@
             <!--
             // Property which occurs more than once Plane
             -->
-            <zeromany name="planes" type="omero.model.core.Plane" inverse="Pixels" ordered="TODO"/>
+            <zeromany name="planes" type="ome.model.core.Plane" inverse="Pixels" ordered="TODO"/>
             <!--
             // Property SizeC
             -->
@@ -864,12 +864,12 @@
             <!--
             // Property Type
             -->
-            <required name="type" type="omero.model.enums.PixelType"/>
+            <required name="type" type="ome.model.enums.PixelType"/>
         </properties>
     </type>
 
     <!-- OME model object Plane -->
-    <type id="omero.model.core.Plane" annotated="true" >
+    <type id="ome.model.core.Plane" annotated="true" >
         <properties>
             <!--
             // Property DeltaT
@@ -911,12 +911,12 @@
     </type>
 
     <!-- OME model object Plate -->
-    <type id="omero.model.spw.Plate" annotated="true" named="true" described="true">
+    <type id="ome.model.spw.Plate" annotated="true" named="true" described="true">
         <properties>
             <!--
             // Property ColumnNamingConvention
             -->
-            <optional name="columnNamingConvention" type="omero.model.enums.NamingConvention"/>
+            <optional name="columnNamingConvention" type="ome.model.enums.NamingConvention"/>
             <!--
             // Property Columns
             -->
@@ -928,11 +928,11 @@
             <!--
             // Property which occurs more than once PlateAcquisition
             -->
-            <zeromany name="plateAcquisitions" type="omero.model.spw.PlateAcquisition" inverse="Plate" ordered="TODO"/>
+            <zeromany name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="Plate" ordered="TODO"/>
             <!--
             // Property RowNamingConvention
             -->
-            <optional name="rowNamingConvention" type="omero.model.enums.NamingConvention"/>
+            <optional name="rowNamingConvention" type="ome.model.enums.NamingConvention"/>
             <!--
             // Property Rows
             -->
@@ -940,7 +940,7 @@
             <!--
             // Many-to-many reference ScreenRef
             -->
-            <child name="screenLinks" type="omero.model.spw.PlateScreenLink" target="omero.model.spw.Screen"/>
+            <child name="screenLinks" type="ome.model.spw.PlateScreenLink" target="ome.model.spw.Screen"/>
             <!--
             // Property Status
             -->
@@ -948,7 +948,7 @@
             <!--
             // Property which occurs more than once Well
             -->
-            <zeromany name="wells" type="omero.model.spw.Well" inverse="Plate" ordered="TODO"/>
+            <zeromany name="wells" type="ome.model.spw.Well" inverse="Plate" ordered="TODO"/>
             <!--
             // Property WellOriginX
             -->
@@ -961,7 +961,7 @@
     </type>
 
     <!-- OME model object PlateAcquisition -->
-    <type id="omero.model.spw.PlateAcquisition" annotated="true" named="true" described="true">
+    <type id="ome.model.spw.PlateAcquisition" annotated="true" named="true" described="true">
         <properties>
             <!--
             // Property EndTime
@@ -978,12 +978,12 @@
             <!--
             // Reference WellSampleRef
             -->
-            <onemany name="wellSamples" type="omero.model.spw.WellSample" inverse="PlateAcquisition" ordered="TODO"/>
+            <onemany name="wellSamples" type="ome.model.spw.WellSample" inverse="PlateAcquisition" ordered="TODO"/>
         </properties>
     </type>
 
     <!-- OME model object Point -->
-    <type id="omero.model.roi.Point" superclass="omero.model.roi.Shape" >
+    <type id="ome.model.roi.Point" superclass="ome.model.roi.Shape" >
         <properties>
             <!--
             // Property X
@@ -997,7 +997,7 @@
     </type>
 
     <!-- OME model object Polygon -->
-    <type id="omero.model.roi.Polygon" superclass="omero.model.roi.Shape" >
+    <type id="ome.model.roi.Polygon" superclass="ome.model.roi.Shape" >
         <properties>
             <!--
             // Property Points
@@ -1007,16 +1007,16 @@
     </type>
 
     <!-- OME model object Polyline -->
-    <type id="omero.model.roi.Polyline" superclass="omero.model.roi.Shape" >
+    <type id="ome.model.roi.Polyline" superclass="ome.model.roi.Shape" >
         <properties>
             <!--
             // Property MarkerEnd
             -->
-            <optional name="markerEnd" type="omero.model.enums.Marker"/>
+            <optional name="markerEnd" type="ome.model.enums.Marker"/>
             <!--
             // Property MarkerStart
             -->
-            <optional name="markerStart" type="omero.model.enums.Marker"/>
+            <optional name="markerStart" type="ome.model.enums.Marker"/>
             <!--
             // Property Points
             -->
@@ -1025,26 +1025,26 @@
     </type>
 
     <!-- OME model object Project -->
-    <type id="omero.model.core.Project" annotated="true" named="true" described="true">
+    <type id="ome.model.core.Project" annotated="true" named="true" described="true">
         <properties>
             <!--
             // Many-to-many reference DatasetRef
             -->
-            <child name="datasetLinks" type="omero.model.core.ProjectDatasetLink" target="omero.model.core.Dataset"/>
+            <child name="datasetLinks" type="ome.model.core.ProjectDatasetLink" target="ome.model.core.Dataset"/>
         </properties>
     </type>
 
     <!-- OME model object ROI -->
-    <type id="omero.model.roi.ROI" annotated="true" named="true" described="true">
+    <type id="ome.model.roi.ROI" annotated="true" named="true" described="true">
         <properties>
             <!--
             // Many-to-many back reference Image_BackReference
             -->
-            <parent name="imageLinks" type="omero.model.roi.ImageROILink" target="omero.model.core.Image"/>
+            <parent name="imageLinks" type="ome.model.roi.ImageROILink" target="ome.model.core.Image"/>
             <!--
             // Many-to-many back reference MicrobeamManipulation_BackReference
             -->
-            <parent name="microbeamManipulationLinks" type="omero.model.roi.MicrobeamManipulationROILink" target="omero.model.core.MicrobeamManipulation"/>
+            <parent name="microbeamManipulationLinks" type="ome.model.roi.MicrobeamManipulationROILink" target="ome.model.core.MicrobeamManipulation"/>
             <!--
             // Property Namespace
             -->
@@ -1052,12 +1052,12 @@
             <!--
             // Property Union
             -->
-            <required name="union" type="omero.model.roi.Union"/>
+            <required name="union" type="ome.model.roi.Union"/>
         </properties>
     </type>
 
     <!-- OME model object Reagent -->
-    <type id="omero.model.spw.Reagent" annotated="true" named="true" described="true">
+    <type id="ome.model.spw.Reagent" annotated="true" named="true" described="true">
         <properties>
             <!--
             // Property ReagentIdentifier
@@ -1066,12 +1066,12 @@
             <!--
             // Back reference Well_BackReference
             -->
-            <manyzero name="wells" type="omero.model.spw.Well" inverse="Reagent" ordered="TODO"/>
+            <manyzero name="wells" type="ome.model.spw.Well" inverse="Reagent" ordered="TODO"/>
         </properties>
     </type>
 
     <!-- OME model object Rectangle -->
-    <type id="omero.model.roi.Rectangle" superclass="omero.model.roi.Shape" >
+    <type id="ome.model.roi.Rectangle" superclass="ome.model.roi.Shape" >
         <properties>
             <!--
             // Property Height
@@ -1093,12 +1093,12 @@
     </type>
 
     <!-- OME model object Screen -->
-    <type id="omero.model.spw.Screen" annotated="true" named="true" described="true">
+    <type id="ome.model.spw.Screen" annotated="true" named="true" described="true">
         <properties>
             <!--
             // Many-to-many reference PlateRef
             -->
-            <child name="plateLinks" type="omero.model.spw.ScreenPlateLink" target="omero.model.spw.Plate"/>
+            <child name="plateLinks" type="ome.model.spw.ScreenPlateLink" target="ome.model.spw.Plate"/>
             <!--
             // Property ProtocolDescription
             -->
@@ -1110,7 +1110,7 @@
             <!--
             // Property which occurs more than once Reagent
             -->
-            <zeromany name="reagents" type="omero.model.spw.Reagent" inverse="Screen" ordered="TODO"/>
+            <zeromany name="reagents" type="ome.model.spw.Reagent" inverse="Screen" ordered="TODO"/>
             <!--
             // Property ReagentSetDescription
             -->
@@ -1127,7 +1127,7 @@
     </type>
 
     <!-- OME model object Shape -->
-    <abstract id="omero.model.roi.Shape" >
+    <abstract id="ome.model.roi.Shape" >
         <properties>
             <!--
             // *** WARNING *** Unhandled or skipped property Ellipse
@@ -1139,11 +1139,11 @@
             <!--
             // Property FillRule
             -->
-            <optional name="fillRule" type="omero.model.enums.FillRule"/>
+            <optional name="fillRule" type="ome.model.enums.FillRule"/>
             <!--
             // Property FontFamily
             -->
-            <optional name="fontFamily" type="omero.model.enums.FontFamily"/>
+            <optional name="fontFamily" type="ome.model.enums.FontFamily"/>
             <!--
             // Property FontSize
             -->
@@ -1151,7 +1151,7 @@
             <!--
             // Property FontStyle
             -->
-            <optional name="fontStyle" type="omero.model.enums.FontStyle"/>
+            <optional name="fontStyle" type="ome.model.enums.FontStyle"/>
             <!--
             // *** WARNING *** Unhandled or skipped property Label
             -->
@@ -1161,7 +1161,7 @@
             <!--
             // Property LineCap
             -->
-            <optional name="lineCap" type="omero.model.enums.LineCap"/>
+            <optional name="lineCap" type="ome.model.enums.LineCap"/>
             <!--
             // *** WARNING *** Unhandled or skipped property Mask
             -->
@@ -1208,7 +1208,7 @@
             <!--
             // Property Transform
             -->
-            <optional name="transform" type="omero.model.roi.AffineTransform"/>
+            <optional name="transform" type="ome.model.roi.AffineTransform"/>
             <!--
             // Property Visibility
             -->
@@ -1217,7 +1217,7 @@
     </abstract>
 
     <!-- OME model object StageLabel -->
-    <type id="omero.model.core.StageLabel" named="true" >
+    <type id="ome.model.core.StageLabel" named="true" >
         <properties>
             <!--
             // Property X
@@ -1235,7 +1235,7 @@
     </type>
 
     <!-- OME model object TransmittanceRange -->
-    <type id="omero.model.core.TransmittanceRange" >
+    <type id="ome.model.core.TransmittanceRange" >
         <properties>
             <!--
             // Property CutIn
@@ -1261,17 +1261,17 @@
     </type>
 
     <!-- OME model object Union -->
-    <type id="omero.model.roi.Union" >
+    <type id="ome.model.roi.Union" >
         <properties>
             <!--
             // Property which occurs more than once Shape
             -->
-            <onemany name="shapes" type="omero.model.roi.Shape" inverse="Union" ordered="TODO"/>
+            <onemany name="shapes" type="ome.model.roi.Shape" inverse="Union" ordered="TODO"/>
         </properties>
     </type>
 
     <!-- OME model object Well -->
-    <type id="omero.model.spw.Well" annotated="true" >
+    <type id="ome.model.spw.Well" annotated="true" >
         <properties>
             <!--
             // Property Color
@@ -1292,7 +1292,7 @@
             <!--
             // Property ReagentRef
             -->
-            <optional name="reagent" type="omero.model.spw.Reagent"/>
+            <optional name="reagent" type="ome.model.spw.Reagent"/>
             <!--
             // Property Row
             -->
@@ -1304,17 +1304,17 @@
             <!--
             // Property which occurs more than once WellSample
             -->
-            <zeromany name="wellSamples" type="omero.model.spw.WellSample" inverse="Well" ordered="TODO"/>
+            <zeromany name="wellSamples" type="ome.model.spw.WellSample" inverse="Well" ordered="TODO"/>
         </properties>
     </type>
 
     <!-- OME model object WellSample -->
-    <type id="omero.model.spw.WellSample" annotated="true" >
+    <type id="ome.model.spw.WellSample" annotated="true" >
         <properties>
             <!--
             // Property ImageRef
             -->
-            <optional name="image" type="omero.model.spw.Image"/>
+            <optional name="image" type="ome.model.spw.Image"/>
             <!--
             // Property Index
             -->
@@ -1322,7 +1322,7 @@
             <!--
             // Back reference PlateAcquisition_BackReference
             -->
-            <manyzero name="plateAcquisitions" type="omero.model.spw.PlateAcquisition" inverse="WellSample" ordered="TODO"/>
+            <manyzero name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="WellSample" ordered="TODO"/>
             <!--
             // Property PositionX
             -->
@@ -1338,7 +1338,7 @@
         </properties>
     </type>
 
-    <enum id="omero.model.enums.AcquisitionMode">
+    <enum id="ome.model.enums.AcquisitionMode">
         <entry name="WideField"/>
         <entry name="LaserScanningConfocalMicroscopy"/>
         <entry name="SpinningDiskConfocal"/>
@@ -1361,7 +1361,7 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.Binning">
+    <enum id="ome.model.enums.Binning">
         <entry name="1x1"/>
         <entry name="2x2"/>
         <entry name="4x4"/>
@@ -1369,12 +1369,12 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.NamingConvention">
+    <enum id="ome.model.enums.NamingConvention">
         <entry name="letter"/>
         <entry name="number"/>
     </enum>
 
-    <enum id="omero.model.enums.ContrastMethod">
+    <enum id="ome.model.enums.ContrastMethod">
         <entry name="Brightfield"/>
         <entry name="Phase"/>
         <entry name="DIC"/>
@@ -1386,7 +1386,7 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.Correction">
+    <enum id="ome.model.enums.Correction">
         <entry name="UV"/>
         <entry name="PlanApo"/>
         <entry name="PlanFluor"/>
@@ -1404,7 +1404,7 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.DimensionOrder">
+    <enum id="ome.model.enums.DimensionOrder">
         <entry name="XYZCT"/>
         <entry name="XYZTC"/>
         <entry name="XYCTZ"/>
@@ -1413,12 +1413,12 @@
         <entry name="XYTZC"/>
     </enum>
 
-    <enum id="omero.model.enums.FillRule">
+    <enum id="ome.model.enums.FillRule">
         <entry name="EvenOdd"/>
         <entry name="NonZero"/>
     </enum>
 
-    <enum id="omero.model.enums.FontFamily">
+    <enum id="ome.model.enums.FontFamily">
         <entry name="serif"/>
         <entry name="sans-serif"/>
         <entry name="cursive"/>
@@ -1426,14 +1426,14 @@
         <entry name="monospace"/>
     </enum>
 
-    <enum id="omero.model.enums.FontStyle">
+    <enum id="ome.model.enums.FontStyle">
         <entry name="Bold"/>
         <entry name="BoldItalic"/>
         <entry name="Italic"/>
         <entry name="Normal"/>
     </enum>
 
-    <enum id="omero.model.enums.IlluminationType">
+    <enum id="ome.model.enums.IlluminationType">
         <entry name="Transmitted"/>
         <entry name="Epifluorescence"/>
         <entry name="Oblique"/>
@@ -1441,7 +1441,7 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.Immersion">
+    <enum id="ome.model.enums.Immersion">
         <entry name="Oil"/>
         <entry name="Water"/>
         <entry name="WaterDipping"/>
@@ -1451,7 +1451,7 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.LaserMedium">
+    <enum id="ome.model.enums.LaserMedium">
         <entry name="Cu"/>
         <entry name="Ag"/>
         <entry name="ArFl"/>
@@ -1488,37 +1488,37 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.LineCap">
+    <enum id="ome.model.enums.LineCap">
         <entry name="Butt"/>
         <entry name="Line"/>
         <entry name="Square"/>
     </enum>
 
-    <enum id="omero.model.enums.Marker">
+    <enum id="ome.model.enums.Marker">
         <entry name="Arrow"/>
         <entry name="Circle"/>
         <entry name="Square"/>
     </enum>
 
-    <enum id="omero.model.enums.Marker">
+    <enum id="ome.model.enums.Marker">
         <entry name="Arrow"/>
         <entry name="Circle"/>
         <entry name="Square"/>
     </enum>
 
-    <enum id="omero.model.enums.Marker">
+    <enum id="ome.model.enums.Marker">
         <entry name="Arrow"/>
         <entry name="Circle"/>
         <entry name="Square"/>
     </enum>
 
-    <enum id="omero.model.enums.Marker">
+    <enum id="ome.model.enums.Marker">
         <entry name="Arrow"/>
         <entry name="Circle"/>
         <entry name="Square"/>
     </enum>
 
-    <enum id="omero.model.enums.Medium">
+    <enum id="ome.model.enums.Medium">
         <entry name="Air"/>
         <entry name="Oil"/>
         <entry name="Water"/>
@@ -1526,7 +1526,7 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.Pulse">
+    <enum id="ome.model.enums.Pulse">
         <entry name="CW"/>
         <entry name="Single"/>
         <entry name="QSwitched"/>
@@ -1535,12 +1535,12 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.NamingConvention">
+    <enum id="ome.model.enums.NamingConvention">
         <entry name="letter"/>
         <entry name="number"/>
     </enum>
 
-    <enum id="omero.model.enums.PixelType">
+    <enum id="ome.model.enums.PixelType">
         <entry name="int8"/>
         <entry name="int16"/>
         <entry name="int32"/>
@@ -1554,7 +1554,7 @@
         <entry name="double-complex"/>
     </enum>
 
-    <enum id="omero.model.enums.MicrobeamManipulationType">
+    <enum id="ome.model.enums.MicrobeamManipulationType">
         <entry name="FRAP"/>
         <entry name="FLIP"/>
         <entry name="InverseFRAP"/>
@@ -1565,7 +1565,7 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.MicroscopeType">
+    <enum id="ome.model.enums.MicroscopeType">
         <entry name="Upright"/>
         <entry name="Inverted"/>
         <entry name="Dissection"/>
@@ -1573,7 +1573,7 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.ExperimentType">
+    <enum id="ome.model.enums.ExperimentType">
         <entry name="FP"/>
         <entry name="FRET"/>
         <entry name="TimeLapse"/>
@@ -1593,7 +1593,7 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.DetectorType">
+    <enum id="ome.model.enums.DetectorType">
         <entry name="CCD"/>
         <entry name="IntensifiedCCD"/>
         <entry name="AnalogVideo"/>
@@ -1610,7 +1610,7 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.FilterType">
+    <enum id="ome.model.enums.FilterType">
         <entry name="Dichroic"/>
         <entry name="LongPass"/>
         <entry name="ShortPass"/>
@@ -1620,7 +1620,7 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.LaserType">
+    <enum id="ome.model.enums.LaserType">
         <entry name="Excimer"/>
         <entry name="Gas"/>
         <entry name="MetalVapor"/>
@@ -1631,14 +1631,14 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.ArcType">
+    <enum id="ome.model.enums.ArcType">
         <entry name="Hg"/>
         <entry name="Xe"/>
         <entry name="HgXe"/>
         <entry name="Other"/>
     </enum>
 
-    <enum id="omero.model.enums.FilamentType">
+    <enum id="ome.model.enums.FilamentType">
         <entry name="Incandescent"/>
         <entry name="Halogen"/>
         <entry name="Other"/>
