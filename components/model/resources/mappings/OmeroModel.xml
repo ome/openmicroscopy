@@ -181,6 +181,7 @@
             // Property Zoom
             -->
             <optional name="zoom" type="Double"/>
+            <manyzero name="instrument" type="ome.model.core.Instrument"/>
         </properties>
     </type>
 
@@ -237,6 +238,7 @@
             // Property SerialNumber
             -->
             <optional name="serialNumber" type="String"/>
+            <manyzero name="instrument" type="ome.model.core.Instrument"/>
         </properties>
     </type>
 
@@ -329,6 +331,7 @@
             // Property Type
             -->
             <optional name="type" type="ome.model.enums.FilterType"/>
+            <manyzero name="instrument" type="ome.model.core.Instrument"/>
         </properties>
     </type>
 
@@ -367,6 +370,7 @@
             // Property SerialNumber
             -->
             <optional name="serialNumber" type="String"/>
+            <manyzero name="instrument" type="ome.model.core.Instrument"/>
         </properties>
     </type>
 
@@ -595,6 +599,7 @@
             // Property SerialNumber
             -->
             <optional name="serialNumber" type="String"/>
+            <manyzero name="instrument" type="ome.model.core.Instrument"/>
         </properties>
     </abstract>
 
@@ -782,6 +787,7 @@
             // Property WorkingDistance
             -->
             <optional name="workingDistance" type="Double"/>
+            <manyzero name="instrument" type="ome.model.core.Instrument"/>
         </properties>
     </type>
 
