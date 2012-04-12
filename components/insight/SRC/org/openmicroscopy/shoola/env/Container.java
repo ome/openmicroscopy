@@ -341,6 +341,7 @@ public final class Container
 		Environment env = (Environment) registry.lookup(LookupNames.ENV);
 		if (env != null && !env.isRunAsPlugin())
 			System.exit(0);
+		if (env == null) System.exit(0); //not started yet.
 	}
     
     
