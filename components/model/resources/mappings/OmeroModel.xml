@@ -306,14 +306,6 @@
             -->
             <optional name="filterWheel" type="String"/>
             <!--
-            // Many-to-many back reference LightPath_BackReference
-            -->
-            <parent name="excitationFilterLinks" type="ome.model.core.LightPathExcitationFilterLink" target="ome.model.core.LightPath"/>
-            <!--
-            // Many-to-many back reference LightPath_BackReference
-            -->
-            <parent name="emissionFilterLinks" type="ome.model.core.LightPathEmissionFilterLink" target="ome.model.core.LightPath"/>
-            <!--
             // Property LotNumber
             -->
             <optional name="lotNumber" type="String"/>
