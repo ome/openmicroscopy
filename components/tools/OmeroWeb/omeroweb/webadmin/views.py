@@ -561,15 +561,9 @@ def imports(request, **kwargs):
     return HttpResponseRedirect(reverse("waindex"))
 
 @login_required()
-def my_account(request, action=None, **kwargs):
+def my_account(request, action=None, conn=None, **kwargs):
     myaccount = True
     template = "webadmin/myaccount.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
     eventContext = {'userId':conn.getEventContext().userId,'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
