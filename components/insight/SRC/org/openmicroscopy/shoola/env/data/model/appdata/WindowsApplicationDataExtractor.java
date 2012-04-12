@@ -36,7 +36,9 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 /**
- * 
+ * Windows implementation to extract application properties using the
+ * {@link LANGANDCODEPAGE} class with the <a
+ * href="https://github.com/twall/jna">JNA</a> library.
  * 
  * @author Scott Littlewood, <a
  *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
@@ -48,6 +50,14 @@ public class WindowsApplicationDataExtractor implements
 	/** The default location on <code>Windows</code> platform. */
 	public static final String LOCATION_WINDOWS = "C:\\Program Files\\";
 
+	/**
+	 * Extracts the application data for the application on a windows platform
+	 * 
+	 * @param file
+	 *            the file pointing to the application's location on disk
+	 * @return the {@link ApplicationData} object representing this applications
+	 *         system properties
+	 */
 	public ApplicationData extractAppData(File file) throws Exception {
 		Icon icon = getSystemIconFor(file);
 		String applicationName = getFilePropertyValue(file.getAbsolutePath(),
@@ -60,12 +70,26 @@ public class WindowsApplicationDataExtractor implements
 		return data;
 	}
 
+	/**
+	 * Gets the system icon for the application
+	 * 
+	 * @param file
+	 *            the file location of the application to retreive the icon for
+	 * @return the icon associated with this application
+	 */
 	private Icon getSystemIconFor(File file) {
 		Icon icon = FileSystemView.getFileSystemView().getSystemIcon(file);
 
 		return icon;
 	}
 
+	/**
+	 * Allocates a potion of memory for use by JNA
+	 * 
+	 * @param size
+	 *            the size of the memory to allocate
+	 * @return a pointer to the memory location
+	 */
 	private Pointer allocateBuffer(int size) {
 		byte[] bufferarray = new byte[size];
 		Pointer buffer = new Memory(bufferarray.length);
@@ -73,6 +97,15 @@ public class WindowsApplicationDataExtractor implements
 		return buffer;
 	}
 
+	/**
+	 * Returns the language code page string for the application on the current
+	 * windows platform
+	 * 
+	 * @param applicationPath
+	 * @param fileVersionInfoSize
+	 * @return
+	 * @throws Exception
+	 */
 	private String getTranslation(String applicationPath,
 			int fileVersionInfoSize) throws Exception {
 		Pointer lpData = allocateBuffer(fileVersionInfoSize);
@@ -112,7 +145,7 @@ public class WindowsApplicationDataExtractor implements
 		return hexBuilder.toString();
 	}
 
-	public boolean ExecuteQuery(Pointer lpData, String lpSubBlock,
+	private boolean ExecuteQuery(Pointer lpData, String lpSubBlock,
 			PointerByReference lplpBuffer, IntByReference puLen) {
 		return com.sun.jna.platform.win32.Version.INSTANCE.VerQueryValue(
 				lpData, lpSubBlock, lplpBuffer, puLen);

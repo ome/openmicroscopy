@@ -25,8 +25,11 @@ package org.openmicroscopy.shoola.env.data.model.appdata;
 import com.sun.jna.Pointer;
 
 /**
- * Structure used to store enumerated languages and code pages on windows
- * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
+ * Structure used to store enumerated languages and code pages on windows, a
+ * component used by <a href="https://github.com/twall/jna">JNA</a>
+ * 
+ * @author Scott Littlewood, <a
+ *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
 public class LANGANDCODEPAGE extends com.sun.jna.Structure {

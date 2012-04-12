@@ -34,10 +34,12 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.Parser;
 import org.openmicroscopy.shoola.util.image.io.IconReader;
 
-/** 
+/**
+ * Mac specific implementation to retrieve information about an application,
+ * reads the plist information to extract the property values
  * 
- *
- * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
+ * @author Scott Littlewood, <a
+ *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
 public class MacApplicationDataExtractor implements ApplicationDataExtractor {

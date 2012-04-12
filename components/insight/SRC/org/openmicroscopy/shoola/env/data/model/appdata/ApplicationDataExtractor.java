@@ -25,10 +25,12 @@ import java.io.File;
 
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 
-/** 
+/**
+ * Interface representing platform specific code required for extracting an
+ * applications properties
  * 
- *
- * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
+ * @author Scott Littlewood, <a
+ *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
 public interface ApplicationDataExtractor {

@@ -26,6 +26,12 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
+/** 
+ * 
+ *
+ * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
+ * @since Beta4.4
+ */
 public class DownloadAndLaunchActivity extends DownloadActivity {
 	DownloadAndLaunchActivity(UserNotifier viewer, Registry registry,
 			SecurityContext ctx, DownloadAndLaunchActivityParam parameters) {
@@ -74,7 +80,8 @@ public class DownloadAndLaunchActivity extends DownloadActivity {
 
 	@Override
 	protected UserNotifierLoader createLoader() {
-		// TODO Auto-generated method stub
-		return null;
+		UserNotifierLoader loader = super.createLoader();
+		file.deleteOnExit();
+		return loader;
 	}
 }

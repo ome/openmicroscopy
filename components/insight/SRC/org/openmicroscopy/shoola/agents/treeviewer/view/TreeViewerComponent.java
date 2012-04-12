@@ -322,12 +322,6 @@ class TreeViewerComponent
 		if (override)
 			activity.setFileName(fa.getFileName());
 
-		/**
-		 * FIXME: SL - look at this code
-		 */
-		/*
-		activity.setApplicationData(data);
-		*/
 		un.notifyActivity(model.getSecurityContext(), activity);
 	}
 
@@ -3453,13 +3447,6 @@ class TreeViewerComponent
 			file = (OriginalFile) i.next();
 			activity = new DownloadActivityParam(file,
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
-
-			/**
-			 * FIXME: SL - look at this code
-			 */
-			/*
-			activity.setApplicationData(data);
-			*/
 			un.notifyActivity(model.getSecurityContext(), activity);
 		}
 	}
