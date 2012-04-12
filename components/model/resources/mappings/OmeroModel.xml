@@ -416,7 +416,7 @@
             <!--
             // Many-to-many reference ROIRef
             -->
-            <child name="roiLinks" type="omero.model.core.ImageROILink" target="omero.model.core.ROI"/>
+            <child name="roiLinks" type="omero.model.roi.ImageROILink" target="omero.model.roi.ROI"/>
             <!--
             // Property StageLabel
             -->
@@ -708,7 +708,7 @@
             <!--
             // Many-to-many reference ROIRef
             -->
-            <child name="roiLinks" type="omero.model.core.MicrobeamManipulationROILink" target="omero.model.core.ROI"/>
+            <child name="roiLinks" type="omero.model.core.MicrobeamManipulationROILink" target="omero.model.roi.ROI"/>
             <!--
             // Property Type
             -->
