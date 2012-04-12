@@ -312,8 +312,7 @@ public abstract class ShapeData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		RInt value = shape.getTheC();
-		if (value == null)
-			throw new IllegalArgumentException("No C Specified.");
+		if (value == null) return -1;
 		return value.getValue();
 	}
 

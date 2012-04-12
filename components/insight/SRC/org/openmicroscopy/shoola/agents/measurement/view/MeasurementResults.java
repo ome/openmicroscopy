@@ -450,6 +450,7 @@ class MeasurementResults
 				shape = (ROIShape) shapes.get(j.next());
 				figure = shape.getFigure();
 				figure.calculateMeasurements();
+				
 				row = new MeasurementObject(shape);
 				//row.addElement(shape.getROI().getID());
 				if (shape.getROI().isClientSide())
@@ -467,8 +468,7 @@ class MeasurementResults
 					if (value instanceof List)
 					{
 						List valueArray = (List) value;
-						List arrayList = new ArrayList(valueArray);
-						row.addElement(arrayList);
+						row.addElement(new ArrayList(valueArray));
 					}
 					else
 						row.addElement(value);
@@ -711,6 +711,23 @@ class MeasurementResults
 	    {
 			if (row < 0 || row > values.size()) return null;
 			MeasurementObject rowData = values.get(row);
+			Object value = rowData.getElement(col);
+			if (value instanceof List) {
+				List l = (List) value;
+				
+				if (l.size() == 1) return l.get(0);
+				StringBuffer buffer = new StringBuffer();
+				Iterator i = l.iterator();
+				Object v;
+				double total = 0;
+				while (i.hasNext()) {
+					v = i.next();
+					if (v instanceof Number) {
+						total += ((Number) v).doubleValue();
+					}
+				}
+				return total;
+			}
 	    	return rowData.getElement(col);
 		}
 	    

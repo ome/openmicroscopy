@@ -657,6 +657,31 @@ class TreeViewerComponent
 	}
 
 	/**
+	 * Notifies the model that the user has annotated data.
+	 * 
+	 * @param containers The objects to handle.
+	 * @param count A positive value if annotations are added, a negative value
+	 * if annotations are removed.
+	 */
+	void onAnnotated(List<DataObject> containers, int count)
+	{
+		Browser browser = model.getSelectedBrowser();
+		if (containers != null && containers.size() > 0) {
+			NodesFinder finder = new NodesFinder(containers);
+			if (browser != null) browser.accept(finder);
+			Set<TreeImageDisplay> nodes = finder.getNodes();
+			//mark
+			if (browser != null && nodes != null && nodes.size() > 0) {
+				Iterator<TreeImageDisplay> i = nodes.iterator();
+				while (i.hasNext()) {
+					i.next().setAnnotationCount(count);
+				}
+				browser.getUI().repaint();
+			}
+		}
+	}
+	
+	/**
 	 * Sets the image to copy the rendering settings from.
 	 * 
 	 * @param image The image to copy the rendering settings from.

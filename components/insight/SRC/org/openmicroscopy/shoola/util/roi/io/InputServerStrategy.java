@@ -225,6 +225,11 @@ class InputServerStrategy
 		if (z < 0 || t < 0) return null;
 		Coord3D coord = new Coord3D(z, t);
 		ROIFigure fig = createROIFigure(data, readOnly);
+		try {
+			coord.setChannel(data.getC());
+		} catch (Exception e) {
+		}
+		
 		// Check that the parent element is not a text element, as they have not
 		// got any other text associated with them.
 		addMissingAttributes(fig);

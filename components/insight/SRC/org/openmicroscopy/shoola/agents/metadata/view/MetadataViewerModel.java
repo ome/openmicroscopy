@@ -37,6 +37,7 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
 import org.openmicroscopy.shoola.agents.metadata.AdminEditor;
 import org.openmicroscopy.shoola.agents.metadata.DataBatchSaver;
 import org.openmicroscopy.shoola.agents.metadata.DataSaver;
@@ -55,12 +56,14 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -72,6 +75,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -480,9 +484,52 @@ class MetadataViewerModel
 			return ((PlateData) ref).getName();
 		else if (ref instanceof ScreenData)
 			return ((ScreenData) ref).getName();
+		else if (ref instanceof ExperimenterData)
+			return EditorUtil.getExperimenterName((ExperimenterData) ref);
+		else if (ref instanceof GroupData)
+			return ((GroupData) ref).getName();
 		return "";
 	}
 
+	/**
+	 * Returns the text indicating what to save.
+	 * 
+	 * @return See above.
+	 */
+	String getInstanceToSave()
+	{
+		Object ref = getRefObject();
+		String v = "";
+		if (ref instanceof ImageData) {
+			v = "Image's Data: ";
+			v += EditorUtil.truncate(((ImageData) ref).getName());
+		} else if (ref instanceof DatasetData) {
+			v = "Dataset's Data: ";
+			v += EditorUtil.truncate(((DatasetData) ref).getName());
+		} else if (ref instanceof ProjectData) {
+			v = "Project's Data: ";
+			v += EditorUtil.truncate(((ProjectData) ref).getName());
+		} else if (ref instanceof PlateData) {
+			v = "Plate's Data: ";
+			v += EditorUtil.truncate(((PlateData) ref).getName());
+		} else if (ref instanceof PlateAcquisitionData) {
+				v = "Run's Data: ";
+				v += EditorUtil.truncate(
+						((PlateAcquisitionData) ref).getLabel());
+		} else if (ref instanceof ScreenData) {
+			v = "Screen's Data: ";
+			v += EditorUtil.truncate(((ScreenData) ref).getName());
+		} else if (ref instanceof ExperimenterData) {
+			v = EditorUtil.getExperimenterName((ExperimenterData) ref);
+			v += "'s details";
+		} if (ref instanceof GroupData) {
+			v = ((GroupData) ref).getName();
+			v += "'s details";
+		}	
+		return v;
+		
+	}
+	
 	/**
 	 * Fires an asynchronous call to save the data, add (resp. remove)
 	 * annotations to (resp. from) the object.
@@ -512,6 +559,16 @@ class MetadataViewerModel
 						os.saveAcquisitionData(ctx, i.next()) ;
             	}
             	os.saveData(ctx, data, toAdd, toRemove, userID);
+            	int count = 0;
+            	if (toAdd != null) count += toAdd.size();
+            	if (toRemove != null) count -= toRemove.size();
+            	boolean post = (toAdd != null && toAdd.size() != 0) || 
+				(toRemove != null && toRemove.size() != 0);
+            	if (post) {
+        			EventBus bus = 
+        				MetadataViewerAgent.getRegistry().getEventBus();
+        			bus.post(new AnnotatedEvent(new ArrayList(data), count));
+        		}
 			} catch (Exception e) {
 				LogMessage msg = new LogMessage();
 				msg.print("Unable to save annotation and/or edited data");
@@ -903,11 +960,18 @@ class MetadataViewerModel
 	 * 
 	 * @return See above.
 	 */
-	SecurityContext getSecurityContext()
+	SecurityContext getSecurityContext() { return ctx; }
+
+	/** 
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getAdminContext()
 	{ 
 		if (MetadataViewerAgent.isAdministrator())
 			return MetadataViewerAgent.getAdminContext();
-		return ctx;
+		return null;
 	}
 
 }

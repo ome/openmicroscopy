@@ -162,6 +162,9 @@ public abstract class TreeImageDisplay
     /** Indicates to display or not the number of items.*/
     private boolean displayItems;
     
+    /** The annotation count.*/
+    private int count;
+    
     /**
      * Checks if the algorithm to visit the tree is one of the constants
      * defined by {@link TreeImageDisplayVisitor}.
@@ -201,6 +204,7 @@ public abstract class TreeImageDisplay
         partialName = true;
         fontStyle = FONT_PLAIN;
         displayItems = true;
+        count = 0;
     }
     
     /**
@@ -504,7 +508,7 @@ public abstract class TreeImageDisplay
      */
     public boolean isAnnotated()
     {
-    	return EditorUtil.isAnnotated(getUserObject());
+    	return EditorUtil.isAnnotated(getUserObject(), count);
     }
     
     /**
@@ -592,6 +596,13 @@ public abstract class TreeImageDisplay
      * 					to be refreshed, <code>false</code> otherwise.
      */
     public void setToRefresh(boolean toRefresh) { this.toRefresh = toRefresh; }
+    
+    /** 
+     * Sets the annotation count.
+     * 
+     * @param count The value to set.
+     */
+    public void setAnnotationCount(int count) { this.count = count; }
     
     /**
      * Returns <code>true</code> to indicate that the node needs
