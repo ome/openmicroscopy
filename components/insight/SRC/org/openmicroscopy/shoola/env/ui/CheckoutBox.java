@@ -30,20 +30,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -68,10 +67,10 @@ public class CheckoutBox
 {
 
 	/** The elements to save. */
-	private Map<Agent, AgentSaveInfo> 		map;
+	private Map<Agent, AgentSaveInfo> map;
 	
 	/** Component to save all instances. */
-	private JCheckBox				  		saveAll;
+	private JCheckBox saveAll;
 	
 	/** The components to handle. */
 	private Map<Agent, List<CheckOutItem>> components;
@@ -81,7 +80,8 @@ public class CheckoutBox
 	{
 		if (components == null) return;
 		Entry entry;
-		Iterator i = components.entrySet().iterator();
+		Iterator<Entry<Agent, List<CheckOutItem>>> 
+		i = components.entrySet().iterator();
 		List<CheckOutItem> l;
 		Iterator<CheckOutItem> j;
 		CheckOutItem item;
@@ -92,8 +92,7 @@ public class CheckoutBox
 			if (l != null) {
 				j = l.iterator();
 				while (j.hasNext()) {
-					item = j.next();
-					item.setEnabled(selected);
+					j.next().setEnabled(selected);
 				}
 			}
 		}
@@ -123,8 +122,6 @@ public class CheckoutBox
 	private JComponent buildAgentEntry(Agent agent, AgentSaveInfo info)
 	{
 		List<CheckOutItem> items = new ArrayList<CheckOutItem>();
-		//JXTaskPane pane = UIUtilities.createTaskPane(info.getName(), null);
-		//pane.setCollapsed(false);
 		List<Object> instances = info.getInstances();
 		Iterator<Object> i = instances.iterator();
 		CheckOutItem box;
@@ -137,8 +134,6 @@ public class CheckoutBox
 		}
 		components.put(agent, items);
 		return UIUtilities.buildComponentPanel(p);
-		//pane.add(UIUtilities.buildComponentPanel(p));
-		//return pane;
 	}
 	
 	/** Builds and lays out the UI. */
@@ -151,15 +146,18 @@ public class CheckoutBox
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(UIUtilities.buildComponentPanel(saveAll));
-		p.add(Box.createVerticalStrut(5));
-		p.add(new JSeparator());
+
 		JPanel content = new JPanel();
+		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+		JXTaskPane pane = UIUtilities.createTaskPane("List of Changes", null);
+		pane.setCollapsed(false);
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			content.add(buildAgentEntry((Agent) entry.getKey(),
 					(AgentSaveInfo) entry.getValue()));
 		}
-		p.add(content);
+		pane.add(content);
+		p.add(pane);
 		addBodyComponent(p);
 	}
 	
@@ -272,5 +270,5 @@ public class CheckoutBox
 		String getRefName() { return refName; }
 		
 	}
-	
+
 }

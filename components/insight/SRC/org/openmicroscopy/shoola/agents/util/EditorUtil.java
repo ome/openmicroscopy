@@ -42,6 +42,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 //Third-party libraries
+import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
@@ -101,6 +102,9 @@ import pojos.WellSampleData;
  */
 public class EditorUtil 
 {
+	
+	/** The number of characters.*/
+	public static final int LENGHT_CHAR = 50;
 	
 	/** Identifies the Laser type. */
 	public static final String LASER_TYPE = "Laser";
@@ -972,6 +976,38 @@ public class EditorUtil
     public static String getPartialName(String originalName)
     {
     	return UIUtilities.getPartialName(originalName);
+    }
+    
+    /**
+     * Returns the last characters of the name when the name is longer that the
+     * specified value.
+     * 
+     * @param name The name to truncate.
+     * @return See above.
+     */
+    public static String truncate(String name)
+    {
+    	return truncate(name, LENGHT_CHAR);
+    }
+    
+    /**
+     * Returns the last characters of the name when the name is longer that the
+     * specified value.
+     * 
+     * @param name The name to truncate.
+     * @param maxLength The maximum length.
+     * @return See above.
+     */
+    public static String truncate(String name, int maxLength)
+    {
+    	if (name == null) return "";
+    	int v = maxLength+UIUtilities.DOTS.length();
+    	int n = name.length();
+    	if (n > v) {
+    		n = n-1;
+    		return UIUtilities.DOTS+name.substring(n-maxLength, n);
+    	}
+    	return name;
     }
     
     /**

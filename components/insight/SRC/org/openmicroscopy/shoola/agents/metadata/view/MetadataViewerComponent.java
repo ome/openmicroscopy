@@ -84,7 +84,6 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
 import pojos.FileData;
 import pojos.ImageData;
 import pojos.PixelsData;

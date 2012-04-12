@@ -502,22 +502,23 @@ class MetadataViewerModel
 		String v = "";
 		if (ref instanceof ImageData) {
 			v = "Image's Data: ";
-			v += ((ImageData) ref).getName();
+			v += EditorUtil.truncate(((ImageData) ref).getName());
 		} else if (ref instanceof DatasetData) {
 			v = "Dataset's Data: ";
-			v += ((DatasetData) ref).getName();
+			v += EditorUtil.truncate(((DatasetData) ref).getName());
 		} else if (ref instanceof ProjectData) {
 			v = "Project's Data: ";
-			v += ((ProjectData) ref).getName();
+			v += EditorUtil.truncate(((ProjectData) ref).getName());
 		} else if (ref instanceof PlateData) {
 			v = "Plate's Data: ";
-			v += ((PlateData) ref).getName();
+			v += EditorUtil.truncate(((PlateData) ref).getName());
 		} else if (ref instanceof PlateAcquisitionData) {
 				v = "Run's Data: ";
-				v += ((PlateAcquisitionData) ref).getLabel();
+				v += EditorUtil.truncate(
+						((PlateAcquisitionData) ref).getLabel());
 		} else if (ref instanceof ScreenData) {
 			v = "Screen's Data: ";
-			v += ((ScreenData) ref).getName();
+			v += EditorUtil.truncate(((ScreenData) ref).getName());
 		} else if (ref instanceof ExperimenterData) {
 			v = EditorUtil.getExperimenterName((ExperimenterData) ref);
 			v += "'s details";

@@ -3409,7 +3409,7 @@ class ImViewerComponent
 	 */
 	public String toString()
 	{ 
-		return "Image's Settings: "+model.getImageName();
+		return "Image's Settings: "+EditorUtil.truncate(model.getImageName());
 	}
 
 }
