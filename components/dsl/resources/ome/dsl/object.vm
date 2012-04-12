@@ -39,6 +39,7 @@ package ${type.package};
 
 import ome.conditions.*;
 import ome.model.*;
+import ome.model.core.*;
 
 #if(!$type.superclass && !$type.global)
 /**
