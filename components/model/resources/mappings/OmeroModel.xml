@@ -1699,4 +1699,28 @@
                 </properties>
         </type>
 
+	<link id="ome.model.core.LightPathExcitationFilterLink">
+		<properties>
+			<from_parent type="ome.model.core.LightPath" ordered="true"/>
+			<to_child type="ome.model.core.Filter"/>
+		</properties>
+	</link>
+	<link id="ome.model.core.LightPathEmissionFilterLink">
+		<properties>
+			<from_parent type="ome.model.core.LightPath"/>
+			<to_child type="ome.model.core.Filter"/>
+		</properties>
+	</link>
+	<link id="ome.model.core.FilterSetExcitationFilterLink">
+		<properties>
+			<from_parent type="ome.model.core.FilterSet"/>
+			<to_child type="ome.model.core.Filter"/>
+		</properties>
+	</link>
+	<link id="ome.model.core.FilterSetEmissionFilterLink">
+		<properties>
+			<from_parent type="ome.model.core.FilterSet"/>
+			<to_child type="ome.model.core.Filter"/>
+		</properties>
+	</link>
 </types>
