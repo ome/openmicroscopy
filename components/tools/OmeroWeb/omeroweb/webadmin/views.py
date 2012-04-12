@@ -345,15 +345,9 @@ def manage_password(request, eid, conn=None, **kwargs):
 
 @login_required(isAdmin=True)
 @isAnythingCreated
-def groups(request, **kwargs):
+def groups(request, conn=None, **kwargs):
     groups = True
     template = "webadmin/groups.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'groups':groups}
     if kwargs['firsttime']:
