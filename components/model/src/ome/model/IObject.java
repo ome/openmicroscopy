@@ -14,7 +14,6 @@ import ome.conditions.ApiUsageException;
 import ome.model.internal.Details;
 import ome.model.internal.GraphHolder;
 import ome.util.Filterable;
-import ome.util.Validation;
 
 /**
  * central model interface. All entities that the backend can persist to the DB
@@ -80,22 +79,6 @@ public interface IObject extends Filterable, Serializable {
      * @throws ApiUsageException
      */
     public void unload() throws ApiUsageException;
-
-    // ~ Validation
-    // =========================================================================
-    /**
-     * calls the class-specific validator for this instance and returns the
-     * value from {@link Validation#isValid()}
-     */
-    public boolean isValid();
-
-    /**
-     * calls the class-specific validator for this instance and returns the
-     * {@link Validation} object.
-     * 
-     * @return Validation collecting parameter.
-     */
-    public Validation validate();
 
     // ~ For dynamic/generic programming
     // =========================================================================

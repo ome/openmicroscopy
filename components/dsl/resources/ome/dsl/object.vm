@@ -995,16 +995,6 @@ implements java.io.Serializable, IObject
 #end######################################################################TYPE
 #end########################################################################EACH
 
-    @javax.persistence.Transient
-    // TODO what does this look like with Validator
-    public boolean isValid() {
-        return ome.util.Validator.validate(this).isValid();
-    }
-  
-    public ome.util.Validation validate() {
-        return ome.util.Validator.validate(this);
-    }
-
 #if(!$type.abstract)
 ## TODO trying to return type and not superclass
 ## but javassist in hibernate has problems with covariant return types
