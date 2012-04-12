@@ -96,7 +96,6 @@ from omeroweb.webadmin.custom_models import Server
 from omeroweb.webadmin.forms import LoginForm
 from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck
 
-from omeroweb.webgateway.views import getBlitzConnection
 from omeroweb.webgateway import views as webgateway_views
 
 from omeroweb.feedback.views import handlerInternalError
