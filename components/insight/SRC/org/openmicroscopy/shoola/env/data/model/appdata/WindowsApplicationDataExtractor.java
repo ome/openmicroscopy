@@ -23,7 +23,10 @@
  */
 package org.openmicroscopy.shoola.env.data.model.appdata;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.Icon;
 import javax.swing.filechooser.FileSystemView;
@@ -175,6 +178,10 @@ public class WindowsApplicationDataExtractor implements
 
 		Pointer lpData = allocateBuffer(fileVersionInfoSize);
 
+		boolean fileInfoStatusSuccess = com.sun.jna.platform.win32.Version.INSTANCE.GetFileVersionInfo(applicationPath, 0, fileVersionInfoSize, lpData);
+		if (!fileInfoStatusSuccess)
+			throw new Exception("Unable to load application information");
+		
 		String queryPath = "\\StringFileInfo\\" + translation + "\\"
 				+ propertyKey;
 

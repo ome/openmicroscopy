@@ -35,13 +35,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
  * @since Beta4.4
  */
 public class DownloadAndLaunchActivity extends DownloadActivity {
-	DownloadAndLaunchActivity(UserNotifier viewer, Registry registry,
-			SecurityContext ctx, DownloadAndLaunchActivityParam parameters) {
-		super(viewer, registry, ctx, parameters);
-
-		fileName = getFileName();
-		messageLabel.setText("Opening: " + fileName);
-	}
 
 	/**
 	 * Returns the name of the file.
@@ -50,6 +43,21 @@ public class DownloadAndLaunchActivity extends DownloadActivity {
 	 */
 	private String getFileName() {
 		return parameters.getOriginalFileName();
+	}
+	
+	/**
+	 * 
+	 * @param viewer
+	 * @param registry
+	 * @param ctx
+	 * @param parameters
+	 */
+	DownloadAndLaunchActivity(UserNotifier viewer, Registry registry,
+			SecurityContext ctx, DownloadAndLaunchActivityParam parameters) {
+		super(viewer, registry, ctx, parameters);
+
+		fileName = getFileName();
+		messageLabel.setText("Opening: " + fileName);
 	}
 
 	/**
