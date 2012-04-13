@@ -107,7 +107,9 @@ button {
 		
 				.menu_btns li a {
 					display:block;
-					text-indent:-9999px;
+					text-indent: 100%;  
+    white-space: nowrap;  
+    overflow: hidden; 
 					width:10px;
 					height:20px;
 					-webkit-transition: none !important;
@@ -431,6 +433,67 @@ a.tag:hover {
 	}
 	
 	
+
+
+
+
+
+
+/*
+	------------------------------------------------
+	:: Dialog/Modal Boxes
+	------------------------------------------------
+*/
+
+.ui-dialog-titlebar {
+	padding:15px 10px;
+	-webkit-border-top-left-radius:5px; /* Saf3+, Chrome */
+	-webkit-border-top-right-radius:5px;
+ 	-moz-border-radius-topleft:5px; /* FF1+ */
+	-moz-border-radius-topright:5px;
+    border-top-left-radius:5px; /* Opera 10.5, IE 9 */ 
+    border-top-right-radius:5px; 
+	background-image:-webkit-linear-gradient(top,hsl(210,10%,90%) 0%,hsl(210,10%,85%) 100%); /* Chrome10+,Safari5.1+ */
+	margin-bottom:15px;
+	position: relative;
+	border-bottom:solid 1px hsl(210,10%,80%);
+}
+
+	.ui-dialog-title{
+		font-size:1.3em;
+		color:hsl(210,10%,40%) !important;
+		text-shadow:0 1px 0 white;
+	}
+
+		.ui-dialog .ui-dialog-titlebar-close { 
+			position: absolute; 
+			right: .5em; 
+			top: 50%;
+			width: 19px;
+			margin: -10px 0 0 0;
+			height: 18px; 
+			border:none;
+			background:url(/static/webgateway/img/close.png) center center no-repeat;
+		}
+	
+		.ui-dialog .ui-dialog-titlebar-close:hover, .ui-dialog .ui-dialog-titlebar-close:focus {
+			background:url(/static/webgateway/img/close.png) center center no-repeat;
+		}
+		
+	
+		.ui-dialog .ui-dialog-titlebar-close span { 
+			display: block; 
+			background:none;
+		}
+		
+		.ui-icon-closethick {
+			background:none;
+		}
+		
+		
+	
+
+
 
 
 

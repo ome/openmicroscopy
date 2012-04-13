@@ -2,7 +2,9 @@
  * jsTree 1.0-rc3
  * http://jstree.com/
  *
- * Copyright (c) 2010 Ivan Bozhanov (vakata.com)
+ * Copyright (c) 2text-indent: 100%;  
+    white-space: nowrap;  
+    overflow: hidden; akata.com)
  *
  * Licensed same as jquery - under the terms of either the MIT License or the GPL Version 2 License
  *   http://www.opensource.org/licenses/mit-license.php

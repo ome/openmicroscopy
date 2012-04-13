@@ -29,8 +29,8 @@
 -->
 {% endcomment %}
 
-<div class="modal">
-	<div>
+<div>
+
     <h1>{% trans "Upload a new file" %}:</h1>
     <span>Choose a local file to upload and attach</span>
     {{ form_file.annotation_file }}
@@ -51,5 +51,5 @@
         <tr class="hiddenField"><td>{{ form_file.acquisition }}</td></tr>
         <tr class="hiddenField"><td>{{ form_file.well }}</td></tr>
     </table>
-    </div>
+
 </div>

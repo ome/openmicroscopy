@@ -964,7 +964,7 @@
                     <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
                     
                     <!-- hidden form for choosing files in dialog - load form via AJAX when we show dialog -->
-                    <form id="choose_attachments_form" style="display:none" action="{% url annotate_file %}" method="post">
+                    <form id="choose_attachments_form" style="display:none" title="Choose Attachments" action="{% url annotate_file %}" method="post">
                     </form>
                     
 
@@ -1113,7 +1113,7 @@
         {% if manager.tag %}
             <div id="general_tab" class="right_tab_inner" >
                 {% if manager.tag.isOwned %}
-				<div class="data_heading" style"border:solid 1px red;" id="tagname-{{ manager.tag.id }}">
+				<div class="data_heading" id="tagname-{{ manager.tag.id }}">
 					<h1>
 						<p id="tagname-{{ manager.tag.id }}-name" style="word-wrap: break-word;">{{ manager.tag.getValue }}</p>
 					</h1>

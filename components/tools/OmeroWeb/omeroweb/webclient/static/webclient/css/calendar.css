@@ -61,7 +61,9 @@
 
 	#prevMonth {
 		position:absolute;
-		text-indent:-9999px;
+		text-indent: 100%;  
+    white-space: nowrap;  
+    overflow: hidden; 
 		left:4px;
 		background: url(../image/calendar_arrow_left.png) center center no-repeat;
 	}
@@ -69,7 +71,9 @@
 	#nextMonth {
 		position:absolute;
 		right:4px;
-		text-indent:-9999px;
+		text-indent: 100%;  
+    white-space: nowrap;  
+    overflow: hidden; 
 		background: url(../image/calendar_arrow_right.png) center center no-repeat;
 	}
     
