@@ -2111,4 +2111,12 @@
 				<to_child type="ome.model.core.OriginalFile"/>
 			</properties>
 		</link>
+	
+	<!-- Note: StatsInfo is not in model. Need to be linked to channel-->	
+	<type id="ome.model.stats.StatsInfo">
+		<properties>
+			<required name="globalMin" type="double"/>
+			<required name="globalMax" type="double"/>
+		</properties>
+	</type>	
 </types>
