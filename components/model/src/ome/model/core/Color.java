@@ -32,7 +32,7 @@ public class Color implements Serializable {
     // =========================================================================
     //
     /**
-     * simple contructor. All color components will be set to 0;
+     * simple constructor. All color components will be set to 0;
      */
     public Color() {
         this(0, 0, 0, 0);
@@ -71,6 +71,46 @@ public class Color implements Serializable {
         return this.color;
     }
 
+    /**
+     * Returns the <code>red</code> component of the color.
+     * 
+     * @return See above.
+     */
+    public int getRed()
+    {
+    	return 0; //To be implemented.
+    }
+    
+    /**
+     * Returns the <code>green</code> component of the color.
+     * 
+     * @return See above.
+     */
+    public int getGreen()
+    {
+    	return 0; //To be implemented.
+    }
+    
+    /**
+     * Returns the <code>blue</code> component of the color.
+     * 
+     * @return See above.
+     */
+    public int getBlue()
+    {
+    	return 0; //To be implemented.
+    }
+    
+    /**
+     * Returns the <code>alpha</code> component of the color.
+     * 
+     * @return See above.
+     */
+    public int getAlpha()
+    {
+    	return 0; //To be implemented.
+    }
+    
     protected void setColor(int color) {
         this.color = color;
     }
