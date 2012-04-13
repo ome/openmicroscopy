@@ -195,18 +195,6 @@
         <Filter ID="Filter:8:3" Model="SP Mirror Channel 4">
             <TransmittanceRange CutIn="680" CutOut="800"/>
         </Filter>
-        <Filter ID="Filter:8:4">
-            <TransmittanceRange CutIn="420" CutOut="480"/>
-        </Filter>
-        <Filter ID="Filter:8:5">
-            <TransmittanceRange CutIn="500" CutOut="540"/>
-        </Filter>
-        <Filter ID="Filter:8:6">
-            <TransmittanceRange CutIn="550" CutOut="630"/>
-        </Filter>
-        <Filter ID="Filter:8:7">
-            <TransmittanceRange CutIn="680" CutOut="800"/>
-        </Filter>
     </Instrument>
     <Instrument ID="Instrument:9">
         <Microscope Model="TCS SP5" Type="Other"/>
@@ -249,21 +237,6 @@
             <TransmittanceRange CutIn="550" CutOut="630"/>
         </Filter>
         <Filter ID="Filter:9:3" Model="SP Mirror Channel 4">
-            <TransmittanceRange CutIn="680" CutOut="800"/>
-        </Filter>
-        <Filter ID="Filter:9:4">
-            <TransmittanceRange CutIn="420" CutOut="480"/>
-        </Filter>
-        <Filter ID="Filter:9:5">
-            <TransmittanceRange CutIn="420" CutOut="480"/>
-        </Filter>
-        <Filter ID="Filter:9:6">
-            <TransmittanceRange CutIn="500" CutOut="540"/>
-        </Filter>
-        <Filter ID="Filter:9:7">
-            <TransmittanceRange CutIn="550" CutOut="630"/>
-        </Filter>
-        <Filter ID="Filter:9:8">
             <TransmittanceRange CutIn="680" CutOut="800"/>
         </Filter>
     </Instrument>
@@ -310,18 +283,6 @@
         <Filter ID="Filter:10:3" Model="SP Mirror Channel 4">
             <TransmittanceRange CutIn="680" CutOut="800"/>
         </Filter>
-        <Filter ID="Filter:10:4">
-            <TransmittanceRange CutIn="420" CutOut="480"/>
-        </Filter>
-        <Filter ID="Filter:10:5">
-            <TransmittanceRange CutIn="500" CutOut="540"/>
-        </Filter>
-        <Filter ID="Filter:10:6">
-            <TransmittanceRange CutIn="550" CutOut="630"/>
-        </Filter>
-        <Filter ID="Filter:10:7">
-            <TransmittanceRange CutIn="680" CutOut="800"/>
-        </Filter>
     </Instrument>
     <Instrument ID="Instrument:11">
         <Microscope Model="TCS SP5" Type="Other"/>
@@ -364,21 +325,6 @@
             <TransmittanceRange CutIn="550" CutOut="630"/>
         </Filter>
         <Filter ID="Filter:11:3" Model="SP Mirror Channel 4">
-            <TransmittanceRange CutIn="680" CutOut="800"/>
-        </Filter>
-        <Filter ID="Filter:11:4">
-            <TransmittanceRange CutIn="550" CutOut="630"/>
-        </Filter>
-        <Filter ID="Filter:11:5">
-            <TransmittanceRange CutIn="420" CutOut="480"/>
-        </Filter>
-        <Filter ID="Filter:11:6">
-            <TransmittanceRange CutIn="500" CutOut="540"/>
-        </Filter>
-        <Filter ID="Filter:11:7">
-            <TransmittanceRange CutIn="550" CutOut="630"/>
-        </Filter>
-        <Filter ID="Filter:11:8">
             <TransmittanceRange CutIn="680" CutOut="800"/>
         </Filter>
     </Instrument>
