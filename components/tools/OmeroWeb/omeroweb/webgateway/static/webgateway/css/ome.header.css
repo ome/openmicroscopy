@@ -66,6 +66,9 @@
 	 filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='hsl(212,14%,69%)', endColorstr='hsl(212,14%,54%)',GradientType=0 ); /* IE6-9 */
 	 background:linear-gradient(top, hsl(212,14%,69%) 0%,hsl(212,14%,54%) 100%); /* W3C */ 
 	 
+	 
+	 
+	 // background-image:-webkit-linear-gradient(top, hsl(212,10%,25%) 0%,hsl(212,10%,20%) 100%); /* Chrome10+,Safari5.1+ */
 	 font-family: Helvetica,Arial,sans-serif;
  }
 	
@@ -456,7 +459,7 @@
 				background:url(../img/dropdown_right_arrow_hover.png) 90% center no-repeat;
 			}	
 				
-		    .dropdown li:hover { 
+		    .dropdown li:hover, #vakata-contextmenu.jstree-default-context li:hover { 
 				background-color:hsl(210,50%,50%);
 				background-color:hsl(210,50%,50%);
 				border-top:solid 1px hsl(210,50%,45%);
@@ -922,32 +925,6 @@
 }
 
 
-
-
-
-/* Left and Right panels that go under tabs */
-
-
-
-#left_panel_tabs, #annotation_tabs {
-    position:absolute;
-    padding:0;
-    background: hsl(220,20%,95%);
-}
-
-	#Projects, #Tags, #Public, .right_tab_content {
-	    position:absolute;
-	    bottom:0px; left:0px; right:0px;
-	}
-	
-	#Projects, #Tags, #Public {
-	    top:28px;
-	}
-	
-	.right_tab_content {
-		top:28px;
-	}
-	
 
 
 

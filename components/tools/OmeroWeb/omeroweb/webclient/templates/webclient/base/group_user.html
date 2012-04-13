@@ -21,11 +21,9 @@
 -->
 {% endcomment %}
 
-<div class="header_chooser">
+<div id="user_selection">
     {% for field in form_active_group %}{{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
-</div>
 {% if form_users %}
-<div class="header_chooser">
     {% for field in form_users %}{{ field }}{% endfor %}
 </div>
 {% endif %}

@@ -55,19 +55,35 @@
             </a>
 
             
+            <div id="middle_header_left">
+				{% block middle_header_left %}
+				    {% include "webclient/base/menu.html" %}
+				{% endblock %}
+            </div>
+			
 			
             <div id="middle_header_right">
-                {% block middle_header_right %}
-                {% endblock %}
+				{% block middle_header_right %}
+				
+					<!-- Global Tools -->
+					{% include "webclient/base/basket_info.html" %}
+					<ul class="header_toolbar">
+						{% include "webclient/base/script_launch.html" %}
+					    {% include "webclient/base/activities_info.html" %}
+					</ul>
+					
+					<!-- Global Search -->
+					{% include "webclient/base/search_field.html" %}
+					
+					<!-- User Dropdown -->
+					{% include "webclient/base/user_dropdown.html" %}
+				{% endblock %}
             </div>
-            
-            <div id="middle_header_left">
-                {% block middle_header_left %}
-                {% endblock %}
-            </div>
-        <div class="clear"></div> <!-- Silly div to prevent overflow:hidden from hiding info panels. Ask Dom why he did this if you're curious for more info. -->
-        </div>
-        {% endblock %}
+			
+	        <div class="clear"></div>
+	
+		</div>
+    	{% endblock %}
         
         <div id="content">
         {% block content %}

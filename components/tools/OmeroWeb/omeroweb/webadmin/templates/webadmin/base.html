@@ -29,33 +29,38 @@
 {% endblock %}
 
 
+    {% block middle_header %}
+    <div id="middle_header">
 
+        <a id="logo">
+            <img src="{% static "webgateway/img/logo2.png" %}"/>
+        </a>
 
-
-        {% block middle_header %}
-        <div id="middle_header">
-
-            <a id="logo">
-                <img src="{% static "webgateway/img/logo2.png" %}"/>
-            </a>
-
-            <div id="middle_header_right">
-			    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-
-			    {% include "webclient/base/logout.html" %}
-            </div>
             
-            <div id="middle_header_left">
-				    {% include "webclient/base/menu.html" %}
-				    {% if eventContext.isAdmin %}
-				    <li class="menu_link admin"><a href="{% url waindex %}" title="Web-Admin: Edit users and groups">{% trans "Admin" %}</a></li>
-				    {% endif %}
-            </div>
+        <div id="middle_header_left">
+			{% block middle_header_left %}
+			    {% include "webclient/base/menu.html" %}
+			{% endblock %}
+        </div>
 			
-        <div class="clear"></div> <!-- Silly div to prevent overflow:hidden from hiding info panels. Ask Dom why he did this if you're curious for more info. -->
-        
-		</div>
-        {% endblock %}
+			
+        <div id="middle_header_right">
+			{% block middle_header_right %}
+				
+					
+				<!-- Global Search -->
+				{% include "webclient/base/search_field.html" %}
+					
+				<!-- User Dropdown -->
+				{% include "webclient/base/user_dropdown.html" %}
+			{% endblock %}
+        </div>
+			
+        <div class="clear"></div>
+	
+	</div>
+	{% endblock %}
+	
         
 
 

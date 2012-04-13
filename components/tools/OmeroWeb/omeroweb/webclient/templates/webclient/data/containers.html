@@ -480,7 +480,6 @@
                                                             
                             config["create"] = {
                                 "label" : "Create new",
-                                "icon"  : '{% static "webclient/image/window_new16.png" %}',
                                 "submenu": {
                                     "project": {
                                         "label" : "Project",
@@ -506,28 +505,28 @@
                                 "submenu"   : {
                                     "copy"  : {
                                         "label" : "Copy",
-                                        "icon"  : '{% static "webclient/image/eclipse_copy_edit16.png" %}',
+                                        "icon"  : '{% static "webclient/image/icon_basic_copy_16.png" %}',
                                         "action": function() {
                                             this.copy(this.get_selected());
                                         }
                                     },
                                     "cut"   :{
                                         "label" : "Cut",
-                                        "icon"  : '{% static "webclient/image/cut16.png" %}',
+                                        "icon"  : '{% static "webclient/image/icon_basic_cut_16.png" %}',
                                         "action": function() {
                                             this.cut(this.get_selected());
                                         }
                                     },
                                     "paste": {
                                         "label" : "Paste",
-                                        "icon"  : '{% static "webclient/image/eclipse_paste_edit16.png" %}',
+                                        "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
                                         "action": function() {
                                             this.paste(this.get_selected());
                                         }
                                     },
                                     "unlink"    : {
                                         "label" : "Remove",
-                                        "icon"  : '{% static "webclient/image/minus_15.png" %}',
+                                        "icon"  : '{% static "webclient/image/icon_basic_remove_16.png" %}',
                                         "action": function(){
                                             var tree = this;
                                             //empty clipboard
@@ -542,19 +541,19 @@
                             
                             config["delete"] = {
                                 "label" : "Delete",
-                                "icon"  : '{% static "webclient/image/cancel16.png" %}',
+                                "icon"  : '{% static "webclient/image/icon_basic_delete_16.png" %}',
                                 "action": handleDelete
                             };
                             
                             config["chgrp"] = {
                                 "label" : "Move to Group...",
-                                "icon"  : '{% static "webclient/image/kuser16.png" %}',
+                                "icon"  : '{% static "webclient/image/icon_basic_user_16.png" %}',
                                 "action": handleChgrp
                             };
                             
                             config["basket"] = {
                                 "label" : "Add to Basket",
-                                "icon"  : '{% static "webclient/image/basket16.png" %}',                                    
+                                "icon"  : '{% static "webclient/image/icon_basic_basket_16.png" %}',                                    
                                 "action": function(){
                                     addToBasket(this.get_selected(), '{% url update_basket %}');
                                 }
@@ -958,6 +957,8 @@
 
 	
 
+	{% include "webclient/base/group_user.html" %}
+
 
     <div id="left_panel_tabs" class="absolute_fill">
 		
@@ -969,7 +970,6 @@
 		</div>
 		-->
 		
-		
         <ul id="left_panel_tab_list">
 			
 			<!-- Remember to update this in public/public.html as well. We should change this, but for the meantime, you need to manually update the menu there too -->
@@ -977,7 +977,8 @@
 	        <li id="explore_tab"><a href="#Projects" title="Explore">{% trans "Explore" %}</a></li>
 	        <li id="tags_tab"><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
 	        <li id="public_tab"><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>
-        </ul>
+       
+	    </ul>
 		
 		
 		
