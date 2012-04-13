@@ -28,7 +28,7 @@ import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import ome.util.PixelData;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
@@ -187,7 +187,7 @@ class HSBStrategy extends RenderingStrategy {
     	if (overlays != null)
     	{
     		QuantumDef def = new QuantumDef();  // Just to fulfill interface
-    		PixelsType bitType = new PixelsType();
+    		PixelType bitType = new PixelType();
     		bitType.setValue(PlaneFactory.BIT);
     		for (int i = 0; i < overlays.size(); i++)
     		{

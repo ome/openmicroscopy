@@ -24,7 +24,6 @@ import ome.conditions.OptimisticLockException;
 import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.core.Image;
-import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.core.Plane;
 import ome.model.display.ChannelBinding;
@@ -35,20 +34,20 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.Share;
 import ome.model.meta.ShareMember;
 import ome.model.stats.StatsInfo;
-import ome.model.acquisition.Detector;
-import ome.model.acquisition.DetectorSettings;
-import ome.model.acquisition.Dichroic;
-import ome.model.acquisition.Filter;
-import ome.model.acquisition.FilterSet;
-import ome.model.acquisition.Instrument;
-import ome.model.acquisition.Laser;
-import ome.model.acquisition.LightPath;
-import ome.model.acquisition.LightSettings;
-import ome.model.acquisition.LightSource;
-import ome.model.acquisition.Microscope;
-import ome.model.acquisition.Objective;
-import ome.model.acquisition.ObjectiveSettings;
-import ome.model.acquisition.TransmittanceRange;
+import ome.model.core.Detector;
+import ome.model.core.DetectorSettings;
+import ome.model.core.Dichroic;
+import ome.model.core.Filter;
+import ome.model.core.FilterSet;
+import ome.model.core.Instrument;
+import ome.model.core.Laser;
+import ome.model.core.LightPath;
+import ome.model.core.LightSourceSettings;
+import ome.model.core.LightSource;
+import ome.model.core.Microscope;
+import ome.model.core.Objective;
+import ome.model.core.ObjectiveSettings;
+import ome.model.core.TransmittanceRange;
 import ome.services.sharing.data.Obj;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
@@ -294,16 +293,6 @@ public class BlobShareStore extends ShareStore implements
         } else if (Channel.class.isAssignableFrom(kls)) {
             Channel obj = (Channel) s.get(Channel.class, objId);
             return imagesContainsPixels(s, images, obj.getPixels(), pixToImageCache);
-        } else if (LogicalChannel.class.isAssignableFrom(kls)) {
-            LogicalChannel obj = (LogicalChannel) s.get(LogicalChannel.class,
-                    objId);
-            Iterator<Channel> it = obj.iterateChannels();
-            while (it.hasNext()) {
-                Channel ch = it.next();
-                if (images.contains(ch.getPixels().getImage().getId())) {
-                    return true;
-                }
-            }
         } else if (Plane.class.isAssignableFrom(kls)) {
         	Plane obj = (Plane) s.get(Plane.class, objId);
             return imagesContainsPixels(s, images, obj.getPixels(), pixToImageCache);
@@ -339,14 +328,18 @@ public class BlobShareStore extends ShareStore implements
         } else if (Laser.class.isAssignableFrom(kls)) {
         	Laser obj = (Laser) s.get(Laser.class, objId);
         	return imagesContainsInstrument(s, images, obj.getInstrument(), obToImageCache);
-        } else if (LightSettings.class.isAssignableFrom(kls)) {
-        	LightSettings obj = (LightSettings) s.get(LightSettings.class, objId);
-        	return imagesContainsInstrument(s, images, obj.getLightSource().getInstrument(), 
-        			obToImageCache);
+        } else if (LightSourceSettings.class.isAssignableFrom(kls)) {
+        	LightSourceSettings obj = (LightSourceSettings) s.get(LightSourceSettings.class, objId);
+        	//TODO: review that
+        	//return imagesContainsInstrument(s, images, obj.getLightSource().getInstrument(), 
+        	//		obToImageCache);
+        	return false;
         } else if (DetectorSettings.class.isAssignableFrom(kls)) {
+        	//TODO: review that
         	DetectorSettings obj = (DetectorSettings) s.get(DetectorSettings.class, objId);
-        	return imagesContainsInstrument(s, images, obj.getDetector().getInstrument(), 
-        			obToImageCache);
+        	//return imagesContainsInstrument(s, images, obj.getDetector().getInstrument(), 
+        	//		obToImageCache);
+        	return false;
         }
         
         return false;

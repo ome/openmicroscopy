@@ -35,25 +35,24 @@ import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
-import ome.model.acquisition.Filter;
-import ome.model.acquisition.Laser;
-import ome.model.acquisition.LightSource;
-import ome.model.acquisition.TransmittanceRange;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Filter;
+import ome.model.core.Laser;
+import ome.model.core.LightSource;
+import ome.model.core.TransmittanceRange;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
 import ome.model.core.Channel;
 import ome.model.core.Image;
-import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import ome.model.enums.RenderingModel;
-import ome.model.screen.PlateAcquisition;
-import ome.model.screen.Screen;
-import ome.model.screen.Plate;
+import ome.model.spw.PlateAcquisition;
+import ome.model.spw.Screen;
+import ome.model.spw.Plate;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
 import omeis.providers.re.ColorsFactory;
@@ -348,13 +347,13 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @param id The id of the channel.
      * @return See above.
      */
-    private LogicalChannel loadLogicalChannel(Long id)
+    private Channel loadLogicalChannel(Long id)
     {
         StopWatch s1 = new CommonsLogStopWatch("omero.loadLogicalChannel");
         Parameters p = new Parameters();
         p.addId(id);
         String sql = 
-            "select channel from LogicalChannel as channel " +
+            "select channel from Channel as channel " +
             "left outer join fetch channel.filterSet as filter " +
             "left outer join fetch channel.lightPath as lp " +
             "left outer join fetch lp.emissionFilterLink as em_link " +
@@ -366,7 +365,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             "left outer join fetch channel.lightSourceSettings as lss " +
             "left outer join fetch lss.lightSource as ls " +
             "where channel.id = :id";
-        LogicalChannel lc = iQuery.findByQuery(sql, p);
+        Channel lc = iQuery.findByQuery(sql, p);
         s1.stop();
         return lc;
     }
@@ -615,15 +614,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			 if (newSettings != null) {
 			     toSave.add(newSettings);
 			 }
-    			 imageIds.add(p.getImage().getId());
+    	     //imageIds.add(p.getImage().getId());
 			} catch (ResourceError e) {
 				//Exception has already been written to log file.
             } catch (ConcurrencyException e) {
-                log.warn(e.getClass().getSimpleName() + ", not resetting settings for Image:"
-                         + p.getImage().getId());
+                log.warn(e.getClass().getSimpleName() + ", " +
+                		"not resetting settings for Pixels:"
+                         + p.getId());
             } catch (Exception e) {
                 log.warn("Exception while resetting settings for Image:"
-                         + p.getImage().getId(), e);
+                         + p.getId(), e);
             }
     	}
         StopWatch s2 = new CommonsLogStopWatch(
@@ -656,13 +656,13 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @param lc The channel to handle.
      * @return See above.
      */
-    private String getChannelName(LogicalChannel lc)
+    private String getChannelName(Channel lc)
     {
 	String name = null;
     	Integer value = lc.getEmissionWavelength();
     	if (value != null) return ""+value.intValue();
     	if (lc.getFilterSet() != null) {
-	    Iterator<Filter> it = lc.getFilterSet().linkedEmissionFilterIterator();
+	    Iterator<Filter> it = lc.getFilterSet().linkedEmissionFilterLinksIterator();
 	    while (name == null && it.hasNext()) {
 	        name = getValueFromFilter(it.next());
 	    }
@@ -670,17 +670,20 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	}
     	//Laser
     	if (lc.getLightSourceSettings() != null) {
+    		//TODO: review changes
+    		/*
     		LightSource src = lc.getLightSourceSettings().getLightSource();
     		if (src instanceof Laser) {
     			Laser laser = (Laser) src;
     			value = laser.getWavelength();
     			if (value != null) return ""+value.intValue();
     		}
+    		*/
     	}
     	value = lc.getExcitationWavelength();
     	if (value != null) return ""+value.intValue();
     	if (lc.getFilterSet() != null) {
-	    Iterator<Filter> it = lc.getFilterSet().linkedExcitationFilterIterator();
+	    Iterator<Filter> it = lc.getFilterSet().linkedExcitationFilterLinksIterator();
 	    while (name == null && it.hasNext()) {
 	        name  = getValueFromFilter(it.next());
 	    }
@@ -698,13 +701,38 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private int[] hasOriginalColor(Channel channel)
     {
+    	//TODO: Review color
+    	/*
     	Integer red = channel.getRed();
         Integer green = channel.getGreen();
         Integer blue = channel.getBlue();
         Integer alpha = channel.getAlpha();
         if (red != null && green != null && blue != null && alpha != null)
         	return new int[] { red, green, blue, alpha };
+        	*/
         return null;
+    }
+    
+    /**
+     * Returns a Channel model object based on its indexes within the
+     * OMERO data model.
+     * @param pixels The pixels to handle.
+     * @param channelIndex channel index.
+     * @return See above.
+     */
+    private Channel getChannel(Pixels pixels, int channelIndex)
+    {
+    	if (pixels == null) return null;
+    	if (channelIndex >= pixels.sizeOfChannels()) return null;
+    	Iterator<Channel> i = pixels.iterateChannels();
+    	int index = 0;
+    	Channel channel;
+    	while (i.hasNext()) {
+    		channel = i.next();
+    		if (index == channelIndex) return channel;
+			index++;
+		}
+    	return null;
     }
     
     /**
@@ -734,15 +762,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     
         int i = 0;
         ChannelBinding channelBinding;
-        LogicalChannel lc;
         Family family;
         int[] defaultColor;
-        //int n = channelBindings.size();
         Map<ChannelBinding, Boolean> m = new HashMap<ChannelBinding, Boolean>();
-        List<Boolean> values = new ArrayList<Boolean>();
         boolean v;
         int count = 0;
-        List<LogicalChannel> toUpdate = new ArrayList<LogicalChannel>();
         for (Channel channel : pixels.<Channel>collectChannels(null)) {
             family = quantumFactory.getFamily(QuantumFactory.LINEAR);
             
@@ -753,34 +777,14 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             // If we have more than one channel set each of the first three
             // active, otherwise only activate the first.
             channelBinding.setActive(i < 3);
-
-            
             // Handle updating or recreating a color for this channel.
             defaultColor = hasOriginalColor(channel);
             if (defaultColor == null) {
-            	lc = channel.getLogicalChannel();
-                if (lc != null) lc = loadLogicalChannel(lc.getId());
-                
-                //Update the name of the channel if no name, to be moved.
-                /*
-                 * v = ColorsFactory.hasEmissionData(lc);
-                name = lc.getName();
-                if (name == null || name.trim().length() == 0) {
-                	name = getChannelName(lc);
-                	if (name != null) {
-                		lc.setName(name);
-                		toUpdate.add(lc);
-                	}
-                }
-                
-                if (!v) values.add(v);
-                m.put(channelBinding, v);
-                */
                 //Need to turn that back on.
-                v = ColorsFactory.hasEmissionData(lc);
+                v = ColorsFactory.hasEmissionData(channel);
                 if (!v) count++;
                 m.put(channelBinding, v);
-                defaultColor = ColorsFactory.getColor(i, channel, lc);
+                defaultColor = ColorsFactory.getColor(i, channel);
             } 
             channelBinding.setRed(defaultColor[ColorsFactory.RED_INDEX]);
             channelBinding.setGreen(defaultColor[ColorsFactory.GREEN_INDEX]);
@@ -817,14 +821,14 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         	StatsInfo stats;
         	double min, max;
             QuantumStrategy qs;
-            PixelsType pt = pixels.getType();
+            PixelType pt = pixels.getType();
             for (int w = 0; w < pixels.sizeOfChannels(); w++) {
                 // FIXME: This is where we need to have the ChannelBinding -->
                 // Channel linkage. Without it, we have to assume that the order in
                 // which the channel bindings was created matches up with the order
                 // of the channels linked to the pixels set.
             	channelBinding = channelBindings.get(w);
-            	stats = pixels.getChannel(w).getStatsInfo();
+            	stats = getChannel(pixels, w).getStatsInfo();
             	if (stats == null)
             		throw new ResourceError("Pixels set is missing statistics" +
             				" for channel '"+ w +"'. This suggests an image " +
@@ -840,16 +844,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             	channelBinding.setInputStart(min);
             	channelBinding.setInputEnd(max);
             }
-        }
-        
-        //update the value.
-        if (toUpdate.size() > 0) {
-        	 StopWatch s1 = new CommonsLogStopWatch(
-     		"omero.resetChannelBindings.saveAndReturn");
-     	    LogicalChannel[] toSaveArray = 
-     	    	toUpdate.toArray(new LogicalChannel[toUpdate.size()]);
-     	    iUpdate.saveAndReturnArray(toSaveArray);
-     	    s1.stop();
         }
     }
     /**
@@ -872,7 +866,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         ChannelBinding cb;
         double min, max;
         QuantumStrategy qs;
-        PixelsType pt = pixels.getType();
+        PixelType pt = pixels.getType();
         for (int w = 0; w < pixels.sizeOfChannels(); w++) {
             // FIXME: This is where we need to have the ChannelBinding -->
             // Channel linkage. Without it, we have to assume that the order in
@@ -1030,20 +1024,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         List<Integer> wavelengths = new ArrayList<Integer>(pFrom
                 .sizeOfChannels());
         // Problem no access to channel index.
-        LogicalChannel lc;
         while (i.hasNext()) {
             c = i.next();
-            lc = c.getLogicalChannel();
-            if (lc != null)
-                wavelengths.add(lc.getEmissionWavelength());
+            wavelengths.add(c.getEmissionWavelength());
         }
         i = pTo.iterateChannels();
         int r = 0;
         while (i.hasNext()) {
             c = i.next();
-            lc = c.getLogicalChannel();
-            if (lc != null && wavelengths.contains(lc.getEmissionWavelength()))
-                r++;
+            if (wavelengths.contains(c.getEmissionWavelength()))
+              r++;
         }
         if (r != wavelengths.size())
             return false;
@@ -1131,7 +1121,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	RenderingDef settingsFrom = settingsMap.get(from);
     	if (pixelsFrom != null) {
     		pixels.remove(pixelsFrom);
-    		toReturnTrue.add(pixelsFrom.getImage().getId());
+    		//TODO:review that 
+    		//toReturnTrue.add(pixelsFrom.getImage().getId());
     	}
     	else {
     		//load pixels from
@@ -1157,12 +1148,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             settingsTo = applySettings(pixelsFrom, p, settingsFrom, settingsTo);
             if (settingsTo == null)
             {
-            	toReturnFalse.add(p.getImage().getId());
+            	//toReturnFalse.add(p.getImage().getId());
             }
             else
             {
             	toSave.add(settingsTo);
-            	toReturnTrue.add(p.getImage().getId());
+            	//toReturnTrue.add(p.getImage().getId());
             }
     	}
         StopWatch s2 = new CommonsLogStopWatch(
@@ -1391,7 +1382,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             try
             {
                 toSave.add(applySettings(pixels, pixels, from, to));
-                toReturn.add(pixels.getImage().getId());
+                //toReturn.add(pixels.getImage().getId());
             }
             catch (Exception e)
             {
@@ -1454,7 +1445,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                 for (int i = 0; i < pixels.sizeOfChannels(); i++)
                 {
                     cb = settings.getChannelBinding(i);
-                    stats = pixels.getChannel(i).getStatsInfo();
+                    stats = getChannel(pixels, i).getStatsInfo();
                     cb.setInputStart(stats.getGlobalMin());
                     cb.setInputEnd(stats.getGlobalMax());
                 }

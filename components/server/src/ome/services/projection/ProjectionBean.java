@@ -9,6 +9,7 @@ package ome.services.projection;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -29,7 +30,7 @@ import ome.logic.AbstractLevel2Service;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import ome.model.stats.StatsInfo;
 
 /**
@@ -51,6 +52,28 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
     
     /** Reference to the service used to retrieve the pixels data. */
     protected transient PixelsService pixelsService;
+    
+    /**
+     * Returns a Channel model object based on its indexes within the
+     * OMERO data model.
+     * @param pixels The pixels to handle.
+     * @param channelIndex channel index.
+     * @return See above.
+     */
+    private Channel getChannel(Pixels pixels, int channelIndex)
+    {
+    	if (pixels == null) return null;
+    	if (channelIndex >= pixels.sizeOfChannels()) return null;
+    	Iterator<Channel> i = pixels.iterateChannels();
+    	int index = 0;
+    	Channel channel;
+    	while (i.hasNext()) {
+    		channel = i.next();
+    		if (index == channelIndex) return channel;
+			index++;
+		}
+    	return null;
+    }
     
     /**
      * Returns the interface this implementation is for.
@@ -85,7 +108,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
      * @see ome.api.IProjection#projectStack(long, ome.model.enums.PixelsType, int, int, int, int, int, int)
      */
     @RolesAllowed("user")
-    public byte[] projectStack(long pixelsId, PixelsType pixelsType,
+    public byte[] projectStack(long pixelsId, PixelType pixelsType,
                                int algorithm, int timepoint, int channelIndex, 
                                int stepping, int start, int end)
     {
@@ -102,7 +125,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
             }
             else
             {
-                pixelsType = iQuery.get(PixelsType.class, pixelsType.getId());
+                pixelsType = iQuery.get(PixelType.class, pixelsType.getId());
             }
 
             ctx.planeSizeInPixels = 
@@ -174,7 +197,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public long projectPixels(long pixelsId, PixelsType pixelsType, 
+    public long projectPixels(long pixelsId, PixelType pixelsType, 
                               int algorithm, int tStart, int tEnd, 
                               List<Integer> channels, int stepping,
                               int zStart, int zEnd, String name)
@@ -182,7 +205,8 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         // First, copy and resize our image with sizeZ = 1.
         ProjectionContext ctx = new ProjectionContext();
         ctx.pixels = iQuery.get(Pixels.class, pixelsId);
-        Image image = ctx.pixels.getImage();
+        //TODO
+        Image image = null;//ctx.pixels.getImage();
         name = name == null? image.getName() + " Projection" : name;
         //size of the new buffer.
         Integer sizeT = tEnd-tStart+1;
@@ -193,14 +217,14 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
             iPixels.copyAndResizeImage(image.getId(), null, null, 1, sizeT,
                                        channels, name, false);
         Image newImage = iQuery.get(Image.class, newImageId);
-        Pixels newPixels = newImage.getPixels(0);
+        Pixels newPixels = newImage.getPixels();
         if (pixelsType == null)
         {
             pixelsType = ctx.pixels.getType();
         }
         else
         {
-            pixelsType = iQuery.get(PixelsType.class, pixelsType.getId());
+            pixelsType = iQuery.get(PixelType.class, pixelsType.getId());
         }
         newPixels.setType(pixelsType);
         
@@ -271,7 +295,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                         }
                     }
                     // Handle the change of minimum and maximum for this channel.
-                    Channel channel = newPixels.getChannel(newC);
+                    Channel channel = getChannel(newPixels, newC);
                     StatsInfo si = new StatsInfo();
                     si.setGlobalMin(ctx.minimum);
                     si.setGlobalMax(ctx.maximum);

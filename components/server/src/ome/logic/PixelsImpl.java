@@ -22,15 +22,15 @@ import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.core.Image;
-import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.DimensionOrder;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import ome.model.meta.Session;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
 import ome.util.PixelData;
+import ome.util.ShallowCopy;
 
 /**
  * implementation of the Pixels service interface.
@@ -47,6 +47,28 @@ import ome.util.PixelData;
 @Transactional(readOnly = true)
 public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 
+    /**
+     * Returns a Channel model object based on its indexes within the
+     * OMERO data model.
+     * @param pixels The pixels to handle.
+     * @param channelIndex channel index.
+     * @return See above.
+     */
+    private Channel getChannel(Pixels pixels, int channelIndex)
+    {
+    	if (pixels == null) return null;
+    	if (channelIndex >= pixels.sizeOfChannels()) return null;
+    	Iterator<Channel> i = pixels.iterateChannels();
+    	int index = 0;
+    	Channel channel;
+    	while (i.hasNext()) {
+    		channel = i.next();
+    		if (index == channelIndex) return channel;
+			index++;
+		}
+    	return null;
+    }
+    
 	/**
 	 * Returns the interface this implementation is for.
 	 * @see AbstractLevel2Service#getServiceInterface()
@@ -73,7 +95,6 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		Pixels p = iQuery.findByQuery("select p from Pixels as p "
 				+ "left outer join fetch p.pixelsType as pt "
 				+ "left outer join fetch p.channels as c "
-				+ "left outer join fetch c.logicalChannel as lc "
 				+ "left outer join fetch c.statsInfo "
 				+ "left outer join fetch lc.photometricInterpretation "
 				+ "left outer join fetch lc.illumination "
@@ -214,12 +235,13 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 					channelList, methodology, copyStats);
 
 		// Deal with Image linkage
-		Image image = from.getImage();
-		image.addPixels(to);
+		//TODO: Review link
+		Image image = null;//from.getImage();
+		image.setPixels(to);
 
 		// Save and return our newly created Pixels Id
 		image = iUpdate.saveAndReturnObject(image);
-		return image.getPixels(image.sizeOfPixels() - 1).getId();
+		return image.getPixels().getId();
 	}
 
 	@RolesAllowed("user")
@@ -241,16 +263,11 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		iTo.setInstrument(iFrom.getInstrument());
 
 		// Copy each Pixels set that the source image has
-		Iterator<Pixels> i = iFrom.iteratePixels();
-		while (i.hasNext())
-		{
-			Pixels p = i.next();
-			Pixels to =
-				_copyAndResizePixels(p.getId(), sizeX, sizeY, sizeZ, sizeT,
-						channelList, null, copyStats);
-			iTo.addPixels(to);
-		}  	
-
+		Pixels p = iFrom.getPixels();
+		Pixels to =
+			_copyAndResizePixels(p.getId(), sizeX, sizeY, sizeZ, sizeT,
+					channelList, null, copyStats);
+		iTo.setPixels(to);
 		// Save and return our newly created Image Id
 		iTo = iUpdate.saveAndReturnObject(iTo);
 		return iTo.getId();
@@ -259,14 +276,15 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	@RolesAllowed("user")
 	@Transactional(readOnly = false)
 	public Long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
-			List<Integer> channelList, PixelsType pixelsType, String name,
+			List<Integer> channelList, PixelType pixelsType, String name,
 			String description)
 	{
 		Image image = new Image();
 		Pixels pixels = new Pixels();
 		image.setName(name);
 		image.setDescription(description);
-		image.setAcquisitionDate(new Timestamp(new Date().getTime()));
+		//TODO: Review then compiling.
+		//image.setAcquisitionDate(new Timestamp(new Date().getTime()));
 	
 		// Check that the channels in the list are valid. 
 		if (channelList == null || channelList.size() == 0)
@@ -277,9 +295,9 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		// Create basic metadata
 		// FIXME: Hack, when the model changes we'll want to remove this, it's
 		// unreasonable.
-		pixels.setPhysicalSizeX(1.0);
-		pixels.setPhysicalSizeY(1.0);
-		pixels.setPhysicalSizeZ(1.0);
+		pixels.setPhysicalSizeX(1.0f);
+		pixels.setPhysicalSizeY(1.0f);
+		pixels.setPhysicalSizeZ(1.0f);
 		pixels.setType(pixelsType);
 		pixels.setSizeX(sizeX);
 		pixels.setSizeY(sizeY);
@@ -290,9 +308,9 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		pixels.setDimensionOrder(getEnumeration(DimensionOrder.class, "XYZCT")); 
 		// Create channel data.
 		List<Channel> channels = createChannels(channelList);
-		for(Channel channel : channels)
+		for (Channel channel : channels)
 			pixels.addChannel(channel);
-		image.addPixels(pixels);
+		image.setPixels(pixels);
 
 		// Save and return our newly created Image Id
 		image = iUpdate.saveAndReturnObject(image);
@@ -305,7 +323,9 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 			double min, double max)
 	{
 		Pixels pixels = retrievePixDescription(pixelsId);
-		StatsInfo stats = pixels.getChannel(channelIndex).getStatsInfo();
+		Channel channel = getChannel(pixels, channelIndex);
+		if (channel == null) return;
+		StatsInfo stats = channel.getStatsInfo();
 		stats.setGlobalMax(max);
 		stats.setGlobalMin(min);
 		iUpdate.saveAndReturnObject(stats);
@@ -318,7 +338,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	}
 
 	@RolesAllowed("user")
-	public int getBitDepth(PixelsType pixelsType) {
+	public int getBitDepth(PixelType pixelsType) {
 		return PixelData.getBitDepth(pixelsType.getValue());
 	}
 
@@ -379,9 +399,8 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	private void copyChannel(int channel, Pixels from, Pixels to,
 			boolean copyStats)
 	{
-		Channel cFrom = from.getChannel(channel);
-		Channel cTo = new Channel();
-		cTo.setLogicalChannel(cFrom.getLogicalChannel());
+		Channel cFrom = getChannel(from, channel);
+		Channel cTo = new ShallowCopy().copy(cFrom);
 		if (copyStats)
 		{
 			cTo.setStatsInfo(new StatsInfo(cFrom.getStatsInfo().getGlobalMin(),
@@ -399,16 +418,16 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	private List<Channel> createChannels(List<Integer> channelList)
 	{
 		List<Channel> channels = new ArrayList<Channel>();
+		Channel channel;
+		StatsInfo info;
 		for (Integer wavelength : channelList)
 		{
-			Channel channel = new Channel();
-			LogicalChannel lc = new LogicalChannel();
-			channel.setLogicalChannel(lc);
-			StatsInfo info = new StatsInfo();
+			channel = new Channel();
+			info = new StatsInfo();
 			info.setGlobalMin(0.0);
 			info.setGlobalMax(1.0);
 			channel.setStatsInfo(info);
-			lc.setEmissionWavelength(wavelength+1); //need positive integer
+			channel.setEmissionWavelength(wavelength+1); //need positive integer
 			channels.add(channel);
 		}
 		return channels;

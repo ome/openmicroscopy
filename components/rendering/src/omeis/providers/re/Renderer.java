@@ -27,7 +27,7 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneDef;
@@ -688,7 +688,7 @@ public class Renderer {
      * 
      * @return A pixels type enumeration object.
      */
-    public PixelsType getPixelsType() {
+    public PixelType getPixelsType() {
         return metadata.getType();
     }
 

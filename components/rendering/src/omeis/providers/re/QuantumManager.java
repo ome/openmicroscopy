@@ -19,7 +19,7 @@ import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import ome.model.stats.StatsInfo;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;
@@ -74,7 +74,7 @@ class QuantumManager {
      * @param waves
      *            Rendering settings associated to each wavelength (channel).
      */
-    void initStrategies(QuantumDef qd, PixelsType type,
+    void initStrategies(QuantumDef qd, PixelType type,
             List<ChannelBinding> waves) {
         ChannelBinding[] cb = waves.toArray(new ChannelBinding[waves.size()]);
         initStrategies(qd, type, cb);
@@ -92,7 +92,7 @@ class QuantumManager {
      * @param waves
      *            Rendering settings associated to each wavelength (channel).
      */
-    void initStrategies(QuantumDef qd, PixelsType type, ChannelBinding[] waves) {
+    void initStrategies(QuantumDef qd, PixelType type, ChannelBinding[] waves) {
         QuantumStrategy stg;
         double gMin, gMax;
         int w = 0;
