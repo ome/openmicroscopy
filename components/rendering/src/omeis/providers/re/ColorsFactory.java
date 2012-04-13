@@ -230,12 +230,10 @@ public class ColorsFactory {
     	if (!hasEmissionExcitationData(channel, true)) {
     		Color c = channel.getColor();
     		if (c != null) {
-    			/*
-    			 * FIXME: Add method to color --jmarie
     			Integer red = c.getRed();
-        		Integer green = channel.getGreen();
-        		Integer blue = channel.getBlue();
-        		Integer alpha = channel.getAlpha();
+        		Integer green = c.getGreen();
+        		Integer blue = c.getBlue();
+        		Integer alpha = c.getAlpha();
         		if (red != null && green != null && blue != null && alpha != null) {
         			// We've got a color image of some type that has explicitly
         			// specified which channel is Red, Green, Blue or some other wacky
@@ -244,7 +242,6 @@ public class ColorsFactory {
         			//	alpha = DEFAULT_ALPHA;
         			return new int[] { red, green, blue, alpha };
         		}
-        		*/
     		}
     		
     		return null;
