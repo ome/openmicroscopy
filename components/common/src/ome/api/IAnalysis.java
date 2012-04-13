@@ -14,9 +14,9 @@ import java.util.Set;
 
 // Application-internal dependencies
 import ome.model.IObject;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Dataset;
 import ome.model.core.Image;
+import ome.model.core.Project;
 
 /**
  * Provides access to the model objects involved in analysis. Based on

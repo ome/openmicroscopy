@@ -10,7 +10,7 @@ package ome.api;
 import java.util.List;
 
 import ome.annotations.Validate;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 /**
  * Provides methods for performing projections of Pixels sets.
@@ -72,7 +72,7 @@ public interface IProjection extends ServiceInterface
      * </ul>
      * @see #projectPixels()
      */
-    public byte[] projectStack(long pixelsId, PixelsType pixelsType,
+    public byte[] projectStack(long pixelsId, PixelType pixelsType,
                                int algorithm, int timepoint, int channelIndex,
                                int stepping, int start, int end);
 
@@ -120,7 +120,7 @@ public interface IProjection extends ServiceInterface
      * </ul>
      * @see #projectStack()
      */
-    public long projectPixels(long pixelsId, PixelsType pixelsType, 
+    public long projectPixels(long pixelsId, PixelType pixelsType, 
                               int algorithm, int tStart, int tEnd,
                               @Validate(Integer.class) List<Integer> channels,
 			      int stepping, int zStart, int zEnd, String name);
