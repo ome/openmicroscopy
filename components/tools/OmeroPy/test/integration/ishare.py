@@ -788,6 +788,30 @@ class TestIShare(lib.ITest):
         self.assertRaises(omero.SecurityViolation, \
             self.client.sf.getQueryService().get, "Image", -1, {"omero.share":"-100"})
 
+    def test8513(self):
+        owner, owner_obj = self.new_client_and_user(perms="rw----") # Owner of share
+        member, member_obj = self.new_client_and_user(perms="rw----") # Different group!
+
+        self.assertFalse(owner_obj.id.val == member_obj.id.val) # just in case
+
+        share = owner.sf.getShareService()
+        sid = self.create_share(share, objects=[], experimenters=[owner_obj, member_obj])
+
+        self.assertAccess(owner, sid)
+        self.assertAccess(member, sid)
+
+        # And the member should be able to use omero.share:sid
+        member_query = member.sf.getQueryService()
+        rv = member_query.find("Image", -1, {"omero.share":"%s" % sid})
+        self.assertEquals(None, rv)
+
+        ### Note: The following fails with a security violation since
+        ### it is expected that the user first check the contents of
+        ### the share and then load those values.
+        ### =========================================================
+        ## rv = member_query.findAll("Image", None, {"omero.share":"%s" % sid})
+        ## self.assertEquals(0, len(rv))
+
     # Helpers
 
     def assertAccess(self, client, sid, success = True):
