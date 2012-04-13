@@ -868,6 +868,10 @@
             // Property Type
             -->
             <required name="type" type="ome.model.enums.PixelType"/>
+			<!--
+            // Property Type, added manually.
+            -->
+            <required name="sha1" type="string"/>
         </properties>
     </type>
 
