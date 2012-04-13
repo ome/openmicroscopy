@@ -779,6 +779,13 @@
   License File: jquery.txt
 
 
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/chosen/*
+  Project:      Chosen
+  Web Site:     http://harvesthq.github.com/chosen/
+  License:      MIT license.
+  License File: jquery.txt
+
+
   //
   // Used but not distributed
   //
