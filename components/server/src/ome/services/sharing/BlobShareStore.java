@@ -33,7 +33,7 @@ import ome.model.display.Thumbnail;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Share;
 import ome.model.meta.ShareMember;
-import ome.model.stats.StatsInfo;
+import ome.model.core.StatsInfo;
 import ome.model.core.Detector;
 import ome.model.core.DetectorSettings;
 import ome.model.core.Dichroic;

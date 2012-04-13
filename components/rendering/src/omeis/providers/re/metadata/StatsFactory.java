@@ -19,7 +19,7 @@ import ome.io.nio.TileLoopIteration;
 import ome.io.nio.Utils;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
-import ome.model.stats.StatsInfo;
+import ome.model.core.StatsInfo;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;

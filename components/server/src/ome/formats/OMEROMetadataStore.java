@@ -54,7 +54,7 @@ import ome.model.spw.Screen;
 import ome.model.spw.Well;
 import ome.model.spw.WellSample;
 import ome.model.spw.PlateAcquisition;
-import ome.model.stats.StatsInfo;
+import ome.model.core.StatsInfo;
 import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 import ome.util.LSID;

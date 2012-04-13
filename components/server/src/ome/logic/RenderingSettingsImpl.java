@@ -53,7 +53,7 @@ import ome.model.enums.RenderingModel;
 import ome.model.spw.PlateAcquisition;
 import ome.model.spw.Screen;
 import ome.model.spw.Plate;
-import ome.model.stats.StatsInfo;
+import ome.model.core.StatsInfo;
 import ome.parameters.Parameters;
 import omeis.providers.re.ColorsFactory;
 import omeis.providers.re.Renderer;

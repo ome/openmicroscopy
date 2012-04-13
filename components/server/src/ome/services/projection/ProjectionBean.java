@@ -31,7 +31,7 @@ import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelType;
-import ome.model.stats.StatsInfo;
+import ome.model.core.StatsInfo;
 
 /**
  * Implements projection functionality for Pixels sets as declared in {@link

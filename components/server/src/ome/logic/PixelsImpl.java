@@ -27,7 +27,7 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.PixelType;
 import ome.model.meta.Session;
-import ome.model.stats.StatsInfo;
+import ome.model.core.StatsInfo;
 import ome.parameters.Parameters;
 import ome.util.PixelData;
 import ome.util.ShallowCopy;
