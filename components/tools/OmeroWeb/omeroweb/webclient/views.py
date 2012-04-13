@@ -2473,12 +2473,12 @@ def avatar(request, oid=None, conn=None, **kwargs):
 @login_required()
 def render_thumbnail_resize (request, size, iid, conn=None, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_thumbnail(request, iid, w=size, _defcb=conn.defaultThumbnail, **kwargs)
+    return webgateway_views.render_thumbnail(request, iid, w=size, _defcb=conn.defaultThumbnail, conn=conn,share_id=share_id, **kwargs)
 
 @login_required()
 def render_thumbnail (request, iid, conn=None, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, **kwargs)
+    return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, share_id=share_id, **kwargs)
 
 
 
