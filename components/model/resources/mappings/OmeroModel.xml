@@ -61,6 +61,8 @@
     <!-- OME model object Channel -->
     <type id="ome.model.core.Channel" annotated="true" named="true" >
         <properties>
+	        <!-- inserted manually for now, so code can compile. -->
+	        <optional name="statsInfo" type="ome.model.stats.StatsInfo"/><!-- Note: statsInfo is not in model-->
             <!--
             // Property AcquisitionMode
             -->
