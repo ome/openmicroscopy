@@ -26,32 +26,42 @@ from omero_sys_ParametersI import ParametersI
 class TestTickets2000(lib.ITest):
 
     def test1018CreationDestructionClosing(self):
-        c1 = omero.client()
-        s1 = c1.createSession()
-        s1.detachOnDestroy()
-        uuid = s1.ice_getIdentity().name
+        c1 = None
+        c2 = None
+        c3 = None
+        c4 = None
 
-        # Intermediate "disrupter"
-        c2 = omero.client()
-        s2 = c2.createSession(uuid, uuid)
-        s2.getAdminService().getEventContext()
-        c2.closeSession()
+        try:
+            c1 = omero.client() # ok with __del__
+            s1 = c1.createSession()
+            s1.detachOnDestroy()
+            uuid = s1.ice_getIdentity().name
 
-        # 1 should still be able to continue
-        s1.getAdminService().getEventContext()
+            # Intermediate "disrupter"
+            c2 = omero.client() # ok with __del__
+            s2 = c2.createSession(uuid, uuid)
+            s2.getAdminService().getEventContext()
+            c2.closeSession()
 
-        # Now if s1 exists another session should be able to connect
-        c1.closeSession()
-        c3 = omero.client()
-        s3 = c3.createSession(uuid, uuid)
-        s3.getAdminService().getEventContext()
-        c3.closeSession()
+            # 1 should still be able to continue
+            s1.getAdminService().getEventContext()
 
-        # Now a connection should not be possible
-        import Glacier2
-        c4 = omero.client()
-        self.assertRaises(Glacier2.PermissionDeniedException, c4.joinSession, uuid)
-        del c4
+            # Now if s1 exists another session should be able to connect
+            c1.closeSession()
+            c3 = omero.client() # ok with __del__
+            s3 = c3.createSession(uuid, uuid)
+            s3.getAdminService().getEventContext()
+            c3.closeSession()
+
+            # Now a connection should not be possible
+            import Glacier2
+            c4 = omero.client() # ok with __del__
+            self.assertRaises(Glacier2.PermissionDeniedException, c4.joinSession, uuid)
+        finally:
+            c1.__del__()
+            c2.__del__()
+            c3.__del__()
+            c4.__del__()
 
     def test1064(self):
         share = self.client.sf.getShareService()
