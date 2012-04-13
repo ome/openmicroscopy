@@ -162,7 +162,7 @@
                     var annId = parseInt(removeId);
                     // /webclient/action/remove/comment/461/?parent=image-257
                     var parentId = $.trim($("#parent-id").text());
-                    var url = "/webclient/action/remove/"+ dType +"/"+ annId +"/";
+                    var url = "{% url webindex %}action/remove/"+ dType +"/"+ annId +"/";
                     var $parent = $(event.target).parents("."+domClass);
                     var $annContainer = $parent.parent();
                     var confirm_remove = confirm_dialog('Remove '+ dType + '?',
@@ -224,7 +224,7 @@
                     var annId = parseInt(deleteId);
                     // /webclient/action/remove/comment/461/?parent=image-257
                     var parentId = $.trim($("#parent-id").text());
-                    var url = "/webclient/action/delete/"+ dType +"/"+ annId +"/";
+                    var url = "{% url webindex %}action/delete/"+ dType +"/"+ annId +"/";
                     var $parent = $(event.target).parents("."+domClass);
                     var $annContainer = $parent.parent();
                     var confirm_remove = confirm_dialog('Delete '+ dType + '?',
