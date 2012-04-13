@@ -62,7 +62,7 @@
     <type id="ome.model.core.Channel" annotated="true" named="true" >
         <properties>
 	        <!-- inserted manually for now, so code can compile. -->
-	        <optional name="statsInfo" type="ome.model.stats.StatsInfo"/><!-- Note: statsInfo is not in model-->
+	        <optional name="statsInfo" type="ome.model.core.StatsInfo"/>
             <!--
             // Property AcquisitionMode
             -->
@@ -2117,12 +2117,4 @@
 				<to_child type="ome.model.core.OriginalFile"/>
 			</properties>
 		</link>
-	
-	<!-- Note: StatsInfo is not in model. Need to be linked to channel-->	
-	<type id="ome.model.stats.StatsInfo">
-		<properties>
-			<required name="globalMin" type="double"/>
-			<required name="globalMax" type="double"/>
-		</properties>
-	</type>	
 </types>
