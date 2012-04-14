@@ -70,7 +70,7 @@
             <!--
             // Property Color
             -->
-            <optional name="color" type="Color"/>
+            <optional name="color" type="ome.model.core.Color"/>
             <!--
             // Property ContrastMethod
             -->
@@ -1145,7 +1145,7 @@
             <!--
             // Property FillColor
             -->
-            <optional name="fillColor" type="Color"/>
+            <optional name="fillColor" type="ome.model.core.Color"/>
             <!--
             // Property FillRule
             -->
@@ -1190,7 +1190,7 @@
             <!--
             // Property StrokeColor
             -->
-            <optional name="strokeColor" type="Color"/>
+            <optional name="strokeColor" type="ome.model.core.Color"/>
             <!--
             // Property StrokeDashArray
             -->

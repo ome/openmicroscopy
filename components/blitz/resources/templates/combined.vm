@@ -892,6 +892,48 @@ Properties used throughout the accessor generation
 #set( $copyMethod = "ome.util.Utils.internalForm(source)" )
 [$Ice]       long ${property.name};
 
+#elseif( $javaType.startsWith("Double"))
+#set( $javaType = "omero.RDouble");
+#set( $iceType   = "omero::RDouble" )
+#set( $cppType   = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rdouble(source.get${PropertyName}());" );
+[$Ice]       omero::RDouble ${property.name};
+
+#elseif( $javaType.startsWith("String"))
+#set( $javaType = "omero.RString");
+#set( $iceType   = "omero::RString" )
+#set( $cppType   = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rstring(source.get${PropertyName}());" );
+[$Ice]       omero::RString ${property.name};
+
+#elseif( $javaType.startsWith("Integer"))
+#set( $javaType = "omero.RInt");
+#set( $iceType   = "omero::RInt" )
+#set( $cppType   = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rint(source.get${PropertyName}());" );
+[$Ice]       omero::RInt ${property.name};
+
+#elseif( $javaType.startsWith("Boolean"))
+#set( $javaType = "omero.RBool");
+#set( $iceType   = "omero::RBool" )
+#set( $cppType   = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rbool(source.get${PropertyName}());" );
+[$Ice]       omero::RBool ${property.name};
+
+#elseif( $javaType.startsWith("Long"))
+#set( $javaType = "omero.RLong");
+#set( $iceType   = "omero::RLong" )
+#set( $cppType   = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rlong(source.get${PropertyName}());" );
+[$Ice]       omero::RLong ${property.name};
+
+#elseif( $javaType.startsWith("Float"))
+#set( $javaType = "omero.RFloat");
+#set( $iceType   = "omero::RFloat" )
+#set( $cppType   = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : rfloat(source.get${PropertyName}());" );
+[$Ice]       omero::RFloat ${property.name};
+
 #elseif( $javaType.startsWith("java.util.Map") )
 #set( $copyMethod = "this.${fieldName} = ($javaType) mapper.findMap(source.get${PropertyName}());" );
 [$Ice]       dictionary ${property.name};
