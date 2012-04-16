@@ -130,9 +130,8 @@ class TestThumbnailPerms(lib.ITest):
         user2 = admin.getExperimenter(eid2)
         
         ## login as user1 (into their default group)
-        client_share1 = omero.client()
-        client_share1.createSession(user1.omeName.val,"ome")
-        
+        client_share1 = self.new_client(user=user1, password="ome")
+
         print len(client_share1.sf.activeServices())
         
         # create image in private group
@@ -169,8 +168,7 @@ class TestThumbnailPerms(lib.ITest):
         
         # now check that the 'owner' of each group can see all 3 thumbnails.
         ## login as owner (into private group)
-        owner_client = omero.client()
-        owner_client.createSession(newOwner.omeName.val,"ome")
+        owner_client = self.new_client(user=newOwner, password="ome")
         
         self.getThumbnail(owner_client.sf, privateImageId)
         # check that we can't get thumbnails for images in other groups
@@ -200,8 +198,7 @@ class TestThumbnailPerms(lib.ITest):
         
         # now check that the 'user2' of each group can see all thumbnails except private.
         ## login as user2 (into private group)
-        user2_client = omero.client()
-        user2_client.createSession(user2.omeName.val,"ome")
+        user2_client = self.new_client(user=user2, password="ome")
         
         # check that we can't get thumbnails for any images in private group
         self.assertEquals(None, self.getThumbnail(user2_client.sf, privateImageId))
