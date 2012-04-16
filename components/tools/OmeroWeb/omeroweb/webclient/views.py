@@ -607,9 +607,12 @@ def load_template(request, menu, **kwargs):
         form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
             
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups'], 'url':url})
+    new_container_form = ContainerForm()
     
     context = {'nav':request.session['nav'], 'url':url, 'init':init, 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users}
     
+    context['new_container_form'] = new_container_form
+
     t = template_loader.get_template(template)
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
