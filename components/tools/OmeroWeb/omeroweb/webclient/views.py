@@ -380,7 +380,7 @@ def load_template(request, menu, conn=None, **kwargs):
     We also prepare the list of users in the current group, for the switch-user form. Change-group form is also prepared.
     """
     request.session.modified = True
-        
+    
     if menu == 'userdata':
         template = "webclient/data/containers.html"
     elif menu == 'usertags':

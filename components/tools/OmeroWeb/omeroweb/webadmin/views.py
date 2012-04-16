@@ -133,7 +133,6 @@ def forgotten_password(request, **kwargs):
         form = ForgottonPasswordForm()
     
     context = {'error':error, 'form':form}    
-    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -293,7 +292,6 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     else:
         return HttpResponseRedirect(reverse("waexperimenters"))
     
-    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -335,7 +333,6 @@ def manage_password(request, eid, conn=None, **kwargs):
                     return HttpResponseRedirect(reverse("wamyaccount"))
                 
     context = {'info':info, 'error':error, 'eventContext':eventContext, 'password_form':password_form, 'eid': eid}
-    context['nav'] = request.session['nav']
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -356,7 +353,6 @@ def groups(request, conn=None, **kwargs):
     controller = BaseGroups(conn)
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
-    context['nav'] = request.session['nav']
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -438,7 +434,6 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
     else:
         return HttpResponseRedirect(reverse("wagroups"))
     
-    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -472,7 +467,6 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
     
-    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -488,7 +482,6 @@ def ldap(request, conn=None, **kwargs):
     controller = None
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
-    context['nav'] = request.session['nav']
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -668,7 +661,6 @@ def drivespace(request, conn=None, **kwargs):
     controller = BaseDriveSpace(conn)
         
     context = {'info':info, 'eventContext':eventContext, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace }}
-    context['nav'] = request.session['nav']
     
     t = template_loader.get_template(template)
     c = Context(request, context)
