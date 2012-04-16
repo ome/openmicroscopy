@@ -580,7 +580,7 @@
 		
 	}
 	
-		#launch_basket > a {
+		#launch_basket {
 			background: url(/static/webgateway/img/icon_basket.png) 8px center no-repeat;
 			display:inline-block;
 		}

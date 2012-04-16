@@ -85,21 +85,47 @@
 {% endblock %}
 
 {% block middle_header_right %}
-    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-	
-	{% include "webclient/base/basket_info.html" %}
-	
-	<ul class="header_toolbar">
-		{% include "webclient/base/script_launch.html" %}
-	    <!--{% include "webclient/base/basket_info.html" %} -->
-	    {% include "webclient/base/activities_info.html" %}
-	</ul>
-	
-	{% include "webclient/base/search_field.html" %}
-	{% include "webclient/base/user_dropdown.html" %}
-	{% comment %}
-		{% include "webclient/base/logout.html" %}
-	{% endcomment %}
+
+        <script>
+            $(document).ready(function(){
+
+                $('body').click(function(event) {
+                    if (event.target.id != 'groupsUsersButton') {
+                        $("#groupList").css('visibility', 'hidden');
+                    }
+                });
+                // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
+                // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
+                $("#groupsUsersButton").click(function(e){
+                    // show menu
+                    $('#groupList').css('visibility', 'visible');
+                });
+                // on hover-out, hide drop-down menus
+                $("#groupList").hover(function(){}, function(){
+                    $(this).css('visibility', 'hidden');
+                });
+                
+                
+
+            });
+        </script>
+
+        <!-- Switch Group / User -->
+        {% include "webclient/base/group_user_dropdown.html" %}
+        
+
+        <!-- Global Tools -->
+        {% include "webclient/base/basket_info.html" %}
+        <ul class="header_toolbar">
+                {% include "webclient/base/script_launch.html" %}
+            {% include "webclient/base/activities_info.html" %}
+        </ul>
+        
+        <!-- Global Search -->
+        {% include "webclient/base/search_field.html" %}
+        
+        <!-- User Dropdown -->
+        {% include "webclient/base/user_dropdown.html" %}
 {% endblock %}
 
 
