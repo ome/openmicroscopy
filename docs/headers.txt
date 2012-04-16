@@ -6,23 +6,34 @@
 ## General guidelines:
 ## -------------------
 ##
-## * The "(C)" is preferred but optional, and need not
-##   be added to files missing it, but in general should be
-##
-## * Shorter copyright lines (80 or less) can have the
-##   "All rights reserved." on the "Copyright" line. E.g.,
-##
-##     Copyright 2011 Glencoe Software, Inc. All rights reserved.
-##
-##   in which case there doesn't have to be a blank line
-##   before the license block.
+## * When a file is created, the '<year>' field below
+##   should be replaced with the current year.
 ##
 ## * When a file is modified in a year not covered in the
 ##   copyright, the year range should be updated to reflect
 ##   the new year. The copyright itself should not be
-##   changed. For example, "2008-2010" in a file modified
-##   in 2011 should become "2008-2011", and no other changes
-##   should be made to the header.
+##   changed.
+##
+##   For example, "2008-2011" in a file modified in 2012
+##   should become "2008-2012", and no other changes
+##   should be made to the header. A single year such as
+##   "2011" should become "2011-2012".
+##
+## * The "(C)" is preferred but optional, and need not
+##   be added to files missing it, but in general should be
+##   present.
+##
+## * Shorter copyright lines (80 or less) can have the
+##   "All rights reserved." on the "Copyright" line. E.g.,
+##
+##     Copyright 2012 Glencoe Software, Inc. All rights reserved.
+##
+##   in which case there doesn't have to be a blank line
+##   before the license block.
+##
+## * The copyright chosen should be that for the institute
+##   of the creator of the file. Once a copyright has been
+##   assigned, it should not be modified.
 ##
 ## * Where present, the fully qualified class or "$Id$" field
 ##   can be left, but omitting them is the preferred style.
@@ -31,49 +42,65 @@
 ##   defined in docs/styles/headers.xml
 ##
 ## * For non-licensed files (XSL, XSD), the license block
-##   can be omitted.
+##   can be omitted, but the copyright should be present.
 ##
 
+
+
 ###
-### OMERO.insight
+### OME.model (XSD, etc)
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!-- style sheet OFF -->
+<!--
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #
+    # Copyright (C) 2003-<year> Open Microscopy Environment
+    #       Massachusetts Institute of Technology,
+    #       National Institutes of Health,
+    #       University of Dundee,
+    #       University of Wisconsin at Madison
+    #
+    # This work is licensed under the
+    #       Creative Commons Attribution 3.0 Unported License.
+    # To view a copy of this license, visit
+    #       http://creativecommons.org/licenses/by/3.0/
+    # or send a letter to
+    #       Creative Commons, 444 Castro Street, Suite 900,
+    #       Mountain View, California, 94041, USA.
+    # For attribution instructions, visit
+    #       http://www.openmicroscopy.org/info/attribution
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+
+
+###
+### OMERO.java (Server, Insight, Etc)
 ###
 
 /*
- * <fully qualified class name>
+ * Copyright (C) <year> University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
  *
- *------------------------------------------------------------------------------
- *  Copyright (C) <year> University of Dundee & Open Microscopy Environment.
- *  All rights reserved.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- *------------------------------------------------------------------------------
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-###
-### OMERO.server
-###
 
-/*
- *   Copyright (C) <year> University of Dundee & Open Microscopy Environment.
- *   All rights reserved.
- *
- *   Use is subject to license terms supplied in LICENSE.txt
- */
 
 ###
-### OmeroMatlab
+### OMERO.matlab
 ###
 function [arg1, arg2] = myfunc %%% If a function; otherwise omit.
 % Function/file documentation ...
@@ -83,11 +110,26 @@ function [arg1, arg2] = myfunc %%% If a function; otherwise omit.
 %
 
 % Copyright (C) <year> University of Dundee & Open Microscopy Environment.
-%                      All rights reversed.
-% Use is subject to license terms supplied in LICENSE.txt
+% All rights reserved.
+%
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License along
+% with this program; if not, write to the Free Software Foundation, Inc.,
+% 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
 
 ###
-### OmeroPy
+### OMERO.py
 ###
 
 #!/usr/bin/env python
@@ -95,13 +137,26 @@ function [arg1, arg2] = myfunc %%% If a function; otherwise omit.
 
 #
 # Copyright (C) <year> University of Dundee & Open Microscopy Environment.
-#                      All Rights Reserved.
-# Use is subject to license terms supplied in LICENSE.txt
+# All rights reserved.
 #
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
 Module documentation
 """
+
 
 
 ###
@@ -129,6 +184,8 @@ Module documentation
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+
+
 ###
 ### OMERO.web JavaScript
 ###
@@ -150,6 +207,8 @@ Module documentation
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
+
+
 
 ###
 ### OMERO.web CSS
@@ -174,28 +233,31 @@ Module documentation
  *
  */
 
+
+
 ###
 ### OMERO.web HTML / Templates
 ###
 ### {% comment %} {% endcomment %} should be used ONLY for django templates
 ### using standard <!-- ... --> html comment tags within the HTML code affects
 ### Internet Explorer.
+###
 
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) <year> University of Dundee & Open Microscopy Environment.
   All rights reserved.
-  
+
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU Affero General Public License as
   published by the Free Software Foundation, either version 3 of the
   License, or (at your option) any later version.
-  
+
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Affero General Public License for more details.
-  
+
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
