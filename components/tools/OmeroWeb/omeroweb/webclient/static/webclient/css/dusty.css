@@ -130,14 +130,14 @@ button {
 	.btn_delete {background: url(/static/webgateway/img/icon_delete.png )center center no-repeat;}
 	.btn_edit {background: url(/static/webgateway/img/icon_edit.png )center center no-repeat;}
 	
-	button.btn_add span, button.btn_edit span {
-		width:5px;
-		height:14px;
+	#right_panel .btn span{
+		padding:0;
 	}
 	
-	a.btn_add span, a.btn_edit span {
-		width:14px;
-		height:16px;
+	a.btn_add span, a.btn_edit span, button.btn_add span, button.btn_edit span {
+		width:20px;
+		height:18px;
+		display:block;
 	}
 	
 	
@@ -199,7 +199,7 @@ button {
 			}
 		
 			.btn.silver {
-				border:solid 1px hsl(210,8%,70%);
+				border:solid 1px hsl(210,8%,65%);
 				-webkit-box-shadow:0 1px 0 rgba(255,255,255,.5);
 			}
 			
@@ -215,7 +215,8 @@ button {
 					padding:4px 10px;
 					line-height:1.3em;
 					display:inline-block;
-					border-top:solid 1px rgba(255,255,255,.6);
+					cursor:pointer;
+					-webkit-box-shdaow: 0 1px 0 inset rgba(255,255,255,.4);
 					background-image: -webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0)), to(rgba(255,255,255,.3)));
 				}
 
@@ -238,6 +239,8 @@ button {
 		.btn.silver:active, .btn.silver:focus, .menu_btns.silver li:active, .menu_btns.silver li:focus {
 			background-color:hsl(210,8%,70%);
 			-webkit-transition:none;
+			border:solid 1px hsl(210,8%,55%);
+			border-top:solid 1px hsl(210,8%,48%);
 		}
 		
 		
@@ -248,9 +251,7 @@ button {
 		
 		
 			.btn.silver:active span, .btn.silver:focus span{
-				border-top:solid 1px rgba(0,0,0,.3);
-				text-shadow:0 1px 0 rgba(255,255,255,.4);
-				-webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,.15);
+				-webkit-box-shadow: inset 0 1px 3px hsla(210,8%,50%,.8);
 				background-image:-webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,.2)), to(rgba(255,255,255,0)));
 			}
 			
