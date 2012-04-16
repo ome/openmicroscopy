@@ -652,6 +652,10 @@ def load_template(request, menu, **kwargs):
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups'], 'url':url})
     
     context = {'nav':request.session['nav'], 'url':url, 'init':init, 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users}
+    context['groups'] = list( conn.getGroupsMemberOf() )
+    context['experimenter'] = request.session.get('nav')['experimenter'] and int(request.session.get('nav')['experimenter']) or None
+    for g in context['groups']:
+        g.groupSummary()    # load leaders / members
     
     t = template_loader.get_template(template)
     c = Context(request,context)
