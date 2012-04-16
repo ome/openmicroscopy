@@ -112,7 +112,7 @@
 	
     
 	    #left_panel_tab_list, .left_panel_top{
-	        background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 15%, 30%)), to(hsl(215, 15%, 38%))) !important;
+	        background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 10%, 50%)), to(hsl(215, 10%, 60%))) !important;
 	        
 	        
 			-webkit-box-shadow:0 1 0 0 rgba(255,255,255,0.05); /* Saf3.0+, Chrome */
