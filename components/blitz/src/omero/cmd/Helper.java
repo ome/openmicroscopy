@@ -122,7 +122,10 @@ public class Helper {
      */
     public Map<String, String> params(final String... paramList) {
         Map<String, String> params = new HashMap<String, String>();
-        for (int i = 0; i < paramList.length; i = i + 2) {
+        for (int i = 0; i < paramList.length-1; i = i + 2) {
+            if ((i+1)==paramList.length) {
+                break; // Handle the odd remaining item
+            }
             params.put(paramList[i], paramList[i + 1]);
         }
         return params;

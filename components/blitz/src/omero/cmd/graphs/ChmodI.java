@@ -105,7 +105,7 @@ public class ChmodI extends Chmod implements IRequest {
                     throw helper.cancel(new ERR(), sv, "check failed");
                 }
             }
-            throw null; // Nothing to return
+            return null; // Nothing to return
         }
         catch (Cancel c) {
             throw c;
