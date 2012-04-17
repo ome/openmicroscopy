@@ -529,7 +529,8 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     """
 
     request.session.modified = True
-    
+    conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(request.session.get('active_group'))
+
     if request.REQUEST.get("o_type") is not None and len(request.REQUEST.get("o_type")) > 0:
         o_type = request.REQUEST.get("o_type")
         try:
