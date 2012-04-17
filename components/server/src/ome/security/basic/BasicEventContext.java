@@ -109,7 +109,7 @@ public class BasicEventContext extends SimpleEventContext {
         this.copyContext(ec);
 
         // Now re-apply values.
-        final List<String> toPrint = new ArrayList<String>();
+        List<String> toPrint = null;
         
         final Long uid = parseId(callContext, "omero.user");
         if (uid != null) {
@@ -123,6 +123,9 @@ public class BasicEventContext extends SimpleEventContext {
                         cuId, uid));
             }
             setOwner(admin.userProxy(uid));
+            if (toPrint == null) {
+                toPrint = new ArrayList<String>();
+            }
             toPrint.add("owner="+uid);
         }
 
@@ -132,6 +135,9 @@ public class BasicEventContext extends SimpleEventContext {
                 setGroup(new ExperimenterGroup(gid, false));
             } else {
                 setGroup(admin.groupProxy(gid));
+            }
+            if (toPrint == null) {
+                toPrint = new ArrayList<String>();
             }
             toPrint.add("group="+gid);
         }
@@ -148,10 +154,13 @@ public class BasicEventContext extends SimpleEventContext {
                 }
             }
             setShareId(sid);
+            if (toPrint == null) {
+                toPrint = new ArrayList<String>();
+            }
             toPrint.add("share="+sid);
         }
 
-        if (toPrint.size() > 0) {
+        if (toPrint != null && toPrint.size() > 0) {
             log.info(" cctx:\t" + StringUtils.join(toPrint, ","));
         }
     }
