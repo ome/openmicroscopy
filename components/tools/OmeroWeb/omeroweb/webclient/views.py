@@ -367,7 +367,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     context = {'init':init, 'myGroups':myGroups,
         'form_active_group':form_active_group, 'form_users':form_users}
     context['nav'] = {'basket': request.session.get('nav')['basket']}
-    context['active_group'] = active_group
+    context['active_group'] = int(active_group)
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
