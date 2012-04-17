@@ -192,7 +192,7 @@ public class BasicEventContext extends SimpleEventContext {
         return rv;
     }
 
-    // ~ Setters for superclass state
+    // ~ Getters/Setters for superclass state
     // =========================================================================
 
     @Override
@@ -264,13 +264,19 @@ public class BasicEventContext extends SimpleEventContext {
 
     public void setGroup(ExperimenterGroup group) {
         this.group = group;
-        this.cgId = group.getId();
-        if (group.isLoaded()) {
-            this.cgName = group.getName();
-            this.groupPermissions = group.getDetails().getPermissions();
-        } else if (group.getId() < -1) {
+        if (this.cgId.equals(group.getId())) {
+            // Do nothing.
+        } else {
+            this.cgId = group.getId();
             this.cgName = null;
             this.groupPermissions = null;
+
+            if (group.isLoaded()) {
+                this.cgName = group.getName();
+                this.groupPermissions = group.getDetails().getPermissions();
+            }
+
+            // If unloaded or group.id < -1 these will remain null
         }
     }
 
