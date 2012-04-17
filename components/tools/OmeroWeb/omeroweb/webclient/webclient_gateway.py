@@ -1037,7 +1037,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @type obj       ObjectI
         """
         u = self.getUpdateService()
-        u.saveObject(obj)
+        u.saveObject(obj, self.CONFIG['SERVICE_OPTS'])
     
     def saveArray (self, objs):
         """
@@ -1051,7 +1051,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @type obj       L{ObjectI}
         """
         u = self.getUpdateService()
-        u.saveArray(objs)
+        u.saveArray(objs, self.CONFIG['SERVICE_OPTS'])
     
     def saveAndReturnObject (self, obj):
         """
@@ -1067,7 +1067,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @rtype          ObjectI
         """
         u = self.getUpdateService()
-        res = u.saveAndReturnObject(obj)
+        res = u.saveAndReturnObject(obj, self.CONFIG['SERVICE_OPTS'])
         res.unload()
         obj = omero.gateway.BlitzObjectWrapper(self, res)
         return obj
@@ -1086,7 +1086,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @rtype          Long
         """
         u = self.getUpdateService()
-        res = u.saveAndReturnObject(obj)
+        res = u.saveAndReturnObject(obj, self.CONFIG['SERVICE_OPTS'])
         res.unload()
         return res.id.val
     
