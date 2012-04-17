@@ -829,7 +829,7 @@
 				
     			.attachment_actions {
     				float:right;
-    				margin-right:10px;
+    				margin-right:4px;
     				//display:none;
     				opacity:0;
     			}
@@ -837,13 +837,6 @@
     			.lnfiles li:hover .attachment_actions {
     				//display:block;
     				opacity:1;
-    				-webkit-transition: all .2s linear;
-					
-					-webkit-transition:all .2s linear ;		
-					   -moz-transition:all .2s linear ;
-					     -o-transition:all .2s linear ;
-					        transition:all .2s linear ; 
-					
     			}
 				
     				.action {
@@ -854,9 +847,8 @@
     					text-align:center;
     					font-size:1.2em;
     					font-weight:bold;
+						border:solid 1px transparent;
     					margin-top:3px;
-    					background: hsl(210,15%,75%) -webkit-linear-gradient(top, rgba(255,255,255,.2) 0%,rgba(255,255,255,.0) 100%);
-						border:solid 1px hsl(210,15%,65%);
     					-webkit-border-radius:3px;
 						-webkit-border-radius:3px; /* Saf3+, Chrome */
 						-moz-border-radius:3px; /* FF1+ */
@@ -867,8 +859,8 @@
     				}
 					
     				.action:hover {
-    					background: hsl(210,15%,65%) -webkit-linear-gradient(top, rgba(255,255,255,.2) 0%,rgba(255,255,255,.0) 100%);
     					color:hsl(210,40%,20%);
+						border:solid 1px hsl(210,15%,65%);
     				}
 				
     			.removeFile {
@@ -945,6 +937,11 @@
 		.ann_comment_text {
 			overflow: hidden;
 		}
+			
+		
+		#comments_container	{
+			margin-top:5px;
+		}
 					
 
 		    .ann_comment_header{
@@ -960,10 +957,9 @@
 				}
 			
 			.commentText p{
-                background-color:white;
-                padding:10px;
                 -webkit-border-radius:2px;
-				
+				display:block;
+				border:solid 1px transparent;
 				-webkit-border-radius:2px; /* Saf3+, Chrome */
 				   -moz-border-radius:2px; /* FF1+ */
 				        border-radius:2px; /* Opera 10.5, IE 9 */ 
@@ -975,13 +971,29 @@
 				        box-shadow: 0 1px 1px rgba(0,0,0,0.5); /* Opera 10.5, IE 9.0 */
 				    filter:progid:DXImageTransform.Microsoft.dropshadow(OffX=, OffY=0, Color='#fff'); /* IE6,IE7 */
 				-ms-filter:"progid:DXImageTransform.Microsoft.dropshadow(OffX=, OffY=0, Color='#fff')"; /* IE8 */ 
-				
-                border:solid 1px white;
                 line-height:1.4em;
 			}
 	
 	
-	
+			.removeComment {
+				float:right;
+				cursor:pointer;
+				display:none;
+				-webkit-border-radius:2px;
+				border:solid 1px transparent;
+				padding:2px;
+			}
+			
+		    .removeComment:hover {
+				border:solid 1px rgba(0,0,0,.2);
+			}
+			
+			.ann_comment_wrapper:hover .removeComment {
+				display:block;
+		    }
+			
+			
+			
 	
 	
 	

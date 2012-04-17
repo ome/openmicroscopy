@@ -1049,7 +1049,7 @@
         </div>
 
         <!-- hidden form for chgrp -->
-        <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}" style="display:none">
+        <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}">
             {% if eContext.allGroups|length_is:"1" %}
                 <p>
                     You are only in a single group.<br>

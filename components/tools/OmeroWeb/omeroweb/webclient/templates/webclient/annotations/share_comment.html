@@ -34,7 +34,7 @@
     <div>
         <span class="ann_comment_header">{{ cm.getOwner.getFullName }} {% trans "at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }}</span>
         {% if cm.canDelete %}
-            <input class="button" type="image" src="{% static "webclient/image/cancel12.png" %}" alt="Delete" title="Delete" onclick="deleteShareComment('{{ cm.id }}');" />
+            <input class="button" type="image" src="{% static "webclient/image/icon_basic_delete.png" %}" alt="Delete" title="Delete" onclick="deleteShareComment('{{ cm.id }}');" />
         {% endif %}
         <div class='commentText'>
         {{ cm.textValue|sharewikify|safe|linebreaks }}

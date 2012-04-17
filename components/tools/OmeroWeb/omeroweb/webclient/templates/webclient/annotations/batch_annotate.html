@@ -214,7 +214,7 @@
 		</form>
 				
 				
-        <a id="launch_tags_form" href="{% url annotate_tags %}?{{ obj_string }}" class="btn silver"><span>+</span></a>
+        <a id="launch_tags_form" href="{% url annotate_tags %}?{{ obj_string }}" class="btn silver btn_add"><span></span></a>
 				
         <div id="tags_container" class="lntags">
         {% for tag in manager.tag_annotations %}
@@ -234,8 +234,8 @@
 
            
 			
-            <a id="choose_file_anns" href="{% url annotate_file %}?{{ obj_string }}" class="btn silver">
-                <span>+</span>
+            <a id="choose_file_anns" href="{% url annotate_file %}?{{ obj_string }}" class="btn silver btn_add">
+                <span></span>
             </a>
 			
 			
