@@ -23,20 +23,41 @@
 package org.openmicroscopy.shoola.env.data.model.appdata;
 
 import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
 
 /**
- * Structure used to store enumerated languages and code pages on windows, a
- * component used by <a href="https://github.com/twall/jna">JNA</a>
+ * A <a href="https://github.com/twall/jna">JNA</a> Structure used to store
+ * enumerated languages and code pages on windows
+ * 
+ * @see <a
+ *      href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms647464
+ *      (v=vs.85).aspx">VerQueryValue
+ *      function (MSDN)</a>
  * 
  * @author Scott Littlewood, <a
  *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class LANGANDCODEPAGE extends com.sun.jna.Structure {
+public class LANGANDCODEPAGE extends Structure {
+
+	/**
+	 * Windows language value
+	 */
 	public short wLanguage;
+
+	/**
+	 * Windows CodePage value
+	 */
 	public short wCodePage;
 
-	public LANGANDCODEPAGE(Pointer p) {
-		super(p);
+	/**
+	 * Create a @link {@link LANGANDCODEPAGE} populated with the value provided
+	 * by the pointer
+	 * 
+	 * @param pointer
+	 *            to the value used to populate the structure
+	 */
+	public LANGANDCODEPAGE(Pointer pointer) {
+		super(pointer);
 	}
 }

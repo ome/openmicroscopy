@@ -36,7 +36,7 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 /**
- * Windows implementation to extract application properties using the
+ * Privudes the Windows implementation to extract application properties using the
  * {@link LANGANDCODEPAGE} class with the <a
  * href="https://github.com/twall/jna">JNA</a> library.
  * 
@@ -47,9 +47,16 @@ import com.sun.jna.ptr.PointerByReference;
 public class WindowsApplicationDataExtractor implements
 		ApplicationDataExtractor {
 
-	/** The default location on <code>Windows</code> platform. */
+	/** The default application location on <code>Windows</code> platform. */
 	public static final String LOCATION_WINDOWS = "C:\\Program Files\\";
 
+	/**
+	 * @return the Windows specific directory where applications are located
+	 */
+	public String getDefaultAppDirectory() {
+		return LOCATION_WINDOWS;
+	}
+	
 	/**
 	 * Extracts the application data for the application on a windows platform
 	 * 
@@ -74,7 +81,7 @@ public class WindowsApplicationDataExtractor implements
 	 * Gets the system icon for the application
 	 * 
 	 * @param file
-	 *            the file location of the application to retreive the icon for
+	 *            the file location of the application to retrieve the icon for
 	 * @return the icon associated with this application
 	 */
 	private Icon getSystemIconFor(File file) {
@@ -84,7 +91,7 @@ public class WindowsApplicationDataExtractor implements
 	}
 
 	/**
-	 * Allocates a potion of memory for use by JNA
+	 * Allocates a portion of memory for use by JNA
 	 * 
 	 * @param size
 	 *            the size of the memory to allocate
@@ -145,6 +152,15 @@ public class WindowsApplicationDataExtractor implements
 		return hexBuilder.toString();
 	}
 
+	/**
+	 * Performs the windows specific query related to application properties
+	 * 
+	 * @param lpData
+	 * @param lpSubBlock
+	 * @param lplpBuffer
+	 * @param puLen
+	 * @return
+	 */
 	private boolean ExecuteQuery(Pointer lpData, String lpSubBlock,
 			PointerByReference lplpBuffer, IntByReference puLen) {
 		return com.sun.jna.platform.win32.Version.INSTANCE.VerQueryValue(
@@ -203,7 +219,4 @@ public class WindowsApplicationDataExtractor implements
 		return propertyValue;
 	}
 
-	public String getDefaultAppDirectory() {
-		return LOCATION_WINDOWS;
-	}
 }

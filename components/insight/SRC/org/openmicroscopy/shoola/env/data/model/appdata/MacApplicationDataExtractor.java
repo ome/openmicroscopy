@@ -35,7 +35,7 @@ import org.openmicroscopy.shoola.env.data.util.Parser;
 import org.openmicroscopy.shoola.util.image.io.IconReader;
 
 /**
- * Mac specific implementation to retrieve information about an application,
+ * Privudes the Mac specific implementation to retrieve information about an application,
  * reads the plist information to extract the property values
  * 
  * @author Scott Littlewood, <a
@@ -47,6 +47,9 @@ public class MacApplicationDataExtractor implements ApplicationDataExtractor {
 	/** The default location on <code>MAC</code> platform. */
 	public static final String LOCATION_MAC = "/Applications";
 
+	/**
+	 * @return the Mac specific directory where applications are located
+	 */
 	public String getDefaultAppDirectory() {
 		return LOCATION_MAC;
 	}
@@ -74,6 +77,14 @@ public class MacApplicationDataExtractor implements ApplicationDataExtractor {
 		return new ImageIcon(img);
 	}
 
+	/**
+	 * Extracts the application data for the application on a mac platform
+	 * 
+	 * @param file
+	 *            the file pointing to the application's location on disk
+	 * @return the {@link ApplicationData} object representing this applications
+	 *         system properties
+	 */
 	public ApplicationData extractAppData(File file) throws Exception {
 		Map<String, Object> m = Parser.parseInfoPList(file.getAbsolutePath());
 

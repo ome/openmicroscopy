@@ -34,7 +34,18 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
  * @since Beta4.4
  */
 public interface ApplicationDataExtractor {
+	/**
+	 * @return  the platform specific directory where applications are located
+	 */
 	String getDefaultAppDirectory();
 
+	/**
+	 * Extracts the application data for the application on a windows platform
+	 * 
+	 * @param file
+	 *            the file pointing to the application's location on disk
+	 * @return the {@link ApplicationData} object representing this applications
+	 *         system properties
+	 */
 	ApplicationData extractAppData(File file) throws Exception;
 }
