@@ -1353,6 +1353,7 @@ def plateGrid_json (request, pid, field=0, conn=None, **kwargs):
     def urlprefix(iid):
         return reverse(prefix, args=(iid,thumbsize))
     xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
+    server_id = kwargs['server_id']
 
     rv = webgateway_cache.getJson(request, server_id, plate, 'plategrid-%d-%d' % (field, thumbsize))
     if rv is None:
