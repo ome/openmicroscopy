@@ -21,7 +21,6 @@ import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.hibernate.type.Type;
 import org.springframework.util.Assert;
-import org.testng.annotations.IAnnotation;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
@@ -33,6 +32,7 @@ import ome.conditions.PermissionMismatchGroupSecurityViolation;
 import ome.conditions.ReadOnlyGroupSecurityViolation;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
+import ome.model.IAnnotationLink;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.core.Image;
@@ -444,11 +444,12 @@ public class OmeroInterceptor implements Interceptor {
             // If however, this is only an annotation or only a viewing,
             // then less permission is needed.
             Right neededRight = Right.WRITE;
-            if (Pixels.class.isAssignableFrom(linkedClass) &&
-                    (RenderingDef.class.isAssignableFrom(changedClass) ||
+            if (RenderingDef.class.isAssignableFrom(linkedClass) ||
+                RenderingDef.class.isAssignableFrom(changedClass) ||
+                (Pixels.class.isAssignableFrom(linkedClass) &&
                      Thumbnail.class.isAssignableFrom(changedClass))) {
                 neededRight = Right.READ;
-            } else if (IAnnotation.class.isAssignableFrom(changedClass) ||
+            } else if (IAnnotationLink.class.isAssignableFrom(changedClass) ||
                     (Roi.class.isAssignableFrom(changedClass) &&
                             Image.class.isAssignableFrom(linkedClass))) {
                 neededRight = Right.ANNOTATE;
@@ -1032,7 +1033,7 @@ public class OmeroInterceptor implements Interceptor {
         if (!p.isGranted(role, right)) {
 
             StringBuilder sb = new StringBuilder();
-            sb.append(String.format("Group is %s.", p));
+            sb.append(String.format("Group is %s. ", p));
             sb.append("Cannot link to object: ");
             sb.append(linkedObject);
 
