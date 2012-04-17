@@ -54,6 +54,7 @@ function openCenteredWindow(url) {
  * E.g.     "Image=23,34,98&Dataset=678"
 **/
 function get_tree_selection() {
+    if (typeof $.jstree == "undefined") return "";
     var datatree = $.jstree._focused();
 
     var ids = new Array();
