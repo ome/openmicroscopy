@@ -248,8 +248,13 @@ def change_active_group(request, conn=None, url=None, **kwargs):
     #TODO: we need to handle exception while changing active group faild, see #
     
     active_group = request.REQUEST.get('active_group')
+    request.session.modified = True
+    request.session['active_group'] = active_group
+    url = url or reverse("webindex")
+    """
     if conn.changeActiveGroup(active_group):
         request.session.modified = True                
+        url = url or reverse("webindex")
     else:
         error = 'You cannot change your group becuase the data is currently processing. You can force it by logging out and logging in again.'
         url = reverse("webindex")+ ("?error=%s" % error)        # This is handled in index page with a javascript alert(error).
@@ -257,7 +262,7 @@ def change_active_group(request, conn=None, url=None, **kwargs):
             url += "&experimenter=%s" % request.session.get('nav')['experimenter']
     
     request.session['version'] = conn.getServerVersion()
-    
+    """
     return HttpResponseRedirect(url)
 
 @login_required()
@@ -354,13 +359,15 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     else:
         form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
 
+    active_group = request.session.get('active_group') or conn.getEventContext().groupId
     myGroups = list(conn.getGroupsMemberOf())
     myGroups.sort(key=lambda x: x.getName().lower())
-    form_active_group = ActiveGroupForm(initial={'activeGroup':conn.getEventContext().groupId, 'mygroups':myGroups, 'url':url})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':active_group, 'mygroups':myGroups, 'url':url})
     
     context = {'init':init, 'myGroups':myGroups,
         'form_active_group':form_active_group, 'form_users':form_users}
     context['nav'] = {'basket': request.session.get('nav')['basket']}
+    context['active_group'] = active_group
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
@@ -376,6 +383,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     E.g. /load_data?view=tree provides data for the tree as <li>.
     """
     request.session.modified = True
+    conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(request.session.get('active_group'))
     
     # check menu
     menu = request.REQUEST.get("menu")

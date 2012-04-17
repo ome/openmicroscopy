@@ -55,6 +55,14 @@ class login_required(omeroweb.decorators.login_required):
         """Called whenever the users is successfully logged in."""
         super(login_required, self).on_logged_in(request, conn)
         self.prepare_session(request)
+        self.conn_config(request, conn)
+
+    def conn_config(self, request, conn):
+        if request.session.get('active_group'):
+            if conn.CONFIG['SERVICE_OPTS'] is None:
+                conn.CONFIG['SERVICE_OPTS'] = {}
+            #print "decorator setting 'omero.group'..." , request.session.get('active_group')
+            conn.CONFIG['SERVICE_OPTS']['omero.group'] = "-1" #str(request.session.get('active_group'))
 
     def prepare_session(self, request):
         """Prepares various session variables."""
