@@ -61,8 +61,8 @@ class login_required(omeroweb.decorators.login_required):
         if request.session.get('active_group'):
             if conn.CONFIG['SERVICE_OPTS'] is None:
                 conn.CONFIG['SERVICE_OPTS'] = {}
-            #print "decorator setting 'omero.group'..." , request.session.get('active_group')
-            conn.CONFIG['SERVICE_OPTS']['omero.group'] = "-1" #str(request.session.get('active_group'))
+            print "decorator setting 'omero.group'..." , request.session.get('active_group')
+            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(request.session.get('active_group'))
 
     def prepare_session(self, request):
         """Prepares various session variables."""
