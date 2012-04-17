@@ -46,28 +46,27 @@ import ome.testing.ObjectFactory;
 @Test(groups = { "ticket:8565", "security" })
 public class AclVoterTest extends AbstractManagedContextTest {
 
-    // ~ User (i.e. owner) write operations
-    // =========================================================================
-    // read-only should prevent annotating
-    // read-annotate for user should prevent event the user from modifying data
-    // read-write should allow everything.
+    /**
+     * This is the primary testing sequence that is performed on various
+     * data graphs, and various permission settings. All operations take
+     * place as the current user.
+     *
+     * @param p
+     *            Prepared {@link Pixels} object which will be tested on.
+     * @param canRender
+     *            Whether the current user can view the image, i.e. attach rdefs
+     *            and thumbnails
+     * @param canAnnotate
+     *            Whether the current user can attach annotations and rois.
+     * @param canEdit
+     *            Whether the current user can modify the data.
+     * @param canUse
+     *            Where the current user can link the data into other groups.
+     */
+    void perform(Pixels p, boolean canRender, boolean canAnnotate, boolean canEdit,
+            boolean canUse) {
 
-    void assertUserCan(String perms,
-            boolean canRender, boolean canAnnotate,
-            boolean canEdit, boolean canUse) {
-
-        // The data has to be created in a group that is at least read-write
-        // since otherwise the Pixels object cannot be linked to the Image
-        // object.
-        Pixels p = pixels("rw----");
         Image i = p.getImage();
-        EventContext user = iAdmin.getEventContext();
-        ExperimenterGroup group = currentGroup();
-        loginRootKeepGroup();
-        iAdmin.changePermissions(group, Permissions.parseString(perms));
-        login(user);
-        user = iAdmin.getEventContext(); // Refresh
-
 
         // Render
         RenderingDef rdef = ObjectFactory.createRenderingDef();
@@ -87,11 +86,66 @@ public class AclVoterTest extends AbstractManagedContextTest {
 
     }
 
+    // ~ User (i.e. owner) write operations
+    // =========================================================================
+
+    void assertUserCan(String perms,
+            boolean canRender, boolean canAnnotate,
+            boolean canEdit, boolean canUse) {
+
+        // The data has to be created in a group that is at least read-write
+        // since otherwise the Pixels object cannot be linked to the Image
+        // object.
+        Pixels p = pixels("rw----");
+        EventContext user = iAdmin.getEventContext();
+        ExperimenterGroup group = currentGroup();
+        loginRootKeepGroup();
+        iAdmin.changePermissions(group, Permissions.parseString(perms));
+        login(user);
+        user = iAdmin.getEventContext(); // Refresh
+
+        perform(p, canRender, canAnnotate, canEdit, canUse);
+    }
+
+
+    /**
+     * Validate operations as the data owner
+     */
     @Test
     public void testUser() {
         assertUserCan("r-----", true, false, false, false);
         assertUserCan("ra----", true, true, false, false);
         assertUserCan("rw----", true, true, true, true);
+    }
+
+    // ~ Group member (i.e. non-owner, non-leader) write operations
+    // =========================================================================
+
+    /**
+     * We assume that all the perms passed permit linking for the owner
+     * member and therefore we don't have to perform a chmod.
+     */
+    void assertMemberCan(String perms,
+            boolean canRender, boolean canAnnotate,
+            boolean canEdit, boolean canUse) {
+
+        // The data has to be created in a group that is at least read-write
+        // since otherwise the Pixels object cannot be linked to the Image
+        // object.
+        Pixels p = pixels(perms);
+        loginNewUserInOtherUsersGroup(currentUser());
+
+        perform(p, canRender, canAnnotate, canEdit, canUse);
+    }
+
+    /**
+     * Validate operations as a group member (non-data owner)
+     */
+    @Test
+    public void testMember() {
+        assertMemberCan("rwr---", true, false, false, false);
+        assertMemberCan("rwra--", true, true, false, false);
+        assertMemberCan("rwrw--", true, true, true, true);
     }
 
     // ~ Helpers
