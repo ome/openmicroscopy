@@ -233,7 +233,7 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
 
-        Permissions p = d.getPermissions();
+        Permissions p = c.getCurrentGroupPermissions(); // From Group!
 
         // this should never occur.
         if (p == null) {
