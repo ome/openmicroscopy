@@ -256,7 +256,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.limit = rint(1)
         p.theFilter = f
         sql = "select g from ExperimenterGroup as g where g.name not in (:default_names)"
-        if len(q.findAllByQuery(sql, p)) > 0:
+        if len(q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])) > 0:
             return False
         return True
     
@@ -300,7 +300,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["id"] = rlong(self.getEventContext().userId)
         sql = "select e from Experimenter as e where e.id != :id "
-        for e in q.findAllByQuery(sql, p):
+        for e in q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS']):
             yield ExperimenterWrapper(self, e)
 
     #def getCurrentSupervisor(self):
@@ -358,7 +358,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
               inner join fetch ws.image as img 
               where well.plate.name = :pname and well.row = :row 
               and well.column = :column"""
-        well = q.findByQuery(sql, p)
+        well = q.findByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
         if well is None:
             return None
         else:
@@ -381,7 +381,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql+=" and tg.details.owner.id = :eid"
             
         q = self.getQueryService()
-        for ann in q.findAllByQuery(sql, params):
+        for ann in q.findAllByQuery(sql, params, self.CONFIG['SERVICE_OPTS']):
             yield TagAnnotationWrapper(self, ann)
     
     def countOrphans (self, obj_type, eid=None):
@@ -426,7 +426,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "select ws from WellSample as ws "\
                 "where ws.image=obj.id %s)" % eidWsFilter
         
-        rslt = q.projection(sql, p)
+        rslt = q.projection(sql, p, self.CONFIG['SERVICE_OPTS'])
         if len(rslt) > 0:
             if len(rslt[0]) > 0:
                 return rslt[0][0].val
@@ -484,7 +484,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql += "and not exists ( "\
                 "select ws from WellSample as ws "\
                 "where ws.image=obj.id %s)" % eidWsFilter
-        for e in q.findAllByQuery(sql, p):
+        for e in q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS']):
             yield links[obj_type][1](self, e)
     
     def listImagesInDataset (self, oid, eid=None, page=None):
@@ -520,7 +520,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql += " and im.details.owner.id=:eid"
         sql+=" order by im.name ASC"
         
-        for e in q.findAllByQuery(sql, p):
+        for e in q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS']):
             kwargs = {'link': omero.gateway.BlitzObjectWrapper(self, e.copyDatasetLinks()[0])}
             yield ImageWrapper(self, e, None, **kwargs)
     
@@ -555,7 +555,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if desc is not None:
             sql+= " and tg.description=:desc"
         sql+=" and tg.ns is null order by tg.textValue"
-        res = query_serv.findAllByQuery(sql, p)
+        res = query_serv.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
         if len(res) > 0:
             return TagAnnotationWrapper(self, res[0])
         return None
@@ -801,7 +801,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["omeName"] = rstring(smart_str(ome_name))
         sql = "select e from Experimenter as e where e.omeName = (:omeName)"
-        exps = query_serv.findAllByQuery(sql, p)
+        exps = query_serv.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
         if len(exps) > 0:
             return True
         else:
@@ -815,7 +815,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["name"] = rstring(smart_str(name))
         sql = "select g from ExperimenterGroup as g where g.name = (:name)"
-        grs = query_serv.findAllByQuery(sql, p)
+        grs = query_serv.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
         if len(grs) > 0:
             return True
         else:
@@ -831,7 +831,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["email"] = rstring(smart_str(email))
         sql = "select e from Experimenter as e where e.email = (:email)"
-        exps = query_serv.findAllByQuery(sql, p)
+        exps = query_serv.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
         if len(exps) > 0:
             return True
         else:
@@ -1323,14 +1323,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if len(image) > 0:
             p.map["ids"] = rlist([rlong(long(a)) for a in image])
             sql = "select im from Image im join fetch im.details.owner join fetch im.details.group where im.id in (:ids) order by im.name"
-            items.extend(q.findAllByQuery(sql, p))
+            items.extend(q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS']))
         
         #members
         if members is not None:
             p.map["ids"] = rlist([rlong(long(a)) for a in members])
             sql = "select e from Experimenter e " \
                   "where e.id in (:ids) order by e.omeName"
-            ms = q.findAllByQuery(sql, p)
+            ms = q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
         sid = sh.createShare(message, rtime(expiration), items, ms, [], enable)
         sh.addObjects(sid, items)
         
