@@ -7,15 +7,21 @@
 
 package ome.security.basic;
 
-import static ome.model.internal.Permissions.Right.READ;
-import static ome.model.internal.Permissions.Role.GROUP;
-import static ome.model.internal.Permissions.Role.USER;
-import static ome.model.internal.Permissions.Role.WORLD;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.CallbackException;
+import org.hibernate.EmptyInterceptor;
+import org.hibernate.EntityMode;
+import org.hibernate.Interceptor;
+import org.hibernate.Transaction;
+import org.hibernate.type.Type;
+import org.springframework.util.Assert;
+import org.testng.annotations.IAnnotation;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
@@ -29,32 +35,24 @@ import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.IMutable;
 import ome.model.IObject;
+import ome.model.core.Image;
+import ome.model.core.Pixels;
+import ome.model.display.RenderingDef;
+import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.ExternalInfo;
+import ome.model.roi.Roi;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.services.sessions.stats.SessionStats;
-import ome.system.Principal;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.CallbackException;
-import org.hibernate.EmptyInterceptor;
-import org.hibernate.EntityMode;
-import org.hibernate.Interceptor;
-import org.hibernate.Transaction;
-import org.hibernate.event.FlushEntityEventListener;
-import org.hibernate.type.Type;
-import org.springframework.util.Assert;
 
 /**
  * implements {@link org.hibernate.Interceptor} for controlling various aspects
@@ -369,7 +367,11 @@ public class OmeroInterceptor implements Interceptor {
             return null;
         }
 
+        final Class<?> changedClass = changedObject.getClass();
         final Details rv = changedObject.getDetails().newInstance();
+
+        // Valid to link to any system type or object in system group
+        // See #1784 and #8571
         if (sysTypes.isSystemType(changedObject.getClass()) ||
                 sysTypes.isInSystemGroup(changedObject.getDetails())) {
             return rv;
@@ -380,70 +382,99 @@ public class OmeroInterceptor implements Interceptor {
         final IObject[] candidates = em.getLockCandidates(changedObject);
         for (IObject linkedObject : candidates) {
 
-            if (!sysTypes.isSystemType(linkedObject.getClass()) &&
-                    !sysTypes.isInSystemGroup(linkedObject.getDetails()) &&
-                    !sysTypes.isInUserGroup(linkedObject.getDetails())) {
+            // If the linked object is a system type or object in the system
+            // group, or further in the shared user group, then we permit
+            // the linkage.
+            if (sysTypes.isSystemType(linkedObject.getClass()) ||
+                    sysTypes.isInSystemGroup(linkedObject.getDetails()) ||
+                    sysTypes.isInUserGroup(linkedObject.getDetails())) {
+                continue;
+            }
 
-                final Details linkedDetails = linkedObject.getDetails();
-                if (linkedDetails == null) {
-                    // ticket:2575. Previously, the details of the candidates
-                    // were never null. the addition of the reagent linkages
-                    // *somehow* led to NPEs here. for the moment, we're assuming
-                    // if null, then the object can't be mis-linked. (i.e. it's
-                    // probably new)
-                    continue;
-                }
+            final Class<?> linkedClass = linkedObject.getClass();
+            final Details linkedDetails = linkedObject.getDetails();
+            if (linkedDetails == null) {
+                // ticket:2575. Previously, the details of the candidates
+                // were never null. the addition of the reagent linkages
+                // *somehow* led to NPEs here. for the moment, we're assuming
+                // if null, then the object can't be mis-linked. (i.e. it's
+                // probably new)
+                continue;
+            }
 
-                // If this is -1 situation, then we pass back out the
-                // group for the linked object. In the case of new transient
-                // objects, this will be set as the new group.
-                if (currentGroupNegative) {
-                    if (rv.getGroup() == null) {
-                        // If this is the first linked object then we assume
-                        // that this object should use this value.
-                        rv.setGroup(linkedDetails.getGroup());
-                    } else {
-                        throwIfGroupsDontMatch(rv.getGroup(), changedObject,
-                                linkedDetails.getGroup(), linkedObject);
-                    }
+            // If this is -1 situation, then we pass back out the
+            // group for the linked object. In the case of new transient
+            // objects, this will be set as the new group.
+            if (currentGroupNegative) {
+                if (rv.getGroup() == null) {
+                    // If this is the first linked object then we assume
+                    // that this object should use this value.
+                    rv.setGroup(linkedDetails.getGroup());
                 } else {
-                    throwIfGroupsDontMatch(currentUser.getGroup(),
-                            changedObject, linkedDetails.getGroup(),
-                            linkedObject);
+                    throwIfGroupsDontMatch(rv.getGroup(), changedObject,
+                            linkedDetails.getGroup(), linkedObject);
                 }
+            } else {
+                throwIfGroupsDontMatch(currentUser.getGroup(),
+                        changedObject, linkedDetails.getGroup(),
+                        linkedObject);
+            }
 
-                // Rather than as in <=4.1 in which objects were scheduled
-                // for locking which prevented later actions, now we check
-                // whether or not we're graph critical and if so, and if
-                // the objects do not belong the current user, then we abort.
+            // Rather than as in <=4.1 in which objects were scheduled
+            // for locking which prevented later actions, now we check
+            // whether or not we're graph critical and if so, and if
+            // the objects do not belong to the current user, then we abort.
 
-                Experimenter linkedOwner = linkedObject.getDetails().getOwner();
-                if (linkedOwner == null) {
-                    continue;
-                }
-                Long linkedUid = linkedOwner.getId();
-                Long currentUid = currentUser.getOwner().getId();
-                if (linkedUid != null && !currentUid.equals(linkedUid)) {
-                    if (currentUser.isGraphCritical()) {  // ticket:1769
-                        String gname = currentUser.getGroup().getName();
-                        String oname = currentUser.getOwner().getOmeName();
-                        Permissions p = currentUser.getCurrentEventContext()
-                            .getCurrentGroupPermissions();
+            final Experimenter linkedOwner = linkedObject.getDetails().getOwner();
+            if (linkedOwner == null) {
+                continue; // Only for system types which should be filtered
+            }
 
-                        throw new ReadOnlyGroupSecurityViolation(String.format(
-                            "Cannot link to %s\n" +
-                            "Current user (%s) is an admin or the owner of\n" +
-                            "the private group (%s=%s). It is not allowed to\n" +
-                            "link to users' data.", linkedObject, oname, gname, p));
+            final Long linkedUid = linkedOwner.getId();
+            if (linkedUid == null) {
+                continue; // Highly unlikely.
+            }
 
-                    } else if (!currentUser.getCurrentEventContext()
-                            .getCurrentGroupPermissions()
-                            .isGranted(Role.GROUP, Right.WRITE)) {// ticket:1992
+            final Long currentUid = currentUser.getOwner().getId();
+            final boolean isOwner = currentUid.equals(linkedUid);
+            final Permissions p = currentUser.getCurrentEventContext()
+                .getCurrentGroupPermissions();
 
-                        throw new ReadOnlyGroupSecurityViolation("Group is READ-ONLY. " +
-                            "Cannot link to object: " + linkedObject);
+            // The default right need for a linkage is WRITE
+            // If however, this is only an annotation or only a viewing,
+            // then less permission is needed.
+            Right neededRight = Right.WRITE;
+            if (Pixels.class.isAssignableFrom(linkedClass) &&
+                    (RenderingDef.class.isAssignableFrom(changedClass) ||
+                     Thumbnail.class.isAssignableFrom(changedClass))) {
+                neededRight = Right.READ;
+            } else if (IAnnotation.class.isAssignableFrom(changedClass) ||
+                    (Roi.class.isAssignableFrom(changedClass) &&
+                            Image.class.isAssignableFrom(linkedClass))) {
+                neededRight = Right.ANNOTATE;
+            }
 
-                    }
+            if (isOwner) {
+                throwIfNotGranted(p, Role.USER, neededRight, linkedObject);
+            } else {
+                if (currentUser.isGraphCritical()) {  // ticket:1769
+                    String gname = currentUser.getGroup().getName();
+                    String oname = currentUser.getOwner().getOmeName();
+
+                    throw new ReadOnlyGroupSecurityViolation(String.format(
+                        "Cannot link to %s\n" +
+                        "Current user (%s) is an admin or the owner of\n" +
+                        "the private group (%s=%s). It is not allowed to\n" +
+                        "link to users' data.", linkedObject, oname, gname, p));
+
+                } else {
+                    // See #1992 and #8562
+                    // Note: this currently assumes that any user who is saving
+                    // an object is also a member of the group (or a sysadmin).
+                    // For #2813, it may become possible that the current
+                    // user is not a member of the group, and therefore, we would
+                    // need to check the role.
+                    throwIfNotGranted(p, Role.GROUP, neededRight, linkedObject);
                 }
             }
         }
@@ -993,5 +1024,19 @@ public class OmeroInterceptor implements Interceptor {
                 linkedObject, linkedGroup));
         }
 
+    }
+
+    void throwIfNotGranted(Permissions p, Role role, Right right,
+            IObject linkedObject) {
+
+        if (!p.isGranted(role, right)) {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append(String.format("Group is %s.", p));
+            sb.append("Cannot link to object: ");
+            sb.append(linkedObject);
+
+            throw new SecurityViolation(sb.toString());
+        }
     }
 }

@@ -10,8 +10,10 @@ package ome.security.basic;
 // Java imports
 
 // Third-party libraries
+import static ome.model.internal.Permissions.Right.ANNOTATE;
 import static ome.model.internal.Permissions.Right.WRITE;
 import static ome.model.internal.Permissions.Role.USER;
+import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.WORLD;
 
 import org.apache.commons.logging.Log;
@@ -26,6 +28,7 @@ import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Right;
 import ome.model.internal.Token;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
@@ -146,7 +149,8 @@ public class BasicACLVoter implements ACLVoter {
     }
 
     public boolean allowUpdate(IObject iObject, Details trustedDetails) {
-        return allowUpdateOrDelete(iObject, trustedDetails, true);
+        EventContext c = currentUser.current();
+        return allowUpdateOrDelete(c, iObject, trustedDetails, true, WRITE);
     }
 
     public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
@@ -164,7 +168,8 @@ public class BasicACLVoter implements ACLVoter {
     }
 
     public boolean allowDelete(IObject iObject, Details trustedDetails) {
-        return allowUpdateOrDelete(iObject, trustedDetails, false);
+        EventContext c = currentUser.current();
+        return allowUpdateOrDelete(c, iObject, trustedDetails, false, WRITE);
     }
 
     public void throwDeleteViolation(IObject iObject) throws SecurityViolation {
@@ -172,10 +177,21 @@ public class BasicACLVoter implements ACLVoter {
         throw new SecurityViolation("Deleting " + iObject + " not allowed.");
     }
 
-    private boolean allowUpdateOrDelete(IObject iObject, Details trustedDetails, boolean update) {
-        Assert.notNull(iObject);
+    /**
+     * Determines whether or not the {@link Right} is available on this object
+     * based on the ownership, group-membership, and group-permissions.
+     *
+     * Note: group leaders are automatically granted all rights.
+     *
+     * @param iObject
+     * @param trustedDetails
+     * @param update
+     * @param right
+     * @return
+     */
+    private boolean allowUpdateOrDelete(EventContext c, IObject iObject,
+            Details trustedDetails, boolean update, Right right) {
 
-        BasicEventContext c = currentUser.current();
         Long uid = c.getCurrentUserId();
 
         boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
@@ -228,21 +244,22 @@ public class BasicACLVoter implements ACLVoter {
         }
 
         // standard
-        if (p.isGranted(WORLD, WRITE)) {
+        if (p.isGranted(WORLD, right)) {
             return true;
         }
-        if (p.isGranted(USER, WRITE) && o != null
+        if (p.isGranted(USER, right) && o != null
                 && o.equals(c.getCurrentUserId())) {
             // Using cuId rather than getOwner since postProcess is also
             // post-login!
             return true;
         }
-        /* ticket:1992 - removing concept of GROUP-WRITE
-        if (p.isGranted(GROUP, WRITE) && g != null
+        // Previously restricted by ticket:1992
+        // As of ticket:8562 this is handled by
+        // the separation of ANNOTATE and WRITE
+        if (p.isGranted(GROUP, right) && g != null
                 && c.getMemberOfGroupsList().contains(g)) {
             return true;
         }
-        */
 
         return false;
     }
@@ -258,10 +275,12 @@ public class BasicACLVoter implements ACLVoter {
             this.currentUser.applyContext(details,
                     !(object instanceof ExperimenterGroup));
 
+            final BasicEventContext c = currentUser.current();
             final Permissions p = details.getPermissions();
-            final boolean edit = allowUpdateOrDelete(object, details, true);
-            p.setDisallowAnnotate(!edit);
-            p.setDisallowEdit(!edit);
+            p.setDisallowAnnotate(
+                    !allowUpdateOrDelete(c, object, details, true, ANNOTATE));
+            p.setDisallowEdit(
+                    !allowUpdateOrDelete(c, object, details, true, WRITE));
         }
     }
 
