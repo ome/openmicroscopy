@@ -60,6 +60,18 @@ _RawFileStoreOperations {
         }
     }
 
+    public RepoRawFileStoreI(String path, String mode) {
+        super(null, null);
+        this.fileId = -1;
+        this.file = new File(path);
+        try {
+            this.rafile = new RandomAccessFile(file, mode);
+            log.info("Opened " + rafile);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public void setFileId_async(AMD_RawFileStore_setFileId __cb, long fileId,
             Current __current) throws ServerError {
@@ -111,12 +123,6 @@ _RawFileStoreOperations {
     public void truncate_async(AMD_RawFileStore_truncate __cb, long length,
             Current __current) throws ServerError {
 
-        if (true) {
-            // See ticket:2562
-            __cb.ice_exception(new omero.ApiUsageException(null, null, "Currently disabled."));
-            return;
-        }
-
         try {
             FileChannel fc = this.rafile.getChannel();
             if (fc.size() < length) {
@@ -132,13 +138,6 @@ _RawFileStoreOperations {
 
     public void write_async(AMD_RawFileStore_write __cb, byte[] buf,
             long position, int length, Current __current) throws ServerError {
-
-        if (true) {
-            // See ticket:2562
-            __cb.ice_exception(new omero.ApiUsageException(null, null, "Currently disabled."));
-            return;
-        }
-
 
         ByteBuffer buffer = MappedByteBuffer.wrap(buf);
         buffer.limit(length);

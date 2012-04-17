@@ -68,6 +68,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
     private String repoUuid;
 
+    private String template = "";
+
     private volatile AtomicReference<State> state = new AtomicReference<State>();
 
     private enum State {
@@ -77,6 +79,17 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
     public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
             SqlAction sql, String sessionUuid, String repoDir) {
         this(oa, reg, ex, sql, sessionUuid, new FileMaker(repoDir));
+    }
+
+    public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
+            SqlAction sql, String sessionUuid, String repoDir, String template) {
+        this(oa, reg, ex, sql, sessionUuid, new FileMaker(repoDir), template);
+    }
+
+    public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
+            SqlAction sql, String sessionUuid, FileMaker fileMaker, String template) {
+        this(oa, reg, ex, sql, sessionUuid, fileMaker);
+        this.template = template;
     }
 
     public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
@@ -280,7 +293,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 //
 
                 PublicRepositoryI pr = new PublicRepositoryI(new File(fileMaker
-                        .getDir()), r.getId(), ex, sql, p);
+                        .getDir()), template, r.getId(), ex, sql, p);
 
                 Ice.ObjectPrx internalObj = addOrReplace("InternalRepository-", repo);
                 Ice.ObjectPrx externalObj = addOrReplace("PublicRepository-", pr);
