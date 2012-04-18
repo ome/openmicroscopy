@@ -35,6 +35,7 @@ class Connector(object):
     def __init__(self, server_id, is_secure):
         self.server_id = server_id
         self.is_secure = is_secure
+        self.is_public = False
 
     def lookup_host_and_port(self):
         server = Server.get(self.server_id)
@@ -44,7 +45,7 @@ class Connector(object):
         host, port = self.lookup_host_and_port()
         return client_wrapper(
                 username, password, host=host, port=port, secure=self.is_secure,
-                useragent=useragent)
+                useragent=useragent, anonymous=self.is_public)
 
     def prepare_gateway(self, connection):
         connection.server_id = self.server_id
@@ -57,7 +58,8 @@ class Connector(object):
         self.omero_session_key = connection._sessionUuid
         # TODO: Properly handle activating the weblitz_cache
 
-    def create_connection(self, useragent, username, password):
+    def create_connection(self, useragent, username, password, is_public=False):
+        self.is_public = is_public
         try:
             connection = self.create_gateway(useragent, username, password)
             if connection.connect():

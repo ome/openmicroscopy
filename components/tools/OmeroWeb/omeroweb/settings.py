@@ -34,6 +34,7 @@ import omero.config
 import omero.clients
 import tempfile
 import exceptions
+import re
 
 from django.utils import simplejson as json
 from portalocker import LockException
@@ -201,7 +202,7 @@ def leave_none_unset(s):
 CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads],
     "omero.web.public.enabled": ["PUBLIC_ENABLED", "false", parse_boolean],
-    "omero.web.public.root": ["PUBLIC_ROOT", "/", str],
+    "omero.web.public.url_filter": ["PUBLIC_URL_FILTER", r'^/(?!webadmin)', re.compile],
     "omero.web.public.server_id": ["PUBLIC_SERVER_ID", 1, int],
     "omero.web.public.user": ["PUBLIC_USER", None, leave_none_unset],
     "omero.web.public.password": ["PUBLIC_PASSWORD", None, leave_none_unset],
