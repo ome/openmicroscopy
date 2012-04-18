@@ -68,10 +68,10 @@ class ChmodBaseTest (lib.GTest):
             blitzObject.setName("new name")
             blitzObject.save()
             nameEdited = True
-        except:
+        except omero.SecurityViolation:
             pass
-        self.assertEqual(nameEdited, expected, "Unexpected ability to Edit. Expected: %s" % expected)
         self.assertEqual(blitzObject.canEdit(), expected, "Unexpected result of canEdit(). Expected: %s" % expected)
+        self.assertEqual(nameEdited, expected, "Unexpected ability to Edit. Expected: %s" % expected)
 
     def assertCanAnnotate(self, blitzObject, expected=True):
         """ Checks the canAnnotate() method AND actual behavior (ability to annotate) """
@@ -80,10 +80,10 @@ class ChmodBaseTest (lib.GTest):
         try:
             omero.gateway.CommentAnnotationWrapper.createAndLink(target=blitzObject, ns="gatewaytest.chmod.testCanAnnotate", val="Test Comment")
             annotated = True
-        except:
+        except omero.SecurityViolation:
             pass
-        self.assertEqual(annotated, expected, "Unexpected ability to Annotate. Expected: %s" % expected)
         self.assertEqual(blitzObject.canAnnotate(), expected, "Unexpected result of canAnnotate(). Expected: %s" % expected)
+        self.assertEqual(annotated, expected, "Unexpected ability to Annotate. Expected: %s" % expected)
 
 
 class ChmodGroupTest (ChmodBaseTest):
