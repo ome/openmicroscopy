@@ -24,8 +24,60 @@ READWRITE = 'rwrw--'
 
 import gatewaytest.library as lib
 
+import logging
+logging.basicConfig(level=logging.ERROR)
+
 
 class ChmodBaseTest (lib.GTest):
+
+    def setUp(self):
+
+        try:
+            super(ChmodBaseTest, self).setUp()
+        except dbhelpers.BadGroupPermissionsException, bgpe:
+            super(ChmodBaseTest, self).doLogin(dbhelpers.ROOT, "system")
+            # For every dbhelpers.USERS entry, check that the requested
+            # group has the requests permissions and if not, call chmod
+            admin = self.gateway.getAdminService()
+            for k, v in dbhelpers.USERS.items():
+                name = v.groupname
+                perms = v.groupperms
+                if not perms:
+                    if not name:
+                        continue # These are likely the weblitz tests
+                    else:
+                        raise Exceptions("Missing permissions for %s" % name)
+                try:
+                    group = admin.lookupGroup(name)
+                    if str(perms) != str(group.details.permissions):
+                        group_id = self.__group_id(name)
+                        self.doChange(group_id, perms)
+                except omero.ApiUsageException:
+                    # Assume that it doesn't exist
+                    # and when created it'll have the
+                    #proper perms
+                    pass
+            super(ChmodBaseTest, self).setUp()
+
+    def doLogin(self, userEntry, groupname=None):
+        """
+        Attempts to reset group permissions back to the expected value
+        on login.
+        """
+
+        try:
+            super(ChmodBaseTest, self).doLogin(userEntry)
+        except dbhelpers.BadGroupPermissionsException, bgpe:
+            super(ChmodBaseTest, self).doLogin(self.ADMIN, "system")
+            group_id = self.__group_id(userEntry.groupname)
+            self.doChange(group_id, userEntry.groupperms)
+            super(ChmodBaseTest, self).doLogin(userEntry)
+
+    def __group_id(self, group):
+        admin = self.gateway.getAdminService()
+        if isinstance(group, str):
+            return admin.lookupGroup(group).id.val
+        raise Exception("Unknown: %s" % group)
 
     def doChange(self, group_id, permissions, test_should_pass=True, return_complete=True):
         """
@@ -305,7 +357,7 @@ class ManualCreateEditTest (ChmodBaseTest):
         dbhelpers.USERS['read_only_owner'] = dbhelpers.UserEntry('r-_owner','ome', firstname='chmod', lastname='test',
                    groupname="ReadOnly_chmod_test", groupperms=READONLY)
         dbhelpers.USERS['read_only_user'] = dbhelpers.UserEntry('r-_user','ome', firstname='chmod2', lastname='test',
-                   groupname="ReadOnly_chmod_test")
+                   groupname="ReadOnly_chmod_test", groupperms=READONLY)
 
         # Calling the superclass setUp processes the dbhelpers.USERS and dbhelpers.PROJECTS etc to populate DB
         super(ManualCreateEditTest, self).setUp()
