@@ -21,9 +21,14 @@
 -->
 {% endcomment %}
 
+{% comment %}
 <div id="user_selection">
     {% for field in form_active_group %}{{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
 {% if form_users %}
     {% for field in form_users %}{{ field }}{% endfor %}
 </div>
 {% endif %}
+{% endcomment %}
+
+       
+
