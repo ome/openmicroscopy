@@ -14,6 +14,7 @@ from omero.cmd import *
 from omero.callbacks import CmdCallbackI
 from omero.gateway import BlitzGateway
 from omero.gateway.scripts import dbhelpers
+import omero_ext.uuid as _uuid # see ticket:3774
 
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
@@ -65,7 +66,7 @@ class ChmodBaseTest (lib.GTest):
 
         nameEdited = False
         try:
-            blitzObject.setName("new name")
+            blitzObject.setName("new name: %s" % _uuid.uuid4())
             blitzObject.save()
             nameEdited = True
         except omero.SecurityViolation:
