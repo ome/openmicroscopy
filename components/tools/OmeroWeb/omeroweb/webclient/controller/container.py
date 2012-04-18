@@ -345,52 +345,15 @@ class BaseContainer(BaseController):
         sc_list = list(self.conn.listScreens(eid))
         pl_list = list(self.conn.listOrphans("Plate", eid))
 
-        pr_list_with_counters = list()
-        ds_list_with_counters = list()
-        sc_list_with_counters = list()
-        pl_list_with_counters = list()
-        
-        pr_ids = [pr.id for pr in pr_list]
-        if len(pr_ids) > 0:
-            pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
-            
-            for pr in pr_list:
-                pr.annotation_counter = pr_annotation_counter.get(pr.id)
-                pr_list_with_counters.append(pr)
-                
-        ds_ids = [ds.id for ds in ds_list]
-        if len(ds_ids) > 0:
-            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-            
-            for ds in ds_list:
-                ds.annotation_counter = ds_annotation_counter.get(ds.id)
-                ds_list_with_counters.append(ds)
-        
-        sc_ids = [sc.id for sc in sc_list]
-        if len(sc_ids) > 0:
-            sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
-
-            for sc in sc_list:
-                sc.annotation_counter = sc_annotation_counter.get(sc.id)
-                sc_list_with_counters.append(sc)
-
-        pl_ids = [pl.id for pl in pl_list]
-        if len(pl_ids) > 0:
-            pl_annotation_counter = self.conn.getCollectionCount("Plate", "annotationLinks", ds_ids)
-
-            for pl in pl_list:
-                pl.annotation_counter = pl_annotation_counter.get(pl.id)
-                pl_list_with_counters.append(pl)
-
-        pr_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
-        ds_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
-        sc_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
-        pl_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
+        pr_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        ds_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        sc_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        pl_list.sort(key=lambda x: x.getName() and x.getName().lower())
 
         self.orphans = self.conn.countOrphans("Image", eid)
         
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'screens': sc_list_with_counters, 'plates': pl_list_with_counters}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
+        self.containers={'projects': pr_list, 'datasets': ds_list, 'screens': sc_list, 'plates': pl_list}
+        self.c_size = len(pr_list)+len(ds_list)+len(sc_list)+len(pl_list)
     
     def listOrphanedImages(self, eid=None, page=None):
         if eid is not None:
