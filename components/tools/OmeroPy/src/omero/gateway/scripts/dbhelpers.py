@@ -85,6 +85,11 @@ def login (alias, pw=None):
 #    sess.getDetails().setGroup(g)
 #    ss.updateSession(sess)
 
+
+class BadGroupPermissionsException(Exception):
+    pass
+
+
 class UserEntry (object):
     def __init__ (self, name, passwd, firstname='', middlename='', lastname='', email='',
                   groupname=None, groupperms='rwrw--', groupowner=False, admin=False):
@@ -102,25 +107,28 @@ class UserEntry (object):
     def fullname (self):
         return '%s %s' % (self.firstname, self.lastname)
 
-    def login (self):
-        client = omero.gateway.BlitzGateway(self.name, self.passwd, group=self.groupname, try_super=self.admin)
+    def login (self, groupname=None):
+        if groupname == None:
+            groupname = self.groupname
+        client = omero.gateway.BlitzGateway(self.name, self.passwd, group=groupname, try_super=self.admin)
         if not client.connect():
             print "Can not connect" 
             return None
 
         a = client.getAdminService()
-        if self.groupname is not None:
-            if client.getEventContext().groupName != self.groupname:
+        if groupname is not None:
+            if client.getEventContext().groupName != groupname:
                 try:
-                    g = a.lookupGroup(self.groupname)
+                    g = a.lookupGroup(groupname)
                     client.setGroupForSession(g.getId().val)
                 except:
                     pass
-        else:
-            self.groupname = a.getEventContext().groupName
 
+        # Reset group name and evaluate
+        self.groupname = a.getEventContext().groupName
         if self.groupname != "system":
             UserEntry.check_group_perms(client, self.groupname, self.groupperms)
+
         return client
 
     @staticmethod
@@ -130,7 +138,8 @@ class UserEntry (object):
         g = a.lookupGroup(groupname)
         p = g.getDetails().getPermissions()
         if str(p) != groupperms:
-            raise Exception("%s group has wrong permissions! Expected: %s Found: %s" % \
+            raise BadGroupPermissionsException( \
+                    "%s group has wrong permissions! Expected: %s Found: %s" % \
                     (groupname, groupperms, p))
 
     @staticmethod
