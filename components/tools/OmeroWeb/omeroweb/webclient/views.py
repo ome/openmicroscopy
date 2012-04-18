@@ -383,7 +383,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     E.g. /load_data?view=tree provides data for the tree as <li>.
     """
     request.session.modified = True
-    conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(request.session.get('active_group'))
     
     # check menu
     menu = request.REQUEST.get("menu")
@@ -529,7 +528,6 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     """
 
     request.session.modified = True
-    conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(request.session.get('active_group'))
 
     if request.REQUEST.get("o_type") is not None and len(request.REQUEST.get("o_type")) > 0:
         o_type = request.REQUEST.get("o_type")
