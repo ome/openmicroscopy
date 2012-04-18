@@ -1475,7 +1475,7 @@ def get_original_file(request, fileId, conn=None, **kwargs):
 
     orig_file = conn.getObject("OriginalFile", fileId)
     if orig_file is None:
-        return handlerInternalError(request, "Original File does not exists (id:%s)." % (iid))
+        return handlerInternalError(request, "Original File does not exists (id:%s)." % (fileId))
     
     rsp = HttpResponse(orig_file.getFileInChunks())
     mimetype = orig_file.mimetype
