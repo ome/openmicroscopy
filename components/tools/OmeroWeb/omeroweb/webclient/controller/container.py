@@ -315,24 +315,12 @@ class BaseContainer(BaseController):
             self.experimenter = self.conn.getObject("Experimenter", eid)  
         
         im_list = list(self.conn.listImagesInDataset(oid=did, eid=eid, page=page))
-        # Not displaying annotation icons (same as Insight). #5514.
-        #im_list_with_counters = list()
-        
-        #im_ids = [im.id for im in im_list]
-        #if len(im_ids) > 0:
-        #    im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-            
-        #    for im in im_list:
-        #        im.annotation_counter = im_annotation_counter.get(im.id)
-        #        im_list_with_counters.append(im)
-        
-        im_list_with_counters = im_list
-        im_list_with_counters.sort(key=lambda x: x.getName().lower())
-        self.containers = {'images': im_list_with_counters}
+        im_list.sort(key=lambda x: x.getName().lower())
+        self.containers = {'images': im_list}
         self.c_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(did)])[long(did)]
         
         if page is not None:
-            self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
+            self.paging = self.doPaging(page, len(im_list), self.c_size)
     
     def listContainerHierarchy(self, eid=None):
         if eid is not None:
