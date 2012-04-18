@@ -295,11 +295,6 @@ FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 # in standard language format. For example, U.S. English is "en-us".
 LANGUAGE_CODE = 'en-gb'
 
-# FORCE_SCRIPT_NAME: This will be used as the value of the SCRIPT_NAME environment variable in any HTTP request. 
-# This setting can be used to override the server-provided value of SCRIPT_NAME, which may be a rewritten 
-# version of the preferred value or not supplied at all.
-FORCE_SCRIPT_NAME = None
-
 # SECRET_KEY: A secret key for this particular Django installation. Used to provide a seed 
 # in secret-key hashing algorithms. Set this to a random string -- the longer, the better. 
 # django-admin.py startproject creates one automatically. 
