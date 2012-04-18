@@ -58,6 +58,12 @@ class PermissionsI(_omero_model.Permissions):
       def setUserWrite(self, value):
             self.set(2,8,value)
 
+      # shift 8; mask 1
+      def isUserAnnotate(self):
+            return self.granted(1,8)
+      def setUserAnnotate(self, value):
+            self.set(1,8,value)
+
       # shift 4; mask 4
       def isGroupRead(self):
             return self.granted(4,4)
@@ -70,6 +76,12 @@ class PermissionsI(_omero_model.Permissions):
       def setGroupWrite(self, value):
             self.set(2,4,value)
 
+      # shift 4; mask 1
+      def isGroupAnnotate(self):
+            return self.granted(1,4)
+      def setGroupAnnotate(self, value):
+            self.set(1,4,value)
+
       # shift 0; mask 4
       def isWorldRead(self):
             return self.granted(4,0)
@@ -81,6 +93,12 @@ class PermissionsI(_omero_model.Permissions):
             return self.granted(2,0)
       def setWorldWrite(self, value):
             self.set(2,0,value)
+
+      # shift 0; mask 1
+      def isWorldAnnotate(self):
+            return self.granted(1,0)
+      def setWorldAnnotate(self, value):
+            self.set(1,0,value)
 
       # Calculated values
 
@@ -102,7 +120,7 @@ class PermissionsI(_omero_model.Permissions):
 
       def from_string(self, perms):
           import re
-          base = "([rR\-_])([wW\-_])"
+          base = "([rR\-_])([aAwW\-_])"
           regex = re.compile("^(L?)%s$" % (base*3))
           match = regex.match(perms)
           if match is None:
@@ -114,21 +132,57 @@ class PermissionsI(_omero_model.Permissions):
           gw = match.group(5)
           wr = match.group(6)
           ww = match.group(7)
+          # User
           self.setUserRead(ur.lower() == "r")
-          self.setUserWrite(uw.lower() == "w")
+          self.setUserAnnotate(uw.lower() == "a")
+          if uw.lower() == "w":
+              self.setUserAnnotate(True) # w implies a
+              self.setUserWrite(True)
+          else:
+              self.setUserWrite(False)
+          # Group
           self.setGroupRead(gr.lower() == "r")
-          self.setGroupWrite(gw.lower() == "w")
+          self.setGroupAnnotate(gw.lower() == "a")
+          if gw.lower() == "w":
+              self.setGroupAnnotate(True) # w implies a
+              self.setGroupWrite(True)
+          else:
+              self.setGroupWrite(False)
+          # World
           self.setWorldRead(wr.lower() == "r")
-          self.setWorldWrite(ww.lower() == "w")
+          self.setWorldAnnotate(ww.lower() == "a")
+          if ww.lower() == "w":
+              self.setWorldAnnotate(True) # w implies a
+              self.setWorldWrite(True)
+          else:
+              self.setWorldWrite(False)
 
       def __str__(self):
           vals = []
+          # User
           vals.append(self.isUserRead() and "r" or "-")
-          vals.append(self.isUserWrite() and "w" or "-")
+          if self.isUserWrite():
+              vals.append("w")
+          elif self.isUserAnnotate():
+              vals.append("a")
+          else:
+              vals.append("-")
+          # Group
           vals.append(self.isGroupRead() and "r" or "-")
-          vals.append(self.isGroupWrite() and "w" or "-")
+          if self.isGroupWrite():
+              vals.append("w")
+          elif self.isGroupAnnotate():
+              vals.append("a")
+          else:
+              vals.append("-")
+          # World
           vals.append(self.isWorldRead() and "r" or "-")
-          vals.append(self.isWorldWrite() and "w" or "-")
+          if self.isWorldWrite():
+              vals.append("w")
+          elif self.isWorldAnnotate():
+              vals.append("a")
+          else:
+              vals.append("-")
           return "".join(vals)
 
       def throwIfImmutable(self):

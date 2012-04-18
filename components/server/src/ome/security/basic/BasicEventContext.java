@@ -109,7 +109,7 @@ public class BasicEventContext extends SimpleEventContext {
         this.copyContext(ec);
 
         // Now re-apply values.
-        final List<String> toPrint = new ArrayList<String>();
+        List<String> toPrint = null;
         
         final Long uid = parseId(callContext, "omero.user");
         if (uid != null) {
@@ -123,15 +123,22 @@ public class BasicEventContext extends SimpleEventContext {
                         cuId, uid));
             }
             setOwner(admin.userProxy(uid));
+            if (toPrint == null) {
+                toPrint = new ArrayList<String>();
+            }
             toPrint.add("owner="+uid);
         }
 
         final Long gid = parseId(callContext, "omero.group");
         if (gid != null) {
             if (gid < 0) {
-                setGroup(new ExperimenterGroup(gid, false));
+                setGroup(new ExperimenterGroup(gid, false), Permissions.EMPTY);
             } else {
-                setGroup(admin.groupProxy(gid));
+                ExperimenterGroup g = admin.groupProxy(gid);
+                setGroup(g, g.getDetails().getPermissions());
+            }
+            if (toPrint == null) {
+                toPrint = new ArrayList<String>();
             }
             toPrint.add("group="+gid);
         }
@@ -148,10 +155,13 @@ public class BasicEventContext extends SimpleEventContext {
                 }
             }
             setShareId(sid);
+            if (toPrint == null) {
+                toPrint = new ArrayList<String>();
+            }
             toPrint.add("share="+sid);
         }
 
-        if (toPrint.size() > 0) {
+        if (toPrint != null && toPrint.size() > 0) {
             log.info(" cctx:\t" + StringUtils.join(toPrint, ","));
         }
     }
@@ -183,7 +193,7 @@ public class BasicEventContext extends SimpleEventContext {
         return rv;
     }
 
-    // ~ Setters for superclass state
+    // ~ Getters/Setters for superclass state
     // =========================================================================
 
     @Override
@@ -253,15 +263,18 @@ public class BasicEventContext extends SimpleEventContext {
         return group;
     }
 
-    public void setGroup(ExperimenterGroup group) {
+    public void setGroup(ExperimenterGroup group, Permissions p) {
         this.group = group;
-        this.cgId = group.getId();
-        if (group.isLoaded()) {
-            this.cgName = group.getName();
-            this.groupPermissions = group.getDetails().getPermissions();
-        } else if (group.getId() < -1) {
+        setGroupPermissions(p);
+        if (this.cgId.equals(group.getId())) {
+            // Do nothing.
+        } else {
+            this.cgId = group.getId();
             this.cgName = null;
-            this.groupPermissions = null;
+            // If unloaded or group.id < -1 these will remain null
+            if (group.isLoaded()) {
+                this.cgName = group.getName();
+            }
         }
     }
 

@@ -135,6 +135,15 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
         set(2, 8, value);
     }
 
+    // shift 8; mask 1
+    public boolean isUserAnnotate(Ice.Current c) {
+        return granted(1, 8);
+    }
+
+    public void setUserAnnotate(boolean value, Ice.Current c) {
+        set(1, 8, value);
+    }
+
     // shift 4; mask 4
     public boolean isGroupRead(Ice.Current c) {
         return granted(4, 4);
@@ -153,6 +162,15 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
         set(2, 4, value);
     }
 
+    // shift 4; mask 1
+    public boolean isGroupAnnotate(Ice.Current c) {
+        return granted(1, 4);
+    }
+
+    public void setGroupAnnotate(boolean value, Ice.Current c) {
+        set(1, 4, value);
+    }
+
     // shift 0; mask 4
     public boolean isWorldRead(Ice.Current c) {
         return granted(4, 0);
@@ -169,6 +187,15 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
 
     public void setWorldWrite(boolean value, Ice.Current c) {
         set(2, 0, value);
+    }
+
+    // shift 0; mask 1
+    public boolean isWorldAnnotate(Ice.Current c) {
+        return granted(1, 0);
+    }
+
+    public void setWorldAnnotate(boolean value, Ice.Current c) {
+        set(1, 0, value);
     }
 
     protected boolean granted(int mask, int shift) {
@@ -202,14 +229,7 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
      */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(16);
-        sb.append(isUserRead(null) ? "r" : "-");
-        sb.append(isUserWrite(null) ? "w" : "-");
-        sb.append(isGroupRead(null) ? "r" : "-");
-        sb.append(isGroupWrite(null) ? "w" : "-");
-        sb.append(isWorldRead(null) ? "r" : "-");
-        sb.append(isWorldWrite(null) ? "w" : "-");
-        return sb.toString();
+        return Utils.toPermissions(perm1).toString();
     }
 
 }

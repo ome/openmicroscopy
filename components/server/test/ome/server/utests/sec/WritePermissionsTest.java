@@ -63,7 +63,8 @@ public class WritePermissionsTest extends MockObjectTestCase {
         cache.putSession(s.getUuid(), sc);
         BasicEventContext bec = new BasicEventContext(new Principal(s.getUuid()),
                 new NullSessionStats(), sc);
-        bec.setGroup(s.getDetails().getGroup());
+        ExperimenterGroup g = s.getDetails().getGroup();
+        bec.setGroup(g, g.getDetails().getPermissions());
         bec.setOwner(s.getDetails().getOwner());
         cd.login(bec);
         return s;

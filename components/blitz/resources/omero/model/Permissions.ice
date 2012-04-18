@@ -100,10 +100,13 @@ module omero {
       //======================================================
 
       bool isUserRead();
+      bool isUserAnnotate();
       bool isUserWrite();
       bool isGroupRead();
+      bool isGroupAnnotate();
       bool isGroupWrite();
       bool isWorldRead();
+      bool isWorldAnnotate();
       bool isWorldWrite();
 
       // Mutators
@@ -120,6 +123,11 @@ module omero {
       /**
        * Throws [omero::ClientError] if mutation not allowed.
        **/
+      void setUserAnnotate(bool value);
+
+      /**
+       * Throws [omero::ClientError] if mutation not allowed.
+       **/
       void setUserWrite(bool value);
 
       /**
@@ -130,12 +138,22 @@ module omero {
       /**
        * Throws [omero::ClientError] if mutation not allowed.
        **/
+      void setGroupAnnotate(bool value);
+
+      /**
+       * Throws [omero::ClientError] if mutation not allowed.
+       **/
       void setGroupWrite(bool value);
 
       /**
        * Throws [omero::ClientError] if mutation not allowed.
        **/
       void setWorldRead(bool value);
+
+      /**
+       * Throws [omero::ClientError] if mutation not allowed.
+       **/
+      void setWorldAnnotate(bool value);
 
       /**
        * Throws [omero::ClientError] if mutation not allowed.
