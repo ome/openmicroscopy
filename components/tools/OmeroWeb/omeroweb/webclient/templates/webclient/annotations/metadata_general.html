@@ -275,7 +275,7 @@
                 $("#add_tags_form").dialog({
                     autoOpen: false,
                     resizable: false,
-                    height: 410,
+                    height: 450,
                     width:420,
                     modal: true,
                     buttons: {
@@ -331,8 +331,8 @@
                 $("#choose_attachments_form").dialog({
                     autoOpen: false,
                     resizable: false,
-                    height: 380,
-                    width:420,
+                    height: 420,
+                    width:360,
                     modal: true,
                     buttons: {
                         "Accept": function() {
@@ -821,7 +821,7 @@
                     {% else %}
                         {% if manager.screen %}
                         {% if manager.screen.isOwned %}
-						<div class="data_heading" style="border:solid 1px red;" id="screenname-{{ manager.screen.id }}">
+						<div class="data_heading" id="screenname-{{ manager.screen.id }}">
 							<h1>
 								<p id="screenname-{{ manager.screen.id }}-name" style="word-wrap: break-word;">{{ manager.screen.name }}</p>
 							</h1>	

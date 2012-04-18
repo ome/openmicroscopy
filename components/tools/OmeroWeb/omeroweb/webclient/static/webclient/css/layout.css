@@ -1820,10 +1820,37 @@ width: 250px;
 
 
 /** Chgrp form **/
-#chgrp-form .selected {
-    background: #ddf;
-}
+
 #chgrp-form .group_option {
     padding: 5px;
     cursor: pointer;
+	font-size:1.2em;
+	line-height:1.4em;
+	-webkit-border-radius:3px; /* Saf3+, Chrome */
+   -moz-border-radius:3px; /* FF1+ */
+    border-radius:3px; /* Opera 10.5, IE 9 */ 
+	border:solid 1px transparent;
 }
+
+#chgrp-form .selected {
+    background: hsl(210,30%,80%);
+	color:hsl(210,20%,30%);
+	text-shadow:0 1px 0 rgba(255,255,255,.6);
+	border:solid 1px hsl(210,20%,60%) ;
+	background-image:-webkit-linear-gradient(top, rgba(255,255,255,.2) 0%,rgba(255,255,255,0) 100%); /* Chrome10+,Safari5.1+ */
+	-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,.2);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

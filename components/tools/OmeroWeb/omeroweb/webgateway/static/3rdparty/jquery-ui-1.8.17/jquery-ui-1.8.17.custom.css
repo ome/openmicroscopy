@@ -493,12 +493,59 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 	border-radius:5px; /* Opera 10.5, IE 9 */ 
 }
 
+.ui-dialog h1{
+	font-size:1.2em;
+	font-weight:bold;
+	text-shadow:0 1px 0 white;
+}
+
+.ui-dialog p, .ui-dialog span {
+	display:inline-block;
+	margin-bottom:15px;
+		font-size:1.2em;
+}
+
+
 	
 .ui-dialog .ui-dialog-title { float: left; margin: .1em 16px .1em 0; } 
 .ui-dialog .ui-dialog-content { position: relative; padding: 5px 15px 15px ; background: none; overflow: auto; zoom: 1; }
-.ui-dialog .ui-dialog-buttonpane { text-align: left; border-width: 1px 0 0 0; background-image: none;  }
-.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset { float: right; }
-.ui-dialog .ui-dialog-buttonpane button { margin: .5em .4em .5em 0; cursor: pointer; }
+
+.ui-dialog .ui-dialog-buttonpane { 
+	text-align: left; 
+	border-width: 1px 0 0 0; 
+	background-image: none;
+	background-color:hsl(210,5%,95%);
+	border-top:solid 1px hsl(210,5%,85%);
+}
+
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset { 
+	float: right;
+}
+
+.ui-dialog .ui-dialog-buttonpane button { 
+	margin: .5em .4em .5em 0; 
+	cursor: pointer; 
+	background:hsl(210,8%,80%); /* Old browsers */
+	background-image:-moz-linear-gradient(top, rgba(255,255,255,.2) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
+	background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,.2)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
+	background-image:-webkit-linear-gradient(top, rgba(255,255,255,.2) 0%,rgba(255,255,255,0) 100%); /* Chrome10+,Safari5.1+ */
+	background-image:-o-linear-gradient(top, rgba(255,255,255,.2) 0%,rgba(255,255,255,0) 100%); /* Opera11.10+ */
+	background-image:-ms-linear-gradient(top, rgba(255,255,255,.2) 0%,rgba(255,255,255,0) 100%); /* IE10+ */
+	filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='rgba(255,255,255,.2)', endColorstr='rgba(255,255,255,0)',GradientType=0 ); /* IE6-9 */
+	background:linear-gradient(top, rgba(255,255,255,.1) 0%,rgba(255,255,255,0) 100%); /* W3C */ 
+	-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.1); /* Saf3.0+, Chrome */
+	   -moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.1); /* FF3.5+ */
+	        box-shadow:inset 0 1px 0 rgba(255,255,255,0.1); /* Opera 10.5, IE 9.0 */
+	    filter:progid:DXImageTransform.Microsoft.dropshadow(OffX=inset, OffY=0, Color='#fff'); /* IE6,IE7 */
+	-ms-filter:"progid:DXImageTransform.Microsoft.dropshadow(OffX=inset, OffY=0, Color='#fff')"; /* IE8 */ 
+	color:#333;
+	text-shadow:0 1px 0 rgba(255, 255, 255, 0.7);
+	-webkit-border-radius:3px; /* Saf3+, Chrome */
+	   -moz-border-radius:3px; /* FF1+ */
+	        border-radius:3px; /* Opera 10.5, IE 9 */ 
+	border:solid 1px hsl(210,8%,70%); 
+}
+
 .ui-dialog .ui-resizable-se { width: 14px; height: 14px; right: 3px; bottom: 3px; }
 .ui-draggable .ui-dialog-titlebar { cursor: move; }
 

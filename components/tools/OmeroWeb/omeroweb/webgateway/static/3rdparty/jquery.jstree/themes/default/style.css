@@ -24,7 +24,7 @@
 .jstree-default li, 
 .jstree-default ins {}
 .jstree-default li { }
-.jstree-default li.jstree-last { background:transparent; }
+.jstree-default li.jstree-last { background:transparent;}
 
 .jstree-default .jstree-hovered {  border:1px solid #d8f0fa; padding:0 2px 0 1px; }
 .jstree-default .jstree-clicked {  border:1px solid #99defd; padding:0 2px 0 1px; }
@@ -68,16 +68,13 @@
 
 
 
-
-
-
 .jstree-default a { 
 	-webkit-border-radius:2px; /* Saf3+, Chrome */
 	   -moz-border-radius:2px; /* FF1+ */
 	        border-radius:2px; /* Opera 10.5, IE 9 */ 
 	text-shadow:0 1px 0 white;
 	border: solid 1px transparent; 
-	color: hsl(220,30%,30%) !important; 
+	color: hsl(220,20%,30%) !important; 
 	font-family: "HelveticaNeue-Medium", Helvetica, Arial, sans-serif;
 	padding:1px 1px !important;
 	left:-4px;

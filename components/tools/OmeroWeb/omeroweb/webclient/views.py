@@ -733,7 +733,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         manager= BaseContainer(conn, **kw)
     except AttributeError, x:
         logger.error(traceback.format_exc())
-        return HttpJavascriptResponse("Object does not exist. Refresh the page.")
+        return HttpJavascriptResponse("<p>Object does not exist. Refresh the page.</p>")
         #return handlerInternalError(x)
     
     # prepare forms
