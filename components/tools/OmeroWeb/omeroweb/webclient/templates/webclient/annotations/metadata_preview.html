@@ -50,10 +50,10 @@
     <script type="text/javascript">
         $(document).ready(function() {
             {% if manager.getShareId %}
-            var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}{{ manager.getShareId }}", {'mediaroot': '{{ STATIC_URL }}' } );
+            var viewport = $.WeblitzViewport($("#viewport"), "{% url webgateway %}{{ manager.getShareId }}", {'mediaroot': '{{ STATIC_URL }}' } );
             viewport.load({{ imageId }}, null, location.search);
             {% else %}
-            var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}", {'mediaroot': '{{ STATIC_URL }}' } );
+            var viewport = $.WeblitzViewport($("#viewport"), "{% url webgateway %}", {'mediaroot': '{{ STATIC_URL }}' } );
             viewport.load({{ manager.image.id }});
             {% endif %}
         });
