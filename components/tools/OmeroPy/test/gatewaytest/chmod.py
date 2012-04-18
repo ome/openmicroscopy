@@ -121,38 +121,50 @@ class CustomUsersTest (ChmodBaseTest):
 
     def setUp (self):
         # read-only users & data
-        dbhelpers.USERS['read_only_owner'] = dbhelpers.UserEntry('r-_owner','ome', firstname='chmod', lastname='test', 
-                   groupname="ReadOnly_chmod_test", groupperms=READONLY)
-        dbhelpers.USERS['read_only_user'] = dbhelpers.UserEntry('r-_user','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadOnly_chmod_test")
-        dbhelpers.USERS['read_only_admin'] = dbhelpers.UserEntry('r-_admin','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadOnly_chmod_test", admin=True)
-        dbhelpers.USERS['read_only_leader'] = dbhelpers.UserEntry('r-_leader','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadOnly_chmod_test", groupowner=True)
+        def ReadOnly(key, admin=False, groupowner=False):
+            dbhelpers.USERS['read_only_%s'%key] = dbhelpers.UserEntry("r-_%s"%key, 'ome',
+                firstname='chmod',
+                lastname='test',
+                groupname="ReadOnly_chmod_test",
+                groupperms=READONLY,
+                groupowner=groupowner,
+                admin=admin)
+        ReadOnly('owner')
+        ReadOnly('user')
+        ReadOnly('admin', admin=True)
+        ReadOnly('leader', groupowner=True)
         dbhelpers.PROJECTS['read_only_proj'] = dbhelpers.ProjectEntry('read_only_proj', 'read_only_owner')
 
         # read-annotate users & data
-        dbhelpers.USERS['read_ann_owner'] = dbhelpers.UserEntry('ra_owner','ome', firstname='chmod', lastname='test', 
-                   groupname="ReadAnn_chmod_test", groupperms=READANN)
-        dbhelpers.USERS['read_ann_user'] = dbhelpers.UserEntry('ra_user','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadAnn_chmod_test")
-        dbhelpers.USERS['read_ann_admin'] = dbhelpers.UserEntry('ra_admin','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadAnn_chmod_test", admin=True)
-        dbhelpers.USERS['read_ann_leader'] = dbhelpers.UserEntry('ra_leader','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadAnn_chmod_test", groupowner=True)
+        def ReadAnn(key, admin=False, groupowner=False):
+            dbhelpers.USERS['read_ann_%s'%key] = dbhelpers.UserEntry("ra_%s"%key, 'ome',
+                firstname='chmod',
+                lastname='test',
+                groupname="ReadAnn_chmod_test",
+                groupperms=READANN,
+                groupowner=groupowner,
+                admin=admin)
+        ReadAnn('owner')
+        ReadAnn('user')
+        ReadAnn('admin', admin=True)
+        ReadAnn('leader', groupowner=True)
         dbhelpers.PROJECTS['read_ann_proj'] = dbhelpers.ProjectEntry('read_ann_proj', 'read_ann_owner')
-        
+
         # read-write users & data
-        dbhelpers.USERS['read_write_owner'] = dbhelpers.UserEntry('rw_owner','ome', firstname='chmod', lastname='test', 
-                   groupname="ReadWrite_chmod_test", groupperms=READWRITE)
-        dbhelpers.USERS['read_write_user'] = dbhelpers.UserEntry('rw_user','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadWrite_chmod_test")
-        dbhelpers.USERS['read_write_admin'] = dbhelpers.UserEntry('rw_admin','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadWrite_chmod_test", admin=True)
-        dbhelpers.USERS['read_write_leader'] = dbhelpers.UserEntry('rw_leader','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadWrite_chmod_test", groupowner=True)
+        def ReadWrite(key, admin=False, groupowner=False):
+            dbhelpers.USERS['read_write_%s'%key] = dbhelpers.UserEntry("rw_%s"%key, 'ome',
+                firstname='chmod',
+                lastname='test',
+                groupname="ReadWrite_chmod_test",
+                groupperms=READWRITE,
+                groupowner=groupowner,
+                admin=admin)
+        ReadWrite('owner')
+        ReadWrite('user')
+        ReadWrite('admin', admin=True)
+        ReadWrite('leader', groupowner=True)
         dbhelpers.PROJECTS['read_write_proj'] = dbhelpers.ProjectEntry('read_write_proj', 'read_write_owner')
-        
+
         # Calling the superclass setUp processes the dbhelpers.USERS and dbhelpers.PROJECTS etc to populate DB
         super(CustomUsersTest, self).setUp()
 
