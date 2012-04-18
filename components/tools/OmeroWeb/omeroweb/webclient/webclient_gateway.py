@@ -1543,7 +1543,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         f = omero.sys.Filter()
         f.ownerId = rlong(eid)
-        f.groupId = rlong(self.getEventContext().groupId)
+        #f.groupId = rlong(self.getEventContext().groupId)
         if page is not None:
             f.limit = rint(PAGE)
             f.offset = rint((int(page)-1)*PAGE)
@@ -1556,24 +1556,25 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
         if otype == 'image':
             try:
-                for e in tm.getByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, True)['Image']:
+                for e in tm.getByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])['Image']:
                     im_list.append(ImageWrapper(self, e))
             except:
                 pass
         elif otype == 'dataset':
             try:
-                for e in tm.getByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p, True)['Dataset']:
+                for e in tm.getByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])['Dataset']:
+                    print "dataset getByPeriod", e
                     ds_list.append(DatasetWrapper(self, e))
             except:
                 pass
         elif otype == 'project':
             try:
-                for e in tm.getByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p, True)['Project']:
+                for e in tm.getByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])['Project']:
                     pr_list.append(ImageWrapper(self, e))
             except:
                 pass
         else:
-            res = tm.getByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p, True)
+            res = tm.getByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])
             try:
                 for e in res['Image']:
                     im_list.append(ImageWrapper(self, e))
@@ -1610,16 +1611,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         f = omero.sys.Filter()
         f.ownerId = rlong(eid)
-        f.groupId = rlong(self.getEventContext().groupId)
+        #f.groupId = rlong(self.getEventContext().groupId)
         p.theFilter = f
         if otype == 'image':
-            return tm.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p)['Image']
+            return tm.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, self.CONFIG['SERVICE_OPTS'])['Image']
         elif otype == 'dataset':
-            return tm.countByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p)['Dataset']
+            return tm.countByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p, self.CONFIG['SERVICE_OPTS'])['Dataset']
         elif otype == 'project':
-            return tm.countByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p)['Project']
+            return tm.countByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p, self.CONFIG['SERVICE_OPTS'])['Project']
         else:
-            c = tm.countByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p)
+            c = tm.countByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p, self.CONFIG['SERVICE_OPTS'])
             return c['Image']+c['Dataset']+c['Project']
 
     def getEventsByPeriod (self, start, end, eid):
@@ -1640,9 +1641,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f = omero.sys.Filter()
         f.limit = rint(100000)
         f.ownerId = rlong(eid)
-        f.groupId = rlong(self.getEventContext().groupId)
+        #f.groupId = rlong(self.getEventContext().groupId)
         p.theFilter = f
-        return tm.getEventLogsByPeriod(rtime(start), rtime(end), p)
+        return tm.getEventLogsByPeriod(rtime(start), rtime(end), p, self.CONFIG['SERVICE_OPTS'])
         #yield EventLogWrapper(self, e)
 
 omero.gateway.BlitzGateway = OmeroWebGateway
