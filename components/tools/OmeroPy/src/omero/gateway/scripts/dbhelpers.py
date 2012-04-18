@@ -107,14 +107,31 @@ class UserEntry (object):
         if not client.connect():
             print "Can not connect" 
             return None
-        if self.groupname is not None and client.getEventContext().groupName != self.groupname:
-            try:
-                a = client.getAdminService()
-                g = a.lookupGroup(self.groupname)
-                client.setGroupForSession(g.getId().val)
-            except:
-                pass
+
+        a = client.getAdminService()
+        if self.groupname is not None:
+            if client.getEventContext().groupName != self.groupname:
+                try:
+                    g = a.lookupGroup(self.groupname)
+                    client.setGroupForSession(g.getId().val)
+                except:
+                    pass
+        else:
+            self.groupname = a.getEventContext().groupName
+
+        if self.groupname != "system":
+            UserEntry.check_group_perms(client, self.groupname, self.groupperms)
         return client
+
+    @staticmethod
+    def check_group_perms(client, groupname, groupperms):
+        # Check permissions of group
+        a = client.getAdminService()
+        g = a.lookupGroup(groupname)
+        p = g.getDetails().getPermissions()
+        if str(p) != groupperms:
+            raise Exception("%s group has wrong permissions! Expected: %s Found: %s" % \
+                    (groupname, groupperms, p))
 
     @staticmethod
     def _getOrCreateGroup (client, groupname, groupperms='rw----'):
@@ -124,15 +141,11 @@ class UserEntry (object):
         except:
             g = omero.model.ExperimenterGroupI()
             g.setName(omero.gateway.omero_type(groupname))
-            p = omero.model.PermissionsI()
-            
-            for n, f in enumerate((p.setUserRead, p.setUserWrite,
-                                  p.setGroupRead, p.setGroupWrite,
-                                  p.setWorldRead, p.setWorldWrite)):
-                f(groupperms[n] != '-')
+            p = omero.model.PermissionsI(groupperms)
             g.details.setPermissions(p)
             a.createGroup(g)
             g = a.lookupGroup(groupname)
+        UserEntry.check_group_perms(client, groupname, groupperms)
         return g
 
     def create (self, client, password):
