@@ -398,10 +398,11 @@ public class CurrentDetails implements PrincipalHolder {
      * updated via {@link #updateEvent(Event)}.
      */
     void setValues(Experimenter owner, ExperimenterGroup group,
+            Permissions perms,
             boolean isAdmin, boolean isReadOnly, Long shareId) {
         BasicEventContext c = current();
         c.setOwner(owner);
-        c.setGroup(group);
+        c.setGroup(group, perms);
         c.setAdmin(isAdmin);
         c.setReadOnly(isReadOnly);
         c.setShareId(shareId);

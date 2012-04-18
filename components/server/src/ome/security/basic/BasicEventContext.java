@@ -132,9 +132,10 @@ public class BasicEventContext extends SimpleEventContext {
         final Long gid = parseId(callContext, "omero.group");
         if (gid != null) {
             if (gid < 0) {
-                setGroup(new ExperimenterGroup(gid, false));
+                setGroup(new ExperimenterGroup(gid, false), Permissions.EMPTY);
             } else {
-                setGroup(admin.groupProxy(gid));
+                ExperimenterGroup g = admin.groupProxy(gid);
+                setGroup(g, g.getDetails().getPermissions());
             }
             if (toPrint == null) {
                 toPrint = new ArrayList<String>();
@@ -262,21 +263,18 @@ public class BasicEventContext extends SimpleEventContext {
         return group;
     }
 
-    public void setGroup(ExperimenterGroup group) {
+    public void setGroup(ExperimenterGroup group, Permissions p) {
         this.group = group;
+        setGroupPermissions(p);
         if (this.cgId.equals(group.getId())) {
             // Do nothing.
         } else {
             this.cgId = group.getId();
             this.cgName = null;
-            this.groupPermissions = null;
-
+            // If unloaded or group.id < -1 these will remain null
             if (group.isLoaded()) {
                 this.cgName = group.getName();
-                this.groupPermissions = group.getDetails().getPermissions();
             }
-
-            // If unloaded or group.id < -1 these will remain null
         }
     }
 
