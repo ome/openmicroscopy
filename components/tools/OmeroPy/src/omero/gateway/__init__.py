@@ -3147,10 +3147,10 @@ class _BlitzGateway (object):
             rv = []
             for t in types:
                 def actualSearch ():
-                    search.onlyType(t().OMERO_CLASS)
-                    search.byFullText(text)
+                    search.onlyType(t().OMERO_CLASS, self.CONFIG['SERVICE_OPTS'])
+                    search.byFullText(text, self.CONFIG['SERVICE_OPTS'])
                 timeit(actualSearch)()
-                if search.hasNext():
+                if search.hasNext(self.CONFIG['SERVICE_OPTS']):
                     def searchProcessing ():
                         rv.extend(map(lambda x: t(self, x), search.results()))
                     timeit(searchProcessing)()
