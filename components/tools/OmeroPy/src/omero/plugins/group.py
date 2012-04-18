@@ -137,7 +137,7 @@ class GroupControl(BaseControl):
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
 
-        gid, g = self.find_group(admin, args.id_or_name)
+        gid, g = self.find_group(a, args.id_or_name)
 
         old_perms = str(g.details.permissions)
         if old_perms == perms:
