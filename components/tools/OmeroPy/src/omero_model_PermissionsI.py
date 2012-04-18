@@ -119,6 +119,11 @@ class PermissionsI(_omero_model.Permissions):
           pass
 
       def from_string(self, perms):
+          """
+          Sets the state of this instance via the 'perms' string.
+          Returns 'self'. Also used by the constructor which
+          takes a string.
+          """
           import re
           base = "([rR\-_])([aAwW\-_])"
           regex = re.compile("^(L?)%s$" % (base*3))
@@ -156,6 +161,8 @@ class PermissionsI(_omero_model.Permissions):
               self.setWorldWrite(True)
           else:
               self.setWorldWrite(False)
+
+          return self
 
       def __str__(self):
           vals = []
