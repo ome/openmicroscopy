@@ -34,7 +34,7 @@ import org.openmicroscopy.shoola.env.data.model.appdata.WindowsApplicationDataEx
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
- * Hosts information about an external application.
+ * Provides information about an external application.
  * 
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -26,7 +26,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
 /**
- * A <a href="https://github.com/twall/jna">JNA</a> Structure used to store
+ * Provides a <a href="https://github.com/twall/jna">JNA</a> Structure used to store
  * enumerated languages and code pages on windows
  * 
  * @see <a

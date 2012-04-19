@@ -32,12 +32,13 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.Version;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 /**
- * Privudes the Windows implementation to extract application properties using the
- * {@link LANGANDCODEPAGE} class with the <a
+ * Privudes the Windows implementation to extract application properties using
+ * the {@link LANGANDCODEPAGE} class with the <a
  * href="https://github.com/twall/jna">JNA</a> library.
  * 
  * @author Scott Littlewood, <a
@@ -56,7 +57,7 @@ public class WindowsApplicationDataExtractor implements
 	public String getDefaultAppDirectory() {
 		return LOCATION_WINDOWS;
 	}
-	
+
 	/**
 	 * Extracts the application data for the application on a windows platform
 	 * 
@@ -67,6 +68,7 @@ public class WindowsApplicationDataExtractor implements
 	 */
 	public ApplicationData extractAppData(File file) throws Exception {
 		Icon icon = getSystemIconFor(file);
+		
 		String applicationName = getFilePropertyValue(file.getAbsolutePath(),
 				"FileDescription");
 		String executablePath = file.getAbsolutePath();
@@ -117,9 +119,8 @@ public class WindowsApplicationDataExtractor implements
 			int fileVersionInfoSize) throws Exception {
 		Pointer lpData = allocateBuffer(fileVersionInfoSize);
 
-		boolean fileVersionInfoSuccess = com.sun.jna.platform.win32.Version.INSTANCE
-				.GetFileVersionInfo(applicationPath, 0, fileVersionInfoSize,
-						lpData);
+		boolean fileVersionInfoSuccess = Version.INSTANCE.GetFileVersionInfo(
+				applicationPath, 0, fileVersionInfoSize, lpData);
 
 		if (!fileVersionInfoSuccess)
 			throw new Exception("Unable to load application information");
@@ -163,8 +164,8 @@ public class WindowsApplicationDataExtractor implements
 	 */
 	private boolean ExecuteQuery(Pointer lpData, String lpSubBlock,
 			PointerByReference lplpBuffer, IntByReference puLen) {
-		return com.sun.jna.platform.win32.Version.INSTANCE.VerQueryValue(
-				lpData, lpSubBlock, lplpBuffer, puLen);
+		return Version.INSTANCE.VerQueryValue(lpData, lpSubBlock, lplpBuffer,
+				puLen);
 	}
 
 	/**
@@ -183,17 +184,16 @@ public class WindowsApplicationDataExtractor implements
 
 		IntByReference dwDummy = new IntByReference(0);
 
-		int fileVersionInfoSize = com.sun.jna.platform.win32.Version.INSTANCE
-				.GetFileVersionInfoSize(applicationPath, dwDummy);
+		int fileVersionInfoSize = Version.INSTANCE.GetFileVersionInfoSize(
+				applicationPath, dwDummy);
 
 		String translation = getTranslation(applicationPath,
 				fileVersionInfoSize);
 
 		Pointer lpData = allocateBuffer(fileVersionInfoSize);
 
-		boolean fileInfoStatusSuccess = com.sun.jna.platform.win32.Version.INSTANCE
-				.GetFileVersionInfo(applicationPath, 0, fileVersionInfoSize,
-						lpData);
+		boolean fileInfoStatusSuccess = Version.INSTANCE.GetFileVersionInfo(
+				applicationPath, 0, fileVersionInfoSize, lpData);
 		if (!fileInfoStatusSuccess)
 			throw new Exception("Unable to load application information");
 
