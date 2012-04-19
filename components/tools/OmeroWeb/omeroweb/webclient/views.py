@@ -2426,7 +2426,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
 
     logger.debug("Running script %s with params %s" % (scriptName, inputMap))
     try:
-        handle = scriptService.runScript(sId, inputMap, None)
+        handle = scriptService.runScript(sId, inputMap, None, conn.CONFIG['SERVICE_OPTS'])
         # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
         jobId = str(handle)
         request.session['callback'][jobId] = {
