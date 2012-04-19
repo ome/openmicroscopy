@@ -1571,7 +1571,12 @@ class _BlitzGateway (object):
         """
         self._session_cb and self._session_cb.close(self)
         try:
-            self.c.killSession()
+            if self.c:
+                try:
+                    self.c.getSession()
+                except omero.ClientError:
+                    return # No session available
+                self.c.killSession()
         except Glacier2.SessionNotExistException: #pragma: no cover
             pass
         except:

@@ -47,9 +47,15 @@ class GTest(unittest.TestCase):
         self.doDisconnect()
         self.USER = dbhelpers.USERS['user']
         self.AUTHOR = dbhelpers.USERS['author']
-        if self.gateway.getProperty('omero.rootpass'):
-            dbhelpers.ROOT.passwd = self.gateway.getProperty('omero.rootpass')
         self.ADMIN = dbhelpers.ROOT
+        gateway = omero.client_wrapper()
+        try:
+            rp = gateway.getProperty('omero.rootpass')
+            if rp:
+                dbhelpers.ROOT.passwd = rp
+        finally:
+            gateway.seppuku()
+
         if not skipTestDB:
             self.prepTestDB()
             self.doDisconnect()
@@ -83,14 +89,17 @@ class GTest(unittest.TestCase):
         self.doLogin(self.USER)
 
     def tearDown(self):
-        if self._has_connected:
-            self.gateway.seppuku()
-        failure = False
-        for tmpfile in self.tmpfiles:
-            try:
-                tmpfile.close()
-            except:
-                print "Error closing:"+tmpfile
+
+        try:
+            if self.gateway is not None:
+                self.gateway.seppuku()
+        finally:
+            failure = False
+            for tmpfile in self.tmpfiles:
+                try:
+                    tmpfile.close()
+                except:
+                    print "Error closing:"+tmpfile
         if failure:
            raise exceptions.Exception("Exception on client.closeSession")
 

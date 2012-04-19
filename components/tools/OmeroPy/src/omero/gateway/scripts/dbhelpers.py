@@ -29,8 +29,12 @@ if not omero.gateway.BlitzGateway.ICE_CONFIG:
 
 def refreshConfig ():
     bg = omero.gateway.BlitzGateway()
-    ru = bg.c.ic.getProperties().getProperty('omero.rootuser')
-    rp = bg.c.ic.getProperties().getProperty('omero.rootpass')
+    try:
+        ru = bg.c.ic.getProperties().getProperty('omero.rootuser')
+        rp = bg.c.ic.getProperties().getProperty('omero.rootpass')
+    finally:
+        bg.seppuku()
+
     if ru:
         ROOT.name = ru
     if rp:
@@ -167,14 +171,19 @@ class UserEntry (object):
     @staticmethod
     def addGroupToUser (client, groupname, groupperms='rw----'):
         a = client.getAdminService()
-        if not 'system' in [x.name.val for x in a.containedGroups(client._userid)]:
-            admin = loginAsRoot()
-            a = admin.getAdminService()
-        else:
-            admin = client
-        g = UserEntry._getOrCreateGroup(client, groupname, groupperms)
-        a.addGroups(a.getExperimenter(client._userid), (g,))
-        a.seppuku()
+        admin_gateway = None
+        try:
+            if not 'system' in [x.name.val for x in a.containedGroups(client._userid)]:
+                admin_gateway = loginAsRoot()
+                a = admin_gateway.getAdminService()
+            else:
+                admin = client
+            g = UserEntry._getOrCreateGroup(client, groupname, groupperms)
+            a.addGroups(a.getExperimenter(client._userid), (g,))
+        finally:
+            # Always clean up the results of login
+            if admin_gateway:
+                admin_gateway.seppuku()
 
     @staticmethod
     def setGroupForSession (client, groupname):
@@ -219,9 +228,13 @@ class ProjectEntry (ObjectEntry):
             else:
                 raise ValueError('group must be string')
                 groupname = 'project_test'
+
             s = loginAsRoot()
-            UserEntry.addGroupToUser (s, groupname)
-            s.seppuku()
+            try:
+                UserEntry.addGroupToUser (s, groupname)
+            finally:
+                s.seppuku()
+
             UserEntry.setGroupForSession(client, groupname)
         p = omero.gateway.ProjectWrapper(client, client.getUpdateService().saveAndReturnObject(p))
         return self.get(client, True)
@@ -334,32 +347,35 @@ class ImageEntry (ObjectEntry):
 
         newconn = dataset._conn.clone()
         newconn.connect()
-        UserEntry.setGroupForSession(newconn, dataset.getDetails().getGroup().getName())
-        session = newconn._sessionUuid
-        #print session
-        exe += ' -s %s -k %s -p %s import -d %i -n' % (host, session, port, dataset.getId())
-        exe = exe.split() + [self.name, fpath]
-        print ' '.join(exe)
         try:
-            p = subprocess.Popen(exe,  shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        except OSError:
-            print "!!Please make sure the 'omero' executable is in PATH"
-            return None
-        #print ' '.join(exe)
-        pid = p.communicate()#[0].strip() #re.search('Saving pixels id: (\d*)', p.communicate()[0]).group(1)
-        #print pid
-        try:
-            img = omero.gateway.ImageWrapper(dataset._conn, dataset._conn.getQueryService().find('Pixels', long(pid[0].split('\n')[0].strip())).image)
-        except ValueError:
-            print pid
-            raise
-        #print "imgid = %i" % img.getId()
-        img.setName(self.name)
-        #img._obj.objectiveSettings = None
-        img.save()
-        if self.callback:
-            self.callback(img)
-        return img
+            UserEntry.setGroupForSession(newconn, dataset.getDetails().getGroup().getName())
+            session = newconn._sessionUuid
+            #print session
+            exe += ' -s %s -k %s -p %s import -d %i -n' % (host, session, port, dataset.getId())
+            exe = exe.split() + [self.name, fpath]
+            print ' '.join(exe)
+            try:
+                p = subprocess.Popen(exe,  shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            except OSError:
+                print "!!Please make sure the 'omero' executable is in PATH"
+                return None
+            #print ' '.join(exe)
+            pid = p.communicate()#[0].strip() #re.search('Saving pixels id: (\d*)', p.communicate()[0]).group(1)
+            #print pid
+            try:
+                img = omero.gateway.ImageWrapper(dataset._conn, dataset._conn.getQueryService().find('Pixels', long(pid[0].split('\n')[0].strip())).image)
+            except ValueError:
+                print pid
+                raise
+            #print "imgid = %i" % img.getId()
+            img.setName(self.name)
+            #img._obj.objectiveSettings = None
+            img.save()
+            if self.callback:
+                self.callback(img)
+            return img
+        finally:
+            newconn.seppuku() # Always cleanup the return from clone/connect
 
     def _createWithoutPixels (self, client, dataset):
         img = omero.model.ImageI()
@@ -409,28 +425,31 @@ def bootstrap ():
     client.seppuku()
 
 def cleanup ():
-    for k, p in PROJECTS.items():
-        sys.stderr.write('*')
-        p = p.get()
-        if p is not None:
-            client = p._conn
-            update = client.getUpdateService()
-            delete = client.getDeleteService()
-            for d in p.listChildren():
-                delete.deleteImagesByDataset(d.getId(), True)
-                update.deleteObject(d._obj)
-            nss = list(set([x.ns for x in p.listAnnotations()]))
-            for ns in nss:
-                p.removeAnnotations(ns)
-            #print ".. -> removing project %s" % p.getName()
-            update.deleteObject(p._obj)
-    # What about users?
-    admin = client.getAdminService()
-    for k, u in USERS.items():
-        u.changePassword(client, None)
-    client.seppuku()
-        
-
+    clients = []
+    try:
+        for k, p in PROJECTS.items():
+            sys.stderr.write('*')
+            p = p.get()
+            if p is not None:
+                client = p._conn
+                clients.append(client)
+                update = client.getUpdateService()
+                delete = client.getDeleteService()
+                for d in p.listChildren():
+                    delete.deleteImagesByDataset(d.getId(), True)
+                    update.deleteObject(d._obj)
+                nss = list(set([x.ns for x in p.listAnnotations()]))
+                for ns in nss:
+                    p.removeAnnotations(ns)
+                #print ".. -> removing project %s" % p.getName()
+                update.deleteObject(p._obj)
+        # What about users?
+        admin = client.getAdminService()
+        for k, u in USERS.items():
+            u.changePassword(client, None)
+    finally:
+        for client in clients:
+            client.seppuku()
 
 ROOT=UserEntry('root','ome',admin=True)
 
