@@ -48,11 +48,11 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class ApplicationData {
 
+	/**
+	 * The platform specific extractor used to obtain application information
+	 */
 	private static ApplicationDataExtractor extractor;
-
-	/** The default location <code>Linux</code> platform. */
-	public static final String LOCATION_LINUX = "/Applications";
-
+	
 	/** The path to the application. */
 	private File file;
 
