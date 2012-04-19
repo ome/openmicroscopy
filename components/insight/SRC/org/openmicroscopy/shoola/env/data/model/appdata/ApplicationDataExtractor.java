@@ -34,6 +34,7 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
  * @since Beta4.4
  */
 public interface ApplicationDataExtractor {
+	
 	/**
 	 * @return  the platform specific directory where applications are located
 	 */

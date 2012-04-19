@@ -45,14 +45,7 @@ import org.openmicroscopy.shoola.util.image.io.IconReader;
 public class MacApplicationDataExtractor implements ApplicationDataExtractor {
 
 	/** The default location on <code>MAC</code> platform. */
-	public static final String LOCATION_MAC = "/Applications";
-
-	/**
-	 * @return the Mac specific directory where applications are located
-	 */
-	public String getDefaultAppDirectory() {
-		return LOCATION_MAC;
-	}
+	private static final String LOCATION_MAC = "/Applications";
 
 	/**
 	 * Converts the <code>.icns</code> to an icon.
@@ -75,6 +68,13 @@ public class MacApplicationDataExtractor implements ApplicationDataExtractor {
 		if (img == null)
 			return null;
 		return new ImageIcon(img);
+	}
+
+	/**
+	 * @return the Mac specific directory where applications are located
+	 */
+	public String getDefaultAppDirectory() {
+		return LOCATION_MAC;
 	}
 
 	/**

@@ -37,7 +37,7 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 /**
- * Privudes the Windows implementation to extract application properties using
+ * Provides the Windows implementation to extract application properties using
  * the {@link LANGANDCODEPAGE} class with the <a
  * href="https://github.com/twall/jna">JNA</a> library.
  * 
@@ -47,37 +47,9 @@ import com.sun.jna.ptr.PointerByReference;
  */
 public class WindowsApplicationDataExtractor implements
 		ApplicationDataExtractor {
-
+	
 	/** The default application location on <code>Windows</code> platform. */
-	public static final String LOCATION_WINDOWS = "C:\\Program Files\\";
-
-	/**
-	 * @return the Windows specific directory where applications are located
-	 */
-	public String getDefaultAppDirectory() {
-		return LOCATION_WINDOWS;
-	}
-
-	/**
-	 * Extracts the application data for the application on a windows platform
-	 * 
-	 * @param file
-	 *            the file pointing to the application's location on disk
-	 * @return the {@link ApplicationData} object representing this applications
-	 *         system properties
-	 */
-	public ApplicationData extractAppData(File file) throws Exception {
-		Icon icon = getSystemIconFor(file);
-		
-		String applicationName = getFilePropertyValue(file.getAbsolutePath(),
-				"FileDescription");
-		String executablePath = file.getAbsolutePath();
-
-		ApplicationData data = new ApplicationData(icon, applicationName,
-				executablePath);
-
-		return data;
-	}
+	private static final String LOCATION_WINDOWS = "C:\\Program Files\\";
 
 	/**
 	 * Gets the system icon for the application
@@ -219,4 +191,31 @@ public class WindowsApplicationDataExtractor implements
 		return propertyValue;
 	}
 
+	/**
+	 * @return the Windows specific directory where applications are located
+	 */
+	public String getDefaultAppDirectory() {
+		return LOCATION_WINDOWS;
+	}
+
+	/**
+	 * Extracts the application data for the application on a windows platform
+	 * 
+	 * @param file
+	 *            the file pointing to the application's location on disk
+	 * @return the {@link ApplicationData} object representing this applications
+	 *         system properties
+	 */
+	public ApplicationData extractAppData(File file) throws Exception {
+		Icon icon = getSystemIconFor(file);
+		
+		String applicationName = getFilePropertyValue(file.getAbsolutePath(),
+				"FileDescription");
+		String executablePath = file.getAbsolutePath();
+
+		ApplicationData data = new ApplicationData(icon, applicationName,
+				executablePath);
+
+		return data;
+	}
 }
