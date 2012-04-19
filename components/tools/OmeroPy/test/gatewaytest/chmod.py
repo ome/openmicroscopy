@@ -288,8 +288,9 @@ class DefaultSetupTest (lib.GTest):
         """ This is called at the start of tests """
         super(DefaultSetupTest, self).setUp()
         self.loginAsAuthor()
+        ctx = self.gateway.getEventContext()
         self.image = self.getTestImage()
-
+        self.AUTHOR.check_group_perms(self.gateway, ctx.groupName, "rw----")
 
     def testAuthorCanEdit(self):
         """
@@ -322,15 +323,22 @@ class DefaultSetupTest (lib.GTest):
         i = self.gateway.getObject("Image", imageId)
         self.assertEqual(None, i, "User cannot access Author's image in Read-only group")
 
-        # Create new user 
+        # Create new user in the same group
+        self.loginAsAdmin()
         chmod_test_user = dbhelpers.UserEntry('chmod_test_user6','foobar', firstname='User', lastname='Chmod')  #groupname = image_gname
         chmod_test_user.create(self.gateway, dbhelpers.ROOT.passwd)
+        admin = self.gateway.getAdminService()
+        user = admin.lookupExperimenter('chmod_test_user6')
+        group = admin.getGroup(image_gid)
+        admin.addGroups(user, [group])
+
         self.doLogin(chmod_test_user)
         user = self.gateway.getUser()
-        self.gateway.setGroupForSession(image_gid)      # switch into group 
+        self.assertTrue(self.gateway.setGroupForSession(image_gid))      # switch into group
         self.assertEqual(image_gid, self.gateway.getEventContext().groupId, "Confirm in same group as image")
         i = self.gateway.getObject("Image", imageId)
-        self.assertEqual(None, i, "User cannot access Author's image in Read-only group")
+        self.assertEqual(None, i, \
+                "User cannot access Author's image in Read-only group: %s" % i)
 
 if __name__ == '__main__':
     unittest.main()
