@@ -47,13 +47,13 @@ def loginAsRoot ():
 def loginAsPublic ():
     return login(settings.PUBLIC_USER, settings.PUBLIC_PASSWORD)
 
-def login (alias, pw=None):
+def login (alias, pw=None, groupname=None):
     if isinstance(alias, UserEntry):
-        return alias.login()
+        return alias.login(groupname=groupname)
     elif pw is None:
-        return USERS[alias].login()
+        return USERS[alias].login(groupname=groupname)
     else:
-        return UserEntry(alias, pw).login()
+        return UserEntry(alias, pw).login(groupname=groupname)
 
 #def addGroupToUser (client, groupname):
 #    a = client.getAdminService()
@@ -92,7 +92,11 @@ class BadGroupPermissionsException(Exception):
 
 class UserEntry (object):
     def __init__ (self, name, passwd, firstname='', middlename='', lastname='', email='',
-                  groupname=None, groupperms='rwrw--', groupowner=False, admin=False):
+                  groupname=None, groupperms=None, groupowner=False, admin=False):
+        """
+        If no groupperms are passed, then check_group_perms will do nothing.
+        The default perms for newly created groups is defined in _getOrCreateGroup
+        """
         self.name = name
         self.passwd = passwd
         self.firstname = firstname
@@ -133,17 +137,27 @@ class UserEntry (object):
 
     @staticmethod
     def check_group_perms(client, groupname, groupperms):
-        # Check permissions of group
-        a = client.getAdminService()
-        g = a.lookupGroup(groupname)
-        p = g.getDetails().getPermissions()
-        if str(p) != groupperms:
-            raise BadGroupPermissionsException( \
-                    "%s group has wrong permissions! Expected: %s Found: %s" % \
-                    (groupname, groupperms, p))
+        """
+        If expected permissions have been set, then this will
+        enforce equality. If groupperms are None, then
+        nothing will be checked.
+        """
+        if groupperms is not None:
+            a = client.getAdminService()
+            g = a.lookupGroup(groupname)
+            p = g.getDetails().getPermissions()
+            if str(p) != groupperms:
+                raise BadGroupPermissionsException( \
+                        "%s group has wrong permissions! Expected: %s Found: %s" % \
+                        (groupname, groupperms, p))
 
     @staticmethod
-    def _getOrCreateGroup (client, groupname, groupperms='rw----'):
+    def _getOrCreateGroup (client, groupname, groupperms=None):
+
+        # Default on class is None
+        if groupperms is None:
+            groupperms = "rwr---"
+
         a = client.getAdminService()
         try:
             g = a.lookupGroup(groupname)
