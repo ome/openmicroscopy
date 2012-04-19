@@ -35,7 +35,7 @@ import org.openmicroscopy.shoola.env.data.util.Parser;
 import org.openmicroscopy.shoola.util.image.io.IconReader;
 
 /**
- * Privudes the Mac specific implementation to retrieve information about an application,
+ * Provides the Mac specific implementation to retrieve information about an application,
  * reads the plist information to extract the property values
  * 
  * @author Scott Littlewood, <a
