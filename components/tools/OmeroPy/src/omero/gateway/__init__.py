@@ -490,7 +490,29 @@ class BlitzObjectWrapper (object):
         elif self.isPrivate() and not g.permissions.isUserWrite():
             return True
         return False
-    
+
+    def canEdit(self):
+        """
+        Determines if the current user can Edit (E.g. name, description) link (E.g. Project, Dataset, Image etc)
+        or Delete this object. The canEdit() property is set on the permissions of every object as
+        it is read from the server, based on the current user, event context and group permissions.
+
+        @rtype:     Boolean
+        @return:    True if user can Edit this object Delete, link etc.
+        """
+        return self.getDetails().getPermissions().canEdit()
+
+    def canAnnotate(self):
+        """
+        Determines if the current user can Edit (E.g. name, description) link (E.g. Project, Dataset, Image etc)
+        or Delete this object. The canAnnotate() property is set on the permissions of every object as
+        it is read from the server, based on the current user, event context and group permissions.
+
+        @rtype:     Boolean
+        @return:    True if user can Annotate this object
+        """
+        return self.getDetails().getPermissions().canAnnotate()
+
     def countChildren (self):
         """
         Counts available number of child objects.
@@ -3037,6 +3059,19 @@ class _BlitzGateway (object):
                 graph_spec, long(oid), op))
         handle = self.getDeleteService().queueDelete(dcs, self.CONFIG['SERVICE_OPTS'])
         return handle
+
+
+    def chmodGroup(self, group_Id, permissions):
+        """
+        Change the permissions of a particluar Group.
+        Returns the proxy 'prx' handle that can be processed like this:
+        callback = CmdCallbackI(self.gateway.c, prx)
+        callback.loop(20, 500)
+        rsp = prx.getResponse()
+        """
+        chmod = omero.cmd.Chmod(type="/ExperimenterGroup", id=group_Id, permissions=permissions)
+        prx = self.c.sf.submit(chmod)
+        return prx
 
 
     def chgrpObject(self, graph_spec, obj_id, group_id):
