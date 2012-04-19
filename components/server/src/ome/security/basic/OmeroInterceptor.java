@@ -50,6 +50,7 @@ import ome.model.roi.Roi;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.services.sessions.stats.SessionStats;
+import ome.system.EventContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
@@ -426,60 +427,80 @@ public class OmeroInterceptor implements Interceptor {
             // the objects do not belong to the current user, then we abort.
 
             final Experimenter linkedOwner = linkedObject.getDetails().getOwner();
-            if (linkedOwner == null) {
+            final ExperimenterGroup linkedGroup = linkedObject.getDetails().getGroup();
+            if (linkedOwner == null || linkedGroup == null) {
                 continue; // Only for system types which should be filtered
             }
 
             final Long linkedUid = linkedOwner.getId();
-            if (linkedUid == null) {
+            final Long linkedGid = linkedGroup.getId();
+            if (linkedUid == null || linkedGid == null) {
                 continue; // Highly unlikely.
             }
 
-            final Long currentUid = currentUser.getOwner().getId();
-            final boolean isOwner = currentUid.equals(linkedUid);
+            final EventContext ec = currentUser.getCurrentEventContext();
+            final boolean isOwner = ec.getCurrentUserId().equals(linkedUid);
+            final boolean isOwnerOrSupervisor = currentUser.isOwnerOrSupervisor(linkedObject);
+            final boolean isSupervisor = (!isOwner) && isOwnerOrSupervisor;
+            final boolean isMember = ec.getMemberOfGroupsList().contains(linkedGid);
             final Permissions p = currentUser.getCurrentEventContext()
                 .getCurrentGroupPermissions();
 
-            // The default right need for a linkage is WRITE
-            // If however, this is only an annotation or only a viewing,
-            // then less permission is needed.
-            Right neededRight = Right.WRITE;
-            if (RenderingDef.class.isAssignableFrom(linkedClass) ||
-                RenderingDef.class.isAssignableFrom(changedClass) ||
-                (Pixels.class.isAssignableFrom(linkedClass) &&
-                     Thumbnail.class.isAssignableFrom(changedClass))) {
-                neededRight = Right.READ;
-            } else if (IAnnotationLink.class.isAssignableFrom(changedClass) ||
-                    (Roi.class.isAssignableFrom(changedClass) &&
-                            Image.class.isAssignableFrom(linkedClass))) {
-                neededRight = Right.ANNOTATE;
+            if (currentUser.isGraphCritical()) {
+                // ticket:1769
+                String gname = currentUser.getGroup().getName();
+                String oname = currentUser.getOwner().getOmeName();
+
+                throw new ReadOnlyGroupSecurityViolation(String.format(
+                    "Cannot link to %s\n" +
+                    "Current user (%s) is an admin or the owner of\n" +
+                    "the private group (%s=%s). It is not allowed to\n" +
+                    "link to users' data.", linkedObject, oname, gname, p));
             }
 
-            if (isOwner) {
-                throwIfNotGranted(p, Role.USER, neededRight, linkedObject);
-            } else {
-                if (currentUser.isGraphCritical()) {  // ticket:1769
-                    String gname = currentUser.getGroup().getName();
-                    String oname = currentUser.getOwner().getOmeName();
+            final Right neededRight = neededRight(changedClass, linkedClass);
+            final Role neededRole = neededRole(isOwner, isMember);
 
-                    throw new ReadOnlyGroupSecurityViolation(String.format(
-                        "Cannot link to %s\n" +
-                        "Current user (%s) is an admin or the owner of\n" +
-                        "the private group (%s=%s). It is not allowed to\n" +
-                        "link to users' data.", linkedObject, oname, gname, p));
-
-                } else {
-                    // See #1992 and #8562
-                    // Note: this currently assumes that any user who is saving
-                    // an object is also a member of the group (or a sysadmin).
-                    // For #2813, it may become possible that the current
-                    // user is not a member of the group, and therefore, we would
-                    // need to check the role.
-                    throwIfNotGranted(p, Role.GROUP, neededRight, linkedObject);
-                }
+            if (!isSupervisor) {
+                throwIfNotGranted(p, neededRole, neededRight, linkedObject);
             }
         }
         return rv;
+    }
+
+    private Role neededRole(boolean isOwner, boolean isMember) {
+        if (isOwner) {
+            return Role.USER;
+        } else if (isMember) {
+            return Role.GROUP;
+        } else {
+            return Role.WORLD;
+        }
+    }
+
+    /**
+     * The default right need for a linkage is WRITE
+     * If however, this is only an annotation or only a viewing,
+     * then less permission is needed.
+     * @param changedClass
+     * @param linkedClass
+     * @return
+     */
+    protected Right neededRight(final Class<?> changedClass,
+            final Class<?> linkedClass) {
+
+        Right neededRight = Right.WRITE;
+        if (RenderingDef.class.isAssignableFrom(linkedClass) ||
+            RenderingDef.class.isAssignableFrom(changedClass) ||
+            (Pixels.class.isAssignableFrom(linkedClass) &&
+                 Thumbnail.class.isAssignableFrom(changedClass))) {
+            neededRight = Right.READ;
+        } else if (IAnnotationLink.class.isAssignableFrom(changedClass) ||
+                (Roi.class.isAssignableFrom(changedClass) &&
+                        Image.class.isAssignableFrom(linkedClass))) {
+            neededRight = Right.ANNOTATE;
+        }
+        return neededRight;
     }
 
     // TODO is this natural? perhaps permissions don't belong in details
