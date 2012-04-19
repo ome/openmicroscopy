@@ -57,6 +57,11 @@
             
             <div id="middle_header_left">
 				{% block middle_header_left %}
+					
+				    <!-- Switch Group / User -->
+				    {% include "webclient/base/group_user_dropdown.html" %}
+					
+				
 				    {% include "webclient/base/menu.html" %}
 				{% endblock %}
             </div>

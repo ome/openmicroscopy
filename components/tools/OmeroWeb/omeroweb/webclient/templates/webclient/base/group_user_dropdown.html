@@ -21,10 +21,17 @@
 
 {% if groups %}
 <ul id="group_user_chooser">
+	
+	
     <li class="dropdown_menu">
        
 	    <!-- Script launcher -->
-        <span id="groupsUsersButton" class="toolbar_button" title="Switch Group/User"></span>
+        
+		<span id="groupsUsersButton" title="Switch Group/User">
+			<img  src="{% static "webclient/image/nuvola_ledred16.png" %}">
+			Swedlow Group			
+        </span>
+		
         <ul id="groupList" class="sub_menu dropdown">
             {% for grp in groups %}
                 <li title="Click to switch Group" {% ifequal grp.id eContext.context.groupId %}class="current_group"{% endifequal %}>

@@ -18,13 +18,13 @@
  */
 
 
- #dataTable {
+.tablesorter {
 	 width:100%;
  }
  
  
  
-	  #dataTable thead {
+	  .tablesorter thead {
 		 font-size:1.1em;
 		 border-top:solid 1px rgba(255,255,255,.8);
 		 background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210, 10%, 85%)), to(hsl(210, 10%, 90%)));
@@ -40,7 +40,7 @@
 		 
 	 }
  
-		  #dataTable th {
+		  .tablesorter th {
 			 text-shadow:0 1px 0 rgba(255,255,255,.6);
 			 padding:2px 3px 3px;
 			 cursor:pointer;
@@ -50,39 +50,39 @@
 			 border-bottom:solid 1px hsl(210,10%,78%);
 		 }
 		 
-		 #dataTable th:hover {
+		 .tablesorter th:hover {
 			 background-color:rgba(255,255,255,.2);
 		 }
 
  
-		 #dataTable .table_images {
+		 .tablesorter .table_images {
 			 width:10%;
 		 }
 		 
 		
 		 	
 	 
-		 #dataTable .table_desc {
+		 .tablesorter .table_desc {
 			 width:50%;
 		 }
 	 
-			 #dataTable a{
+			 .tablesorter a{
 				 color:#666;
 				 color:hsl(210,30%,30%);
 				 text-shadow:0 1px 1px rgba(255,255,255,.6);
 			 }
 	 
 	 
-		 #dataTable .table_date {
+		 .tablesorter .table_date {
 			 width:30%;
 		 }
 	 
 	 
-		 #dataTable .headerSortUp {
+		 .tablesorter .headerSortUp {
 			 background: rgba(255,255,255,.3) url(../img/table_arrow_down.png) 98% 60% no-repeat;
 		 }
 		 
-		 #dataTable .headerSortDown {
+		 .tablesorter .headerSortDown {
 			 background:rgba(255,255,255,.3) url(../img/table_arrow_up.png) 98% 60% no-repeat;
 			 
 		 }
@@ -91,16 +91,16 @@
 	 
 	 
 	 
-		 #dataTable tbody tr {
+		 .tablesorter tbody tr {
 			 border-top:solid 1px transparent;
 			 border-bottom:solid 1px transparent;
 		 }
 	 
-		 #dataTable tbody tr:nth-child(even) {
+		 .tablesorter tbody tr:nth-child(even) {
 			 background-color:hsl(210,3%,94%);
 		 }
 	 
-		 #dataTable tbody tr:hover {
+		 .tablesorter tbody tr:hover {
 		 	background-color:hsl(210,15%,85%);
 			cursor:pointer;
 			-webkit-transition: background .2s linear;
@@ -112,7 +112,7 @@
 			
 		 }
 		 
-		 #dataTable tbody tr.ui-selected { 
+		 .tablesorter tbody tr.ui-selected { 
 			 background-color:hsl(210,30%,70%);
 			 border-bottom:solid 1px hsl(210,15%,65%);
 			 text-shadow:0 1px 0 rgba(255,255,255,.4);
@@ -129,7 +129,7 @@
 			 
 		 }
 		 
-		 #dataTable tbody .ui-selected td {
+		.tablesorter tbody .ui-selected td {
 		 	border-top:solid 1px hsl(210,15%,68%);
 			-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.1);
 			-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.1); /* Saf3.0+, Chrome */
@@ -142,36 +142,38 @@
 		 
 	
 		 
-			 #dataTable tbody tr td{
+			 .tablesorter tbody tr td{
 				 font-size:1.1em;
 				 padding:10px 0;
 				 line-height:1.6em;
 			 }
 			 
 			 
-			 #dataTable tbody .ui-selected .desc {
+			 .tablesorter tbody .ui-selected .desc {
 			 	color:hsl(210,15%,20%);
 			 }
 			 
-			 #dataTable tbody .image {
+			 .tablesorter tbody .image {
 				 margin:0 auto;
 				 text-align:center;
 			 }
 			 
-			 	#dataTable tbody .image img{
+			 	.tablesorter tbody .image img{
 		 		    width:16px;
 				}
 				
 				   
-			 #dataTable tbody .date {
+			 .tablesorter tbody .date {
 				color:hsl(210,10%,65%);
 			 }
 			 
-			 #dataTable tbody tr.ui-selected .date {
+			 .tablesorter tbody tr.ui-selected .date {
 			 	color:hsl(210,15%,50%);
 			 }
 			 
-		
+			 .tablesorter td:first-child {
+				 padding-left:5px;
+			 }
 		
 			 
 			 

@@ -163,6 +163,7 @@
 
 {% block center_details %}
 {{ block.super }}
+   
     <div id="admin">
         
         <div>
@@ -303,7 +304,7 @@
                     <td><strong>{{ dict.group.name }}</strong></td>
                     <td>{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
                     <td>{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
-                    <td id="table_settings">
+                    <td class="table_settings">
                         {% if not dict.locked %}
                             <a href="{% url wamanagegroupownerid "edit" dict.group.id %}"><img src="{% static "webadmin/image/edit.png" %}" alt="edit" title="edit"></a>
                         {% endif %}                    
