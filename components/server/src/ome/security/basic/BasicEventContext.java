@@ -352,6 +352,20 @@ public class BasicEventContext extends SimpleEventContext {
         return groupPermissions.put(group, perms);
     }
 
+    public void loadPermissions(org.hibernate.Session session) {
+        if (groupPermissions != null) {
+            for (Map.Entry<Long, Permissions> entry :
+                groupPermissions.entrySet()) {
+                if (entry.getValue() == null) {
+                    Long id = entry.getKey();
+                    ExperimenterGroup g = (ExperimenterGroup)
+                        session.get(ExperimenterGroup.class, id);
+                    entry.setValue(g.getDetails().getPermissions());
+                }
+            }
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

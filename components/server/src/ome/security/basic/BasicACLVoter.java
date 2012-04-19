@@ -99,7 +99,22 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
 
-        return securityFilter.passesFilter(d, currentUser.current());
+        boolean rv = securityFilter.passesFilter(d, currentUser.current());
+
+        // Misusing this location to store the loaded objects perms for later.
+        if (this.currentUser.getCurrentEventContext().getCurrentGroupId() < 1) {
+            // For every object that gets loaded when omero.group = -1, we
+            // cache it's permissions in the session context so that when the
+            // session is over we can re-apply all the permissions.
+            ExperimenterGroup g = d.getGroup();
+            if (g != null) { // Null for system types
+                Long gid = g.getId();
+                Permissions p = g.getDetails().getPermissions();
+                this.currentUser.current().setPermissionsForGroup(gid, p);
+            }
+        }
+
+        return rv;
     }
 
     public void throwLoadViolation(IObject iObject) throws SecurityViolation {

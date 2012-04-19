@@ -395,6 +395,10 @@ public class CurrentDetails implements PrincipalHolder {
 
     }
 
+    public void loadPermissions(org.hibernate.Session session) {
+        current().loadPermissions(session);
+    }
+
     public Experimenter getOwner() {
         return current().getOwner();
     }
