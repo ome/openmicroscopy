@@ -84,6 +84,7 @@ class WebControl(BaseControl):
         config = parser.add(sub, self.config, "Output a config template for server ('nginx' or 'apache' for the moment")
         config.add_argument("type", choices=("nginx","apache"))
         config.add_argument("--http", type=int, help="HTTP port for web server (not fastcgi)")
+        config.add_argument("--system", action="store_true", help="System appropriate configuration file")
 
         parser.add(sub, self.syncmedia, "[DEPRECATED] Advanced use: Creates needed symlinks for static media files")
 
@@ -132,7 +133,10 @@ class WebControl(BaseControl):
                                               settings.APPLICATION_SERVER_PORT)
                 else:
                     fastcgi_pass = "unix:%s/var/django_fcgi.sock" % self.ctx.dir
-                c = file(self.ctx.dir / "etc" / "nginx.conf.template").read()
+                if args.system:
+                    c = file(self.ctx.dir / "etc" / "nginx.conf.system.template").read()
+                else:
+                    c = file(self.ctx.dir / "etc" / "nginx.conf.template").read()
                 d = {
                     "ROOT":self.ctx.dir,
                     "OMEROWEBROOT":self.ctx.dir / "lib" / "python" / "omeroweb",
