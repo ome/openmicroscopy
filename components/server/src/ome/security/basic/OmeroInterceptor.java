@@ -125,6 +125,18 @@ public class OmeroInterceptor implements Interceptor {
 
         debug("Intercepted load.");
         this.stats.loadedObjects(1);
+        if (this.currentUser.getCurrentEventContext().getCurrentGroupId() < 1) {
+            // For every object that gets loaded when omero.group = -1, we
+            // cache it's permissions in the session context so that when the
+            // session is over we can re-apply all the permissions.
+            IObject obj = (IObject) entity;
+            ExperimenterGroup g = obj.getDetails().getGroup();
+            if (g != null) { // Null for system types
+                Long gid = g.getId();
+                Permissions p = g.getDetails().getPermissions();
+                this.currentUser.current().setPermissionsForGroup(gid, p);
+            }
+        }
         return EMPTY.onLoad(entity, id, state, propertyNames, types);
 
     }

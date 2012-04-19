@@ -374,7 +374,22 @@ public class CurrentDetails implements PrincipalHolder {
         if (changePerms) {
             // Make the permissions match (#8277)
             final Permissions groupPerms = c.getCurrentGroupPermissions();
-            Permissions copy = new Permissions(groupPerms);
+            Permissions copy = new Permissions(Permissions.EMPTY);
+            if (groupPerms != Permissions.DUMMY) {
+                copy = new Permissions(groupPerms);
+            } else {
+                // In the case of the dummy, we will be required to have
+                // the group id already set in the context.
+                ExperimenterGroup group = details.getGroup();
+                if (group != null) {
+                    // Systypes still will have DUMMY values.
+                    Long gid = details.getGroup().getId();
+                    Permissions p = c.getPermissionsForGroup(gid);
+                    if (p != null) {
+                        copy = p;
+                    }
+                }
+            }
             details.setPermissions(copy);
         }
 

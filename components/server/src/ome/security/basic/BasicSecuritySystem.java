@@ -393,7 +393,7 @@ public class BasicSecuritySystem implements SecuritySystem,
 
             eventGroup = admin.getGroup(eventGroupId);
             callGroup = new ExperimenterGroup(groupId, false);
-            callPerms = Permissions.EMPTY;
+            callPerms = Permissions.DUMMY;
 
         }
 
