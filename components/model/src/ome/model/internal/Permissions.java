@@ -152,6 +152,9 @@ public class Permissions implements Serializable {
             throw new IllegalArgumentException(
                     "Permissions argument cannot be null.");
         }
+        if (p == DUMMY) {
+            throw new IllegalArgumentException("Not intended for copying!");
+        }
         this.revokeAll(p);
     }
 
@@ -673,6 +676,12 @@ public class Permissions implements Serializable {
     public final static Permissions EMPTY = new ImmutablePermissions(
             new Permissions().revoke(USER, READ, ANNOTATE, WRITE).revoke(GROUP, READ,
                     ANNOTATE, WRITE).revoke(WORLD, READ, ANNOTATE, WRITE));
+
+    /**
+     * Marker object which can be set on objects to show that the Permissions
+     * instance given contains no value.
+     */
+    public final static Permissions DUMMY = new ImmutablePermissions(EMPTY);
 
     // ~ Systematic
     // =========================================================================

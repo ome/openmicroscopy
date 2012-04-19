@@ -131,6 +131,9 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
         }
 
         Permissions p = d.getPermissions();
+        if (p == Permissions.DUMMY) {
+            throw new InternalException("Need real group permissions");
+        }
 
         Long o = d.getOwner().getId();
         Long g = d.getGroup().getId();
@@ -208,7 +211,8 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
         String bit = "" + Permissions.bit(role, right);
         String isGranted = String
                 .format(
-                        "((permissions & %s) = %s)",
+                        "(select (__g.permissions & %s) = %s from " +
+                        "experimentergroup __g where __g.id = group_id)",
                         bit, bit);
         return isGranted;
     }

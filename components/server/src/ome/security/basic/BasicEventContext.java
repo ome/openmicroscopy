@@ -8,6 +8,7 @@
 package ome.security.basic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,6 +69,8 @@ public class BasicEventContext extends SimpleEventContext {
     private ExperimenterGroup group;
 
     private Map<String, String> callContext;
+
+    private Map<Long, Permissions> groupPermissions;
 
     public BasicEventContext(Principal p, SessionStats stats) {
         if (p == null || stats == null) {
@@ -132,7 +135,7 @@ public class BasicEventContext extends SimpleEventContext {
         final Long gid = parseId(callContext, "omero.group");
         if (gid != null) {
             if (gid < 0) {
-                setGroup(new ExperimenterGroup(gid, false), Permissions.EMPTY);
+                setGroup(new ExperimenterGroup(gid, false), Permissions.DUMMY);
             } else {
                 ExperimenterGroup g = admin.groupProxy(gid);
                 setGroup(g, g.getDetails().getPermissions());
@@ -334,6 +337,34 @@ public class BasicEventContext extends SimpleEventContext {
 
     // Other
     // =========================================================================
+
+    public Permissions getPermissionsForGroup(Long group) {
+        if (group == null || groupPermissions == null) {
+            return null;
+        }
+        return groupPermissions.get(group);
+    }
+
+    public Permissions setPermissionsForGroup(Long group, Permissions perms) {
+        if (groupPermissions == null) {
+            groupPermissions = new HashMap<Long, Permissions>();
+        }
+        return groupPermissions.put(group, perms);
+    }
+
+    public void loadPermissions(org.hibernate.Session session) {
+        if (groupPermissions != null) {
+            for (Map.Entry<Long, Permissions> entry :
+                groupPermissions.entrySet()) {
+                if (entry.getValue() == null) {
+                    Long id = entry.getKey();
+                    ExperimenterGroup g = (ExperimenterGroup)
+                        session.get(ExperimenterGroup.class, id);
+                    entry.setValue(g.getDetails().getPermissions());
+                }
+            }
+        }
+    }
 
     @Override
     public String toString() {
