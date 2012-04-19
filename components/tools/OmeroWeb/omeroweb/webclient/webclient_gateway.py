@@ -1102,7 +1102,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         """
         
         store = self.createRawFileStore()
-        store.setFileId(oFile_id);
+        store.setFileId(oFile_id, self.CONFIG['SERVICE_OPTS']);
         pos = 0
         rlen = 0
         
@@ -1110,7 +1110,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             rlen = len(chunk)
             store.write(chunk, pos, rlen)
             pos = pos + rlen
-        return store.save()
+        return store.save(self.CONFIG['SERVICE_OPTS'])
     
     ##############################################
     ##   IShare
