@@ -9,6 +9,7 @@
 
 import omero
 import unittest
+import traceback
 from omero.rtypes import *
 from omero.cmd import *
 from omero.callbacks import CmdCallbackI
@@ -61,7 +62,8 @@ class ChmodBaseTest (lib.GTest):
             self.assertTrue(State.FAILURE in prx.getStatus().flags)
         return rsp
 
-    def assertCanEdit(self, blitzObject, expected=True):
+    def assertCanEdit(self, blitzObject, expected=True,
+            sudo_needed=False, exc_info=False):
         """ Checks the canEdit() method AND actual behavior (ability to edit) """
 
         nameEdited = False
@@ -69,20 +71,61 @@ class ChmodBaseTest (lib.GTest):
             blitzObject.setName("new name: %s" % _uuid.uuid4())
             blitzObject.save()
             nameEdited = True
+        except omero.ReadOnlyGroupSecurityViolation:
+            if sudo_needed:
+                nameEdited = True # assume ok
         except omero.SecurityViolation:
-            pass
+            if exc_info:
+                traceback.print_exc()
+
+
+        objectUsed = False
+        try:
+            obj = blitzObject._obj
+            if isinstance(obj, omero.model.Image):
+                ds = omero.model.DatasetI()
+                ds.setName(omero.rtypes.rstring("assertCanEdit"))
+                link = omero.model.DatasetImageLinkI()
+                link.setParent(ds)
+                link.setChild(obj)
+                update = self.gateway.getUpdateService()
+                rv = update.saveObject(link)
+            elif isinstance(obj, omero.model.Project):
+                ds = omero.model.DatasetI()
+                ds.setName(omero.rtypes.rstring("assertCanEdit"))
+                link = omero.model.ProjectDatasetLinkI()
+                link.setParent(obj)
+                link.setChild(ds)
+                update = self.gateway.getUpdateService()
+                rv = update.saveObject(link)
+            else:
+                raise Exception("Unknown type: %s" % blitzObject)
+            objectUsed = True
+        except omero.ReadOnlyGroupSecurityViolation:
+            if sudo_needed:
+                objectUsed = True # assume ok
+        except omero.SecurityViolation:
+            if exc_info:
+                traceback.print_exc()
+
         self.assertEqual(blitzObject.canEdit(), expected, "Unexpected result of canEdit(). Expected: %s" % expected)
         self.assertEqual(nameEdited, expected, "Unexpected ability to Edit. Expected: %s" % expected)
+        self.assertEqual(objectUsed|sudo_needed, expected, "Unexpected ability to Use. Expected: %s" % expected)
 
-    def assertCanAnnotate(self, blitzObject, expected=True):
+    def assertCanAnnotate(self, blitzObject, expected=True,
+            sudo_needed=False, exc_info=False):
         """ Checks the canAnnotate() method AND actual behavior (ability to annotate) """
 
         annotated = False
         try:
             omero.gateway.CommentAnnotationWrapper.createAndLink(target=blitzObject, ns="gatewaytest.chmod.testCanAnnotate", val="Test Comment")
             annotated = True
+        except omero.ReadOnlyGroupSecurityViolation:
+            if sudo_needed:
+                annotated = True # assume ok
         except omero.SecurityViolation:
-            pass
+            if exc_info:
+                traceback.print_exc()
         self.assertEqual(blitzObject.canAnnotate(), expected, "Unexpected result of canAnnotate(). Expected: %s" % expected)
         self.assertEqual(annotated, expected, "Unexpected ability to Annotate. Expected: %s" % expected)
 
@@ -187,14 +230,14 @@ class CustomUsersTest (ChmodBaseTest):
         # Login as admin...
         self.doLogin(dbhelpers.USERS['read_only_admin'])
         p = self.gateway.getObject("Project", pid)
-        self.assertCanEdit(p, True)
-        self.assertCanAnnotate(p, True)
+        self.assertCanEdit(p, True, sudo_needed=True)
+        self.assertCanAnnotate(p, True, sudo_needed=True)
 
         # Login as group leader...
         self.doLogin(dbhelpers.USERS['read_only_leader'])
         p = self.gateway.getObject("Project", pid)
-        self.assertCanEdit(p, True)
-        self.assertCanAnnotate(p, False)
+        self.assertCanEdit(p, True, sudo_needed=True)
+        self.assertCanAnnotate(p, True, sudo_needed=True)
 
 
     def testReadAnnotate(self):
@@ -210,7 +253,7 @@ class CustomUsersTest (ChmodBaseTest):
         self.doLogin(dbhelpers.USERS['read_ann_user'])
         p = self.gateway.getObject("Project", pid)
         self.assertCanEdit(p, False)
-        self.assertCanAnnotate(p, True)
+        self.assertCanAnnotate(p, True, exc_info=1)
 
         # Login as admin...
         self.doLogin(dbhelpers.USERS['read_ann_admin'])
@@ -236,7 +279,7 @@ class CustomUsersTest (ChmodBaseTest):
         # Login as user...
         self.doLogin(dbhelpers.USERS['read_write_user'])
         p = self.gateway.getObject("Project", pid)
-        self.assertCanEdit(p, True)
+        self.assertCanEdit(p, True, exc_info=1)
         self.assertCanAnnotate(p, True)
 
         # Login as admin...
