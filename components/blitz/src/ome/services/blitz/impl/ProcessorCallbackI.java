@@ -43,8 +43,6 @@ public class ProcessorCallbackI extends AbstractAmdServant
 
     private final ResultHolder<String> holder;
 
-    private final EventContext ec;
-
     /**
      * Simplified constructor used to see if any usermode processor is active
      * for either the current group or the current user. Currently uses a
@@ -72,7 +70,6 @@ public class ProcessorCallbackI extends AbstractAmdServant
         this.sf = sf;
         this.job = job;
         this.holder = holder;
-        this.ec = sf.sessionManager.getEventContext(sf.principal);
     }
 
     /**
@@ -107,12 +104,15 @@ public class ProcessorCallbackI extends AbstractAmdServant
             ProcessorCallbackPrx cbPrx = ProcessorCallbackPrxHelper
                     .uncheckedCast(prx);
 
+            EventContext ec = sf.getEventContext(current);
+
             TopicManager.TopicMessage msg = new TopicManager.TopicMessage(this,
                     PROCESSORACCEPTS.value, new ProcessorPrxHelper(),
                     "willAccept", new omero.model.ExperimenterI(ec
                             .getCurrentUserId(), false),
-                    new omero.model.ExperimenterGroupI(ec.getCurrentGroupId(),
-                            false), this.job, cbPrx);
+                    new omero.model.ExperimenterGroupI(ec
+                            .getCurrentGroupId(), false),
+                            this.job, cbPrx);
             sf.topicManager.onApplicationEvent(msg);
             String server = holder.get();
             Ice.ObjectPrx p = sf.adapter.getCommunicator()
@@ -138,6 +138,7 @@ public class ProcessorCallbackI extends AbstractAmdServant
             try {
                 EventContext procEc = sf.sessionManager
                         .getEventContext(new Principal(sessionUuid));
+                EventContext ec = sf.getEventContext(__current);
                 if (procEc.isCurrentUserAdmin()
                         || procEc.getCurrentUserId().equals(
                                 ec.getCurrentUserId())) {

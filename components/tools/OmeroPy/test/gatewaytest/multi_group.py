@@ -165,13 +165,17 @@ class ScriptTest (lib.GTest):
 
         # run script
         svc = self.gateway.getScriptService()
-        process = svc.runScript(scriptID, wrap({"datasetId":new_ds_Id}).val, None)
+        process = svc.runScript(scriptID, wrap({"datasetId":new_ds_Id}).val,
+                None, self.gateway.CONFIG['SERVICE_OPTS'])
         cb = omero.scripts.ProcessCallbackI(self.gateway.c, process)
         while cb.block(500) is None:
             pass
         results = process.getResults(0)
-        self.assertEqual(results["gid"].val, default_groupId, "We want script to have eventContext of group:%s" % default_groupId)
-        self.assertEqual(results["datasetName"].val, dataset_name, "Script should be able to access Dataset")
+        self.assertEqual(results["gid"].val, default_groupId, \
+                "We want script to have eventContext of group:%s not %s" % \
+                (default_groupId, results["gid"].val))
+        self.assertEqual(results["datasetName"].val, dataset_name, \
+                "Script should be able to access Dataset")
 
 
 if __name__ == '__main__':
