@@ -66,8 +66,7 @@ class GTest(unittest.TestCase):
             self.doConnect()
             self.gateway.seppuku()
             self.assert_(not self.gateway.isConnected(), 'Can not disconnect')
-        self.gateway = omero.client_wrapper(group='system', try_super=True)
-        self.assert_(self.gateway, 'Can not get gateway from connection')
+        self.gateway = None
         self._has_connected = False
 
     def doLogin (self, user):
