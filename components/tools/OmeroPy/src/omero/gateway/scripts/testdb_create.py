@@ -75,9 +75,9 @@ class GTest(unittest.TestCase):
         self.gateway = None
         self._has_connected = False
 
-    def doLogin (self, user):
+    def doLogin (self, user, groupname=None):
         self.doDisconnect()
-        self.gateway = dbhelpers.login(user)
+        self.gateway = dbhelpers.login(user, groupname)
 
     def loginAsAdmin (self):
         self.doLogin(self.ADMIN)

@@ -9,11 +9,13 @@
 
 import omero
 import unittest
+import traceback
 from omero.rtypes import *
 from omero.cmd import *
 from omero.callbacks import CmdCallbackI
 from omero.gateway import BlitzGateway
 from omero.gateway.scripts import dbhelpers
+import omero_ext.uuid as _uuid # see ticket:3774
 
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
@@ -22,8 +24,60 @@ READWRITE = 'rwrw--'
 
 import gatewaytest.library as lib
 
+import logging
+logging.basicConfig(level=logging.ERROR)
+
 
 class ChmodBaseTest (lib.GTest):
+
+    def setUp(self):
+
+        try:
+            super(ChmodBaseTest, self).setUp()
+        except dbhelpers.BadGroupPermissionsException, bgpe:
+            super(ChmodBaseTest, self).doLogin(dbhelpers.ROOT, "system")
+            # For every dbhelpers.USERS entry, check that the requested
+            # group has the requests permissions and if not, call chmod
+            admin = self.gateway.getAdminService()
+            for k, v in dbhelpers.USERS.items():
+                name = v.groupname
+                perms = v.groupperms
+                if not perms:
+                    if not name:
+                        continue # These are likely the weblitz tests
+                    else:
+                        raise Exceptions("Missing permissions for %s" % name)
+                try:
+                    group = admin.lookupGroup(name)
+                    if str(perms) != str(group.details.permissions):
+                        group_id = self.__group_id(name)
+                        self.doChange(group_id, perms)
+                except omero.ApiUsageException:
+                    # Assume that it doesn't exist
+                    # and when created it'll have the
+                    #proper perms
+                    pass
+            super(ChmodBaseTest, self).setUp()
+
+    def doLogin(self, userEntry, groupname=None):
+        """
+        Attempts to reset group permissions back to the expected value
+        on login.
+        """
+
+        try:
+            super(ChmodBaseTest, self).doLogin(userEntry)
+        except dbhelpers.BadGroupPermissionsException, bgpe:
+            super(ChmodBaseTest, self).doLogin(self.ADMIN, "system")
+            group_id = self.__group_id(userEntry.groupname)
+            self.doChange(group_id, userEntry.groupperms)
+            super(ChmodBaseTest, self).doLogin(userEntry)
+
+    def __group_id(self, group):
+        admin = self.gateway.getAdminService()
+        if isinstance(group, str):
+            return admin.lookupGroup(group).id.val
+        raise Exception("Unknown: %s" % group)
 
     def doChange(self, group_id, permissions, test_should_pass=True, return_complete=True):
         """
@@ -60,30 +114,72 @@ class ChmodBaseTest (lib.GTest):
             self.assertTrue(State.FAILURE in prx.getStatus().flags)
         return rsp
 
-    def assertCanEdit(self, blitzObject, expected=True):
+    def assertCanEdit(self, blitzObject, expected=True,
+            sudo_needed=False, exc_info=False):
         """ Checks the canEdit() method AND actual behavior (ability to edit) """
 
         nameEdited = False
         try:
-            blitzObject.setName("new name")
+            blitzObject.setName("new name: %s" % _uuid.uuid4())
             blitzObject.save()
             nameEdited = True
-        except:
-            pass
-        self.assertEqual(nameEdited, expected, "Unexpected ability to Edit. Expected: %s" % expected)
-        self.assertEqual(blitzObject.canEdit(), expected, "Unexpected result of canEdit(). Expected: %s" % expected)
+        except omero.ReadOnlyGroupSecurityViolation:
+            if sudo_needed:
+                nameEdited = True # assume ok
+        except omero.SecurityViolation:
+            if exc_info:
+                traceback.print_exc()
 
-    def assertCanAnnotate(self, blitzObject, expected=True):
+
+        objectUsed = False
+        try:
+            obj = blitzObject._obj
+            if isinstance(obj, omero.model.Image):
+                ds = omero.model.DatasetI()
+                ds.setName(omero.rtypes.rstring("assertCanEdit"))
+                link = omero.model.DatasetImageLinkI()
+                link.setParent(ds)
+                link.setChild(obj)
+                update = self.gateway.getUpdateService()
+                rv = update.saveObject(link)
+            elif isinstance(obj, omero.model.Project):
+                ds = omero.model.DatasetI()
+                ds.setName(omero.rtypes.rstring("assertCanEdit"))
+                link = omero.model.ProjectDatasetLinkI()
+                link.setParent(obj)
+                link.setChild(ds)
+                update = self.gateway.getUpdateService()
+                rv = update.saveObject(link)
+            else:
+                raise Exception("Unknown type: %s" % blitzObject)
+            objectUsed = True
+        except omero.ReadOnlyGroupSecurityViolation:
+            if sudo_needed:
+                objectUsed = True # assume ok
+        except omero.SecurityViolation:
+            if exc_info:
+                traceback.print_exc()
+
+        self.assertEqual(blitzObject.canEdit(), expected, "Unexpected result of canEdit(). Expected: %s" % expected)
+        self.assertEqual(nameEdited, expected, "Unexpected ability to Edit. Expected: %s" % expected)
+        self.assertEqual(objectUsed|sudo_needed, expected, "Unexpected ability to Use. Expected: %s" % expected)
+
+    def assertCanAnnotate(self, blitzObject, expected=True,
+            sudo_needed=False, exc_info=False):
         """ Checks the canAnnotate() method AND actual behavior (ability to annotate) """
 
         annotated = False
         try:
             omero.gateway.CommentAnnotationWrapper.createAndLink(target=blitzObject, ns="gatewaytest.chmod.testCanAnnotate", val="Test Comment")
             annotated = True
-        except:
-            pass
-        self.assertEqual(annotated, expected, "Unexpected ability to Annotate. Expected: %s" % expected)
+        except omero.ReadOnlyGroupSecurityViolation:
+            if sudo_needed:
+                annotated = True # assume ok
+        except omero.SecurityViolation:
+            if exc_info:
+                traceback.print_exc()
         self.assertEqual(blitzObject.canAnnotate(), expected, "Unexpected result of canAnnotate(). Expected: %s" % expected)
+        self.assertEqual(annotated, expected, "Unexpected ability to Annotate. Expected: %s" % expected)
 
 
 class ChmodGroupTest (ChmodBaseTest):
@@ -121,38 +217,50 @@ class CustomUsersTest (ChmodBaseTest):
 
     def setUp (self):
         # read-only users & data
-        dbhelpers.USERS['read_only_owner'] = dbhelpers.UserEntry('r-_owner','ome', firstname='chmod', lastname='test', 
-                   groupname="ReadOnly_chmod_test", groupperms=READONLY)
-        dbhelpers.USERS['read_only_user'] = dbhelpers.UserEntry('r-_user','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadOnly_chmod_test")
-        dbhelpers.USERS['read_only_admin'] = dbhelpers.UserEntry('r-_admin','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadOnly_chmod_test", admin=True)
-        dbhelpers.USERS['read_only_leader'] = dbhelpers.UserEntry('r-_leader','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadOnly_chmod_test", groupowner=True)
+        def ReadOnly(key, admin=False, groupowner=False):
+            dbhelpers.USERS['read_only_%s'%key] = dbhelpers.UserEntry("r-_%s"%key, 'ome',
+                firstname='chmod',
+                lastname='test',
+                groupname="ReadOnly_chmod_test",
+                groupperms=READONLY,
+                groupowner=groupowner,
+                admin=admin)
+        ReadOnly('owner')
+        ReadOnly('user')
+        ReadOnly('admin', admin=True)
+        ReadOnly('leader', groupowner=True)
         dbhelpers.PROJECTS['read_only_proj'] = dbhelpers.ProjectEntry('read_only_proj', 'read_only_owner')
 
         # read-annotate users & data
-        dbhelpers.USERS['read_ann_owner'] = dbhelpers.UserEntry('ra_owner','ome', firstname='chmod', lastname='test', 
-                   groupname="ReadAnn_chmod_test", groupperms=READANN)
-        dbhelpers.USERS['read_ann_user'] = dbhelpers.UserEntry('ra_user','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadAnn_chmod_test")
-        dbhelpers.USERS['read_ann_admin'] = dbhelpers.UserEntry('ra_admin','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadAnn_chmod_test", admin=True)
-        dbhelpers.USERS['read_ann_leader'] = dbhelpers.UserEntry('ra_leader','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadAnn_chmod_test", groupowner=True)
+        def ReadAnn(key, admin=False, groupowner=False):
+            dbhelpers.USERS['read_ann_%s'%key] = dbhelpers.UserEntry("ra_%s"%key, 'ome',
+                firstname='chmod',
+                lastname='test',
+                groupname="ReadAnn_chmod_test",
+                groupperms=READANN,
+                groupowner=groupowner,
+                admin=admin)
+        ReadAnn('owner')
+        ReadAnn('user')
+        ReadAnn('admin', admin=True)
+        ReadAnn('leader', groupowner=True)
         dbhelpers.PROJECTS['read_ann_proj'] = dbhelpers.ProjectEntry('read_ann_proj', 'read_ann_owner')
-        
+
         # read-write users & data
-        dbhelpers.USERS['read_write_owner'] = dbhelpers.UserEntry('rw_owner','ome', firstname='chmod', lastname='test', 
-                   groupname="ReadWrite_chmod_test", groupperms=READWRITE)
-        dbhelpers.USERS['read_write_user'] = dbhelpers.UserEntry('rw_user','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadWrite_chmod_test")
-        dbhelpers.USERS['read_write_admin'] = dbhelpers.UserEntry('rw_admin','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadWrite_chmod_test", admin=True)
-        dbhelpers.USERS['read_write_leader'] = dbhelpers.UserEntry('rw_leader','ome', firstname='chmod2', lastname='test', 
-                   groupname="ReadWrite_chmod_test", groupowner=True)
+        def ReadWrite(key, admin=False, groupowner=False):
+            dbhelpers.USERS['read_write_%s'%key] = dbhelpers.UserEntry("rw_%s"%key, 'ome',
+                firstname='chmod',
+                lastname='test',
+                groupname="ReadWrite_chmod_test",
+                groupperms=READWRITE,
+                groupowner=groupowner,
+                admin=admin)
+        ReadWrite('owner')
+        ReadWrite('user')
+        ReadWrite('admin', admin=True)
+        ReadWrite('leader', groupowner=True)
         dbhelpers.PROJECTS['read_write_proj'] = dbhelpers.ProjectEntry('read_write_proj', 'read_write_owner')
-        
+
         # Calling the superclass setUp processes the dbhelpers.USERS and dbhelpers.PROJECTS etc to populate DB
         super(CustomUsersTest, self).setUp()
 
@@ -174,14 +282,14 @@ class CustomUsersTest (ChmodBaseTest):
         # Login as admin...
         self.doLogin(dbhelpers.USERS['read_only_admin'])
         p = self.gateway.getObject("Project", pid)
-        self.assertCanEdit(p, True)
-        self.assertCanAnnotate(p, True)
+        self.assertCanEdit(p, True, sudo_needed=True)
+        self.assertCanAnnotate(p, True, sudo_needed=True)
 
         # Login as group leader...
         self.doLogin(dbhelpers.USERS['read_only_leader'])
         p = self.gateway.getObject("Project", pid)
-        self.assertCanEdit(p, True)
-        self.assertCanAnnotate(p, False)
+        self.assertCanEdit(p, True, sudo_needed=True)
+        self.assertCanAnnotate(p, True, sudo_needed=True)
 
 
     def testReadAnnotate(self):
@@ -197,7 +305,7 @@ class CustomUsersTest (ChmodBaseTest):
         self.doLogin(dbhelpers.USERS['read_ann_user'])
         p = self.gateway.getObject("Project", pid)
         self.assertCanEdit(p, False)
-        self.assertCanAnnotate(p, True)
+        self.assertCanAnnotate(p, True, exc_info=1)
 
         # Login as admin...
         self.doLogin(dbhelpers.USERS['read_ann_admin'])
@@ -223,7 +331,7 @@ class CustomUsersTest (ChmodBaseTest):
         # Login as user...
         self.doLogin(dbhelpers.USERS['read_write_user'])
         p = self.gateway.getObject("Project", pid)
-        self.assertCanEdit(p, True)
+        self.assertCanEdit(p, True, exc_info=1)
         self.assertCanAnnotate(p, True)
 
         # Login as admin...
@@ -249,7 +357,7 @@ class ManualCreateEditTest (ChmodBaseTest):
         dbhelpers.USERS['read_only_owner'] = dbhelpers.UserEntry('r-_owner','ome', firstname='chmod', lastname='test',
                    groupname="ReadOnly_chmod_test", groupperms=READONLY)
         dbhelpers.USERS['read_only_user'] = dbhelpers.UserEntry('r-_user','ome', firstname='chmod2', lastname='test',
-                   groupname="ReadOnly_chmod_test")
+                   groupname="ReadOnly_chmod_test", groupperms=READONLY)
 
         # Calling the superclass setUp processes the dbhelpers.USERS and dbhelpers.PROJECTS etc to populate DB
         super(ManualCreateEditTest, self).setUp()
@@ -275,8 +383,9 @@ class DefaultSetupTest (lib.GTest):
         """ This is called at the start of tests """
         super(DefaultSetupTest, self).setUp()
         self.loginAsAuthor()
+        ctx = self.gateway.getEventContext()
         self.image = self.getTestImage()
-
+        self.AUTHOR.check_group_perms(self.gateway, ctx.groupName, "rw----")
 
     def testAuthorCanEdit(self):
         """
@@ -309,15 +418,22 @@ class DefaultSetupTest (lib.GTest):
         i = self.gateway.getObject("Image", imageId)
         self.assertEqual(None, i, "User cannot access Author's image in Read-only group")
 
-        # Create new user 
+        # Create new user in the same group
+        self.loginAsAdmin()
         chmod_test_user = dbhelpers.UserEntry('chmod_test_user6','foobar', firstname='User', lastname='Chmod')  #groupname = image_gname
         chmod_test_user.create(self.gateway, dbhelpers.ROOT.passwd)
+        admin = self.gateway.getAdminService()
+        user = admin.lookupExperimenter('chmod_test_user6')
+        group = admin.getGroup(image_gid)
+        admin.addGroups(user, [group])
+
         self.doLogin(chmod_test_user)
         user = self.gateway.getUser()
-        self.gateway.setGroupForSession(image_gid)      # switch into group 
+        self.assertTrue(self.gateway.setGroupForSession(image_gid))      # switch into group
         self.assertEqual(image_gid, self.gateway.getEventContext().groupId, "Confirm in same group as image")
         i = self.gateway.getObject("Image", imageId)
-        self.assertEqual(None, i, "User cannot access Author's image in Read-only group")
+        self.assertEqual(None, i, \
+                "User cannot access Author's image in Read-only group: %s" % i)
 
 if __name__ == '__main__':
     unittest.main()
