@@ -101,7 +101,7 @@
 	 }
 	 
 	 #middle_header_left {
-		 overflow:hidden;
+		 
 	 }
 	 
 		#middle_header_left li{
@@ -123,9 +123,12 @@
 			
 		#group_user_chooser {
 			margin-top:6px;
-			overflow:hidden;
 			float:left;
 			padding-bottom:1px;
+		}
+		
+		.dropdown_menu {
+			position:relative;
 		}
 	
 			#group_user_chooser li.non_selectable:hover {
@@ -149,6 +152,7 @@
 			overflow:hidden;
 			padding:.4em .7em .3em;
 			line-height:1.4em;
+			max-width:250px;
 			display:block;
 			border:solid 1px hsl(210,7%,40%);
 			border-top:solid 1px hsl(210,7%,40%);
@@ -528,18 +532,19 @@
 						color:#333;
 						width: 100%; 
 						display: inline-block; 
-						font-weight: normal;
 						font-size:1.3em !important;
 						padding: .7em 0 .7em 8px !important;
 						display: block; 
 						color: #333;
 						-webkit-transition: none;
-						
 						-webkit-transition:none;		
 						   -moz-transition:none;
 						     -o-transition:none;
-						        transition:none; 
-						
+						        transition:none; 	
+					}
+					
+					.dropdown a {
+						font-weight: normal;
 					}
 			
 				    .dropdown li:hover a, .dropdown li ul li:hover a{ 

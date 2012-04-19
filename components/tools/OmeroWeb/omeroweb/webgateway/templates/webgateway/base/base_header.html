@@ -59,6 +59,30 @@
 				{% block middle_header_left %}
 					
 				    <!-- Switch Group / User -->
+			        <script>
+			            $(document).ready(function(){
+
+			                $('body').click(function(event) {
+			                    if (event.target.id != 'groupsUsersButton') {
+			                        $("#groupList").css('visibility', 'hidden');
+			                    }
+			                });
+			                // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
+			                // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
+			                $("#groupsUsersButton").click(function(e){
+			                    // show menu
+			                    $('#groupList').css('visibility', 'visible');
+			                });
+			                // on hover-out, hide drop-down menus
+			                $("#groupList").hover(function(){}, function(){
+			                    $(this).css('visibility', 'hidden');
+			                });
+                
+                
+
+			            });
+			        </script>
+					
 				    {% include "webclient/base/group_user_dropdown.html" %}
 					
 				
