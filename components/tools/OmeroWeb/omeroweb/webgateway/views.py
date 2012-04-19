@@ -1705,7 +1705,8 @@ def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
-    xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
+    xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix),
+            'requiresPixelsPyramid': request.REQUEST.get('requiresPixelsPyramid', False) and True or False,}
     return map(lambda x: x.simpleMarshal(xtra=xtra), dataset.listChildren())
 
 @jsonp

@@ -5511,7 +5511,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:            The Rendering Engine service
         @rtype:             L{ProxyObjectWrapper}
         """
-        
         pid = self.getPrimaryPixels().id
         re = self._conn.createRenderingEngine()
         re.lookupPixels(pid, self._conn.CONFIG['SERVICE_OPTS'])
@@ -5585,6 +5584,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                     rv['thumb_url'] = xtra['thumbUrlPrefix'](str(self.id))
                 else:
                     rv['thumb_url'] = xtra['thumbUrlPrefix'] + str(self.id) + '/'
+            if xtra.get('requiresPixelsPyramid', False):
+                rv['requiresPixelsPyramid'] = self.requiresPixelsPyramid()
         return rv
 
     def getStageLabel (self):
