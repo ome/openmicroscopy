@@ -1,0 +1,79 @@
+/*
+ * Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/*
+ 	===============================================
+ 	:: Left Panel
+ 	===============================================
+ */
+
+/* User Selection */
+
+#user_selection {
+    background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(215, 10%, 35%)), to(hsl(215, 10%, 45%))) !important;
+    background-image: -moz-linear-gradient(90deg, hsl(212, 20%, 20%) 0%, hsl(212, 20%, 25%) 100%);
+    border-top: solid 1px hsl(210,20%,25%);
+    -webkit-box-shadow: 0 1px 0 0 rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,.05); /* Saf3.0+, Chrome */
+    -moz-box-shadow: 0 1px 0 0 rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,.05); /* FF3.5+ */
+    box-shadow: 0 1px 0 0 rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,.05); /* Opera 10.5, IE 9.0 */
+    filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=0, OffY=1, Color='#fff'); /* IE6,IE7 */
+    -ms-filter: "progid:DXImageTransform.Microsoft.dropshadow(OffX=0, OffY=1, Color='#fff')"; /* IE8 */
+    border-bottom: solid 1px hsl(210,20%,20%);
+    border-right: solid 1px hsl(210,10%,25%);
+    position: relative;
+    height: 31px;
+}
+
+    #user_selection select {
+        float: left;
+        width: 40%;
+    }
+
+/* Generic Left and Right Panel Tabs */
+
+#left_panel_tabs, #annotation_tabs {
+    position: absolute;
+    padding: 0;
+    background: hsl(220,20%,95%);
+}
+
+#left_panel_tab_list > li {
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+}
+
+.right_tab_content {
+    top: 28px;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+}
+
+#left_panel_tab_list li:last, #annotation_tabs_list li:last {
+    border-right: none
+}
+
+#left_panel_tab_list li a, #annotation_tabs_list li a {
+    padding: 4px 12px 5px;
+    border-radius: inherit;
+    line-height: 2em;
+    font-weight: bold;
+}

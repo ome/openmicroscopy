@@ -22,6 +22,28 @@
 -->
 {% endcomment %}
 
+{% block script %}
+    {{ block.super }}
+
+
+    <script>
+        $(document).ready(function(){
+            // initially hidden
+            $("#user_dropdown ul").css('visibility', 'hidden');
+            // show on click
+            $("#show_user_dropdown").click(function(e) {
+                
+                $("ul", $(this).parent()).css('visibility', 'visible');
+                e.preventDefault();
+                return false;
+            });
+            // on hover-out, hide drop-down menus
+            $("#user_dropdown ul").hover(function(){}, function(){
+                $(this).css('visibility', 'hidden');
+            });
+        });
+    </script>
+{% endblock %}
 
 {% block link %}
     {{ block.super }}
