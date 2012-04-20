@@ -31,12 +31,25 @@ import omero.cmd.Response;
 import omero.cmd._CmdCallbackDisp;
 
 /**
- * Callback servant which can be used to wait on a command
- * to finish processing. Standard usage would include passing
- * the handle returned from submit to the instance and then
- * either calling block until its finished or by subclassing
- * and handling whatever action in one of the methods.
  *
+ * Callback servant used to wait until a HandlePrx would
+ * return non-null on getReponse. The server will notify
+ * of completion to prevent constantly polling on
+ * getResponse. Subclasses can override methods for handling
+ * based on the completion status.
+ *
+ * Example usage:
+ * <pre>
+ *      cb = new CmdCallbackI(client, handle);
+ *      response = null;
+ *      while (response == null) {
+ *          response = cb.block(500);
+ *      }
+ *
+ *      // or
+ *
+ *      response = cb.loop(5, 500);
+ * </pre>
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.4
  */
@@ -84,6 +97,38 @@ public class CmdCallbackI extends _CmdCallbackDisp {
     //
     // Local invocations
     //
+
+    /**
+     * Calls block(long) "loops" number of times with the "ms"
+     * argument. This means the total wait time for the delete to occur
+     * is: loops X ms. Sensible values might be 10 loops for 500 ms, or
+     * 5 seconds.
+     *
+     * @param loops Number of times to call block(long)
+     * @param ms Number of milliseconds to pass to block(long
+     * @throws omero.LockTimeout if block(long) does not return
+     * a non-null value after loops calls.
+     */
+    public Response loop(int loops, long ms) throws InterruptedException,
+        omero.LockTimeout {
+
+        int count = 0;
+        while (count < loops) {
+            count++;
+            if (block(ms)) {
+                break;
+            }
+        }
+
+        if (block(ms)) {
+            return handle.getResponse();
+        } else {
+            double waited = (ms/1000.0) * loops;
+            throw new omero.LockTimeout(null, null,
+                String.format("Command unfinished after %s seconds",
+                    waited), 10000, (int) waited);
+        }
+    }
 
     /**
      * Blocks for the given number of milliseconds unless either {@link #cancelled(Response, Current)}
