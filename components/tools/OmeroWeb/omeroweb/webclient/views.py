@@ -1198,7 +1198,7 @@ def getObjects(request, conn=None):
     plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
     acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and \
             list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
-    shares = len(request.REQUEST.get('share')) > 0 and [conn.getShare(request.REQUEST.get('share'))] or list()
+    shares = len(request.REQUEST.getlist('share')) > 0 and [conn.getShare(request.REQUEST.getlist('share')[0])] or list()
     wells = list()
     if len(request.REQUEST.getlist('well')) > 0:
         for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
