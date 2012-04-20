@@ -46,7 +46,7 @@ class ChmodBaseTest (lib.GTest):
                     if not name:
                         continue # These are likely the weblitz tests
                     else:
-                        raise Exceptions("Missing permissions for %s" % name)
+                        raise Exception("Missing permissions for %s" % name)
                 try:
                     group = admin.lookupGroup(name)
                     if str(perms) != str(group.details.permissions):
@@ -190,7 +190,7 @@ class ChmodGroupTest (ChmodBaseTest):
         dbhelpers.USERS['chmod_group_admin'] = dbhelpers.UserEntry('r-_chmod_admin','ome', firstname='chmod', lastname='admin',
                    groupname="ReadOnly_chmod_group", groupperms=READONLY, admin=True)
         dbhelpers.USERS['chmod_group_owner'] = dbhelpers.UserEntry('r-_chmod_owner','ome', firstname='chmod', lastname='owner',
-                   groupname="ReadOnly_chmod_group", groupowner=True)
+                   groupname="ReadOnly_chmod_group", groupperms=READONLY, groupowner=True)
         # Calling the superclass setUp processes the dbhelpers.USERS etc to populate DB
         super(ChmodGroupTest, self).setUp()
 
