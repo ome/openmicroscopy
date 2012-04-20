@@ -171,6 +171,6 @@ public interface Registry
      * @throws IllegalArgumentException If <code>view</code> is not one of the
      *          supported {@link DataServicesView} interfaces.
      */
-    public DataServicesView getDataServicesView(Class view);
-   
+    public DataServicesView getDataServicesView(Class<?> view);
+
 }
