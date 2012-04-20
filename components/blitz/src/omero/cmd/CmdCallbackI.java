@@ -1,35 +1,54 @@
 /*
- *   $Id$
+ * Copyright (C) 2012 Glencoe Software, Inc. All rights reserved.
  *
- *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 package omero.cmd;
 
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import omero.LockTimeout;
-import omero.ServerError;
 
 import Ice.Current;
-import Ice.ObjectNotExistException;
+
+import omero.ServerError;
+import omero.cmd.CmdCallbackPrx;
+import omero.cmd.CmdCallbackPrxHelper;
+import omero.cmd.HandlePrx;
+import omero.cmd.Response;
+import omero.cmd._CmdCallbackDisp;
+
 /**
+ * Callback servant which can be used to wait on a command
+ * to finish processing. Standard usage would include passing
+ * the handle returned from submit to the instance and then
+ * either calling block until its finished or by subclassing
+ * and handling whatever action in one of the methods.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.4
  */
-public class CmdCallbackI {
+public class CmdCallbackI extends _CmdCallbackDisp {
 
-    private final static Logger logger = Logger.getLogger(CmdCallbackI.class.getName());
+    private static final long serialVersionUID = 1L;
 
-    private final omero.client client;
+    private final Ice.ObjectAdapter adapter;
 
-    private final BlockingQueue<Response> q = new LinkedBlockingQueue<Response>();
+    private final Ice.Identity id;
+
+    private final CountDownLatch latch = new CountDownLatch(1);
 
     /**
      * Proxy passed to this instance on creation. Can be used by subclasses
@@ -37,77 +56,103 @@ public class CmdCallbackI {
      */
     protected final HandlePrx handle;
 
-    public CmdCallbackI(omero.client client, HandlePrx handle) {
-        this.client = client;
+    public CmdCallbackI(omero.client client, HandlePrx handle)
+    throws ServerError {
+        this(client.getAdapter(), client.getCategory(), handle);
+    }
+
+    public CmdCallbackI(Ice.ObjectAdapter adapter, String category,
+            HandlePrx handle)
+        throws ServerError {
+
+        this.adapter = adapter;
         this.handle = handle;
+        this.id = new Ice.Identity();
+        this.id.name = UUID.randomUUID().toString();
+        this.id.category = category;
+        Ice.ObjectPrx prx = adapter.add(this, id);
+        CmdCallbackPrx cb = CmdCallbackPrxHelper.uncheckedCast(prx);
+        handle.addCallback(cb);
+
+        // Now check just in case the process exited VERY quickly
+        Response rsp = handle.getResponse();
+        if (rsp != null) {
+            finished(rsp); // Only time that current should be null.
+        }
     }
 
-    /**
-     * Calls {@link #block(long)} "loops" number of times with the "ms"
-     * argument. This means the total wait time for the delete to occur
-     * is: loops X ms. Sensible values might be 10 loops for 500 ms, or
-     * 5 seconds.
-     *
-     * @param loops Number of times to call {@link #block(long)}
-     * @param ms Number of milliseconds to pass to {@link #block(long)
-     * @throws omero.LockTimeout if {@link #block(long)} does not return
-     *  a non-null value after loops calls.
-     */
-    public Response loop(int loops, long ms) throws LockTimeout {
-
-        int count = 0;
-        Response rsp = null;
-        while (rsp == null && count < loops) {
-            try {
-                rsp = block(ms);
-            } catch (InterruptedException e) {
-                // continue;
-            }
-            count++;
-        }
-        if (rsp == null) {
-            int waited = (int) (ms / 1000) * loops;
-            throw new LockTimeout(null, null,
-                    String.format("Handle unfinished after %s seconds",
-                            loops, ms), 5000L, waited);
-        }
-        return rsp;
-    }
+    //
+    // Local invocations
+    //
 
     /**
+     * Blocks for the given number of milliseconds unless either {@link #cancelled(Response, Current)}
+     * or {@link #finished(Response, Current)} has been called in which case
+     * it returns immediately with true. If false is returned, then the timeout
+     * was reached.
      *
-     * Should only be used if the default logic of the process methods is kept
-     * in place. If "q.put" does not get called, this method will always block
-     * for the given milliseconds.
-     *
-     * @param ms
+     * @param ms Milliseconds which this method should block for.
      * @return
      * @throws InterruptedException
      */
-    public Response block(long ms) throws InterruptedException {
-        try {
-            return handle.getResponse();
-        } catch (ObjectNotExistException onee) {
-            omero.ClientError ce = new omero.ClientError("Handle is gone!");
-            ce.initCause(onee);
-            throw ce;
-        } catch (Exception e) {
-            logger.log(Level.SEVERE,
-                    "Error polling HandlePrx:" + handle, e);
-            return null;
-        } finally {
-            TimeUnit.MILLISECONDS.sleep(ms);
-        }
+    public boolean block(long ms) throws InterruptedException {
+        return latch.await(ms, TimeUnit.MILLISECONDS);
     }
 
-    public void close() {
-        // adapter.remove(id); // OK ADAPTER USAGE
-        try {
-            handle.close();
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error calling HandlePrx.close:"
-                    + handle, e);
-        }
+    //
+    // Remote invocations
+    //
+
+    /**
+     * Called periodically by the server to signal that processing is
+     * moving forward. Default implementation does nothing.
+     */
+    public void step(int complete, int total, Current __current) {
+        // no-op
     }
 
+    /**
+     * Called when cancelled successfully, i.e. handle.cancel would return
+     * true.
+     */
+    public final void cancelled(Response rsp, Current __current) {
+        latch.countDown();
+        onCancelled(rsp, __current);
+    }
+
+    /**
+     * Method intended to be overridden by subclasses. Default logic does
+     * nothing.
+     */
+    protected void onCancelled(Response rsp, Current __current) {
+        // no-op
+    }
+
+    /**
+     * Called when the command has completed with anything other than
+     * a cancellation.
+     */
+    public final void finished(Response rsp, Current __current) {
+        latch.countDown();
+        onFinished(rsp, __current);
+    }
+
+    /**
+     * Method intended to be overridden by subclasses. Default logic does
+     * nothing.
+     */
+    public void onFinished(Response rsp, Current __current) {
+        // no-op
+    }
+
+    /**
+     * First removes self from the adapter so as to no longer receive
+     * notifications, and the calls close on the remote handle if requested.
+     */
+    public void close(boolean closeHandle) {
+         adapter.remove(id); // OK ADAPTER USAGE
+         if (closeHandle) {
+             handle.close();
+         }
+    }
 }

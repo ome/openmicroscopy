@@ -78,7 +78,42 @@ module omero {
         ["java:type:java.util.ArrayList<omero.cmd.Response>:java.util.List<omero.cmd.Response>"]
         sequence<Response> ResponseList;
 
+        interface CmdCallback {
+
+            /**
+             * Notifies clients that the given number of steps
+             * from the total is complete. This method will not
+             * necessarily be called for every step.
+             */
+             void step(int complete, int total);
+
+            /**
+             * Called when the command is either cancelled directly
+             * or when close is called before completion. In either
+             * case this method will only be called if cancellation
+             * returns with true.
+             */
+             void cancelled(Response rsp);
+
+            /**
+             * Called when the command has completed in any non-cancel
+             * fashion.
+             */
+             void finished(Response rsp);
+
+        };
+
         ["ami"] interface Handle {
+
+            /**
+             * Add a callback for notifications.
+             **/
+            void addCallback(CmdCallback* cb);
+
+            /**
+             * Remove callback for notifications.
+             **/
+            void removeCallback(CmdCallback* cb);
 
             /**
              * Returns the request object that was used to
