@@ -178,63 +178,68 @@ def login(request):
     Tries to get connection to OMERO and if this works, then we are redirected to the 'index' page or url specified in REQUEST.
     If we can't connect, the login page is returned with appropriate error messages.
     """
+    
     request.session.modified = True
-    username = request.REQUEST.get('username')
-    password = request.REQUEST.get('password')
-    server_id = request.REQUEST.get('server')
-    is_secure = request.REQUEST.get('ssl', False)
-    connector = Connector(server_id, is_secure)
-
+    
     conn = None
     error = None
-    # TODO: version check should be done on the low level, see #5983
-    if server_id is not None and username is not None and password is not None \
-            and _checkVersion(*connector.lookup_host_and_port()):
-        conn = connector.create_connection('OMERO.web', username, password)
-        if conn is not None:
-            request.session['connector'] = connector
-        else:
-            error = 'Login failed.'
     
-    if conn is not None:
-        upgradeCheck()
-        request.session['version'] = conn.getServerVersion()
-        if request.REQUEST.get('noredirect'):
-            return HttpResponse('OK')
-        url = request.REQUEST.get("url")
-        if url is not None and len(url) != 0:
-            return HttpResponseRedirect(url)
-        else:
-            return HttpResponseRedirect(reverse("webindex"))
-    else:
-        if request.method == 'POST' and request.REQUEST.get('server'):
-            if not _isServerOn(request.session.get('host'), request.session.get('port')):
-                error = "Server is not responding, please contact administrator."
-            elif not _checkVersion(request.session.get('host'), request.session.get('port')):
-                error = "Client version does not match server, please contact administrator."
+    server_id = request.REQUEST.get('server')
+    form = LoginForm(data=request.REQUEST.copy())
+    if form.is_valid():
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        server_id = form.cleaned_data['server']
+        is_secure = toBoolean(form.cleaned_data['ssl'])
+        form.cleaned_data['username']
+    
+        connector = Connector(server_id, is_secure)
+        
+        # TODO: version check should be done on the low level, see #5983
+        if server_id is not None and username is not None and password is not None \
+                and _checkVersion(*connector.lookup_host_and_port()):
+            conn = connector.create_connection('OMERO.web', username, password)
+            if conn is not None:
+                request.session['connector'] = connector
+                
+                upgradeCheck()
+                request.session['version'] = conn.getServerVersion()
+                if request.REQUEST.get('noredirect'):
+                    return HttpResponse('OK')
+                url = request.REQUEST.get("url")
+                if url is not None and len(url) != 0:
+                    return HttpResponseRedirect(url)
+                else:
+                    return HttpResponseRedirect(reverse("webindex"))
             else:
-                error = "Connection not available, please check your user name and password."
-        url = request.REQUEST.get("url")
-        request.session['server'] = request.REQUEST.get('server')
-        
-        template = "webclient/login.html"
-        if request.method == 'POST':
-            form = LoginForm(data=request.REQUEST.copy())
+                error = 'Login failed.'
+    
+    if request.method == 'POST' and server_id is not None:
+        s = Server.get(server_id)
+        if not _isServerOn(s.host, s.port):
+            error = "Server is not responding, please contact administrator."
+        elif not _checkVersion(s.host, s.port):
+            error = "Client version does not match server, please contact administrator."
         else:
-            if server_id is not None:
-                initial = {'server': unicode(connector.server_id)}
-                form = LoginForm(initial=initial)
-            else:
-                form = LoginForm()
+            error = "Connection not available, please check your user name and password."
+    url = request.REQUEST.get("url")
+    
+    template = "webclient/login.html"
+    if request.method != 'POST':
+        if server_id is not None:
+            initial = {'server': unicode(server_id)}
+            form = LoginForm(initial=initial)
+        else:
+            form = LoginForm()
         
-        context = {"version": omero_version, 'error':error, 'form':form, 'url': url}
-        if url is not None and len(url) != 0:
-            context['url'] = url
-        
-        t = template_loader.get_template(template)
-        c = Context(request, context)
-        rsp = t.render(c)
-        return HttpResponse(rsp)
+    context = {"version": omero_version, 'error':error, 'form':form, 'url': url}
+    if url is not None and len(url) != 0:
+        context['url'] = url
+    
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
 
 @login_required()
 def index(request, conn=None, **kwargs):
