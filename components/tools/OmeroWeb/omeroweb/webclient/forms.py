@@ -105,11 +105,6 @@ class BasketShareForm(ShareForm):
             logger.error(traceback.format_exc())
             self.fields['image'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['images'], widget=forms.SelectMultiple(attrs={'size':10}))
 
-
-class ShareCommentForm(NonASCIIForm):
-
-    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}))# help_text=help_wiki_c
-    
 class ContainerForm(NonASCIIForm):
     
     name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':45}))
@@ -172,7 +167,13 @@ class BaseAnnotationForm(NonASCIIForm):
         except:
             logger.error(traceback.format_exc())
             self.fields['well'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['wells'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-
+        
+        try:
+            self.fields['share'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['shares'], initial=kwargs['initial']['selected']['shares'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        except:
+            logger.error(traceback.format_exc())
+            self.fields['share'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['shares'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
 
 class TagsAnnotationForm(BaseAnnotationForm):
     """ Form for annotating one or more objects with existing Tags or New tags """

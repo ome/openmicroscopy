@@ -72,7 +72,7 @@ from omeroweb.webclient.webclient_utils import string_to_dict
 from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
 
 from webclient_utils import _formatReport, _purgeCallback
-from forms import ShareForm, BasketShareForm, ShareCommentForm, \
+from forms import ShareForm, BasketShareForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
                     CommentAnnotationForm, TagsAnnotationForm, \
                     UsersForm, ActiveGroupForm, HistoryTypeForm, \
@@ -895,6 +895,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     screens = c_type == "screen" and list(conn.getObjects("Screen", [c_id])) or list()
     plates = c_type == "plate" and list(conn.getObjects("Plate", [c_id])) or list()
     acquisitions = c_type == "acquisition" and list(conn.getObjects("PlateAcquisition", [c_id])) or list()
+    shares = c_type == "share" and [conn.getShare(c_id)] or list()
     wells = list()
     if c_type == "well":
         for w in conn.getObjects("Well", [c_id]):
@@ -908,9 +909,10 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         'screens':c_type == "screen" and [c_id] or [],
         'plates':c_type == "plate" and [c_id] or [],
         'acquisitions':c_type == "acquisition" and [c_id] or [],
-        'wells':c_type == "well" and [c_id] or []}
+        'wells':c_type == "well" and [c_id] or [],
+        'shares':c_type == "share" and [c_id] or []}
 
-    initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}
+    initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells, 'shares': shares}
     
     form_comment = None
     try:
@@ -919,7 +921,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
             manager = BaseShare(conn, c_id)
             manager.getAllUsers(c_id)
             manager.getComments(c_id)
-            form_comment = ShareCommentForm()
+            form_comment = CommentAnnotationForm(initial=initial)
         else:
             manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
             if share_id is None:
@@ -1196,19 +1198,21 @@ def getObjects(request, conn=None):
     plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
     acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and \
             list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
+    shares = len(request.REQUEST.get('share')) > 0 and [conn.getShare(request.REQUEST.get('share'))] or list()
     wells = list()
     if len(request.REQUEST.getlist('well')) > 0:
         for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
             w.index=index
             wells.append(w)
-    return {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+    return {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 
+            'plate':plates, 'acquisitions':acquisitions, 'well':wells, 'share':shares}
 
 def getIds(request):
     """ Used by forms to indicate the currently selected objects prepared above """
     selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), \
             'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), \
             'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), \
-            'wells':request.REQUEST.getlist('well')}
+            'wells':request.REQUEST.getlist('well'), 'shares':request.REQUEST.getlist('share')}
     return selected
 
 
@@ -1325,9 +1329,8 @@ def annotate_comment(request, conn=None, **kwargs):
     oids = getObjects(request, conn)
     selected = getIds(request)
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
-
-    manager = BaseContainer(conn)
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well'],
+            'shares':oids['share']}
 
     # Handle form submission...
     form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
@@ -1335,8 +1338,16 @@ def annotate_comment(request, conn=None, **kwargs):
         # In each case below, we pass the {'object_type': [ids]} map
         content = form_multi.cleaned_data['comment']
         if content is not None and content != "":
-            textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
-            template = "webclient/annotations/comment.html"
+            if 'shares' in initial and initial['shares'] is not None and len(initial['shares']) > 0:
+                manager = BaseShare(conn, initial['shares'][0].id)
+                host = request.build_absolute_uri(reverse("load_template", args=["public"]))
+                textAnn = manager.addComment(host, request.session['server'], content)
+                template = "webclient/annotations/share_comment.html"
+                context = {'cm': textAnn}
+            else:
+                manager = BaseContainer(conn)
+                textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
+                template = "webclient/annotations/comment.html"
             context = {'tann': textAnn}
             
             t = template_loader.get_template(template)
@@ -1345,6 +1356,7 @@ def annotate_comment(request, conn=None, **kwargs):
             return HttpResponse(t.render(c))
     else:
         return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
+
 
 @login_required()
 def annotate_tags(request, conn=None, **kwargs):
@@ -1547,19 +1559,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             else:
                 template = "webclient/public/share_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'share':manager, 'form':form}
-        elif o_type == "sharecomment":
-            form_sharecomments = ShareCommentForm(data=request.REQUEST.copy())
-            if form_sharecomments.is_valid():
-                logger.debug("Create share comment: %s" % (str(form_sharecomments.cleaned_data)))
-                comment = form_sharecomments.cleaned_data['comment']
-                host = request.build_absolute_uri(reverse("load_template", args=["public"]))
-                textAnn = manager.addComment(host, request.session['server'], comment)
-                template = "webclient/annotations/share_comment.html"
-                context = {'cm': textAnn}
-            else:
-                template = "webclient/annotations/annotation_new_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 
-                        'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}
     elif action == 'editname':
         # start editing 'name' in-line
         if hasattr(manager, o_type) and o_id > 0:
