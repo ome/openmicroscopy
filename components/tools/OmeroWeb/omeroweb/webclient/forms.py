@@ -126,53 +126,70 @@ class BaseAnnotationForm(NonASCIIForm):
     """
     def __init__(self, *args, **kwargs):
         super(BaseAnnotationForm, self).__init__(*args, **kwargs)
-        try:
-            self.fields['image'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['images'], initial=kwargs['initial']['selected']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['image'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         
-        try:
-            self.fields['dataset'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['datasets'], initial=kwargs['initial']['selected']['datasets'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['dataset'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['datasets'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        images = 'images' in kwargs['initial'] and kwargs['initial']['images'] or list()
+        if len(images) > 0:
+            try:
+                self.fields['image'] = ObjectModelMultipleChoiceField(queryset=images, initial=kwargs['initial']['selected']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                logger.error(traceback.format_exc())
+                self.fields['image'] = ObjectModelMultipleChoiceField(queryset=images, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         
-        try:
-            self.fields['project'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['projects'], initial=kwargs['initial']['selected']['projects'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['project'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['projects'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        datasets = 'datasets' in kwargs['initial'] and kwargs['initial']['datasets'] or list()
+        if len(datasets) > 0:
+            try:
+                self.fields['dataset'] = ObjectModelMultipleChoiceField(queryset=datasets, initial=kwargs['initial']['selected']['datasets'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                logger.error(traceback.format_exc())
+                self.fields['dataset'] = ObjectModelMultipleChoiceField(queryset=datasets, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         
-        try:
-            self.fields['screen'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['screens'], initial=kwargs['initial']['selected']['screens'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['screen'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['screens'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        projects = 'projects' in kwargs['initial'] and kwargs['initial']['projects'] or list()
+        if len(projects) > 0:
+            try:
+                self.fields['project'] = ObjectModelMultipleChoiceField(queryset=projects, initial=kwargs['initial']['selected']['projects'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                logger.error(traceback.format_exc())
+                self.fields['project'] = ObjectModelMultipleChoiceField(queryset=projects, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         
-        try:
-            self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['plates'], initial=kwargs['initial']['selected']['plates'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['plates'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        screens = 'screens' in kwargs['initial'] and kwargs['initial']['screens'] or list()
+        if len(screens) > 0:
+            try:
+                self.fields['screen'] = ObjectModelMultipleChoiceField(queryset=screens, initial=kwargs['initial']['selected']['screens'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                logger.error(traceback.format_exc())
+                self.fields['screen'] = ObjectModelMultipleChoiceField(queryset=screens, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         
-        try:
-            self.fields['acquisition'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['acquisitions'], initial=kwargs['initial']['selected']['acquisitions'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['acquisition'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['acquisitions'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        plates = 'plates' in kwargs['initial'] and kwargs['initial']['plates'] or list()
+        if len(plates) > 0:
+            try:
+                self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=plates, initial=kwargs['initial']['selected']['plates'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                logger.error(traceback.format_exc())
+                self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=plates, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         
-        try:
-            self.fields['well'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['wells'], initial=kwargs['initial']['selected']['wells'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['well'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['wells'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        acquisitions = 'acquisitions' in kwargs['initial'] and kwargs['initial']['acquisitions'] or list()
+        if len(acquisitions) > 0:
+            try:
+                self.fields['acquisition'] = ObjectModelMultipleChoiceField(queryset=acquisitions, initial=kwargs['initial']['selected']['acquisitions'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                logger.error(traceback.format_exc())
+                self.fields['acquisition'] = ObjectModelMultipleChoiceField(queryset=acquisitions, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         
-        try:
-            self.fields['share'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['shares'], initial=kwargs['initial']['selected']['shares'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        except:
-            logger.error(traceback.format_exc())
-            self.fields['share'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['shares'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        wells = 'wells' in kwargs['initial'] and kwargs['initial']['wells'] or list()
+        if len(wells) > 0:
+            try:
+                self.fields['well'] = ObjectModelMultipleChoiceField(queryset=wells, initial=kwargs['initial']['selected']['wells'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                logger.error(traceback.format_exc())
+                self.fields['well'] = ObjectModelMultipleChoiceField(queryset=wells, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        
+        shares = 'shares' in kwargs['initial'] and kwargs['initial']['shares'] or list()
+        if len(shares) > 0:
+            try:
+                self.fields['share'] = ObjectModelMultipleChoiceField(queryset=shares, initial=kwargs['initial']['selected']['shares'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            except:
+                logger.error(traceback.format_exc())
+                self.fields['share'] = ObjectModelMultipleChoiceField(queryset=shares, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         
 
 class TagsAnnotationForm(BaseAnnotationForm):
