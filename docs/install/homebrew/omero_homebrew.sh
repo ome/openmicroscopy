@@ -3,12 +3,7 @@
 set -e
 set -u
 
-DIR=$1
-shift
-
-OMERO_GIT=${OMERO_URL:-git://github.com/joshmoore/homebrew.git}
-OMERO_URL=${OMERO_URL:-https://github.com/joshmoore/homebrew/tarball/omero}
-OMERO_BRANCH=${OMERO_BRANCH:-omero-only}
+OMERO_ALT=${OMERO_ALT:-openmicroscopy/alt}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
 TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
 
@@ -17,27 +12,25 @@ TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
 ###################################################################
 
 # Brew support ===================================================
-if ("$DIR/bin/brew" --version)
-then
-    echo "Using brew installed in $DIR"
-    cd "$DIR"
-else
-    if (git --version)
-    then
-        git clone -b "$OMERO_BRANCH" "$OMERO_GIT" "$DIR"
-        cd "$DIR"
-    else
-        mkdir -p "$DIR"
-        cd "$DIR"
-        curl -L "$OMERO_URL" | /usr/bin/tar --strip-components=1 -xvf -
-        bin/brew install git
-        bin/git init
-        bin/git remote add omero "$OMERO_GIT"
-        bin/git fetch omero
-        bin/git checkout -b "$OMERO_BRANCH"
-    fi
-fi
 
+brew --version || {
+    echo "Please install brew first"
+    exit 1
+}
+
+BREW_DIR="$(dirname $(dirname $(which brew)))"
+echo "Using brew installed in $BREW_DIR"
+
+# Move to BREW_DIR for the rest of this script
+# so that "bin/EXECUTABLE" will pick up the
+# intended executable.
+cd "$BREW_DIR"
+
+# Next we must either add the "tap" which will provide
+# the formulae for OMERO if it hasn't been tapped already.
+bin/brew tap | grep -q "$OMERO_ALT" || {
+    bin/brew tap "$OMERO_ALT"
+}
 
 # Python virtualenv/pip support ===================================
 if (bin/pip --version)

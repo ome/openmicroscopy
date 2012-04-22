@@ -1,10 +1,14 @@
 INSTALL
 =======
+
+The instructions and scripts provided here depend on Homebrew 0.9
+or later, including support for the `brew tap' command.
+
 This procedure has been tested on the following Mac OS X versions:
 
     10.6.8
     10.7.3
-    
+
 Install OS X Developer Tools. This procedure has been tested with the the following Xcode distributions:
 
     xcode_3.2.6_and_ios_sdk_4.3.dmg
@@ -20,35 +24,25 @@ on the following Hardware:
 Homebrew installation
 ---------------------
 
-Install homebrew:
+Follow the instructions for installing homebrew available at https://github.com/mxcl/homebrew/wiki/installation.
+All requirements for OMERO will be installed in this location (e.g. /usr/local). For example:
 
     $ ruby -e "$(curl -fsSLk https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
     $ brew install git
 
-Prepare a place to store the OMERO homebrew scripts, e.g.
+Grab the omero_homebrew.sh installation script:
 
-    $ mkdir -p ~/code/projects/omero
-    $ cd ~/code/projects/omero
+    $ curl -fsSLk 'https://raw.github.com/joshmoore/openmicroscopy/homebrew-merge/docs/install/homebrew/omero_homebrew.sh' > omero_homebrew.sh
 
-Clone the OMERO homebrew repo:
+Run OMERO.homebrew script to install OMERO requirements:
 
-    $ git clone git://gist.github.com/1213688.git OMERO.homebrew
-
-Prepare a place to store the OMERO prerequisites, e.g.
-
-    $ mkdir -p ~/apps/OMERO.libs
-
-Run OMERO.homebrew script, specifying an existing directory to install into, e.g.
-
-    $ cd OMERO.homebrew
     $ chmod +x omero_homebrew.sh
-    $ ./omero_homebrew.sh ~/apps/OMERO.libs
+    $ ./omero_homebrew.sh
 
-NB. The omero_homebrew.sh script may need to be run several times before it completes, albeit successfully. This is due to the homebrew script pulling code archives from many different places as it retrieves the various components that you have asked it to install. Occasionally the remote repositories are temporarily unavailable and can cause the script to fail. Under normal circumstances simply rerunning the script should be sufficient. Occasionally you may have to wait for a short period then try running the script again. Rarely you may have to find a different location for the remote repository (NB. This should involve getting in touch with the homebrew project/OMERO.homebrew team members so that homebrew formulae can be updated in the event of a permanent failure of a resource).
+NB. The omero_homebrew.sh script may need to be run several times before it completes, albeit successfully. This is due to the homebrew script pulling code archives from many different places as it retrieves the various components that you have asked it to install. Occasionally the remote repositories are temporarily unavailable and can cause the script to fail. Under normal circumstances simply rerunning the script should be sufficient. Occasionally you may have to wait for a short period then try running the script again. Rarely you may have to find a different location for the remote repository (NB. This should involve getting in touch with the homebrew project/OMERO team members so that homebrew formulae can be updated in the event of a permanent failure of a resource).
 
-Install PostGres
+Install PostGres if you do not have another PostGres installation that you can use.
 
-    $ brew update
     $ brew install postgres
 
 Common issues
@@ -57,30 +51,42 @@ If you run into problems with Homebrew, you can always run
 
     $ brew doctor
 
-Below is a non-exhaustive list of errors/warnings 
 
-1. Warning: Xcode is not installed! Builds may fail!  
+Below is a non-exhaustive list of errors/warnings
+
+1. Warning: Xcode is not installed! Builds may fail!
 Solution: install Xcode
-	
-2. Warning: It appears you have MacPorts or Fink installed.  
+
+2. Warning: It appears you have MacPorts or Fink installed.
 Follow uninstall instructions [[link](http://guide.macports.org/chunked/installing.macports.uninstalling.html)]
 
-3. ==> Installing postgresql dependency: readline  
+3. ==> Installing postgresql dependency: readline
  Error: No such file or directory - /usr/bin/cc`
 For Xcode 4.3.2 make sure Xcode Command Line Tools are installed [[link](https://github.com/mxcl/homebrew/issues/10244#issuecomment-4013781)]
 
-4. Error: You must `brew link ossp-uuid' before postgresql can be installed    
+4. Error: You must `brew link ossp-uuid' before postgresql can be installed
 Try brew cleanup then brew link ossp-uuid
 
-5. Error: Failed executing: cd cpp && make MCPP_HOME=/Users/sebastien/apps/OMERO.libs/Cellar/mcpp/2.7.2 DB_HOME=/Users/sebastien/apps/OMERO.libs/Cellar/berkeley-db46/4.6.21 OPTIMIZE=yes prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 embedded_runpath_prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 install  
-We have had problems building zeroc-ice33 under MacOS 10.7.3 [[ticket](http://trac.openmicroscopy.org.uk/ome/ticket/8075)]. Try installing zeroc-ice34 instead
- 
+5. Error: Failed executing: cd cpp && make MCPP_HOME=/Users/sebastien/apps/OMERO.libs/Cellar/mcpp/2.7.2 DB_HOME=/Users/sebastien/apps/OMERO.libs/Cellar/berkeley-db46/4.6.21 OPTIMIZE=yes prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 embedded_runpath_prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 install
+We have had problems building zeroc-ice33 under MacOS 10.7.3 [[ticket](http://trac.openmicroscopy.org.uk/ome/ticket/8075)]. If you will be developing OMERO rather than installing omero43, you can try installing `ice' (Ice 3.4) instead
+
+6. ==> Installing hdf5 dependency: szip
+   ==> Downloading http://www.hdfgroup.org/ftp/lib-external/szip/2.1/src/szip-2.1.tar.gz
+   Already downloaded: /Users/moore/Library/Caches/Homebrew/szip-2.1.tar.gz
+   Error: MD5 mismatch
+   Expected: 902f831bcefb69c6b635374424acbead
+   Got: 0d6a55bb7787f9ff8b9d608f23ef5be0
+   Archive: /Users/moore/Library/Caches/Homebrew/szip-2.1.tar.gz
+   (To retry an incomplete download, remove the file above.)
+   Manually remove the archived version (Here: /Users/moore/Library/Caches/Homebrew/szip-2.1.tar.gz) since the maintainer may have updated the file.
+
+
 OMERO server
 -----------
 
 At this point you have a choice. If you just want a deployment of the current release of OMERO.server then a simple homebrew install is sufficient, e.g.
 
-    $ ~/app/OMERO.libs/bin/brew install omero43
+    $ brew install omero43
 
 However if you wish to pull OMERO.server from the git repo for development purposes then it is worth setting up OMERO.server manually rather than using homebrew. Prepare a place for your OMERO code to live, e.g.
 
@@ -101,20 +107,19 @@ ENV
 
 Edit your .profile as appropriate. NB. The following are indicators of required entries:
 
-    export OMEROLIBS=~/apps/OMERO.libs
+    export BREW_DIR=/usr/local
 
-    export OMERO_HOME=$OMEROLIBS/Cellar/omero43/4.3/
+    export OMERO_HOME=$BREW_DIR/Cellar/omero43/4.3/
     export ICE_CONFIG=$OMERO_HOME/etc/ice.config
-    export ICE_HOME=$OMEROLIBS/Cellar/zeroc-ice33
+    export ICE_HOME=$BREW_DIR/Cellar/zeroc-ice33
     export PYTHONPATH=$OMERO_HOME/lib/python:$ICE_HOME/3.3.1/python
- 
 
-    export PATH=/usr/local/bin:$OMEROLIBS/bin:$OMERO_HOME/bin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
-    export DYLD_LIBRARY_PATH=$OMEROLIBS/lib
+    export PATH=/usr/local/bin:$BREW_DIR/bin:$OMERO_HOME/bin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
+    export DYLD_LIBRARY_PATH=$BREW_DIR/lib
 
-NB: if you installed zeroc-ice34,use the following paths
+NB: if you installed `ice' (Ice 3.4), use the following paths
 
-    export ICE_HOME=$OMEROLIBS/Cellar/zeroc-ice34
+    export ICE_HOME=$OMEROLIBS/Cellar/ice
     export PYTHONPATH=$OMERO_HOME/lib/python:$ICE_HOME/3.4.2/python
 
 CONFIG
@@ -125,7 +130,7 @@ CONFIG
     $ launchctl load -w ~/Library/LaunchAgents/org.postgresql.postgres.plist
     $ pg_ctl -D /usr/local/var/postgres/ -l /usr/local/var/postgres/server.log start
 
-NB: under Mac OS X 10.7.3, installed postgresql version is now 9.1.3 and the file is called homebrew.mxcl.postgresql.plist 
+NB: under Mac OS X 10.7.3, installed postgresql version is now 9.1.3 and the file is called homebrew.mxcl.postgresql.plist
 
     $ createuser -P -D -R -S omero
     $ createdb -O omero omero
