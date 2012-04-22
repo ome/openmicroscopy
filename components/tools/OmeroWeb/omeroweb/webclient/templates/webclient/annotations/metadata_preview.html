@@ -49,6 +49,7 @@
 <div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% if manager.getShareId %}{% url web_image_viewer manager.getShareId manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')"><img src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
 
 
-    <div class="miniview" id="viewport"></div>
+    <div class="miniview" id="viewport">
+    </div>
 
 </div>

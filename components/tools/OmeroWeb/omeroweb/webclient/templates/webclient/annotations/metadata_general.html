@@ -161,7 +161,8 @@
                                     type: "POST",
                                     url: url,
                                     data: {'parent':parentId},
-                                    contentType:'json',
+									contentType: 'application/javascript',
+                                    dataType: 'json',
                                     success: function(r){
                                         if(eval(r.bad)) {
                                             alert(r.errs);
@@ -227,7 +228,8 @@
                                 $.ajax({
                                     type: "POST",
                                     url: url,
-                                    contentType:'json',
+                                    contentType: 'application/javascript',
+									dataType:'json',
                                     success: function(r){
                                         if(eval(r.bad)) {
                                             alert(r.errs);
@@ -931,7 +933,9 @@
 				
 				
                 {% if manager.isEditable %}
-	                <a id="launch_tags_form" href="{% url annotate_tags %}?{{manager.obj_type}}={{ manager.obj_id }}" class="btn silver btn_add"><span></span></a>
+					<div>
+						<a id="launch_tags_form" href="{% url annotate_tags %}?{{manager.obj_type}}={{ manager.obj_id }}" class="btn silver btn_add"><span></span></a>
+					</div>
                 {% endif %}
                 
 				<!-- hidden form for choosing new or existing Tags in dialog - load form via AJAX when we show dialog -->

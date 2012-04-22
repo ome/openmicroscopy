@@ -397,15 +397,20 @@ button {
 */
     
     
+ .tag {
+	 display:inline-block;
+	 float:left;
+	 margin:1px 1px;
+	 position:relative;
+	 
+ }   
     
-    
-a.tag {
+.tag .tag_inner{
     font-size: 1em;
 	text-shadow: 0 1px 0 rgba(255,255,255,.8);
-	border:solid 1px red;
 	display:inline-block;
 	margin:2px 0;
-	padding: 0 .7em;
+	padding: 0 2em 0 .7em;
 	line-height:1.5em;
     -webkit-border-radius: 30px;
 	-moz-border-radius: 30px;
@@ -427,10 +432,10 @@ a.tag {
 	box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
 }
     
-a.tag:hover {
+.tag .tag_inner:hover {
 	background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(205, 70%, 75%)), to(hsl(205, 65%, 80%)));
-	
-	background:#fff; /* Old browsers */
+
+	background:blue; /* Old browsers */
 	background-image:-moz-linear-gradient(top, hsl(205,65%,80%) 0%, hsl(205,70%,75%) 100%); /* FF3.6+ */
 	background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,hsl(205,65%,80%)), color-stop(100%,hsl(205,70%,75%))); /* Chrome,Safari4+ */
 	background-image:-webkit-linear-gradient(top, hsl(205,65%,80%) 0%,hsl(205,70%,75%) 100%); /* Chrome10+,Safari5.1+ */
@@ -455,15 +460,17 @@ a.tag:hover {
 	width:12px;
 	height:12px;
 	background:url(../image/icon_tag_delete.png) center center no-repeat;
-	position:relative;
-	right:-5px;
-	top:2px;
+	position:absolute;
+	z-index:99;
+	right:5px;
+	top:5px;
 	-webkit-border-radius:20px;
 	-moz-border-radius:20px;
 	border-radius:20px;
 	text-align:center;
 	margin-left:5px;
 	overflow:hidden;
+	display:block !important;
 }
 
 

@@ -31,7 +31,7 @@
 
 
 {% if fileann.getFileName %}
-<li>
+<li class="file_ann_wrapper">
     <a class='tooltip' href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';" 
         title="Linked by {{ fileann.link.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}. {% trans "Owner:" %} {{ fileann.getDetails.getOwner.getNameWithInitial }}">
         {{ fileann.getFileName|shortening:40 }}
@@ -50,7 +50,7 @@
 	    {% endif %}
 	
 	    {% if fileann.canDelete and not fileann.isOriginalMetadata %}
-	        <a id="{{ fileann.id }}-file" type="image" class="action" alt="Delete File" title="Delete File"> &#215 </a>
+	        <a id="{{ fileann.id }}-file" type="image" class="deleteFile action" alt="Delete File" title="Delete File"> &#215 </a>
 	    {% endif %}
 	
 	    <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
