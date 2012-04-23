@@ -895,7 +895,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     screens = c_type == "screen" and list(conn.getObjects("Screen", [c_id])) or list()
     plates = c_type == "plate" and list(conn.getObjects("Plate", [c_id])) or list()
     acquisitions = c_type == "acquisition" and list(conn.getObjects("PlateAcquisition", [c_id])) or list()
-    shares = c_type == "share" and [conn.getShare(c_id)] or list()
+    shares = (c_type == "share" or c_type == "discussion") and [conn.getShare(c_id)] or list()
     wells = list()
     if c_type == "well":
         for w in conn.getObjects("Well", [c_id]):
@@ -910,7 +910,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         'plates':c_type == "plate" and [c_id] or [],
         'acquisitions':c_type == "acquisition" and [c_id] or [],
         'wells':c_type == "well" and [c_id] or [],
-        'shares':c_type == "share" and [c_id] or []}
+        'shares':(c_type == "share" or c_type == "discussion") and [c_id] or []}
 
     initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells, 'shares': shares}
     
