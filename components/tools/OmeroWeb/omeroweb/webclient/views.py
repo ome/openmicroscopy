@@ -1471,6 +1471,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
 def get_original_file(request, fileId, conn=None, **kwargs):
     """ Returns the specified original file as an http response. Used for displaying text or png/jpeg etc files in browser """
 
+    # May be viewing results of a script run in a different group.
+    conn.CONFIG['SERVICE_OPTS']['omero.group'] = '-1'
+
     orig_file = conn.getObject("OriginalFile", fileId)
     if orig_file is None:
         return handlerInternalError(request, "Original File does not exists (id:%s)." % (fileId))
@@ -1956,6 +1959,10 @@ def activities(request, conn=None, **kwargs):
     The returned html contains details for ALL callbacks in web session, regardless of their status.
     We also add counts of jobs, failures and 'in progress' to update status bar.
     """
+
+    # need to be able to retrieve the results from any group
+    conn.CONFIG['SERVICE_OPTS']['omero.group'] = '-1'
+
     in_progress = 0
     failure = 0
     _purgeCallback(request)
