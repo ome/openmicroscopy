@@ -36,6 +36,8 @@ import traceback
 import logging
 import re
 
+import omeroweb.webclient.views
+
 from time import time
 
 from omero_version import omero_version
@@ -69,101 +71,20 @@ from controller.drivespace import BaseDriveSpace, usersData
 from controller.uploadfile import BaseUploadFile
 from controller.enums import BaseEnums
 
-from omeroweb.webclient.views import _session_logout, navHelper
+from omeroweb.webclient.views import navHelper
 from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck, getGuestConnection
-from omeroweb.webgateway.views import getBlitzConnection
 
 from omeroweb.webadmin.custom_models import Server
 
-logger = logging.getLogger(__name__)
+from omeroweb.webclient.decorators import login_required
+from omeroweb.connector import Connector
 
-connectors = {}
+logger = logging.getLogger(__name__)
 
 logger.info("INIT '%s'" % os.getpid())
 
 ################################################################################
 # decorators
-
-def isAdminConnected (f):
-    def wrapped (request, *args, **kwargs):
-        #this check the connection exist, if not it will redirect to login page
-        url = request.REQUEST.get('url')
-        if url is None or len(url) == 0:
-            url = request.get_full_path()
-        
-        conn = None
-        try:
-            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
-        except KeyError:
-            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (str(x),url)))
-        if conn is None:
-            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
-        
-        if not conn.isAdmin():
-            return page_not_found(request, "404.html")
-        kwargs["conn"] = conn
-        navHelper(request, conn)
-        return f(request, *args, **kwargs)
-
-    return wrapped
-
-def isOwnerConnected (f):
-    def wrapped (request, *args, **kwargs):
-        #this check the connection exist, if not it will redirect to login page
-        url = request.REQUEST.get('url')
-        if url is None or len(url) == 0:
-            url = request.get_full_path()
-        
-        conn = None
-        try:
-            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
-        except KeyError:
-            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (str(x),url)))
-        if conn is None:
-            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
-        
-        if kwargs.get('gid') is not None:
-            if not conn.isOwner(kwargs.get('gid')):
-                return page_not_found(request, "404.html")
-        else:
-            if not conn.isOwner():
-                return page_not_found(request, "404.html")
-        kwargs["conn"] = conn
-        navHelper(request, conn)
-        return f(request, *args, **kwargs)
-
-    return wrapped
-
-def isUserConnected (f):
-    def wrapped (request, *args, **kwargs):
-        #this check connection exist, if not it will redirect to login page
-        url = request.REQUEST.get('url')
-        if url is None or len(url) == 0:
-            url = request.get_full_path()
-        
-        conn = None
-        try:
-            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
-        except KeyError:
-            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (str(x),url)))
-        if conn is None:
-            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
-        
-        kwargs["conn"] = conn
-        kwargs["url"] = url
-        navHelper(request, conn)
-        return f(request, *args, **kwargs)
-    
-    return wrapped
 
 def isAnythingCreated(f):
     def wrapped (request, *args, **kwargs):
@@ -184,7 +105,7 @@ def forgotten_password(request, **kwargs):
     template = "webadmin/forgotten_password.html"
     
     conn = None
-    error = None    
+    error = None
     blitz = None
     
     if request.method == 'POST':
@@ -212,75 +133,12 @@ def forgotten_password(request, **kwargs):
         form = ForgottonPasswordForm()
     
     context = {'error':error, 'form':form}    
-    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-def login(request):
-    request.session.modified = True
-    
-    if request.method == 'POST' and request.REQUEST.get('server'):
-        blitz = Server.get(pk=request.REQUEST.get('server')) 
-        request.session['server'] = blitz.id
-        request.session['host'] = blitz.host
-        request.session['port'] = blitz.port
-        request.session['username'] = smart_str(request.REQUEST.get('username'))
-        request.session['password'] = smart_str(request.REQUEST.get('password'))
-        request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
-        
-    error = request.REQUEST.get('error')
-    
-    conn = None
-    # TODO: version check should be done on the low level, see #5983
-    if _checkVersion(request.session.get('host'), request.session.get('port')):
-        try:
-            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            error = str(x)
-    
-    if conn is not None:
-        upgradeCheck()
-        request.session['version'] = conn.getServerVersion()
-        return HttpResponseRedirect(reverse("waindex"))
-    else:
-        if request.method == 'POST' and request.REQUEST.get('server'):
-            if not _isServerOn(request.session.get('host'), request.session.get('port')):
-                error = "Server is not responding, please contact administrator."
-            elif not _checkVersion(request.session.get('host'), request.session.get('port')):
-                error = "Client version does not match server, please contact administrator."
-            else:
-                error = "Connection not available, please check your user name and password."
-
-        request.session['server'] = request.REQUEST.get('server')
-        
-        template = "webadmin/login.html"
-        if request.method == 'POST':
-            form = LoginForm(data=request.REQUEST.copy())
-        else:
-            blitz = Server.get(pk=request.session.get('server')) 
-            if blitz is not None:
-                initial = {'server': unicode(blitz.id)}
-                try:
-                    if request.session.get('username'):
-                        initial['username'] = unicode(request.session.get('username'))
-                        form = LoginForm(data=initial)
-                    else:                        
-                        form = LoginForm(initial=initial)
-                except:
-                    form = LoginForm(initial=initial)
-            else:
-                form = LoginForm()
-        context = {'version': omero_version, 'error':error, 'form':form}
-        context['nav'] = request.session['nav']
-        t = template_loader.get_template(template)
-        c = Context(request, context)
-        rsp = t.render(c)
-        return HttpResponse(rsp)
-
-@isUserConnected
+@login_required()
 @isAnythingCreated
 def index(request, **kwargs):
     conn = None
@@ -297,24 +155,16 @@ def index(request, **kwargs):
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
 
-
-@isUserConnected
+@login_required()
 def logout(request, **kwargs):
-    _session_logout(request, request.session.get('server'))
-    #request.session.set_expiry(1)
+    omeroweb.webclient.views.logout(request, **kwargs)
     return HttpResponseRedirect(reverse("waindex"))
 
-@isAdminConnected
+@login_required(isAdmin=True)
 @isAnythingCreated
-def experimenters(request, **kwargs):
+def experimenters(request, conn=None, **kwargs):
     experimenters = True
     template = "webadmin/experimenters.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
     if kwargs['firsttime']:
@@ -330,17 +180,11 @@ def experimenters(request, **kwargs):
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@isAdminConnected
+@login_required(isAdmin=True)
 @isAnythingCreated
-def manage_experimenter(request, action, eid=None, **kwargs):
+def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     experimenters = True
     template = "webadmin/experimenter_form.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
     if kwargs['firsttime']:
@@ -448,22 +292,15 @@ def manage_experimenter(request, action, eid=None, **kwargs):
     else:
         return HttpResponseRedirect(reverse("waexperimenters"))
     
-    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@isUserConnected
-def manage_password(request, eid, **kwargs):
+@login_required()
+def manage_password(request, eid, conn=None, **kwargs):
     experimenters = True
     template = "webadmin/password.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
 
@@ -496,24 +333,17 @@ def manage_password(request, eid, **kwargs):
                     return HttpResponseRedirect(reverse("wamyaccount"))
                 
     context = {'info':info, 'error':error, 'eventContext':eventContext, 'password_form':password_form, 'eid': eid}
-    context['nav'] = request.session['nav']
     
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@isAdminConnected
+@login_required(isAdmin=True)
 @isAnythingCreated
-def groups(request, **kwargs):
+def groups(request, conn=None, **kwargs):
     groups = True
     template = "webadmin/groups.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'groups':groups}
     if kwargs['firsttime']:
@@ -523,24 +353,17 @@ def groups(request, **kwargs):
     controller = BaseGroups(conn)
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
-    context['nav'] = request.session['nav']
     
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@isAdminConnected
+@login_required(isAdmin=True)
 @isAnythingCreated
-def manage_group(request, action, gid=None, **kwargs):
+def manage_group(request, action, gid=None, conn=None, **kwargs):
     groups = True
     template = "webadmin/group_form.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'groups':groups}
     if kwargs['firsttime']:
@@ -611,22 +434,15 @@ def manage_group(request, action, gid=None, **kwargs):
     else:
         return HttpResponseRedirect(reverse("wagroups"))
     
-    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@isOwnerConnected
-def manage_group_owner(request, action, gid, **kwargs):
+@login_required(isGroupOwner=True)
+def manage_group_owner(request, action, gid, conn=None, **kwargs):
     myaccount = True
     template = "webadmin/group_form_owner.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
@@ -651,46 +467,32 @@ def manage_group_owner(request, action, gid, **kwargs):
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
     
-    context['nav'] = request.session['nav']
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@isAdminConnected
-def ldap(request, **kwargs):
+@login_required(isAdmin=True)
+def ldap(request, conn=None, **kwargs):
     scripts = True
     template = "webadmin/ldap_search.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'scripts':scripts}
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = None
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
-    context['nav'] = request.session['nav']
     
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-#@isAdminConnected
-#def enums(request, **kwargs):
+#@login_required(isAdmin=True)
+#def enums(request, conn=None, **kwargs):
 #    enums = True
 #    template = "webadmin/enums.html"
 #    error = request.REQUEST.get('error') and request.REQUEST.get('error').replace("_", " ") or None
-#    
-#    conn = None
-#    try:
-#        conn = kwargs["conn"]
-#    except:
-#        logger.error(traceback.format_exc())
 #    
 #    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums, 'error':error}
 #    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
@@ -703,16 +505,10 @@ def ldap(request, **kwargs):
 #    rsp = t.render(c)
 #    return HttpResponse(rsp)
 
-#@isAdminConnected
-#def manage_enum(request, action, klass, eid=None, **kwargs):
+#@login_required(isAdmin=True)
+#def manage_enum(request, action, klass, eid=None, conn=None, **kwargs):
 #    enums = True
 #    template = "webadmin/enum_form.html"
-#        
-#    conn = None
-#    try:
-#        conn = kwargs["conn"]
-#    except:
-#        logger.error(traceback.format_exc())
 #    
 #    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums}
 #    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
@@ -752,20 +548,14 @@ def ldap(request, **kwargs):
 #    rsp = t.render(c)
 #    return HttpResponse(rsp)
 
-@isAdminConnected
+@login_required(isAdmin=True)
 def imports(request, **kwargs):
     return HttpResponseRedirect(reverse("waindex"))
 
-@isUserConnected
-def my_account(request, action=None, **kwargs):
+@login_required()
+def my_account(request, action=None, conn=None, **kwargs):
     myaccount = True
     template = "webadmin/myaccount.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
     eventContext = {'userId':conn.getEventContext().userId,'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
@@ -809,27 +599,16 @@ def my_account(request, action=None, **kwargs):
     c = Context(request,context)
     return HttpResponse(t.render(c))
 
-@isUserConnected
-def myphoto(request, **kwargs):
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
+@login_required()
+def myphoto(request, conn=None, **kwargs):
     photo = conn.getExperimenterPhoto()
     return HttpResponse(photo, mimetype='image/jpeg')
 
 
-@isUserConnected
-def manage_avatar(request, action=None, **kwargs):
+@login_required()
+def manage_avatar(request, action=None, conn=None, **kwargs):
     myaccount = True
     template = "webadmin/avatar.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
     eventContext = {'userId':conn.getEventContext().userId,'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
@@ -872,23 +651,16 @@ def manage_avatar(request, action=None, **kwargs):
     return HttpResponse(t.render(c))
 
 
-@isUserConnected
-def drivespace(request, **kwargs):
+@login_required()
+def drivespace(request, conn=None, **kwargs):
     drivespace = True
     template = "webadmin/drivespace.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'drivespace':drivespace}
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = BaseDriveSpace(conn)
         
     context = {'info':info, 'eventContext':eventContext, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace }}
-    context['nav'] = request.session['nav']
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -896,14 +668,8 @@ def drivespace(request, **kwargs):
     return HttpResponse(rsp)
 
 
-@isUserConnected
-def load_drivespace(request, **kwargs):
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
+@login_required()
+def load_drivespace(request, conn=None, **kwargs):
     offset = request.REQUEST.get('offset', 0)
     rv = usersData(conn, offset)
     return HttpResponse(simplejson.dumps(rv),mimetype='application/json')

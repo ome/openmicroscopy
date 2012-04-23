@@ -49,7 +49,7 @@ class BaseController(object):
         self.eContext['advice'] = None
     
     def getShareId(self):
-        return self.conn._shareId
+        return self.conn.getShareId()
     
     ###########################################################
     # Paging

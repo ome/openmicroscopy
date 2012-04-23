@@ -226,7 +226,7 @@
                     var pr = $(data.args[1]);
                     
                     data.args[0].each(function (i) {
-                        url = '/webclient/action/removefromshare/share/'+pr.attr('id').split('-')[1]+'/'
+                        url = '{% url manage_action_containers "removefromshare" "share" %}'+pr.attr('id').split('-')[1]+'/'
                         $.ajax({
                             async : false,
                             url: url,
@@ -243,7 +243,6 @@
                             },
                             error: function(response) {
                                 $.jstree.rollback(data.rlbk);
-                                alert("Internal server error. Cannot remove image.");
                             }
                         });
                     });

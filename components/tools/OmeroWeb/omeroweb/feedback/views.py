@@ -35,9 +35,9 @@ import logging
 
 from django.conf import settings
 from django.core import template_loader
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError, HttpResponseNotFound
 from django.shortcuts import render_to_response
-from django.template import RequestContext as Context
+from django.template import RequestContext, Context
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
 from django.core.urlresolvers import reverse
@@ -79,11 +79,13 @@ def send_feedback(request):
             finally:
                 fileObj.close()
 
+        if request.is_ajax():
+            return HttpResponse("<h1>Thanks for your feedback</h1><p>You may need to refresh your browser to recover from the error</p>");
         return HttpResponseRedirect(reverse("fthanks"))
         
     context = {'form':form, 'error':error}
     t = template_loader.get_template('500.html') 
-    c = Context(request, context)
+    c = RequestContext(request, context)
     return HttpResponse(t.render(c))
 
 def send_comment(request):
@@ -109,7 +111,7 @@ def send_comment(request):
         
     context = {'form':form, 'error':error}
     t = template_loader.get_template('comment.html') 
-    c = Context(request, context)
+    c = RequestContext(request, context)
     return HttpResponse(t.render(c))
 
 def custom_server_error(request, error500):
@@ -122,13 +124,19 @@ def custom_server_error(request, error500):
     form = ErrorForm(initial={'error':error500})
     context = {'form':form}
     t = template_loader.get_template('500.html') 
-    c = Context(request, context)
+    c = RequestContext(request, context)
     return HttpResponse(t.render(c))
 
 ################################################################################
 # handlers
 
 def handler500(request):
+    """
+    Custom error handling. 
+    Catches errors that are not handled elsewhere.
+    NB: This only gets used by Django if omero.web.debug False (production use)
+    If debug is True, Django returns it's own debug error page
+    """
     logger.error('handler500: Server error')
     as_string = '\n'.join(traceback.format_exception(*sys.exc_info()))
     logger.error(as_string)
@@ -140,6 +148,10 @@ def handler500(request):
         
     error500 = "%s\n\n%s" % (as_string, request_repr)
         
+    # If AJAX, return JUST the error message (not within html page)
+    if request.is_ajax():
+        return HttpResponseServerError(error500)
+    
     return custom_server_error(request, error500)
 
 def handler404(request):
@@ -150,7 +162,17 @@ def handler404(request):
                 })
     return page_not_found(request, "404.html")
 
-def handlerInternalError(error):
-    template = "error.html"
+def handlerInternalError(request, error):
+    """
+    This is mostly used in an "object not found" situation,
+    So there is no feedback form - simply display "not found" message.
+    If the call was AJAX, we return the message in a 404 response.
+    Otherwise return an html page, with 404 response.
+    """
+    if request.is_ajax():
+        return HttpResponseNotFound(error)
+
     context = {"error":error}
-    return render_to_response(template,context)
+    t = template_loader.get_template("error.html") 
+    c = RequestContext(request, context)
+    return HttpResponseNotFound(t.render(c))

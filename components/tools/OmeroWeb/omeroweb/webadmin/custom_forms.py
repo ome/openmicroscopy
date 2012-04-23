@@ -150,13 +150,14 @@ class GroupModelChoiceField(ModelChoiceField):
         if value in EMPTY_VALUES:
             return None
         res = False
-        for q in self.queryset:
-            if hasattr(q.id, 'val'):
-                if long(value) == q.id.val:
-                    res = True
-            else:
-                if long(value) == q.id:
-                    res = True
+        for experimenter_type, experimenters in self.queryset:
+            for experimenter in experimenters:
+                if hasattr(experimenter.id, 'val'):
+                    if long(value) == experimenter.id.val:
+                        res = True
+                else:
+                    if long(value) == experimenter.id:
+                        res = True
         if not res:
             raise ValidationError(self.error_messages['invalid_choice'])
         return value

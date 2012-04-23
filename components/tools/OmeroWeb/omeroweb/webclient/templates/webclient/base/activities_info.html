@@ -93,11 +93,13 @@
                     success: function(r){
                          $jobRow.remove();
                          $("#jobsTable").alternateRowColors();
-                    },
-                    error: function(r){}
+                    }
                 });
 
             });
+        }).error(function() {
+            // this requires jQuery 1.5 or later
+            clearInterval(i);
         });
     }
     

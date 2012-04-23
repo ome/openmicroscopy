@@ -122,6 +122,43 @@ class TestIShare(lib.ITest):
 ##        share2.addComment(self.share_id,"guest comment for share %i" % self.share_id)
 ##        self.assertEquals(1,len(share2.getComments(self.share_id)))
 
+    def test8118(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        share_serv = self.root.sf.getShareService()
+        update_serv = self.root.sf.getUpdateService()
+        
+        # create user
+        user1 = self.new_user()
+        
+        # create image
+        img = ImageI()
+        img.setName(rstring('test8118-img-%s' % (uuid)))
+        img.setAcquisitionDate(rtime(0))
+        img = update_serv.saveAndReturnObject(img)
+        img.unload()
+        
+        # create share
+        description = "my description"
+        timeout = None
+        objects = [img]
+        experimenters = [user1]
+        guests = []
+        enabled = True
+        sid = share_serv.createShare(description, timeout, objects,experimenters, guests, enabled)
+        suuid = share_serv.getShare(sid).uuid
+        
+        self.assertEquals(1,len(share_serv.getContents(sid)))
+        
+        # join share
+        user1_client = omero.client()
+        try:
+            user1_client.createSession(suuid,suuid)
+            user1_share = user1_client.sf.getShareService()
+            user1_share.activate(sid)
+            self.assertEquals(1, len(user1_share.getContents(sid)))
+        finally:
+            user1_client.__del__()
+        
     def test1154(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
 
