@@ -59,7 +59,10 @@ class login_required(object):
 
     def get_share_connection (self, request, conn, share_id):
         try:
-            conn.CONFIG['SERVICE_OPTS']= {'omero.share': str(share_id)}
+            try:
+                conn.CONFIG['SERVICE_OPTS']['omero.share'] = str(share_id)
+            except:
+                conn.CONFIG['SERVICE_OPTS'] = {'omero.share': str(share_id)}
             share = conn.getShare(share_id)
             conn.getShareService().activate(long(share_id))
             return conn
@@ -70,9 +73,12 @@ class login_required(object):
     def prepare_share_connection(self, request, conn, share_id):
         """Prepares the share connection if we have a valid share ID."""
         if share_id is None:
-            if conn.getAdminService().getEventContext().shareId > 0:
+            if conn.getEventContext().shareId > 0:
                 conn.getShareService().deactivate()
-                conn.CONFIG['SERVICE_OPTS'] = None
+                try:
+                    del conn.CONFIG['SERVICE_OPTS']['omero.share']
+                except:
+                    pass
             return None
         share = conn.getShare(share_id)
         try:
