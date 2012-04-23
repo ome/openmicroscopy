@@ -27,7 +27,7 @@
        
 	    <!-- Group / User drop-down -->
         
-		<span id="groupsUsersButton" title="Switch Group/User">
+		<div id="groupsUsersButton" title="Switch Group/User">
 			<img  {% if group.getDetails.getPermissions.isGroupWrite %} src="{% static "webclient/image/nuvola_ledorange16.png" %}"
             {% else %}
                 {% if group.details.permissions.isGroupRead %} src="{% static "webclient/image/nuvola_ledorange_readOnly16.png" %}"
@@ -35,8 +35,8 @@
                     src="{% static "webclient/image/nuvola_ledred16.png" %}"
                 {% endif %}
             {% endif %} />
-			{{ group.name }}			
-        </span>
+			<span>{{ group.name }}</span><span>Will Moore</span>
+        </div>
 
         <ul id="groupList" class="sub_menu dropdown">
             {% for grp in groups %}

@@ -39,8 +39,18 @@
             $("div#content_details").load('{% url load_history %}'+y+'/'+m+'/'+d+'/?experimenter={{ nav.experimenter }}'); 
         }
     </script>
+	
+	
     
+    <div id="user_selection">
+		
+    	{% include "webclient/base/group_user_dropdown.html" %}
+	
+	</div>
+	
+	
 <div class="calendar">
+	
 	
     <div class="cal_nav left_panel_top">
        
