@@ -430,7 +430,7 @@
 
   var editLinePlot = function (show) {
     if (show) {
-      viewport.prepareLinePlot($('#wblitz-lp-axis-select option[selected]').val());
+      viewport.prepareLinePlot($('#wblitz-lp-axis-select option[selected]').val() || 'h');
     } else {
       viewport.hidePlot();
     }
