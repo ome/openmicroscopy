@@ -108,7 +108,7 @@
             {% for c in manager.containers.projects %}
                 <tr id="project-{{ c.id }}">
                     <td class="image">
-                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder32.png" %}" alt="project" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder16.png" %}" alt="project" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    
@@ -126,7 +126,7 @@
             {% for c in manager.containers.datasets %}
                 <tr id="dataset-{{ c.id }}">
                     <td class="image">
-                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder_image32.png" %}" alt="dataset" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder_image16.png" %}" alt="dataset" title="{{ c.name }}"/>
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="date">{{ c.getDate }}</td>                    

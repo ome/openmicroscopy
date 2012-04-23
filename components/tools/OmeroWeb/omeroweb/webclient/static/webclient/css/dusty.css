@@ -705,8 +705,8 @@ button {
 		-webkit-border-radius:50px;
 		-moz-border-radius:50px;
 		border-radius:50px;
-		border:solid 1px hsl(215,25%,40%);
-		border-top:solid 1px hsl(215,35%,38%);
+		border:solid 1px hsl(215,15%,50%);
+		border-top:solid 1px hsl(215,15%,38%);
 		padding: .2em .5em;
 		font-size:1.2em;
 		color:#333;
@@ -724,7 +724,7 @@ button {
 		width:20px;
 		height:20px;
 		border:none;
-		display:block
+		display:block;
 		opacity:.2;
 		
 		-webkit-transition:   opacity .2s linear;		

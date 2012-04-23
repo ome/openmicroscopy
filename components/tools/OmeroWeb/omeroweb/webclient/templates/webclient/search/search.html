@@ -124,13 +124,17 @@
 {% endblock %}
 
 {% block left %}
+
+
+<div id="user_selection">
+
+{% include "webclient/base/group_user_dropdown.html" %}
+	
+</div>
+
+
 <div id="searching">
 	
-    <div class="left_panel_top">
-       
-	   	<h1>Search</h1>
-	
-	</div>
 	
 	{% comment %}
     <div>

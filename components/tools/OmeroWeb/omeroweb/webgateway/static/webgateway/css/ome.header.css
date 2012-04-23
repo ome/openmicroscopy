@@ -964,7 +964,6 @@
 	.left_panel_inner {
 	     position: absolute;
 	     left:0px; right:0px; bottom:0px; top:33px;
-	     padding:15px;
 	     overflow: auto;
 		 border-right:solid 1px hsl(210,10%,85%);
 	 }

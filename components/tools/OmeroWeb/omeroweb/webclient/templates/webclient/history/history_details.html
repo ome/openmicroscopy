@@ -119,7 +119,7 @@
             {% for c in i.project %}
                 <tr id="project-{{ c.id }}">
                     <td class="image">
-                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder32.png" %}" alt="project" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder16.png" %}" alt="project" title="{{ c.name }}"/>
                         <input type="checkbox" name="project" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
@@ -139,7 +139,7 @@
             {% for c in i.dataset %}
                 <tr id="dataset-{{ c.id }}">
                     <td class="image">
-                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder_image32.png" %}" alt="dataset" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}" src="{% static "webgateway/img/folder_image16.png" %}" alt="dataset" title="{{ c.name }}"/>
                         <input type="checkbox" name="dataset" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
