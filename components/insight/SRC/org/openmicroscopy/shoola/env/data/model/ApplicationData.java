@@ -52,7 +52,7 @@ public class ApplicationData {
 	 * The platform specific extractor used to obtain application information
 	 */
 	private static ApplicationDataExtractor extractor;
-	
+
 	/** The path to the application. */
 	private File file;
 
@@ -91,14 +91,15 @@ public class ApplicationData {
 	 * Creates a new instance.
 	 * 
 	 * @param file
-	 *            the application.
+	 *            the {@link File} pointing to the location of the application.
 	 * @throws Exception
+	 *             thrown if the File points to a location that is incorrect
 	 */
 	public ApplicationData(File file) throws Exception {
 		this.file = file;
 
 		if (!file.exists())
-			throw new Exception("Application does nto exists @ "
+			throw new Exception("Application does not exists @ "
 					+ file.getAbsolutePath());
 
 		try {
@@ -113,6 +114,16 @@ public class ApplicationData {
 		}
 	}
 
+	/**
+	 * Creates a new instance of @link {@link ApplicationData}
+	 * 
+	 * @param icon
+	 *            the icon of the application
+	 * @param applicationName
+	 *            the name of the application
+	 * @param executablePath
+	 *            the system path to the application executable
+	 */
 	public ApplicationData(Icon icon, String applicationName,
 			String executablePath) {
 		this.applicationIcon = icon;
@@ -175,6 +186,18 @@ public class ApplicationData {
 		return applicationName;
 	}
 
+	/**
+	 * Builds the command used to open the file based on the
+	 * {@link ApplicationData} passed in, if the {@link ApplicationData} is null
+	 * then the platform specific default command is built
+	 * 
+	 * @param data
+	 *            the Application Data holding details of the application to use
+	 *            to open the file
+	 * @param file
+	 *            the {@link File} representing the location of the file to open
+	 * @return the command string that when executed should open the file.
+	 */
 	public static String buildCommand(ApplicationData data, File file) {
 		StringBuilder commandBuilder = new StringBuilder();
 
