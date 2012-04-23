@@ -48,10 +48,10 @@ fi
 ###################################################################
 
 installed(){
-    bin/brew list | grep -wq $1 && {
-        echo $1 installed.
-    } || {
+    bin/brew info $1 | grep -wq "Not installed" && {
         return 1
+    } || {
+	echo $1 installed
     }
 }
 
