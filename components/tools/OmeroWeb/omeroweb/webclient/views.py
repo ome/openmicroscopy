@@ -1341,13 +1341,11 @@ def annotate_comment(request, conn=None, **kwargs):
             if 'shares' in initial and initial['shares'] is not None and len(initial['shares']) > 0:
                 manager = BaseShare(conn, initial['shares'][0].id)
                 host = request.build_absolute_uri(reverse("load_template", args=["public"]))
-                textAnn = manager.addComment(host, request.session['server'], content)
-                template = "webclient/annotations/share_comment.html"
-                context = {'cm': textAnn}
+                textAnn = manager.addComment(host, conn.server_id, content)
             else:
                 manager = BaseContainer(conn)
                 textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
-                template = "webclient/annotations/comment.html"
+            template = "webclient/annotations/comment.html"
             context = {'tann': textAnn}
             
             t = template_loader.get_template(template)

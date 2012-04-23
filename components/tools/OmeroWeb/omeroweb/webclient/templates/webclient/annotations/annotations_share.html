@@ -61,7 +61,7 @@
                         var $comment = $(html)
                         $('#share_comments_container').prepend( $comment ).show();
                         $(".removeComment", $comment).click(function(event) {
-                            removeItem(event, "ann_share_comment_wrapper");
+                            removeItem(event, "ann_comment_wrapper");
                         });
                         var textArea = $('#add_share_comment_form textarea');
                         textArea.val('');
@@ -83,7 +83,7 @@
                 });
                 
                 $(".removeComment").click(function(event) {
-                    removeItem(event, "ann_share_comment_wrapper");
+                    removeItem(event, "ann_comment_wrapper");
                 });
                 
                 // handle deleting of Tag, File, Comment
@@ -320,7 +320,7 @@
                         {% if manager.share.isExpired %}
                             This {{ manager.share.getShareType|lower }} has expired and you no longer can make any comments.
                         {% else %}
-                        <form id="add_comment_form" action="{% url annotate_comment %}" method="post">
+                        <form id="add_share_comment_form" action="{% url annotate_comment %}" method="post">
                         <table>
                             <tr class="hiddenField"><td>{{ form_comment.share }}</td></tr>
                             <tr>
@@ -337,8 +337,8 @@
                 <tr>
                     <td colspan="3">
                         <div id="share_comments_container" class="lncomments">
-                            {% for cm in manager.comments %}
-                                {% include "webclient/annotations/share_comment.html" %}
+                            {% for tann in manager.comments %}
+                                {% include "webclient/annotations/comment.html" %}
                             {% endfor %}
                         </div>
                     </td>
