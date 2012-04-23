@@ -970,7 +970,7 @@ def load_metadata_preview(request, imageId, conn=None, share_id=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError(request, x)
     
-    context = {'imageId':imageId, 'manager':manager}
+    context = {'imageId':imageId, 'manager':manager, 'share_id':share_id}
 
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -2482,9 +2482,55 @@ def render_thumbnail (request, iid, conn=None, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, share_id=share_id, **kwargs)
 
+@login_required()
+def render_image_region (request, iid, z, t, server_id=None, conn=None, share_id=None, **kwargs):
+    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
+        Many options are available from the request dict.
+    I am assuming a single Pixels object on image with id='iid'. May be wrong """
+    return webgateway_views.render_image_region(request, iid, z, t, server_id=None, share_id=share_id, **kwargs)
 
+@login_required()
+def render_birds_eye_view (request, iid, size=None, conn=None, share_id=None, **kwargs):
+    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
+        Many options are available from the request dict.
+    I am assuming a single Pixels object on image with id='iid'. May be wrong """
+    return webgateway_views.render_birds_eye_view(request, iid, size=None, share_id=share_id, **kwargs)
 
-####################################################################################
+@login_required()
+def render_image (request, iid, z, t, conn=None, share_id=None, **kwargs):
+    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
+        Many options are available from the request dict.
+    I am assuming a single Pixels object on image with id='iid'. May be wrong """
+    return webgateway_views.render_image(request, iid, z, t, share_id=share_id, **kwargs)
+
+@login_required()
+def image_viewer (request, iid, conn=None, share_id=None, **kwargs):
+    """ This view is responsible for showing pixel data as images """
+    
+    kwargs['viewport_server'] = share_id is not None and reverse("webindex")+share_id or reverse("webindex")
+    return webgateway_views.full_viewer(request, iid, share_id=share_id, **kwargs)
+
+@login_required()
+def imageData_json (request, iid, conn=None, share_id=None, **kwargs):
+    """ Get a dict with image information """
+    return webgateway_views.imageData_json(request, iid=iid, share_id=share_id, **kwargs)
+
+@login_required()
+def render_row_plot (request, iid, z, t, y, w=1, conn=None, share_id=None, **kwargs):
+    """ Get a dict with image information """
+    return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, share_id=share_id, **kwargs)
+
+@login_required()
+def render_col_plot (request, iid, z, t, x, w=1, conn=None, share_id=None, **kwargs):
+    """ Get a dict with image information """
+    return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, share_id=share_id, **kwargs)
+
+@login_required()
+def render_split_channel (request, iid, z, t, conn=None, share_id=None, **kwargs):
+    """ Get a dict with image information """
+    return webgateway_views.render_split_channel(request, iid, z, t, share_id=share_id, **kwargs)
+
+#####################################################################################
 # scripting service....
 @login_required()
 def list_scripts (request, conn=None, **kwargs):

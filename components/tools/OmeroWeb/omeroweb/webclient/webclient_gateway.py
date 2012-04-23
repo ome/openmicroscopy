@@ -129,23 +129,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 self.removeGroupFromContext()
         return rv
     
-    def attachToShare (self, share_id):
-        """
-        Turns on the access control lists attached to the given share for the
-        current session. Warning: this will slow down the execution of the
-        current session for all database reads. Writing to the database will not
-        be allowed. If share does not exist or is not accessible (non-members) or
-        is disabled, then an ValidationException is thrown.
-        
-        @param shareId:     share id
-        @type shareId:      Long
-        """
-        
-        sh = self._proxies['share'].getShare(long(share_id))
-        if self._shareId is None:
-            self._proxies['share'].activate(sh.id.val)
-        self._shareId = sh.id.val
-
     def getShareId(self):
         """
         Returns active share id .
