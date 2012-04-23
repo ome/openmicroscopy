@@ -1913,6 +1913,8 @@ def getObjectUrl(conn, obj):
     """
     base_url = reverse(viewname="load_template", args=['userdata'])
 
+    blitz_obj = None
+    url = None
     # if we have a File Annotation, then we want our URL to be for the parent object...
     if isinstance(obj, omero.model.FileAnnotationI):
         fa = conn.getObject("Annotation", obj.id.val)
@@ -1923,30 +1925,38 @@ def getObjectUrl(conn, obj):
 
     if isinstance(obj, omero.model.ImageI):
         # return path from first Project we find, or None if no Projects
-        image = conn.getObject("Image", obj.id.val)
-        for d in image.listParents():
+        blitz_obj = conn.getObject("Image", obj.id.val)
+        for d in blitz_obj.listParents():
             for p in d.listParents():
-                return "%s?path=project=%d|dataset=%d|image=%d:selected" % (base_url, p.id, d.id, image.id)
-        return None
+                url = "%s?path=project=%d|dataset=%d|image=%d:selected" % (base_url, p.id, d.id, blitz_obj.id)
+                break
 
     if isinstance(obj, omero.model.DatasetI):
-        dataset = conn.getObject("Dataset", obj.id.val)
+        blitz_obj = conn.getObject("Dataset", obj.id.val)
         for p in dataset.listParents():
-            return "%s?path=project=%d|dataset=%d:selected" % (base_url, p.id, dataset.id)
-        return None
+            url = "%s?path=project=%d|dataset=%d:selected" % (base_url, p.id, blitz_obj.id)
+            break
 
     if isinstance(obj, omero.model.ProjectI):
-        return "%s?path=project=%d:selected" % (base_url, obj.id.val)
+        blitz_obj = conn.getObject("Project", obj.id.val)
+        url = "%s?path=project=%d:selected" % (base_url, obj.id.val)
 
     if isinstance(obj, omero.model.PlateI):
-        plate = conn.getObject("Plate", obj.id.val)
-        screen = plate.getParent()
+        blitz_obj = conn.getObject("Plate", obj.id.val)
+        screen = blitz_obj.getParent()
         if screen is not None:
-            return "%s?path=screen=%d|plate=%d:selected" % (base_url, screen.id, plate.id)
-        return "%s?path=plate=%d:selected" % (base_url, obj.id.val)
+            url = "%s?path=screen=%d|plate=%d:selected" % (base_url, screen.id, blitz_obj.id)
+        else:
+            url = "%s?path=plate=%d:selected" % (base_url, obj.id.val)
 
     if isinstance(obj, omero.model.ScreenI):
-        return "%s?path=screen=%d:selected" % (base_url, obj.id.val)
+        blitz_obj = conn.getObject("Screen", obj.id.val)
+        url = "%s?path=screen=%d:selected" % (base_url, obj.id.val)
+
+    if blitz_obj is None:
+        return (url, None)
+    group_id = blitz_obj.getDetails().getGroup().id
+    return (url, group_id)
 
 
 ######################
@@ -2066,7 +2076,9 @@ def activities(request, conn=None, **kwargs):
                         else:
                             if hasattr(v, "id"):    # do we have an object (ImageI, FileAnnotationI etc)
                                 obj_data = {'id': v.id.val, 'type': v.__class__.__name__[:-1]}
-                                obj_data['browse_url'] = getObjectUrl(conn, v)
+                                browse_url, group_id = getObjectUrl(conn, v)
+                                obj_data['browse_url'] = browse_url
+                                obj_data['group_id'] = group_id
                                 if v.isLoaded() and hasattr(v, "file"):
                                     #try:
                                     mimetypes = {'image/png':'png', 'image/jpeg':'jpeg', 'image/tiff': 'tiff'}
