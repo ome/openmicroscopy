@@ -235,10 +235,13 @@
                 });
                 // handle chgrp 
                 $("#chgrp-form").submit(function(e){
-                    $("#chgrp-form").dialog("close");
                     var selected = $.jstree._focused().get_selected();
                     var postData = $(this).serialize();
-                    if ($(".group_option input[checked=true]", $(this)).length < 1) return false;   // no group chosen
+                    if ($(".group_option input[type='radio']:checked", $(this)).length < 1) {
+                        alert("No group chosen");   // just in case (shouldn't happen)
+                        return false;
+                    }
+                    $("#chgrp-form").dialog("close");
                     var actionUrl= $(this).attr('action') + "?" + get_tree_selection(); // E.g. ?Dataset=34,56$Image=12
                     $.post(actionUrl, postData, function(data){
                         showActivities();
