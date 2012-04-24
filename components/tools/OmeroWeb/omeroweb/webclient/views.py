@@ -1101,6 +1101,8 @@ def annotate_comment(request, conn=None, **kwargs):
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well'],
             'shares':oids['share']}
 
+    manager = BaseContainer(conn)
+
     # Handle form submission...
     form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
     if form_multi.is_valid():
