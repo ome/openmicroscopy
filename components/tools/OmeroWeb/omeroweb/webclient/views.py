@@ -369,9 +369,10 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     myGroups = list(conn.getGroupsMemberOf())
     myGroups.sort(key=lambda x: x.getName().lower())
     form_active_group = ActiveGroupForm(initial={'activeGroup':active_group, 'mygroups':myGroups, 'url':url})
+    new_container_form = ContainerForm()
+
+    context = {'init':init, 'myGroups':myGroups, 'form_active_group':form_active_group, 'form_users':form_users, 'new_container_form':new_container_form}
     
-    context = {'init':init, 'myGroups':myGroups,
-        'form_active_group':form_active_group, 'form_users':form_users}
     context['nav'] = {'basket': request.session.get('nav')['basket']}
     context['active_group'] = int(active_group)
     context['isLeader'] = conn.isLeader()
