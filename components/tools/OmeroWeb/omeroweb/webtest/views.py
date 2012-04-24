@@ -31,14 +31,14 @@ except: #pragma: nocover
 
 
 @login_required()    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
-def dataset(request, datasetId, **kwargs):
+def dataset(request, datasetId, conn=None, **kwargs):
     """ 'Hello World' example from tutorial on http://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb """
     ds = conn.getObject("Dataset", datasetId)     # before OMERO 4.3 this was conn.getDataset(datasetId)
     return render_to_response('webtest/dataset.html', {'dataset': ds})    # generate html from template
 
 
 @login_required()    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
-def index(request, **kwargs):
+def index(request, conn=None, **kwargs):
     # use Image IDs from request...
     if request.REQUEST.get("Image", None):
         imageIds = request.REQUEST.get("Image", None)
@@ -59,7 +59,7 @@ def index(request, **kwargs):
 
 
 @login_required()
-def channel_overlay_viewer(request, imageId, **kwargs):
+def channel_overlay_viewer(request, imageId, conn=None, **kwargs):
     """
     Viewer for overlaying separate channels from the same image or different images
     and adjusting horizontal and vertical alignment of each
@@ -115,7 +115,7 @@ def channel_overlay_viewer(request, imageId, **kwargs):
 
 
 @login_required()
-def render_channel_overlay (request, **kwargs):
+def render_channel_overlay (request, conn=None, **kwargs):
     """
     Overlays separate channels (red, green, blue) from the same image or different images
     manipulating each indepdently (translate, scale, rotate etc? )
@@ -226,7 +226,7 @@ def render_channel_overlay (request, **kwargs):
 
 
 @login_required()
-def add_annotations (request, **kwargs):
+def add_annotations (request, conn=None, **kwargs):
     """
     Creates a L{omero.gateway.CommentAnnotationWrapper} and adds it to the images according 
     to variables in the http request. 
@@ -277,7 +277,7 @@ def add_annotations (request, **kwargs):
     
 
 @login_required()
-def split_view_figure (request, **kwargs):
+def split_view_figure (request, conn=None, **kwargs):
     """
     Generates an html page displaying a number of images in a grid with channels split into different columns. 
     The page also includes a form for modifying various display parameters and re-submitting
@@ -375,7 +375,7 @@ def split_view_figure (request, **kwargs):
 
 
 @login_required()
-def dataset_split_view (request, datasetId, **kwargs):
+def dataset_split_view (request, datasetId, conn=None, **kwargs):
     """
     Generates a web page that displays a dataset in two panels, with the option to choose different
     rendering settings (channels on/off) for each panel. It uses the render_image url for each
@@ -460,7 +460,7 @@ def dataset_split_view (request, datasetId, **kwargs):
 
 
 @login_required()
-def image_dimensions (request, imageId, **kwargs):
+def image_dimensions (request, imageId, conn=None, **kwargs):
     """
     Prepare data to display various dimensions of a multi-dim image as axes of a grid of image planes. 
     E.g. x-axis = Time, y-axis = Channel.
@@ -523,7 +523,7 @@ def image_dimensions (request, imageId, **kwargs):
 
 
 @login_required()
-def image_rois (request, imageId, **kwargs):
+def image_rois (request, imageId, conn=None, **kwargs):
     """ Simply shows a page of ROI thumbnails for the specified image """
     roiService = conn.getRoiService()
     result = roiService.findByImage(long(imageId), None)
