@@ -64,7 +64,7 @@ import logging, os, traceback, time, zipfile, shutil
 
 logger = logging.getLogger(__name__)
 
-logger.debug("INIT")
+logger.info("INIT")
 
 def _safestr (s):
     return unicode(s).encode('utf-8')
@@ -354,7 +354,8 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                 ckey = 'S:' # postpone key creation to when we have a session uuid
 
     if r.get('username', None):
-        logger.info('getBlitzConnection(host=%s, port=%s, ssl=%s, username=%s)' %
+        logger.info('login request for experimenter "%s"' % str(username))
+        logger.debug('getBlitzConnection(host=%s, port=%s, ssl=%s, username=%s)' %
                     (str(host), str(port), str(secure), str(username)))
         logger.debug('k=%s' % str(browsersession_connection_key))
         blitzcon = None
@@ -396,9 +397,9 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                 # Have a blitzcon, but it doesn't connect.
                 if username:
                     _session_logout(request, server_id)
-                    logger.debug('connection failed with provided login information, bail out')
+                    logger.warn('connection failed with provided login information, bail out')
                     return None
-                logger.debug('Failed connection, logging out')
+                logger.warn('Failed connection, logging out')
                 _session_logout(request, server_id)
                 #return blitzcon
                 return None
@@ -1583,7 +1584,8 @@ def imageMarshal (image, key=None):
                            'invertAxis': image.isInvertedAxis()}
         except TypeError:
             # Will happen if an image has bad or missing pixel data
-            logger.error('imageMarshal', exc_info=True)
+            logger.error('TypeError on imageMarshal(%d)' % image.getId())
+            logger.debug('imageMarshal', exc_info=True)
     except AttributeError:
         rv = None
         raise
