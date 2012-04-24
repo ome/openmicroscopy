@@ -1941,6 +1941,9 @@ def getObjectUrl(conn, obj):
             for p in d.listParents():
                 url = "%s?path=project=%d|dataset=%d|image=%d:selected" % (base_url, p.id, d.id, blitz_obj.id)
                 break
+            if url is None:
+                url = "%s?path=dataset=%d|image=%d:selected" % (base_url, d.id, blitz_obj.id)   # if Dataset is orphan
+            break
 
     if isinstance(obj, omero.model.DatasetI):
         blitz_obj = conn.getObject("Dataset", obj.id.val)
