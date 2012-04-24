@@ -98,7 +98,7 @@
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
-	
+
 	<xsd:simpleType name="ProfileSource"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:documentation>
@@ -109,6 +109,22 @@
 			<xsd:enumeration value="User"/>
 			<xsd:enumeration value="File"/>
 		</xsd:restriction>
-	</xsd:simpleType>	
+	</xsd:simpleType>
+
+	<xsd:element name = "OriginalFile"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>OriginalFiles</plural></xsdfu></xsd:appinfo>
+			<xsd:documentation>Describes a original file.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:attribute name="path" use="required"  type="xsd:string"/>
+			<xsd:attribute name="size" use="required"  type="OME:NonNegativeLong"/>
+			<xsd:attribute name="atime" use="optional"  type="xsd:dateTime"/>
+			<xsd:attribute name="mtime" use="optional"  type="xsd:dateTime"/>
+			<xsd:attribute name="ctime" use="optional"  type="xsd:dateTime"/>
+			<xsd:attribute name="sha1" use="required"  type="xsd:string"/>
+			<xsd:attribute name="mimetype" use="optional"  type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
 	
 </xsd:schema>
