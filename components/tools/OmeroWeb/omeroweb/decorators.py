@@ -63,9 +63,13 @@ class login_required(object):
 
     def get_share_connection (self, request, conn, share_id):
         try:
-            conn.CONFIG['SERVICE_OPTS']= {'omero.share': str(share_id)}
+            try:
+                conn.CONFIG['SERVICE_OPTS']['omero.share'] = str(share_id)
+            except:
+                conn.CONFIG['SERVICE_OPTS'] = {'omero.share': str(share_id)}
             share = conn.getShare(share_id)
             conn.getShareService().activate(long(share_id))
+            return conn
         except:
             logger.error('Error activating share.', exc_info=True)
             return None
@@ -73,10 +77,14 @@ class login_required(object):
     def prepare_share_connection(self, request, conn, share_id):
         """Prepares the share connection if we have a valid share ID."""
         if share_id is None:
+            if conn.getEventContext().shareId > 0:
+                conn.getShareService().deactivate()
+                try:
+                    del conn.CONFIG['SERVICE_OPTS']['omero.share']
+                except:
+                    pass
             return None
         share = conn.getShare(share_id)
-        if share is None:
-            return None
         try:
             if share.getOwner().id != conn.getEventContext().userId:
                 return self.get_share_connection(request, conn, share_id)
@@ -124,13 +132,23 @@ class login_required(object):
             if not conn.isOwner():
                 raise Http404
 
+    def is_valid_public_url(self, server_id, request):
+        """
+        Verifies that the URL for the resource being requested falls within
+        the scope of the OMERO.webpublic URL filter.
+        """
+        return settings.PUBLIC_URL_FILTER.match(request.path) is not None
+
     def get_connection(self, server_id, request):
         """
         Prepares a Blitz connection wrapper (from L{omero.gateway}) for
         use with a view function.
         """
         connection = self.get_authenticated_connection(server_id, request)
-        if connection is None and settings.PUBLIC_ENABLED:
+        is_valid_public_url = self.is_valid_public_url(server_id, request)
+        logger.debug('Is valid public URL? %s' % is_valid_public_url)
+        if connection is None and settings.PUBLIC_ENABLED \
+           and is_valid_public_url:
             # If OMERO.webpublic is enabled, pick up a username and
             # password from configuration and use those credentials to
             # create a connection.
@@ -144,8 +162,13 @@ class login_required(object):
             logger.debug('Is SSL? %s' % is_secure)
             connector = Connector(server_id, is_secure)
             connection = connector.create_connection(
-                    self.useragent, username, password)
+                    self.useragent, username, password, is_public=True)
             request.session['connector'] = connector
+        elif connection is not None:
+            is_anonymous = connection.isAnonymous()
+            logger.debug('Is anonymous? %s' % is_anonymous)
+            if is_anonymous and not is_valid_public_url:
+                return None
         return connection
 
     def get_authenticated_connection(self, server_id, request):
@@ -269,14 +292,15 @@ class login_required(object):
             conn_share = ctx.prepare_share_connection(request, conn, share_id)
             if conn_share is not None:
                 ctx.on_share_connection_prepared(request, conn_share)
+                kwargs['conn'] = conn_share
+            else:
+                kwargs['conn'] = conn
+                
             #kwargs['error'] = request.REQUEST.get('error')
-            kwargs['conn'] = conn
-            kwargs['conn_share'] = conn_share
             kwargs['url'] = url
             return f(request, *args, **kwargs)
         return wraps(f)(wrapped)
-
-
+        
 class render_response(object):
     """
     This decorator handles the rendering of view methods to HttpResponse. It expects

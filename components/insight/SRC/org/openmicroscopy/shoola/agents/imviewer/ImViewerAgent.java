@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
+import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -230,6 +231,29 @@ public class ImViewerAgent
     	}
     }
     
+    /**
+     * Handles the {@link SelectChannel} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleSelectChannel(SelectChannel evt)
+    {
+    	if (evt == null) return;
+    	long pixelsID = evt.getPixelsID();
+    	ImViewer view = ImViewerFactory.getImageViewer(null, pixelsID);
+    	if (view != null && !view.isPlayingMovie()) {
+    		List<Integer> l = view.getActiveChannels();
+    		List<Integer> channels = evt.getChannels();
+    		Iterator<Integer> i = channels.iterator();
+    		Integer c;
+    		while (i.hasNext()) {
+				c = i.next();
+				if (!l.contains(c)) {
+					view.setChannelSelection(c, true);
+				}
+			}
+    	}
+    }
     /**
      * Handles the {@link CopyRndSettings} event.
      * 
@@ -467,6 +491,7 @@ public class ImViewerAgent
         bus.register(this, FLIMResultsEvent.class);
         bus.register(this, ReloadRenderingEngine.class);
         bus.register(this, ReconnectedEvent.class);
+        bus.register(this, SelectChannel.class);
     }
 
     /**
@@ -531,6 +556,8 @@ public class ImViewerAgent
         	handleReloadRenderingEngineEvent((ReloadRenderingEngine) e);
         else if (e instanceof ReconnectedEvent)
 			handleReconnectedEvent((ReconnectedEvent) e);
+        else if (e instanceof SelectChannel)
+			handleSelectChannel((SelectChannel) e);
     }
 
 }

@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -39,6 +41,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -100,7 +103,7 @@ public class OptionsDialog
 	private JPanel 			controlPanel;
 	
 	/** The component hosting added components. */
-	private JPanel			body;
+	protected JPanel			body;
 	
     /** Action performed when the {@link #yesButton} is pressed. */
     private void yesSelection()
@@ -127,17 +130,11 @@ public class OptionsDialog
     private void createComponents()
     {
     	body = new JPanel();
-    	//body.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	mainPanel = new JPanel();
-    	//mainPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	controlPanel = new JPanel();
-    	//controlPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         contentPanel = new JXHeader();
         noButton = new JButton("No");
-        //noButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         yesButton = new JButton("Yes");
-        //yesButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-        //getContentPane().setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         getRootPane().setDefaultButton(yesButton);
     }
     
@@ -221,11 +218,22 @@ public class OptionsDialog
     private void buildGUI(String message, Icon icon)
     {
     	mainPanel.setOpaque(false);
+    	mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    	double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.FILL},
+    			{TableLayout.PREFERRED, TableLayout.FILL, 
+    			TableLayout.PREFERRED}};
+    	mainPanel.setLayout(new TableLayout(size));
+    	mainPanel.add(new JLabel(icon), "0, 0");
+    	mainPanel.add(new JLabel(message), "2, 0");
+    	mainPanel.add(body, "0, 1, 2, 1");
+    	mainPanel.add(buildControlPanel(), "0, 2, 2, 2");
+    	/*
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		mainPanel.add(buildCommentPanel(message, icon));
 		mainPanel.add(body);
 		mainPanel.add(buildControlPanel());
+		*/
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
     }
     

@@ -225,9 +225,15 @@ public class MeasureLineFigure
 				g.drawString(lineAngle, (int) bounds.getX(), (int) bounds.getY());
 				boundsArray.add(bounds);
 			}
-			for( int x = 1 ; x < this.getPointCount(); x++)
+			double total = 0;
+			int n = getPointCount();
+			g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+			String v = "";
+			NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
+			
+			int px, py;
+			for( int x = 1 ; x < n; x++)
 			{
-				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 				double length = getLength(x-1, x);
 				lengthArray.add(length);
 				String lineLength = formatter.format(length);
@@ -241,15 +247,34 @@ public class MeasureLineFigure
 				Rectangle2D bounds = new Rectangle2D.Double(lengthPoint.x-15, 
 						lengthPoint.y-15,rect.getWidth()+30, 
 						rect.getHeight()+30);
-				g.setColor(
-						MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-				g.drawString(lineLength, (int)lengthPoint.x, (int)lengthPoint.y);
+				px = (int) lengthPoint.x;
+				py = (int) lengthPoint.y;
+				g.drawString(lineLength, px, py);
 				boundsArray.add(bounds);
+				total += length;
+				v += formatter.format(length);
+				if (x != (n-1)) v +="+";
+			}
+			v += "="+formatter.format(total);
+			v = addUnits(v);
+			if (n > 2) {
+				List<Point> l = getPoints();
+				Iterator<Point> j = l.iterator();
+				Point p;
+				int minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE, yLoc = 0;
+				while (j.hasNext()) {
+					p = j.next();
+					if (minX > p.x) minX = p.x;
+					if (maxX < p.x) maxX = p.x;
+					if (yLoc < p.y) yLoc = p.y;
+				}
+				Rectangle2D b = g.getFontMetrics().getStringBounds(v, g);
+				g.drawString(v, (int) minX, (int) (yLoc+b.getHeight()));
 			}
 		}
 		if (MeasurementAttributes.SHOWID.get(this))
 		{
-			Rectangle2D 		bounds;
+			Rectangle2D bounds;
 			g.setColor(this.getTextColor());
 			bounds = g.getFontMetrics().getStringBounds(getROI().getID()+"", g);
 			bounds = new Rectangle2D.Double(
@@ -411,9 +436,9 @@ public class MeasureLineFigure
 	 */
 	public double getLength(int i , int j)
 	{
-			Point2D.Double pt1 = getPt(i);
-			Point2D.Double pt2 = getPt(j);
-			return pt1.distance(pt2);
+		Point2D.Double pt1 = getPt(i);
+		Point2D.Double pt2 = getPt(j);
+		return pt1.distance(pt2);
 	}
 	
 	/**
@@ -509,15 +534,12 @@ public class MeasureLineFigure
 			pointArrayX.add(pt.getX());
 			pointArrayY.add(pt.getY());
 		}
-		
 		if (getPointCount() == 2)
 		{
 			double angle = getAngle(0, 1);
 			if (angle > 90) angle = Math.abs(angle-180);
 			angleArray.add(angle);
-			AnnotationKeys.ANGLE.set(shape, angleArray);
 			lengthArray.add(getLength(0, 1));
-			AnnotationKeys.LENGTH.set(shape, lengthArray);
 		}
 		else
 		{
@@ -527,9 +549,9 @@ public class MeasureLineFigure
 			for (int x = 1 ; x < this.getPointCount(); x++)
 				lengthArray.add(getLength(x-1, x));
 
-			AnnotationKeys.ANGLE.set(shape, angleArray);
-			AnnotationKeys.LENGTH.set(shape, lengthArray);
 		}
+		AnnotationKeys.ANGLE.set(shape, angleArray);
+		AnnotationKeys.LENGTH.set(shape, lengthArray);
 		AnnotationKeys.STARTPOINTX.set(shape, getPt(0).getX());
 		AnnotationKeys.STARTPOINTY.set(shape, getPt(0).getY());
 		AnnotationKeys.ENDPOINTX.set(shape, getPt(getPointCount()-1).getX());

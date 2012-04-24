@@ -49,8 +49,8 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            {% if manager.getShareId %}
-            var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}{{ manager.getShareId }}", {'mediaroot': '{{ STATIC_URL }}' } );
+            {% if share_id %}
+            var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}{{ share_id }}", {'mediaroot': '{{ STATIC_URL }}' } );
             viewport.load({{ imageId }}, null, location.search);
             {% else %}
             var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}", {'mediaroot': '{{ STATIC_URL }}' } );
@@ -60,10 +60,10 @@
     </script>
 
 
-<!-- VIEWER "Preview"-->
+    <!-- VIEWER "Preview"-->
 
-<!-- open-image link -->
-<div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url webgateway_full_viewer manager.image.id %}')"><img src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
+    <!-- open-image link -->
+    <div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% if share_id %}{% url web_image_viewer share_id manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')"><img src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
 
 
     <div class="miniview" id="viewport"></div>

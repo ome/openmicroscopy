@@ -512,7 +512,7 @@ class OmeroMetadataServiceImpl
 		String ioType;
 		TagAnnotation ho;
 		IObject link = null;
-		if (ann instanceof TagAnnotationData) {
+		if (ann instanceof TagAnnotationData && ann.isDirty()) {
 			TagAnnotationData tag = (TagAnnotationData) ann;
 			id = tag.getId();
 			ioType = gateway.convertPojos(TagAnnotationData.class).getName();
@@ -1043,7 +1043,7 @@ class OmeroMetadataServiceImpl
 			if (object instanceof AnnotationData) {
 				updateAnnotationData(ctx, object);
 			} else {
-				if (object.isLoaded())
+				if (object.isLoaded() && object.isDirty())
 					service.updateDataObject(ctx, object);
 			}
 			if (annotations.size() > 0) {

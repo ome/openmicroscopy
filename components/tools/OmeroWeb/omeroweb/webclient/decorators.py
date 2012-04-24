@@ -84,7 +84,6 @@ class login_required(omeroweb.decorators.login_required):
         if changes:
             request.session.modified = True
 
-
 class render_response(omeroweb.decorators.render_response):
     """ Subclass for adding additional data to the 'context' dict passed to templates """
 

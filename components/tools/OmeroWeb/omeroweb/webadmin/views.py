@@ -76,7 +76,6 @@ from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoole
 from omeroweb.webadmin.custom_models import Server
 
 from omeroweb.webclient.decorators import login_required
-from omeroweb.webclient.decorators import render_response
 from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
@@ -172,7 +171,6 @@ def experimenters(request, conn=None, **kwargs):
     template = "webadmin/experimenters.html"
     
     info = {'experimenters':experimenters}
-    
     controller = BaseExperimenters(conn)
     
     context = {'nav':request.session['nav'], 'info':info, 'controller':controller}
@@ -186,7 +184,6 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     template = "webadmin/experimenter_form.html"
     
     info = {'experimenters':experimenters}
-    
     controller = BaseExperimenter(conn, eid)
     
     if action == 'new':
@@ -296,7 +293,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 def manage_password(request, eid, conn=None, **kwargs):
     experimenters = True
     template = "webadmin/password.html"
-    
+
     info = {'experimenters':experimenters}
     
     error = None
@@ -464,7 +461,6 @@ def ldap(request, conn=None, **kwargs):
     context = {'info':info, 'controller':controller}
     context['template'] = template
     return context
-
 
 @login_required(isAdmin=True)
 def imports(request, **kwargs):

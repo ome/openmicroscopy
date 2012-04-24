@@ -191,7 +191,7 @@ $(document).ready(function() {
         query += "&imageIds="+imageId
         
         // bit of a hack - should really POST properly.
-        var url = "/webtest/add_annotations/" + "?" + query;
+        var url = "{% url webtest_add_annotations %}" + "?" + query;
         window.location = url;
     });
 });

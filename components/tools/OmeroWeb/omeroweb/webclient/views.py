@@ -72,7 +72,7 @@ from omeroweb.webclient.webclient_utils import string_to_dict
 from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
 
 from webclient_utils import _formatReport, _purgeCallback
-from forms import ShareForm, BasketShareForm, ShareCommentForm, \
+from forms import ShareForm, BasketShareForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
                     CommentAnnotationForm, TagsAnnotationForm, \
                     UsersForm, ActiveGroupForm, HistoryTypeForm, \
@@ -110,7 +110,6 @@ connectors = {}
 
 logger.info("INIT '%s'" % os.getpid())
 
-
 ################################################################################
 # views controll
 
@@ -123,61 +122,68 @@ def login(request):
     Tries to get connection to OMERO and if this works, then we are redirected to the 'index' page or url specified in REQUEST.
     If we can't connect, the login page is returned with appropriate error messages.
     """
+    
     request.session.modified = True
-    username = request.REQUEST.get('username')
-    password = request.REQUEST.get('password')
-    server_id = request.REQUEST.get('server')
-    is_secure = request.REQUEST.get('ssl', False)
-    connector = Connector(server_id, is_secure)
-
+    
     conn = None
     error = None
-    # TODO: version check should be done on the low level, see #5983
-    if server_id is not None and username is not None and password is not None \
-            and _checkVersion(*connector.lookup_host_and_port()):
-        conn = connector.create_connection('OMERO.web', username, password)
-        if conn is not None:
-            request.session['connector'] = connector
-        else:
-            error = 'Login failed.'
     
-    if conn is not None:
-        upgradeCheck()
-        request.session['version'] = conn.getServerVersion()
-        if request.REQUEST.get('noredirect'):
-            return HttpResponse('OK')
-        url = request.REQUEST.get("url")
-        if url is not None and len(url) != 0:
-            return HttpResponseRedirect(url)
-        else:
-            return HttpResponseRedirect(reverse("webindex"))
-    else:
-        if request.method == 'POST' and request.REQUEST.get('server'):
-            if not _isServerOn(request.session.get('host'), request.session.get('port')):
-                error = "Server is not responding, please contact administrator."
-            elif not _checkVersion(request.session.get('host'), request.session.get('port')):
-                error = "Client version does not match server, please contact administrator."
+    server_id = request.REQUEST.get('server')
+    form = LoginForm(data=request.REQUEST.copy())
+    if form.is_valid():
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        server_id = form.cleaned_data['server']
+        is_secure = toBoolean(form.cleaned_data['ssl'])
+        form.cleaned_data['username']
+    
+        connector = Connector(server_id, is_secure)
+        
+        # TODO: version check should be done on the low level, see #5983
+        if server_id is not None and username is not None and password is not None \
+                and _checkVersion(*connector.lookup_host_and_port()):
+            conn = connector.create_connection('OMERO.web', username, password)
+            if conn is not None:
+                request.session['connector'] = connector
+                
+                upgradeCheck()
+                request.session['version'] = conn.getServerVersion()
+                if request.REQUEST.get('noredirect'):
+                    return HttpResponse('OK')
+                url = request.REQUEST.get("url")
+                if url is not None and len(url) != 0:
+                    return HttpResponseRedirect(url)
+                else:
+                    return HttpResponseRedirect(reverse("webindex"))
             else:
-                error = "Connection not available, please check your user name and password."
-        url = request.REQUEST.get("url")
-        request.session['server'] = request.REQUEST.get('server')
-        
-        template = "webclient/login.html"
-        if request.method == 'POST':
-            form = LoginForm(data=request.REQUEST.copy())
+                error = 'Login failed.'
+    
+    if request.method == 'POST' and server_id is not None:
+        s = Server.get(server_id)
+        if not _isServerOn(s.host, s.port):
+            error = "Server is not responding, please contact administrator."
+        elif not _checkVersion(s.host, s.port):
+            error = "Client version does not match server, please contact administrator."
         else:
-            if server_id is not None:
-                initial = {'server': unicode(connector.server_id)}
-                form = LoginForm(initial=initial)
-            else:
-                form = LoginForm()
+            error = "Connection not available, please check your user name and password."
+    url = request.REQUEST.get("url")
+    
+    template = "webclient/login.html"
+    if request.method != 'POST':
+        if server_id is not None:
+            initial = {'server': unicode(server_id)}
+            form = LoginForm(initial=initial)
+        else:
+            form = LoginForm()
         
-        context = {"version": omero_version, 'error':error, 'form':form, 'url': url}
-        
-        t = template_loader.get_template(template)
-        c = Context(request, context)
-        rsp = t.render(c)
-        return HttpResponse(rsp)
+    context = {"version": omero_version, 'error':error, 'form':form, 'url': url}
+    if url is not None and len(url) != 0:
+        context['url'] = url
+    
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
 
 @login_required()
 @render_response()
@@ -287,7 +293,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     We also prepare the list of users in the current group, for the switch-user form. Change-group form is also prepared.
     """
     request.session.modified = True
-        
+    
     if menu == 'userdata':
         template = "webclient/data/containers.html"
     elif menu == 'usertags':
@@ -692,6 +698,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     screens = c_type == "screen" and list(conn.getObjects("Screen", [c_id])) or list()
     plates = c_type == "plate" and list(conn.getObjects("Plate", [c_id])) or list()
     acquisitions = c_type == "acquisition" and list(conn.getObjects("PlateAcquisition", [c_id])) or list()
+    shares = (c_type == "share" or c_type == "discussion") and [conn.getShare(c_id)] or list()
     wells = list()
     if c_type == "well":
         for w in conn.getObjects("Well", [c_id]):
@@ -705,9 +712,10 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         'screens':c_type == "screen" and [c_id] or [],
         'plates':c_type == "plate" and [c_id] or [],
         'acquisitions':c_type == "acquisition" and [c_id] or [],
-        'wells':c_type == "well" and [c_id] or []}
+        'wells':c_type == "well" and [c_id] or [],
+        'shares':(c_type == "share" or c_type == "discussion") and [c_id] or []}
 
-    initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}
+    initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells, 'shares': shares}
     
     form_comment = None
     try:
@@ -716,7 +724,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
             manager = BaseShare(conn, c_id)
             manager.getAllUsers(c_id)
             manager.getComments(c_id)
-            form_comment = ShareCommentForm()
+            form_comment = CommentAnnotationForm(initial=initial)
         else:
             manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
             if share_id is None:
@@ -771,7 +779,6 @@ def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
 
     # the index of a field within a well
     index = int(request.REQUEST.get('index', 0))
-
     try:
         template = "webclient/annotations/metadata_hierarchy.html"
         manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
@@ -965,19 +972,21 @@ def getObjects(request, conn=None):
     plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
     acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and \
             list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
+    shares = len(request.REQUEST.getlist('share')) > 0 and [conn.getShare(request.REQUEST.getlist('share')[0])] or list()
     wells = list()
     if len(request.REQUEST.getlist('well')) > 0:
         for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
             w.index=index
             wells.append(w)
-    return {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+    return {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 
+            'plate':plates, 'acquisitions':acquisitions, 'well':wells, 'share':shares}
 
 def getIds(request):
     """ Used by forms to indicate the currently selected objects prepared above """
     selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), \
             'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), \
             'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), \
-            'wells':request.REQUEST.getlist('well')}
+            'wells':request.REQUEST.getlist('well'), 'shares':request.REQUEST.getlist('share')}
     return selected
 
 
@@ -1088,9 +1097,8 @@ def annotate_comment(request, conn=None, **kwargs):
     oids = getObjects(request, conn)
     selected = getIds(request)
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
-
-    manager = BaseContainer(conn)
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well'],
+            'shares':oids['share']}
 
     # Handle form submission...
     form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
@@ -2176,14 +2184,60 @@ def avatar(request, oid=None, conn=None, **kwargs):
 @login_required()
 def render_thumbnail_resize (request, size, iid, conn=None, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_thumbnail(request, iid, w=size, _defcb=conn.defaultThumbnail, **kwargs)
+    return webgateway_views.render_thumbnail(request, iid, w=size, _defcb=conn.defaultThumbnail, share_id=share_id, **kwargs)
 
 @login_required()
 def render_thumbnail (request, iid, conn=None, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
-    return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, **kwargs)
+    return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, share_id=share_id, **kwargs)
 
+@login_required()
+def render_image_region (request, iid, z, t, server_id=None, conn=None, share_id=None, **kwargs):
+    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
+        Many options are available from the request dict.
+    I am assuming a single Pixels object on image with id='iid'. May be wrong """
+    return webgateway_views.render_image_region(request, iid, z, t, server_id=None, share_id=share_id, **kwargs)
 
+@login_required()
+def render_birds_eye_view (request, iid, size=None, conn=None, share_id=None, **kwargs):
+    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
+        Many options are available from the request dict.
+    I am assuming a single Pixels object on image with id='iid'. May be wrong """
+    return webgateway_views.render_birds_eye_view(request, iid, size=None, share_id=share_id, **kwargs)
+
+@login_required()
+def render_image (request, iid, z, t, conn=None, share_id=None, **kwargs):
+    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
+        Many options are available from the request dict.
+    I am assuming a single Pixels object on image with id='iid'. May be wrong """
+    return webgateway_views.render_image(request, iid, z, t, share_id=share_id, **kwargs)
+
+@login_required()
+def image_viewer (request, iid, conn=None, share_id=None, **kwargs):
+    """ This view is responsible for showing pixel data as images """
+    
+    kwargs['viewport_server'] = share_id is not None and reverse("webindex")+share_id or reverse("webindex")
+    return webgateway_views.full_viewer(request, iid, share_id=share_id, **kwargs)
+
+@login_required()
+def imageData_json (request, iid, conn=None, share_id=None, **kwargs):
+    """ Get a dict with image information """
+    return webgateway_views.imageData_json(request, iid=iid, share_id=share_id, **kwargs)
+
+@login_required()
+def render_row_plot (request, iid, z, t, y, w=1, conn=None, share_id=None, **kwargs):
+    """ Get a dict with image information """
+    return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, share_id=share_id, **kwargs)
+
+@login_required()
+def render_col_plot (request, iid, z, t, x, w=1, conn=None, share_id=None, **kwargs):
+    """ Get a dict with image information """
+    return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, share_id=share_id, **kwargs)
+
+@login_required()
+def render_split_channel (request, iid, z, t, conn=None, share_id=None, **kwargs):
+    """ Get a dict with image information """
+    return webgateway_views.render_split_channel(request, iid, z, t, share_id=share_id, **kwargs)
 
 ####################################################################################
 # scripting service....
@@ -2224,6 +2278,7 @@ def list_scripts (request, conn=None, **kwargs):
         scriptList.append(sData)
     scriptList.sort(key=lambda x:x['name'])
     return {'template':"webclient/scripts/list_scripts.html", 'scriptMenu': scriptList}
+
 
 @login_required()
 @render_response()

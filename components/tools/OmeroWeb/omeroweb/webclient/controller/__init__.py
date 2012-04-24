@@ -33,7 +33,7 @@ class BaseController(object):
         self.conn = conn
     
     def getShareId(self):
-        return self.conn._shareId
+        return self.conn.getShareId()
     
     ###########################################################
     # Paging
