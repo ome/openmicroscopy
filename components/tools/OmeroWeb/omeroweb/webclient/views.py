@@ -655,6 +655,7 @@ def load_template(request, menu, **kwargs):
     context['groups'] = list( conn.getGroupsMemberOf() )
     context['group'] = conn.getGroupFromContext()
     context['experimenter'] = request.session.get('nav')['experimenter'] and int(request.session.get('nav')['experimenter']) or None
+    context['user'] = context['experimenter'] and conn.getObject("Experimenter", long(context['experimenter'])) or None
     for g in context['groups']:
         g.groupSummary()    # load leaders / members
     
@@ -2537,6 +2538,14 @@ def load_calendar(request, year=None, month=None, **kwargs):
     controller.create_calendar()
     
     context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller}
+
+    context['groups'] = list( conn.getGroupsMemberOf() )
+    context['group'] = conn.getGroupFromContext()
+    context['experimenter'] = request.session.get('nav')['experimenter'] and int(request.session.get('nav')['experimenter']) or None
+    context['user'] = context['experimenter'] and conn.getObject("Experimenter", long(context['experimenter'])) or None
+    for g in context['groups']:
+        g.groupSummary()    # load leaders / members
+
     t = template_loader.get_template(template)
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)

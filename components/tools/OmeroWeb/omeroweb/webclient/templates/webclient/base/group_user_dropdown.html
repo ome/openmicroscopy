@@ -20,6 +20,31 @@
 
 
 {% if groups %}
+<script>
+    $(document).ready(function(){
+
+        $('body').click(function(event) {
+            //if (event.target.id != 'groupsUsersButton') {
+                $("#groupList").css('visibility', 'hidden');
+            //}
+        });
+        // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
+        // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
+        $("#groupsUsersButton").click(function(e){
+            // show menu
+            $('#groupList').css('visibility', 'visible');
+            return false;
+        });
+        // on hover-out, hide drop-down menus
+        $("#groupList").hover(function(){}, function(){
+            $(this).css('visibility', 'hidden');
+        });
+            
+            
+
+    });
+</script>
+
 <ul id="group_user_chooser">
 	
 	
@@ -35,7 +60,7 @@
                     src="{% static "webclient/image/nuvola_ledred16.png" %}"
                 {% endif %}
             {% endif %} />
-			<span>{{ group.name }}</span><span>Will Moore</span>
+			<span>{{ group.name }}</span><span>{{ user.getFullName }}</span>
         </div>
 
         <ul id="groupList" class="sub_menu dropdown">
