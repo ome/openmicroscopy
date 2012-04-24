@@ -143,9 +143,11 @@ class ScriptTest (lib.GTest):
         gid = ec.groupId
         qs = client.sf.getQueryService()
         ds_Id = client.getInput("datasetId").getValue()
+        print "Running test..."     # generate stdout
         try:
             dataset = qs.find("Dataset", ds_Id)
             ds_Name = dataset.name.val
+            print ds_Name
         except:
             ds_Name = "Not Found"
         client.setOutput("gid", omero.rtypes.rlong(gid))
@@ -171,6 +173,7 @@ class ScriptTest (lib.GTest):
         while cb.block(500) is None:
             pass
         results = process.getResults(0)
+        self.assertTrue('stdout' in results, "Failed to return stdout Original File. #8614")
         self.assertEqual(results["gid"].val, default_groupId, \
                 "We want script to have eventContext of group:%s not %s" % \
                 (default_groupId, results["gid"].val))
