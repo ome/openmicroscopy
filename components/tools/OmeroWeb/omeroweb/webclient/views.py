@@ -764,7 +764,7 @@ def load_metadata_preview(request, imageId, conn=None, share_id=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError(request, x)
     
-    context = {'imageId':imageId, 'manager':manager}
+    context = {'imageId':imageId, 'manager':manager, 'share_id':share_id}
     context['template'] = template
     return context
 
