@@ -1076,6 +1076,28 @@ public class EditorUtil
     }
     
     /**
+     * Returns <code>true</code> if the user is an owner of the passed group,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param group The group to check.
+     * @param userID The id of the current user.
+     * @return See above.
+     */
+    public static boolean isUserGroupOwner(GroupData group, long userID)
+    {
+    	if (group == null) return false;
+    	Set<ExperimenterData> owners = group.getExperimenters();
+    	if (owners == null) return false;
+    	Iterator<ExperimenterData> i = owners.iterator();
+    	ExperimenterData exp;
+    	while (i.hasNext()) {
+			exp = i.next();
+			if (exp.getId() == userID) return true;
+		}
+        return false;
+    }
+    
+    /**
      * Transforms the specified channel information.
      * 
      * @param data  The object to transform.

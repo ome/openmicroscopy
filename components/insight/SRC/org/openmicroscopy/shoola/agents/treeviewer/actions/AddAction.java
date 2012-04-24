@@ -107,12 +107,12 @@ public class AddAction
             setEnabled(false);
             putValue(Action.NAME, NAME); 
         } else if (ho instanceof ProjectData) {
-            setEnabled(model.isObjectWritable(ho));
+            setEnabled(model.canEdit(ho));
             putValue(Action.NAME, NAME_DATASET); 
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
         } else if (ho instanceof DatasetData) {
-            setEnabled(model.isObjectWritable(ho));
+            setEnabled(model.canEdit(ho));
             putValue(Action.NAME, NAME_IMAGE);
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));

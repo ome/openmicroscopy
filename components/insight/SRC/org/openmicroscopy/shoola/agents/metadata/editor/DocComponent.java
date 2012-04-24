@@ -211,7 +211,7 @@ class DocComponent
 		boolean link = enabled;
 		int count = 0;
 		if (enabled && data != null) {
-			b = model.isUserOwner(data);
+			b = model.canEdit(data);
 			link = model.isLinkOwner(data);
 		}
 		if (unlinkButton != null) {
@@ -549,8 +549,7 @@ class DocComponent
 	private void initComponents()
 	{
 		imageToLoad = -1;
-		if (model.isUserOwner(data)) 
-			initButtons();
+		initButtons();
 		label = new JLabel();
 		label.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		if (data == null) {

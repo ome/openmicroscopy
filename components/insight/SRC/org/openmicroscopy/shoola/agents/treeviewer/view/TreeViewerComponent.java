@@ -1570,14 +1570,15 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#isObjectWritable(Object)
+	 * @see TreeViewer#canEdit(Object)
 	 */
-	public boolean isObjectWritable(Object ho)
+	public boolean canEdit(Object ho)
 	{
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		//Check if current user can write in object
+		if (TreeViewerAgent.isAdministrator()) return true;
 		long id = model.getUserDetails().getId();
 		boolean b = false;
 		if (ho instanceof TreeImageTimeSet) {
@@ -1585,13 +1586,92 @@ class TreeViewerComponent
 			ExperimenterData exp = browser.getNodeOwner((TreeImageDisplay) ho);
 			if (exp.getId() == id) b = true;
 		} else b = EditorUtil.isUserOwner(ho, id);
-		if (b) return b; //user it the owner.
-		int level = 
-			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
+		if (b) return b; //user is the owner.
+		if (ho instanceof DataObject) {
+			DataObject data = (DataObject) ho;
+			GroupData group = model.getGroup(data.getGroupId());
+			int level = 
+			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+					group);
+			switch (level) {
+				case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+					return true;
+			}
+			return EditorUtil.isUserGroupOwner(group, id);
+		}
+		return false;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#canView(Object)
+	 */
+	public boolean canView(Object ho)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		//Check if current user can write in object
+		if (TreeViewerAgent.isAdministrator()) return true;
+		long id = model.getUserDetails().getId();
+		boolean b = false;
+		if (ho instanceof TreeImageTimeSet) {
+			Browser browser = model.getSelectedBrowser();
+			ExperimenterData exp = browser.getNodeOwner((TreeImageDisplay) ho);
+			if (exp.getId() == id) b = true;
+		} else b = EditorUtil.isUserOwner(ho, id);
+		if (b) return b; //user is the owner.
+		if (ho instanceof DataObject) {
+			DataObject data = (DataObject) ho;
+			GroupData group = model.getGroup(data.getGroupId());
+			int level = 
+			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+					group);
+			switch (level) {
+				case AdminObject.PERMISSIONS_GROUP_READ:
+				case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+				case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+					return true;
+			}
+			return EditorUtil.isUserGroupOwner(group, id);
+		}
+		return false;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#canAnnotate(Object)
+	 */
+	public boolean canAnnotate(Object ho)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		//Check if current user can write in object
+		if (TreeViewerAgent.isAdministrator()) return true;
+		long id = model.getUserDetails().getId();
+		boolean b = false;
+		if (ho instanceof TreeImageTimeSet) {
+			Browser browser = model.getSelectedBrowser();
+			ExperimenterData exp = browser.getNodeOwner((TreeImageDisplay) ho);
+			if (exp.getId() == id) b = true;
+		} else b = EditorUtil.isUserOwner(ho, id);
+		if (b) return b; //user is the owner.
+		if (ho instanceof DataObject) {
+			DataObject data = (DataObject) ho;
+			GroupData group = model.getGroup(data.getGroupId());
+			int level = 
+			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+					group);
+			switch (level) {
+				case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+				case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+					return true;
+			}
+			return EditorUtil.isUserGroupOwner(group, id);
 		}
 		return false;
 	}
@@ -1613,18 +1693,6 @@ class TreeViewerComponent
 			return (exp.getId() == id);
 		}
 		return EditorUtil.isUserOwner(ho, id);
-	}
-	
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#canDeleteObject(Object)
-	 */
-	public boolean canDeleteObject(Object ho)
-	{
-		if (isUserOwner(ho)) return true;
-		if (TreeViewerAgent.isLeaderOfCurrentGroup()) return true;
-		if (TreeViewerAgent.isAdministrator()) return true;
-		return false;
 	}
 	
 	/**

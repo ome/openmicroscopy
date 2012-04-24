@@ -944,15 +944,27 @@ class MetadataViewerModel
 	}
 	
 	/**
-	 * Returns <code>true</code> if the object is writable,
+	 * Returns <code>true</code> if the object can be edited,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	boolean isWritable()
+	boolean canEdit()
 	{
 		if (editor == null) return false;
-		return editor.isWritable();
+		return editor.canEdit();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object can be annotated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canAnnotate()
+	{
+		if (editor == null) return false;
+		return editor.canAnnotate();
 	}
 	
 	/** 

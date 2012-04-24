@@ -31,7 +31,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -343,7 +342,7 @@ class EditorUI
 					ImageData img = ((WellSampleData) uo).getImage();
 					if (tabPane.getSelectedIndex() == RND_INDEX) {
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
-						if (model.isWritable())
+						if (model.canEdit())
 							tabPane.setSelectedIndex(GENERAL_INDEX);
 					}
 					if (img != null && img.getId() >= 0) {

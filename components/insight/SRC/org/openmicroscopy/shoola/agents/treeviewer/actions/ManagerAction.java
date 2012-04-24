@@ -102,10 +102,10 @@ public class ManagerAction
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof String || ho instanceof ExperimenterData) // root
             setEnabled(false);
-        else if (ho instanceof ProjectData) 
-            setEnabled(model.isObjectWritable(ho));
-        else if (ho instanceof DatasetData) 
-            setEnabled(model.isObjectWritable(ho));
+        else if (ho instanceof ProjectData)
+            setEnabled(model.canEdit(ho));
+        else if (ho instanceof DatasetData)
+            setEnabled(model.canEdit(ho));
         else 
             setEnabled(false);
     }

@@ -267,7 +267,7 @@ public class ManageObjectAction
 					ho instanceof ImageData) {
 					selected = browser.getSelectedDisplays();
 		    		for (int i = 0; i < selected.length; i++) {
-						if (model.canDeleteObject(selected[i].getUserObject())) 
+						if (model.canEdit(selected[i].getUserObject())) 
 							count++;
 					}
 		    		setEnabled(count == selected.length);

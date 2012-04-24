@@ -454,6 +454,8 @@ public interface TreeViewer
 	public void setHierarchyRoot(long rootID, 
 			List<ExperimenterData> experimenters);
 
+	public boolean canEdit(Object ho);
+	
 	/**
 	 * Returns <code>true</code> if the specified object is writable,
 	 * <code>false</code> otherwise, depending on the permission.
@@ -461,7 +463,16 @@ public interface TreeViewer
 	 * @param ho    The data object to check.
 	 * @return See above.
 	 */
-	public boolean isObjectWritable(Object ho);
+	public boolean canAnnotate(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the specified object is viewable,
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho    The data object to check.
+	 * @return See above.
+	 */
+	public boolean canView(Object ho);
 
 	/**
 	 * Returns <code>true</code> if the user currently logged in is the
@@ -471,15 +482,6 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public boolean isUserOwner(Object ho);
-	
-	/**
-	 * Returns <code>true</code> if the user currently logged in can
-	 * delete the passed object.
-	 * 
-	 * @param ho The data object to check.
-	 * @return See above.
-	 */
-	public boolean canDeleteObject(Object ho);
 	
 	/** 
 	 * Adds existing objects to the currently selected node. 

@@ -82,14 +82,17 @@ public class AdminObject
 	/** Indicates that the group is <code>Group</code> i.e. RWR---. */
 	public static final int PERMISSIONS_GROUP_READ = 101;
 	
-	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
+	/** Indicates that the group is <code>Group</code> i.e. RWRA--. */
 	public static final int PERMISSIONS_GROUP_READ_LINK = 102;
 	
+	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
+	public static final int PERMISSIONS_GROUP_READ_WRITE = 103;
+	
 	/** Indicates that the group is <code>Public</code> i.e. RWRWR-. */
-	public static final int PERMISSIONS_PUBLIC_READ = 103;
+	public static final int PERMISSIONS_PUBLIC_READ = 104;
 	
 	/** Indicates that the group is <code>Public</code> i.e. RWRWRW. */
-	public static final int PERMISSIONS_PUBLIC_READ_WRITE = 104;
+	public static final int PERMISSIONS_PUBLIC_READ_WRITE = 105;
 	
 	/** Indicates that the group is <code>Private</code> i.e. RW----. */
 	public static final String PERMISSIONS_PRIVATE_TEXT = "Private Group";

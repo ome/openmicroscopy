@@ -1375,4 +1375,23 @@ class TreeViewerModel
 		loader.load();
 	}
 
+	/**
+	 * Returns the group corresponding to the specified id or <code>null</code>.
+	 * 
+	 * @param groupId The identifier of the group.
+	 * @return See above.
+	 */
+	GroupData getGroup(long groupId)
+	{
+		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		if (groups == null) return null;
+		Iterator i = groups.iterator();
+		GroupData group;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			if (group.getId() == groupId) return group;
+		}
+		return null;
+	}
+
 }

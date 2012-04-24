@@ -134,16 +134,7 @@ public class ManageRndSettingsAction
 		for (int i = 0; i < nodes.length; i++) {
 			node = (TreeImageTimeSet) nodes[i];
 			if (node.getNumberItems() > 0) {
-				/*
-				if (index == COPY) {
-					if (model.isObjectWritable(node))
-						count++;
-				} else {
-					if (model.isUserOwner(node))
-						count++;
-				}
-				*/
-				if (model.isObjectWritable(node))
+				if (model.canAnnotate(node))
 					count++;
 			}
 		}
@@ -255,8 +246,7 @@ public class ManageRndSettingsAction
 				else {
 					
 					for (int i = 0; i < selected.length; i++) {
-						//if (model.isUserOwner(selected[i].getUserObject()))
-						if (model.isObjectWritable(selected[i].getUserObject()))
+						if (model.canAnnotate(selected[i].getUserObject()))
 							count++;
 					}
 					setEnabled(count == selected.length);
@@ -274,8 +264,7 @@ public class ManageRndSettingsAction
 					setEnabled(false);
 				else {
 					for (int i = 0; i < selected.length; i++) {
-						//if (model.isUserOwner(selected[i].getUserObject()))
-						if (model.isObjectWritable(selected[i].getUserObject()))
+						if (model.canAnnotate(selected[i].getUserObject()))
 							count++;
 					}
 					setEnabled(count == selected.length);
@@ -294,7 +283,7 @@ public class ManageRndSettingsAction
 					Object object;
 					for (int i = 0; i < selected.length; i++) {
 						object = selected[i].getUserObject();
-						if (model.isObjectWritable(object) && 
+						if (model.canAnnotate(object) && 
 								!model.isUserOwner(object))
 							count++;
 					}

@@ -770,12 +770,12 @@ public interface Browser
 	
 	/**
 	 * Returns <code>true</code> if the user currently logged in can
-	 * delete the passed object.
+	 * edit the passed object.
 	 * 
 	 * @param ho The data object to check.
 	 * @return See above.
 	 */
-	public boolean canDeleteObject(Object ho);
+	public boolean canEdit(Object ho);
 	
 	/**
 	 * Returns the node corresponding to the experimenter currently logged in.

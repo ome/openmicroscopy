@@ -406,6 +406,26 @@ class EditorModel
     		}
     	}
     }
+    
+	/**
+	 * Returns the group corresponding to the specified id or <code>null</code>.
+	 * 
+	 * @param groupId The identifier of the group.
+	 * @return See above.
+	 */
+	private GroupData getGroup(long groupId)
+	{
+		Set groups = MetadataViewerAgent.getAvailableUserGroups();
+		if (groups == null) return null;
+		Iterator i = groups.iterator();
+		GroupData group;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			if (group.getId() == groupId) return group;
+		}
+		return null;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -630,23 +650,63 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns <code>true</code> if the object is writable,
+	 * Returns <code>true</code> if the object can be edited,
+	 * <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+	boolean canEdit() { return canEdit(refObject); }
+	
+	/**
+	 * Returns <code>true</code> if the object can be edited,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canEdit(Object data)
+	{ 
+		if (MetadataViewerAgent.isAdministrator()) return true;
+		boolean b = isUserOwner(data);
+		if (b) return b;
+		DataObject d = (DataObject) data;
+		GroupData group = getGroup(d.getGroupId());
+		int level = 
+		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+				group);
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
+		}
+		long id = MetadataViewerAgent.getUserDetails().getId();
+		return EditorUtil.isUserGroupOwner(group, id);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object can be annotated,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	boolean isWritable()
+	boolean canAnnotate()
 	{ 
+		if (MetadataViewerAgent.isAdministrator()) return true;
 		boolean b = isUserOwner(refObject);
 		if (b) return b;
+		DataObject data = (DataObject) refObject;
+		GroupData group = getGroup(data.getGroupId());
 		int level = 
-		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+				group);
 		switch (level) {
 			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
 			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 		}
-		return false;
+		long id = MetadataViewerAgent.getUserDetails().getId();
+		return EditorUtil.isUserGroupOwner(group, id);
 	}
 	
 	/**
@@ -679,7 +739,7 @@ class EditorModel
 	 */
 	boolean isAnnotationAllowed()
 	{
-		if (!isWritable()) return false;
+		if (!canAnnotate()) return false;
 		if (!isMultiSelection()) return true;
 		//multi selection.
 		List l = parent.getRelatedNodes();

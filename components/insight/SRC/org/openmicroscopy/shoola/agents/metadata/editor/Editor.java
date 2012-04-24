@@ -432,12 +432,20 @@ public interface Editor
 	void setUserPhoto(BufferedImage photo, long experimenterID);
 	
 	/**
-	 * Returns <code>true</code> if the object is writable,
+	 * Returns <code>true</code> if the object can be edited,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	boolean isWritable();
+	boolean canEdit();
+	
+	/**
+	 * Returns <code>true</code> if the object can be edited,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canAnnotate();
 	
 	/**
 	 * Displays the results of analysis.
