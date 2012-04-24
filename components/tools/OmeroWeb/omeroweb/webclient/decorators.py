@@ -62,6 +62,8 @@ class login_required(omeroweb.decorators.login_required):
             conn.CONFIG['SERVICE_OPTS'] = {}
         if request.session.get('active_group'):
             conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(request.session.get('active_group'))
+        else:
+            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(conn.getEventContext().groupId)
 
     def prepare_session(self, request):
         """Prepares various session variables."""
