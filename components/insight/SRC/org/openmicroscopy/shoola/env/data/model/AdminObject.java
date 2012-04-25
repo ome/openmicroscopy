@@ -101,15 +101,30 @@ public class AdminObject
 	public static final String PERMISSIONS_GROUP_READ_TEXT = 
 		"Collaborative Read-Only Group";
 	
-	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
+	/** Indicates that the group is <code>Group</code> i.e. RWRA--. */
 	public static final String PERMISSIONS_GROUP_READ_LINK_TEXT = 
-		"Collaborative Group";
+		"Collaborative Read-Annotate Group";
+	
+	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
+	public static final String PERMISSIONS_GROUP_READ_WRITE_TEXT = 
+		"Collaborative Read-Write Group";
 	
 	/** Indicates that the group is <code>Public</code> i.e. RWRWR-. */
 	public static final String PERMISSIONS_PUBLIC_READ_TEXT = "Public";
 	
 	/** Indicates that the group is <code>Public</code> i.e. RWRWRW. */
 	public static final String PERMISSIONS_PUBLIC_READ_WRITE_TEXT = "Public";
+	
+	/** Indicates that the group is <code>Group</code> i.e. RWR---. */
+	public static final String PERMISSIONS_GROUP_READ_SHORT_TEXT = "Read-Only";
+	
+	/** Indicates that the group is <code>Group</code> i.e. RWRA--. */
+	public static final String PERMISSIONS_GROUP_READ_LINK_SHORT_TEXT = 
+		"Read-Annotate";
+	
+	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
+	public static final String PERMISSIONS_GROUP_READ_WRITE_SHORT_TEXT = 
+		"Read-Write";
 	
 	/**
 	 * Validates the index. 
@@ -215,6 +230,7 @@ public class AdminObject
 			case PERMISSIONS_PRIVATE:
 			case PERMISSIONS_GROUP_READ:
 			case PERMISSIONS_GROUP_READ_LINK:
+			case PERMISSIONS_GROUP_READ_WRITE:
 			case PERMISSIONS_PUBLIC_READ:
 			case PERMISSIONS_PUBLIC_READ_WRITE:
 				this.permissions = permissions;
@@ -268,5 +284,5 @@ public class AdminObject
 	 * @return See above.
 	 */
 	public int getIndex() { return index; }
-	
+
 }
