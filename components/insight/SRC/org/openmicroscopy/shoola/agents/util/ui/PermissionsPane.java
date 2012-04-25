@@ -102,6 +102,9 @@ public class PermissionsPane
     /** The label hosting the default text. */
     private JLabel				label;
     
+    /** The original permissions level.*/
+    private int permissionsLevel;
+    
     /** 
      * Initializes the components. 
      * 
@@ -109,6 +112,7 @@ public class PermissionsPane
      */
     private void initComponents(int permissions)
     {
+    	permissionsLevel = permissions;
     	label = new JLabel();
     	Font f = label.getFont();
     	label.setFont(f.deriveFont(Font.ITALIC, f.getSize()-2));
@@ -417,14 +421,39 @@ public class PermissionsPane
 	 */
 	public void setEnabled(boolean enabled)
 	{
-		if (readAnnotateGroupBox != null)
-			readAnnotateGroupBox.setEnabled(enabled);
+		publicBox.removeChangeListener(this);
+		collaborativeGroupBox.removeChangeListener(this);
+		privateBox.removeChangeListener(this);
 		if (privateBox != null) privateBox.setEnabled(enabled);
 		if (publicBox != null) publicBox.setEnabled(enabled);
+		if (collaborativeGroupBox != null)
+			collaborativeGroupBox.setEnabled(enabled);
 		if (readOnlyGroupBox != null) readOnlyGroupBox.setEnabled(enabled);
 		if (readOnlyPublicBox != null) readOnlyPublicBox.setEnabled(enabled);
 		if (readWriteGroupBox != null)
 			readWriteGroupBox.setEnabled(enabled);
+		if (readAnnotateGroupBox != null)
+			readAnnotateGroupBox.setEnabled(enabled);
+		if (enabled) {
+			if (permissionsLevel >= AdminObject.PERMISSIONS_GROUP_READ) {
+				privateBox.setEnabled(false);
+			} else if (permissionsLevel >= 
+				AdminObject.PERMISSIONS_PUBLIC_READ) {
+				privateBox.setEnabled(false);
+				collaborativeGroupBox.setEnabled(false);
+			}
+			if (!collaborativeGroupBox.isSelected()) {
+				readOnlyGroupBox.setEnabled(false);
+				readAnnotateGroupBox.setEnabled(false);
+				readWriteGroupBox.setEnabled(false);
+			}
+			if (!publicBox.isSelected()) {
+				readOnlyPublicBox.setEnabled(false);
+			}
+		}
+		publicBox.addChangeListener(this);
+		collaborativeGroupBox.addChangeListener(this);
+		privateBox.addChangeListener(this);
 	}
 	
 	/**
@@ -436,6 +465,7 @@ public class PermissionsPane
 	{
 		Object src = e.getSource();
 		//turn controls on/off
+		JRadioButton b = (JRadioButton) src;
 		readWriteGroupBox.setEnabled(false);
 		readOnlyGroupBox.setEnabled(false);
 		readAnnotateGroupBox.setEnabled(false);
