@@ -332,52 +332,46 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError(request, x)
     
-    # TODO: remove all this code for creating forms (not used)
-    form_users = None
-    filter_user_id = None
-    
-    s = conn.groupSummary()
+
+    # validate experimenter is in the active group
+    active_group = request.session.get('active_group') or conn.getEventContext().groupId
+    # prepare members of group...
+    s = conn.groupSummary(active_group)
     leaders = s["leaders"]
     members = s["colleagues"]
+    userIds = [u.id for u in leaders]
+    userIds.extend( [u.id for u in members] )
     users = []
-    leaders.sort(key=lambda x: x.getOmeName().lower())
     if len(leaders) > 0:
         users.append( ("Owners", leaders) )
-    members.sort(key=lambda x: x.getOmeName().lower())
     if len(members) > 0:
         users.append( ("Members", members) )
     users = tuple(users)
-    empty_label = None #"*%s (%s)" % (conn.getUser().getFullName(), conn.getUser().omeName)
-    if len(users) > 0:
-        if request.REQUEST.get('experimenter') is not None and len(request.REQUEST.get('experimenter'))>0:
-            form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu}, data=request.REQUEST.copy())
-            if form_users.is_valid():
-                filter_user_id = request.REQUEST.get('experimenter', None)
-                request.session.get('nav')['experimenter'] = filter_user_id
-                form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
-        else:
-            if request.REQUEST.get('experimenter') == "":
-                request.session.get('nav')['experimenter'] = None
-            filter_user_id = request.session.get('nav')['experimenter'] is not None and request.session.get('nav')['experimenter'] or None
-            if filter_user_id is None:
-                filter_user_id = conn.getEventContext().userId
-            form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
-            
-    else:
-        form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
 
-    active_group = request.session.get('active_group') or conn.getEventContext().groupId
+    # check any change in experimenter...
+    user_id = request.REQUEST.get('experimenter')
+    if user_id is not None and len(user_id)>0:
+        form_users = UsersForm(initial={'users': users, 'empty_label':None, 'menu':menu}, data=request.REQUEST.copy())
+        if not form_users.is_valid():
+            print "NOT VALID!"
+            user_id = None
+    if user_id is None:
+        # ... or check that current user is valid in active group
+        user_id = request.session.get('nav')['experimenter'] is not None and request.session.get('nav')['experimenter'] or -1
+        if int(user_id) not in userIds:
+            user_id = conn.getEventContext().userId
+
+    request.session.get('nav')['experimenter'] = user_id
+
     myGroups = list(conn.getGroupsMemberOf())
     myGroups.sort(key=lambda x: x.getName().lower())
-    #form_active_group = ActiveGroupForm(initial={'activeGroup':active_group, 'mygroups':myGroups, 'url':url})
     new_container_form = ContainerForm()
 
-    context = {'init':init, 'myGroups':myGroups, 'form_users':form_users, 'new_container_form':new_container_form}
+    context = {'init':init, 'myGroups':myGroups, 'new_container_form':new_container_form}
     context['groups'] = myGroups
     context['active_group'] = conn.getObject("ExperimenterGroup", long(active_group))
-    context['experimenter'] = request.session.get('nav')['experimenter'] and int(request.session.get('nav')['experimenter']) or None
-    userId = context['experimenter'] or conn.getEventContext().userId
-    context['user'] = conn.getObject("Experimenter", long(userId))
+    context['experimenter'] = user_id
+    context['user'] = conn.getObject("Experimenter", long(user_id))
     for g in context['groups']:
         g.groupSummary()    # load leaders / members
     
