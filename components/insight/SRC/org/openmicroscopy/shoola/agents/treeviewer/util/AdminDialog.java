@@ -112,10 +112,7 @@ public class AdminDialog
 	private JButton save;
 	
 	/** The type of object to create. */
-	private Class	type;
-	
-	/** The parent of the data object. */
-	private Object parent;
+	private Class<?> type;
 	
 	/** The security context.*/
 	private SecurityContext ctx;
@@ -199,8 +196,8 @@ public class AdminDialog
 		}
 		if (object == null) return;
 		//Check if group already exist.
-		Entry entry;
-		Iterator i;
+		Entry<ExperimenterData, UserCredentials> entry;
+		Iterator<Entry<ExperimenterData, UserCredentials>> i;
 		UserCredentials uc;
 		Map<ExperimenterData, UserCredentials>  map;
 		boolean b = false;
@@ -219,7 +216,7 @@ public class AdminDialog
 					UserNotifier un = 
 						TreeViewerAgent.getRegistry().getUserNotifier();
 					while (i.hasNext()) {
-						entry = (Entry) i.next();
+						entry = i.next();
 						uc = (UserCredentials) entry.getValue();
 						b = isExistingObject(uc.getUserName(), false);
 						if (!b) {
@@ -240,7 +237,7 @@ public class AdminDialog
 				map = object.getExperimenters();
 				i = map.entrySet().iterator();
 				while (i.hasNext()) {
-					entry = (Entry) i.next();
+					entry = i.next();
 					uc = (UserCredentials) entry.getValue();
 					b = isExistingObject(uc.getUserName(), false);
 					if (b) {
@@ -259,7 +256,7 @@ public class AdminDialog
 	 * 
 	 * @param type The type to handle.
 	 */
-	private void setProperties(Class type)
+	private void setProperties(Class<?> type)
 	{
 		setModal(true);
 		if (GroupData.class.equals(type)) setTitle(TITLE_GROUP);
@@ -321,14 +318,13 @@ public class AdminDialog
 	 * @param parent The parent of the data object or <code>null</code>.
 	 * @param groups The groups to add the experimenter to.
 	 */
-	public AdminDialog(JFrame owner, SecurityContext ctx, Class type,
+	public AdminDialog(JFrame owner, SecurityContext ctx, Class<?> type,
 			Object parent, Collection<DataObject> groups)
 	{
 		super(owner);
 		setProperties(type);
 		this.ctx = ctx;
 		this.type = type;
-		this.parent = parent;
 		if (ExperimenterData.class.equals(type)) {
 			List<DataObject> selected = null;
 			if (parent instanceof GroupData) {
