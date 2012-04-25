@@ -2023,15 +2023,6 @@ class BrowserComponent
 	}
 
 	/**
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#isObjectWritable(Object)
-	 */
-	public boolean isUserOwner(Object ho)
-	{
-		return model.getParentModel().isUserOwner(ho);
-	}
-
-	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see Browser#canEdit(Object)
 	 */

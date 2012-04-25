@@ -105,7 +105,7 @@ public class BrowserImportAction
                 */
             	if (ho instanceof ProjectData || ho instanceof DatasetData ||
             			ho instanceof ScreenData || ho instanceof ImageData) 
-            		setEnabled(model.isUserOwner(ho));
+            		setEnabled(model.canEdit(ho));
             	else if (ho instanceof ExperimenterData && 
             			t != Browser.ADMIN_EXPLORER) {
             		ExperimenterData exp = TreeViewerAgent.getUserDetails();

@@ -732,15 +732,6 @@ public interface Browser
 	 * @param result
 	 */
 	void setExperimenters(TreeImageSet node, List result);
-	
-	/**
-	 * Returns <code>true</code> if the user currently logged in is the
-	 * owner of the object, <code>false</code> otherwise.
-	 * 
-	 * @param ho    The data object to check.
-	 * @return See above.
-	 */
-	boolean isUserOwner(Object ho);
 
 	/** Expands the node corresponding to the user currently logged in. */
 	void expandUser();

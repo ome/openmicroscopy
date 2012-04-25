@@ -147,7 +147,7 @@ public class CreateAction
         	putValue(Action.SHORT_DESCRIPTION, 
         			UIUtilities.formatToolTipText(DESCRIPTION));
         } else if (ho instanceof ProjectData) {
-            setEnabled(model.isUserOwner(ho));
+            setEnabled(model.canEdit(ho));
             name = NAME_DATASET; 
             nodeType = CreateCmd.DATASET;
             putValue(Action.SHORT_DESCRIPTION, 
@@ -170,7 +170,7 @@ public class CreateAction
         } else if (ho instanceof TagAnnotationData) {
         	String ns = ((TagAnnotationData) ho).getNameSpace();
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-        		setEnabled(model.isUserOwner(ho));
+        		setEnabled(model.canEdit(ho));
             	nodeType = CreateCmd.TAG;
             	putValue(Action.SMALL_ICON, im.getIcon(IconManager.TAG));
             	name = NAME_TAG;

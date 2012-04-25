@@ -333,7 +333,7 @@ public class CreateTopContainerAction
         		switch (nodeType) {
 					case DATASET:
 						if (uo instanceof ProjectData) 
-							withParent = model.isUserOwner(uo);
+							withParent = model.canEdit(uo);
 						break;
 					case EXPERIMENTER:
 						if (uo instanceof ExperimenterData) 
@@ -346,21 +346,8 @@ public class CreateTopContainerAction
 							if (ns != null && 
 								TagAnnotationData.INSIGHT_TAGSET_NS.equals(
 											ns));
-								withParent = model.isUserOwner(tag);
+								withParent = model.canEdit(tag);
 						}
-						/*
-						if (fromTopMenu) withParent = false;
-						else {
-							if (uo instanceof TagAnnotationData) {
-								TagAnnotationData tag = (TagAnnotationData) uo;
-								String ns = tag.getNameSpace();
-								if (ns != null && 
-									TagAnnotationData.INSIGHT_TAGSET_NS.equals(
-												ns));
-									withParent = model.isUserOwner(tag);
-							}
-						}
-						*/
 				}
         	}
         }

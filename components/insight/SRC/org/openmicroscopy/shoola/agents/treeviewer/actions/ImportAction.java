@@ -143,7 +143,7 @@ public class ImportAction
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof ProjectData || ho instanceof ScreenData || 
         		ho instanceof DatasetData)
-        	setEnabled(model.isUserOwner(ho));
+        	setEnabled(model.canEdit(ho));
         else if (ho instanceof ExperimenterData && 
     			browser.getBrowserType() != Browser.ADMIN_EXPLORER) {
     		ExperimenterData exp = TreeViewerAgent.getUserDetails();

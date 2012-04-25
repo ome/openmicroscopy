@@ -1688,25 +1688,6 @@ class TreeViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#isObjectWritable(Object)
-	 */
-	public boolean isUserOwner(Object ho)
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED state.");
-		//Check if current user can write in object
-		long id = model.getUserDetails().getId();
-		if (ho instanceof TreeImageTimeSet) {
-			Browser browser = model.getSelectedBrowser();
-			ExperimenterData exp = browser.getNodeOwner((TreeImageDisplay) ho);
-			return (exp.getId() == id);
-		}
-		return EditorUtil.isUserOwner(ho, id);
-	}
-	
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#addExistingObjects(DataObject)
 	 */
 	public void addExistingObjects(DataObject ho)
@@ -4141,7 +4122,7 @@ class TreeViewerComponent
 			Object ho; 
 			for (int i = 0; i < selection.length; i++) {
 				ho = selection[i].getUserObject();
-				if (ho instanceof ImageData && isUserOwner(ho))
+				if (ho instanceof ImageData && canEdit(ho))
 					images.add(ho);
 			}
 			if (images.size() == 0) {
@@ -4257,7 +4238,7 @@ class TreeViewerComponent
 				return;
 			}
 		}
-		if (!isUserOwner(ot) && !(ot instanceof ExperimenterData ||
+		if (!canEdit(ot) && !(ot instanceof ExperimenterData ||
 				ot instanceof GroupData)) {
 			un.notifyInfo("DnD", 
 					"You must be the owner of the container.");
@@ -4293,7 +4274,7 @@ class TreeViewerComponent
 								administrator) {
 							list.add(n);
 						} else {
-							if (isUserOwner(os)) {
+							if (canEdit(os)) {
 								data = (DataObject) os;
 								if (!groupIds.contains(data.getGroupId()))
 									groupIds.add(data.getGroupId());
@@ -4308,7 +4289,7 @@ class TreeViewerComponent
 								list.add(n);
 							}
 						} else {
-							if (isUserOwner(os)) {
+							if (canEdit(os)) {
 								list.add(n);
 								data = (DataObject) os;
 								if (!groupIds.contains(data.getGroupId()))

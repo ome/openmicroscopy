@@ -241,7 +241,7 @@ public class ManageObjectAction
 		    				if (ho instanceof GroupData) {
 		    					count++;
 			    			} else {
-			    				if (model.isUserOwner(ho)) count++;
+			    				if (model.canEdit(ho)) count++;
 			    			}
 		    			}
 					}
@@ -305,7 +305,7 @@ public class ManageObjectAction
 			         ho instanceof PlateData) {
 					selected = browser.getSelectedDisplays();
 		    		for (int i = 0; i < selected.length; i++) {
-						if (model.isUserOwner(selected[i].getUserObject())) 
+						if (model.canEdit(selected[i].getUserObject())) 
 							count++;
 					}
 		    		if (index == CUT) {
@@ -339,7 +339,7 @@ public class ManageObjectAction
 					else {
 						selected = browser.getSelectedDisplays();
 			    		for (int i = 0; i < selected.length; i++) {
-			    			if (model.isUserOwner(selected[i].getUserObject())) 
+			    			if (model.canEdit(selected[i].getUserObject())) 
 			    				count++;
 						}
 			    		if (index == CUT) {
