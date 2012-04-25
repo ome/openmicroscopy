@@ -39,6 +39,8 @@ import re
 from django.utils import simplejson as json
 from portalocker import LockException
 
+logger = logging.getLogger(__name__)
+
 # LOGS
 # NEVER DEPLOY a site into production with DEBUG turned on.
 # Debuging mode.
@@ -63,7 +65,6 @@ if not os.path.isdir(LOGDIR):
 # DEBUG: Never deploy a site into production with DEBUG turned on.
 # Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
 # FORMAT: 2010-01-01 00:00:00,000 INFO  [omeroweb.webadmin.webadmin_utils        ] (proc.1308 ) getGuestConnection:20 Open connection is not available
-
 
 LOGGING = {
     'version': 1,
@@ -119,9 +120,6 @@ LOGGING = {
     }
 }
 
-logger = logging.getLogger(__name__)
-
-
 # Load custom settings from etc/grid/config.xml
 # Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
 from omero.util.concurrency import get_event
@@ -136,15 +134,17 @@ while True:
         CONFIG_XML.close()
         break
     except LockException:
-        logger.error("Exception while loading configuration retrying...", exc_info=True)
+        #logger.error("Exception while loading configuration retrying...", exc_info=True)
+        exctype, value = sys.exc_info()[:2]
         count -= 1
         if not count:
-            raise
+            raise exctype, value
         else:
             event.wait(1) # Wait a total of 10 seconds
     except:
-        logger.error("Exception while loading configuration...", exc_info=True)
-        raise
+        #logger.error("Exception while loading configuration...", exc_info=True)
+        exctype, value = sys.exc_info()[:2]
+        raise exctype, value
 
 del event
 del count
@@ -261,6 +261,7 @@ for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
     except LeaveUnset:
         pass
 
+
 if not DEBUG:
     LOGGING['loggers']['django.request']['level'] = 'INFO'
     LOGGING['loggers']['django']['level'] = 'INFO'
@@ -282,8 +283,8 @@ for key in sorted(CUSTOM_SETTINGS_MAPPINGS):
     source = using_default and "default" or key
     global_value = globals().get(global_name, None)
     if global_name.isupper():
-        logger.debug(cleanse_setting(global_name, global_value))
-
+        logger.debug("%s = %r (source:%s)", global_name, cleanse_setting(global_name, global_value), source)
+        
 SITE_ID = 1
 
 # Local time zone for this installation. Choices can be found here:
@@ -297,11 +298,6 @@ FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 # LANGUAGE_CODE: A string representing the language code for this installation. This should be
 # in standard language format. For example, U.S. English is "en-us".
 LANGUAGE_CODE = 'en-gb'
-
-# FORCE_SCRIPT_NAME: This will be used as the value of the SCRIPT_NAME environment variable in any HTTP request. 
-# This setting can be used to override the server-provided value of SCRIPT_NAME, which may be a rewritten 
-# version of the preferred value or not supplied at all.
-FORCE_SCRIPT_NAME = None
 
 # SECRET_KEY: A secret key for this particular Django installation. Used to provide a seed 
 # in secret-key hashing algorithms. Set this to a random string -- the longer, the better. 
