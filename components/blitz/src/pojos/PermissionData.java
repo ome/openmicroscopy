@@ -73,7 +73,7 @@ public class PermissionData {
      * 
      * @return See above.
      */
-    public boolean isGroupWrite() { return p.isGroupWrite(); }
+    public boolean isGroupWrite() { return false; }//p.isGroupWrite(); }
 
     /**
      * Returns <code>true </code> if the user has read access,
