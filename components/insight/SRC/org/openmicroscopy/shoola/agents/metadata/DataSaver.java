@@ -30,9 +30,12 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.event.EventBus;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 
@@ -120,6 +123,16 @@ public class DataSaver
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
     	viewer.onDataSave((List) data);
+    	boolean post = (toAdd != null && toAdd.size() != 0) || 
+				(toRemove != null && toRemove.size() != 0);
+    	int count = 0;
+    	if (toAdd != null) count += toAdd.size();
+    	if (toRemove != null) count -= toRemove.size();
+    	if (post) {
+			EventBus bus = 
+				MetadataViewerAgent.getRegistry().getEventBus();
+			bus.post(new AnnotatedEvent((List) data, count));
+		}
     }
     
 }

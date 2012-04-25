@@ -16,6 +16,10 @@ from omero.rtypes import rstring, rlong
 from omero.util.concurrency import get_event
 
 class TestClientUsage(lib.ITest):
+    """
+    Note: this is the only test which should use 'omero.client()'
+    All others should use the new_client(user=) syntax from lib.ITest
+    """
 
     def testClientClosedAutomatically(self):
         client = omero.client()

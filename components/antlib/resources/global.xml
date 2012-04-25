@@ -287,11 +287,22 @@ with OMERO.
         <property name="ice.home" value="/usr/share/Ice"/>
 
         <!-- Checking the slice2* version before continuing. See #1185 -->
-        <exec outputproperty="executable.ice.version" executable="slice2java">
+        <exec outputproperty="executable.ice.version" executable="slice2java"
+            failifexecutionfails="false" failonerror="false" resultproperty="slice2java.result">
             <arg value="--version"/>
         </exec>
 
         <!-- Checking ice compatibility and choose the proper version -->
+        <if><not><equals arg1="${slice2java.result}" arg2="0"/></not>
+            <then>
+                <fail> Cannot find slice2java!
+
+                    *******************************************************
+                    Ice is not properly installed. Cannot find slice2java
+                    *******************************************************
+                </fail>
+            </then>
+        </if>
         <if><equals arg1="auto" arg2="${ice.compatibility}"/>
             <then>
                 <if><matches string="${executable.ice.version}" pattern="^3[.]3"/>
@@ -322,7 +333,7 @@ with OMERO.
                 </then>
             </elseif>
             <else>
-                <fail> Bad configuraiton!
+                <fail> Bad configuration!
 
                     *******************************************************
                     Unknown Ice compatibility setting: ${ice.compatibility}
