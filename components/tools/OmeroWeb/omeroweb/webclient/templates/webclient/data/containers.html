@@ -1081,7 +1081,7 @@
         </div>
 
         <!-- hidden form for delete dialogs -->
-        <div id="delete-dialog-form" title="Delete">
+        <div id="delete-dialog-form" title="Delete" style="display:none">
             <p>Are you sure you want to delete the selected <span id="delete_type">Images</span>?</p>
             <p>If yes:</p>
             <form>
@@ -1098,7 +1098,7 @@
         </div>
 
         <!-- hidden dialog for new Container -->
-        <form id="new-container-form" title="New...">
+        <form id="new-container-form" title="New..." style="display:none">
             <p>Create a new <span id="new_container_type">Container</span>...</p>
             <p>
                 <label for="id_name">Name:</label>
@@ -1111,7 +1111,7 @@
         </form>
 
         <!-- hidden form for chgrp -->
-        <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}">
+        <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}" style="display:none">
             {% if myGroups|length_is:"1" %}
                 <p>
                     You are only in a single group.<br>
