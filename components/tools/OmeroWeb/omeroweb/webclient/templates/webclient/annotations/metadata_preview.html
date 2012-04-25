@@ -33,7 +33,7 @@
         $(document).ready(function() {
             {% if share_id %}
             var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}{{ share_id }}", {'mediaroot': '{{ STATIC_URL }}' } );
-            viewport.load({{ imageId }}, null, location.search);
+            viewport.load({{ manager.image.id }}, null, location.search);
             {% else %}
             var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}", {'mediaroot': '{{ STATIC_URL }}' } );
             viewport.load({{ manager.image.id }});

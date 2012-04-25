@@ -756,23 +756,29 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
 
 @login_required()
 @render_response()
-def load_metadata_preview(request, imageId, conn=None, share_id=None, **kwargs):
+def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwargs):
     """
     This is the image 'Preview' tab for the right-hand panel. 
     Currently this doesn't do much except launch the view-port plugin using the image Id (and share Id if necessary)
     """
 
     # the index of a field within a well
-    index = int(request.REQUEST.get('index', 0))
+    try:
+        index = int(request.REQUEST.get('index', 0))
+    except:
+        index = 0
 
     try:
         template = "webclient/annotations/metadata_preview.html"
-        manager = BaseContainer(conn, index=index, image=long(imageId))
+        manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(request, x)
-    
-    context = {'imageId':imageId, 'manager':manager, 'share_id':share_id}
+
+    if c_type == "well":
+        manager.image = manager.well.getImage(index)
+
+    context = {'manager':manager, 'share_id':share_id}
     context['template'] = template
     return context
 
