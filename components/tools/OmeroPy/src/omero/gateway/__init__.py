@@ -1785,11 +1785,11 @@ class _BlitzGateway (object):
         if gid is not None:
             if not isinstance(gid, LongType) or not isinstance(gid, IntType):
                 gid = long(gid)
-            for gem in self._user.copyGroupExperimenterMap():
+            for gem in self.getUser().copyGroupExperimenterMap():
                 if gem.parent.id.val == gid and gem.owner.val == True:
                     return True
         else:
-            for gem in self._user.copyGroupExperimenterMap():
+            for gem in self.getUser()._user.copyGroupExperimenterMap():
                 if gem.owner.val == True:
                     return True
         return False
