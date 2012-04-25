@@ -120,9 +120,6 @@ public class MoveGroupSelectionDialog
 	/** The data to move.*/
 	private Map<SecurityContext, List<DataObject>> toMove;
 	
-	/** The list of possible targets.*/
-	private List<DataObject> targets;
-	
 	/** The button to close and dispose.*/
 	private JButton cancelButton;
 	
@@ -409,6 +406,33 @@ public class MoveGroupSelectionDialog
 		return all;
     }
     
+	/** Builds the components displayed when no node to display.*/
+	private void buildNoContentPane()
+	{
+		Container c = getContentPane();
+		StringBuffer s = new StringBuffer();
+		StringBuffer s1 = new StringBuffer();
+		if (ProjectData.class.equals(containerType)) {
+			s.append("There is no Project to move the Dataset(s) into.");
+			s1.append("Please create a new Project if you wish.");
+		} else if (DatasetData.class.equals(containerType)) {
+			s.append("There is no Dataset to move the Image(s) into.");
+			s1.append("Please create a new Dataset if you wish.");
+		} else if (ScreenData.class.equals(containerType)) {
+			s.append("There is no Screen to move the Plate into.");
+			s1.append("Please create a new Screen if you wish.");
+		}
+		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.BACKGROUND);
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(new JLabel(s.toString()));
+		p.add(new JLabel(s1.toString()));
+		c.add(buildContent(p), BorderLayout.CENTER);
+		c.add(buildToolBar(), BorderLayout.SOUTH);
+		validate();
+		repaint();
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -460,28 +484,19 @@ public class MoveGroupSelectionDialog
         treeDisplay.setModel(new DefaultTreeModel(root));
         treeDisplay.addTreeSelectionListener(this);
 		if (targets == null || targets.size() == 0) {
-			StringBuffer s = new StringBuffer();
-			if (ProjectData.class.equals(containerType)) {
-				s.append("There is no Project to place the Dataset(s) into.\n");
-				s.append("Please create a new Project if you wish.");
-			} else if (DatasetData.class.equals(containerType)) {
-				s.append("There is no Dataset to place the Image(s) into.\n");
-				s.append("Please create a new Dataset if you wish.");
-			} else if (ScreenData.class.equals(containerType)) {
-				s.append("There is no Screen to place the Plate into.\n");
-				s.append("Please create a new Screen if you wish.");
-			}
-			c.add(buildContent(new JLabel(s.toString())), BorderLayout.CENTER);
-			c.add(buildToolBar(), BorderLayout.SOUTH);
-			validate();
-			repaint();
+			buildNoContentPane();
 			return;
 		}
 		Set<TreeImageDisplay> 
 		nodes = TreeViewerTranslator.transformHierarchy(targets, userID, -1);
-		
+		List<TreeImageDisplay> transformedNodes = 
+			prepareSortedList(sorter.sort(nodes));
+		if (transformedNodes.size() == 0) {
+			buildNoContentPane();
+			return;
+		}
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-		buildTreeNode(root, prepareSortedList(sorter.sort(nodes)), dtm);
+		buildTreeNode(root, transformedNodes, dtm);
 		dtm.reload();
 		c.add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
 		c.add(buildToolBar(), BorderLayout.SOUTH);
