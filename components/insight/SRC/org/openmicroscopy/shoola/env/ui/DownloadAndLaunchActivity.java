@@ -46,11 +46,12 @@ public class DownloadAndLaunchActivity extends DownloadActivity {
 	}
 	
 	/**
+	 * Create an instance of this class
 	 * 
-	 * @param viewer
-	 * @param registry
-	 * @param ctx
-	 * @param parameters
+	 * @param viewer the viewer used for performing this activity
+	 * @param registry the system registry for service lookup
+	 * @param ctx the {@link SecurityContext} in use for this operation
+	 * @param parameters parameters passed in to the activity
 	 */
 	DownloadAndLaunchActivity(UserNotifier viewer, Registry registry,
 			SecurityContext ctx, DownloadAndLaunchActivityParam parameters) {
@@ -74,6 +75,9 @@ public class DownloadAndLaunchActivity extends DownloadActivity {
 			parameters.getSource().setEnabled(true);
 	}
 
+	/**
+	 * Callback if the operation is cancelled.
+	 */
 	@Override
 	protected void notifyActivityCancelled() {
 		type.setText("Opening Cancelled");
