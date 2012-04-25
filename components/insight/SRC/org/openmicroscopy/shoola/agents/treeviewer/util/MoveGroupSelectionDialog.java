@@ -150,6 +150,9 @@ public class MoveGroupSelectionDialog
 	/** The data object to create.*/
 	private DataObject toCreate;
 	
+	/** Flag indicating that the message indicating that no node displayed.*/
+	private boolean noDisplay;
+	
 	/**
 	 * Creates a new container corresponding to {@link #containerType}.
 	 * 
@@ -175,6 +178,17 @@ public class MoveGroupSelectionDialog
 		dtm.insertNodeInto(node, root, root.getChildCount());
 		node = (TreeImageSet) root.getChildAt(root.getChildCount()-1);
 		treeDisplay.setSelectionPath(new TreePath(node.getPath()));
+		if (noDisplay) {
+			noDisplay = false;
+			Container c = getContentPane();
+			c.remove(body);
+			c.remove(1);
+			c.add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
+			c.add(buildToolBar(), BorderLayout.SOUTH);
+			validate();
+			repaint();
+			
+		}
 	}
 	
 	/** Brings up a dialog to create a new container.*/
@@ -409,6 +423,7 @@ public class MoveGroupSelectionDialog
 	/** Builds the components displayed when no node to display.*/
 	private void buildNoContentPane()
 	{
+		noDisplay = true;
 		Container c = getContentPane();
 		StringBuffer s = new StringBuffer();
 		StringBuffer s1 = new StringBuffer();
@@ -427,7 +442,8 @@ public class MoveGroupSelectionDialog
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(new JLabel(s.toString()));
 		p.add(new JLabel(s1.toString()));
-		c.add(buildContent(p), BorderLayout.CENTER);
+		body = buildContent(p);
+		c.add(body, BorderLayout.CENTER);
 		c.add(buildToolBar(), BorderLayout.SOUTH);
 		validate();
 		repaint();
