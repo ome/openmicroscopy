@@ -462,11 +462,11 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			return;
 		
 		// run the application specified for the file @path
-		String runCommand = ApplicationData.buildCommand(data, new File(path));
 		
 		try {
-			Runtime run = Runtime.getRuntime();
-			run.exec(runCommand);
+			String runCommand = ApplicationData.buildCommand(data, new File(path));
+			Runtime runtime = Runtime.getRuntime();
+			runtime.exec(runCommand);
 		} catch (Exception e) {
 		}
 	}

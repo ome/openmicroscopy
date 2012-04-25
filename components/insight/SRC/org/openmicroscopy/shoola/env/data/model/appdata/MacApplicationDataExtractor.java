@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.model.appdata;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.net.URL;
 import java.util.Map;
 
 import javax.swing.Icon;
@@ -96,5 +97,9 @@ public class MacApplicationDataExtractor implements ApplicationDataExtractor {
 				executablePath);
 
 		return data;
+	}
+
+	public String getDefaultOpenCommandFor(URL location) {
+		return String.format("open %s", location);
 	}
 }

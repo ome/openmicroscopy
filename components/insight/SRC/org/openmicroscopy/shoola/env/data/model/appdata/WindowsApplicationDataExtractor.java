@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.env.data.model.appdata;
 
 import java.io.File;
+import java.net.URL;
 
 import javax.swing.Icon;
 import javax.swing.filechooser.FileSystemView;
@@ -217,5 +218,9 @@ public class WindowsApplicationDataExtractor implements
 				executablePath);
 
 		return data;
+	}
+
+	public String getDefaultOpenCommandFor(URL location) {
+		return String.format("cmd /c start %s", location);
 	}
 }

@@ -22,6 +22,7 @@
 package org.openmicroscopy.shoola.env.data.model.appdata;
 
 import java.io.File;
+import java.net.URL;
 
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 
@@ -34,9 +35,9 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
  * @since Beta4.4
  */
 public interface ApplicationDataExtractor {
-	
+
 	/**
-	 * @return  the platform specific directory where applications are located
+	 * @return the platform specific directory where applications are located
 	 */
 	String getDefaultAppDirectory();
 
@@ -49,4 +50,11 @@ public interface ApplicationDataExtractor {
 	 *         system properties
 	 */
 	ApplicationData extractAppData(File file) throws Exception;
+
+	/**
+	 * @param location
+	 *            the location to be opened
+	 * @return the platform specific default command used to open documents
+	 */
+	String getDefaultOpenCommandFor(URL location);
 }

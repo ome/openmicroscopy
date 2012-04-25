@@ -205,32 +205,27 @@ public class ApplicationData {
 	 */
 	public static String buildCommand(ApplicationData data, File file)
 			throws MalformedURLException {
-		StringBuilder commandBuilder = new StringBuilder();
-
-		if (data == null) {
-			if (UIUtilities.isMacOS()) {
-				commandBuilder.append("open ");
-			}
-			if (UIUtilities.isWindowsOS()) {
-				commandBuilder.append("cmd /c start ");
-			}
-		} else if (data != null) {
-			commandBuilder.append(data.executable);
-			commandBuilder.append(" ");
-
-			Iterable<String> arguments = data.getCommandLineArguments();
-
-			if (arguments != null) {
-				for (String argument : arguments) {
-					commandBuilder.append(argument);
-					commandBuilder.append(" ");
-				}
-			}
-		}
 
 		URL fileUrl = file.toURI().toURL();
-		commandBuilder.append(fileUrl);
 
+		if (data == null) {
+			return extractor.getDefaultOpenCommandFor(fileUrl);
+		}
+
+		StringBuilder commandBuilder = new StringBuilder();
+		commandBuilder.append(data.executable);
+
+		Iterable<String> arguments = data.getCommandLineArguments();
+
+		if (arguments != null) {
+			for (String argument : arguments) {
+				commandBuilder.append(" ");
+				commandBuilder.append(argument);
+			}
+		}
+		
+		commandBuilder.append(String.format(" %s", fileUrl));
+		
 		return commandBuilder.toString();
 	}
 }
