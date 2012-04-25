@@ -222,8 +222,7 @@ public class ManageRndSettingsAction
 						i = selected.iterator();
 						while (i.hasNext()) {
 							obj = i.next();
-							//if (model.isUserOwner(obj)) count++;
-							if (model.isWritable(obj)) count++;
+							if (model.canAnnotate(obj)) count++;
 						}
 						setEnabled(count == selected.size());
 					} else setEnabled(true);
@@ -239,7 +238,7 @@ public class ManageRndSettingsAction
 					i = selected.iterator();
 					while (i.hasNext()) {
 						obj = i.next();
-						if (model.isWritable(obj)) count++;
+						if (model.canAnnotate(obj)) count++;
 					}
 					setEnabled(count == selected.size());
 				}
@@ -253,8 +252,7 @@ public class ManageRndSettingsAction
 					i = selected.iterator();
 					while (i.hasNext()) {
 						obj = i.next();
-						//if (model.isUserOwner(obj)) count++;
-						if (model.isWritable(obj) && !model.isUserOwner(ho)) 
+						if (model.canAnnotate(obj) && !model.isUserOwner(ho))
 							count++;
 					}
 					setEnabled(count == selected.size());

@@ -498,14 +498,23 @@ public interface DataBrowser
 	public void remove();
 	
 	/**
-	 * Returns <code>true</code> if the specified object is writable,
+	 * Returns <code>true</code> if the specified object can be edited,
 	 * <code>false</code> otherwise, depending on the permission.
 	 * 
-	 * @param ho    The data object to check.
+	 * @param ho The data object to check.
 	 * @return See above.
 	 */
-	public boolean isWritable(Object ho);
+	public boolean canEdit(Object ho);
 
+	/**
+	 * Returns <code>true</code> if the specified object can be annotated,
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canAnnotate(Object ho);
+	
 	/**
 	 * Returns <code>true</code> if the user currently logged in is the
 	 * owner of the object, <code>false</code> otherwise.
