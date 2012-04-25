@@ -545,11 +545,14 @@ public class IconManager
     /** The <code>ImageJ Viewer</code> icon. */
     public static final int          VIEWER_IJ = 163;
     
+    /** The <code>Read Link Group</code> icon. */
+    public static final int           READ_WRITE_GROUP = 164;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 163;
+    private static final int          MAX_ID = 164;
 
     
     /** Paths of the icon files. */
@@ -693,6 +696,7 @@ public class IconManager
         relPaths[READ_GROUP] = "nuvola_ledorange_readOnly16.png";
         relPaths[READ_LINK_GROUP] = "nuvola_ledorange16.png";
         relPaths[PUBLIC_GROUP] = "nuvola_ledgreen16.png";
+        relPaths[READ_WRITE_GROUP] = "nuvola_ledorange16.png";
         
         relPaths[PRIVATE_GROUP_DD_12] = "nuvola_permission_private_dd12.png";
         relPaths[READ_GROUP_DD_12] = "nuvola_permission_readOnly_dd12.png";

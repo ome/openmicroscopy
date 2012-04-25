@@ -137,9 +137,6 @@ public class TreeCellRenderer
 	/** Reference to the Annotated<code>Plate Acquisition</code> icon. */
 	private static final Icon PLATE_ACQUISITION_ANNOTATED_ICON;
 	
-	/** Reference to the <code>File</code> icon. */
-	private static final Icon FILE_ICON;
-	
 	/** Reference to the <code>Tag</code> icon. */
 	private static final Icon TAG_ICON;
 	
@@ -230,6 +227,9 @@ public class TreeCellRenderer
 	/** Reference to the <code>Group RWR---</code> icon. */
 	private static final Icon GROUP_READ_ONLY_ICON;
 	
+	/** Reference to the <code>Group RWRA--</code> icon. */
+	private static final Icon GROUP_READ_LINK_ICON;
+	
 	/** Reference to the <code>Group RWRW--</code> icon. */
 	private static final Icon GROUP_READ_WRITE_ICON;
 	
@@ -243,7 +243,8 @@ public class TreeCellRenderer
 		IconManager icons = IconManager.getInstance();
 		GROUP_PRIVATE_ICON = icons.getIcon(IconManager.PRIVATE_GROUP);
 		GROUP_READ_ONLY_ICON = icons.getIcon(IconManager.READ_GROUP);
-		GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_LINK_GROUP);
+		GROUP_READ_LINK_ICON = icons.getIcon(IconManager.READ_GROUP);
+		GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_WRITE_GROUP);
 		GROUP_PUBLIC_READ_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
 		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(
 				IconManager.PUBLIC_GROUP);
@@ -255,7 +256,6 @@ public class TreeCellRenderer
 		PROJECT_ICON = icons.getIcon(IconManager.PROJECT);
 		SCREEN_ICON = icons.getIcon(IconManager.SCREEN);
 		PLATE_ICON = icons.getIcon(IconManager.PLATE);
-		FILE_ICON = icons.getIcon(IconManager.FILE);
 		PROJECT_ANNOTATED_ICON = icons.getIcon(IconManager.PROJECT_ANNOTATED);
 		PROJECT_TO_REFRESH_ICON = icons.getIcon(IconManager.PROJECT_TO_REFRESH);
 		DATASET_ANNOTATED_ICON = icons.getIcon(IconManager.DATASET_ANNOTATED);
@@ -309,9 +309,6 @@ public class TreeCellRenderer
 	
     /** Flag to indicate if the number of children is visible. */
     private boolean             numberChildrenVisible;
-    
-    /** The ID of the current user. */
-    private long				userID;
 
     /** Filter to identify protocol file. */
     private EditorFileFilter 	filter;
@@ -407,6 +404,9 @@ public class TreeCellRenderer
 	        		icon = GROUP_READ_ONLY_ICON;
 	        		break;
 	        	case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+	        		icon = GROUP_READ_LINK_ICON;
+	        		break;
+	        	case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
 	        		icon = GROUP_READ_WRITE_ICON;
 	        		break;
 	        	case AdminObject.PERMISSIONS_PUBLIC_READ:
@@ -604,7 +604,6 @@ public class TreeCellRenderer
      */
     public void paintComponent(Graphics g)
     {
-    	//super.paintComponent(g);
     	if (isTargetNode) {
 			if (!droppedAllowed) {
 				if (selected) g.setColor(backgroundSelectionColor);

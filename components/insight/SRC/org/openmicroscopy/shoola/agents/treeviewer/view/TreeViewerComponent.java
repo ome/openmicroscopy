@@ -3767,6 +3767,7 @@ class TreeViewerComponent
 			if (data.isGroupRead()) {
 				if (data.isGroupWrite()) 
 					level = AdminObject.PERMISSIONS_GROUP_READ_LINK;
+				//else if (data.isGroupAnnotate())
 				else level = AdminObject.PERMISSIONS_GROUP_READ;
 			} else if (data.isWorldRead()) {
 				if (data.isWorldWrite()) 
