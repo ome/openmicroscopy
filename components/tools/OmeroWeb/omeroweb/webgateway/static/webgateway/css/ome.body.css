@@ -55,18 +55,47 @@ h1 {
     padding: 10px 0;
 }
 
+	h1.page_title {
+		border-bottom:solid 1px rgba(0,0,0,0.05);
+		margin-bottom:20px;
+	}
+
 h2{
     font-size:1.1em;
     line-height:1.6em;
     text-shadow: 0 1px 0 rgba(255,255,255,1);
     text-transform: uppercase;
-    color:hsl(210,10%,50%);
+    color:hsl(210,7%,60%);
     font-weight:bold;
 	margin-bottom:6px;
 }
 
 
+p, dl {
+	font-size:1.2em;
+	line-height:1.4em;
+	margin-bottom:15px;
+}
 
+dl {
+	overflow:hidden;
+}
+
+dt, dd {
+	display:inline-block;
+}
+
+dt {
+	width:30%;
+}
+
+dd {
+	width:69%;
+}
+
+strong {
+	font-weight:bold;
+}
 
 
 ul.errorlist {
@@ -90,9 +119,21 @@ label {
 
 
 
-.error {
-    color: #e3646f;
+.error, .form_error {
+	background-color: hsl(0,30%,80%);
+	color:red;
+	color:hsl(0,70%,40%);
+	line-height:1.3em;
+	padding:5px;
+	-webkit-border-radius:2px;
+	-webkit-border-radius:2px; /* Saf3+, Chrome */
+	   -moz-border-radius:2px; /* FF1+ */
+	        border-radius:2px; /* Opera 10.5, IE 9 */ 
+	font-size:1.1em;
+	background-color: hsl(0,30%,90%);
+				
 }
+
 
 .disabled {
     background: #dcdcdc;

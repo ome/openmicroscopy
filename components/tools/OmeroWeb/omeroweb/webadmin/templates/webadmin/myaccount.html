@@ -281,13 +281,14 @@
     	
 		
 		<div class="one_column_header">
-	        <form class="search filtersearch" id="filtersearch" action="#">
-				<input type="text" id="id_search">
-				<input type="submit" value="Go" /> 
+			<form class="search filtersearch" id="filtersearch" action="#">
+				<input type="text" id="id_search" value="">
+				<input type="submit" value="Go" />
 				<span class="loading">
 					<img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
 				</span>
 			</form>
+	        
 		</div>
   
         <table id="dataTable" class="tablesorter"> 
@@ -307,7 +308,9 @@
                     <td>{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
                     <td class="table_settings">
                         {% if not dict.locked %}
-                            <a href="{% url wamanagegroupownerid "edit" dict.group.id %}"><img src="{% static "webadmin/image/edit.png" %}" alt="edit" title="edit"></a>
+                            <a href="{% url wamanagegroupownerid "edit" dict.group.id %}" alt="Edit Group" title="Edit Group" class="btn silver btn_edit">
+							<span></span>
+						</a>
                         {% endif %}                    
                     </td>
 					

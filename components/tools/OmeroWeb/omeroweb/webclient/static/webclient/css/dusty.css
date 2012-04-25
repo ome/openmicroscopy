@@ -749,6 +749,31 @@ button {
 		        transition:   opacity .2s linear; 
 		
 	}
+	
+	
+	
+	/* Filter Search */
+	
+    .filtersearch{
+        position:absolute;
+        top:3px;
+        left:3px;
+        width:150px;
+        height:25px;
+    }
+
+        .filtersearch input {
+            border:solid 1px rgba(0,0,0,.6);
+            border-top:solid 1px rgba(0,0,0,.6);
+            position:absolute;
+        }
+		
+		.filtersearch .loading {
+			position:absolute;
+			right:-4px;
+			top:2px;
+		}
+	
 
 
 

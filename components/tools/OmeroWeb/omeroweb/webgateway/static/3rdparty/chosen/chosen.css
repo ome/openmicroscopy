@@ -4,11 +4,11 @@
   position: relative;
   display: inline-block;
   zoom: 1;
-  *display: inline;
-  width:72% !important;
+  width:70% !important;
 }
 .chzn-container .chzn-drop {
   background: #fff;
+  width:100% !important;
   border: 1px solid #aaa;
   border-top: 0;
   position: absolute;
