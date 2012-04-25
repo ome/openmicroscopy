@@ -283,8 +283,7 @@ public class ManageRndSettingsAction
 					Object object;
 					for (int i = 0; i < selected.length; i++) {
 						object = selected[i].getUserObject();
-						if (model.canAnnotate(object) && 
-								!model.canEdit(object))
+						if (model.canAnnotate(object))
 							count++;
 					}
 					setEnabled(count == selected.length);

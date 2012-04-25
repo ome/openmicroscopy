@@ -680,8 +680,9 @@ abstract class DataBrowserModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isParentWritable()
+	boolean canEditParent()
 	{
+		if (DataBrowserAgent.isAdministrator()) return true;
 		long userID = DataBrowserAgent.getUserDetails().getId();
 		if (parent == null) {
 			if (experimenter == null) return false;
@@ -693,14 +694,21 @@ abstract class DataBrowserModel
 		}
 		boolean b = EditorUtil.isUserOwner(parent, userID);
 		if (b) return b;
+		GroupData group = null;
+		if (parent instanceof DataObject) {
+			DataObject data = (DataObject) parent;
+			group = getGroup(data.getGroupId());
+		}
+		if (group == null) return false;
 		int level = 
-		DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel();
+			DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel(
+				group);
 		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
 			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 		}
-		return false;
+		return EditorUtil.isUserGroupOwner(group, userID);
 	}
 	
 	/**

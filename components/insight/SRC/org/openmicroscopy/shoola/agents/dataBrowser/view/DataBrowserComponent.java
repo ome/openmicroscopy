@@ -59,11 +59,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -681,7 +678,7 @@ class DataBrowserComponent
 			Collection list = new HashSet();
 			while (i.hasNext()) {
 				img = (ImageData) i.next();
-				if (isUserOwner(img)) list.add(img);
+				if (canEdit(img)) list.add(img);
 			}
 			if (list.size() == 0) {
 				UserNotifier un = 
@@ -915,7 +912,8 @@ class DataBrowserComponent
 		if (ho instanceof DataObject) {
 			DataObject data = (DataObject) ho;
 			group = model.getGroup(data.getGroupId());
-		} 
+		}
+		if (group == null) return false;
 		int level = 
 			DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel(
 				group);
@@ -957,20 +955,6 @@ class DataBrowserComponent
 				return true;
 		}
 		return EditorUtil.isUserGroupOwner(group, id);
-	}
-	
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#isObjectWritable(Object)
-	 */
-	public boolean isUserOwner(Object ho)
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED state.");
-		//Check if current user can write in object
-		long id = DataBrowserAgent.getUserDetails().getId();
-		return EditorUtil.isUserOwner(ho, id);
 	}
 	
 	/**

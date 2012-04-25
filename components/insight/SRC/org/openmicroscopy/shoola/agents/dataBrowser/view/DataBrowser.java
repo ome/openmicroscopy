@@ -516,15 +516,6 @@ public interface DataBrowser
 	public boolean canAnnotate(Object ho);
 	
 	/**
-	 * Returns <code>true</code> if the user currently logged in is the
-	 * owner of the object, <code>false</code> otherwise.
-	 * 
-	 * @param ho    The data object to check.
-	 * @return See above.
-	 */
-	public boolean isUserOwner(Object ho);
-	
-	/**
 	 * Reloads the thumbnails. 
 	 * 
 	 * @param ids Collection of images to reload the thumbnails or 

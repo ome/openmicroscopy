@@ -252,7 +252,7 @@ public class ManageRndSettingsAction
 					i = selected.iterator();
 					while (i.hasNext()) {
 						obj = i.next();
-						if (model.canAnnotate(obj) && !model.isUserOwner(ho))
+						if (model.canAnnotate(obj))
 							count++;
 					}
 					setEnabled(count == selected.size());
