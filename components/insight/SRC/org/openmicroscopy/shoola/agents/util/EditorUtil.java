@@ -2381,6 +2381,28 @@ public class EditorUtil
     }
 	
 	/**
+     * Returns the node hosting the experimenter passing a child node.
+     * 
+     * @param node The child node.
+     * @return See above.
+     */
+	public static TreeImageDisplay getDataGroup(TreeImageDisplay node)
+    {
+    	if (node == null) return null;
+    	TreeImageDisplay parent = node.getParentDisplay();
+    	Object ho;
+    	if (parent == null) {
+    		ho = node.getUserObject();
+    		if (ho instanceof GroupData)
+    			return node;
+    		return null;
+    	}
+    	ho = parent.getUserObject();
+    	if (ho instanceof GroupData) return parent;
+    	return getDataGroup(parent);
+    }
+	
+	/**
 	 * Returns <code>true</code> if the node can be transfered,
 	 * <code>false</code> otherwise.
 	 * 

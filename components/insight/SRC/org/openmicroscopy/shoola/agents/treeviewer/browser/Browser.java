@@ -575,6 +575,14 @@ public interface Browser
 	 * @return See above.
 	 */
 	ExperimenterData getNodeOwner(TreeImageDisplay node);
+	
+	/**
+	 * Returns the group the node is representing.
+	 * 
+	 * @param node The node to handle.
+	 * @return See above.
+	 */
+	GroupData getNodeGroup(TreeImageDisplay node);
 
 	/** 
 	 * Sets the node the user wished to save before being prompt with

@@ -1583,24 +1583,30 @@ class TreeViewerComponent
 		boolean b = false;
 		if (ho instanceof TreeImageTimeSet) {
 			Browser browser = model.getSelectedBrowser();
+			if (browser == null) return false;
 			ExperimenterData exp = browser.getNodeOwner((TreeImageDisplay) ho);
 			if (exp.getId() == id) b = true;
 		} else b = EditorUtil.isUserOwner(ho, id);
 		if (b) return b; //user is the owner.
+		GroupData group = null;
 		if (ho instanceof DataObject) {
 			DataObject data = (DataObject) ho;
-			GroupData group = model.getGroup(data.getGroupId());
-			int level = 
-			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-					group);
-			switch (level) {
-				case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-					return true;
-			}
-			return EditorUtil.isUserGroupOwner(group, id);
+			group = model.getGroup(data.getGroupId());
+		} else if (ho instanceof TreeImageTimeSet) {
+			Browser browser = model.getSelectedBrowser();
+			if (browser == null) return false;
+			group = browser.getNodeGroup((TreeImageDisplay) ho);
 		}
-		return false;
+		
+		int level = 
+		TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+				group);
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
+		}
+		return EditorUtil.isUserGroupOwner(group, id);
 	}
 	
 	/**
@@ -1622,22 +1628,26 @@ class TreeViewerComponent
 			if (exp.getId() == id) b = true;
 		} else b = EditorUtil.isUserOwner(ho, id);
 		if (b) return b; //user is the owner.
+		GroupData group = null;
 		if (ho instanceof DataObject) {
 			DataObject data = (DataObject) ho;
-			GroupData group = model.getGroup(data.getGroupId());
-			int level = 
+			group = model.getGroup(data.getGroupId());
+		} else if (ho instanceof TreeImageTimeSet) {
+			Browser browser = model.getSelectedBrowser();
+			if (browser == null) return false;
+			group = browser.getNodeGroup((TreeImageDisplay) ho);
+		}
+		int level = 
 			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
 					group);
-			switch (level) {
-				case AdminObject.PERMISSIONS_GROUP_READ:
-				case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-				case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-					return true;
-			}
-			return EditorUtil.isUserGroupOwner(group, id);
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ:
+			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
 		}
-		return false;
+		return EditorUtil.isUserGroupOwner(group, id);
 	}
 	
 	/**
