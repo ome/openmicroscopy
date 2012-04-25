@@ -78,7 +78,6 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.GroupData;
 import pojos.ImageData;
-import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -464,8 +463,18 @@ public class MoveGroupSelectionDialog
         TreeImageSet root = new TreeImageSet("");
         treeDisplay.setModel(new DefaultTreeModel(root));
 		if (targets == null || targets.size() == 0) {
-			c.add(buildContent(new JLabel("No target to select.")),
-					BorderLayout.CENTER);
+			StringBuffer s = new StringBuffer();
+			if (ProjectData.class.equals(containerType)) {
+				s.append("There is no Project to place the Dataset(s) into.\n");
+				s.append("Please create a new Project if you wish.");
+			} else if (DatasetData.class.equals(containerType)) {
+				s.append("There is no Dataset to place the Image(s) into.\n");
+				s.append("Please create a new Dataset if you wish.");
+			} else if (ScreenData.class.equals(containerType)) {
+				s.append("There is no Screen to place the Plate into.\n");
+				s.append("Please create a new Screen if you wish.");
+			}
+			c.add(buildContent(new JLabel(s.toString())), BorderLayout.CENTER);
 			c.add(buildToolBar(), BorderLayout.SOUTH);
 			validate();
 			repaint();
