@@ -52,6 +52,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
@@ -91,7 +93,7 @@ import pojos.ScreenData;
  */
 public class MoveGroupSelectionDialog
 	extends JDialog
-	implements ActionListener, PropertyChangeListener
+	implements ActionListener, PropertyChangeListener, TreeSelectionListener
 {
 
 	/** Action id to close and dispose.*/
@@ -141,15 +143,12 @@ public class MoveGroupSelectionDialog
 	
 	/** Indicate the status of the dialog.*/
 	private int status;
-	
-	/** Only displayed the top node.*/
-	private boolean topOnly;
-	
+
 	/** Handle the nodes to display.*/
 	private JTree treeDisplay;
 	
 	/** The type of container to create.*/
-	private Class containerType;
+	private Class<?> containerType;
 	
 	/** The data object to create.*/
 	private DataObject toCreate;
@@ -294,10 +293,8 @@ public class MoveGroupSelectionDialog
 			if (list != null && list.size() > 0) {
 				data = list.get(0);
 				if (data instanceof PlateData) {
-					topOnly = true;
 					containerType = ScreenData.class;
 				} else if (data instanceof DatasetData) {
-					topOnly = true;
 					containerType = ProjectData.class;
 				} else if (data instanceof ImageData) {
 					containerType = DatasetData.class;
@@ -450,7 +447,6 @@ public class MoveGroupSelectionDialog
 	 */
 	public void setTargets(Collection<DataObject> targets)
 	{
-		moveButton.setEnabled(true);
 		Container c = getContentPane();
 		c.remove(body);
 		c.remove(1);
@@ -462,6 +458,7 @@ public class MoveGroupSelectionDialog
         treeDisplay.setShowsRootHandles(true);
         TreeImageSet root = new TreeImageSet("");
         treeDisplay.setModel(new DefaultTreeModel(root));
+        treeDisplay.addTreeSelectionListener(this);
 		if (targets == null || targets.size() == 0) {
 			StringBuffer s = new StringBuffer();
 			if (ProjectData.class.equals(containerType)) {
@@ -522,6 +519,16 @@ public class MoveGroupSelectionDialog
 			if (folderName != null && folderName.trim().length() > 0) 
 				create(folderName);
 		}
+	}
+
+	/**
+	 * Listens to node selection in the tree.
+	 * @see TreeSelectionListener#valueChanged(TreeSelectionEvent)
+	 */
+	public void valueChanged(TreeSelectionEvent e)
+	{
+		TreePath[] paths = treeDisplay.getSelectionPaths();
+		moveButton.setEnabled(paths != null && paths.length > 0);
 	}
 
 }
