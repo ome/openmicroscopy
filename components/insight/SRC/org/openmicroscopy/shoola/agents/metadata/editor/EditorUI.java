@@ -245,14 +245,11 @@ class EditorUI
     	Object uo = model.getRefObject();
     	remove(component);
     	setDataToSave(false);
-    	boolean add = true;
     	if (uo instanceof ExperimenterData)  {
-			//if (current.getId() == exp.getId()) {
     		toolBar.buildUI();
     		userUI.buildUI();
     		userUI.repaint();
-    		component = userTabbedPane; 
-			//} else add = false;
+    		component = userTabbedPane;
     	} else if (uo instanceof GroupData) {
     		toolBar.buildUI();
     		groupUI.buildUI();
@@ -273,7 +270,7 @@ class EditorUI
 				tabPane.setEnabledAt(RND_INDEX, false);
 			}
     	}
-    	if (add) add(component, BorderLayout.CENTER);
+    	add(component, BorderLayout.CENTER);
     	validate();
     	repaint();
     }
@@ -527,22 +524,6 @@ class EditorUI
 	void attachFiles(File[] files)
 	{
 		if (files == null || files.length == 0) return;
-		//Check if valid file
-		//file w/o extension
-		/*
-		String name = file.getName();
-		int dot = name.lastIndexOf(".")+1;
-		String extension = name.substring(dot);
-		if (extension == null ||extension.trim().length() == 0 || 
-			extension.equals(name)) {
-			UserNotifier un = 
-				MetadataViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Attachment Selection", "The selected file " +
-					"has no extension. It is not possible to upload it.");
-			return;
-		}
-		*/
-		//if (generalPane.attachFile(file))
 		generalPane.attachFiles(files);
 		saveData(true);
 	}
@@ -593,8 +574,7 @@ class EditorUI
 	{
 		if (objects == null) return;
 		generalPane.handleObjectsSelection(type, objects);
-		//if (TagAnnotationData.class.equals(type))
-			saveData(true);	
+		saveData(true);	
 	}
 	
 	/** 
