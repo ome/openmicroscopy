@@ -78,7 +78,7 @@
 
     <!-- include scripts for loading data into right-hand tabs -->
     <!-- these are configured in settings.py under "omero.web.ui.right_tabs" -->
-    {% for rt in nav.right_plugins %}
+    {% for rt in ome.right_plugins %}
         {% include rt.include %}
     {% endfor %}
 
@@ -118,13 +118,13 @@
         <ul id="annotation_tabs_list">
             <li><a href="#metadata_general">{% trans "General" %}</a></li>
             <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
-            {% for rt in nav.right_plugins %}
+            {% for rt in ome.right_plugins %}
                 <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
             {% endfor %}
         </ul>
         <div id="metadata_general" class="right_tab_content"></div>
         <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
-        {% for rt in nav.right_plugins %}
+        {% for rt in ome.right_plugins %}
             <div id="{{ rt.plugin_id }}" class="right_tab_content" style="padding:10px"></div>
         {% endfor %}
     </div>

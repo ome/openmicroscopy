@@ -111,8 +111,8 @@ class render_response(omeroweb.decorators.render_response):
 
 
     def load_settings(self, request, context, conn):
-        # This is the new navHelper function...
 
+        # Process various settings and add to the template context dict
         top_links = settings.TOP_LINKS
         links = []
         for tl in top_links:
@@ -124,3 +124,21 @@ class render_response(omeroweb.decorators.render_response):
             except:
                 logger.error("Failed to reverse() tab_link: %s" % tl)
         context['ome']['top_links'] = links
+
+        right_plugins = settings.RIGHT_PLUGINS
+        r_plugins = []
+        for rt in right_plugins:
+            label = rt[0]
+            include = rt[1]
+            plugin_id = rt[2]
+            r_plugins.append( {"label":label, "include":include, "plugin_id": plugin_id} )
+        context['ome']['right_plugins'] = r_plugins
+
+        center_plugins = settings.CENTER_PLUGINS
+        c_plugins = []
+        for cp in center_plugins:
+            label = cp[0]
+            include = cp[1]
+            plugin_id = cp[2]
+            c_plugins.append( {"label":label, "include":include, "plugin_id": plugin_id} )
+        context['ome']['center_plugins'] = c_plugins

@@ -996,7 +996,7 @@
     <!-- include code to handle middle panel selection -->
     {% include "webclient/data/includes/center_plugin.thumbs.js.html" %}
 
-    {% for cp in nav.center_plugins %}
+    {% for cp in ome.center_plugins %}
         {% include cp.include %}
     {% endfor %}
 
@@ -1150,7 +1150,7 @@
 	<div id="center_panel_chooser">
 	    <select>
 	        <option value="#content_details">Thumbnails</option>
-	        {% for cp in nav.center_plugins %}
+	        {% for cp in ome.center_plugins %}
 	            <option value="#{{ cp.plugin_id }}">{{ cp.label }}</option>
 	        {% endfor %}
 	    </select>
@@ -1159,7 +1159,7 @@
 
 <div id="content_details" class="center_panel_content"> </div>
 
-{% for cp in nav.center_plugins %}
+{% for cp in ome.center_plugins %}
     <div id="{{ cp.plugin_id }}" class="center_panel_content"></div>
 {% endfor %}
 
@@ -1173,13 +1173,13 @@
         <ul id="annotation_tabs_list">
             <li><a href="#metadata_general">{% trans "General" %}</a></li>
             <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
-            {% for rt in nav.right_plugins %}
+            {% for rt in ome.right_plugins %}
                 <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
             {% endfor %}
         </ul>
         <div id="metadata_general" class="right_tab_content" ></div>
         <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
-        {% for rt in nav.right_plugins %}
+        {% for rt in ome.right_plugins %}
         <div id="{{ rt.plugin_id }}" class="right_tab_content" ></div>
         {% endfor %}
     </div>
