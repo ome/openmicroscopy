@@ -1122,7 +1122,7 @@
 
                 <div class="gray_border">
                 {% for grp in myGroups %}
-                    {% ifnotequal grp.id active_group %}
+                    {% ifnotequal grp.id active_group.id %}
                         <div class='group_option'>
                             <input type="radio" name="group_id" value="{{ grp.id }}" style="display:none"/>
                             <img

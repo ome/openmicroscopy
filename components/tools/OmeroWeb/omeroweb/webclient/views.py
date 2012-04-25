@@ -374,7 +374,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     context = {'init':init, 'myGroups':myGroups, 'form_users':form_users, 'new_container_form':new_container_form}
     context['groups'] = myGroups
-    context['group'] = conn.getGroupFromContext()
+    context['active_group'] = conn.getObject("ExperimenterGroup", long(active_group))
     context['experimenter'] = request.session.get('nav')['experimenter'] and int(request.session.get('nav')['experimenter']) or None
     userId = context['experimenter'] or conn.getEventContext().userId
     context['user'] = conn.getObject("Experimenter", long(userId))
@@ -382,7 +382,6 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         g.groupSummary()    # load leaders / members
     
     context['nav'] = {'basket': request.session.get('nav')['basket']}
-    context['active_group'] = int(active_group)
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
