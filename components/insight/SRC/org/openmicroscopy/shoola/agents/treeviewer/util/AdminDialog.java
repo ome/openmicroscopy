@@ -281,11 +281,6 @@ public class AdminDialog
 					icons.getIcon(IconManager.OWNER_GROUP_48));
 		} else if (ExperimenterData.class.equals(type)) {
 			String text = TEXT_EXPERIMENTER;
-			/*
-			if (parent instanceof GroupData) {
-				text += ((GroupData) parent).getName();
-			}
-			*/
 			tp = new TitlePanel(getTitle(), text, 
 					icons.getIcon(IconManager.OWNER_48));
 		}
@@ -390,8 +385,14 @@ public class AdminDialog
 		if (ExperimenterPane.EXPERIMENTER_ENABLE_SAVE_PROPERTY.equals(name)) {
 			save.setEnabled((Boolean) evt.getNewValue());
 		} else if (ENABLE_SAVE_PROPERTY.equals(name)) {
-			if (body instanceof GroupPane)
-				save.setEnabled((Boolean) evt.getNewValue());
+			if (body instanceof GroupPane) {
+				Boolean b = (Boolean) evt.getNewValue();
+				if (b.booleanValue()) {
+					save.setEnabled(((GroupPane) body).hasRequiredFields());
+				} else {
+					save.setEnabled(false);
+				}
+			}
 		}
 	}
 	
