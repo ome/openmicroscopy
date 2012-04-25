@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -197,13 +199,20 @@ public class ApplicationData {
 	 * @param file
 	 *            the {@link File} representing the location of the file to open
 	 * @return the command string that when executed should open the file.
+	 * @throws MalformedURLException
+	 *             when the file referenced is unable to be converted to a URL
+	 *             in the format file://...
 	 */
-	public static String buildCommand(ApplicationData data, File file) {
+	public static String buildCommand(ApplicationData data, File file)
+			throws MalformedURLException {
 		StringBuilder commandBuilder = new StringBuilder();
 
 		if (data == null) {
 			if (UIUtilities.isMacOS()) {
 				commandBuilder.append("open ");
+			}
+			if (UIUtilities.isWindowsOS()) {
+				commandBuilder.append("cmd /c start ");
 			}
 		} else if (data != null) {
 			commandBuilder.append(data.executable);
@@ -219,7 +228,8 @@ public class ApplicationData {
 			}
 		}
 
-		commandBuilder.append(file.getAbsolutePath());
+		URL fileUrl = file.toURI().toURL();
+		commandBuilder.append(fileUrl);
 
 		return commandBuilder.toString();
 	}
