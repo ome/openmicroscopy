@@ -115,6 +115,9 @@ class ToolBar
     private static final Icon PERMISSIONS_PUBLIC_READ;
     
     /** The icon for private group.*/
+    private static final Icon PERMISSIONS_GROUP_READ_WRITE;
+    
+    /** The icon for private group.*/
     private static final Icon PERMISSIONS_PUBLIC_READ_WRITE;
     
     //Initializes the icons.
@@ -123,6 +126,7 @@ class ToolBar
     	PERMISSIONS_PRIVATE = im.getIcon(IconManager.PRIVATE_GROUP);
     	PERMISSIONS_GROUP_READ = im.getIcon(IconManager.READ_GROUP);
     	PERMISSIONS_GROUP_READ_LINK = im.getIcon(IconManager.READ_LINK_GROUP);
+    	PERMISSIONS_GROUP_READ_WRITE = im.getIcon(IconManager.READ_WRITE_GROUP);
     	PERMISSIONS_PUBLIC_READ = im.getIcon(IconManager.PUBLIC_GROUP);
     	PERMISSIONS_PUBLIC_READ_WRITE = im.getIcon(IconManager.PUBLIC_GROUP);
     }
@@ -711,6 +715,10 @@ class ToolBar
 			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 				desc = AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT;
 				icon = PERMISSIONS_GROUP_READ_LINK;
+				break;
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+				desc = AdminObject.PERMISSIONS_GROUP_READ_WRITE_TEXT;
+				icon = PERMISSIONS_GROUP_READ_WRITE;
 				break;
 			case AdminObject.PERMISSIONS_PUBLIC_READ:
 				desc = AdminObject.PERMISSIONS_PUBLIC_READ_TEXT;

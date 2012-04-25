@@ -329,8 +329,8 @@ public class PermissionsPane
 			if (permissions.isGroupRead()) {
 	    		if (permissions.isGroupWrite()) 
 	    			level = AdminObject.PERMISSIONS_GROUP_READ_WRITE;
-	    		//else if (permissions.isGroupAnnotate())
-	    		//	level = AdminObject.PERMISSIONS_GROUP_READ_LINK;
+	    		else if (permissions.isGroupAnnotate())
+	    			level = AdminObject.PERMISSIONS_GROUP_READ_LINK;
 	    		else level = AdminObject.PERMISSIONS_GROUP_READ;
 	    	} else if (permissions.isWorldRead()) {
 	    		if (permissions.isGroupWrite()) 
@@ -398,11 +398,7 @@ public class PermissionsPane
 			case AdminObject.PERMISSIONS_GROUP_READ:
 			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-				p = new JPanel();
-				p.setBackground(getBackground());
-				p.add(readWriteGroupBox);
-				p.add(readAnnotateGroupBox);
-				p.add(readOnlyGroupBox);
+				p = buildCollaborative();
 				add(p);
 				break;
 			case AdminObject.PERMISSIONS_PUBLIC_READ:

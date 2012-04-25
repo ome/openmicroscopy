@@ -368,6 +368,8 @@ class AdminServiceImpl
 		PermissionData perm = group.getPermissions();
 		if (perm.isGroupRead()) {
 			if (perm.isGroupWrite())  
+				return AdminObject.PERMISSIONS_GROUP_READ_WRITE;
+			else if (perm.isGroupAnnotate())
 				return AdminObject.PERMISSIONS_GROUP_READ_LINK;
 			return AdminObject.PERMISSIONS_GROUP_READ;
 		}

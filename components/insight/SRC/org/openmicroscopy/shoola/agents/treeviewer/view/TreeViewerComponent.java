@@ -3761,21 +3761,23 @@ class TreeViewerComponent
 	 */
 	public int getGroupPermissions(GroupData group)
 	{
-		int level = AdminObject.PERMISSIONS_PRIVATE;
-		if (group != null) {
-			PermissionData data = group.getPermissions();
-			if (data.isGroupRead()) {
-				if (data.isGroupWrite()) 
-					level = AdminObject.PERMISSIONS_GROUP_READ_LINK;
-				//else if (data.isGroupAnnotate())
-				else level = AdminObject.PERMISSIONS_GROUP_READ;
-			} else if (data.isWorldRead()) {
-				if (data.isWorldWrite()) 
-					level = AdminObject.PERMISSIONS_PUBLIC_READ_WRITE;
-				else level = AdminObject.PERMISSIONS_PUBLIC_READ;
+		if (group == null)
+			return AdminObject.PERMISSIONS_PRIVATE;
+		PermissionData data = group.getPermissions();
+		if (data.isGroupRead()) {
+			if (data.isGroupWrite())
+				return AdminObject.PERMISSIONS_GROUP_READ_WRITE;
+			if (data.isGroupAnnotate()) {
+				return AdminObject.PERMISSIONS_GROUP_READ_LINK;
 			}
+			return AdminObject.PERMISSIONS_GROUP_READ;
 		}
-		return level;
+		if (data.isWorldRead()) {
+			if (data.isWorldWrite()) 
+				return AdminObject.PERMISSIONS_PUBLIC_READ_WRITE;
+			return AdminObject.PERMISSIONS_PUBLIC_READ;
+		}
+		return AdminObject.PERMISSIONS_PRIVATE;
 	}
 
 	/** 

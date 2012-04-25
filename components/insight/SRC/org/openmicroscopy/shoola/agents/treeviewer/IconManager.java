@@ -548,11 +548,14 @@ public class IconManager
     /** The <code>Read Link Group</code> icon. */
     public static final int           READ_WRITE_GROUP = 164;
     
+    /** The 12x12 <code>Read Link Group Drop Down</code> icon. */
+    public static final int           READ_WRITE_GROUP_DD_12 = 165;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 164;
+    private static final int          MAX_ID = 165;
 
     
     /** Paths of the icon files. */
@@ -701,6 +704,7 @@ public class IconManager
         relPaths[PRIVATE_GROUP_DD_12] = "nuvola_permission_private_dd12.png";
         relPaths[READ_GROUP_DD_12] = "nuvola_permission_readOnly_dd12.png";
         relPaths[READ_LINK_GROUP_DD_12] = "nuvola_permission_read_dd12.png";//"nuvola_permission_readLink_dd12.png";
+        relPaths[READ_WRITE_GROUP_DD_12] = "nuvola_permission_read_dd12.png";
         relPaths[PUBLIC_GROUP_DD_12] = "nuvola_permission_public_dd12.png";
         relPaths[RND_UNDO] = "nuvola_undo16.png";
         relPaths[RND_MIN_MAX] = "nuvola_rendering_minmax16.png";

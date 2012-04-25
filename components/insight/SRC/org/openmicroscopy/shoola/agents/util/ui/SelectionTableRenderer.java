@@ -55,11 +55,14 @@ class SelectionTableRenderer
 	/** The private group icon.*/
 	private static Icon PRIVATE;
 	
-	/** The private group icon.*/
+	/** The icon for <code>RWR---</code> group.*/
 	private static Icon READ_GROUP;
 	
-	/** The private group icon.*/
+	/** The icon for <code>RWRA--</code> group.*/
 	private static Icon READ_LINK;
+	
+	/** The icon for <code>RWRW--</code> group.*/
+	private static Icon READ_WRITE;
 	
 	/** The private group icon.*/
 	private static Icon PUBLIC;
@@ -69,6 +72,7 @@ class SelectionTableRenderer
 		PRIVATE = icons.getIcon(IconManager.PRIVATE_GROUP);
 		READ_GROUP = icons.getIcon(IconManager.READ_GROUP);
 		READ_LINK = icons.getIcon(IconManager.READ_LINK_GROUP);
+		READ_WRITE = icons.getIcon(IconManager.READ_WRITE_GROUP);
 		PUBLIC = icons.getIcon(IconManager.PUBLIC_GROUP);
 	}
 	
@@ -93,6 +97,9 @@ class SelectionTableRenderer
 				break;
 			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 				setIcon(READ_LINK);
+				break;
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+				setIcon(READ_WRITE);
 				break;
 			case AdminObject.PERMISSIONS_PUBLIC_READ:
 				setIcon(PUBLIC);
