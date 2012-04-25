@@ -151,7 +151,7 @@
 			</xsd:attribute>
 		</xsd:complexType>
 
-		<!-- Unique IDs and Valid References -->
+		<!-- Unique IDs -->
 		<xsd:key name="ChannelIDKey"><xsd:selector xpath="OME:Image/OME:Pixels/OME:Channel"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="DatasetIDKey"><xsd:selector xpath="OME:Dataset"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="DetectorIDKey"><xsd:selector xpath="OME:Instrument/OME:Detector"/><xsd:field xpath="@ID"/></xsd:key>
@@ -179,7 +179,8 @@
 
 		<!-- Unique references -->
 		<xsd:key name="WellSampleImageRefIDKey"><xsd:selector xpath="SPW:Plate/SPW:Well/SPW:WellSample/OME:ImageRef"/><xsd:field xpath="@ID"/></xsd:key>
-		
+
+		<!-- Valid references -->
 		<xsd:keyref name="DatasetExperimenterIDKeyRef" refer="OME:ExperimenterIDKey" ><xsd:selector xpath="OME:Dataset/OME:ExperimenterRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="DatasetExperimenterGroupIDKeyRef" refer="OME:ExperimenterGroupIDKey" ><xsd:selector xpath="OME:Dataset/OME:ExperimenterGroupRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="DatasetProjectIDKeyRef" refer="OME:ProjectIDKey" ><xsd:selector xpath="OME:Dataset/OME:ProjectRef"/><xsd:field xpath="@ID"/></xsd:keyref>

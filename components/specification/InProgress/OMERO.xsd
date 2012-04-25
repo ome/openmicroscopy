@@ -28,15 +28,19 @@
 <xsd:schema xmlns = "http://www.openmicroscopy.org/Schemas/OMERO/2012-06"
 	targetNamespace = "http://www.openmicroscopy.org/Schemas/OMERO/2012-06"
 	xmlns:OME = "http://www.openmicroscopy.org/Schemas/OME/2012-06"
+	xmlns:SA = "http://www.openmicroscopy.org/Schemas/SA/2012-06"
 	xmlns:xsd = "http://www.w3.org/2001/XMLSchema"
 	version = "1"
 	elementFormDefault = "qualified">
-	<!-- Using the svn location for import 
+	<!-- Using the svn location for import
 	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/OME/2012-06" schemaLocation="http://git.openmicroscopy.org/src/develop/components/specification/InProgress/ome.xsd"/>
+	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/SA/2012-06" schemaLocation="http://git.openmicroscopy.org/src/develop/components/specification/InProgress/SA.xsd"/>
+
 	Using the local directory location for import -->
 	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/OME/2012-06" schemaLocation="ome.xsd"/>
+	<xsd:import namespace="http://www.openmicroscopy.org/Schemas/SA/2012-06" schemaLocation="SA.xsd"/>
 	<!-- -->
-	
+
 	<xsd:element name="ProfileSet"> <!-- top level definition -->
 		<xsd:complexType>
 			<xsd:sequence>
@@ -126,5 +130,109 @@
 			<xsd:attribute name="mimetype" use="optional"  type="xsd:string"/>
 		</xsd:complexType>
 	</xsd:element>
-	
+
+	<xsd:element name = "Session"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Sessions</plural></xsdfu></xsd:appinfo>
+			<xsd:documentation>Describes a session.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="Node" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+			<xsd:attribute name="Uuid" use="required" type="xsd:string"/>
+			<xsd:attribute name="DefaultEventType" use="required" type="EventType"/>
+			<xsd:attribute name="UserAgent" use="optional" type="xsd:string"/>
+			<xsd:attribute name="TimeToIdle" use="required" type="OME:NonNegativeLong"/>
+			<xsd:attribute name="TimeToLive" use="required" type="OME:NonNegativeLong"/>
+			<xsd:attribute name="Started" use="required" type="xsd:dateTime"/>
+			<xsd:attribute name="Closed" use="optional" type="xsd:dateTime"/>
+			<xsd:attribute name="Message" use="optional" type="xsd:string"/>
+			<xsd:attribute name="Owner" use="required" type="OME:ExperimentID"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name = "Node"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Nodes</plural></xsdfu></xsd:appinfo>
+			<xsd:documentation>Describes a node.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:attribute name="Uuid" use="required" type="xsd:string"/> <!--  Add UNIQUE constraint -->
+			<xsd:attribute name="Conn" use="required" type="xsd:string"/>
+			<xsd:attribute name="Up" use="required" type="xsd:dateTime"/>
+			<xsd:attribute name="Down" use="optional" type="xsd:dateTime"/>
+			<xsd:attribute name="Scale" use="optional" type="xsd:long"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name = "Event"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Events</plural></xsdfu></xsd:appinfo>
+			<xsd:documentation>Describes an Event.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:attribute name="ID" use="required" type="EventID"/>
+			<xsd:attribute name="EntityId" use="required" type="OME:NonNegativeLong"/>
+			<xsd:attribute name="Status" use="optional" type="xsd:string"/>
+			<xsd:attribute name="Time" use="required" type="xsd:dateTime"/>
+			<xsd:attribute name="Type" use="required" type="EventType"/>
+			<xsd:attribute name="SessionRef" use="required" type="SessionID"/>
+			<xsd:attribute name="Experimenter" use="required" type="OME:ExperimentID"/>
+			<xsd:attribute name="ExperimenterGroup" use="required" type="OME:ExperimenterGroupID"/>
+			<xsd:attribute name="ContainingEvent" use="optional" type="EventID"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name = "EventLog"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>EventLogs</plural></xsdfu></xsd:appinfo>
+			<xsd:documentation>Describes an EventLog.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="Event" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="EntityId" use="required" type="OME:NonNegativeLong"/>
+			<xsd:attribute name="EntityType" use="required" type="xsd:string"/>
+			<xsd:attribute name="Action" use="required" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:simpleType name="EventType">
+		<xsd:annotation>
+			<xsd:documentation>
+				Types of events in the event log
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value = "Import"/>
+			<xsd:enumeration value = "Internal"/>
+			<xsd:enumeration value = "Shoola"/>
+			<xsd:enumeration value = "User"/>
+			<xsd:enumeration value = "Task"/>
+			<xsd:enumeration value = "Test"/>
+			<xsd:enumeration value = "Processing"/>
+			<xsd:enumeration value = "FullText"/>
+			<xsd:enumeration value = "Sessions"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="EventID">
+		<xsd:restriction base="OME:LSID">
+			<xsd:pattern value="(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Event:\S+)|(Event:\S+)"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="SessionID">
+		<xsd:restriction base="OME:LSID">
+			<xsd:pattern value="(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Session:\S+)|(Session:\S+)"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
 </xsd:schema>
