@@ -191,6 +191,7 @@
 		
 				<form class="search filtersearch" id="filtersearch" action="#">
 					<input type="text" id="id_search" />
+					<input type="submit" value="Go" />
 					<span class="loading">
 						<img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
 					</span>
@@ -200,28 +201,28 @@
 		
 			    <ul class="toolbar">
 			        <li>
-						<input id="refreshButton" alt="Refresh" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" title="Refresh" onclick="document.location.href='{% url basket_action %}';">
+						<input id="refreshButton" alt="Refresh" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh2.png" %}" title="Refresh" onclick="document.location.href='{% url basket_action %}';">
 					</li>
 					
-					<li class="seperator"></li>
+					<li class="seperator2"></li>
 					
 			        <li>
-						<input id="chatButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_chat.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();">
+						<input id="chatButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_chat2.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();">
 					</li>
 				
 					<li>
-						<input disabled="true" class="toggleEnabled button" type="image"  title="Create a 'Share' with the selected images" src="{% static "webclient/image/icon_toolbar_share.png" %}" onclick="makeShare('{% url basket_action 'toshare' %}');">
+						<input disabled="true" class="toggleEnabled button" type="image"  title="Create a 'Share' with the selected images" src="{% static "webclient/image/icon_toolbar_share2.png" %}" onclick="makeShare('{% url basket_action 'toshare' %}');">
 					</li>
 					
 					
-					<li class="seperator"></li>
+					<li class="seperator2"></li>
 					
 					<li>
-				        <input disabled="true" class="toggleEnabled button" type="image" src="{% static "webclient/image/icon_toolbar_remove.png" %}" alt="Remove Selected" title="Remove Selected" onclick="manyRemoveFromBasket();">
+				        <input disabled="true" class="toggleEnabled button" type="image" src="{% static "webclient/image/icon_toolbar_remove2.png" %}" alt="Remove Selected" title="Remove Selected" onclick="manyRemoveFromBasket();">
 					 </li>
 					 
 					 <li>
-					    <input type="image" class="button" src="{% static "webclient/image/icon_toolbar_clean.png" %}" alt="Remove All" title="Remove All" onclick="document.location.href='{% url empty_basket %}';">
+					    <input type="image" class="button" src="{% static "webclient/image/icon_toolbar_clean2.png" %}" alt="Remove All" title="Remove All" onclick="document.location.href='{% url empty_basket %}';">
 					</li>
 					
 			        
@@ -229,37 +230,42 @@
 		
 		</div>
 		
-
-
-      
 		<div class="center_panel_content">
-        <table id="dataTable" class="tablesorter">
-            <thead> 
-                <tr> 
-                    <th class="table_images">{% trans "Image" %}</th> 
-                    <th class="table_desc">{% trans "Name" %}</th> 
-                    <th class="table_date">{% trans "Date" %}</th> 
-                </tr> 
-            </thead>
-            <tbody>
-                {% for c in basket.imageInBasket %}
-                    <tr id="{{ c.id }}">
-                        <td class="image">
-                            <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
-                            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
-                        </td>
-                        <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% static "webgateway/img/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% static "webclient/image/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
-                        <td class="date">{{ c.getDate }}</td>                    
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-    {% else %}
-        <p class="center_message message_nodata">{% trans "Basket is empty" %}</p>
-    {% endif %}
+      
+		    <table id="dataTable" class="tablesorter">
+	            <thead> 
+	                <tr> 
+	                    <th class="table_images">{% trans "Image" %}</th> 
+	                    <th class="table_desc">{% trans "Name" %}</th> 
+	                    <th class="table_date">{% trans "Date" %}</th> 
+	                </tr> 
+	            </thead>
+	            <tbody>
+	                {% for c in basket.imageInBasket %}
+	                    <tr id="{{ c.id }}">
+	                        <td class="image">
+	                            <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
+	                            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
+	                        </td>
+	                        <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% static "webgateway/img/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% static "webclient/image/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+	                        <td class="date">{{ c.getDate }}</td>                    
+	                    </tr>
+	                {% endfor %}
+	            </tbody>
+	        </table>
+			
+		</div>	
+	{% else %}
+		
+		<div class="center_panel_content">
+	      	  <p class="center_message message_nodata">
+				{% trans "Basket is empty" %}
+			  </p>
+		</div>
+		
+	{% endif %}
     
-	</div>
+		
 	
 </div>
 

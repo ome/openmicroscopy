@@ -112,6 +112,7 @@
 			
 		 }
 		 
+		 
 		 .tablesorter tbody tr.ui-selected { 
 			 background-color:hsl(210,30%,70%);
 			 border-bottom:solid 1px hsl(210,15%,65%);
@@ -129,18 +130,29 @@
 			 
 		 }
 		 
-		.tablesorter tbody .ui-selected td {
-		 	border-top:solid 1px hsl(210,15%,68%);
-			-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.1);
-			-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.1); /* Saf3.0+, Chrome */
-			   -moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.1); /* FF3.5+ */
-			        box-shadow:inset 0 1px 0 rgba(255,255,255,0.1); /* Opera 10.5, IE 9.0 */
-			    filter:progid:DXImageTransform.Microsoft.dropshadow(OffX=inset, OffY=0, Color='#fff'); /* IE6,IE7 */
-			-ms-filter:"progid:DXImageTransform.Microsoft.dropshadow(OffX=inset, OffY=0, Color='#fff')"; /* IE8 */ 
+		 .tablesorter tr .btn span {
+			 display:none;
+		 }
+		 
+		 .tablesorter tr:hover .btn span{
+			 display:block;
 		 }
 		 
 		 
-	
+		 
+		 
+			.tablesorter tbody .ui-selected td {
+			 	border-top:solid 1px hsl(210,15%,68%);
+				-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.1);
+				-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.1); /* Saf3.0+, Chrome */
+				   -moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.1); /* FF3.5+ */
+				        box-shadow:inset 0 1px 0 rgba(255,255,255,0.1); /* Opera 10.5, IE 9.0 */
+				    filter:progid:DXImageTransform.Microsoft.dropshadow(OffX=inset, OffY=0, Color='#fff'); /* IE6,IE7 */
+				-ms-filter:"progid:DXImageTransform.Microsoft.dropshadow(OffX=inset, OffY=0, Color='#fff')"; /* IE8 */ 
+			 }
+		 
+		 
+		 
 		 
 			 .tablesorter tbody tr td{
 				 font-size:1.1em;

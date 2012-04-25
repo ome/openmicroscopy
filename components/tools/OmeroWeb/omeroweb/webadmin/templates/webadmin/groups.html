@@ -66,7 +66,8 @@
 	
 	<div class="one_column_header">
         <form class="search filtersearch" id="filtersearch" action="#">
-			<input type="text" id="id_search"> 
+			<input type="text" id="id_search">
+			<input type="submit" value="Go" /> 
 			<span class="loading">
 				<img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
 			</span>
@@ -84,9 +85,7 @@
                 <th>{% trans "ID" %}</th>
                 <th>{% trans "Group Name" %}</th> 
 				<th>{% trans "Permission" %}</th>
-                
                 <th>{% trans "Description" %}</th> 
-                <th></th>
             </tr> 
         </thead> 
         <tbody>
@@ -96,16 +95,27 @@
                     {{ dict.group.id }}
                 </td>
                 
-                <td><strong>{{ dict.group.name }}</strong></td>
-                <td>{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
+                <td>
+					<strong>{{ dict.group.name }}</strong>
+                  
+				    {% if dict.group.isEditable %}
+                    <a href="{% url wamanagegroupid "members" dict.group.id %}" title="Edit Group" class="btn silver btn_edit">
+                    	<span></span>
+                    </a>
+					{% endif %}
+					
+				</td>
+                <td>
+					{{ dict.permissions }}({{ dict.group.details.permissions }})
+                    {% if dict.group.isEditable %}
+                        <a href="{% url wamanagegroupid "edit" dict.group.id %}" class="btn silver btn_edit">
+                        	<span></span>
+                        </a>
+					{% endif %}
+					
+				</td>
                 <td>{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
 				
-                <td class="table_settings">
-                    {% if dict.group.isEditable %}{% if not dict.locked %}
-                        <a href="{% url wamanagegroupid "edit" dict.group.id %}"><img src="{% static "webadmin/image/edit.png" %}" alt="edit" title="edit"></a>
-                    {% endif %}
-                    <a href="{% url wamanagegroupid "members" dict.group.id %}"><img src="{% static "webadmin/image/editing.png" %}" alt="manage" title="manage members"></a>{% endif %}
-                </td>
 				
             </tr>
         {% endfor %}

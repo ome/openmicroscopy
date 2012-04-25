@@ -68,7 +68,8 @@
 
 	<div class="one_column_header">
         <form class="search filtersearch" id="filtersearch" action="#">
-			<input type="text" id="id_search"> 
+			<input type="text" id="id_search">
+			<input type="submit" value="Go" /> 
 			<span class="loading">
 				<img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
 			</span>
@@ -106,9 +107,15 @@
                       {% if dict.active %}<img src="{% static "webadmin/image/active.png" %}" alt="active" title="active">{% else %}<img src="{% static "webadmin/image/notactive.png" %}" alt="inactive" title="inactive">{% endif %}
                 </td>
                 <td>
-                    {% if dict.experimenter.isEditable %}<a href="{% url wamanageexperimenterid "edit" dict.experimenter.id %}">
-                        <img src="{% static "webadmin/image/edit.png" %}" alt="edit" title="edit">
-                    </a>{% endif %}
+                    {% if dict.experimenter.isEditable %}
+					<a href="{% url wamanageexperimenterid "edit" dict.experimenter.id %}" title="Edit User" class="btn silver btn_edit">
+                        <span></span>
+                    </a>
+					
+					
+					
+					
+					{% endif %}
                 </td>
 				
             </tr>
