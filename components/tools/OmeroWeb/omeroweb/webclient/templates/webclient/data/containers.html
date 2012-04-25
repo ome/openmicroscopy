@@ -26,8 +26,7 @@
 <!--
   This page is the 'home page' of the 3-column data layout for webclient.
   It loads the tree in the left panel. This is then used to load data into the middle and right panels (via AJAX)
-  using functions in the actions.js file.
-  E.g. On selection change: loadOtherPanels() calls loadMetadataPanel()
+  Plugins for the centre or right panels add themselves as selection listeners to the tree.
 -->
 {% endcomment %}
 
@@ -37,11 +36,10 @@
     <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jquery.jstree.js" %}"></script>   
     <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
+
+    <!-- set-up left panel tabs, jstree etc -->
     <script type="text/javascript">
-        String.prototype.capitalize = function() {
-            return this.charAt(0).toUpperCase() + this.slice(1);
-        }
-        
+
         var handleChgrp = function() {
             $("#chgrp-form").dialog('open');
         }
@@ -365,9 +363,9 @@
                             "data" : function (n) {
                                 var r = { "view" : "tree" };
                                 if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
-                                    if($("div#content_details").attr("rel")===n.attr("id") && $("div#content_details").has("#page").length > 0) {
-                                        r["page"] = parseInt($("div#content_details").find("#page").attr("rel"));
-                                    }
+                                    // pagination supported for 'dataset' and 'orphaned'...
+                                    var page = n.data("page") || null;      // this data is added by doPagination()
+                                    if (page) r["page"] = page;
                                 } 
                                 return r;
                             }
@@ -560,7 +558,6 @@
                                                             
                             config["create"] = {
                                 "label" : "Create new",
-                                "icon"  : '{% static "webclient/image/window_new16.png" %}',
                                 "submenu": {
                                     "project": {
                                         "label" : "Project",
@@ -586,28 +583,28 @@
                                 "submenu"   : {
                                     "copy"  : {
                                         "label" : "Copy",
-                                        "icon"  : '{% static "webclient/image/eclipse_copy_edit16.png" %}',
+                                        "icon"  : '{% static "webclient/image/icon_basic_copy_16.png" %}',
                                         "action": function() {
                                             this.copy(this.get_selected());
                                         }
                                     },
                                     "cut"   :{
                                         "label" : "Cut",
-                                        "icon"  : '{% static "webclient/image/cut16.png" %}',
+                                        "icon"  : '{% static "webclient/image/icon_basic_cut_16.png" %}',
                                         "action": function() {
                                             this.cut(this.get_selected());
                                         }
                                     },
                                     "paste": {
                                         "label" : "Paste",
-                                        "icon"  : '{% static "webclient/image/eclipse_paste_edit16.png" %}',
+                                        "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
                                         "action": function() {
                                             this.paste(this.get_selected());
                                         }
                                     },
                                     "unlink"    : {
                                         "label" : "Remove",
-                                        "icon"  : '{% static "webclient/image/minus_15.png" %}',
+                                        "icon"  : '{% static "webclient/image/icon_basic_remove_16.png" %}',
                                         "action": function(){
                                             var tree = this;
                                             //empty clipboard
@@ -622,19 +619,19 @@
                             
                             config["delete"] = {
                                 "label" : "Delete",
-                                "icon"  : '{% static "webclient/image/cancel16.png" %}',
+                                "icon"  : '{% static "webclient/image/icon_basic_delete_16.png" %}',
                                 "action": handleDelete
                             };
                             
                             config["chgrp"] = {
                                 "label" : "Move to Group...",
-                                "icon"  : '{% static "webclient/image/kuser16.png" %}',
+                                "icon"  : '{% static "webclient/image/icon_basic_user_16.png" %}',
                                 "action": handleChgrp
                             };
                             
                             config["basket"] = {
                                 "label" : "Add to Basket",
-                                "icon"  : '{% static "webclient/image/basket16.png" %}',                                    
+                                "icon"  : '{% static "webclient/image/icon_basic_basket_16.png" %}',                                    
                                 "action": function(){
                                     addToBasket(this.get_selected(), '{% url update_basket %}');
                                 }
@@ -805,6 +802,7 @@
                                     this.close_node(o);
                                 } else if (this._get_parent(o)) {
                                     var new_select = this._get_parent(o);
+                                    this.hover_node(new_select);
                                     new_select.children("a:eq(0)").click();
                                 }
                             }
@@ -841,30 +839,9 @@
                         openPopup("{% url webgateway_full_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                 })
-                .bind("select_node.jstree", function (e, data) {
+                .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
-                    var selected = data.inst.get_selected();
-                    if (selected.length > 1) {
-                        multipleAnnotation(selected, null, '{% url batch_annotate %}');
-                        // if any non-images are selected, clear the centre panel
-                        if (selected.filter('li:not([id|=image])').length > 0) {
-                            $("div#content_details").empty();
-                            $("div#content_details").removeAttr('rel');
-                        }
-                    } else {
-                        loadOtherPanels(data.inst, '{% url webindex %}');
-                    }
-                    syncPanels(selected);
-                    
-                })
-                .bind("deselect_node.jstree", function (e, data) {
-                    var selected = data.inst.get_selected();
-                    buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
-                    if (selected.length === 1 && data.args[0].length > 0) {
-                        data.rslt.obj = selected;
-                        loadOtherPanels(data.inst, '{% url webindex %}');
-                    }
-                    syncPanels(selected);
+                    tree_selection_changed(data);
                 })
                 .bind("open_node.jstree", function (e, data) {
 
@@ -932,17 +909,17 @@
                         } else {
                             data.inst.select_node(data.rslt.cr);
                         }
-                        refreshCenterPanel();
                     }
                 })
             });
             
     </script>
-    
+
+    <!-- configure toolbar buttons -->
     <script type="text/javascript">
     
     $(function () {
-        $("#buttons input").click(function () {
+        $(".toolbar input").click(function () {
             switch(this.id) {
                 case "addprojectButton":
                     handleNewContainer("project");
@@ -977,7 +954,6 @@
                     break;
                 case "refreshButton":
                     $("#dataTree").jstree("refresh");
-                    refreshCenterPanel();
                     break;
                 default:
                     break;
@@ -985,41 +961,121 @@
         });
     });
     </script>
+
+    <!-- set up the center panel to only show the div chosen by <select> -->
+    <script type="text/javascript">
+
+        // set the enabled status of the option to select a plugin. Set by index (0-based)
+        var set_center_plugin_enabled = function (index, enabled) {
+            // the first 'plugin' is actually the second option (first is thumbnails)
+            var $plugin_option = $('#center_panel_chooser select option:nth-child('+ (index+1) +')');
+            if (enabled) {
+                $plugin_option.attr('disabled', false);
+            } else {
+                $plugin_option.attr('disabled', 'disabled');
+            }
+        }
+
+        $(document).ready(function() {
+            $(".center_panel_content").hide();
+            $("#content_details").show();
+
+            $('#center_panel_chooser select').bind('change', function() {
+                var panel_id = this.options[this.selectedIndex].value;
+                $(".center_panel_content").hide();
+                $(panel_id).show();
+                // other listeners are bound to the parent element (independent of chooser being <select>)
+                $('#center_panel_chooser').trigger("center_plugin_changed.ome");
+            });
+        });
+    </script>
+	
+	
+	
+
+    <!-- include code to handle middle panel selection -->
+    {% include "webclient/data/includes/center_plugin.thumbs.js.html" %}
+
+    {% for cp in nav.center_plugins %}
+        {% include cp.include %}
+    {% endfor %}
+
+
 {% endblock %}
 
 
 {% block left %}
 
+	
+
+    <div id="user_selection">
+
+					
+    {% include "webclient/base/group_user_dropdown.html" %}
+	
+	</div>
+
+
     <div id="left_panel_tabs" class="absolute_fill">
-        <ul class="tabslist">
-        <li><a href="#Projects" title="Projects">{% trans "Projects+Screens" %}</a></li>
-        <li><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
-        <li><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>
-        </ul>
+	
+		
+        <ul id="left_panel_tab_list">
+			
+			<!-- Remember to update this in public/public.html as well. We should change this, but for the meantime, you need to manually update the menu there too -->
+			
+	        <li id="explore_tab"><a href="#Projects" title="Explore">{% trans "Explore" %}</a></li>
+	        <li id="tags_tab"><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
+	        <li id="public_tab"><a href="{% url load_template 'public' %}">{% trans "Public" %}</a></li>
+       
+	    </ul>
+		
+		
+		
+		<!--
+		<div id="navigator">
+			<a href="#" id="back">Back</a>
+			<a href="#" id="forward">Back</a>
+			<dl>
+				<dt>Groups</dt>
+			</dl>
+			<a href="#" id="settings">Settings</a>
+		</div>
+		-->
+		
+		
+		
 
 
-            <!-- toolbar above tree -->
+        <!-- toolbar above tree -->
         <div id="Projects">
-            <div class="toolbar">
-                <div id="buttons" class="align_left">
-                    <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh"> 
-                    |
-                    <input id="addprojectButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder16.png" %}" alt="Create new project" title="Create new Project" /> 
-                    <input id="adddatasetButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_image16.png" %}" alt="Create new dataset" title="Create new Dataset" /> 
-                    <input id="addscreenButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_screen16.png" %}" alt="Create new screen" title="Create new Screen" /> |
+            <ul class="toolbar">
+					
+			<li><input id="addprojectButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder16.png" %}" alt="Create new project" title="Create new Project" /></li>
+			<li><input id="adddatasetButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_image16.png" %}" alt="Create new dataset" title="Create new Dataset" /></li>
+			<li><input id="addscreenButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_screen16.png" %}" alt="Create new screen" title="Create new Screen" /></li>
+			
+			<li class="seperator"></li>
+			
+			<li><input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" alt="Copy" title="Copy" /> </li>
+			<li><input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Cut" title="Cut" /> </li>
+			<li><input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" alt="Paste" title="Paste" /> </li>
+			
+			<li class="seperator">
+			
+			<li><input id="unlinkButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_remove.png" %}" alt="Remove" title="Remove" /></li>
+			<li><input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete" /> </li>
+			<li><input id="basketButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_basket.png" %}" alt="Add to basket" title="Add to basket"></li>
+			
+			<li class="seperator"></li>
+			
+			<li><input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> </li>
+					
+            </ul>
             
-                    <input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" /> 
-                    <input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/cut16.png" %}" alt="Cut" title="Cut" /> 
-                    <input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/eclipse_paste_edit16.png" %}" alt="Paste" title="Paste" /> 
-                    <input id="unlinkButton" class="button button-disabled" type="image" src="{% static "webclient/image/minus_15.png" %}" alt="Remove" title="Remove" />
-                    <input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/cancel16.png" %}" alt="Delete" title="Delete" /> 
-                    <input id="basketButton" class="button button-disabled" type="image" src="{% static "webclient/image/basket16.png" %}" alt="Add to basket" title="Add to basket">
-                </div>
-            </div>
 
             <div class="clear"> </div>
 
-            <div id="tree_details">
+            <div id="tree_details" class="left_panel_inner">
                 <div class="dataTree" id="dataTree"></div>
             </div>
         </div>
@@ -1062,7 +1118,7 @@
                     You cannot move data to another group.
                 </p>
             {% else %}
-                <p>Choose group to move data</p>
+                <h1>Choose group to move data</h1>
 
                 <div class="gray_border">
                 {% for grp in myGroups %}
@@ -1090,6 +1146,42 @@
 
 {% block center %}
 
-<div id="content_details"> </div>
+<div id="center_panel_header">
+	<div id="center_panel_chooser">
+	    <select>
+	        <option value="#content_details">Thumbnails</option>
+	        {% for cp in nav.center_plugins %}
+	            <option value="#{{ cp.plugin_id }}">{{ cp.label }}</option>
+	        {% endfor %}
+	    </select>
+	</div>
+</div>
 
+<div id="content_details" class="center_panel_content"> </div>
+
+{% for cp in nav.center_plugins %}
+    <div id="{{ cp.plugin_id }}" class="center_panel_content"></div>
+{% endfor %}
+
+{% endblock %}
+
+
+
+{% block right %}
+<div>
+    <div id="annotation_tabs" class="absolute_fill">
+        <ul id="annotation_tabs_list">
+            <li><a href="#metadata_general">{% trans "General" %}</a></li>
+            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
+            {% for rt in nav.right_plugins %}
+                <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
+            {% endfor %}
+        </ul>
+        <div id="metadata_general" class="right_tab_content" ></div>
+        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
+        {% for rt in nav.right_plugins %}
+        <div id="{{ rt.plugin_id }}" class="right_tab_content" ></div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

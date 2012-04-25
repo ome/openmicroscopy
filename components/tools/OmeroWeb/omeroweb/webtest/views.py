@@ -294,6 +294,7 @@ def split_view_figure (request, conn=None, **kwargs):
     
     
     idList = request.REQUEST.get('imageIds', None)    # comma - delimited list
+    idList = request.REQUEST.get('Image', idList)    # we also support 'Image'
     if idList:
         imageIds = [long(i) for i in idList.split(",")]
     else:
@@ -370,7 +371,8 @@ def split_view_figure (request, conn=None, **kwargs):
         # turn merged channels on in the last image
         c_strs.append( ",".join(mergedFlags) )
     
-    return render_to_response('webtest/demo_viewers/split_view_figure.html', {'images':images, 'c_strs': c_strs,'imageIds':idList,
+    template = kwargs.get('template', 'webtest/demo_viewers/split_view_figure.html')
+    return render_to_response(template, {'images':images, 'c_strs': c_strs,'imageIds':idList,
         'channels': channels, 'split_grey':split_grey, 'merged_names': merged_names, 'proj': proj, 'size': size, 'query_string':query_string})
 
 
@@ -455,7 +457,9 @@ def dataset_split_view (request, datasetId, conn=None, **kwargs):
     c_left = ",".join(leftFlags)
     c_right = ",".join(rightFlags)
     
-    return render_to_response('webtest/demo_viewers/dataset_split_view.html', {'dataset': dataset, 'images': images, 
+    template = kwargs.get('template', 'webtest/webclient_plugins/dataset_split_view.html')
+
+    return render_to_response(template, {'dataset': dataset, 'images': images, 
         'channels':channels, 'size': size, 'c_left': c_left, 'c_right': c_right})
 
 
@@ -536,3 +540,25 @@ def common_templates (request, base_template):
     template_name = 'webtest/common/%s.html' % base_template
     from django.template import RequestContext
     return render_to_response(template_name, context_instance=RequestContext(request))
+
+@isUserConnected
+def image_viewer (request, iid=None, **kwargs):
+    """ This view is responsible for showing pixel data as images. Delegates to webgateway, using share connection if appropriate """
+    
+    if iid is None:
+        iid = request.REQUEST.get('image')
+        
+    conn = None
+    kwargs['viewport_server'] = reverse('webindex')
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+         
+    if conn is None:
+        raise Exception("Connection not available")
+
+    template = 'webtest/webclient_plugins/center_plugin.fullviewer.html'
+    
+    return webgateway_views.full_viewer(request, iid, _conn=conn, template=template, **kwargs)

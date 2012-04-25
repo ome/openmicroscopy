@@ -18,10 +18,15 @@
  * Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
  */
 
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
 
-function openHelp() {
-        owindow = window.open('/webadmin/help/index.htm', '', config='height=650,width=600,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
-        if(!owindow.closed) owindow.focus();
+jQuery.fn.alternateRowColors = function() {
+    var $rows = $(this).children().children('tr');
+    $rows.not('.hidden').filter(':odd').removeClass('even').addClass('odd');
+    $rows.not('.hidden').filter(':even').removeClass('odd').addClass('even');
+  return this;
 }
 
 function openPopup(url) {
@@ -29,18 +34,6 @@ function openPopup(url) {
     var owindow = window.open(url, '', config='height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
     if(!owindow.closed) owindow.focus();
     return false;
-}
-
-
-function popupActivites(url) {
-    // IE8 doesn't support arbitrary text for 'name' 2nd arg.  #6118
-    var w = 650;
-    var h = 400;
-    var left = parseInt((screen.availWidth/2) - (w/2));
-    var top = parseInt((screen.availHeight - h)/3);
-    var activitiesWindow = window.open(url, 'Activities', config='height='+h+',width='+w+',left='+left+',top='+top+',toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
-    if(!activitiesWindow.closed) activitiesWindow.focus();
-    return activitiesWindow;
 }
 
 
@@ -61,6 +54,7 @@ function openCenteredWindow(url) {
  * E.g.     "Image=23,34,98&Dataset=678"
 **/
 function get_tree_selection() {
+    if (typeof $.jstree == "undefined") return "";
     var datatree = $.jstree._focused();
 
     var ids = new Array();
@@ -105,7 +99,9 @@ function get_tree_selection() {
  *
  * Also possible to specify title, buttons, width, height:
  *    var btn_labels = ["Yes", "No", "Maybe", "Later"];
- *    var title_dialog = confirm_dialog("Can you confirm that you want to proceed?", "Dialog Title", btn_labels, 300, 200);
+ *    var title_dialog = confirm_dialog("Can you confirm that you want to proceed?", 
+ *          function() { alert( title_dialog.data("clicked_button") },
+ *          "Dialog Title", btn_labels, 300, 200);
  */
 var confirm_dialog = function(dialog_text, callback, title, button_labels, width, height) {
 

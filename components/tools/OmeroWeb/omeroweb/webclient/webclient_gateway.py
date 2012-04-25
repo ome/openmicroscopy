@@ -1724,6 +1724,18 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
     
     def isEditable(self):
         return self.name.lower() not in ('guest', 'user')
+    
+    def groupSummary(self):
+        """
+        Returns lists of 'leaders' and 'members' of the specified group (default is current group)
+        as a dict with those keys.
+
+        @return:    {'leaders': list L{ExperimenterWrapper}, 'colleagues': list L{ExperimenterWrapper}}
+        @rtype:     dict
+        """
+        summary = self._conn.groupSummary(self.getId())
+        self.leaders = summary["leaders"]
+        self.colleagues = summary["colleagues"]
 
 omero.gateway.ExperimenterGroupWrapper = ExperimenterGroupWrapper 
 

@@ -18,7 +18,7 @@
 -->
 {% endcomment %}
 
-<form id="searching_form" action="{% url load_template 'search' %}" method="post" title="Search for Images">
-    <input class="search" type="text" name="search_query" value="" size="25" />
+<form id="search" action="{% url load_template 'search' %}" method="post" title="Search for Images">
+    <input type="text" name="search_query" value="" size="25" />
     <input type="submit" value="Go" />
 </form>

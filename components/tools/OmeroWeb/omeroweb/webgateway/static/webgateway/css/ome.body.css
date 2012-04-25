@@ -18,29 +18,35 @@
  */
  
 
+ 
+
 html {
     height: 100%;
 }
 
+html body {
+	font-size: 62.5%;
+}
+
 body {
     color: #555555;
-    font-family: Arial,Verdana,Lucida,Helvetica,sans-serif;
-    font-size: 13px;
+	-webkit-font-smoothing: antialiased; /* Deliciously smooths text for webkit browsers */
+    font-family: 'HelveticaNeue-Medium', Helvetica, Arial, Verdana, Lucida, sans-serif;
     height: 100%;
     padding: 0px;
     margin: 0px;
     position: relative;
+	background:hsl(215,9%,88%);
+	-webkit-transition: color .2s linear;
 }
 
-a:hover, a:link, a:visited {
-    border: medium none;
+a:hover, a, a:visited {
     color: #1B7BC7;
+	color: hsl(200,60%,30%);
+	-webkit-transition: all .2s linear;
     text-decoration: none;
 }
 
-a:hover {
-    text-decoration: underline;
-}
 
 h1 {
     font-size: 15px;
@@ -48,77 +54,25 @@ h1 {
     margin: 0;
     padding: 10px 0;
 }
-h2 {
-    font-size: 13px;
-    text-align: left;
+
+h2{
+    font-size:1.1em;
+    line-height:1.6em;
+    text-shadow: 0 1px 0 rgba(255,255,255,1);
+    text-transform: uppercase;
+    color:hsl(210,10%,50%);
+    font-weight:bold;
+	margin-bottom:6px;
 }
 
-p {
-    margin: 0px;
-    padding: 5px;
-}
 
-img {
-    border: 0px;
-    padding: 0px;
-    margin: 0px;
-    vertical-align: middle;
-}
 
-table {
-    border: 0px;
-    table-layout: auto;
-}
-th {
-    font-weight: bold;
-    vertical-align:middle;
-    text-align: left;
-}
-td {
-    vertical-align:top;
-    text-align: left;
-}
 
-form td {
-    padding: 2px;
-}
-
-form th {
-    border: 0px;
-}
-
-input[type="text"]{
-    border: 1px solid #bbb;
-    background-color: #fff;
-}
-input{
-    margin: 0;
-    font-size: 12px;
-    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
-    color: #444;
-}
-
-select {
-    margin: 0;
-    background-color: #fff;
-    border: 1px solid #bbb;
-}
-textarea {
-    margin: 0;
-    background-color: #fff;
-    border: 1px solid #bbb;
-}
 
 ul.errorlist {
     list-style: none;
+	margin:0;
     color: #e3646f;
-    margin: 0;
-    padding: 10px 0 0;
-    text-align: center;
-}
-ul.errorlist li {
-    border-style:none;
-    border-width:0;
 }
 
 
@@ -133,17 +87,44 @@ label {
     padding: 0px;
 }
 
-.gray_border {
-    border: solid 1px #bbb;
+
+
+
+.error {
+    color: #e3646f;
 }
+
+.disabled {
+    background: #dcdcdc;
+    color: #777777;
+}
+
+.toolbar_noborder {
+    height:20px;
+    padding:5px;
+    width: 100%; 
+}
+.align_left {
+    float:left;
+}
+.align_right {
+    float:right;
+    text-align: right;
+}
+.align_center {
+    text-align: center;
+}
+
+
+
 
 /* hidden div to specify which parent tab is 'current' */
 #parent_id {
     display: none;
 }
 
-/* used by the dialog in popup.js */
-.ui-dialog-titlebar { background: gray; color: white }
+/* used by the dialog in popup.js 
+.ui-dialog-titlebar { background: gray; color: white } */
 
 .absolute_fill {
     position: absolute;

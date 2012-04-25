@@ -19,15 +19,12 @@
 {% endcomment %}
 
 
-    <div class="dropdown toolbar_button">
+    <li class="dropdown_menu">
         <!-- Script launcher -->
-        <a id="scriptButton" href="{% url list_scripts %}">
-            <img src="{% static "webclient/image/nuvola_script-run16.png" %}" />
-        </a>
+        <span id="scriptButton" class="toolbar_button" href="{% url list_scripts %}" title="Run Script"></span>
+        <ul id="scriptList" class="sub_menu dropdown">
         <img id="scriptSpinner" style="display:none" src="{% static "webgateway/img/spinner.gif" %}" />
-        <ul id="scriptList" class="sub_menu">
             <!-- script list-items loaded here by AJAX -->
         </ul>
-    </div>
-    <div style="clear:both"></div>
+    </li>
 

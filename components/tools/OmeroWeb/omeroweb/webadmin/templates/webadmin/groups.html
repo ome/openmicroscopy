@@ -46,6 +46,7 @@
                     'delay': 300,
                     'loader': 'span.loading'
                 });
+                $("#webadmin_main_tabs").tabs();
         })
     </script>
     
@@ -53,36 +54,69 @@
 
 {% block center_details %}
 {{ block.super }}
-    <h1>{% trans "Groups" %}</h1>
+    <ul id="webadmin_main_tabs">
+        <li id="experimenters_tab"><a href="{% url waexperimenters %}" title="Edit Scientists">{% trans "Users" %}</a></li>
+        <li id="groups_tab"><a title="Edit Groups">{% trans "Groups" %}</a></li>
+    </ul>
     
-    <div class="add_button"><img src="{% static "webadmin/image/add.png" %}" alt="add" title="add"> <a href="{% url wamanagegroupid "new" %}">{% trans "Add new group" %}</a></div>
+    
     
     {% if controller.groupsCount %}
-
-    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
+	
+	
+	<div class="one_column_header">
+        <form class="search filtersearch" id="filtersearch" action="#">
+			<input type="text" id="id_search">
+			<input type="submit" value="Go" /> 
+			<span class="loading">
+				<img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
+			</span>
+		</form>
+		
+		<div class="btn blue"><a href="{% url wamanagegroupid "new" %}"><span>{% trans "Add new group" %}</span></a></div>
+		
+	</div>
+	
+	
 
     <table id="groupTable" class="tablesorter"> 
         <thead> 
             <tr> 
-                <th class="action">{% trans "ID" %}</th>
-                <th class="link">{% trans "Name" %}</th> 
-                <th class="link">{% trans "Permissions" %}</th> 
-                <th class="desc">{% trans "Description" %}</th>
+                <th>{% trans "ID" %}</th>
+                <th>{% trans "Group Name" %}</th> 
+				<th>{% trans "Permission" %}</th>
+                <th>{% trans "Description" %}</th> 
             </tr> 
         </thead> 
         <tbody>
         {% for dict in controller.groups %}
             <tr>
-                <td class="action">
+                <td>
                     {{ dict.group.id }}
-                    {% if dict.group.isEditable %}{% if not dict.locked %}
-                        <a href="{% url wamanagegroupid "edit" dict.group.id %}"><img src="{% static "webadmin/image/edit.png" %}" alt="edit" title="edit"></a>
-                    {% endif %}
-                    <a href="{% url wamanagegroupid "members" dict.group.id %}"><img src="{% static "webadmin/image/editing.png" %}" alt="manage" title="manage members"></a>{% endif %}
                 </td>
-                <td class="link">{{ dict.group.name }}</td>
-                <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
-                <td class="desc">{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
+                
+                <td>
+					<strong>{{ dict.group.name }}</strong>
+                  
+				    {% if dict.group.isEditable %}
+                    <a href="{% url wamanagegroupid "members" dict.group.id %}" title="Edit Group" class="btn silver btn_edit">
+                    	<span></span>
+                    </a>
+					{% endif %}
+					
+				</td>
+                <td>
+					{{ dict.permissions }}({{ dict.group.details.permissions }})
+                    {% if dict.group.isEditable %}
+                        <a href="{% url wamanagegroupid "edit" dict.group.id %}" class="btn silver btn_edit">
+                        	<span></span>
+                        </a>
+					{% endif %}
+					
+				</td>
+                <td>{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
+				
+				
             </tr>
         {% endfor %}
       </tbody>

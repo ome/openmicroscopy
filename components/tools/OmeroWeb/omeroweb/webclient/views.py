@@ -332,6 +332,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError(request, x)
     
+    # TODO: remove all this code for creating forms (not used)
     form_users = None
     filter_user_id = None
     
@@ -368,10 +369,16 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     active_group = request.session.get('active_group') or conn.getEventContext().groupId
     myGroups = list(conn.getGroupsMemberOf())
     myGroups.sort(key=lambda x: x.getName().lower())
-    form_active_group = ActiveGroupForm(initial={'activeGroup':active_group, 'mygroups':myGroups, 'url':url})
+    #form_active_group = ActiveGroupForm(initial={'activeGroup':active_group, 'mygroups':myGroups, 'url':url})
     new_container_form = ContainerForm()
 
-    context = {'init':init, 'myGroups':myGroups, 'form_active_group':form_active_group, 'form_users':form_users, 'new_container_form':new_container_form}
+    context = {'init':init, 'myGroups':myGroups, 'form_users':form_users, 'new_container_form':new_container_form}
+    context['groups'] = myGroups
+    context['group'] = conn.getGroupFromContext()
+    context['experimenter'] = request.session.get('nav')['experimenter'] and int(request.session.get('nav')['experimenter']) or None
+    context['user'] = context['experimenter'] and conn.getObject("Experimenter", long(context['experimenter'])) or None
+    for g in context['groups']:
+        g.groupSummary()    # load leaders / members
     
     context['nav'] = {'basket': request.session.get('nav')['basket']}
     context['active_group'] = int(active_group)
@@ -833,6 +840,8 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
     corrections = None
 
     if c_type == 'well' or c_type == 'image':
+        if c_type == "well":
+            manager.image = manager.well.getImage(index)
         if share_id is None:
             manager.originalMetadata()
         manager.channelMetadata()
@@ -1879,9 +1888,20 @@ def load_calendar(request, year=None, month=None, conn=None, **kwargs):
         controller = BaseCalendar(conn=conn, year=today.year, month=today.month, eid=filter_user_id)
     controller.create_calendar()
     
+
     context = {'controller':controller}
+
+    #TODO: This should be moved up to load_template/history
+    context['groups'] = list( conn.getGroupsMemberOf() )
+    context['group'] = conn.getGroupFromContext()
+    context['experimenter'] = request.session.get('nav')['experimenter'] and int(request.session.get('nav')['experimenter']) or None
+    context['user'] = context['experimenter'] and conn.getObject("Experimenter", long(context['experimenter'])) or None
+    for g in context['groups']:
+        g.groupSummary()    # load leaders / members
+
     context['template'] = template
     return context
+
 
 @login_required()
 @render_response()
@@ -1919,7 +1939,7 @@ def getObjectUrl(conn, obj):
     """
     This provides a url to browse to the specified omero.model.ObjectI P/D/I, S/P, FileAnnotation etc.
     used to display results from the scripting service
-    E.g webclient/userdata/?path=project=1|dataset=5|image=12601:selected
+    E.g webclient/userdata/?path=project=1|dataset=5|image=12601
     If the object is a file annotation, try to browse to the parent P/D/I
     """
     base_url = reverse(viewname="load_template", args=['userdata'])
@@ -1939,7 +1959,7 @@ def getObjectUrl(conn, obj):
         blitz_obj = conn.getObject("Image", obj.id.val)
         for d in blitz_obj.listParents():
             for p in d.listParents():
-                url = "%s?path=project=%d|dataset=%d|image=%d:selected" % (base_url, p.id, d.id, blitz_obj.id)
+                url = "%s?path=project=%d|dataset=%d|image=%d" % (base_url, p.id, d.id, blitz_obj.id)
                 break
             if url is None:
                 url = "%s?path=dataset=%d|image=%d:selected" % (base_url, d.id, blitz_obj.id)   # if Dataset is orphan
@@ -1948,24 +1968,24 @@ def getObjectUrl(conn, obj):
     if isinstance(obj, omero.model.DatasetI):
         blitz_obj = conn.getObject("Dataset", obj.id.val)
         for p in dataset.listParents():
-            url = "%s?path=project=%d|dataset=%d:selected" % (base_url, p.id, blitz_obj.id)
+            url = "%s?path=project=%d|dataset=%d" % (base_url, p.id, blitz_obj.id)
             break
 
     if isinstance(obj, omero.model.ProjectI):
         blitz_obj = conn.getObject("Project", obj.id.val)
-        url = "%s?path=project=%d:selected" % (base_url, obj.id.val)
+        url = "%s?path=project=%d" % (base_url, obj.id.val)
 
     if isinstance(obj, omero.model.PlateI):
         blitz_obj = conn.getObject("Plate", obj.id.val)
         screen = blitz_obj.getParent()
         if screen is not None:
-            url = "%s?path=screen=%d|plate=%d:selected" % (base_url, screen.id, blitz_obj.id)
+            url = "%s?path=screen=%d|plate=%d" % (base_url, screen.id, blitz_obj.id)
         else:
-            url = "%s?path=plate=%d:selected" % (base_url, obj.id.val)
+            url = "%s?path=plate=%d" % (base_url, obj.id.val)
 
     if isinstance(obj, omero.model.ScreenI):
         blitz_obj = conn.getObject("Screen", obj.id.val)
-        url = "%s?path=screen=%d:selected" % (base_url, obj.id.val)
+        url = "%s?path=screen=%d" % (base_url, obj.id.val)
 
     if blitz_obj is None:
         return (url, None)
@@ -1989,6 +2009,7 @@ def activities(request, conn=None, **kwargs):
 
     in_progress = 0
     failure = 0
+    new_results = []
     _purgeCallback(request)
 
 
@@ -2009,6 +2030,7 @@ def activities(request, conn=None, **kwargs):
                 rsp = prx.getResponse()
                 # if response is None, then we're still in progress, otherwise...
                 if rsp is not None:
+                    new_results.append(cbString)
                     if isinstance(rsp, omero.cmd.ERR):
                         request.session['callback'][cbString]['status'] = "failed"
                         rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
@@ -2025,6 +2047,7 @@ def activities(request, conn=None, **kwargs):
                 try:
                     handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                     cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
+                    new_results.append(cbString)
                     if cb.block(0) is None: # ms #500
                         err = handle.errors()
                         request.session['callback'][cbString]['derror'] = err
@@ -2076,6 +2099,7 @@ def activities(request, conn=None, **kwargs):
                     try:
                         results = proc.getResults(0)        # we can only retrieve this ONCE - must save results
                         request.session['callback'][cbString]['status'] = "finished"
+                        new_results.append(cbString)
                     except Exception, x:
                         logger.error(traceback.format_exc())
                         continue
@@ -2137,12 +2161,15 @@ def activities(request, conn=None, **kwargs):
                 htmlId = htmlId.split("/")[1]
         rv[key]['id'] = htmlId
         rv[key]['key'] = key
+        if key in new_results:
+            rv[key]['new'] = True
         jobs.append(rv[key])
 
     jobs.sort(key=lambda x:x['start_time'], reverse=True)
     context = {'sizeOfJobs':len(request.session['callback']),
             'jobs':jobs,
             'inprogress':in_progress,
+            'new_results':len(new_results),
             'failure':failure}
 
     context['template'] = "webclient/activities/activitiesContent.html"
@@ -2173,7 +2200,7 @@ def activities_update (request, action, **kwargs):
             for key, data in request.session['callback'].items():
                 if data['status'] != "in progress":
                     del request.session['callback'][key]
-        return HttpResponseRedirect(reverse("status"))
+    return HttpResponse("OK")
 
 ####################################################################################
 # User Photo

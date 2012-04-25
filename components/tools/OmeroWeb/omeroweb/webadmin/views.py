@@ -297,30 +297,29 @@ def manage_password(request, eid, conn=None, **kwargs):
     info = {'experimenters':experimenters}
     
     error = None
-    if request.method != 'POST':
-        password_form = ChangePassword()
-    else:
-        password_form = ChangePassword(data=request.POST.copy())            
-        if password_form.is_valid():
+    if request.method == 'POST':
+        password_form = ChangePassword(data=request.POST.copy())
+        if not password_form.is_valid():
+            error = password_form.errors
+        else:
             old_password = password_form.cleaned_data['old_password']
             password = password_form.cleaned_data['password']
-            if conn.isAdmin():
+            # if we're trying to change our own password...
+            if conn.getEventContext().userId == int(eid):
+                try:
+                    conn.changeMyPassword(password, old_password)
+                except Exception, x:
+                    error = x.message   # E.g. old_password not valid
+            elif conn.isAdmin():
                 exp = conn.getObject("Experimenter", eid)
                 try:
                     conn.changeUserPassword(exp.omeName, password, old_password)
                 except Exception, x:
                     error = x.message
                 else:
-                    request.session['password'] = password
                     return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", eid]))
             else:
-                try:
-                    conn.changeMyPassword(password, old_password) 
-                except Exception, x:
-                    error = x.message
-                else:
-                    request.session['password'] = password
-                    return HttpResponseRedirect(reverse("wamyaccount"))
+                raise AttributeError("Can't change another user's password unless you are an Admin")
                 
     context = {'info':info, 'error':error, 'password_form':password_form, 'eid': eid}
     context['template'] = template
@@ -476,6 +475,7 @@ def my_account(request, action=None, conn=None, **kwargs):
     info = {'myaccount':myaccount}
     
     myaccount = BaseExperimenter(conn)
+    password_form = ChangePassword()
     myaccount.getMyDetails()
     myaccount.getOwnedGroups()
     
@@ -509,7 +509,7 @@ def my_account(request, action=None, conn=None, **kwargs):
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
         
-    context = {'info':info, 'form':form, 'ldapAuth': myaccount.ldapAuth, 'myaccount':myaccount}
+    context = {'info':info, 'form':form, 'ldapAuth': myaccount.ldapAuth, 'myaccount':myaccount, 'password_form':password_form}
     context['template'] = template
     return context
 

@@ -32,27 +32,28 @@
 
     $(document).ready(function(){
 
+        $('body').click(function(event) {
+            if (event.target.id != 'scriptButton') {
+                $("#scriptList").css('visibility', 'hidden');
+            }
+        });
         // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
         // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
         $("#scriptButton").click(function(e){
+            // show menu - load if empty
+            $('#scriptList').css('visibility', 'visible');
             if ($("#scriptList li").length == 0){  // if none loaded yet...
-                var $scriptLink = $(this).hide();
+                var $scriptLink = $(this);
                 var $scriptSpinner = $("#scriptSpinner").show();
                 var script_list_url = $(this).attr('href');
                 $("#scriptList").load(script_list_url, function(){
                     // Now show the menu and add ">>" to any <li> with child <ul>
-                    $('ul.sub_menu').css('visibility', 'visible');
-                    $("ul.sub_menu li:has(ul)").find("a:first").append(" &raquo; ");
+                    $("ul.sub_menu li:has(ul)").find("a:first").append("");
                     // bind links to openPopup
                     $("ul.sub_menu a").click(openScriptWindow);
-                    $scriptLink.show();
                     $scriptSpinner.hide();
                 });
-            } else {
-                $('ul.sub_menu').css('visibility', 'visible');
             }
-            e.preventDefault();
-            return false;
         });
         // on hover-out, hide drop-down menus
         $("#scriptList").hover(function(){}, function(){
@@ -62,21 +63,3 @@
     });
 
 </script>
-
-<style type="text/css">
-    /* Styles for Drop-down menu - based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/ */
-    .dropdown                   { font-weight: bold; zoom: 1;}
-    .dropdown li a              { display: block; padding: 4px 8px; border-right: 1px solid #333; color: #222; }
-    .dropdown li:last-child a   { border-right: none; } /* Doesn't work in IE */
-    .dropdown li.hover,
-    .dropdown li:hover          { background: #ddf; color: black; position: relative; }
-    .dropdown li.hover a        { color: black; }
-
-    .dropdown ul                { width: 170px; visibility: hidden; position: absolute; top: 100%; left: 0; z-index:50;
-                                    margin: 0; padding: 0; list-style:none; border:solid black 1px;}
-    .dropdown ul li             { font-weight: normal; background: #fff; color: #000; border-bottom: 1px solid #eee; float: none; }
-    .dropdown ul li a           { border-right: none; width: 100%; display: inline-block; } /* IE 6 & 7 Needs Inline Block */
-
-    ul.sub_menu li ul           { left: 100%; top: 0;}
-    ul.sub_menu li:hover > ul   { visibility: visible;}
-</style>

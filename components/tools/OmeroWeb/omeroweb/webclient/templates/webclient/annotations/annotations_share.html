@@ -155,7 +155,7 @@
                         $("#edit_share_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
                         // update the UI  - only available if the owner is editing share
                         {% if manager.share.id %}
-                        loadMetadataPanel("{% url load_metadata_details c_type='share' c_id=manager.share.id %}");
+                        share_selection_changed({{ manager.share.id }});
                         {% endif %}
                     }
                 });
@@ -173,31 +173,20 @@
 
 
 
-    <div id="annotation_tabs" class="absolute_fill">
-        <ul class="tabslist">
-            <li><a href="#annotation_tab">{% trans "General" %}</a></li>
-            {% if manager.image %}
-                <li><a title="metadata tab" id='acquisition' href="{% if share_id %}{% url load_metadata_acquisition 'image' manager.image.id share_id %}
-                {% else %}{% url load_metadata_acquisition 'image' manager.image.id %}{% endif %}">{% trans "Acquisition" %}</a></li>
-                <li><a title="preview tab" id='preview' href="{% if share_id %}{% url load_metadata_preview manager.image.id share_id %}
-                {% else %}{% url load_metadata_preview manager.image.id %}{% endif %}">{% trans "Preview" %}</a></li>
-            {% endif %}
-        </ul>
-        <div class="clear"></div>        
         
         {% if manager.image %}
         <!-- VIEWER "Preview"-->
-        <div id="preview_tab"></div>
+        <div class="right_tab_inner" id="preview_tab"></div>
         {% endif %}
         
         <!-- METADATA "Acquisition" TAB  - only show for images -->
         {% if manager.image %}
-        <div id="metadata_tab"></div>
+        <div class="right_tab_inner" id="metadata_tab"></div>
         {% endif %}
         
         {% if not manager.tag %}
         <!-- ANNOTATIONS "General" -->
-        <div id="annotation_tab">
+        <div class="right_tab_inner" id="general_tab">
             
             {% if manager.image %}            
             <h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>
@@ -350,9 +339,6 @@
         </div>
         </div>
         {% endif %}
-        
-    </div>
-    
-    
+
 
 {% endblock %}

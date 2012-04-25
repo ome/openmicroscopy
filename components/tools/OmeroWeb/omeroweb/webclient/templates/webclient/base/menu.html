@@ -1,7 +1,7 @@
 {% load i18n %}
 {% comment %}
 <!--
-  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2012 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -19,15 +19,15 @@
 -->
 {% endcomment %}
 
-    <li class="menu_link home"><a href="{% url webindex %}" title="Home">{% trans "Home" %}</a></li>
-    <li class="menu_link userdata usertags basket status"><a href="{% url load_template "userdata" %}" title="Browse Data via Projects, Tags etc">{% trans "Data" %}</a></li>
-    <li class="menu_link history"><a href="{% url load_template "history" %}" title="History">{% trans "History" %}</a></li>
-    <li class="menu_link search"><a href="{% url load_template "search" %}" title="Search">{% trans "Search" %}</a></li>
-    {% if ome.eventContext.isAdmin %}
-    <li class="menu_link admin"><a href="{% url waindex %}" title="Web-Admin: Edit users and groups">{% trans "Admin" %}</a></li>
+<ul>
+	<li class="home"><a href="{% url webindex %}" title="Feed">{% trans "Feed" %}</a></li>
+    <li class="userdata usertags basket status"><a href="{% url load_template "userdata" %}" title="Browse Data via Projects, Tags etc">{% trans "Data" %}</a></li>
+    <li class="history"><a href="{% url load_template "history" %}" title="History">{% trans "History" %}</a></li>
+    {% if eContext.context.isAdmin %}
+    <li class="admin"><a href="{% url waindex %}" title="Web-Admin: Edit users and groups">{% trans "Admin" %}</a></li>
     {% endif %}
-    
     <!-- Handle links from settings -->
     {% for link in ome.top_links %}
         <li class="menu_link"><a href="{{ link.link }}">{{ link.label }}</a></li>
     {% endfor %}
+</ul>

@@ -27,6 +27,7 @@ div.weblitz-viewport-tiles img {
  position: absolute;
 }*/
   
+  
 .weblitz-viewport-vp {
   position: absolute;
   display: block;
@@ -39,7 +40,6 @@ div.weblitz-viewport-tiles img {
   background-color: #ddd;
   top: 0px;
   left: 15px;
-  _left: 10px;
 }
 
 .weblitz-viewport-top { 

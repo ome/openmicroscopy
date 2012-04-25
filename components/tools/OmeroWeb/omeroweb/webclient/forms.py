@@ -74,7 +74,7 @@ class ShareForm(NonASCIIForm):
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], widget=forms.SelectMultiple(attrs={'size':5}))
         self.fields.keyOrder = ['message', 'expiration', 'enable', 'members']#, 'guests']
     
-    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), help_text=help_wiki_c) 
+    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 7, 'cols': 39}), help_text=help_wiki_c) 
     expiration = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':20}), label="Expire date", help_text=help_expire, required=False)
     enable = forms.CharField(widget=forms.CheckboxInput(attrs={'size':1}), required=False, help_text=help_enable)
     #guests = MultiEmailField(required=False, widget=forms.TextInput(attrs={'size':75}))
