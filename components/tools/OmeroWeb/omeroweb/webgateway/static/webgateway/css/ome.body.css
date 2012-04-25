@@ -77,6 +77,10 @@ p, dl {
 	margin-bottom:15px;
 }
 
+h1 p {
+	margin-bottom:0;
+}
+
 dl {
 	overflow:hidden;
 }

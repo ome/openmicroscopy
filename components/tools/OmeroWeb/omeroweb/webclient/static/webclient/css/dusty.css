@@ -69,6 +69,8 @@ button {
 				-moz-border-radius:inherit;
 				border-radius:inherit;
 			}
+			
+			
 		
 		
 		/* Menu Buttons */
@@ -91,11 +93,6 @@ button {
 				 border-top-left-radius:4px; /* Opera 10.5, IE 9 */ 
 			}
 			
-				.menu_btns li:first-child a {
-					-webkit-border-radius:inherit; /* Saf3+, Chrome */
-					   -moz-border-radius:inherit; /* FF1+ */
-					        border-radius:inherit; /* Opera 10.5, IE 9 */ 
-				}	
 			
 			.menu_btns li:last-child {
 				border-right:none !important;
@@ -108,17 +105,12 @@ button {
 				
 			}
 			
-				.menu_btns li:last-child a {
-					-webkit-border-radius:inherit; /* Saf3+, Chrome */
-					   -moz-border-radius:inherit; /* FF1+ */
-					        border-radius:inherit; /* Opera 10.5, IE 9 */ 
-				}
 		
 				.menu_btns li a {
 					display:block;
 					text-indent: 100%;  
-    white-space: nowrap;  
-    overflow: hidden; 
+				    white-space: nowrap;  
+				    overflow: hidden; 
 					width:10px;
 					height:20px;
 					-webkit-transition:none !important;		
@@ -380,8 +372,13 @@ button {
 	
 	
 			#right_panel .btn span, .btn_edit span{
-				padding:0 !important;
+				padding:0
 			}
+			
+			.btn_text span {
+				padding:6px 10px !important;
+			}
+			
 		
 				
 					

@@ -197,7 +197,6 @@
 		
 		background-image: -webkit-gradient(linear, left bottom, left top, from(hsla(210,40%,20%,.2)), to(hsla(210,40%,20%,0))) !important;
 		
-		background:#fff; /* Old browsers */
 		background-image:-moz-linear-gradient(top, hsla(210,40%,20%,0) 0%, hsla(210,40%,20%,.2) 100%); /* FF3.6+ */
 		background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,hsla(210,40%,20%,0)), color-stop(100%,hsla(210,40%,20%,.2))); /* Chrome,Safari4+ */
 		background-image:-webkit-linear-gradient(top, hsla(210,40%,20%,0) 0%,hsla(210,40%,20%,.2) 100%); /* Chrome10+,Safari5.1+ */
@@ -211,30 +210,10 @@
 	
 	
 	.header_toolbar > li:first-child{
-		-webkit-border-top-left-radius:3px;
-		-webkit-border-bottom-left-radius:3px;	
-		
-		-webkit-border-bottom-right-radius:3px; /* Saf3+, Chrome */
-		 -webkit-border-bottom-left-radius:3px;
-		    -moz-border-radius-bottomright:3px; /* FF1+ */
-		     -moz-border-radius-bottomleft:3px;
-		        border-bottom-right-radius:3px; /* Opera 10.5, IE 9 */
-		         border-bottom-left-radius:3px;  
-		
 		border-left:none;	
 	}
 	
 	.header_toolbar > li:last-child{
-		-webkit-border-top-right-radius:3px;
-		-webkit-border-bottom-right-radius:3px;
-		
-		 -webkit-border-top-left-radius:3px; /* Saf3+, Chrome */
-		-webkit-border-top-right-radius:3px;
-			  -moz-border-radius-topleft:3px; /* FF1+ */
-			 -moz-border-radius-topright:3px;
-			      border-top-left-radius:3px; /* Opera 10.5, IE 9 */ 
-			     border-top-right-radius:3px; 
-		
 		border-right:none;		
 	}
 
@@ -254,7 +233,7 @@
 		.toolbar_button {
 			display:block;
 			min-width:32px !important;
-			height:25px;
+			height:23px;
 			position:relative;
 			cursor:pointer;	
 		}
@@ -684,7 +663,7 @@
 	}
 			
 			#activities_panel table tr.new_result {
-    		    background: hsl(210,50%,80%);
+    		    background: hsla(210,80%,80%,.2);
     		}
 		
 		#activities_panel table td{
@@ -955,6 +934,10 @@
     overflow: auto;
 }
 
+#left_panel, #right_panel {
+	background: hsl(220,20%,95%);
+}
+
 #left_panel {
     left:0px; top:0px; bottom:0px;right:0px;
     width:350px;
@@ -979,6 +962,11 @@
     width:370px;
     right:0px; top:0px; bottom:0px;
 	overflow:auto;
+	-webkit-box-shadow:    inset 1px 0 0 hsl(210,10%,85%); /* Saf3.0+, Chrome */
+	   -moz-box-shadow:    inset 1px 0 0 hsl(210,10%,85%); /* FF3.5+ */
+	        box-shadow:    inset 1px 0 0 hsl(210,10%,85%); /* Opera 10.5, IE 9.0 */
+	    filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=, OffY=, Color='inset 1px 0 0 hsl(210,10%,85%)'); /* IE6,IE7 */
+	-ms-filter:"progid:DXImageTransform.Microsoft.dropshadow(OffX=, OffY=, Color='inset 1px 0 0 hsl(210,10%,85%)')"; /* IE8 */ 
 }
 
 
@@ -1010,38 +998,57 @@
 
 
 #swapTree, #swapMeta {
-	bottom:10px;
+	bottom:5px;
 	position:absolute;
+	background-color:hsl(210,20%,80%);
+	cursor:pointer;
+}
+
+#swapTree:hover, #swapMeta:hover {
+	background-color:hsl(210,20%,85%);
 }
 
 
-#lhid_trayhandle_icon_right {
-    cursor:pointer;
-    position:relative;
-    top: 5px;
-    height:13px;
-    width:5px;
+
+#swapTree {
+	left:0px;
+	-webkit-border-top-right-radius:2px;
+	-moz-border-radius-topright:2px;
+	border-top-right-radius:2px;
+	-webkit-border-bottom-right-radius:3px; /* Saf3+, Chrome */
+	-moz-border-radius-bottomright:3px; /* FF1+ */
+	border-bottom-right-radius:3px; /* Opera 10.5, IE 9 */
 }
 
-#lhid_trayhandle_icon_left {
-    cursor:pointer;
-    position:relative;
-    top: 5px;
-    height:13px;
-    width:5px;
+#swapMeta {
+	right:0px;
+	-webkit-border-top-left-radius:2px;
+	-moz-border-radius-topleft:2px;
+	border-top-left-radius:2px;
+	-webkit-border-bottom-left-radius:3px; /* Saf3+, Chrome */
+	-moz-border-radius-bottomleft:3px; /* FF1+ */
+	border-bottom-left-radius:3px; /* Opera 10.5, IE 9 */
+	
 }
 
+	#lhid_trayhandle_icon_right, #lhid_trayhandle_icon_left {
+	    height:13px;
+	    width:9px;
+		padding:2px;
+	}
+	
+	
 .expanded-left {
-    background:transparent url(../img/tray_collapse_left.png) no-repeat scroll;
+    background:transparent url(../img/tray_collapse_left.png) center center no-repeat scroll;
 }
 .expanded-right {
-    background:transparent url(../img/tray_collapse_left.png) no-repeat scroll;
+    background:transparent url(../img/tray_collapse_left.png) center center no-repeat scroll;
 }
 .collapsed-left {
-    background:transparent url(../img/tray_collapse_right.png) no-repeat scroll;
+    background:transparent url(../img/tray_collapse_right.png) center center no-repeat scroll;
 }
 .collapsed-right {
-    background:transparent url(../img/tray_collapse_right.png) no-repeat scroll;
+    background:transparent url(../img/tray_collapse_right.png) center center no-repeat scroll;
 }
 
 #dragLeft {

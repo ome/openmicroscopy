@@ -46,7 +46,13 @@
 <div class="right_tab_inner">
 	
 <!-- open-image link -->
-<div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% if share_id %}{% url web_image_viewer share_id manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')"><img src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
+
+			<button class="btn silver btn_text" href="#" onclick="return openPopup('{% if share_id %}{% url web_image_viewer share_id manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')" alt="View" title="Open full viewer">
+				<span>
+                {% trans "Launch full viewer" %} 
+				</span>
+			</button>
+
 
 
     <div class="miniview" id="viewport">

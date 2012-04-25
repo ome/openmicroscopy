@@ -248,7 +248,7 @@
         <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
         <br/>
 
-        <form id="change_password_form" action="{% url wamanagechangepasswordid eventContext.userId %}" method="POST">
+        <form id="change_password_form" action="{% url wamanagechangepasswordid ome.eventContext.userId %}" method="POST">
 
             <table>
                 <tbody>

@@ -133,7 +133,7 @@ $(document).ready(function()
             var moved = event.pageX - $(this).data("drag_start_x");
             var new_width = $(this).data("rp_width") - moved;
             var new_center_w = $(this).data("cp_width") + moved;
-            if (((moved*-1) < $(this).data("cp_width")) && (new_width > 50) && (new_center_w > 50)) {
+            if (((moved) < $(this).data("cp_width")) && (new_width > 50) && (new_center_w > 50)) {
                 $("#right_panel").css('width', new_width+"px");
                 $("#center_container").css('right', new_width +"px");
             }
