@@ -122,7 +122,7 @@ class FontEntry
 	 * 						the tags contained within the entry tag.
 	 * @return See above.
 	 */
-	private int getSize(Map fontAttributes)
+	private int getSize(Map<String, String> fontAttributes)
 	{
 		String value = (String) fontAttributes.get(SIZE_TAG);
 		int size = DEFAULT_SIZE;
@@ -143,7 +143,7 @@ class FontEntry
 	 * 			map to a style defined by {@link #FONT_STYLES}, then the 
 	 * 			{@link #DEFAULT_STYLE} is returned.
 	 */
-	private int getStyle(Map fontAttributes)
+	private int getStyle(Map<String, String> fontAttributes)
 	{
 		String value = (String) fontAttributes.get(STYLE_TAG);
 		int style = DEFAULT_STYLE;
@@ -163,7 +163,7 @@ class FontEntry
 	 * @throws ConfigException If the <i>font</i> tag is not structured as
 	 * 							expected.
 	 */
-	private Map extractValues(Node entry)
+	private Map<String, String> extractValues(Node entry)
 		throws DOMException, ConfigException
 	{
 		Map<String, String> tags = new HashMap<String, String>();
@@ -232,7 +232,7 @@ class FontEntry
     	throws ConfigException 
     { 
 		try {
-			Map tags = extractValues(node);
+			Map<String, String> tags = extractValues(node);
 			value = new Font((String) tags.get(FAMILY_TAG),
 								getStyle(tags), getSize(tags));
 		} catch (DOMException dex) { 

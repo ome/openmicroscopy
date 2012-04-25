@@ -159,7 +159,7 @@ class Parser
                 factory.setNamespaceAware(true);
             }
             readConfigEntries();
-            Iterator i = entriesTags.iterator();
+            Iterator<Node> i = entriesTags.iterator();
 			Node node;
 			Entry entry;
             while (i.hasNext()) {
