@@ -112,22 +112,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         super(OmeroWebGateway, self).__init__(*args, **kwargs)
         self._shareId = None
 
-    def connect (self, *args, **kwargs):
-        """
-        Creates or retrieves connection for the given sessionUuid and
-        removes some groups from the event context
-        Returns True if connected.
-        
-        @param sUuid:       session uuid
-        @type sUuid:        omero_model_SessionI
-        @return:            Boolean
-        """
-        
-        rv = super(OmeroWebGateway, self).connect(*args,**kwargs)
-        if rv: # No _ctx available otherwise #3218
-            if self._ctx.userName!="guest":
-                self.removeGroupFromContext()
-        return rv
     
     def getShareId(self):
         """
@@ -142,18 +126,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 self._shareId = self.getEventContext().shareId
         return self._shareId
 
-    def removeGroupFromContext (self):
-        """
-        Removes group "User" from the current context.
-        """
-
-        a = self.getAdminService()
-        gr_u = a.lookupGroup('user')
-        try:
-            self._ctx.memberOfGroups.remove(gr_u.id.val)
-            self._ctx.leaderOfGroups.remove(gr_u.id.val)
-        except:
-            pass
 
     ##############################################
     #    Session methods                         #
