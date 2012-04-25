@@ -21,7 +21,7 @@
     <div id="user_dropdown">
         <div id="show_user_dropdown">
             <img src="{% url wamyphoto %}" />
-            <span>{% if eContext %}{{ eContext.user.getFullName }}{% else %}Chris{% endif %}</span>
+            <span>{{ ome.user.getFullName }}</span>
         </div>
         <ul class="dropdown">
             <li id="user_settings"><a href="{% url wamyaccount 'edit' %}" title="Account Settings"> Accounts Settings</a></li>

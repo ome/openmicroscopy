@@ -376,7 +376,8 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     context['groups'] = myGroups
     context['group'] = conn.getGroupFromContext()
     context['experimenter'] = request.session.get('nav')['experimenter'] and int(request.session.get('nav')['experimenter']) or None
-    context['user'] = context['experimenter'] and conn.getObject("Experimenter", long(context['experimenter'])) or None
+    userId = context['experimenter'] or conn.getEventContext().userId
+    context['user'] = conn.getObject("Experimenter", long(userId))
     for g in context['groups']:
         g.groupSummary()    # load leaders / members
     
