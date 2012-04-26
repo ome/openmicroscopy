@@ -1140,35 +1140,6 @@ class TreeViewerComponent
 		result.add(selected);
 		result.add(parent);
 		setSelectedNode(result);
-		/*
-		int size = selection.size();
-		
-		Browser browser = model.getSelectedBrowser();
-		ExperimenterData exp = null;
-		TreeImageDisplay last = null;
-		if (browser != null) last = browser.getLastSelectedDisplay();
-		if (last != null) exp = browser.getNodeOwner(last);
-		if (exp == null) exp = model.getUserDetails();
-		mv.setRootObject(selected, exp.getId());
-		mv.setParentRootObject(parent, null);
-		
-		if (size > 1) {
-			//mv.setSelectionMode(false);
-			mv.setRelatedNodes(selection.subList(1, size-1));
-		}
-
-		if (model.getDataViewer() != null)
-			model.getDataViewer().setApplications(
-				TreeViewerFactory.getApplications(
-						model.getObjectMimeType(selected)));
-		if (!model.isFullScreen()) {
-			//Browser browser = model.getSelectedBrowser();
-			browse(browser.getLastSelectedDisplay(), null, false);
-		}
-		//Notifies actions.
-		firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false), 
-				Boolean.valueOf(true));
-				*/
 	}
 	
 	/**
@@ -1252,7 +1223,6 @@ class TreeViewerComponent
 				TreeViewerFactory.getApplications(
 						model.getObjectMimeType(selected)));
 		if (!model.isFullScreen()) {
-			//Browser browser = model.getSelectedBrowser();
 			browse(browser.getLastSelectedDisplay(), null, false);
 		}
 		
@@ -3181,29 +3151,36 @@ class TreeViewerComponent
 		Iterator i = nodes.iterator();
 		TreeImageDisplay node;
 		Class type = null;
-		boolean ann = false;
-		boolean content = false;
+		Boolean ann = null;
+		Boolean leader = null;
 		String ns = null;
+		GroupData group;
+		long userID = model.getExperimenter().getId();
 		while (i.hasNext()) {
 			node = (TreeImageDisplay) i.next();
-			if (node.isAnnotated()) ann = true;
-			if (node.hasChildren()) content = true;
+			if (node.isAnnotated() && ann == null) ann = true;
 			Object uo = node.getUserObject();
 			type = uo.getClass();
+			if (uo instanceof DataObject && leader == null) {
+				group = model.getGroup(((DataObject) uo).getGroupId());
+				if (EditorUtil.isUserGroupOwner(group, userID)) {
+					leader = true;
+				}
+			}
 			if (uo instanceof TagAnnotationData) 
 				ns = ((TagAnnotationData) uo).getNameSpace();
-			break;
 		}
-		ann = true;
-		DeleteBox dialog = new DeleteBox(type, ann, content, nodes.size(), ns, 
-										view);
+		boolean b = false;
+		if (ann != null) b = ann.booleanValue();
+		boolean le = false;
+		if (leader != null) le = leader.booleanValue();
+		DeleteBox dialog = new DeleteBox(view, type, b, nodes.size(), ns, le);
 		if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
-			content = dialog.deleteContents();
+			boolean content = dialog.deleteContents();
 			List<Class> types = dialog.getAnnotationTypes();
 			i = nodes.iterator();
 			Object obj;
 			List<DeletableObject> l = new ArrayList<DeletableObject>();
-			//List<TreeImageDisplay> toRemove = new ArrayList<TreeImageDisplay>();
 			DeletableObject d;
 			List<DataObject> objects = new ArrayList<DataObject>();
 			List<DataObject> values = null;
@@ -3225,7 +3202,6 @@ class TreeViewerComponent
 						d.setAttachmentTypes(types);
 					checkForImages(node, objects, content);
 					l.add(d);
-					//toRemove.add(node);
 				}
 				klass = obj.getClass();
 				ids.add(((DataObject) obj).getId());
@@ -3290,15 +3266,6 @@ class TreeViewerComponent
 		
 		Browser browser = model.getSelectedBrowser();
 		browser.refreshTree(null, null);
-		/*
-		Map browsers = model.getBrowsers();
-		Iterator i = browsers.keySet().iterator();
-		while (i.hasNext()) {
-			browser = (Browser) browsers.get(i.next());
-			browser.refreshTree();
-		}
-		*/
-		//onSelectedDisplay();
 		model.getMetadataViewer().setRootObject(null, -1, null);
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -3315,8 +3282,7 @@ class TreeViewerComponent
 			onNodesMoved();
 			return;
 		}
-		NotDeletedObjectDialog nd = new NotDeletedObjectDialog(view, 
-								deleted);
+		NotDeletedObjectDialog nd = new NotDeletedObjectDialog(view, deleted);
 		if (nd.centerAndShow() == NotDeletedObjectDialog.CLOSE)
 			onNodesMoved();
 	}
