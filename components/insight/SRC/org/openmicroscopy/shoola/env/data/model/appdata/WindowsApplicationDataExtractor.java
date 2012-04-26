@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.env.data.model.appdata;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URL;
 
 import javax.swing.Icon;
@@ -48,7 +49,7 @@ import com.sun.jna.ptr.PointerByReference;
  */
 public class WindowsApplicationDataExtractor implements
 		ApplicationDataExtractor {
-	
+
 	/** The default application location on <code>Windows</code> platform. */
 	private static final String LOCATION_WINDOWS = "C:\\Program Files\\";
 
@@ -159,7 +160,7 @@ public class WindowsApplicationDataExtractor implements
 
 		int fileVersionInfoSize = Version.INSTANCE.GetFileVersionInfoSize(
 				applicationPath, dwDummy);
-		
+
 		String translation = getTranslation(applicationPath,
 				fileVersionInfoSize);
 
@@ -189,7 +190,7 @@ public class WindowsApplicationDataExtractor implements
 
 		String propertyValue = new String(charBuffer);
 
-		return propertyValue;
+		return propertyValue.trim();
 	}
 
 	/**
@@ -206,10 +207,15 @@ public class WindowsApplicationDataExtractor implements
 	 *            the file pointing to the application's location on disk
 	 * @return the {@link ApplicationData} object representing this applications
 	 *         system properties
+	 * @throws FileNotFoundException
+	 *             if the file specified is null or does not exist on disk
 	 */
 	public ApplicationData extractAppData(File file) throws Exception {
+		if (file == null || !file.exists())
+			throw new FileNotFoundException(file.getAbsolutePath());
+
 		Icon icon = getSystemIconFor(file);
-		
+
 		String applicationName = getFilePropertyValue(file.getAbsolutePath(),
 				"FileDescription");
 		String executablePath = file.getAbsolutePath();

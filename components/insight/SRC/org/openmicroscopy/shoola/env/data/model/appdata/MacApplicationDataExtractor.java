@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.model.appdata;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.Map;
 
@@ -36,8 +37,8 @@ import org.openmicroscopy.shoola.env.data.util.Parser;
 import org.openmicroscopy.shoola.util.image.io.IconReader;
 
 /**
- * Provides the Mac specific implementation to retrieve information about an application,
- * reads the plist information to extract the property values
+ * Provides the Mac specific implementation to retrieve information about an
+ * application, reads the plist information to extract the property values
  * 
  * @author Scott Littlewood, <a
  *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
@@ -85,8 +86,13 @@ public class MacApplicationDataExtractor implements ApplicationDataExtractor {
 	 *            the file pointing to the application's location on disk
 	 * @return the {@link ApplicationData} object representing this applications
 	 *         system properties
+	 * @throws FileNotFoundException
+	 *             if the file specified is null or does not exist on disk
 	 */
 	public ApplicationData extractAppData(File file) throws Exception {
+		if (file == null || !file.exists())
+			throw new FileNotFoundException(file.getAbsolutePath());
+
 		Map<String, Object> m = Parser.parseInfoPList(file.getAbsolutePath());
 
 		String executablePath = (String) m.get(Parser.EXECUTABLE_PATH);
