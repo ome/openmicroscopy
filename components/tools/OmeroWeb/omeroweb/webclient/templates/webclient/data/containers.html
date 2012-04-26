@@ -378,7 +378,7 @@
                         // This will prevent moving or creating any other type as a root node
                         "max_depth" : -1,
                         "max_children" : -1,
-                        "valid_children" : [ "experimenter" ],
+                        "valid_children" : [ "experimenter", "experimenter-locked" ],
                         "types" : {
                             "experimenter" : {
                                 "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "screen", "screen-locked", "plate", "plate-locked" ],
@@ -386,6 +386,17 @@
                                     "image" : '{% static "webclient/image/personal16.png" %}'
                                 },
                                 "create_node" : true,
+                                "start_drag" : false,
+                                "move_node" : false,
+                                "delete_node" : false,
+                                "remove" : false
+                            },
+                            "experimenter-locked" : {
+                                "valid_children" : [ "project", "project-locked", "dataset", "dataset-locked", "screen", "screen-locked", "plate", "plate-locked" ],
+                                "icon" : {
+                                    "image" : '{% static "webclient/image/personal16.png" %}'
+                                },
+                                "create_node" : false,
                                 "start_drag" : false,
                                 "move_node" : false,
                                 "delete_node" : false,
