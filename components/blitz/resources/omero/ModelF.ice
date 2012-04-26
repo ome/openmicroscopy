@@ -47,7 +47,7 @@ module omero {
         class QuantumDef;
         class RenderingDef;
         class RenderingModel;
-        class Roi;
+        class ROI;
         class Screen;
         class ScriptJob;
         class Shape;

@@ -1276,7 +1276,7 @@
             <!--
             // Property Color
             -->
-            <optional name="color" type="Color"/>
+            <optional name="color" type="ome.model.core.Color"/>
             <!--
             // Property Column
             -->
