@@ -187,7 +187,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     controller = BaseExperimenter(conn, eid)
     
     if action == 'new':
-        form = ExperimenterForm(initial={'with_password':True, 'active':True, 'available':controller.otherGroupsInitialList()})        
+        form = ExperimenterForm(initial={'with_password':True, 'active':True, 'others':controller.groups})
         context = {'info':info, 'form':form}
     elif action == 'create':
         if request.method != 'POST':
@@ -229,17 +229,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                                 'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
                                 'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
                                 'administrator': controller.experimenter.isAdmin(), 'active': controller.experimenter.isActive(), 
-                                'default_group': controller.defaultGroup, 'other_groups':controller.otherGroups}
+                                'others': controller.groups, 'groups':controller.otherGroups}
         
-        initial['default'] = controller.default
-        others = controller.others
-        initial['others'] = others
-        if len(others) > 0:
-            exclude = [g.id.val for g in others]
-        else:
-            exclude = [controller.defaultGroup]
-        available = controller.otherGroupsInitialList(exclude)
-        initial['available'] = available
         form = ExperimenterForm(initial=initial)
         
         context = {'info':info, 'form':form, 'eid': eid, 'ldapAuth': controller.ldapAuth}

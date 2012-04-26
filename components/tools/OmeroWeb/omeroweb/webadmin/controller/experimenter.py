@@ -93,13 +93,7 @@ class BaseExperimenter(BaseController):
             self.others = list()
             self.default = list()
             for gem in geMap:
-                if gem.parent.name.val == "user":
-                    pass
-                #elif gem.parent.name.val == "system":
-                #    pass
-                elif gem.parent.name.val == "guest":
-                    pass
-                else:
+                if gem.parent.name.val not in ("user","guest"): #"system"
                     self.otherGroups.append(gem.parent.id.val)
                     self.others.append(gem.parent)
                     self.default.append((gem.parent.id.val, gem.parent.name.val))

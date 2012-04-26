@@ -74,21 +74,17 @@ class ExperimenterForm(NonASCIIForm):
         self.email_check=email_check 
         
         try:
-            self.fields['default_group'] = DefaultGroupField(choices=kwargs['initial']['default'], widget=DefaultGroupRadioSelect(), required=True, label="Groups")
-            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['others'], initial=kwargs['initial']['others'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
+            self.fields['groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['others'], initial=kwargs['initial']['groups'])
         except:
-            self.fields['default_group'] = forms.ChoiceField(choices=list(), widget=forms.RadioSelect(), required=True, label="Groups")
-            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=list(), required=False, widget=forms.SelectMultiple(attrs={'size':10}))
-        
-        self.fields['available_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['available'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
+            self.fields['groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['others'])
         
         if kwargs['initial'].has_key('with_password') and kwargs['initial']['with_password']:
             self.fields['password'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
             self.fields['confirmation'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
             
-            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'password', 'confirmation', 'default_group', 'other_groups', 'available_groups']
+            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'password', 'confirmation', 'groups']
         else:
-            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups', 'available_groups']
+            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'groups']
 
     omename = OmeNameField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), label="Username")
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))

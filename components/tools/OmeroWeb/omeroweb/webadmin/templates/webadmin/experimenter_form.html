@@ -25,7 +25,7 @@
 {% block link %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static "webadmin/css/picklist.css" %}" type="text/css" media="screen"/>
-
+    <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen/chosen.css' %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block title %}
@@ -40,51 +40,37 @@
 {% block script %}
     {{ block.super }}
     <script type="text/javascript" src="{% static "3rdparty/jquery-1.7.1.js" %}"></script>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.chosen/chosen.jquery.js' %}"></script>
     
     <script type="text/javascript">
     $(document).ready(function() 
     {
-        $('#add').click(function() {
-            $("option:selected", "select[name=available_groups]").each(function(){                
-                $('<li><label for="id_default_group_'+this.value+'"><input type="radio" name="default_group" value="'+this.value+'" id="id_default_group_'+this.value+'"> '+$(this).html()+' <input id="default_group_'+this.value+'" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove"></label></li>').appendTo("div.pickListRadio ul");
-                $("#id_other_groups").append(this);
-            });
-        });
-        
-        $('.removeButton').live("click", function() {
-            var val = $('#id_'+this.id).attr('value');
-            $("option:selected", "select[name=other_groups]").each(function(){
-                if(this.value == val) {
-                    if (val > 0) $('<option value="'+this.value+'">'+$(this).html()+'</option>').appendTo("#id_available_groups");
-                    $(this).remove();
-                    return false;
+        $("#id_groups").chosen().change(function(event, data) {
+            if (data && data.deselected) {
+                if (data.deselected === "0") {
+                    $("input[name='administrator']").attr('checked', false);
                 }
-            });
-            $(this).parent().parent().remove();
-            if (val == 0) $("input[name='administrator']").attr('checked', false);
+            } else if (data && data.selected) {
+                if (data.selected === "0") {
+                    $("input[name='administrator']").attr('checked', true);
+                }
+            }
         });
         
         
         $("input[name='administrator']").click( function() { 
+            
             if($("input[name='administrator']").is(':checked')) {
-                $('<option value="0">system</option>').attr('selected', true).appendTo("#id_other_groups");                
-                $('<li><label for="id_default_group_0"><input type="radio" name="default_group" value="0" id="id_default_group_0"> system <input id="default_group_0" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove"></label></li>').appendTo("div.pickListRadio ul");
+                $('#id_groups option[value=0]').prop('selected', true);
             } else {
-                $("option:selected", "select[name=other_groups]").each(function(){
-                    if(this.value == 0) {
-                        $(this).remove();
-                        return false;
-                    }
-                });
-                $('#id_default_group_0').parent().parent().remove();                
+                $('#id_groups option[value=0]').prop('selected', false);
             }
+            $("#id_groups").trigger("liszt:updated");
         });
         
-        $("option:selected", "select[name=other_groups]").each(function(){
-            $('#id_default_group_'+this.value).parent().append('<input id="default_group_'+this.value+'" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove">');
-        });
-
-    });    
+        
+        
+    });
     
     </script>
 
@@ -112,60 +98,31 @@
 
         {% for field in form %}
         
-        {% ifequal field.label_tag form.default_group.label_tag %}{% else %}{% ifequal field.label_tag form.other_groups.label_tag %}{% else %}{% ifequal field.label_tag form.available_groups.label_tag %}{% else %}
+        {% ifnotequal field.label_tag form.groups.label_tag %}
         
         {{ field.label_tag }}{% if field.field.required %}*{% endif %}
-		{{ field }}
-		{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}
+        {{ field }}
+        {% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}
         
-        {% endifequal %}{% endifequal %}{% endifequal %}
+        {% endifnotequal %}
         
         {% endfor %}
 
         {% if ldapAuth %}
-		LDAP: 
-		{{ ldapAuth }}
-		
+        <label>LDAP:</label> {{ ldapAuth }}
         {% else %}
             {% if eid %}
-			Password: 
-			<a href="{% url wamanagechangepasswordid eid %}" class="btn silver"><span>Change Password</span></a>
-			{% endif %}
+            Password: 
+            <a href="{% url wamanagechangepasswordid eid %}" class="btn silver"><span>Change Password</span></a>
+            {% endif %}
         {% endif %}
         
-        <p>{% trans "A user may belong to one or more groups. To define the list of groups user is member of, select them from the <strong>Available groups</strong> box and click the <strong>[<]</strong> button to move them to the <strong>Selected groups</strong> area. Once groups are chosen, select one to specify the user's <strong>Default Group</strong>. The <strong>Default Group</strong> is the group that the user will be logged in to, and will be updated when they switch between groups in the clients." %}</p>
+        {{ form.groups.label_tag }}{% if form.groups.field.required %}*{% endif %}
+        {{ form.groups }}
         
-		{% trans "Selected groups" %}*
-		{% trans "Available groups" %}
+        <input type="submit" value="{% trans 'Save' %}" />
         
-        {% if form.default_group.errors or form.available_groups.errors or form.other_groups.errors %}
-		{{ form.default_group.errors }}{{ form.other_groups.errors }}<br/>{{ form.available_groups.errors }}
-		{% endif %}
-        
-		<tr>
-            <td class="form">{{ form.default_group.label_tag }}{% if form.default_group.field.required %}*{% endif %}</td>
-            <td>
-                <div class="pickListRadio">
-                    {% if form.default_group %}
-                        {{ form.default_group }}
-                    {% else %}
-                        <ul></ul>
-                    {% endif %}
-                </div>
-                <div class="pickListSelectedHidden">
-                    {{ form.other_groups }}
-                </div>
-            </td>
-            <td>
-                <div class="pickListAvailable">
-                    {{ form.available_groups }}
-                </div>
-                <input id="add" name="add" type="button" class="button addButton" value="&lt;" title="Choose available and add">
-            </td>
-        </tr>    
-        <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-    </tbody>
-</table>
+        <p>{% trans "A user may belong to one or more groups. To define the list of groups user is member of, select them from the <strong>Available groups</strong> box and click the <strong>[<]</strong> button to move them to the <strong>Selected groups</strong> area. Once groups are chosen, select one to specify the user's <strong>Default Group</strong>. The <strong>Default Group</strong> is the group that the user will be logged in to, and will be updated when they switch between groups in the clients." %}{% trans "A user may belong to one or more groups. To define the list of groups user is member of, select them from the <strong>Available groups</strong> box and click the <strong>[<]</strong> button to move them to the <strong>Selected groups</strong> area. Once groups are chosen, select one to specify the user's <strong>Default Group</strong>. The <strong>Default Group</strong> is the group that the user will be logged in to, and will be updated when they switch between groups in the clients." %}{% trans "A user may belong to one or more groups. To define the list of groups user is member of, select them from the <strong>Available groups</strong> box and click the <strong>[<]</strong> button to move them to the <strong>Selected groups</strong> area. Once groups are chosen, select one to specify the user's <strong>Default Group</strong>. The <strong>Default Group</strong> is the group that the user will be logged in to, and will be updated when they switch between groups in the clients." %}{% trans "A user may belong to one or more groups. To define the list of groups user is member of, select them from the <strong>Available groups</strong> box and click the <strong>[<]</strong> button to move them to the <strong>Selected groups</strong> area. Once groups are chosen, select one to specify the user's <strong>Default Group</strong>. The <strong>Default Group</strong> is the group that the user will be logged in to, and will be updated when they switch between groups in the clients." %}{% trans "A user may belong to one or more groups. To define the list of groups user is member of, select them from the <strong>Available groups</strong> box and click the <strong>[<]</strong> button to move them to the <strong>Selected groups</strong> area. Once groups are chosen, select one to specify the user's <strong>Default Group</strong>. The <strong>Default Group</strong> is the group that the user will be logged in to, and will be updated when they switch between groups in the clients." %}{% trans "A user may belong to one or more groups. To define the list of groups user is member of, select them from the <strong>Available groups</strong> box and click the <strong>[<]</strong> button to move them to the <strong>Selected groups</strong> area. Once groups are chosen, select one to specify the user's <strong>Default Group</strong>. The <strong>Default Group</strong> is the group that the user will be logged in to, and will be updated when they switch between groups in the clients." %}{% trans "A user may belong to one or more groups. To define the list of groups user is member of, select them from the <strong>Available groups</strong> box and click the <strong>[<]</strong> button to move them to the <strong>Selected groups</strong> area. Once groups are chosen, select one to specify the user's <strong>Default Group</strong>. The <strong>Default Group</strong> is the group that the user will be logged in to, and will be updated when they switch between groups in the clients." %}</p>
 </form>
 
 </div>
