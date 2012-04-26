@@ -607,5 +607,39 @@ class TestPermissions(lib.ITest):
         query = client.sf.getQueryService()
         query.get("Image", image.id.val, callcontext)
 
+    # chmod
+    # ==============================================
+
+    def testImmutablePermissions(self):
+        # See #8277 permissions returned from the server
+        # should now be immutable.
+
+        # Test on the raw object
+        p = omero.model.PermissionsI()
+        p.ice_postUnmarshal()
+        self.assertRaises(omero.ClientError, \
+                p.setPerm1, 1)
+
+        # and on one returned from the server
+        c = omero.model.CommentAnnotationI()
+        c = self.update.saveAndReturnObject(c)
+        p = c.details.permissions
+        self.assertRaises(omero.ClientError, \
+                p.setPerm1, 1)
+
+    def testDisallow(self):
+        p = omero.model.PermissionsI()
+        self.assertTrue(p.canAnnotate())
+        self.assertTrue(p.canEdit())
+
+    def testClientSet(self):
+        c = omero.model.CommentAnnotationI()
+        c = self.update.saveAndReturnObject(c)
+        d = c.getDetails()
+        self.assertTrue( d.getClient() is not None)
+        self.assertTrue( d.getSession() is not None)
+        self.assertTrue( d.getCallContext() is not None)
+        self.assertTrue( d.getEventContext() is not None)
+
 if __name__ == '__main__':
     unittest.main()

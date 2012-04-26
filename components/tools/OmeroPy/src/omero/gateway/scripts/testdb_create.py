@@ -47,9 +47,15 @@ class GTest(unittest.TestCase):
         self.doDisconnect()
         self.USER = dbhelpers.USERS['user']
         self.AUTHOR = dbhelpers.USERS['author']
-        if self.gateway.getProperty('omero.rootpass'):
-            dbhelpers.ROOT.passwd = self.gateway.getProperty('omero.rootpass')
         self.ADMIN = dbhelpers.ROOT
+        gateway = omero.client_wrapper()
+        try:
+            rp = gateway.getProperty('omero.rootpass')
+            if rp:
+                dbhelpers.ROOT.passwd = rp
+        finally:
+            gateway.seppuku()
+
         if not skipTestDB:
             self.prepTestDB()
             self.doDisconnect()
@@ -66,13 +72,12 @@ class GTest(unittest.TestCase):
             self.doConnect()
             self.gateway.seppuku()
             self.assert_(not self.gateway.isConnected(), 'Can not disconnect')
-        self.gateway = omero.client_wrapper(group='system', try_super=True)
-        self.assert_(self.gateway, 'Can not get gateway from connection')
+        self.gateway = None
         self._has_connected = False
 
-    def doLogin (self, user):
+    def doLogin (self, user, groupname=None):
         self.doDisconnect()
-        self.gateway = dbhelpers.login(user)
+        self.gateway = dbhelpers.login(user, groupname)
 
     def loginAsAdmin (self):
         self.doLogin(self.ADMIN)
@@ -84,14 +89,17 @@ class GTest(unittest.TestCase):
         self.doLogin(self.USER)
 
     def tearDown(self):
-        if self._has_connected:
-            self.gateway.seppuku()
-        failure = False
-        for tmpfile in self.tmpfiles:
-            try:
-                tmpfile.close()
-            except:
-                print "Error closing:"+tmpfile
+
+        try:
+            if self.gateway is not None:
+                self.gateway.seppuku()
+        finally:
+            failure = False
+            for tmpfile in self.tmpfiles:
+                try:
+                    tmpfile.close()
+                except:
+                    print "Error closing:"+tmpfile
         if failure:
            raise exceptions.Exception("Exception on client.closeSession")
 

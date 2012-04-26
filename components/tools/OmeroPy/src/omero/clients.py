@@ -242,8 +242,9 @@ class BaseClient(object):
                 raise omero.ClientError("Improper initialization")
 
             # Register Object Factory
-            self.of = ObjectFactory()
-            self.of.registerObjectFactory(self.__ic)
+            import ObjectFactoryRegistrar as ofr
+            ofr.registerObjectFactory(self.__ic, self)
+
             for of in omero.rtypes.ObjectFactories.values():
                 of.register(self.__ic)
 
@@ -995,31 +996,3 @@ class BaseClient(object):
             self.execute(self.onShutdownIn, "shutdown")
         def sessionClosed(self, current = None):
             self.execute(self.onSessionClosed, "sessionClosed")
-
-#
-# Other
-#
-
-import util.FactoryMap
-class ObjectFactory(Ice.ObjectFactory):
-    """
-    Responsible for instantiating objects during deserialization.
-    """
-
-    def __init__(self, pmap = util.FactoryMap.map()):
-        self.__m = pmap
-
-    def registerObjectFactory(self, ic):
-        for key in self.__m:
-            if not ic.findObjectFactory(key):
-                ic.addObjectFactory(self,key)
-
-    def create(self, type):
-        generator = self.__m[type]
-        if generator == None:
-            raise omero.ClientError("Unknown type:"+type)
-        return generator.next()
-
-    def destroy(self):
-        # Nothing to do
-        pass

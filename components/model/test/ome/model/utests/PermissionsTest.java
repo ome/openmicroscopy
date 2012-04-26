@@ -8,6 +8,7 @@ package ome.model.utests;
 
 import static ome.model.internal.Permissions.Flag.UNUSED;
 import static ome.model.internal.Permissions.Right.READ;
+import static ome.model.internal.Permissions.Right.ANNOTATE;
 import static ome.model.internal.Permissions.Right.WRITE;
 import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.USER;
@@ -46,8 +47,10 @@ public class PermissionsTest extends TestCase {
         assertTrue(p.isGranted(USER, READ));
         assertTrue(p.isGranted(USER, WRITE));
         assertTrue(p.isGranted(GROUP, READ));
+        assertTrue(p.isGranted(GROUP, ANNOTATE));
         assertTrue(p.isGranted(GROUP, WRITE));
         assertTrue(p.isGranted(WORLD, READ));
+        assertTrue(p.isGranted(WORLD, ANNOTATE));
         assertTrue(p.isGranted(WORLD, WRITE));
         // assertTrue( p.isGranted(ALL, READ) );
         // assertTrue( p.isGranted(ALL, WRITE) );
@@ -57,10 +60,13 @@ public class PermissionsTest extends TestCase {
     @Test
     public void testGrantAndRevokePermissions() throws Exception {
         revokeGrantCheck(USER, READ);
+        revokeGrantCheck(USER, ANNOTATE);
         revokeGrantCheck(USER, WRITE);
         revokeGrantCheck(GROUP, READ);
+        revokeGrantCheck(GROUP, ANNOTATE);
         revokeGrantCheck(GROUP, WRITE);
         revokeGrantCheck(WORLD, READ);
+        revokeGrantCheck(WORLD, ANNOTATE);
         revokeGrantCheck(WORLD, WRITE);
     }
 
@@ -359,26 +365,35 @@ public class PermissionsTest extends TestCase {
     public void testParseString() throws Exception {
         p = Permissions.parseString("rwrwrw");
         assertTrue(p.isGranted(USER, READ));
+        assertTrue(p.isGranted(USER, ANNOTATE));
         assertTrue(p.isGranted(USER, WRITE));
         assertTrue(p.isGranted(GROUP, READ));
+        assertTrue(p.isGranted(GROUP, ANNOTATE));
         assertTrue(p.isGranted(GROUP, WRITE));
         assertTrue(p.isGranted(WORLD, READ));
+        assertTrue(p.isGranted(WORLD, ANNOTATE));
         assertTrue(p.isGranted(WORLD, WRITE));
 
         p = Permissions.parseString("RWRWRW");
         assertTrue(p.isGranted(USER, READ));
+        assertTrue(p.isGranted(USER, ANNOTATE));
         assertTrue(p.isGranted(USER, WRITE));
         assertTrue(p.isGranted(GROUP, READ));
+        assertTrue(p.isGranted(GROUP, ANNOTATE));
         assertTrue(p.isGranted(GROUP, WRITE));
         assertTrue(p.isGranted(WORLD, READ));
+        assertTrue(p.isGranted(WORLD, ANNOTATE));
         assertTrue(p.isGranted(WORLD, WRITE));
 
         p = Permissions.parseString("______");
         assertFalse(p.isGranted(USER, READ));
+        assertFalse(p.isGranted(USER, ANNOTATE));
         assertFalse(p.isGranted(USER, WRITE));
         assertFalse(p.isGranted(GROUP, READ));
+        assertFalse(p.isGranted(GROUP, ANNOTATE));
         assertFalse(p.isGranted(GROUP, WRITE));
         assertFalse(p.isGranted(WORLD, READ));
+        assertFalse(p.isGranted(WORLD, ANNOTATE));
         assertFalse(p.isGranted(WORLD, WRITE));
 
     }

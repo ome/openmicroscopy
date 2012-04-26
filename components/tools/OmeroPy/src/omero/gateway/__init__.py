@@ -494,7 +494,29 @@ class BlitzObjectWrapper (object):
         elif self.isPrivate() and not g.permissions.isUserWrite():
             return True
         return False
-    
+
+    def canEdit(self):
+        """
+        Determines if the current user can Edit (E.g. name, description) link (E.g. Project, Dataset, Image etc)
+        or Delete this object. The canEdit() property is set on the permissions of every object as
+        it is read from the server, based on the current user, event context and group permissions.
+
+        @rtype:     Boolean
+        @return:    True if user can Edit this object Delete, link etc.
+        """
+        return self.getDetails().getPermissions().canEdit()
+
+    def canAnnotate(self):
+        """
+        Determines if the current user can Edit (E.g. name, description) link (E.g. Project, Dataset, Image etc)
+        or Delete this object. The canAnnotate() property is set on the permissions of every object as
+        it is read from the server, based on the current user, event context and group permissions.
+
+        @rtype:     Boolean
+        @return:    True if user can Annotate this object
+        """
+        return self.getDetails().getPermissions().canAnnotate()
+
     def countChildren (self):
         """
         Counts available number of child objects.
@@ -1430,16 +1452,24 @@ class _BlitzGateway (object):
         @param softclose:   Boolean
         """
         self._connected = False
-        if softclose:
+        oldC = self.c
+        if oldC is not None:
             try:
-                r = self.c.sf.getSessionService().getReferenceCount(self._sessionUuid)
-                self.c.closeSession()
-                if r < 2:
-                    self._session_cb and self._session_cb.close(self)
-            except Ice.OperationNotExistException:
-                self.c.closeSession()
-        else:
-            self._closeSession()
+                if softclose:
+                    try:
+                        r = oldC.sf.getSessionService().getReferenceCount(self._sessionUuid)
+                        oldC.closeSession()
+                        if r < 2:
+                            self._session_cb and self._session_cb.close(self)
+                    except Ice.OperationNotExistException:
+                        oldC.closeSession()
+                else:
+                    self._closeSession()
+            finally:
+                oldC.__del__()
+                oldC = None
+                self.c = None
+
         self._proxies = NoProxies()
         logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
 
@@ -1513,7 +1543,6 @@ class _BlitzGateway (object):
             oldC = self.c
             self.c = oldC.createClient(secure=secure)
             oldC.__del__() # only needs to be called if previous doesn't throw
-            self.c = self.c.createClient(secure=secure)
             self._createProxies()
             self.secure = secure
 
@@ -1548,7 +1577,12 @@ class _BlitzGateway (object):
         """
         self._session_cb and self._session_cb.close(self)
         try:
-            self.c.killSession()
+            if self.c:
+                try:
+                    self.c.getSession()
+                except omero.ClientError:
+                    return # No session available
+                self.c.killSession()
         except Glacier2.SessionNotExistException: #pragma: no cover
             pass
         except:
@@ -1562,7 +1596,11 @@ class _BlitzGateway (object):
         logger.debug(self.host)
         logger.debug(self.port)
         logger.debug(self.ice_config)
-        
+
+        if self.c is not None:
+            self.c.__del__()
+            self.c = None
+
         if self.host is not None:
             if self.port is not None:
                 self.c = omero.client(host=str(self.host), port=int(self.port), args=['--Ice.Config='+','.join(self.ice_config)])#, pmap=['--Ice.Config='+','.join(self.ice_config)])
@@ -3076,6 +3114,19 @@ class _BlitzGateway (object):
                 graph_spec, long(oid), op))
         handle = self.getDeleteService().queueDelete(dcs, self.CONFIG['SERVICE_OPTS'])
         return handle
+
+
+    def chmodGroup(self, group_Id, permissions):
+        """
+        Change the permissions of a particluar Group.
+        Returns the proxy 'prx' handle that can be processed like this:
+        callback = CmdCallbackI(self.gateway.c, prx)
+        callback.loop(20, 500)
+        rsp = prx.getResponse()
+        """
+        chmod = omero.cmd.Chmod(type="/ExperimenterGroup", id=group_Id, permissions=permissions)
+        prx = self.c.sf.submit(chmod)
+        return prx
 
 
     def chgrpObject(self, graph_spec, obj_id, group_id):

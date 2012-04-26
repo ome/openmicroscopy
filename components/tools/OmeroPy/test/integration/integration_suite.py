@@ -31,6 +31,7 @@ def additional_tests():
     suite.addTest(load("integration.bfpixelsstoreexternal"))
     suite.addTest(load("integration.bfpixelsstoreinternal"))
     suite.addTest(load("integration.bigImages"))
+    suite.addTest(load("integration.chmod"))
     suite.addTest(load("integration.client_ctors"))
     suite.addTest(load("integration.clientusage"))
     suite.addTest(load("integration.counts"))

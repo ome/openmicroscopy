@@ -5,78 +5,29 @@
 
 package ome.services.blitz.test;
 
-import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ome.services.delete.DeleteStepFactory;
-import ome.services.graphs.BaseGraphSpec;
-import ome.services.graphs.GraphEntry;
-import ome.services.graphs.GraphState;
-import ome.services.util.Executor;
+import org.jmock.Mock;
+import org.testng.annotations.BeforeClass;
+
 import ome.system.Roles;
-import ome.system.ServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
-import omero.RLong;
+
 import omero.RType;
-import omero.ServerError;
-import omero.api.AMD_IDelete_queueDelete;
 import omero.api.IDeletePrx;
-import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteHandlePrx;
-import omero.cmd.Chgrp;
 import omero.cmd.ERR;
 import omero.cmd.HandleI;
-import omero.cmd._HandleTie;
+import omero.cmd.IRequest;
 import omero.cmd.OK;
 import omero.cmd.RequestObjectFactoryRegistry;
 import omero.cmd.Response;
 import omero.cmd.State;
-import omero.cmd.graphs.ChgrpI;
-import omero.model.AnnotationAnnotationLink;
-import omero.model.AnnotationAnnotationLinkI;
-import omero.model.Dataset;
-import omero.model.DatasetI;
-import omero.model.ExperimenterGroupI;
-import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
-import omero.model.IObject;
-import omero.model.Image;
-import omero.model.ImageAnnotationLink;
-import omero.model.ImageAnnotationLinkI;
-import omero.model.ImageI;
-import omero.model.Plate;
-import omero.model.PlateI;
-import omero.model.Project;
-import omero.model.ProjectI;
-import omero.model.Screen;
-import omero.model.ScreenAnnotationLink;
-import omero.model.ScreenAnnotationLinkI;
-import omero.model.ScreenI;
-import omero.model.TagAnnotation;
-import omero.model.TagAnnotationI;
-import omero.model.TermAnnotation;
-import omero.model.TermAnnotationI;
-import omero.model.Well;
-import omero.model.WellI;
-import omero.model.WellSample;
-import omero.model.WellSampleI;
+import omero.cmd.Status;
+import omero.cmd._HandleTie;
 import omero.sys.ParametersI;
-
-import org.hibernate.Session;
-import org.jmock.Mock;
-import org.jmock.core.InvocationMatcher;
-import org.jmock.core.matcher.InvokeOnceMatcher;
-import org.springframework.context.ApplicationContext;
-import org.springframework.transaction.annotation.Transactional;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 
 /**
@@ -111,6 +62,26 @@ public class AbstractGraphTest extends AbstractServantTest {
     // Helpers
     //
 
+    protected _HandleTie submit(IRequest req) throws Exception {
+        return submit(req, null);
+    }
+
+    protected _HandleTie submit(IRequest req, long groupID) throws Exception {
+        Map<String, String> callContext = new HashMap<String, String>();
+        callContext.put("omero.group", ""+groupID);
+        return submit(req, callContext);
+    }
+
+    protected _HandleTie submit(IRequest req, Map<String, String> callContext) throws Exception {
+        Ice.Identity id = new Ice.Identity("handle", req.toString());
+        HandleI handle = new HandleI(1000, callContext);
+        handle.setSession(user.sf);
+        handle.initialize(id, req);
+        handle.run();
+        // Client side this would need a try/finally { handle.close() }
+        return new _HandleTie(handle);
+    }
+
     protected void block(_HandleTie handle, int loops, long pause)
             throws InterruptedException {
         for (int i = 0; i < loops && null == handle.getResponse(); i++) {
@@ -118,23 +89,38 @@ public class AbstractGraphTest extends AbstractServantTest {
         }
     }
 
-    protected void assertSuccess(_HandleTie handle) {
+    protected Response assertSuccess(_HandleTie handle) {
         Response rsp = handle.getResponse();
+        Status status = handle.getStatus();
+        assertSuccess(rsp);
+        assertFalse(status.flags.contains(State.FAILURE));
+        return rsp;
+    }
+
+    protected Response assertSuccess(Response rsp) {
         assertNotNull(rsp);
         if (rsp instanceof ERR) {
             ERR err = (ERR) rsp;
-            fail(err.category + ":" + err.name + ":" + err.parameters);
+            fail(printErr(err));
         }
-        assertFalse(handle.getStatus().flags.contains(State.FAILURE));
+        return rsp;
     }
 
-    protected void assertFailure(_HandleTie handle) {
-        Response rsp = handle.getResponse();
+    protected void assertFailure(_HandleTie handle, String...allowedMessages) {
+        final List<String> msgs = Arrays.asList(allowedMessages);
+        final Response rsp = handle.getResponse();
         assertNotNull(rsp);
         if (rsp instanceof OK) {
             OK ok = (OK) rsp;
             fail(ok.toString());
+        } else {
+            ERR err = (ERR) rsp;
+            if (msgs.size() > 0) {
+                assertTrue(String.format("%s not in %s: %s", err.name,
+                        msgs, printErr(err)), msgs.contains(err.name));
+            }
         }
+
         assertTrue(handle.getStatus().flags.contains(State.FAILURE));
     }
 
@@ -150,6 +136,24 @@ public class AbstractGraphTest extends AbstractServantTest {
                 "select x.id from " +table+" x where x.id = :id",
                 new ParametersI().addId(id));
         assertEquals(0, ids.size());
+    }
+
+    private String printErr(ERR err) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(err.toString());
+        sb.append("\n");
+        sb.append("==========================================\n");
+        sb.append("category=");
+        sb.append(err.category);
+        sb.append("\n");
+        sb.append("name=");
+        sb.append(err.name);
+        sb.append("\n");
+        sb.append("params=");
+        sb.append(err.parameters);
+        sb.append("\n");
+        sb.append("==========================================\n");
+        return sb.toString();
     }
 
 }
