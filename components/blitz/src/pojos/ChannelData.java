@@ -36,7 +36,7 @@ import omero.model.AcquisitionMode;
 import omero.model.Channel;
 import omero.model.ChannelI;
 import omero.model.ContrastMethod;
-import omero.model.Illumination;
+import omero.model.IlluminationType;
 import omero.model.StatsInfo;
 
 /** 
@@ -67,7 +67,7 @@ public class ChannelData
     private AcquisitionMode mode;
     
     /** The illumination. */
-    private Illumination	illumination;
+    private IlluminationType	illumination;
     
     /** The contrast method. */
     private ContrastMethod	contrastMethod;
@@ -230,7 +230,7 @@ public class ChannelData
     public String getIllumination()
     { 
     	if (illumination != null) return illumination.getValue().getValue();
-    	Illumination value =  asChannel().getIlluminationType();
+    	IlluminationType value =  asChannel().getIlluminationType();
     	if (value != null) return value.getValue().getValue();
     	return null; 
     }
@@ -367,7 +367,7 @@ public class ChannelData
      * 
      * @param illumination The value to set.
      */
-    public void setIllumination(Illumination illumination)
+    public void setIllumination(IlluminationType illumination)
     {
     	setDirty(true);
     	this.illumination = illumination;
@@ -407,7 +407,7 @@ public class ChannelData
 	 * 
 	 * @return See above.
 	 */
-	public Illumination getIlluminationAsEnum() { return illumination; }
+	public IlluminationType getIlluminationAsEnum() { return illumination; }
 	
 	/**
 	 * Returns the contrast method enumeration value.
