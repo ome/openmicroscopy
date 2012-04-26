@@ -90,8 +90,8 @@ module omero {
         ["java:type:java.util.ArrayList<omero.model.Pixels>:java.util.List<omero.model.Pixels>"]
             sequence<omero::model::Pixels> PixelsList;
 
-        ["java:type:java.util.ArrayList<omero.model.PixelsType>:java.util.List<omero.model.PixelsType>"]
-            sequence<omero::model::PixelsType> PixelsTypeList;
+        ["java:type:java.util.ArrayList<omero.model.PixelsType>:java.util.List<omero.model.PixelType>"]
+            sequence<omero::model::PixelType> PixelTypeList;
 
         ["java:type:java.util.ArrayList<omero.model.ROI>:java.util.List<omero.model.ROI>"]
             sequence<omero::model::ROI> RoiList;

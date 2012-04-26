@@ -39,7 +39,7 @@ module omero {
         class OriginalFile;
         class Permissions;
         class Pixels;
-        class PixelsType;
+        class PixelType;
         class PlaneInfo;
         class Plate;
         class Plate;
