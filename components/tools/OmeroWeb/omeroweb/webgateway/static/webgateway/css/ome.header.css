@@ -278,6 +278,7 @@
 		    max-height: 500px;
 		    min-width: 300px !important;
 			left:-90px;
+			display: none;
 		}
 		
 		
@@ -415,6 +416,7 @@
 		}
 		
 		.dropdown {
+		    visibility:hidden;
 			padding:5px 0;
 		}
 			
