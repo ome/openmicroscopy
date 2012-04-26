@@ -415,17 +415,21 @@
                     </div>
                 {% endif %}
 				
-				<button class="btn silver btn_text" href="#" onclick="return openPopup('{% url webgateway_full_viewer manager.image.id %}')">
+				<button class="btn silver btn_text" href="#" onclick="return openPopup('{% url webgateway_full_viewer manager.image.id %}')"
+				        title="Open full image viewer in new window">
 					<span>
 	                {% trans "Launch full viewer" %} 
 					</span>
 				</button>
 				
                 {% if manager.openAstexViewerCompatible %}
-                | Volume viewer
-                <a href="#" onclick="return openPopup('{% url open_astex_viewer 'image_8bit' manager.image.id %}')">
-                    <img src="{% static "webclient/image/oav_16.png" %}" alt="Open Astex Viewer" title="Open Astex Viewer"/>
-                </a>
+                
+                <button class="btn silver btn_text" href="#" onclick="return openPopup('{% url open_astex_viewer 'image_8bit' manager.image.id %}')"
+                        title="Open with Open Astex Viewer">
+					<span>
+	                {% trans "Volume viewer" %} 
+					</span>
+				</button>
                 {% endif %}
 				
             </div>
