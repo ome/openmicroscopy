@@ -39,6 +39,17 @@ from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
 
+class ConnCleaningHttpResponse(HttpResponse):
+    """Extension of L{HttpResponse} which closes the OMERO connection."""
+
+    def close(self):
+        super(ConnCleaningHttpResponse, self).close()
+        try:
+            logger.debug('Closing OMERO connection in %r' % self)
+            self.conn.c.closeSession()
+        except:
+            logger.error('Failed to clean up connection.', exc_info=True)
+
 class login_required(object):
     """
     OMERO.web specific extension of the Django login_required() decorator,

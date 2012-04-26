@@ -103,6 +103,7 @@ from omeroweb.feedback.views import handlerInternalError
 from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
 from omeroweb.connector import Connector
+from omeroweb.decorators import ConnCleaningHttpResponse
 
 logger = logging.getLogger(__name__)
 
@@ -1487,7 +1488,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
     context['template'] = template
     return context
 
-@login_required()
+@login_required(doConnectionCleanup=False)
 def get_original_file(request, fileId, conn=None, **kwargs):
     """ Returns the specified original file as an http response. Used for displaying text or png/jpeg etc files in browser """
 
@@ -1498,7 +1499,8 @@ def get_original_file(request, fileId, conn=None, **kwargs):
     if orig_file is None:
         return handlerInternalError(request, "Original File does not exists (id:%s)." % (fileId))
     
-    rsp = HttpResponse(orig_file.getFileInChunks())
+    rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
+    rsp.conn = conn
     mimetype = orig_file.mimetype
     if mimetype == "text/x-python": 
         mimetype = "text/plain" # allows display in browser
@@ -1582,7 +1584,7 @@ def image_as_map(request, imageId, conn=None, **kwargs):
     return rsp
 
 
-@login_required()
+@login_required(doConnectionCleanup=False)
 def archived_files(request, iid, conn=None, **kwargs):
     """
     Downloads the archived file(s) as a single file or as a zip (if more than one file)
@@ -1600,7 +1602,8 @@ def archived_files(request, iid, conn=None, **kwargs):
 
     if len(files) == 1:
         orig_file = files[0]
-        rsp = HttpResponse(orig_file.getFileInChunks())
+        rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
+        rsp.conn = conn
         rsp['Content-Length'] = orig_file.getSize()
         rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.getName().replace(" ","_"))
     else:
@@ -1635,7 +1638,8 @@ def archived_files(request, iid, conn=None, **kwargs):
 
             # return the zip or single file
             archivedFile_data = FileWrapper(temp)
-            rsp = HttpResponse(archivedFile_data)
+            rsp = ConnCleaningHttpResponse(archivedFile_data)
+            rsp.conn = conn
             rsp['Content-Length'] = temp.tell()
             rsp['Content-Disposition'] = 'attachment; filename=%s' % file_name
             temp.seek(0)
@@ -1647,14 +1651,15 @@ def archived_files(request, iid, conn=None, **kwargs):
     rsp['Content-Type'] = 'application/force-download'
     return rsp
 
-@login_required()
+@login_required(doConnectionCleanup=False)
 def download_annotation(request, action, iid, conn=None, **kwargs):
     """ Returns the file annotation as an http response for download """
     ann = conn.getObject("Annotation", iid)
     if ann is None:
         return handlerInternalError(request, "Annotation does not exist (id:%s)." % (iid))
     
-    rsp = HttpResponse(ann.getFileInChunks())
+    rsp = ConnCleaningHttpResponse(ann.getFileInChunks())
+    rsp.conn = conn
     rsp['Content-Type'] = 'application/force-download'
     rsp['Content-Length'] = ann.getFileSize()
     rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
