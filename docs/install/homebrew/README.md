@@ -122,11 +122,11 @@ ENV
 
 Edit your .profile as appropriate. NB. The following are indicators of required entries:
 
-    export BREW_DIR=`brew --prefix`
-    export OMERO_HOME=$BREW_DIR/Cellar/omero43/4.3/
+    export BREW_DIR=$(brew --prefix)
+    export OMERO_HOME=$(brew --prefix omero43)
     export ICE_CONFIG=$OMERO_HOME/etc/ice.config
-    export ICE_HOME=$BREW_DIR/Cellar/zeroc-ice33
-    export PYTHONPATH=$OMERO_HOME/lib/python:$ICE_HOME/3.3.1/python
+    export ICE_HOME=$(brew --prefix zeroc-ice33)
+    export PYTHONPATH=$OMERO_HOME/lib/python:$ICE_HOME/python
 
     export PATH=$BREW_DIR/bin:$BREW_DIR/sbin:$OMERO_HOME/bin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
     export DYLD_LIBRARY_PATH=$BREW_DIR/lib
