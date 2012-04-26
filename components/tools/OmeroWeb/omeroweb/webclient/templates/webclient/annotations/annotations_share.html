@@ -188,13 +188,9 @@
         <!-- ANNOTATIONS "General" -->
         <div class="right_tab_inner" id="general_tab">
             
-            {% if manager.image %}   
-			<div class="data_heading">         
-	            <h1><span id="imagename-{{ manager.image.id }}-name" style="word-wrap: break-word;">{{ manager.image.name }}</span></h1>
-            </div>
-			
-			
-			
+            {% if manager.image %}            
+            <h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>
+            
             <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>    
             <!-- open-image link -->
 			
@@ -205,105 +201,80 @@
 			</button>
 			
 			
-			<hr/>
-			
                     
             <div class="description">
                 <span id='image_desc'>{{ manager.image.description|default_if_none:"no description"|linebreaks }}</span>
             </div>
-			
-			<hr/>
-			
-			<div class="annotations_section">
-	         
-			   
-			    <table class="metadata_details">                    
-	                {% if not manager.image.isOwned %}
-	                <tr>
-	                    <th>Owner:</th>
-	                    <td id='owner_fullname'>{{ manager.image.getOwner.getFullName }}</td>                    
-	                </tr>
-	                {% endif %}
-	                <tr>
-	                    <th>Acquisition Date:</th>
-	                    <td id='acqu_date'>{{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
-	                </tr>
-	                <tr>
-	                    <th>Imported Date:</th>
-	                    <td id='import_date'>{{ manager.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
-	                </tr>
-	                <tr>
-	                    <th>Dimensions (XY):</th>
-	                    <td id='dims_xy'>{{ manager.image.getSizeX }} x {{ manager.image.getSizeY }}</td>
-	                </tr>
-	                <tr>
-	                    <th>Pixels Type:</th>
-	                    <td id='pixels_type'>{{ manager.image.getPixelsType }}</td>
-	                </tr>
-	                <tr>
-	                    <th>Pixels Size (XYZ) (&#181m):</th>
-	                    <td id='pixels_size'>
-	                        <div class='tooltip'>{{ manager.image.getPixelSizeX|floatformat:4 }} x {{ manager.image.getPixelSizeY|floatformat:4 }} 
-	                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ|floatformat:4 }} {% endif %}
-	                        </div>
-	                        <span style='display:none'>{{ manager.image.getPixelSizeX }} x {{ manager.image.getPixelSizeY }}
-	                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ }} {% endif %}
-	                        </span>
-	                    </td>
-	                </tr>
-	                <tr>
-	                    <th>Z-sections/Timepoints:</th>
-	                    <td id='dims_zt'>{{ manager.image.getSizeZ }} x {{ manager.image.getSizeT }}</td>
-	                </tr>
-	                <tr>
-	                    <th>Channels:</th>
-	                    <td id='channel_names'>
-	                    {% if manager.image.getChannels %}{% for c in manager.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
-	                    </td>
-	                </tr>
-	            </table>
-	            {% endif %}
-			
-			</div>
-			
-			
+            <table>                    
+                {% if not manager.image.isOwned %}
+                <tr>
+                    <th>Owner:</th>
+                    <td id='owner_fullname'>{{ manager.image.getOwner.getFullName }}</td>                    
+                </tr>
+                {% endif %}
+                <tr>
+                    <th>Acquisition Date:</th>
+                    <td id='acqu_date'>{{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
+                </tr>
+                <tr>
+                    <th>Imported Date:</th>
+                    <td id='import_date'>{{ manager.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
+                </tr>
+                <tr>
+                    <th>Dimensions (XY):</th>
+                    <td id='dims_xy'>{{ manager.image.getSizeX }} x {{ manager.image.getSizeY }}</td>
+                </tr>
+                <tr>
+                    <th>Pixels Type:</th>
+                    <td id='pixels_type'>{{ manager.image.getPixelsType }}</td>
+                </tr>
+                <tr>
+                    <th>Pixels Size (XYZ) (&#181m):</th>
+                    <td id='pixels_size'>
+                        <div class='tooltip'>{{ manager.image.getPixelSizeX|floatformat:4 }} x {{ manager.image.getPixelSizeY|floatformat:4 }} 
+                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ|floatformat:4 }} {% endif %}
+                        </div>
+                        <span style='display:none'>{{ manager.image.getPixelSizeX }} x {{ manager.image.getPixelSizeY }}
+                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ }} {% endif %}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Z-sections/Timepoints:</th>
+                    <td id='dims_zt'>{{ manager.image.getSizeZ }} x {{ manager.image.getSizeT }}</td>
+                </tr>
+                <tr>
+                    <th>Channels:</th>
+                    <td id='channel_names'>
+                    {% if manager.image.getChannels %}{% for c in manager.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
+                    </td>
+                </tr>
+            </table>
+            {% endif %}
 
             {% if manager.share %}
-			
-			 <div class="right_tab_inner" id="general_tab">
-			
                 <!-- hidden form for editing Share - load form via AJAX when we show dialog -->
-                
-				<form id='edit_share_form' title="Edit Share" action="{% url manage_action_containers 'save' 'share' manager.share.id %}" 
+                <form id='edit_share_form' title="Edit Share" action="{% url manage_action_containers 'save' 'share' manager.share.id %}" 
                     method="post" style="display:none">
                 </form>
-                
-				<div class="data_heading">
-				
-						<h1>
-						{{ manager.share.getShareType }} {{ manager.share.id }}
-	                    {% if manager.share.isOwned %}
-	                        <a id="edit_share" href="{% url manage_action_containers 'edit' 'share' manager.share.id %}">
-	                            <img src="{% static 'webclient/image/color_line16.png' %}" alt="e" title="Edit Share"/>
-	                        </a>
-							
-							<a href="{% url manage_action_containers 'edit' 'share' manager.share.id %}" class="btn silver btn_edit" alt="e" title="edit">
-								<span alt="e" title="Edit Share"></span>
-							</a>
-							
-							
-	                    {% endif %}
-						</h1>
-						
-				</div>
-				
+                <h1>{{ manager.share.getShareType }} {{ manager.share.id }}
+                    {% if manager.share.isOwned %}
+                        <a id="edit_share" href="{% url manage_action_containers 'edit' 'share' manager.share.id %}">
+                            <img src="{% static 'webclient/image/color_line16.png' %}" alt="e" title="Edit Share"/>
+                        </a>
+                    {% endif %}</h1>
                 
                 <div class="description">
+<<<<<<< Local Changes
+                    <div class="data_heading">
 						<p><span>{{ manager.share.message|default_if_none:""|sharewikify|safe|linebreaks }}</span></p>
+					</div>
+=======
+                    {{ manager.share.message|default_if_none:""|sharewikify|safe|linebreaks }}
+>>>>>>> External Changes
                 </div>
-				<div class="annotations_section">
-				
-                <table class="metadata_details">
+                
+                <table>
                     <tr>
                         <th>Owner:</th>
                         <td id='owner_fullname'>{{ manager.share.getOwner.getFullName }}</td>                    
@@ -338,15 +309,9 @@
                     </tr>
                 </table>
             
-			</div>
-			
-			
-			<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
         
             <!-- ANNOTATIONS -->
-            
-			<div class="annotations_section">
-			<h2>{% trans "Annotations" %}</h2>
+            <h1>{% trans "Annotations" %}</h1>
             
             <table>
                 <!-- SHARE COMMENT -->
@@ -381,9 +346,7 @@
                 </tr>            
             </table>
             {% endif %}         
-            <div class="clear"></div>  
-			
-			</div>        
+            <div class="clear"></div>          
 
         </div>
         </div>
