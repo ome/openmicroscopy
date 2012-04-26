@@ -26,7 +26,7 @@ module omero {
                 idempotent IObjectList retrieveAllRndSettings(long pixId, long userId) throws ServerError;
                 idempotent omero::model::RenderingDef loadRndSettings(long renderingSettingsId) throws ServerError;
                 void saveRndSettings(omero::model::RenderingDef rndSettings) throws ServerError;
-                idempotent int getBitDepth(omero::model::PixelType type) throws ServerError;
+                idempotent int getBitDepth(omero::model::PixelType pixelType) throws ServerError;
                 idempotent omero::model::IObject getEnumeration(string enumClass, string value) throws ServerError;
                 idempotent IObjectList getAllEnumerations(string enumClass) throws ServerError;
                 omero::RLong copyAndResizePixels(long pixelsId,
@@ -47,7 +47,7 @@ module omero {
                                                 bool copyStats) throws ServerError;
                 omero::RLong createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
                                          omero::sys::IntList channelList,
-                                         omero::model::PixelType pixelsType,
+                                         omero::model::PixelType pixelType,
                                          string name, string description) throws ServerError;
                 void setChannelGlobalMinMax(long pixelsId, int channelIndex, double min, double max) throws ServerError;
             };
