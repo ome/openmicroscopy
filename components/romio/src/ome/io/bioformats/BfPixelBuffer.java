@@ -124,7 +124,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     }
 
     public void close() throws IOException {
-        reader().close();
+        bfReader.close();
     }
 
     public int getByteWidth() {
