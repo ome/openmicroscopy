@@ -527,6 +527,7 @@
 				this.__callback({});
 			},
 			refresh : function (obj) {
+				this.deselect_all();    // otherwise we have nodes multiselected after refresh
 				var _this = this;
 				this.save_opened();
 				if(!obj) { obj = -1; }
