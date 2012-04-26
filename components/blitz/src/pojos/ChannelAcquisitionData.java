@@ -33,16 +33,17 @@ import omero.RDouble;
 import omero.RInt;
 import omero.model.AcquisitionMode;
 import omero.model.Binning;
+import omero.model.Channel;
 import omero.model.ContrastMethod;
 import omero.model.DetectorSettings;
 import omero.model.DetectorSettingsI;
 import omero.model.FilterSet;
-import omero.model.Illumination;
+import omero.model.IlluminationType;
 import omero.model.LightPath;
-import omero.model.LightSettings;
-import omero.model.LightSettingsI;
+import omero.model.LightSourceSettings;
+import omero.model.LightSourceSettingsI;
 import omero.model.LightSource;
-import omero.model.LogicalChannel;
+
 
 /** 
  * Object hosting the acquisition related to a logical channel.
@@ -65,7 +66,7 @@ public class ChannelAcquisitionData
 	private DetectorSettings 	detectorSettings;
 	
 	/** The settings of the light source. */
-	private LightSettings 		lightSettings;
+	private LightSourceSettings lightSettings;
 	
 	/** The filterSet used. */
 	private FilterSetData		filterSet;
@@ -94,7 +95,7 @@ public class ChannelAcquisitionData
 	 * @param channel The image the acquisition data is related to. 
 	 * 				Mustn't be <code>null</code>.
 	 */
-	public ChannelAcquisitionData(LogicalChannel channel)
+	public ChannelAcquisitionData(Channel channel)
 	{
         if (channel == null)
             throw new IllegalArgumentException("Object cannot null.");
@@ -244,7 +245,7 @@ public class ChannelAcquisitionData
 	public void setLigthSettingsAttenuation(double value)
 	{
 		ligthSourceSettingsDirty = true;
-		if (lightSettings == null) lightSettings = new LightSettingsI();
+		if (lightSettings == null) lightSettings = new LightSourceSettingsI();
 		lightSettings.setAttenuation(omero.rtypes.rdouble(value));
 	}
 	
@@ -256,7 +257,7 @@ public class ChannelAcquisitionData
 	public void setLigthSettingsWavelength(int value)
 	{
 		ligthSourceSettingsDirty = true;
-		if (lightSettings == null) lightSettings = new LightSettingsI();
+		if (lightSettings == null) lightSettings = new LightSourceSettingsI();
 		lightSettings.setWavelength(omero.rtypes.rint(value));
 	}
 	
@@ -394,9 +395,7 @@ public class ChannelAcquisitionData
      */
     public String getIllumination()
     { 
-    	LogicalChannel lc = (LogicalChannel) asIObject();
-    	if (lc == null) return null;
-    	Illumination value =  lc.getIlluminationType();
+    	IlluminationType value = asChannel().getIlluminationType();
     	if (value != null) return value.getValue().getValue();
     	return null; 
     }
@@ -408,9 +407,7 @@ public class ChannelAcquisitionData
      */
     public String getContrastMethod()
     { 
-    	LogicalChannel lc = (LogicalChannel) asIObject();
-    	if (lc == null) return null;
-    	ContrastMethod value =  lc.getContrastMethod();
+    	ContrastMethod value =  asChannel().getContrastMethod();
     	if (value != null) return value.getValue().getValue();
     	return null; 
     }
@@ -422,9 +419,7 @@ public class ChannelAcquisitionData
      */
     public String getMode()
     { 
-    	LogicalChannel lc = (LogicalChannel) asIObject();
-    	if (lc == null) return null;
-    	AcquisitionMode value =  lc.getAcquisitionMode();
+    	AcquisitionMode value =  asChannel().getAcquisitionMode();
     	if (value != null) return value.getValue().getValue();
     	return null; 
     }
