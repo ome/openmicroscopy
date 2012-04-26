@@ -4,11 +4,10 @@
   position: relative;
   display: inline-block;
   zoom: 1;
-  width:70% !important;
+  *display: inline;
 }
 .chzn-container .chzn-drop {
   background: #fff;
-  width:100% !important;
   border: 1px solid #aaa;
   border-top: 0;
   position: absolute;
@@ -18,7 +17,7 @@
   -moz-box-shadow   : 0 4px 5px rgba(0,0,0,.15);
   -o-box-shadow     : 0 4px 5px rgba(0,0,0,.15);
   box-shadow        : 0 4px 5px rgba(0,0,0,.15);
-  z-index: 999;
+  z-index: 1010;
 }
 /* @end */
 
@@ -228,6 +227,7 @@
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .chzn-container-multi .chzn-results {
   margin: -1px 0 0;
