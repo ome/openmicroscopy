@@ -30,6 +30,7 @@ import java.net.URL;
 import javax.swing.Icon;
 import javax.swing.filechooser.FileSystemView;
 
+import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 
 import com.sun.jna.Memory;
@@ -154,15 +155,8 @@ public class WindowsApplicationDataExtractor implements
 	 * @throws Exception
 	 */
 	private String getFilePropertyValue(String applicationPath,
-			String propertyKey) throws Exception {
-
-		IntByReference dwDummy = new IntByReference(0);
-
-		int fileVersionInfoSize = Version.INSTANCE.GetFileVersionInfoSize(
-				applicationPath, dwDummy);
-
-		String translation = getTranslation(applicationPath,
-				fileVersionInfoSize);
+			int fileVersionInfoSize, String translation, String propertyKey)
+			throws Exception {
 
 		Pointer lpData = allocateBuffer(fileVersionInfoSize);
 
@@ -211,19 +205,51 @@ public class WindowsApplicationDataExtractor implements
 	 *             if the file specified is null or does not exist on disk
 	 */
 	public ApplicationData extractAppData(File file) throws Exception {
+
 		if (file == null || !file.exists())
 			throw new FileNotFoundException(file.getAbsolutePath());
 
 		Icon icon = getSystemIconFor(file);
 
-		String applicationName = getFilePropertyValue(file.getAbsolutePath(),
-				"FileDescription");
-		String executablePath = file.getAbsolutePath();
+		String absPath = file.getAbsolutePath();
 
-		ApplicationData data = new ApplicationData(icon, applicationName,
-				executablePath);
+		IntByReference dwDummy = new IntByReference(0);
+		int fileVersionInfoSize = com.sun.jna.platform.win32.Version.INSTANCE
+				.GetFileVersionInfoSize(absPath, dwDummy);
 
-		return data;
+		String applicationName = FilenameUtils.getBaseName(file.getAbsolutePath());
+
+		if (fileVersionInfoSize == 0) {
+			System.out
+					.println("No file version information found, should default to application file name");
+		} else {
+			String translation = getTranslation(absPath, fileVersionInfoSize);
+			String companyName = getFilePropertyValue(absPath,
+					fileVersionInfoSize, translation, "CompanyName");
+			String fileDescription = getFilePropertyValue(absPath,
+					fileVersionInfoSize, translation, "FileDescription");
+			String fileVersion = getFilePropertyValue(absPath,
+					fileVersionInfoSize, translation, "FileVersion");
+			String internalName = getFilePropertyValue(absPath,
+					fileVersionInfoSize, translation, "InternalName");
+			String legalCopyright = getFilePropertyValue(absPath,
+					fileVersionInfoSize, translation, "LegalCopyright");
+			String originalFileName = getFilePropertyValue(absPath,
+					fileVersionInfoSize, translation, "OriginalFileName");
+			String productName = getFilePropertyValue(absPath,
+					fileVersionInfoSize, translation, "ProductName");
+			String productVersion = getFilePropertyValue(absPath,
+					fileVersionInfoSize, translation, "ProductVersion");
+
+			if (fileDescription != "")
+				applicationName = fileDescription;
+			else if (productName != "")
+				applicationName = productName;
+		}
+
+		String executablePath = file.toURI().toURL().toString();
+
+		return new ApplicationData(icon, applicationName, executablePath);
 	}
 
 	public String getDefaultOpenCommandFor(URL location) {
