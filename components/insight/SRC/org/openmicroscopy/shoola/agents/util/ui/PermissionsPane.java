@@ -118,13 +118,18 @@ public class PermissionsPane
     	label.setFont(f.deriveFont(Font.ITALIC, f.getSize()-2));
     	readOnlyGroupBox = new JRadioButton(
     			AdminObject.PERMISSIONS_GROUP_READ_SHORT_TEXT);
+    	readOnlyGroupBox.setToolTipText(
+    			AdminObject.PERMISSIONS_GROUP_READ_TEXT);
     	readOnlyGroupBox.setEnabled(false);
     	readAnnotateGroupBox = new JRadioButton(
     			AdminObject.PERMISSIONS_GROUP_READ_LINK_SHORT_TEXT);
     	readAnnotateGroupBox.setEnabled(false);
-    	
+    	readAnnotateGroupBox.setToolTipText(
+    			AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT);
     	readWriteGroupBox = new JRadioButton(
     			AdminObject.PERMISSIONS_GROUP_READ_WRITE_SHORT_TEXT);
+    	readWriteGroupBox.setToolTipText(
+    			AdminObject.PERMISSIONS_GROUP_READ_WRITE_TEXT);
     	readWriteGroupBox.setEnabled(false);
     	
     	readOnlyGroupBox.setSelected(true);//default
