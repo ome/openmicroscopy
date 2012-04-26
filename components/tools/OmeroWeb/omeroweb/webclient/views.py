@@ -601,8 +601,10 @@ def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
     
     # can only populate these for 'image'
     image = None
-    data_storage_mode = None
+    data_storage_mode = ""
     pixelRange = None       # (min, max) values of the raw data
+    contourSliderInit, contourSliderIncr = None, None
+    sizeOptions = None  # only give user choice if we need to scale down (and we CAN scale with scipy)
     # If we convert to 8bit map, subtract dataOffset, multiply by mapPixelFactor add mapOffset. (used for js contour controls)
     if obj_type == 'file':
         ann = conn.getObject("Annotation", obj_id)
@@ -627,7 +629,6 @@ def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
         targetSize = DEFAULTMAPSIZE * DEFAULTMAPSIZE * DEFAULTMAPSIZE
         biggerSize = BIGGERMAPSIZE * BIGGERMAPSIZE * BIGGERMAPSIZE
         imgSize = image.getSizeX() * image.getSizeY() * image.getSizeZ()
-        sizeOptions = None  # only give user choice if we need to scale down (and we CAN scale with scipy)
         if imgSize > targetSize:
             try:
                 import scipy.ndimage
