@@ -1707,7 +1707,9 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
         """
         summary = self._conn.groupSummary(self.getId())
         self.leaders = summary["leaders"]
+        self.leaders.sort(key=lambda x: x.getLastName().lower())
         self.colleagues = summary["colleagues"]
+        self.colleagues.sort(key=lambda x: x.getLastName().lower())
 
 omero.gateway.ExperimenterGroupWrapper = ExperimenterGroupWrapper 
 
