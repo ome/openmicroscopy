@@ -44,13 +44,6 @@ class login_required(omeroweb.decorators.login_required):
     webclient specific extension of the OMERO.web login_required() decorator.
     """
 
-    def __init__(self, useragent='OMERO.web', isAdmin=False,
-                 isGroupOwner=False):
-        """
-        Initialises the decorator.
-        """
-        super(login_required, self).__init__(useragent, isAdmin, isGroupOwner)
-
     def on_logged_in(self, request, conn):
         """Called whenever the users is successfully logged in."""
         super(login_required, self).on_logged_in(request, conn)
