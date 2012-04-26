@@ -92,8 +92,6 @@
 	 
 	 
 		 .tablesorter tbody tr {
-			 border-top:solid 1px transparent;
-			 border-bottom:solid 1px transparent;
 		 }
 	 
 		 .tablesorter tbody tr:nth-child(even) {
@@ -104,7 +102,6 @@
 		 	background-color:hsl(210,15%,85%);
 			cursor:pointer;
 			-webkit-transition: background .2s linear;
-			
 			-webkit-transition:background .2s linear  ;		
 			   -moz-transition:background .2s linear  ;
 			     -o-transition:background .2s linear  ;

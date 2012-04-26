@@ -787,8 +787,8 @@
 
 	#user_dropdown {
 		cursor:pointer;
-		overflow:hidden;
 		float:left;
+		position:relative;
 	}
 
 
@@ -831,9 +831,10 @@
 
 		/* Actual Dropdown */
 		
+
 		#user_dropdown .dropdown {
 			width:200px;
-			left:222px;
+			left:-72px;
 		}
 
 		#user_dropdown .dropdown a:hover {

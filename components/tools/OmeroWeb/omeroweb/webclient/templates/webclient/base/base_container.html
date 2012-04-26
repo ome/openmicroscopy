@@ -75,17 +75,17 @@
     <script>
         $(document).ready(function(){
             // initially hidden
-            $("#user_dropdown ul").css('visibility', 'hidden');
+            $("#user_dropdown ul").css('display', 'none');
             // show on click
             $("#show_user_dropdown").click(function(e) {
                 
-                $("ul", $(this).parent()).css('visibility', 'visible');
+                $("ul", $(this).parent()).css('display', 'block');
                 e.preventDefault();
                 return false;
             });
             // on hover-out, hide drop-down menus
             $("#user_dropdown ul").hover(function(){}, function(){
-                $(this).css('visibility', 'hidden');
+                $(this).css('display', 'none');
             });
         });
     </script>

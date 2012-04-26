@@ -56,17 +56,17 @@
     <script>
         $(document).ready(function(){
             // initially hidden
-            $("#user_dropdown ul").css('visibility', 'hidden');
+            $("#user_dropdown ul").css('display', 'none');
             // show on click
             $("#show_user_dropdown").click(function(e) {
                 
-                $("ul", $(this).parent()).css('visibility', 'visible');
+                $("ul", $(this).parent()).css('display', 'block');
                 e.preventDefault();
                 return false;
             });
             // on hover-out, hide drop-down menus
             $("#user_dropdown ul").hover(function(){}, function(){
-                $(this).css('visibility', 'hidden');
+                $(this).css('display', 'none');
             });
         });
     </script>
@@ -85,11 +85,14 @@
 
 {% endblock %}
 
+
+{% block middle_header_left %}
+    {% include "webclient/base/menu.html" %}
+{% endblock %}
+
+
 {% block middle_header_right %}
 
-        <!-- Switch Group / User -->
-        {% include "webclient/base/group_user_dropdown.html" %}
-        
 
         <!-- Global Tools -->
         {% include "webclient/base/basket_info.html" %}
@@ -106,9 +109,7 @@
 {% endblock %}
 
 
-{% block middle_header_left %}
-    {% include "webclient/base/menu.html" %}
-{% endblock %}
+
 
 
 

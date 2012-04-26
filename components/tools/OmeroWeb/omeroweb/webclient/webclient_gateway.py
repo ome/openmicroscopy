@@ -709,7 +709,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         """
         
         img = Image.open(settings.DEFAULT_USER)
-        img.thumbnail((32,32), Image.ANTIALIAS)
+        img.thumbnail((150,150), Image.ANTIALIAS)
         draw = ImageDraw.Draw(img)
         f = cStringIO.StringIO()
         img.save(f, "PNG")
