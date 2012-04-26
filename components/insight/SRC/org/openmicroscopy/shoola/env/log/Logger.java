@@ -24,8 +24,6 @@
 
 package org.openmicroscopy.shoola.env.log;
 
-import java.io.File;
-
 //Java imports
 
 //Third-party libraries
@@ -48,7 +46,7 @@ import java.io.File;
  * <ul>
  * <p>Every method takes in two parameters: the originator of the log message
  * and the log message itself.  If the message spans multiple lines, then
- * a {@link LogMessage} object should be used to contruct it.</p>  
+ * a {@link LogMessage} object should be used to construct it.</p>  
  * <p>A configuration file (in the configuration directory under the
  * installation directory) provides for fine-tuning of the log settings on a
  * per-class basis.  Those settings include the choice of output locations and
@@ -71,7 +69,7 @@ import java.io.File;
  * @since OME2.2
  */
 
-public interface Logger 
+public interface Logger
 {
 	
 	/**
@@ -160,5 +158,5 @@ public interface Logger
 	 * @return See above.
 	 */
 	public String getLogFile();
-    
+
 }
