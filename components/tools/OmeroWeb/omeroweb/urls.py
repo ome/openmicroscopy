@@ -36,6 +36,8 @@ handler500 = "omeroweb.feedback.views.handler500"
 # url patterns
 urlpatterns = patterns('',
     
+    url( r'^$', 'omeroweb.webstart.views.index', name="index" ),
+    
     (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/common/image/ome.ico'}),
     
     (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),
@@ -44,6 +46,8 @@ urlpatterns = patterns('',
     (r'(?i)^webgateway/', include('omeroweb.webgateway.urls')),
     (r'(?i)^webtest/', include('omeroweb.webtest.urls')),    
     (r'(?i)^url/', include('omeroweb.webredirect.urls')),
+    (r'(?i)^webstart/', include('omeroweb.webstart.urls')),
+    
 )
 
 for app in settings.ADDITIONAL_APPS:

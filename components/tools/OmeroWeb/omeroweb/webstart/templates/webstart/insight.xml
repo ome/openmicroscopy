@@ -1,0 +1,86 @@
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp codebase="{{ codebase }}" href="{{ href }}">
+  <information>
+    <title>OMERO.insight</title>
+    <vendor>The Open Microscopy Environment</vendor>
+    <homepage href="http://openmicroscopy.org"/>
+    <icon href="{% static 'webgateway/img/logo.png' %}"/>
+    <shortcut online="false">
+      <desktop/>
+    </shortcut>
+    <offline-allowed/>
+  </information>
+  <security>
+      <all-permissions/>
+  </security>
+  <resources>
+    <j2se version="1.5.0+" max-heap-size="512m"/>
+    <jar href="JHotDraw.jar"/>
+    <jar href="TableLayout.jar"/>
+    <jar href="ai_path.jar"/>
+    <jar href="axis.jar"/>
+    <jar href="backport-util-concurrent.jar"/>
+    <jar href="bio-formats.jar"/>
+    <jar href="bufr.jar"/>
+    <jar href="commons-codec.jar"/>
+    <jar href="commons-collections.jar"/>
+    <jar href="commons-digester.jar"/>
+    <jar href="commons-discovery.jar"/>
+    <jar href="commons-httpclient.jar"/>
+    <jar href="commons-io.jar"/>
+    <jar href="commons-lang.jar"/>
+    <jar href="commons-logging.jar"/>
+    <jar href="commons-validator.jar"/>
+    <jar href="ehcache.jar"/>
+    <jar href="gicentreUtils.jar"/>
+    <jar href="gluegen-rt.jar"/>
+    <jar href="grib.jar"/>
+    <jar href="ini4j.jar"/>
+    <jar href="jai_imageio.jar"/>
+    <jar href="jaxrpc.jar"/>
+    <jar href="jcommon.jar"/>
+    <jar href="jfreechart.jar"/>
+    <jar href="jogl.jar"/>
+    <jar href="loci-common.jar"/>
+    <jar href="log4j.jar"/>
+    <jar href="mdbtools-java.jar"/>
+    <!--<jar href="metakit.jar"/>-->
+    <jar href="nanoxml.jar"/>
+    <jar href="netcdf.jar"/>
+    <jar href="ols-client.jar"/>
+    <jar href="ome-xml.jar"/>
+    <jar href="omero.insight.jar"/>
+    <jar href="physics.jar"/>
+    <jar href="poi.jar"/>
+    <jar href="poi-loci.jar"/>
+    <jar href="saaj.jar"/>
+    <jar href="serializer.jar"/>
+    <jar href="slf4j-api.jar"/>
+    <jar href="slf4j-log4j12.jar"/>
+    <jar href="swingx.jar"/>
+    <jar href="wsdl4j.jar"/>
+    <jar href="xalan.jar"/>
+  </resources>
+  <application-desc main-class="org.openmicroscopy.shoola.Main"/>
+</jnlp>
+
