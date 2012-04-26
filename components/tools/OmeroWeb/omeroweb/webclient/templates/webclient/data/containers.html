@@ -54,7 +54,8 @@
         }
 
         var handleDelete = function() {
-            var selected = $.jstree._focused().get_selected();
+            var datatree = $.jstree._focused();
+            var selected = datatree.get_selected();
 
             var del_form = $( "#delete-dialog-form" );
             del_form.dialog( "open" );
@@ -68,7 +69,9 @@
             var ajax_data = new Array();
             var q = false;
             var dtypes = {};
+            var first_parent;   // select this when we're done deleting
             selected.each(function (i) {
+                if (!first_parent) first_parent = datatree._get_parent(this);
                 ajax_data[i] = $(this).attr('id').replace("-","=");
                 var dtype = $(this).attr('rel');
                 if (dtype in dtypes) dtypes[dtype] += 1;
@@ -91,6 +94,7 @@
                     if (delete_content) ajax_data[ajax_data.length] = 'child=on';
                     if (delete_anns) ajax_data[ajax_data.length] = 'anns=on';
                     url = '{% url manage_action_containers "deletemany" %}'
+                    datatree.deselect_all();
                     $.ajax({
                         async : false,
                         url: url,
@@ -102,7 +106,8 @@
                                   $.jstree.rollback(data.rlbk);
                                   alert(r.errs);
                               } else {
-                                  $("#dataTree").jstree('remove', selected);
+                                  datatree.remove(selected);
+                                  first_parent.children("a").click();
                                   refreshActivities();
                               }
                         },
