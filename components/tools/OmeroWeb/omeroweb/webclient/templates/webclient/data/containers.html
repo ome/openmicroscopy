@@ -87,7 +87,7 @@
             del_form.bind("dialogclose", function(event, ui) {
                 if (del_form.data("clicked_button") == "Yes") {
                     var delete_anns = $("#delete_anns").attr('checked');
-                    var delete_content = $("#delete_content").attr('checked');
+                    var delete_content = true;      // $("#delete_content").attr('checked');
                     if (delete_content) ajax_data[ajax_data.length] = 'child=on';
                     if (delete_anns) ajax_data[ajax_data.length] = 'anns=on';
                     url = '{% url manage_action_containers "deletemany" %}'
@@ -1097,11 +1097,6 @@
             <p>If yes:</p>
             <form>
             <fieldset style="border: 0px solid white">
-                <div id="delete_contents_form"> <!-- we can hide this if we're deleting Images -->
-                    <input type="checkbox" name="delete_content" id="delete_content" />
-                    Also delete contents?
-                    <hr style="color:#eee"/>
-                </div>
                 <input type="checkbox" name="delete_anns" id="delete_anns" />
                 Also delete any Annotations that become 'orphans'?<br/>
             </fieldset>
