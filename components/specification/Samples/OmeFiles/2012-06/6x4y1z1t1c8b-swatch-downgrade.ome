@@ -42,7 +42,7 @@
 		<Description>A description for my group.
 Complete with basic formating, like new lines.</Description>
 		<Leader ID="Experimenter:1"/>
-		<Contact ID="Experimenter:1"/>
+		<Leader ID="Experimenter:2"/>
 	</OME:ExperimenterGroup>
 
 	<Instrument ID="Instrument:1">
@@ -114,7 +114,7 @@ Complete with basic formating, like new lines.</Description>
 			</ROI:Shape>
 			<ROI:Shape ID="Shape:4" FillRule="EvenOdd" FontStyle="Normal" FontFamily="serif"
 				Text="Hello" FillColor="1" FontSize="1" LineCap="Butt" StrokeColor="1"
-				StrokeDashArray="10 10" StrokeWidth="1" TheC="1" TheT="1" TheZ="1" Visibility="true">
+				StrokeDashArray="10 10" StrokeWidth="1" TheC="1" TheT="1" TheZ="1" Visible="true">
 				<ROI:Label X="1" Y="1"/>
 			</ROI:Shape>
 			<ROI:Shape ID="Shape:5" StrokeWidth="2" StrokeColor="1">
@@ -141,7 +141,7 @@ Complete with basic formating, like new lines.</Description>
 	</ROI:ROI>
 	<ROI:ROI ID="ROI:4">
 		<ROI:Union>
-			<ROI:Shape ID="Shape:9" Visibility="false" Text="Removed Path">
+			<ROI:Shape ID="Shape:9" Visible="false" Text="Removed Path">
 				<!--
 				Path elements cannot be converted to 2012-06 Schema, they are not
 				supported.-->
@@ -151,13 +151,13 @@ Complete with basic formating, like new lines.</Description>
 	</ROI:ROI>
 	<ROI:ROI ID="ROI:5">
 		<ROI:Union>
-			<ROI:Shape ID="Shape:10" Visibility="false" Text="Removed Path">
+			<ROI:Shape ID="Shape:10" Visible="false" Text="Removed Path">
 				<!--
 				Path elements cannot be converted to 2012-06 Schema, they are not
 				supported.-->
 				<ROI:Label X="0" Y="0"/>
 			</ROI:Shape>
-			<ROI:Shape ID="Shape:11" Visibility="false" Text="Removed Path">
+			<ROI:Shape ID="Shape:11" Visible="false" Text="Removed Path">
 				<!--
 				Path elements cannot be converted to 2012-06 Schema, they are not
 				supported.-->

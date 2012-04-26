@@ -122,10 +122,23 @@
 			<xsl:for-each select="@* [name() = 'ID']">
 				<xsl:attribute name="ID">Group:<xsl:value-of select="."/></xsl:attribute>
 			</xsl:for-each>
-			<xsl:apply-templates select="node()"/>
+
+			<xsl:apply-templates select="* [local-name(.) = 'Description']"/>
+			<xsl:for-each select="* [local-name(.) = 'Leader'][1]">
+				<xsl:apply-templates select="."/>
+			</xsl:for-each>
+			<xsl:for-each select="* [local-name(.) = 'Leader'][2]">
+				<xsl:apply-templates select="." mode="ToContact"/>
+			</xsl:for-each>
 		</xsl:element>
 	</xsl:template>
-	
+
+	<xsl:template match="OME:Leader" mode="ToContact">
+		<xsl:element name="OME:Contact" namespace="{$newOMENS}">
+			<xsl:apply-templates select="@*"/>
+		</xsl:element>
+	</xsl:template>
+
 	<xsl:template match="OME:ExperimenterGroupRef">
 		<xsl:element name="OME:GroupRef" namespace="{$newOMENS}">
 			<xsl:apply-templates select="@*[not(local-name(.)='ID')]"/>
