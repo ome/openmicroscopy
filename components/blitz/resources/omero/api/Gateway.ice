@@ -32,8 +32,6 @@ module omero {
 
         enum ContainerClass
         {
-            Category,
-            CategoryGroup,
             Project,
             Dataset,
             Image
