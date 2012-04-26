@@ -1000,8 +1000,7 @@
 						</xsd:restriction>
 					</xsd:simpleType>
 				</xsd:element>
-				<xsd:element ref="Leader" minOccurs="0" maxOccurs="1"/>
-				<xsd:element ref="Contact" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="Leader" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
 						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
@@ -1018,23 +1017,6 @@
 			<xsd:documentation>
 				Contact information for a ExperimenterGroup leader specified using a reference 
 				to an Experimenter element defined elsewhere in the document.
-			</xsd:documentation>
-		</xsd:annotation>
-		<xsd:complexType>
-			<xsd:complexContent>
-				<xsd:extension base="Reference">
-					<xsd:attribute name="ID" use="required" type="ExperimenterID"/>
-				</xsd:extension>
-			</xsd:complexContent>
-		</xsd:complexType>
-	</xsd:element>
-	<xsd:element name="Contact"> <!-- top level definition -->
-		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>Contacts</plural></xsdfu></xsd:appinfo>
-			<xsd:documentation>
-				The Contact element describes the contact person for a group of 
-				experimenters - typically a project leader or lab manager.
-				This person is specified as a reference to an OME experimenter.
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>

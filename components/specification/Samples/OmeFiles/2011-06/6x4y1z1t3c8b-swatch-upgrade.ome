@@ -27,11 +27,18 @@
 	</Experimenter>
 	<Group ID="Group:1" Name="MyGroup">
 		<Description>A description for my group.
-Complete with basic formating, like new lines.</Description>
+			Complete with basic formating, like new lines.</Description>
 		<Leader ID="Experimenter:1"/>
 		<Contact ID="Experimenter:1"/>
 	</Group>
-
+	
+	<Group ID="Group:2" Name="MyOtherGroup">
+		<Description>A description for my group.
+			Complete with basic formating, like new lines.</Description>
+		<Leader ID="Experimenter:1"/>
+		<Contact ID="Experimenter:2"/>
+	</Group>
+	
 	<Instrument ID="Instrument:1">
 		<Objective ID="Objective:1" LotNumber="123" Manufacturer="OME-Labs" NominalMagnification="20" CalibratedMagnification="20.34"/>
 		

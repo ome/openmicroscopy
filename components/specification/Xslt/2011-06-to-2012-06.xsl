@@ -107,7 +107,16 @@
 			<xsl:apply-templates select="node()"/>
 		</xsl:element>
 	</xsl:template>
-	
+
+	<xsl:template match="OME:Contact">
+		<xsl:variable name = "ID" select = "@ID"/>
+		<xsl:if test="not(../OME:Leader[@ID=$ID])">
+			<xsl:element name="OME:Leader" namespace="{$newOMENS}">
+				<xsl:apply-templates select="@*"/>
+			</xsl:element>
+		</xsl:if>
+	</xsl:template>
+
 	<xsl:template match="OME:Experimenter">
 		<xsl:element name="OME:Experimenter" namespace="{$newOMENS}">
 			<!-- Strip DisplayName -->
@@ -119,7 +128,7 @@
 			<xsl:apply-templates select="node()"/>
 		</xsl:element>
 	</xsl:template>
-
+	
 	<xsl:template match="OME:Group">
 		<xsl:element name="OME:ExperimenterGroup" namespace="{$newOMENS}">
 			<xsl:apply-templates select="@*[not(local-name(.)='ID')]"/>

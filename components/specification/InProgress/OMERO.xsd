@@ -235,4 +235,30 @@
 		</xsd:restriction>
 	</xsd:simpleType>
 
+	<!-- Possible additions -->
+	<!-- These currently need added to the mapping file
+
+<type id="ome.model.stats.StatsInfo">
+
+<type id="ome.model.internal.Link"/>
+
+<type id="ome.model.display.Thumbnail">
+<type id="ome.model.display.RenderingDef">
+<type id="ome.model.display.QuantumDef">
+<type id="ome.model.display.ChannelBinding">
+<type id="ome.model.display.ReverseIntensityContext" superclass="ome.model.display.CodomainMapContext">
+<type id="ome.model.display.PlaneSlicingContext" superclass="ome.model.display.CodomainMapContext">
+<type id="ome.model.display.ContrastStretchingContext" superclass="ome.model.display.CodomainMapContext">
+
+<type id="ome.model.jobs.Job" abstract="true">
+<type id="ome.model.jobs.ImportJob" superclass="ome.model.jobs.Job">
+<type id="ome.model.jobs.ScriptJob" superclass="ome.model.jobs.Job">
+<type id="ome.model.jobs.ParseJob" superclass="ome.model.jobs.Job">
+
+<type id="ome.model.meta.ExternalInfo" immutable="true">
+<type id="ome.model.meta.DBPatch" immutable="true" global="true">
+<type id="ome.model.meta.Share" global="true" superclass="ome.model.meta.Session">
+<type id="ome.model.meta.Namespace" annotated="true" named="true" described="true">
+
+	-->
 </xsd:schema>
