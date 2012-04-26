@@ -40,7 +40,7 @@ $(document).ready(function() {
         $metadata_preview = $("#metadata_tab");
         if ($metadata_preview.is(":visible") && $metadata_preview.is(":empty")) {
             var url = null;
-            var well_index = selected[0]["index"];
+            var well_index = selected[0]["index"] || 0;
             if (selected[0]["share"]) {
                 url = '{% url webindex %}metadata_acquisition/'+orel+'/'+oid.split("-")[1]+'/'+selected[0]["share"]+'/?index='+well_index;
             } else {

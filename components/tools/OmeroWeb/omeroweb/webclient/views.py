@@ -809,7 +809,10 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
     """
 
     # the index of a field within a well
-    index = int(request.REQUEST.get('index', 0))
+    try:
+        index = int(request.REQUEST.get('index', 0))
+    except:
+        index = 0
 
     try:
         if c_type in ("share", "discussion"):

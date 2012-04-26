@@ -39,7 +39,7 @@ $(document).ready(function() {
         // if the tab is visible and not loaded yet...
         $metadata_preview = $("#preview_tab");
         if ($metadata_preview.is(":visible") && $metadata_preview.is(":empty")) {
-            var well_index = selected[0]["index"];
+            var well_index = selected[0]["index"] || 0;
             var url = null;
             if (selected[0]["share"]) {
                 url = '{% url webindex %}metadata_preview/'+orel+'/'+oid.split("-")[1]+'/'+selected[0]["share"]+'/?index='+well_index;
