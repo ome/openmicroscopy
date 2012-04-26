@@ -159,7 +159,7 @@ public class WindowsApplicationDataExtractor implements
 
 		int fileVersionInfoSize = Version.INSTANCE.GetFileVersionInfoSize(
 				applicationPath, dwDummy);
-
+		
 		String translation = getTranslation(applicationPath,
 				fileVersionInfoSize);
 
