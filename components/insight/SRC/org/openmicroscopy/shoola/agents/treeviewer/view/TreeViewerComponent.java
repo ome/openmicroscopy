@@ -1630,7 +1630,6 @@ class TreeViewerComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		//Check if current user can write in object
-		if (TreeViewerAgent.isAdministrator()) return true;
 		long id = model.getUserDetails().getId();
 		boolean b = false;
 		if (ho instanceof TreeImageTimeSet) {
@@ -1651,7 +1650,7 @@ class TreeViewerComponent
 				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
 					return true;
 			}
-			return EditorUtil.isUserGroupOwner(group, id);
+			//EditorUtil.isUserGroupOwner(group, id);
 		}
 		return false;
 	}

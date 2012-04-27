@@ -225,7 +225,7 @@ public class ManageRndSettingsAction
 				if (selected.length > 1) setEnabled(false);
 				else {
 					if (ho instanceof ImageData || ho instanceof WellSampleData)
-						setEnabled(true);//setEnabled(model.isUserOwner(ho));
+						setEnabled(model.canAnnotate(ho));
 					else setEnabled(false);
 				}
 				break;

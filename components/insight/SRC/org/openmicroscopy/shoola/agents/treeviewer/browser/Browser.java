@@ -769,12 +769,21 @@ public interface Browser
 	
 	/**
 	 * Returns <code>true</code> if the user currently logged in can
-	 * edit the passed object.
+	 * edit the passed object, <code>false</code> otherwise.
 	 * 
 	 * @param ho The data object to check.
 	 * @return See above.
 	 */
 	public boolean canEdit(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the user currently logged in can
+	 * annotate the passed object, <code>false</code> otherwise.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canAnnotate(Object ho);
 	
 	/**
 	 * Returns the node corresponding to the experimenter currently logged in.
