@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateAcquisitionData;
@@ -220,10 +221,14 @@ public class ManageRndSettingsAction
 						ho instanceof ImageData || ho instanceof DatasetData ||
 						ho instanceof PlateAcquisitionData) {
 						i = selected.iterator();
+						DataObject data;
 						while (i.hasNext()) {
 							obj = i.next();
+							data = (DataObject) obj;
 							//if (model.isUserOwner(obj)) count++;
-							if (model.isWritable(obj)) count++;
+							if (model.isWritable(obj) &&
+								model.areSettingsCompatible(data.getGroupId()))
+								count++;
 						}
 						setEnabled(count == selected.size());
 					} else setEnabled(true);

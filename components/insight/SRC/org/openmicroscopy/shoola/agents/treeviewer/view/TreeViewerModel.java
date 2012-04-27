@@ -926,6 +926,20 @@ class TreeViewerModel
 		if (refImage == null) return null;
 		return UIUtilities.removeFileExtension(refImage.getName());
 	}
+	
+	/**
+	 * Returns <code>true</code> if the image to copy the rendering settings
+	 * from is in the specified group, <code>false</code> otherwise.
+	 * 
+	 * @param groupID The group to handle.
+	 * @return See above.
+	 */
+	boolean areSettingsCompatible(long groupID)
+	{
+		if (refImage == null) return false;
+		return refImage.getGroupId() == groupID;
+	}
+	
 	/**
 	 * Returns the type of nodes to copy or <code>null</code> if no nodes 
 	 * to copy or cut.

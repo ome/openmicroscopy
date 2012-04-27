@@ -36,6 +36,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateAcquisitionData;
@@ -253,10 +255,12 @@ public class ManageRndSettingsAction
 						ho instanceof PlateAcquisitionData))
 					setEnabled(false);
 				else {
-					
+					DataObject data;
 					for (int i = 0; i < selected.length; i++) {
 						//if (model.isUserOwner(selected[i].getUserObject()))
-						if (model.isObjectWritable(selected[i].getUserObject()))
+						data = (DataObject) selected[i].getUserObject();
+						if (model.isObjectWritable(ho) && 
+								model.areSettingsCompatible(data.getGroupId()))
 							count++;
 					}
 					setEnabled(count == selected.length);
