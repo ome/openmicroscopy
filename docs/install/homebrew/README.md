@@ -129,7 +129,7 @@ Edit your .profile as appropriate. NB. The following are indicators of required 
     export PYTHONPATH=$OMERO_HOME/lib/python:$ICE_HOME/python
 
     export PATH=$BREW_DIR/bin:$BREW_DIR/sbin:$OMERO_HOME/bin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
-    export DYLD_LIBRARY_PATH=$BREW_DIR/lib
+    export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:$DYLD_LIBRARY_PATH
 
 CONFIG
 ======
