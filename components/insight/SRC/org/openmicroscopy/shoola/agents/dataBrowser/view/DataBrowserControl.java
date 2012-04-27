@@ -330,11 +330,29 @@ class DataBrowserControl
 	 */
 	List<MoveToAction> getMoveAction()
 	{
-		if (moveActions != null) return moveActions;
+		Browser browser = model.getBrowser();
+		if (browser != null) {
+			Collection selection = browser.getSelectedDataObjects();
+			if (selection == null) return null;
+			int count = 0;
+			Iterator j = selection.iterator();
+			Object o;
+			DataObject data;
+			while (j.hasNext()) {
+				o = j.next();
+				if (o instanceof DataObject) {
+					if (model.canEdit(o)) count++;
+				}
+			}
+			if (count != selection.size()) return null;
+		}
+		
 		Set l = DataBrowserAgent.getAvailableUserGroups();
 		ViewerSorter sorter = new ViewerSorter();
 		List values = sorter.sort(l);
-		moveActions = new ArrayList<MoveToAction>(l.size());
+		if (moveActions == null)
+			moveActions = new ArrayList<MoveToAction>(l.size());
+		moveActions.clear();
 		Iterator i = values.iterator();
 		while (i.hasNext()) {
 			moveActions.add(new MoveToAction(model, (GroupData) i.next()));
