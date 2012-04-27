@@ -760,16 +760,35 @@ class TreeViewerControl
 			}
 			if (count != selection.size()) return null;
 		}
-		//if (moveActions != null) return moveActions;
 		Set l = TreeViewerAgent.getAvailableUserGroups();
+		if (moveActions == null)
+			moveActions = new ArrayList<MoveToAction>(l.size());
+		moveActions.clear();
+		List<Long> ids = new ArrayList<Long>();
+		if (browser != null) {
+			List objects = browser.getSelectedDataObjects();
+			if (objects != null) {
+				Iterator j = objects.iterator();
+				DataObject data;
+				while (j.hasNext()) {
+					data = (DataObject) j.next();
+					if (!ids.contains(data.getGroupId()))
+						ids.add(data.getGroupId());
+				}
+			}
+		}
+		
 		ViewerSorter sorter = new ViewerSorter();
 		List values = sorter.sort(l);
 		if (moveActions == null)
 			moveActions = new ArrayList<MoveToAction>(l.size());
 		moveActions.clear();
+		GroupData group;
 		Iterator i = values.iterator();
 		while (i.hasNext()) {
-			moveActions.add(new MoveToAction(model, (GroupData) i.next()));
+			group = (GroupData) i.next();
+			if (!ids.contains(group.getGroupId()))
+				moveActions.add(new MoveToAction(model, group));
 		}
 		return moveActions;
 	}

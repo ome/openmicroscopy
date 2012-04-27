@@ -287,13 +287,12 @@ class EditorModel
 				o = (Object) i.next();
 				if (o instanceof ImageData) {
 					img = (ImageData) o;
-					if (img.isArchived()) 
-						images.add(img);
+					images.add(img);
 				}
 			}
 		}
 		img = (ImageData) getRefObject();
-		if (img.isArchived()) images.add(img);
+		images.add(img);
 		
 		if (images.size() > 0) {
 			Iterator<ImageData> i = images.iterator();
@@ -1866,22 +1865,7 @@ class EditorModel
 	 */
 	boolean isArchived()
 	{ 
-		Object ref = getRefObject();
-		if (!(ref instanceof ImageData)) return false;
-		ImageData img = (ImageData) ref;
-		if (img.isArchived()) return true;
-		Collection l = parent.getRelatedNodes();
-		if (l == null || l.size() == 0) return false;
-		Iterator i = l.iterator();
-		Object o;
-		while (i.hasNext()) {
-			o = (Object) i.next();
-			if (o instanceof ImageData) {
-				img = (ImageData) o;
-				if (img.isArchived()) return true;
-			}
-		}
-		return false;
+		return getRefObject() instanceof ImageData;
 	}
 
 	/** 

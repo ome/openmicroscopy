@@ -24,14 +24,13 @@
 package org.openmicroscopy.shoola.env;
 
 //Java imports
+import javax.swing.JOptionPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
-import org.openmicroscopy.shoola.env.ui.UIFactory;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * Handles uncaught exceptions thrown in the AWT event-dispatch thread and in
@@ -131,14 +130,25 @@ class AbnormalExitHandler
 		if (c != null) logger = c.getRegistry().getLogger();
 		if (logger != null) logger.fatal(this, msg);
 		else System.err.println(msg);
-		
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("An unforeseen error occurred, the application" +
+				" will exit.");
+		buffer.append("\n");
+		String message = msg.toString();
+		int length = message.length();
+		if (length > 200) length = 200;
+		buffer.append(message.substring(0, length));
+		buffer.append("...");
+		JOptionPane.showMessageDialog(null, buffer.toString(), 
+				"Abnormal Termination", JOptionPane.ERROR_MESSAGE);
 		//Finally tell the user.  
 		//(Notification service may not be up yet, so we create a temp one.)
+		/*
 		UserNotifier un = UIFactory.makeUserNotifier(c);
 		un.notifyError("Abnormal Termination", 
 					"An unforeseen error occurred, the application will exit.",
 					msg.toString());
-					
+					*/
 		//Quit the app. 
 		System.exit(1);
 	}

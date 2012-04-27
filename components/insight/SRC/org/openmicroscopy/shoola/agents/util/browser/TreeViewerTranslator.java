@@ -435,18 +435,18 @@ public class TreeViewerTranslator
      *                      retrieving the data.    
      * @return A set of visualization objects.
      */
-    public static Set transformHierarchy(Collection dataObjects, long userID, 
-                                        long groupID)
+    public static Set<TreeImageDisplay> transformHierarchy(
+    		Collection<DataObject> dataObjects, long userID, long groupID)
     {
         if (dataObjects == null)
             throw new IllegalArgumentException("No objects.");
         Set<TreeImageDisplay> results = 
         		new HashSet<TreeImageDisplay>(dataObjects.size());
-        Iterator i = dataObjects.iterator();
+        Iterator<DataObject> i = dataObjects.iterator();
         DataObject ho;
         TreeImageDisplay child;
         while (i.hasNext()) {
-            ho = (DataObject) i.next();
+            ho = i.next();
             if (EditorUtil.isReadable(ho, userID, groupID)) {
                 if (ho instanceof ProjectData)
                   results.add(transformProject((ProjectData) ho, 

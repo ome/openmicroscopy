@@ -80,7 +80,7 @@ class IconFactoryEntry
 	 * @throws DOMException If the entry contents couldn't be retrieved.
 	 * @throws ConfigException If the entry is not structured as expected.
 	 */
-	private Map extractValues(Node entry)
+	private Map<String, String> extractValues(Node entry)
 		throws DOMException, ConfigException
 	{
 		if (entry.hasChildNodes()) {
@@ -132,11 +132,11 @@ class IconFactoryEntry
 		throws ConfigException
 	{ 
 		try {
-			Map tags = extractValues(node);
+			Map<String, String> tags = extractValues(node);
 			location = (String) tags.get(LOCATION_TAG);
 		} catch (DOMException dex) { 
 			rethrow("Can't parse icons entry.", dex);
 		}
 	}
-	
+
 }
