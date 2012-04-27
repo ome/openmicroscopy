@@ -691,7 +691,6 @@ class EditorModel
 	 */
 	boolean canAnnotate()
 	{ 
-		if (MetadataViewerAgent.isAdministrator()) return true;
 		boolean b = isUserOwner(refObject);
 		if (b) return b;
 		DataObject data = (DataObject) refObject;
@@ -705,8 +704,9 @@ class EditorModel
 			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 		}
-		long id = MetadataViewerAgent.getUserDetails().getId();
-		return EditorUtil.isUserGroupOwner(group, id);
+		//long id = MetadataViewerAgent.getUserDetails().getId();
+		//return EditorUtil.isUserGroupOwner(group, id);
+		return false;
 	}
 	
 	/**
