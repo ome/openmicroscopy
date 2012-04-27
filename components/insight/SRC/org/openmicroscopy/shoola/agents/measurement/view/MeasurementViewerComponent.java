@@ -1016,7 +1016,7 @@ class MeasurementViewerComponent
      */
 	public void deleteAllROIs()
 	{
-		if (!isImageWritable()) return;
+		if (!canAnnotate()) return;
 		List<ROIData> list = model.getROIData();
 		//ROI owned by the current user.
 		List<DeletableObject> l = new ArrayList<DeletableObject>();
