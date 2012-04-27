@@ -743,6 +743,23 @@ class TreeViewerControl
 	 */
 	List<MoveToAction> getMoveAction()
 	{
+		//First check that we can move the data.
+		Browser browser = model.getSelectedBrowser();
+		if (browser != null) {
+			List selection = browser.getSelectedDataObjects();
+			if (selection == null) return null;
+			int count = 0;
+			Iterator j = selection.iterator();
+			Object o;
+			DataObject data;
+			while (j.hasNext()) {
+				o = j.next();
+				if (o instanceof DataObject) {
+					if (model.canEdit(o)) count++;
+				}
+			}
+			if (count != selection.size()) return null;
+		}
 		if (moveActions != null) return moveActions;
 		Set l = TreeViewerAgent.getAvailableUserGroups();
 		ViewerSorter sorter = new ViewerSorter();
