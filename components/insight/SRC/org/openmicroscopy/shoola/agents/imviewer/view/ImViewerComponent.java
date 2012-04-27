@@ -290,7 +290,7 @@ class ImViewerComponent
 	 */
 	private boolean saveOnClose(boolean notifyUser)
 	{
-		if (isReadOnly()) return true;
+		if (!canAnnotate()) return true;
 		if (!notifyUser) {
 			//savePlane();
 			try {
@@ -3127,20 +3127,20 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#isReadOnly()
+	 * @see ImViewer#canAnnotate()
 	 */
-	public boolean isReadOnly()
+	public boolean canAnnotate()
 	{
-		if (isUserOwner()) return false;
+		if (isUserOwner()) return true;
 		int level = 
 			ImViewerAgent.getRegistry().getAdminService().getPermissionLevel();
 		switch (level) {
 			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_PUBLIC_READ:
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
 			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				return false;
+				return true;
 		}
-		return true;
+		return false;
 	}
 
 	/** 
