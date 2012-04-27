@@ -243,7 +243,7 @@ public class TreeCellRenderer
 		IconManager icons = IconManager.getInstance();
 		GROUP_PRIVATE_ICON = icons.getIcon(IconManager.PRIVATE_GROUP);
 		GROUP_READ_ONLY_ICON = icons.getIcon(IconManager.READ_GROUP);
-		GROUP_READ_LINK_ICON = icons.getIcon(IconManager.READ_GROUP);
+		GROUP_READ_LINK_ICON = icons.getIcon(IconManager.READ_LINK_GROUP);
 		GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_WRITE_GROUP);
 		GROUP_PUBLIC_READ_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
 		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(
