@@ -187,10 +187,9 @@ def login(request):
 
 @login_required()
 @render_response()
-def index(request, conn=None, **kwargs):
+def feed(request, conn=None, **kwargs):
     """
-    The webclient home page. 
-    Viewing this page doesn't perform any action. All we do here is assemble various data for display, including form for changing current group.
+    Viewing this page doesn't perform any action. All we do here is assemble various data for display.
     Last imports, tag cloud etc are retrived via separate AJAX calls.
     """
     template = "webclient/index/index.html"

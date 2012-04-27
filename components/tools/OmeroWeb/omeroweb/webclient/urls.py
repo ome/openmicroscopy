@@ -29,8 +29,13 @@ from django.conf.urls.defaults import *
 from omeroweb.webclient import views
 
 urlpatterns = patterns('django.views.generic.simple',
+
+    # Home page is the main 'Data' page
+    url( r'^$', views.load_template, {'menu':'userdata'}, name="webindex" ),
     
-    url( r'^$', views.index, name="webindex" ),
+    # 'Feed' / 'recent'
+    url( r'^feed/$', views.feed, name="web_feed" ),
+
     # render main template
     url( r'^(?P<menu>((?i)userdata|public|history|search|help|usertags))/$', views.load_template, name="load_template" ),
     url( r'^userdata/$', views.load_template, {'menu':'userdata'}, name="userdata" ),
