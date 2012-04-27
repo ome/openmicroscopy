@@ -745,11 +745,13 @@ class TreeViewerControl
 	{
 		//First check that we can move the data.
 		Browser browser = model.getSelectedBrowser();
+		List selection = null;
+		Iterator j;
 		if (browser != null) {
-			List selection = browser.getSelectedDataObjects();
+			selection = browser.getSelectedDataObjects();
 			if (selection == null) return null;
 			int count = 0;
-			Iterator j = selection.iterator();
+			j = selection.iterator();
 			Object o;
 			DataObject data;
 			while (j.hasNext()) {
@@ -765,16 +767,13 @@ class TreeViewerControl
 			moveActions = new ArrayList<MoveToAction>(l.size());
 		moveActions.clear();
 		List<Long> ids = new ArrayList<Long>();
-		if (browser != null) {
-			List objects = browser.getSelectedDataObjects();
-			if (objects != null) {
-				Iterator j = objects.iterator();
-				DataObject data;
-				while (j.hasNext()) {
-					data = (DataObject) j.next();
-					if (!ids.contains(data.getGroupId()))
-						ids.add(data.getGroupId());
-				}
+		if (browser != null && selection != null) {
+			j = selection.iterator();
+			DataObject data;
+			while (j.hasNext()) {
+				data = (DataObject) j.next();
+				if (!ids.contains(data.getGroupId()))
+					ids.add(data.getGroupId());
 			}
 		}
 		
