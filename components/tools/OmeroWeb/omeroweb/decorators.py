@@ -39,6 +39,17 @@ from omeroweb.connector import Connector
 
 logger = logging.getLogger(__name__)
 
+class ConnCleaningHttpResponse(HttpResponse):
+    """Extension of L{HttpResponse} which closes the OMERO connection."""
+
+    def close(self):
+        super(ConnCleaningHttpResponse, self).close()
+        try:
+            logger.debug('Closing OMERO connection in %r' % self)
+            self.conn.c.closeSession()
+        except:
+            logger.error('Failed to clean up connection.', exc_info=True)
+
 class login_required(object):
     """
     OMERO.web specific extension of the Django login_required() decorator,
@@ -48,13 +59,14 @@ class login_required(object):
     """
 
     def __init__(self, useragent='OMERO.web', isAdmin=False,
-                 isGroupOwner=False):
+                 isGroupOwner=False, doConnectionCleanup=True):
         """
         Initialises the decorator.
         """
         self.useragent = useragent
         self.isAdmin = isAdmin
         self.isGroupOwner = isGroupOwner
+        self.doConnectionCleanup = doConnectionCleanup
 
     def get_login_url(self):
         """The URL that should be redirected to if not logged in."""
@@ -298,7 +310,15 @@ class login_required(object):
                 
             #kwargs['error'] = request.REQUEST.get('error')
             kwargs['url'] = url
-            return f(request, *args, **kwargs)
+            retval = f(request, *args, **kwargs)
+            try:
+                logger.debug('Doing connection cleanup? %s' % \
+                        ctx.doConnectionCleanup)
+                if ctx.doConnectionCleanup:
+                    conn.c.closeSession()
+            except:
+                logger.warn('Failed to clean up connection.', exc_info=True)
+            return retval
         return wraps(f)(wrapped)
         
 class render_response(object):
