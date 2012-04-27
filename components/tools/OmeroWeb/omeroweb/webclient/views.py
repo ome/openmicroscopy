@@ -1896,17 +1896,8 @@ def load_calendar(request, year=None, month=None, conn=None, **kwargs):
         today = datetime.datetime.today()
         controller = BaseCalendar(conn=conn, year=today.year, month=today.month, eid=filter_user_id)
     controller.create_calendar()
-    
 
     context = {'controller':controller}
-
-    #TODO: This should be moved up to load_template/history
-    context['groups'] = list( conn.getGroupsMemberOf() )
-    context['group'] = conn.getGroupFromContext()
-    context['experimenter'] = request.session.get('nav')['experimenter'] and int(request.session.get('nav')['experimenter']) or None
-    context['user'] = context['experimenter'] and conn.getObject("Experimenter", long(context['experimenter'])) or None
-    for g in context['groups']:
-        g.groupSummary()    # load leaders / members
 
     context['template'] = template
     return context
