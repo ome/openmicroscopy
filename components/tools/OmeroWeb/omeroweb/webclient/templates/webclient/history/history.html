@@ -32,13 +32,14 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function() 
             {
                 $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
                 $("div#history_calendar").load('{% url load_calendar %}');
+
+                history_selection_changed();    // selects nothing
         })
     </script>
 {% endblock %}

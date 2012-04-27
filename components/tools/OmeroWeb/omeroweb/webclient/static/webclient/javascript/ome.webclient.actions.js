@@ -79,9 +79,13 @@ var search_selection_changed = function($row) {
 
 // change in seletion of history results - only single object selection
 var history_selection_changed = function($row) {
-    $("body")
-        .data("selected_objects.ome", [{"id": $row.attr("id")}])
-        .trigger("selection_change.ome");
+    var $body = $("body");
+    if (typeof $row != 'undefined') {
+        $body.data("selected_objects.ome", [{"id": $row.attr("id")}])
+    } else {
+        $body.data("selected_objects.ome", [])
+    }
+    $body.trigger("selection_change.ome");
 }
 
 // actually called when share is edited, to refresh right-hand panel
