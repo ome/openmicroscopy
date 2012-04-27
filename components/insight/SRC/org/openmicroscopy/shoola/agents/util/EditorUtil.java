@@ -42,7 +42,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 //Third-party libraries
-import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
@@ -1086,7 +1085,7 @@ public class EditorUtil
     public static boolean isUserGroupOwner(GroupData group, long userID)
     {
     	if (group == null) return false;
-    	Set<ExperimenterData> owners = group.getExperimenters();
+    	Set<ExperimenterData> owners = group.getLeaders();
     	if (owners == null) return false;
     	Iterator<ExperimenterData> i = owners.iterator();
     	ExperimenterData exp;
