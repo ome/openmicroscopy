@@ -945,8 +945,11 @@
     left:0px; top:0px; bottom:0px;right:0px;
     width:350px;
     border-left: none;
-	min-width:300px;
+//	min-width:300px;
+	overflow:hidden;
 }
+
+
 
 	.left_panel_inner {
 	     position: absolute;
@@ -954,6 +957,12 @@
 	     overflow: auto;
 		 border-right:solid 1px hsl(210,10%,85%);
 	 }
+	 
+	 #history_calendar .left_panel_inner { 
+	 	top:63px;
+	 }
+	 
+	 
 	
 
 #center_panel {

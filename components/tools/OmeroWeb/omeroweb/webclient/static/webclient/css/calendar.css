@@ -99,7 +99,7 @@
 	    text-align: center;
 	    width: 100%;
 		position:relative;
-		top:30px;
+		top:0px;
 		-webkit-border-radius:4px; /* Saf3+, Chrome */
 		   -moz-border-radius:4px; /* FF1+ */
 		        border-radius:4px; /* Opera 10.5, IE 9 */ 
