@@ -532,6 +532,18 @@
 	
 
 /* Basket */	
+
+#runningStatus {
+	 position:absolute; 
+	 bottom:2px; 
+	 left:2px; 
+	 width:10px; 
+	 height:10px; 
+	 background:green;
+	 visibility:visible !important; display:block !important;
+	 
+}
+
 	
 #basket_panel {
 	width:350px;
@@ -638,12 +650,9 @@
 	float: right;
 	}
 	
-			
 		
 	#activities_panel table tr{
 		border-bottom:solid 1px rgba(0,0,0,.05);
-		-webkit-box-shadow:0 1px 0 rgba(255,255,255,.5);
-		
 		-webkit-box-shadow: 0 1px 0 rgba(255,255,255,0.5); /* Saf3.0+, Chrome */
 		   -moz-box-shadow: 0 1px 0 rgba(255,255,255,0.5); /* FF3.5+ */
 		        box-shadow: 0 1px 0 rgba(255,255,255,0.5); /* Opera 10.5, IE 9.0 */
@@ -691,18 +700,14 @@
 		.activities_state{
 			width: 15px;
 			position:relative;
+			text-align:center;
 		}
 		
 			.activities_state img {
 				display:block;
-				vertical-align:middle !important;
-				position:absolute;
 				height:19px;
 				width:20px;
-				margin-top:-9px;
-				margin-left:-7px;
-				top:50%;
-				left:50%;
+				margin:0 auto;
 			}
 			
 		

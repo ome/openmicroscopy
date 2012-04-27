@@ -186,12 +186,12 @@
         
             <div id="avatar">
                 <img src="{% url wamyphoto %}" class="imgzoom"/>                 
-                <a class="btn silver" href="{% url wamanageavatar ome.eventContext.userId %}">
+                <a class="btn btn_text silver" href="{% url wamanageavatar ome.eventContext.userId %}">
                     <span>Change</span>
                 </a> 
          
                 {% if myaccount.hasAvatar %} 
-                <a class="btn silver" href="{% url wamanageavatar ome.eventContext.userId "deletephoto" %}">
+                <a class="btn btn_text silver" href="{% url wamanageavatar ome.eventContext.userId "deletephoto" %}">
                     <span>Delete</span>
                 </a>
                 {% endif %}
@@ -218,7 +218,7 @@
 
                     <div id="password_change">
                         <label>Password:</label>
-                        <a class="btn silver" id="change_password">
+                        <a class="btn btn_text silver" id="change_password">
                             <span>Change  Password</span>
                         </a>
                     </div>

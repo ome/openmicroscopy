@@ -167,7 +167,7 @@
 	
 		
 	        #annotation_tabs_list li a{
-	            padding:4px 12px 5px;
+	            padding:4px 12px 4px !important;
 	            border-radius:inherit;
 	            line-height: 2em;
 	            font-weight:bold;

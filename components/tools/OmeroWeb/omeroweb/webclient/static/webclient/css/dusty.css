@@ -47,6 +47,7 @@
 
 button {
 	display:inline-block;
+	cursor:pointer;
 }
 
 button::-moz-focus-inner {
