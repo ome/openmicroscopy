@@ -499,8 +499,6 @@
 				instead the output of a color camera would be treated similarly - one Logical channel with three ChannelComponents in this case.
 				The total number of ChannelComponents for a set of pixels must equal SizeC.
 				The IlluminationType attribute is a string enumeration which may be set to 'Transmitted', 'Epifluorescence', 'Oblique', or 'NonLinear'.
-				The PhotometricInterpretation attribute is used to describe how to display a multi-component channel.  This attribute may be set to:
-				'monochrome', 'RGB', 'ARGB', 'CMYK', 'HSV'.  The default for single-component channels is 'monochrome'.
 				The user interface logic for labeling a given channel for the user should use the first existing attribute in the following sequence:
 				Name -> Fluor -> EmissionWavelength -> ChannelComponent/Index.
 			</xsd:documentation>
