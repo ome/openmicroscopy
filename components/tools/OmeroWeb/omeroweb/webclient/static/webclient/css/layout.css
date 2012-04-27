@@ -1128,12 +1128,12 @@
 		width:10px;
 		height:10px;
 		display:block;
-		background:url(../image/icon_collapse.png) center center no-repeat;
+		background:url(../image/group_dropdown_arrow.png) center center no-repeat;
 	}
 	
 	
 	.closed:after {
-		background:url(../image/icon_expand.png) center center no-repeat;
+		background:url(../image/dropdown_right_arrow.png) center center no-repeat;
 	}
     
     
