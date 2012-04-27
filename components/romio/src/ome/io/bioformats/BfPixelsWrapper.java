@@ -137,7 +137,7 @@ public class BfPixelsWrapper {
     }
 
     public void close() throws IOException {
-        // TODO
+        reader.close();
     }
 
     public long getId() {
