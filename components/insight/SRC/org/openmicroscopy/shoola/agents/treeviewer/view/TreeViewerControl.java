@@ -760,11 +760,13 @@ class TreeViewerControl
 			}
 			if (count != selection.size()) return null;
 		}
-		if (moveActions != null) return moveActions;
+		//if (moveActions != null) return moveActions;
 		Set l = TreeViewerAgent.getAvailableUserGroups();
 		ViewerSorter sorter = new ViewerSorter();
 		List values = sorter.sort(l);
-		moveActions = new ArrayList<MoveToAction>(l.size());
+		if (moveActions == null)
+			moveActions = new ArrayList<MoveToAction>(l.size());
+		moveActions.clear();
 		Iterator i = values.iterator();
 		while (i.hasNext()) {
 			moveActions.add(new MoveToAction(model, (GroupData) i.next()));
