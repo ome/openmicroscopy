@@ -2032,6 +2032,15 @@ class BrowserComponent
 	}
 	
 	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Browser#canAnnotate(Object)
+	 */
+	public boolean canAnnotate(Object ho)
+	{
+		return model.getParentModel().canAnnotate(ho);
+	}
+	
+	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#expandUser()
 	 */
