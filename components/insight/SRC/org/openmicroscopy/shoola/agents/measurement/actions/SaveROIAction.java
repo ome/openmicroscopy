@@ -69,7 +69,7 @@ public class SaveROIAction
 	{
 		//Depends on the status of the group
 		if (model.getState() == MeasurementViewer.READY)
-			setEnabled(model.isImageWritable());
+			setEnabled(model.canAnnotate());
 		else setEnabled(false);
 	}
 	
@@ -109,5 +109,5 @@ public class SaveROIAction
 		if (MeasurementViewer.ROI_CHANGED_PROPERTY.equals(name))
 			onStateChange();
 	}
-    
+
 }

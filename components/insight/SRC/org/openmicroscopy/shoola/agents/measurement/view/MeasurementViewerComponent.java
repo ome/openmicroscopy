@@ -515,7 +515,7 @@ class MeasurementViewerComponent
      */
 	public void saveROIToServer()
 	{
-		if (!isImageWritable()) return;
+		if (!canAnnotate()) return;
 		List<ROI> l = model.getROIToDelete();
 		if (l != null && l.size() > 0) {
 			List<DeletableObject> objects = new ArrayList<DeletableObject>();
@@ -968,9 +968,9 @@ class MeasurementViewerComponent
 	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#isImageWritable()
+     * @see MeasurementViewer#canAnnotate()
      */
-	public boolean isImageWritable()
+	public boolean canAnnotate()
 	{
 		if (model.getState() == DISCARDED) return false;
 		//Check if current user can write in object
@@ -980,12 +980,11 @@ class MeasurementViewerComponent
 		boolean b = EditorUtil.isUserOwner(model.getRefObject(), id);
 		if (b) return b;
 		int level = 
-			MeasurementAgent.getRegistry().getAdminService().getPermissionLevel();
+		MeasurementAgent.getRegistry().getAdminService().getPermissionLevel();
 		switch (level) {
 			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
 			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				
-				
 				return true;
 		}
 		return false;
