@@ -121,10 +121,11 @@ label {
 }
 
 
-
+.form_error {
+	background-color: hsl(0,30%,80%);
+}
 
 .error, .form_error {
-	background-color: hsl(0,30%,80%);
 	color:red;
 	color:hsl(0,70%,40%);
 	line-height:1.3em;
@@ -133,9 +134,7 @@ label {
 	-webkit-border-radius:2px; /* Saf3+, Chrome */
 	   -moz-border-radius:2px; /* FF1+ */
 	        border-radius:2px; /* Opera 10.5, IE 9 */ 
-	font-size:1.1em;
-	background-color: hsl(0,30%,90%);
-				
+	font-size:1.1em;				
 }
 
 

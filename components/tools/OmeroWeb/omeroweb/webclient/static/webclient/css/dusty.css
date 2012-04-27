@@ -46,8 +46,12 @@
 */
 
 button {
-	padding:0px !important;
 	display:inline-block;
+}
+
+button::-moz-focus-inner {
+    border: 0;
+    padding: 0;
 }
 
 
@@ -272,7 +276,6 @@ button {
 			
 				.btn.silver span, .menu_btns.silver a {
 					color:hsl(210,5%,30%);
-					padding:4px 10px;
 					line-height:1.3em;
 					display:inline-block;
 					cursor:pointer;
@@ -372,14 +375,14 @@ button {
 	
 	
 			#right_panel .btn span, .btn_edit span{
-				padding:0
+				padding:0;
 			}
 			
 			.btn_text span {
 				padding:6px 10px !important;
 			}
 			
-		
+			
 				
 					
 
@@ -507,7 +510,6 @@ button {
 		
 		.standard_form input, .standard_form select, .standard_form textarea {
 			display:inline-block;
-			font-size:1.6em;
 			margin-bottom:5px;
 		}
 		
@@ -526,6 +528,9 @@ button {
 		-moz-border-radius: 2px;
 		border-radius: 2px;
 		padding:5px 2px;
+		font-size:1.2em;
+		color:#333;
+		font-family:"HelveticaNeue-Medium", Helvetica, Arial, sans-serif
 	}
 			
 	.standard_form input[type=text]:focus, input[type=password]:focus, input[type=text]:active, input[type=password]:active {
@@ -757,6 +762,22 @@ button {
 			        border-radius:3px; /* Opera 10.5, IE 9 */ 
 			border:solid 1px hsl(210,8%,70%); 
 		}
+		
+		.ui-dialog .ui-dialog-buttonpane button:hover { 
+			background:hsl(210,8%,85%);
+		}
+		
+		.ui-dialog .ui-dialog-buttonpane button:active, .ui-dialog .ui-dialog-buttonpane button:focus { 
+			background:hsl(210,8%,80%); /* Old browsers */
+			background-image:-moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,.2) 100%); /* FF3.6+ */
+			background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,0)), color-stop(100%,rgba(255,255,255,.2))); /* Chrome,Safari4+ */
+			background-image:-webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,.2) 100%); /* Chrome10+,Safari5.1+ */
+			background-image:-o-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,.2) 100%); /* Opera11.10+ */
+			background-image:-ms-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,.2) 100%); /* IE10+ */
+			filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='rgba(255,255,255,0)', endColorstr='rgba(255,255,255,.2)',GradientType=0 ); /* IE6-9 */
+			background:linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,.2) 100%); /* W3C */ 
+		}
+		
 
 
 

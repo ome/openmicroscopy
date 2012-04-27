@@ -108,13 +108,8 @@
 	 
 	 
 	 
-		 .tablesorter tbody tr {
-		 }
-	 
-		 .tablesorter tbody tr:nth-child(even) {
-			 background-color:hsl(210,3%,94%);
-		 }
-	 
+		 
+		 
 		 .tablesorter tbody tr:hover {
 		 	background-color:hsl(210,15%,85%);
 			cursor:pointer;
@@ -122,9 +117,28 @@
 			-webkit-transition:background .2s linear  ;		
 			   -moz-transition:background .2s linear  ;
 			     -o-transition:background .2s linear  ;
-			        transition:background .2s linear  ; 
-			
+			        transition:background .2s linear  ; 	
 		 }
+	 	
+		 .tablesorter_basic tbody tr:hover {
+			 background:none;
+		 }
+		
+	 
+		 .tablesorter tbody tr:nth-child(even) {
+			 background-color:hsl(210,3%,94%);
+		 }
+		 
+		  .tablesorter_basic tbody tr {
+		  }
+		  
+ 		 .tablesorter tbody tr:nth-child(even) {
+ 			 background-color:hsl(210,3%,94%);
+ 		 }
+		  
+		 
+		 
+		 
 		 
 		 
 		 .tablesorter tbody tr.ui-selected { 
@@ -144,12 +158,17 @@
 			 
 		 }
 		 
-		 .tablesorter tr .btn span {
-			 display:none;
+		 .tablesorter tr .btn {
+			 opacity:0;
+			 -webkit-transition:opacity .2s linear;		
+			    -moz-transition:opacity .2s linear;
+			      -o-transition:opacity .2s linear;
+			         transition:opacity .2s linear;
 		 }
 		 
-		 .tablesorter tr:hover .btn span{
-			 display:block;
+		 .tablesorter tr:hover .btn{
+			 opacity:1;
+			  
 		 }
 		 
 		 

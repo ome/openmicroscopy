@@ -191,7 +191,7 @@
             {% if manager.image %}            
             <h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>
             
-            <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>    
+            <h2 class="data_heading_id">Image ID: <strong>{{ manager.image.id }}</strong></h2>    
             <!-- open-image link -->
 			
 			<button class="btn silver btn_text" href="#" onclick="return openPopup('{% if share_id %}{% url web_image_viewer share_id manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')" alt="View" title="Open full viewer">
@@ -200,7 +200,7 @@
 				</span>
 			</button>
 			
-			
+			<hr/>
                     
             <div class="description">
                 <span id='image_desc'>{{ manager.image.description|default_if_none:"no description"|linebreaks }}</span>
@@ -257,21 +257,19 @@
                 <form id='edit_share_form' title="Edit Share" action="{% url manage_action_containers 'save' 'share' manager.share.id %}" 
                     method="post" style="display:none">
                 </form>
-                <h1>{{ manager.share.getShareType }} {{ manager.share.id }}
+                <h2>{{ manager.share.getShareType }} <strong>{{ manager.share.id }}</strong>
                     {% if manager.share.isOwned %}
                         <a id="edit_share" href="{% url manage_action_containers 'edit' 'share' manager.share.id %}">
                             <img src="{% static 'webclient/image/color_line16.png' %}" alt="e" title="Edit Share"/>
                         </a>
-                    {% endif %}</h1>
+                    {% endif %}</h2>
                 
+				<hr/>
+				
                 <div class="description">
-<<<<<<< Local Changes
                     <div class="data_heading">
 						<p><span>{{ manager.share.message|default_if_none:""|sharewikify|safe|linebreaks }}</span></p>
 					</div>
-=======
-                    {{ manager.share.message|default_if_none:""|sharewikify|safe|linebreaks }}
->>>>>>> External Changes
                 </div>
                 
                 <table>

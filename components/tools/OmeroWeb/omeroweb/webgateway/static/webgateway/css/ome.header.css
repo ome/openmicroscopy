@@ -218,7 +218,7 @@
 	}
 
 	
-		#launch_basket > a {
+		#launch_basket  a{
 			background: url(/static/webgateway/img/icon_basket.png) center center no-repeat;
 		}
 	
