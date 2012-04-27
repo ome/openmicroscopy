@@ -85,7 +85,7 @@ public class CreateExperimentAction
     		if (object instanceof ImageData || object instanceof DatasetData ||
     			object instanceof ProjectData || object instanceof ScreenData ||
     			object instanceof PlateData)
-    		setEnabled(model.canEdit(object));
+    		setEnabled(model.canAnnotate(object));
     	}
     }
     

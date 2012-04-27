@@ -934,7 +934,6 @@ class DataBrowserComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
-		if (DataBrowserAgent.isAdministrator()) return true;
 		//Check if current user can write in object
 		long id = DataBrowserAgent.getUserDetails().getId();
 		boolean b = EditorUtil.isUserOwner(ho, id);
@@ -954,7 +953,7 @@ class DataBrowserComponent
 			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 		}
-		return EditorUtil.isUserGroupOwner(group, id);
+		return false;//return EditorUtil.isUserGroupOwner(group, id);
 	}
 	
 	/**
