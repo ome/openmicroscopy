@@ -51,6 +51,15 @@ import com.sun.jna.ptr.PointerByReference;
 public class WindowsApplicationDataExtractor implements
 		ApplicationDataExtractor {
 
+	private static final String APPLICATION_PROPERTY_KEY_COMPANY_NAME = "CompanyName";
+	private static final String APPLICATION_PROPERTY_KEY_FILE_DESCRIPTION = "FileDescription";
+	private static final String APPLICATION_PROPERTY_KEY_FILE_VERSION = "FileVersion";
+	private static final String APPLICATION_PROPERTY_KEY_INTERNAL_NAME = "InternalName";
+	private static final String APPLICATION_PROPERTY_KEY_LEGAL_COPYRIGHT = "LegalCopyright";
+	private static final String APPLICATION_PROPERTY_KEY_ORIGINAL_FILE_NAME = "OriginalFileName";
+	private static final String APPLICATION_PROPERTY_KEY_PRODUCT_NAME = "ProductName";
+	private static final String APPLICATION_PROPERTY_KEY_PRODUCT_VERSION = "ProductVersion";
+
 	/** The default application location on <code>Windows</code> platform. */
 	private static final String LOCATION_WINDOWS = "C:\\Program Files\\";
 
@@ -217,29 +226,21 @@ public class WindowsApplicationDataExtractor implements
 		int fileVersionInfoSize = com.sun.jna.platform.win32.Version.INSTANCE
 				.GetFileVersionInfoSize(absPath, dwDummy);
 
-		String applicationName = FilenameUtils.getBaseName(file.getAbsolutePath());
+		String applicationName = FilenameUtils.getBaseName(file
+				.getAbsolutePath());
 
 		if (fileVersionInfoSize == 0) {
 			System.out
 					.println("No file version information found, should default to application file name");
 		} else {
 			String translation = getTranslation(absPath, fileVersionInfoSize);
-			String companyName = getFilePropertyValue(absPath,
-					fileVersionInfoSize, translation, "CompanyName");
+
 			String fileDescription = getFilePropertyValue(absPath,
-					fileVersionInfoSize, translation, "FileDescription");
-			String fileVersion = getFilePropertyValue(absPath,
-					fileVersionInfoSize, translation, "FileVersion");
-			String internalName = getFilePropertyValue(absPath,
-					fileVersionInfoSize, translation, "InternalName");
-			String legalCopyright = getFilePropertyValue(absPath,
-					fileVersionInfoSize, translation, "LegalCopyright");
-			String originalFileName = getFilePropertyValue(absPath,
-					fileVersionInfoSize, translation, "OriginalFileName");
+					fileVersionInfoSize, translation,
+					APPLICATION_PROPERTY_KEY_FILE_DESCRIPTION);
 			String productName = getFilePropertyValue(absPath,
-					fileVersionInfoSize, translation, "ProductName");
-			String productVersion = getFilePropertyValue(absPath,
-					fileVersionInfoSize, translation, "ProductVersion");
+					fileVersionInfoSize, translation,
+					APPLICATION_PROPERTY_KEY_PRODUCT_NAME);
 
 			if (fileDescription != "")
 				applicationName = fileDescription;
@@ -252,7 +253,13 @@ public class WindowsApplicationDataExtractor implements
 		return new ApplicationData(icon, applicationName, executablePath);
 	}
 
-	public String getDefaultOpenCommandFor(URL location) {
-		return String.format("cmd /c start %s", location);
+	/**
+	 * @param location
+	 *            the location pointing to the object to be opened
+	 * @returns the command string to launch the default application for the
+	 *          file specified by {@code location}
+	 */
+	public String[] getDefaultOpenCommandFor(URL location) {
+		return new String[] { "cmd", "/c", "start", location.toString() };
 	}
 }

@@ -53,8 +53,8 @@ public interface ApplicationDataExtractor {
 
 	/**
 	 * @param location
-	 *            the location to be opened
+	 *            the file location to be opened
 	 * @return the platform specific default command used to open documents
 	 */
-	String getDefaultOpenCommandFor(URL location);
+	String[] getDefaultOpenCommandFor(URL location);
 }

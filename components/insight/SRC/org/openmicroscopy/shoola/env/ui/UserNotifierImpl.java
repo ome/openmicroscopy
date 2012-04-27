@@ -29,14 +29,12 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -57,6 +55,7 @@ import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ExperimenterData;
 
 /**
@@ -454,19 +453,18 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	/**
 	 * Implemented as specified by {@link UserNotifier}.
 	 * 
-	 * @see UserNotifier#notifyActivity(Object)
+	 * @see UserNotifier#openApplication(Object)
 	 */
 	public void openApplication(ApplicationData data, String path) {
 
 		if (data == null && path == null)
 			return;
-		
-		// run the application specified for the file @path
-		
+
 		try {
-			String runCommand = ApplicationData.buildCommand(data, new File(path));
+			String[] commandLineElements = ApplicationData.buildCommand(data, new File(path));
+
 			Runtime runtime = Runtime.getRuntime();
-			runtime.exec(runCommand);
+			runtime.exec(commandLineElements);
 		} catch (Exception e) {
 		}
 	}

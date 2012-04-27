@@ -25,11 +25,12 @@ package org.openmicroscopy.shoola.env.data.model;
 //Java imports
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Icon;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.data.model.appdata.ApplicationDataExtractor;
 import org.openmicroscopy.shoola.env.data.model.appdata.MacApplicationDataExtractor;
 import org.openmicroscopy.shoola.env.data.model.appdata.WindowsApplicationDataExtractor;
@@ -99,7 +100,8 @@ public class ApplicationData {
 	 */
 	public ApplicationData(File file) throws Exception {
 		this.file = file;
-
+		this.commands = new ArrayList<String>();
+		
 		if (!file.exists())
 			throw new Exception("Application does not exists @ "
 					+ file.getAbsolutePath());
@@ -203,29 +205,22 @@ public class ApplicationData {
 	 *             when the file referenced is unable to be converted to a URL
 	 *             in the format file://...
 	 */
-	public static String buildCommand(ApplicationData data, File file)
+	public static String[] buildCommand(ApplicationData data, File file)
 			throws MalformedURLException {
 
-		URL fileUrl = file.toURI().toURL();
+		if (data == null)
+			return extractor.getDefaultOpenCommandFor(file.toURI().toURL());
 
-		if (data == null) {
-			return extractor.getDefaultOpenCommandFor(fileUrl);
+		List<String> commandLine = new ArrayList<String>();
+		commandLine.add(data.executable);
+		
+		for(String commandArg : data.getCommandLineArguments())
+		{
+			commandLine.add(commandArg);
 		}
 
-		StringBuilder commandBuilder = new StringBuilder();
-		commandBuilder.append(data.executable);
+		commandLine.add(file.getAbsolutePath());
 
-		Iterable<String> arguments = data.getCommandLineArguments();
-
-		if (arguments != null) {
-			for (String argument : arguments) {
-				commandBuilder.append(" ");
-				commandBuilder.append(argument);
-			}
-		}
-		
-		commandBuilder.append(String.format(" %s", fileUrl));
-		
-		return commandBuilder.toString();
+		return commandLine.toArray(new String[0]);
 	}
 }
