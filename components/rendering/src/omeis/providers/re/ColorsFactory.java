@@ -174,14 +174,11 @@ public class ColorsFactory {
     	//Excitation
     	//Laser
     	if (lc.getLightSourceSettings() != null) {
-    		/*
-    		 * FIXME: get the light source --jmarie
     		LightSource src = lc.getLightSourceSettings().getLightSource();
     		if (src instanceof Laser) {
     			Laser laser = (Laser) src;
     			if (laser.getWavelength() != null) return true;
     		}
-    		*/
     	}
     	if (lc.getExcitationWavelength() != null) return true;
     	//ligth path
