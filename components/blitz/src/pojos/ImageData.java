@@ -22,6 +22,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import static omero.rtypes.rstring;
+import omero.RString;
 import omero.RTime;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
@@ -289,11 +290,7 @@ public class ImageData extends DataObject {
      * 
      * @return See above.
      */
-    public boolean isArchived() {
-    	omero.RBool value = asImage().getArchived();
-    	if (value == null) return false;
-    	return value.getValue();
-    }
+    public boolean isArchived() { return true; }
     
     /**
      * Returns the number of annotations linked to the object, key: id of the
@@ -322,9 +319,9 @@ public class ImageData extends DataObject {
      */
     public Timestamp getAcquisitionDate()
     {
-    	RTime time = asImage().getAcquisitionDate();
+    	RString time = asImage().getAcquisitionDate();
     	if (time == null) return null;
-    	return new Timestamp(time.getValue());
+    	return Timestamp.valueOf(time.getValue());
     }
     
     // Single-valued objects.
@@ -352,7 +349,7 @@ public class ImageData extends DataObject {
         }
         setDirty(true);
         allPixels = null; // Invalidated
-        asImage().setPrimaryPixels(defaultPixels.asPixels());
+        asImage().setPixels(defaultPixels.asPixels());
     }
 
     // Sets
@@ -364,12 +361,9 @@ public class ImageData extends DataObject {
      */
     @SuppressWarnings("unchecked")
     public List<PixelsData> getAllPixels() {
-        if (allPixels == null && asImage().sizeOfPixels() >= 0) {
+        if (allPixels == null && asImage().getPixels() != null) {
             allPixels = new ArrayList<PixelsData>();
-            List<Pixels> pixels = asImage().copyPixels();
-            for (Pixels p : pixels) {
-                allPixels.add(new PixelsData(p));
-            }
+            allPixels.add(new PixelsData(asImage().getPixels()));
         }
         return allPixels == null ? null : new ArrayList<PixelsData>(allPixels);
     }
@@ -381,21 +375,11 @@ public class ImageData extends DataObject {
      *            The set of pixels' set.
      */
     public void setAllPixels(List<PixelsData> newValue) {
-        List<PixelsData> currentValue = getAllPixels();
-        SetMutator<PixelsData> m = new SetMutator<PixelsData>(currentValue,
-                newValue);
-
-        while (m.moreDeletions()) {
-            setDirty(true);
-            asImage().removePixels(m.nextDeletion().asPixels());
+        if (newValue == null || newValue.size() == 0)
+        	asImage().setPixels(null);
+        else {
+        	asImage().setPixels(newValue.get(0).asPixels());
         }
-
-        while (m.moreAdditions()) {
-            setDirty(true);
-            asImage().addPixels(m.nextAddition().asPixels());
-        }
-
-        allPixels = m.result();
     }
 
     /**
