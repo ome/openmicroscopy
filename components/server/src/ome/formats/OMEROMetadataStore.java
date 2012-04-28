@@ -964,8 +964,7 @@ public class OMEROMetadataStore
      */
     private void handleReference(DetectorSettings target, Detector reference)
     {
-    	//FIXME: Review link DetectorSettings Detector. --jmarie
-    	//target.setDetector(reference);
+    	target.setDetector(reference);
     }
     
     /**
@@ -1012,8 +1011,7 @@ public class OMEROMetadataStore
     private void handleReference(LightSourceSettings target, 
     		LightSource reference)
     {
-    	//FIXME: Review link LightSourceSettings LightSource. --jmarie
-    	//target.setLightSource(reference);
+    	target.setLightSource(reference);
     }
 
     /**
@@ -1104,8 +1102,7 @@ public class OMEROMetadataStore
      */
     private void handleReference(ObjectiveSettings target, Objective reference)
     {
-    	//FIXME: review link ObjectiveSettings -objective --jmarie
-    	//target.setObjective(reference);
+    	target.setObjective(reference);
     }
     
     /**
@@ -1573,8 +1570,7 @@ public class OMEROMetadataStore
     	{
     		if (compare(s1.getCorrectionCollar(), s2.getCorrectionCollar())
     			&& compare(s1.getMedium(), s2.getMedium())
-    			//FIXME: remove comment --jmarie
-    			//&& s1.getObjective() == s2.getObjective()
+    			&& s1.getObjective() == s2.getObjective()
     			&& compare(s1.getRefractiveIndex(), s2.getRefractiveIndex()))
     		{
     			return s2;
@@ -1602,8 +1598,7 @@ public class OMEROMetadataStore
     	for (LightSourceSettings s2 : uniqueSettings)
     	{
     		if (compare(s1.getAttenuation(), s2.getAttenuation())
-    				//FIXME: remove comment --jmarie
-        			//&& s1.getLightSource() == s2.getLightSource()
+    			&& s1.getLightSource() == s2.getLightSource()
     			&& s1.getMicrobeamManipulation()
     			   == s2.getMicrobeamManipulation()
     			&& compare(s1.getWavelength(), s2.getWavelength()))
@@ -1633,8 +1628,7 @@ public class OMEROMetadataStore
     	for (DetectorSettings s2 : uniqueSettings)
     	{
     		if (compare(s1.getBinning(), s2.getBinning())
-    				//FIXME: remove comment --jmarie
-        			//&& s1.getDetector() == s2.getDetector()
+    			&& s1.getDetector() == s2.getDetector()
     			&& compare(s1.getGain(), s2.getGain())
     			&& compare(s1.getOffset(), s2.getOffset())
     			&& compare(s1.getReadOutRate(), s2.getReadOutRate())
@@ -1666,9 +1660,6 @@ public class OMEROMetadataStore
     		if (compare(lc.getAcquisitionMode(), lc2.getAcquisitionMode())
     			&& compare(lc.getContrastMethod(), lc2.getContrastMethod())
     			&& compare(lc.getIlluminationType(), lc2.getIlluminationType())
-    			//FIXME: missing photometric interpretation
-    			//&& compare(lc.getPhotometricInterpretation,
-    			//		   lc2.getPhotometricInterpretation())
     			&& lc.getDetectorSettings() == lc2.getDetectorSettings()
     			&& compare(lc.getEmissionWavelength(),
     					lc2.getEmissionWavelength())
