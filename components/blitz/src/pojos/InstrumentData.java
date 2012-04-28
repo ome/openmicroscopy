@@ -168,8 +168,8 @@ public class InstrumentData
 		if (objectives != null) return objectives;
 		objectives = new ArrayList<ObjectiveData>(); 
 		Instrument instrument = (Instrument) asIObject();
-		if (instrument.sizeOfObjective() > 0) {
-			List<Objective> list = instrument.copyObjective();
+		if (instrument.sizeOfObjectives() > 0) {
+			List<Objective> list = instrument.copyObjectives();
 			Iterator<Objective> i = list.iterator();
 			while (i.hasNext()) {
 				objectives.add(new ObjectiveData(i.next()));
@@ -188,8 +188,8 @@ public class InstrumentData
 		if (filters != null) return filters;
 		filters = new ArrayList<FilterData>(); 
 		Instrument instrument = (Instrument) asIObject();
-		if (instrument.sizeOfFilter() > 0) {
-			List<Filter> list = instrument.copyFilter();
+		if (instrument.sizeOfFilters() > 0) {
+			List<Filter> list = instrument.copyFilters();
 			Iterator<Filter> i = list.iterator();
 			while (i.hasNext()) {
 				filters.add(new FilterData(i.next()));
@@ -208,8 +208,8 @@ public class InstrumentData
 		if (filterSets != null) return filterSets;
 		filterSets = new ArrayList<FilterSetData>(); 
 		Instrument instrument = (Instrument) asIObject();
-		if (instrument.sizeOfFilterSet() > 0) {
-			List<FilterSet> list = instrument.copyFilterSet();
+		if (instrument.sizeOfFilterSets() > 0) {
+			List<FilterSet> list = instrument.copyFilterSets();
 			Iterator<FilterSet> i = list.iterator();
 			while (i.hasNext()) {
 				filterSets.add(new FilterSetData(i.next()));
@@ -228,8 +228,8 @@ public class InstrumentData
 		if (lightSources != null) return lightSources;
 		lightSources = new ArrayList<LightSourceData>(); 
 		Instrument instrument = (Instrument) asIObject();
-		if (instrument.sizeOfLightSource() > 0) {
-			List<LightSource> list = instrument.copyLightSource();
+		if (instrument.sizeOfLightSources() > 0) {
+			List<LightSource> list = instrument.copyLightSources();
 			Iterator<LightSource> i = list.iterator();
 			while (i.hasNext()) {
 				lightSources.add(new LightSourceData(i.next()));
@@ -248,8 +248,8 @@ public class InstrumentData
 		if (detectors != null) return detectors;
 		detectors = new ArrayList<DetectorData>(); 
 		Instrument instrument = (Instrument) asIObject();
-		if (instrument.sizeOfDetector() > 0) {
-			List<Detector> list = instrument.copyDetector();
+		if (instrument.sizeOfDetectors() > 0) {
+			List<Detector> list = instrument.copyDetectors();
 			Iterator<Detector> i = list.iterator();
 			while (i.hasNext()) {
 				detectors.add(new DetectorData(i.next()));
@@ -268,8 +268,8 @@ public class InstrumentData
 		if (dichroics != null) return dichroics;
 		dichroics = new ArrayList<DichroicData>(); 
 		Instrument instrument = (Instrument) asIObject();
-		if (instrument.sizeOfDichroic() > 0) {
-			List<Dichroic> list = instrument.copyDichroic();
+		if (instrument.sizeOfDichroics() > 0) {
+			List<Dichroic> list = instrument.copyDichroics();
 			Iterator<Dichroic> i = list.iterator();
 			while (i.hasNext()) {
 				dichroics.add(new DichroicData(i.next()));

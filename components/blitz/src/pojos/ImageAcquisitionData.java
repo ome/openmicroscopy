@@ -214,7 +214,7 @@ public class ImageAcquisitionData
 	public double getCo2Percent()
 	{
 		if (environment == null) return -1;
-		RDouble value = environment.getCo2percent();
+		RDouble value = environment.getCo2Percent();
 		if (value == null) return -1;
 		return value.getValue();
 	}
@@ -357,7 +357,7 @@ public class ImageAcquisitionData
 			throw new IllegalArgumentException("Co2 must be a value in [0, 1]");
 		imagingEnvironmentDirty = true;
 		if (environment == null) environment = new ImagingEnvironmentI();
-		environment.setCo2percent(omero.rtypes.rdouble(co2));
+		environment.setCo2Percent(omero.rtypes.rdouble(co2));
 	}
 	
 	/**
