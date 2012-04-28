@@ -330,16 +330,12 @@ public class BlobShareStore extends ShareStore implements
         	return imagesContainsInstrument(s, images, obj.getInstrument(), obToImageCache);
         } else if (LightSourceSettings.class.isAssignableFrom(kls)) {
         	LightSourceSettings obj = (LightSourceSettings) s.get(LightSourceSettings.class, objId);
-        	//TODO: review that
-        	//return imagesContainsInstrument(s, images, obj.getLightSource().getInstrument(), 
-        	//		obToImageCache);
-        	return false;
+        	return imagesContainsInstrument(s, images, obj.getLightSource().getInstrument(), 
+        			obToImageCache);
         } else if (DetectorSettings.class.isAssignableFrom(kls)) {
-        	//TODO: review that
         	DetectorSettings obj = (DetectorSettings) s.get(DetectorSettings.class, objId);
-        	//return imagesContainsInstrument(s, images, obj.getDetector().getInstrument(), 
-        	//		obToImageCache);
-        	return false;
+        	return imagesContainsInstrument(s, images, obj.getDetector().getInstrument(), 
+        			obToImageCache);
         }
         
         return false;
