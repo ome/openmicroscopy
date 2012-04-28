@@ -56,12 +56,23 @@
             
             // handles selection for 'clicks' (not drags) 
             var handleClickSelection = function(event) {
-                var thumbs = $("#dataIcons img");
-                var selIndex = thumbs.index(event.target);
-                var branch = datatree._get_children('#'+$('#content_details').attr('rel'))
-                var selectee = $(branch[selIndex]);
-                datatree.select_node(selectee, true, event); // tree handles control/shift clicks for multi-select
-                return false;
+                var parent_id = '#'+$('#content_details').attr('rel');
+                var select_id = "image-" + $(event.target).attr('id');
+                // find the matching child node from the tree
+                var $children = datatree._get_children(parent_id);
+                var toSelect = $children.filter(function(index) {
+                    return ($(this).attr('id') == select_id);
+                });
+                // In case image not in tree (out of sync?), we refresh tree
+                if (toSelect.length == 0) {
+                    datatree.deselect_all();
+                    datatree.select_node(parent_id);
+                    datatree.refresh(parent_id);
+                } else {
+                    // tree handles control/shift clicks for multi-select
+                    datatree.select_node(toSelect, true, event);
+                    return false;
+                }
             }
             
             // plugin to handle drag-select of images
