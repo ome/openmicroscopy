@@ -319,9 +319,9 @@ public class ImageData extends DataObject {
      */
     public Timestamp getAcquisitionDate()
     {
-    	RString time = asImage().getAcquisitionDate();
+    	RTime time = asImage().getAcquisitionDate();
     	if (time == null) return null;
-    	return Timestamp.valueOf(time.getValue());
+    	return new Timestamp(time.getValue());
     }
     
     // Single-valued objects.

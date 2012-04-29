@@ -385,7 +385,7 @@
             <!--
             // Property AcquisitionDate
             -->
-            <optional name="acquisitionDate" type="String"/>
+            <optional name="acquisitionDate" type="timestamp"/>
             <!--
             // Many-to-many back reference Dataset_BackReference
             -->
@@ -980,7 +980,7 @@
             <!--
             // Property EndTime
             -->
-            <optional name="endTime" type="String"/>
+            <optional name="endTime" type="timestamp"/>
             <!--
             // Property MaximumFieldCount
             -->
@@ -988,7 +988,7 @@
             <!--
             // Property StartTime
             -->
-            <optional name="startTime" type="String"/>
+            <optional name="startTime" type="timestamp"/>
             <!--
             // Reference WellSampleRef
             -->
@@ -1340,7 +1340,7 @@
             <!--
             // Property Timepoint
             -->
-            <optional name="timepoint" type="String"/>
+            <optional name="timepoint" type="timestamp"/>
             <manyone name="well" type="ome.model.spw.Well"/>
         </properties>
     </type>

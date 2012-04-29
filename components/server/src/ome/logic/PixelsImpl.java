@@ -282,8 +282,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		Pixels pixels = new Pixels();
 		image.setName(name);
 		image.setDescription(description);
-		//TODO: Review then compiling.
-		//image.setAcquisitionDate(new Timestamp(new Date().getTime()));
+		image.setAcquisitionDate(new Timestamp(new Date().getTime()));
 	
 		// Check that the channels in the list are valid. 
 		if (channelList == null || channelList.size() == 0)
