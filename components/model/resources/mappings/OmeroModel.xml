@@ -877,6 +877,9 @@
             // Property Type, added manually.
             -->
             <required name="sha1" type="string"/>
+            <!--Display Settings 1-->
+            <zeromany name="settings" type="ome.model.display.RenderingDef" inverse="pixels"/>
+            <zeromany name="thumbnails" type="ome.model.display.Thumbnail" inverse="pixels"/>
         </properties>
     </type>
 
