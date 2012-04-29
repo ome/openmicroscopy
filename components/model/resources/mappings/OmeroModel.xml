@@ -1510,24 +1510,6 @@
         <entry name="Square"/>
     </enum>
 
-    <enum id="ome.model.enums.Marker">
-        <entry name="Arrow"/>
-        <entry name="Circle"/>
-        <entry name="Square"/>
-    </enum>
-
-    <enum id="ome.model.enums.Marker">
-        <entry name="Arrow"/>
-        <entry name="Circle"/>
-        <entry name="Square"/>
-    </enum>
-
-    <enum id="ome.model.enums.Marker">
-        <entry name="Arrow"/>
-        <entry name="Circle"/>
-        <entry name="Square"/>
-    </enum>
-
     <enum id="ome.model.enums.Medium">
         <entry name="Air"/>
         <entry name="Oil"/>
