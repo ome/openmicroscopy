@@ -471,8 +471,6 @@ public class MetadataImpl
         while (i.hasNext()) {
         	channel = i.next();
 			light = channel.getLightSourceSettings();
-			//TODO: Link to be reviewed.
-			/*
 			if (light != null) {
 				src = light.getLightSource();
 				if (!(src instanceof LightEmittingDiode)) {
@@ -498,7 +496,7 @@ public class MetadataImpl
 						} else light.setLightSource(src);
 					}
 				}
-			}*/
+			}
 		}
     	return new HashSet<Channel>(list);
     }

@@ -235,8 +235,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 					channelList, methodology, copyStats);
 
 		// Deal with Image linkage
-		//TODO: Review link
-		Image image = null;//from.getImage();
+		Image image = from.getImage();
 		image.setPixels(to);
 
 		// Save and return our newly created Pixels Id

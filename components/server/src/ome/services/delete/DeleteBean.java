@@ -23,7 +23,9 @@ import ome.model.IObject;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.core.DatasetImageLink;
 import ome.model.core.Channel;
+import ome.model.core.DetectorSettings;
 import ome.model.core.Image;
+import ome.model.core.LightSourceSettings;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.RenderingDef;
@@ -464,9 +466,12 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
             // delete.call(lc.getAuxLightSource());
             // // TODO lightsource
             // delete.call(lc.getOtf());
-            // delete.call(lc.getDetectorSettings());
-            // DetectorSettings ds = lc.getDetectorSettings();
-            // delete.call(ds.getDetector());
+            delete.call(channel.getLightSourceSettings());
+            LightSourceSettings ls = channel.getLightSourceSettings();
+            delete.call(ls.getLightSource());
+            delete.call(channel.getDetectorSettings());
+            DetectorSettings ds = channel.getDetectorSettings();
+            delete.call(ds.getDetector());
         }
 
         delete.call(p);
