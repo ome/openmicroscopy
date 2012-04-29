@@ -614,7 +614,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			 if (newSettings != null) {
 			     toSave.add(newSettings);
 			 }
-    	     //imageIds.add(p.getImage().getId());
+    	    imageIds.add(p.getImage().getId());
 			} catch (ResourceError e) {
 				//Exception has already been written to log file.
             } catch (ConcurrencyException e) {
@@ -623,7 +623,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                          + p.getId());
             } catch (Exception e) {
                 log.warn("Exception while resetting settings for Image:"
-                         + p.getId(), e);
+                         + p.getImage().getId(), e);
             }
     	}
         StopWatch s2 = new CommonsLogStopWatch(
@@ -662,7 +662,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	Integer value = lc.getEmissionWavelength();
     	if (value != null) return ""+value.intValue();
     	if (lc.getFilterSet() != null) {
-	    Iterator<Filter> it = lc.getFilterSet().linkedEmissionFilterLinksIterator();
+	    Iterator<Filter> 
+	    it = lc.getFilterSet().linkedEmissionFilterLinksIterator();
 	    while (name == null && it.hasNext()) {
 	        name = getValueFromFilter(it.next());
 	    }
@@ -670,20 +671,18 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	}
     	//Laser
     	if (lc.getLightSourceSettings() != null) {
-    		//TODO: review changes
-    		/*
     		LightSource src = lc.getLightSourceSettings().getLightSource();
     		if (src instanceof Laser) {
     			Laser laser = (Laser) src;
     			value = laser.getWavelength();
     			if (value != null) return ""+value.intValue();
     		}
-    		*/
     	}
     	value = lc.getExcitationWavelength();
     	if (value != null) return ""+value.intValue();
     	if (lc.getFilterSet() != null) {
-	    Iterator<Filter> it = lc.getFilterSet().linkedExcitationFilterLinksIterator();
+	    Iterator<Filter> 
+	    it = lc.getFilterSet().linkedExcitationFilterLinksIterator();
 	    while (name == null && it.hasNext()) {
 	        name  = getValueFromFilter(it.next());
 	    }
@@ -701,15 +700,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private int[] hasOriginalColor(Channel channel)
     {
-    	//TODO: Review color
-    	/*
-    	Integer red = channel.getRed();
-        Integer green = channel.getGreen();
-        Integer blue = channel.getBlue();
-        Integer alpha = channel.getAlpha();
+    	Integer red = channel.getColor().getRed();
+        Integer green = channel.getColor().getGreen();
+        Integer blue = channel.getColor().getBlue();
+        Integer alpha = channel.getColor().getAlpha();
         if (red != null && green != null && blue != null && alpha != null)
         	return new int[] { red, green, blue, alpha };
-        	*/
         return null;
     }
     
@@ -1121,8 +1117,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	RenderingDef settingsFrom = settingsMap.get(from);
     	if (pixelsFrom != null) {
     		pixels.remove(pixelsFrom);
-    		//TODO:review that 
-    		//toReturnTrue.add(pixelsFrom.getImage().getId());
+    		toReturnTrue.add(pixelsFrom.getImage().getId());
     	}
     	else {
     		//load pixels from
@@ -1148,12 +1143,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             settingsTo = applySettings(pixelsFrom, p, settingsFrom, settingsTo);
             if (settingsTo == null)
             {
-            	//toReturnFalse.add(p.getImage().getId());
+            	toReturnFalse.add(p.getImage().getId());
             }
             else
             {
             	toSave.add(settingsTo);
-            	//toReturnTrue.add(p.getImage().getId());
+            	toReturnTrue.add(p.getImage().getId());
             }
     	}
         StopWatch s2 = new CommonsLogStopWatch(
