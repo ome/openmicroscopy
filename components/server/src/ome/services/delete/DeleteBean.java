@@ -431,9 +431,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
        // p.eachLinkedOriginalFile(delete);
         p.collectPlanes(delete);
-
-        /*
-         * TODO: change that
         for (RenderingDef rdef : p
                 .collectSettings((CBlock<RenderingDef>) null)) {
 
@@ -444,7 +441,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
             delete.call(rdef);
             delete.call(rdef.getQuantization());
         }
-        */
         
         //p.collectThumbnails(delete);
 
