@@ -1380,10 +1380,6 @@
         <entry name="Other"/>
     </enum>
 
-    <enum id="ome.model.enums.NamingConvention">
-        <entry name="letter"/>
-        <entry name="number"/>
-    </enum>
 
     <enum id="ome.model.enums.ContrastMethod">
         <entry name="Brightfield"/>
