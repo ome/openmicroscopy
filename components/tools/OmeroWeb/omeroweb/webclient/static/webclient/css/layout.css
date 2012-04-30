@@ -98,7 +98,6 @@
 			-webkit-border-radius:5px; /* Saf3+, Chrome */
 			-moz-border-radius:5px; /* FF1+ */
 			border-radius:5px; /* Opera 10.5, IE 9 */ 
-
 			display: inline-block;
 			font-family:"HelveticaNeue-Medium", Helvetica;
 			color:white;
@@ -535,6 +534,15 @@
     
     /* Right Inner Content */
     
+	#metadata_details {
+		padding:15px;
+		font-size:1.1em;
+	}
+	
+		
+	
+
+	
     .right_tab_inner {
 		padding:15px;
         overflow: auto;
@@ -1990,14 +1998,17 @@
 
 
 em {
-    background-color: #fff;
-    border: 1px solid #bbb;
-    position: absolute;
-    left: 0px;
-    padding: 5px;
-    z-index: 2;
-    display: none;
+    font-style:italic;
 }
+
+.chzn-drop em {
+	font-weight:bold;
+	font-style:italic;
+	-webkit-border-radius:2px; /* Saf3+, Chrome */
+	   -moz-border-radius:2px; /* FF1+ */
+	        border-radius:2px; /* Opera 10.5, IE 9 */ 
+}
+	
 
 
 div.paging {

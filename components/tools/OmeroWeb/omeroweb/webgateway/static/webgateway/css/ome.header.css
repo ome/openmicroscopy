@@ -438,7 +438,7 @@
 				background:url(../img/dropdown_right_arrow_hover.png) 90% center no-repeat;
 			}	
 				
-		    .dropdown li:hover, #vakata-contextmenu.jstree-default-context li:hover { 
+		    .dropdown li:hover, #vakata-contextmenu.jstree-default-context li:hover, .chzn-results .highlighted { 
 				background-color:hsl(210,50%,50%);
 				background-color:hsl(210,50%,50%);
 				border-top:solid 1px hsl(210,50%,45%);
