@@ -49,7 +49,7 @@ import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
-import omero.model.PixelsType;
+import omero.model.PixelType;
 import omero.model.Project;
 import Ice.Current;
 
@@ -155,7 +155,7 @@ public class OmeroGateway extends AbstractAmdServant
 	 * @see omero.api._GatewayOperations#createImage(int, int, int, int, java.util.List, omero.model.PixelsType, java.lang.String, java.lang.String, Ice.Current)
 	 */
 	public long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
-			List<Integer> channelList, PixelsType pixelsType, String name,
+			List<Integer> channelList, PixelType pixelsType, String name,
 			String description, Current __current) throws ServerError
 	{
 		return imageService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, 
@@ -250,7 +250,7 @@ public class OmeroGateway extends AbstractAmdServant
 	/* (non-Javadoc)
 	 * @see omero.api._GatewayOperations#getPixelType(java.lang.String, Ice.Current)
 	 */
-	public PixelsType getPixelType(String type, Current __current)
+	public PixelType getPixelType(String type, Current __current)
 			throws ServerError
 	{
 		return dataService.getPixelType(type);
@@ -259,7 +259,7 @@ public class OmeroGateway extends AbstractAmdServant
 	/* (non-Javadoc)
 	 * @see omero.api._GatewayOperations#getPixelTypes(Ice.Current)
 	 */
-	public List<PixelsType> getPixelTypes(Current __current) throws ServerError
+	public List<PixelType> getPixelTypes(Current __current) throws ServerError
 	{
 		return dataService.getPixelTypes();
 	}

@@ -56,7 +56,7 @@ import omero.api.RoiResult;
 import omero.api._IRoiOperations;
 import omero.constants.namespaces.NSMEASUREMENT;
 import omero.model.OriginalFileI;
-import omero.model.Roi;
+import omero.model.ROI;
 import omero.model.Shape;
 import omero.util.IceMapper;
 
@@ -288,7 +288,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
         }));
     }
 
-    protected List<ome.model.roi.Roi> loadMeasuredRois(Session session,
+    protected List<ome.model.roi.ROI> loadMeasuredRois(Session session,
             long imageId, long annotationId) {
         Query q = session
                 .createQuery("select distinct r from Roi r join r.image i "
@@ -317,7 +317,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 if (annotationIds == null) {
                     return null;
                 }
-                Map<Long, List<ome.model.roi.Roi>> rv = new HashMap<Long, List<ome.model.roi.Roi>>();
+                Map<Long, List<ome.model.roi.ROI>> rv = new HashMap<Long, List<ome.model.roi.ROI>>();
                 for (Long annotationId : annotationIds) {
                     rv.put(annotationId, loadMeasuredRois(session, imageId,
                             annotationId));
@@ -514,7 +514,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 				IUpdate update = sf.getUpdateService();
 				
 				ome.model.core.Image image;
-				ome.model.roi.Roi roi;
+				ome.model.roi.ROI roi;
 				ByteArrayInputStream s = new ByteArrayInputStream(bytes);
 				IQuery query = sf.getQueryService();
 				IObject o =  query.findByQuery("from Image as i left outer join " +
@@ -547,11 +547,11 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 					{
 						int colour = maskIterator.next();
 						mask = map.get(colour);
-						roi = new ome.model.roi.Roi();
+						roi = new ome.model.roi.ROI();
 						roi.setImage(image);
 						ome.model.roi.Mask  toSaveMask = mask.asMaskI(z, t);
 						roi.addShape(toSaveMask);
-						ome.model.roi.Roi newROI  = update.saveAndReturnObject(roi);
+						ome.model.roi.ROI newROI  = update.saveAndReturnObject(roi);
 					}
 					return null;
 				} catch (Exception e)
@@ -638,13 +638,13 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 return result; // EARLY EXIT
             }
 
-            List<Roi> rois = (List<Roi>) IceMapper.FILTERABLE_COLLECTION
+            List<ROI> rois = (List<ROI>) IceMapper.FILTERABLE_COLLECTION
                     .mapReturnValue(mapper, value);
             result.rois = rois;
             MultiMap byZ = new MultiValueMap();
             MultiMap byT = new MultiValueMap();
-            for (Roi roi : rois) {
-                omero.model.RoiI roii = (omero.model.RoiI) roi;
+            for (ROI roi : rois) {
+                omero.model.ROII roii = (omero.model.ROII) roi;
                 Iterator<Shape> it = roii.iterateShapes();
                 while (it.hasNext()) {
                     Shape shape = it.next();
@@ -683,11 +683,11 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 throws Ice.UserException {
 
             Map<Long, RoiResult> rv = new HashMap<Long, RoiResult>();
-            Map<Long, List<ome.model.roi.Roi>> iv = (Map<Long, List<ome.model.roi.Roi>>) value;
+            Map<Long, List<ome.model.roi.ROI>> iv = (Map<Long, List<ome.model.roi.ROI>>) value;
 
             RoiResultMapper m = new RoiResultMapper(opts);
 
-            for (Map.Entry<Long, List<ome.model.roi.Roi>> entry : iv.entrySet()) {
+            for (Map.Entry<Long, List<ome.model.roi.ROI>> entry : iv.entrySet()) {
                 rv.put(entry.getKey(), (RoiResult) m.mapReturnValue(entry
                         .getValue()));
             }

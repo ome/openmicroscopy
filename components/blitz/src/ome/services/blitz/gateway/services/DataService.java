@@ -36,7 +36,7 @@ import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
-import omero.model.PixelsType;
+import omero.model.PixelType;
 import omero.model.Project;
 
 /** 
@@ -108,7 +108,7 @@ public interface DataService
 	 * @throws DSOutOfServiceException
 	 * @throws omero.ServerError
 	 */
-	public List<PixelsType> getPixelTypes() 
+	public List<PixelType> getPixelTypes() 
 	throws  omero.ServerError;
 
 	/**
@@ -118,7 +118,7 @@ public interface DataService
 	 * @throws DSOutOfServiceException
 	 * @throws omero.ServerError
 	 */
-	public PixelsType getPixelType(String type) 
+	public PixelType getPixelType(String type) 
 	throws  omero.ServerError;
 
 	/**

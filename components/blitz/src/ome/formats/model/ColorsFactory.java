@@ -8,6 +8,7 @@
 package ome.formats.model;
 
 // Java imports
+import java.awt.Color;
 import java.util.Iterator;
 import java.util.List;
 // Third-party libraries
@@ -18,7 +19,6 @@ import omero.model.Channel;
 import omero.model.Filter;
 import omero.model.Laser;
 import omero.model.LightSource;
-import omero.model.LogicalChannel;
 import omero.model.TransmittanceRange;
 
 
@@ -156,9 +156,8 @@ public class ColorsFactory {
     private static boolean hasEmissionExcitationData(ChannelData channelData,
 		boolean full)
     {
-	LogicalChannel lc = channelData.getLogicalChannel();
-	if (lc == null) return false;
-	if (lc.getEmissionWavelength() != null) return true;
+	if (channelData == null) return false;
+	if (channelData.getChannel().getEmissionWavelength() != null) return true;
 
 	List<Filter> filters = channelData.getLightPathEmissionFilters();
 	Iterator<Filter> i;
@@ -184,7 +183,7 @@ public class ColorsFactory {
 			if (laser.getWavelength() != null) return true;
 		}
 	}
-	if (lc.getExcitationWavelength() != null) return true;
+	if (channelData.getChannel().getExcitationWavelength() != null) return true;
 	filters = channelData.getLightPathExcitationFilters();
 	if (filters != null) {
 		i = filters.iterator();
@@ -235,11 +234,18 @@ public class ColorsFactory {
      * @param channelData Channel data to use to determine a color for.
      */
     public static int[] getColor(ChannelData channelData) {
-	LogicalChannel lc = channelData.getLogicalChannel();
 	Channel channel = channelData.getChannel();
-	if (lc == null) return null;
+	if (channel == null) return null;
 	if (!hasEmissionExcitationData(channelData, true)) {
-		Integer red = getValue(channel.getRed());
+		omero.model.Color color = channel.getColor();
+		if (color.getValue() != null) {
+			Color c = new Color(color.getValue().getValue());
+			return new int[] { c.getRed(), c.getGreen(), c.getBlue(), 
+					c.getAlpha() };
+		}
+		
+		/*
+		Integer red = getValue(color.get);
             Integer green = getValue(channel.getGreen());
             Integer blue = getValue(channel.getBlue());
             Integer alpha = getValue(channel.getAlpha());
@@ -253,8 +259,10 @@ public class ColorsFactory {
             }
             // XXX: Is commenting this out right?
             //return null;
+             * 
+             */
 	}
-	Integer value = getValue(lc.getEmissionWavelength());
+	Integer value = getValue(channel.getEmissionWavelength());
         //First we check the emission wavelength.
         if (value != null) return determineColor(value);
 
@@ -284,7 +292,7 @@ public class ColorsFactory {
 	if (value != null) return determineColor(value);
 
 	//Excitation
-	value = getValue(lc.getExcitationWavelength());
+	value = getValue(channel.getExcitationWavelength());
 	if (value != null) return determineColor(value);
 
 	if (value == null) {

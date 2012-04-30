@@ -213,7 +213,7 @@ public class OMEROWrapper extends MinMaxCalculator {
                 return minMaxSet = true;
             }
             Pixels p = pixels.get(series);
-            Channel c = p.getChannel(p.getSizeC().getValue() - 1);
+            Channel c = p.copyChannels().get(p.getSizeC().getValue() - 1);
             if (c.getStatsInfo() == null) {
                 minMaxSet = false;
             } else {

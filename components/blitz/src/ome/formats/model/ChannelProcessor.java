@@ -26,6 +26,7 @@ package ome.formats.model;
 import static omero.rtypes.rint;
 import static omero.rtypes.rstring;
 
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,11 +43,11 @@ import ome.util.LSID;
 import omero.RInt;
 import omero.RString;
 import omero.model.Channel;
+import omero.model.ColorI;
 import omero.model.Filter;
 import omero.model.Image;
 import omero.model.Laser;
 import omero.model.LightSource;
-import omero.model.LogicalChannel;
 import omero.model.Pixels;
 import omero.model.TransmittanceRange;
 
@@ -99,57 +100,50 @@ public class ChannelProcessor implements ModelProcessor
     {
 	int channelIndex = channelData.getChannelIndex();
 	Channel channel = channelData.getChannel();
-	LogicalChannel lc = channelData.getLogicalChannel();
 	if (isGraphicsDomain)
 		{
 	    log.debug("Setting color channel to RGB.");
 	    setDefaultChannelColor(channel, channelIndex);
 	    switch (channelIndex) {
 				case 0: //red
-		        if (lc.getName() == null)
-				lc.setName(rstring(RED_TEXT));
+		        if (channel.getName() == null)
+		        	channel.setName(rstring(RED_TEXT));
 		        break;
 				case 1: //green
-		        if (lc.getName() == null)
-				lc.setName(rstring(GREEN_TEXT));
+		        if (channel.getName() == null)
+		        	channel.setName(rstring(GREEN_TEXT));
 		        break;
 				case 2: //blue
-		        if (lc.getName() == null)
-				lc.setName(rstring(BLUE_TEXT));
+		        if (channel.getName() == null)
+		        	channel.setName(rstring(BLUE_TEXT));
 		        break;
 				case 3: //alpha, reset transparent
-					channel.setRed(rint(0));
-		        channel.setGreen(rint(0));
-		        channel.setBlue(rint(0));
-		        channel.setAlpha(rint(0)); //transparent
-		        if (lc.getName() == null)
-				lc.setName(rstring(ALPHA_TEXT));
+					channel.setColor(new ColorI(
+							(new Color(0, 0, 0, 0)).getRGB()));
+		        if (channel.getName() == null)
+		        	channel.setName(rstring(ALPHA_TEXT));
 			}
 	    return;
 		}
-
-	Integer red = getValue(channel.getRed());
-        Integer green = getValue(channel.getGreen());
-        Integer blue = getValue(channel.getBlue());
-        Integer alpha = getValue(channel.getAlpha());
+	omero.model.Color c = channel.getColor();
         RString name;
         //color already set by Bio-formats
-        if (red != null && green != null && blue != null && alpha != null) {
+        if (c != null) {
 		//Try to set the name.
 		log.debug("Already set in BF.");
-		if (lc.getName() == null) {
+		if (channel.getName() == null) {
 			name = getChannelName(channelData);
-			if (name != null) lc.setName(name);
+			if (name != null) channel.setName(name);
 		}
 		return;
         }
         //First we check the emission wavelength.
-	Integer value = getValue(lc.getEmissionWavelength());
+	Integer value = getValue(channel.getEmissionWavelength());
 	if (value != null) {
 		setChannelColor(channel, channelIndex,
 				ColorsFactory.determineColor(value));
-		if (lc.getName() == null)
-			lc.setName(rstring(value.toString()));
+		if (channel.getName() == null)
+			channel.setName(rstring(value.toString()));
 		return;
 	}
 
@@ -162,9 +156,9 @@ public class ChannelProcessor implements ModelProcessor
 	if (value != null) {
 		setChannelColor(channel, channelIndex,
 				ColorsFactory.determineColor(value));
-		if (lc.getName() == null) {
+		if (channel.getName() == null) {
 			name = getNameFromFilter(f);
-			if (name != null) lc.setName(name);
+			if (name != null) channel.setName(name);
 		}
 		return;
 	}
@@ -174,9 +168,9 @@ public class ChannelProcessor implements ModelProcessor
 	if (value != null) {
 		setChannelColor(channel, channelIndex,
 				ColorsFactory.determineColor(value));
-		if (lc.getName() == null) {
+		if (channel.getName() == null) {
 			name = getNameFromFilter(f);
-			if (name != null) lc.setName(name);
+			if (name != null) channel.setName(name);
 		}
 		return;
 	}
@@ -188,20 +182,20 @@ public class ChannelProcessor implements ModelProcessor
 			if (value != null) {
 			setChannelColor(channel, channelIndex,
 					ColorsFactory.determineColor(value));
-			if (lc.getName() == null) {
-				lc.setName(rstring(value.toString()));
+			if (channel.getName() == null) {
+				channel.setName(rstring(value.toString()));
 			}
 			return;
 		}
 		}
 	}
 	//Excitation
-	value = getValue(lc.getExcitationWavelength());
+	value = getValue(channel.getExcitationWavelength());
 	if (value != null) {
 		setChannelColor(channel, channelIndex,
 				ColorsFactory.determineColor(value));
-		if (lc.getName() == null)
-			lc.setName(rstring(value.toString()));
+		if (channel.getName() == null)
+			channel.setName(rstring(value.toString()));
 		return;
 	}
 	f = getValidFilter(channelData.getLightPathExcitationFilters(), false);
@@ -211,9 +205,9 @@ public class ChannelProcessor implements ModelProcessor
 	if (value != null) {
 		setChannelColor(channel, channelIndex,
 				ColorsFactory.determineColor(value));
-		if (lc.getName() == null) {
+		if (channel.getName() == null) {
 			name = getNameFromFilter(f);
-			if (name != null) lc.setName(name);
+			if (name != null) channel.setName(name);
 		}
 		return;
 	}
@@ -223,9 +217,9 @@ public class ChannelProcessor implements ModelProcessor
 	if (value != null) {
 		setChannelColor(channel, channelIndex,
 				ColorsFactory.determineColor(value));
-		if (lc.getName() == null) {
+		if (channel.getName() == null) {
 			name = getNameFromFilter(f);
-			if (name != null) lc.setName(name);
+			if (name != null) channel.setName(name);
 		}
 		return;
 	}
@@ -278,14 +272,8 @@ public class ChannelProcessor implements ModelProcessor
 		default: //blue
 			defaultColor = ColorsFactory.newBlueColor();
 	}
-	channel.setRed(
-				rint(defaultColor[ColorsFactory.RED_INDEX]));
-		channel.setGreen(
-				rint(defaultColor[ColorsFactory.GREEN_INDEX]));
-		channel.setBlue(
-				rint(defaultColor[ColorsFactory.BLUE_INDEX]));
-		channel.setAlpha(
-				rint(defaultColor[ColorsFactory.ALPHA_INDEX]));
+	channel.setColor(new ColorI((new Color(defaultColor[0], defaultColor[1], 
+			defaultColor[2], defaultColor[3])).getRGB()));
     }
 
     /**
@@ -301,10 +289,8 @@ public class ChannelProcessor implements ModelProcessor
 		setDefaultChannelColor(channel, index);
 		return;
 	}
-	channel.setRed(rint(rgba[0]));
-	channel.setGreen(rint(rgba[1]));
-	channel.setBlue(rint(rgba[2]));
-	channel.setAlpha(rint(rgba[3]));
+	channel.setColor(new ColorI((new Color(rgba[0], rgba[1], 
+			rgba[2], rgba[3])).getRGB()));
     }
 
     /**
@@ -346,7 +332,7 @@ public class ChannelProcessor implements ModelProcessor
      */
     private RString getChannelName(ChannelData channelData)
     {
-	LogicalChannel lc = channelData.getLogicalChannel();
+	Channel lc = channelData.getChannel();
 	Integer value = getValue(lc.getEmissionWavelength());
 	RString name;
 	if (value != null)
@@ -477,16 +463,10 @@ public class ChannelProcessor implements ModelProcessor
 			while (k.hasNext()) {
 				channelData = k.next();
 				if (!m.get(channelData)) {
-					int[] defaultColor = ColorsFactory.newWhiteColor();
+					int[] rgba = ColorsFactory.newWhiteColor();
 					Channel channel = channelData.getChannel();
-					channel.setRed(
-							rint(defaultColor[ColorsFactory.RED_INDEX]));
-					channel.setGreen(
-							rint(defaultColor[ColorsFactory.GREEN_INDEX]));
-					channel.setBlue(
-							rint(defaultColor[ColorsFactory.BLUE_INDEX]));
-					channel.setAlpha(
-							rint(defaultColor[ColorsFactory.ALPHA_INDEX]));
+					channel.setColor(new ColorI((new Color(rgba[0], rgba[1], 
+							rgba[2], rgba[3])).getRGB()));
 				}
 			}
 		}

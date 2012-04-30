@@ -24,6 +24,7 @@
 package ome.formats.model;
 
 import static omero.rtypes.rdouble;
+import static omero.rtypes.rfloat;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
@@ -110,17 +111,17 @@ public class PixelsProcessor implements ModelProcessor
 		if (physicalPixelSizes[0] != null
 			&& pixels.getPhysicalSizeX() == null)
 		{
-			pixels.setPhysicalSizeX(rdouble(physicalPixelSizes[0]));
+			pixels.setPhysicalSizeX(rfloat(physicalPixelSizes[0].floatValue()));
 		}
 		if (physicalPixelSizes[1] != null
 			&& pixels.getPhysicalSizeY() == null)
 		{
-			pixels.setPhysicalSizeY(rdouble(physicalPixelSizes[1]));
+			pixels.setPhysicalSizeY(rfloat(physicalPixelSizes[1].floatValue()));
 		}
 		if (physicalPixelSizes[2] != null
 			&& pixels.getPhysicalSizeZ() == null)
 		{
-			pixels.setPhysicalSizeZ(rdouble(physicalPixelSizes[2]));
+			pixels.setPhysicalSizeZ(rfloat(physicalPixelSizes[2].floatValue()));
 		}
             }
 

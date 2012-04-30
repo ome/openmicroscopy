@@ -537,10 +537,9 @@ public class ImportLibrary implements IObservable
             List<Pixels> pixList = importMetadata(index, container);
             List<Long> plateIds = new ArrayList<Long>();
             Image image = pixList.get(0).getImage();
-            if (image.sizeOfWellSamples() > 0)
+            if (image.getWellSamples() != null)
             {
-                Plate plate =
-                    image.copyWellSamples().get(0).getWell().getPlate();
+                Plate plate = image.getWellSamples().getWell().getPlate();
                 plateIds.add(plate.getId().getValue());
             }
             List<Long> pixelsIds = new ArrayList<Long>(pixList.size());
@@ -633,6 +632,22 @@ public class ImportLibrary implements IObservable
                         of.getPath().getValue() + of.getName().getValue();
                     originalFileMap.put(fullPath, of);
                 }
+                if (i.getWellSamples() != null) {
+                	WellSample ws = i.getWellSamples();
+                	Plate plate = ws.getWell().getPlate();
+                    for (Annotation annotation : plate.linkedAnnotationList())
+                    {
+                        if (annotation instanceof FileAnnotation)
+                        {
+                            FileAnnotation fa = (FileAnnotation) annotation;
+                            OriginalFile of = fa.getFile();
+                            String fullPath =
+                                of.getPath().getValue() + of.getName().getValue();
+                            originalFileMap.put(fullPath, of);
+                        }
+                    }
+                }
+                /*
                 for (WellSample ws : i.copyWellSamples())
                 {
                     Plate plate = ws.getWell().getPlate();
@@ -648,6 +663,7 @@ public class ImportLibrary implements IObservable
                         }
                     }
                 }
+                */
             }
 
             List<File> fileNameList = new ArrayList<File>();

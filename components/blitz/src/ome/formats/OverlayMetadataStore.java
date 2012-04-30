@@ -35,14 +35,15 @@ import ome.util.LSID;
 import omero.ServerError;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
+import omero.model.ColorI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Mask;
 import omero.model.MaskI;
 import omero.model.Pixels;
-import omero.model.Roi;
-import omero.model.RoiI;
+import omero.model.ROI;
+import omero.model.ROII;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,9 +62,9 @@ public class OverlayMetadataStore extends DummyMetadata
 
     private List<Pixels> pixelsList;
 
-    private Map<LSID, Roi> roiMap = new HashMap<LSID, Roi>();
+    private Map<LSID, ROI> roiMap = new HashMap<LSID, ROI>();
 
-    private Map<String, Roi> authoritativeRoiMap = new HashMap<String, Roi>();
+    private Map<String, ROI> authoritativeRoiMap = new HashMap<String, ROI>();
 
     private IUpdatePrx updateService;
 
@@ -92,13 +93,13 @@ public class OverlayMetadataStore extends DummyMetadata
         updateService.saveArray(new ArrayList<IObject>(roiMap.values()));
     }
 
-    private Roi getRoi(int roiIndex)
+    private ROI getRoi(int roiIndex)
     {
-        LSID lsid = new LSID(Roi.class, roiIndex);
-        Roi o = roiMap.get(lsid);
+        LSID lsid = new LSID(ROI.class, roiIndex);
+        ROI o = roiMap.get(lsid);
         if (o == null)
         {
-            o = new RoiI();
+            o = new ROII();
             roiMap.put(lsid, o);
         }
         return o;
@@ -106,11 +107,11 @@ public class OverlayMetadataStore extends DummyMetadata
 
     private Mask getMask(int roiIndex, int shapeIndex)
     {
-        Roi roi = getRoi(roiIndex);
+    	ROI roi = getRoi(roiIndex);
         Mask o;
         try
         {
-            o = (Mask) roi.getShape(shapeIndex);
+            o = (Mask) roi.copyShapes().get(shapeIndex);
         }
         catch (IndexOutOfBoundsException e)
         {
@@ -132,7 +133,7 @@ public class OverlayMetadataStore extends DummyMetadata
     @Override
     public void setImageROIRef(String roi, int imageIndex, int ROIRefIndex)
     {
-        Roi o = authoritativeRoiMap.get(roi);
+        ROI o = authoritativeRoiMap.get(roi);
         if (o == null)
         {
             log.error(String.format(
@@ -156,7 +157,7 @@ public class OverlayMetadataStore extends DummyMetadata
     @Override
     public void setROIID(String id, int ROIIndex)
     {
-        Roi o = getRoi(ROIIndex);
+    	ROI o = getRoi(ROIIndex);
         authoritativeRoiMap.put(id, o);
     }
 
@@ -166,7 +167,7 @@ public class OverlayMetadataStore extends DummyMetadata
         Mask o = getMask(roiIndex, shapeIndex);
         if (o != null)
         {
-            o.setStrokeColor(rint(stroke));
+            o.setStrokeColor(new ColorI((stroke)));
         }
     }
 

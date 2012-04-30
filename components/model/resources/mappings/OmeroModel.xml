@@ -881,6 +881,8 @@
             <!--Display Settings 1-->
             <zeromany name="settings" type="ome.model.display.RenderingDef" inverse="pixels"/>
             <zeromany name="thumbnails" type="ome.model.display.Thumbnail" inverse="pixels"/>
+            <!-- TODO: storage -->
+            <parent name="pixelsFileMaps" type="ome.model.core.PixelsOriginalFileMap" target="ome.model.core.OriginalFile"/>
         </properties>
     </type>
 

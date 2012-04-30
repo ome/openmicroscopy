@@ -33,8 +33,8 @@ import ome.formats.ImageNameMetadataStore;
 import ome.formats.importer.util.ErrorHandler;
 import omero.model.Pixels;
 import omero.model.PixelsI;
-import omero.model.PixelsType;
-import omero.model.PixelsTypeI;
+import omero.model.PixelType;
+import omero.model.PixelTypeI;
 
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -493,7 +493,7 @@ public class ImportCandidates extends DirectoryWalker
         {
             reader.setSeries(i);
             Pixels pixels = new PixelsI();
-            PixelsType pixelsType = new PixelsTypeI();
+            PixelType pixelsType = new PixelTypeI();
             pixelsType.setValue(rstring(
                     FormatTools.getPixelTypeString(reader.getPixelType())));
             pixels.setSizeX(rint(reader.getSizeX()));

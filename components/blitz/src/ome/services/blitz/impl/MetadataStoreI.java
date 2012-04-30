@@ -24,7 +24,9 @@ import ome.model.IObject;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.enums.Format;
-import ome.model.screen.Plate;
+import ome.model.spw.Plate;
+import ome.model.spw.Well;
+import ome.model.spw.WellSample;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
@@ -133,8 +135,20 @@ public class MetadataStoreI extends AbstractAmdServant implements
             for (Pixels p : pixels) {
                 ome.model.core.Image i = p.getImage();
                 if (i != null) {
-                    for (ome.model.screen.WellSample ws : i.unmodifiableWellSamples()) {
-                        ome.model.screen.Well w = ws.getWell();
+                	WellSample ws = i.getWellSamples();
+                	if (ws != null) {
+                		Well w = ws.getWell();
+                		if (w != null) {
+                            Plate plate = w.getPlate();
+                            if (plate != null) {
+                                savedPlates.add(plate.getId());
+                            }
+                        }
+                	}
+                	
+                	/*
+                    for (WellSample ws : i.getWellSamples()) {
+                        Well w = ws.getWell();
                         if (w != null) {
                             Plate plate = w.getPlate();
                             if (plate != null) {
@@ -142,6 +156,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             }
                         }
                     }
+                    */
                 }
             }
         }
