@@ -112,7 +112,7 @@
         <label>LDAP:</label> {{ ldapAuth }} <br />
         {% else %}
             {% if eid %}
-            Password: 
+            <label>Password</label>
             <a href="{% url wamanagechangepasswordid eid %}" class="btn btn_text silver"><span>Change Password</span></a>
             {% endif %}
             <br />

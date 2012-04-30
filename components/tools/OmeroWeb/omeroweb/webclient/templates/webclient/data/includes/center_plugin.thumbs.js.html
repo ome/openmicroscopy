@@ -137,8 +137,9 @@ $(document).ready(function() {
         }
 
         var $content_details = $("#content_details");
-        var need_refresh = ((oid!==crel) || (page!==cpage) || (current_well_index != well_index));
 
+        var page_change = ((page != null) && (page!=cpage));
+        var need_refresh = ((oid!==crel) || page_change || (current_well_index != well_index));
         // if nothing to show - clear panel
         if (update.empty) {
             $("div#content_details").empty();
