@@ -695,6 +695,7 @@
             // Property Y
             -->
             <required name="y" type="Double"/>
+            <optional name="bytes" type="byte[]"/>
         </properties>
     </type>
 
