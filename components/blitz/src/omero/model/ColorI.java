@@ -23,8 +23,11 @@
  */
 package omero.model;
 
+import Ice.Current;
 import Ice.Object;
 import ome.util.Utils;
+import omero.RInt;
+import omero.RLong;
 import static omero.rtypes.rint;
 /** 
  * 
@@ -116,4 +119,107 @@ public class ColorI extends Color implements ome.model.ModelBased {
     {
     	return 0; //To be implemented.
     }
+
+	@Override
+	public RInt getValue(Current current) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public RInt getVersion(Current current) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setValue(RInt theValue, Current current) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setVersion(RInt theVersion, Current current) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Details getDetails(Current current) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public RLong getId(Current current) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isAnnotated(Current current) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isGlobal(Current current) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isLink(Current current) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isLoaded(Current current) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isMutable(Current current) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public IObject proxy(Current current) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setId(RLong id, Current current) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public IObject shallowCopy(Current current) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void unload(Current current) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void unloadCollections(Current current) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void unloadDetails(Current current) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
