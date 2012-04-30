@@ -22,8 +22,13 @@
 -->
 {% endcomment %}
 
+{% block title %}
+OMERO Users
+{% endblock %}
+
 {% block link %}
     {{ block.super }}
+
     <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
     
@@ -46,7 +51,16 @@
                     'delay': 300,
                     'loader': 'span.loading'
                 });
-                $("#webadmin_main_tabs").tabs();
+                $("#webadmin_main_tabs").tabs({
+                    select: function(event, ui) {
+                        var url = $.data(ui.tab, 'load.tabs');
+                        if( url ) {
+                            location.href = url;
+                            return false;
+                        }
+                        return true;
+                    }
+                });
             })
     </script>
     
@@ -56,16 +70,17 @@
 {% block center_details %}
 {{ block.super }}
 
-    <ul id="webadmin_main_tabs">
-        <li id="experimenters_tab"><a title="Edit Scientists">{% trans "Users" %}</a></li>
+<div id="webadmin_main_tabs">
+
+    <ul>
+        <li id="experimenters_tab"><a href="#experimenters_content" title="Edit Users">{% trans "Users" %}</a></li>
         <li id="groups_tab"><a href="{% url wagroups %}" title="Edit Groups">{% trans "Groups" %}</a></li>
     </ul>
 
-    
+    <div id="experimenters_content">
+        
     {% if controller.experimentersCount %}
-
-
-
+        
 	<div class="one_column_header">
         <form class="search filtersearch" id="filtersearch" action="#">
 			<input type="text" id="id_search">
@@ -75,7 +90,7 @@
 			</span>
 		</form>
 		
-		<div class="btn blue"><a href="{% url wamanageexperimenterid "new" %}"><span>{% trans "Add new scientist" %}</span></a></div>
+		<div class="btn blue"><a href="{% url wamanageexperimenterid "new" %}"><span>{% trans "Add new User" %}</span></a></div>
 		
 	</div>
    
@@ -126,5 +141,6 @@
     {% else %}
     <p>{% trans "No scientists in OMERO." %}</p>
     {% endif %}
-
+    </div>
+</div>
 {% endblock %}

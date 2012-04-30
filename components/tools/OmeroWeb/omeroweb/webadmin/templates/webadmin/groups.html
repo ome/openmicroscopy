@@ -22,6 +22,11 @@
 -->
 {% endcomment %}
 
+{% block title %}
+OMERO Groups
+{% endblock %}
+
+
 {% block link %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
@@ -46,7 +51,16 @@
                     'delay': 300,
                     'loader': 'span.loading'
                 });
-                $("#webadmin_main_tabs").tabs();
+                $("#webadmin_main_tabs").tabs({
+                    select: function(event, ui) {
+                        var url = $.data(ui.tab, 'load.tabs');
+                        if( url ) {
+                            location.href = url;
+                            return false;
+                        }
+                        return true;
+                    }
+                }).tabs("select", 1);
         })
     </script>
     
@@ -54,12 +68,15 @@
 
 {% block center_details %}
 {{ block.super }}
-    <ul id="webadmin_main_tabs">
-        <li id="experimenters_tab"><a href="{% url waexperimenters %}" title="Edit Scientists">{% trans "Users" %}</a></li>
-        <li id="groups_tab"><a title="Edit Groups">{% trans "Groups" %}</a></li>
+
+<div id="webadmin_main_tabs">
+    
+    <ul>
+        <li id="experimenters_tab"><a href='{% url waexperimenters %}' title="Edit Users">{% trans "Users" %}</a></li>
+        <li id="groups_tab"><a href="#Group_content" title="Edit Group">{% trans "Groups" %}</a></li>
     </ul>
     
-    
+    <div id="Group_content">
     
     {% if controller.groupsCount %}
 	
@@ -73,7 +90,7 @@
 			</span>
 		</form>
 		
-		<div class="btn blue"><a href="{% url wamanagegroupid "new" %}"><span>{% trans "Add new group" %}</span></a></div>
+		<div class="btn blue"><a href="{% url wamanagegroupid "new" %}"><span>{% trans "Add new Group" %}</span></a></div>
 		
 	</div>
 	
@@ -125,6 +142,9 @@
     {% else %}
     <p>{% trans "No groups in OMERO." %}</p>
     {% endif %}
+    
+    </div>
+</div>
 
 {% endblock %}
 
