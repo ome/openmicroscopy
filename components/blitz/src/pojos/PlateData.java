@@ -291,10 +291,9 @@ public class PlateData extends DataObject {
      */
     public int getDefaultSample()
     {
-    	//omero.RInt value = asPlate().getDefaultSample();
-    	//if (value == null) return 0;
-    	//return value.getValue();
-    	return 0;
+    	omero.RInt value = asPlate().getFieldIndex();
+    	if (value == null) return 0;
+    	return value.getValue();
     }
     
     /**
@@ -305,7 +304,7 @@ public class PlateData extends DataObject {
     public void setDefaultSample(int value)
     {
     	if (value < 0) value = 0;
-    	//asPlate().setDefaultSample(omero.rtypes.rint(value));
+    	asPlate().setFieldIndex(omero.rtypes.rint(value));
     }
     
     /** 

@@ -975,6 +975,9 @@
             // Property WellOriginY
             -->
             <optional name="wellOriginY" type="Double"/>
+            
+            <!-- Added manually, this will be part of the model. -->
+            <optional name="fieldIndex" type="NonNegativeInteger"/>
         </properties>
     </type>
 
@@ -1233,6 +1236,8 @@
             // Property Visibility
             -->
             <optional name="visibility" type="Boolean"/>
+            <!-- add manually, It will be part of the model. -->
+            <optional name="locked" type="Boolean"/>
         </properties>
     </abstract>
 
