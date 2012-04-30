@@ -51,14 +51,21 @@ import com.sun.jna.ptr.PointerByReference;
 public class WindowsApplicationDataExtractor implements
 		ApplicationDataExtractor {
 
+	/**
+	 * Windows specific keys for accessing application properties @see http://msdn.microsoft.com/en-us/library/windows/desktop/ms647464(v=vs.85).aspx
+	 */
+	private static final String APPLICATION_PROPERTY_KEY_COMMENTS = "Comments";
 	private static final String APPLICATION_PROPERTY_KEY_COMPANY_NAME = "CompanyName";
 	private static final String APPLICATION_PROPERTY_KEY_FILE_DESCRIPTION = "FileDescription";
 	private static final String APPLICATION_PROPERTY_KEY_FILE_VERSION = "FileVersion";
 	private static final String APPLICATION_PROPERTY_KEY_INTERNAL_NAME = "InternalName";
 	private static final String APPLICATION_PROPERTY_KEY_LEGAL_COPYRIGHT = "LegalCopyright";
+	private static final String APPLICATION_PROPERTY_KEY_LEGAL_TRADEMARK = "LegalTrademark";
 	private static final String APPLICATION_PROPERTY_KEY_ORIGINAL_FILE_NAME = "OriginalFileName";
 	private static final String APPLICATION_PROPERTY_KEY_PRODUCT_NAME = "ProductName";
 	private static final String APPLICATION_PROPERTY_KEY_PRODUCT_VERSION = "ProductVersion";
+	private static final String APPLICATION_PROPERTY_KEY_PRIVATE_BUILD = "PrivateBuild";
+	private static final String APPLICATION_PROPERTY_KEY_SPECIAL_BUILD = "SpecialBuild";
 
 	/** The default application location on <code>Windows</code> platform. */
 	private static final String LOCATION_WINDOWS = "C:\\Program Files\\";
