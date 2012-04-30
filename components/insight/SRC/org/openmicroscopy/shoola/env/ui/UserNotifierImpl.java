@@ -29,7 +29,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -51,6 +51,8 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.TransferableActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
@@ -459,13 +461,17 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 
 		if (data == null && path == null)
 			return;
-
+		
+		Logger logger = manager.getRegistry().getLogger();
 		try {
 			String[] commandLineElements = ApplicationData.buildCommand(data, new File(path));
+
+			logger.info(this, "Executing command & args: " + Arrays.toString(commandLineElements));
 
 			Runtime runtime = Runtime.getRuntime();
 			runtime.exec(commandLineElements);
 		} catch (Exception e) {
+			logger.error(this, e.getMessage());
 		}
 	}
 

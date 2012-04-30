@@ -254,10 +254,8 @@ public class WindowsApplicationDataExtractor implements
 			else if (productName != "")
 				applicationName = productName;
 		}
-
-		String executablePath = file.toURI().toURL().toString();
-
-		return new ApplicationData(icon, applicationName, executablePath);
+		
+		return new ApplicationData(icon, applicationName, file.getAbsolutePath());
 	}
 
 	/**
