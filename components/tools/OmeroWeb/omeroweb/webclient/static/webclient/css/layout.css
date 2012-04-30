@@ -1212,21 +1212,26 @@
             float:right;
             position:relative;
             top:5px;
-			bordeR:solid 1px red;
             right:5px;
+			width:110px;
+			
         }
+		
+		#center_panel_chooser:hover {
+			background: rgba(255,255,255,0.02);
+		}
         
             #center_panel_chooser select {
                 -webkit-appearance:none;
 				cursor:pointer;
-                padding:2px 20px 3px 8px;
-				background: rgba(0,0,0,.05) url(../image/select_dropdown_arrow.png) 90% 60% no-repeat;
+				width:100%;
+                padding:3px 5px 2px 5px;
+				background:transparent;
                 -webkit-border-radius:3px;
-				
 				-webkit-border-radius:3px; /* Saf3+, Chrome */
 				   -moz-border-radius:3px; /* FF1+ */
 				        border-radius:3px; /* Opera 10.5, IE 9 */ 
-				
+				background: rgba(0,0,0,.05) url(../image/select_dropdown_arrow.png) 90% 60% no-repeat;
 				top:-1px;
 				position:relative;
                 color:#444;
@@ -1242,6 +1247,13 @@
 				background-color: rgba(255,255,255,.05);
                 
             }
+			
+			
+			
+			
+			
+			
+			
 			
     
        

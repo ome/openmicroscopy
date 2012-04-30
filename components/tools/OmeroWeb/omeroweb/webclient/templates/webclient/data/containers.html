@@ -986,6 +986,37 @@
     {% for cp in ome.center_plugins %}
         {% include cp.include %}
     {% endfor %}
+	
+	
+	
+	<!-- Select Box Dropdown -->
+	<script type="text/javascript">
+	function createDropDown(){
+	    var source = $("#source");
+	    var selected = source.find("option[selected]");  // get selected <option>
+	    var options = $("option", source);  // get all <option> elements
+	    // create <dl> and <dt> with selected value inside it
+	    $("body").append('<dl id="target" class="select_dropdown"></dl>')
+	    $("#target").append('<dt><a href="#">' + selected.text() + 
+	        '<span class="value">' + selected.val() + 
+	        '</span></a></dt>')
+	    $("#target").append('<dd><ul></ul></dd>')
+	    // iterate through all the <option> elements and create UL
+	    options.each(function(){
+	        $("#target dd ul").append('<li><a href="#">' + 
+	            $(this).text() + '<span class="value">' + 
+	            $(this).val() + '</span></a></li>');
+	    });
+	}
+        
+	$(".select_dropdown dd ul li a").click(function() {
+	    var text = $(this).html();
+	    $(".select_dropdown dt a").html(text);
+	    $(".select_dropdown dd ul").hide();
+	    var source = $("#source");
+	    source.val($(this).find("span.value").html())
+	});
+	    </script>
 
 
 {% endblock %}
@@ -1130,7 +1161,7 @@
 
 <div id="center_panel_header">
 	<div id="center_panel_chooser">
-	    <select>
+	    <select id="source">
 	        <option value="#content_details">Thumbnails</option>
 	        {% for cp in ome.center_plugins %}
 	            <option value="#{{ cp.plugin_id }}">{{ cp.label }}</option>
