@@ -25,7 +25,9 @@ package pojos;
 
 
 //Java imports
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +37,7 @@ import java.util.Map;
 import static omero.rtypes.*;
 import omero.RInt;
 import omero.RString;
+import omero.model.ColorI;
 import omero.model.Well;
 import omero.model.WellI;
 import omero.model.WellSample;
@@ -122,137 +125,22 @@ public class WellData extends DataObject {
     }
     
     /**
-     * Returns the red component of the color associated to the well,
-     * or <code>-1</code>.
+     * Sets the color.
      * 
-     * @return See above.
+     * @param color The value to set.
      */
-    public int getRed()
+    public void setColor(int color)
     {
-    	RInt value = asWell().getRed();
-    	if (value == null) return -1;
-    	return value.getValue();
+    	asWell().setColor(new ColorI(color));
     }
     
-    /**
-     * Sets the red component of the color associated to the well.
-     * 
-     * @param red The value to set.
-     */
-    public void setRed(Integer red)
+    public Color getColor()
     {
-    	setDirty(true);
-    	if (red == null) {//reset the color
-    		asWell().setRed(null);
-    		asWell().setGreen(null);
-    		asWell().setBlue(null);
-    		asWell().setAlpha(null);
-    	} else {
-    		if (red < 0) red = 0;
-        	if (red > 255) red = 255;
-            asWell().setRed(rint(red));
-    	}
+    	omero.model.Color color = asWell().getColor();
+    	if (color == null) return null;
+    	return new Color(color.getValue().getValue(), true);
     }
-    
-    /**
-     * Returns the green component of the color associated to the well,
-     * or <code>-1</code>.
-     * 
-     * @return See above.
-     */
-    public int getGreen()
-    {
-    	RInt value = asWell().getGreen();
-    	if (value == null) return -1;
-    	return value.getValue();
-    }
-    
-    /**
-     * Sets the green component of the color associated to the well.
-     * 
-     * @param green The value to set.
-     */
-    public void setGreen(Integer green)
-    {
-    	setDirty(true);
-    	if (green == null) {
-    		asWell().setRed(null);
-    		asWell().setGreen(null);
-    		asWell().setBlue(null);
-    		asWell().setAlpha(null);
-    	} else {
-    		if (green < 0) green = 0;
-        	if (green > 255) green = 255;
-            asWell().setGreen(rint(green));
-    	}
-    }
-    
-    /**
-     * Returns the blue component of the color associated to the well,
-     * or <code>-1</code>.
-     * 
-     * @return See above.
-     */
-    public int getBlue()
-    {
-    	RInt value = asWell().getBlue();
-    	if (value == null) return -1;
-    	return value.getValue();
-    }
-    
-    /**
-     * Sets the blue component of the color associated to the well.
-     * 
-     * @param blue The value to set.
-     */
-    public void setBlue(Integer blue)
-    {
-    	setDirty(true);
-    	if (blue == null) {
-    		asWell().setRed(null);
-    		asWell().setGreen(null);
-    		asWell().setBlue(null);
-    		asWell().setAlpha(null);
-    	} else {
-    		if (blue < 0) blue = 0;
-        	if (blue > 255) blue = 255;
-            asWell().setBlue(rint(blue));
-    	}
-    }
-    
-    /**
-     * Returns the alpha component of the color associated to the well,
-     * or <code>-1</code>.
-     * 
-     * @return See above.
-     */
-    public int getAlpha()
-    {
-    	RInt value = asWell().getAlpha();
-    	if (value == null) return -1;
-    	return value.getValue();
-    }
-    
-    /**
-     * Sets the alpha component of the color associated to the well.
-     * 
-     * @param alpha The value to set.
-     */
-    public void setAlpha(Integer alpha)
-    {
-    	setDirty(true);
-    	if (alpha == null) {
-    		asWell().setRed(null);
-    		asWell().setGreen(null);
-    		asWell().setBlue(null);
-    		asWell().setAlpha(null);
-    	} else {
-    		if (alpha < 0) alpha = 0;
-        	if (alpha > 255) alpha = 255;
-            asWell().setAlpha(rint(alpha));
-    	}
-    }
-    
+
     /**
      * Sets the external description of the well.
      * 
@@ -284,7 +172,7 @@ public class WellData extends DataObject {
      * @return See above.
      */
     public Map<Long, Long> getReagentsCounts() {
-        return asWell().getReagentLinksCountPerOwner();
+        return new HashMap<Long, Long>(0);//asWell().getReagentLinksCountPerOwner();
     }
 
     /**
