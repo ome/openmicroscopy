@@ -103,18 +103,19 @@
         {{ field.label_tag }}{% if field.field.required %}*{% endif %}
         {{ field }}
         {% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}
-        
+        <br />
         {% endifnotequal %}
         
         {% endfor %}
 
         {% if ldapAuth %}
-        <label>LDAP:</label> {{ ldapAuth }}
+        <label>LDAP:</label> {{ ldapAuth }} <br />
         {% else %}
             {% if eid %}
             Password: 
             <a href="{% url wamanagechangepasswordid eid %}" class="btn btn_text silver"><span>Change Password</span></a>
             {% endif %}
+            <br />
         {% endif %}
         
         {{ form.groups.label_tag }}{% if form.groups.field.required %}*{% endif %}
