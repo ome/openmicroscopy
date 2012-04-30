@@ -171,6 +171,17 @@
 		</xsl:element>
 	</xsl:template>
 
+	<xsl:template match="SPW:Plate">
+		<xsl:element name="SPW:Plate" namespace="{$newSPWNS}">
+			<xsl:for-each select="@* [not(name() = 'FieldIndex')]">
+				<xsl:attribute name="{local-name(.)}">
+					<xsl:value-of select="."/>
+				</xsl:attribute>
+			</xsl:for-each>
+			<xsl:apply-templates select="node()"/>
+		</xsl:element>
+	</xsl:template>
+	
 	<xsl:template match="ROI:Shape">
 		<xsl:element name="ROI:Shape" namespace="{$newROINS}">
 			<xsl:for-each

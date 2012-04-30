@@ -19,7 +19,7 @@
 		<OME:ImageRef ID="Image:0"/>
 		<SA:AnnotationRef ID="Annotation:2"/>
 	</OME:Dataset>
-	<SPW:Plate ID="Plate:1">
+	<SPW:Plate ID="Plate:1" FieldIndex="0" ColumnNamingConvention="letter" RowNamingConvention="number">
 		<SPW:Well ID="Well:1" Column="1" Row="1" Color="-2147483648" Type="TheWellStatus">
 			<SPW:WellSample ID="WellSample:1" Index="1">
 				<OME:ImageRef xmlns:OME="http://www.openmicroscopy.org/Schemas/OME/2012-06"
