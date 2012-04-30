@@ -166,12 +166,7 @@
 		
 	
 		
-	        #annotation_tabs_list li a{
-	            padding:4px 12px 4px !important;
-	            border-radius:inherit;
-	            line-height: 2em;
-	            font-weight:bold;
-	        }
+		
         
 	        #left_panel_tab_list li a:hover, #annotation_tabs_list li a:hover;{
 	            text-decoration: none;
@@ -260,20 +255,23 @@
 	        }
         
         
+		        
 		
-        
         
 	            #left_panel_tab_list a, #annotation_tabs_list li a {
 	    			color:hsl(210,10%,50%);
 	                text-shadow: 0 1px 0 rgba(255,255,255,.6);
 		            padding:4px 12px 2px;
 					margin:0;
-		            border-radius:inherit;
 		            line-height: 2em;
 					font-size:1.1em;
 		            font-weight:bold;
 	            }
     
+		        #annotation_tabs_list li a{
+		            padding:4px 12px 4px;
+		        }
+				
 	
 	    		#left_panel_tab_list a:hover, #annotation_tabs_list a:hover { 
 	                color:hsl(210,10%,45%);
@@ -498,6 +496,7 @@
    }
 
 
+
     /* Right Tab Menu */
     
     #annotation_tabs_list{
@@ -521,7 +520,7 @@
 		
         #annotation_tabs_list li a{
             opacity:1;
-			padding:5px 12px 4px;
+			padding:5px 12px 3px;
         }
 		
         
@@ -1213,6 +1212,7 @@
             float:right;
             position:relative;
             top:5px;
+			bordeR:solid 1px red;
             right:5px;
         }
         
