@@ -72,9 +72,13 @@ var field_selection_changed = function(field) {
 
 // change in seletion of search results - only single object selection
 var search_selection_changed = function($row) {
-    $("body")
-        .data("selected_objects.ome", [{"id": $row.attr("id")}])
-        .trigger("selection_change.ome");
+    var $body = $("body");
+    if (typeof $row != 'undefined') {
+        $body.data("selected_objects.ome", [{"id": $row.attr("id")}])
+    } else {
+        $body.data("selected_objects.ome", [])
+    }
+    $body.trigger("selection_change.ome");
 }
 
 // change in seletion of history results - only single object selection

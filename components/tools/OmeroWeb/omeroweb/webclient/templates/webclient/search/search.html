@@ -116,6 +116,8 @@
                     $("div#content_details").load('{% url load_searching %}', data);
                     return false;
                 });
+
+                search_selection_changed();     // clear selection (hides acquisition & preview tabs)
         })
     </script>
 
