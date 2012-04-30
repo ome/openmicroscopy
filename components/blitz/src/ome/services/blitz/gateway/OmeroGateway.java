@@ -118,6 +118,7 @@ public class OmeroGateway extends AbstractAmdServant
 		imageService = null;
 		dataService = null;
 		gatewayFactory.closeService();
+		
 	}
 	
 

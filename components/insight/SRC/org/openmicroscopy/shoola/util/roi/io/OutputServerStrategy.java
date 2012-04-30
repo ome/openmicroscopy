@@ -439,6 +439,7 @@ class OutputServerStrategy
 		ShapeSettingsData settings = shape.getShapeSettings();
 		Boolean bold;
 		Boolean italic;
+		/*
 		if (AttributeKeys.FILL_COLOR.get(fig) != null)
 		{
 			Color c = AttributeKeys.FILL_COLOR.get(fig);
@@ -483,6 +484,7 @@ class OutputServerStrategy
 				} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
 			}
 		} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
+		*/
 	}
 	
 	/**

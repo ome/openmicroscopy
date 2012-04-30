@@ -55,7 +55,7 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import omero.model.AcquisitionMode;
 import omero.model.ContrastMethod;
-import omero.model.Illumination;
+import omero.model.IlluminationType;
 import omero.model.Plane;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -587,9 +587,9 @@ class ChannelAcquisitionComponent
 							channel.setExcitationWavelength((Integer) number);
 					} else if (EditorUtil.ILLUMINATION.equals(key)) {
 						enumObject = (EnumerationObject) value;
-						if (enumObject.getObject() instanceof Illumination)
+						if (enumObject.getObject() instanceof IlluminationType)
 							channel.setIllumination(
-								(Illumination) enumObject.getObject());
+								(IlluminationType) enumObject.getObject());
 					} else if (EditorUtil.MODE.equals(key)) {
 						enumObject = (EnumerationObject) value;
 						if (enumObject.getObject() instanceof AcquisitionMode)

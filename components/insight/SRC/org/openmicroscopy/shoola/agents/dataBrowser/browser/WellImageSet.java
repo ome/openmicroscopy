@@ -139,13 +139,7 @@ public class WellImageSet
 	private void setWellColor()
 	{
 		WellData well = (WellData) getHierarchyObject();
-		int r = well.getRed();
-		int g = well.getGreen();
-		int b = well.getBlue();
-		int a = well.getAlpha();
-		if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255 &&
-				a >= 0 && a <= 255)
-			super.setHighlight(new Color(r, g, b, a));
+		super.setHighlight(well.getColor());
 	}
 	
 	/**

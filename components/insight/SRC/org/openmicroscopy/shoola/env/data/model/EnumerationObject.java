@@ -38,13 +38,12 @@ import omero.model.DetectorType;
 import omero.model.FilamentType;
 import omero.model.FilterType;
 import omero.model.Format;
-import omero.model.Illumination;
+import omero.model.IlluminationType;
 import omero.model.Immersion;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
 import omero.model.Medium;
 import omero.model.MicroscopeType;
-import omero.model.PhotometricInterpretation;
 import omero.model.Pulse;
 
 /** 
@@ -105,10 +104,8 @@ public class EnumerationObject
 			value = ((Binning) object).getValue();
 		else if (object instanceof ContrastMethod)
 			value = ((ContrastMethod) object).getValue();
-		else if (object instanceof Illumination)
-			value = ((Illumination) object).getValue();
-		else if (object instanceof PhotometricInterpretation)
-			value = ((PhotometricInterpretation) object).getValue();
+		else if (object instanceof IlluminationType)
+			value = ((IlluminationType) object).getValue();
 		else if (object instanceof AcquisitionMode)
 			value = ((AcquisitionMode) object).getValue();
 		else if (object instanceof LaserMedium)

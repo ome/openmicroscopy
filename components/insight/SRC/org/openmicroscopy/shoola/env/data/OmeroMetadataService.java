@@ -42,13 +42,12 @@ import omero.model.DetectorType;
 import omero.model.FilamentType;
 import omero.model.FilterType;
 import omero.model.Format;
-import omero.model.Illumination;
+import omero.model.IlluminationType;
 import omero.model.Immersion;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
 import omero.model.Medium;
 import omero.model.MicroscopeType;
-import omero.model.PhotometricInterpretation;
 import omero.model.Pulse;
 
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
@@ -126,11 +125,7 @@ public interface OmeroMetadataService
 	public static final String CONTRAST_METHOD = ContrastMethod.class.getName();
 	
 	/** Identified the <code>illumination type</code> enumeration. */
-	public static final String ILLUMINATION_TYPE = Illumination.class.getName();
-	
-	/** Identified the <code>photometric Interpretation</code> enumeration. */
-	public static final String PHOTOMETRIC_INTERPRETATION = 
-		PhotometricInterpretation.class.getName();
+	public static final String ILLUMINATION_TYPE = IlluminationType.class.getName();
 	
 	/** Identified the <code>Acquisition mode</code> enumeration. */
 	public static final String ACQUISITION_MODE = 
