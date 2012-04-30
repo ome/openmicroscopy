@@ -170,7 +170,7 @@ public abstract class ShapeData
 		super();
 		setClientObject(clientObject);
 		setValue(shape);
-		shape.setLocked(rtypes.rbool(false));
+		//shape.setLocked(rtypes.rbool(false));
 		settings = new ShapeSettingsData(shape);
 	}
 	
@@ -215,7 +215,7 @@ public abstract class ShapeData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		return (shape.getLocked().getValue()==READONLY_FLAG);
+		return false;//(shape.getLocked().getValue() == READONLY_FLAG);
 	}
 	
 	/**
@@ -229,7 +229,7 @@ public abstract class ShapeData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setLocked(rtypes.rbool(readOnly));
+		//shape.setLocked(rtypes.rbool(readOnly));
 	}
 	
 	/**
