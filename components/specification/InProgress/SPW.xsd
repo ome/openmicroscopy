@@ -191,6 +191,13 @@
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
+			<xsd:attribute name="FieldIndex" use="optional" type="OME:NonNegativeInt">
+				<xsd:annotation>
+					<xsd:documentation>
+						The index of the WellSample to display as the default Field
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
 		</xsd:complexType>
 		<!-- Unique Indexes -->
 		<xsd:key name="WellSampleIndex"><xsd:selector xpath="SPW:Well/SPW:WellSample"/><xsd:field xpath="@Index"/></xsd:key>
