@@ -965,6 +965,15 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         self.changeActiveGroup(defultGroup.id.val)
         self._user = self.getObject("Experimenter", self._userid)
     
+    def setDefaultGroup(self, group_id, exp_id=None):
+        """
+        Sets the default group for the specified experimenter, or current user if not specified.
+        """
+        group_id = long(group_id)
+        exp_id = exp_id is not None and long(exp_id) or self.getEventContext().userId
+        admin_serv = self.getAdminService()
+        admin_serv.setDefaultGroup(omero.model.ExperimenterI(exp_id, False), omero.model.ExperimenterGroupI(group_id, False))
+
     def updatePermissions(self, obj, perm):
         """
         Allow to change the permission on the object.

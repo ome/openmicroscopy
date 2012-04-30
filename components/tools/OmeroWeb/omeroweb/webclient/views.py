@@ -274,6 +274,12 @@ def change_active_group(request, conn=None, url=None, **kwargs):
 @login_required()
 def logout(request, conn=None, **kwargs):
     """ Logout of the session and redirects to the homepage (will redirect to login first) """
+
+    if request.session.get('active_group') is not None:
+        try:
+            conn.setDefaultGroup(request.session.get('active_group'))
+        except:
+            logger.error('Exception during logout.', exc_info=True)
     try:
         conn.seppuku()
     except:
