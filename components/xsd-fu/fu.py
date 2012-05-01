@@ -589,7 +589,8 @@ class OMEModelObject(OMEModelEntity):
         self.properties = odict()
         self.isAbstract = False
         self.isAbstractProprietary = False
-        self.isSettings = self.name.endswith('Settings')
+        self.isSettings = self.base == 'Settings'
+        self.isAnnotation = self.base == 'Annotation'
         self.plural = None
         self.manyToMany = False
         try:
