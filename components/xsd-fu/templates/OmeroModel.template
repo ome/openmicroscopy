@@ -1,3 +1,16 @@
+{% def superclass(obj) %}\
+{% choose %}\
+{% when parent_object(o.name) is not None and parent_object(o.name).isAbstractProprietary %}\
+superclass="${fully_qualified_class_name(parent_object(o.name).name)}" \
+{% end %}\
+{% otherwise %}\
+{% if obj.javaBase != fu.DEFAULT_BASE_CLASS %}\
+superclass="${fully_qualified_class_name(obj.javaBase)}" \
+{% end %}\
+{% end %}\
+{% end %}\
+{% end %}\
+\
 {% def type_attributes(obj) %}\
 {% if obj.isAnnotated %}annotated="true" {% end %}\
 {% if obj.isNamed %}named="true" {% end %}\
@@ -24,6 +37,8 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
 \
 {% python
     def fully_qualified_class_name(obj_or_prop):
+        if obj_or_prop.__class__ in (str, unicode):
+            obj_or_prop = model.getObjectByName(obj_or_prop)
         if obj_or_prop.javaType == 'Object':
             return '%s.%s' % (obj_or_prop.omeroPackage,
                               obj_or_prop.javaMethodName)
@@ -126,14 +141,11 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
 {% for o in sorted_and_filtered_objects() %}\
     <!-- OME model object ${o.name} -->
 {% choose %}\
-{% when parent_object(o.name) is not None and parent_object(o.name).isAbstractProprietary %}\
-    <type id="${fq_class_name(o)}" superclass="${fq_class_name(parent_object(o.name))}" ${type_attributes(o)}>
-{% end %}\
 {% when o.isAbstractProprietary or o.isAbstract %}\
     <abstract id="${fq_class_name(o)}" ${type_attributes(o)}>
 {% end %}\
-{% when parent_object(o.name) is None or not parent_object(o.name).isAbstractProprietary %}\
-    <type id="${fq_class_name(o)}" ${type_attributes(o)}>
+{% otherwise %}\
+    <type id="${fq_class_name(o)}" ${superclass(o)}${type_attributes(o)}>
 {% end %}\
 {% end %}\
         <properties>
