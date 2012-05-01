@@ -2112,12 +2112,6 @@
 				<to_child type="ome.model.core.OriginalFile"/>
 			</properties>
 		</link>
-		<type id="ome.model.core.Color">
-        <!-- Note: ChannelBinding is not in model-->
-        <properties>
-            <required name="value" type="int"/>
-        </properties>
-    </type>
     <enum id="ome.model.enums.Format">
         <!-- Note: Format is not in model but used by OriginalFile-->
         <entry name="PNG"/>

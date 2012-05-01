@@ -377,6 +377,25 @@ implements java.io.Serializable, IObject
 ##  a real property but rather an enum value for the database. However, they
 ##  are not even returned by $type.classProperties only $type.properties
 ##
+#elseif($prop.fieldType == "ome.model.core.Color")#############################TYPE
+##
+##  Color is an embedded type
+##
+   /**
+    * Color object that will be stored in a single column.
+    */
+    @javax.persistence.Embedded
+    @org.hibernate.annotations.Target(ome.model.core.Color.class)
+    public ome.model.core.Color get${prop.nameCapped}() {
+        $errorIfUnloaded
+        return this.${prop.name};
+    }
+
+    public void set${prop.nameCapped}(ome.model.core.Color color) {
+        $errorIfUnloaded
+        this.${prop.name} = color;
+    }
+
 #elseif($prop.one2Many)###################################################TYPE
 ##
 ##
