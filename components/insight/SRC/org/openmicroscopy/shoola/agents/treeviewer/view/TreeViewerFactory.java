@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
-import ij.IJ;
-
 import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -66,6 +64,7 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.StringComparator;
 
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -283,6 +282,23 @@ public class TreeViewerFactory
 		while (v.hasNext()) {
 			comp = (TreeViewerComponent) v.next();
 			comp.onReconnected();
+		}
+	}
+	
+	/**
+	 * Notifies the model that the user has annotated data.
+	 * 
+	 * @param containers The objects to handle.
+	 * @param count A positive value if annotations are added, a negative value
+	 * if annotations are removed.
+	 */
+	public static void onAnnotated(List<DataObject> containers, int count)
+	{
+		Iterator v = singleton.viewers.iterator();
+		TreeViewerComponent comp;
+		while (v.hasNext()) {
+			comp = (TreeViewerComponent) v.next();
+			comp.onAnnotated(containers, count);
 		}
 	}
 	

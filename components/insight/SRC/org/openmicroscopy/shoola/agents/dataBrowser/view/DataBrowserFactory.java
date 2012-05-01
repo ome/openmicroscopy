@@ -35,13 +35,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -344,10 +344,28 @@ public class DataBrowserFactory
 			comp = (DataBrowserComponent) entry.getValue();
 			comp.discard();
 		}
-		System.gc();
 		singleton.browsers.clear();
 		singleton.discardedBrowsers.clear();
 		singleton.searchBrowser = null;
+	}
+	
+	/**
+	 * Notifies the model that the user has annotated data.
+	 * 
+	 * @param containers The objects to handle.
+	 * @param count A positive value if annotations are added, a negative value
+	 * if annotations are removed.
+	 */
+	public static void onAnnotated(List<DataObject> containers, int count)
+	{
+		Iterator v = singleton.browsers.entrySet().iterator();
+		DataBrowserComponent comp;
+		Entry entry;
+		while (v.hasNext()) {
+			entry = (Entry) v.next();
+			comp = (DataBrowserComponent) entry.getValue();
+			comp.onAnnotated(containers, count);
+		}
 	}
 	
 	/**

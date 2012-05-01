@@ -30,6 +30,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -40,6 +42,7 @@ import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -49,6 +52,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
@@ -69,10 +74,12 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.CreateFolderDialog;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.GroupData;
-import pojos.PlateAcquisitionData;
+import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -86,7 +93,7 @@ import pojos.ScreenData;
  */
 public class MoveGroupSelectionDialog
 	extends JDialog
-	implements ActionListener
+	implements ActionListener, PropertyChangeListener, TreeSelectionListener
 {
 
 	/** Action id to close and dispose.*/
@@ -94,6 +101,12 @@ public class MoveGroupSelectionDialog
 	
 	/** Action id to move the data.*/
 	private static final int MOVE = 2;
+	
+	/** 
+	 * Action id to create a new container e.g. Dataset. The supported types
+	 * are Project, Dataset or Screen, depending on the objects to move.
+	 */
+	private static final int CREATE = 3;
 	
 	/** Text displayed in the header.*/
 	private static final String TEXT = "Select where to move the data into ";
@@ -107,14 +120,14 @@ public class MoveGroupSelectionDialog
 	/** The data to move.*/
 	private Map<SecurityContext, List<DataObject>> toMove;
 	
-	/** The list of possible targets.*/
-	private List<DataObject> targets;
-	
 	/** The button to close and dispose.*/
 	private JButton cancelButton;
 	
 	/** The button to move the data.*/
 	private JButton moveButton;
+	
+	/** The button to create a new container.*/
+	private JButton createButton;
 	
 	/** The component displayed in center of dialog.*/
 	private JComponent body;
@@ -127,12 +140,80 @@ public class MoveGroupSelectionDialog
 	
 	/** Indicate the status of the dialog.*/
 	private int status;
-	
-	/** Only displayed the top node.*/
-	private boolean topOnly;
-	
+
 	/** Handle the nodes to display.*/
 	private JTree treeDisplay;
+	
+	/** The type of container to create.*/
+	private Class<?> containerType;
+	
+	/** The data object to create.*/
+	private DataObject toCreate;
+	
+	/** Flag indicating that the message indicating that no node displayed.*/
+	private boolean noDisplay;
+	
+	/**
+	 * Creates a new container corresponding to {@link #containerType}.
+	 * 
+	 * @param name The name of the container.
+	 */
+	private void create(String name)
+	{
+		if (containerType == null) return;
+		if (ProjectData.class.equals(containerType)) {
+			toCreate = new ProjectData();
+			((ProjectData) toCreate).setName(name);
+		} else if (ScreenData.class.equals(containerType)) {
+			toCreate = new ScreenData();
+			((ScreenData) toCreate).setName(name);
+		} else if (DatasetData.class.equals(containerType)) {
+			toCreate = new DatasetData();
+			((DatasetData) toCreate).setName(name);
+		}
+		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+		TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
+		TreeImageSet node = new TreeImageSet(toCreate);
+		node.setDisplayItems(false);
+		dtm.insertNodeInto(node, root, root.getChildCount());
+		node = (TreeImageSet) root.getChildAt(root.getChildCount()-1);
+		treeDisplay.setSelectionPath(new TreePath(node.getPath()));
+		if (noDisplay) {
+			noDisplay = false;
+			Container c = getContentPane();
+			c.remove(body);
+			c.remove(1);
+			c.add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
+			c.add(buildToolBar(), BorderLayout.SOUTH);
+			validate();
+			repaint();
+			
+		}
+	}
+	
+	/** Brings up a dialog to create a new container.*/
+	private void showNewFolder()
+	{
+		if (containerType == null) return;
+		String title = "";
+		String defaultName = "";
+		if (ProjectData.class.equals(containerType)) {
+			title = "New Project";
+			defaultName = "untitled project";
+		} else if (ScreenData.class.equals(containerType)) {
+			title = "New Screen";
+			defaultName = "untitled screen";
+		} else if (DatasetData.class.equals(containerType)) {
+			title = "New Dataset";
+			defaultName = "untitled dataset";
+		}
+		CreateFolderDialog d = new CreateFolderDialog(this, title);
+		d.setDefaultName(defaultName);
+		d.addPropertyChangeListener(CreateFolderDialog.CREATE_FOLDER_PROPERTY,
+				this);
+		d.pack();
+		UIUtilities.centerAndShow(this, d);
+	}
 	
 	/**
      * Adds the nodes to the specified parent.
@@ -142,26 +223,21 @@ public class MoveGroupSelectionDialog
      * @param tm The  tree model.
      */
     private void buildTreeNode(TreeImageDisplay parent, 
-                                Collection nodes, DefaultTreeModel tm)
+                       Collection<TreeImageDisplay> nodes, DefaultTreeModel tm)
     {
-        Iterator i = nodes.iterator();
+        Iterator<TreeImageDisplay> i = nodes.iterator();
         TreeImageDisplay display;
-        List children;
-        DataObject data;
+        List<TreeImageDisplay> children;
         while (i.hasNext()) {
             display = (TreeImageDisplay) i.next();
             display.setDisplayItems(false);
-            data = (DataObject) display.getUserObject();
-            if (!(topOnly && (data instanceof DatasetData ||
-            		data instanceof PlateData))) {
-            	tm.insertNodeInto(display, parent, parent.getChildCount());
-                if (display instanceof TreeImageSet) {
-                    children = display.getChildrenDisplay();
-                    if (children.size() > 0) {
-                    	buildTreeNode(display, 
-                    			prepareSortedList(sorter.sort(children)), tm);
-                    }
-                }
+            tm.insertNodeInto(display, parent, parent.getChildCount());
+            if (display instanceof TreeImageSet) {
+            	children = display.getChildrenDisplay();
+            	if (children.size() > 0) {
+            		buildTreeNode(display, 
+            				prepareSortedList(sorter.sort(children)), tm);
+            	}
             }
         }
     }
@@ -177,16 +253,22 @@ public class MoveGroupSelectionDialog
 	private void move()
 	{
 		SecurityContext ctx = new SecurityContext(group.getId());
-		TreePath path = treeDisplay.getSelectionPath();
 		DataObject target = null;
-		if (path != null) {
-			Object object = path.getLastPathComponent();
-			if (object != null && object instanceof TreeImageDisplay) {
-				target = (DataObject) 
-				((TreeImageDisplay) object).getUserObject();
+		if (toCreate != null) {
+			target = toCreate;
+		} else {
+			TreePath path = treeDisplay.getSelectionPath();
+			
+			if (path != null) {
+				Object object = path.getLastPathComponent();
+				if (object != null && object instanceof TreeImageDisplay) {
+					target = (DataObject) 
+					((TreeImageDisplay) object).getUserObject();
+				}
 			}
 		}
 		TransferableObject t = new TransferableObject(ctx, target, toMove);
+		t.setGroupName(group.getName());
 		IconManager icons = IconManager.getInstance();
 		TransferableActivityParam param = new TransferableActivityParam(
 				icons.getIcon(IconManager.MOVE_22), t);
@@ -199,7 +281,11 @@ public class MoveGroupSelectionDialog
 	/** Initializes the components.*/
 	private void initComponents()
 	{
+		containerType = null;
 		sorter = new ViewerSorter();
+		createButton = new JButton("New...");
+		createButton.addActionListener(this);
+		createButton.setActionCommand(""+CREATE);
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand(""+CANCEL);
@@ -207,21 +293,27 @@ public class MoveGroupSelectionDialog
 		moveButton.setEnabled(false);
 		moveButton.addActionListener(this);
 		moveButton.setActionCommand(""+MOVE);
-		Entry entry;
-		Iterator i = toMove.entrySet().iterator();
+		Entry<SecurityContext, List<DataObject>> entry;
+		Iterator<Entry<SecurityContext, List<DataObject>>>
+		i = toMove.entrySet().iterator();
 		List<DataObject> list;
 		DataObject data;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			list = (List<DataObject>) entry.getValue();
+			entry = i.next();
+			list = entry.getValue();
 			if (list != null && list.size() > 0) {
 				data = list.get(0);
-				if (data instanceof PlateData || data instanceof DatasetData) {
-					topOnly = true;
-					break;
+				if (data instanceof PlateData) {
+					containerType = ScreenData.class;
+				} else if (data instanceof DatasetData) {
+					containerType = ProjectData.class;
+				} else if (data instanceof ImageData) {
+					containerType = DatasetData.class;
 				}
 			}
 		}
+		
+		createButton.setVisible(containerType != null);
 	}
 	
 	/** 
@@ -236,7 +328,15 @@ public class MoveGroupSelectionDialog
 		bar.add(Box.createRigidArea(UIUtilities.H_SPACER_SIZE));
 		bar.add(cancelButton);
 		bar.add(Box.createRigidArea(UIUtilities.H_SPACER_SIZE));
-		return UIUtilities.buildComponentPanelRight(bar);
+		JPanel barLeft = new JPanel();
+		barLeft.add(createButton);
+		
+		JPanel row = new JPanel();
+		row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
+		
+		row.add(UIUtilities.buildComponentPanel(barLeft));
+		row.add(UIUtilities.buildComponentPanelRight(bar));
+		return row;
 	}
 	
 	/** Builds and lays out the UI.*/
@@ -282,7 +382,8 @@ public class MoveGroupSelectionDialog
      * @param sorted The collection to organize.
      * @return See above.
      */
-    private List prepareSortedList(List sorted)
+    private List<TreeImageDisplay> 
+    prepareSortedList(List<TreeImageDisplay> sorted)
     {
     	List<TreeImageDisplay> top = new ArrayList<TreeImageDisplay>();
 		List<TreeImageDisplay> bottom = new ArrayList<TreeImageDisplay>();
@@ -290,17 +391,26 @@ public class MoveGroupSelectionDialog
 		List<TreeImageDisplay> top2 = new ArrayList<TreeImageDisplay>();
 		List<TreeImageDisplay> bottom2 = new ArrayList<TreeImageDisplay>();
 		
-		Iterator j = sorted.iterator();
+		Iterator<TreeImageDisplay> j = sorted.iterator();
 		TreeImageDisplay object;
 		Object uo;
 		while (j.hasNext()) {
 			object = (TreeImageDisplay) j.next();
 			uo = object.getUserObject();
-			if (uo instanceof ProjectData) top.add(object);
-			else if (uo instanceof ScreenData) top2.add(object);
-			else if (uo instanceof DatasetData) bottom.add(object);
-			else if (uo instanceof PlateData) bottom2.add(object);
-			else if (uo instanceof PlateAcquisitionData) bottom2.add(object);
+			if (ProjectData.class.equals(containerType)) {
+				if (uo instanceof ProjectData) {
+					top.add(object);
+					object.removeAllChildrenDisplay();
+				}
+			} else if (ScreenData.class.equals(containerType)) {
+				if (uo instanceof ScreenData) {
+					top.add(object);
+					object.removeAllChildrenDisplay();
+				}
+			} else if (DatasetData.class.equals(containerType)) {
+				if (uo instanceof ProjectData) top.add(object);
+				else if (uo instanceof DatasetData) bottom.add(object);
+			}
 		}
 		List<TreeImageDisplay> all = new ArrayList<TreeImageDisplay>();
 		if (top.size() > 0) all.addAll(top);
@@ -310,6 +420,35 @@ public class MoveGroupSelectionDialog
 		return all;
     }
     
+	/** Builds the components displayed when no node to display.*/
+	private void buildNoContentPane()
+	{
+		noDisplay = true;
+		Container c = getContentPane();
+		StringBuffer s = new StringBuffer();
+		StringBuffer s1 = new StringBuffer();
+		if (ProjectData.class.equals(containerType)) {
+			s.append("There is no Project to move the Dataset(s) into.");
+			s1.append("Please create a new Project if you wish.");
+		} else if (DatasetData.class.equals(containerType)) {
+			s.append("There is no Dataset to move the Image(s) into.");
+			s1.append("Please create a new Dataset if you wish.");
+		} else if (ScreenData.class.equals(containerType)) {
+			s.append("There is no Screen to move the Plate into.");
+			s1.append("Please create a new Screen if you wish.");
+		}
+		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.BACKGROUND);
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(new JLabel(s.toString()));
+		p.add(new JLabel(s1.toString()));
+		body = buildContent(p);
+		c.add(body, BorderLayout.CENTER);
+		c.add(buildToolBar(), BorderLayout.SOUTH);
+		validate();
+		repaint();
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -346,20 +485,11 @@ public class MoveGroupSelectionDialog
 	 * 
 	 * @param targets The values to display.
 	 */
-	public void setTargets(Collection targets)
+	public void setTargets(Collection<DataObject> targets)
 	{
-		moveButton.setEnabled(true);
 		Container c = getContentPane();
 		c.remove(body);
 		c.remove(1);
-		if (targets == null || targets.size() == 0) {
-			c.add(buildContent(new JLabel("No target to select.")),
-					BorderLayout.CENTER);
-			c.add(buildToolBar(), BorderLayout.SOUTH);
-			validate();
-			repaint();
-			return;
-		}
 		treeDisplay = new JTree();
 		treeDisplay.setVisible(true);
         treeDisplay.setRootVisible(false);
@@ -368,17 +498,28 @@ public class MoveGroupSelectionDialog
         treeDisplay.setShowsRootHandles(true);
         TreeImageSet root = new TreeImageSet("");
         treeDisplay.setModel(new DefaultTreeModel(root));
-		Set nodes = TreeViewerTranslator.transformHierarchy(targets, userID,
-				-1);
+        treeDisplay.addTreeSelectionListener(this);
+		if (targets == null || targets.size() == 0) {
+			buildNoContentPane();
+			return;
+		}
+		Set<TreeImageDisplay> 
+		nodes = TreeViewerTranslator.transformHierarchy(targets, userID, -1);
+		List<TreeImageDisplay> transformedNodes = 
+			prepareSortedList(sorter.sort(nodes));
+		if (transformedNodes.size() == 0) {
+			buildNoContentPane();
+			return;
+		}
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-		buildTreeNode(root, prepareSortedList(sorter.sort(nodes)), dtm);
+		buildTreeNode(root, transformedNodes, dtm);
 		dtm.reload();
 		c.add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
 		c.add(buildToolBar(), BorderLayout.SOUTH);
 		validate();
 		repaint();
 	}
-
+	
 	/**
 	 * Closes or moves the data.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -392,7 +533,33 @@ public class MoveGroupSelectionDialog
 				break;
 			case MOVE:
 				move();
+				break;
+			case CREATE:
+				showNewFolder();
 		}
+	}
+
+	/**
+	 * Listens to property to create a new container.
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (CreateFolderDialog.CREATE_FOLDER_PROPERTY.equals(name)) {
+			String folderName = (String) evt.getNewValue();
+			if (folderName != null && folderName.trim().length() > 0) 
+				create(folderName);
+		}
+	}
+
+	/**
+	 * Listens to node selection in the tree.
+	 * @see TreeSelectionListener#valueChanged(TreeSelectionEvent)
+	 */
+	public void valueChanged(TreeSelectionEvent e)
+	{
+		TreePath[] paths = treeDisplay.getSelectionPaths();
+		moveButton.setEnabled(paths != null && paths.length > 0);
 	}
 
 }

@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 # Static values
 
 # TODO: change to reverse
-help_button = "%scommon/image/help16.png" % settings.STATIC_URL
+help_button = "%swebgateway/img/help16.png" % settings.STATIC_URL
 
 help_wiki = '<span id="markup" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
 
@@ -113,7 +113,7 @@ class ShareCommentForm(NonASCIIForm):
 class ContainerForm(NonASCIIForm):
     
     name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':45}))
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), required=False, help_text=help_wiki)
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'cols': 39}), required=False, help_text=help_wiki)
 
 class ContainerNameForm(NonASCIIForm):
     

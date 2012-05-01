@@ -121,6 +121,7 @@
     <target name="release-win" depends="package,install,exe4j-init" if="exe4j.exists"
             description="Create a Windows executable bundle">
             <exe4j projectfile="OmeroImporter.exe4j"/>
+            <exe4j projectfile="OmeroImporter_64.exe4j"/>
     </target>
 
     <target name="release-win-zip" depends="release-win"

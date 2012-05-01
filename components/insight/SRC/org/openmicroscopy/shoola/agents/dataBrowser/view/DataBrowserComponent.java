@@ -164,6 +164,26 @@ class DataBrowserComponent
 		view.initialize(model, controller);
 	}
 	
+	/**
+	 * Notifies the model that the user has annotated data.
+	 * 
+	 * @param containers The objects to handle.
+	 * @param count A positive value if annotations are added, a negative value
+	 * if annotations are removed.
+	 */
+	void onAnnotated(List<DataObject> containers, int count)
+	{
+		if (containers == null || containers.size() == 0) return;
+		NodesFinder visitor = new NodesFinder(containers);
+		model.getBrowser().accept(visitor);
+		List<ImageDisplay> nodes = visitor.getFoundNodes();
+		if (nodes == null || nodes.size() == 0) return;
+		Iterator<ImageDisplay> i = nodes.iterator();
+		while (i.hasNext()) {
+			i.next().setAnnotationCount(count);
+		}
+	}
+	
 	/** 
 	 * Fires a property indicating that some rendering settings can be copied.
 	 */
