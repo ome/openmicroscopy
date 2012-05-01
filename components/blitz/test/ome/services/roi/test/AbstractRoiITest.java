@@ -23,7 +23,7 @@ import omero.model.Annotation;
 import omero.model.FileAnnotation;
 import omero.model.Image;
 import omero.model.ImageI;
-import omero.model.Roi;
+import omero.model.ROI;
 import omero.model.Shape;
 
 import org.testng.annotations.BeforeClass;
@@ -102,20 +102,20 @@ public class AbstractRoiITest extends AbstractServantTest {
     // helpers
     //
 
-    protected Roi createRoi(String name, Shape... shapes) throws Exception {
+    protected ROI createRoi(String name, Shape... shapes) throws Exception {
         Image i = new ImageI();
         i.setAcquisitionDate(rtime(0));
         i.setName(rstring(name));
         return createRoi(i, name, shapes);
     }
 
-    protected Roi createRoi(Image i, String name, Shape... shapes)
+    protected ROI createRoi(Image i, String name, Shape... shapes)
             throws Exception {
-        Roi roi = new omero.model.RoiI();
+        ROI roi = new omero.model.ROII();
         roi.setImage(i);
         roi.addAllShapeSet(Arrays.asList(shapes));
         roi = assertSaveAndReturn(roi);
-        roi = (Roi) assertFindByQuery(
+        roi = (ROI) assertFindByQuery(
                 "select roi from Roi roi "
                         + "join fetch roi.shapes shapes join fetch shapes.roi "
                         + "join fetch roi.image image "

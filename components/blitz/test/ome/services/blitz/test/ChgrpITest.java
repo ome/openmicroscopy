@@ -422,7 +422,7 @@ public class ChgrpITest extends AbstractGraphTest {
         Well w = p.copyWells().get(0);
         long wid = w.getId().getValue();
 
-        WellSample ws = w.getWellSample(0);
+        WellSample ws = w.copyWellSamples().get(0);
         long wsid = ws.getId().getValue();
 
         // Do Delete

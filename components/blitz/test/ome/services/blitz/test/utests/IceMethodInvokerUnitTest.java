@@ -42,13 +42,13 @@ import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
-import ome.model.acquisition.Objective;
+import ome.model.core.Objective;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.FilterType;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.roi.Roi;
+import ome.model.roi.ROI;
 import ome.parameters.Parameters;
 import ome.parameters.QueryParameter;
 import ome.services.blitz.impl.RoiI;
@@ -977,7 +977,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         method()
                 .will(
-                        returnValue(new ome.model.containers.ProjectDatasetLink[] { new ome.model.containers.ProjectDatasetLink() }));
+                        returnValue(new ome.model.core.ProjectDatasetLink[] { new ome.model.core.ProjectDatasetLink() }));
         rv = invoke(Arrays.asList(new omero.model.ProjectDatasetLinkI()), null);
         assertTrue(((List) rv).size() == 1);
 
@@ -1116,21 +1116,9 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     public void testNullFromGetPrimaryPixels() throws Exception {
         ome.model.core.Image i = new ome.model.core.Image();
         i.putAt(ome.model.core.Image.PIXELS, null);
-        assertEquals(-1, i.sizeOfPixels());
+        assertNull(i.getPixels());
         Image mapped = (Image) mapper.map(i);
-        assertEquals(-1, mapped.sizeOfPixels());
-        try {
-            mapped.getPrimaryPixels();
-            fail("must throw");
-        } catch (UnloadedCollectionException uce) {
-            // good
-        }
-        try {
-            mapped.copyPixels();
-            fail("must throw");
-        } catch (UnloadedCollectionException uce) {
-            // good
-        }
+        assertEquals(-1, mapped.getPixels());
     }
 
     // ~ RoiResults
@@ -1138,8 +1126,8 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
     @Test
     public void testRoiResultMaps() throws Exception {
-        Map<Long, List<Roi>> rois = new HashMap<Long, List<Roi>>();
-        rois.put(1L, Collections.singletonList(new Roi()));
+        Map<Long, List<ROI>> rois = new HashMap<Long, List<ROI>>();
+        rois.put(1L, Collections.singletonList(new ROI()));
         IceMapper mapper = new IceMapper();
         Map<Long, RoiResult> rrs = (Map<Long, RoiResult>)
             new RoiI.RoiResultMapReturnMapper(null).mapReturnValue(mapper, rois);

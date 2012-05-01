@@ -12,7 +12,7 @@ import omero.api.ShapePoints;
 import omero.model.Ellipse;
 import omero.model.Image;
 import omero.model.Rectangle;
-import omero.model.Roi;
+import omero.model.ROI;
 import omero.model.Shape;
 
 import org.testng.annotations.Test;
@@ -28,8 +28,8 @@ public class ContainedPointsTest extends AbstractRoiITest {
     @Test
     public void testGeometryOfRectangle() throws Exception {
     	Rectangle r = geomTool.rect(0, 0, 10, 10);
-        Roi roi = createRoi("geoOfRect", r);
-        ShapePoints pts = assertPoints(roi.getPrimaryShape());
+        ROI roi = createRoi("geoOfRect", r);
+        ShapePoints pts = assertPoints(roi.copyShapes().get(0));
         assertEquals(100, pts.x.length);
         assertEquals(100, pts.y.length);
     }
@@ -37,8 +37,8 @@ public class ContainedPointsTest extends AbstractRoiITest {
     @Test
     public void testGeometryOfCircle() throws Exception {
         Ellipse e = geomTool.ellipse(5, 5, 5, 5);
-        Roi roi = createRoi("geoOfCircle - inside 0,0,10,10 rect", e);
-        ShapePoints pts = assertPoints(roi.getPrimaryShape());
+        ROI roi = createRoi("geoOfCircle - inside 0,0,10,10 rect", e);
+        ShapePoints pts = assertPoints(roi.copyShapes().get(0));
         assertEquals(16, pts.x.length);
         assertEquals(16, pts.y.length);
     }

@@ -892,11 +892,9 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         if (img_ok) {
             assertNotNull(test);
             if (pix_ok) {
-                assertNotNull(test.getPrimaryPixels());
-                assertTrue(test.sizeOfPixels() > 0);
+                assertNotNull(test.getPixels());
             } else {
-                assertTrue(test.sizeOfPixels() == 0); // TODO should it be
-                // null?
+            	assertNull(test.getPixels());
             }
 
         } else {

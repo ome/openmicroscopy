@@ -308,7 +308,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
         Details d = img.getDetails();
         d.setGroup(group);
         d.setPermissions(perms);
-        img.addPixels(p);
+        img.setPixels(p);
         img = (Image) ownsfA2.getUpdateService().saveAndReturnObject(img);
     }
 

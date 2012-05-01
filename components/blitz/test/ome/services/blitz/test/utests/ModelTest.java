@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
@@ -22,7 +22,6 @@ import ome.model.meta.ExperimenterGroup;
 import omero.model.ArcI;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
-import omero.model.Event;
 import omero.model.EventI;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;

@@ -29,9 +29,9 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Plate;
 import omero.model.PlateI;
-import omero.model.Roi;
-import omero.model.RoiAnnotationLink;
-import omero.model.RoiAnnotationLinkI;
+import omero.model.ROI;
+import omero.model.ROIAnnotationLink;
+import omero.model.ROIAnnotationLinkI;
 import omero.model.Shape;
 import omero.model.Well;
 import omero.model.WellI;
@@ -59,7 +59,7 @@ public class ImageMeasurementsTest extends AbstractRoiITest {
     @Test
     public void testMeasurements() throws Exception {
         setupImage();
-        Roi roi = createRoi(i, "meas", geomTool.random(1).toArray(new Shape[0]));
+        ROI roi = createRoi(i, "meas", geomTool.random(1).toArray(new Shape[0]));
 
         FileAnnotation fa = new FileAnnotationI();
         fa.setNs(rstring(NSMEASUREMENT.value));
@@ -85,7 +85,7 @@ public class ImageMeasurementsTest extends AbstractRoiITest {
         plate.addWell(well);
 
         plate = assertSaveAndReturn(plate);
-        RoiAnnotationLink rlink = new RoiAnnotationLinkI();
+        ROIAnnotationLink rlink = new ROIAnnotationLinkI();
         ImageAnnotationLink ilink = new ImageAnnotationLinkI();
         rlink.link(roi, fa);
         ilink.link(i, fa);

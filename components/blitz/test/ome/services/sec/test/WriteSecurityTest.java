@@ -845,7 +845,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
             if (!instr_ok) {
                 fail("secvio!");
             }
-            assertTrue(tI.sizeOfFilter() == 1);
+            assertTrue(tI.sizeOfFilters() == 1);
         } catch (SecurityViolation sv) {
             if (instr_ok) {
                 throw sv;
@@ -1057,11 +1057,9 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         if (img_ok) {
             assertNotNull(test);
             if (pix_ok) {
-                assertNotNull(test.getPrimaryPixels());
-                assertTrue(test.sizeOfPixels() > 0);
+                assertNotNull(test.getPixels());
             } else {
-                assertTrue(test.sizeOfPixels() == 0); // TODO should it be
-                // null?
+            	assertNull(test.getPixels());
             }
 
         } else {

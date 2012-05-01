@@ -17,8 +17,6 @@ import java.util.Random;
 import omero.constants.namespaces.NSMEASUREMENT;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
-import omero.model.Format;
-import omero.model.FormatI;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
@@ -27,9 +25,9 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Plate;
 import omero.model.PlateI;
-import omero.model.Roi;
-import omero.model.RoiAnnotationLink;
-import omero.model.RoiAnnotationLinkI;
+import omero.model.ROI;
+import omero.model.ROIAnnotationLink;
+import omero.model.ROIAnnotationLinkI;
 import omero.model.Shape;
 import omero.model.Well;
 import omero.model.WellI;
@@ -63,7 +61,7 @@ public class RoiPerformanceTest extends AbstractRoiITest {
             watch.lap("create.image");
 
             while (true) {
-                Roi roi = createRoi(i, "RoiPerformanceTest", geomTool
+                ROI roi = createRoi(i, "RoiPerformanceTest", geomTool
                         .random(10).toArray(new Shape[] {}));
                 watch.lap("create.roi." + roi.copyShapes().size());
                 if (r.nextDouble() < 0.1) {
@@ -92,7 +90,7 @@ public class RoiPerformanceTest extends AbstractRoiITest {
     @Test
     public void testMeasurements() throws Exception {
         setupImage();
-        Roi roi = createRoi(i, "meas", geomTool.random(1).toArray(new Shape[0]));
+        ROI roi = createRoi(i, "meas", geomTool.random(1).toArray(new Shape[0]));
 
         FileAnnotation fa = new FileAnnotationI();
         fa.setNs(rstring(NSMEASUREMENT.value));
@@ -118,7 +116,7 @@ public class RoiPerformanceTest extends AbstractRoiITest {
         plate.addWell(well);
 
         plate = assertSaveAndReturn(plate);
-        RoiAnnotationLink rlink = new RoiAnnotationLinkI();
+        ROIAnnotationLink rlink = new ROIAnnotationLinkI();
         ImageAnnotationLink ilink = new ImageAnnotationLinkI();
         rlink.link(roi, fa);
         ilink.link(i, fa);

@@ -30,9 +30,9 @@ import java.util.Set;
 import junit.framework.TestCase;
 import ome.model.annotations.AnnotationAnnotationLink;
 import ome.model.annotations.CommentAnnotation;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
+import ome.model.core.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.CodomainMapContext;
@@ -118,7 +118,7 @@ public class AdapterTest extends TestCase {
     public void test_complex() throws Exception {
         p.linkDataset(d);
         d.linkImage(i);
-        i.addPixels(pix);
+        i.setPixels(pix);
         IceMapper mapper = new IceMapper();
         ProjectI p_remote = (ProjectI) mapper.map(p);
         Project p_test = (Project) mapper.reverse(p_remote);
@@ -137,8 +137,7 @@ public class AdapterTest extends TestCase {
                 .get(0);
         assertTrue(dil_remote.getParent() == d_remote);
         omero.model.Image i_remote = dil_remote.getChild();
-        assertTrue(i_remote.sizeOfPixels() == 1);
-        omero.model.Pixels pix_remote = i_remote.copyPixels().get(0);
+        omero.model.Pixels pix_remote = i_remote.getPixels();
         assertTrue(pix_remote.getImage() == i_remote);
     }
 
