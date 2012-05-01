@@ -846,7 +846,6 @@ class OMEModel(object):
                 prop.isBackReference = False
                 prop._isReference = True
                 o.properties[ref] = prop
-                print prop.isReference, prop.type
         for o in self.objects.values():
             for prop in o.properties.values():
                 if not prop.isReference:
