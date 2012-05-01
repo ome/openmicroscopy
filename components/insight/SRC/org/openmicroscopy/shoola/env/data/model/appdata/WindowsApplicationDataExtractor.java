@@ -52,7 +52,9 @@ public class WindowsApplicationDataExtractor implements
 		ApplicationDataExtractor {
 
 	/**
-	 * Windows specific keys for accessing application properties @see http://msdn.microsoft.com/en-us/library/windows/desktop/ms647464(v=vs.85).aspx
+	 * Windows specific keys for accessing application properties @see
+	 * http://msdn
+	 * .microsoft.com/en-us/library/windows/desktop/ms647464(v=vs.85).aspx
 	 */
 	private static final String APPLICATION_PROPERTY_KEY_COMMENTS = "Comments";
 	private static final String APPLICATION_PROPERTY_KEY_COMPANY_NAME = "CompanyName";
@@ -236,10 +238,7 @@ public class WindowsApplicationDataExtractor implements
 		String applicationName = FilenameUtils.getBaseName(file
 				.getAbsolutePath());
 
-		if (fileVersionInfoSize == 0) {
-			System.out
-					.println("No file version information found, should default to application file name");
-		} else {
+		if (fileVersionInfoSize >= 0) {
 			String translation = getTranslation(absPath, fileVersionInfoSize);
 
 			String fileDescription = getFilePropertyValue(absPath,
@@ -254,8 +253,9 @@ public class WindowsApplicationDataExtractor implements
 			else if (productName != "")
 				applicationName = productName;
 		}
-		
-		return new ApplicationData(icon, applicationName, file.getAbsolutePath());
+
+		return new ApplicationData(icon, applicationName,
+				file.getAbsolutePath());
 	}
 
 	/**
