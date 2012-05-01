@@ -43,6 +43,10 @@
             });
         });
     </script>
+
+    <!-- keep-alive ping so that OMERO session doesn't die -->
+    {% include "webclient/base/includes/ping.html" %}
+
 {% endblock %}
 
 {% block link %}

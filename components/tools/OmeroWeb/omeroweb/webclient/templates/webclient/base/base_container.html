@@ -92,6 +92,8 @@
         });
     </script>
 
+    <!-- keep-alive ping so that OMERO session doesn't die -->
+    {% include "webclient/base/includes/ping.html" %}
     
     <!-- set-up right panel tabs -->
     {% include "webclient/data/includes/right_plugin.general.js.html" %}

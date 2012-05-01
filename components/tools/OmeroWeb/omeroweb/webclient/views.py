@@ -187,6 +187,13 @@ def login(request):
     return HttpResponse(rsp)
 
 @login_required()
+def keepalive_ping(request, conn=None, **kwargs):
+    """ Keeps the OMERO session alive by pinging the server """
+
+    # login_required handles ping, timeout etc, so we don't need to do anything else
+    return HttpResponse("OK")
+
+@login_required()
 @render_response()
 def feed(request, conn=None, **kwargs):
     """

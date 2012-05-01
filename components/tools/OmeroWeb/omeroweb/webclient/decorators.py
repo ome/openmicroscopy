@@ -106,6 +106,10 @@ class render_response(omeroweb.decorators.render_response):
     def load_settings(self, request, context, conn):
 
         # Process various settings and add to the template context dict
+        ping_interval = settings.PING_INTERVAL
+        if ping_interval > 0:
+            context['ping_interval'] = ping_interval
+
         top_links = settings.TOP_LINKS
         links = []
         for tl in top_links:

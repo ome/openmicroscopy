@@ -126,4 +126,7 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^script_run/(?P<scriptId>[0-9]+)/$', views.script_run, name='script_run' ),  # runs the script - parameters in POST
     url( r'^get_original_file/(?:(?P<fileId>[0-9]+)/)?$', views.get_original_file, name="get_original_file"), # for stderr, stdout etc
 
+    # ping OMERO server to keep session alive
+    url( r'^keepalive_ping/$', views.keepalive_ping, name="keepalive_ping"),
+
 )
