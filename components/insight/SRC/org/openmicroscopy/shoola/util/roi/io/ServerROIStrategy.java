@@ -28,10 +28,12 @@ package org.openmicroscopy.shoola.util.roi.io;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
@@ -97,15 +99,16 @@ public class ServerROIStrategy
 	 * @param component The ROI component.
 	 * @param image The image the ROI is on.
 	 * @param ownerID The identifier of the owner.
+	 * @param enumerations The enumerations to use for shape settings.
 	 * @throws Exception 
 	 */
 	public List<ROIData> write(ROIComponent component, ImageData image, 
-			long ownerID)
+			long ownerID, Map<Integer, List<EnumerationObject>> enumerations)
 		throws Exception
 	{
 		if (component.getROIMap().size() == 0)
 			return new ArrayList<ROIData>();
-		return outputStrategy.writeROI(component, image, ownerID);
+		return outputStrategy.writeROI(component, image, ownerID, enumerations);
 	}
 	
 }

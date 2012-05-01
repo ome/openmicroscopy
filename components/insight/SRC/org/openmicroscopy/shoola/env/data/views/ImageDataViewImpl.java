@@ -458,4 +458,14 @@ class ImageDataViewImpl
         return cmd.exec(observer);
 	}
 
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#loadROIEnumerations(AgentEventListener)
+     */
+	public CallHandle loadROIEnumerations(SecurityContext ctx,
+		AgentEventListener observer) 
+	{
+		BatchCallTree cmd = new EnumerationLoader(ctx, EnumerationLoader.ROI);
+		return cmd.exec(observer);
+	}
 }

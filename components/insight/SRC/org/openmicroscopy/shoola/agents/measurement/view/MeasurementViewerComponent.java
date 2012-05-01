@@ -257,6 +257,7 @@ class MeasurementViewerComponent
         		} else {
             		model.fireLoadROIServerOrClient(false);
         		}
+        		model.fireEnumerationsLoading();
                 break;
             case DISCARDED:
                 throw new IllegalStateException(
@@ -980,6 +981,15 @@ class MeasurementViewerComponent
 		return model.hasROIToDelete();
 	}
 
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setROIEnumerations(Map)
+     */
+	public void setROIEnumerations(Map result)
+	{
+		model.setROIEnumerations(result);
+	}
+	
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()

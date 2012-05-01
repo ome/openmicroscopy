@@ -61,6 +61,9 @@ public class EnumerationLoader
 	/** Indicates to load the enumeration related to the channel metadata. */
 	public static final int CHANNEL = 1;
 	
+	/** Indicates to load the enumeration related to the ROI. */
+	public static final int ROI = 2;
+	
 	/** The nodes of the existing objects. */
     private Map         results;
     
@@ -69,6 +72,30 @@ public class EnumerationLoader
 
     /** The security context.*/
     private SecurityContext ctx;
+    
+    /**
+     * Creates a {@link BatchCall} to enumerations related to the ROI/shape.
+     * 
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeBatchCallForROI()
+    {
+        return new BatchCall("Loading image metadata enumeration: ") {
+            public void doCall() throws Exception
+            {
+                OmeroMetadataService service = context.getMetadataService();
+                results.put(OmeroMetadataService.FONT_FAMILY, 
+                		service.getEnumeration(ctx, 
+                				OmeroMetadataService.FONT_FAMILY));
+                results.put(OmeroMetadataService.FONT_STYLE, 
+                		service.getEnumeration(ctx, 
+                				OmeroMetadataService.FONT_STYLE));
+                results.put(OmeroMetadataService.LINE_CAP, 
+                		service.getEnumeration(ctx,
+                				OmeroMetadataService.LINE_CAP));
+            }
+        };
+    }
     
     /**
      * Creates a {@link BatchCall} to enumerations related to the image
@@ -176,8 +203,16 @@ public class EnumerationLoader
     {
     	results = new HashMap<String, Collection>();
     	this.ctx = ctx;
-    	if (index == IMAGE) loadCall = makeBatchCallForImage();
-    	else loadCall = makeBatchCallForChannel();
+    	switch (index) {
+			case IMAGE:
+				loadCall = makeBatchCallForImage();
+				break;
+			case ROI:
+				loadCall = makeBatchCallForROI();
+				break;
+			default:
+				loadCall = makeBatchCallForChannel();
+		}
     }
     
 }

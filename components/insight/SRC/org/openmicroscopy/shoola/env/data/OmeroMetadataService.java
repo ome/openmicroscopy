@@ -41,11 +41,14 @@ import omero.model.Correction;
 import omero.model.DetectorType;
 import omero.model.FilamentType;
 import omero.model.FilterType;
+import omero.model.FontFamily;
+import omero.model.FontStyle;
 import omero.model.Format;
 import omero.model.IlluminationType;
 import omero.model.Immersion;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
+import omero.model.LineCap;
 import omero.model.Medium;
 import omero.model.MicroscopeType;
 import omero.model.Pulse;
@@ -148,6 +151,15 @@ public interface OmeroMetadataService
 
 	/** Identified the <code>Format</code> enumeration. */
 	public static final String FORMAT = Format.class.getName();
+	
+	/** Identified the <code>Font Family</code> enumeration. */
+	public static final String FONT_FAMILY = FontFamily.class.getName();
+	
+	/** Identified the <code>Font Style</code> enumeration. */
+	public static final String FONT_STYLE = FontStyle.class.getName();
+	
+	/** Identified the <code>Line Cap</code> enumeration. */
+	public static final String LINE_CAP = LineCap.class.getName();
 	
 	/**
 	 * Loads the ratings linked to an object identifying by the specified

@@ -37,6 +37,7 @@ import java.util.TreeMap;
 
 //Application-internal dependencies
 import org.jhotdraw.draw.AttributeKeys;
+import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
@@ -81,6 +82,15 @@ public class ROIComponent
 	extends Component 
 {
 
+	/** Identifies the font family enumeration.*/
+	public static final Integer FONT_FAMILY = Integer.valueOf(0);
+	
+	/** Identifies the font style enumeration.*/
+	public static final Integer FONT_STYLE = Integer.valueOf(1);
+	
+	/** Identifies the font family enumeration.*/
+	public static final Integer LINE_CAP = Integer.valueOf(2);
+	
 	/** The main object for storing and manipulating ROIs. */
 	private ROICollection				roiCollection;
 
@@ -279,15 +289,17 @@ public class ROIComponent
 	 * 
 	 * @param image The image the ROI are on.
 	 * @param ownerID The identifier of the owner.
+	 * @param enumerations The enumerations to use for shape settings.
 	 * @return See above.
 	 * @throws Exception 
 	 */
-	public List<ROIData> saveROI(ImageData image, long ownerID) 
+	public List<ROIData> saveROI(ImageData image, long ownerID, 
+			Map<Integer, List<EnumerationObject>> enumerations)
 		throws Exception
 	{
 		if (serverStrategy == null) 
 			serverStrategy = new ServerROIStrategy();
-		return serverStrategy.write(this, image, ownerID);
+		return serverStrategy.write(this, image, ownerID, enumerations);
 	}
 	
 	/**

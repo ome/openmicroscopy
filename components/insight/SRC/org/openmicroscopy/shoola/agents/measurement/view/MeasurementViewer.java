@@ -339,5 +339,13 @@ public interface MeasurementViewer
 	 * @return See above.
 	 */
 	public boolean hasROIToDelete();
+
+	/** 
+	 * Sets the enumeration used to save the shape settings e.g.
+	 * Font Family.
+	 * 
+	 * @param result The enumerations to set.
+	 */
+	void setROIEnumerations(Map result);
 	
 }

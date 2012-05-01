@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,6 +53,7 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.measurement.Analyser;
+import org.openmicroscopy.shoola.agents.measurement.EnumerationLoader;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
@@ -61,8 +63,10 @@ import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
+import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -196,6 +200,9 @@ class MeasurementViewerModel
     
     /** The security context.*/
     private SecurityContext ctx;
+    
+    /** The enumerations to save.*/
+    private Map<Integer, List<EnumerationObject>> enumerations;
     
     /** 
 	 * Sorts the passed nodes by row.
@@ -1114,7 +1121,7 @@ class MeasurementViewerModel
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
 		try {
-			return roiComponent.saveROI(getImage(), exp.getId());
+			return roiComponent.saveROI(getImage(), exp.getId(), enumerations);
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot transform the ROI: "+e.getMessage());
@@ -1549,13 +1556,48 @@ class MeasurementViewerModel
      * 
      * @return See above.
      */
-   boolean isBigImage() { return bigImage; }
+    boolean isBigImage() { return bigImage; }
 
-   /** 
-    * Returns the security context.
-    * 
-    * @return See above.
-    */
-   SecurityContext getSecurityContext() { return ctx; }
+    /** 
+     * Returns the security context.
+     * 
+     * @return See above.
+     */
+    SecurityContext getSecurityContext() { return ctx; }
+
+    /** 
+     * Sets the enumerations used to save shape settings.
+     * 
+     * @param enumerations The value to set.
+     */
+    void setROIEnumerations(Map enumerations)
+    {
+    	if (enumerations == null) return;
+    	this.enumerations = new HashMap<Integer, List<EnumerationObject>>();
+    	Entry entry;
+    	Iterator i = enumerations.entrySet().iterator();
+    	String key;
+    	while (i.hasNext()) {
+			entry = (Entry) i.next();
+			key = (String) entry.getKey();
+			if (OmeroMetadataService.FONT_STYLE.equals(key)) {
+				this.enumerations.put(ROIComponent.FONT_STYLE, 
+						(List<EnumerationObject>) entry.getValue());
+			} else if (OmeroMetadataService.FONT_FAMILY.equals(key)) {
+				this.enumerations.put(ROIComponent.FONT_FAMILY, 
+						(List<EnumerationObject>) entry.getValue());
+			} else if (OmeroMetadataService.LINE_CAP.equals(key)) {
+				this.enumerations.put(ROIComponent.LINE_CAP, 
+						(List<EnumerationObject>) entry.getValue());
+			}
+		}
+    }
+
+    /** Loads the enumerations used to save the ROI.*/
+	void fireEnumerationsLoading()
+	{
+		EnumerationLoader loader = new EnumerationLoader(component, ctx);
+		loader.load();
+	}
 
 }	

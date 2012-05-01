@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.util.roi.io;
 
 //Java imports
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -30,13 +31,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 //Third-party libraries
+import omero.model.FontFamily;
+import omero.model.FontStyle;
+import omero.model.LineCap;
+
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.geom.BezierPath;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
@@ -87,6 +94,9 @@ class OutputServerStrategy
 	
 	/** The list of ROI to be supplied to the server. */
 	private List<ROIData>  ROIList;
+	
+	/** The collection of enumerations used to save the shape.*/
+	private Map<Integer, List<EnumerationObject>> enumerations;
 	
 	/**
 	 * Parses the ROI in the ROIComponent to create the appropriate ROIData 
@@ -429,6 +439,63 @@ class OutputServerStrategy
 	}
 	
 	/**
+	 * Returns the enumeration object corresponding to the passed family.
+	 * 
+	 * @param family The name of the family.
+	 * @return See above.
+	 */
+	private FontFamily getFontFamily(String family)
+	{
+		List<EnumerationObject> l = enumerations.get(ROIComponent.FONT_FAMILY);
+		Iterator<EnumerationObject> i = l.iterator();
+		EnumerationObject o;
+		while (i.hasNext()) {
+			o = i.next();
+			if (o.getValue().equals(family))
+				return (FontFamily) o.getObject();
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the enumeration object corresponding to the passed style.
+	 * 
+	 * @param style The name of the style.
+	 * @return See above.
+	 */
+	private FontStyle getFontStyle(String style)
+	{
+		List<EnumerationObject> l = enumerations.get(ROIComponent.FONT_STYLE);
+		Iterator<EnumerationObject> i = l.iterator();
+		EnumerationObject o;
+		while (i.hasNext()) {
+			o = i.next();
+			if (o.getValue().equals(style))
+				return (FontStyle) o.getObject();
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the enumeration object corresponding to the passed line cap.
+	 * 
+	 * @param lineCap The name of the line cap.
+	 * @return See above.
+	 */
+	private LineCap getLineCap(String lineCap)
+	{
+		List<EnumerationObject> l = enumerations.get(ROIComponent.LINE_CAP);
+		Iterator<EnumerationObject> i = l.iterator();
+		EnumerationObject o;
+		while (i.hasNext()) {
+			o = i.next();
+			if (o.getValue().equals(lineCap))
+				return (LineCap) o.getObject();
+		}
+		return null;
+	}
+	
+	/**
 	 * Adds the ShapeSettings attributes to the shape.
 	 * 
 	 * @param fig The figure in the measurement tool.
@@ -439,7 +506,8 @@ class OutputServerStrategy
 		ShapeSettingsData settings = shape.getShapeSettings();
 		Boolean bold;
 		Boolean italic;
-		/*
+		String family = ShapeSettingsData.DEFAULT_FONT_FAMILY;
+		String fontStyle = ShapeSettingsData.FONT_REGULAR;
 		if (AttributeKeys.FILL_COLOR.get(fig) != null)
 		{
 			Color c = AttributeKeys.FILL_COLOR.get(fig);
@@ -452,10 +520,10 @@ class OutputServerStrategy
 			settings.setStrokeWidth(
 					MeasurementAttributes.STROKE_WIDTH.get(fig));
 		if (MeasurementAttributes.FONT_FACE.get(fig) != null) {
-			settings.setFontFamily(UIUtilities.convertFont(
-					MeasurementAttributes.FONT_FACE.get(fig).getName()));
-		} else
-			settings.setFontFamily(ShapeSettingsData.DEFAULT_FONT_FAMILY);
+			family = UIUtilities.convertFont(
+					MeasurementAttributes.FONT_FACE.get(fig).getName());
+		}
+		settings.setFontFamily(getFontFamily(family));
 		if (MeasurementAttributes.FONT_SIZE.get(fig) != null)
 			settings.setFontSize(
 					MeasurementAttributes.FONT_SIZE.get(fig).intValue());
@@ -466,25 +534,43 @@ class OutputServerStrategy
 		if (bold != null) {
 			if (bold.booleanValue()) {
 				if (italic != null && italic.booleanValue()) {
-					settings.setFontStyle(ShapeSettingsData.FONT_BOLD_ITALIC);
-				} else settings.setFontStyle(ShapeSettingsData.FONT_BOLD);
+					fontStyle = ShapeSettingsData.FONT_BOLD_ITALIC;
+				} else fontStyle = ShapeSettingsData.FONT_BOLD;
 			} else {
 				if (italic != null && italic.booleanValue()) {
-					settings.setFontStyle(ShapeSettingsData.FONT_ITALIC);
-				} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
+					fontStyle = ShapeSettingsData.FONT_ITALIC;
+				} else fontStyle = ShapeSettingsData.FONT_REGULAR;
 			}
 		} else if (italic != null) {
 			if (italic.booleanValue()) {
 				if (bold != null && bold.booleanValue()) {
-					settings.setFontStyle(ShapeSettingsData.FONT_BOLD_ITALIC);
-				} else settings.setFontStyle(ShapeSettingsData.FONT_ITALIC);
+					fontStyle = ShapeSettingsData.FONT_BOLD_ITALIC;
+				} else fontStyle = ShapeSettingsData.FONT_ITALIC;
 			} else {
 				if (bold != null && bold.booleanValue()) {
-					settings.setFontStyle(ShapeSettingsData.FONT_BOLD);
-				} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
+					fontStyle = ShapeSettingsData.FONT_BOLD;
+				} else fontStyle = ShapeSettingsData.FONT_REGULAR;
 			}
-		} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
-		*/
+		}
+		
+		settings.setFontStyle(getFontStyle(fontStyle));
+		Integer value = MeasurementAttributes.STROKE_CAP.get(fig);
+		if (value != null) {
+			switch (value.intValue()) {
+				case BasicStroke.CAP_BUTT:
+				default:
+					settings.setLineCap(
+							getLineCap(ShapeSettingsData.LINE_CAP_BUTT));
+					break;
+				case BasicStroke.CAP_ROUND:
+					settings.setLineCap(
+							getLineCap(ShapeSettingsData.LINE_CAP_ROUND));
+					break;
+				case BasicStroke.CAP_SQUARE:
+					settings.setLineCap(
+							getLineCap(ShapeSettingsData.LINE_CAP_SQUARE));
+			}
+		}
 	}
 	
 	/**
@@ -512,13 +598,15 @@ class OutputServerStrategy
 	 * @param component See above.
 	 * @param image The image the ROI is on.
 	 * @param ownerID The identifier of the owner.
+	 * @param enumerations The enumerations to use for shape settings.
 	 * @throws Exception If an error occurred while parsing the ROI.
 	 */
 	List<ROIData> writeROI(ROIComponent component, ImageData image, 
-			long ownerID) 
+			long ownerID, Map<Integer, List<EnumerationObject>> enumerations)
 		throws Exception
 	{
 		this.component = component;
+		this.enumerations = enumerations;
 		ROIList = new ArrayList<ROIData>();
 		parseROI(image, ownerID);
 		return ROIList;

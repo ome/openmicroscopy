@@ -5764,6 +5764,10 @@ class OMEROGateway
 		getEnumerations(ctx, OmeroMetadataService.FILAMENT_TYPE);
 		getEnumerations(ctx, OmeroMetadataService.FILTER_TYPE);
 		getEnumerations(ctx, OmeroMetadataService.MICROSCOPE_TYPE);
+		getEnumerations(ctx, OmeroMetadataService.MICROSCOPE_TYPE);
+		getEnumerations(ctx, OmeroMetadataService.FONT_FAMILY);
+		getEnumerations(ctx, OmeroMetadataService.FONT_STYLE);
+		getEnumerations(ctx, OmeroMetadataService.LINE_CAP);
 	}
 
 	/**

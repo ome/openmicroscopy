@@ -467,4 +467,14 @@ public interface ImageDataView
 		PlaneDef pDef, Collection<Tile> tiles, boolean asTexture,
 			AgentEventListener observer);
 	
+    /**
+     * Loads the enumerations used for the ROI.
+     * 
+     * @param ctx The security context.
+     * @param observer	Call-back handler.
+     * @return See above.
+     */
+	public CallHandle loadROIEnumerations(SecurityContext ctx,
+			AgentEventListener observer);
+
 }
