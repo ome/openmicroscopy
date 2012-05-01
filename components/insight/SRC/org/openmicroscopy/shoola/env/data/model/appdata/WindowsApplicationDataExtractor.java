@@ -69,6 +69,8 @@ public class WindowsApplicationDataExtractor implements
 	private static final String APPLICATION_PROPERTY_KEY_PRIVATE_BUILD = "PrivateBuild";
 	private static final String APPLICATION_PROPERTY_KEY_SPECIAL_BUILD = "SpecialBuild";
 
+	private static final String WINDOWS_QUERYPATH_TRANSLATION = "\\VarFileInfo\\Translation";
+	
 	/** The default application location on <code>Windows</code> platform. */
 	private static final String LOCATION_WINDOWS = "C:\\Program Files\\";
 
@@ -117,13 +119,11 @@ public class WindowsApplicationDataExtractor implements
 
 		if (!fileVersionInfoSuccess)
 			throw new Exception("Unable to load application information");
-
-		String queryPath = "\\VarFileInfo\\Translation";
-
+		
 		PointerByReference lplpBuffer = new PointerByReference();
 		IntByReference puLen = new IntByReference();
 
-		boolean verQueryValSuccess = ExecuteQuery(lpData, queryPath,
+		boolean verQueryValSuccess = ExecuteQuery(lpData, WINDOWS_QUERYPATH_TRANSLATION,
 				lplpBuffer, puLen);
 
 		if (!verQueryValSuccess)
