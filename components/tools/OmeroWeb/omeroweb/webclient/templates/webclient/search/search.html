@@ -84,6 +84,7 @@
                     });
                     $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
                     $("div#content_details").load('{% url load_searching "form" %}?'+url);
+                    $("#filtersearch").show();
                     return false;
                 });
 
@@ -114,10 +115,13 @@
                     var data = $("#batch_searching_form").serialize();
                     $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
                     $("div#content_details").load('{% url load_searching %}', data);
+                    $("#filtersearch").show();
                     return false;
                 });
 
                 search_selection_changed();     // clear selection (hides acquisition & preview tabs)
+
+                $("#filtersearch").hide();
         })
     </script>
 
