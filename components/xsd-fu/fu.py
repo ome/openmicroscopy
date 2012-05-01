@@ -386,6 +386,7 @@ class OMEModelProperty(OMEModelEntity):
         self.isBackReference = False
         self.plural = None
         self.manyToMany = False
+        self._isReference = False
         try:
             root = ElementTree.fromstring(delegate.appinfo)
             self.plural = root.findtext('plural')
@@ -504,7 +505,7 @@ class OMEModelProperty(OMEModelEntity):
         o = self.model.getObjectByName(self.type)
         if o is not None:
             return o.isReference
-        return False
+        return self._isReference
     isReference = property(_get_isReference,
         doc="""Whether or not the property is a reference.""")
 
@@ -841,9 +842,12 @@ class OMEModel(object):
                 delegate.maxOccurs = 1
                 delegate.namespace = o.namespace
                 prop = OMEModelProperty.fromReference(delegate, o, self)
-                # Override back reference status
+                # Override forward and back reference status
                 prop.isBackReference = False
+                prop._isReference = True
                 o.properties[ref] = prop
+                print prop.isReference, prop.type
+        for o in self.objects.values():
             for prop in o.properties.values():
                 if not prop.isReference:
                     continue
