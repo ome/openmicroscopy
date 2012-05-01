@@ -257,21 +257,26 @@ class ReferenceDelegate(object):
         # Ensures property code which is looking for elements or attributes
         # which conform to an enumeration can still function.
         self.values = None
+        self.maxOccurs = 9999
+        self.minOccurs = 0
     
     def getValues(self):
         return self.values
     
     def getMaxOccurs(self):
-        return 9999
+        return self.maxOccurs
 
     def getMinOccurs(self):
-        return 0
+        return self.minOccurs
 
     def getType(self):
         return self.dataType
 
     def getName(self):
         return self.name
+
+    def isComplex(self):
+        return True
 
 class OMEModelEntity(object):
     """
@@ -825,6 +830,20 @@ class OMEModel(object):
         """
         references = dict()
         for o in self.objects.values():
+            if o.isSettings and not o.isAbstract:
+                shortName = o.name.replace('Settings', '')
+                ref = '%sRef' % (shortName)
+                delegate = ReferenceDelegate(ref, ref, None)
+                # Override back reference naming and default cardinality. Also
+                # set the namespace to be the same
+                delegate.name = ref
+                delegate.minOccurs = 1
+                delegate.maxOccurs = 1
+                delegate.namespace = o.namespace
+                prop = OMEModelProperty.fromReference(delegate, o, self)
+                # Override back reference status
+                prop.isBackReference = False
+                o.properties[ref] = prop
             for prop in o.properties.values():
                 if not prop.isReference:
                     continue
