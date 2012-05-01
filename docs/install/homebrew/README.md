@@ -134,12 +134,12 @@ Edit your .profile as appropriate. NB. The following are indicators of required 
 CONFIG
 ======
 
+Start the PostgresQL server
+
     $ initdb /usr/local/var/postgres
-    $ cp /usr/local/Cellar/postgresql/9.0.4/org.postgresql.postgres.plist ~/Library/LaunchAgents/
-    $ launchctl load -w ~/Library/LaunchAgents/org.postgresql.postgres.plist
+    $ brew services start postgresql
     $ pg_ctl -D /usr/local/var/postgres/ -l /usr/local/var/postgres/server.log start
 
-NB: under Mac OS X 10.7.3, installed postgresql version is now 9.1.3 and the file is called homebrew.mxcl.postgresql.plist
 
     $ createuser -P -D -R -S omero
     $ createdb -O omero omero
