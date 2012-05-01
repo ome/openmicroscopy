@@ -221,11 +221,11 @@
             <!--
             // Back reference FilterSet_BackReference
             -->
-            <manyzero name="filterSets" type="ome.model.core.FilterSet" inverse="Dichroic" ordered="TODO"/>
+            <manyzero name="filterSets" type="ome.model.core.FilterSet" inverse="dichroic" ordered="TODO"/>
             <!--
             // Back reference LightPath_BackReference
             -->
-            <manyzero name="lightPaths" type="ome.model.core.LightPath" inverse="Dichroic" ordered="TODO"/>
+            <manyzero name="lightPaths" type="ome.model.core.LightPath" inverse="dichroic" ordered="TODO"/>
             <!--
             // Property LotNumber
             -->
@@ -274,11 +274,11 @@
             <!--
             // Back reference Image_BackReference
             -->
-            <manyzero name="images" type="ome.model.core.Image" inverse="Experiment" ordered="TODO"/>
+            <manyzero name="images" type="ome.model.core.Image" inverse="experiment" ordered="TODO"/>
             <!--
             // Property which occurs more than once MicrobeamManipulation
             -->
-            <zeromany name="microbeamManipulations" type="ome.model.core.MicrobeamManipulation" inverse="Experiment" ordered="TODO"/>
+            <zeromany name="microbeamManipulations" type="ome.model.core.MicrobeamManipulation" inverse="experiment" ordered="TODO"/>
             <!--
             // Property Type
             -->
@@ -345,7 +345,7 @@
             <!--
             // Back reference Channel_BackReference
             -->
-            <manyzero name="channels" type="ome.model.core.Channel" inverse="FilterSet" ordered="TODO"/>
+            <manyzero name="channels" type="ome.model.core.Channel" inverse="filterSet" ordered="TODO"/>
             <!--
             // Property DichroicRef
             -->
@@ -425,7 +425,7 @@
             <!--
             // Back reference WellSample_BackReference
             -->
-            <manyzero name="wellSamples" type="ome.model.spw.WellSample" inverse="Image" ordered="TODO"/>
+            <manyzero name="wellSamples" type="ome.model.spw.WellSample" inverse="image" ordered="TODO"/>
         </properties>
     </type>
 
@@ -457,27 +457,27 @@
             <!--
             // Property which occurs more than once Detector
             -->
-            <zeromany name="detectors" type="ome.model.core.Detector" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="detectors" type="ome.model.core.Detector" inverse="instrument" ordered="TODO"/>
             <!--
             // Property which occurs more than once Dichroic
             -->
-            <zeromany name="dichroics" type="ome.model.core.Dichroic" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="dichroics" type="ome.model.core.Dichroic" inverse="instrument" ordered="TODO"/>
             <!--
             // Property which occurs more than once Filter
             -->
-            <zeromany name="filters" type="ome.model.core.Filter" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="filters" type="ome.model.core.Filter" inverse="instrument" ordered="TODO"/>
             <!--
             // Property which occurs more than once FilterSet
             -->
-            <zeromany name="filterSets" type="ome.model.core.FilterSet" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="filterSets" type="ome.model.core.FilterSet" inverse="instrument" ordered="TODO"/>
             <!--
             // Back reference Image_BackReference
             -->
-            <manyzero name="images" type="ome.model.core.Image" inverse="Instrument" ordered="TODO"/>
+            <manyzero name="images" type="ome.model.core.Image" inverse="instrument" ordered="TODO"/>
             <!--
             // Property which occurs more than once LightSource
             -->
-            <zeromany name="lightSources" type="ome.model.core.LightSource" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="lightSources" type="ome.model.core.LightSource" inverse="instrument" ordered="TODO"/>
             <!--
             // Property Microscope
             -->
@@ -485,7 +485,7 @@
             <!--
             // Property which occurs more than once Objective
             -->
-            <zeromany name="objectives" type="ome.model.core.Objective" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="objectives" type="ome.model.core.Objective" inverse="instrument" ordered="TODO"/>
         </properties>
     </type>
 
@@ -709,7 +709,7 @@
             <!--
             // Property which occurs more than once LightSourceSettings
             -->
-            <zeromany name="lightSourceSettingsCombinations" type="ome.model.core.LightSourceSettings" inverse="MicrobeamManipulation" ordered="TODO"/>
+            <zeromany name="lightSourceSettingsCombinations" type="ome.model.core.LightSourceSettings" inverse="microbeamManipulation" ordered="TODO"/>
             <!--
             // Many-to-many reference ROIRef
             -->
@@ -825,7 +825,7 @@
             <!--
             // Property which occurs more than once Channel
             -->
-            <zeromany name="channels" type="ome.model.core.Channel" inverse="Pixels" ordered="TODO"/>
+            <zeromany name="channels" type="ome.model.core.Channel" inverse="pixels" ordered="TODO"/>
             <!--
             // Property DimensionOrder
             -->
@@ -845,7 +845,7 @@
             <!--
             // Property which occurs more than once Plane
             -->
-            <zeromany name="planes" type="ome.model.core.Plane" inverse="Pixels" ordered="TODO"/>
+            <zeromany name="planes" type="ome.model.core.Plane" inverse="pixels" ordered="TODO"/>
             <!--
             // Property SizeC
             -->
@@ -947,7 +947,7 @@
             <!--
             // Property which occurs more than once PlateAcquisition
             -->
-            <zeromany name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="Plate" ordered="TODO"/>
+            <zeromany name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="plate" ordered="TODO"/>
             <!--
             // Property RowNamingConvention
             -->
@@ -967,7 +967,7 @@
             <!--
             // Property which occurs more than once Well
             -->
-            <zeromany name="wells" type="ome.model.spw.Well" inverse="Plate" ordered="TODO"/>
+            <zeromany name="wells" type="ome.model.spw.Well" inverse="plate" ordered="TODO"/>
 
             <!--
             // Property WellOriginX
@@ -1001,7 +1001,7 @@
             <!--
             // Reference WellSampleRef
             -->
-            <onemany name="wellSamples" type="ome.model.spw.WellSample" inverse="PlateAcquisition" ordered="TODO"/>
+            <onemany name="wellSamples" type="ome.model.spw.WellSample" inverse="plateAcquisition" ordered="TODO"/>
             <manyone name="plate" type="ome.model.spw.Plate" inverse="plateAcquisition"/>
         </properties>
     </type>
@@ -1089,8 +1089,8 @@
             <!--
             // Back reference Well_BackReference
             -->
-            <manyzero name="wells" type="ome.model.spw.Well" inverse="Reagent" ordered="TODO"/>
-            <manyzero name="screens" type="ome.model.spw.Screen" inverse="Reagent" ordered="TODO"/>
+            <manyzero name="wells" type="ome.model.spw.Well" inverse="reagent" ordered="TODO"/>
+            <manyzero name="screens" type="ome.model.spw.Screen" inverse="reagent" ordered="TODO"/>
         </properties>
     </type>
 
@@ -1134,7 +1134,7 @@
             <!--
             // Property which occurs more than once Reagent
             -->
-            <zeromany name="reagents" type="ome.model.spw.Reagent" inverse="Screen" ordered="TODO"/>
+            <zeromany name="reagents" type="ome.model.spw.Reagent" inverse="screen" ordered="TODO"/>
             <!--
             // Property ReagentSetDescription
             -->
@@ -1321,8 +1321,8 @@
             <!--
             // Property which occurs more than once WellSample
             -->
-            <zeromany name="wellSamples" type="ome.model.spw.WellSample" inverse="Well" ordered="TODO"/>
-            <manyone name="plate" type="ome.model.spw.Plate" inverse="Well"/>
+            <zeromany name="wellSamples" type="ome.model.spw.WellSample" inverse="well" ordered="TODO"/>
+            <manyone name="plate" type="ome.model.spw.Plate" inverse="well"/>
         </properties>
     </type>
 
@@ -1340,7 +1340,7 @@
             <!--
             // Back reference PlateAcquisition_BackReference
             -->
-            <manyzero name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="WellSample" ordered="TODO"/>
+            <manyzero name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="wellSample" ordered="TODO"/>
             <!--
             // Property PositionX
             -->
