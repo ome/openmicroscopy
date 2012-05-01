@@ -210,7 +210,7 @@ REF_REGEX = re.compile(r'Ref$|RefNode$')
 BACKREF_REGEX = re.compile(r'_BackReference')
 
 PREFIX_CASE_REGEX = re.compile(
-        r'^([A-Z]{1})[a-z0-9]+|([A-Z0-9]+)[A-Z]{1}[a-z]+|([A-Z]+$)')
+        r'^([A-Z]{1})[a-z0-9]+|([A-Z0-9]+)[A-Z]{1}[a-z]+|([A-Z]+)')
 
 def resolve_parents(model, element_name):
     """
