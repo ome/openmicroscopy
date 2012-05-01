@@ -5,17 +5,7 @@
 {% end %}\
 \
 {% def fq_class_name(obj_or_prop) %}\
-{% choose %}\
-{% when obj_or_prop.javaType == 'Object' %}\
-${obj_or_prop.omeroPackage}.${obj_or_prop.javaMethodName}\
-{% end %}\
-{% when obj_or_prop.isPrimitive %}\
-${obj_or_prop.javaType}\
-{% end %}\
-{% otherwise %}\
-${obj_or_prop.omeroPackage}.${obj_or_prop.javaType}\
-{% end %}\
-{% end %}\
+${fully_qualified_class_name(obj_or_prop)}\
 {% end %}\
 \
 {% def fq_link_class_name(o, prop) %}\
@@ -33,6 +23,15 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
 {% end %}\
 \
 {% python
+    def fully_qualified_class_name(obj_or_prop):
+        if obj_or_prop.javaType == 'Object':
+            return '%s.%s' % (obj_or_prop.omeroPackage,
+                              obj_or_prop.javaMethodName)
+        elif obj_or_prop.isPrimitive:
+            return obj_or_prop.javaType
+        else:
+            return '%s.%s' % (obj_or_prop.omeroPackage, obj_or_prop.javaType)
+
     def parent_object(name):
         try:
             return model.getObjectByName(parents[name].keys()[0])
@@ -85,12 +84,16 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
         return filter(f, properties)
 
     def sorted_enumerations():
-        enumerations = list()
+        enumerations = dict()
         for o in model.objects.values():
             for prop in o.properties.values():
                 if prop.isEnumeration:
-                    enumerations.append(prop)
-        return sorted(enumerations, lambda x, y: cmp(x.name, y.name))
+                    enumerations[fully_qualified_class_name(prop)] = prop
+        enumerations = enumerations.values()
+        def comparator(x, y):
+            return cmp(fully_qualified_class_name(x),
+                       fully_qualified_class_name(y))
+        return sorted(enumerations, lambda x, y: comparator(x, y))
 
     def sorted_and_filtered_enumerations():
         enumerations = sorted_enumerations()
