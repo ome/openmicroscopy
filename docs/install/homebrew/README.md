@@ -2,29 +2,31 @@ INSTALL
 =======
 
 The instructions and scripts provided here depend on Homebrew 0.9
-or later, including support for the `brew tap' command.
+or later, including support for the `brew tap` command.
 
-This procedure has been tested on the following Mac OS X versions:
+This procedure has been tested on the following Mac OS X versions and hardware:
 
-    10.6.8
-    10.7.3
+
+	Model identifier                                 | Mac OS X version
+	-------------------------------------------------+-----------------
+	MacBook                                          | 10.6.8
+	MacMini1,1    (Intel Core Duo, 1.66GHz, 2GB RAM) | 10.6.8
+	MacBookPro1,1 (Intel Core Duo, 2.16GHz, 2GB RAM) | 10.6.8
+	MacBookPro8,2 (Intel Core i7, 2.3 GHz, 8 GB RAM) | 10.7.3
 
 Install OS X Developer Tools. This procedure has been tested with the the following Xcode distributions:
 
-    xcode_3.2.6_and_ios_sdk_4.3.dmg
-    Xcode 4.3.2 (for Mac OS X 10.7.3)
+	Xcode version                        | Mac OS X version
+	-------------------------------------+-----------------
+	xcode_3.2.6_and_ios_sdk_4.3.dmg      | 10.6.8
+	Xcode 4.3.2                          | 10.7.3
 
-on the following Hardware:
-
-    MacBook
-    MacBookPro1,1 (Intel Core Duo, 2.16GHz, 2GB RAM)
-    MacBookPro8,2 (Intel Core i7, 2.3 GHz, 8 GB RAM)
-    MacMini1,1 (Intel Core Duo, 1.66GHz, 2GB RAM)
+NB: for Xcode 4.3.2, make sure that the Command line tools are installed (Preferences > Downloads > Components)
 
 Homebrew installation
 ---------------------
 
-Follow the instructions for installing homebrew available at https://github.com/mxcl/homebrew/wiki/installation.
+Follow the instructions for installing Homebrew available [[here](https://github.com/mxcl/homebrew/wiki/installation)].
 All requirements for OMERO will be installed in this location (e.g. /usr/local). For example:
 
     $ ruby -e "$(curl -fsSLk https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
@@ -54,31 +56,44 @@ If you run into problems with Homebrew, you can always run
 
 Below is a non-exhaustive list of errors/warnings
 
-1. Warning: Xcode is not installed! Builds may fail!
-Solution: install Xcode
+### Xcode
+    Warning: Xcode is not installed! Builds may fail!
 
-2. Warning: It appears you have MacPorts or Fink installed.
-Follow uninstall instructions [[link](http://guide.macports.org/chunked/installing.macports.uninstalling.html)]
+Install Xcode using Mac App store.
 
-3. ==> Installing postgresql dependency: readline
- Error: No such file or directory - /usr/bin/cc`
+### Macports/Fink
+
+    Warning: It appears you have MacPorts or Fink installed.
+
+Follow uninstall instructions [[here](http://guide.macports.org/chunked/installing.macports.uninstalling.html)].
+
+### Postgresql
+
+    ==> Installing postgresql dependency: readline
+    Error: No such file or directory - /usr/bin/cc
+
 For Xcode 4.3.2 make sure Xcode Command Line Tools are installed [[link](https://github.com/mxcl/homebrew/issues/10244#issuecomment-4013781)]
 
-4. Error: You must `brew link ossp-uuid' before postgresql can be installed
+    Error: You must ``brew link ossp-uuid' before postgresql can be installed
+
 Try brew cleanup then brew link ossp-uuid
 
-5. Error: Failed executing: cd cpp && make MCPP_HOME=/Users/sebastien/apps/OMERO.libs/Cellar/mcpp/2.7.2 DB_HOME=/Users/sebastien/apps/OMERO.libs/Cellar/berkeley-db46/4.6.21 OPTIMIZE=yes prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 embedded_runpath_prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 install
-We have had problems building zeroc-ice33 under MacOS 10.7.3 [[ticket](http://trac.openmicroscopy.org.uk/ome/ticket/8075)]. If you will be developing OMERO rather than installing omero43, you can try installing `ice' (Ice 3.4) instead
+### Ice
 
-6. ==> Installing hdf5 dependency: szip
-   ==> Downloading http://www.hdfgroup.org/ftp/lib-external/szip/2.1/src/szip-2.1.tar.gz
-   Already downloaded: /Users/moore/Library/Caches/Homebrew/szip-2.1.tar.gz
-   Error: MD5 mismatch
-   Expected: 902f831bcefb69c6b635374424acbead
-   Got: 0d6a55bb7787f9ff8b9d608f23ef5be0
-   Archive: /Users/moore/Library/Caches/Homebrew/szip-2.1.tar.gz
-   (To retry an incomplete download, remove the file above.)
-   Manually remove the archived version (Here: /Users/moore/Library/Caches/Homebrew/szip-2.1.tar.gz) since the maintainer may have updated the file.
+    Error: Failed executing: cd cpp && make M PP_HOME=/Users/sebastien/apps/    OMERO.libs/Cellar/mcpp/2.7.2 DB_HOME=/Users/sebastien/apps/OMERO.libs/Cellar/berkeley-    db46/4.6.21 OPTIMIZE=yes prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 embedded_runpath_prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 install
+
+We have had problems building zeroc-ice33 under MacOS 10.7.3 [[see ticket #8075](http://trac.openmicroscopy.org.uk/ome/ticket/8075)]. If you will be developing OMERO rather than installing omero43, you can try installing `ice' (Ice 3.4) instead
+
+### szip
+    ==> Installing hdf5 dependency: szip
+    ==> Downloading http://www.hdfgroup.org/ftp/lib-external/szip/2.1/src/szip-2.1.tar.gz
+    Already downloaded: /Users/moore/Library/Caches/Homebrew/szip-2.1.tar.gz
+    Error: MD5 mismatch
+    Expected: 902f831bcefb69c6b635374424acbead
+    Got: 0d6a55bb7787f9ff8b9d608f23ef5be0
+    Archive: /Users/moore/Library/Caches/Homebrew/szip-2.1.tar.gz
+    (To retry an incomplete download, remove the file above.)
+Manually remove the archived version [[here](/Users/moore/Library/Caches/Homebrew/szip-2.1.tar.gz)] since the maintainer may have updated the file.
 
 
 OMERO server
@@ -107,20 +122,14 @@ ENV
 
 Edit your .profile as appropriate. NB. The following are indicators of required entries:
 
-    export BREW_DIR=/usr/local
-
-    export OMERO_HOME=$BREW_DIR/Cellar/omero43/4.3/
+    export BREW_DIR=$(brew --prefix)
+    export OMERO_HOME=$(brew --prefix omero43)
     export ICE_CONFIG=$OMERO_HOME/etc/ice.config
-    export ICE_HOME=$BREW_DIR/Cellar/zeroc-ice33
-    export PYTHONPATH=$OMERO_HOME/lib/python:$ICE_HOME/3.3.1/python
+    export ICE_HOME=$(brew --prefix zeroc-ice33)
+    export PYTHONPATH=$OMERO_HOME/lib/python:$ICE_HOME/python
 
-    export PATH=/usr/local/bin:$BREW_DIR/bin:$OMERO_HOME/bin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
-    export DYLD_LIBRARY_PATH=$BREW_DIR/lib
-
-NB: if you installed `ice' (Ice 3.4), use the following paths
-
-    export ICE_HOME=$OMEROLIBS/Cellar/ice
-    export PYTHONPATH=$OMERO_HOME/lib/python:$ICE_HOME/3.4.2/python
+    export PATH=$BREW_DIR/bin:$BREW_DIR/sbin:$OMERO_HOME/bin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
+    export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:$DYLD_LIBRARY_PATH
 
 CONFIG
 ======
