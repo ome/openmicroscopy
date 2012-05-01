@@ -51,39 +51,17 @@
 {% endblock %}
 
 
-    {% block middle_header %}
-    <div id="middle_header">
 
-        <a id="logo">
-            <img src="{% static "webgateway/img/logo2.png" %}"/>
-        </a>
-
-            
-        <div id="middle_header_left">
-			{% block middle_header_left %}
-			    {% include "webclient/base/menu.html" %}
-			{% endblock %}
-        </div>
-			
-			
-        <div id="middle_header_right">
 			{% block middle_header_right %}
 					
 		        
 					
 				<!-- Global Search -->
-				{% include "webclient/base/search_field.html" %}
+				{% include "webclient/base/includes/search_field.html" %}
 					
 				<!-- User Dropdown -->
-				{% include "webclient/base/user_dropdown.html" %}
+				{% include "webclient/base/includes/user_dropdown.html" %}
 			{% endblock %}
-        </div>
-			
-        <div class="clear"></div>
-	
-	</div>
-	{% endblock %}
-	
         
 
 

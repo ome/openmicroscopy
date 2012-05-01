@@ -28,7 +28,7 @@
 {% block script %}
     {{ block.super }}
     <!-- required for the script_launch html below -->
-    {% include "webclient/base/script_launch_head.html" %}
+    {% include "webclient/base/includes/script_launch_head.html" %}
 
     <!-- The following are required by the right-hand panel, E.g. annotations/metadata_general.html -->
     <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
@@ -87,7 +87,7 @@
 
 
 {% block middle_header_left %}
-    {% include "webclient/base/menu.html" %}
+    {% include "webclient/base/includes/menu.html" %}
 {% endblock %}
 
 
@@ -95,17 +95,17 @@
 
 
         <!-- Global Tools -->
-        {% include "webclient/base/basket_info.html" %}
+        {% include "webclient/base/includes/basket_info.html" %}
         <ul class="header_toolbar">
-                {% include "webclient/base/script_launch.html" %}
-            {% include "webclient/base/activities_info.html" %}
+                {% include "webclient/base/includes/script_launch.html" %}
+            {% include "webclient/base/includes/activities_info.html" %}
         </ul>
         
         <!-- Global Search -->
-        {% include "webclient/base/search_field.html" %}
+        {% include "webclient/base/includes/search_field.html" %}
         
         <!-- User Dropdown -->
-        {% include "webclient/base/user_dropdown.html" %}
+        {% include "webclient/base/includes/user_dropdown.html" %}
 {% endblock %}
 
 

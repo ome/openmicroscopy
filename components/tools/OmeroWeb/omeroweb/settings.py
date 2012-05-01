@@ -232,17 +232,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],
     "omero.web.open_astex_max_voxels": ["OPEN_ASTEX_MAX_VOXELS", 27000000, int],  # 300 x 300 x 300
     "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', parse_paths],
+    
     # Add links to the top header: links are ['Link Text', 'url_name'], where the url is reverse("url_name")
     "omero.web.ui.top_links": ["TOP_LINKS", '[]', json.loads],  # E.g. '[["Webtest", "webtest_index"]]'
-
-    # Add links to the tool-bar: links are ['path/to/icon.png' OR 'label', 'url_name', 'title', 'id'], where the url is reverse("url_name").
-    # E.g. '[["webtest/img/figure_icon-16.png", "webtest_split_view_figure", "Split View Figure", "channel_overlay_link"]]' 'id' is optional
-    "omero.web.ui.toolbar_links": ["TOOLBAR_LINKS", '[["webtest/img/figure_icon-16.png", "webtest_split_view_figure", "Split View Figure"]]', json.loads],
-
+    
     # Add plugins to the right-hand & center panels: plugins are ['Label', 'include.js', 'div_id']. The javascript loads data into $('#div_id').
     "omero.web.ui.right_plugins": ["RIGHT_PLUGINS", '[["Acquisition", "webclient/data/includes/right_plugin.acquisition.js.html", "metadata_tab"],'\
             #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"],'\
             '["Preview", "webclient/data/includes/right_plugin.preview.js.html", "preview_tab"]]', json.loads],
+            
     # E.g. Center plugin: ["Channel overlay", "webtest/webclient_plugins/center_plugin.overlay.js.html", "channel_overlay_panel"]
     "omero.web.ui.center_plugins": ["CENTER_PLUGINS", '['\
             '["Table", "webclient/data/includes/center_plugin.table.js.html", "image_table"],'\
