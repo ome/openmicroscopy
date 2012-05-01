@@ -142,7 +142,7 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
     <!-- OME model object ${o.name} -->
 {% choose %}\
 {% when o.isAbstractProprietary or o.isAbstract %}\
-    <abstract id="${fq_class_name(o)}" ${type_attributes(o)}>
+    <abstract id="${fq_class_name(o)}" ${superclass(o)}${type_attributes(o)}>
 {% end %}\
 {% otherwise %}\
     <type id="${fq_class_name(o)}" ${superclass(o)}${type_attributes(o)}>
