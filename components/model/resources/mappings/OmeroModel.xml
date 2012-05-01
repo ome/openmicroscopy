@@ -413,7 +413,7 @@
             <!--
             // Property Pixels
             -->
-            <required name="pixels" type="ome.model.core.Pixels"/>
+            <required name="pixels" type="ome.model.core.Pixels" ordered="true"/>
             <!--
             // Many-to-many reference ROIRef
             -->
@@ -565,7 +565,7 @@
             <!--
             // Many-to-many reference ExcitationFilterRef
             -->
-            <child name="excitationFilterLinks" type="ome.model.core.LightPathExcitationFilterLink" target="ome.model.core.Filter"/>
+            <child name="excitationFilterLinks" type="ome.model.core.LightPathExcitationFilterLink" target="ome.model.core.Filter" ordered="true"/>
         </properties>
     </type>
 
