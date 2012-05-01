@@ -139,6 +139,7 @@ import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
+import omero.model.Channel;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -157,7 +158,6 @@ import omero.model.ImageI;
 import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.Line;
-import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.Namespace;
 import omero.model.OriginalFile;
@@ -165,7 +165,7 @@ import omero.model.OriginalFileI;
 import omero.model.Permissions;
 import omero.model.Pixels;
 import omero.model.PixelsI;
-import omero.model.PixelsType;
+import omero.model.PixelType;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
@@ -174,7 +174,7 @@ import omero.model.Polyline;
 import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.RenderingDef;
-import omero.model.Roi;
+import omero.model.ROI;
 import omero.model.Screen;
 import omero.model.ScreenI;
 import omero.model.Shape;
@@ -5305,15 +5305,15 @@ class OMEROGateway
 		isSessionAlive(ctx);
 		try {
 			IProjectionPrx service = getProjectionService(ctx);
-			PixelsType type = null;
+			PixelType type = null;
 			if (pixType != null) {
 				IQueryPrx svc = getQueryService(ctx);
-				List<IObject> l = svc.findAll(PixelsType.class.getName(), null);
+				List<IObject> l = svc.findAll(PixelType.class.getName(), null);
 				Iterator<IObject> i = l.iterator();
-				PixelsType pt;
+				PixelType pt;
 				String value;
 				while (i.hasNext()) {
-					pt = (PixelsType) i.next();
+					pt = (PixelType) i.next();
 					value = pt.getValue().getValue();
 					if (value.equals(pixType)) {
 						type = pt;
@@ -5537,7 +5537,7 @@ class OMEROGateway
 			ids.add(channelID);
 			List l = service.loadChannelAcquisitionData(ids);
 			if (l != null && l.size() == 1) {
-				LogicalChannel lc = (LogicalChannel) l.get(0);
+				Channel lc = (Channel) l.get(0);
 				ChannelAcquisitionData data = new ChannelAcquisitionData(lc);
 				LightSourceData src = data.getLightSource();
 				if (src == null || src.isLoaded()) return data;
@@ -5756,7 +5756,6 @@ class OMEROGateway
 		getEnumerations(ctx, OmeroMetadataService.BINNING);
 		getEnumerations(ctx, OmeroMetadataService.CONTRAST_METHOD);
 		getEnumerations(ctx, OmeroMetadataService.ILLUMINATION_TYPE);
-		getEnumerations(ctx, OmeroMetadataService.PHOTOMETRIC_INTERPRETATION);
 		getEnumerations(ctx, OmeroMetadataService.ACQUISITION_MODE);
 		getEnumerations(ctx, OmeroMetadataService.LASER_MEDIUM);
 		getEnumerations(ctx, OmeroMetadataService.LASER_TYPE);
@@ -6548,8 +6547,8 @@ class OMEROGateway
 			options.userId = omero.rtypes.rlong(userID);
 			RoiResult serverReturn;
 			serverReturn = svc.findByImage(imageID, new RoiOptions());
-			Map<Long, Roi> roiMap = new HashMap<Long, Roi>();
-			List<Roi> serverRoiList = serverReturn.rois;
+			Map<Long, ROI> roiMap = new HashMap<Long, ROI>();
+			List<ROI> serverRoiList = serverReturn.rois;
 
 			/* Create a map of all the client roi with id as key */
 			Map<Long, ROIData> clientROIMap = new HashMap<Long, ROIData>();
@@ -6563,7 +6562,7 @@ class OMEROGateway
 			 * the server that should be deleted, before creating map.
 			 * To delete an roi we first must delete all the roiShapes in 
 			 * the roi. */
-			for (Roi r : serverRoiList) {
+			for (ROI r : serverRoiList) {
 				if (r != null) {
 					//rois are now deleted using the roi service.
 					if (clientROIMap.containsKey(r.getId().getValue()))
@@ -6586,7 +6585,7 @@ class OMEROGateway
 			List<ShapeData> shapeList;
 			ShapeData shape;
 			Map<ROICoordinate, ShapeData> clientCoordMap;
-			Roi serverRoi;
+			ROI serverRoi;
 			Iterator<List<ShapeData>> shapeIterator;
 			Iterator<ROICoordinate> serverIterator;
 			Map<ROICoordinate, Shape>serverCoordMap;
@@ -6598,7 +6597,7 @@ class OMEROGateway
 	
 			List<Long> deleted = new ArrayList<Long>();
 			Image unloaded = new ImageI(imageID, false);
-			Roi rr;
+			ROI rr;
 			for (ROIData roi : roiList)
 			{
 				/*
@@ -6606,7 +6605,7 @@ class OMEROGateway
 				 */
 				if (!roiMap.containsKey(roi.getId()))
 				{
-					rr = (Roi) roi.asIObject();
+					rr = (ROI) roi.asIObject();
 					rr.setImage(unloaded);
 					updateService.saveAndReturnObject(rr);
 					continue;
@@ -6631,8 +6630,9 @@ class OMEROGateway
 				 */
 				serverCoordMap  = new HashMap<ROICoordinate, Shape>();
 				if (serverRoi != null) {
+					List<Shape> l = serverRoi.copyShapes();
 					for (int i = 0 ; i < serverRoi.sizeOfShapes(); i++) {
-						s = serverRoi.getShape(i);
+						s = l.get(i);
 						if (s != null) {
 							serverCoordMap.put(new ROICoordinate(
 								s.getTheZ().getValue(), s.getTheT().getValue()),
@@ -6675,7 +6675,7 @@ class OMEROGateway
 				if (serverRoi != null) {
 					id = serverRoi.getId().getValue();
 					tempResults = svc.findByImage(imageID, new RoiOptions());
-					for (Roi rrr : tempResults.rois) {
+					for (ROI rrr : tempResults.rois) {
 						if (rrr.getId().getValue() == id)
 							serverRoi = rrr;
 					}
@@ -6702,17 +6702,16 @@ class OMEROGateway
 								serverRoi.addShape((Shape) shape.asIObject());
 								break;
 							}
+							List<Shape> l = serverRoi.copyShapes();
 							for (int j = 0 ; j < serverRoi.sizeOfShapes() ; j++)
 							{
-								if (serverRoi != null) {
-									serverShape = serverRoi.getShape(j);
-									if (serverShape != null && 
-											serverShape.getId() != null) {
-										sid = serverShape.getId().getValue();
-										if (sid == shape.getId()) {
-											shapeIndex = j;
-											break;
-										}
+								serverShape = l.get(j);
+								if (serverShape != null && 
+										serverShape.getId() != null) {
+									sid = serverShape.getId().getValue();
+									if (sid == shape.getId()) {
+										shapeIndex = j;
+										break;
 									}
 								}
 							}
@@ -6720,21 +6719,19 @@ class OMEROGateway
 							if (shapeIndex == -1) {
 								serverShape = null;
 								shapeIndex = -1;
+								List<Shape> ll = serverRoi.copyShapes();
 								for (int j = 0 ; j < serverRoi.sizeOfShapes() ;
 								j++)
 								{
-									if (serverRoi != null) 
-									{
-										serverShape = serverRoi.getShape(j);
-										if (serverShape != null) {
-											if (serverShape.getTheT().getValue()
-												== shape.getT() && 
-												serverShape.getTheZ().getValue()
-												== shape.getZ())
-											{
-												shapeIndex = j;
-												break;
-											}
+									serverShape = l.get(j);
+									if (serverShape != null) {
+										if (serverShape.getTheT().getValue()
+											== shape.getT() && 
+											serverShape.getTheZ().getValue()
+											== shape.getZ())
+										{
+											shapeIndex = j;
+											break;
 										}
 									}
 								}
@@ -6747,9 +6744,11 @@ class OMEROGateway
 										"is corrupted");
 								}
 							}
-							else
-								serverRoi.setShape(shapeIndex,
-									(Shape) shape.asIObject());
+							else {
+								//serverRoi.setShape(shapeIndex,
+								//		(Shape) shape.asIObject());
+								serverRoi.addShape((Shape) shape.asIObject());
+							}
 						}
 					}
 				}
@@ -6759,7 +6758,7 @@ class OMEROGateway
 				 * 
 				 */
 				if (serverRoi != null) {
-					Roi ri = (Roi) roi.asIObject();
+					ROI ri = (ROI) roi.asIObject();
 					serverRoi.setDescription(ri.getDescription());
 					serverRoi.setNamespace(ri.getNamespace());
 					serverRoi.setImage(unloaded);

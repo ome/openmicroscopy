@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Set;
 
 import ome.model.IObject;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.util.CBlock;
 

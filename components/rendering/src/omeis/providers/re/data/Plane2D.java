@@ -16,7 +16,7 @@ import org.apache.commons.logging.LogFactory;
 // Application-internal dependencies
 import ome.util.PixelData;
 import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 /**
  * Allows to extract pixels intensity values from a given plane within a pixels
@@ -109,7 +109,7 @@ public class Plane2D {
         this.data = data;
 
         // Grab the pixel type from the pixels set
-        PixelsType type = pixels.getType();
+        PixelType type = pixels.getType();
 
         this.bytesPerPixel = PlaneFactory.bytesPerPixel(type);
         this.javaType = PlaneFactory.javaType(type);

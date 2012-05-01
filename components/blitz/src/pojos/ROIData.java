@@ -41,8 +41,8 @@ import omero.model.Point;
 import omero.model.Polygon;
 import omero.model.Polyline;
 import omero.model.Rectangle;
-import omero.model.Roi;
-import omero.model.RoiI;
+import omero.model.ROI;
+import omero.model.ROII;
 import omero.model.Shape;
 import omero.model.Label;
 
@@ -72,7 +72,7 @@ public class ROIData
 	/** Initializes the map. */
 	private void initialize()
 	{
-		Roi roi = (Roi) asIObject();
+		ROI roi = (ROI) asIObject();
 		List<Shape> shapes = roi.copyShapes();
 		if (shapes == null) return;
 		Iterator<Shape> i = shapes.iterator();
@@ -115,7 +115,7 @@ public class ROIData
 	 * 
 	 * @param roi The ROI hosted by the component.
 	 */
-	public ROIData(Roi roi)
+	public ROIData(ROI roi)
 	{
 		super();
 		setValue(roi);
@@ -128,7 +128,7 @@ public class ROIData
 	public ROIData()
 	{
 		super();
-		setValue(new RoiI());
+		setValue(new ROII());
 		roiShapes = new TreeMap<ROICoordinate, List<ShapeData>>
 		(new ROICoordinate());
 	}
@@ -140,7 +140,7 @@ public class ROIData
 	 */
 	public void setImage(Image image)
 	{
-		Roi roi = (Roi) asIObject();
+		ROI roi = (ROI) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
 		roi.setImage(image);
@@ -154,7 +154,7 @@ public class ROIData
 	 */
 	public ImageData getImage()
 	{
-		Roi roi = (Roi) asIObject();
+		ROI roi = (ROI) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
 		Image image = roi.getImage();
@@ -169,7 +169,7 @@ public class ROIData
 	 */
 	public void addShapeData(ShapeData shape)
 	{
-		Roi roi = (Roi) asIObject();
+		ROI roi = (ROI) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
 		ROICoordinate coord = shape.getROICoordinate();
@@ -193,7 +193,7 @@ public class ROIData
 	 */
 	public void removeShapeData(ShapeData shape)
 	{
-		Roi roi = (Roi) asIObject();
+		ROI roi = (ROI) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
 		ROICoordinate coord = shape.getROICoordinate();
@@ -219,8 +219,8 @@ public class ROIData
 	{
 		Iterator<ROICoordinate> i = roiShapes.keySet().iterator();
 		int cnt = 0;
-		List shapeList;
-		while(i.hasNext()) {
+		List<ShapeData> shapeList;
+		while (i.hasNext()) {
 			shapeList = roiShapes.get(i.next());
 			cnt += shapeList.size();
 		}
@@ -308,7 +308,7 @@ public class ROIData
 	 */
 	public String getDescription()
 	{
-		Roi roi = (Roi) asIObject();
+		ROI roi = (ROI) asIObject();
 		if (roi == null) return "";
 		RString value = roi.getDescription();
 		if (value == null) return "";
@@ -322,7 +322,7 @@ public class ROIData
 	 */
 	public void setDescription(String description)
 	{
-		Roi roi = (Roi) asIObject();
+		ROI roi = (ROI) asIObject();
 		if (roi == null) return;
 		if (description == null) description = "";
 		roi.setDescription(rtypes.rstring(description));
@@ -335,7 +335,7 @@ public class ROIData
 	 */
 	public void setName(String name)
 	{
-		Roi roi = (Roi) asIObject();
+		ROI roi = (ROI) asIObject();
 		if (roi == null) return;
 		if (name == null) name = "";
 		roi.setDescription(rtypes.rstring(name));
@@ -348,7 +348,7 @@ public class ROIData
 	 */
 	public String getName()
 	{
-		Roi roi = (Roi) asIObject();
+		ROI roi = (ROI) asIObject();
 		if (roi == null) return "";
 		RString value = roi.getName();
 		if (value == null) return "";
@@ -362,7 +362,7 @@ public class ROIData
 	 */
 	public void setNamespace(String name)
 	{
-		Roi roi = (Roi) asIObject();
+		ROI roi = (ROI) asIObject();
 		if (roi == null) return;
 		if (name == null) name = "";
 		roi.setNamespace(rtypes.rstring(name));
@@ -375,7 +375,7 @@ public class ROIData
 	 */
 	public String getNamespace()
 	{
-		Roi roi = (Roi) asIObject();
+		ROI roi = (ROI) asIObject();
 		if (roi == null) return "";
 		RString value = roi.getNamespace();
 		if (value == null) return "";

@@ -30,6 +30,7 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.PixelType;
 import omero.ServerError;
 import omero.model.Image;
 import omero.model.Pixels;
@@ -66,8 +67,7 @@ public interface ImageService
 	  * @throws DSAccessException
 	  */
 	 Long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
-           List<Integer> channelList, 
-           omero.model.PixelsType pixelsType,
+           List<Integer> channelList, PixelType pixelsType,
            String name, String description) 	throws  ServerError;
 	 
 	/**

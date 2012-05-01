@@ -17,14 +17,15 @@ import java.util.List;
 // Third-party libraries
 
 // Application-internal dependencies
-import ome.model.acquisition.Filter;
-import ome.model.acquisition.FilterSet;
-import ome.model.acquisition.Laser;
-import ome.model.acquisition.LightPath;
-import ome.model.acquisition.LightSource;
-import ome.model.acquisition.TransmittanceRange;
 import ome.model.core.Channel;
-import ome.model.core.LogicalChannel;
+import ome.model.core.Color;
+import ome.model.core.Filter;
+import ome.model.core.FilterSet;
+import ome.model.core.Laser;
+import ome.model.core.LightPath;
+import ome.model.core.LightSource;
+import ome.model.core.TransmittanceRange;
+
 
 
 /**
@@ -58,12 +59,6 @@ public class ColorsFactory {
     static final int DEFAULT_ALPHA = 255;
 
     /**
-     * Lower bound of the wavelength interval corresponding to a
-     * <code>BLUE</code> color.
-     */
-    private static final int BLUE_MIN = 400;
-
-    /**
      * Upper bound of the wavelength interval corresponding to a
      * <code>BLUE</code> color.
      */
@@ -86,12 +81,6 @@ public class ColorsFactory {
      * <code>RED</code> color.
      */
     private static final int RED_MIN = 560;//601;
-
-    /**
-     * Upper bound of the wavelength interval corresponding to a
-     * <code>RED</code> color.
-     */
-    private static final int RED_MAX = 700;
 
     /** The value to add to the cut-in to determine the color. */
     private static final int RANGE = 15;
@@ -138,7 +127,7 @@ public class ColorsFactory {
      * 			   <code>false</code> to only check emission.
      * @return See above.
      */
-    private static boolean hasEmissionExcitationData(LogicalChannel lc, 
+    private static boolean hasEmissionExcitationData(Channel lc, 
     		boolean full)
     {
     	if (lc == null) return false;
@@ -151,9 +140,9 @@ public class ColorsFactory {
     	//light path first
     	if (lc.getLightPath() != null) {
     		lp = (LightPath) lc.getLightPath();
-    		if (lp.sizeOfEmissionFilterLink() > 0) {
+    		if (lp.sizeOfEmissionFilterLinks() > 0) {
     			filters = new ArrayList<Filter>();
-    			j = lp.linkedEmissionFilterIterator();
+    			j = lp.linkedEmissionFilterLinksIterator();
         		while (j.hasNext()) {
         			filters.add(j.next());
         		}
@@ -167,9 +156,9 @@ public class ColorsFactory {
     	
     	if (lc.getFilterSet() != null) {
     		f = (FilterSet) lc.getFilterSet();
-    		if (f.sizeOfEmissionFilterLink() > 0) {
+    		if (f.sizeOfEmissionFilterLinks() > 0) {
     			filters = new ArrayList<Filter>();
-    			j = f.linkedEmissionFilterIterator();
+    			j = f.linkedEmissionFilterLinksIterator();
         		while (j.hasNext()) {
         			filters.add(j.next());
         		}
@@ -194,9 +183,9 @@ public class ColorsFactory {
     	if (lc.getExcitationWavelength() != null) return true;
     	//ligth path
     	if (lp != null) {
-    		if (lp.sizeOfExcitationFilterLink() > 0) {
+    		if (lp.sizeOfExcitationFilterLinks() > 0) {
     			filters = new ArrayList<Filter>();
-    			j = lp.linkedExcitationFilterIterator();
+    			j = lp.linkedExcitationFilterLinksIterator();
         		while (j.hasNext()) {
         			filters.add(j.next());
         		}
@@ -209,9 +198,9 @@ public class ColorsFactory {
     	}
     	//filter set
     	if (f != null) {
-    		if (f.sizeOfExcitationFilterLink() > 0) {
+    		if (f.sizeOfExcitationFilterLinks() > 0) {
     			filters = new ArrayList<Filter>();
-    			j = f.linkedExcitationFilterIterator();
+    			j = f.linkedExcitationFilterLinksIterator();
         		while (j.hasNext()) {
         			filters.add(j.next());
         		}
@@ -231,27 +220,30 @@ public class ColorsFactory {
      * wavelength or explicitly defined for a particular channel.
      * 
      * @param channel The channel to determine the color for.
-     * @param lc	  The logical channel associated to that channel.
      * @return An RGBA array representation of the color.
      */
-    private static int[] getColor(Channel channel, LogicalChannel lc) {
-    	if (lc == null) return null;
-    	if (!hasEmissionExcitationData(lc, true)) {
-    		Integer red = channel.getRed();
-    		Integer green = channel.getGreen();
-    		Integer blue = channel.getBlue();
-    		Integer alpha = channel.getAlpha();
-    		if (red != null && green != null && blue != null && alpha != null) {
-    			// We've got a color image of some type that has explicitly
-    			// specified which channel is Red, Green, Blue or some other wacky
-    			// color.
-    			//if (red == 0 && green == 0 && blue == 0 && alpha == 0)
-    			//	alpha = DEFAULT_ALPHA;
-    			return new int[] { red, green, blue, alpha };
+    private static int[] getColor(Channel channel) {
+    	if (channel == null) return null;
+    	if (!hasEmissionExcitationData(channel, true)) {
+    		Color c = channel.getColor();
+    		if (c != null) {
+    			Integer red = c.getRed();
+        		Integer green = c.getGreen();
+        		Integer blue = c.getBlue();
+        		Integer alpha = c.getAlpha();
+        		if (red != null && green != null && blue != null && alpha != null) {
+        			// We've got a color image of some type that has explicitly
+        			// specified which channel is Red, Green, Blue or some other wacky
+        			// color.
+        			//if (red == 0 && green == 0 && blue == 0 && alpha == 0)
+        			//	alpha = DEFAULT_ALPHA;
+        			return new int[] { red, green, blue, alpha };
+        		}
     		}
+    		
     		return null;
     	}
-    	Integer value = lc.getEmissionWavelength();
+    	Integer value = channel.getEmissionWavelength();
     	//First we check the emission wavelength.
     	if (value != null) return determineColor(value);
 
@@ -263,10 +255,10 @@ public class ColorsFactory {
     	FilterSet f = null;
     	LightPath lp = null;
     	//LightPath
-    	if (value == null && lc.getLightPath() != null) {
+    	if (value == null && channel.getLightPath() != null) {
     		filters = new ArrayList<Filter>();
-    		lp = lc.getLightPath();
-    		j = lp.linkedEmissionFilterIterator();
+    		lp = channel.getLightPath();
+    		j = lp.linkedEmissionFilterLinksIterator();
     		while (j.hasNext()) {
 				filters.add(j.next());
 			}
@@ -276,10 +268,10 @@ public class ColorsFactory {
     		}
     	}
     	
-    	if (value == null && lc.getFilterSet() != null) {
+    	if (value == null && channel.getFilterSet() != null) {
     		filters = new ArrayList<Filter>();
-    		f = lc.getFilterSet();
-    		j = f.linkedEmissionFilterIterator();
+    		f = channel.getFilterSet();
+    		j = f.linkedEmissionFilterLinksIterator();
     		while (j.hasNext()) {
 				filters.add(j.next());
 			}
@@ -291,20 +283,21 @@ public class ColorsFactory {
     	
     	
     	//Laser
-    	if (value == null && lc.getLightSourceSettings() != null) {
-    		LightSource ls = lc.getLightSourceSettings().getLightSource();
-    		if (ls instanceof Laser) value = ((Laser) ls).getWavelength();
+    	if (value == null && channel.getLightSourceSettings() != null) {
+    		//FIXME: REVIEW how to get the light. --jmarie
+    		//LightSource ls = channel.getLightSourceSettings().get
+    		//if (ls instanceof Laser) value = ((Laser) ls).getWavelength();
     	}
     	if (value != null) return determineColor(value);
 
     	//Excitation
-    	value = lc.getExcitationWavelength();
+    	value = channel.getExcitationWavelength();
     	if (value != null) return determineColor(value);
 
     	//light path first
     	if (value == null && lp != null) {
     		filters = new ArrayList<Filter>();
-    		j = lp.linkedExcitationFilterIterator();
+    		j = lp.linkedExcitationFilterLinksIterator();
     		while (j.hasNext()) {
 				filters.add(j.next());
 			}
@@ -316,7 +309,7 @@ public class ColorsFactory {
     	
     	if (value == null && f != null) {
     		filters = new ArrayList<Filter>();
-    		j = f.linkedExcitationFilterIterator();
+    		j = f.linkedExcitationFilterLinksIterator();
     		while (j.hasNext()) {
 				filters.add(j.next());
 			}
@@ -407,17 +400,6 @@ public class ColorsFactory {
         };
         Collections.sort(filters, c);
     }
-    
-    /**
-     * Determines the color usually associated to the specified wavelength.
-     * 
-     * @param index The channel index.
-     * @param channel The channel to determine the color for.
-     * @return A color.
-     */
-    public static int[] getColor(int index, Channel channel) {
-    	return getColor(index, channel, channel.getLogicalChannel());
-    }
 
     /**
      * Determines the color usually associated to the specified wavelength.
@@ -427,19 +409,13 @@ public class ColorsFactory {
      * @param lc The entity hosting information about the emission etc.
      * @return A color.
      */
-    public static int[] getColor(int index, Channel channel, LogicalChannel
-    		lc) {
-    	if (lc == null) lc = channel.getLogicalChannel();
-        int[] c = ColorsFactory.getColor(channel, lc);
+    public static int[] getColor(int index, Channel channel) {
+        int[] c = ColorsFactory.getColor(channel);
         if (c != null) return c;
         switch (index) {
             case 0: return newRedColor();
             case 1: return newGreenColor();
             default: return newBlueColor();
-            /*
-            case 1: return newBlueColor();
-            default: return newGreenColor();
-            */
         }
     }
 
@@ -450,7 +426,7 @@ public class ColorsFactory {
      * @param lc The channel to handle.
      * @return See above.
      */
-    public static boolean hasEmissionData(LogicalChannel lc)
+    public static boolean hasEmissionData(Channel lc)
     {
     	return hasEmissionExcitationData(lc, false);
     }

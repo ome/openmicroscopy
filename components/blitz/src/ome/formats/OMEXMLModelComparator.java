@@ -15,7 +15,7 @@ import ome.util.LSID;
 import omero.model.DetectorSettings;
 import omero.model.IObject;
 import omero.model.LightPath;
-import omero.model.LightSettings;
+import omero.model.LightSourceSettings;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
 
@@ -107,7 +107,7 @@ public class OMEXMLModelComparator implements Comparator<LSID>
 
         if (klass.equals(ObjectiveSettings.class)
             || klass.equals(DetectorSettings.class)
-            || klass.equals(LightSettings.class)
+            || klass.equals(LightSourceSettings.class)
             || klass.equals(LightPath.class))
         {
             return 3;

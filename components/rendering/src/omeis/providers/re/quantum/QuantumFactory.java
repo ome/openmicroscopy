@@ -15,7 +15,7 @@ import java.util.List;
 // Application-internal dependencies
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 /**
  * Factory to create objects to carry out quantization for a given context. This
@@ -138,7 +138,7 @@ public class QuantumFactory {
      * @throws IllegalArgumentException
      *             If the check fails.
      */
-    private void verifyDef(QuantumDef qd, PixelsType type) {
+    private void verifyDef(QuantumDef qd, PixelType type) {
         if (qd == null) {
             throw new NullPointerException("No quantum definition.");
         }
@@ -198,7 +198,7 @@ public class QuantumFactory {
      * @return A {@link QuantumStrategy} object suitable for the given pixels
      *         type.
      */
-    private QuantumStrategy getQuantization(QuantumDef qd, PixelsType type) {
+    private QuantumStrategy getQuantization(QuantumDef qd, PixelType type) {
         return new Quantization_8_16_bit(qd, type);
     }
 
@@ -212,7 +212,7 @@ public class QuantumFactory {
      * @param type The pixels type to handle.
      * @return A {@link QuantumStrategy} suitable for the specified context.
      */
-    public QuantumStrategy getStrategy(QuantumDef qd, PixelsType type) {
+    public QuantumStrategy getStrategy(QuantumDef qd, PixelType type) {
         verifyDef(qd, type);
         QuantumStrategy strg = null;
         strg = getQuantization(qd, type);

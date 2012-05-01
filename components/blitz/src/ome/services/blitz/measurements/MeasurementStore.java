@@ -16,7 +16,7 @@ import ome.api.local.LocalUpdate;
 import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.roi.Ellipse;
-import ome.model.roi.Roi;
+import ome.model.roi.ROI;
 import omero.ApiUsageException;
 import omero.RType;
 import omero.ServerError;
@@ -124,7 +124,7 @@ public class MeasurementStore implements OmeroMeasurementStore {
 
     public void addCircle(String roiLsid, double x, double y, double r)
             throws ServerError {
-        Roi roi = new Roi();
+    	ROI roi = new ROI();
         Ellipse ellipse = new Ellipse();
         ellipse.setX(x);
         ellipse.setY(y);
@@ -134,7 +134,7 @@ public class MeasurementStore implements OmeroMeasurementStore {
         appendRoi(roiLsid, roi);
     }
 
-    private void appendRoi(String lsid, Roi roi) throws ServerError {
+    private void appendRoi(String lsid, ROI roi) throws ServerError {
         Image image = null;
         IObject obj = lsidMap.get(lsid);
         if (obj instanceof Image) {

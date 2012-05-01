@@ -39,6 +39,7 @@ package ${type.package};
 
 import ome.conditions.*;
 import ome.model.*;
+import ome.model.core.*;
 
 #if(!$type.superclass && !$type.global)
 /**
@@ -993,16 +994,6 @@ implements java.io.Serializable, IObject
     }
 #end######################################################################TYPE
 #end########################################################################EACH
-
-    @javax.persistence.Transient
-    // TODO what does this look like with Validator
-    public boolean isValid() {
-        return ome.util.Validator.validate(this).isValid();
-    }
-  
-    public ome.util.Validation validate() {
-        return ome.util.Validator.validate(this);
-    }
 
 #if(!$type.abstract)
 ## TODO trying to return type and not superclass

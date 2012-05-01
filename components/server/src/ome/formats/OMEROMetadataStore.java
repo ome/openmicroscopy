@@ -16,45 +16,45 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.IEnum;
 import ome.model.IObject;
-import ome.model.acquisition.Detector;
-import ome.model.acquisition.DetectorSettings;
-import ome.model.acquisition.Dichroic;
-import ome.model.acquisition.Filter;
-import ome.model.acquisition.FilterSet;
-import ome.model.acquisition.ImagingEnvironment;
-import ome.model.acquisition.Instrument;
-import ome.model.acquisition.Laser;
-import ome.model.acquisition.LightPath;
-import ome.model.acquisition.LightSettings;
-import ome.model.acquisition.LightSource;
-import ome.model.acquisition.Microscope;
-import ome.model.acquisition.Objective;
-import ome.model.acquisition.ObjectiveSettings;
-import ome.model.acquisition.StageLabel;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
-import ome.model.containers.Dataset;
 import ome.model.core.Channel;
+import ome.model.core.Dataset;
+import ome.model.core.Detector;
+import ome.model.core.DetectorSettings;
+import ome.model.core.Dichroic;
+import ome.model.core.Filter;
+import ome.model.core.FilterSet;
 import ome.model.core.Image;
-import ome.model.core.LogicalChannel;
+import ome.model.core.ImagingEnvironment;
+import ome.model.core.Instrument;
+import ome.model.core.Laser;
+import ome.model.core.LightPath;
+import ome.model.core.LightSource;
+import ome.model.core.LightSourceSettings;
+import ome.model.core.Microscope;
+import ome.model.core.Objective;
+import ome.model.core.ObjectiveSettings;
+import ome.model.core.PixelsOriginalFileMap;
+import ome.model.core.StageLabel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.Plane;
-import ome.model.experiment.Experiment;
-import ome.model.experiment.MicrobeamManipulation;
-import ome.model.roi.Roi;
+import ome.model.core.Experiment;
+import ome.model.core.MicrobeamManipulation;
+import ome.model.roi.ImageROILink;
+import ome.model.roi.ROI;
 import ome.model.roi.Shape;
-import ome.model.screen.Plate;
-import ome.model.screen.Reagent;
-import ome.model.screen.Screen;
-import ome.model.screen.Well;
-import ome.model.screen.WellSample;
-import ome.model.screen.PlateAcquisition;
-import ome.model.stats.StatsInfo;
+import ome.model.spw.Plate;
+import ome.model.spw.Reagent;
+import ome.model.spw.Screen;
+import ome.model.spw.Well;
+import ome.model.spw.WellSample;
+import ome.model.spw.PlateAcquisition;
+import ome.model.core.StatsInfo;
 import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 import ome.util.LSID;
@@ -105,8 +105,8 @@ public class OMEROMetadataStore
     	new LinkedHashMap<Integer, Plate>();
 
     /** A map of roiIndex vs. ROI object ordered by first access. */
-    private Map<Integer, Roi> roiList =
-        new LinkedHashMap<Integer, Roi>();
+    private Map<Integer, ROI> roiList =
+        new LinkedHashMap<Integer, ROI>();
 
     /** A map of wellIndex vs. Well object ordered by first access. */
     private Map<Integer, Map<Integer, Well>> wellList = 
@@ -150,9 +150,9 @@ public class OMEROMetadataStore
     	{
     		handle(lsid, (Channel) sourceObject, indexes);
     	}
-    	else if (sourceObject instanceof LogicalChannel)
+    	else if (sourceObject instanceof Channel)
     	{
-    		handle(lsid, (LogicalChannel) sourceObject, indexes);
+    		handle(lsid, (Channel) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof Plane)
     	{
@@ -198,9 +198,9 @@ public class OMEROMetadataStore
         {
             handle(lsid, (DetectorSettings) sourceObject, indexes);
         }
-    	else if (sourceObject instanceof LightSettings)
+    	else if (sourceObject instanceof LightSourceSettings)
     	{
-    		handle(lsid, (LightSettings) sourceObject, indexes);
+    		handle(lsid, (LightSourceSettings) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof ObjectiveSettings)
     	{
@@ -250,9 +250,9 @@ public class OMEROMetadataStore
         {
             handle(lsid, (MicrobeamManipulation) sourceObject, indexes);
         }
-    	else if (sourceObject instanceof Roi)
+    	else if (sourceObject instanceof ROI)
     	{
-    	    handle(lsid, (Roi) sourceObject, indexes);
+    	    handle(lsid, (ROI) sourceObject, indexes);
     	}
         else if (sourceObject instanceof Shape)
         {
@@ -304,10 +304,10 @@ public class OMEROMetadataStore
     							(Annotation) referenceObject);
     					continue;
     				}
-                    if (referenceObject instanceof Roi)
+                    if (referenceObject instanceof ROI)
                     {
                         handleReference((Image) targetObject,
-                                (Roi) referenceObject);
+                                (ROI) referenceObject);
                         continue;
                     }
                     if (referenceObject instanceof Experiment)
@@ -336,11 +336,11 @@ public class OMEROMetadataStore
     					continue;
     				}
     			}
-    			else if (targetObject instanceof LightSettings)
+    			else if (targetObject instanceof LightSourceSettings)
     			{
     				if (referenceObject instanceof LightSource)
     				{
-    					handleReference((LightSettings) targetObject,
+    					handleReference((LightSourceSettings) targetObject,
     							(LightSource) referenceObject);
     					continue;
     				}
@@ -360,18 +360,18 @@ public class OMEROMetadataStore
                         continue;
                     }
                 }
-    			else if (targetObject instanceof LogicalChannel)
+    			else if (targetObject instanceof Channel)
     			{
     				if (referenceObject instanceof Filter)
     				{
-    					handleReference((LogicalChannel) targetObject,
+    					handleReference((Channel) targetObject,
 						                (Filter) referenceObject,
 						                referenceLSID);
     					continue;
     				}
     				if (referenceObject instanceof FilterSet)
     				{
-    					handleReference((LogicalChannel) targetObject,
+    					handleReference((Channel) targetObject,
     							        (FilterSet) referenceObject);
     					continue;
     				}
@@ -529,7 +529,7 @@ public class OMEROMetadataStore
     		            Map<String, Integer> indexes)
     {
     	int imageIndex = indexes.get("imageIndex");
-    	imageList.get(imageIndex).addPixels(sourceObject);
+    	imageList.get(imageIndex).setPixels(sourceObject);
     }
     
     /**
@@ -542,23 +542,10 @@ public class OMEROMetadataStore
     private void handle(String LSID, Channel sourceObject,
     		            Map<String, Integer> indexes)
     {
-    	Pixels p = getPixels(indexes.get("imageIndex"), 0);
+    	Pixels p = getPixels(indexes.get("imageIndex"));
     	p.addChannel(sourceObject);
     }
-    
-    /**
-     * Handles inserting a specific type of model object into our object graph.
-     * @param LSID LSID of the model object.
-     * @param sourceObject Model object itself.
-     * @param indexes Any indexes that should be used to reference the model
-     * object.
-     */
-    private void handle(String LSID, LogicalChannel sourceObject,
-    		            Map<String, Integer> indexes)
-    {
-    	Channel c = getChannel(indexes.get("imageIndex"), indexes.get("channelIndex"));
-    	c.setLogicalChannel(sourceObject);
-    }
+
     
     /**
      * Handles inserting a specific type of model object into our object graph.
@@ -571,7 +558,7 @@ public class OMEROMetadataStore
     		            Map<String, Integer> indexes)
     {
     	int imageIndex = indexes.get("imageIndex");
-    	Pixels p = imageList.get(imageIndex).getPrimaryPixels();
+    	Pixels p = imageList.get(imageIndex).getPixels();
     	p.addPlane(sourceObject);
     }
 
@@ -725,8 +712,8 @@ public class OMEROMetadataStore
     private void handle(String LSID, DetectorSettings sourceObject,
     		            Map<String, Integer> indexes)
     {
-    	LogicalChannel lc = getLogicalChannel(indexes.get("imageIndex"),
-    			                              indexes.get("channelIndex"));
+    	Channel lc = getChannel(indexes.get("imageIndex"),
+    			                indexes.get("channelIndex"));
     	lc.setDetectorSettings(sourceObject);
     }
     
@@ -737,7 +724,7 @@ public class OMEROMetadataStore
      * @param indexes Any indexes that should be used to reference the model
      * object.
      */
-    private void handle(String LSID, LightSettings sourceObject,
+    private void handle(String LSID, LightSourceSettings sourceObject,
     		            Map<String, Integer> indexes)
     {
         Integer imageIndex = indexes.get("imageIndex");
@@ -749,19 +736,19 @@ public class OMEROMetadataStore
         {
             Experiment e = experimentList.get(experimentIndex);
             Iterator<MicrobeamManipulation> iter = 
-                e.iterateMicrobeamManipulation();
-            for (int i = 0; i < e.sizeOfMicrobeamManipulation(); i++)
+                e.iterateMicrobeamManipulations();
+            for (int i = 0; i < e.sizeOfMicrobeamManipulations(); i++)
             {
                 MicrobeamManipulation mm = iter.next();
                 if (i == microbeamManipulationIndex)
                 {
-                    mm.addLightSettings(sourceObject);
+                    mm.addLightSourceSettings(sourceObject);
                 }
             }
         }
         else
         {
-            LogicalChannel lc = getLogicalChannel(imageIndex, channelIndex);
+            Channel lc = getChannel(imageIndex, channelIndex);
             lc.setLightSourceSettings(sourceObject);
         }
     }
@@ -793,7 +780,7 @@ public class OMEROMetadataStore
     {
         Channel c = getChannel(
                 indexes.get("imageIndex"), indexes.get("channelIndex"));
-        c.getLogicalChannel().setLightPath(sourceObject);
+        c.setLightPath(sourceObject);
     }
 
     /**
@@ -878,7 +865,7 @@ public class OMEROMetadataStore
      * @param indexes Any indexes that should be used to reference the model
      * object.
      */
-    private void handle(String LSID, Roi sourceObject,
+    private void handle(String LSID, ROI sourceObject,
                         Map<String, Integer> indexes)
     {
         roiList.put(indexes.get("roiIndex"), sourceObject);
@@ -895,7 +882,7 @@ public class OMEROMetadataStore
                         Map<String, Integer> indexes)
     {
         int roiIndex = indexes.get("roiIndex");
-        Roi r = getRoi(roiIndex);
+        ROI r = getRoi(roiIndex);
         r.addShape(sourceObject);
     }
 
@@ -1021,7 +1008,8 @@ public class OMEROMetadataStore
      * @param target Target model object.
      * @param reference Reference model object.
      */
-    private void handleReference(LightSettings target, LightSource reference)
+    private void handleReference(LightSourceSettings target, 
+    		LightSource reference)
     {
     	target.setLightSource(reference);
     }
@@ -1048,11 +1036,11 @@ public class OMEROMetadataStore
     {
         if (referenceLSID.toString().endsWith("OMERO_EMISSION_FILTER"))
         {
-            target.linkEmissionFilter(reference);
+            target.linkEmissionFilterLinks(reference);
         }
         else if (referenceLSID.toString().endsWith("OMERO_EXCITATION_FILTER"))
         {
-            target.linkExcitationFilter(reference);
+            target.linkExcitationFilterLinks(reference);
         }
         else
         {
@@ -1068,7 +1056,7 @@ public class OMEROMetadataStore
      * @param target Target model object.
      * @param reference Reference model object.
      */
-    private void handleReference(LogicalChannel target, FilterSet reference)
+    private void handleReference(Channel target, FilterSet reference)
     {
     	target.setFilterSet(reference);
     }
@@ -1081,7 +1069,7 @@ public class OMEROMetadataStore
      * @param reference Reference model object.
      * @param referenceLSID LSID of the reference object.
      */
-    private void handleReference(LogicalChannel target, Filter reference,
+    private void handleReference(Channel target, Filter reference,
     		                     LSID referenceLSID)
     {
         LightPath lightPath = target.getLightPath();
@@ -1092,11 +1080,11 @@ public class OMEROMetadataStore
         target.setLightPath(lightPath);
     	if (referenceLSID.toString().endsWith("OMERO_EMISSION_FILTER"))
     	{
-    		lightPath.linkEmissionFilter(reference);
+    		lightPath.linkEmissionFilterLinks(reference);
     	}
     	else if (referenceLSID.toString().endsWith("OMERO_EXCITATION_FILTER"))
     	{
-    		lightPath.linkExcitationFilter(reference);
+    		lightPath.linkExcitationFilterLinks(reference);
     	}
     	else
     	{
@@ -1125,7 +1113,7 @@ public class OMEROMetadataStore
      */
     private void handleReference(WellSample target, Image reference)
     {
-        reference.addWellSample(target);
+    	reference.setWellSamples(target);
     }
 
     /**
@@ -1147,7 +1135,9 @@ public class OMEROMetadataStore
      */
     private void handleReference(Pixels target, OriginalFile reference)
     {
-        target.linkOriginalFile(reference);
+    	PixelsOriginalFileMap link = 
+    		new PixelsOriginalFileMap(target, reference);
+    	reference.addPixelsOriginalFileMap(link);
     }
 
     /**
@@ -1172,11 +1162,11 @@ public class OMEROMetadataStore
     {
     	if (referenceLSID.toString().endsWith("OMERO_EMISSION_FILTER"))
     	{
-    		target.linkEmissionFilter(reference);
+    		target.linkEmissionFilterLinks(reference);
     	}
     	else if (referenceLSID.toString().endsWith("OMERO_EXCITATION_FILTER"))
     	{
-    		target.linkExcitationFilter(reference);
+    		target.linkExcitationFilterLinks(reference);
     	}
     	else
     	{
@@ -1203,9 +1193,10 @@ public class OMEROMetadataStore
      * @param target Target model object.
      * @param reference Reference model object.
      */
-    private void handleReference(Image target, Roi reference)
+    private void handleReference(Image target, ROI reference)
     {
-        target.addRoi(reference);
+    	ImageROILink link = new ImageROILink(target, reference);
+        target.addImageROILink(link);
     }
 
     /**
@@ -1266,7 +1257,7 @@ public class OMEROMetadataStore
      */
     private void handleReference(Well target, Reagent reference)
     {
-        target.linkReagent(reference);
+    	reference.setWells(target);
     }
 
     /**
@@ -1305,12 +1296,11 @@ public class OMEROMetadataStore
      * Returns a Pixels model object based on its indexes within the OMERO data
      * model.
      * @param imageIndex Image index.
-     * @param pixelsIndex Pixels index.
      * @return See above.
      */
-    private Pixels getPixels(int imageIndex, int pixelsIndex)
+    private Pixels getPixels(int imageIndex)
     {
-    	return getImage(imageIndex).getPixels(pixelsIndex);
+    	return getImage(imageIndex).getPixels();
     }
 
     /**
@@ -1344,22 +1334,42 @@ public class OMEROMetadataStore
      */
     private Channel getChannel(int imageIndex, int channelIndex)
     {
-    	return getPixels(imageIndex, 0).getChannel(channelIndex); 
+    	Pixels pixels = getPixels(imageIndex);
+    	if (pixels == null) return null;
+    	if (channelIndex >= pixels.sizeOfChannels()) return null;
+    	Iterator<Channel> i = pixels.iterateChannels();
+    	int index = 0;
+    	Channel channel;
+    	while (i.hasNext()) {
+    		channel = i.next();
+    		if (index == channelIndex) return channel;
+			index++;
+		}
+    	return null;
     }
-    
+
     /**
-     * Returns a LogicalChannel model object based on its indexes within the
+     * Returns a Channel model object based on its indexes within the
      * OMERO data model.
-     * @param imageIndex Image index.
+     * @param pixels The pixels to handle.
      * @param channelIndex channel index.
      * @return See above.
      */
-    private LogicalChannel getLogicalChannel(int imageIndex,
-    		                                 int channelIndex)
+    private Channel getChannel(Pixels pixels, int channelIndex)
     {
-    	return getChannel(imageIndex, channelIndex).getLogicalChannel();
+    	if (pixels == null) return null;
+    	if (channelIndex >= pixels.sizeOfChannels()) return null;
+    	Iterator<Channel> i = pixels.iterateChannels();
+    	int index = 0;
+    	Channel channel;
+    	while (i.hasNext()) {
+    		channel = i.next();
+    		if (index == channelIndex) return channel;
+			index++;
+		}
+    	return null;
     }
-
+    
     /**
      * Returns a Screen model object based on its indexes within the
      * OMERO data model.
@@ -1400,7 +1410,7 @@ public class OMEROMetadataStore
      * @param roiIndex Roi index.
      * @return See above.
      */
-    private Roi getRoi(int roiIndex)
+    private ROI getRoi(int roiIndex)
     {
         return roiList.get(roiIndex);
     }
@@ -1450,33 +1460,11 @@ public class OMEROMetadataStore
         pixelsList = new LinkedHashMap<Integer, Pixels>();
         screenList = new LinkedHashMap<Integer, Screen>();
         plateList = new LinkedHashMap<Integer, Plate>();
-        roiList = new LinkedHashMap<Integer, Roi>();
+        roiList = new LinkedHashMap<Integer, ROI>();
         wellList = new LinkedHashMap<Integer, Map<Integer, Well>>();
         instrumentList = new LinkedHashMap<Integer, Instrument>();
         experimentList = new LinkedHashMap<Integer, Experiment>();
         lsidMap = new LinkedHashMap<LSID, IObject>();
-    }
-    
-    /**
-     * The return value of save may not have sorted, ascending identities. This
-     * method is in place to reorder a Pixels list based on the ordered and
-     * saved Image IDs.
-     * @param pixelsList Pixels list to be reordered in place.
-     * @param imageIds Ordered list of Image IDs.
-     */
-    private void reorderPixelsListByImageIds(List<Pixels> pixelsList,
-    		                                 List<Long> imageIds)
-    {
-    	Map<Long, Pixels> imageIdPixelsMap = new HashMap<Long, Pixels>();
-    	for (Pixels pixels : pixelsList)
-    	{
-    		imageIdPixelsMap.put(pixels.getImage().getId(), pixels);
-    	}
-    	for (int i = 0; i < imageIds.size(); i++)
-    	{
-    		Long imageId = imageIds.get(i);
-    		pixelsList.set(i, imageIdPixelsMap.get(imageId));
-    	}
     }
     
     /**
@@ -1538,34 +1526,29 @@ public class OMEROMetadataStore
     	// Collapse down ObjectiveSettings by uniqueness
     	Set<ObjectiveSettings> objectiveSettings =
     		new HashSet<ObjectiveSettings>();
-    	Set<LightSettings> lightSettings = new HashSet<LightSettings>();
+    	Set<LightSourceSettings> lightSettings = 
+    		new HashSet<LightSourceSettings>();
     	Set<DetectorSettings> detectorSettings = 
     		new HashSet<DetectorSettings>();
-    	Set<LogicalChannel> logicalChannels = new HashSet<LogicalChannel>();
     	Pixels pixels;
     	Channel channel;
-    	LogicalChannel lc;
     	for (Image image : imageList.values())
     	{
-    		pixels = image.getPrimaryPixels();
+    		pixels = image.getPixels();
     		image.setObjectiveSettings(
     				getUniqueObjectiveSettings(objectiveSettings, image));
     		for (int c = 0; c < pixels.sizeOfChannels(); c++)
     		{
-    			channel = pixels.getChannel(c);
-    			lc = channel.getLogicalChannel();
-    			lc.setLightSourceSettings(
-    					getUniqueLightSettings(lightSettings, lc));
-    			lc.setDetectorSettings(
-    					getUniqueDetectorSettings(detectorSettings, lc));
-    			channel.setLogicalChannel(
-    					getUniqueLogicalChannel(logicalChannels, lc));
+    			channel = getChannel(pixels, c);
+    			channel.setLightSourceSettings(
+    					getUniqueLightSettings(lightSettings, channel));
+    			channel.setDetectorSettings(
+    					getUniqueDetectorSettings(detectorSettings, channel));
     		}
     	}
     	log.info("Unique objective settings: " + objectiveSettings.size());
     	log.info("Unique light settings: " + lightSettings.size());
     	log.info("Unique detector settings: " + detectorSettings.size());
-    	log.info("Unique logical channels: " + logicalChannels.size());
     }
     
     /**
@@ -1604,15 +1587,15 @@ public class OMEROMetadataStore
      * @return Matched unique settings or <code>null</code> if
      * <code>lc.getLightSourceSettings() == null</code>.
      */
-    private LightSettings getUniqueLightSettings(
-    		Set<LightSettings> uniqueSettings, LogicalChannel lc)
+    private LightSourceSettings getUniqueLightSettings(
+    		Set<LightSourceSettings> uniqueSettings, Channel lc)
     {
-    	LightSettings s1 = lc.getLightSourceSettings();
+    	LightSourceSettings s1 = lc.getLightSourceSettings();
     	if (s1 == null)
     	{
     		return null;
     	}
-    	for (LightSettings s2 : uniqueSettings)
+    	for (LightSourceSettings s2 : uniqueSettings)
     	{
     		if (compare(s1.getAttenuation(), s2.getAttenuation())
     			&& s1.getLightSource() == s2.getLightSource()
@@ -1635,7 +1618,7 @@ public class OMEROMetadataStore
      * <code>lc.getDetectorSettings() == null</code>.
      */
     private DetectorSettings getUniqueDetectorSettings(
-    		Set<DetectorSettings> uniqueSettings, LogicalChannel lc)
+    		Set<DetectorSettings> uniqueSettings, Channel lc)
     {
     	DetectorSettings s1 = lc.getDetectorSettings();
     	if (s1 == null)
@@ -1665,21 +1648,18 @@ public class OMEROMetadataStore
      * @return Matched unique logical channel or <code>null</code> if
      * <code>lc == null</code>.
      */
-    private LogicalChannel getUniqueLogicalChannel(
-    		Set<LogicalChannel> uniqueChannels, LogicalChannel lc)
+    private Channel getUniqueChannel(Set<Channel> uniqueChannels, Channel lc)
     {
     	if (lc == null)
     	{
     		return null;
     	}
 
-    	for (LogicalChannel lc2 : uniqueChannels)
+    	for (Channel lc2 : uniqueChannels)
     	{
     		if (compare(lc.getAcquisitionMode(), lc2.getAcquisitionMode())
     			&& compare(lc.getContrastMethod(), lc2.getContrastMethod())
     			&& compare(lc.getIlluminationType(), lc2.getIlluminationType())
-    			&& compare(lc.getPhotometricInterpretation(),
-    					   lc2.getPhotometricInterpretation())
     			&& lc.getDetectorSettings() == lc2.getDetectorSettings()
     			&& compare(lc.getEmissionWavelength(),
     					lc2.getEmissionWavelength())
@@ -1751,7 +1731,7 @@ public class OMEROMetadataStore
     	for (int i = 0; i < saved.length; i++)
     	{
     		image = (Image) saved[i];
-    		pixels = image.getPrimaryPixels();
+    		pixels = image.getPixels();
     		pixelsList.put(i, pixels);
     		toReturn.add(pixels);
     	}
@@ -1780,7 +1760,7 @@ public class OMEROMetadataStore
     		for (int c = 0; c < channelGlobalMinMax.length; c++)
     		{
     			globalMinMax = channelGlobalMinMax[c];
-    			channel = pixels.getChannel(c);
+    			channel = getChannel(pixels, c);
     			statsInfo = new StatsInfo();
     			statsInfo.setGlobalMin(globalMinMax[0]);
     			statsInfo.setGlobalMax(globalMinMax[1]);

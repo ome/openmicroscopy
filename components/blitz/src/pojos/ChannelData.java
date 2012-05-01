@@ -36,8 +36,7 @@ import omero.model.AcquisitionMode;
 import omero.model.Channel;
 import omero.model.ChannelI;
 import omero.model.ContrastMethod;
-import omero.model.Illumination;
-import omero.model.LogicalChannel;
+import omero.model.IlluminationType;
 import omero.model.StatsInfo;
 
 /** 
@@ -68,7 +67,7 @@ public class ChannelData
     private AcquisitionMode mode;
     
     /** The illumination. */
-    private Illumination	illumination;
+    private IlluminationType	illumination;
     
     /** The contrast method. */
     private ContrastMethod	contrastMethod;
@@ -136,7 +135,7 @@ public class ChannelData
     {
         if (name == null) return;
         setDirty(true);
-        asChannel().getLogicalChannel().setName(omero.rtypes.rstring(name));
+        asChannel().setName(omero.rtypes.rstring(name));
     }
 
     /**
@@ -146,9 +145,7 @@ public class ChannelData
      */
     public String getName()
     {
-    	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return null;
-        omero.RString n = lc.getName();
+        RString n = asChannel().getName();
         if (n != null) return n.getValue();
         return null;
     }
@@ -160,9 +157,7 @@ public class ChannelData
      */
     public int getEmissionWavelength()
     { 
-    	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return index;
-    	RInt value  = lc.getEmissionWavelength();
+    	RInt value  = asChannel().getEmissionWavelength();
 		if (value != null) return value.getValue();
 		return -1;//index;
     }
@@ -173,10 +168,8 @@ public class ChannelData
      * @return See above
      */
     public int getExcitationWavelength()
-    { 
-    	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return getEmissionWavelength();
-    	RInt value = lc.getExcitationWavelength();
+    {
+    	RInt value = asChannel().getExcitationWavelength();
     	if (value != null) return value.getValue();
     	return -1;//getEmissionWavelength();
     }
@@ -188,9 +181,7 @@ public class ChannelData
      */
     public double getPinholeSize()
     { 
-    	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return -1;
-    	RDouble value = lc.getPinholeSize();
+    	RDouble value = asChannel().getPinholeSize();
     	if (value != null) return value.getValue();
     	return -1; 
     }
@@ -202,9 +193,7 @@ public class ChannelData
      */
     public double getNDFilter()
     {
-    	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return -1;
-    	RDouble value = lc.getNdFilter();
+    	RDouble value = asChannel().getNdFilter();
     	if (value != null) return value.getValue();
     	return -1; 
     }
@@ -216,23 +205,19 @@ public class ChannelData
      */
     public String getFluor()
     {
-    	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return null;
-    	RString value =  lc.getFluor();
+    	RString value =  asChannel().getFluor();
     	if (value != null) return value.getValue();
     	return null; 
     }
     
     /**
-     * Returns the Pockels cell settings.
+     * Returns the Pockel cell settings.
      * 
      * @return See above.
      */
     public int getPockelCell()
     {
-    	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return -1;
-    	RInt value =  lc.getPockelCellSetting();
+    	RInt value =  asChannel().getPockelCellSetting();
     	if (value != null) return value.getValue();
     	return -1; 
     }
@@ -245,9 +230,7 @@ public class ChannelData
     public String getIllumination()
     { 
     	if (illumination != null) return illumination.getValue().getValue();
-    	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return null;
-    	Illumination value =  lc.getIlluminationType();
+    	IlluminationType value =  asChannel().getIlluminationType();
     	if (value != null) return value.getValue().getValue();
     	return null; 
     }
@@ -260,9 +243,7 @@ public class ChannelData
     public String getContrastMethod()
     { 
     	if (contrastMethod != null) return contrastMethod.getValue().getValue();
-    	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return null;
-    	ContrastMethod value =  lc.getContrastMethod();
+    	ContrastMethod value =  asChannel().getContrastMethod();
     	if (value != null) return value.getValue().getValue();
     	return null; 
     }
@@ -275,9 +256,7 @@ public class ChannelData
     public String getMode()
     { 
     	if (mode != null) return mode.getValue().getValue();
-    	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return null;
-    	AcquisitionMode value =  lc.getAcquisitionMode();
+    	AcquisitionMode value =  asChannel().getAcquisitionMode();
     	if (value != null) return value.getValue().getValue();
     	return null; 
     }
@@ -319,8 +298,7 @@ public class ChannelData
     {
     	if (value < 0) return;
         setDirty(true);
-        asChannel().getLogicalChannel().setPinholeSize(
-        		omero.rtypes.rdouble(value));
+        asChannel().setPinholeSize(omero.rtypes.rdouble(value));
     }
     
     /**
@@ -332,7 +310,7 @@ public class ChannelData
     {
     	if (value < 0) return;
         setDirty(true);
-        asChannel().getLogicalChannel().setNdFilter(omero.rtypes.rdouble(value));
+        asChannel().setNdFilter(omero.rtypes.rdouble(value));
     }
     
     /**
@@ -344,7 +322,7 @@ public class ChannelData
     {
     	 if (value == null) return;
          setDirty(true);
-         asChannel().getLogicalChannel().setFluor(omero.rtypes.rstring(value));
+         asChannel().setFluor(omero.rtypes.rstring(value));
     }
     
     /**
@@ -356,8 +334,7 @@ public class ChannelData
     {
     	if (value < 0) return;
         setDirty(true);
-        asChannel().getLogicalChannel().setEmissionWavelength(
-        		omero.rtypes.rint(value));
+        asChannel().setEmissionWavelength(omero.rtypes.rint(value));
     }
     
     /**
@@ -369,8 +346,7 @@ public class ChannelData
     {
     	if (value < 0) return;
         setDirty(true);
-        asChannel().getLogicalChannel().setExcitationWavelength(
-        		omero.rtypes.rint(value));
+        asChannel().setExcitationWavelength(omero.rtypes.rint(value));
     }
  
     /**
@@ -381,10 +357,9 @@ public class ChannelData
     public void setPockelCell(int value)
     {
     	if (value < 0) return;
-    	LogicalChannel lc = asChannel().getLogicalChannel();
-    	if (lc == null) return;
+
     	setDirty(true);
-    	lc.setPockelCellSetting(omero.rtypes.rint(value));
+    	asChannel().setPockelCellSetting(omero.rtypes.rint(value));
     }
     
     /**
@@ -392,7 +367,7 @@ public class ChannelData
      * 
      * @param illumination The value to set.
      */
-    public void setIllumination(Illumination illumination)
+    public void setIllumination(IlluminationType illumination)
     {
     	setDirty(true);
     	this.illumination = illumination;
@@ -432,7 +407,7 @@ public class ChannelData
 	 * 
 	 * @return See above.
 	 */
-	public Illumination getIlluminationAsEnum() { return illumination; }
+	public IlluminationType getIlluminationAsEnum() { return illumination; }
 	
 	/**
 	 * Returns the contrast method enumeration value.

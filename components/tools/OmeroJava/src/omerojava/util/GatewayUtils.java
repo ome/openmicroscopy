@@ -177,9 +177,11 @@ public class GatewayUtils
 	static public List<Pixels> getPixelsFromImageList(List<Image> images)
 	{
 		List<Pixels> pixelsList = new ArrayList<Pixels>();
-		for (Image image : images)
-			for (Pixels pixels : image.copyPixels())
-				pixelsList.add(pixels);
+		Pixels pixels;
+		for (Image image : images) {
+			pixels = image.getPixels();
+			if (pixels != null) pixelsList.add(pixels);
+		}
 		return pixelsList;
 	}
 	
@@ -193,9 +195,13 @@ public class GatewayUtils
 	static public Map<Long, Pixels> getPixelsImageMap(List<Image> images)
 	{
 		Map<Long, Pixels> pixelsList = new TreeMap<Long, Pixels>();
-		for (Image image : images)
-			for (Pixels pixels : image.copyPixels())
+		Pixels pixels;
+		for (Image image : images) {
+			pixels = image.getPixels();
+			if (pixels != null) {
 				pixelsList.put(image.getId().getValue(), pixels);
+			}
+		}
 		return pixelsList;
 	}
 

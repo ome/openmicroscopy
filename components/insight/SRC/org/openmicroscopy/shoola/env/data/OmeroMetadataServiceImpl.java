@@ -53,7 +53,6 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
-import omero.model.LogicalChannel;
 import omero.model.Medium;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
@@ -208,7 +207,7 @@ class OmeroMetadataServiceImpl
 	private void saveChannelData(SecurityContext ctx, ChannelData data)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		LogicalChannel lc = data.asChannel().getLogicalChannel();
+		Channel lc = data.asChannel();
 		ModelMapper.unloadCollections(lc);
 		gateway.updateObject(ctx, lc, new Parameters());
 	}
@@ -290,7 +289,7 @@ class OmeroMetadataServiceImpl
 			Object o = data.getTemperature();
 			if (o != null)
 				condition.setTemperature(omero.rtypes.rdouble((Float) o));
-			condition.setCo2percent(omero.rtypes.rdouble(
+			condition.setCo2Percent(omero.rtypes.rdouble(
 					data.getCo2Percent()));
 		}
 		
@@ -1706,8 +1705,8 @@ class OmeroMetadataServiceImpl
 		} else if (refObject instanceof ChannelData) {
 			ctx = gateway.checkContext(ctx, (ChannelData) refObject);
 			Channel c = ((ChannelData) refObject).asChannel();
-			if (c.getLogicalChannel() == null) return null;
-			long id = c.getLogicalChannel().getId().getValue();
+			if (c == null) return null;
+			long id = c.getId().getValue();
 			return gateway.loadChannelAcquisitionData(ctx, id);
 		}
 		return null;

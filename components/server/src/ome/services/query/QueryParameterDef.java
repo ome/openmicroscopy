@@ -16,7 +16,6 @@ package ome.services.query;
 
 // Java imports
 import java.util.Collection;
-import java.util.Map;
 
 // Third-party libraries
 

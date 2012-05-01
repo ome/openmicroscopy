@@ -132,9 +132,9 @@ public class FilterSetData
 	public List<FilterData> getEmissionFilters()
 	{
 		FilterSet f = (FilterSet) asIObject();
-		if (emissionFilters == null && f.sizeOfEmissionFilterLink() > 0) {
+		if (emissionFilters == null && f.sizeOfEmissionFilterLinks() > 0) {
 			emissionFilters = new ArrayList<FilterData>();
-			List<FilterSetEmissionFilterLink> l = f.copyEmissionFilterLink();
+			List<FilterSetEmissionFilterLink> l = f.copyEmissionFilterLinks();
 			Iterator<FilterSetEmissionFilterLink> i = l.iterator();
 			while (i.hasNext()) {
 				emissionFilters.add(new FilterData(i.next().getChild()));
@@ -151,9 +151,10 @@ public class FilterSetData
 	public List<FilterData> getExcitationFilters()
 	{
 		FilterSet f = (FilterSet) asIObject();
-		if (excitationFilters == null && f.sizeOfExcitationFilterLink() > 0) {
+		if (excitationFilters == null && f.sizeOfExcitationFilterLinks() > 0) {
 			excitationFilters = new ArrayList<FilterData>();
-			List<FilterSetExcitationFilterLink> l = f.copyExcitationFilterLink();
+			List<FilterSetExcitationFilterLink>
+			l = f.copyExcitationFilterLinks();
 			Iterator<FilterSetExcitationFilterLink> i = l.iterator();
 			while (i.hasNext()) {
 				excitationFilters.add(new FilterData(i.next().getChild()));

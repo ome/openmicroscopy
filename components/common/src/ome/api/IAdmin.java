@@ -17,7 +17,6 @@ import ome.model.IObject;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;

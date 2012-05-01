@@ -24,14 +24,11 @@ package ome.services.blitz.gateway.services.impl;
 
 
 //Java imports
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import ome.services.blitz.gateway.services.DataService;
 import ome.services.blitz.gateway.services.GatewayFactory;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
-import omero.RType;
 import omero.ServerError;
 import omero.api.ContainerClass;
 import omero.api.IContainerPrx;
@@ -44,7 +41,7 @@ import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
-import omero.model.PixelsType;
+import omero.model.PixelType;
 import omero.model.Project;
 import omero.sys.ParametersI;
 
@@ -194,21 +191,21 @@ public class DataServiceImpl
 	/* (non-Javadoc)
 	 * @see ome.services.blitz.omerogateway.services.DataService#getPixelType(java.lang.String)
 	 */
-	public PixelsType getPixelType(String type) throws ServerError
+	public PixelType getPixelType(String type) throws ServerError
 	{
 		IQueryPrx iQuery = gatewayFactory.getIQuery();
-		return (PixelsType)iQuery.findByString("PixelsType", "value",
+		return (PixelType)iQuery.findByString("PixelType", "value",
 			type);
 	}
 
 	/* (non-Javadoc)
 	 * @see ome.services.blitz.omerogateway.services.DataService#getPixelTypes()
 	 */
-	public List<PixelsType> getPixelTypes() throws ServerError
+	public List<PixelType> getPixelTypes() throws ServerError
 	{
 		ITypesPrx iTypes = gatewayFactory.getITypes();
-		List<IObject> list = iTypes.allEnumerations("PixelsType"); 
-		return ServiceUtilities.collectionCast(PixelsType.class, list);
+		List<IObject> list = iTypes.allEnumerations("PixelType"); 
+		return ServiceUtilities.collectionCast(PixelType.class, list);
 	}
 
 	/* (non-Javadoc)

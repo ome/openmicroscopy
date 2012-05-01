@@ -37,7 +37,7 @@ import omero.model.Point;
 import omero.model.Polygon;
 import omero.model.Polyline;
 import omero.model.Rectangle;
-import omero.model.Roi;
+import omero.model.ROI;
 import omero.model.Label;
 
 import org.apache.commons.logging.Log;
@@ -90,7 +90,7 @@ public class ShapeProcessor implements ModelProcessor
 					new LinkedHashMap<Index, Integer>();
 				indexes.put(Index.ROI_INDEX, roiIndex);
 				// Creates an ROI if one doesn't exist
-				store.getIObjectContainer(Roi.class, indexes);
+				store.getIObjectContainer(ROI.class, indexes);
 	        }
 	}
     }

@@ -25,8 +25,7 @@ package ome.formats.model.handler;
 
 import ome.formats.enums.EnumerationProvider;
 import omero.model.IObject;
-import omero.model.LogicalChannel;
-import omero.model.PhotometricInterpretation;
+import omero.model.Channel;
 
 /**
  * A model object handler that handles objects of type Laser.
@@ -39,7 +38,7 @@ class LogicalChannelHandler implements ModelObjectHandler
 	private EnumerationProvider enumProvider;
 
 	/** The class we're a handler for. */
-	static final Class<? extends IObject> HANDLER_FOR = LogicalChannel.class;
+	static final Class<? extends IObject> HANDLER_FOR = Channel.class;
 
 	/**
 	 * Default constructor.
@@ -55,9 +54,7 @@ class LogicalChannelHandler implements ModelObjectHandler
 	 */
 	public IObject handle(IObject object)
 	{
-		LogicalChannel o = (LogicalChannel) object;
-		o.setPhotometricInterpretation(enumProvider.getEnumeration(
-				PhotometricInterpretation.class, "Monochrome", false));
+		Channel o = (Channel) object;
 		return object;
 	}
 

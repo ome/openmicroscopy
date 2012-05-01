@@ -7,13 +7,15 @@
 
 package ome.services.pixeldata;
 
+import java.util.Iterator;
+
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.io.nio.PixelsService;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
+import ome.model.core.StatsInfo;
 import ome.model.meta.EventLog;
-import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
 import ome.services.eventlogs.EventLogLoader;
 import ome.services.util.Executor.SimpleWork;
@@ -114,6 +116,28 @@ public class PixelDataHandler extends SimpleWork {
     }
 
     /**
+     * Returns a Channel model object based on its indexes within the
+     * OMERO data model.
+     * @param pixels The pixels to handle.
+     * @param channelIndex channel index.
+     * @return See above.
+     */
+    private Channel getChannel(Pixels pixels, int channelIndex)
+    {
+    	if (pixels == null) return null;
+    	if (channelIndex >= pixels.sizeOfChannels()) return null;
+    	Iterator<Channel> i = pixels.iterateChannels();
+    	int index = 0;
+    	Channel channel;
+    	while (i.hasNext()) {
+    		channel = i.next();
+    		if (index == channelIndex) return channel;
+			index++;
+		}
+    	return null;
+    }
+    
+    /**
      * Here we assume that our log loader will only return
      * us the proper types, since we are using the specific
      * type defined in this package.
@@ -145,7 +169,7 @@ public class PixelDataHandler extends SimpleWork {
 
             for(int c=0;c<statsInfo.length;c++) {
                 final StatsInfo si = statsInfo[c];
-                final Channel ch = pixels.getChannel(c);
+                final Channel ch = getChannel(pixels, c);
                 long siId = getSqlAction().setStatsInfo(ch, si);
                 log.info(String.format("Added StatsInfo:%s for %s - C:%s Max:%s Min:%s",
                         siId, ch, c, si.getGlobalMax(), si.getGlobalMin()));

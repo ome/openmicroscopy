@@ -38,6 +38,7 @@ import java.awt.Color;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -61,6 +62,7 @@ import ome.xml.model.primitives.PositiveInteger;
 import ome.xml.model.primitives.PositiveFloat;
 import omero.RBool;
 import omero.RDouble;
+import omero.RFloat;
 import omero.RInt;
 import omero.RLong;
 import omero.RString;
@@ -385,6 +387,11 @@ public class OmeroMetadata extends DummyMetadata {
         return v == null? null : v.getValue();
     }
 
+    private Float fromRType(RFloat v)
+    {
+        return v == null? null : v.getValue();
+    }
+    
     private PositiveInteger toPositiveInteger(RInt v)
     {
         try
@@ -427,6 +434,20 @@ public class OmeroMetadata extends DummyMetadata {
         }
     }
 
+    private PositiveFloat toPositiveFloat(RFloat v)
+    {
+        try
+        {
+            Float f = fromRType(v);
+            return f != null? new PositiveFloat(f.doubleValue()) : null;
+        }
+        catch (IllegalArgumentException e)
+        {
+            log.warn("Using new PositiveFloat(1.0)!", e);
+            return new PositiveFloat(1.0);
+        }
+    }
+    
     @Override
     public String getImageAcquiredDate(int imageIndex)
     {
@@ -509,7 +530,7 @@ public class OmeroMetadata extends DummyMetadata {
     public String getPixelsID(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? handleLsid(o.getPrimaryPixels()) : null;
+        return o != null? handleLsid(o.getPixels()) : null;
     }
 
     @Override
@@ -517,7 +538,7 @@ public class OmeroMetadata extends DummyMetadata {
     {
         Image o = _getImage(imageIndex);
         return o != null? toPositiveFloat(
-                o.getPrimaryPixels().getPhysicalSizeX()) : null;
+                o.getPixels().getPhysicalSizeX()) : null;
     }
 
     @Override
@@ -525,7 +546,7 @@ public class OmeroMetadata extends DummyMetadata {
     {
         Image o = _getImage(imageIndex);
         return o != null? toPositiveFloat(
-                o.getPrimaryPixels().getPhysicalSizeY()) : null;
+                o.getPixels().getPhysicalSizeY()) : null;
     }
 
     @Override
@@ -533,7 +554,7 @@ public class OmeroMetadata extends DummyMetadata {
     {
         Image o = _getImage(imageIndex);
         return o != null? toPositiveFloat(
-                o.getPrimaryPixels().getPhysicalSizeZ()) : null;
+                o.getPixels().getPhysicalSizeZ()) : null;
     }
 
     @Override
@@ -541,7 +562,7 @@ public class OmeroMetadata extends DummyMetadata {
     {
         Image o = _getImage(imageIndex);
         return o != null? toPositiveInteger(
-                o.getPrimaryPixels().getSizeC()) : null;
+                o.getPixels().getSizeC()) : null;
     }
 
     @Override
@@ -549,7 +570,7 @@ public class OmeroMetadata extends DummyMetadata {
     {
         Image o = _getImage(imageIndex);
         return o != null? toPositiveInteger(
-                o.getPrimaryPixels().getSizeT()) : null;
+                o.getPixels().getSizeT()) : null;
     }
 
     @Override
@@ -557,7 +578,7 @@ public class OmeroMetadata extends DummyMetadata {
     {
         Image o = _getImage(imageIndex);
         return o != null? toPositiveInteger(
-                o.getPrimaryPixels().getSizeX()) : null;
+                o.getPixels().getSizeX()) : null;
     }
 
     @Override
@@ -565,7 +586,7 @@ public class OmeroMetadata extends DummyMetadata {
     {
         Image o = _getImage(imageIndex);
         return o != null? toPositiveInteger(
-                o.getPrimaryPixels().getSizeY()) : null;
+                o.getPixels().getSizeY()) : null;
     }
 
     @Override
@@ -573,7 +594,7 @@ public class OmeroMetadata extends DummyMetadata {
     {
         Image o = _getImage(imageIndex);
         return o != null? toPositiveInteger(
-                o.getPrimaryPixels().getSizeZ()) : null;
+                o.getPixels().getSizeZ()) : null;
     }
 
     @Override
@@ -581,7 +602,7 @@ public class OmeroMetadata extends DummyMetadata {
     {
         Image o = _getImage(imageIndex);
         return o != null? fromRType(
-                o.getPrimaryPixels().getTimeIncrement()) : null;
+                o.getPixels().getTimeIncrement()) : null;
     }
 
     @Override
@@ -592,7 +613,7 @@ public class OmeroMetadata extends DummyMetadata {
         {
             return null;
         }
-        omero.model.PixelsType e = o.getPrimaryPixels().getType();
+        omero.model.PixelType e = o.getPixels().getType();
         try
         {
             return e != null? 
@@ -613,20 +634,21 @@ public class OmeroMetadata extends DummyMetadata {
         {
             return null;
         }
-        Pixels p = i.getPrimaryPixels();
+        Pixels p = i.getPixels();
         if (p == null)
         {
             return null;
         }
         try
         {
-            return p.getChannel(channelIndex);
+        	return p.copyChannels().get(channelIndex);
         }
         catch (ArrayIndexOutOfBoundsException e)
         {
             return null;
         }
     }
+    
     
     @Override
     public AcquisitionMode getChannelAcquisitionMode(int imageIndex,
@@ -637,7 +659,7 @@ public class OmeroMetadata extends DummyMetadata {
         {
             return null;
         }
-        omero.model.AcquisitionMode e = o.getLogicalChannel().getAcquisitionMode();
+        omero.model.AcquisitionMode e = o.getAcquisitionMode();
         try
         {
             return e != null? 
@@ -661,9 +683,7 @@ public class OmeroMetadata extends DummyMetadata {
         }
         try
         {
-            Color color = new Color(
-                    fromRType(o.getRed()), fromRType(o.getGreen()),
-                    fromRType(o.getBlue()), fromRType(o.getAlpha()));
+            Color color = new Color(o.getColor().getValue().getValue());
             int argb = color.getRGB();
             // ARGB --> RGBA
             return (argb << 8) | (argb >>> (32-8));
@@ -683,7 +703,7 @@ public class OmeroMetadata extends DummyMetadata {
         {
             return null;
         }
-        omero.model.ContrastMethod e = o.getLogicalChannel().getContrastMethod();
+        omero.model.ContrastMethod e = o.getContrastMethod();
         try
         {
             return e != null? 
@@ -705,7 +725,7 @@ public class OmeroMetadata extends DummyMetadata {
         {
             return -1;
         }
-        return o.getPrimaryPixels().sizeOfChannels();
+        return o.getPixels().sizeOfChannels();
     }
 
     @Override
@@ -713,7 +733,7 @@ public class OmeroMetadata extends DummyMetadata {
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        return toPositiveInteger(o.getLogicalChannel().getEmissionWavelength());
+        return toPositiveInteger(o.getEmissionWavelength());
     }
 
     @Override
@@ -721,14 +741,14 @@ public class OmeroMetadata extends DummyMetadata {
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        return toPositiveInteger(o.getLogicalChannel().getExcitationWavelength()); 
+        return toPositiveInteger(o.getExcitationWavelength()); 
     }
 
     @Override
     public String getChannelFluor(int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        return o != null? fromRType(o.getLogicalChannel().getFluor()) : null;
+        return o != null? fromRType(o.getFluor()) : null;
     }
 
     @Override
@@ -747,7 +767,7 @@ public class OmeroMetadata extends DummyMetadata {
         {
             return null;
         }
-        omero.model.Illumination e = o.getLogicalChannel().getIlluminationType();
+        omero.model.IlluminationType e = o.getIlluminationType();
         try
         {
             return e != null? 
@@ -765,30 +785,28 @@ public class OmeroMetadata extends DummyMetadata {
     public String getChannelName(int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        return o != null? fromRType(o.getLogicalChannel().getName()) : null;
+        return o != null? fromRType(o.getName()) : null;
     }
 
     @Override
     public Double getChannelNDFilter(int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        return o != null? fromRType(o.getLogicalChannel().getNdFilter()) : null;
+        return o != null? fromRType(o.getNdFilter()) : null;
     }
 
     @Override
     public Double getChannelPinholeSize(int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        return o != null? fromRType(
-                o.getLogicalChannel().getPinholeSize()) : null;
+        return o != null? fromRType(o.getPinholeSize()) : null;
     }
 
     @Override
     public Integer getChannelPockelCellSetting(int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        return o != null? fromRType(
-                o.getLogicalChannel().getPockelCellSetting()) : null;
+        return o != null? fromRType(o.getPockelCellSetting()) : null;
     }
 
     @Override
@@ -805,14 +823,14 @@ public class OmeroMetadata extends DummyMetadata {
         {
             return null;
         }
-        Pixels p = i.getPrimaryPixels();
+        Pixels p = i.getPixels();
         if (p == null)
         {
             return null;
         }
         try
         {
-            return p.copyPlane().get(planeIndex);
+            return p.copyPlanes().get(planeIndex);
         }
         catch (ArrayIndexOutOfBoundsException e)
         {
@@ -824,7 +842,7 @@ public class OmeroMetadata extends DummyMetadata {
     public int getPlaneCount(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o == null? 0 : o.getPrimaryPixels().sizeOfPlane();
+        return o == null? 0 : o.getPixels().sizeOfPlanes();
     }
 
     @Override

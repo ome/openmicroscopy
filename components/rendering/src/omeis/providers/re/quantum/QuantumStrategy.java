@@ -14,7 +14,7 @@ package omeis.providers.re.quantum;
 // Application-internal dependencies
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import omeis.providers.re.data.PlaneFactory;
 
 /**
@@ -98,7 +98,7 @@ public abstract class QuantumStrategy {
     protected final QuantumDef qDef;
 
     /** The type of pixels this strategy is for. */
-    protected final PixelsType type;
+    protected final PixelType type;
 
     /** Reference to the value mapper. */
     protected QuantumMap valueMapper;
@@ -257,7 +257,7 @@ public abstract class QuantumStrategy {
      * @param qd The {@link QuantumDef} this strategy is for.
      * @param pt The pixels type to handle.
      */
-    protected QuantumStrategy(QuantumDef qd, PixelsType pt)
+    protected QuantumStrategy(QuantumDef qd, PixelType pt)
     {
         windowStart = globalMin = 0.0;
         windowEnd = globalMax = 1.0;

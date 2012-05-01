@@ -18,7 +18,7 @@ import omero.api.AMD_IProjection_projectPixels;
 import omero.api.AMD_IProjection_projectStack;
 import omero.api._IProjectionOperations;
 import omero.constants.projection.ProjectionType;
-import omero.model.PixelsType;
+import omero.model.PixelType;
 
 /**
  * Implementation of the IProjection service.
@@ -37,7 +37,7 @@ public class ProjectionI
     }
     
     public void projectPixels_async(AMD_IProjection_projectPixels __cb,
-            long pixelsId, PixelsType pixelsType, ProjectionType algorithm, 
+            long pixelsId, PixelType pixelsType, ProjectionType algorithm, 
             int tStart, int tEnd, List<Integer> channelList, int stepping, 
             int zStart, int zEnd, String name, Current __current)
         throws ServerError
@@ -48,7 +48,7 @@ public class ProjectionI
     }
 
     public void projectStack_async(AMD_IProjection_projectStack __cb,
-            long pixelsId, PixelsType pixelsType, ProjectionType algorithm, 
+            long pixelsId, PixelType pixelsType, ProjectionType algorithm, 
             int timepoint, int channelIndex, int stepping, int start, int end,
             Current __current) throws ServerError
     {

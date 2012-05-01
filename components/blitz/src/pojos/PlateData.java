@@ -32,6 +32,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import static omero.rtypes.*;
+import omero.model.NamingConvention;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateI;
@@ -258,11 +259,11 @@ public class PlateData extends DataObject {
      */
     public int getColumnSequenceIndex()
     {
-    	omero.RString value = asPlate().getColumnNamingConvention();
+    	NamingConvention value = asPlate().getColumnNamingConvention();
     	if (value == null) return ASCENDING_NUMBER;
-    	String v = value.getValue();
+    	String v = value.getValue().getValue();
     	if (v == null) return ASCENDING_NUMBER;
-    	int index =  getSequenceIndex(value.getValue().toLowerCase());
+    	int index =  getSequenceIndex(v.toLowerCase());
     	if (index == -1) return ASCENDING_NUMBER;
     	return index;
     }
@@ -274,9 +275,9 @@ public class PlateData extends DataObject {
      */
     public int getRowSequenceIndex()
     {
-    	omero.RString value = asPlate().getRowNamingConvention();
+    	NamingConvention value = asPlate().getRowNamingConvention();
     	if (value == null) return ASCENDING_LETTER;
-    	String v = value.getValue();
+    	String v = value.getValue().getValue();
     	if (v == null) return ASCENDING_LETTER;
     	int index =  getSequenceIndex(v.toLowerCase());
     	if (index == -1) return ASCENDING_LETTER;
@@ -290,7 +291,7 @@ public class PlateData extends DataObject {
      */
     public int getDefaultSample()
     {
-    	omero.RInt value = asPlate().getDefaultSample();
+    	omero.RInt value = asPlate().getFieldIndex();
     	if (value == null) return 0;
     	return value.getValue();
     }
@@ -303,7 +304,7 @@ public class PlateData extends DataObject {
     public void setDefaultSample(int value)
     {
     	if (value < 0) value = 0;
-    	asPlate().setDefaultSample(omero.rtypes.rint(value));
+    	asPlate().setFieldIndex(omero.rtypes.rint(value));
     }
     
     /** 

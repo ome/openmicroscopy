@@ -87,7 +87,7 @@ import omero.model.ImageI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Pixels;
-import omero.model.PixelsType;
+import omero.model.PixelType;
 import omero.util.IceMapper;
 
 import org.apache.commons.io.FileUtils;
@@ -132,8 +132,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
     private final Map<String,DimensionOrder> dimensionOrderMap =
         new ConcurrentHashMap<String, DimensionOrder>();
 
-    private final Map<String,PixelsType> pixelsTypeMap =
-        new ConcurrentHashMap<String, PixelsType>();
+    private final Map<String, PixelType> pixelsTypeMap =
+        new ConcurrentHashMap<String, PixelType>();
 
     private String repoUuid;
 
@@ -399,10 +399,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
         List<Image> images = new ArrayList<Image>();
         int count = 0;
         for (Image im : imageMap.values()) {
-		im.clearPixels(); // Do I need to do this first?
-		im.addPixels(pix.get(count));
-		images.add(im);
-		count++;
+        	im.setPixels(null);// Do I need to do this first?
+        	im.setPixels(pix.get(count));
+			images.add(im);
         }
 
         return images;
@@ -897,7 +896,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * The HashMap is built on the first call.
      * TODO: Move that build to constructor?
      */
-    private PixelsType getPixelsType(String pixelsType) {
+    private PixelType getPixelsType(String pixelsType) {
         if (pixelsTypeMap.size() == 0) {
             buildPixelsTypeMap(pixelsTypeMap);
         }
@@ -1120,7 +1119,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         image.setName(rstring(imageName));
         // Property must be not-null but will be overwritten on metadat import.
         image.setAcquisitionDate(rtime(java.lang.System.currentTimeMillis()));
-        image.addPixels(pix);
+        image.setPixels(pix);
         return image;
     }
 
@@ -1457,9 +1456,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      * TODO: this should probably be done in the constructor?
      */
-    private Map<String, PixelsType> buildPixelsTypeMap(Map<String, PixelsType> pixelsTypeMap) {
-        List <PixelsType> pixelsTypeList;
-        List<ome.model.enums.PixelsType> pixTypeList = (List<ome.model.enums.PixelsType>) executor
+    private Map<String, PixelType> buildPixelsTypeMap(Map<String, PixelType> pixelsTypeMap) {
+        List <PixelType> pixelsTypeList;
+        List<ome.model.enums.PixelType> pixTypeList = (List<ome.model.enums.PixelType>) executor
                 .execute(principal, new Executor.SimpleWork(this, "buildPixelsTypeMap") {
 
                     @Transactional(readOnly = true)
@@ -1470,9 +1469,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 });
 
         IceMapper mapper = new IceMapper();
-        pixelsTypeList = (List<PixelsType>) mapper.map(pixTypeList);
+        pixelsTypeList = (List<PixelType>) mapper.map(pixTypeList);
 
-        for (PixelsType pixelsType : pixelsTypeList) {
+        for (PixelType pixelsType : pixelsTypeList) {
             pixelsTypeMap.put(pixelsType.getValue().getValue(), pixelsType);
         }
         return pixelsTypeMap;

@@ -10,11 +10,8 @@ package ome.formats.importer.util;
 import java.io.File;
 import java.util.UUID;
 
-//import ome.formats.OMEROMetadataStore;
-//import ome.formats.importer.ImportFixture;
-//import ome.formats.importer.ImportLibrary;
-//import ome.formats.importer.OMEROWrapper;
-import ome.model.containers.Dataset;
+
+import ome.model.core.Dataset;
 import ome.model.core.Pixels;
 import ome.system.ServiceFactory;
 

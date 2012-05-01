@@ -30,9 +30,15 @@ import java.awt.Font;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RDouble;
 import omero.RInt;
 import omero.RString;
 import omero.rtypes;
+import omero.model.ColorI;
+import omero.model.FillRule;
+import omero.model.FontFamily;
+import omero.model.FontStyle;
+import omero.model.LineCap;
 import omero.model.Shape;
 
 /**
@@ -120,7 +126,7 @@ public class ShapeSettingsData
 	{
 		super();
 		setValue(shape);
-		setFontStyle(FONT_REGULAR);
+		//setFontStyle(FONT_REGULAR);
 	}
 	
 	/**
@@ -131,9 +137,9 @@ public class ShapeSettingsData
 	public String getFillRule()
 	{
 		Shape shape = (Shape) asIObject();
-		RString value = shape.getFillRule();
+		FillRule value = shape.getFillRule();
 		if (value == null) return "";
-		return value.getValue();
+		return value.getValue().getValue();
 	}
 	
 	/**
@@ -141,12 +147,12 @@ public class ShapeSettingsData
 	 * 
 	 * @param fillRule See above.
 	 */
-	public void setFillRule(String fillRule)
+	public void setFillRule(FillRule fillRule)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setFillRule(rtypes.rstring(fillRule));
+		shape.setFillRule(fillRule);
 		setDirty(true);
 	}
 	
@@ -158,9 +164,9 @@ public class ShapeSettingsData
 	public Color getFill()
 	{
 		Shape shape = (Shape) asIObject();
-		RInt value = shape.getFillColor();
+		omero.model.Color value = shape.getFillColor();
 		if (value == null) return DEFAULT_FILL_COLOUR;
-		return new Color(value.getValue(), true);
+		return new Color(value.getValue().getValue(), true);
 	}
 	
 	/**
@@ -173,7 +179,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setFillColor(rtypes.rint(fillColour.getRGB()));
+		shape.setFillColor(new ColorI(fillColour.getRGB()));
 		setDirty(true);
 	}
 
@@ -186,13 +192,13 @@ public class ShapeSettingsData
 	public Color getStroke()
 	{
 		Shape shape = (Shape) asIObject();
-		RInt value = shape.getStrokeColor();
+		omero.model.Color value = shape.getStrokeColor();
 		if (value == null) return DEFAULT_STROKE_COLOUR;
-		return new Color(value.getValue(), true);
+		return new Color(value.getValue().getValue(), true);
 	}
 
 	/**
-	 * Set the stroke colour.
+	 * Set the stroke color.
 	 * 
 	 * @param strokeColour See above.
 	 */
@@ -201,7 +207,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setStrokeColor(rtypes.rint(strokeColour.getRGB()));
+		shape.setStrokeColor(new ColorI(strokeColour.getRGB()));
 		setDirty(true);
 	}
 	
@@ -213,7 +219,7 @@ public class ShapeSettingsData
 	public double getStrokeWidth()
 	{
 		Shape shape = (Shape) asIObject();
-		RInt value = shape.getStrokeWidth();
+		RDouble value = shape.getStrokeWidth();
 		if (value == null) return 1;
 		return value.getValue();
 	}
@@ -228,7 +234,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setStrokeWidth(rtypes.rint((int)strokeWidth));
+		shape.setStrokeWidth(rtypes.rdouble(strokeWidth));
 		setDirty(true);
 	}
 	
@@ -277,9 +283,9 @@ public class ShapeSettingsData
 	public int getLineCap()
 	{
 		Shape shape = (Shape) asIObject();
-		RString value = shape.getStrokeLineCap();
+		LineCap value = shape.getLineCap();
 		if (value == null) return BasicStroke.CAP_BUTT;
-		String v = value.getValue();
+		String v = value.getValue().getValue();
 		if (LINE_CAP_BUTT.equals(v)) return BasicStroke.CAP_BUTT;
 		else if (LINE_CAP_ROUND.equals(v)) return BasicStroke.CAP_ROUND;
 		else if (LINE_CAP_SQUARE.equals(v)) return BasicStroke.CAP_SQUARE;
@@ -291,26 +297,13 @@ public class ShapeSettingsData
 	 * 
 	 * @param lineCap See above.
 	 */
-	public void setLineCap(int lineCap)
+	public void setLineCap(LineCap lineCap)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		switch(lineCap)
-		{
-			case BasicStroke.CAP_BUTT:
-				shape.setStrokeLineCap(rtypes.rstring(LINE_CAP_BUTT));
-				break;
-			case BasicStroke.CAP_ROUND:
-				shape.setStrokeLineCap(rtypes.rstring(LINE_CAP_BUTT));
-				break;
-			case BasicStroke.CAP_SQUARE:
-				shape.setStrokeLineCap(rtypes.rstring(LINE_CAP_BUTT));
-				break;
-			default:
-				shape.setStrokeLineCap(rtypes.rstring(LINE_CAP_BUTT));
-				break;
-		}
+		if (lineCap == null) return;
+		shape.setLineCap(lineCap);
 		setDirty(true);
 	}
 	
@@ -321,10 +314,8 @@ public class ShapeSettingsData
 	public Font getFont()
 	{
 		int style = Font.PLAIN;
-		if (isFontBold())
-			style = style | Font.BOLD;
-		if (isFontItalic())
-			style = style | Font.ITALIC;
+		if (isFontBold()) style = style | Font.BOLD;
+		if (isFontItalic()) style = style | Font.ITALIC;
 		return new Font(getFontFamily(), style, getFontSize());
 	}
 	
@@ -338,24 +329,23 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		RString family = shape.getFontFamily();
-		if (family != null) return family.getValue();
+		FontFamily family = shape.getFontFamily();
+		if (family != null) return family.getValue().getValue();
 		return DEFAULT_FONT_FAMILY;
 	}
 
 	/**
-	 * Returns the stroke.
+	 * Sets the font.
 	 * 
 	 * @return See above.
 	 */
-	public void setFontFamily(String fontFamily)
+	public void setFontFamily(FontFamily fontFamily)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		if (fontFamily == null || fontFamily.trim().length() == 0)
-			fontFamily = DEFAULT_FONT_FAMILY;
-		shape.setFontFamily(rtypes.rstring(fontFamily));
+		if (fontFamily == null) return;
+		shape.setFontFamily(fontFamily);
 		setDirty(true);
 	}
 	
@@ -399,8 +389,8 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		RString style = shape.getFontStyle();
-		if (style != null) return style.getValue();
+		FontStyle style = shape.getFontStyle();
+		if (style != null) return style.getValue().getValue();
 		return FONT_REGULAR;
 	}
 
@@ -409,12 +399,13 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
-	public void setFontStyle(String fontStyle)
+	public void setFontStyle(FontStyle fontStyle)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setFontStyle(rtypes.rstring(formatFontStyle(fontStyle)));
+		if (fontStyle == null) return;
+		shape.setFontStyle(fontStyle);
 		setDirty(true);
 	}
 

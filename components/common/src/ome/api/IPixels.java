@@ -7,18 +7,13 @@
 
 package ome.api;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import java.util.List;
 
 import ome.annotations.Validate;
 import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 /**
  * Metadata gateway for the {@link omeis.providers.re.RenderingEngine} and
@@ -244,7 +239,7 @@ public interface IPixels extends ServiceInterface
      */
     public Long createImage(int sizeX, int sizeY,int sizeZ, int sizeT,
     		                @Validate(Integer.class) List<Integer> channelList,
-    		                PixelsType pixelType, String name,
+    		                PixelType pixelType, String name,
     		                String description);
     
     /**
@@ -273,7 +268,7 @@ public interface IPixels extends ServiceInterface
      *            Pixels type.
      * @return Bit depth in bits.
      */
-    public int getBitDepth(PixelsType type);
+    public int getBitDepth(PixelType type);
 
     /**
      * Retrieves a particular enumeration for a given enumeration class.

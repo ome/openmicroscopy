@@ -9,7 +9,7 @@ import java.util.List;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.model.IObject;
-import ome.model.containers.Dataset;
+import ome.model.core.Dataset;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;

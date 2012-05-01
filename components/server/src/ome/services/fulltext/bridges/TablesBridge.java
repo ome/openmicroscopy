@@ -16,12 +16,12 @@ import ome.model.IAnnotated;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
-import ome.model.containers.Dataset;
+import ome.model.core.Dataset;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
-import ome.model.screen.Plate;
-import ome.model.screen.Well;
-import ome.model.screen.WellSample;
+import ome.model.spw.Plate;
+import ome.model.spw.Well;
+import ome.model.spw.WellSample;
 import ome.services.fulltext.BridgeHelper;
 import ome.system.OmeroContext;
 
@@ -99,15 +99,13 @@ public class TablesBridge extends BridgeHelper {
     protected void handleImage(Image image, Document document,
             LuceneOptions opts) {
 
-        for (Iterator<WellSample> it = image.iterateWellSamples(); it.hasNext();) {
-            WellSample ws = it.next();
-            Well well = ws.getWell();
-            Plate plate = well.getPlate();
-            for (Annotation a : plate.linkedAnnotationList()) {
-                // ///////////////////////////////////////////////////
-                handleAnnotation(a, new AttachRow(image, document, opts));
-                // ///////////////////////////////////////////////////
-            }
+    	WellSample ws = image.getWellSamples();
+        Well well = ws.getWell();
+        Plate plate = well.getPlate();
+        for (Annotation a : plate.linkedAnnotationList()) {
+            // ///////////////////////////////////////////////////
+            handleAnnotation(a, new AttachRow(image, document, opts));
+            // ///////////////////////////////////////////////////
         }
 
         for (Dataset ds : image.linkedDatasetList()) {

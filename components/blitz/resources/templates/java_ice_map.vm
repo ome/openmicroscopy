@@ -49,7 +49,7 @@ public class IceMap {
 #macro(put $longtype $shorttype)
 #if(!$type.abstract)
 
-#if(!$longtype.contains("ome.model.internal.Permissions") && !$longtype.contains("ome.model.internal.Details"))
+#if(!$longtype.contains("ome.model.internal.Permissions") && !$longtype.contains("ome.model.internal.Details") && !$longtype.contains("ome.model.core.Color"))
         _ome2omero.put(${longtype}.Details.class,omero.model.DetailsI.class);
 #end
         _ome2omero.put(${longtype}.class,omero.model.${shorttype}I.class);
