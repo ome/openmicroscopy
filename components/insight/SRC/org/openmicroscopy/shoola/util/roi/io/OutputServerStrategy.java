@@ -43,7 +43,7 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.geom.BezierPath;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
+import org.openmicroscopy.shoola.util.EnumerationObject;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;

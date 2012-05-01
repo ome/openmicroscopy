@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.data.model;
+package org.openmicroscopy.shoola.util;
 
 
 //Java imports

@@ -34,10 +34,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
-import org.jhotdraw.draw.AttributeKeys;
-import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
+import org.openmicroscopy.shoola.util.EnumerationObject;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
