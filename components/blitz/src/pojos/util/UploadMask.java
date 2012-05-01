@@ -41,7 +41,7 @@ import javax.imageio.ImageIO;
 //Application-internal dependencies
 import pojos.MaskData;
 import pojos.ROIData;
-import omero.model.RoiI;
+import omero.model.ROI;
 
 /** 
  * Uploaded for masks.
@@ -206,12 +206,12 @@ public class UploadMask
 	 * 
 	 * @return See above.
 	 */
-	public List<RoiI> getROI()
+	public List<ROI> getROI()
 	{
 		List<ROIData> roiList =  component.getROI();
-		List<RoiI> rList = new ArrayList<RoiI>();
+		List<ROI> rList = new ArrayList<ROI>();
 		for (ROIData roi : roiList)
-			rList.add((RoiI)roi.asIObject());
+			rList.add((ROI) roi.asIObject());
 		return rList;
 	}
 

@@ -26,6 +26,7 @@ import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
 import ome.model.IObject;
+import ome.model.annotations.Annotation;
 import ome.model.annotations.DatasetAnnotationLink;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
@@ -34,18 +35,17 @@ import ome.model.annotations.ProjectAnnotationLink;
 import ome.model.annotations.ScreenAnnotationLink;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.WellSampleAnnotationLink;
-import ome.model.acquisition.Arc;
-import ome.model.acquisition.Filament;
-import ome.model.acquisition.Instrument;
-import ome.model.acquisition.Laser;
-import ome.model.acquisition.LightEmittingDiode;
-import ome.model.acquisition.LightSettings;
-import ome.model.acquisition.LightSource;
-import ome.model.annotations.Annotation;
-import ome.model.containers.Project;
-import ome.model.core.LogicalChannel;
+import ome.model.core.Arc;
+import ome.model.core.Filament;
+import ome.model.core.Instrument;
+import ome.model.core.Laser;
+import ome.model.core.LightEmittingDiode;
+import ome.model.core.LightSourceSettings;
+import ome.model.core.LightSource;
+import ome.model.core.Project;
+import ome.model.core.Channel;
 import ome.model.core.OriginalFile;
-import ome.model.screen.Screen;
+import ome.model.spw.Screen;
 import ome.parameters.Parameters;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.Query;
@@ -370,7 +370,7 @@ public class MetadataImpl
     	if (value == null) return null;
     	
     	LightSource ls;
-    	Iterator<LightSource> i = value.iterateLightSource();
+    	Iterator<LightSource> i = value.iterateLightSources();
     	Laser laser;
     	
     	if (i != null) {
@@ -397,7 +397,7 @@ public class MetadataImpl
         			}
     			}
     		}
-    		value.clearLightSource();
+    		value.clearLightSources();
     		Iterator<IObject> j = list.iterator();
     		while (j.hasNext()) {
     			value.addLightSource((LightSource) j.next());
@@ -416,23 +416,13 @@ public class MetadataImpl
 			@Validate(Long.class) Set<Long> ids)
     {
     	StringBuilder sb = new StringBuilder();
-    	sb.append("select channel from LogicalChannel as channel ");
+    	sb.append("select channel from Channel as channel ");
     	sb.append("left outer join fetch channel.mode as mode ");
         sb.append("left outer join fetch channel.illumination as illumination ");
         sb.append("left outer join fetch channel.contrastMethod as cm ");
 		sb.append("left outer join fetch channel.detectorSettings as ds ");
         sb.append("left outer join fetch channel.lightSourceSettings as lss ");
         sb.append("left outer join fetch lss.microbeamManipulation ");
-        
-        //
-        sb.append("left outer join fetch channel.otf as otf ");
-        sb.append("left outer join fetch otf.pixelsType ");
-        sb.append("left outer join fetch otf.objective as objective ");
-        sb.append("left outer join fetch objective.immersion ");
-        sb.append("left outer join fetch objective.correction ");
-        sb.append("left outer join fetch otf.filterSet as otffilter ");
-        sb.append("left outer join fetch otffilter.dichroic as otfdichroic ");
-        
         
         sb.append("left outer join fetch channel.filterSet as filter ");
         sb.append("left outer join fetch filter.dichroic as dichroic ");
@@ -470,11 +460,11 @@ public class MetadataImpl
         sb.append("left outer join fetch lss.lightSource as light ");
         sb.append("left outer join fetch light.instrument as instrument ");
         sb.append("where channel.id in (:ids)");
-        List<LogicalChannel> list = iQuery.findAllByQuery(sb.toString(), 
+        List<Channel> list = iQuery.findAllByQuery(sb.toString(), 
         		new Parameters().addIds(ids));
-        Iterator<LogicalChannel> i = list.iterator();
-        LogicalChannel channel;
-        LightSettings light;
+        Iterator<Channel> i = list.iterator();
+        Channel channel;
+        LightSourceSettings light;
         LightSource src, pump;
         Parameters params;
         Laser laser;
@@ -508,7 +498,7 @@ public class MetadataImpl
 				}
 			}
 		}
-    	return new HashSet<LogicalChannel>(list);
+    	return new HashSet<Channel>(list);
     }
 
     /**

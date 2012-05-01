@@ -15,17 +15,16 @@ import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.annotations.ImageAnnotationLink;
-import ome.model.containers.Dataset;
-import ome.model.containers.DatasetImageLink;
+import ome.model.core.Dataset;
+import ome.model.core.DatasetImageLink;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
-//import ome.model.core.PixelsDimensions;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
 
 /**
- * Provides simplifed methods for deleting instances from the database. Various
+ * Provides simplified methods for deleting instances from the database. Various
  * policies may exist for delete and so it is important to consult the
  * implementation documentation to know what types will be deleted by force
  * (using admin privileges) or alternatively throw an exception due to

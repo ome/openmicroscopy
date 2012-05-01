@@ -25,6 +25,7 @@ package ome.formats;
 
 import static omero.rtypes.rbool;
 import static omero.rtypes.rdouble;
+import static omero.rtypes.rfloat;
 import static omero.rtypes.rint;
 import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
@@ -78,9 +79,6 @@ import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
 import ome.util.LSID;
-import ome.xml.model.enums.IlluminationType;
-import ome.xml.model.enums.NamingConvention;
-import ome.xml.model.enums.PixelType;
 import ome.xml.model.primitives.NonNegativeInteger;
 import ome.xml.model.primitives.NonNegativeLong;
 import ome.xml.model.primitives.PercentFraction;
@@ -88,6 +86,7 @@ import ome.xml.model.primitives.PositiveInteger;
 import ome.xml.model.primitives.PositiveFloat;
 import omero.RBool;
 import omero.RDouble;
+import omero.RFloat;
 import omero.RInt;
 import omero.RLong;
 import omero.RString;
@@ -119,6 +118,7 @@ import omero.model.ArcType;
 import omero.model.Binning;
 import omero.model.BooleanAnnotation;
 import omero.model.Channel;
+import omero.model.ColorI;
 import omero.model.CommentAnnotation;
 import omero.model.ContrastMethod;
 import omero.model.Correction;
@@ -144,7 +144,7 @@ import omero.model.FilterSet;
 import omero.model.FilterType;
 import omero.model.Format;
 import omero.model.IObject;
-import omero.model.Illumination;
+import omero.model.IlluminationType;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.ImagingEnvironment;
@@ -157,10 +157,9 @@ import omero.model.LaserMedium;
 import omero.model.LaserType;
 import omero.model.LightEmittingDiode;
 import omero.model.LightPath;
-import omero.model.LightSettings;
+import omero.model.LightSourceSettings;
 import omero.model.Line;
 import omero.model.ListAnnotation;
-import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.Mask;
 import omero.model.Medium;
@@ -168,12 +167,13 @@ import omero.model.MicrobeamManipulation;
 import omero.model.MicrobeamManipulationType;
 import omero.model.Microscope;
 import omero.model.MicroscopeType;
+import omero.model.NamingConvention;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
 import omero.model.Permissions;
 import omero.model.Pixels;
-import omero.model.PixelsType;
+import omero.model.PixelType;
 import omero.model.Plane;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
@@ -184,7 +184,7 @@ import omero.model.ProjectI;
 import omero.model.Pulse;
 import omero.model.Reagent;
 import omero.model.Rectangle;
-import omero.model.Roi;
+import omero.model.ROI;
 import omero.model.Screen;
 import omero.model.ScreenI;
 import omero.model.StageLabel;
@@ -755,6 +755,7 @@ public class OMEROMetadataStoreClient
         return value == null? null : rlong(value.getValue());
     }
 
+
     /**
      * Transforms a Java type into the corresponding OMERO RType.
      *
@@ -762,11 +763,12 @@ public class OMEROMetadataStoreClient
      * @return RType or <code>null</code> if <code>value</code> is
      * <code>null</code>.
      */
-    public RDouble toRType(PositiveFloat value)
+    public RFloat toRType(PositiveFloat value)
     {
-        return value == null? null : rdouble(value.getValue());
+        return value == null ? null : rfloat(Float.parseFloat(
+        		value.getValue().toString()));
     }
-
+    
     /**
      * Transforms a Java type into the corresponding OMERO RType.
      *
@@ -844,17 +846,6 @@ public class OMEROMetadataStoreClient
     public RTime toRType(Timestamp value)
     {
         return value == null? null : rtime(value);
-    }
-
-    /**
-     * Transforms a Java type into the corresponding OMERO RType.
-     * @param value Java concrete type value.
-     * @return RType or <code>null</code> if <code>value</code> is
-     * <code>null</code>.
-     */
-    public RString toRType(NamingConvention value)
-    {
-        return value == null ? null : rstring(value.getValue());
     }
 
     /**
@@ -990,7 +981,7 @@ public class OMEROMetadataStoreClient
             // Reset the image acquisition date as it has been inserted
             // erroneously by the OMERO.fs infrastructure.
             image.setAcquisitionDate(null);
-            Pixels pixels = image.getPrimaryPixels();
+            Pixels pixels = image.getPixels();
             LinkedHashMap<Index, Integer> indexes =
                 new LinkedHashMap<Index, Integer>();
             indexes.put(Index.IMAGE_INDEX, series);
@@ -1516,7 +1507,6 @@ public class OMEROMetadataStoreClient
 			new LinkedHashMap<Index, Integer>();
 		imageIndexes.put(Index.IMAGE_INDEX, series);
 		Image image = getSourceObject(Image.class, imageIndexes);
-		image.setArchived(toRType(archive));
 	}
 	// Create all original file objects for later population based on
 	// the existence or abscence of companion files and the archive
@@ -1597,7 +1587,6 @@ public class OMEROMetadataStoreClient
 		// ensures that an Image object (and corresponding container)
 		// exists.
 		Image image = getSourceObject(Image.class, imageIndexes);
-		image.setArchived(toRType(archive));
 
 		// If we have been asked to create a metadata file with all the
 		// metadata dumped out, do so, add it to the collection we're to
@@ -3086,8 +3075,6 @@ public class OMEROMetadataStoreClient
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.IMAGE_INDEX, imageIndex);
         indexes.put(Index.CHANNEL_INDEX, channelIndex);
-        Channel c = getSourceObject(Channel.class, indexes);
-        c.setLogicalChannel(getSourceObject(LogicalChannel.class, indexes));
         return getSourceObject(Channel.class, indexes);
     }
 
@@ -3114,8 +3101,7 @@ public class OMEROMetadataStoreClient
             int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setAcquisitionMode(
-        		(AcquisitionMode) getEnumeration(
+        o.setAcquisitionMode((AcquisitionMode) getEnumeration(
         				AcquisitionMode.class, acquisitionMode.toString()));
     }
 
@@ -3127,10 +3113,7 @@ public class OMEROMetadataStoreClient
         Channel o = getChannel(imageIndex, channelIndex);
         // RGBA --> ARGB
         Color c = new Color((color >>> 8) | (color << (32-8)));
-        o.setRed(toRType(c.getRed()));
-        o.setGreen(toRType(c.getGreen()));
-        o.setBlue(toRType(c.getBlue()));
-        o.setAlpha(toRType(c.getAlpha()));
+        o.setColor(new ColorI(c.getRGB()));
     }
 
     /* (non-Javadoc)
@@ -3141,7 +3124,7 @@ public class OMEROMetadataStoreClient
             int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setContrastMethod((ContrastMethod) getEnumeration(ContrastMethod.class, contrastMethod.toString()));
+        o.setContrastMethod((ContrastMethod) getEnumeration(ContrastMethod.class, contrastMethod.toString()));
     }
 
     /* (non-Javadoc)
@@ -3151,7 +3134,7 @@ public class OMEROMetadataStoreClient
             PositiveInteger emissionWavelength, int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setEmissionWavelength(toRType(emissionWavelength));
+        o.setEmissionWavelength(toRType(emissionWavelength));
     }
 
     /** (non-Javadoc)
@@ -3162,8 +3145,7 @@ public class OMEROMetadataStoreClient
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setExcitationWavelength(
-        		toRType(excitationWavelength));
+        o.setExcitationWavelength(toRType(excitationWavelength));
     }
 
     /* (non-Javadoc)
@@ -3172,7 +3154,7 @@ public class OMEROMetadataStoreClient
     public void setChannelFilterSetRef(String filterSet, int imageIndex,
             int channelIndex)
     {
-        LSID key = new LSID(LogicalChannel.class, imageIndex, channelIndex);
+        LSID key = new LSID(Channel.class, imageIndex, channelIndex);
         addReference(key, new LSID(filterSet));
 
     }
@@ -3183,18 +3165,18 @@ public class OMEROMetadataStoreClient
     public void setChannelFluor(String fluor, int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setFluor(toRType(fluor));
+        o.setFluor(toRType(fluor));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setChannelIlluminationType(ome.xml.model.enums.IlluminationType, int, int)
      */
-    public void setChannelIlluminationType(IlluminationType illuminationType,
+    public void setChannelIlluminationType(ome.xml.model.enums.IlluminationType illuminationType,
             int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setIlluminationType(
-        (Illumination) getEnumeration(Illumination.class,
+        o.setIlluminationType(
+        (IlluminationType) getEnumeration(IlluminationType.class,
         illuminationType.toString()));
     }
 
@@ -3206,7 +3188,7 @@ public class OMEROMetadataStoreClient
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setNdFilter(toRType(ndfilter));
+        o.setNdFilter(toRType(ndfilter));
     }
 
 
@@ -3216,7 +3198,7 @@ public class OMEROMetadataStoreClient
     public void setChannelName(String name, int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setName(toRType(name));
+        o.setName(toRType(name));
     }
 
 
@@ -3225,8 +3207,6 @@ public class OMEROMetadataStoreClient
      */
     public void setChannelOTFRef(String otf, int imageIndex, int channelIndex)
     {
-        LSID key = new LSID(Channel.class, imageIndex, channelIndex);
-        addReference(key, new LSID(otf));
     }
 
 
@@ -3237,7 +3217,7 @@ public class OMEROMetadataStoreClient
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setPinholeSize(toRType(pinholeSize));
+        o.setPinholeSize(toRType(pinholeSize));
     }
 
     /* (non-Javadoc)
@@ -3247,7 +3227,7 @@ public class OMEROMetadataStoreClient
             int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setPockelCellSetting(toRType(pockelCellSetting));
+        o.setPockelCellSetting(toRType(pockelCellSetting));
     }
 
 
@@ -3258,7 +3238,7 @@ public class OMEROMetadataStoreClient
             int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setSamplesPerPixel(toRType(samplesPerPixel));
+        o.setSamplesPerPixel(toRType(samplesPerPixel));
     }
 
     /* (non-Javadoc)
@@ -3280,13 +3260,13 @@ public class OMEROMetadataStoreClient
      * @param logicalChannelIndex
      * @return
      */
-    private LightSettings getChannelLightSourceSettings(int imageIndex, int channelIndex)
+    private LightSourceSettings getChannelLightSourceSettings(int imageIndex, int channelIndex)
     {
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.IMAGE_INDEX, imageIndex);
         indexes.put(Index.CHANNEL_INDEX, channelIndex);
-        return getSourceObject(LightSettings.class, indexes);
+        return getSourceObject(LightSourceSettings.class, indexes);
     }
 
     /* (non-Javadoc)
@@ -3296,7 +3276,7 @@ public class OMEROMetadataStoreClient
             int channelIndex)
     {
         getChannelLightSourceSettings(imageIndex, channelIndex);
-        LSID key = new LSID(LightSettings.class, imageIndex, channelIndex);
+        LSID key = new LSID(LightSourceSettings.class, imageIndex, channelIndex);
         addReference(key, new LSID(id));
     }
 
@@ -3306,7 +3286,7 @@ public class OMEROMetadataStoreClient
     public void setChannelLightSourceSettingsAttenuation(
             PercentFraction attenuation, int imageIndex, int channelIndex)
     {
-        LightSettings o = getChannelLightSourceSettings(imageIndex, channelIndex);
+    	LightSourceSettings o = getChannelLightSourceSettings(imageIndex, channelIndex);
         o.setAttenuation(toRType(attenuation));
     }
 
@@ -3316,7 +3296,7 @@ public class OMEROMetadataStoreClient
     public void setChannelLightSourceSettingsWavelength(
             PositiveInteger wavelength, int imageIndex, int channelIndex)
     {
-        LightSettings o = getChannelLightSourceSettings(imageIndex, channelIndex);
+    	LightSourceSettings o = getChannelLightSourceSettings(imageIndex, channelIndex);
         o.setWavelength(toRType(wavelength));
     }
 
@@ -3818,7 +3798,7 @@ public class OMEROMetadataStoreClient
             int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setStrokeWidth(toRType(strokeWidth.intValue()));
+        o.setStrokeWidth(toRType(strokeWidth.doubleValue()));
     }
 
     /* (non-Javadoc)
@@ -4616,7 +4596,7 @@ public class OMEROMetadataStoreClient
             int imageIndex)
     {
         ImagingEnvironment o = getImagingEnvironment(imageIndex);
-        o.setCo2percent(toRType(co2percent));
+        o.setCo2Percent(toRType(co2percent));
     }
 
     /* (non-Javadoc)
@@ -5036,7 +5016,7 @@ public class OMEROMetadataStoreClient
     public void setLineStroke(Integer stroke, int ROIIndex, int shapeIndex)
     {
         Line o = getLine(ROIIndex, shapeIndex);
-        o.setStrokeWidth(toRType(stroke));
+        o.setStrokeWidth(toRType(stroke.doubleValue()));
     }
 
     /* (non-Javadoc)
@@ -5056,7 +5036,7 @@ public class OMEROMetadataStoreClient
             int shapeIndex)
     {
         Line o = getLine(ROIIndex, shapeIndex);
-        o.setStrokeWidth(toRType(strokeWidth.intValue()));
+        o.setStrokeWidth(toRType(strokeWidth.doubleValue()));
     }
 
     /* (non-Javadoc)
@@ -5474,7 +5454,7 @@ public class OMEROMetadataStoreClient
 
     ////////Microbeam Manipulation Light Source Settings /////////
 
-    public LightSettings getMicrobeamManipulationLightSourceSettings(int experimentIndex, int microbeamManipulationIndex,
+    public LightSourceSettings getMicrobeamManipulationLightSourceSettings(int experimentIndex, int microbeamManipulationIndex,
             int lightSourceSettingsIndex)
     {
         LinkedHashMap<Index, Integer> indexes =
@@ -5482,7 +5462,7 @@ public class OMEROMetadataStoreClient
         indexes.put(Index.EXPERIMENT_INDEX, experimentIndex);
         indexes.put(Index.MICROBEAM_MANIPULATION_INDEX, microbeamManipulationIndex);
         indexes.put(Index.LIGHT_SOURCE_SETTINGS_INDEX, lightSourceSettingsIndex);
-        return getSourceObject(LightSettings.class, indexes);
+        return getSourceObject(LightSourceSettings.class, indexes);
     }
 
     /* (non-Javadoc)
@@ -5495,7 +5475,7 @@ public class OMEROMetadataStoreClient
         getMicrobeamManipulationLightSourceSettings(
                 experimentIndex, microbeamManipulationIndex,
                 lightSourceSettingsIndex);
-        LSID key = new LSID(LightSettings.class, experimentIndex,
+        LSID key = new LSID(LightSourceSettings.class, experimentIndex,
 			microbeamManipulationIndex, lightSourceSettingsIndex);
         addReference(key, new LSID(id));
     }
@@ -5507,7 +5487,7 @@ public class OMEROMetadataStoreClient
             PercentFraction attenuation, int experimentIndex,
             int microbeamManipulationIndex, int lightSourceSettingsIndex)
     {
-        LightSettings o = getMicrobeamManipulationLightSourceSettings(experimentIndex,
+        LightSourceSettings o = getMicrobeamManipulationLightSourceSettings(experimentIndex,
                 microbeamManipulationIndex, lightSourceSettingsIndex);
         o.setAttenuation(toRType(attenuation));
     }
@@ -5519,7 +5499,7 @@ public class OMEROMetadataStoreClient
             PositiveInteger wavelength, int experimentIndex,
             int microbeamManipulationIndex, int lightSourceSettingsIndex)
     {
-        LightSettings o = getMicrobeamManipulationLightSourceSettings(experimentIndex,
+        LightSourceSettings o = getMicrobeamManipulationLightSourceSettings(experimentIndex,
                 microbeamManipulationIndex, lightSourceSettingsIndex);
         o.setWavelength(toRType(wavelength));
     }
@@ -6095,11 +6075,10 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPixelsType(ome.xml.model.enums.PixelType, int)
      */
-    public void setPixelsType(PixelType type, int imageIndex)
+    public void setPixelsType( ome.xml.model.enums.PixelType type, int imageIndex)
     {
         Pixels o = getPixels(imageIndex);
-        o.setType(
-            (PixelsType) getEnumeration(PixelsType.class, type.toString()));
+        o.setType((PixelType) getEnumeration(PixelType.class, type.toString()));
     }
 
     //////// Plane /////////
@@ -6338,10 +6317,12 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPlateColumnNamingConvention(ome.xml.model.enums.NamingConvention, int)
      */
     public void setPlateColumnNamingConvention(
-            NamingConvention columnNamingConvention, int plateIndex)
+    		 ome.xml.model.enums.NamingConvention columnNamingConvention, 
+    		 int plateIndex)
     {
         Plate o = getPlate(plateIndex);
-        o.setColumnNamingConvention(toRType(columnNamingConvention));
+        o.setColumnNamingConvention((NamingConvention) getEnumeration(
+        		NamingConvention.class, columnNamingConvention.toString()));
     }
 
     /* (non-Javadoc)
@@ -6399,10 +6380,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPlateRowNamingConvention(ome.xml.model.enums.NamingConvention, int)
      */
     public void setPlateRowNamingConvention(
-            NamingConvention rowNamingConvention, int plateIndex)
+    		 ome.xml.model.enums.NamingConvention rowNamingConvention, int plateIndex)
     {
         Plate o = getPlate(plateIndex);
-        o.setRowNamingConvention(toRType(rowNamingConvention));
+        o.setRowNamingConvention((NamingConvention) getEnumeration(
+        		NamingConvention.class, rowNamingConvention.toString()));
     }
 
     /* (non-Javadoc)
@@ -6829,12 +6811,12 @@ public class OMEROMetadataStoreClient
 
     //////// ROI /////////
 
-    private Roi getROI(int ROIIndex)
+    private ROI getROI(int ROIIndex)
     {
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.ROI_INDEX, ROIIndex);
-        return getSourceObject(Roi.class, indexes);
+        return getSourceObject(ROI.class, indexes);
     }
 
     /* (non-Javadoc)
@@ -6842,13 +6824,13 @@ public class OMEROMetadataStoreClient
      */
     public void setROIID(String id, int ROIIndex)
     {
-        checkDuplicateLSID(Roi.class, id);
+        checkDuplicateLSID(ROI.class, id);
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.ROI_INDEX, ROIIndex);
-        IObjectContainer o = getIObjectContainer(Roi.class, indexes);
+        IObjectContainer o = getIObjectContainer(ROI.class, indexes);
         o.LSID = id;
-        addAuthoritativeContainer(Roi.class, id, o);
+        addAuthoritativeContainer(ROI.class, id, o);
     }
 
     /* (non-Javadoc)
@@ -6866,7 +6848,7 @@ public class OMEROMetadataStoreClient
      */
     public void setROIDescription(String description, int ROIIndex)
     {
-        Roi o = getROI(ROIIndex);
+        ROI o = getROI(ROIIndex);
         o.setDescription(toRType(description));
     }
 
@@ -7079,9 +7061,8 @@ public class OMEROMetadataStoreClient
     public void setRectangleStrokeWidth(Double strokeWidth, int ROIIndex,
             int shapeIndex)
     {
-//        Rect o = getRectangle(ROIIndex, shapeIndex);
-//        o.setStrokeWidth(toRType(strokeWidth));
-        // TODO incorrect type in OMERO Model
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
+        o.setStrokeWidth(toRType(strokeWidth.doubleValue()));
     }
 
     /* (non-Javadoc)
@@ -7621,7 +7602,8 @@ public class OMEROMetadataStoreClient
         indexes.put(Index.TIMESTAMP_ANNOTATION_INDEX, timestampAnnotationIndex);
         IObjectContainer o = getIObjectContainer(TimestampAnnotation.class, indexes);
         o.LSID = id;
-        addAuthoritativeContainer(TimestampAnnotation.class, id, o);       }
+        addAuthoritativeContainer(TimestampAnnotation.class, id, o);
+    }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTimestampAnnotationNamespace(java.lang.String, int)
@@ -7780,11 +7762,7 @@ public class OMEROMetadataStoreClient
     public void setWellColor(Integer color, int plateIndex, int wellIndex)
     {
         Well o = getWell(plateIndex, wellIndex);
-        Color c = new Color(color);
-        o.setRed(toRType(c.getRed()));
-        o.setGreen(toRType(c.getGreen()));
-        o.setBlue(toRType(c.getBlue()));
-        o.setAlpha(toRType(c.getAlpha()));
+        o.setColor(new ColorI(color.intValue()));
     }
 
     /* (non-Javadoc)
@@ -7860,8 +7838,7 @@ public class OMEROMetadataStoreClient
         indexes.put(Index.WELL_INDEX, wellIndex);
         indexes.put(Index.WELL_SAMPLE_INDEX, wellSampleIndex);
 
-        WellSample ws = getSourceObject(WellSample.class, indexes);
-        return ws;
+        return getSourceObject(WellSample.class, indexes);
     }
 
     /* (non-Javadoc)
@@ -7940,8 +7917,7 @@ public class OMEROMetadataStoreClient
         {
             return;
         }
-        WellSample o =
-            getWellSample(plateIndex, wellIndex, wellSampleIndex);
+        WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
         o.setTimepoint(toRType(timestampFromXmlString(timepoint)));
     }
 

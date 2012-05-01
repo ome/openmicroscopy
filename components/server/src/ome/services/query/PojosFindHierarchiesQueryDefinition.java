@@ -22,8 +22,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 import static ome.parameters.Parameters.*;

@@ -81,8 +81,8 @@ module omero {
         ["java:type:java.util.ArrayList<omero.model.Image>:java.util.List<omero.model.Image>"]
             sequence<omero::model::Image> ImageList;
 
-        ["java:type:java.util.ArrayList<omero.model.LogicalChannel>:java.util.List<omero.model.LogicalChannel>"]
-            sequence<omero::model::LogicalChannel> LogicalChannelList;
+        ["java:type:java.util.ArrayList<omero.model.Channel>:java.util.List<omero.model.Channel>"]
+            sequence<omero::model::Channel> ChannelList;
 
         ["java:type:java.util.ArrayList<omero.model.OriginalFile>:java.util.List<omero.model.OriginalFile>"]
             sequence<omero::model::OriginalFile> OriginalFileList;
@@ -90,11 +90,11 @@ module omero {
         ["java:type:java.util.ArrayList<omero.model.Pixels>:java.util.List<omero.model.Pixels>"]
             sequence<omero::model::Pixels> PixelsList;
 
-        ["java:type:java.util.ArrayList<omero.model.PixelsType>:java.util.List<omero.model.PixelsType>"]
-            sequence<omero::model::PixelsType> PixelsTypeList;
+        ["java:type:java.util.ArrayList<omero.model.PixelType>:java.util.List<omero.model.PixelType>"]
+            sequence<omero::model::PixelType> PixelTypeList;
 
-        ["java:type:java.util.ArrayList<omero.model.Roi>:java.util.List<omero.model.Roi>"]
-            sequence<omero::model::Roi> RoiList;
+        ["java:type:java.util.ArrayList<omero.model.ROI>:java.util.List<omero.model.ROI>"]
+            sequence<omero::model::ROI> RoiList;
 
         ["java:type:java.util.ArrayList<omero.model.ScriptJob>:java.util.List<omero.model.ScriptJob>"]
             sequence<omero::model::ScriptJob> ScriptJobList;

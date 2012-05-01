@@ -13,10 +13,10 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 import ome.conditions.ApiUsageException;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.screen.Plate;
-import ome.model.screen.Screen;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
+import ome.model.spw.Plate;
+import ome.model.spw.Screen;
 import ome.parameters.Parameters;
 
 import org.hibernate.HibernateException;

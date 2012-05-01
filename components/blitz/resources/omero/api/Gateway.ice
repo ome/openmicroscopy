@@ -32,8 +32,6 @@ module omero {
 
         enum ContainerClass
         {
-            Category,
-            CategoryGroup,
             Project,
             Dataset,
             Image
@@ -238,11 +236,11 @@ module omero {
                 throws omero::ServerError;
 
             /**
-             * Get a list of all the possible pixelsTypes in the server.
+             * Get a list of all the possible pixelTypes in the server.
              * @return see above.
              * @throws omero::ServerError
              **/
-            idempotent PixelsTypeList getPixelTypes()
+            idempotent PixelTypeList getPixelTypes()
                 throws omero::ServerError;
 
             /**
@@ -251,7 +249,7 @@ module omero {
              * @return see above.
              * @throws omero::ServerError
              **/
-            idempotent omero::model::PixelsType getPixelType(string type)
+            idempotent omero::model::PixelType getPixelType(string type)
                 throws omero::ServerError;
 
             /**
@@ -351,7 +349,7 @@ module omero {
              **/
             long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
                              IntegerList channelList,
-                             omero::model::PixelsType pixelsType, string name,
+                             omero::model::PixelType pixelType, string name,
                              string description)
                 throws omero::ServerError;
             

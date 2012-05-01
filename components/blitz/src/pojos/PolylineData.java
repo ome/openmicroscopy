@@ -32,6 +32,7 @@ import java.awt.geom.Point2D;
 //Application-internal dependencies
 import omero.RString;
 import omero.rtypes;
+import omero.model.Marker;
 import omero.model.PolylineI;
 import omero.model.Shape;
 import omero.model.Polyline;
@@ -121,9 +122,9 @@ public class PolylineData
 	{
 		Polyline shape = (Polyline) asIObject();
 		if (shape == null) return "";
-		RString value = shape.getMarkerStart();
+		Marker value = shape.getMarkerStart();
 		if (value == null) return "";
-		return value.getValue();
+		return value.getValue().getValue();
 	}
 	
 	/**
@@ -135,9 +136,9 @@ public class PolylineData
 	{
 		Polyline shape = (Polyline) asIObject();
 		if (shape == null) return "";
-		RString value = shape.getMarkerEnd();
+		Marker value = shape.getMarkerEnd();
 		if (value == null) return "";
-		return value.getValue();
+		return value.getValue().getValue();
 	}
 	
 	/**
@@ -145,13 +146,13 @@ public class PolylineData
 	 * 
 	 * @param markerStart The value to set.
 	 */
-	public void setMarkerStart(String markerStart)
+	public void setMarkerStart(Marker markerStart)
 	{
 		if (markerStart == null) return;
 		Polyline shape = (Polyline) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setMarkerStart(rtypes.rstring(markerStart));
+		shape.setMarkerStart(markerStart);
 	}
 	
 	/**
@@ -159,13 +160,13 @@ public class PolylineData
 	 * 
 	 * @param markerEnd The value to set.
 	 */
-	public void setMarkerEnd(String markerEnd)
+	public void setMarkerEnd(Marker markerEnd)
 	{
 		if (markerEnd == null) return;
 		Polyline shape = (Polyline) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setMarkerEnd(rtypes.rstring(markerEnd));
+		shape.setMarkerEnd(markerEnd);
 	}
 
 }

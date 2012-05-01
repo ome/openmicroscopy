@@ -7,12 +7,8 @@
 
 package omeis.providers.re.metadata;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import java.awt.Dimension;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,8 +19,7 @@ import ome.io.nio.TileLoopIteration;
 import ome.io.nio.Utils;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
-import ome.model.stats.StatsInfo;
-import omeis.providers.re.Renderer;
+import ome.model.core.StatsInfo;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;
@@ -239,6 +234,28 @@ public class StatsFactory {
     }
 
     /**
+     * Returns a Channel model object based on its indexes within the
+     * OMERO data model.
+     * @param pixels The pixels to handle.
+     * @param channelIndex channel index.
+     * @return See above.
+     */
+    private Channel getChannel(Pixels pixels, int channelIndex)
+    {
+    	if (pixels == null) return null;
+    	if (channelIndex >= pixels.sizeOfChannels()) return null;
+    	Iterator<Channel> i = pixels.iterateChannels();
+    	int index = 0;
+    	Channel channel;
+    	while (i.hasNext()) {
+    		channel = i.next();
+    		if (index == channelIndex) return channel;
+			index++;
+		}
+    	return null;
+    }
+    
+    /**
      * Helper object to determine the location of the pixels' values, the
      * inputWindow i.e. <code>inputStart</code> and <code>inputEnd</code>
      * and to initialize the <code>noiseReduction</code> flag.
@@ -252,7 +269,12 @@ public class StatsFactory {
     public void computeLocationStats(final Pixels metadata,
             final PixelBuffer pixelsData, final PlaneDef pd, final int index) {
         log.debug("Computing location stats for Pixels:" + metadata.getId());
-        Channel channel = metadata.getChannel(index);
+        //TODO: Retrieve channel.
+        Channel channel = getChannel(metadata, index);
+        if (channel == null)
+        {
+        	throw new ResourceError("Channels index not valid: "+index);
+        }
         final StatsInfo stats = channel.getStatsInfo();
         if (stats == null)
         {

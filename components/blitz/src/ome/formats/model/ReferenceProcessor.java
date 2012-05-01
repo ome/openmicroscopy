@@ -35,7 +35,7 @@ import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.DetectorSettings;
 import omero.model.LightPath;
-import omero.model.LightSettings;
+import omero.model.LightSourceSettings;
 import omero.model.ObjectiveSettings;
 import omero.model.WellSample;
 
@@ -98,7 +98,7 @@ public class ReferenceProcessor implements ModelProcessor
 					indexes.put(Index.IMAGE_INDEX, indexArray[0]);
 					indexes.put(Index.CHANNEL_INDEX, indexArray[1]);
 				}
-				else if (targetClass.equals(LightSettings.class))
+				else if (targetClass.equals(LightSourceSettings.class))
 				{
 					indexes.put(Index.IMAGE_INDEX, indexArray[0]);
 					indexes.put(Index.CHANNEL_INDEX, indexArray[1]);

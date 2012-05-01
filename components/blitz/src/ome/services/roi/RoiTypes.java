@@ -19,7 +19,6 @@ import omero.model.Point;
 import omero.model.Polygon;
 import omero.model.Polyline;
 import omero.model.Rectangle;
-import omero.model.Roi;
 import omero.model.Shape;
 import omero.model.SmartEllipseI;
 import omero.model.SmartLineI;

@@ -21,15 +21,16 @@ import ome.conditions.ValidationException;
 import ome.logic.AbstractLevel2Service;
 import ome.model.IObject;
 import ome.model.annotations.ImageAnnotationLink;
-import ome.model.containers.DatasetImageLink;
+import ome.model.core.DatasetImageLink;
 import ome.model.core.Channel;
+import ome.model.core.DetectorSettings;
 import ome.model.core.Image;
-import ome.model.core.LogicalChannel;
+import ome.model.core.LightSourceSettings;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.RenderingDef;
 import ome.model.internal.Details;
-import ome.model.screen.Plate;
+import ome.model.spw.Plate;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecuritySystem;
@@ -65,8 +66,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
     public final static String IMAGE_QUERY = "select i from Image as i "
             + "left outer join fetch i.pixels as p "
             + "left outer join fetch p.channels as c "
-            + "left outer join fetch c.logicalChannel as lc "
-            + "left outer join fetch lc.channels as c2 "
             + "left outer join fetch c.statsInfo as sinfo "
             + "left outer join fetch p.planeInfo as pinfo "
             + "left outer join fetch p.thumbnails as thumb "
@@ -428,62 +427,50 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
      * entities for later delete.
      */
     protected void collect(final UnloadedCollector delete, final Image i) {
+    	Pixels p = i.getPixels();
 
-        i.collectPixels(new CBlock<Pixels>() {
+       // p.eachLinkedOriginalFile(delete);
+        p.collectPlanes(delete);
+        for (RenderingDef rdef : p
+                .collectSettings((CBlock<RenderingDef>) null)) {
 
-            public Pixels call(IObject object) {
-
-                if (object == null) {
-                    return null; // EARLY EXIT. Happening due to image_index=1
-                }
-
-                Pixels p = (Pixels) object;
-
-                p.eachLinkedOriginalFile(delete);
-                p.collectPlane(delete);
-
-                for (RenderingDef rdef : p
-                        .collectSettings((CBlock<RenderingDef>) null)) {
-
-                    for (ChannelBinding binding : rdef
-                            .unmodifiableWaveRendering()) {
-                        delete.call(binding);
-                    }
-                    delete.call(rdef);
-                    delete.call(rdef.getQuantization());
-                }
-
-                p.collectThumbnails(delete);
-
-                // Why do we set channel to null here and not waveRendering
-                // above?
-                List<Channel> channels = p
-                        .collectChannels((CBlock<Channel>) null);
-                for (int i = 0; i < channels.size(); i++) {
-                    Channel channel = channels.set(i, null);
-                    delete.call(channel);
-                    delete.call(channel.getStatsInfo());
-
-                    LogicalChannel lc = channel.getLogicalChannel();
-                    if (lc.sizeOfChannels() < 2) {
-                        delete.call(lc);
-                    }
-                    // delete.call(lc.getLightSource());
-                    // // TODO lightsource
-                    // delete.call(lc.getAuxLightSource());
-                    // // TODO lightsource
-                    // delete.call(lc.getOtf());
-                    // delete.call(lc.getDetectorSettings());
-                    // DetectorSettings ds = lc.getDetectorSettings();
-                    // delete.call(ds.getDetector());
-                }
-
-                delete.call(p);
-
-                return null;
+            for (ChannelBinding binding : rdef
+                    .unmodifiableWaveRendering()) {
+                delete.call(binding);
             }
+            delete.call(rdef);
+            delete.call(rdef.getQuantization());
+        }
+        
+        //p.collectThumbnails(delete);
 
-        });
+        // Why do we set channel to null here and not waveRendering
+        // above?
+        List<Channel> channels = p
+                .collectChannels((CBlock<Channel>) null);
+        for (int j = 0; j < channels.size(); j++) {
+            Channel channel = channels.set(j, null);
+            delete.call(channel);
+            delete.call(channel.getStatsInfo());
+
+            //LogicalChannel lc = channel.getLogicalChannel();
+            //if (lc.sizeOfChannels() < 2) {
+            //    delete.call(lc);
+            //}
+            // delete.call(lc.getLightSource());
+            // // TODO lightsource
+            // delete.call(lc.getAuxLightSource());
+            // // TODO lightsource
+            // delete.call(lc.getOtf());
+            delete.call(channel.getLightSourceSettings());
+            LightSourceSettings ls = channel.getLightSourceSettings();
+            delete.call(ls.getLightSource());
+            delete.call(channel.getDetectorSettings());
+            DetectorSettings ds = channel.getDetectorSettings();
+            delete.call(ds.getDetector());
+        }
+
+        delete.call(p);
 
         for (DatasetImageLink link : i
                 .collectDatasetLinks((CBlock<DatasetImageLink>) null)) {

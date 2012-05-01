@@ -28,7 +28,7 @@ import ome.io.bioformats.BfPixelBuffer;
 import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.messages.MissingPyramidMessage;
 import ome.model.core.Pixels;
-import ome.model.stats.StatsInfo;
+import ome.model.core.StatsInfo;
 import ome.util.PixelData;
 
 import org.apache.commons.io.FileUtils;

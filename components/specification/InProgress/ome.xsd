@@ -151,7 +151,7 @@
 			</xsd:attribute>
 		</xsd:complexType>
 
-		<!-- Unique IDs and Valid References -->
+		<!-- Unique IDs -->
 		<xsd:key name="ChannelIDKey"><xsd:selector xpath="OME:Image/OME:Pixels/OME:Channel"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="DatasetIDKey"><xsd:selector xpath="OME:Dataset"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="DetectorIDKey"><xsd:selector xpath="OME:Instrument/OME:Detector"/><xsd:field xpath="@ID"/></xsd:key>
@@ -176,7 +176,11 @@
 		<xsd:key name="WellSampleIDKey"><xsd:selector xpath="SPW:Plate/SPW:Well/SPW:WellSample"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="ROIIDKey"><xsd:selector xpath="ROI:ROI"/><xsd:field xpath="@ID"/></xsd:key>
 		<xsd:key name="ShapeIDKey"><xsd:selector xpath="ROI:ROI/ROI:Union/ROI:Shape"/><xsd:field xpath="@ID"/></xsd:key>
-		
+
+		<!-- Unique references -->
+		<xsd:key name="WellSampleImageRefIDKey"><xsd:selector xpath="SPW:Plate/SPW:Well/SPW:WellSample/OME:ImageRef"/><xsd:field xpath="@ID"/></xsd:key>
+
+		<!-- Valid references -->
 		<xsd:keyref name="DatasetExperimenterIDKeyRef" refer="OME:ExperimenterIDKey" ><xsd:selector xpath="OME:Dataset/OME:ExperimenterRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="DatasetExperimenterGroupIDKeyRef" refer="OME:ExperimenterGroupIDKey" ><xsd:selector xpath="OME:Dataset/OME:ExperimenterGroupRef"/><xsd:field xpath="@ID"/></xsd:keyref>
 		<xsd:keyref name="DatasetProjectIDKeyRef" refer="OME:ProjectIDKey" ><xsd:selector xpath="OME:Dataset/OME:ProjectRef"/><xsd:field xpath="@ID"/></xsd:keyref>
@@ -495,8 +499,6 @@
 				instead the output of a color camera would be treated similarly - one Logical channel with three ChannelComponents in this case.
 				The total number of ChannelComponents for a set of pixels must equal SizeC.
 				The IlluminationType attribute is a string enumeration which may be set to 'Transmitted', 'Epifluorescence', 'Oblique', or 'NonLinear'.
-				The PhotometricInterpretation attribute is used to describe how to display a multi-component channel.  This attribute may be set to:
-				'monochrome', 'RGB', 'ARGB', 'CMYK', 'HSV'.  The default for single-component channels is 'monochrome'.
 				The user interface logic for labeling a given channel for the user should use the first existing attribute in the following sequence:
 				Name -> Fluor -> EmissionWavelength -> ChannelComponent/Index.
 			</xsd:documentation>
@@ -996,8 +998,7 @@
 						</xsd:restriction>
 					</xsd:simpleType>
 				</xsd:element>
-				<xsd:element ref="Leader" minOccurs="0" maxOccurs="1"/>
-				<xsd:element ref="Contact" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="Leader" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
 						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
@@ -1024,23 +1025,6 @@
 			</xsd:complexContent>
 		</xsd:complexType>
 	</xsd:element>
-	<xsd:element name="Contact"> <!-- top level definition -->
-		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>Contacts</plural></xsdfu></xsd:appinfo>
-			<xsd:documentation>
-				The Contact element describes the contact person for a group of 
-				experimenters - typically a project leader or lab manager.
-				This person is specified as a reference to an OME experimenter.
-			</xsd:documentation>
-		</xsd:annotation>
-		<xsd:complexType>
-			<xsd:complexContent>
-				<xsd:extension base="Reference">
-					<xsd:attribute name="ID" use="required" type="ExperimenterID"/>
-				</xsd:extension>
-			</xsd:complexContent>
-		</xsd:complexType>
-	</xsd:element>
 	<xsd:element name="Dataset"> <!-- top level definition -->
 		<xsd:annotation>
 			<xsd:appinfo><xsdfu><plural>Datasets</plural></xsdfu></xsd:appinfo>
@@ -1051,7 +1035,7 @@
 				Once a Dataset has been processed in any way, its collection of images cannot be altered.
 				The ExperimenterRef and ExperimenterGroupRef elements specify the person and group this Dataset belongs to.
 				Projects may contain one or more Datasets, and Datasets may belong to one or more Projects.
-				This relationship is specified by listing ProjectRef elements within the Dataset element.
+				This relationship is specified by listing DatasetRef elements within the Project element.
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>

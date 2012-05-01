@@ -10,16 +10,15 @@ package ome.services.fulltext.bridges;
 import java.util.ArrayList;
 import java.util.List;
 
-import ome.model.containers.Dataset;
-import ome.model.containers.DatasetImageLink;
-import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Dataset;
+import ome.model.core.DatasetImageLink;
+import ome.model.core.Project;
+import ome.model.core.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.services.fulltext.BridgeHelper;
 import ome.services.fulltext.SimpleLuceneOptions;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
 

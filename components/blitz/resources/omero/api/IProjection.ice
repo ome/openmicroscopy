@@ -25,11 +25,11 @@ module omero {
         ["ami", "amd"] interface IProjection extends ServiceInterface
             {
                 Ice::ByteSeq projectStack(long pixelsId,
-                                          omero::model::PixelsType pixelsType,
+                                          omero::model::PixelType pixelType,
                                           omero::constants::projection::ProjectionType algorithm,
                                           int timepoint, int channelIndex, int stepping,
                                           int start, int end) throws ServerError;
-                long projectPixels(long pixelsId, omero::model::PixelsType pixelsType,
+                long projectPixels(long pixelsId, omero::model::PixelType pixelType,
                                    omero::constants::projection::ProjectionType algorithm,
                                    int tStart, int tEnd,
                                    omero::sys::IntList channelList, int stepping,

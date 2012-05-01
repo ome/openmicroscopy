@@ -28,7 +28,8 @@ import omero.api.AMD_IPixels_retrieveRndSettingsFor;
 import omero.api.AMD_IPixels_saveRndSettings;
 import omero.api.AMD_IPixels_setChannelGlobalMinMax;
 import omero.api._IPixelsOperations;
-import omero.model.PixelsType;
+import omero.ExpiredCredentialException;
+import omero.model.PixelType;
 import omero.model.RenderingDef;
 import Ice.Current;
 
@@ -66,7 +67,7 @@ public class PixelsI extends AbstractAmdServant implements _IPixelsOperations {
 
     public void createImage_async(AMD_IPixels_createImage __cb, int sizeX,
             int sizeY, int sizeZ, int sizeT, List<Integer> channelList,
-            PixelsType pixelsType, String name, String description,
+            PixelType pixelsType, String name, String description,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, sizeX, sizeY, sizeZ, sizeT,
                 channelList, pixelsType, name, description);
@@ -78,7 +79,7 @@ public class PixelsI extends AbstractAmdServant implements _IPixelsOperations {
     }
 
     public void getBitDepth_async(AMD_IPixels_getBitDepth __cb,
-            PixelsType type, Current __current) throws ServerError {
+            PixelType type, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, type);
     }
 

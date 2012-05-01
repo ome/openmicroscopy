@@ -14,10 +14,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import ome.model.containers.Dataset;
-import ome.model.containers.DatasetImageLink;
-import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Dataset;
+import ome.model.core.DatasetImageLink;
+import ome.model.core.Project;
+import ome.model.core.ProjectDatasetLink;
 import ome.model.core.Image;
 
 import org.hibernate.Criteria;

@@ -11,11 +11,10 @@ import static ome.parameters.Parameters.IDS;
 
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Map;
 
 import ome.conditions.ApiUsageException;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 import ome.tools.hibernate.QueryBuilder;

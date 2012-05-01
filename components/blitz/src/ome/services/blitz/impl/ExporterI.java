@@ -360,7 +360,7 @@ public class ExporterI extends AbstractAmdServant implements
                             try {
 
                                 Image image = retrieve.getImage(0);
-                                Pixels pix = image.getPixels(0);
+                                Pixels pix = image.getPixels();
                                 if (requiresPyramid(sf, pix.getId().getValue())) {
                                     long id = image.getId().getValue();
                                     int x = pix.getSizeX().getValue();

@@ -10,12 +10,10 @@ package omeis.providers.re.quantum;
 // Java imports
 
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
 import ome.model.display.QuantumDef;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 /**
  * Quantization process for binary masks.
@@ -30,7 +28,7 @@ public class BinaryMaskQuantizer extends QuantumStrategy
      * @param qd Quantum definition object, contained mapping data.
      * @param type The pixel type. Must be of type <code>bit</code>.
      */
-    public BinaryMaskQuantizer(QuantumDef qd, PixelsType type)
+    public BinaryMaskQuantizer(QuantumDef qd, PixelType type)
     {
         super(qd, type);
         if (!type.getValue().equals("bit"))

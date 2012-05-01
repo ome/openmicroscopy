@@ -78,9 +78,10 @@ public class LightPathData
 	public List<FilterData> getEmissionFilters()
 	{
 		LightPath path = (LightPath) asIObject();
-		if (emissionFilters == null && path.sizeOfEmissionFilterLink() > 0) {
+		if (emissionFilters == null && path.sizeOfEmissionFilterLinks() > 0) {
 			emissionFilters = new ArrayList<FilterData>();
-			List<LightPathEmissionFilterLink> l = path.copyEmissionFilterLink();
+			List<LightPathEmissionFilterLink> 
+			l = path.copyEmissionFilterLinks();
 			Iterator<LightPathEmissionFilterLink> i = l.iterator();
 			while (i.hasNext()) {
 				emissionFilters.add(new FilterData(i.next().getChild()));
@@ -97,10 +98,11 @@ public class LightPathData
 	public List<FilterData> getExcitationFilters()
 	{
 		LightPath path = (LightPath) asIObject();
-		if (excitationFilters == null && path.sizeOfExcitationFilterLink() > 0) {
+		if (excitationFilters == null && path.sizeOfExcitationFilterLinks() > 0)
+		{
 			excitationFilters = new ArrayList<FilterData>();
 			List<LightPathExcitationFilterLink> l = 
-				path.copyExcitationFilterLink();
+				path.copyExcitationFilterLinks();
 			Iterator<LightPathExcitationFilterLink> i = l.iterator();
 			while (i.hasNext()) {
 				excitationFilters.add(new FilterData(i.next().getChild()));

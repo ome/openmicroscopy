@@ -42,7 +42,7 @@ import omero.api.IPixelsPrx;
 import omero.api.IQueryPrx;
 import omero.model.Image;
 import omero.model.Pixels;
-import omero.model.PixelsType;
+import omero.model.PixelType;
 
 import static omero.rtypes.rint;
 
@@ -78,7 +78,7 @@ public class ImageServiceImpl
 	 * @see blitzgateway.service.ImageService#createImage(int, int, int, int, java.util.List, omero.model.PixelsType, java.lang.String, java.lang.String)
 	 */
 	public Long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
-			List<Integer> channelList, PixelsType pixelsType, String name,
+			List<Integer> channelList, PixelType pixelsType, String name,
 			String description) throws omero.ServerError
 	{
 		IPixelsPrx iPixels = gatewayFactory.getIPixels();

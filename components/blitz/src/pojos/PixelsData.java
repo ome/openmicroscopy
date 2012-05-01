@@ -16,7 +16,7 @@ package pojos;
 import static omero.rtypes.*;
 import omero.model.Pixels;
 import omero.model.PixelsI;
-import omero.model.PixelsType;
+import omero.model.PixelType;
 
 /**
  * The data that makes up an <i>OME</i> Pixels object along with a back pointer
@@ -230,7 +230,7 @@ public class PixelsData extends DataObject {
      */
     public void setPixelSizeX(double pixelSizeX) {
         setDirty(true);
-        asPixels().setPhysicalSizeX(rdouble(pixelSizeX));
+        asPixels().setPhysicalSizeX(rfloat((float) pixelSizeX));
     }
 
     /**
@@ -251,7 +251,7 @@ public class PixelsData extends DataObject {
      */
     public void setPixelSizeY(double pixelSizeY) {
         setDirty(true);
-        asPixels().setPhysicalSizeY(rdouble(pixelSizeY));
+        asPixels().setPhysicalSizeY(rfloat((float) pixelSizeY));
     }
 
     /**
@@ -272,7 +272,7 @@ public class PixelsData extends DataObject {
      */
     public void setPixelSizeZ(double pixelSizeZ) {
         setDirty(true);
-        asPixels().setPhysicalSizeZ(rdouble(pixelSizeZ));
+        asPixels().setPhysicalSizeZ(rfloat((float) pixelSizeZ));
     }
 
     /**
@@ -291,7 +291,7 @@ public class PixelsData extends DataObject {
      * @return See above.
      */
     public String getPixelType() {
-        PixelsType type = asPixels().getType();
+        PixelType type = asPixels().getType();
         return type == null ? null : (type.getValue() == null ? null : type
                 .getValue().getValue());
     }

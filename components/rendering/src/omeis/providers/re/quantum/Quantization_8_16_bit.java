@@ -15,7 +15,7 @@ import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
 import ome.model.display.QuantumDef;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 /**
  * Quantization process. In charge of building a look-up table for each active
@@ -291,7 +291,7 @@ public class Quantization_8_16_bit extends QuantumStrategy {
      * @param type
      *            The pixel type;
      */
-    public Quantization_8_16_bit(QuantumDef qd, PixelsType type) {
+    public Quantization_8_16_bit(QuantumDef qd, PixelType type) {
         super(qd, type);
     }
 

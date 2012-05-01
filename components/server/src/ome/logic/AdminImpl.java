@@ -886,12 +886,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         
         if (copy instanceof Image) {
             Image img = (Image) copy;
-            Iterator<Pixels> it = img.iteratePixels();
-            while (it.hasNext()) {
-                Pixels pix = it.next();
-                pix.getDetails().setGroup(group);
-                secureFlush(pix);
-            }
+            Pixels pix = img.getPixels();
+            pix.getDetails().setGroup(group);
+            secureFlush(pix);
         }
 
         // Detect group mismatch

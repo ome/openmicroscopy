@@ -11,10 +11,10 @@ import java.util.Set;
 
 import ome.annotations.NotNull;
 import ome.annotations.Validate;
-import ome.model.acquisition.Instrument;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
-import ome.model.core.LogicalChannel;
+import ome.model.core.Instrument;
+import ome.model.core.Channel;
 import ome.parameters.Parameters;
 
 /** 
@@ -96,7 +96,7 @@ public interface IMetadata
 	 * 		      Mustn't be <code>null</code>.
 	 * @return The collection of loaded logical channels.
 	 */
-	public Set<LogicalChannel> loadChannelAcquisitionData(@NotNull 
+	public Set<Channel> loadChannelAcquisitionData(@NotNull 
 			@Validate(Long.class) Set<Long> ids);
 	
     /**

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -23,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import ome.conditions.ApiUsageException;
 import ome.io.nio.PixelBuffer;
 import ome.model.IObject;
+import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.services.messages.ShapeChangeMessage;
 import ome.services.util.Executor;
@@ -264,9 +266,9 @@ public class GeomTool {
             final SmartShape smartShape = (SmartShape) new ShapeMapper()
                     .map(shape);
 
-            final ome.model.roi.Roi roi = shape.getRoi();
+            final ome.model.roi.ROI roi = shape.getRoi();
             final ome.model.core.Image img = roi.getImage();
-            final ome.model.core.Pixels pix = img.getPrimaryPixels();
+            final ome.model.core.Pixels pix = img.getPixels();
 
             final long roiId = roi.getId();
             final long imgId = img.getId();
@@ -288,8 +290,7 @@ public class GeomTool {
                 rs.combined.shapeId = -1;
                 rs.combined.channelIds = new long[ch];
                 for (int w = 0; w < ch; w++) {
-                    rs.combined.channelIds[w] = pix.getChannel(w)
-                            .getLogicalChannel().getId();
+                    rs.combined.channelIds[w] = getChannel(w, pix).getId();
                 }
             }
             ShapeStats agg = rs.combined;
@@ -417,11 +418,9 @@ public class GeomTool {
 
         for (int w = 0; w < sizeC; w++) {
             if (theC != null) {
-                stats.channelIds[w] = pix.getChannel(theC).getLogicalChannel()
-                        .getId();
+                stats.channelIds[w] = getChannel(theC, pix).getId();
             } else {
-                stats.channelIds[w] = pix.getChannel(w).getLogicalChannel()
-                        .getId();
+                stats.channelIds[w] = getChannel(w, pix).getId();
             }
 
         }
@@ -429,6 +428,26 @@ public class GeomTool {
         return stats;
     }
 
+    /**
+     * Returns the channel corresponding to the passed channel.
+     * 
+     * @param c The index of the channel.
+     * @param pixels The pixels set to handle.
+     * @return See above.
+     */
+    private Channel getChannel(int c, Pixels pixels)
+    {
+    	Iterator<Channel> i = pixels.iterateChannels();
+    	int index = 0;
+    	Channel channel;
+    	while (i.hasNext()) {
+    		channel = (Channel) i.next();
+    		if (c == index) return channel;
+			index++;
+		}
+    	return null;
+    }
+    
     private SmartShape assertSmart(Shape shape) {
         if (!SmartShape.class.isAssignableFrom(shape.getClass())) {
             throw new RuntimeException(

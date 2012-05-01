@@ -10,7 +10,7 @@ import java.io.IOException;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 /**
  * 
@@ -105,7 +105,7 @@ public class PlaneFactory {
      *            The strings for which you want to check against.
      * @return True on successful match and false on failure to match.
      */
-    public static boolean in(PixelsType type, String[] strings) {
+    public static boolean in(PixelType type, String[] strings) {
         String typeAsString = type.getValue();
         for (int i = 0; i < strings.length; i++) {
             if (typeAsString.equals(strings[i])) {
@@ -122,7 +122,7 @@ public class PlaneFactory {
      *            The pixels type for which you want to know the byte width.
      * @return The number of bytes per pixel value.
      */
-    static int bytesPerPixel(PixelsType type) {
+    static int bytesPerPixel(PixelType type) {
         if (in(type, new String[] { INT8, UINT8 })) {
             return 1;
         } else if (in(type, new String[] { INT16, UINT16 })) {
@@ -145,7 +145,7 @@ public class PlaneFactory {
      *            type.
      * @return The Java type as an enumerated integer.
      */
-    static int javaType(PixelsType type) {
+    static int javaType(PixelType type) {
         if (in(type, new String[] { INT8, UINT8 })) {
             return BYTE;
         } else if (in(type, new String[] { INT16, UINT16 })) {
@@ -169,7 +169,7 @@ public class PlaneFactory {
      *            The pixels type for which you want to know the byte width.
      * @return The number of bytes per pixel value.
      */
-    public static boolean isTypeSigned(PixelsType type) {
+    public static boolean isTypeSigned(PixelType type) {
         if (in(type, new String[] { UINT8, UINT16, UINT32 })) {
             return false;
         } else if (in(type, new String[] { INT8, INT16, INT32, FLOAT_TYPE,

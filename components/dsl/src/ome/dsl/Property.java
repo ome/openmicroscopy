@@ -111,12 +111,16 @@ public abstract class Property { // TODO need to define equality so that two
     public final static String STRINGS2 = "string[][]";
 
     public final static String INTEGERS = "int[]";
-    
+
     public final static String POSITIVEINTEGER = "PositiveInteger";
-    
+
+    public final static String POSITIVEFLOAT = "PositiveFloat";
+
     public final static String NONNEGATIVEINTEGER = "NonNegativeInteger";
 
     public final static String PERCENTFRACTION = "PercentFraction";
+
+    public final static String COLOR = "ome.model.core.Color";
 
     public final static Map<String, String> JAVATYPES = new HashMap<String, String>();
     static {
@@ -124,6 +128,7 @@ public abstract class Property { // TODO need to define equality so that two
         JAVATYPES.put(BOOLEAN, Boolean.class.getName());
         JAVATYPES.put(INTEGER, Integer.class.getName());
         JAVATYPES.put(POSITIVEINTEGER, Integer.class.getName());
+        JAVATYPES.put(POSITIVEFLOAT, Float.class.getName());
         JAVATYPES.put(NONNEGATIVEINTEGER, Integer.class.getName());
         JAVATYPES.put(FLOAT, Float.class.getName());
         JAVATYPES.put(PERCENTFRACTION, Double.class.getName());

@@ -119,10 +119,6 @@ public interface Editor
 	public static final String ILLUMINATION_TYPE = 
 				OmeroMetadataService.ILLUMINATION_TYPE;
 	
-	/** Identified the <code>photometric Interpretation</code> enumeration. */
-	public static final String PHOTOMETRIC_INTERPRETATION = 
-		OmeroMetadataService.PHOTOMETRIC_INTERPRETATION;
-	
 	/** Identified the <code>arc type</code> enumeration. */
 	public static final String ARC_TYPE = OmeroMetadataService.ARC_TYPE;
 	

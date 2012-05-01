@@ -56,7 +56,7 @@ import omero.model.Namespace;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Project;
-import omero.model.Roi;
+import omero.model.ROI;
 import omero.model.Screen;
 import omero.model.TagAnnotation;
 import omero.model.TermAnnotation;
@@ -177,8 +177,8 @@ public class PojoMapper
         	return new WellData((Well) object);
         else if (object instanceof WellSample)
         	return new WellSampleData((WellSample) object);
-        else if (object instanceof Roi)
-        	return new ROIData((Roi) object);
+        else if (object instanceof ROI)
+        	return new ROIData((ROI) object);
         return null;
     }
     

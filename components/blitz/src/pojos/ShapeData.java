@@ -170,7 +170,7 @@ public abstract class ShapeData
 		super();
 		setClientObject(clientObject);
 		setValue(shape);
-		shape.setLocked(rtypes.rbool(false));
+		setReadOnly(false);
 		settings = new ShapeSettingsData(shape);
 	}
 	
@@ -215,7 +215,9 @@ public abstract class ShapeData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		return (shape.getLocked().getValue()==READONLY_FLAG);
+		RBool value = shape.getLocked();
+		if (value == null) return false;
+		return value.getValue();
 	}
 	
 	/**

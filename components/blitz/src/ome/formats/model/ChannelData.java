@@ -43,9 +43,8 @@ import omero.model.IObject;
 import omero.model.Laser;
 import omero.model.LightEmittingDiode;
 import omero.model.LightPath;
-import omero.model.LightSettings;
+import omero.model.LightSourceSettings;
 import omero.model.LightSource;
-import omero.model.LogicalChannel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,31 +67,28 @@ public class ChannelData
 	/** Index of the channel for the image. */
 	private Integer channelIndex;
 
-	/** Channel --> LogicalChannel */
-	private LogicalChannel logicalChannel;
-
-	/** ... LogicalChannel --> Filterset */
+	/** ... Channel --> Filterset */
 	private FilterSet filterSet;
 
-	/** ... LogicalChannel --> FilterSet --> Filter (Em) */
+	/** ... Channel --> FilterSet --> Filter (Em) */
 	private Filter filterSetEmFilter;
 
-	/** ... LogicalChannel --> FilterSet --> Filter (Ex) */
+	/** ... Channel --> FilterSet --> Filter (Ex) */
 	private Filter filterSetExFilter;
 
-	/** ... LogicalChannel --> LightPath */
+	/** ... Channel --> LightPath */
 	private LightPath lightPath;
 
-	/** ... LogicalChannel --> LightPath --> Filter (Em) */
+	/** ... Channel --> LightPath --> Filter (Em) */
 	private List<Filter> lightPathEmFilters;
 
-	/** ... LogicalChannel --> LightPath --> Filter (Ex) */
-	private  List<Filter> lightPathExFilters;
+	/** ... Channel --> LightPath --> Filter (Ex) */
+	private List<Filter> lightPathExFilters;
 
-	/** ... LogicalChannel --> LightSettings */
-	private LightSettings lightSourceSettings;
+	/** Channel --> LightSettings */
+	private LightSourceSettings lightSourceSettings;
 
-	/** ... LogicalChannel --> LightSettings --> LightSource */
+	/** ... Channel --> LightSettings --> LightSource */
 	private LightSource lightSource;
 
     /** Exhaustive list of valid light source types from the model. */
@@ -132,27 +128,15 @@ public class ChannelData
 			data.channel = (Channel) container.sourceObject;
 		}
 		// Channel --> LogicalChannel
-		LSID logicalChannelLSID =
-			new LSID(LogicalChannel.class, imageIndex, channelIndex);
-		data.logicalChannel =
-			(LogicalChannel) store.getSourceObject(logicalChannelLSID);
-		if (data.logicalChannel == null)
-		{
-			// Channel is missing, create it.
-			LinkedHashMap<Index, Integer> indexes =
-				new LinkedHashMap<Index, Integer>();
-			indexes.put(Index.IMAGE_INDEX, imageIndex);
-			indexes.put(Index.CHANNEL_INDEX, channelIndex);
-			IObjectContainer container =
-				store.getIObjectContainer(LogicalChannel.class, indexes);
-			data.logicalChannel = (LogicalChannel) container.sourceObject;
-		}
+		LSID channelLSID =
+			new LSID(Channel.class, imageIndex, channelIndex);
+		
 		List<Filter> lightPathEmFilters = new ArrayList<Filter>();
 		List<Filter> lightPathExFilters = new ArrayList<Filter>();
 		data.lightPathEmFilters = lightPathEmFilters;
 		data.lightPathExFilters = lightPathExFilters;
 		// ... LogicalChannel --> FilterSet
-		List<LSID> references = referenceCache.get(logicalChannelLSID);
+		List<LSID> references = referenceCache.get(channelLSID);
 
 		Map<String, IObjectContainer> filterSetContainers =
 			containerCache.get(FilterSet.class);
@@ -284,9 +268,9 @@ public class ChannelData
 
 
         // ... LogicalChannel --> LightSettings
-        LSID lightSettingsLSID = new LSID(LightSettings.class, imageIndex,
+        LSID lightSettingsLSID = new LSID(LightSourceSettings.class, imageIndex,
                 channelIndex);
-        data.lightSourceSettings = (LightSettings) store
+        data.lightSourceSettings = (LightSourceSettings) store
                 .getSourceObject(lightSettingsLSID);
         Map<String, IObjectContainer> lightSourceContainers =
             new HashMap<String, IObjectContainer>();
@@ -335,15 +319,6 @@ public class ChannelData
 	public int getChannelIndex()
 	{
 		return channelIndex;
-	}
-
-	/**
-	 * Returns the logical channel for this channel data.
-	 * @return See above.
-	 */
-	public LogicalChannel getLogicalChannel()
-	{
-		return logicalChannel;
 	}
 
 	/**
@@ -400,7 +375,7 @@ public class ChannelData
 	 * channel data.
 	 * @return See above.
 	 */
-	public LightSettings getLightSourceSettings()
+	public LightSourceSettings getLightSourceSettings()
 	{
 		return lightSourceSettings;
 	}

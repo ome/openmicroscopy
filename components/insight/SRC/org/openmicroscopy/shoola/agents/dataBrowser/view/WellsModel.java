@@ -168,13 +168,7 @@ class WellsModel
 	 */
 	private Color createColor(WellData data)
 	{
-		int red = data.getRed();
-		int green = data.getGreen();
-		int blue = data.getBlue();
-		int alpha = data.getAlpha();
-		if (red < 0 || green < 0 || blue < 0 || alpha < 0) return null;
-		if (red > 255 || green > 255 || blue > 255 || alpha > 255) return null;
-		return new Color(red, green, blue, alpha);
+		return data.getColor();
 	}
 	
 	/**
@@ -216,14 +210,6 @@ class WellsModel
 		data.setWellType(description);
 		well.setDescription(description);
 		results.add(data);
-		if (c == null || !cell.isSpecified()) {
-			data.setRed(null);
-		} else {
-			data.setRed(c.getRed());
-			data.setGreen(c.getGreen());
-			data.setBlue(c.getBlue());
-			data.setAlpha(c.getAlpha());
-		}
 		well.setHighlight(c);
 	}
 	

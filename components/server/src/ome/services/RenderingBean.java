@@ -1619,8 +1619,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
     private Channel copyChannel(Channel channel) {
     	if (channel == null) return null;
         Channel newChannel = new ShallowCopy().copy(channel);
-        newChannel.setLogicalChannel(new ShallowCopy().copy(channel
-                .getLogicalChannel()));
         newChannel.setStatsInfo(new ShallowCopy().copy(channel.getStatsInfo()));
         return newChannel;
     }
