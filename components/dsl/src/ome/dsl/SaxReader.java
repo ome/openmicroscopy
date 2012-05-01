@@ -273,7 +273,7 @@ class DSLHandler extends DefaultHandler {
             if (named != null && named.booleanValue()) {
                 Properties p = new Properties();
                 p.setProperty("name", "name");
-                p.setProperty("type", "string");
+                p.setProperty("type", "String");
                 RequiredField r = new RequiredField(namedOrDescribed, p);
                 namedOrDescribed.getProperties().add(r);
             }

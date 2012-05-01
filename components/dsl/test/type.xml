@@ -12,8 +12,8 @@
 
 	<abstract id="ome.model.core.AbstractThing">
 		<properties>
-			<required name="myBool" type="bool" />
-			<optional name="maybeAFloat" type="float" />
+			<required name="myBool" type="Boolean" />
+			<optional name="maybeAFloat" type="Float" />
 		</properties>
 	</abstract>
 
@@ -88,11 +88,11 @@
 
 	<type id="pkg.ordertest">
 		<properties>
-			<required name="pixels" type="int" />
-			<required name="cccccc" type="int" />
-			<required name="aaaaaa" type="int" />
-			<required name="bbbbbb" type="int" />
-			<required name="images" type="int" />
+			<required name="pixels" type="Integer" />
+			<required name="cccccc" type="Integer" />
+			<required name="aaaaaa" type="Integer" />
+			<required name="bbbbbb" type="Integer" />
+			<required name="images" type="Integer" />
 		</properties>
 	</type>
 
@@ -129,7 +129,7 @@
    <type id="ome.model.annotations.BooAnnotation" annotated="true"
          superclass="ome.model.annotations.Annotation">
         <properties>
-            <required name="boo" type="int"/>
+            <required name="boo" type="Integer"/>
         </properties>
     </type>
 
@@ -142,12 +142,12 @@
 
         <type id="ome.model.core.OriginalFile" named="true" annotated="true">
                 <properties>
-                        <required name="path" type="string"/>
-                        <required name="size" type="long"/>
+                        <required name="path" type="String"/>
+                        <required name="size" type="Long"/>
                         <optional name="atime" type="timestamp"/>
                         <optional name="mtime" type="timestamp"/>
                         <optional name="ctime" type="timestamp"/>
-                        <required name="sha1" type="string"/>
+                        <required name="sha1" type="String"/>
                 </properties>
         </type>
         <link id="ome.model.jobs.JobOriginalFileLink">
@@ -160,10 +160,10 @@
         <type id="ome.model.jobs.Job" abstract="true">
                 <!-- Note: Job is not in model-->
                 <properties>
-                        <required name="username" type="string"/>
-                        <required name="groupname" type="string"/>
-                        <required name="type" type="string"/>
-                        <required name="message" type="string"/>
+                        <required name="username" type="String"/>
+                        <required name="groupname" type="String"/>
+                        <required name="type" type="String"/>
+                        <required name="message" type="String"/>
                         <required name="status" type="ome.model.jobs.JobStatus"/>
                         <required name="submitted" type="timestamp"/>
                         <required name="scheduledFor" type="timestamp"/>
@@ -175,14 +175,14 @@
         <type id="ome.model.jobs.ImportJob" superclass="ome.model.jobs.Job">
                 <!-- Note: ImportJob is not in model-->
                 <properties>
-                        <required name="imageName" type="string"/>
-                        <required name="imageDescription" type="string"/>
+                        <required name="imageName" type="String"/>
+                        <required name="imageDescription" type="String"/>
                 </properties>
         </type>
         <type id="ome.model.jobs.ScriptJob" superclass="ome.model.jobs.Job">
                 <!-- Note: ScriptJob is not in model-->
                 <properties>
-                        <optional name="description" type="string"/>
+                        <optional name="description" type="String"/>
                 </properties>
         </type>
     <type id="ome.model.core.Image" named="true" described="true" annotated="true"><!-- TODO: review-->

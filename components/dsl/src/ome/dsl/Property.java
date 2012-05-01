@@ -86,17 +86,17 @@ public abstract class Property { // TODO need to define equality so that two
     }
 
     // VALUE-Type identifiers
-    public final static String STRING = "string";
+    public final static String STRING = "String";
 
-    public final static String BOOLEAN = "boolean";
+    public final static String BOOLEAN = "Boolean";
 
-    public final static String INTEGER = "int";
+    public final static String INTEGER = "Integer";
 
-    public final static String FLOAT = "float";
+    public final static String FLOAT = "Float";
 
-    public final static String DOUBLE = "double";
+    public final static String DOUBLE = "Double";
 
-    public final static String LONG = "long";
+    public final static String LONG = "Long";
 
     public final static String TIMESTAMP = "timestamp";
 
@@ -104,11 +104,11 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String BYTES = "byte[]";
 
-    public final static String DOUBLES = "double[]";
+    public final static String DOUBLES = "Double[]";
 
-    public final static String STRINGS = "string[]";
+    public final static String STRINGS = "String[]";
 
-    public final static String STRINGS2 = "string[][]";
+    public final static String STRINGS2 = "String[][]";
 
     public final static String INTEGERS = "int[]";
 
@@ -812,7 +812,7 @@ class LinkChild extends ManyOneField {
 class EntryField extends Property {
     public EntryField(SemanticType st, Properties attrs) {
         super(st, attrs);
-        setType("string");
+        setType("String");
         setForeignKey(null);
     }
 

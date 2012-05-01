@@ -656,7 +656,7 @@ class EnumType extends SemanticType {
         setImmutable(Boolean.TRUE);
         Properties props = new Properties();
         props.setProperty("name", "value");
-        props.setProperty("type", "string");
+        props.setProperty("type", "String");
         props.setProperty("unique", "true");
         RequiredField value = new RequiredField(this, props);
         getProperties().add(value);
