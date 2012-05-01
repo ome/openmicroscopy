@@ -10,7 +10,7 @@ import ome.xml.model.enums.*;
 import ome.xml.model.primitives.*;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Laser;
-import omero.model.LightSettings;
+import omero.model.LightSourceSettings;
 import omero.model.Pixels;
 
 import org.testng.annotations.BeforeMethod;
@@ -101,7 +101,7 @@ public class LightSourceSettingsLaserTest extends TestCase
 	{
         for (int i = 0; i < 3; i++)
         {
-            LSID imageLsid = new LSID(LightSettings.class, IMAGE_INDEX, i);
+            LSID imageLsid = new LSID(LightSourceSettings.class, IMAGE_INDEX, i);
             assertTrue(store.hasReference(imageLsid, new LSID("Laser:" + i)));
         }
         assertEquals(3, store.countCachedReferences(null, null));

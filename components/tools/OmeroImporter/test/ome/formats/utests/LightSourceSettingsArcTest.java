@@ -10,7 +10,7 @@ import ome.xml.model.enums.*;
 import ome.xml.model.primitives.*;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Arc;
-import omero.model.LightSettings;
+import omero.model.LightSourceSettings;
 import omero.model.Pixels;
 
 import org.testng.annotations.BeforeMethod;
@@ -76,7 +76,7 @@ public class LightSourceSettingsArcTest extends TestCase
 	@Test
 	public void testLightSourceSettingsCount()
 	{
-        assertEquals(2, store.countCachedContainers(LightSettings.class));
+        assertEquals(2, store.countCachedContainers(LightSourceSettings.class));
         assertEquals(5, store.countCachedContainers(null));
 	}
 	
@@ -85,7 +85,7 @@ public class LightSourceSettingsArcTest extends TestCase
 	{
         for (int i = 0; i < 2; i++)
         {
-            LSID imageLsid = new LSID(LightSettings.class, IMAGE_INDEX, i);
+            LSID imageLsid = new LSID(LightSourceSettings.class, IMAGE_INDEX, i);
             assertTrue(store.hasReference(imageLsid, new LSID("Arc:" + i)));
         }
         assertEquals(2, store.countCachedReferences(null, null));

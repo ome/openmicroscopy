@@ -22,6 +22,8 @@
  */
 package ome.formats.utests;
 
+import java.awt.Color;
+
 import junit.framework.TestCase;
 import loci.formats.FormatTools;
 import ome.formats.OMEROMetadataStoreClient;
@@ -179,16 +181,15 @@ public class ChannelProcessorTest
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(255, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNull(data.getLogicalChannel().getName());
+		omero.model.Color c = data.getChannel().getColor();
+		assertNotNull(c);
+		Color packedColor = new Color(c.getValue().getValue());
+		
+		assertEquals(255, packedColor.getRed());
+		assertEquals(0, packedColor.getGreen());
+		assertEquals(0, packedColor.getBlue());
+		assertEquals(255, packedColor.getAlpha());
+		assertNull(data.getChannel().getName());
 	}
 	
 	
@@ -200,17 +201,14 @@ public class ChannelProcessorTest
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX + 1);
-		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(255, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNull(data.getLogicalChannel().getName());
+		omero.model.Color c = data.getChannel().getColor();
+		assertNotNull(c);
+		Color packedColor = new Color(c.getValue().getValue());
+		assertEquals(0, packedColor.getRed());
+		assertEquals(255, packedColor.getGreen());
+		assertEquals(0, packedColor.getBlue());
+		assertEquals(255, packedColor.getAlpha());
+		assertNull(data.getChannel().getName());
 	}
 	
 	/** Tests a graphic image. */
@@ -225,17 +223,16 @@ public class ChannelProcessorTest
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(255, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel().getName());
+		omero.model.Color c = data.getChannel().getColor();
+		assertNotNull(c);
+		Color packedColor = new Color(c.getValue().getValue());
+		assertEquals(255, packedColor.getRed());
+		assertEquals(0, packedColor.getGreen());
+		assertEquals(0, packedColor.getBlue());
+		assertEquals(255, packedColor.getAlpha());
+		assertNull(data.getChannel().getName());
 		assertEquals(ChannelProcessor.RED_TEXT, 
-				data.getLogicalChannel().getName().getValue());
+				data.getChannel().getName().getValue());
 	}
 	
 	/** Tests an image with a logical channel with emission wavelength. */
@@ -249,17 +246,15 @@ public class ChannelProcessorTest
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(255, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("525", data.getLogicalChannel().getName().getValue());
+		omero.model.Color c = data.getChannel().getColor();
+		assertNotNull(c);
+		Color packedColor = new Color(c.getValue().getValue());
+		assertEquals(0, packedColor.getRed());
+		assertEquals(255, packedColor.getGreen());
+		assertEquals(0, packedColor.getBlue());
+		assertEquals(255, packedColor.getAlpha());
+		assertNull(data.getChannel().getName());
+		assertEquals("525", data.getChannel().getName().getValue());
 	}
 	
 	/** Tests an image with a logical channel with emission wavelength. */
@@ -273,17 +268,15 @@ public class ChannelProcessorTest
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("450", data.getLogicalChannel().getName().getValue());
+		omero.model.Color c = data.getChannel().getColor();
+		assertNotNull(c);
+		Color packedColor = new Color(c.getValue().getValue());
+		assertEquals(0, packedColor.getRed());
+		assertEquals(0, packedColor.getGreen());
+		assertEquals(255, packedColor.getBlue());
+		assertEquals(255, packedColor.getAlpha());
+		assertNull(data.getChannel().getName());
+		assertEquals("450", data.getChannel().getName().getValue());
 	}
 	
 	/** Tests an image with a logical channel with emission wavelength. */
@@ -297,17 +290,15 @@ public class ChannelProcessorTest
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(255, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("625", data.getLogicalChannel().getName().getValue());
+		omero.model.Color c = data.getChannel().getColor();
+		assertNotNull(c);
+		Color packedColor = new Color(c.getValue().getValue());
+		assertEquals(255, packedColor.getRed());
+		assertEquals(0, packedColor.getGreen());
+		assertEquals(0, packedColor.getBlue());
+		assertEquals(255, packedColor.getAlpha());
+		assertNull(data.getChannel().getName());
+		assertEquals("625", data.getChannel().getName().getValue());
 	}
 	
 	/** 
@@ -324,17 +315,15 @@ public class ChannelProcessorTest
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("425", data.getLogicalChannel().getName().getValue());
+		omero.model.Color c = data.getChannel().getColor();
+		assertNotNull(c);
+		Color packedColor = new Color(c.getValue().getValue());
+		assertEquals(0, packedColor.getRed());
+		assertEquals(0, packedColor.getGreen());
+		assertEquals(255, packedColor.getBlue());
+		assertEquals(255, packedColor.getAlpha());
+		assertNull(data.getChannel().getName());
+		assertEquals("425", data.getChannel().getName().getValue());
 	}
 	
 	/** 
@@ -350,17 +339,15 @@ public class ChannelProcessorTest
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("435", data.getLogicalChannel().getName().getValue());
+		omero.model.Color c = data.getChannel().getColor();
+		assertNotNull(c);
+		Color packedColor = new Color(c.getValue().getValue());
+		assertEquals(0, packedColor.getRed());
+		assertEquals(0, packedColor.getGreen());
+		assertEquals(255, packedColor.getBlue());
+		assertEquals(255, packedColor.getAlpha());
+		assertNull(data.getChannel().getName());
+		assertEquals("435", data.getChannel().getName().getValue());
 	}
 	
 	/** 
@@ -376,17 +363,15 @@ public class ChannelProcessorTest
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(255, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("525", data.getLogicalChannel().getName().getValue());
+		omero.model.Color c = data.getChannel().getColor();
+		assertNotNull(c);
+		Color packedColor = new Color(c.getValue().getValue());
+		assertEquals(0, packedColor.getRed());
+		assertEquals(255, packedColor.getGreen());
+		assertEquals(0, packedColor.getBlue());
+		assertEquals(255, packedColor.getAlpha());
+		assertNull(data.getChannel().getName());
+		assertEquals("525", data.getChannel().getName().getValue());
 	}
 	
 	/** 
@@ -402,17 +387,15 @@ public class ChannelProcessorTest
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("450", data.getLogicalChannel().getName().getValue());
+		omero.model.Color c = data.getChannel().getColor();
+		assertNotNull(c);
+		Color packedColor = new Color(c.getValue().getValue());
+		assertEquals(0, packedColor.getRed());
+		assertEquals(0, packedColor.getGreen());
+		assertEquals(255, packedColor.getBlue());
+		assertEquals(255, packedColor.getAlpha());
+		assertNull(data.getChannel().getName());
+		assertEquals("450", data.getChannel().getName().getValue());
 	}
 	
 	/** 
@@ -428,17 +411,15 @@ public class ChannelProcessorTest
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(255, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(0, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("625", data.getLogicalChannel().getName().getValue());
+		omero.model.Color c = data.getChannel().getColor();
+		assertNotNull(c);
+		Color packedColor = new Color(c.getValue().getValue());
+		assertEquals(255, packedColor.getRed());
+		assertEquals(0, packedColor.getGreen());
+		assertEquals(0, packedColor.getBlue());
+		assertEquals(255, packedColor.getAlpha());
+		assertNull(data.getChannel().getName());
+		assertEquals("625", data.getChannel().getName().getValue());
 	}
 	
 	/** 
@@ -455,17 +436,16 @@ public class ChannelProcessorTest
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("425", data.getLogicalChannel().getName().getValue());
+		
+		omero.model.Color c = data.getChannel().getColor();
+		assertNotNull(c);
+		Color packedColor = new Color(c.getValue().getValue());
+		assertEquals(0, packedColor.getRed());
+		assertEquals(0, packedColor.getGreen());
+		assertEquals(255, packedColor.getBlue());
+		assertEquals(255, packedColor.getAlpha());
+		assertNull(data.getChannel().getName());
+		assertEquals("425", data.getChannel().getName().getValue());
 	}
 	
 	/**
@@ -481,17 +461,16 @@ public class ChannelProcessorTest
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
-		assertNotNull(data.getChannel().getRed());
-		assertEquals(0, data.getChannel().getRed().getValue());
-		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
-		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
-		assertNotNull(data.getChannel().getAlpha());
-		assertEquals(255, data.getChannel().getAlpha().getValue());
-		assertNotNull(data.getLogicalChannel());
-		assertNotNull(data.getLogicalChannel().getName());
-		assertEquals("430", data.getLogicalChannel().getName().getValue());
+		
+		omero.model.Color c = data.getChannel().getColor();
+		assertNotNull(c);
+		Color packedColor = new Color(c.getValue().getValue());
+		assertEquals(0, packedColor.getRed());
+		assertEquals(0, packedColor.getGreen());
+		assertEquals(255, packedColor.getBlue());
+		assertEquals(255, packedColor.getAlpha());
+		assertNull(data.getChannel().getName());
+		assertEquals("430", data.getChannel().getName().getValue());
 	}
 	
 	/** 

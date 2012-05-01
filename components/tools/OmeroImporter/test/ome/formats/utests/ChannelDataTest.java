@@ -182,7 +182,6 @@ public class ChannelDataTest extends TestCase
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data);
 		assertNotNull(data.getChannel());
-		assertNotNull(data.getLogicalChannel());
 		assertNotNull(data.getFilterSet());
 		assertEquals("0", data.getFilterSet().getLotNumber().getValue());
 		assertNotNull(data.getFilterSetEmissionFilter());
@@ -227,7 +226,6 @@ public class ChannelDataTest extends TestCase
 				store, IMAGE_INDEX, CHANNEL_INDEX + 1);
 		assertNotNull(data);
 		assertNotNull(data.getChannel());
-		assertNotNull(data.getLogicalChannel());
 		assertNotNull(data.getFilterSet());
 		assertEquals("1", data.getFilterSet().getLotNumber().getValue());
 		assertNotNull(data.getFilterSetEmissionFilter());

@@ -7,10 +7,10 @@
 package ome.testing;
 
 import java.sql.Timestamp;
+import java.util.Iterator;
 
 import ome.model.core.Channel;
 import ome.model.core.Image;
-import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.Plane;
@@ -23,10 +23,9 @@ import ome.model.enums.AcquisitionMode;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.Family;
 import ome.model.enums.Format;
-import ome.model.enums.PhotometricInterpretation;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import ome.model.enums.RenderingModel;
-import ome.model.stats.StatsInfo;
+import ome.model.core.StatsInfo;
 
 /**
  * these method serve as a both client and test data store. An object that has
@@ -64,32 +63,25 @@ public class ObjectFactory {
 
     public static Channel createChannel(Channel example) {
         Channel ch = new Channel();
-        LogicalChannel lc = new LogicalChannel();
         StatsInfo si = new StatsInfo();
-        PhotometricInterpretation pi = new PhotometricInterpretation("RGB");
-        lc.setPhotometricInterpretation(pi);
         si.setGlobalMax(0.0);
         si.setGlobalMin(0.0);
         ch.setStatsInfo(si);
-        ch.setLogicalChannel(lc);
         return ch;
     }
 
     public static Pixels createPixelGraphWithChannels(Pixels example, int channelCount) {
 
         Pixels p = new Pixels();
-        PhotometricInterpretation pi = new PhotometricInterpretation();
         AcquisitionMode mode = new AcquisitionMode();
-        PixelsType pt = new PixelsType();
+        PixelType pt = new PixelType();
         DimensionOrder dO = new DimensionOrder();
         Image i = new Image();
         Channel[] c = new Channel[channelCount];
-        LogicalChannel[] lc = new LogicalChannel[channelCount];
         StatsInfo[] si = new StatsInfo[channelCount];
         Plane[] pl = new Plane[channelCount];
         for (int w = 0; w < channelCount; w++) {
             c[w] = new Channel();
-            lc[w] = new LogicalChannel();
             si[w] = new StatsInfo();
             pl[w] = new Plane();
         }
@@ -105,32 +97,32 @@ public class ObjectFactory {
             dO.unload();
             i.setId(example.getImage().getId());
             i.unload();
-            for (int w = 0; w < channelCount; w++) {
-                c[w].setId(example.getChannel(w).getId());
+            Iterator<Channel> j = example.iterateChannels();
+            int w = 0;
+            while (j.hasNext()) {
+            	c[w].setId(j.next().getId());
                 c[w].unload();
-            }
+				w++;
+			}
             // Not needed but useful
-            p.addPlane(example.iteratePlane().next());
-            (p.iteratePlane().next()).unload();
+            p.addPlane(example.iteratePlanes().next());
+            (p.iteratePlanes().next()).unload();
         }
 
         else {
 
             mode.setValue("Wide-field");
-            pi.setValue("RGB");
-
+           
             pt.setValue("int8");
 
             dO.setValue("XYZTC");
 
             for (int w = 0; w < channelCount; w++) {
                 c[w].setPixels(p);
-                lc[w].setPhotometricInterpretation(pi);
-
+                
                 // Not required but useful
                 si[w].setGlobalMax(new Double(0.0));
                 si[w].setGlobalMin(new Double(0.0));
-                c[w].setLogicalChannel(lc[w]);
                 c[w].setStatsInfo(si[w]);
                 pl[w].setTheC(new Integer(w));
                 pl[w].setTheZ(new Integer(0));
@@ -142,7 +134,7 @@ public class ObjectFactory {
 
             i.setName("test");
             i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
-            i.addPixels(p);
+            i.setPixels(p);
 
         }
         p.setSizeX(new Integer(1));
@@ -150,15 +142,15 @@ public class ObjectFactory {
         p.setSizeZ(new Integer(1));
         p.setSizeC(new Integer(1));
         p.setSizeT(new Integer(1));
-        p.setPhysicalSizeX(1.0);
-        p.setPhysicalSizeY(1.0);
-        p.setPhysicalSizeZ(1.0);
+        p.setPhysicalSizeX(1.0f);
+        p.setPhysicalSizeY(1.0f);
+        p.setPhysicalSizeZ(1.0f);
         p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356"); // "pixels"
         p.setType(pt);
         p.setDimensionOrder(dO);
-        p.setPhysicalSizeX(new Double(1.0));
-        p.setPhysicalSizeY(new Double(1.0));
-        p.setPhysicalSizeZ(new Double(1.0));
+        p.setPhysicalSizeX(new Float(1.0));
+        p.setPhysicalSizeY(new Float(1.0));
+        p.setPhysicalSizeZ(new Float(1.0));
         p.setImage(i);
 
         for (int w = 0; w < channelCount; w++) {

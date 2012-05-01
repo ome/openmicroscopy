@@ -62,9 +62,8 @@ import omero.model.FilterSet;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Instrument;
-import omero.model.LightSettings;
+import omero.model.LightSourceSettings;
 import omero.model.LightSource;
-import omero.model.LogicalChannel;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
@@ -478,36 +477,6 @@ public class MetadataValidatorTest
     }
 
     @Test(dependsOnMethods={"testMetadataLevel"})
-    public void testLogicalChannelCount()
-    {
-        List<IObjectContainer> containers = 
-            store.getIObjectContainers(Pixels.class);
-        for (IObjectContainer container : containers)
-        {
-            Pixels pixels = (Pixels) container.sourceObject;
-            assertNotNull(pixels.getSizeC());
-            int sizeC = pixels.getSizeC().getValue();
-            Integer imageIndex =
-                    container.indexes.get(Index.IMAGE_INDEX.getValue());
-            int count = store.countCachedContainers(LogicalChannel.class,
-                                                    imageIndex);
-            String e = String.format(
-                    "Pixels sizeC %d != logical channel object count %d",
-                    sizeC, count);
-            assertEquals(e, sizeC, count);
-            for (int c = 0; c < sizeC; c++)
-            {
-                count = store.countCachedContainers(
-                    LogicalChannel.class, imageIndex, c);
-                e = String.format(
-                        "Missing logical channel object; imageIndex=%d " +
-                        "channelIndex=%d", imageIndex, c);
-                assertEquals(e, 1, count);
-            }
-        }
-    }
-
-    @Test(dependsOnMethods={"testMetadataLevel"})
     public void testPlatesExist()
     {
         List<IObjectContainer> containers = 
@@ -574,12 +543,12 @@ public class MetadataValidatorTest
             String e = String.format("imageIndex %d >= imageCount %d", 
                     imageIndex, imageCount);
             assertFalse(e, imageIndex >= imageCount);
-            int logicalChannelCount = store.countCachedContainers(
-                    LogicalChannel.class, imageIndex);
+            int channelCount = store.countCachedContainers(
+                    Channel.class, imageIndex);
             e = String.format(
-                    "channelIndex %d >= logicalChannelCount %d",
-                    channelIndex, logicalChannelCount);
-            assertFalse(e, channelIndex >= logicalChannelCount);
+                    "channelIndex %d >= channelCount %d",
+                    channelIndex, channelCount);
+            assertFalse(e, channelIndex >= channelCount);
         }
     }
 
@@ -658,7 +627,7 @@ public class MetadataValidatorTest
     @Test(dependsOnMethods={"testMetadataLevel"})
     public void testLightSourceSettingsIndexes()
     {
-        Class<? extends IObject> klass = LightSettings.class;
+        Class<? extends IObject> klass = LightSourceSettings.class;
         List<IObjectContainer> containers = 
             store.getIObjectContainers(klass);
         for (IObjectContainer container : containers)
@@ -670,19 +639,19 @@ public class MetadataValidatorTest
             String e = String.format("imageIndex %d >= imageCount %d", 
                     imageIndex, imageCount);
             assertFalse(e, imageIndex >= imageCount);
-            int logicalChannelCount = store.countCachedContainers(
-                    LogicalChannel.class, imageIndex);
+            int channelCount = store.countCachedContainers(
+                    Channel.class, imageIndex);
             e = String.format(
-                    "channelIndex %d >= logicalChannelCount %d",
-                    channelIndex, logicalChannelCount);
-            assertFalse(e, channelIndex >= logicalChannelCount);
+                    "channelIndex %d >= channelCount %d",
+                    channelIndex, channelCount);
+            assertFalse(e, channelIndex >= channelCount);
         }
     }
 
     @Test(dependsOnMethods={"testMetadataLevel"})
     public void testLightSourceSettingsLightSourceRef()
     {
-        Class<? extends IObject> klass = LightSettings.class;
+        Class<? extends IObject> klass = LightSourceSettings.class;
         List<IObjectContainer> containers = 
             store.getIObjectContainers(klass);
         referenceCache = store.getReferenceCache();
@@ -707,9 +676,9 @@ public class MetadataValidatorTest
     }
 
     @Test(dependsOnMethods={"testMetadataLevel"})
-    public void testLogicalChannelRefs()
+    public void testChannelRefs()
     {
-        Class<? extends IObject> klass = LogicalChannel.class;
+        Class<? extends IObject> klass = Channel.class;
         List<IObjectContainer> containers = 
             store.getIObjectContainers(klass);
         referenceCache = store.getReferenceCache();
