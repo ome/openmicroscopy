@@ -32,10 +32,13 @@
 {% block script %}
     {{ block.super }}
     <script type="text/javascript" src="{% static "3rdparty/jquery.tooltip/jquery.tooltip.pack.js" %}"></script>
+    <script src="/static/webclient/javascript/jquery.infieldlabel.js" type="text/javascript" charset="utf-8"></script>
     
     <script type="text/javascript">
         $(document).ready(function() 
             {
+                $("label").inFieldLabels();
+
                 $('#dateperiodinput').datepicker({
                     changeMonth: true, 
                     changeYear: true,
@@ -120,8 +123,6 @@
                 });
 
                 search_selection_changed();     // clear selection (hides acquisition & preview tabs)
-
-                $("#filtersearch").hide();
         })
     </script>
 
@@ -245,15 +246,18 @@
 
 	<div id="center_panel_header" >
 		
-		<form class="search filtersearch" id="filtersearch" action="#">
-			<input type="text" id="id_search">
+		<form class="search filtersearch" id="filtersearch" action="#" style="display:none">
+		    <div>
+		        <label for="id_search" style="position:absolute; z-index:50; font-size:1.3em; font-weight:lighter; top:5px; left:8px">
+		            Filter Results
+		        </label>
+			    <input type="text" id="id_search" size="25" />
+			</div>
 			<input type="submit" value="Go" />
 			<span class="loading">
 				<img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
 			</span>
 		</form>
-		
-		<h1>Search Results for ...</h1>
 		
 	</div>
 
