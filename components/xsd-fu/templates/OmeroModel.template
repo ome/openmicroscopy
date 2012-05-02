@@ -23,7 +23,7 @@ ${fully_qualified_class_name(obj_or_prop)}\
 \
 {% def fq_link_class_name(o, prop) %}\
 {% if prop.isReference %}\
-${o.omeroPackage}.${o.javaMethodName}${prop.javaMethodName}Link\
+${prop.omeroPackage}.${o.javaMethodName}${prop.javaMethodName}Link\
 {% end %}\
 {% if prop.isBackReference %}\
 {% if prop.key in fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE %}\
