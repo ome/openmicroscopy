@@ -75,10 +75,8 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
         def f(x):
             if x.isReference:
                 return False
-            if x.name.endswith('Annotation'):
-                return False
             if x.name in ('BinaryOnly', 'Contact', 'Leader', 'MetadataOnly',
-                          'OME', 'TiffData', 'UUID', 'Annotation',
+                          'OME', 'TiffData', 'UUID',
                           'StructuredAnnotations', 'Experimenter',
                           'ExperimenterGroup', 'Reference'):
                 return False
