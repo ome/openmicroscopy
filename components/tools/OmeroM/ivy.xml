@@ -12,5 +12,6 @@
   </publications>
   <dependencies defaultconfmapping="build,client->default">
     <dependency org="omero" name="omero_client" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
+    <dependency org="omero" name="OmeroImporter" rev="${omero.version}" conf="build,client->build"/>
   </dependencies>
 </ivy-module>
