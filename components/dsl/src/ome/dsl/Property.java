@@ -426,6 +426,8 @@ public abstract class Property { // TODO need to define equality so that two
                     String n = firstCap(getName()); // HACK ticket:2287
                     if (n.endsWith("Link")) {
                         n = n.substring(0, n.length() - 4);
+                    } else if (n.endsWith("Links")) {
+                        n = n.substring(0, n.length() - 5);
                     }
                     return n;
                 }
