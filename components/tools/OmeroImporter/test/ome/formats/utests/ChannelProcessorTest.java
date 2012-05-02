@@ -183,7 +183,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		
 		assertEquals(255, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
@@ -203,7 +203,7 @@ public class ChannelProcessorTest
 				store, IMAGE_INDEX, CHANNEL_INDEX + 1);
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(0, packedColor.getRed());
 		assertEquals(255, packedColor.getGreen());
 		assertEquals(0, packedColor.getBlue());
@@ -225,7 +225,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(255, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(0, packedColor.getBlue());
@@ -248,7 +248,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(0, packedColor.getRed());
 		assertEquals(255, packedColor.getGreen());
 		assertEquals(0, packedColor.getBlue());
@@ -270,7 +270,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(0, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(255, packedColor.getBlue());
@@ -292,7 +292,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(255, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(0, packedColor.getBlue());
@@ -308,8 +308,10 @@ public class ChannelProcessorTest
 	@Test
 	public void testFilterSetEmFilterBlueWavelength()
 	{
-		store.setTransmittanceRangeCutIn(new PositiveInteger(425), INSTRUMENT_INDEX, 0);
-		store.setTransmittanceRangeCutOut(new PositiveInteger(430), INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(425),
+				INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(430),
+				INSTRUMENT_INDEX, 0);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -317,7 +319,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(0, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(255, packedColor.getBlue());
@@ -341,7 +343,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(0, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(255, packedColor.getBlue());
@@ -365,7 +367,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(0, packedColor.getRed());
 		assertEquals(255, packedColor.getGreen());
 		assertEquals(0, packedColor.getBlue());
@@ -389,7 +391,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(0, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(255, packedColor.getBlue());
@@ -413,7 +415,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(255, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(0, packedColor.getBlue());
@@ -429,8 +431,10 @@ public class ChannelProcessorTest
 	@Test
 	public void testFilterSetExFilterBlueWavelength()
 	{
-		store.setTransmittanceRangeCutIn(new PositiveInteger(425), INSTRUMENT_INDEX, 1);
-		store.setTransmittanceRangeCutOut(new PositiveInteger(430), INSTRUMENT_INDEX, 1);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(425),
+				INSTRUMENT_INDEX, 1);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(430),
+				INSTRUMENT_INDEX, 1);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -439,7 +443,7 @@ public class ChannelProcessorTest
 		
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(0, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(255, packedColor.getBlue());
@@ -454,8 +458,10 @@ public class ChannelProcessorTest
 	@Test
 	public void testLogicalChannelLightPathEmFilterBlueWavelength()
 	{
-		store.setTransmittanceRangeCutIn(new PositiveInteger(430), INSTRUMENT_INDEX, 2);
-		store.setTransmittanceRangeCutOut(new PositiveInteger(435), INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(430),
+				INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(435),
+				INSTRUMENT_INDEX, 2);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -464,7 +470,7 @@ public class ChannelProcessorTest
 		
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(0, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(255, packedColor.getBlue());
@@ -479,8 +485,10 @@ public class ChannelProcessorTest
 	@Test
 	public void testLogicalChannelLightPathExFilterBlueWavelength()
 	{
-		store.setTransmittanceRangeCutIn(new PositiveInteger(430), INSTRUMENT_INDEX, 3);
-		store.setTransmittanceRangeCutOut(new PositiveInteger(435), INSTRUMENT_INDEX, 3);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(430),
+				INSTRUMENT_INDEX, 3);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(435),
+				INSTRUMENT_INDEX, 3);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -489,7 +497,7 @@ public class ChannelProcessorTest
 		
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(0, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(255, packedColor.getBlue());
@@ -507,10 +515,14 @@ public class ChannelProcessorTest
 	@Test
 	public void testLogicalChannelLightPathEmFilterBlueAndFilterSetEmFilterRedWavelength()
 	{
-		store.setTransmittanceRangeCutIn(new PositiveInteger(430), INSTRUMENT_INDEX, 2);
-		store.setTransmittanceRangeCutOut(new PositiveInteger(435), INSTRUMENT_INDEX, 2);
-		store.setTransmittanceRangeCutIn(new PositiveInteger(625), INSTRUMENT_INDEX, 0);
-		store.setTransmittanceRangeCutOut(new PositiveInteger(640), INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(430),
+				INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(435),
+				INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(625),
+				INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(640),
+				INSTRUMENT_INDEX, 0);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -518,7 +530,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(0, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(255, packedColor.getBlue());
@@ -536,10 +548,14 @@ public class ChannelProcessorTest
 	@Test
 	public void testLogicalChannelLightPathExFilterBlueAndFilterSetExFilterRedWavelength()
 	{
-		store.setTransmittanceRangeCutIn(new PositiveInteger(430), INSTRUMENT_INDEX, 3);
-		store.setTransmittanceRangeCutOut(new PositiveInteger(435), INSTRUMENT_INDEX, 3);
-		store.setTransmittanceRangeCutIn(new PositiveInteger(625), INSTRUMENT_INDEX, 1);
-		store.setTransmittanceRangeCutOut(new PositiveInteger(640), INSTRUMENT_INDEX, 1);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(430),
+				INSTRUMENT_INDEX, 3);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(435),
+				INSTRUMENT_INDEX, 3);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(625),
+				INSTRUMENT_INDEX, 1);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(640),
+				INSTRUMENT_INDEX, 1);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -547,7 +563,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(0, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(255, packedColor.getBlue());
@@ -565,10 +581,14 @@ public class ChannelProcessorTest
 	@Test
 	public void testLogicalChannelLightPathExFilterBlueAndFilterSetEmFilterRedWavelength()
 	{
-		store.setTransmittanceRangeCutIn(new PositiveInteger(430), INSTRUMENT_INDEX, 3);
-		store.setTransmittanceRangeCutOut(new PositiveInteger(435), INSTRUMENT_INDEX, 3);
-		store.setTransmittanceRangeCutIn(new PositiveInteger(625), INSTRUMENT_INDEX, 0);
-		store.setTransmittanceRangeCutOut(new PositiveInteger(640), INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(430),
+				INSTRUMENT_INDEX, 3);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(435),
+				INSTRUMENT_INDEX, 3);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(625),
+				INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(640),
+				INSTRUMENT_INDEX, 0);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -576,7 +596,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(255, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(0, packedColor.getBlue());
@@ -594,15 +614,17 @@ public class ChannelProcessorTest
 	{
 		ChannelProcessor processor = new ChannelProcessor();
 		store.setReader(new TestReader());
-		store.setTransmittanceRangeCutIn(new PositiveInteger(430), INSTRUMENT_INDEX, 2);
-		store.setTransmittanceRangeCutOut(new PositiveInteger(435), INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(430),
+				INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(435),
+				INSTRUMENT_INDEX, 2);
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(255, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(0, packedColor.getBlue());
@@ -613,7 +635,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		c = data.getChannel().getColor();
 		assertNotNull(c);
-		packedColor = new Color(c.getValue().getValue());
+		packedColor = new Color(c.getValue());
 		assertEquals(255, packedColor.getRed());
 		assertEquals(255, packedColor.getGreen());
 		assertEquals(255, packedColor.getBlue());
@@ -629,15 +651,17 @@ public class ChannelProcessorTest
 	{
 		ChannelProcessor processor = new ChannelProcessor();
 		store.setReader(new TestReader());
-		store.setTransmittanceRangeCutIn(new PositiveInteger(600), INSTRUMENT_INDEX, 2);
-		store.setTransmittanceRangeCutOut(new PositiveInteger(620), INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(600),
+				INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(620),
+				INSTRUMENT_INDEX, 2);
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(255, packedColor.getRed());
 		assertEquals(0, packedColor.getGreen());
 		assertEquals(0, packedColor.getBlue());
@@ -648,7 +672,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		c = data.getChannel().getColor();
 		assertNotNull(c);
-		packedColor = new Color(c.getValue().getValue());
+		packedColor = new Color(c.getValue());
 		assertEquals(255, packedColor.getRed());
 		assertEquals(255, packedColor.getGreen());
 		assertEquals(255, packedColor.getBlue());
@@ -664,15 +688,17 @@ public class ChannelProcessorTest
 	{
 		ChannelProcessor processor = new ChannelProcessor();
 		store.setReader(new TestReader());
-		store.setTransmittanceRangeCutIn(new PositiveInteger(510), INSTRUMENT_INDEX, 2);
-		store.setTransmittanceRangeCutOut(new PositiveInteger(520), INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(510),
+				INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(520),
+				INSTRUMENT_INDEX, 2);
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(0, packedColor.getRed());
 		assertEquals(255, packedColor.getGreen());
 		assertEquals(0, packedColor.getBlue());
@@ -683,7 +709,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		c = data.getChannel().getColor();
 		assertNotNull(c);
-		packedColor = new Color(c.getValue().getValue());
+		packedColor = new Color(c.getValue());
 		assertEquals(255, packedColor.getRed());
 		assertEquals(255, packedColor.getGreen());
 		assertEquals(255, packedColor.getBlue());
@@ -699,15 +725,17 @@ public class ChannelProcessorTest
 	{
 		ChannelProcessor processor = new ChannelProcessor();
 		store.setReader(new TestReader());
-		store.setTransmittanceRangeCutIn(new PositiveInteger(510), INSTRUMENT_INDEX, 0);
-		store.setTransmittanceRangeCutOut(new PositiveInteger(520), INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(510),
+				INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(520),
+				INSTRUMENT_INDEX, 0);
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		omero.model.Color c = data.getChannel().getColor();
 		assertNotNull(c);
-		Color packedColor = new Color(c.getValue().getValue());
+		Color packedColor = new Color(c.getValue());
 		assertEquals(0, packedColor.getRed());
 		assertEquals(255, packedColor.getGreen());
 		assertEquals(0, packedColor.getBlue());
@@ -718,7 +746,7 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel());
 		c = data.getChannel().getColor();
 		assertNotNull(c);
-		packedColor = new Color(c.getValue().getValue());
+		packedColor = new Color(c.getValue());
 		assertEquals(255, packedColor.getRed());
 		assertEquals(255, packedColor.getGreen());
 		assertEquals(255, packedColor.getBlue());
