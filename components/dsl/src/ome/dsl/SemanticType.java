@@ -45,7 +45,7 @@ public abstract class SemanticType {
 
     public final static Set<String> RESTRICTED_COLUMNS = Collections
     .unmodifiableSet(new HashSet<String>(Arrays.asList("column",
-            "constant", "file", "group", "mode", "power", "ref",
+            "constant", "file", "group", "mode", "offset", "power", "ref",
             "reverse", "rows", "row", "session", "size")));
 
     public final static Set<String> RESTRICTED_TABLE = Collections
@@ -506,19 +506,19 @@ public abstract class SemanticType {
             String check = null;
             
             if (Property.POSITIVEINTEGER.equals(p._getType())) {
-                check = p.getName() + " > 0";
+                check = propName(p) + " > 0";
             }
 
             else if (Property.POSITIVEFLOAT.equals(p._getType())) {
-                check = p.getName() + " > 0";
+                check = propName(p) + " > 0";
             }
 
             else if (Property.NONNEGATIVEINTEGER.equals(p._getType())) {
-                check = p.getName() + " >= 0";
+                check = propName(p) + " >= 0";
             }
             
             else if (Property.PERCENTFRACTION.equals(p._getType())) {
-                check = p.getName() + " >= 0 and " + p.getName() + " <= 1";
+                check = propName(p) + " >= 0 and " + propName(p) + " <= 1";
             }
 
             if (check != null) {
