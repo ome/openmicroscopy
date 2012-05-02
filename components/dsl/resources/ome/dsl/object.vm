@@ -390,7 +390,9 @@ implements java.io.Serializable, IObject
     * Color object that will be stored in a single column.
     */
     @javax.persistence.Embedded
-    @org.hibernate.annotations.Target(ome.model.core.Color.class)
+    @javax.persistence.AttributeOverrides( {
+        @javax.persistence.AttributeOverride(name="color", column = @javax.persistence.Column(name="${prop.name}") ),
+    })
     public ome.model.core.Color get${prop.nameCapped}() {
         $errorIfUnloaded
         return this.${prop.name};
