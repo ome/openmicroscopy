@@ -1756,7 +1756,7 @@
 	</xsd:element>
 	<xsd:element name="Laser"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>Laser</plural></xsdfu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><plural>Lasers</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				Laser types are specified using two attributes - the Type and the LaserMedium.
 			</xsd:documentation>

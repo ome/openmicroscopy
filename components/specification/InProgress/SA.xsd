@@ -186,7 +186,7 @@
 	</xsd:complexType>
 	<xsd:complexType name="TypeAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>TypeAnnotation</plural><abstract/></xsdfu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><plural>TypeAnnotations</plural><abstract/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				An abstract Type Annotation from which some others are derived.
 			</xsd:documentation>
@@ -240,7 +240,7 @@
 	</xsd:element>
 	<xsd:element name="ListAnnotation">  <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>ListAnnotation</plural></xsdfu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><plural>ListAnnotations</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				This annotation is a grouping object. It uses the sequence of 
 				annotation refs from the base Annotation to form the list.
@@ -254,7 +254,7 @@
 	</xsd:element>
 	<xsd:element name="CommentAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>CommentAnnotation</plural></xsdfu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><plural>CommentAnnotations</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				A simple comment annotation
 			</xsd:documentation>
@@ -339,7 +339,7 @@
 	</xsd:element>
 	<xsd:element name="TagAnnotation"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>TagAnnotation</plural></xsdfu></xsd:appinfo>
+			<xsd:appinfo><xsdfu><plural>TagAnnotations</plural></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				A tag annotation (represents a tag or a tagset)
 			</xsd:documentation>
