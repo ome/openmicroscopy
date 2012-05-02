@@ -102,7 +102,7 @@ public class ${klass.name} extends ${klass.javaBase}
 	// Back reference ${prop.name}
 	private List<${prop.javaType}> ${prop.javaInstanceVariableName} = new ArrayList<${prop.javaType}>();
 {% end %}\
-{% when prop.maxOccurs == 1 and (not klass.isAbstractProprietary or prop.isAttribute or not prop.isComplex()) %}
+{% when prop.maxOccurs == 1 and (not klass.isAbstractProprietary or prop.isAttribute or not prop.isComplex() or not prop.isChoice) %}
 	// Property
 	private ${prop.javaType} ${prop.javaInstanceVariableName};
 {% end %}\
@@ -446,7 +446,7 @@ ${customUpdatePropertyContent[prop.name]}
 		this.${prop.javaInstanceVariableName} = ${prop.javaArgumentName};
 	}
 {% end %}\
-{% when prop.maxOccurs > 1 and not klass.isAbstractProprietary %}
+{% when prop.maxOccurs > 1 and not klass.isAbstractProprietary or not prop.isChoice %}
 	// Property which occurs more than once
 	public int sizeOf${prop.javaMethodName}List()
 	{
