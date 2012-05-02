@@ -293,9 +293,9 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		// Create basic metadata
 		// FIXME: Hack, when the model changes we'll want to remove this, it's
 		// unreasonable.
-		pixels.setPhysicalSizeX(1.0f);
-		pixels.setPhysicalSizeY(1.0f);
-		pixels.setPhysicalSizeZ(1.0f);
+		pixels.setPhysicalSizeX(1.0);
+		pixels.setPhysicalSizeY(1.0);
+		pixels.setPhysicalSizeZ(1.0);
 		pixels.setType(pixelsType);
 		pixels.setSizeX(sizeX);
 		pixels.setSizeY(sizeY);

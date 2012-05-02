@@ -132,7 +132,7 @@ public abstract class Property { // TODO need to define equality so that two
         JAVATYPES.put(BOOLEAN, Boolean.class.getName());
         JAVATYPES.put(INTEGER, Integer.class.getName());
         JAVATYPES.put(POSITIVEINTEGER, Integer.class.getName());
-        JAVATYPES.put(POSITIVEFLOAT, Float.class.getName());
+        JAVATYPES.put(POSITIVEFLOAT, Double.class.getName());
         JAVATYPES.put(NONNEGATIVEINTEGER, Integer.class.getName());
         JAVATYPES.put(FLOAT, Float.class.getName());
         JAVATYPES.put(PERCENTFRACTION, Double.class.getName());

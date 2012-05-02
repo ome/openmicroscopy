@@ -763,9 +763,9 @@ public class OMEROMetadataStoreClient
      * @return RType or <code>null</code> if <code>value</code> is
      * <code>null</code>.
      */
-    public RFloat toRType(PositiveFloat value)
+    public RDouble toRType(PositiveFloat value)
     {
-        return value == null ? null : rfloat(Float.parseFloat(
+        return value == null ? null : rdouble(Double.parseDouble(
         		value.getValue().toString()));
     }
     
