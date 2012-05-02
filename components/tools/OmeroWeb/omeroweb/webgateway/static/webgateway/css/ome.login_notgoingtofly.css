@@ -18,8 +18,11 @@
  */
 
 
+
+
 body {
 	background: black url(../img/bg_thataintgonnafly.jpg) center bottom no-repeat;
+	min-height:100%;
 }
 
 #login-logo {
@@ -125,13 +128,13 @@ body {
 				background-color:hsl(210,70%,60%);
 				background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,60%)), to(hsl(210,40%,70%)));
 				
-				background:hsl(210,70%,60%); /* Old browsers */
+				background:red; /* Old browsers */
 				background-image:-moz-linear-gradient(top, hsl(210,70%,80%) 0%, hsl(210,70%,70%) 100%); /* FF3.6+ */
 				background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,hsl(210,40%,70%)), color-stop(100%,hsl(210,40%,60%))); /* Chrome,Safari4+ */
 				background-image:-webkit-linear-gradient(top, hsl(210,40%,70%) 0%,hsl(210,40%,60%) 100%); /* Chrome10+,Safari5.1+ */
 				background-image:-o-linear-gradient(top, hsl(210,40%,70%) 0%,hsl(210,40%,60%) 100%); /* Opera11.10+ */
 				background-image:-ms-linear-gradient(top, hsl(210,40%,70%) 0%,hsl(210,40%,60%) 100%); /* IE10+ */
-				filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='hsl(210,40%,70%)', endColorstr='hsl(210,40%,60%)',GradientType=0 ); /* IE6-9 */
+				filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#A6CBEF', endColorstr='#7EB3E8',GradientType=0 ); /* IE6-9 */
 				background:linear-gradient(top, hsl(210,40%,70%) 0%,hsl(210,40%,60%) 100%); /* W3C */ 
 				
 				border-top:solid 1px hsl(210,40%,0%);
@@ -140,18 +143,30 @@ body {
 				border-bottom:solid 1px hsl(210,40%,5%);
 				-webkit-border-radius:5px;
 				-moz-border-radius:5px;
-				border-radius:5px;
+				
+				
+				
 				-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 1px 2px rgba(0,0,0,.8);
 				-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 1px 2px rgba(0,0,0,.8);
 				box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 1px 2px rgba(0,0,0,.8);
+				behavior: url(/static/webclient/css/PIE.htc);
+				
 				padding:8px;
 				font-size:1.3em;
 				font-weight:bold;
 				color: hsl(210,70%,10%);
+				
 				text-shadow: 0 1px 0 rgba(255,255,255,.3);
+				behavior: url(/static/webclient/css/PIE.htc);
+				
+				border-radius:5px;
+				behavior: url(/static/webclient/css/PIE.htc);
+				
+				
 				border-radius:3px;
 				float:left;
 				margin-left:80px;
+				
 			}
 			
 			
@@ -184,8 +199,6 @@ body {
 				-webkit-box-shadow:none; /* Saf3.0+, Chrome */
 				   -moz-box-shadow:none; /* FF3.5+ */
 				        box-shadow:none ; /* Opera 10.5, IE 9.0 */
-				    filter:progid:DXImageTransform.Microsoft.dropshadow(OffX=none, OffY=, Color='#fff'); /* IE6,IE7 */
-				-ms-filter:"progid:DXImageTransform.Microsoft.dropshadow(OffX=none, OffY=, Color='#fff')"; /* IE8 */ 
 				border:solid 1px hsl(210,40%,40%);
 			}
 			

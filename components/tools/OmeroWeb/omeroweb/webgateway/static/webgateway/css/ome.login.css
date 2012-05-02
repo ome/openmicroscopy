@@ -49,8 +49,6 @@ body {
 	-webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Saf3.0+, Chrome */
 	   -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* FF3.5+ */
 	        box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Opera 10.5, IE 9.0 */
-	    filter:progid:DXImageTransform.Microsoft.dropshadow(OffX=, OffY=0, Color='#fff'); /* IE6,IE7 */
-	-ms-filter:"progid:DXImageTransform.Microsoft.dropshadow(OffX=, OffY=0, Color='#fff')"; /* IE8 */ 
 	
 	border-top:solid 1px white;
 	border-right:solid 1px white;
@@ -191,8 +189,6 @@ body {
 				-webkit-box-shadow:none; /* Saf3.0+, Chrome */
 				   -moz-box-shadow:none; /* FF3.5+ */
 				        box-shadow:none ; /* Opera 10.5, IE 9.0 */
-				    filter:progid:DXImageTransform.Microsoft.dropshadow(OffX=none, OffY=, Color='#fff'); /* IE6,IE7 */
-				-ms-filter:"progid:DXImageTransform.Microsoft.dropshadow(OffX=none, OffY=, Color='#fff')"; /* IE8 */ 
 				border:solid 1px hsl(210,40%,40%);
 			}
 			

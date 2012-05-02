@@ -24,6 +24,12 @@
 
 {% block link %}
     <link rel="stylesheet" href="{% static "3rdparty/jquery.jstree/themes/default/style.css" %}" type="text/css" media="screen"/>
+	
+	<!--[if lte IE 8]>
+		<link rel="stylesheet" type="text/css" href="/static/3rdparty/jquery.jstree/themes/default/style.css" />
+	<![endif]-->
+	
+	
     <style>
         #hierarchyTree ul li.clear { clear:both; }
         .jstree ul, .jstree li { display:block; margin:0 0 0 0; padding:0 0 0 0; list-style-type:none; }
