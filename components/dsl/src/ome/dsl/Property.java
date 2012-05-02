@@ -41,6 +41,8 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String ZEROMANY = "zeromany";
 
+    public final static String ONEONE = "oneone";
+
     public final static String MANYONE = "manyone";
 
     public final static String MANYZERO = "manyzero";
@@ -61,6 +63,7 @@ public abstract class Property { // TODO need to define equality so that two
         FIELDS.add(OPTIONAL);
         FIELDS.add(ONEMANY);
         FIELDS.add(ZEROMANY);
+        FIELDS.add(ONEONE);
         FIELDS.add(MANYONE);
         FIELDS.add(MANYZERO);
         FIELDS.add(ENTRY);
@@ -76,6 +79,7 @@ public abstract class Property { // TODO need to define equality so that two
         FIELDS2CLASSES.put(OPTIONAL, OptionalField.class);
         FIELDS2CLASSES.put(ONEMANY, OneManyField.class);
         FIELDS2CLASSES.put(ZEROMANY, ZeroManyField.class);
+        FIELDS2CLASSES.put(ONEONE, OneOneField.class);
         FIELDS2CLASSES.put(MANYONE, ManyOneField.class);
         FIELDS2CLASSES.put(MANYZERO, ManyZeroField.class);
         FIELDS2CLASSES.put(ENTRY, EntryField.class);
@@ -751,6 +755,15 @@ class ParentLink extends AbstractLink {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~ Many-1
 // ========
+
+class OneOneField extends ManyZeroField {
+    public OneOneField(SemanticType st, Properties attrs) {
+        super(st, attrs);
+        setRequired(Boolean.TRUE);
+        setInsert(Boolean.FALSE);
+        setUpdate(Boolean.FALSE);
+    }
+}
 
 class ManyZeroField extends Property {
     public ManyZeroField(SemanticType st, Properties attrs) {
