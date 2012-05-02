@@ -51,13 +51,13 @@ classdef CodeTemplate <  MovieData
             %     param2 A tab before description.
             % 
             % Output:
-            %    Object A tab before description.
+            %     Object A tab before description.
             
             k = 0; % a space between each symbol pair, no space before semicolon
-            %optional line after vars declaration
-            while (k < 10)    %a space between keywords and parentheses
-                if (k == 3 || k == -1)  %a space between condition and operator
-                    x = int64(k+1);    %a space between cast and symbols
+            % optional line after vars declaration
+            while (k < 10)    % a space between keywords and parentheses
+                if (k == 3 || k == -1)  % a space between condition and operator
+                    x = int64(k+1);    % a space between cast and symbols
                     break;
                     
                 else
@@ -67,11 +67,11 @@ classdef CodeTemplate <  MovieData
                 
                 
                 try
-                    %some more code...
+                    % some more code...
                     
                 catch MException
                     
-                    %exception handling code...
+                    % exception handling code...
                 end
                 
                 switch k
