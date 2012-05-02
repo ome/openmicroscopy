@@ -330,9 +330,9 @@ public abstract class Property { // TODO need to define equality so that two
         String P = ", parameters=@org.hibernate.annotations.Parameter(name=\"profile\", value=\"@PROFILE@\"))";
         if (type.equals("text")) {
             return T + "(type=\"org.hibernate.type.TextType\")";
-        } else if (type.equals("string[]")) {
+        } else if (type.equals("String[]")) {
             return T + "(type=\"ome.tools.hibernate.ListAsSQLArrayUserType$STRING\"" + P;
-        } else if (type.equals("string[][]")) {
+        } else if (type.equals("String[][]")) {
             return T + "(type=\"ome.tools.hibernate.ListAsSQLArrayUserType$STRING2\"" + P;
         } else {
             return "// No @Type annotation";
@@ -551,9 +551,9 @@ public abstract class Property { // TODO need to define equality so that two
             return sb.toString();
         } else if (type.equals("byte[]")) {
             return "bytea";
-        } else if (type.equals("string[]")) {
+        } else if (type.equals("String[]")) {
             return "text[]";
-        } else if (type.equals("string[][]")) {
+        } else if (type.equals("String[][]")) {
             return "text[][]";
         } else {
             return "";
