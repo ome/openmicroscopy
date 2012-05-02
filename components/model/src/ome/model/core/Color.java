@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.Transient;
 
 import ome.conditions.ApiUsageException;
 
@@ -76,6 +77,7 @@ public class Color implements Serializable {
      * 
      * @return See above.
      */
+    @Transient
     public int getRed()
     {
     	return 0; //To be implemented.
@@ -86,6 +88,7 @@ public class Color implements Serializable {
      * 
      * @return See above.
      */
+    @Transient
     public int getGreen()
     {
     	return 0; //To be implemented.
@@ -96,6 +99,7 @@ public class Color implements Serializable {
      * 
      * @return See above.
      */
+    @Transient
     public int getBlue()
     {
     	return 0; //To be implemented.
@@ -106,6 +110,7 @@ public class Color implements Serializable {
      * 
      * @return See above.
      */
+    @Transient
     public int getAlpha()
     {
     	return 0; //To be implemented.
