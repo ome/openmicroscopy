@@ -1036,11 +1036,11 @@ public class OMEROMetadataStore
     {
         if (referenceLSID.toString().endsWith("OMERO_EMISSION_FILTER"))
         {
-            target.linkEmissionFilterLinks(reference);
+            target.linkEmissionFilter(reference);
         }
         else if (referenceLSID.toString().endsWith("OMERO_EXCITATION_FILTER"))
         {
-            target.linkExcitationFilterLinks(reference);
+            target.linkExcitationFilter(reference);
         }
         else
         {
@@ -1080,11 +1080,11 @@ public class OMEROMetadataStore
         target.setLightPath(lightPath);
     	if (referenceLSID.toString().endsWith("OMERO_EMISSION_FILTER"))
     	{
-    		lightPath.linkEmissionFilterLinks(reference);
+    		lightPath.linkEmissionFilter(reference);
     	}
     	else if (referenceLSID.toString().endsWith("OMERO_EXCITATION_FILTER"))
     	{
-    		lightPath.linkExcitationFilterLinks(reference);
+    		lightPath.linkExcitationFilter(reference);
     	}
     	else
     	{
@@ -1162,11 +1162,11 @@ public class OMEROMetadataStore
     {
     	if (referenceLSID.toString().endsWith("OMERO_EMISSION_FILTER"))
     	{
-    		target.linkEmissionFilterLinks(reference);
+    		target.linkEmissionFilter(reference);
     	}
     	else if (referenceLSID.toString().endsWith("OMERO_EXCITATION_FILTER"))
     	{
-    		target.linkExcitationFilterLinks(reference);
+    		target.linkExcitationFilter(reference);
     	}
     	else
     	{

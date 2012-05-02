@@ -142,7 +142,7 @@ public class ColorsFactory {
     		lp = (LightPath) lc.getLightPath();
     		if (lp.sizeOfEmissionFilterLinks() > 0) {
     			filters = new ArrayList<Filter>();
-    			j = lp.linkedEmissionFilterLinksIterator();
+    			j = lp.linkedEmissionFilterIterator();
         		while (j.hasNext()) {
         			filters.add(j.next());
         		}
@@ -158,7 +158,7 @@ public class ColorsFactory {
     		f = (FilterSet) lc.getFilterSet();
     		if (f.sizeOfEmissionFilterLinks() > 0) {
     			filters = new ArrayList<Filter>();
-    			j = f.linkedEmissionFilterLinksIterator();
+    			j = f.linkedEmissionFilterIterator();
         		while (j.hasNext()) {
         			filters.add(j.next());
         		}
@@ -185,7 +185,7 @@ public class ColorsFactory {
     	if (lp != null) {
     		if (lp.sizeOfExcitationFilterLinks() > 0) {
     			filters = new ArrayList<Filter>();
-    			j = lp.linkedExcitationFilterLinksIterator();
+    			j = lp.linkedExcitationFilterIterator();
         		while (j.hasNext()) {
         			filters.add(j.next());
         		}
@@ -200,7 +200,7 @@ public class ColorsFactory {
     	if (f != null) {
     		if (f.sizeOfExcitationFilterLinks() > 0) {
     			filters = new ArrayList<Filter>();
-    			j = f.linkedExcitationFilterLinksIterator();
+    			j = f.linkedExcitationFilterIterator();
         		while (j.hasNext()) {
         			filters.add(j.next());
         		}
@@ -258,7 +258,7 @@ public class ColorsFactory {
     	if (value == null && channel.getLightPath() != null) {
     		filters = new ArrayList<Filter>();
     		lp = channel.getLightPath();
-    		j = lp.linkedEmissionFilterLinksIterator();
+    		j = lp.linkedEmissionFilterIterator();
     		while (j.hasNext()) {
 				filters.add(j.next());
 			}
@@ -271,7 +271,7 @@ public class ColorsFactory {
     	if (value == null && channel.getFilterSet() != null) {
     		filters = new ArrayList<Filter>();
     		f = channel.getFilterSet();
-    		j = f.linkedEmissionFilterLinksIterator();
+    		j = f.linkedEmissionFilterIterator();
     		while (j.hasNext()) {
 				filters.add(j.next());
 			}
@@ -297,7 +297,7 @@ public class ColorsFactory {
     	//light path first
     	if (value == null && lp != null) {
     		filters = new ArrayList<Filter>();
-    		j = lp.linkedExcitationFilterLinksIterator();
+    		j = lp.linkedExcitationFilterIterator();
     		while (j.hasNext()) {
 				filters.add(j.next());
 			}
@@ -309,7 +309,7 @@ public class ColorsFactory {
     	
     	if (value == null && f != null) {
     		filters = new ArrayList<Filter>();
-    		j = f.linkedExcitationFilterLinksIterator();
+    		j = f.linkedExcitationFilterIterator();
     		while (j.hasNext()) {
 				filters.add(j.next());
 			}
