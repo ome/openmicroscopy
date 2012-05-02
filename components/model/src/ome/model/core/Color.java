@@ -4,15 +4,12 @@
  */
 package ome.model.core;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
 
-import ome.conditions.ApiUsageException;
+import ome.util.Filter;
 
 /**
  * class responsible for storing RGBA-style colors in the database.
@@ -20,7 +17,7 @@ import ome.conditions.ApiUsageException;
  * @see <a
  *      href="https://trac.openmicroscopy.org.uk/omero/ticket/7944">ticket:7944</a>
  */
-public class Color implements Serializable {
+public class Color implements Serializable, ome.util.Filterable {
 
     private static final long serialVersionUID = 938403948520934L;
 
@@ -39,9 +36,13 @@ public class Color implements Serializable {
         this(0, 0, 0, 0);
     }
 
+    public Color(int value) {
+        setColor(value);
+    }
+
     /**
-     * copy constructor. Will create a new {@link Permissions} with the same
-     * {@link Right rights} as the argument.
+     * Creates a {@link Color} object by calculating the proper integer
+     * from the 4 components.
      */
     public Color(int red, int green, int blue, int alpha) {
         // TOOD: use these to create a single instance of ome.xml.Color
@@ -118,6 +119,13 @@ public class Color implements Serializable {
     
     protected void setColor(int color) {
         this.color = color;
+    }
+
+    /**
+     * Does nothing.
+     */
+    public boolean acceptFilter(Filter filter) {
+        return false;
     }
 
 }

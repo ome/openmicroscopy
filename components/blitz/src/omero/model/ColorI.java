@@ -25,6 +25,11 @@ package omero.model;
 
 import Ice.Current;
 import Ice.Object;
+
+import ome.model.ModelBased;
+import ome.util.Filterable;
+import ome.util.ModelMapper;
+import ome.util.ReverseModelMapper;
 import ome.util.Utils;
 import omero.RInt;
 import omero.RLong;
@@ -36,7 +41,7 @@ import static omero.rtypes.rint;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class ColorI extends Color {
+public class ColorI extends Color implements ModelBased {
 
     public final static Ice.ObjectFactory Factory = new Ice.ObjectFactory() {
 
@@ -125,5 +130,24 @@ public class ColorI extends Color {
     public Color proxy(Current __current) {
         return new ColorI(value);
     }
+
+    public void copyObject(Filterable model, ModelMapper _mapper) {
+        if (model instanceof ome.model.core.Color) {
+            ome.model.core.Color source = (ome.model.core.Color) model;
+            this.setValue(source.getColor());
+        } else {
+            throw new IllegalArgumentException("Color cannot copy from "
+                    + (model == null ? "null" : model.getClass().getName()));
+        }
+    }
+
+    public ome.util.Filterable fillObject(ome.util.ReverseModelMapper _mapper) {
+        omero.util.IceMapper mapper = (omero.util.IceMapper) _mapper;
+        ome.model.core.Color target = new ome.model.core.Color(
+                this.getValue());
+        mapper.store(this, target);
+        return target;
+    }
+
 
 }
