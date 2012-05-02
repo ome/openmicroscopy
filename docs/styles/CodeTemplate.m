@@ -57,7 +57,7 @@ classdef CodeTemplate <  MovieData
             % optional line after vars declaration
             while (k < 10)    % a space between keywords and parentheses
                 if (k == 3 || k == -1)  % a space between condition and operator
-                    x = int64(k+1);    % a space between cast and symbols
+                    x = int64(k + 1);    % a space between cast and symbols
                     break;
                     
                 else
