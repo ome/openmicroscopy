@@ -711,10 +711,14 @@ class OMEModelObject(OMEModelEntity):
         doc="""The root namespace of the model object.""")
 
     def _get_baseObjectProperties(self):
-        base = self.model.getObjectByName(self.base)
-        if base:
-            return base.properties.values()
-        return list()
+        properties = list()
+        base = self.base
+        while True:
+            base = self.model.getObjectByName(base)
+            if base is None:
+                return properties
+            properties += base.properties.values()
+            base = base.base
     baseObjectProperties = property(_get_baseObjectProperties,
         doc="""The model object's base object properties.""")
 
