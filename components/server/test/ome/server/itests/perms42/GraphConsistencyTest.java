@@ -8,11 +8,10 @@ package ome.server.itests.perms42;
 
 import java.util.List;
 
-import ome.conditions.GroupSecurityViolation;
 import ome.conditions.SecurityViolation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.TagAnnotation;
-import ome.model.containers.Dataset;
+import ome.model.core.Dataset;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;

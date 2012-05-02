@@ -13,7 +13,7 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.EventType;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
@@ -220,11 +220,11 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
         pixels.setSizeT(1);
         pixels.setSizeC(1);
         pixels.setSha1("UNKNOWN");
-        pixels.setType(new PixelsType("int8"));
+        pixels.setType(new PixelType("int8"));
         pixels.setDimensionOrder(new DimensionOrder("XYZCT"));
-        image.addPixels(pixels);
+        image.setPixels(pixels);
         image = iUpdate.saveAndReturnObject(image);
-        pixels = image.getPrimaryPixels();
+        pixels = image.getPixels();
         return pixels;
     }
 

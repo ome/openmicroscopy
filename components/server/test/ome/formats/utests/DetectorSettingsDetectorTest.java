@@ -12,14 +12,13 @@ import java.util.Map;
 
 import ome.util.LSID;
 import ome.formats.OMEROMetadataStore;
-import ome.model.acquisition.Detector;
-import ome.model.acquisition.DetectorSettings;
-import ome.model.acquisition.Instrument;
-import ome.model.acquisition.Objective;
-import ome.model.acquisition.ObjectiveSettings;
+import ome.model.core.Detector;
+import ome.model.core.DetectorSettings;
+import ome.model.core.Instrument;
+import ome.model.core.Objective;
+import ome.model.core.ObjectiveSettings;
 import ome.model.core.Channel;
 import ome.model.core.Image;
-import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import junit.framework.TestCase;
 
@@ -59,14 +58,7 @@ public class DetectorSettingsDetectorTest extends TestCase
         Map<String, Integer> channelIndexes = 
             new LinkedHashMap<String, Integer>();
         channelIndexes.put("imageIndex", IMAGE_INDEX);
-        channelIndexes.put("logicalChannelIndex", CHANNEL_INDEX);
-        
-        String logicalChannelLSID = "LogicalChannel:0";
-        LogicalChannel logicalChannel = new LogicalChannel();
-        Map<String, Integer> logicalChannelIndexes = 
-            new LinkedHashMap<String, Integer>();
-        logicalChannelIndexes.put("imageIndex", IMAGE_INDEX);
-        logicalChannelIndexes.put("logicalChannelIndex", CHANNEL_INDEX);
+        channelIndexes.put("channelIndex", CHANNEL_INDEX);
         
         String instrumentLSID = "Instrument:0";
         Instrument instrument = new Instrument();
@@ -105,8 +97,6 @@ public class DetectorSettingsDetectorTest extends TestCase
         store.updateObject(pixelsLSID, pixels, pixelsIndexes);
         store.updateObject(instrumentLSID, instrument, instrumentIndexes);
         store.updateObject(channelLSID, channel, channelIndexes);
-        store.updateObject(logicalChannelLSID, logicalChannel,
-        		           logicalChannelIndexes);
         store.updateObject(detectorLSID, detector, detectorIndexes);
         store.updateObject(objectiveLSID, objective, objectiveIndexes);
         store.updateObject(detectorSettingsLSID, detectorSettings,

@@ -34,7 +34,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
 
         example = ObjectFactory.createPixelGraph(null);
 
-        example = iUpdate.saveAndReturnObject(example.getImage()).getPixels(0);
+        example = iUpdate.saveAndReturnObject(example.getImage()).getPixels();
 
         p = ObjectFactory.createPixelGraph(example);
         assertTrue("Starting off empty", p.sizeOfChannels() >= 0);
@@ -139,9 +139,9 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
 
         // TEST ----------------------------------------------------
         // ObjectFactory now creations PlaneInfos, so this p already has one.
-        assertTrue("Need at least two pixInfos, please.", p.collectPlane(
+        assertTrue("Need at least two pixInfos, please.", p.collectPlanes(
                 null).size() >= 2);
-        for (Plane pi : p.unmodifiablePlane()) {
+        for (Plane pi : p.unmodifiablePlanes()) {
             assertTrue("Need an id, please.", pi.getId().longValue() > 0);
         }
     }

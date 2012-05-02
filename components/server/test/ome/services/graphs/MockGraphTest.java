@@ -27,20 +27,20 @@ import ome.model.annotations.ListAnnotation;
 import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.NumericAnnotation;
 import ome.model.annotations.ProjectAnnotationLink;
-import ome.model.annotations.RoiAnnotationLink;
+import ome.model.annotations.ROIAnnotationLink;
 import ome.model.annotations.TermAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.TimestampAnnotation;
 import ome.model.annotations.TypeAnnotation;
 import ome.model.annotations.XmlAnnotation;
-import ome.model.containers.Dataset;
-import ome.model.containers.DatasetImageLink;
-import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Dataset;
+import ome.model.core.DatasetImageLink;
+import ome.model.core.Project;
+import ome.model.core.ProjectDatasetLink;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.roi.Roi;
+import ome.model.roi.ROI;
 import ome.model.roi.Shape;
 import ome.security.basic.CurrentDetails;
 import ome.system.EventContext;
@@ -55,7 +55,6 @@ import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenPlateLink;
 import omero.model.Well;
 import omero.model.WellAnnotationLink;
-import omero.model.WellReagentLink;
 import omero.model.WellSample;
 import omero.model.WellSampleAnnotationLink;
 
@@ -385,13 +384,13 @@ public class MockGraphTest extends MockObjectTestCase {
             public Object invoke(Invocation arg0) throws Throwable {
                 String name = (String) arg0.parameterValues.get(0);
                 if (name.equals("Roi")) {
-                    return Roi.class;
+                    return ROI.class;
                 } else if (name.equals("Shape")) {
                     return Shape.class;
                 } else if (name.equals("Annotation")) {
                     return Annotation.class;
                 } else if (name.equals("RoiAnnotationLink")) {
-                    return RoiAnnotationLink.class;
+                    return ROIAnnotationLink.class;
                 } else if (name.equals("AnnotationAnnotationLink")) {
                     return AnnotationAnnotationLink.class;
                 } else if (name.equals("BooleanAnnotation")) {
@@ -432,8 +431,6 @@ public class MockGraphTest extends MockObjectTestCase {
                     return Well.class;
                 } else if (name.equals("WellAnnotationLink")) {
                     return WellAnnotationLink.class;
-                } else if (name.equals("WellReagentLink")) {
-                    return WellReagentLink.class;
                 } else if (name.equals("WellSample")) {
                     return WellSample.class;
                 } else if (name.equals("WellSampleAnnotationLink")) {

@@ -12,9 +12,8 @@ import java.util.Set;
 
 import ome.model.IObject;
 import ome.model.annotations.CommentAnnotation;
-import ome.model.annotations.CommentAnnotation;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
@@ -163,7 +162,9 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
     private Dataset createDataset() {
         Dataset d = new Dataset("name");
         java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
-        Image i = new Image(testTimestamp, "name");
+        Image i = new Image();
+        i.setName("name");
+        i.setAcquisitionDate(testTimestamp);
         CommentAnnotation t = new CommentAnnotation();
         t.setNs("");
         t.setTextValue("t");

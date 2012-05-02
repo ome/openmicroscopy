@@ -41,11 +41,11 @@ public class PixbufIOFixture {
         p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356");
 
         Image i = p.getImage();
-        i.addPixels(p);
+        i.setPixels(p);
         i = updater.saveAndReturnObject(p.getImage());
         // List<Pixels> plist = (List<Pixels>) pojos.retrieveCollection(image,
         // Image.PIXELS, null);
-        pixels = i.getPrimaryPixels();
+        pixels = i.getPixels();
 
     }
 

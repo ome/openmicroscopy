@@ -6,9 +6,6 @@
  */
 package ome.server.itests;
 
-// Java imports
-
-// Third-party libraries
 import java.util.Collection;
 
 import ome.api.IPixels;
@@ -31,7 +28,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-;
 
 /**
  * 
@@ -102,7 +98,7 @@ public class PixelsServiceTest extends AbstractManagedContextTest {
     public void testPixelsIsFilled() throws Exception {
         Pixels p = ObjectFactory.createPixelGraph(null);
         Image i = factory.getUpdateService().saveAndReturnObject(p.getImage());
-        p = i.getPrimaryPixels();
+        p = i.getPixels();
 
         IPixels pix = factory.getPixelsService();
         Pixels t = pix.retrievePixDescription(p.getId());
@@ -122,7 +118,7 @@ public class PixelsServiceTest extends AbstractManagedContextTest {
         assertTrue(c.size() > 0);
 
         for (Channel ch : c) {
-            assertNotNull(ch.getLogicalChannel());
+            assertNotNull(ch);
         }
     }
 
@@ -134,7 +130,7 @@ public class PixelsServiceTest extends AbstractManagedContextTest {
         pix.setSizeZ(1);
         pix.setSizeT(1);
         pix.setSizeC(1);
-        pix = iUpdate.saveAndReturnObject(pix.getImage()).getPixels(0);
+        pix = iUpdate.saveAndReturnObject(pix.getImage()).getPixels();
         RawPixelsStore raw = this.factory.createRawPixelsStore();
         raw.setPixelsId(pix.getId(), false);
         raw.calculateMessageDigest();

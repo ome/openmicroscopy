@@ -8,8 +8,8 @@ package ome.server.utests;
 
 import java.util.Map;
 
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
 import ome.services.query.Hierarchy;
 
 import org.hibernate.Criteria;

@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 import ome.conditions.ApiUsageException;
-import ome.model.containers.Project;
+import ome.model.core.Project;
 import ome.parameters.Parameters;
 import ome.services.query.ClassQuerySource;
 import ome.services.query.NullQuerySource;

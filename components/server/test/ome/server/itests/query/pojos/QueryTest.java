@@ -13,11 +13,11 @@ import java.util.List;
 
 import junit.framework.AssertionFailedError;
 import ome.conditions.ApiUsageException;
-import ome.model.acquisition.Instrument;
-import ome.model.acquisition.Objective;
+import ome.model.core.Instrument;
+import ome.model.core.Objective;
 import ome.model.annotations.DoubleAnnotation;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.enums.Correction;
@@ -236,17 +236,13 @@ public class QueryTest extends AbstractManagedContextTest {
 
     }
 
-    public void testNullFromGetPrimaryPixelsWithNoPixels() throws Exception {
-        Image i = new Image(new Timestamp(0), "null from get primary pixels");
+    public void testNullFromGetPixelsWithNoPixels() throws Exception {
+    	Image i = new Image();
+    	i.setAcquisitionDate(new Timestamp(0));
+    	i.setName("null from get primary pixels");
         i = iUpdate.saveAndReturnObject(i);
         i = iQuery.get(Image.class, i.getId());
-        assertEquals(-1, i.sizeOfPixels());
-        try {
-            i.getPrimaryPixels();
-            fail("must throw");
-        } catch (ApiUsageException aue) {
-            // good
-        }
+        assertNull(i.getPixels());
 
         // Try "internally" with active session
         final long id = i.getId();
@@ -255,38 +251,20 @@ public class QueryTest extends AbstractManagedContextTest {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         Image t = (Image) session.get(Image.class, id);
-                        assertEquals(0, t.sizeOfPixels());
-                        try {
-                            t.getPrimaryPixels();
-                            fail("should throw");
-                        } catch (IndexOutOfBoundsException aiobe) {
-                            // good;
-                        }
+                        assertNull(t.getPixels());
+                   
                         return null;
                     }
                 });
-
-        try {
-            i.unmodifiablePixels();
-            fail("must throw");
-        } catch (ApiUsageException aue) {
-            // good
-        }
     }
 
-    public void testNullFromGetPrimaryPixelsWithPixels() throws Exception {
+    public void testNullFromGetPixelsWithPixels() throws Exception {
         // This needs the in-memory testing stuff
         // Pixels p = ObjectFactory.createPixelGraph(null);
         // p = iUpdate.saveAndReturnObject(p);
         Pixels p = iQuery.findAll(Pixels.class, new Filter().page(0, 1)).get(0);
         Image i = iQuery.get(Image.class, p.getImage().getId());
-        assertEquals(-1, i.sizeOfPixels());
-        try {
-            i.getPrimaryPixels();
-            fail("must throw");
-        } catch (ApiUsageException aue) {
-            // good
-        }
+        assertNull(i.getPixels());
 
         // Try "internally" with active session
         final long id = i.getId();
@@ -295,24 +273,16 @@ public class QueryTest extends AbstractManagedContextTest {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         Image t = (Image) session.get(Image.class, id);
-                        assertTrue(t.unmodifiablePixels().size() > 0 );
-                        assertNotNull(t.getPrimaryPixels());
+                        assertNotNull(t.getPixels());
                         return null;
                     }
                 });
 
-        try {
-            i.unmodifiablePixels();
-            fail("must throw");
-        } catch (ApiUsageException aue) {
-            // good
-        }
     }
 
     protected void walkResult(List result) {
         RdfPrinter rdf = new RdfPrinter();
         rdf.filter("results are", result);
-        System.out.println(rdf.getRdf());
     }
 
 }

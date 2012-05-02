@@ -7,12 +7,12 @@
 package ome.server.itests.spw;
 
 import ome.model.core.Image;
-import ome.model.screen.Plate;
-import ome.model.screen.Reagent;
-import ome.model.screen.Screen;
-import ome.model.screen.PlateAcquisition;
-import ome.model.screen.Well;
-import ome.model.screen.WellSample;
+import ome.model.spw.Plate;
+import ome.model.spw.Reagent;
+import ome.model.spw.Screen;
+import ome.model.spw.PlateAcquisition;
+import ome.model.spw.Well;
+import ome.model.spw.WellSample;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 
@@ -34,7 +34,9 @@ public class SpwTest extends AbstractManagedContextTest {
         Plate p = new Plate("p");
         Well w = new Well();
         java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
-        Image i = new Image(testTimestamp, "i");
+        Image i = new Image();
+        i.setName("i");
+        i.setAcquisitionDate(testTimestamp);
         Reagent r = new Reagent();
         r.setName("r");
         PlateAcquisition pa = new PlateAcquisition();
@@ -46,10 +48,10 @@ public class SpwTest extends AbstractManagedContextTest {
         p.addWell(w);
 
         s.addReagent(r);
-        r.linkWell(w);
+        r.setWells(w);
 
         w.addWellSample(ws);
-        i.addWellSample(ws);
+        i.setWellSamples(ws);
         pa.addWellSample(ws);
 
         s = iUpdate.saveAndReturnObject(s);
@@ -68,7 +70,7 @@ public class SpwTest extends AbstractManagedContextTest {
         Reagent r = new Reagent();
         r.setName("r");
         s.addReagent(r);
-        r.linkWell(w);
+        r.setWells(w);
 
         s = iUpdate.saveAndReturnObject(s);
         p = s.linkedPlateList().get(0);
@@ -84,11 +86,13 @@ public class SpwTest extends AbstractManagedContextTest {
 
         java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
 
-        i = new Image(testTimestamp, "i");
+        Image i = new Image();
+        i.setName("i");
+        i.setAcquisitionDate(testTimestamp);
 
         WellSample ws = new WellSample();
         pa.addWellSample(ws);
-        i.addWellSample(ws);
+        i.setWellSamples(ws);
         w.addWellSample(ws);
         ws = iUpdate.saveAndReturnObject(ws);
 
@@ -104,7 +108,9 @@ public class SpwTest extends AbstractManagedContextTest {
         Well well = new Well();
         WellSample sample = new WellSample();
         java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
-        Image image = new Image(testTimestamp, "image");
+        Image image = new Image();
+        image.setName("image");
+        image.setAcquisitionDate(testTimestamp);
         plate.addWell(well);
         well.addWellSample(sample);
         sample.setImage(image);

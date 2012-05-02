@@ -8,7 +8,7 @@ package ome.server.itests.sec;
 
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
-import ome.model.containers.Dataset;
+import ome.model.core.Dataset;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;

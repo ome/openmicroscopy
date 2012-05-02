@@ -6,13 +6,10 @@
  */
 package ome.server.itests.details;
 
-// Java imports
 
-// Third-party libraries
 import java.sql.Timestamp;
 
 import ome.conditions.SecurityViolation;
-import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.meta.Event;
 import ome.parameters.Filter;

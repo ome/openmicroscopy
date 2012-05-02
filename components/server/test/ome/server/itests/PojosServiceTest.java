@@ -23,12 +23,12 @@ import ome.conditions.ApiUsageException;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.CommentAnnotation;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.screen.Plate;
-import ome.model.screen.Screen;
+import ome.model.spw.Plate;
+import ome.model.spw.Screen;
 import ome.parameters.Parameters;
 import ome.testing.OMEData;
 import ome.testing.ObjectFactory;
@@ -127,7 +127,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         Image im = new_Image();
         im.setName("ticket:651");
         Pixels pi = ObjectFactory.createPixelGraph(null);
-        im.addPixels(pi);
+        im.setPixels(pi);
         ds.linkImage(im);
         ds = iUpdate.saveAndReturnObject(ds);
 
@@ -157,7 +157,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         Image im = new_Image();
         im.setName("ticket:1018");
         Pixels pi = ObjectFactory.createPixelGraph(null);
-        im.addPixels(pi);
+        im.setPixels(pi);
         ds.linkImage(im);
         ds = iUpdate.saveAndReturnObject(ds);
 

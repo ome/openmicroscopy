@@ -10,10 +10,9 @@ import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
-import ome.api.IContainer;
 import ome.conditions.InternalException;
 import ome.model.IObject;
-import ome.model.containers.Project;
+import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;

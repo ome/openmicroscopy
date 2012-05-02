@@ -16,7 +16,7 @@ import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
-import ome.model.containers.Dataset;
+import ome.model.core.Dataset;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.core.Plane;
@@ -175,14 +175,14 @@ public class DeleteUnitTest extends MockObjectTestCase {
     public void testAllMetadataIsGone() throws Exception {
         // Setup graph
         Pixels p = ObjectFactory.createPixelGraph(null);
-        i.addPixels(p);
+        i.setPixels(p);
 
         // Locate deletes
         List<IObject> deletes = new ArrayList<IObject>();
         deletes.add(i);
         deletes.add(p);
         deletes.addAll(p.linkedOriginalFileList());
-        deletes.addAll(p.collectPlane((CBlock<Plane>) null));
+        deletes.addAll(p.collectPlanes((CBlock<Plane>) null));
         deletes.addAll(p.collectSettings((CBlock<RenderingDef>) null));
         deletes.addAll(p.collectThumbnails((CBlock<Thumbnail>) null));
 

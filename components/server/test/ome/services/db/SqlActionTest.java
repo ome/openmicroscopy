@@ -248,7 +248,7 @@ public class SqlActionTest extends AbstractManagedContextTest {
     private Pixels makepixels() {
         Pixels p = ObjectFactory.createPixelGraph(null);
         Image i = iUpdate.saveAndReturnObject(p.getImage());
-        p = i.getPrimaryPixels();
+        p = i.getPixels();
         return p;
     }
 

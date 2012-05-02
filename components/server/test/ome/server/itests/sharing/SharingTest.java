@@ -21,7 +21,7 @@ import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.TextAnnotation;
-import ome.model.containers.Dataset;
+import ome.model.core.Dataset;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
@@ -516,7 +516,9 @@ public class SharingTest extends AbstractManagedContextTest {
         assertEquals(1, share.getContentMap(id).size());
 
         Dataset d2 = new Dataset("elements transitively");
-        Image i2 = new Image(new Timestamp(0), "transitive image");
+        Image i2 = new Image();
+        i2.setName("transitive image");
+        i2.setAcquisitionDate(new Timestamp(0));
         d2.linkImage(i2);
         d2 = iUpdate.saveAndReturnObject(d2);
 
@@ -586,7 +588,9 @@ public class SharingTest extends AbstractManagedContextTest {
     public void testUserAddsPrivateImageAndThenShares() {
 
         Experimenter owner = loginNewUser();
-        Image i = new Image(new Timestamp(System.currentTimeMillis()), "test");
+        Image i = new Image();
+        i.setName("test");
+        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
         i.getDetails().setPermissions(Permissions.USER_PRIVATE);
         i = iUpdate.saveAndReturnObject(i);
 
@@ -690,8 +694,7 @@ public class SharingTest extends AbstractManagedContextTest {
                 Arrays.asList(e), null, true);
         share.activate(sid);
         ThumbnailStore tb = factory.createThumbnailService();
-        tb.getThumbnailSet(64, 64, Collections.singleton(i.getPrimaryPixels()
-                .getId()));
+        tb.getThumbnailSet(64, 64, Collections.singleton(i.getPixels().getId()));
     }
 
     // Assertions

@@ -9,8 +9,8 @@ package ome.server.itests.query.pojos;
 import java.sql.Timestamp;
 import java.util.Collections;
 
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
@@ -61,9 +61,9 @@ public class FindContainersQueryTest extends AbstractManagedContextTest {
         Image i = iContainer.getImages(Image.class, Collections.singleton(imageId),
                 null).iterator().next();
         Pixels pix = ObjectFactory.createPixelGraph(null);
-        i.addPixels(pix);
+        i.setPixels(pix);
         i = this.iContainer.updateDataObject(i, null);
-        pix = i.getPixels(i.sizeOfPixels() - 1);
+        pix = i.getPixels();
         return pix.getId().longValue();
     }
 

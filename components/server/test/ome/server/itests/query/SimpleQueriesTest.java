@@ -11,9 +11,9 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ome.conditions.ApiUsageException;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
+import ome.model.core.ProjectDatasetLink;
 import ome.server.itests.AbstractManagedContextTest;
 
 @Test(groups = { "query" })

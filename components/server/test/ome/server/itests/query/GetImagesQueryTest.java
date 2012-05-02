@@ -19,8 +19,8 @@ import java.util.Set;
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.annotations.TimestampAnnotation;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
@@ -360,7 +360,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
                 "select i from Image i left outer join fetch i.pixels p "
                         + "where p.id = :id and index(p) = 0", new Parameters()
                         .addId(p.getId()));
-        assertNotNull(i.getPrimaryPixels());
+        assertNotNull(i.getPixels());
 
         Dataset d = new Dataset();
         d.setName("ticket:177");
@@ -373,7 +373,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
                 .unique()).addClass(Dataset.class).addIds(
                 Collections.singleton(d.getId())));
         Image test = (Image) iQuery.execute(q);
-        assertNotNull(test.getPrimaryPixels());
+        assertNotNull(test.getPixels());
     }
 
     @Test(groups = { "ticket:221" })
@@ -383,7 +383,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         Image i = new Image();
         i.setName("ticket:221");
         Pixels p = ObjectFactory.createPixelGraph(null);
-        i.addPixels(p);
+        i.setPixels(p);
         d.linkImage(i);
         d = iUpdate.saveAndReturnObject(d);
 
@@ -392,8 +392,8 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
                 Collections.singleton(d.getId())));
         Image test = (Image) iQuery.execute(q);
         assertNotNull(test);
-        assertNotNull(test.getPrimaryPixels());
-        assertNotNull(test.getPrimaryPixels().getType());
+        assertNotNull(test.getPixels());
+        assertNotNull(test.getPixels().getType());
     }
 
     @Test(groups = { "ticket:296" })

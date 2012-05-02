@@ -20,9 +20,9 @@ import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import ome.model.enums.RenderingModel;
-import ome.model.stats.StatsInfo;
+import ome.model.core.StatsInfo;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.quantum.QuantumFactory;
 
@@ -58,7 +58,7 @@ public class BaseRenderingTest extends TestCase
 	@BeforeClass
 	protected void setUp()
 	{
-		PixelsType pixelsType = getPixelsType();
+		PixelType pixelsType = new PixelType();
 		
 		byte[] plane = getPlane();
 		data = new PixelData(pixelsType.getValue(), ByteBuffer.wrap(plane));
@@ -118,9 +118,9 @@ public class BaseRenderingTest extends TestCase
 		return 2;
 	}
 	
-	protected PixelsType getPixelsType()
+	protected PixelType getPixelsType()
 	{
-		PixelsType pixelsType = new PixelsType();
+		PixelType pixelsType = new PixelType();
 		pixelsType.setValue("uint16");
 		return pixelsType;
 	}
@@ -152,7 +152,7 @@ public class BaseRenderingTest extends TestCase
 		return new double[] { min, max };
 	}
 	
-	private Pixels createDummyPixels(PixelsType pixelsType, PixelData plane)
+	private Pixels createDummyPixels(PixelType pixelsType, PixelData plane)
 	{
 		Pixels pixels = new Pixels();
 		pixels.setSizeX(getSizeX());

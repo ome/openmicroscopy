@@ -169,7 +169,9 @@ public class SequencesTest extends AbstractManagedContextTest {
                     // the tx is rolled back. Don't use incrementImage since
                     // that's
                     // wrapped with AOP
-                    Image i = new Image(new Timestamp(0L), "1176-inner");
+                    Image i = new Image();
+                    i.setName("1176-inner");
+                    i.setAcquisitionDate(new Timestamp(0L));
                     log.warn("XXXX: SAVING");
                     i = sf.getUpdateService().saveAndReturnObject(i);
                     values[IMAGEID] = i.getId();
@@ -240,7 +242,11 @@ public class SequencesTest extends AbstractManagedContextTest {
      */
     public void testImageIdIsAlsoRolledBack() {
         Image[] images = new Image[2];
-        images[0] = new Image(new Timestamp(0L), "image rollback");
+        Image i = new Image();
+        i.setName("image rollback");
+        i.setAcquisitionDate(new Timestamp(0L));
+        images[0] = i;
+        
         images[1] = new Image(/* no name */);
         try {
             iUpdate.saveAndReturnArray(images);
@@ -260,7 +266,10 @@ public class SequencesTest extends AbstractManagedContextTest {
      */
     public void testImageIdIsAlsoRolledBackInExecutor() {
         final Image[] images = new Image[2];
-        images[0] = new Image(new Timestamp(0L), "image rollback");
+        Image i = new Image();
+        i.setName("image rollback");
+        i.setAcquisitionDate(new Timestamp(0L));
+        images[0] = i;
         images[1] = new Image(/* no name */);
 
         try {
@@ -283,8 +292,9 @@ public class SequencesTest extends AbstractManagedContextTest {
     }
 
     private long incrementImage() {
-        Image i;
-        i = new Image(new Timestamp(0L), "1176");
+        Image i = new Image();
+        i.setName("1176");
+        i.setAcquisitionDate(new Timestamp(0L));
         i = iUpdate.saveAndReturnObject(i);
         return i.getId();
     }

@@ -22,8 +22,8 @@ import ome.model.annotations.Annotation;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TagAnnotation;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
@@ -253,7 +253,7 @@ public class FullTextTest extends AbstractTest {
         final String after = UUID.randomUUID().toString();
         final String query = "image_name:" + before;
 
-        ome.model.containers.Project p = new ome.model.containers.Project();
+        ome.model.core.Project p = new ome.model.core.Project();
         Dataset d = new Dataset("middle");
         java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System
                 .currentTimeMillis());

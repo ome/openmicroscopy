@@ -15,10 +15,10 @@ import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.BasicAnnotation;
 import ome.model.annotations.LongAnnotation;
-import ome.model.containers.Dataset;
-import ome.model.containers.DatasetImageLink;
-import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Dataset;
+import ome.model.core.DatasetImageLink;
+import ome.model.core.Project;
+import ome.model.core.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
@@ -118,7 +118,7 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
         Pixels p = ObjectFactory.createPixelGraph(null);
         Image i = new Image();
         i.setName("locking");
-        i.addPixels(p);
+        i.setPixels(p);
 
         assertContains(metadata.getLockCandidates(p), i);
 

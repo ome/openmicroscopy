@@ -6,8 +6,6 @@
  */
 package ome.services.utests;
 
-// Java imports
-
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Set;
@@ -17,12 +15,11 @@ import ome.annotations.ApiConstraintChecker;
 import ome.conditions.ApiUsageException;
 import ome.logic.PojosImpl;
 import ome.model.IObject;
-import ome.model.containers.Project;
+import ome.model.core.Project;
 import ome.services.RenderingBean;
 
 import org.testng.annotations.Test;
 
-// Application-internal dependencies
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a

@@ -14,7 +14,7 @@ import ome.api.IQuery;
 import ome.conditions.ApiUsageException;
 import ome.logic.QueryImpl;
 import ome.model.IObject;
-import ome.model.containers.Project;
+import ome.model.core.Project;
 import ome.parameters.Filter;
 import ome.security.basic.CurrentDetails;
 import ome.security.basic.PrincipalHolder;

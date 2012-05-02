@@ -9,6 +9,7 @@ package ome.server.itests.update;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CyclicBarrier;
@@ -17,15 +18,15 @@ import java.util.concurrent.TimeUnit;
 import ome.api.ITypes;
 import ome.api.Search;
 import ome.conditions.TryAgain;
-import ome.model.acquisition.Instrument;
-import ome.model.acquisition.Objective;
-import ome.model.acquisition.ObjectiveSettings;
+import ome.model.core.Instrument;
+import ome.model.core.Objective;
+import ome.model.core.ObjectiveSettings;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TagAnnotation;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
+import ome.model.core.ProjectDatasetLink;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
@@ -42,7 +43,7 @@ import ome.model.jobs.JobStatus;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.roi.Rectangle;
-import ome.model.roi.Roi;
+import ome.model.roi.ROI;
 import ome.model.roi.Shape;
 import ome.parameters.Parameters;
 import ome.services.util.Executor;
@@ -106,12 +107,12 @@ public class UpdateTest extends AbstractUpdateTest {
         image.setName("test");
 
         Pixels active = ObjectFactory.createPixelGraph(null);
-        image.addPixels(active);
+        image.setPixels(active);
 
         image = iUpdate.saveAndReturnObject(image);
-        active = image.getPrimaryPixels();
+        active = image.getPixels();
         Pixels other = ObjectFactory.createPixelGraph(null);
-        image.addPixels(other);
+        image.setPixels(other);
 
         iUpdate.saveAndReturnObject(image);
 
@@ -368,7 +369,9 @@ public class UpdateTest extends AbstractUpdateTest {
         // This creates a user in a new group
         Experimenter e = loginNewUser();
         java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
-        Image i = new Image(testTimestamp, "rootCanDeleteObjectFromOtherGroup");
+        Image i = new Image();
+        i.setName("rootCanDeleteObjectFromOtherGroup");
+        i.setAcquisitionDate(testTimestamp);
         i = this.iUpdate.saveAndReturnObject(i);
 
         loginRootKeepGroup();
@@ -423,8 +426,7 @@ public class UpdateTest extends AbstractUpdateTest {
         Pixels p = ObjectFactory.createPixelGraph(null);
         // p.setDimensionOrder(iQuery.findAll(DimensionOrder.class, null).get(0));
         Image i = iUpdate.saveAndReturnObject(p.getImage());
-        assertEquals(1, i.sizeOfPixels());
-        assertNotNull(i.collectPixels(null).get(0));
+        assertNotNull(i.getPixels());
     }
     
     @Test(groups ="ticket:1183")
@@ -443,7 +445,10 @@ public class UpdateTest extends AbstractUpdateTest {
         Immersion imm = new Immersion("Air");
         Correction corr = new Correction("Other");
         Instrument instr = new Instrument();
-        Objective obj = new Objective(imm, corr, instr);
+        Objective obj = new Objective();
+        obj.setImmersion(imm);
+        obj.setCorrection(corr);
+        obj.setInstrument(instr);
         os.setObjective(obj);
         os.setMedium(new Medium("Other"));
         os.setRefractiveIndex(0.0);
@@ -461,7 +466,7 @@ public class UpdateTest extends AbstractUpdateTest {
         Pixels p = ObjectFactory.createPixelGraphWithChannels(null, 3);
         Image i = p.getImage();
         i = iUpdate.saveAndReturnObject(i);
-        p = i.getPrimaryPixels();
+        p = i.getPixels();
 
         Set<Long> ids = new HashSet<Long>();
         assertEquals(3, p.sizeOfChannels());
@@ -472,82 +477,162 @@ public class UpdateTest extends AbstractUpdateTest {
 
         // Now add another channel
         Pixels extra = ObjectFactory.createPixelGraph(null);
-        p.addChannel(extra.getChannel(0));
+        Iterator<Channel> j = extra.iterateChannels();
+        while (j.hasNext()) {
+			p.addChannel(j.next());
+		}
+        
 
         i = iUpdate.saveAndReturnObject(i);
-        p = i.getPrimaryPixels();
+        p = i.getPixels();
 
         assertEquals(4, p.sizeOfChannels());
-        assertFalse(ids.contains(p.getChannel(3).getId()));
+        j = extra.iterateChannels();
+        int k = 0;
+        while (j.hasNext()) {
+        	Channel c = j.next();
+			if (k == 3)
+				assertFalse(ids.contains(c.getId()));
+			k++;
+		}
+        
 
     }
 
     @Test(groups = "ticket:2547")
     public void testChannelMoveWithSpaceFillsSpace() {
         Pixels p = ObjectFactory.createPixelGraphWithChannels(null, 3);
-        p.setChannel(1, null);
+        Iterator<Channel> j = p.iterateChannels();
+        int index = 0;
+        Channel c;
+        p.clearChannels();
+        while (j.hasNext()) {
+        	c = j.next();
+        	if (index == 1) p.addChannel(null);
+        	else p.addChannel(c);
+        	index++;
+		}
         Image i = p.getImage();
         i = iUpdate.saveAndReturnObject(i);
-        p = i.getPrimaryPixels();
+        p = i.getPixels();
 
         Set<Long> ids = new HashSet<Long>();
         assertEquals(3, p.sizeOfChannels());
-        assertNotNull(p.getChannel(0));
-        ids.add(p.getChannel(0).getId());
-
-        // Middle should be empty
-        assertNull(p.getChannel(1));
-
-        assertNotNull(p.getChannel(2));
-        ids.add(p.getChannel(2).getId());
+        j = p.iterateChannels();
+        index = 0;
+        while (j.hasNext()) {
+        	c = j.next();
+        	if (index == 1) {
+        		assertNull(c);
+        	} else {
+        		assertNotNull(c);
+        		ids.add(c.getId());
+        	}
+        	index++;
+		}
 
         // Now add a channel to the front
         Pixels extra = ObjectFactory.createPixelGraph(null);
-        Channel old = p.getChannel(0);
-        p.setChannel(0, extra.getChannel(0));
-        p.setChannel(1, old);
-
+        j = extra.iterateChannels();
+        Channel extraC = null;
+        while (j.hasNext()) {
+        	c = j.next();
+        	extraC = c;
+        	break;
+		}
+       
+        p.clearChannels();
+        index = 0;
+        while (j.hasNext()) {
+        	c = j.next();
+        	if (index == 0) p.addChannel(extraC);
+        	else p.addChannel(c);
+        	index++;
+		}
+        
         i = iUpdate.saveAndReturnObject(i);
-        p = i.getPrimaryPixels();
+        p = i.getPixels();
 
         assertEquals(3, p.sizeOfChannels());
-        assertFalse(ids.contains(p.getChannel(0).getId()));
+        j = p.iterateChannels();
+
+        while (j.hasNext()) {
+        	c = j.next();
+        	assertFalse(ids.contains(c.getId()));
+        	break;
+		}
     }
 
     @Test(groups = "ticket:2547")
     public void testChannelToSpaceChangesNothing() {
         Pixels p = ObjectFactory.createPixelGraphWithChannels(null, 3);
-        p.setChannel(1, null);
+        Iterator<Channel> j = p.iterateChannels();
+        int index = 0;
+        Channel c;
+        p.clearChannels();
+        while (j.hasNext()) {
+        	c = j.next();
+        	if (index == 1) p.addChannel(null);
+        	else p.addChannel(c);
+        	index++;
+		}
+
         Image i = p.getImage();
         i = iUpdate.saveAndReturnObject(i);
-        p = i.getPrimaryPixels();
+        p = i.getPixels();
 
         Set<Long> ids = new HashSet<Long>();
         assertEquals(3, p.sizeOfChannels());
-        assertNotNull(p.getChannel(0));
-        ids.add(p.getChannel(0).getId());
-
-        // Middle should be empty
-        assertNull(p.getChannel(1));
-
-        assertNotNull(p.getChannel(2));
-        ids.add(p.getChannel(2).getId());
+        j = p.iterateChannels();
+        index = 0;
+        while (j.hasNext()) {
+        	c = j.next();
+        	if (index == 1) {
+        		assertNull(c);
+        	} else {
+        		assertNotNull(c);
+        		ids.add(c.getId());
+        	}
+        	index++;
+		}
 
         // Now add a channel to the space
         Pixels extra = ObjectFactory.createPixelGraph(null);
-        p.setChannel(1, extra.getChannel(0));
+        j = extra.iterateChannels();
+        Channel extraC = null;
+        while (j.hasNext()) {
+        	c = j.next();
+        	extraC = c;
+        	break;
+		}
+       
+        p.clearChannels();
+        index = 0;
+        while (j.hasNext()) {
+        	c = j.next();
+        	if (index == 1) p.addChannel(extraC);
+        	else p.addChannel(c);
+        	index++;
+		}
 
         i = iUpdate.saveAndReturnObject(i);
-        p = i.getPrimaryPixels();
+        p = i.getPixels();
 
         assertEquals(3, p.sizeOfChannels());
-        assertFalse(ids.contains(p.getChannel(1).getId()));
+        j = p.iterateChannels();
+        index = 0;
+        while (j.hasNext()) {
+        	c = j.next();
+        	if (index == 1)
+        	    assertFalse(ids.contains(c.getId()));
+        	break;
+		}
     }
 
     @Test(groups = {"ticket:1679", "ticket:2547"})
     public void testRoiShapeIndexIssue() {
         Image image = iUpdate.saveAndReturnObject(new_Image(""));
-        Roi roi = new Roi();
+        ROI roi = new ROI();
         roi.setImage(image);
 
         roi = iUpdate.saveAndReturnObject(roi);
@@ -563,8 +648,11 @@ public class UpdateTest extends AbstractUpdateTest {
         }
 
         roi = iUpdate.saveAndReturnObject(roi);
-        Shape shape = roi.getShape(0);
-        roi.removeShape(shape);
+        Iterator<Shape> j = roi.iterateShapes();
+        while (j.hasNext()) {
+			roi.removeShape(j.next());
+			break;
+		}
         roi = iUpdate.saveAndReturnObject(roi);
         iQuery.findAllByQuery("select r from Roi r join fetch r.shapes", null);
     }
@@ -654,8 +742,7 @@ public class UpdateTest extends AbstractUpdateTest {
     
     @Test(groups = "ticket:2710")
     public void testRoiWithoutImage() {
-        Roi r = new Roi();
-        iUpdate.saveAndReturnObject(r);
+        iUpdate.saveAndReturnObject(new ROI());
     }
 
     @Test(groups = "ticket:5639")

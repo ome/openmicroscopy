@@ -15,8 +15,8 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 import ome.api.IQuery;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 import ome.system.OmeroContext;

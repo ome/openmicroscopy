@@ -11,8 +11,8 @@ import java.util.Collections;
 import java.util.List;
 
 import ome.api.IQuery;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
 import ome.model.core.Image;
 import ome.model.meta.EventLog;
 import ome.services.eventlogs.AllEntitiesPseudoLogLoader;

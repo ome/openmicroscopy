@@ -6,7 +6,7 @@
  */
 package omeis.providers.re.utests;
 
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 import org.testng.annotations.Test;
 
@@ -45,9 +45,9 @@ public class TestStandard32BitRendererLUTSizesShouldFail extends BaseRenderingTe
 	}
 	
 	@Override
-	protected PixelsType getPixelsType()
+	protected PixelType getPixelsType()
 	{
-		PixelsType pixelsType = new PixelsType();
+		PixelType pixelsType = new PixelType();
 		pixelsType.setValue("uint32");
 		return pixelsType;
 	}

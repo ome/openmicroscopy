@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import ome.api.IDelete;
@@ -19,18 +20,17 @@ import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.TagAnnotation;
-import ome.model.containers.Dataset;
-import ome.model.containers.DatasetImageLink;
+import ome.model.core.Dataset;
+import ome.model.core.DatasetImageLink;
 import ome.model.core.Channel;
 import ome.model.core.Image;
-import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
-import ome.model.screen.Plate;
-import ome.model.screen.Well;
-import ome.model.screen.WellSample;
+import ome.model.spw.Plate;
+import ome.model.spw.Well;
+import ome.model.spw.WellSample;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 
@@ -176,15 +176,22 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         Image i1 = makeImage(true);
         Image i2 = makeImage(true);
 
-        String sql = "select lc from LogicalChannel lc "
-                + "join fetch lc.channels ch join ch.pixels p join p.image i where i.id = ";
-        List<LogicalChannel> lcs1 = iQuery.findAllByQuery(sql + i1.getId(),
+        String sql = "select ch from Channel ch "
+                + "join ch.pixels p join p.image i where i.id = ";
+        List<Channel> lcs1 = iQuery.findAllByQuery(sql + i1.getId(),
                 null);
-        Channel c1 = lcs1.get(0).iterateChannels().next();
-        List<LogicalChannel> lcs2 = iQuery.findAllByQuery(sql + i2.getId(),
-                null);
-        c1.setLogicalChannel(lcs2.get(0));
-        iUpdate.saveObject(c1);
+        List<Channel> lcs2 = iQuery.findAllByQuery(sql + i2.getId(), null);
+        Pixels pixels1 = lcs1.get(0).getPixels();
+        Iterator<Channel> i = pixels1.iterateChannels();
+        int index = 0;
+        Pixels pixels2 = lcs2.get(0).getPixels();
+        pixels2.clearChannels();
+        while (i.hasNext()) {
+        	Channel c = i.next();
+			if (index == 0) pixels2.addChannel(lcs1.get(0));
+			else pixels2.addChannel(c);
+		}
+        iUpdate.saveObject(pixels2);
 
         IDelete srv = this.factory.getDeleteService();
         srv.deleteImage(i1.getId(), true);
@@ -216,7 +223,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
 
         Experimenter e1 = loginNewUser(Permissions.COLLAB_READLINK);
         Image i1 = makeImage(false);
-        Pixels p1 = i1.iteratePixels().next();
+        Pixels p1 = i1.getPixels();
 
         Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
 
@@ -234,7 +241,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
 
         Experimenter e1 = loginNewUser(Permissions.COLLAB_READLINK);
         Image i1 = makeImage(false);
-        Pixels p1 = i1.iteratePixels().next();
+        Pixels p1 = i1.getPixels();
 
         Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
 
@@ -252,7 +259,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
 
         Experimenter e1 = loginNewUser(Permissions.COLLAB_READLINK);
         Image i1 = makeImage(false);
-        Pixels p1 = i1.iteratePixels().next();
+        Pixels p1 = i1.getPixels();
 
         loginRootKeepGroup();
 
@@ -303,7 +310,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         w1.addWellSample(ws);
         ws.setImage(i);
         ws.setWell(w1);
-        i.addWellSample(ws);
+        i.setWellSamples(ws);
 
         
         p = iUpdate.saveAndReturnObject(p);
@@ -344,7 +351,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         w1.addWellSample(ws);
         ws.setImage(i);
         ws.setWell(w1);
-        i.addWellSample(ws);
+        i.setWellSamples(ws);
                 
         p = iUpdate.saveAndReturnObject(p);
         

@@ -21,7 +21,7 @@ import ome.io.nio.TileSizes;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.enums.DimensionOrder;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import ome.model.meta.EventLog;
 import ome.services.pixeldata.PersistentEventLogLoader;
 import ome.services.pixeldata.PixelDataHandler;
@@ -117,7 +117,7 @@ public class MTPixelDataTest extends MockObjectTestCase {
                 pix.setSizeC(1);
                 pix.setSizeT(6);
                 pix.setDimensionOrder(new DimensionOrder("XYZCT"));
-                pix.setType(new PixelsType("int16"));
+                pix.setType(new PixelType("int16"));
                 pix.addChannel(new Channel());
                 return pix;
             }

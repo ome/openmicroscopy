@@ -15,15 +15,15 @@ import java.util.List;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.util.PixelData;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 public class TestPixelBuffer implements PixelBuffer {
 	
 	private byte[] dummyPlane; 
 	
-	private PixelsType pixelsType;
+	private PixelType pixelsType;
 	
-	public TestPixelBuffer(PixelsType pixelsType, byte[] dummyPlane)
+	public TestPixelBuffer(PixelType pixelsType, byte[] dummyPlane)
 	{
 		this.pixelsType = pixelsType;
 		this.dummyPlane = dummyPlane;

@@ -7,16 +7,13 @@
 
 package omeis.providers.re.utests;
 
-// Java imports
 
-// Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-// Application-internal dependencies
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import omeis.providers.re.quantum.PolynomialMap;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumMap;
@@ -144,7 +141,7 @@ public class OnTheFlyStrategy extends QuantumStrategy {
      * @param type
      *            The pixel type;
      */
-    public OnTheFlyStrategy(QuantumDef qd, PixelsType type) {
+    public OnTheFlyStrategy(QuantumDef qd, PixelType type) {
         super(qd, type);
         
         min = (int) getGlobalMin();

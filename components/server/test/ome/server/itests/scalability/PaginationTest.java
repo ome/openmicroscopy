@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Set;
 
 import ome.model.IObject;
-import ome.model.containers.Dataset;
-import ome.model.containers.DatasetImageLink;
-import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Dataset;
+import ome.model.core.DatasetImageLink;
+import ome.model.core.Project;
+import ome.model.core.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
@@ -117,10 +117,13 @@ public class PaginationTest extends AbstractManagedContextTest {
             d = iUpdate.saveAndReturnObject(d);
             for (int i = 0; i < loops; i++) {
                 DatasetImageLink[] links = new DatasetImageLink[batch];
+                Image img;
                 for (int j = 0; j < batch; j++) {
                     links[j] = new DatasetImageLink();
-                    links[j].link(d.proxy(), new Image(testTimestamp,
-                            "image in big dataset " + i * i));
+                    img = new Image();
+                    img.setAcquisitionDate(testTimestamp);
+                    img.setName("image in big dataset "+i*i);
+                    links[j].link(d.proxy(), img);
                 }
                 iUpdate.saveArray(links);
             }
@@ -147,10 +150,13 @@ public class PaginationTest extends AbstractManagedContextTest {
                 pdl = iUpdate.saveAndReturnObject(pdl);
                 d = pdl.child();
                 DatasetImageLink[] links = new DatasetImageLink[batch];
+                Image img;
                 for (int j = 0; j < batch; j++) {
                     links[j] = new DatasetImageLink();
-                    links[j].link(d.proxy(), new Image(testTimestamp,
-                            "image in big project " + i * i));
+                    img = new Image();
+                    img.setAcquisitionDate(testTimestamp);
+                    img.setName("image in big project "+i*i);
+                    links[j].link(d.proxy(), img);
                 }
                 iUpdate.saveArray(links);
             }

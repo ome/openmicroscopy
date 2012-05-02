@@ -14,7 +14,7 @@ import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import ome.model.enums.RenderingModel;
 
 public class TestPixelsMetadataService implements IPixels {
@@ -40,7 +40,7 @@ public class TestPixelsMetadataService implements IPixels {
 	}
 
 	public Long createImage(int arg0, int arg1, int arg2, int arg3,
-			List<Integer> arg4, PixelsType arg5, String arg6, String arg7) {
+			List<Integer> arg4, PixelType arg5, String arg6, String arg7) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -72,7 +72,7 @@ public class TestPixelsMetadataService implements IPixels {
 		throw new RuntimeException("Unhandled class: " + klass);
 	}
 
-	public int getBitDepth(PixelsType arg0) {
+	public int getBitDepth(PixelType arg0) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

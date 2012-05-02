@@ -15,7 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.Test;
 
 import ome.conditions.ApiUsageException;
-import ome.model.containers.Project;
+import ome.model.core.Project;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.CollectionCountQueryDefinition;

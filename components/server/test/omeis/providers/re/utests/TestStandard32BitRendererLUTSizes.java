@@ -6,7 +6,7 @@
  */
 package omeis.providers.re.utests;
 
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import omeis.providers.re.data.PlaneDef;
 
 import org.perf4j.LoggingStopWatch;
@@ -48,9 +48,9 @@ public class TestStandard32BitRendererLUTSizes extends BaseRenderingTest
 	}
 	
 	@Override
-	protected PixelsType getPixelsType()
+	protected PixelType getPixelsType()
 	{
-		PixelsType pixelsType = new PixelsType();
+		PixelType pixelsType = new PixelType();
 		pixelsType.setValue("uint32");
 		return pixelsType;
 	}

@@ -14,9 +14,9 @@ import java.util.Map;
 import ome.util.LSID;
 import ome.formats.OMEROMetadataStore;
 import ome.model.core.Image;
-import ome.model.screen.Plate;
-import ome.model.screen.Well;
-import ome.model.screen.WellSample;
+import ome.model.spw.Plate;
+import ome.model.spw.Well;
+import ome.model.spw.WellSample;
 import junit.framework.TestCase;
 
 public class MultiplePlateTest extends TestCase

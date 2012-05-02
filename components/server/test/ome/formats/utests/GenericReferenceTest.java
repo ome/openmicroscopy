@@ -14,24 +14,23 @@ import org.testng.annotations.Test;
 
 import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
-import ome.model.acquisition.Detector;
-import ome.model.acquisition.DetectorSettings;
-import ome.model.acquisition.Dichroic;
-import ome.model.acquisition.Filter;
-import ome.model.acquisition.FilterSet;
-import ome.model.acquisition.Instrument;
-import ome.model.acquisition.Laser;
-import ome.model.acquisition.LightPath;
-import ome.model.acquisition.LightSettings;
+import ome.model.core.Detector;
+import ome.model.core.DetectorSettings;
+import ome.model.core.Dichroic;
+import ome.model.core.Filter;
+import ome.model.core.FilterSet;
+import ome.model.core.Instrument;
+import ome.model.core.Laser;
+import ome.model.core.LightPath;
+import ome.model.core.LightSourceSettings;
 import ome.model.core.Channel;
 import ome.model.core.Image;
-import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
-import ome.model.experiment.Experiment;
-import ome.model.screen.Plate;
-import ome.model.screen.Reagent;
-import ome.model.screen.Screen;
-import ome.model.screen.Well;
+import ome.model.core.Experiment;
+import ome.model.spw.Plate;
+import ome.model.spw.Reagent;
+import ome.model.spw.Screen;
+import ome.model.spw.Well;
 import junit.framework.TestCase;
 
 public class GenericReferenceTest extends TestCase
@@ -69,9 +68,7 @@ public class GenericReferenceTest extends TestCase
 	private Pixels pixels;
 	
 	private Channel channel;
-	
-	private LogicalChannel logicalChannel;
-	
+
 	private Instrument instrument;
 	
 	private Experiment experiment;
@@ -86,7 +83,7 @@ public class GenericReferenceTest extends TestCase
 	
 	private Dichroic dichroic;
 	
-	private LightSettings lightSettings;
+	private LightSourceSettings lightSettings;
 	
 	private DetectorSettings detectorSettings;
 	
@@ -124,19 +121,10 @@ public class GenericReferenceTest extends TestCase
         Map<String, Integer> channelIndexes = 
             new LinkedHashMap<String, Integer>();
         channelIndexes.put("imageIndex", IMAGE_INDEX);
-        channelIndexes.put("logicalChannelIndex", CHANNEL_INDEX);
+        channelIndexes.put("channelIndex", CHANNEL_INDEX);
         String channelLSID = "Channel:0:0";
         store.updateObject(channelLSID, channel, channelIndexes);
-        
-		// Update LogicalChannel
-        logicalChannel = new LogicalChannel();
-        Map<String, Integer> logicalChannelIndexes = 
-            new LinkedHashMap<String, Integer>();
-        logicalChannelIndexes.put("imageIndex", IMAGE_INDEX);
-        logicalChannelIndexes.put("logicalChannelIndex", CHANNEL_INDEX);
-        String logicalChannelLSID = "LogicalChannel:0:0";
-        store.updateObject(logicalChannelLSID, logicalChannel,
-        		           logicalChannelIndexes);
+       
         
         // Update Instrument
         instrument = new Instrument();
@@ -200,11 +188,11 @@ public class GenericReferenceTest extends TestCase
         store.updateObject(dichroicLSID, dichroic, dichroicIndexes);
         
         // Update LightSettings
-        lightSettings = new LightSettings();
+        lightSettings = new LightSourceSettings();
         Map<String, Integer> lightSettingsIndexes = 
             new LinkedHashMap<String, Integer>();
         lightSettingsIndexes.put("imageIndex", IMAGE_INDEX);
-        lightSettingsIndexes.put("logicalChannelIndex", CHANNEL_INDEX);
+        lightSettingsIndexes.put("channelIndex", CHANNEL_INDEX);
         String lightSettingsLSID = "LightSourceSettings:0:0";
         store.updateObject(lightSettingsLSID, lightSettings,
         		           lightSettingsIndexes);
@@ -214,8 +202,7 @@ public class GenericReferenceTest extends TestCase
         Map<String, Integer> detectorSettingsIndexes = 
             new LinkedHashMap<String, Integer>();
         detectorSettingsIndexes.put("imageIndex", IMAGE_INDEX);
-        detectorSettingsIndexes.put("logicalChannelIndex",
-        		                    CHANNEL_INDEX);
+        detectorSettingsIndexes.put("channelIndex",CHANNEL_INDEX);
         String detectorSettingsLSID = "DetectorSettings:0:0";
         store.updateObject(detectorSettingsLSID, detectorSettings,
         		           detectorSettingsIndexes);
@@ -274,9 +261,8 @@ public class GenericReferenceTest extends TestCase
 	    Map<String, String[]> referenceCache = new HashMap<String, String[]>();
 	    referenceCache.put("Well:0:0:0", new String[] { "Reagent:0:0" });
 	    store.updateReferences(referenceCache);
-	    assertNotNull(well.linkedReagentList());
-	    assertEquals(1, well.linkedReagentList().size());
-	    assertEquals(well.linkedReagentList().get(0), reagent);
+	    assertNotNull(well.getReagent());
+	    assertEquals(well.getReagent(), reagent);
 	}
 	
 	public void testLaserLaserReference()
@@ -305,22 +291,22 @@ public class GenericReferenceTest extends TestCase
 	    assertEquals(detectorSettings.getDetector(), detector);
 	}
 	
-	public void testLogicalChannelFilterSetReference()
+	public void testChannelFilterSetReference()
 	{
 	    Map<String, String[]> referenceCache = new HashMap<String, String[]>();
-	    referenceCache.put("LogicalChannel:0:0", 
+	    referenceCache.put("Channel:0:0", 
 	    		           new String[] { "FilterSet:0:0" });
 	    store.updateReferences(referenceCache);
-	    assertEquals(logicalChannel.getFilterSet(), filterSet);
+	    assertEquals(channel.getFilterSet(), filterSet);
 	}
 	
-	public void testLogicalChannelFilterReference()
+	public void testChannelFilterReference()
 	{
 		try
 		{
 			Map<String, String[]> referenceCache =
 				new HashMap<String, String[]>();
-			referenceCache.put("LogicalChannel:0:0", 
+			referenceCache.put("Channel:0:0", 
 					new String[] { "Filter:0:0" });
 			store.updateReferences(referenceCache);
 			fail("Did not throw ApiUsageException.");
@@ -331,30 +317,30 @@ public class GenericReferenceTest extends TestCase
 		}
 	}
 	
-	public void testLogicalChannelSecondaryEmissionFilterReference()
+	public void testChannelSecondaryEmissionFilterReference()
 	{
 		Map<String, String[]> referenceCache =
 			new HashMap<String, String[]>();
-		referenceCache.put("LogicalChannel:0:0", 
+		referenceCache.put("Channel:0:0", 
 				new String[] { "Filter:0:0:OMERO_EMISSION_FILTER" });
 		store.updateReferences(referenceCache);
-		LightPath lightPath = logicalChannel.getLightPath();
-		assertEquals(0, lightPath.sizeOfExcitationFilterLink());
-		assertEquals(1, lightPath.sizeOfEmissionFilterLink());
-		assertEquals(lightPath.linkedEmissionFilterIterator().next(), filter);
+		LightPath lightPath = channel.getLightPath();
+		assertEquals(0, lightPath.sizeOfExcitationFilterLinks());
+		assertEquals(1, lightPath.sizeOfEmissionFilterLinks());
+		assertEquals(lightPath.linkedEmissionFilterLinksIterator().next(), filter);
 	}
 	
-	public void testLogicalChannelSecondaryExcitationFilterReference()
+	public void testChannelSecondaryExcitationFilterReference()
 	{
 		Map<String, String[]> referenceCache =
 			new HashMap<String, String[]>();
-		referenceCache.put("LogicalChannel:0:0", 
+		referenceCache.put("Channel:0:0", 
 				new String[] { "Filter:0:0:OMERO_EXCITATION_FILTER" });
 		store.updateReferences(referenceCache);
-        LightPath lightPath = logicalChannel.getLightPath();
-        assertEquals(1, lightPath.sizeOfExcitationFilterLink());
-        assertEquals(0, lightPath.sizeOfEmissionFilterLink());
-        assertEquals(lightPath.linkedExcitationFilterIterator().next(), filter);
+        LightPath lightPath = channel.getLightPath();
+        assertEquals(1, lightPath.sizeOfExcitationFilterLinks());
+        assertEquals(0, lightPath.sizeOfEmissionFilterLinks());
+        assertEquals(lightPath.linkedExcitationFilterLinksIterator().next(), filter);
 	}
 	
 	public void testFilterSetDichroicReference()

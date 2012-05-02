@@ -7,13 +7,8 @@
 
 package omeis.providers.re.utests;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.display.QuantumDef;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import omeis.providers.re.quantum.Quantization_8_16_bit;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;
@@ -32,7 +27,7 @@ public class TestQuantumFactory extends QuantumFactory {
     	this.strategy = strategy;
     }
     
-    public QuantumStrategy getStrategy(QuantumDef qd, PixelsType pixelsType)
+    public QuantumStrategy getStrategy(QuantumDef qd, PixelType pixelsType)
     {
     	if (strategy == null)
     	{

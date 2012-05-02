@@ -25,7 +25,7 @@ import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.formats.MockedOMEROImportFixture;
 import ome.model.IObject;
-import ome.model.containers.Dataset;
+import ome.model.core.Dataset;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.internal.Permissions;
