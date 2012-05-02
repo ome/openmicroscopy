@@ -434,7 +434,7 @@ ${customUpdatePropertyContent[prop.name]}
 		}
 	}
 {% end %}\
-{% when prop.maxOccurs == 1 and (not klass.isAbstractProprietary or prop.isAttribute or not prop.isComplex()) %}
+{% when prop.maxOccurs == 1 and (not klass.isAbstractProprietary or prop.isAttribute or not prop.isComplex() or not prop.isChoice) %}
 	// Property
 	public ${prop.javaType} get${prop.javaMethodName}()
 	{
@@ -446,7 +446,7 @@ ${customUpdatePropertyContent[prop.name]}
 		this.${prop.javaInstanceVariableName} = ${prop.javaArgumentName};
 	}
 {% end %}\
-{% when prop.maxOccurs > 1 and not klass.isAbstractProprietary or not prop.isChoice %}
+{% when prop.maxOccurs > 1 and not klass.isAbstractProprietary %}
 	// Property which occurs more than once
 	public int sizeOf${prop.javaMethodName}List()
 	{
