@@ -76,23 +76,6 @@
 						</xsd:restriction>
 					</xsd:simpleType>
 				</xsd:element>
-				<xsd:element name="ScreenRef" minOccurs="0" maxOccurs="unbounded">
-					<xsd:annotation>
-						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
-						<xsd:documentation>
-							The ScreenRef element is a reference to a Screen element.
-							Plate elements may have one or more ScreenRef elements to define the screen that a plate belongs to.
-							Plates may belong to more than one screen.
-						</xsd:documentation>
-					</xsd:annotation>
-					<xsd:complexType>
-						<xsd:complexContent>
-							<xsd:extension base="OME:Reference">
-								<xsd:attribute name="ID" use="required" type="ScreenID"/>
-							</xsd:extension>
-						</xsd:complexContent>
-					</xsd:complexType>
-				</xsd:element>
 				<xsd:element ref="Well" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
