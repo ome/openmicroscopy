@@ -1047,7 +1047,7 @@ public class AbstractServerTest
      * Create the binary data for the given image.
      */
     protected Image createBinaryImage(Image image) throws Exception {
-        Pixels pixels = image.getPrimaryPixels();
+        Pixels pixels = image.getPixels();
         long id = pixels.getId().getValue();
         //Image
         List<Long> ids = new ArrayList<Long>();
@@ -1068,7 +1068,7 @@ public class AbstractServerTest
         // This block will change the updateEvent on the pixels
         // therefore we're going to reload the pixels.
 
-        image.setPixels(0, loop.getPixels());
+        image.setPixels(loop.getPixels());
         return image;
     }
 

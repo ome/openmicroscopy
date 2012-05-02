@@ -597,7 +597,7 @@ public class PojosServiceTest
     	while (i.hasNext()) {
 			img = i.next();
 			if (img.getId().getValue() == i1.getId().getValue()) {
-				pixelsData = new PixelsData(img.getPixels(0));
+				pixelsData = new PixelsData(img.getPixels());
 				checkPixels(pixelsData);
 				count++;
 			}	

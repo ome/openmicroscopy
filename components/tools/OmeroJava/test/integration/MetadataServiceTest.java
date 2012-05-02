@@ -45,13 +45,12 @@ import omero.model.FileAnnotationI;
 import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.IObject;
-import omero.model.Illumination;
+import omero.model.IlluminationType;
 import omero.model.Image;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.LightSource;
-import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
 import omero.model.Objective;
@@ -753,53 +752,53 @@ public class MetadataServiceTest
     		instrument = iMetadata.loadInstrument(
          			instrument.getId().getValue());
     		data = new InstrumentData(instrument);
-    		assertTrue(instrument.sizeOfDetector() > 0);
-    		assertTrue(instrument.sizeOfDichroic() > 0);
-    		assertTrue(instrument.sizeOfFilter() > 0);
-    		assertTrue(instrument.sizeOfFilterSet() > 0);
-    		assertTrue(instrument.sizeOfLightSource() == 1);
-    		assertTrue(instrument.sizeOfObjective() > 0);
+    		assertTrue(instrument.sizeOfDetectors() > 0);
+    		assertTrue(instrument.sizeOfDichroics() > 0);
+    		assertTrue(instrument.sizeOfFilters() > 0);
+    		assertTrue(instrument.sizeOfFilterSets() > 0);
+    		assertTrue(instrument.sizeOfLightSources() == 1);
+    		assertTrue(instrument.sizeOfObjectives() > 0);
     		
-    		assertTrue(instrument.sizeOfDetector() == 
+    		assertTrue(instrument.sizeOfDetectors() == 
     			data.getDetectors().size());
-    		assertTrue(instrument.sizeOfDichroic() == 
+    		assertTrue(instrument.sizeOfDichroics() == 
     			data.getDichroics().size());
-    		assertTrue(instrument.sizeOfFilter() == 
+    		assertTrue(instrument.sizeOfFilters() == 
     			data.getFilters().size());
-    		assertTrue(instrument.sizeOfFilterSet() == 
+    		assertTrue(instrument.sizeOfFilterSets() == 
     			data.getFilterSets().size());
-    		assertTrue(instrument.sizeOfLightSource() == 
+    		assertTrue(instrument.sizeOfLightSources() == 
     			data.getLightSources().size());
-    		assertTrue(instrument.sizeOfObjective() == 
+    		assertTrue(instrument.sizeOfObjectives() == 
     			data.getObjectives().size());
     		
-    		detectors = instrument.copyDetector();
+    		detectors = instrument.copyDetectors();
     		j = detectors.iterator();
     		while (j.hasNext()) {
     			detector = (Detector) j.next();
 				assertNotNull(detector.getType());
 			}
-    		filters = instrument.copyFilter();
+    		filters = instrument.copyFilters();
     		j = filters.iterator();
     		while (j.hasNext()) {
 				filter = (Filter) j.next();
 				assertNotNull(filter.getType());
 				assertNotNull(filter.getTransmittanceRange());
 			}
-    		filterSets = instrument.copyFilterSet();
+    		filterSets = instrument.copyFilterSets();
     		j = filterSets.iterator();
     		while (j.hasNext()) {
 				fs = (FilterSet) j.next();
 				//assertNotNull(fs.getDichroic());
 			}
-    		objectives = instrument.copyObjective();
+    		objectives = instrument.copyObjectives();
     		j = objectives.iterator();
     		while (j.hasNext()) {
 				objective = (Objective) j.next();
 				assertNotNull(objective.getCorrection());
 				assertNotNull(objective.getImmersion());
 			}
-    		lights = instrument.copyLightSource();
+    		lights = instrument.copyLightSources();
     		j = lights.iterator();
     		while (j.hasNext()) {
     			light = (LightSource) j.next();
@@ -832,7 +831,7 @@ public class MetadataServiceTest
 		instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
 		instrument = iMetadata.loadInstrument(instrument.getId().getValue());
 		assertNotNull(instrument);
-		List<LightSource> lights = instrument.copyLightSource();
+		List<LightSource> lights = instrument.copyLightSources();
 		assertEquals(3, lights.size());
 		Iterator<LightSource> i = lights.iterator();
 		LightSource src;
@@ -870,7 +869,7 @@ public class MetadataServiceTest
     	for (int k = 0; k < values.length; k++) {
     		Image img = mmFactory.createImage();
         	img = (Image) iUpdate.saveAndReturnObject(img);
-        	Pixels pixels = img.getPrimaryPixels();
+        	Pixels pixels = img.getPixels();
         	long pixId = pixels.getId().getValue();
         	//method already tested in PixelsServiceTest
         	//make sure objects are loaded.
@@ -898,42 +897,43 @@ public class MetadataServiceTest
         	sql = "select d from Objective as d where d.instrument.id = :iid";
         	Objective objective = (Objective) iQuery.findByQuery(sql, param);
         	
-        	LogicalChannel lc;
         	Channel channel;
         	ContrastMethod cm;
-        	Illumination illumination;
+        	IlluminationType illumination;
         	AcquisitionMode mode;
         	List<IObject> types = factory.getPixelsService().getAllEnumerations(
         			ContrastMethod.class.getName());
         	cm = (ContrastMethod) types.get(0);
         	
         	types = factory.getPixelsService().getAllEnumerations(
-        			Illumination.class.getName());
-        	illumination = (Illumination) types.get(0);
+        			IlluminationType.class.getName());
+        	illumination = (IlluminationType) types.get(0);
         	types = factory.getPixelsService().getAllEnumerations(
         			AcquisitionMode.class.getName());
         	mode = (AcquisitionMode) types.get(0);
         	
         	List<Long> ids = new ArrayList<Long>();
-        	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
-    			channel = pixels.getChannel(i);
-    			lc = channel.getLogicalChannel();
-    			lc.setContrastMethod(cm);
-    			lc.setIlluminationType(illumination);
-    			lc.setAcquisitionMode(mode);
-    	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
-    	    	lc.setFilterSet(filterSet);
-    	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));
-    	    	lc.setLightPath(mmFactory.createLightPath(null, dichroic, null));
-    	    	lc = (LogicalChannel) iUpdate.saveAndReturnObject(lc);
-    	    	assertNotNull(lc);
-    	    	ids.add(lc.getId().getValue());
-    		}
-        	List<LogicalChannel> channels = iMetadata.loadChannelAcquisitionData(
+        	Iterator<Channel> i = pixels.copyChannels().iterator();
+        	while (i.hasNext()) {
+        		channel = i.next();
+        		channel.setContrastMethod(cm);
+        		channel.setIlluminationType(illumination);
+        		channel.setAcquisitionMode(mode);
+        		channel.setDetectorSettings(
+        				mmFactory.createDetectorSettings(detector));
+        		channel.setFilterSet(filterSet);
+        		channel.setLightSourceSettings(mmFactory.createLightSettings(laser));
+        		channel.setLightPath(
+        				mmFactory.createLightPath(null, dichroic, null));
+        		channel = (Channel) iUpdate.saveAndReturnObject(channel);
+    	    	assertNotNull(channel);
+    	    	ids.add(channel.getId().getValue());
+			}
+        	List<Channel> channels = iMetadata.loadChannelAcquisitionData(
         			ids);
         	assertTrue(channels.size() == pixels.getSizeC().getValue());
-        	LogicalChannel loaded;
-        	Iterator<LogicalChannel> j = channels.iterator();
+        	Channel loaded;
+        	Iterator<Channel> j = channels.iterator();
         	LightSourceData l;
         	while (j.hasNext()) {
         		loaded = j.next();
@@ -954,7 +954,8 @@ public class MetadataServiceTest
             	assertNotNull(loaded.getLightSourceSettings());
             	assertNotNull(loaded.getDetectorSettings().getBinning());
             	assertNotNull(loaded.getDetectorSettings().getDetector());
-            	assertNotNull(loaded.getDetectorSettings().getDetector().getType());
+            	assertNotNull(
+            			loaded.getDetectorSettings().getDetector().getType());
             	assertNotNull(loaded.getLightPath());
             	assertNotNull(data.getLightPath().getDichroic().getId() 
             			== dichroic.getId().getValue());

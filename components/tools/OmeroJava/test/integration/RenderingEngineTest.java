@@ -170,7 +170,7 @@ public class RenderingEngineTest
 	{
 		Image image = mmFactory.createImage();
     	image = (Image) iUpdate.saveAndReturnObject(image);
-        Pixels pixels = image.getPrimaryPixels();
+        Pixels pixels = image.getPixels();
 		RenderingEnginePrx svc = factory.createRenderingEngine();
 		try {
 			svc.lookupPixels(pixels.getId().getValue());

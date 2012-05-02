@@ -38,10 +38,10 @@ import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
 import omero.model.Rectangle;
 import omero.model.RectangleI;
-import omero.model.Roi;
-import omero.model.RoiAnnotationLink;
-import omero.model.RoiAnnotationLinkI;
-import omero.model.RoiI;
+import omero.model.ROI;
+import omero.model.ROIAnnotationLink;
+import omero.model.ROIAnnotationLinkI;
+import omero.model.ROII;
 import omero.model.Shape;
 import omero.model.Well;
 import pojos.FileAnnotationData;
@@ -67,10 +67,10 @@ public class RoiServiceTest
     {
         Image image = (Image) iUpdate.saveAndReturnObject(
         		mmFactory.simpleImage(0));
-        Roi roi = new RoiI();
+        ROI roi = new ROII();
         roi.setImage(image);
         Rectangle rect;
-        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
             rect.setX(rdouble(10));
@@ -81,12 +81,12 @@ public class RoiServiceTest
             rect.setTheT(rint(0));
             roi.addShape(rect);
         }
-        roi = (RoiI) iUpdate.saveAndReturnObject(roi);
+        roi = (ROII) iUpdate.saveAndReturnObject(roi);
         List<Shape> shapes = roi.copyShapes();
-        Shape shape = roi.getShape(0);
+        Shape shape = roi.copyShapes().get(0);
         roi.removeShape(shape);
         int n = shapes.size();
-        roi = (RoiI) iUpdate.saveAndReturnObject(roi);
+        roi = (ROII) iUpdate.saveAndReturnObject(roi);
         shapes = roi.copyShapes();
         assertTrue(shapes.size() == (n-1));
     }
@@ -104,10 +104,10 @@ public class RoiServiceTest
     	//create the roi.
         Image image = (Image) iUpdate.saveAndReturnObject(
         		mmFactory.simpleImage(0));
-        Roi roi = new RoiI();
+        ROI roi = new ROII();
         roi.setImage(image);
         Rectangle rect;
-        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
             rect.setX(rdouble(10));
@@ -118,14 +118,14 @@ public class RoiServiceTest
             rect.setTheT(rint(0));
             roi.addShape(rect);
         }
-        roi = (RoiI) iUpdate.saveAndReturnObject(roi);
+        roi = (ROII) iUpdate.saveAndReturnObject(roi);
         RoiResult r = svc.findByImage(image.getId().getValue(), 
         		new RoiOptions());
         assertNotNull(r);
-        List<Roi> rois = r.rois;
+        List<ROI> rois = r.rois;
         assertTrue(rois.size() == 1);
         List<Shape> shapes;
-        Iterator<Roi> i = rois.iterator();
+        Iterator<ROI> i = rois.iterator();
         while (i.hasNext()) {
 			roi = i.next();
 			shapes = roi.copyShapes();
@@ -147,11 +147,11 @@ public class RoiServiceTest
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = results.get(0);
     	//create the roi.
-    	Image image = well.getWellSample(0).getImage();
-        Roi roi = new RoiI();
+    	Image image = well.copyWellSamples().get(0).getImage();
+    	ROI roi = new ROII();
         roi.setImage(image);
         Rectangle rect;
-        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
             rect.setX(rdouble(10));
@@ -162,7 +162,7 @@ public class RoiServiceTest
             rect.setTheT(rint(0));
             roi.addShape(rect);
         }
-        roi = (RoiI) iUpdate.saveAndReturnObject(roi);
+        roi = (ROII) iUpdate.saveAndReturnObject(roi);
         //no measurements
         RoiOptions options = new RoiOptions();
 		options.userId = omero.rtypes.rlong(iAdmin.getEventContext().userId);
@@ -188,9 +188,9 @@ public class RoiServiceTest
 		fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
 		//link fa to ROI
 		List<IObject> links = new ArrayList<IObject>();
-		RoiAnnotationLink rl = new RoiAnnotationLinkI();
+		ROIAnnotationLink rl = new ROIAnnotationLinkI();
 		rl.setChild(new FileAnnotationI(fa.getId().getValue(), false));
-		rl.setParent(new RoiI(roi.getId().getValue(), false));
+		rl.setParent(new ROII(roi.getId().getValue(), false));
 		links.add(rl);
 		PlateAnnotationLink il = new PlateAnnotationLinkI();
 		il.setChild(new FileAnnotationI(fa.getId().getValue(), false));
@@ -209,9 +209,9 @@ public class RoiServiceTest
 		fa = new FileAnnotationI();
 		fa.setFile(of);
 		fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
-		rl = new RoiAnnotationLinkI();
+		rl = new ROIAnnotationLinkI();
 		rl.setChild(new FileAnnotationI(fa.getId().getValue(), false));
-		rl.setParent(new RoiI(roi.getId().getValue(), false));
+		rl.setParent(new ROII(roi.getId().getValue(), false));
 		links.add(rl);
 		il = new PlateAnnotationLinkI();
 		il.setChild(new FileAnnotationI(fa.getId().getValue(), false));
@@ -237,11 +237,11 @@ public class RoiServiceTest
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = results.get(0);
     	//create the roi.
-    	Image image = well.getWellSample(0).getImage();
-        Roi roi = new RoiI();
+    	Image image = well.copyWellSamples().get(0).getImage();
+    	ROI roi = new ROII();
         roi.setImage(image);
         Rectangle rect;
-        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
             rect.setX(rdouble(10));
@@ -252,7 +252,7 @@ public class RoiServiceTest
             rect.setTheT(rint(0));
             roi.addShape(rect);
         }
-        roi = (RoiI) iUpdate.saveAndReturnObject(roi);
+        roi = (ROII) iUpdate.saveAndReturnObject(roi);
         //no measurements
         RoiOptions options = new RoiOptions();
 		options.userId = omero.rtypes.rlong(iAdmin.getEventContext().userId);
@@ -266,7 +266,7 @@ public class RoiServiceTest
 		columns[0] = new LongColumn("Uid", "", new long[1]);
 		OriginalFile of;
 		FileAnnotation fa;
-		RoiAnnotationLink rl;
+		ROIAnnotationLink rl;
 		PlateAnnotationLink il;
 		//link fa to ROI
 		List<IObject> links = new ArrayList<IObject>();
@@ -280,9 +280,9 @@ public class RoiServiceTest
 			fa.setNs(omero.rtypes.rstring(FileAnnotationData.MEASUREMENT_NS)); 
 			fa.setFile(of);
 			fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
-			rl = new RoiAnnotationLinkI();
+			rl = new ROIAnnotationLinkI();
 			rl.setChild(new FileAnnotationI(fa.getId().getValue(), false));
-			rl.setParent(new RoiI(roi.getId().getValue(), false));
+			rl.setParent(new ROII(roi.getId().getValue(), false));
 			links.add(rl);
 			il = new PlateAnnotationLinkI();
 			il.setChild(new FileAnnotationI(fa.getId().getValue(), false));
@@ -319,11 +319,11 @@ public class RoiServiceTest
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = results.get(0);
     	//create the roi.
-    	Image image = well.getWellSample(0).getImage();
-        Roi roi = new RoiI();
+    	Image image = well.copyWellSamples().get(0).getImage();
+    	ROI roi = new ROII();
         roi.setImage(image);
         Rectangle rect;
-        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
             rect.setX(rdouble(10));
@@ -334,7 +334,7 @@ public class RoiServiceTest
             rect.setTheT(rint(0));
             roi.addShape(rect);
         }
-        roi = (RoiI) iUpdate.saveAndReturnObject(roi);
+        roi = (ROI) iUpdate.saveAndReturnObject(roi);
         //no measurements
         RoiOptions options = new RoiOptions();
 		options.userId = omero.rtypes.rlong(iAdmin.getEventContext().userId);
@@ -355,9 +355,9 @@ public class RoiServiceTest
 		fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
 		//link fa to ROI
 		List<IObject> links = new ArrayList<IObject>();
-		RoiAnnotationLink rl = new RoiAnnotationLinkI();
+		ROIAnnotationLink rl = new ROIAnnotationLinkI();
 		rl.setChild(new FileAnnotationI(fa.getId().getValue(), false));
-		rl.setParent(new RoiI(roi.getId().getValue(), false));
+		rl.setParent(new ROII(roi.getId().getValue(), false));
 		links.add(rl);
 		PlateAnnotationLink il = new PlateAnnotationLinkI();
 		il.setChild(new FileAnnotationI(fa.getId().getValue(), false));

@@ -58,7 +58,7 @@ public class ExporterTest
     	//First create an image
     	Image image = mmFactory.createImage();
     	image = (Image) iUpdate.saveAndReturnObject(image);
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	
     	//Need to have an annotation otherwise does not work
     	FileAnnotationI fa = new FileAnnotationI();
@@ -114,7 +114,7 @@ public class ExporterTest
     	//First create an image
     	Image image = mmFactory.createImage();
     	image = (Image) iUpdate.saveAndReturnObject(image);
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	
     	OriginalFile f = mmFactory.createOriginalFile();
     	f = (OriginalFile) iUpdate.saveAndReturnObject(f);

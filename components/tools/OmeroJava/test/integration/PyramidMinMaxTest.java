@@ -32,6 +32,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
+import omero.model.Channel;
 import omero.model.StatsInfo;
 import omero.model.IObject;
 import omero.model.Pixels;
@@ -208,10 +209,13 @@ public class PyramidMinMaxTest
      * Check the min and max on all three channels
      */
     private void assertMinMaxOnAllChannels(Pixels p, double min, double max) {
-        for(int c = 0; c < 3; c++ ) {
-            assert(p.getChannel(c).getStatsInfo().getGlobalMin().getValue() == min);
-            assert(p.getChannel(c).getStatsInfo().getGlobalMax().getValue() == max);
-        }
+    	Iterator<Channel> i = p.copyChannels().iterator();
+    	Channel c;
+    	while (i.hasNext()) {
+			c = i.next();
+			assert(c.getStatsInfo().getGlobalMin().getValue() == min);
+            assert(c.getStatsInfo().getGlobalMax().getValue() == max);
+		}
     }
 
     /**
@@ -248,14 +252,14 @@ public class PyramidMinMaxTest
         // Wait for a pyramid to be built (stats will be not null)
         Pixels p = factory.getPixelsService().retrievePixDescription(
                 pixels.get(0).getId().getValue());
-        StatsInfo stats = p.getChannel(0).getStatsInfo();
+        StatsInfo stats = p.copyChannels().get(0).getStatsInfo();
         int waits = 0;
         while(stats == null && waits < WAITS) {
             Thread.sleep(INTERVAL);
             waits++;
             p = factory.getPixelsService().retrievePixDescription(
                 pixels.get(0).getId().getValue());
-            stats = p.getChannel(0).getStatsInfo();
+            stats = p.copyChannels().get(0).getStatsInfo();
         }
         if(stats == null) {
             fail("No pyramid after " + WAITS*INTERVAL/1000.0 + " seconds");

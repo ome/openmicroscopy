@@ -51,7 +51,7 @@ public class RenderingSettingsServicePermissionsTest
     	Image image = createBinaryImage();
     	Image image2 = createBinaryImage();
     	Image image3 = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(image.getId().getValue());
@@ -62,8 +62,8 @@ public class RenderingSettingsServicePermissionsTest
     
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
-    	long pix3 = image3.getPrimaryPixels().getId().getValue();
+    	long pix2 = image2.getPixels().getId().getValue();
+    	long pix3 = image3.getPixels().getId().getValue();
     	ChannelBinding cb = def.getChannelBinding(0);
     	boolean b = cb.getActive().getValue();
     	cb.setActive(omero.rtypes.rbool(!b));
@@ -102,7 +102,7 @@ public class RenderingSettingsServicePermissionsTest
     	Image image = createBinaryImage();
     	Image image2 = createBinaryImage();
     	Image image3 = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(image.getId().getValue());
@@ -113,8 +113,8 @@ public class RenderingSettingsServicePermissionsTest
     
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
-    	long pix3 = image3.getPrimaryPixels().getId().getValue();
+    	long pix2 = image2.getPixels().getId().getValue();
+    	long pix3 = image3.getPixels().getId().getValue();
     	ChannelBinding cb = def.getChannelBinding(0);
     	boolean b = cb.getActive().getValue();
     	cb.setActive(omero.rtypes.rbool(!b));
@@ -153,7 +153,7 @@ public class RenderingSettingsServicePermissionsTest
     	Image image = createBinaryImage();
     	Image image2 = createBinaryImage();
     	Image image3 = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(image.getId().getValue());
@@ -164,8 +164,8 @@ public class RenderingSettingsServicePermissionsTest
     
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
-    	long pix3 = image3.getPrimaryPixels().getId().getValue();
+    	long pix2 = image2.getPixels().getId().getValue();
+    	long pix3 = image3.getPixels().getId().getValue();
     	ChannelBinding cb = def.getChannelBinding(0);
     	boolean b = cb.getActive().getValue();
     	cb.setActive(omero.rtypes.rbool(!b));
@@ -204,7 +204,7 @@ public class RenderingSettingsServicePermissionsTest
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createBinaryImage();
     	Image image2 = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(image.getId().getValue());
@@ -219,7 +219,7 @@ public class RenderingSettingsServicePermissionsTest
     	init(ctx);
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
+    	long pix2 = image2.getPixels().getId().getValue();
     	ChannelBinding cb = def.getChannelBinding(0);
     	boolean b = cb.getActive().getValue();
     	cb.setActive(omero.rtypes.rbool(!b));
@@ -250,7 +250,7 @@ public class RenderingSettingsServicePermissionsTest
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createBinaryImage();
     	Image image2 = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(image.getId().getValue());
@@ -265,7 +265,7 @@ public class RenderingSettingsServicePermissionsTest
     	init(ctx);
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
+    	long pix2 = image2.getPixels().getId().getValue();
     	ChannelBinding cb = def.getChannelBinding(0);
     	boolean b = cb.getActive().getValue();
     	cb.setActive(omero.rtypes.rbool(!b));
@@ -297,7 +297,7 @@ public class RenderingSettingsServicePermissionsTest
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createBinaryImage();
     	Image image2 = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(image.getId().getValue());
@@ -315,7 +315,7 @@ public class RenderingSettingsServicePermissionsTest
     	resetGroupPerms("rwr---", ctx.groupId);
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
+    	long pix2 = image2.getPixels().getId().getValue();
     	ChannelBinding cb = def.getChannelBinding(0);
     	boolean b = cb.getActive().getValue();
     	cb.setActive(omero.rtypes.rbool(!b));
@@ -343,7 +343,7 @@ public class RenderingSettingsServicePermissionsTest
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createBinaryImage();
     	Image image2 = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(image.getId().getValue());
@@ -352,7 +352,7 @@ public class RenderingSettingsServicePermissionsTest
     
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
+    	long pix2 = image2.getPixels().getId().getValue();
     	ChannelBinding cb = def.getChannelBinding(0);
     	boolean b = cb.getActive().getValue();
     	cb.setActive(omero.rtypes.rbool(!b));
@@ -383,7 +383,7 @@ public class RenderingSettingsServicePermissionsTest
     	Image image2 = mmFactory.createImage();
     	image2 = (Image) iUpdate.saveAndReturnObject(image);
         
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(image.getId().getValue());
@@ -392,7 +392,7 @@ public class RenderingSettingsServicePermissionsTest
     
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
+    	long pix2 = image2.getPixels().getId().getValue();
     	ChannelBinding cb = def.getChannelBinding(0);
     	boolean b = cb.getActive().getValue();
     	cb.setActive(omero.rtypes.rbool(!b));
@@ -421,7 +421,7 @@ public class RenderingSettingsServicePermissionsTest
     	Image image = createBinaryImage();
     	Image image2 = createBinaryImage();
         
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(image.getId().getValue());
@@ -430,7 +430,7 @@ public class RenderingSettingsServicePermissionsTest
     
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-    	long pix2 = image2.getPrimaryPixels().getId().getValue();
+    	long pix2 = image2.getPixels().getId().getValue();
     	ChannelBinding cb = def.getChannelBinding(0);
     	boolean b = cb.getActive().getValue();
     	cb.setActive(omero.rtypes.rbool(!b));

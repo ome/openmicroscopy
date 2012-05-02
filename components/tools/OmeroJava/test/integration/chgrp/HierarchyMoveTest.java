@@ -29,7 +29,6 @@ import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.LogicalChannel;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -43,10 +42,10 @@ import omero.model.ProjectDatasetLinkI;
 import omero.model.Reagent;
 import omero.model.Rectangle;
 import omero.model.RectangleI;
-import omero.model.Roi;
-import omero.model.RoiAnnotationLink;
-import omero.model.RoiAnnotationLinkI;
-import omero.model.RoiI;
+import omero.model.ROI;
+import omero.model.ROIAnnotationLink;
+import omero.model.ROIAnnotationLinkI;
+import omero.model.ROII;
 import omero.model.Screen;
 import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
@@ -118,129 +117,105 @@ public class HierarchyMoveTest
     public void testMoveImage()
 	throws Exception
     {
-	String perms = "rw----";
-	EventContext ctx = newUserAndGroup(perms);
-	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
-	Image img = mmFactory.createImage();
-	img = (Image) iUpdate.saveAndReturnObject(img);
-	Pixels pixels = img.getPrimaryPixels();
-	long pixId = pixels.getId().getValue();
-	//method already tested in PixelsServiceTest
-	//make sure objects are loaded.
-	pixels = factory.getPixelsService().retrievePixDescription(pixId);
-	//channels.
-	long id = img.getId().getValue();
-
-	List<Long> channels = new ArrayList<Long>();
-	List<Long> logicalChannels = new ArrayList<Long>();
-	List<Long> infos = new ArrayList<Long>();
-	Channel channel;
-	LogicalChannel lc;
-	StatsInfo info;
-	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
-			channel = pixels.getChannel(i);
+		String perms = "rw----";
+		EventContext ctx = newUserAndGroup(perms);
+		ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+		Image img = mmFactory.createImage();
+		img = (Image) iUpdate.saveAndReturnObject(img);
+		Pixels pixels = img.getPixels();
+		long pixId = pixels.getId().getValue();
+		//method already tested in PixelsServiceTest
+		//make sure objects are loaded.
+		pixels = factory.getPixelsService().retrievePixDescription(pixId);
+		//channels.
+		long id = img.getId().getValue();
+	
+		List<Long> channels = new ArrayList<Long>();
+		List<Long> infos = new ArrayList<Long>();
+		Channel channel;
+		StatsInfo info;
+		Iterator<Channel> j = pixels.copyChannels().iterator();
+		while (j.hasNext()) {
+			channel = j.next();
 			assertNotNull(channel);
 			channels.add(channel.getId().getValue());
-			lc = channel.getLogicalChannel();
-			assertNotNull(lc);
-			logicalChannels.add(lc.getId().getValue());
 			info = channel.getStatsInfo();
 			assertNotNull(info);
 			infos.add(info.getId().getValue());
 		}
-
-	//Move the image
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
-			null, g.getId().getValue()));
-	ParametersI param = new ParametersI();
-	param.addId(id);
-
-	StringBuilder sb = new StringBuilder();
-	sb.append("select i from Image i ");
-	sb.append("where i.id = :id");
-	assertNull(iQuery.findByQuery(sb.toString(), param));
-	sb = new StringBuilder();
-	param = new ParametersI();
-	param.addId(pixId);
-	sb.append("select i from Pixels i ");
-	sb.append("where i.id = :id");
-	assertNull(iQuery.findByQuery(sb.toString(), param));
-	Iterator<Long> i = channels.iterator();
-	while (i.hasNext()) {
-			id =  i.next();
-			param = new ParametersI();
+		//Move the image
+		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
+				null, g.getId().getValue()));
+		ParametersI param = new ParametersI();
 		param.addId(id);
-		sb = new StringBuilder();
-		sb.append("select i from Channel i ");
+	
+		StringBuilder sb = new StringBuilder();
+		sb.append("select i from Image i ");
 		sb.append("where i.id = :id");
 		assertNull(iQuery.findByQuery(sb.toString(), param));
-		}
-	i = infos.iterator();
-	while (i.hasNext()) {
-			id =  i.next();
-			param = new ParametersI();
-		param.addId(id);
 		sb = new StringBuilder();
-		sb.append("select i from StatsInfo i ");
+		param = new ParametersI();
+		param.addId(pixId);
+		sb.append("select i from Pixels i ");
 		sb.append("where i.id = :id");
 		assertNull(iQuery.findByQuery(sb.toString(), param));
-		}
-	i = logicalChannels.iterator();
-	while (i.hasNext()) {
-			id =  i.next();
-			param = new ParametersI();
+		Iterator<Long> i = channels.iterator();
+		while (i.hasNext()) {
+				id =  i.next();
+				param = new ParametersI();
+			param.addId(id);
+			sb = new StringBuilder();
+			sb.append("select i from Channel i ");
+			sb.append("where i.id = :id");
+			assertNull(iQuery.findByQuery(sb.toString(), param));
+			}
+		i = infos.iterator();
+		while (i.hasNext()) {
+				id =  i.next();
+				param = new ParametersI();
+			param.addId(id);
+			sb = new StringBuilder();
+			sb.append("select i from StatsInfo i ");
+			sb.append("where i.id = :id");
+			assertNull(iQuery.findByQuery(sb.toString(), param));
+			}
+		
+		//Check that the data moved
+		loginUser(g);
+	
+		id = img.getId().getValue();
+		param = new ParametersI();
 		param.addId(id);
-		sb = new StringBuilder();
-		sb.append("select i from LogicalChannel i ");
-		sb.append("where i.id = :id");
-		assertNull(iQuery.findByQuery(sb.toString(), param));
-		}
-	//Check that the data moved
-	loginUser(g);
 
-	id = img.getId().getValue();
-	param = new ParametersI();
-	param.addId(id);
-
-	sb = new StringBuilder();
-	sb.append("select i from Image i ");
-	sb.append("where i.id = :id");
-	assertNotNull(iQuery.findByQuery(sb.toString(), param));
-	sb = new StringBuilder();
-	param = new ParametersI();
-	param.addId(pixId);
-	sb.append("select i from Pixels i ");
-	sb.append("where i.id = :id");
-	assertNotNull(iQuery.findByQuery(sb.toString(), param));
-	i = channels.iterator();
-	while (i.hasNext()) {
-			id =  i.next();
-			param = new ParametersI();
-		param.addId(id);
 		sb = new StringBuilder();
-		sb.append("select i from Channel i ");
+		sb.append("select i from Image i ");
 		sb.append("where i.id = :id");
 		assertNotNull(iQuery.findByQuery(sb.toString(), param));
+		sb = new StringBuilder();
+		param = new ParametersI();
+		param.addId(pixId);
+		sb.append("select i from Pixels i ");
+		sb.append("where i.id = :id");
+		assertNotNull(iQuery.findByQuery(sb.toString(), param));
+		i = channels.iterator();
+		while (i.hasNext()) {
+			id =  i.next();
+			param = new ParametersI();
+			param.addId(id);
+			sb = new StringBuilder();
+			sb.append("select i from Channel i ");
+			sb.append("where i.id = :id");
+			assertNotNull(iQuery.findByQuery(sb.toString(), param));
 		}
-	i = infos.iterator();
-	while (i.hasNext()) {
+		i = infos.iterator();
+		while (i.hasNext()) {
 			id =  i.next();
 			param = new ParametersI();
-		param.addId(id);
-		sb = new StringBuilder();
-		sb.append("select i from StatsInfo i ");
-		sb.append("where i.id = :id");
-		assertNotNull(iQuery.findByQuery(sb.toString(), param));
-		}
-	i = logicalChannels.iterator();
-	while (i.hasNext()) {
-			id =  i.next();
-			param = new ParametersI();
-		param.addId(id);
-		sb = new StringBuilder();
-		sb.append("select i from LogicalChannel i ");
-		sb.append("where i.id = :id");
-		assertNotNull(iQuery.findByQuery(sb.toString(), param));
+			param.addId(id);
+			sb = new StringBuilder();
+			sb.append("select i from StatsInfo i ");
+			sb.append("where i.id = :id");
+			assertNotNull(iQuery.findByQuery(sb.toString(), param));
 		}
     }
 
@@ -252,64 +227,65 @@ public class HierarchyMoveTest
     public void testMoveImageWithROIs()
 	throws Exception
     {
-	String perms = "rw----";
-	EventContext ctx = newUserAndGroup(perms);
-	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+    	String perms = "rw----";
+    	EventContext ctx = newUserAndGroup(perms);
+    	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
 
-	Image image = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.simpleImage(0));
-	Roi roi = new RoiI();
-	roi.setImage(image);
-	Rectangle rect;
-	Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
-	for (int i = 0; i < 3; i++) {
-		rect = new RectangleI();
-		rect.setX(rdouble(10));
-		rect.setY(rdouble(10));
-		rect.setWidth(rdouble(10));
-		rect.setHeight(rdouble(10));
-		rect.setTheZ(rint(i));
-		rect.setTheT(rint(0));
-		serverROI.addShape(rect);
-	}
-	serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
-	List<Long> shapeIds = new ArrayList<Long>();
-	Shape shape;
-	for (int i = 0; i < serverROI.sizeOfShapes(); i++) {
-		shape = serverROI.getShape(i);
-		shapeIds.add(shape.getId().getValue());
-	}
-	//Move the image.
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE,
-			image.getId().getValue(), null, g.getId().getValue()));
+    	Image image = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	ROI roi = new ROII();
+    	roi.setImage(image);
+    	Rectangle rect;
+    	ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
+    	for (int i = 0; i < 3; i++) {
+    		rect = new RectangleI();
+    		rect.setX(rdouble(10));
+    		rect.setY(rdouble(10));
+    		rect.setWidth(rdouble(10));
+    		rect.setHeight(rdouble(10));
+    		rect.setTheZ(rint(i));
+    		rect.setTheT(rint(0));
+    		serverROI.addShape(rect);
+    	}
+    	serverROI = (ROI) iUpdate.saveAndReturnObject(serverROI);
+    	List<Long> shapeIds = new ArrayList<Long>();
+    	Shape shape;
+    	Iterator<Shape> i = serverROI.copyShapes().iterator();
+    	while (i.hasNext()) {
+    		shape = i.next();
+    		shapeIds.add(shape.getId().getValue());
+    	}
+    	//Move the image.
+    	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE,
+    			image.getId().getValue(), null, g.getId().getValue()));
 
-	//check if the objects have been delete.
+    	//check if the objects have been delete.
 
-	ParametersI param = new ParametersI();
-	param.addId(serverROI.getId().getValue());
-	String sql = "select d from Roi as d where d.id = :id";
-	assertNull(iQuery.findByQuery(sql, param));
+    	ParametersI param = new ParametersI();
+    	param.addId(serverROI.getId().getValue());
+    	String sql = "select d from Roi as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
 
-	//shapes
-	param = new ParametersI();
-	param.addIds(shapeIds);
-	sql = "select d from Shape as d where d.id in (:ids)";
-	List results = iQuery.findAllByQuery(sql, param);
-	assertTrue(results.size() == 0);
+    	//shapes
+    	param = new ParametersI();
+    	param.addIds(shapeIds);
+    	sql = "select d from Shape as d where d.id in (:ids)";
+    	List results = iQuery.findAllByQuery(sql, param);
+    	assertTrue(results.size() == 0);
 
-	//Check that the data moved
-	loginUser(g);
-	param = new ParametersI();
-	param.addId(serverROI.getId().getValue());
-	sql = "select d from Roi as d where d.id = :id";
-	assertNotNull(iQuery.findByQuery(sql, param));
+    	//Check that the data moved
+    	loginUser(g);
+    	param = new ParametersI();
+    	param.addId(serverROI.getId().getValue());
+    	sql = "select d from Roi as d where d.id = :id";
+    	assertNotNull(iQuery.findByQuery(sql, param));
 
-	//shapes
-	param = new ParametersI();
-	param.addIds(shapeIds);
-	sql = "select d from Shape as d where d.id in (:ids)";
-	results = iQuery.findAllByQuery(sql, param);
-	assertTrue(results.size() > 0);
+    	//shapes
+    	param = new ParametersI();
+    	param.addIds(shapeIds);
+    	sql = "select d from Shape as d where d.id in (:ids)";
+    	results = iQuery.findAllByQuery(sql, param);
+    	assertTrue(results.size() > 0);
     }
 
     /**
@@ -354,10 +330,12 @@ public class HierarchyMoveTest
         j = results.iterator();
         wellSampleIds = new ArrayList<Long>();
         imageIds = new ArrayList<Long>();
+        Iterator<WellSample> k;
         while (j.hasNext()) {
 			well = (Well) j.next();
-			for (int k = 0; k < well.sizeOfWellSamples(); k++) {
-				field = well.getWellSample(k);
+			k = well.copyWellSamples().iterator();
+			while (k.hasNext()) {
+				field = k.next();
 				wellSampleIds.add(field.getId().getValue());
 				assertNotNull(field.getImage());
 				imageIds.add(field.getImage().getId().getValue());
@@ -475,10 +453,12 @@ public class HierarchyMoveTest
         j = results.iterator();
         wellSampleIds = new ArrayList<Long>();
         imageIds = new ArrayList<Long>();
+        Iterator<WellSample> k;
         while (j.hasNext()) {
 			well = (Well) j.next();
-			for (int k = 0; k < well.sizeOfWellSamples(); k++) {
-				field = well.getWellSample(k);
+			k = well.copyWellSamples().iterator();
+			while (k.hasNext()) {
+				field = k.next();
 				wellSampleIds.add(field.getId().getValue());
 				assertNotNull(field.getImage());
 				imageIds.add(field.getImage().getId().getValue());
@@ -790,11 +770,11 @@ public class HierarchyMoveTest
 	List<Well> results = loadWells(p.getId().getValue(), true);
 	Well well = (Well) results.get(0);
 	//create the roi.
-	Image image = well.getWellSample(0).getImage();
-        Roi roi = new RoiI();
+	Image image = well.copyWellSamples().get(0).getImage();
+        ROI roi = new ROII();
         roi.setImage(image);
         Rectangle rect;
-        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
             rect.setX(rdouble(10));
@@ -821,9 +801,9 @@ public class HierarchyMoveTest
 		long id = fa.getId().getValue();
 		//link fa to ROI
 		List<IObject> links = new ArrayList<IObject>();
-		RoiAnnotationLink rl = new RoiAnnotationLinkI();
+		ROIAnnotationLink rl = new ROIAnnotationLinkI();
 		rl.setChild(new FileAnnotationI(id, false));
-		rl.setParent(new RoiI(roi.getId().getValue(), false));
+		rl.setParent(new ROII(roi.getId().getValue(), false));
 		links.add(rl);
 		PlateAnnotationLink il = new PlateAnnotationLinkI();
 		il.setChild(new FileAnnotationI(id, false));

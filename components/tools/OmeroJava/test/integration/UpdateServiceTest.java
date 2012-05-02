@@ -74,8 +74,8 @@ import omero.model.ProjectI;
 import omero.model.Reagent;
 import omero.model.Rectangle;
 import omero.model.RectangleI;
-import omero.model.Roi;
-import omero.model.RoiI;
+import omero.model.ROI;
+import omero.model.ROII;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
@@ -262,7 +262,7 @@ public class UpdateServiceTest
     			mmFactory.simpleImage(0));
     	assertNotNull(img);
     	Pixels pixels = mmFactory.createPixels();
-    	img.addPixels(pixels);
+    	img.setPixels(pixels);
     	img = (Image) iUpdate.saveAndReturnObject(img);
     	
     	ParametersI param = new ParametersI();
@@ -276,7 +276,7 @@ public class UpdateServiceTest
     	img = (Image) iQuery.findByQuery(sb.toString(), param);
     	assertNotNull(img);
     	//Make sure we have a pixels set.
-    	pixels = img.getPixels(0);
+    	pixels = img.getPixels();
     	assertNotNull(pixels);
     }
     
@@ -824,7 +824,7 @@ public class UpdateServiceTest
     			ModelMockFactory.SIZE_T, 
     			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
         i = (Image) iUpdate.saveAndReturnObject(i);
-        Pixels p = i.getPrimaryPixels();
+        Pixels p = i.getPixels();
 
         Set<Long> ids = new HashSet<Long>();
         assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
@@ -836,14 +836,14 @@ public class UpdateServiceTest
 
         // Now add another channel
         Channel extra = mmFactory.createChannel(0); // Copies dimension orders, etc.
-        p.addChannel(extra);
+        p.copyChannels().add(extra);
 
         i = (Image) iUpdate.saveAndReturnObject(i);
-        p = i.getPrimaryPixels();
+        p = i.getPixels();
 
         assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER+1, 
         		p.sizeOfChannels());
-        assertFalse(ids.contains(p.getChannel(
+        assertFalse(ids.contains(p.copyChannels().get(
         		ModelMockFactory.DEFAULT_CHANNELS_NUMBER).getId().getValue()));
     }
 
@@ -861,39 +861,40 @@ public class UpdateServiceTest
     			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
         i = (Image) iUpdate.saveAndReturnObject(i);
         
-        Pixels p = i.getPrimaryPixels();
-        p.setChannel(1, null);
+        Pixels p = i.getPixels();
+        p.copyChannels().add(1, null);
+       
         p = (Pixels) iUpdate.saveAndReturnObject(p);
         
 
         Set<Long> ids = new HashSet<Long>();
-        Channel old = p.getChannel(0);
+        Channel old = p.copyChannels().get(0);
         assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
         		p.sizeOfChannels());
         assertNotNull(old);
-        ids.add(p.getChannel(0).getId().getValue());
+        ids.add(p.copyChannels().get(0).getId().getValue());
 
         // Middle should be empty
-        assertNull(p.getChannel(1));
+        assertNull(p.copyChannels().get(1));
 
-        assertNotNull(p.getChannel(2));
-        ids.add(p.getChannel(2).getId().getValue());
+        assertNotNull(p.copyChannels().get(2));
+        ids.add(p.copyChannels().get(2).getId().getValue());
 
         // Now add a channel to the front
         
         //extra = (Channel) iUpdate.saveAndReturnObject(extra);
         //p.setChannel(0, extra);
-        p.setChannel(1, old);
+        p.copyChannels().add(1, old);
         
         p = (Pixels) iUpdate.saveAndReturnObject(p);
         Channel extra =  mmFactory.createChannel(0);
-        p.setChannel(0, extra);
+        p.copyChannels().add(0, extra);
         
         p = (Pixels) iUpdate.saveAndReturnObject(p);
 
         assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
         		p.sizeOfChannels());
-        assertFalse(ids.contains(p.getChannel(0).getId().getValue()));
+        assertFalse(ids.contains(p.copyChannels().get(0).getId().getValue()));
     }
 
     /**
@@ -910,31 +911,31 @@ public class UpdateServiceTest
     			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
         i = (Image) iUpdate.saveAndReturnObject(i);
         
-        Pixels p = i.getPrimaryPixels();
-        p.setChannel(1, null);
+        Pixels p = i.getPixels();
+        p.copyChannels().add(1, null);
         p = (Pixels) iUpdate.saveAndReturnObject(p);
 
         Set<Long> ids = new HashSet<Long>();
         assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
         		p.sizeOfChannels());
-        assertNotNull(p.getChannel(0));
-        ids.add(p.getChannel(0).getId().getValue());
+        assertNotNull(p.copyChannels().get(0));
+        ids.add(p.copyChannels().get(0).getId().getValue());
 
         // Middle should be empty
-        assertNull(p.getChannel(1));
+        assertNull(p.copyChannels().get(1));
 
-        assertNotNull(p.getChannel(2));
-        ids.add(p.getChannel(2).getId().getValue());
+        assertNotNull(p.copyChannels().get(2));
+        ids.add(p.copyChannels().get(2).getId().getValue());
 
         // Now add a channel to the space
         Channel extra =  mmFactory.createChannel(0);
-        p.setChannel(1, extra);
+        p.copyChannels().add(1, extra);
 
         p = (Pixels) iUpdate.saveAndReturnObject(p);
 
         assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
         		p.sizeOfChannels());
-        assertFalse(ids.contains(p.getChannel(1).getId().getValue()));
+        assertFalse(ids.contains(p.copyChannels().get(1).getId().getValue()));
     }
     
     /**
@@ -947,8 +948,8 @@ public class UpdateServiceTest
     {
     	Image image = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
-        Pixels pixels = image.getPrimaryPixels();
-        pixels.clearPlane();
+        Pixels pixels = image.getPixels();
+        pixels.clearPlanes();
         Plane planeInfo = mmFactory.createPlaneInfo();
         planeInfo.setPixels(pixels);
         planeInfo = (Plane) iUpdate.saveAndReturnObject(planeInfo);
@@ -972,8 +973,8 @@ public class UpdateServiceTest
     {
     	Image image = mmFactory.createImage();
     	image = (Image) iUpdate.saveAndReturnObject(image);
-        Pixels pixels = image.getPrimaryPixels();
-    	pixels.clearPlane();
+        Pixels pixels = image.getPixels();
+    	pixels.clearPlanes();
     	Plane planeInfo = mmFactory.createPlaneInfo();
     	pixels.addPlane(planeInfo);
     	pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
@@ -996,9 +997,9 @@ public class UpdateServiceTest
     {
     	ImageI image = (ImageI) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-        RoiI roi = new RoiI();
+        ROI roi = new ROII();
         roi.setImage(image);
-        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
+        ROI serverROI = (ROII) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
         int z = 0;
@@ -1014,7 +1015,7 @@ public class UpdateServiceTest
         rect.setTheC(omero.rtypes.rint(c));
         serverROI.addShape(rect);
         
-        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        serverROI = (ROI) iUpdate.saveAndReturnObject(serverROI);
         
         ROIData data = new ROIData(serverROI);
         assertTrue(data.getId() == serverROI.getId().getValue());
@@ -1048,9 +1049,9 @@ public class UpdateServiceTest
     {
         Image image = (Image) iUpdate.saveAndReturnObject(
         		mmFactory.simpleImage(0));
-        Roi roi = new RoiI();
+        ROI roi = new ROII();
         roi.setImage(image);
-        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
         int z = 0;
@@ -1064,7 +1065,7 @@ public class UpdateServiceTest
         rect.setTheC(omero.rtypes.rint(c));
         serverROI.addShape(rect);
         
-        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        serverROI = (ROI) iUpdate.saveAndReturnObject(serverROI);
         
         ROIData data = new ROIData(serverROI);
         assertTrue(data.getId() == serverROI.getId().getValue());
@@ -1096,9 +1097,9 @@ public class UpdateServiceTest
     {
         Image image = (Image) iUpdate.saveAndReturnObject(
         		mmFactory.simpleImage(0));
-        Roi roi = new RoiI();
+        ROI roi = new ROII();
         roi.setImage(image);
-        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
         int z = 0;
@@ -1114,7 +1115,7 @@ public class UpdateServiceTest
         rect.setTheC(omero.rtypes.rint(c));
         serverROI.addShape(rect);
         
-        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        serverROI = (ROI) iUpdate.saveAndReturnObject(serverROI);
         
         ROIData data = new ROIData(serverROI);
         assertTrue(data.getId() == serverROI.getId().getValue());
@@ -1145,9 +1146,10 @@ public class UpdateServiceTest
     public void testCreateROIWithoutImage()
     	throws Exception
     {
-    	 Roi roi = new RoiI();
-         roi.setDescription(omero.rtypes.rstring("roi w/o image"));
-         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+    	ROI roi = new ROII();
+    	roi.setDescription(omero.rtypes.rstring("roi w/o image"));
+    	ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
+    	assertNotNull(serverROI);
     }
     
     /**
@@ -1160,7 +1162,7 @@ public class UpdateServiceTest
     {
     	Image image = (Image) iUpdate.saveAndReturnObject(
        			mmFactory.simpleImage(0));
-    	Roi roi = new RoiI();
+    	ROI roi = new ROII();
     	roi.setImage(image);
     	String name = "roi name";
     	String description = "roi description";
@@ -1168,7 +1170,7 @@ public class UpdateServiceTest
     	roi.setName(rstring(name));
     	roi.setDescription(rstring(description));
     	roi.setNamespace(rstring(ns));
-    	Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+    	ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
     	assertNotNull(serverROI);
     	ROIData data = new ROIData(serverROI);
     	assertEquals(data.getName(), name);
@@ -1187,9 +1189,9 @@ public class UpdateServiceTest
     {
        	Image image = (Image) iUpdate.saveAndReturnObject(
        			mmFactory.simpleImage(0));
-        Roi roi = new RoiI();
+       	ROI roi = new ROII();
         roi.setImage(image);
-        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
         double w = 11;
@@ -1204,7 +1206,7 @@ public class UpdateServiceTest
         rect.setTheC(omero.rtypes.rint(c));
         serverROI.addShape(rect);
         
-        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        serverROI = (ROI) iUpdate.saveAndReturnObject(serverROI);
         
         ROIData data = new ROIData(serverROI);
         assertTrue(data.getId() == serverROI.getId().getValue());
@@ -1235,9 +1237,9 @@ public class UpdateServiceTest
     {
     	Image image = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-        Roi roi = new RoiI();
+    	ROI roi = new ROII();
         roi.setImage(image);
-        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
         String points = "10,10 11,11";
@@ -1251,11 +1253,11 @@ public class UpdateServiceTest
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
-        rect.setMarkerStart(omero.rtypes.rstring(start));
-        rect.setMarkerEnd(omero.rtypes.rstring(end));
+        //rect.setMarkerStart(omero.rtypes.rstring(start));
+        //rect.setMarkerEnd(omero.rtypes.rstring(end));
         serverROI.addShape(rect);
         
-        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        serverROI = (ROI) iUpdate.saveAndReturnObject(serverROI);
         
         ROIData data = new ROIData(serverROI);
         assertTrue(data.getId() == serverROI.getId().getValue());
@@ -1272,8 +1274,8 @@ public class UpdateServiceTest
         	assertTrue(shape.getZ() == z);
         	assertTrue(shape.getC() == c);
         	assertTrue(shape.getPoints().size() == 1);
-        	assertEquals(shape.getMarkerStart(), start);
-        	assertEquals(shape.getMarkerEnd(), end);
+        	//assertEquals(shape.getMarkerStart(), start);
+        	//assertEquals(shape.getMarkerEnd(), end);
 		}
     }
     
@@ -1288,9 +1290,9 @@ public class UpdateServiceTest
     {
         Image image = (Image) iUpdate.saveAndReturnObject(
         		mmFactory.simpleImage(0));
-        Roi roi = new RoiI();
+        ROI roi = new ROII();
         roi.setImage(image);
-        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
         double w = 11;
@@ -1307,11 +1309,11 @@ public class UpdateServiceTest
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
-        rect.setMarkerStart(omero.rtypes.rstring(start));
-        rect.setMarkerEnd(omero.rtypes.rstring(end));
+        //rect.setMarkerStart(omero.rtypes.rstring(start));
+        //rect.setMarkerEnd(omero.rtypes.rstring(end));
         serverROI.addShape(rect);
         
-        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        serverROI = (ROI) iUpdate.saveAndReturnObject(serverROI);
         
         ROIData data = new ROIData(serverROI);
         assertTrue(data.getId() == serverROI.getId().getValue());
@@ -1331,8 +1333,8 @@ public class UpdateServiceTest
         	assertTrue(shape.getY1() == v);
         	assertTrue(shape.getX2() == w);
         	assertTrue(shape.getY2() == w);
-        	assertEquals(shape.getMarkerStart(), start);
-        	assertEquals(shape.getMarkerEnd(), end);
+        	//assertEquals(shape.getMarkerStart(), start);
+        	//assertEquals(shape.getMarkerEnd(), end);
 		}
     }
     
@@ -1347,9 +1349,9 @@ public class UpdateServiceTest
     {
         Image image = (Image) iUpdate.saveAndReturnObject(
         		mmFactory.simpleImage(0));
-        Roi roi = new RoiI();
+        ROI roi = new ROII();
         roi.setImage(image);
-        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
         int z = 0;
@@ -1365,7 +1367,7 @@ public class UpdateServiceTest
         rect.setTheC(omero.rtypes.rint(c));
         serverROI.addShape(rect);
         
-        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        serverROI = (ROI) iUpdate.saveAndReturnObject(serverROI);
         
         ROIData data = new ROIData(serverROI);
         assertTrue(data.getId() == serverROI.getId().getValue());
@@ -1638,14 +1640,6 @@ public class UpdateServiceTest
     	param.addId(s.getId().getValue());
     	ScreenPlateLink link = (ScreenPlateLink) iQuery.findByQuery(sql, param);
     	assertNotNull(link);
-    	//check the reagent.
-    	sql = "select s from WellReagentLink as s ";
-    	sql += "join fetch s.child as c ";
-    	sql += "join fetch s.parent as p ";
-    	sql += "where c.id = :id";
-    	param = new ParametersI();
-    	param.addId(r.getId().getValue());
-    	assertNotNull(iQuery.findByQuery(sql, param));
     }
     
     /**

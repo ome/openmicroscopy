@@ -61,9 +61,8 @@ import omero.model.ImagingEnvironment;
 import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.LightPath;
-import omero.model.LightSettings;
+import omero.model.LightSourceSettings;
 import omero.model.LightSource;
-import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
 import omero.model.Microscope;
@@ -90,10 +89,10 @@ import omero.model.ProjectI;
 import omero.model.Reagent;
 import omero.model.Rectangle;
 import omero.model.RectangleI;
-import omero.model.Roi;
-import omero.model.RoiAnnotationLink;
-import omero.model.RoiAnnotationLinkI;
-import omero.model.RoiI;
+import omero.model.ROI;
+import omero.model.ROIAnnotationLink;
+import omero.model.ROIAnnotationLinkI;
+import omero.model.ROII;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
@@ -401,10 +400,14 @@ public class DeleteServiceTest
 	        j = results.iterator();
 	        wellSampleIds = new ArrayList<Long>();
 	        imageIds = new ArrayList<Long>();
+	        List<WellSample> samples;
+	        Iterator<WellSample> k;
 	        while (j.hasNext()) {
 				well = (Well) j.next();
-				for (int k = 0; k < well.sizeOfWellSamples(); k++) {
-					field = well.getWellSample(k);
+				samples = well.copyWellSamples();
+				k = samples.iterator();
+				while (k.hasNext()) {
+					field = k.next();
 					wellSampleIds.add(field.getId().getValue());
 					assertNotNull(field.getImage());
 					imageIds.add(field.getImage().getId().getValue());
@@ -501,10 +504,14 @@ public class DeleteServiceTest
 	        j = results.iterator();
 	        wellSampleIds = new ArrayList<Long>();
 	        imageIds = new ArrayList<Long>();
+	        List<WellSample> samples;
+	        Iterator<WellSample> k;
 	        while (j.hasNext()) {
 				well = (Well) j.next();
-				for (int k = 0; k < well.sizeOfWellSamples(); k++) {
-					field = well.getWellSample(k);
+				samples = well.copyWellSamples();
+				k = samples.iterator();
+				while (k.hasNext()) {
+					field = k.next();
 					wellSampleIds.add(field.getId().getValue());
 					assertNotNull(field.getImage());
 					imageIds.add(field.getImage().getId().getValue());
@@ -724,7 +731,7 @@ public class DeleteServiceTest
     {
     	Image img = mmFactory.createImage();
     	img = (Image) iUpdate.saveAndReturnObject(img);
-    	Pixels pixels = img.getPrimaryPixels();
+    	Pixels pixels = img.getPixels();
     	long pixId = pixels.getId().getValue();
     	//method already tested in PixelsServiceTest
     	//make sure objects are loaded.
@@ -733,18 +740,14 @@ public class DeleteServiceTest
     	long id = img.getId().getValue();
     	
     	List<Long> channels = new ArrayList<Long>();
-    	List<Long> logicalChannels = new ArrayList<Long>();
     	List<Long> infos = new ArrayList<Long>();
     	Channel channel;
-    	LogicalChannel lc;
     	StatsInfo info;
-    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
-			channel = pixels.getChannel(i);
+    	Iterator<Channel> j = pixels.copyChannels().iterator();
+    	while (j.hasNext()) {
+			channel  = j.next();
 			assertNotNull(channel);
 			channels.add(channel.getId().getValue());
-			lc = channel.getLogicalChannel();
-			assertNotNull(lc);
-			logicalChannels.add(lc.getId().getValue());
 			info = channel.getStatsInfo();
 			assertNotNull(info);
 			infos.add(info.getId().getValue());
@@ -776,21 +779,11 @@ public class DeleteServiceTest
 		}
     	i = infos.iterator();
     	while (i.hasNext()) {
-			id =  i.next();
+			id = i.next();
 			param = new ParametersI();
 	    	param.addId(id);
 	    	sb = new StringBuilder();
 	    	sb.append("select i from StatsInfo i ");
-	    	sb.append("where i.id = :id");
-	    	assertNull(iQuery.findByQuery(sb.toString(), param));
-		}
-    	i = logicalChannels.iterator();
-    	while (i.hasNext()) {
-			id =  i.next();
-			param = new ParametersI();
-	    	param.addId(id);
-	    	sb = new StringBuilder();
-	    	sb.append("select i from LogicalChannel i ");
 	    	sb.append("where i.id = :id");
 	    	assertNull(iQuery.findByQuery(sb.toString(), param));
 		}
@@ -808,7 +801,7 @@ public class DeleteServiceTest
     {
     	Image img = mmFactory.createImage();
     	img = (Image) iUpdate.saveAndReturnObject(img);
-    	Pixels pixels = img.getPrimaryPixels();
+    	Pixels pixels = img.getPixels();
     	long pixId = pixels.getId().getValue();
     	//method already tested in PixelsServiceTest
     	//make sure objects are loaded.
@@ -817,18 +810,14 @@ public class DeleteServiceTest
     	long id = img.getId().getValue();
     	
     	List<Long> channels = new ArrayList<Long>();
-    	List<Long> logicalChannels = new ArrayList<Long>();
     	List<Long> infos = new ArrayList<Long>();
     	Channel channel;
-    	LogicalChannel lc;
+    	Iterator<Channel> j = pixels.copyChannels().iterator();
     	StatsInfo info;
-    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
-			channel = pixels.getChannel(i);
+    	while (j.hasNext()) {
+			channel = j.next();
 			assertNotNull(channel);
 			channels.add(channel.getId().getValue());
-			lc = channel.getLogicalChannel();
-			assertNotNull(lc);
-			logicalChannels.add(lc.getId().getValue());
 			info = channel.getStatsInfo();
 			assertNotNull(info);
 			infos.add(info.getId().getValue());
@@ -868,16 +857,6 @@ public class DeleteServiceTest
 	    	sb.append("where i.id = :id");
 	    	assertNull(iQuery.findByQuery(sb.toString(), param));
 		}
-    	i = logicalChannels.iterator();
-    	while (i.hasNext()) {
-			id =  i.next();
-			param = new ParametersI();
-	    	param.addId(id);
-	    	sb = new StringBuilder();
-	    	sb.append("select i from LogicalChannel i ");
-	    	sb.append("where i.id = :id");
-	    	assertNull(iQuery.findByQuery(sb.toString(), param));
-		}
     }
 
     /**
@@ -891,7 +870,7 @@ public class DeleteServiceTest
     {
     	Image img = mmFactory.createImage();
     	img = (Image) iUpdate.saveAndReturnObject(img);
-    	Pixels pixels = img.getPrimaryPixels();
+    	Pixels pixels = img.getPixels();
     	//method already tested in RenderingSettingsServiceTest
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	prx.setOriginalSettingsInSet(Pixels.class.getName(), 
@@ -929,7 +908,7 @@ public class DeleteServiceTest
     {
     	Image img = mmFactory.createImage();
     	img = (Image) iUpdate.saveAndReturnObject(img);
-    	Pixels pixels = img.getPrimaryPixels();
+    	Pixels pixels = img.getPixels();
     	//method already tested in RenderingSettingsServiceTest
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	prx.setOriginalSettingsInSet(Pixels.class.getName(), 
@@ -966,7 +945,7 @@ public class DeleteServiceTest
     {
     	Image img = mmFactory.createImage();
     	img = (Image) iUpdate.saveAndReturnObject(img);
-    	Pixels pixels = img.getPrimaryPixels();
+    	Pixels pixels = img.getPixels();
     	long pixId = pixels.getId().getValue();
     	//method already tested in PixelsServiceTest
     	//make sure objects are loaded.
@@ -1009,26 +988,30 @@ public class DeleteServiceTest
     	StageLabel label = img.getStageLabel();
     	ImagingEnvironment env = img.getImagingEnvironment();
     	
-    	LogicalChannel lc;
+    	
     	Channel channel;
     	ids = new ArrayList<Long>();
     	long detectorSettingsID = 0;
     	long lightSourceSettingsID = 0;
     	long ligthPathID = 0;
-    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
-			channel = pixels.getChannel(i);
-			lc = channel.getLogicalChannel();
-	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
-	    	lc.setFilterSet(filterSet);
-	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));
-	    	lc.setLightPath(mmFactory.createLightPath(null, dichroic, null));
-	    	lc = (LogicalChannel) iUpdate.saveAndReturnObject(lc);
-	    	assertNotNull(lc);
-	    	ids.add(lc.getId().getValue());
-	    	detectorSettingsID = lc.getDetectorSettings().getId().getValue();
+    	
+    	Iterator<Channel> i = pixels.copyChannels().iterator();
+    	while (i.hasNext()) {
+			channel = i.next();
+			channel.setDetectorSettings(mmFactory.createDetectorSettings(
+					detector));
+			channel.setFilterSet(filterSet);
+			channel.setLightSourceSettings(
+					mmFactory.createLightSettings(laser));
+			channel.setLightPath(
+					mmFactory.createLightPath(null, dichroic, null));
+			channel = (Channel) iUpdate.saveAndReturnObject(channel);
+	    	assertNotNull(channel);
+	    	ids.add(channel.getId().getValue());
+	    	detectorSettingsID = channel.getDetectorSettings().getId().getValue();
 	    	lightSourceSettingsID = 
-	    		lc.getLightSourceSettings().getId().getValue();
-	    	ligthPathID = lc.getLightPath().getId().getValue();
+	    		channel.getLightSourceSettings().getId().getValue();
+	    	ligthPathID = channel.getLightPath().getId().getValue();
 		}
     	
     	//Now we try to delete the image.
@@ -1095,10 +1078,10 @@ public class DeleteServiceTest
     {
     	Image image = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-    	Roi roi = new RoiI();
+    	ROI roi = new ROII();
     	roi.setImage(image);
     	Rectangle rect;
-    	Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+    	ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
     	for (int i = 0; i < 3; i++) {
     		rect = new RectangleI();
     		rect.setX(rdouble(10));
@@ -1109,13 +1092,14 @@ public class DeleteServiceTest
     		rect.setTheT(rint(0));
     		serverROI.addShape(rect);
     	}
-    	serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+    	serverROI = (ROI) iUpdate.saveAndReturnObject(serverROI);
     	List<Long> shapeIds = new ArrayList<Long>();
     	Shape shape;
-    	for (int i = 0; i < serverROI.sizeOfShapes(); i++) {
-    		shape = serverROI.getShape(i);
-    		shapeIds.add(shape.getId().getValue());
-    	}
+    	Iterator<Shape> i = serverROI.copyShapes().iterator();
+    	while (i.hasNext()) {
+			shape = i.next();
+			shapeIds.add(shape.getId().getValue());
+		}
     	//Delete the image.
     	iDelete.deleteImage(image.getId().getValue(), true);
     	//check if the objects have been delete.
@@ -1145,10 +1129,10 @@ public class DeleteServiceTest
     {
     	Image image = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-    	Roi roi = new RoiI();
+    	ROI roi = new ROII();
     	roi.setImage(image);
     	Rectangle rect;
-    	Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+    	ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
     	for (int i = 0; i < 3; i++) {
     		rect = new RectangleI();
     		rect.setX(rdouble(10));
@@ -1159,13 +1143,14 @@ public class DeleteServiceTest
     		rect.setTheT(rint(0));
     		serverROI.addShape(rect);
     	}
-    	serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+    	serverROI = (ROII) iUpdate.saveAndReturnObject(serverROI);
     	List<Long> shapeIds = new ArrayList<Long>();
     	Shape shape;
-    	for (int i = 0; i < serverROI.sizeOfShapes(); i++) {
-    		shape = serverROI.getShape(i);
-    		shapeIds.add(shape.getId().getValue());
-    	}
+    	Iterator<Shape> i = serverROI.copyShapes().iterator();
+    	while (i.hasNext()) {
+			shape = i.next();
+			shapeIds.add(shape.getId().getValue());
+		}
 
     	delete(new DeleteCommand(REF_ROI, serverROI.getId().getValue(), null));
 
@@ -1199,7 +1184,7 @@ public class DeleteServiceTest
     public void testDeleteObjectWithNonSharableAnnotations() 
     	throws Exception
     {
-	Map<String, IObject> objects = createIObjects();
+    	Map<String, IObject> objects = createIObjects();
     	IObject obj = null;
     	Long id = null;
     	String type = null;
@@ -1207,9 +1192,9 @@ public class DeleteServiceTest
     	ParametersI param;
     	String sql;
     	List<IObject> l;
-	for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-	    type = entry.getKey();
-		obj = entry.getValue();
+    	for (Map.Entry<String, IObject> entry : objects.entrySet()) {
+    		type = entry.getKey();
+    		obj = entry.getValue();
     		id = obj.getId().getValue();
     		annotationIds = createNonSharableAnnotation(obj, null);	
 
@@ -1221,8 +1206,8 @@ public class DeleteServiceTest
     		param.addIds(annotationIds);
     		assertTrue(annotationIds.size() > 0);
     		sql = "select i from Annotation as i where i.id in (:ids)";
-			l = iQuery.findAllByQuery(sql, param);
-			assertEquals(obj + "-->" + l.toString(), 0, l.size());
+    		l = iQuery.findAllByQuery(sql, param);
+    		assertEquals(obj + "-->" + l.toString(), 0, l.size());
     	}
     }
     
@@ -1312,12 +1297,14 @@ public class DeleteServiceTest
 		j = results.iterator();
 		wellSampleIds = new ArrayList<Long>();
 		imageIds = new ArrayList<Long>();
+		Iterator<WellSample> f;
 		while (j.hasNext()) {
 			well = (Well) j.next();
 			r = createNonSharableAnnotation(well, null);
 			if (r.size() > 0) annotationIds.addAll(r);
-			for (int f = 0; f < well.sizeOfWellSamples(); f++) {
-				field = well.getWellSample(f);
+			f = well.copyWellSamples().iterator();
+			while (f.hasNext()) {
+				field = f.next();
 				r = createSharableAnnotation(field, null);
 				if (r.size() > 0) annotationIds.addAll(r);
 				wellSampleIds.add(field.getId().getValue());
@@ -1385,11 +1372,11 @@ public class DeleteServiceTest
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = (Well) results.get(0);
     	//create the roi.
-    	Image image = well.getWellSample(0).getImage();
-        Roi roi = new RoiI();
+    	Image image = well.copyWellSamples().get(0).getImage();
+        ROI roi = new ROII();
         roi.setImage(image);
         Rectangle rect;
-        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
             rect.setX(rdouble(10));
@@ -1416,9 +1403,9 @@ public class DeleteServiceTest
 		long id = fa.getId().getValue();
 		//link fa to ROI
 		List<IObject> links = new ArrayList<IObject>();
-		RoiAnnotationLink rl = new RoiAnnotationLinkI();
+		ROIAnnotationLink rl = new ROIAnnotationLinkI();
 		rl.setChild(new FileAnnotationI(id, false));
-		rl.setParent(new RoiI(roi.getId().getValue(), false));
+		rl.setParent(new ROII(roi.getId().getValue(), false));
 		links.add(rl);
 		PlateAnnotationLink il = new PlateAnnotationLinkI();
 		il.setChild(new FileAnnotationI(id, false));
@@ -1481,18 +1468,20 @@ public class DeleteServiceTest
     	        j = results.iterator();
     	        wellSampleIds = new ArrayList<Long>();
     	        imageIds = new ArrayList<Long>();
+    	        Iterator<WellSample> f;
     	        while (j.hasNext()) {
     				well = (Well) j.next();
     				r = createSharableAnnotation(well, null);
     				if (r.size() > 0) annotationIds.addAll(r);
-    				for (int f = 0; f < well.sizeOfWellSamples(); f++) {
-    					field = well.getWellSample(f);
-    					r = createSharableAnnotation(field, null);
+    				f = well.copyWellSamples().iterator();
+    				while (f.hasNext()) {
+						field = f.next();
+						r = createSharableAnnotation(field, null);
     					if (r.size() > 0) annotationIds.addAll(r);
     					wellSampleIds.add(field.getId().getValue());
     					assertNotNull(field.getImage());
     					imageIds.add(field.getImage().getId().getValue());
-    				}
+					}
     			}
     	        if (pa != null && b > 0) {
     	        	r = createSharableAnnotation(pa, null);
@@ -2451,7 +2440,7 @@ public class DeleteServiceTest
     {
     	Image img = mmFactory.createImage();
     	img = (Image) iUpdate.saveAndReturnObject(img);
-    	Pixels pixels = img.getPrimaryPixels();
+    	Pixels pixels = img.getPixels();
     	long pixId = pixels.getId().getValue();
     	//method already tested in PixelsServiceTest
     	//make sure objects are loaded.
@@ -2494,26 +2483,25 @@ public class DeleteServiceTest
     	StageLabel label = img.getStageLabel();
     	ImagingEnvironment env = img.getImagingEnvironment();
     	
-    	LogicalChannel lc;
     	Channel channel;
     	ids = new ArrayList<Long>();
     	long detectorSettingsID = 0;
     	long lightSourceSettingsID = 0;
     	long ligthPathID = 0;
-    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
-			channel = pixels.getChannel(i);
-			lc = channel.getLogicalChannel();
-	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
-	    	lc.setFilterSet(filterSet);
-	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));
-	    	lc.setLightPath(mmFactory.createLightPath(null, dichroic, null));
-	    	lc = (LogicalChannel) iUpdate.saveAndReturnObject(lc);
-	    	assertNotNull(lc);
-	    	ids.add(lc.getId().getValue());
-	    	detectorSettingsID = lc.getDetectorSettings().getId().getValue();
+    	Iterator<Channel> i = pixels.copyChannels().iterator();
+    	while (i.hasNext()) {
+			channel = i.next();
+			channel.setDetectorSettings(mmFactory.createDetectorSettings(detector));
+			channel.setFilterSet(filterSet);
+			channel.setLightSourceSettings(mmFactory.createLightSettings(laser));
+			channel.setLightPath(mmFactory.createLightPath(null, dichroic, null));
+			channel = (Channel) iUpdate.saveAndReturnObject(channel);
+	    	assertNotNull(channel);
+	    	ids.add(channel.getId().getValue());
+	    	detectorSettingsID = channel.getDetectorSettings().getId().getValue();
 	    	lightSourceSettingsID = 
-	    		lc.getLightSourceSettings().getId().getValue();
-	    	ligthPathID = lc.getLightPath().getId().getValue();
+	    		channel.getLightSourceSettings().getId().getValue();
+	    	ligthPathID = channel.getLightPath().getId().getValue();
 		}
     	
     	//Now we try to delete the image.
@@ -2580,7 +2568,7 @@ public class DeleteServiceTest
     {
     	Image img = mmFactory.createImage();
     	img = (Image) iUpdate.saveAndReturnObject(img);
-    	Pixels pixels = img.getPrimaryPixels();
+    	Pixels pixels = img.getPixels();
     	long pixId = pixels.getId().getValue();
     	//method already tested in PixelsServiceTest
     	//make sure objects are loaded.
@@ -2626,27 +2614,25 @@ public class DeleteServiceTest
     	ObjectiveSettings settings = img.getObjectiveSettings();
     	StageLabel label = img.getStageLabel();
     	ImagingEnvironment env = img.getImagingEnvironment();
-    	
-    	LogicalChannel lc;
     	Channel channel;
     	ids = new ArrayList<Long>();
     	long detectorSettingsID = 0;
     	long lightSourceSettingsID = 0;
     	long ligthPathID = 0;
-    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
-			channel = pixels.getChannel(i);
-			lc = channel.getLogicalChannel();
-	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
-	    	lc.setFilterSet(filterSet);
-	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));
-	    	lc.setLightPath(mmFactory.createLightPath(null, dichroic, null));
-	    	lc = (LogicalChannel) iUpdate.saveAndReturnObject(lc);
-	    	assertNotNull(lc);
-	    	ids.add(lc.getId().getValue());
-	    	detectorSettingsID = lc.getDetectorSettings().getId().getValue();
+    	Iterator<Channel> i = pixels.copyChannels().iterator();
+    	while (i.hasNext()) {
+			channel = i.next();
+			channel.setDetectorSettings(mmFactory.createDetectorSettings(detector));
+			channel.setFilterSet(filterSet);
+			channel.setLightSourceSettings(mmFactory.createLightSettings(laser));
+			channel.setLightPath(mmFactory.createLightPath(null, dichroic, null));
+			channel = (Channel) iUpdate.saveAndReturnObject(channel);
+	    	assertNotNull(channel);
+	    	ids.add(channel.getId().getValue());
+	    	detectorSettingsID = channel.getDetectorSettings().getId().getValue();
 	    	lightSourceSettingsID = 
-	    		lc.getLightSourceSettings().getId().getValue();
-	    	ligthPathID = lc.getLightPath().getId().getValue();
+	    		channel.getLightSourceSettings().getId().getValue();
+	    	ligthPathID = channel.getLightPath().getId().getValue();
 		}
     	
     	//Now we try to delete the image.
@@ -2874,7 +2860,7 @@ public class DeleteServiceTest
     			mmFactory.simpleDatasetData().asIObject());
     	Image img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
-    	Pixels pixels = img.getPrimaryPixels();
+    	Pixels pixels = img.getPixels();
     	assertNotNull(pixels);
     	DatasetImageLink l = new DatasetImageLinkI();
     	l.link(new DatasetI(d.getId().getValue(), false), img);
@@ -2902,13 +2888,13 @@ public class DeleteServiceTest
     {
     	Image img1 = mmFactory.createImage();
     	img1 = (Image) iUpdate.saveAndReturnObject(img1);
-    	Pixels pixels = img1.getPrimaryPixels();
+    	Pixels pixels = img1.getPixels();
     	long pixId1 = pixels.getId().getValue();
     	
     	Image img2 = mmFactory.createImage();
     	img2 = (Image) iUpdate.saveAndReturnObject(img2);
     	
-    	pixels = img2.getPrimaryPixels();
+    	pixels = img2.getPixels();
     	long pixId2 = pixels.getId().getValue();
     	
     	//create an instrument.
@@ -2917,11 +2903,11 @@ public class DeleteServiceTest
     	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
     	assertNotNull(instrument);
     	long instrumentID = instrument.getId().getValue();
-    	List<Detector> detectors = instrument.copyDetector();
-    	List<Objective> objectives = instrument.copyObjective();
-    	List<LightSource> lights = instrument.copyLightSource();
-    	List<FilterSet> filterSets = instrument.copyFilterSet();
-    	List<Dichroic> dichroics = instrument.copyDichroic();
+    	List<Detector> detectors = instrument.copyDetectors();
+    	List<Objective> objectives = instrument.copyObjectives();
+    	List<LightSource> lights = instrument.copyLightSources();
+    	List<FilterSet> filterSets = instrument.copyFilterSets();
+    	List<Dichroic> dichroics = instrument.copyDichroics();
 
     	assertTrue(detectors.size() > 0);
     	assertTrue(objectives.size() > 0);
@@ -2942,33 +2928,31 @@ public class DeleteServiceTest
     	Pixels pixels1 = prx.retrievePixDescription(pixId1);
     	Pixels pixels2 = prx.retrievePixDescription(pixId2);
 
-    	LogicalChannel lc;
     	Channel channel;
     	List<IObject> lcs = new ArrayList<IObject>();
-    	for (int i = 0; i < pixels1.getSizeC().getValue(); i++) {
-			channel = pixels1.getChannel(i);
-			lc = channel.getLogicalChannel();
-	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(
+    	Iterator<Channel> i = pixels1.copyChannels().iterator();
+    	while (i.hasNext()) {
+			channel = i.next();
+			channel.setDetectorSettings(mmFactory.createDetectorSettings(
 	    			detectors.get(0)));
-	    	lc.setFilterSet(filterSets.get(0));
-	    	lc.setLightSourceSettings(mmFactory.createLightSettings(
+			channel.setFilterSet(filterSets.get(0));
+			channel.setLightSourceSettings(mmFactory.createLightSettings(
 	    			lights.get(0)));
-	    	lc.setLightPath(mmFactory.createLightPath(null, dichroics.get(0), 
+			channel.setLightPath(mmFactory.createLightPath(null, dichroics.get(0), 
 	    			null));
-	    	lcs.add(lc);
+	    	lcs.add(channel);
 		}
-    	
-    	for (int i = 0; i < pixels2.getSizeC().getValue(); i++) {
-			channel = pixels2.getChannel(i);
-			lc = channel.getLogicalChannel();
-	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(
+    	i = pixels2.copyChannels().iterator();
+    	while (i.hasNext()) {
+			channel = i.next();
+			channel.setDetectorSettings(mmFactory.createDetectorSettings(
 	    			detectors.get(0)));
-	    	lc.setFilterSet(filterSets.get(0));
-	    	lc.setLightSourceSettings(mmFactory.createLightSettings(
+			channel.setFilterSet(filterSets.get(0));
+			channel.setLightSourceSettings(mmFactory.createLightSettings(
 	    			lights.get(0)));
-	    	lc.setLightPath(mmFactory.createLightPath(null, dichroics.get(0), 
+			channel.setLightPath(mmFactory.createLightPath(null, dichroics.get(0), 
 	    			null));
-	    	lcs.add(lc);
+	    	lcs.add(channel);
 		}
     	iUpdate.saveAndReturnArray(lcs);
     	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
@@ -3061,13 +3045,13 @@ public class DeleteServiceTest
     {
     	Image img1 = mmFactory.createImage();
     	img1 = (Image) iUpdate.saveAndReturnObject(img1);
-    	Pixels pixels = img1.getPrimaryPixels();
+    	Pixels pixels = img1.getPixels();
     	long pixId1 = pixels.getId().getValue();
     	
     	Image img2 = mmFactory.createImage();
     	img2 = (Image) iUpdate.saveAndReturnObject(img2);
     	
-    	pixels = img2.getPrimaryPixels();
+    	pixels = img2.getPixels();
     	long pixId2 = pixels.getId().getValue();
     	
     	//create an instrument.
@@ -3076,11 +3060,11 @@ public class DeleteServiceTest
     	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
     	assertNotNull(instrument);
     	long instrumentID = instrument.getId().getValue();
-    	List<Detector> detectors = instrument.copyDetector();
-    	List<Objective> objectives = instrument.copyObjective();
-    	List<LightSource> lights = instrument.copyLightSource();
-    	List<FilterSet> filterSets = instrument.copyFilterSet();
-    	List<Dichroic> dichroics = instrument.copyDichroic();
+    	List<Detector> detectors = instrument.copyDetectors();
+    	List<Objective> objectives = instrument.copyObjectives();
+    	List<LightSource> lights = instrument.copyLightSources();
+    	List<FilterSet> filterSets = instrument.copyFilterSets();
+    	List<Dichroic> dichroics = instrument.copyDichroics();
 
     	assertTrue(detectors.size() > 0);
     	assertTrue(objectives.size() > 0);
@@ -3101,31 +3085,29 @@ public class DeleteServiceTest
     	Pixels pixels1 = prx.retrievePixDescription(pixId1);
     	Pixels pixels2 = prx.retrievePixDescription(pixId2);
 
-    	LogicalChannel lc;
     	Channel channel;
     	DetectorSettings ds = mmFactory.createDetectorSettings(
     			detectors.get(0));
-    	LightSettings ls = mmFactory.createLightSettings(lights.get(0));
+    	LightSourceSettings ls = mmFactory.createLightSettings(lights.get(0));
     	LightPath lp = mmFactory.createLightPath(null, dichroics.get(0), null);
     	List<IObject> lcs = new ArrayList<IObject>();
-    	for (int i = 0; i < pixels1.getSizeC().getValue(); i++) {
-			channel = pixels1.getChannel(i);
-			lc = channel.getLogicalChannel();
-	    	lc.setDetectorSettings(ds);
-	    	lc.setFilterSet(filterSets.get(0));
-	    	lc.setLightSourceSettings(ls);
-	    	lc.setLightPath(lp);
-	    	lcs.add(lc);
+    	Iterator<Channel> i = pixels1.copyChannels().iterator();
+    	while (i.hasNext()) {
+			channel = i.next();
+			channel.setDetectorSettings(ds);
+			channel.setFilterSet(filterSets.get(0));
+			channel.setLightSourceSettings(ls);
+			channel.setLightPath(lp);
+	    	lcs.add(channel);
 		}
-    	
-    	for (int i = 0; i < pixels2.getSizeC().getValue(); i++) {
-			channel = pixels2.getChannel(i);
-			lc = channel.getLogicalChannel();
-	    	lc.setDetectorSettings(ds);
-	    	lc.setFilterSet(filterSets.get(0));
-	    	lc.setLightSourceSettings(ls);
-	    	lc.setLightPath(lp);
-	    	lcs.add(lc);
+    	i = pixels2.copyChannels().iterator();
+    	while (i.hasNext()) {
+			channel = i.next();
+			channel.setDetectorSettings(ds);
+			channel.setFilterSet(filterSets.get(0));
+			channel.setLightSourceSettings(ls);
+			channel.setLightPath(lp);
+	    	lcs.add(channel);
 		}
     	iUpdate.saveAndReturnArray(lcs);
     	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
@@ -3214,18 +3196,18 @@ public class DeleteServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testDeleteImagesSharingLogicalChannels() 
+    public void testDeleteImagesSharingChannels() 
     	throws Exception
     {
     	Image img1 = mmFactory.createImage();
     	img1 = (Image) iUpdate.saveAndReturnObject(img1);
-    	Pixels pixels = img1.getPrimaryPixels();
+    	Pixels pixels = img1.getPixels();
     	long pixId1 = pixels.getId().getValue();
     	
     	Image img2 = mmFactory.createImage();
     	img2 = (Image) iUpdate.saveAndReturnObject(img2);
     	
-    	pixels = img2.getPrimaryPixels();
+    	pixels = img2.getPixels();
     	long pixId2 = pixels.getId().getValue();
     	
     	IPixelsPrx prx = factory.getPixelsService();
@@ -3233,21 +3215,16 @@ public class DeleteServiceTest
     	Pixels pixels2 = prx.retrievePixDescription(pixId2);
 
     	Channel channel;
-    	LogicalChannel lc;
-    	List<LogicalChannel> list = new ArrayList<LogicalChannel>();
+    	List<Channel> list = new ArrayList<Channel>();
+    	Iterator<Channel> i = pixels1.copyChannels().iterator();
+    	while (i.hasNext()) {
+			channel = i.next();
+	    	list.add(channel);
+		}
     	
-    	for (int i = 0; i < pixels1.getSizeC().getValue(); i++) {
-			channel = pixels1.getChannel(i);
-			lc = channel.getLogicalChannel();
-			list.add(lc);
-		}
-    	List<IObject> l = new ArrayList<IObject>();
-    	for (int i = 0; i < pixels2.getSizeC().getValue(); i++) {
-			channel = pixels1.getChannel(i);
-			channel.setLogicalChannel(list.get(i));
-			l.add(channel);
-		}
-    	iUpdate.saveAndReturnArray(l);
+    	pixels2.clearChannels();
+    	pixels2.addAllChannelSet(list);
+    	iUpdate.saveAndReturnObject(pixels2);
     	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
     	delete(new DeleteCommand(REF_IMAGE, img2.getId().getValue(), null));
     	List<Long> ids = new ArrayList<Long>();
@@ -3262,12 +3239,12 @@ public class DeleteServiceTest
     	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
     	
     	ids.clear();
-    	Iterator<LogicalChannel> j = list.iterator();
+    	Iterator<Channel> j = list.iterator();
     	while (j.hasNext()) {
 			ids.add(j.next().getId().getValue());
 		}
     	sb = new StringBuilder();
-    	sb.append("select i from LogicalChannel i ");
+    	sb.append("select i from Channel i ");
     	sb.append("where i.id in (:ids)");
     	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
     }
@@ -3496,7 +3473,7 @@ public class DeleteServiceTest
     	//First create an image
     	Image image = mmFactory.createImage();
     	image = (Image) iUpdate.saveAndReturnObject(image);
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	
     	OriginalFile f = mmFactory.createOriginalFile();
     	f = (OriginalFile) iUpdate.saveAndReturnObject(f);
@@ -3540,7 +3517,7 @@ public class DeleteServiceTest
     {
     	Image image = mmFactory.createImage();
     	image = (Image) iUpdate.saveAndReturnObject(image);
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	Thumbnail thumbnail = mmFactory.createThumbnail();
     	thumbnail.setPixels(pixels);
     	thumbnail = (Thumbnail) iUpdate.saveAndReturnObject(thumbnail);
@@ -3590,9 +3567,9 @@ public class DeleteServiceTest
 
         // Now check that everything still exists.
         assertExists(image0);
-        assertExists(image0.getPrimaryPixels());
+        assertExists(image0.getPixels());
         assertExists(image1);
-        assertExists(image1.getPrimaryPixels());
+        assertExists(image1.getPixels());
         assertExists(sl);
     }
 
@@ -3673,8 +3650,8 @@ public class DeleteServiceTest
     {
     	Image image = (Image) iUpdate.saveAndReturnObject(
                 mmFactory.createImage());
-        Pixels pixels = image.getPrimaryPixels();
-        pixels.clearPlane();
+        Pixels pixels = image.getPixels();
+        pixels.clearPlanes();
         Plane planeInfo = mmFactory.createPlaneInfo();
         planeInfo.setPixels(pixels);
         planeInfo = (Plane) iUpdate.saveAndReturnObject(planeInfo);
@@ -3723,25 +3700,24 @@ public class DeleteServiceTest
     	Iterator<Channel> j = channels.iterator();
     	long lcID;
     	List<Long> ids;
-    	LogicalChannel lc;
     	List l;
-    	List<LogicalChannel> logicalChannels = new ArrayList<LogicalChannel>(); 
+    	List<Channel> channelsToKeep = new ArrayList<Channel>(); 
     	List<LightPath> lightPaths = new ArrayList<LightPath>();
     	List<DetectorSettings> 
     		detectorSettings = new ArrayList<DetectorSettings>();
-    	List<LightSettings> lightSourceSettings = 
-    		new ArrayList<LightSettings>();
+    	List<LightSourceSettings> lightSourceSettings = 
+    		new ArrayList<LightSourceSettings>();
     	while (j.hasNext()) {
 			channel = j.next();
 			ids = new ArrayList<Long>(1);
-			lcID = channel.getLogicalChannel().getId().getValue();
+			lcID = channel.getId().getValue();
 			ids.add(lcID);
 			l = iMetadata.loadChannelAcquisitionData(ids);
-			lc = (LogicalChannel) l.get(0);
-			logicalChannels.add(lc);
-			lightPaths.add(lc.getLightPath());
-			detectorSettings.add(lc.getDetectorSettings());
-			lightSourceSettings.add(lc.getLightSourceSettings());
+			channel = (Channel) l.get(0);
+			channelsToKeep.add(channel);
+			lightPaths.add(channel.getLightPath());
+			detectorSettings.add(channel.getDetectorSettings());
+			lightSourceSettings.add(channel.getLightSourceSettings());
 		}
     	
     	String sql = "select info from PlaneInfo as info where pixels.id = :id";
@@ -3769,11 +3745,11 @@ public class DeleteServiceTest
     	ObjectiveSettings settings = image.getObjectiveSettings();
     	Experiment experiment = image.getExperiment();
     	//from instrument
-    	List<Detector> detectors = instrument.copyDetector();
-    	List<Dichroic> dichroics = instrument.copyDichroic();
-    	List<Filter> filters = instrument.copyFilter();
-    	List<Objective> objectives = instrument.copyObjective();
-    	List<LightSource> lightSources = instrument.copyLightSource();
+    	List<Detector> detectors = instrument.copyDetectors();
+    	List<Dichroic> dichroics = instrument.copyDichroics();
+    	List<Filter> filters = instrument.copyFilters();
+    	List<Objective> objectives = instrument.copyObjectives();
+    	List<LightSource> lightSources = instrument.copyLightSources();
     	//Delete the image.
     	delete(new DeleteCommand(REF_IMAGE, imageID, null));
     	assertDoesNotExist(image);
@@ -3815,11 +3791,7 @@ public class DeleteServiceTest
     	while (i.hasNext()) {
     		assertDoesNotExist((IObject) i.next());
 		}
-    	i = channels.iterator();
-    	while (i.hasNext()) {
-    		assertDoesNotExist((IObject) i.next());
-		}
-    	i = logicalChannels.iterator();
+    	i = channelsToKeep.iterator();
     	while (i.hasNext()) {
     		assertDoesNotExist((IObject) i.next());
 		}
@@ -3848,8 +3820,8 @@ public class DeleteServiceTest
         Image img1 = mmFactory.createImage();
         Image img2 = mmFactory.createImage();
         OriginalFile file = mmFactory.createOriginalFile();
-        img1.getPrimaryPixels().linkOriginalFile(file);
-        img2.getPrimaryPixels().linkOriginalFile(file);
+        img1.getPixels().linkOriginalFile(file);
+        img2.getPixels().linkOriginalFile(file);
 
         file = (OriginalFile) iUpdate.saveAndReturnObject(file);
         img1 = file.linkedPixelsList().get(0).getImage();

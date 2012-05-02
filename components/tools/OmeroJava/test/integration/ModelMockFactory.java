@@ -53,7 +53,7 @@ import omero.model.FilterSet;
 import omero.model.FilterSetI;
 import omero.model.FilterType;
 import omero.model.IObject;
-import omero.model.Illumination;
+import omero.model.IlluminationType;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.ImagingEnvironment;
@@ -69,11 +69,9 @@ import omero.model.LightEmittingDiode;
 import omero.model.LightEmittingDiodeI;
 import omero.model.LightPath;
 import omero.model.LightPathI;
-import omero.model.LightSettings;
-import omero.model.LightSettingsI;
+import omero.model.LightSourceSettings;
+import omero.model.LightSourceSettingsI;
 import omero.model.LightSource;
-import omero.model.LogicalChannel;
-import omero.model.LogicalChannelI;
 import omero.model.Medium;
 import omero.model.MicrobeamManipulation;
 import omero.model.MicrobeamManipulationI;
@@ -88,7 +86,7 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Pixels;
 import omero.model.PixelsI;
-import omero.model.PixelsType;
+import omero.model.PixelType;
 import omero.model.Plane;
 import omero.model.PlaneI;
 import omero.model.Plate;
@@ -99,8 +97,8 @@ import omero.model.Pulse;
 import omero.model.Reagent;
 import omero.model.ReagentI;
 import omero.model.RectangleI;
-import omero.model.Roi;
-import omero.model.RoiI;
+import omero.model.ROI;
+import omero.model.ROII;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.StatsInfo;
@@ -481,7 +479,7 @@ public class ModelMockFactory
     {
     	ImagingEnvironment env = new ImagingEnvironmentI();
     	env.setAirPressure(omero.rtypes.rdouble(1));
-    	env.setCo2percent(omero.rtypes.rdouble(0.5));
+    	env.setCo2Percent(omero.rtypes.rdouble(0.5));
     	env.setHumidity(omero.rtypes.rdouble(0.5));
     	env.setTemperature(omero.rtypes.rdouble(1));
     	return env;
@@ -517,13 +515,13 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    public LightSettings createLightSettings(LightSource light)
+    public LightSourceSettings createLightSettings(LightSource light)
     	throws Exception
     {
     	//already tested see PixelsService enumeration.
     	List<IObject> types = pixelsService.getAllEnumerations(
     			MicrobeamManipulationType.class.getName());
-    	LightSettings settings = new LightSettingsI();
+    	LightSourceSettings settings = new LightSourceSettingsI();
     	settings.setLightSource(light);
     	settings.setAttenuation(omero.rtypes.rdouble(1));
     	MicrobeamManipulation mm = new MicrobeamManipulationI();
@@ -784,18 +782,18 @@ public class ModelMockFactory
 		throws Exception
 	{
 		List<IObject> types = pixelsService.getAllEnumerations(
-    			PixelsType.class.getName());
+    			PixelType.class.getName());
 		Iterator<IObject> i = types.iterator();
-		PixelsType object;
-		PixelsType type = null;
+		PixelType object;
+		PixelType type = null;
 		while (i.hasNext()) {
-			object = (PixelsType) i.next();
+			object = (PixelType) i.next();
 			if (UINT16.equals(object.getValue().getValue())) {
 				type = object;
 				break;
 			}
 		}
-		if (type == null) type = (PixelsType) types.get(0);
+		if (type == null) type = (PixelType) types.get(0);
 		types = pixelsService.getAllEnumerations(
 				DimensionOrder.class.getName());
 		i = types.iterator();
@@ -848,22 +846,20 @@ public class ModelMockFactory
 		throws Exception
 	{
 		Channel channel = new ChannelI();
-		LogicalChannel lc = new LogicalChannelI();
-		lc.setEmissionWavelength(omero.rtypes.rint(200));
+		channel.setEmissionWavelength(omero.rtypes.rint(200));
 		List<IObject> types = pixelsService.getAllEnumerations(
     			ContrastMethod.class.getName());
 		ContrastMethod cm = (ContrastMethod) types.get(0);
     	
     	types = pixelsService.getAllEnumerations(
-    			Illumination.class.getName());
-    	Illumination illumination = (Illumination) types.get(0);
+    			IlluminationType.class.getName());
+    	IlluminationType illumination = (IlluminationType) types.get(0);
     	types = pixelsService.getAllEnumerations(
     			AcquisitionMode.class.getName());
     	AcquisitionMode mode = (AcquisitionMode) types.get(0);
-    	lc.setContrastMethod(cm);
-    	lc.setIlluminationType(illumination);
-    	lc.setAcquisitionMode(mode);
-		channel.setLogicalChannel(lc);
+    	channel.setContrastMethod(cm);
+    	channel.setIlluminationType(illumination);
+    	channel.setAcquisitionMode(mode);
 		StatsInfo info = new StatsInfoI();
 		info.setGlobalMin(omero.rtypes.rdouble(0.0));
 		info.setGlobalMax(omero.rtypes.rdouble(1.0));
@@ -914,7 +910,7 @@ public class ModelMockFactory
 	{
 		Image image = simpleImage(new Date().getTime());
 		Pixels pixels = createPixels(sizeX, sizeY, sizeZ, sizeT, sizeC);
-		image.addPixels(pixels);
+		image.setPixels(pixels);
 		return image;
 	}
 
@@ -1010,7 +1006,7 @@ public class ModelMockFactory
                 well = new WellI();
                 well.setRow(omero.rtypes.rint(row));
                 well.setColumn(omero.rtypes.rint(column));
-                well.linkReagent(r);
+                well.setReagent(r);
                 for (int field = 0; field < fields; field++) {
                     sample = new WellSampleI();
                     sample.setImage(simpleImage(0));
@@ -1043,10 +1039,10 @@ public class ModelMockFactory
      */
     public Image createImageWithRoi() throws Exception
     {
-        Roi roi = new RoiI();
+        ROI roi = new ROII();
         roi.addShape(new RectangleI());
         Image image = createImage();
-        image.addRoi(roi);
+        image.linkROI(roi);
         return image;
     }
     

@@ -33,10 +33,10 @@ import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
 import omero.model.Rectangle;
 import omero.model.RectangleI;
-import omero.model.Roi;
-import omero.model.RoiAnnotationLink;
-import omero.model.RoiAnnotationLinkI;
-import omero.model.RoiI;
+import omero.model.ROI;
+import omero.model.ROIAnnotationLink;
+import omero.model.ROIAnnotationLinkI;
+import omero.model.ROII;
 import omero.model.Well;
 import omero.sys.EventContext;
 
@@ -66,9 +66,9 @@ public class RoiDeleteTest extends AbstractServerTest {
         disconnect();
 
         newUserInGroup(owner);
-        Roi roi = new RoiI();
+        ROI roi = new ROII();
         roi.setImage((Image) i1.proxy());
-        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        roi = (ROI) iUpdate.saveAndReturnObject(roi);
         disconnect();
 
         loginUser(owner);
@@ -92,11 +92,11 @@ public class RoiDeleteTest extends AbstractServerTest {
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = results.get(0);
     	//create the roi.
-    	Image image = well.getWellSample(0).getImage();
-        Roi roi = new RoiI();
+    	Image image = well.copyWellSamples().get(0).getImage();
+    	ROI roi = new ROII();
         roi.setImage(image);
         Rectangle rect;
-        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
             rect.setX(rdouble(10));
@@ -107,7 +107,7 @@ public class RoiDeleteTest extends AbstractServerTest {
             rect.setTheT(rint(0));
             roi.addShape(rect);
         }
-        roi = (RoiI) iUpdate.saveAndReturnObject(roi);
+        roi = (ROII) iUpdate.saveAndReturnObject(roi);
         long roiID = roi.getId().getValue();
         //no measurements
         RoiOptions options = new RoiOptions();
@@ -134,9 +134,9 @@ public class RoiDeleteTest extends AbstractServerTest {
 		fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
 		//link fa to ROI
 		List<IObject> links = new ArrayList<IObject>();
-		RoiAnnotationLink rl = new RoiAnnotationLinkI();
+		ROIAnnotationLink rl = new ROIAnnotationLinkI();
 		rl.setChild(new FileAnnotationI(fa.getId().getValue(), false));
-		rl.setParent(new RoiI(roiID, false));
+		rl.setParent(new ROII(roiID, false));
 		links.add(rl);
 		PlateAnnotationLink il = new PlateAnnotationLinkI();
 		il.setChild(new FileAnnotationI(fa.getId().getValue(), false));
@@ -165,11 +165,11 @@ public class RoiDeleteTest extends AbstractServerTest {
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = results.get(0);
     	//create the roi.
-    	Image image = well.getWellSample(0).getImage();
-        Roi roi = new RoiI();
+    	Image image = well.copyWellSamples().get(0).getImage();
+    	ROI roi = new ROII();
         roi.setImage(image);
         Rectangle rect;
-        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
             rect.setX(rdouble(10));
@@ -180,7 +180,7 @@ public class RoiDeleteTest extends AbstractServerTest {
             rect.setTheT(rint(0));
             roi.addShape(rect);
         }
-        roi = (RoiI) iUpdate.saveAndReturnObject(roi);
+        roi = (ROI) iUpdate.saveAndReturnObject(roi);
         long roiID = roi.getId().getValue();
         //no measurements
         RoiOptions options = new RoiOptions();
@@ -207,9 +207,9 @@ public class RoiDeleteTest extends AbstractServerTest {
 		fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
 		//link fa to ROI
 		List<IObject> links = new ArrayList<IObject>();
-		RoiAnnotationLink rl = new RoiAnnotationLinkI();
+		ROIAnnotationLink rl = new ROIAnnotationLinkI();
 		rl.setChild(new FileAnnotationI(fa.getId().getValue(), false));
-		rl.setParent(new RoiI(roiID, false));
+		rl.setParent(new ROII(roiID, false));
 		links.add(rl);
 		PlateAnnotationLink il = new PlateAnnotationLinkI();
 		il.setChild(new FileAnnotationI(fa.getId().getValue(), false));

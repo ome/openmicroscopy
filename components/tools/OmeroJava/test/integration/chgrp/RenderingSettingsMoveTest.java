@@ -57,7 +57,7 @@ public class RenderingSettingsMoveTest
 
 	Image img = mmFactory.createImage();
 	img = (Image) iUpdate.saveAndReturnObject(img);
-	Pixels pixels = img.getPrimaryPixels();
+	Pixels pixels = img.getPixels();
 	//method already tested in RenderingSettingsServiceTest
 	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
 	prx.setOriginalSettingsInSet(Pixels.class.getName(),
@@ -130,7 +130,7 @@ public class RenderingSettingsMoveTest
 
 	Image img = mmFactory.createImage();
 	img = (Image) iUpdate.saveAndReturnObject(img);
-	Pixels pixels = img.getPrimaryPixels();
+	Pixels pixels = img.getPixels();
 	//method already tested in RenderingSettingsServiceTest
 	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
 	long id = img.getId().getValue();
@@ -242,7 +242,7 @@ public class RenderingSettingsMoveTest
 
 	Image img = mmFactory.createImage();
 	img = (Image) iUpdate.saveAndReturnObject(img);
-	Pixels pixels = img.getPrimaryPixels();
+	Pixels pixels = img.getPixels();
 	//method already tested in RenderingSettingsServiceTest
 	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
 	long id = img.getId().getValue();

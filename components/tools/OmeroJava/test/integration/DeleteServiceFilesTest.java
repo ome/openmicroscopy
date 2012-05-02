@@ -121,7 +121,7 @@ public class DeleteServiceFilesTest
     private Image makeImageWithPixelsFile() throws ServerError, Exception {
         Image img = (Image) iUpdate.saveAndReturnObject(
                 mmFactory.createImage());
-        Pixels pix = img.getPrimaryPixels();
+        Pixels pix = img.getPixels();
         String path = getPath(REF_PIXELS, pix.getId().getValue());
         RepositoryPrx legacy = getLegacyRepository();
         legacy.create(path);
@@ -141,14 +141,15 @@ public class DeleteServiceFilesTest
         String path;
         Image img = (Image) iUpdate.saveAndReturnObject(
                 mmFactory.createImage());
-        Pixels pix = img.getPrimaryPixels();
+        Pixels pix = img.getPixels();
 		RepositoryPrx legacy = getLegacyRepository();
 		if(pixels) {
             path = getPath(REF_PIXELS, pix.getId().getValue());
             legacy.create(path);
         }
 		if(pyramid) {
-		    path = getOtherPixelsPath(pix.getId().getValue(), PyramidFileType.PYRAMID);
+		    path = getOtherPixelsPath(pix.getId().getValue(),
+		    		PyramidFileType.PYRAMID);
             legacy.create(path);
         }
 		if(lock) {
@@ -448,7 +449,7 @@ public class DeleteServiceFilesTest
 	throws Exception 
 	{
 	    Image img = makeImageWithPixelsFile();
-	    Pixels pix = img.getPrimaryPixels();      
+	    Pixels pix = img.getPixels();
 	 
 		//Now check that the files have been created and then deleted.
 		assertFileExists(pix.getId().getValue(), REF_PIXELS);
@@ -469,7 +470,7 @@ public class DeleteServiceFilesTest
 	throws Exception
 	{
 	    Image img = makeImageWithPixelsFile(false,true,false,false);
-	    Pixels pix = img.getPrimaryPixels();
+	    Pixels pix = img.getPixels();
 
 		//Now check that the files have been created and then deleted.
 		assertOtherPixelsFileExists(pix.getId().getValue(), PyramidFileType.PYRAMID);
@@ -490,7 +491,7 @@ public class DeleteServiceFilesTest
 	throws Exception
 	{
 	    Image img = makeImageWithPixelsFile(true,true,false,false);
-	    Pixels pix = img.getPrimaryPixels();
+	    Pixels pix = img.getPixels();
 
 		//Now check that the files have been created and then deleted.
 		assertFileExists(pix.getId().getValue(), REF_PIXELS);
@@ -513,7 +514,7 @@ public class DeleteServiceFilesTest
 	throws Exception
 	{
 	    Image img = makeImageWithPixelsFile(false,true,true,true);
-	    Pixels pix = img.getPrimaryPixels();
+	    Pixels pix = img.getPixels();
 
 		//Now check that the files have been created and then deleted.
 		assertOtherPixelsFileExists(pix.getId().getValue(), PyramidFileType.PYRAMID);
@@ -581,7 +582,7 @@ public class DeleteServiceFilesTest
 	{
 		Image img = (Image) iUpdate.saveAndReturnObject(
 				mmFactory.createImage());
-		Pixels pixels = img.getPrimaryPixels();
+		Pixels pixels = img.getPixels();
 		long pixId = pixels.getId().getValue();
 
 		OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
@@ -761,7 +762,7 @@ public class DeleteServiceFilesTest
         ds2.setName(omero.rtypes.rstring("#3031.2"));
 
         Image img = makeImageWithPixelsFile();
-        Pixels pix = img.getPrimaryPixels();      
+        Pixels pix = img.getPixels();
 
         //Now check that the files have been created and then deleted.
         assertFileExists(pix.getId().getValue(), REF_PIXELS);
@@ -794,10 +795,10 @@ public class DeleteServiceFilesTest
         ds.setName(omero.rtypes.rstring("#3130"));
  
         Image img1 = makeImageWithPixelsFile();
-        Pixels pix1 = img1.getPrimaryPixels();      
+        Pixels pix1 = img1.getPixels();
         // A second Image
         Image img2 = makeImageWithPixelsFile();
-        Pixels pix2 = img2.getPrimaryPixels();      
+        Pixels pix2 = img2.getPixels();
 
         // link to dataset
         ds.linkImage(img1);
@@ -885,7 +886,7 @@ public class DeleteServiceFilesTest
         throws Exception
     {
         Image img = makeImageWithPixelsFile();
-        Pixels pix = img.getPrimaryPixels();      
+        Pixels pix = img.getPixels();
         Plate p = (Plate) iUpdate.saveAndReturnObject(
                 mmFactory.createPlate(1, 1, 1, 0, false));
         List<Well> wells = loadWells(p.getId().getValue(), false);
@@ -926,7 +927,7 @@ public class DeleteServiceFilesTest
         newUserAndGroup("rwr---");
 
         Image img = makeImageWithPixelsFile();
-        Pixels pix = img.getPrimaryPixels();
+        Pixels pix = img.getPixels();
         
         //Now check that the file has been created.
         assertFileExists(pix.getId().getValue(), REF_PIXELS);

@@ -83,7 +83,7 @@ public class RawPixelsStoreTest
                 ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
                 ModelMockFactory.SIZE_T, 1);
         image = (Image) iUpdate.saveAndReturnObject(image);
-        Pixels pixels = image.getPrimaryPixels();
+        Pixels pixels = image.getPixels();
         planeSize = pixels.getSizeX().getValue()*pixels.getSizeY().getValue();
         planeSize = planeSize * 2;  // UINT16
         totalSize = planeSize * pixels.getSizeZ().getValue()

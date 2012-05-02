@@ -92,7 +92,7 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	Image image = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	prx.setOriginalSettingsInSet(Pixels.class.getName(),
      			 Arrays.asList(pixels.getId().getValue()));
@@ -129,7 +129,7 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	Image image = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	prx.setOriginalSettingsInSet(Image.class.getName(),
       			 Arrays.asList(image.getId().getValue()));
@@ -157,7 +157,7 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	Image image = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	
     	//create a dataset
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
@@ -202,7 +202,7 @@ public class RenderingSettingsServiceTest
     			mmFactory.simpleDatasetData().asIObject());
     	
     	Image image = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	
         ProjectDatasetLink link = new ProjectDatasetLinkI();
         link.link(p, d);
@@ -270,8 +270,8 @@ public class RenderingSettingsServiceTest
     	//load the well
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = results.get(0);
-    	Image image = well.getWellSample(0).getImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Image image = well.copyWellSamples().get(0).getImage();
+    	Pixels pixels = image.getPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	prx.setOriginalSettingsInSet(Screen.class.getName(),
      			 Arrays.asList(screen.getId().getValue()));
@@ -325,7 +325,7 @@ public class RenderingSettingsServiceTest
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	//Image
     	prx.setOriginalSettingsInSet(Image.class.getName(),
@@ -348,7 +348,7 @@ public class RenderingSettingsServiceTest
     	id = success.get(0); //image id.
     	assertTrue(id == image2.getId().getValue());
     	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
-    			image2.getPrimaryPixels().getId().getValue());
+    			image2.getPixels().getId().getValue());
     	compareRenderingDef(def, def2);
     }
     
@@ -364,7 +364,7 @@ public class RenderingSettingsServiceTest
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	//Image
     	//method already tested 
@@ -397,7 +397,7 @@ public class RenderingSettingsServiceTest
     	id = success.get(0); //image id.
     	assertTrue(id == image2.getId().getValue());
     	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
-    			image2.getPrimaryPixels().getId().getValue());
+    			image2.getPixels().getId().getValue());
     	compareRenderingDef(def, def2);
     }
     
@@ -412,7 +412,7 @@ public class RenderingSettingsServiceTest
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	//Image
     	prx.setOriginalSettingsInSet(Image.class.getName(),
@@ -441,7 +441,7 @@ public class RenderingSettingsServiceTest
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	//Image
     	//method already tested 
@@ -480,7 +480,7 @@ public class RenderingSettingsServiceTest
     	id = success.get(0); //image id.
     	assertTrue(id == image2.getId().getValue());
     	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
-    			image2.getPrimaryPixels().getId().getValue());
+    			image2.getPixels().getId().getValue());
     	compareRenderingDef(def, def2);
     }
     
@@ -500,8 +500,8 @@ public class RenderingSettingsServiceTest
     	Well well = results.get(0);
     	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = well.getWellSample(0).getImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Image image = well.copyWellSamples().get(0).getImage();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	//Image
     	//method already tested 
@@ -518,7 +518,7 @@ public class RenderingSettingsServiceTest
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	results = loadWells(p.getId().getValue(), true);
     	well = (Well) results.get(0);
-    	Image image2 = well.getWellSample(0).getImage();
+    	Image image2 = well.copyWellSamples().get(0).getImage();
     	Map<Boolean, List<Long>> m = 
     		prx.applySettingsToSet(id, Plate.class.getName(),
     				Arrays.asList(p.getId().getValue()));
@@ -532,7 +532,7 @@ public class RenderingSettingsServiceTest
     	id = success.get(0); //image id.
     	assertTrue(id == image2.getId().getValue());
     	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
-    			image2.getPrimaryPixels().getId().getValue());
+    			image2.getPixels().getId().getValue());
     	compareRenderingDef(def, def2);
     }
     
@@ -552,14 +552,14 @@ public class RenderingSettingsServiceTest
     	Well well = results.get(0);
     	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	WellSample ws = well.getWellSample(0);
+    	WellSample ws = well.copyWellSamples().get(0);
     	Image image = ws.getImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	//Image
     	//method already tested 
     	prx.setOriginalSettingsInSet(PlateAcquisition.class.getName(),
-     			 Arrays.asList(ws.getPlateAcquisition().getId().getValue()));
+     			 Arrays.asList(ws.getPlateAcquisitions().getId().getValue()));
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
 
@@ -568,11 +568,11 @@ public class RenderingSettingsServiceTest
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	results = loadWells(p.getId().getValue(), true);
     	well = (Well) results.get(0);
-    	ws = well.getWellSample(0);
+    	ws = well.copyWellSamples().get(0);
     	Image image2 = ws.getImage();
     	Map<Boolean, List<Long>> m = 
     		prx.applySettingsToSet(id, PlateAcquisition.class.getName(),
-    				Arrays.asList(ws.getPlateAcquisition().getId().getValue()));
+    				Arrays.asList(ws.getPlateAcquisitions().getId().getValue()));
     	assertNotNull(m);
     	List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
     	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
@@ -583,7 +583,7 @@ public class RenderingSettingsServiceTest
     	id = success.get(0); //image id.
     	assertTrue(id == image2.getId().getValue());
     	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
-    			image2.getPrimaryPixels().getId().getValue());
+    			image2.getPixels().getId().getValue());
     	compareRenderingDef(def, def2);
     }
     
@@ -611,8 +611,8 @@ public class RenderingSettingsServiceTest
     	Well well = results.get(0);
     	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = well.getWellSample(0).getImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Image image = well.copyWellSamples().get(0).getImage();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	//Image
 
@@ -635,7 +635,7 @@ public class RenderingSettingsServiceTest
     	
     	results = loadWells(p.getId().getValue(), true);
     	well = results.get(0);
-    	Image image2 = well.getWellSample(0).getImage();
+    	Image image2 = well.copyWellSamples().get(0).getImage();
     	Map<Boolean, List<Long>> m = 
     		prx.applySettingsToSet(id, Screen.class.getName(),
     				Arrays.asList(screen.getId().getValue()));
@@ -649,7 +649,7 @@ public class RenderingSettingsServiceTest
     	id = success.get(0); //image id.
     	assertTrue(id == image2.getId().getValue());
     	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
-    			image2.getPrimaryPixels().getId().getValue());
+    			image2.getPixels().getId().getValue());
     	compareRenderingDef(def, def2);
     	
     }
@@ -668,8 +668,8 @@ public class RenderingSettingsServiceTest
     	//load the well
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = results.get(0);
-    	Image image = well.getWellSample(0).getImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Image image = well.copyWellSamples().get(0).getImage();
+    	Pixels pixels = image.getPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	prx.setOriginalSettingsInSet(Plate.class.getName(),
     			 Arrays.asList(p.getId().getValue()));
@@ -702,15 +702,15 @@ public class RenderingSettingsServiceTest
     	//load the well
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = results.get(0);
-    	WellSample ws = well.getWellSample(0);
+    	WellSample ws = well.copyWellSamples().get(0);
     	Image image = ws.getImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	prx.setOriginalSettingsInSet(PlateAcquisition.class.getName(),
-   			 Arrays.asList(ws.getPlateAcquisition().getId().getValue()));
+   			 Arrays.asList(ws.getPlateAcquisitions().getId().getValue()));
     	//Image
     	List<Long> ids = new ArrayList<Long>();
-    	ids.add(ws.getPlateAcquisition().getId().getValue());
+    	ids.add(ws.getPlateAcquisitions().getId().getValue());
     	List<Long> v = prx.resetDefaultsInSet(PlateAcquisition.class.getName(),
     			ids);
     	assertNotNull(v);
@@ -735,7 +735,7 @@ public class RenderingSettingsServiceTest
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	//Image
     	//method already tested 
@@ -786,7 +786,7 @@ public class RenderingSettingsServiceTest
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	//Image
     	//method already tested 
@@ -863,7 +863,7 @@ public class RenderingSettingsServiceTest
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	//Image
     	//method already tested 
@@ -935,8 +935,8 @@ public class RenderingSettingsServiceTest
     	Well well = results.get(0);
     	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = well.getWellSample(0).getImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Image image = well.copyWellSamples().get(0).getImage();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	//Image
     	prx.setOriginalSettingsInSet(Plate.class.getName(),
@@ -991,14 +991,14 @@ public class RenderingSettingsServiceTest
     	Well well = results.get(0);
     	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	WellSample ws = well.getWellSample(0);
+    	WellSample ws = well.copyWellSamples().get(0);
     	Image image = ws.getImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	//Image
     	//method already tested 
     	prx.setOriginalSettingsInSet(PlateAcquisition.class.getName(),
-      			 Arrays.asList(ws.getPlateAcquisition().getId().getValue()));
+      			 Arrays.asList(ws.getPlateAcquisitions().getId().getValue()));
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
     	//Modified the settings.
@@ -1020,7 +1020,7 @@ public class RenderingSettingsServiceTest
     	iUpdate.saveAndReturnArray(toUpdate);
     	
     	List<Long> m = prx.resetMinMaxInSet(PlateAcquisition.class.getName(), 
-    			Arrays.asList(ws.getPlateAcquisition().getId().getValue()));
+    			Arrays.asList(ws.getPlateAcquisitions().getId().getValue()));
     	assertNotNull(m);
     	assertTrue(m.size() == 1);
     	def = factory.getPixelsService().retrieveRndSettings(id);
@@ -1056,8 +1056,8 @@ public class RenderingSettingsServiceTest
     	Well well = results.get(0);
     	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = well.getWellSample(0).getImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Image image = well.copyWellSamples().get(0).getImage();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
 
     	prx.setOriginalSettingsInSet(Plate.class.getName(),
@@ -1106,7 +1106,7 @@ public class RenderingSettingsServiceTest
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createBinaryImage();
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	//Image
     	//method already tested 
@@ -1130,7 +1130,7 @@ public class RenderingSettingsServiceTest
     	id = success.get(0); //image id.
     	assertTrue(id == image2.getId().getValue());
     	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
-    			image2.getPrimaryPixels().getId().getValue());
+    			image2.getPixels().getId().getValue());
     	compareRenderingDef(def, def2);
     }
     

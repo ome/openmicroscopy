@@ -395,7 +395,7 @@ public class DeleteServicePermissionsTest
     	Image image = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
     	//create rendering settings for that user.
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
     	long imageID = image.getId().getValue();
     	//Image

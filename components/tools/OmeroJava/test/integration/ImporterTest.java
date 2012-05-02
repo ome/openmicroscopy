@@ -48,9 +48,8 @@ import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.LightEmittingDiode;
 import omero.model.LightPath;
-import omero.model.LightSettings;
+import omero.model.LightSourceSettings;
 import omero.model.LightSource;
-import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.MicrobeamManipulation;
 import omero.model.Microscope;
@@ -61,7 +60,7 @@ import omero.model.Plane;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.Reagent;
-import omero.model.Roi;
+import omero.model.ROI;
 import omero.model.Screen;
 import omero.model.Shape;
 import omero.model.StageLabel;
@@ -69,7 +68,6 @@ import omero.model.TagAnnotation;
 import omero.model.TermAnnotation;
 import omero.model.TransmittanceRange;
 import omero.model.Well;
-import omero.model.WellReagentLink;
 import omero.model.WellSample;
 import omero.sys.ParametersI;
 
@@ -349,7 +347,7 @@ public class ImporterTest
 	 * @param settings The settings to check.
 	 * @param xml The XML version.
 	 */
-	private void validateLightSourceSettings(LightSettings settings, 
+	private void validateLightSourceSettings(LightSourceSettings settings, 
 			ome.xml.model.LightSourceSettings xml)
 	{
 		assertEquals(settings.getAttenuation().getValue(), 
@@ -369,7 +367,7 @@ public class ImporterTest
 	{
 		assertEquals(env.getAirPressure().getValue(), 
 				xml.getAirPressure().doubleValue());
-		assertEquals(env.getCo2percent().getValue(), 
+		assertEquals(env.getCo2Percent().getValue(), 
 				xml.getCO2Percent().getValue().doubleValue());
 		assertEquals(env.getHumidity().getValue(), 
 				xml.getHumidity().getValue().doubleValue());
@@ -419,7 +417,7 @@ public class ImporterTest
 	 * @param lc The logical channel to check.
 	 * @param xml The XML version.
 	 */
-	private void validateChannel(LogicalChannel lc, 
+	private void validateChannel(Channel lc, 
 			ome.xml.model.Channel xml)
 	{
 		assertEquals(lc.getName().getValue(), xml.getName());
@@ -500,6 +498,7 @@ public class ImporterTest
 	 */
 	private void validateWell(Well well, ome.xml.model.Well xml)
 	{
+		omero.model.Color c = well.getColor();
 		assertEquals(well.getColumn().getValue(), 
 				xml.getColumn().getValue().intValue());
 		assertEquals(well.getRow().getValue(), 
@@ -509,10 +508,10 @@ public class ImporterTest
 		assertEquals(well.getExternalIdentifier().getValue(), 
 				xml.getExternalIdentifier());
 		Color xmlColor = new Color(xml.getColor());
-		assertEquals(well.getAlpha().getValue(), xmlColor.getAlpha());
-		assertEquals(well.getRed().getValue(), xmlColor.getRed());
-		assertEquals(well.getGreen().getValue(), xmlColor.getGreen());
-		assertEquals(well.getBlue().getValue(), xmlColor.getBlue());
+		assertEquals(c.getAlpha(), xmlColor.getAlpha());
+		assertEquals(c.getRed(), xmlColor.getRed());
+		assertEquals(c.getGreen(), xmlColor.getGreen());
+		assertEquals(c.getBlue(), xmlColor.getBlue());
 	}
 
 	/**
@@ -564,8 +563,8 @@ public class ImporterTest
 	{
 		assertEquals(mm.getType().getValue().getValue(), 
 				xml.getType().getValue());
-		List<LightSettings> settings = mm.copyLightSourceSettings();
-		assertEquals(1, mm.sizeOfLightSourceSettings());
+		List<LightSourceSettings> settings =
+			mm.copyLightSourceSettingsCombinations();
 		assertEquals(1, settings.size());
 		validateLightSourceSettings(settings.get(0), 
 				xml.getLightSourceSettings(0));
@@ -867,16 +866,16 @@ public class ImporterTest
     			XMLMockObjects.CUT_IN, XMLMockObjects.CUT_OUT);
     	ome.xml.model.Dichroic xmlDichroic = xml.createDichroic(0);
     	assertEquals(XMLMockObjects.NUMBER_OF_OBJECTIVES, 
-    			instrument.sizeOfObjective());
+    			instrument.sizeOfObjectives());
     	assertEquals(XMLMockObjects.NUMBER_OF_DECTECTORS, 
-    			instrument.sizeOfDetector());
+    			instrument.sizeOfDetectors());
     	assertEquals(XMLMockObjects.NUMBER_OF_DICHROICS, 
-    			instrument.sizeOfDichroic());
+    			instrument.sizeOfDichroics());
     	assertEquals(XMLMockObjects.NUMBER_OF_FILTERS, 
-    			instrument.sizeOfFilter());
-    	assertEquals(1, instrument.sizeOfFilterSet());
+    			instrument.sizeOfFilters());
+    	assertEquals(1, instrument.sizeOfFilterSets());
     	
-    	List<Detector> detectors = instrument.copyDetector();
+    	List<Detector> detectors = instrument.copyDetectors();
     	List<Long> detectorIds = new ArrayList<Long>();
     	Detector de;
     	Iterator j = detectors.iterator();
@@ -885,23 +884,23 @@ public class ImporterTest
     		detectorIds.add(de.getId().getValue());
     		validateDetector(de, xmlDetector);
 		}
-    	List<Objective> objectives = instrument.copyObjective();
+    	List<Objective> objectives = instrument.copyObjectives();
     	j = objectives.iterator();
     	while (j.hasNext()) {
     		validateObjective((Objective) j.next(), xmlObjective);
 		}
-    	List<Filter> filters = instrument.copyFilter();
+    	List<Filter> filters = instrument.copyFilters();
     	j = filters.iterator();
     	while (j.hasNext()) {
     		validateFilter((Filter) j.next(), xmlFilter);
 		}
-    	List<Dichroic> dichroics = instrument.copyDichroic();
+    	List<Dichroic> dichroics = instrument.copyDichroics();
     	j = dichroics.iterator();
     	while (j.hasNext()) {
     		validateDichroic((Dichroic) j.next(), xmlDichroic);
 		}
     	
-    	List<LightSource> lights = instrument.copyLightSource();
+    	List<LightSource> lights = instrument.copyLightSources();
     	j = lights.iterator();
     	List<Long> lightIds = new ArrayList<Long>();
     	LightSource src;
@@ -931,23 +930,24 @@ public class ImporterTest
     	Color c;
     	while (i.hasNext()) {
 			channel = i.next();
-			assertEquals(channel.getAlpha().getValue(), 
+			omero.model.Color cc = channel.getColor();
+			assertEquals(cc.getAlpha(), 
 					XMLMockObjects.DEFAULT_COLOR.getAlpha());
-			assertEquals(channel.getRed().getValue(), 
+			assertEquals(cc.getRed(), 
 					XMLMockObjects.DEFAULT_COLOR.getRed());
-			assertEquals(channel.getGreen().getValue(), 
+			assertEquals(cc.getGreen(), 
 					XMLMockObjects.DEFAULT_COLOR.getGreen());
-			assertEquals(channel.getBlue().getValue(), 
+			assertEquals(cc.getBlue(), 
 					XMLMockObjects.DEFAULT_COLOR.getBlue());
-			ids.add(channel.getLogicalChannel().getId().getValue());
+			ids.add(channel.getId().getValue());
 		}
-    	List<LogicalChannel> l = 
+    	List<Channel> l = 
     		factory.getMetadataService().loadChannelAcquisitionData(ids);
     	assertEquals(channels.size(), l.size());
     	
-    	LogicalChannel lc;
+    	Channel lc;
     	DetectorSettings ds;
-    	LightSettings ls;
+    	LightSourceSettings ls;
     	ome.xml.model.DetectorSettings xmlDs = xml.createDetectorSettings(0);
     	ome.xml.model.LightSourceSettings xmlLs = 
     		xml.createLightSourceSettings(0);
@@ -955,7 +955,6 @@ public class ImporterTest
     	ome.xml.model.MicrobeamManipulation xmlMM = 
     		xml.createMicrobeamManipulation(0);
     	ome.xml.model.Experiment xmlExp = ome.getExperiment(0);
-    	ome.xml.model.OTF xmlOTF = ome.getInstrument(0).getOTF(0);
     	
     	// Validate experiment (initial checks)
     	assertNotNull(image.getExperiment());
@@ -969,13 +968,13 @@ public class ImporterTest
     			"where e.id = :id", new ParametersI().addId(
     					image.getExperiment().getId().getValue()));
     	assertNotNull(exp);
-    	assertEquals(1, exp.sizeOfMicrobeamManipulation());
-    	MicrobeamManipulation mm = exp.copyMicrobeamManipulation().get(0);
+    	assertEquals(1, exp.sizeOfMicrobeamManipulations());
+    	MicrobeamManipulation mm = exp.copyMicrobeamManipulations().get(0);
     	validateExperiment(exp, xmlExp);
     	validateMicrobeamManipulation(mm, xmlMM);
 
     	LightPath path;
-    	Iterator<LogicalChannel> k = l.iterator();
+    	Iterator<Channel> k = l.iterator();
     	while (k.hasNext()) {
 			lc = k.next();
 			validateChannel(lc, xmlChannel);
@@ -1023,11 +1022,11 @@ public class ImporterTest
 		IRoiPrx svc = factory.getRoiService();
 		RoiResult r = svc.findByImage(id, new RoiOptions());
 		assertNotNull(r);
-		List<Roi> rois = r.rois;
+		List<ROI> rois = r.rois;
 		assertNotNull(rois);
 		assertTrue(rois.size() == XMLMockObjects.SIZE_C);
-		Iterator<Roi> i = rois.iterator();
-		Roi roi;
+		Iterator<ROI> i = rois.iterator();
+		ROI roi;
 		List<Shape> shapes;
 		while (i.hasNext()) {
 			roi = i.next();
@@ -1059,7 +1058,8 @@ public class ImporterTest
 		}
         Pixels p = pixels.get(0);
         WellSample ws = getWellSample(p);
-		validateWellSample(ws, ome.getPlate(0).getWell(0).getWellSample(0));
+		validateWellSample(ws,
+				ome.getPlate(0).getWell(0).copyWellSampleList().get(0));
 		Well well = ws.getWell();
 		assertNotNull(well);
 		validateWell(well, ome.getPlate(0).getWell(0));
@@ -1098,7 +1098,8 @@ public class ImporterTest
 		}
         Pixels pp = pixels.get(0);
         WellSample ws = getWellSample(pp);
-		validateWellSample(ws, ome.getPlate(0).getWell(0).getWellSample(0));
+		validateWellSample(ws,
+				ome.getPlate(0).getWell(0).copyWellSampleList().get(0));
 		Well well = ws.getWell();
 		assertNotNull(well);
 		validateWell(well, ome.getPlate(0).getWell(0));
@@ -1118,7 +1119,7 @@ public class ImporterTest
 			well = ws.getWell();
 			assertNotNull(well);
 			plate = ws.getWell().getPlate();
-			pa = ws.getPlateAcquisition();
+			pa = ws.getPlateAcquisitions();
 			wsIds = pawsMap.get(pa.getId().getValue());
 			if (wsIds == null) {
 				wsIds = new HashSet<Long>();
@@ -1212,7 +1213,7 @@ public class ImporterTest
 			well = ws.getWell();
 			assertNotNull(well);
 			plate = ws.getWell().getPlate();
-			pa = ws.getPlateAcquisition();
+			pa = ws.getPlateAcquisitions();
 			wsIds = pawsMap.get(pa.getId().getValue());
 			if (wsIds == null) {
 				wsIds = new HashSet<Long>();
@@ -1297,7 +1298,7 @@ public class ImporterTest
 		WellSample ws = (WellSample) results.get(0);
 		assertNotNull(ws.getWell());
 		assertNotNull(ws.getWell().getPlate());
-		PlateAcquisition pa = ws.getPlateAcquisition();
+		PlateAcquisition pa = ws.getPlateAcquisitions();
 		assertNotNull(pa);
 		validatePlateAcquisition(pa, ome.getPlate(0).getPlateAcquisition(0));
 	}
@@ -1405,19 +1406,9 @@ public class ImporterTest
 		WellSample ws = (WellSample) results.get(0);
 		//assertNotNull(ws.getPlateAcquisition());
 		assertNotNull(ws.getWell());
-		id = ws.getWell().getId().getValue();
-		sql = "select l from WellReagentLink as l ";
-		sql += "join fetch l.child as c ";
-		sql += "join fetch l.parent as p ";
-		sql += "where p.id = :id";
-		param = new ParametersI();
-		param.addId(id);
-		WellReagentLink wr = (WellReagentLink) iQuery.findByQuery(sql, param);
-		assertNotNull(wr);
-		assertNotNull(wr.getParent());
-		assertNotNull(wr.getChild());
-		validateReagent(wr.getChild(), ome.getScreen(0).getReagent(0));
-		id = wr.getChild().getId().getValue();
+		validateReagent(ws.getWell().getReagent(),
+				ome.getScreen(0).getReagent(0));
+		id = ws.getWell().getReagent().getId().getValue();
 		sql = "select s from Screen as s ";
 		sql += "join fetch s.reagents as r ";
 		sql += "where r.id = :id";
@@ -1427,7 +1418,7 @@ public class ImporterTest
 			(omero.model.Screen) iQuery.findByQuery(sql, param);
 		assertNotNull(screen);
 		assertEquals(1, screen.sizeOfReagents());
-		assertEquals(wr.getChild().getId().getValue(),
+		assertEquals(ws.getWell().getReagent().getId().getValue(),
 				screen.copyReagents().get(0).getId().getValue());
 	}
 	

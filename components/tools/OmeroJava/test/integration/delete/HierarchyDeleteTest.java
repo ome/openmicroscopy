@@ -19,7 +19,7 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.Plate;
 import omero.model.Project;
 import omero.model.ProjectI;
-import omero.model.Roi;
+import omero.model.ROI;
 import omero.model.Screen;
 import omero.model.ScreenI;
 
@@ -142,7 +142,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
         Image i = (Image) iUpdate.saveAndReturnObject(
         		mmFactory.createImageWithRoi());
-        Roi roi = i.copyRois().get(0);
+        ROI roi = i.copyRoiLinks().get(0).getChild();
         i.unload();
 
         ds1.linkImage(i);

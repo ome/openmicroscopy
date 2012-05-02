@@ -34,18 +34,16 @@ import omero.model.FilamentType;
 import omero.model.FilterType;
 import omero.model.Format;
 import omero.model.IObject;
-import omero.model.Illumination;
+import omero.model.IlluminationType;
 import omero.model.Image;
 import omero.model.Immersion;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
-import omero.model.LogicalChannel;
 import omero.model.Medium;
 import omero.model.MicrobeamManipulationType;
 import omero.model.MicroscopeType;
-import omero.model.PhotometricInterpretation;
 import omero.model.Pixels;
-import omero.model.PixelsType;
+import omero.model.PixelType;
 import omero.model.Pulse;
 import omero.model.RenderingDef;
 import omero.model.RenderingModel;
@@ -245,7 +243,7 @@ public class PixelsServiceTest
     			ModelMockFactory.SIZE_T, 
     			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
 		image = (Image) iUpdate.saveAndReturnObject(image);
-        Pixels pixels = image.getPrimaryPixels();
+        Pixels pixels = image.getPixels();
         long id = pixels.getId().getValue();
         Pixels p = factory.getPixelsService().retrievePixDescription(id);
         assertNotNull(p);
@@ -268,21 +266,20 @@ public class PixelsServiceTest
         assertTrue(pixels.getType().getValue().getValue().equals(
         	p.getType().getValue().getValue()));
         Channel channel;
-        LogicalChannel lc;
         List<Long> ids = new ArrayList<Long>();
-        for (int j = 0; j < p.sizeOfChannels(); j++) {
-			channel = p.getChannel(j);
+        Iterator<Channel> j = p.copyChannels().iterator();
+        while (j.hasNext()) {
+			channel = j.next();
 			assertNotNull(channel);
 			ids.add(channel.getId().getValue());
 			assertNotNull(channel.getStatsInfo());
-			lc = channel.getLogicalChannel();
-			assertNotNull(lc);
-			assertNotNull(lc.getContrastMethod().getValue().getValue());
-			assertNotNull(lc.getIlluminationType().getValue().getValue());
-			assertNotNull(lc.getAcquisitionMode().getValue().getValue());
+			assertNotNull(channel.getContrastMethod().getValue().getValue());
+			assertNotNull(channel.getIlluminationType().getValue().getValue());
+			assertNotNull(channel.getAcquisitionMode().getValue().getValue());
 		}
-        for (int j = 0; j < pixels.sizeOfChannels(); j++) {
-			channel = pixels.getChannel(j);
+        j = pixels.copyChannels().iterator();
+        while (j.hasNext()) {
+			channel = j.next();
 			assertNotNull(channel);
 			assertTrue(ids.contains(channel.getId().getValue()));
 			assertNotNull(channel.getStatsInfo());
@@ -306,9 +303,7 @@ public class PixelsServiceTest
     	checkEnumeration(FilterType.class.getName(), MAX_FILTER_TYPE);
     	checkEnumeration(Binning.class.getName(), MAX_BINNING);
     	checkEnumeration(ContrastMethod.class.getName(), MAX_CONTRAST_METHOD);
-    	checkEnumeration(Illumination.class.getName(), MAX_ILLUMINATION);
-    	checkEnumeration(PhotometricInterpretation.class.getName(), 
-    			MAX_PHOTOMETRIC_INTERPRETATION);
+    	checkEnumeration(IlluminationType.class.getName(), MAX_ILLUMINATION);
     	checkEnumeration(AcquisitionMode.class.getName(), MAX_ACQUISITION_MODE);
     	checkEnumeration(LaserMedium.class.getName(), MAX_LASER_MEDIUM);
     	checkEnumeration(LaserType.class.getName(), MAX_LASER_TYPE);
@@ -323,7 +318,7 @@ public class PixelsServiceTest
     			MAX_EXPERIMENT_TYPE);
     	//for rendering engine
     	checkEnumeration(Family.class.getName(), MAX_FAMILY);
-    	checkEnumeration(PixelsType.class.getName(), MAX_PIXELS_TYPE);
+    	checkEnumeration(PixelType.class.getName(), MAX_PIXELS_TYPE);
     	checkEnumeration(RenderingModel.class.getName(), MAX_RENDERING_MODEL);
     }
     
@@ -342,7 +337,7 @@ public class PixelsServiceTest
     			ModelMockFactory.SIZE_Z, ModelMockFactory.SIZE_T,
     			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
     	image = (Image) iUpdate.saveAndReturnObject(image);
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
     	prx.setOriginalSettingsInSet(Pixels.class.getName(), 
@@ -374,7 +369,7 @@ public class PixelsServiceTest
     			ModelMockFactory.SIZE_Z, ModelMockFactory.SIZE_T,
     			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
     	image = (Image) iUpdate.saveAndReturnObject(image);
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
     	prx.setOriginalSettingsInSet(Pixels.class.getName(), 
@@ -397,13 +392,13 @@ public class PixelsServiceTest
     {
     	IPixelsPrx svc = factory.getPixelsService();
     	List<IObject> types = 
-    		svc.getAllEnumerations(PixelsType.class.getName());
+    		svc.getAllEnumerations(PixelType.class.getName());
     	List<Integer> channels = new ArrayList<Integer>();
     	for (int i = 0; i < 3; i++) {
 			channels.add(i);
 		}
     	RLong id = svc.createImage(10, 10, 10, 10, channels, 
-    			(PixelsType) types.get(1),
+    			(PixelType) types.get(1),
     			"test", "");
     	assertNotNull(id);
     	//Retrieve the image.
@@ -428,7 +423,7 @@ public class PixelsServiceTest
     			ModelMockFactory.SIZE_Z, ModelMockFactory.SIZE_T,
     			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
     	image = (Image) iUpdate.saveAndReturnObject(image);
-    	Pixels pixels = image.getPrimaryPixels();
+    	Pixels pixels = image.getPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
     	long id = pixels.getId().getValue();
