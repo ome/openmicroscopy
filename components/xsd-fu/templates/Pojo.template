@@ -262,7 +262,7 @@ ${customUpdatePropertyContent[prop.name]}
 		for (Element ${prop.name}_element : ${prop.name}_nodeList)
 		{
 {% for inner_prop in model.getObjectByName(prop.name).properties.values() %}\
-{% if not inner_prop.isAttribute and inner_prop.isComplex() and not inner_prop.isReference %}\
+{% if not inner_prop.isAttribute and inner_prop.isComplex() and not inner_prop.isReference and inner_prop.isChoice %}\
 			List<Element> ${inner_prop.name}_nodeList = 
 					getChildrenByTagName(${prop.name}_element, "${inner_prop.name}");
 			for (Element ${inner_prop.name}_element : ${inner_prop.name}_nodeList)

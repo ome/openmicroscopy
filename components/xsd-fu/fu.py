@@ -393,6 +393,8 @@ class OMEModelProperty(OMEModelEntity):
         self.parent = parent
         self.isAttribute = False
         self.isBackReference = False
+        self.isChoice = hasattr(self.delegate, 'choice')
+        self.isChoice = self.isChoice and self.delegate.choice is not None
         self.plural = None
         self.manyToMany = False
         self._isReference = False
@@ -414,8 +416,7 @@ class OMEModelProperty(OMEModelEntity):
         if self.isAttribute:
             return 1
         choiceMaxOccurs = 1
-        if hasattr(self.delegate, 'choice') \
-           and self.delegate.choice is not None:
+        if self.isChoice:
             choiceMaxOccurs = self.delegate.choice.getMaxOccurs()
         return max(choiceMaxOccurs, self.delegate.getMaxOccurs())
     maxOccurs = property(_get_maxOccurs,
