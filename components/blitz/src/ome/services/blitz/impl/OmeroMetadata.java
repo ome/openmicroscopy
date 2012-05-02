@@ -683,7 +683,7 @@ public class OmeroMetadata extends DummyMetadata {
         }
         try
         {
-            Color color = new Color(o.getColor().getValue().getValue());
+            Color color = new Color(o.getColor().getValue());
             int argb = color.getRGB();
             // ARGB --> RGBA
             return (argb << 8) | (argb >>> (32-8));

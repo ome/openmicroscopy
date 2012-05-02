@@ -36,7 +36,7 @@ import static omero.rtypes.rint;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class ColorI extends Color implements ome.model.ModelBased {
+public class ColorI extends Color {
 
     public final static Ice.ObjectFactory Factory = new Ice.ObjectFactory() {
 
@@ -51,33 +51,19 @@ public class ColorI extends Color implements ome.model.ModelBased {
     };
     
 	public ColorI() {
-		setColor(0);
+		setValue(0);
 	}
 
 	public ColorI(int color) {
-		setColor(color);
+		setValue(color);
 	}
 
-	public int getColor(Ice.Current current) {
-		return value.getValue();
+	public int getValue(Ice.Current current) {
+		return value;
 	}
 
-	public void setColor(int color, Ice.Current current) {
-		this.value = rint(color);
-	}
-
-	public void setColor(int color) {
-		this.value = rint(color);
-
-	}
-
-	public void copyObject(ome.util.Filterable model,
-			ome.util.ModelMapper _mapper) {
-		throw new UnsupportedOperationException();
-	}
-
-	public ome.util.Filterable fillObject(ome.util.ReverseModelMapper _mapper) {
-		throw new UnsupportedOperationException();
+	public void setValue(int color, Ice.Current current) {
+		this.value = color;
 	}
 	
     /**
@@ -85,7 +71,7 @@ public class ColorI extends Color implements ome.model.ModelBased {
      * 
      * @return See above.
      */
-    public int getRed()
+    public int getRed(Ice.Current current)
     {
     	return 0; //To be implemented.
     }
@@ -95,7 +81,7 @@ public class ColorI extends Color implements ome.model.ModelBased {
      * 
      * @return See above.
      */
-    public int getGreen()
+    public int getGreen(Ice.Current current)
     {
     	return 0; //To be implemented.
     }
@@ -105,7 +91,7 @@ public class ColorI extends Color implements ome.model.ModelBased {
      * 
      * @return See above.
      */
-    public int getBlue()
+    public int getBlue(Ice.Current current)
     {
     	return 0; //To be implemented.
     }
@@ -115,111 +101,29 @@ public class ColorI extends Color implements ome.model.ModelBased {
      * 
      * @return See above.
      */
-    public int getAlpha()
+    public int getAlpha(Ice.Current current)
     {
     	return 0; //To be implemented.
     }
 
-	@Override
-	public RInt getValue(Current current) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public void setRed(int red, Current __current) {
+        // FIXME
+    }
 
-	@Override
-	public RInt getVersion(Current current) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public void setGreen(int green, Current __current) {
+        // FIXME
+    }
 
-	@Override
-	public void setValue(RInt theValue, Current current) {
-		// TODO Auto-generated method stub
-		
-	}
+    public void setBlue(int blue, Current __current) {
+        // FIXME
+    }
 
-	@Override
-	public void setVersion(RInt theVersion, Current current) {
-		// TODO Auto-generated method stub
-		
-	}
+    public void setAlpha(int alpha, Current __current) {
+        // FIXME
+    }
 
-	@Override
-	public Details getDetails(Current current) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public RLong getId(Current current) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean isAnnotated(Current current) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isGlobal(Current current) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isLink(Current current) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isLoaded(Current current) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isMutable(Current current) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public IObject proxy(Current current) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setId(RLong id, Current current) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public IObject shallowCopy(Current current) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void unload(Current current) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void unloadCollections(Current current) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void unloadDetails(Current current) {
-		// TODO Auto-generated method stub
-		
-	}
+    public Color proxy(Current __current) {
+        return new ColorI(value);
+    }
 
 }

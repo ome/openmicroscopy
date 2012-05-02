@@ -238,8 +238,8 @@ public class ColorsFactory {
 	if (channel == null) return null;
 	if (!hasEmissionExcitationData(channelData, true)) {
 		omero.model.Color color = channel.getColor();
-		if (color.getValue() != null) {
-			Color c = new Color(color.getValue().getValue());
+		if (color != null) {
+		    Color c = new Color(color.getValue());
 			return new int[] { c.getRed(), c.getGreen(), c.getBlue(), 
 					c.getAlpha() };
 		}

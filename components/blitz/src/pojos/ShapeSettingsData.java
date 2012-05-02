@@ -166,7 +166,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		omero.model.Color value = shape.getFillColor();
 		if (value == null) return DEFAULT_FILL_COLOUR;
-		return new Color(value.getValue().getValue(), true);
+		return new Color(value.getValue(), true);
 	}
 	
 	/**
@@ -194,7 +194,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		omero.model.Color value = shape.getStrokeColor();
 		if (value == null) return DEFAULT_STROKE_COLOUR;
-		return new Color(value.getValue().getValue(), true);
+		return new Color(value.getValue(), true);
 	}
 
 	/**
