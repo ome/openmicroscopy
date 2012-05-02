@@ -430,6 +430,9 @@ class OMEModelProperty(OMEModelEntity):
     name = property(_get_name, doc="""The property's name.""")
 
     def _get_namespace(self):
+        if self.isReference:
+            ref = self.model.getObjectByName(REF_REGEX.sub('', self.type))
+            return ref.namespace
         if self.isAttribute or self.isBackReference:
             return self.parent.namespace
         return self.delegate.namespace
