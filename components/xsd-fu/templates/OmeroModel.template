@@ -77,8 +77,7 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
                 return False
             if x.name in ('BinaryOnly', 'Contact', 'Leader', 'MetadataOnly',
                           'OME', 'TiffData', 'UUID',
-                          'StructuredAnnotations', 'Experimenter',
-                          'ExperimenterGroup', 'Reference'):
+                          'StructuredAnnotations', 'Reference'):
                 return False
             return True
         return filter(f, objects)
@@ -161,6 +160,9 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
 \
 {% for prop in sorted_and_filtered_properties(o) %}\
 {% choose %}\
+{% when prop.isBackReference and o.name in ('Experimenter', 'ExperimenterGroup') %}\
+            <!-- Ignoring back reference ${prop.name} for global OMERO type. -->
+{% end %}\
 {% when prop.isReference and prop.isManyToMany %}\
             <!--
             // Many-to-many reference ${prop.name}
