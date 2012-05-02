@@ -91,10 +91,10 @@ BACK_REFERENCE_LINK_OVERRIDE = {'ScreenRef': ['Plate'], 'Pump': ['Laser'], 'Anno
 # Back reference instance variable name overrides which will be used in place
 # of the standard name translation logic.
 BACK_REFERENCE_NAME_OVERRIDE = {
-    'FilterSet.ExcitationFilter': 'excitationFilter',
-    'FilterSet.EmissionFilter': 'emissionFilter',
-    'LightPath.ExcitationFilter': 'excitationFilter',
-    'LightPath.EmissionFilter': 'emissionFilter',
+    'FilterSet.ExcitationFilter': 'filterSetExcitationFilter',
+    'FilterSet.EmissionFilter': 'filterSetEmissionFilter',
+    'LightPath.ExcitationFilter': 'lightPathExcitationFilter',
+    'LightPath.EmissionFilter': 'lightPathEmissionFilter',
 }
 
 # Back reference class name overrides which will be used when generating
@@ -219,6 +219,7 @@ BACKREF_REGEX = re.compile(r'_BackReference')
 PREFIX_CASE_REGEX = re.compile(
         r'^([A-Z]{1})[a-z0-9]+|([A-Z0-9]+)[A-Z]{1}[a-z]+|([A-Z]+)[0-9]*|([a-z]+$)')
 
+SETTINGS_REGEX = re.compile(r'^Detector|^LightSource|^Objective')
 
 def resolve_parents(model, element_name):
     """
@@ -433,7 +434,11 @@ class OMEModelProperty(OMEModelEntity):
         doc="""The minimum number of occurances for this property.""")
 
     def _get_name(self):
-        return self.delegate.getName()
+        name = self.delegate.getName()
+        match = SETTINGS_REGEX.match(name)
+        if match is not None:
+            name = REF_REGEX.sub('Settings', name)
+        return name
     name = property(_get_name, doc="""The property's name.""")
 
     def _get_namespace(self):
@@ -542,6 +547,7 @@ class OMEModelProperty(OMEModelEntity):
                 name = self.model.getObjectByName(self.type)
                 name = name.javaInstanceVariableName
                 name = BACK_REFERENCE_NAME_OVERRIDE.get(self.key, name)
+                name = BACKREF_REGEX.sub('', self.javaArgumentName) + name
             return name + 'Links'
         try:
             if self.maxOccurs > 1:
@@ -940,11 +946,21 @@ class TemplateInfo(object):
         self.DO_NOT_PROCESS = DO_NOT_PROCESS
         self.BACK_REFERENCE_OVERRIDE = BACK_REFERENCE_OVERRIDE
         self.BACK_REFERENCE_LINK_OVERRIDE = BACK_REFERENCE_LINK_OVERRIDE
+        self.BACK_REFERENCE_NAME_OVERRIDE = BACK_REFERENCE_NAME_OVERRIDE
+        self.REF_REGEX = REF_REGEX
     
     def link_overridden(self, property_name, class_name):
         """Whether or not a back reference link should be overridden."""
         try:
             return class_name in self.BACK_REFERENCE_LINK_OVERRIDE[property_name] 
+        except KeyError:
+            return False
+
+    def backReference_overridden(self, property_name, class_name):
+        """Whether or not a back reference link name should be overridden."""
+        try:
+            name = class_name + "." + self.REF_REGEX.sub('', property_name)
+            return self.BACK_REFERENCE_NAME_OVERRIDE[name]
         except KeyError:
             return False
 

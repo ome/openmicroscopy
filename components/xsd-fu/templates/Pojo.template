@@ -320,7 +320,13 @@ ${customUpdatePropertyContent[prop.name]}
 		{
 			${prop.javaType} o_casted = (${prop.javaType}) o;
 {% if not fu.link_overridden(prop.name, klass.name) %}\
+{% if not fu.backReference_overridden(prop.name, klass.name) %}\
 			o_casted.link${klass.type}(this);
+{% end %}\
+{% if fu.backReference_overridden(prop.name, klass.name) %}\
+      System.out.println("overridden back reference");
+      o_casted.link${klass.name}${prop.javaMethodName}(this);
+{% end %}\
 {% end %}\
 {% if prop.maxOccurs > 1 %}\
 			if (!${prop.javaInstanceVariableName}.contains(o_casted)) {
@@ -379,7 +385,13 @@ ${customUpdatePropertyContent[prop.name]}
 	public boolean link${prop.javaMethodName}(${prop.javaType} o)
 	{
 {% if not prop.isBackReference and not fu.link_overridden(prop.name, klass.name) %}\
-		o.link${klass.type}(this);
+
+{% if not fu.backReference_overridden(prop.name, klass.name) %}\
+			o.link${klass.type}(this);
+{% end %}\
+{% if fu.backReference_overridden(prop.name, klass.name) %}\
+      o.link${klass.name}${prop.javaMethodName}(this);
+{% end %}\
 {% end %}\
 		if (!${prop.javaInstanceVariableName}.contains(o)) {
 			return ${prop.javaInstanceVariableName}.add(o);
@@ -390,7 +402,14 @@ ${customUpdatePropertyContent[prop.name]}
 	public boolean unlink${prop.javaMethodName}(${prop.javaType} o)
 	{
 {% if not prop.isBackReference and not fu.link_overridden(prop.name, klass.name) %}\
-		o.unlink${klass.type}(this);
+
+{% if not fu.backReference_overridden(prop.name, klass.name) %}\
+			o.unlink${klass.type}(this);
+{% end %}\
+{% if fu.backReference_overridden(prop.name, klass.name) %}\
+      System.out.println("overridden back reference");
+      o.unlink${klass.name}${prop.javaMethodName}(this);
+{% end %}\
 {% end %}\
 		return ${prop.javaInstanceVariableName}.remove(o);
 	}
@@ -431,7 +450,7 @@ ${customUpdatePropertyContent[prop.name]}
 	// Property which occurs more than once
 	public int sizeOf${prop.javaMethodName}List()
 	{
-		return ${prop.javaArgumentName}List.size();
+		return ${prop.javaInstanceVariableName}.size();
 	}
 
 	public List<${prop.javaType}> copy${prop.javaMethodName}List()
