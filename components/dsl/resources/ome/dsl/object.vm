@@ -320,10 +320,10 @@ implements java.io.Serializable, IObject
 #elseif($prop.ordered)
 #set( $cascadeHibCollection = "org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN" )
 #end
+##
+#set( $one2one = "false" )
 #if( $prop.class.name == "ome.dsl.OneOneField" )
-#set( $one2one = true )
-#else
-#set( $one2one = false )
+#set( $one2one = "true")
 #end
 ##
     protected ${prop.fieldType} ${prop.name} = ${prop.fieldInitializer};
@@ -422,7 +422,7 @@ implements java.io.Serializable, IObject
     * know what you are doing. Use the iterate method instead.
     *
 ##
-#if($one2one)
+#if($one2one == "true")
     * one-to-one element ${type.id}.${prop.name} (${prop.type})
     */
     @javax.persistence.OneToOne(fetch=javax.persistence.FetchType.EAGER, cascade={${cascadeEjb}})
@@ -452,24 +452,6 @@ implements java.io.Serializable, IObject
     })
 #end
 
-#if($one2one)
-    public ${prop.fieldType} get${prop.nameCapped}() {
-        $errorIfUnloaded
-        return this.${prop.name};
-    }
-
-    /**
-     * Sets the ${prop.name} on this object as well as setting this
-     * item on the target.
-     */
-    public void set${prop.nameCapped}(${prop.fieldType} ${prop.name}) {
-        $errorIfUnloaded
-        if (target.isLoaded()) {
-            target.set${prop.inverseCapped} ( this );
-        }
-        this.${prop.name} = ${prop.name};
-    }
-#else
     protected ${prop.fieldType} get${prop.nameCapped}() {
         $errorIfUnloaded
         return this.${prop.name};
@@ -975,7 +957,6 @@ implements java.io.Serializable, IObject
     }
 #end
 
-#end## not one2one
 #end## End isLink
 #elseif($prop.foreignKey)## REGULAR M-1 ##################################TYPE
 #set( $fetchType = "LAZY")
@@ -983,12 +964,20 @@ implements java.io.Serializable, IObject
 #set( $fetchType = "EAGER" )
 #end
    /**
+#if($one2one == "true")
+    * one-to-one element ${type.id}.${prop.name} (${prop.type})
+    */
+    @javax.persistence.OneToOne(fetch=javax.persistence.FetchType.EAGER, cascade={${cascadeEjb}})
+    @org.hibernate.annotations.Cascade({${cascadeHib}})
+    @javax.persistence.JoinColumn(name="${type.inverse($prop)}", nullable=false)
+#else
     * Many-to-one field ${type.id}.${prop.name} (${prop.type})
     */
     @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.${fetchType}, cascade = {${cascadeEjb}}, targetEntity = ${prop.type}.class)
     @org.hibernate.annotations.Cascade({${cascadeHib}})
     @javax.persistence.JoinColumn(name="${type.propName($prop)}", nullable=${prop.nullable},
         unique=${prop.unique}, insertable=${prop.insert}, updatable=${prop.update})
+#end
 #set($fkvalue = "FK${type.shortname.toLowerCase()}_${prop.name}_${prop.shortType.toLowerCase()}")
 #set($fkvalue = "${type.fk($fkvalue)}")
     @org.hibernate.annotations.ForeignKey(name="${fkvalue}")
@@ -1003,6 +992,9 @@ implements java.io.Serializable, IObject
     public void set${prop.nameCapped}(${prop.fieldType} ${prop.name}) {
         $errorIfUnloaded
         this.${prop.name} = ${prop.name};
+#if($one2one == "true")
+        ${prop.name}.set${prop.inverseCapped} ( this );
+#end
     }
 #else## REGULAR PROPERTY #################################################TYPE
    /**
