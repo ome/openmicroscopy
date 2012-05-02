@@ -14,7 +14,7 @@ import java.io.IOException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterClass;
@@ -44,7 +44,7 @@ public class PixelServiceCreatesDirectoryUnitTest {
         pixels.setSizeC(1);
         pixels.setSizeT(1);
 
-        PixelsType type = new PixelsType();
+        PixelType type = new PixelType();
         type.setValue("uint16");
         pixels.setType(type);
         service = new PixelsService(ROOT);

@@ -14,7 +14,7 @@ import org.testng.annotations.*;
 
 import ome.io.nio.RomioPixelBuffer;
 import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 import ome.util.Utils;
 
 /**
@@ -36,7 +36,7 @@ public class PlanarDataTest
 
 	private RomioPixelBuffer getRomioPixelBuffer()
 	{
-		PixelsType pType = new PixelsType();
+		PixelType pType = new PixelType();
 		pType.setId(1L);
 		pType.setValue("int16");
 		Pixels p = new Pixels();

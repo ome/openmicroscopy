@@ -15,7 +15,7 @@ import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterClass;
@@ -40,7 +40,7 @@ public class OutOfBoundsUnitTest {
     }
 
     @BeforeMethod
-    public void setUp() {
+    public void setUp() throws IOException {
         pixels = new Pixels();
 
         pixels.setId(1L);
@@ -50,11 +50,11 @@ public class OutOfBoundsUnitTest {
         pixels.setSizeC(3);
         pixels.setSizeT(50);
 
-        PixelsType type = new PixelsType();
+        PixelType type = new PixelType();
         pixels.setType(type); // FIXME
 
         PixelsService service = new PixelsService(ROOT);
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.createPixelBuffer(pixels);
     }
 
     @Test

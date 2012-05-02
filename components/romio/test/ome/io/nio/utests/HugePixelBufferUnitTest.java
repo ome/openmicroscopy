@@ -18,7 +18,7 @@ import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 public class HugePixelBufferUnitTest {
     private ome.model.core.Pixels pixels;
@@ -40,7 +40,7 @@ public class HugePixelBufferUnitTest {
     }
 
     @BeforeMethod
-    public void setUp() {
+    public void setUp() throws IOException {
         pixels = new Pixels();
 
         pixels.setId(1L);
@@ -50,12 +50,12 @@ public class HugePixelBufferUnitTest {
         pixels.setSizeC(3);
         pixels.setSizeT(50);
 
-        PixelsType type = new PixelsType();
+        PixelType type = new PixelType();
         type.setValue("uint16");
         pixels.setType(type);
 
         PixelsService service = new PixelsService(ROOT);
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.createPixelBuffer(pixels);
     }
 
 

@@ -16,7 +16,7 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.RomioPixelBuffer;
 import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterClass;
@@ -60,7 +60,7 @@ public class BfPixelBufferUnitTest {
         pixels.setSizeZ(sizeZ);
         pixels.setSizeC(sizeC);
         pixels.setSizeT(sizeT);
-        PixelsType type = new PixelsType();
+        PixelType type = new PixelType();
         type.setValue(pixelType);
         pixels.setType(type);
     }
@@ -71,9 +71,9 @@ public class BfPixelBufferUnitTest {
     }
 
     @Test
-    public void testRomioPixelBufferCreation() {
+    public void testRomioPixelBufferCreation() throws IOException{
         service = new PixelsService(root);
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.createPixelBuffer(pixels);
         assertTrue(pixelBuffer instanceof RomioPixelBuffer);
     }
 

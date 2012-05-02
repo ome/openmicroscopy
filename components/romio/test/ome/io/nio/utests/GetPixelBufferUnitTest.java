@@ -20,7 +20,7 @@ import ome.io.messages.MissingPyramidMessage;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
@@ -62,7 +62,7 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
         pixels.setSizeC(1);
         pixels.setSizeT(1);
 
-        PixelsType type = new PixelsType();
+        PixelType type = new PixelType();
         type.setValue("uint16");
         pixels.setType(type);
 
@@ -75,10 +75,11 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
     }
 
     @Test
-    public void testWhenPyramidRequiredOnlyCreatePyramidCalled() {
+    public void testWhenPyramidRequiredOnlyCreatePyramidCalled()
+    throws IOException {
         service.stubPyramid(true);
         service.isRequirePyramid = true;
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.createPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
@@ -87,10 +88,11 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
      * then a new one will be created (i.e. pixel buffer is READ-WRITE).
      */
     @Test
-    public void testWhenPyramidNotRequiredCreateRomioCalled() {
+    public void testWhenPyramidNotRequiredCreateRomioCalled()
+    throws IOException{
         service.stubRomio(true);
         service.isRequirePyramid = false;
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.createPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
@@ -104,7 +106,7 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
         service.isRequirePyramid = true;
         service.retry = false;
         String path = touchRomio();
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.createPixelBuffer(pixels);
         assertEquals(1, service.events.size());
     }
 
@@ -116,7 +118,7 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
         service.retry = null; // no messages!
         touchRomio();
         touchPyramid();
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.createPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
@@ -129,7 +131,7 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
         service.isRequirePyramid = false;
         String path = service.getPixelsPath(pixels.getId());
         touchPyramid();
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.createPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
@@ -138,23 +140,23 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
      * Here we pass an absolute path, asking to NOT use romio.
      */
     @Test(expectedExceptions = MissingPyramidException.class)
-    public void testDontUseRomio() {
+    public void testDontUseRomio() throws IOException {
         service.stubBf();
         service.isRequirePyramid = false; // Ignored; Original implies pyramid
         service.retry = false;
         service.path = new File(root, "bf.tiff").getAbsolutePath();
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.createPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
     /** OriginalFile != null implies pyramid required currently. */
     @Test(expectedExceptions = MissingPyramidException.class)
-    public void testHandleOriginalFileReturnsSomething() {
+    public void testHandleOriginalFileReturnsSomething() throws IOException {
         service.stubBf();
         service.isRequirePyramid = false; // ignored.
         service.retry = false;
         service.path = "/tmp/foo";
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.createPixelBuffer(pixels);
         assertEquals(1, service.events.size());
     }
 
@@ -163,9 +165,9 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
      * case, another method must be allowed. Here, it is createPyramid.
      */
     @Test
-    public void testHandleOriginalFileReturnsNullForPyramid() {
+    public void testHandleOriginalFileReturnsNullForPyramid() throws IOException {
         service.realPyramid(null);
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.createPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
@@ -174,11 +176,11 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
      * pyramid is required, so createRomio is called WITH allowModification set.
      */
     @Test
-    public void testHandleOriginalFileReturnsNullForRomio() {
+    public void testHandleOriginalFileReturnsNullForRomio() throws IOException {
         service.stubRomio(true);
         service.retry = false;
         service.isRequirePyramid = false;
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.createPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 
@@ -192,7 +194,7 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
         service.stubRomio(false);
         service.isRequirePyramid = false;
         touchRomio();
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.createPixelBuffer(pixels);
         assertEquals(0, service.events.size());
     }
 

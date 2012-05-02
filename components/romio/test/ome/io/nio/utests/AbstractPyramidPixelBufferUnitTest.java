@@ -18,7 +18,7 @@ import ome.io.nio.PixelsService;
 import ome.io.nio.TileLoopIteration;
 import ome.io.nio.Utils;
 import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
+import ome.model.enums.PixelType;
 
 import org.apache.commons.io.FileUtils;
 
@@ -67,7 +67,7 @@ public abstract class AbstractPyramidPixelBufferUnitTest {
         pixels.setSizeC(sizeC);
         pixels.setSizeT(sizeT);
 
-        PixelsType type = new PixelsType();
+        PixelType type = new PixelType();
         type.setValue(pixelType);
         pixels.setType(type);
 
