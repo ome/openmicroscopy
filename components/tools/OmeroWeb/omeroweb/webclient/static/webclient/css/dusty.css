@@ -863,6 +863,15 @@ button::-moz-focus-inner {
             position:absolute;
 			width:150px;
         }
+
+        .filtersearch label {
+            position:absolute;
+            z-index:50;
+            font-size:1.3em;
+            font-weight:lighter;
+            top:5px;
+            left:8px;
+        }
 		
 		.filtersearch .loading {
 			position:absolute;

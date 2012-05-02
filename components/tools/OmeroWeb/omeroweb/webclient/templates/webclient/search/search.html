@@ -32,12 +32,12 @@
 {% block script %}
     {{ block.super }}
     <script type="text/javascript" src="{% static "3rdparty/jquery.tooltip/jquery.tooltip.pack.js" %}"></script>
-    <script src="/static/webclient/javascript/jquery.infieldlabel.js" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static 'webclient/javascript/jquery.infieldlabel.js' %}" type="text/javascript"></script>
     
     <script type="text/javascript">
         $(document).ready(function() 
             {
-                $("label").inFieldLabels();
+                $("#filtersearch label").inFieldLabels();
 
                 $('#dateperiodinput').datepicker({
                     changeMonth: true, 
@@ -248,7 +248,7 @@
 		
 		<form class="search filtersearch" id="filtersearch" action="#" style="display:none">
 		    <div>
-		        <label for="id_search" style="position:absolute; z-index:50; font-size:1.3em; font-weight:lighter; top:5px; left:8px">
+		        <label for="id_search">
 		            Filter Results
 		        </label>
 			    <input type="text" id="id_search" size="25" />
