@@ -138,7 +138,7 @@ public class WellData extends DataObject {
     {
     	omero.model.Color color = asWell().getColor();
     	if (color == null) return null;
-    	return new Color(color.getValue().getValue(), true);
+    	return new Color(color.getValue(), true);
     }
 
     /**

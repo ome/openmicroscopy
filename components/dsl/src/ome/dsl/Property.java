@@ -41,6 +41,8 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String ZEROMANY = "zeromany";
 
+    public final static String ONEONE = "oneone";
+
     public final static String MANYONE = "manyone";
 
     public final static String MANYZERO = "manyzero";
@@ -61,6 +63,7 @@ public abstract class Property { // TODO need to define equality so that two
         FIELDS.add(OPTIONAL);
         FIELDS.add(ONEMANY);
         FIELDS.add(ZEROMANY);
+        FIELDS.add(ONEONE);
         FIELDS.add(MANYONE);
         FIELDS.add(MANYZERO);
         FIELDS.add(ENTRY);
@@ -76,6 +79,7 @@ public abstract class Property { // TODO need to define equality so that two
         FIELDS2CLASSES.put(OPTIONAL, OptionalField.class);
         FIELDS2CLASSES.put(ONEMANY, OneManyField.class);
         FIELDS2CLASSES.put(ZEROMANY, ZeroManyField.class);
+        FIELDS2CLASSES.put(ONEONE, OneOneField.class);
         FIELDS2CLASSES.put(MANYONE, ManyOneField.class);
         FIELDS2CLASSES.put(MANYZERO, ManyZeroField.class);
         FIELDS2CLASSES.put(ENTRY, EntryField.class);
@@ -86,17 +90,17 @@ public abstract class Property { // TODO need to define equality so that two
     }
 
     // VALUE-Type identifiers
-    public final static String STRING = "string";
+    public final static String STRING = "String";
 
-    public final static String BOOLEAN = "boolean";
+    public final static String BOOLEAN = "Boolean";
 
-    public final static String INTEGER = "int";
+    public final static String INTEGER = "Integer";
 
-    public final static String FLOAT = "float";
+    public final static String FLOAT = "Float";
 
-    public final static String DOUBLE = "double";
+    public final static String DOUBLE = "Double";
 
-    public final static String LONG = "long";
+    public final static String LONG = "Long";
 
     public final static String TIMESTAMP = "timestamp";
 
@@ -104,11 +108,11 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String BYTES = "byte[]";
 
-    public final static String DOUBLES = "double[]";
+    public final static String DOUBLES = "Double[]";
 
-    public final static String STRINGS = "string[]";
+    public final static String STRINGS = "String[]";
 
-    public final static String STRINGS2 = "string[][]";
+    public final static String STRINGS2 = "String[][]";
 
     public final static String INTEGERS = "int[]";
 
@@ -752,6 +756,15 @@ class ParentLink extends AbstractLink {
 // ~ Many-1
 // ========
 
+class OneOneField extends ManyZeroField {
+    public OneOneField(SemanticType st, Properties attrs) {
+        super(st, attrs);
+        setRequired(Boolean.TRUE);
+        setInsert(Boolean.FALSE);
+        setUpdate(Boolean.FALSE);
+    }
+}
+
 class ManyZeroField extends Property {
     public ManyZeroField(SemanticType st, Properties attrs) {
         super(st, attrs);
@@ -812,7 +825,7 @@ class LinkChild extends ManyOneField {
 class EntryField extends Property {
     public EntryField(SemanticType st, Properties attrs) {
         super(st, attrs);
-        setType("string");
+        setType("String");
         setForeignKey(null);
     }
 

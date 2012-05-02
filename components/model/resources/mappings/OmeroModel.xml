@@ -221,11 +221,11 @@
             <!--
             // Back reference FilterSet_BackReference
             -->
-            <manyzero name="filterSets" type="ome.model.core.FilterSet" inverse="Dichroic" ordered="TODO"/>
+            <manyzero name="filterSets" type="ome.model.core.FilterSet" inverse="dichroic" ordered="TODO"/>
             <!--
             // Back reference LightPath_BackReference
             -->
-            <manyzero name="lightPaths" type="ome.model.core.LightPath" inverse="Dichroic" ordered="TODO"/>
+            <manyzero name="lightPaths" type="ome.model.core.LightPath" inverse="dichroic" ordered="TODO"/>
             <!--
             // Property LotNumber
             -->
@@ -274,11 +274,11 @@
             <!--
             // Back reference Image_BackReference
             -->
-            <manyzero name="images" type="ome.model.core.Image" inverse="Experiment" ordered="TODO"/>
+            <manyzero name="images" type="ome.model.core.Image" inverse="experiment" ordered="TODO"/>
             <!--
             // Property which occurs more than once MicrobeamManipulation
             -->
-            <zeromany name="microbeamManipulations" type="ome.model.core.MicrobeamManipulation" inverse="Experiment" ordered="TODO"/>
+            <zeromany name="microbeamManipulations" type="ome.model.core.MicrobeamManipulation" inverse="experiment" ordered="TODO"/>
             <!--
             // Property Type
             -->
@@ -345,7 +345,7 @@
             <!--
             // Back reference Channel_BackReference
             -->
-            <manyzero name="channels" type="ome.model.core.Channel" inverse="FilterSet" ordered="TODO"/>
+            <manyzero name="channels" type="ome.model.core.Channel" inverse="filterSet" ordered="TODO"/>
             <!--
             // Property DichroicRef
             -->
@@ -413,7 +413,7 @@
             <!--
             // Property Pixels
             -->
-            <required name="pixels" type="ome.model.core.Pixels"/>
+            <oneone name="pixels" type="ome.model.core.Pixels"/>
             <!--
             // Many-to-many reference ROIRef
             -->
@@ -425,7 +425,7 @@
             <!--
             // Back reference WellSample_BackReference
             -->
-            <manyzero name="wellSamples" type="ome.model.spw.WellSample" inverse="Image" ordered="TODO"/>
+            <manyzero name="wellSamples" type="ome.model.spw.WellSample" inverse="image" ordered="TODO"/>
         </properties>
     </type>
 
@@ -457,27 +457,27 @@
             <!--
             // Property which occurs more than once Detector
             -->
-            <zeromany name="detectors" type="ome.model.core.Detector" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="detectors" type="ome.model.core.Detector" inverse="instrument" ordered="TODO"/>
             <!--
             // Property which occurs more than once Dichroic
             -->
-            <zeromany name="dichroics" type="ome.model.core.Dichroic" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="dichroics" type="ome.model.core.Dichroic" inverse="instrument" ordered="TODO"/>
             <!--
             // Property which occurs more than once Filter
             -->
-            <zeromany name="filters" type="ome.model.core.Filter" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="filters" type="ome.model.core.Filter" inverse="instrument" ordered="TODO"/>
             <!--
             // Property which occurs more than once FilterSet
             -->
-            <zeromany name="filterSets" type="ome.model.core.FilterSet" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="filterSets" type="ome.model.core.FilterSet" inverse="instrument" ordered="TODO"/>
             <!--
             // Back reference Image_BackReference
             -->
-            <manyzero name="images" type="ome.model.core.Image" inverse="Instrument" ordered="TODO"/>
+            <manyzero name="images" type="ome.model.core.Image" inverse="instrument" ordered="TODO"/>
             <!--
             // Property which occurs more than once LightSource
             -->
-            <zeromany name="lightSources" type="ome.model.core.LightSource" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="lightSources" type="ome.model.core.LightSource" inverse="instrument" ordered="TODO"/>
             <!--
             // Property Microscope
             -->
@@ -485,7 +485,7 @@
             <!--
             // Property which occurs more than once Objective
             -->
-            <zeromany name="objectives" type="ome.model.core.Objective" inverse="Instrument" ordered="TODO"/>
+            <zeromany name="objectives" type="ome.model.core.Objective" inverse="instrument" ordered="TODO"/>
         </properties>
     </type>
 
@@ -565,7 +565,7 @@
             <!--
             // Many-to-many reference ExcitationFilterRef
             -->
-            <child name="excitationFilterLinks" type="ome.model.core.LightPathExcitationFilterLink" target="ome.model.core.Filter"/>
+            <child name="excitationFilterLinks" type="ome.model.core.LightPathExcitationFilterLink" target="ome.model.core.Filter" ordered="true"/>
         </properties>
     </type>
 
@@ -709,7 +709,7 @@
             <!--
             // Property which occurs more than once LightSourceSettings
             -->
-            <zeromany name="lightSourceSettingsCombinations" type="ome.model.core.LightSourceSettings" inverse="MicrobeamManipulation" ordered="TODO"/>
+            <zeromany name="lightSourceSettingsCombinations" type="ome.model.core.LightSourceSettings" inverse="microbeamManipulation" ordered="TODO"/>
             <!--
             // Many-to-many reference ROIRef
             -->
@@ -821,11 +821,11 @@
     <!-- OME model object Pixels -->
     <type id="ome.model.core.Pixels" annotated="true" >
         <properties>
-            <manyone name="image" type="ome.model.core.Image" ordered="true"/>
+            <required name="image" type="ome.model.core.Image"/>
             <!--
             // Property which occurs more than once Channel
             -->
-            <zeromany name="channels" type="ome.model.core.Channel" inverse="Pixels" ordered="TODO"/>
+            <zeromany name="channels" type="ome.model.core.Channel" inverse="pixels" ordered="TODO"/>
             <!--
             // Property DimensionOrder
             -->
@@ -845,7 +845,7 @@
             <!--
             // Property which occurs more than once Plane
             -->
-            <zeromany name="planes" type="ome.model.core.Plane" inverse="Pixels" ordered="TODO"/>
+            <zeromany name="planes" type="ome.model.core.Plane" inverse="pixels" ordered="TODO"/>
             <!--
             // Property SizeC
             -->
@@ -877,7 +877,7 @@
 			<!--
             // Property Type, added manually.
             -->
-            <required name="sha1" type="string"/>
+            <required name="sha1" type="String"/>
             <!--Display Settings 1-->
             <zeromany name="settings" type="ome.model.display.RenderingDef" inverse="pixels"/>
             <zeromany name="thumbnails" type="ome.model.display.Thumbnail" inverse="pixels"/>
@@ -947,7 +947,7 @@
             <!--
             // Property which occurs more than once PlateAcquisition
             -->
-            <zeromany name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="Plate" ordered="TODO"/>
+            <zeromany name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="plate" ordered="TODO"/>
             <!--
             // Property RowNamingConvention
             -->
@@ -967,7 +967,7 @@
             <!--
             // Property which occurs more than once Well
             -->
-            <zeromany name="wells" type="ome.model.spw.Well" inverse="Plate" ordered="TODO"/>
+            <zeromany name="wells" type="ome.model.spw.Well" inverse="plate" ordered="TODO"/>
 
             <!--
             // Property WellOriginX
@@ -1001,7 +1001,7 @@
             <!--
             // Reference WellSampleRef
             -->
-            <onemany name="wellSamples" type="ome.model.spw.WellSample" inverse="PlateAcquisition" ordered="TODO"/>
+            <onemany name="wellSamples" type="ome.model.spw.WellSample" inverse="plateAcquisition" ordered="TODO"/>
             <manyone name="plate" type="ome.model.spw.Plate" inverse="plateAcquisition"/>
         </properties>
     </type>
@@ -1089,8 +1089,8 @@
             <!--
             // Back reference Well_BackReference
             -->
-            <manyzero name="wells" type="ome.model.spw.Well" inverse="Reagent" ordered="TODO"/>
-            <manyzero name="screens" type="ome.model.spw.Screen" inverse="Reagent" ordered="TODO"/>
+            <manyzero name="wells" type="ome.model.spw.Well" inverse="reagent" ordered="TODO"/>
+            <manyzero name="screens" type="ome.model.spw.Screen" inverse="reagent" ordered="TODO"/>
         </properties>
     </type>
 
@@ -1134,7 +1134,7 @@
             <!--
             // Property which occurs more than once Reagent
             -->
-            <zeromany name="reagents" type="ome.model.spw.Reagent" inverse="Screen" ordered="TODO"/>
+            <zeromany name="reagents" type="ome.model.spw.Reagent" inverse="screen" ordered="TODO"/>
             <!--
             // Property ReagentSetDescription
             -->
@@ -1321,8 +1321,8 @@
             <!--
             // Property which occurs more than once WellSample
             -->
-            <zeromany name="wellSamples" type="ome.model.spw.WellSample" inverse="Well" ordered="TODO"/>
-            <manyone name="plate" type="ome.model.spw.Plate" inverse="Well"/>
+            <zeromany name="wellSamples" type="ome.model.spw.WellSample" inverse="well" ordered="TODO"/>
+            <manyone name="plate" type="ome.model.spw.Plate" inverse="well"/>
         </properties>
     </type>
 
@@ -1340,7 +1340,7 @@
             <!--
             // Back reference PlateAcquisition_BackReference
             -->
-            <manyzero name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="WellSample" ordered="TODO"/>
+            <manyzero name="plateAcquisitions" type="ome.model.spw.PlateAcquisition" inverse="wellSample" ordered="TODO"/>
             <!--
             // Property PositionX
             -->
@@ -1546,7 +1546,7 @@
         <entry name="uint32"/>
         <entry name="float"/>
         <entry name="bit"/>
-        <entry name="double"/>
+        <entry name="Double"/>
         <entry name="complex"/>
         <entry name="double-complex"/>
     </enum>
@@ -1644,7 +1644,7 @@
 <!-- Structured Annotations -->
         <abstract id="ome.model.annotations.Annotation" discriminator="/" annotated="true">
                 <properties>
-                        <optional name="ns" type="string"/>
+                        <optional name="ns" type="String"/>
                         <optional name="description" type="text"/>
                 </properties>
         </abstract>
@@ -1665,18 +1665,18 @@
         <abstract id="ome.model.annotations.NumericAnnotation" discriminator="/basic/num/" superclass="ome.model.annotations.BasicAnnotation"/>
         <type id="ome.model.annotations.LongAnnotation" discriminator="/basic/num/long/" superclass="ome.model.annotations.NumericAnnotation">
                 <properties>
-                        <optional name="longValue" type="long"/>
+                        <optional name="longValue" type="Long"/>
                 </properties>
         </type>
         <type id="ome.model.annotations.DoubleAnnotation" discriminator="/basic/num/double/" superclass="ome.model.annotations.NumericAnnotation">
                 <properties>
-                        <optional name="doubleValue" type="double"/>
+                        <optional name="doubleValue" type="Double"/>
                 </properties>
         </type>
 <!-- other basic -->
         <type id="ome.model.annotations.BooleanAnnotation" discriminator="/basic/bool/" superclass="ome.model.annotations.BasicAnnotation">
                 <properties>
-                        <optional name="boolValue" type="boolean"/>
+                        <optional name="boolValue" type="Boolean"/>
                 </properties>
         </type>
         <type id="ome.model.annotations.TimestampAnnotation" discriminator="/basic/time/" superclass="ome.model.annotations.BasicAnnotation">
@@ -1724,7 +1724,7 @@
 	<type id="ome.model.meta.ExperimenterGroup" global="true" described="true" annotated="true">
 		<!-- Note: relates to Group in model-->
 		<properties>
-			<required name="name" type="string" unique="true"/><!-- unique required so not 'named' -->
+			<required name="name" type="String" unique="true"/><!-- unique required so not 'named' -->
 			<child name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap" target="ome.model.meta.Experimenter"/>
 		</properties>
 	</type>
@@ -1736,14 +1736,14 @@
 			     need to be used if importing data directly from the model. In most cases
 			     the user should either be on the system or it will be sufficient to provide
 			     as close a representation as practical to the imported data -->
-			<required name="omeName" type="string" unique="true"/>
-			<required name="firstName" type="string"/>
-			<optional name="middleName" type="string"/>
+			<required name="omeName" type="String" unique="true"/>
+			<required name="firstName" type="String"/>
+			<optional name="middleName" type="String"/>
 			<!-- Note: middleName is not used model -->
-			<required name="lastName" type="string"/>
-			<optional name="institution" type="string"/>
+			<required name="lastName" type="String"/>
+			<optional name="institution" type="String"/>
 			<component id="ome.model.internal.Email" required="false">
-				<optional name="email" type="string"/>
+				<optional name="email" type="String"/>
 			</component>
 			<!-- TODO: ## add to dsl [email/] -->
 		</properties>
@@ -1753,7 +1753,7 @@
 		<properties>
 			<from_parent type="ome.model.meta.ExperimenterGroup"/>
 			<to_child type="ome.model.meta.Experimenter" ordered="true"/>
-			<required name="owner" type="boolean"/>
+			<required name="owner" type="Boolean"/>
 		</properties>
 	</link>
 	<!-- EVENTS -->
@@ -1763,15 +1763,15 @@
 			<!-- Type & Group are not really optional. Needed to bootstrap.
                  Constraints are added later -->
 			<manyone name="node" type="ome.model.meta.Node"/>
-			<required name="uuid" type="string" unique="true"/>
+			<required name="uuid" type="String" unique="true"/>
 			<required name="owner" type="ome.model.meta.Experimenter"/>
-			<required name="timeToIdle" type="long"/>
-			<required name="timeToLive" type="long"/>
+			<required name="timeToIdle" type="Long"/>
+			<required name="timeToLive" type="Long"/>
 			<required name="started" type="timestamp"/>
 			<optional name="closed" type="timestamp"/>
 			<optional name="message" type="text"/>
-			<required name="defaultEventType" type="string"/>
-			<optional name="userAgent" type="string"/>
+			<required name="defaultEventType" type="String"/>
+			<optional name="userAgent" type="String"/>
 			<onemany name="events" type="ome.model.meta.Event" inverse="session"/>
 		</properties>
 	</type>
@@ -1779,11 +1779,11 @@
 	<type id="ome.model.meta.Node" global="true" annotated="true">
 		<properties>
 			<onemany name="sessions" type="ome.model.meta.Session" inverse="node"/>
-			<required name="uuid"  type="string" unique="true"/>
-			<required name="conn"  type="string"/>
+			<required name="uuid"  type="String" unique="true"/>
+			<required name="conn"  type="String"/>
 			<required name="up"    type="timestamp"/>
 			<optional name="down"  type="timestamp"/>
-			<optional name="scale" type="int"/>
+			<optional name="scale" type="Integer"/>
 		</properties>
 	</type>
 
@@ -1804,7 +1804,7 @@
 		<properties>
 <!-- Type & Group are not really optional. Needed to bootstrap.
         Constraints are added later -->
-			<optional name="status" type="string"/>
+			<optional name="status" type="String"/>
 			<required name="time" type="timestamp"/>
 			<required name="experimenter" type="ome.model.meta.Experimenter"/>
 			<optional name="experimenterGroup" type="ome.model.meta.ExperimenterGroup"/>
@@ -1817,38 +1817,38 @@
 	<type id="ome.model.meta.EventLog" immutable="true" global="true">
 		<!-- Note: EventLog is not in model-->
 		<properties>
-			<required name="entityId" type="long"/>
-			<required name="entityType" type="string"/>
-			<required name="action" type="string"/>
+			<required name="entityId" type="Long"/>
+			<required name="entityType" type="String"/>
+			<required name="action" type="String"/>
 			<manyone name="event" type="ome.model.meta.Event"/>
 		</properties>
 	</type>
 	<type id="ome.model.meta.ExternalInfo" immutable="true">
 		<!-- Note: ExternalInfo not in model-->
 		<properties>
-			<required name="entityId" type="long" mutable="false"/>
-			<required name="entityType" type="string" mutable="false"/>
-			<optional name="lsid" type="string" mutable="false"/>
-			<optional name="uuid" type="string" mutable="false"/>
+			<required name="entityId" type="Long" mutable="false"/>
+			<required name="entityType" type="String" mutable="false"/>
+			<optional name="lsid" type="String" mutable="false"/>
+			<optional name="uuid" type="String" mutable="false"/>
 		</properties>
 	</type>
 	<type id="ome.model.meta.DBPatch" immutable="true" global="true">
 		<!-- Note: DBPatch is not in model-->
 		<properties>
-			<required name="currentVersion" type="string" mutable="false"/>
-			<required name="currentPatch" type="int" mutable="false"/>
-			<required name="previousVersion" type="string" mutable="false"/>
-			<required name="previousPatch" type="int" mutable="false"/>
+			<required name="currentVersion" type="String" mutable="false"/>
+			<required name="currentPatch" type="Integer" mutable="false"/>
+			<required name="previousVersion" type="String" mutable="false"/>
+			<required name="previousPatch" type="Integer" mutable="false"/>
 			<optional name="finished" type="timestamp" mutable="false"/>
-			<optional name="message" type="string" mutable="false"/>
+			<optional name="message" type="String" mutable="false"/>
 		</properties>
 	</type>
 	<type id="ome.model.meta.Share" global="true" superclass="ome.model.meta.Session">
 		<!-- Note: Share is not in model-->
 		<properties>
 			<required name="group" type="ome.model.meta.ExperimenterGroup"/>
-			<required name="itemCount" type="long"/>
-			<required name="active" type="boolean"/>
+			<required name="itemCount" type="Long"/>
+			<required name="active" type="Boolean"/>
 			<required name="data" type="byte[]"/>
 		</properties>
 	</type>
@@ -1864,20 +1864,20 @@
 		<properties>
 
                         <!-- Depending on the use of the name space,
-                        keywords are the valid string values -->
-			<optional name="keywords" type="string[]"/>
+                        keywords are the valid String values -->
+			<optional name="keywords" type="String[]"/>
 
                         <!-- Whether multiple keywords are supported.
                         If a user adds multiple keywords to a type
                         which does not support multiple, then the
                         first value MAY be taken by clients -->
-			<optional name="multivalued" type="boolean"/>
+			<optional name="multivalued" type="Boolean"/>
 
                         <!-- Whether or not objects using this
                         namespace are intended for display. Null
                         values or false will lead to many clients
                         hiding the objects -->
-			<optional name="display" type="boolean"/>
+			<optional name="display" type="Boolean"/>
 
 		</properties>
 	</type>
@@ -1896,8 +1896,8 @@
 	<type id="ome.model.core.StatsInfo">
 		<!-- Note: StatsInfo is not in model-->
 		<properties>
-			<required name="globalMin" type="double"/>
-			<required name="globalMax" type="double"/>
+			<required name="globalMin" type="Double"/>
+			<required name="globalMax" type="Double"/>
 		</properties>
 	</type>
         <link id="ome.model.core.ImageMicrobeamManipulationLink">
@@ -1926,12 +1926,12 @@
 			 name is the filename of the file, i.e. `basename <file>`
 			-->
 			<required name="path" type="text"/>
-			<required name="size" type="long"/>
+			<required name="size" type="Long"/>
 			<optional name="atime" type="timestamp"/>
 			<optional name="mtime" type="timestamp"/>
 			<optional name="ctime" type="timestamp"/>
-			<required name="sha1" type="string"/>
-			<optional name="mimetype" type="string"/>
+			<required name="sha1" type="String"/>
+			<optional name="mimetype" type="String"/>
 			<!--
 			Has a default set at the DB level of application/octet-stream.
 			Internal values in use are:
@@ -1959,22 +1959,22 @@
 		<!-- Note: Thumbnail differs from the Thumbnail in model -->
 		<properties>
 			<required name="pixels" type="ome.model.core.Pixels"/>
-			<required name="mimeType" type="string"/>
-			<required name="sizeX" type="int"/>
-			<required name="sizeY" type="int"/>
-			<optional name="ref" type="string"/>
+			<required name="mimeType" type="String"/>
+			<required name="sizeX" type="Integer"/>
+			<required name="sizeY" type="Integer"/>
+			<optional name="ref" type="String"/>
 		</properties>
 	</type>
 	<type id="ome.model.display.RenderingDef">
 		<!-- Note: RenderingDef is not in model-->
 		<properties>
 			<manyone name="pixels" type="ome.model.core.Pixels"/>
-			<required name="defaultZ" type="int"/>
-			<required name="defaultT" type="int"/>
+			<required name="defaultZ" type="Integer"/>
+			<required name="defaultT" type="Integer"/>
 			<required name="model" type="ome.model.enums.RenderingModel"/>
 			<onemany name="waveRendering" type="ome.model.display.ChannelBinding" inverse="renderingDef" ordered="true"/>
-			<optional name="name" type="string"/>
-			<optional name="compression" type="double"/>
+			<optional name="name" type="String"/>
+			<optional name="compression" type="Double"/>
 			<required name="quantization" type="ome.model.display.QuantumDef"/>
 			<zeromany name="spatialDomainEnhancement" type="ome.model.display.CodomainMapContext" inverse="renderingDef" ordered="true"/>
 		</properties>
@@ -1982,9 +1982,9 @@
 	<type id="ome.model.display.QuantumDef">
 		<!-- Note: QuantumDef is not in model-->
 		<properties>
-			<required name="cdStart" type="int"/>
-			<required name="cdEnd" type="int"/>
-			<required name="bitResolution" type="int"/>
+			<required name="cdStart" type="Integer"/>
+			<required name="cdEnd" type="Integer"/>
+			<required name="bitResolution" type="Integer"/>
 		</properties>
 	</type>
 	<type id="ome.model.display.ChannelBinding">
@@ -1992,15 +1992,15 @@
 		<properties>
 			<manyone name="renderingDef" type="ome.model.display.RenderingDef" ordered="true"/>
 			<required name="family" type="ome.model.enums.Family"/>
-			<required name="coefficient" type="double"/>
-			<required name="inputStart" type="double"/>
-			<required name="inputEnd" type="double"/>
-			<required name="active" type="boolean"/>
-			<required name="noiseReduction" type="boolean"/>
-			<required name="red" type="int"/>
-			<required name="green" type="int"/>
-			<required name="blue" type="int"/>
-			<required name="alpha" type="int"/>
+			<required name="coefficient" type="Double"/>
+			<required name="inputStart" type="Double"/>
+			<required name="inputEnd" type="Double"/>
+			<required name="active" type="Boolean"/>
+			<required name="noiseReduction" type="Boolean"/>
+			<required name="red" type="Integer"/>
+			<required name="green" type="Integer"/>
+			<required name="blue" type="Integer"/>
+			<required name="alpha" type="Integer"/>
 		</properties>
 	</type>
 
@@ -2018,26 +2018,26 @@
 	<type id="ome.model.display.ReverseIntensityContext" superclass="ome.model.display.CodomainMapContext">
 		<!-- Note: ReverseIntensityContext is not in model-->
 		<properties>
-			<required name="reverse" type="boolean"/>
+			<required name="reverse" type="Boolean"/>
 		</properties>
 	</type>
 	<type id="ome.model.display.PlaneSlicingContext" superclass="ome.model.display.CodomainMapContext">
 		<!-- Note: PlaneSlicingContext is not in model-->
 		<properties>
-			<required name="upperLimit" type="int"/>
-			<required name="lowerLimit" type="int"/>
-			<required name="planeSelected" type="int"/>
-			<required name="planePrevious" type="int"/>
-			<required name="constant" type="boolean"/>
+			<required name="upperLimit" type="Integer"/>
+			<required name="lowerLimit" type="Integer"/>
+			<required name="planeSelected" type="Integer"/>
+			<required name="planePrevious" type="Integer"/>
+			<required name="constant" type="Boolean"/>
 		</properties>
 	</type>
 	<type id="ome.model.display.ContrastStretchingContext" superclass="ome.model.display.CodomainMapContext">
 		<!-- Note: ContrastStretchingContext is not in model-->
 		<properties>
-			<required name="xstart" type="int"/>
-			<required name="ystart" type="int"/>
-			<required name="xend" type="int"/>
-			<required name="yend" type="int"/>
+			<required name="xstart" type="Integer"/>
+			<required name="ystart" type="Integer"/>
+			<required name="xend" type="Integer"/>
+			<required name="yend" type="Integer"/>
 		</properties>
 	</type>
 <!-- 
@@ -2073,10 +2073,10 @@
 		<type id="ome.model.jobs.Job" abstract="true">
 			<!-- Note: Job is not in model-->
 			<properties>
-				<required name="username" type="string"/>
-				<required name="groupname" type="string"/>
-				<required name="type" type="string"/>
-				<required name="message" type="string"/>
+				<required name="username" type="String"/>
+				<required name="groupname" type="String"/>
+				<required name="type" type="String"/>
+				<required name="message" type="String"/>
 				<required name="status" type="ome.model.jobs.JobStatus"/>
 				<required name="submitted" type="timestamp"/>
 				<required name="scheduledFor" type="timestamp"/>
@@ -2088,14 +2088,14 @@
 		<type id="ome.model.jobs.ImportJob" superclass="ome.model.jobs.Job">
 			<!-- Note: ImportJob is not in model-->
 			<properties>
-				<required name="imageName" type="string"/>
-				<required name="imageDescription" type="string"/>
+				<required name="imageName" type="String"/>
+				<required name="imageDescription" type="String"/>
 			</properties>
 		</type>
 		<type id="ome.model.jobs.ScriptJob" superclass="ome.model.jobs.Job">
 			<!-- Note: ScriptJob is not in model-->
 			<properties>
-				<optional name="description" type="string"/>
+				<optional name="description" type="String"/>
 			</properties>
 		</type>
 		<type id="ome.model.jobs.ParseJob" superclass="ome.model.jobs.Job">
@@ -2112,12 +2112,6 @@
 				<to_child type="ome.model.core.OriginalFile"/>
 			</properties>
 		</link>
-		<type id="ome.model.core.Color">
-        <!-- Note: ChannelBinding is not in model-->
-        <properties>
-            <required name="value" type="int"/>
-        </properties>
-    </type>
     <enum id="ome.model.enums.Format">
         <!-- Note: Format is not in model but used by OriginalFile-->
         <entry name="PNG"/>

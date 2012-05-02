@@ -21,6 +21,7 @@ package omero.util;
 
 import omero.util.ObjectFactoryRegistry;
 
+import omero.model.ColorI;
 import omero.model.DetailsI;
 import omero.model.PermissionsI;
 
@@ -36,6 +37,7 @@ public class ModelObjectFactoryRegistry extends ObjectFactoryRegistry {
     public void setIceCommunicator(Communicator ic) {
 
         // Non-conditional
+        ic.addObjectFactory(ColorI.Factory, ColorI.ice_staticId());
         ic.addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
         ic.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
 

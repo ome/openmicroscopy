@@ -140,6 +140,8 @@ DECLARATION BLOCK:
 [$jav] import java.util.*;
 [$jav] import static omero.rtypes.*;
 [$jav] import ome.conditions.*;
+[$jav] import omero.model.Color;
+[$jav] import omero.model.ColorI;
 [$jav] public class ${PojoI} extends ${Pojo}
 [$jav]    implements ome.model.ModelBased {
 
@@ -148,6 +150,7 @@ Note how the whitespace for the python definitions is important.
 [$pyc] import IceImport
 [$pyc] import omero
 [$pyc] IceImport.load("omero_model_DetailsI")
+[$pyc] IceImport.load("omero_model_ColorI")
 [$pyc] IceImport.load("omero_model_${Pojo}_ice")
 [$pyc] from omero.rtypes import rlong
 [$pyc] _omero = Ice.openModule("omero")
@@ -160,6 +163,7 @@ Note how the whitespace for the python definitions is important.
 [$hdr]   namespace model {
 [$hdr]     class OMERO_API ${PojoI} : virtual public ${Pojo} {
 
+[$cpp] \#include <omero/model/ColorI.h>
 [$cpp] \#include <omero/model/${Pojo}I.h>
 [$cpp] \#include <omero/RTypesI.h>
 [$cpp] using omero::rtypes::rlong;
