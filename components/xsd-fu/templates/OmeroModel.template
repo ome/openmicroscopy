@@ -184,11 +184,17 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
             -->
             <parent name="${prop.javaInstanceVariableName}" type="${fq_link_class_name(o, prop)}" target="${fq_class_name(prop)}"/>
 {% end %}\
-{% when prop.isBackReference %}\
+{% when prop.isBackReference and prop.maxOccurs > 1 %}\
             <!--
             // Back reference ${prop.name}
             -->
             <{% if prop.minOccurs == 0 %}manyzero{% end %}{% if prop.minOccurs == 1 %}manyone{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.name}" ordered="TODO"/>
+{% end %}\
+{% when prop.isBackReference %}\
+            <!--
+            // Back reference ${prop.name}
+            -->
+            <{% if prop.minOccurs == 0 %}optional{% end %}{% if prop.minOccurs == 1 %}required{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}"/>
 {% end %}\
 {% when prop.maxOccurs == 1 and (not o.isAbstractProprietary or prop.isAttribute or not prop.isComplex() or prop.name in fu.ABSTRACT_PROPRIETARY_OVERRIDE) %}\
             <!--

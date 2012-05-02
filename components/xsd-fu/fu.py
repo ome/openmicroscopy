@@ -870,9 +870,6 @@ class OMEModel(object):
                 delegate.maxOccurs = 1
                 delegate.namespace = o.namespace
                 prop = OMEModelProperty.fromReference(delegate, o, self)
-                # Override forward and back reference status
-                prop.isBackReference = False
-                prop._isReference = True
                 o.properties[ref] = prop
         for o in self.objects.values():
             for prop in o.properties.values():
