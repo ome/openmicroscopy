@@ -610,8 +610,8 @@ class OMEModelObject(OMEModelEntity):
         self.isAbstract = False
         self.isAbstractProprietary = False
         self.isSettings = self.base == 'Settings'
-        self.isAnnotation = \
-                self.base == 'Annotation' or self.name == 'Annotation'
+        self.base in ('Annotation', 'BasicAnnotation') \
+                or self.name == 'Annotation'
         self.plural = None
         self.manyToMany = False
         try:
@@ -639,6 +639,19 @@ class OMEModelObject(OMEModelEntity):
         name = element.getName()
         self.properties[name] = \
             OMEModelProperty.fromElement(element, self, self.model)
+
+    def _get_isAnnotation(self):
+        if self.name == 'Annotation':
+            return True
+        base = self
+        while True:
+            if base is None:
+                return False
+            if base.base == 'Annotation':
+                return True
+            base = self.model.getObjectByName(base.base)
+    isAnnotation = property(_get_isAnnotation,
+        doc="""Whether or not the model object is an Annotation.""")
 
     def _get_isGlobal(self):
         return OMERO_GLOBAL_TYPE_MAP.get(self.name, False)

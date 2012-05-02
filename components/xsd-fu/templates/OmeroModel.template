@@ -73,7 +73,7 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
     def sorted_and_filtered_objects():
         objects = sorted_objects()
         def f(x):
-            if x.isReference:
+            if x.isReference or x.isAnnotation:
                 return False
             if x.name in ('BinaryOnly', 'Contact', 'Leader', 'MetadataOnly',
                           'OME', 'TiffData', 'UUID',
