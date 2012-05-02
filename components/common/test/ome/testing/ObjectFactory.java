@@ -142,15 +142,15 @@ public class ObjectFactory {
         p.setSizeZ(new Integer(1));
         p.setSizeC(new Integer(1));
         p.setSizeT(new Integer(1));
-        p.setPhysicalSizeX(1.0f);
-        p.setPhysicalSizeY(1.0f);
-        p.setPhysicalSizeZ(1.0f);
+        p.setPhysicalSizeX(1.0);
+        p.setPhysicalSizeY(1.0);
+        p.setPhysicalSizeZ(1.0);
         p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356"); // "pixels"
         p.setType(pt);
         p.setDimensionOrder(dO);
-        p.setPhysicalSizeX(new Float(1.0));
-        p.setPhysicalSizeY(new Float(1.0));
-        p.setPhysicalSizeZ(new Float(1.0));
+        p.setPhysicalSizeX(new Double(1.0));
+        p.setPhysicalSizeY(new Double(1.0));
+        p.setPhysicalSizeZ(new Double(1.0));
         p.setImage(i);
 
         for (int w = 0; w < channelCount; w++) {
