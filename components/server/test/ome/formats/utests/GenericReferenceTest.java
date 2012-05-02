@@ -327,7 +327,7 @@ public class GenericReferenceTest extends TestCase
 		LightPath lightPath = channel.getLightPath();
 		assertEquals(0, lightPath.sizeOfExcitationFilterLinks());
 		assertEquals(1, lightPath.sizeOfEmissionFilterLinks());
-		assertEquals(lightPath.linkedEmissionFilterLinksIterator().next(), filter);
+		assertEquals(lightPath.linkedEmissionFilterIterator().next(), filter);
 	}
 	
 	public void testChannelSecondaryExcitationFilterReference()
@@ -340,7 +340,7 @@ public class GenericReferenceTest extends TestCase
         LightPath lightPath = channel.getLightPath();
         assertEquals(1, lightPath.sizeOfExcitationFilterLinks());
         assertEquals(0, lightPath.sizeOfEmissionFilterLinks());
-        assertEquals(lightPath.linkedExcitationFilterLinksIterator().next(), filter);
+        assertEquals(lightPath.linkedExcitationFilterIterator().next(), filter);
 	}
 	
 	public void testFilterSetDichroicReference()
