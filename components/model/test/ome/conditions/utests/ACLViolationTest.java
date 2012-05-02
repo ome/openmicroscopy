@@ -11,7 +11,7 @@ import ome.conditions.acl.ACLDeleteViolation;
 import ome.conditions.acl.ACLLoadViolation;
 import ome.conditions.acl.ACLViolation;
 import ome.conditions.acl.CollectedACLViolations;
-import ome.model.containers.Project;
+import ome.model.core.Project;
 import ome.model.core.Image;
 import junit.framework.TestCase;
 

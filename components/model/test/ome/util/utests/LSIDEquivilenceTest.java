@@ -11,12 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ome.model.acquisition.DetectorSettings;
-import ome.model.acquisition.FilterSet;
-import ome.model.acquisition.ObjectiveSettings;
+import ome.model.core.DetectorSettings;
+import ome.model.core.FilterSet;
+import ome.model.core.ObjectiveSettings;
 import ome.model.core.Image;
-import ome.model.core.LogicalChannel;
-import ome.model.screen.Plate;
+import ome.model.core.Channel;
+import ome.model.spw.Plate;
 import ome.util.LSID;
 import junit.framework.TestCase;
 
@@ -59,7 +59,7 @@ public class LSIDEquivilenceTest extends TestCase
 		map.put(lsid4, new ArrayList<LSID>());
 		LSID lsid5 = new LSID(DetectorSettings.class, 0, 0);
 		map.put(lsid5, new ArrayList<LSID>());
-		LSID lsid6 = new LSID(LogicalChannel.class, 0, 0);
+		LSID lsid6 = new LSID(Channel.class, 0, 0);
 		map.put(lsid6, new ArrayList<LSID>());
 		LSID lsid7 = new LSID(Image.class, 0);
 		map.put(lsid7, new ArrayList<LSID>());

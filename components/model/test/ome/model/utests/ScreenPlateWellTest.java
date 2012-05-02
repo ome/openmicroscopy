@@ -8,12 +8,12 @@ package ome.model.utests;
 
 import junit.framework.TestCase;
 import ome.model.core.Image;
-import ome.model.screen.Plate;
-import ome.model.screen.Reagent;
-import ome.model.screen.Screen;
-import ome.model.screen.PlateAcquisition;
-import ome.model.screen.Well;
-import ome.model.screen.WellSample;
+import ome.model.spw.Plate;
+import ome.model.spw.Reagent;
+import ome.model.spw.Screen;
+import ome.model.spw.PlateAcquisition;
+import ome.model.spw.Well;
+import ome.model.spw.WellSample;
 
 import org.testng.annotations.Test;
 
@@ -46,15 +46,29 @@ public class ScreenPlateWellTest extends TestCase {
     }
 
     private java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
-    public Image i1_1a = new Image(testTimestamp, "i1_1a");
-    public Image i1_1b = new Image(testTimestamp, "i1_1b");
-    public Image i1_2a = new Image(testTimestamp, "i1_2a");
-    public Image i1_2b = new Image(testTimestamp, "i1_2b");
-    public Image i2_1a = new Image(testTimestamp, "i2_1a");
-    public Image i2_1b = new Image(testTimestamp, "i2_1b");
-    public Image i2_2a = new Image(testTimestamp, "i2_2a");
-    public Image i2_2b = new Image(testTimestamp, "i2_2b");
+    public Image i1_1a = createImage("i1_1a");
+    public Image i1_1b = createImage("i1_1b");
+    public Image i1_2a = createImage("i1_2a");
+    public Image i1_2b = createImage("i1_2b");
+    public Image i2_1a = createImage("i2_1a");
+    public Image i2_1b = createImage("i2_1b");
+    public Image i2_2a = createImage("i2_2a");
+    public Image i2_2b = createImage("i2_2b");
 
+    /**
+     * Creates and returns an image.
+     * 
+     * @param name The name of the image.
+     * @return See above.
+     */
+    private Image createImage(String name)
+    {
+    	Image i = new Image();
+    	i.setName(name);
+    	i.setAcquisitionDate(testTimestamp);
+    	return i;
+    }
+    
     @Test
     public void testBuildingAScreen() {
 
@@ -82,14 +96,14 @@ public class ScreenPlateWellTest extends TestCase {
         well2_2.addWellSample(ws2_2a);
         well2_2.addWellSample(ws2_2b);
 
-        i1_1a.addWellSample(ws1_1a);
-        i1_1b.addWellSample(ws1_1b);
-        i1_2a.addWellSample(ws1_2a);
-        i1_2b.addWellSample(ws1_2b);
-        i2_1a.addWellSample(ws2_1a);
-        i2_1b.addWellSample(ws2_1b);
-        i2_2a.addWellSample(ws2_2a);
-        i2_2b.addWellSample(ws2_2b);
+        i1_1a.setWellSamples(ws1_1a);
+        i1_1b.setWellSamples(ws1_1b);
+        i1_2a.setWellSamples(ws1_2a);
+        i1_2b.setWellSamples(ws1_2b);
+        i2_1a.setWellSamples(ws2_1a);
+        i2_1b.setWellSamples(ws2_1b);
+        i2_2a.setWellSamples(ws2_2a);
+        i2_2b.setWellSamples(ws2_2b);
 
         plate1.addPlateAcquisition(acq1);
         plate1.addPlateAcquisition(acq2);
@@ -105,14 +119,14 @@ public class ScreenPlateWellTest extends TestCase {
         acq3.addWellSample(ws2_2a);
         acq4.addWellSample(ws2_2b);
 
-        reagentA.setScreen(screen);
-        reagentB.setScreen(screen);
-        reagentC.setScreen(screen);
+        reagentA.setScreens(screen);
+        reagentB.setScreens(screen);
+        reagentC.setScreens(screen);
 
-        reagentA.linkWell(well1_1);
-        reagentA.linkWell(well2_2);
-        reagentB.linkWell(well2_1);
-        reagentC.linkWell(well1_2);
+        reagentA.setWells(well1_1);
+        reagentA.setWells(well2_2);
+        reagentB.setWells(well2_1);
+        reagentC.setWells(well1_2);
 
     }
 }

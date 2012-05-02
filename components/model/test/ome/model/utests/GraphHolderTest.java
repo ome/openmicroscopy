@@ -13,7 +13,7 @@ import java.io.ObjectOutputStream;
 
 import org.testng.annotations.*;
 
-import ome.model.acquisition.Laser;
+import ome.model.core.Laser;
 import ome.model.internal.GraphHolder;
 import junit.framework.TestCase;
 

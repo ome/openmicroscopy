@@ -10,9 +10,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import ome.conditions.ApiUsageException;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Dataset;
+import ome.model.core.Project;
+import ome.model.core.ProjectDatasetLink;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
