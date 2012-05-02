@@ -164,12 +164,12 @@ PACKAGE_NAMESPACE_RE = re.compile(
         r'http://www.openmicroscopy.org/Schemas/(\w+)/\d+-\w+')
 
 # The default OMERO package.
-OMERO_DEFAULT_PACKAGE = "omero.model"
+OMERO_DEFAULT_PACKAGE = "ome.model"
 
 # The OMERO package overrides.
 OMERO_PACKAGE_OVERRIDES = {
-        "OME": "omero.model.core",
-        "enum": "omero.model.enums",
+        "OME": "ome.model.core",
+        "enum": "ome.model.enums",
 }
 
 # The default template for enum class processing.
