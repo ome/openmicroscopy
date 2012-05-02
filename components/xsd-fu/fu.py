@@ -110,6 +110,13 @@ BACK_REFERENCE_CLASS_NAME_OVERRIDE = {
 # for.
 ABSTRACT_PROPRIETARY_OVERRIDE = ('Transform',)
 
+# OMERO system (global) types
+OMERO_GLOBAL_TYPE_MAP = {
+    'Experimenter': True,
+    'ExperimenterGroup': True
+}
+
+
 def updateTypeMaps(namespace):
     """
     Updates the type maps with a new namespace. **Must** be executed at least 
@@ -505,6 +512,16 @@ class OMEModelProperty(OMEModelEntity):
     isEnumeration = property(_get_isEnumeration,
         doc="""Whether or not the property is an enumeration.""")
 
+    def _get_isGlobal(self):
+        name = self.name
+        if self.isReference:
+            name = REF_REGEX.sub('', self.type)
+        if self.isBackReference:
+            name = self.type
+        return OMERO_GLOBAL_TYPE_MAP.get(name, False)
+    isGlobal = property(_get_isGlobal,
+        doc="""Whether or not the property is an OMERO system type.""")
+
     def _get_isReference(self):
         o = self.model.getObjectByName(self.type)
         if o is not None:
@@ -593,7 +610,8 @@ class OMEModelObject(OMEModelEntity):
         self.isAbstract = False
         self.isAbstractProprietary = False
         self.isSettings = self.base == 'Settings'
-        self.isAnnotation = self.base == 'Annotation'
+        self.isAnnotation = \
+                self.base == 'Annotation' or self.name == 'Annotation'
         self.plural = None
         self.manyToMany = False
         try:
@@ -621,6 +639,11 @@ class OMEModelObject(OMEModelEntity):
         name = element.getName()
         self.properties[name] = \
             OMEModelProperty.fromElement(element, self, self.model)
+
+    def _get_isGlobal(self):
+        return OMERO_GLOBAL_TYPE_MAP.get(self.name, False)
+    isGlobal = property(_get_isGlobal,
+        doc="""Whether or not the model object is an OMERO system type.""")
 
     def _get_isReference(self):
         if self.base == "Reference":

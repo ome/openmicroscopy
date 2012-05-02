@@ -88,9 +88,10 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
     def sorted_and_filtered_properties(o):
         properties = sorted_properties(o)
         def f(x):
+            if x.isGlobal and (not o.isAnnotation and not o.isGlobal):
+                return False
             if x.name in ('ID', 'Description', 'Name', 'AnnotationRef',
-                          'BinData', 'TiffData', 'MetadataOnly',
-                          'ExperimenterRef', 'ExperimenterGroupRef'):
+                          'BinData', 'TiffData', 'MetadataOnly'):
                 return False
             return True
         return filter(f, properties)
@@ -139,10 +140,10 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
     <!-- OME model object ${o.name} -->
 {% choose %}\
 {% when o.isAbstractProprietary or o.isAbstract %}\
-    <abstract id="${fq_class_name(o)}" ${superclass(o)}${type_attributes(o)}>
+    <abstract id="${fq_class_name(o)}" {% if o.isGlobal %}global="true" {% end %}${superclass(o)}${type_attributes(o)}>
 {% end %}\
 {% otherwise %}\
-    <type id="${fq_class_name(o)}" ${superclass(o)}${type_attributes(o)}>
+    <type id="${fq_class_name(o)}" {% if o.isGlobal %}global="true" {% end %}${superclass(o)}${type_attributes(o)}>
 {% end %}\
 {% end %}\
         <properties>
@@ -160,8 +161,8 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
 \
 {% for prop in sorted_and_filtered_properties(o) %}\
 {% choose %}\
-{% when prop.isBackReference and o.name in ('Experimenter', 'ExperimenterGroup') %}\
-            <!-- Ignoring back reference ${prop.name} for global OMERO type. -->
+{% when o.isGlobal and prop.isBackReference and not prop.isGlobal %}\
+            <!-- Ignoring back reference ${prop.name} ${prop.type} for global OMERO type. -->
 {% end %}\
 {% when prop.isReference and prop.isManyToMany %}\
             <!--
