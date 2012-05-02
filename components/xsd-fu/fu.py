@@ -219,8 +219,6 @@ BACKREF_REGEX = re.compile(r'_BackReference')
 PREFIX_CASE_REGEX = re.compile(
         r'^([A-Z]{1})[a-z0-9]+|([A-Z0-9]+)[A-Z]{1}[a-z]+|([A-Z]+)[0-9]*|([a-z]+$)')
 
-SETTINGS_REGEX = re.compile(r'^Detector|^LightSource|^Objective')
-
 def resolve_parents(model, element_name):
     """
     Resolves the parents of an element and returns them as an ordered list.
@@ -435,11 +433,7 @@ class OMEModelProperty(OMEModelEntity):
         doc="""The minimum number of occurances for this property.""")
 
     def _get_name(self):
-        name = self.delegate.getName()
-        match = SETTINGS_REGEX.match(name)
-        if match is not None:
-            name = REF_REGEX.sub('Settings', name)
-        return name
+        return self.delegate.getName()
     name = property(_get_name, doc="""The property's name.""")
 
     def _get_namespace(self):
@@ -548,7 +542,6 @@ class OMEModelProperty(OMEModelEntity):
                 name = self.model.getObjectByName(self.type)
                 name = name.javaInstanceVariableName
                 name = BACK_REFERENCE_NAME_OVERRIDE.get(self.key, name)
-                name = BACKREF_REGEX.sub('', self.javaArgumentName) + name
             return name + 'Links'
         try:
             if self.maxOccurs > 1:
