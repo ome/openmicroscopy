@@ -11,14 +11,49 @@
 		<SA:AnnotationRef ID="Annotation:2"/>
 	</Dataset>
 	<SPW:Plate ID="Plate:1">
+		<SPW:Description>Wibble</SPW:Description>
+		<SPW:ScreenRef ID="Screen:1"/>
+		<SPW:ScreenRef ID="Screen:2"/>
+		<SPW:ScreenRef ID="Screen:4"/>
 		<SPW:Well ID="Well:1" Column="1" Row="1" Status="TheWellStatus" Color="-2147483648">
 			<SPW:WellSample ID="WellSample:1" Index="1">
 				<SPW:ImageRef ID="Image:0"/>
-			</SPW:WellSample></SPW:Well>
+			</SPW:WellSample>
+		</SPW:Well>
+		<SA:AnnotationRef ID="Annotation:1"/>
+		<SPW:PlateAcquisition ID="PlateAcquisition:1">
+			<SPW:Description>Wibble2</SPW:Description>
+			<SA:AnnotationRef ID="Annotation:2"/>
+		</SPW:PlateAcquisition>
 	</SPW:Plate>
-	<SPW:Screen ID="Screen:1">
+	<SPW:Plate ID="Plate:2">
+	</SPW:Plate>
+	<SPW:Screen ID="Screen:1" Name="ScreenName1" ProtocolDescription="Test" ProtocolIdentifier="TestID" ReagentSetDescription="Reagents XYZ" ReagentSetIdentifier="XYZ-ID" Type="Test3">
+		<SPW:Description>Wibble3</SPW:Description>
+		<SPW:Reagent ID="Reagent:1"/>
 		<SPW:PlateRef ID="Plate:1"/>
+		<SA:AnnotationRef ID="Annotation:2"/>
 	</SPW:Screen>
+	
+	<SPW:Screen ID="Screen:2" Name="ScreenName1" ProtocolDescription="Test" ProtocolIdentifier="TestID" ReagentSetDescription="Reagents XYZ" ReagentSetIdentifier="XYZ-ID" Type="Test3">
+		<SPW:Description>Wibble3</SPW:Description>
+		<SPW:Reagent ID="Reagent:2"/>
+		<SPW:PlateRef ID="Plate:2"/>
+		<SA:AnnotationRef ID="Annotation:2"/>
+	</SPW:Screen>
+	
+	<SPW:Screen ID="Screen:3" Name="ScreenName1" ProtocolDescription="Test" ProtocolIdentifier="TestID" ReagentSetDescription="Reagents XYZ" ReagentSetIdentifier="XYZ-ID" Type="Test3">
+		<SPW:Description>Wibble3</SPW:Description>
+		<SPW:Reagent ID="Reagent:3"/>
+		<SA:AnnotationRef ID="Annotation:2"/>
+	</SPW:Screen>
+
+	<SPW:Screen ID="Screen:4" Name="ScreenName1" ProtocolDescription="Test" ProtocolIdentifier="TestID" ReagentSetDescription="Reagents XYZ" ReagentSetIdentifier="XYZ-ID" Type="Test3">
+		<SPW:Description>Wibble3</SPW:Description>
+		<SPW:Reagent ID="Reagent:4"/>
+		<SA:AnnotationRef ID="Annotation:2"/>
+	</SPW:Screen>
+	
 	<Experimenter ID="Experimenter:1" DisplayName="Joe Bloggs">
 		<GroupRef ID="Group:1"/>
 	</Experimenter>
