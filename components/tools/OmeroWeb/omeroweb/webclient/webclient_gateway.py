@@ -1692,6 +1692,13 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
     and extend OmeroWebObjectWrapper.
     """
     
+    ldapUser = None
+
+    def __prepare__ (self, **kwargs):
+        super(ExperimenterWrapper, self).__prepare__(**kwargs)
+        if kwargs.has_key('ldapUser'):
+            self.annotation_counter = kwargs['ldapUser']
+    
     def isEditable(self):
         return self.omeName.lower() not in ('guest')
     
