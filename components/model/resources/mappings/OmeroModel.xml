@@ -1942,10 +1942,7 @@
 			<required name="inputEnd" type="Double"/>
 			<required name="active" type="Boolean"/>
 			<required name="noiseReduction" type="Boolean"/>
-			<required name="red" type="Integer"/>
-			<required name="green" type="Integer"/>
-			<required name="blue" type="Integer"/>
-			<required name="alpha" type="Integer"/>
+			<required name="color" type="ome.model.core.Color"/>
 		</properties>
 	</type>
 
