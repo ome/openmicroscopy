@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 // Application-internal dependencies
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
+import ome.model.core.Color;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
@@ -196,10 +197,12 @@ public class Renderer {
     {
     	List<ChannelBinding> channelBindings = getChannelBindingsAsList();
     	
+    	Color color;
     	for (ChannelBinding channelBinding : channelBindings)
     	{
     		boolean isActive = channelBinding.getActive();
-    		if (isActive && channelBinding.getAlpha() != 255)
+    		color = channelBinding.getColor();
+    		if (isActive && color.getAlpha() != 255)
     		{
     			log.info("Disabling alphaless rendering and " +
     					"PriColor rendering.");
@@ -830,10 +833,8 @@ public class Renderer {
      */
     public void setRGBA(int w, int red, int green, int blue, int alpha) {
         ChannelBinding[] cb = getChannelBindings();
-        cb[w].setRed(Integer.valueOf(red));
-        cb[w].setGreen(Integer.valueOf(green));
-        cb[w].setBlue(Integer.valueOf(blue));
-        cb[w].setAlpha(Integer.valueOf(alpha));
+        java.awt.Color c = new java.awt.Color(red, green, blue, alpha);
+        cb[w].setColor(new Color(c.getRGB()));
         checkOptimizations();
     }
     
@@ -887,9 +888,10 @@ public class Renderer {
     public static int[] getColorArray(ChannelBinding channel)
     {
     	int[] colors = new int[3];
-    	colors[0] = channel.getRed();
-    	colors[1] = channel.getGreen();
-    	colors[2] = channel.getBlue();
+    	Color c = channel.getColor();
+    	colors[0] = c.getRed();
+    	colors[1] = c.getGreen();
+    	colors[2] = c.getBlue();
     	return colors;
     }
 

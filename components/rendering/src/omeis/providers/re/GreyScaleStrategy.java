@@ -17,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 // Application-internal dependencies
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
+import ome.model.core.Color;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import omeis.providers.re.codomain.CodomainChain;
@@ -79,7 +80,8 @@ class GreyScaleStrategy extends RenderingStrategy {
         RGBBuffer buf = getRgbBuffer();
         
         byte value;
-        float alpha = channelBinding.getAlpha().floatValue() / 255;
+        Color color = channelBinding.getColor();
+        float alpha = ((float) color.getAlpha()) / 255;
 
         int x1, x2, discreteValue, pixelIndex;
         byte[] r = buf.getRedBand();
@@ -162,8 +164,8 @@ class GreyScaleStrategy extends RenderingStrategy {
 	    // create the RGB buffer.
 	    initAxesSize(planeDef, metadata);
 	    RGBIntBuffer dataBuf = getIntBuffer();
-	    
-        int alpha = channelBinding.getAlpha();
+	    Color color = channelBinding.getColor();
+        int alpha = color.getAlpha();
         int[] buf = ((RGBIntBuffer) dataBuf).getDataBuffer();
         int x1, x2, discreteValue, pixelIndex;
         if (plane.isXYPlanar())
@@ -223,7 +225,8 @@ class GreyScaleStrategy extends RenderingStrategy {
 	    initAxesSize(planeDef, metadata);
 	    RGBAIntBuffer dataBuf = getRGBAIntBuffer();
 	    
-        int alpha = channelBinding.getAlpha();
+	    Color color = channelBinding.getColor();
+        int alpha = color.getAlpha();
         int[] buf = ((RGBAIntBuffer) dataBuf).getDataBuffer();
         int x1, x2, discreteValue, pixelIndex;
         if (plane.isXYPlanar())
@@ -236,7 +239,7 @@ class GreyScaleStrategy extends RenderingStrategy {
                 // comment this out for the time being.
                 //discreteValue = cc.transform(discreteValue);
                 buf[i] = alpha | discreteValue << 24
-                        | discreteValue << 16 | discreteValue << 8;            		
+                        | discreteValue << 16 | discreteValue << 8;
         	}
         }
         else

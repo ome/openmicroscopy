@@ -145,12 +145,14 @@ class HSBStrategy extends RenderingStrategy {
         ChannelBinding[] channelBindings = renderer.getChannelBindings();
         List<int[]> colors = new ArrayList<int[]>();
 
+        ome.model.core.Color c;
         for (int w = 0; w < channelBindings.length; w++) {
             ChannelBinding cb = channelBindings[w];
             if (cb.getActive()) {
+            	c = cb.getColor();
                 int[] theNewColor = new int[] { 
-                        cb.getRed(), cb.getGreen(),
-                        cb.getBlue(), cb.getAlpha() };
+                		c.getRed(), c.getGreen(),
+                		c.getBlue(), c.getAlpha() };
                 colors.add(theNewColor);
             }
         }
