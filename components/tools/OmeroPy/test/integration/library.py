@@ -26,6 +26,9 @@ from omero.util.temp_files import create_path
 from omero.rtypes import rstring, rtime, rint, unwrap
 from path import path
 
+from omero.cmd import State, ERR, OK
+from omero.callbacks import CmdCallbackI
+
 
 class Clients(object):
 
@@ -176,8 +179,7 @@ class ITest(unittest.TestCase):
                     pix_ids.append(imageId)
                 except: pass
         return pix_ids
-    
-    
+
     def createTestImage(self, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1, session=None):
         """
         Creates a test image of the required dimensions, where each pixel value is set 
@@ -322,8 +324,8 @@ class ITest(unittest.TestCase):
 
     def new_client_and_user(self, group = None, perms = None,
             admin = False, system = False):
-        user = self.new_user(group, system=system)
-        client = self.new_client(group, user, perms, admin, system=system)
+        user = self.new_user(group, admin=admin, system=system, perms=perms)
+        client = self.new_client(group, user, perms=perms, admin=admin, system=system)
         return client, user
 
     def timeit(self, func, *args, **kwargs):
@@ -520,6 +522,35 @@ class ITest(unittest.TestCase):
                 self.assertTrue(T > t, "%s < %s" % (T, t))
         finally:
             c.__del__()
+
+    def doSubmit(self, request, client, test_should_pass=True):
+        """
+        Performs the request waits on completion and checks that the
+        result is not an error.
+        """
+        sf = client.sf
+        prx = sf.submit(request)
+
+        self.assertFalse(State.FAILURE in prx.getStatus().flags)
+
+        cb = CmdCallbackI(client, prx)
+        cb.loop(20, 500)
+
+        self.assertNotEqual(prx.getResponse(), None)
+
+        status = prx.getStatus()
+        rsp = prx.getResponse()
+
+        if test_should_pass:
+            if isinstance(rsp, ERR):
+                self.fail("Found ERR when test_should_pass==true: %s (%s) params=%s" % (rsp.category, rsp.name, rsp.parameters))
+            self.assertFalse(State.FAILURE in prx.getStatus().flags)
+        else:
+            if isinstance(rsp, OK):
+                self.fail("Found OK when test_should_pass==false: %s", rsp)
+            self.assertTrue(State.FAILURE in prx.getStatus().flags)
+
+        return rsp
 
 
     def tearDown(self):

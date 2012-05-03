@@ -10,6 +10,8 @@
 #define CLASS_DETAILS
 
 #include <omero/model/IObject.ice>
+#include <omero/System.ice>
+#include <Ice/Current.ice>
 
 module omero {
 
@@ -52,6 +54,26 @@ module omero {
       omero::model::ExternalInfo externalInfo;
       omero::model::ExternalInfo getExternalInfo();
       void setExternalInfo(omero::model::ExternalInfo theExternalInfo);
+
+      //
+      // Context parameters
+      //
+
+      /**
+       * Context which was active during the call which
+       * returned this object. This context is set as
+       * the last (optional) argument of any remote
+       * Ice invocation. This is used to change the
+       * user, group, share, etc. of the current session.
+       **/
+      Ice::Context call;
+
+      /**
+       * Context which would have been returned by a
+       * simultaneous call to [omero::api::IAdmin::getEventContext]
+       * while this object was being loaded.
+       **/
+      omero::sys::EventContext event;
 
     };
 

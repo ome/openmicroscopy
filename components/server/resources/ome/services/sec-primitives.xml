@@ -56,6 +56,15 @@
     <constructor-arg ref="roles"/>
   </bean>
 
+  <alias name="${omero.security.chmod_strategy}" alias="chmodStrategy"/>
+
+  <bean id="groupChmodStrategy" class="ome.security.basic.GroupChmodStrategy">
+    <constructor-arg ref="basicACLVoter"/>
+    <constructor-arg ref="omeroSessionFactory"/>
+    <constructor-arg ref="simpleSqlAction"/>
+    <constructor-arg ref="extendedMetadata"/>
+  </bean>
+
   <bean id="systemTypes" class="ome.security.SystemTypes"/>
 
   <bean id="tokenHolder" class="ome.security.basic.TokenHolder"/>

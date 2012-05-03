@@ -15,6 +15,7 @@ import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.security.basic.CurrentDetails;
 import ome.services.sharing.ShareStore;
+import ome.system.EventContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

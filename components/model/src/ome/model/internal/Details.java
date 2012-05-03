@@ -44,17 +44,24 @@ public abstract class Details implements Filterable, Serializable {
     private static final long serialVersionUID = 1176546684904748977L;
 
     /**
+     * Call {@link #create(Object[])} with null.
+     */
+    public final static Details create() {
+        return create(null);
+    }
+
+    /**
      * Factory method which returns a {@link Details} implementation for passing
      * in API calls, but cannot be stored within an {@link IObject} instance.
      * Use {@link #copy(Details)} or {@link #shallowCopy(Details)} instead.
      */
-    public final static Details create() {
-        return new Details() {
+    public final static Details create(final Object[] contexts) {
+        return new Details(contexts) {
             private static final long serialVersionUID = Details.serialVersionUID;
 
             @Override
             public Details newInstance() {
-                return Details.create();
+                return Details.create(contexts);
             }
 
         };
@@ -87,18 +94,38 @@ public abstract class Details implements Filterable, Serializable {
     protected ExperimenterGroup _group;
 
     @Transient
-    Set<String> _filteredCollections;
+    protected Set<String> _filteredCollections;
 
     @Transient
-    Map _dynamicFields;
+    protected Map _dynamicFields;
+
+    @Transient
+    protected Object[] contexts;
 
     /** default constructor. Leaves values null to save resources. */
     public Details() {
+        this((Object[])null);
+    }
+
+    public Details(Object[] contexts) {
+        this.contexts = contexts;
     }
 
     /** copy-constructor */
     public Details(Details copy) {
+        this();
         copy(copy);
+    }
+
+    public Object contextAt(int i) {
+        if (contexts == null || i >= contexts.length) {
+            return null;
+        }
+        return contexts[i];
+    }
+
+    public void setContexts(Object[] contexts) {
+        this.contexts = contexts;
     }
 
     public Details shallowCopy() {
@@ -123,6 +150,7 @@ public abstract class Details implements Filterable, Serializable {
         if (copy == null) {
             throw new IllegalArgumentException("argument may not be null");
         }
+        setContexts(copy.contexts);
         setContext(copy.getContext());
         possiblySetPermissions(copy);
         setCreationEvent(copy.getCreationEvent());
@@ -135,33 +163,52 @@ public abstract class Details implements Filterable, Serializable {
 
     private void possiblySetPermissions(Details copy) {
         Permissions p = null;
-        if (copy.getPermissions() != null) {
-            p = new Permissions().revokeAll(copy.getPermissions());
+        Permissions copy_p = copy.getPermissions();
+        if (copy_p != null) {
+            p = new Permissions().revokeAll(copy_p);
+            p.setDisallowAnnotate(copy_p.isDisallowAnnotate());
+            p.setDisallowEdit(copy_p.isDisallowEdit());
         }
         setPermissions(p);
     }
 
-    public void copyWhereUnset(Details copy) {
-        if (copy == null) {
+    /**
+     * For any field of this which is null (and is NOT null on mask -- assuming
+     * mask is not null), copy the same value from copyFrom
+     * into this object.
+     * @param mask
+     * @param copyFrom
+     */
+    public void copyWhereUnset(Details mask, Details copyFrom) {
+        if (copyFrom == null) {
             throw new IllegalArgumentException("argument may not be null");
         }
-        if (getContext() == null) {
-            setContext(copy.getContext());
+
+        boolean skipMask = (mask == null);
+
+        if (getContext() == null &&
+                (skipMask || mask.getContext() != null)) {
+            setContext(copyFrom.getContext());
         }
-        if (getPermissions() == null) {
-            possiblySetPermissions(copy);
+        if (getPermissions() == null &&
+                (skipMask || mask.getPermissions() != null)) {
+            possiblySetPermissions(copyFrom);
         }
-        if (getCreationEvent() == null) {
-            setCreationEvent(copy.getCreationEvent());
+        if (getCreationEvent() == null &&
+                (skipMask || mask.getCreationEvent() != null)) {
+            setCreationEvent(copyFrom.getCreationEvent());
         }
-        if (getOwner() == null) {
-            setOwner(copy.getOwner());
+        if (getOwner() == null &&
+                (skipMask || mask.getOwner() != null)) {
+            setOwner(copyFrom.getOwner());
         }
-        if (getGroup() == null) {
-            setGroup(copy.getGroup());
+        if (getGroup() == null &&
+                (skipMask || mask.getGroup() != null)) {
+            setGroup(copyFrom.getGroup());
         }
-        if (getUpdateEvent() == null) {
-            setUpdateEvent(copy.getUpdateEvent());
+        if (getUpdateEvent() == null &&
+                (skipMask || mask.getUpdateEvent() != null)) {
+            setUpdateEvent(copyFrom.getUpdateEvent());
         }
     }
 

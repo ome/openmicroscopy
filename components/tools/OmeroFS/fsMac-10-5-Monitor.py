@@ -18,7 +18,8 @@ import socket
 # Imported as pathModule to avoid potential clashes.
 import path as pathModule
 
-from omero.grid import monitors
+import omero.all
+import omero.grid.monitors as monitors
 import omero_ext.uuid as uuid # see ticket:3774
 
 from fsAbstractPlatformMonitor import AbstractPlatformMonitor

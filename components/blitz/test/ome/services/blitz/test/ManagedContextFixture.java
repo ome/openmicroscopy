@@ -8,16 +8,29 @@ package ome.services.blitz.test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.api.IAdmin;
 import ome.logic.HardWiredInterceptor;
+import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
 import ome.security.basic.PrincipalHolder;
+import ome.services.blitz.fire.AopContextInitializer;
+import ome.services.blitz.impl.AbstractAmdServant;
+import ome.services.blitz.impl.AdminI;
+import ome.services.blitz.impl.ConfigI;
+import ome.services.blitz.impl.DeleteI;
+import ome.services.blitz.impl.QueryI;
 import ome.services.blitz.impl.ServiceFactoryI;
+import ome.services.blitz.impl.ShareI;
+import ome.services.blitz.impl.UpdateI;
+import ome.services.blitz.util.BlitzExecutor;
+import ome.services.scheduler.ThreadPool;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.EventContext;
@@ -38,17 +51,31 @@ import ome.tools.spring.InternalServiceFactory;
  */
 public class ManagedContextFixture {
 
-    public Ice.ObjectAdapter adapter;
-    public OmeroContext ctx;
-    public SessionManager mgr;
-    public Executor ex;
-    public ServiceFactory managedSf;
-    public ServiceFactory internalSf;
-    public SecuritySystem security;
-    public PrincipalHolder holder;
-    public LoginInterceptor login;
+    public final Ice.ObjectAdapter adapter;
+    public final OmeroContext ctx;
+    public final SessionManager mgr;
+    public final Executor ex;
+    public final ServiceFactoryI sf;
+    public final ServiceFactory managedSf;
+    public final ServiceFactory internalSf;
+    public final SecuritySystem security;
+    public final PrincipalHolder holder;
+    public final LoginInterceptor login;
+    public final AopContextInitializer init;
+    public final BlitzExecutor be;
+    public final SessionManager sm;
+    public final SecuritySystem ss;
+    protected final List<HardWiredInterceptor> cptors;
 
-    public ManagedContextFixture() {
+    // Servants
+    public final AdminI admin;
+    public final ConfigI config;
+    public final DeleteI delete;
+    public final QueryI query;
+    public final ShareI share;
+    public final UpdateI update;
+
+    public ManagedContextFixture() throws Exception {
         this(OmeroContext.getManagedServerContext());
     }
 
@@ -56,22 +83,75 @@ public class ManagedContextFixture {
         ctx.closeAll();
     }
 
-    public ManagedContextFixture(OmeroContext ctx) {
+    public ManagedContextFixture(OmeroContext ctx) throws Exception {
+       this(ctx, false);
+    }
+
+    /**
+     * Calls {@link #ManagedContextFixture(OmeroContext, boolean, String)} with
+     * private permissions.
+     */
+    public ManagedContextFixture(OmeroContext ctx, boolean newUser) throws Exception {
+        this(ctx, false, "rw----");
+    }
+
+
+    /**
+     * Create the fixture. Based on {@link #newUser} either creates a new
+     * user or logins the root user.
+     * @param ctx
+     * @param newUser
+     */
+    public ManagedContextFixture(OmeroContext ctx, boolean newUser, String permissions)
+        throws Exception {
         this.ctx = ctx;
+        
+        sm = (SessionManager) ctx.getBean("sessionManager");
+        ss = (SecuritySystem) ctx.getBean("securitySystem");
+        be = (BlitzExecutor) ctx.getBean("throttlingStrategy");
         adapter = (Ice.ObjectAdapter) ctx.getBean("adapter");
         mgr = (SessionManager) ctx.getBean("sessionManager");
         ex = (Executor) ctx.getBean("executor");
         security = (SecuritySystem) ctx.getBean("securitySystem");
         holder = (PrincipalHolder) ctx.getBean("principalHolder");
         login = new LoginInterceptor(holder);
-        managedSf = new ServiceFactory(ctx);
-        managedSf = new InterceptingServiceFactory(managedSf, login);
+        managedSf = new InterceptingServiceFactory(new ServiceFactory(ctx),
+                login);
         internalSf = new InternalServiceFactory(ctx);
-        setCurrentUser("root");
-        loginNewUserNewGroup();;
+
+        cptors = HardWiredInterceptor
+            .parse(new String[] { "ome.security.basic.BasicSecurityWiring" });
+        HardWiredInterceptor.configure(cptors, ctx);
+
+
+        setCurrentUserAndGroup("root", "system");
+        if (newUser) {
+            loginNewUserNewGroup(permissions);
+        }
+
+        
+
+      
+        sf = createServiceFactoryI();
+        init = new AopContextInitializer(
+                new ServiceFactory(ctx), login.p, new AtomicBoolean(true));
+        delete = delete();
+
+        ServiceFactory regular = new ServiceFactory(ctx);
+        update = new UpdateI(regular.getUpdateService(), be);
+        query = new QueryI(regular.getQueryService(), be);
+        admin = new AdminI(regular.getAdminService(), be);
+        config = new ConfigI(regular.getConfigService(), be);
+        share = new ShareI(regular.getShareService(), be);
+        configure(delete, init);
+        configure(update, init);
+        configure(query, init);
+        configure(admin, init);
+        configure(config, init);
+        configure(share, init);
     }
 
-    public ServiceFactoryI createServiceFactoryI()
+    private ServiceFactoryI createServiceFactoryI()
             throws omero.ApiUsageException {
         Ice.Current current = new Ice.Current();
         current.adapter = adapter;
@@ -82,8 +162,24 @@ public class ManagedContextFixture {
         return factory;
     }
 
+
+    protected DeleteI delete() throws Exception {
+        String out = ctx.getProperty("omero.threads.cancel_timeout");
+        int timeout = Integer.valueOf(out);
+        DeleteI d = new DeleteI(managedSf.getDeleteService(), be,
+                ctx.getBean("threadPool", ThreadPool.class),
+                timeout, ctx.getProperty("omero.data.dir"));
+        d.setServiceFactory(sf);
+        return d;
+    }
+
+    protected void configure(AbstractAmdServant servant,
+            AopContextInitializer ini) {
+        servant.setApplicationContext(ctx);
+        servant.applyHardWiredInterceptors(cptors, ini);
+    }
+
     public void tearDown() throws Exception {
-        managedSf = null;
         ctx.close();
     }
 
@@ -98,17 +194,31 @@ public class ManagedContextFixture {
     // =========================================================================
 
     public long newGroup() {
+        return newGroup(Permissions.USER_PRIVATE);
+    }
+
+    public long newGroup(Permissions permissions) {
         IAdmin admin = managedSf.getAdminService();
         String groupName = uuid();
         ExperimenterGroup g = new ExperimenterGroup();
+        g.getDetails().setPermissions(permissions);
         g.setName(groupName);
         return admin.createGroup(g);
     }
 
     public void addUserToGroup(long user, long group) {
-        managedSf.getAdminService().addGroups(
-                new Experimenter(user, false),
-                new ExperimenterGroup(group, false));
+        addUserToGroup(user, group, false);
+    }
+
+    public void addUserToGroup(long user, long group, boolean admin) {
+        final IAdmin iAdmin = managedSf.getAdminService();
+        final Experimenter e = new Experimenter(user, false);
+        final ExperimenterGroup g = new ExperimenterGroup(group, false);
+
+        iAdmin.addGroups(e, g);
+        if (admin) {
+            iAdmin.addGroupOwners(g, e);
+        }
     }
 
     /**
@@ -127,15 +237,21 @@ public class ManagedContextFixture {
     }
 
     /**
-     * Login a new user into a new group and return
-     * 
-     * @return
+     * Login a new user into a new private group and return
      */
     public String loginNewUserNewGroup() {
+        return loginNewUserNewGroup("rw----");
+    }
+
+    /**
+     * Long a new user into a new group with the given permissions and return
+     */
+    public String loginNewUserNewGroup(String perms) {
         IAdmin admin = managedSf.getAdminService();
         String groupName = uuid();
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(groupName);
+        g.getDetails().setPermissions(Permissions.parseString(perms));
         admin.createGroup(g);
         String name = newUser(groupName);
         setCurrentUser(name);

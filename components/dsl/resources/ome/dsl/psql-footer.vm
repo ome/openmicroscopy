@@ -79,15 +79,22 @@ DECLARE
     wr CHAR DEFAULT ''-'';
     ww CHAR DEFAULT ''-'';
 BEGIN
-    -- shift 8
-    SELECT INTO ur CASE WHEN (cast(p as bit(64)) & cast(1024 as bit(64))) = cast(1024 as bit(64)) THEN ''r'' ELSE ''-'' END;
-    SELECT INTO uw CASE WHEN (cast(p as bit(64)) & cast( 512 as bit(64))) = cast( 512 as bit(64)) THEN ''w'' ELSE ''-'' END;
-    -- shift 4
-    SELECT INTO gr CASE WHEN (cast(p as bit(64)) & cast(  64 as bit(64))) = cast(  64 as bit(64)) THEN ''r'' ELSE ''-'' END;
-    SELECT INTO gw CASE WHEN (cast(p as bit(64)) & cast(  32 as bit(64))) = cast(  32 as bit(64)) THEN ''w'' ELSE ''-'' END;
-    -- shift 0
-    SELECT INTO wr CASE WHEN (cast(p as bit(64)) & cast(   4 as bit(64))) = cast(   4 as bit(64)) THEN ''r'' ELSE ''-'' END;
-    SELECT INTO ww CASE WHEN (cast(p as bit(64)) & cast(   2 as bit(64))) = cast(   2 as bit(64)) THEN ''w'' ELSE ''-'' END;
+    -- annotate flags may be overwritten by write flags
+
+    -- shift 8 (-RWA--------)
+    SELECT INTO ur CASE WHEN (p & 1024) = 1024 THEN ''r'' ELSE ''-'' END;
+    SELECT INTO uw CASE WHEN (p &  512) =  512 THEN ''w''
+                        WHEN (p &  256) =  256 THEN ''a'' ELSE ''-'' END;
+
+    -- shift 4 (-----RWA----)
+    SELECT INTO gr CASE WHEN (p &   64) =   64 THEN ''r'' ELSE ''-'' END;
+    SELECT INTO gw CASE WHEN (p &   32) =   32 THEN ''w''
+                        WHEN (p &   16) =   16 THEN ''a'' ELSE ''-'' END;
+
+    -- shift 0 (---------RWA)
+    SELECT INTO wr CASE WHEN (p &    4) =    4 THEN ''r'' ELSE ''-'' END;
+    SELECT INTO ww CASE WHEN (p &    2) =    2 THEN ''w''
+                        WHEN (p &    1) =    1 THEN ''a'' ELSE ''-'' END;
 
     RETURN ur || uw || gr || gw || wr || ww;
 END;' LANGUAGE plpgsql;

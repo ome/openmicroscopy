@@ -10,6 +10,7 @@
 #define OMERO_CLIENT_H
 
 #include <omero/API.h>
+#include <omero/clientF.h>
 #include <omero/ClientErrors.h>
 #include <omero/Collections.h>
 #include <omero/Constants.h>
@@ -43,22 +44,6 @@ namespace omero {
 	Callable() {};
 	void operator()() {};
     };
-
-    /*
-     * Forward definitions and handles
-     */
-    class client;
-    class CallbackI;
-    typedef IceUtil::Handle<CallbackI> CallbackIPtr;
-
-    /*
-     * Typedef for using Ice's smart pointer reference counting
-     * infrastructure.
-     *
-     *  omero::client_ptr client1 = new omero::client("localhost");
-     *  omero::client_ptr client2 = new omero::client("localhost", port);
-     */
-    typedef IceUtil::Handle<client> client_ptr;
 
     /*
      * Central client-side blitz entry point and should be in sync with

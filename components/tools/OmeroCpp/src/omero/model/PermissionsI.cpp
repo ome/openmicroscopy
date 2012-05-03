@@ -6,6 +6,7 @@
  *
  */
 
+#include <omero/ClientErrors.h>
 #include <omero/model/PermissionsI.h>
 #include <omero/ClientErrors.h>
 
@@ -15,6 +16,9 @@ namespace omero {
 
 	PermissionsI::~PermissionsI() {}
 	PermissionsI::PermissionsI(const std::string& perms) : Permissions() {
+            __immutable = false;
+            disallowAnnotate = false;
+            disallowEdit = false;
             if (perms.empty()) {
                 perm1 = -1L;
             } else {
@@ -51,6 +55,37 @@ namespace omero {
                 }
             }
 	}
+
+        void PermissionsI::ice_postUnmarshal() {
+            __immutable = true;
+        }
+
+        void PermissionsI::throwIfImmutable() {
+            if (__immutable) {
+                throw omero::ClientError(__FILE__,__LINE__,"ImmutablePermissions");
+            }
+        }
+
+        void PermissionsI::unload(const Ice::Current& current) {
+            // no-op
+        }
+
+        bool PermissionsI::canAnnotate(const Ice::Current& current) {
+            return ! disallowAnnotate;
+        }
+
+        bool PermissionsI::canEdit(const Ice::Current& current) {
+            return ! disallowEdit;
+        }
+
+        Ice::Long PermissionsI::getPerm1(const Ice::Current& current) {
+            return perm1;
+        }
+
+        void PermissionsI::setPerm1(Ice::Long _perm1, const Ice::Current& current) {
+            throwIfImmutable();
+            perm1 =  _perm1;
+        }
 
 	// shift 8; mask 4
 	bool PermissionsI::isUserRead(const Ice::Current& c) {
@@ -105,6 +140,7 @@ namespace omero {
 	}
 
 	void PermissionsI::set(int mask, int shift, bool on) {
+	    throwIfImmutable();
 	    if (on) {
 		perm1 = perm1 | ( 0L  | (mask<<shift) );
 	    } else {

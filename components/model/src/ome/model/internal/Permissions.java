@@ -1,8 +1,20 @@
 /*
- *   $Id$
+ * Copyright (C) 2006-2012 University of Dundee
+ * All rights reserved.
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 package ome.model.internal;
 
@@ -12,6 +24,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.Transient;
 
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
@@ -35,7 +48,7 @@ import static ome.model.internal.Permissions.Flag.*;
  */
 public class Permissions implements Serializable {
 
-    private static final long serialVersionUID = 7089149309186580238L;
+    private static final long serialVersionUID = 708953452345658023L;
 
     /**
      * enumeration of currently active roles. The {@link #USER} role is active
@@ -67,23 +80,25 @@ public class Permissions implements Serializable {
      * with the given role to retrieve an entity. This means that all fields of
      * that entity can be retrieved. Care is taken by the server, that once an
      * entity was readable and another entity was attached to it, that further
-     * READ access will not throw an exception. See {@link #LOCKED}. In turn,
+     * READ access will not throw an exception. In turn,
      * care should be taken by users to not overly soon grant {@link #READ}
-     * permissions lest they no longer be revokable.
-     * 
+     * permissions lest they no longer be revokable. As of 4.4, this also permits
+     * certain view-based linkages of objects (e.g. RenderingDef, Thumbnail).
+     *
+     * The {@link #ANNOTATE} right allows a user with the given role to link
+     * annotations and other non-core data to an entity.
+     *
      * The {@link #WRITE} right allows for a user with the given role to alter
      * the fields of an entity, including changing the contents of its
-     * collection. This does not include changing the fields of those linked
+     * collection, assigning it to another collection, or deleting it.
+     * This does not include changing the fields of those linked
      * entities, only whether or not they are members of the given collection.
+     *
+     * Note: if WRITE is granted, ANNOTATE will also be granted.
      */
     public enum Right {
-        /*
-         * TODO on db update, test changing WRITE(1) and READ(2)
-         * 
-         * @Deprecated USE(1),
-         */
-        WRITE(2), READ(4),
-        /* UNUSED(8) */;
+
+        ANNOTATE(1), WRITE(2), READ(4);
 
         private final int mask;
 
@@ -137,6 +152,9 @@ public class Permissions implements Serializable {
             throw new IllegalArgumentException(
                     "Permissions argument cannot be null.");
         }
+        if (p == DUMMY) {
+            throw new IllegalArgumentException("Not intended for copying!");
+        }
         this.revokeAll(p);
     }
 
@@ -147,6 +165,18 @@ public class Permissions implements Serializable {
      * represents the lower 64-bits of permissions data.
      */
     private long perm1 = -1; // all bits turned on.
+
+    /**
+     * Calculated field which is based on both the stored representation
+     * ({@link #perm1}) and the current calling context.
+     */
+    private boolean disallowAnnotate = false;
+
+    /**
+     * Calculated field which is based on both the stored representation
+     * ({@link #perm1}) and the current calling context.
+     */
+    private boolean disallowEdit = false;
 
     // ~ Getters
     // =========================================================================
@@ -187,7 +217,7 @@ public class Permissions implements Serializable {
     public static Permissions parseString(String rwrwrw) {
 
         Permissions p = new Permissions(EMPTY);
-        String regex = "([Rr_-][Ww_-]){3}";
+        String regex = "([Rr_-][AaWw_-]){3}";
 
         if (rwrwrw == null || !rwrwrw.matches(regex)) {
             throw new ApiUsageException("Permissions are of the form: " + regex);
@@ -200,7 +230,10 @@ public class Permissions implements Serializable {
             p.grant(USER, READ);
         }
         c = rwrwrw.charAt(1);
-        if (c == 'w' || c == 'W') {
+        if (c == 'a' || c == 'A') {
+            p.grant(USER, ANNOTATE);
+        } else if (c == 'w' || c == 'W') {
+            p.grant(USER, ANNOTATE);
             p.grant(USER, WRITE);
         }
         c = rwrwrw.charAt(2);
@@ -208,7 +241,10 @@ public class Permissions implements Serializable {
             p.grant(GROUP, READ);
         }
         c = rwrwrw.charAt(3);
-        if (c == 'w' || c == 'W') {
+        if (c == 'a' || c == 'A') {
+            p.grant(GROUP, ANNOTATE);
+        } else if (c == 'w' || c == 'W') {
+            p.grant(GROUP, ANNOTATE);
             p.grant(GROUP, WRITE);
         }
         c = rwrwrw.charAt(4);
@@ -216,11 +252,24 @@ public class Permissions implements Serializable {
             p.grant(WORLD, READ);
         }
         c = rwrwrw.charAt(5);
-        if (c == 'w' || c == 'W') {
+        if (c == 'a' || c == 'A') {
+            p.grant(WORLD, ANNOTATE);
+        } else if (c == 'w' || c == 'W') {
+            p.grant(WORLD, ANNOTATE);
             p.grant(WORLD, WRITE);
         }
 
         return p;
+    }
+
+    @Transient
+    public boolean isDisallowAnnotate() {
+        return disallowAnnotate;
+    }
+
+    @Transient
+    public boolean isDisallowEdit() {
+        return disallowEdit;
     }
 
     // ~ Setters (return this)
@@ -321,6 +370,16 @@ public class Permissions implements Serializable {
         return this;
     }
 
+    public Permissions setDisallowAnnotate(boolean disallowAnnotate) {
+        this.disallowAnnotate = disallowAnnotate;
+        return this;
+    }
+
+    public Permissions setDisallowEdit(boolean disallowEdit) {
+        this.disallowEdit = disallowEdit;
+        return this;
+    }
+
     // ~ Overrides
     // =========================================================================
 
@@ -329,18 +388,28 @@ public class Permissions implements Serializable {
      * those on a Unix filesystem. Unset bits are represented by a dash, while
      * other bits are represented by a symbolic value in the correct bit
      * position. For example, a Permissions with all {@link Right rights}
-     * granted to all but WORLD {@link Role roles} would look like: rwurwu---
+     * granted to all but WORLD {@link Role roles} would look like: rwrw--
      */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(16);
         sb.append(isGranted(USER, READ) ? "r" : "-");
-        sb.append(isGranted(USER, WRITE) ? "w" : "-");
+        sb.append(annotateOrWorld(USER));
         sb.append(isGranted(GROUP, READ) ? "r" : "-");
-        sb.append(isGranted(GROUP, WRITE) ? "w" : "-");
+        sb.append(annotateOrWorld(GROUP));
         sb.append(isGranted(WORLD, READ) ? "r" : "-");
-        sb.append(isGranted(WORLD, WRITE) ? "w" : "-");
+        sb.append(annotateOrWorld(WORLD));
         return sb.toString();
+    }
+
+    private String annotateOrWorld(Role role) {
+        if (isGranted(role, WRITE)) {
+            return "w";
+        } else if (isGranted(role, ANNOTATE)) {
+            return "a";
+        } else {
+            return "-";
+        }
     }
 
     /**
@@ -401,7 +470,7 @@ public class Permissions implements Serializable {
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================
 
-    @Column(name = "permissions", nullable = false)
+    @Column(name = "permissions", nullable = false, updatable = false)
     protected long getPerm1() {
         return this.perm1;
     }
@@ -605,8 +674,14 @@ public class Permissions implements Serializable {
      * turned off.
      */
     public final static Permissions EMPTY = new ImmutablePermissions(
-            new Permissions().revoke(USER, READ, WRITE).revoke(GROUP, READ,
-                    WRITE).revoke(WORLD, READ, WRITE));
+            new Permissions().revoke(USER, READ, ANNOTATE, WRITE).revoke(GROUP, READ,
+                    ANNOTATE, WRITE).revoke(WORLD, READ, ANNOTATE, WRITE));
+
+    /**
+     * Marker object which can be set on objects to show that the Permissions
+     * instance given contains no value.
+     */
+    public final static Permissions DUMMY = new ImmutablePermissions(EMPTY);
 
     // ~ Systematic
     // =========================================================================
@@ -628,7 +703,7 @@ public class Permissions implements Serializable {
      * RW____ : user and only user can read and write
      */
     public final static Permissions USER_PRIVATE = new ImmutablePermissions(
-            new Permissions(EMPTY).grant(USER, READ, WRITE));
+            new Permissions(EMPTY).grant(USER, READ, ANNOTATE, WRITE));
 
     /**
      * RWR___ : user can read and write, group can read
@@ -640,7 +715,7 @@ public class Permissions implements Serializable {
      * RWRW__ : user and group can read and write
      */
     public final static Permissions GROUP_PRIVATE = new ImmutablePermissions(
-            new Permissions(GROUP_READABLE).grant(GROUP, WRITE));
+            new Permissions(GROUP_READABLE).grant(GROUP, ANNOTATE, WRITE));
 
     /**
      * RWRWR_ : user and group can read and write, world can read
@@ -653,7 +728,7 @@ public class Permissions implements Serializable {
      * RWRWRW : everyone can read and write
      */
     public final static Permissions WORLD_WRITEABLE = new ImmutablePermissions(
-            new Permissions(GROUP_WRITEABLE).grant(WORLD, WRITE));
+            new Permissions(GROUP_WRITEABLE).grant(WORLD, ANNOTATE, WRITE));
 
     /**
      * RWR_R_ : all can read, user can write
@@ -665,7 +740,7 @@ public class Permissions implements Serializable {
      * R_R_R_ : all can only read
      */
     public final static Permissions WORLD_IMMUTABLE = new ImmutablePermissions(
-            new Permissions(USER_WRITEABLE).revoke(USER, WRITE));
+            new Permissions(USER_WRITEABLE).revoke(USER, ANNOTATE, WRITE));
 
     /**
      * R_R___ : user and group can only read

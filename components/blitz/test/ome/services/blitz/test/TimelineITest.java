@@ -57,17 +57,15 @@ public class TimelineITest extends AbstractServantTest {
     protected void setUp() throws Exception {
         super.setUp();
 
-        user_t = new TimelineI(be);
-        user_t.setServiceFactory(user_sf);
-        user_t.setSessionManager(sm);
-        user_t.setSecuritySystem(ss);
-        user_t.setServiceFactory(user_sf);
+        user_t = new TimelineI(user.be);
+        user_t.setServiceFactory(user.sf);
+        user_t.setSessionManager(user.sm);
+        user_t.setSecuritySystem(user.ss);
 
-        root_t = new TimelineI(be);
-        root_t.setServiceFactory(root_sf);
-        root_t.setSessionManager(sm);
-        root_t.setSecuritySystem(ss);
-        root_t.setServiceFactory(root_sf);
+        root_t = new TimelineI(root.be);
+        root_t.setServiceFactory(root.sf);
+        root_t.setSessionManager(root.sm);
+        root_t.setSecuritySystem(root.ss);
     }
 
     //
