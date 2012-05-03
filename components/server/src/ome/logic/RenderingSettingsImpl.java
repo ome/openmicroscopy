@@ -187,7 +187,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			"join fetch pix.image " +
 			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
-			"join fetch c.logicalChannel " +
 			"where pix.id in (:ids)";
 		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
 		s1.stop();
@@ -209,7 +208,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			"join fetch pix.image as i " +
 			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
-			"join fetch c.logicalChannel " +
 			"where i.id in (:ids)";
 		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
 		s1.stop();
@@ -231,7 +229,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			"join fetch pix.image as i " +
 			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
-			"join fetch c.logicalChannel " +
 			"left outer join i.wellSamples as s " +
 			"left outer join s.well as w " +
 			"left outer join w.plate as p " +
@@ -256,7 +253,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			"join fetch pix.image as i " +
 			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
-			"join fetch c.logicalChannel " +
 			"left outer join i.wellSamples as s " +
 			"left outer join s.plateAcquisition as p " +
 			"where p.id in (:ids)";
@@ -280,7 +276,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			"join fetch pix.image as i " +
 			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
-			"join fetch c.logicalChannel " +
 			"left outer join i.wellSamples as s " +
 			"left outer join s.well as w " +
 			"left outer join w.plate as p " +
@@ -307,7 +302,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     		"join fetch pix.image as i " +
 			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
-			"join fetch c.logicalChannel " +
 			"left outer join i.datasetLinks dil " +
 			"left outer join dil.parent d " +
 			"where d.id in (:ids)";
@@ -331,7 +325,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     		"join fetch pix.image as i " +
 			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
-			"join fetch c.logicalChannel " +
 			"left outer join i.datasetLinks dil " +
 			"left outer join dil.parent as d " +
 			"left outer join d.projectLinks as pdl " +

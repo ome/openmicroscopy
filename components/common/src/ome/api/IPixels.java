@@ -46,8 +46,7 @@ public interface IPixels extends ServiceInterface
      * <li>pixels.channels</li>
      * <li>pixels.channnels.statsInfo</li>
      * <li>pixels.channnels.colorComponent</li>
-     * <li>pixels.channnels.logicalChannel</li>
-     * <li>pixels.channnels.logicalChannel.photometricInterpretation</li>
+     * <li>pixels.channnels.photometricInterpretation</li>
      * </ul>
      * 
      * @param pixelsId

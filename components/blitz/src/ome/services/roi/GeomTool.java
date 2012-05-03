@@ -260,7 +260,6 @@ public class GeomTool {
                                     + "left outer join fetch s.channels selected " // optional
                                     + "join fetch s.roi r join fetch r.image i "
                                     + "join fetch i.pixels p join fetch p.channels c "
-                                    + "join fetch c.logicalChannel lc "
                                     + "where s.id = :id").setParameter("id",
                             shapeId).uniqueResult();
             final SmartShape smartShape = (SmartShape) new ShapeMapper()
