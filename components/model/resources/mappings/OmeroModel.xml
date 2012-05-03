@@ -1546,9 +1546,13 @@
         <entry name="uint32"/>
         <entry name="float"/>
         <entry name="bit"/>
-        <entry name="Double"/>
+        <entry name="double"/>
         <entry name="complex"/>
         <entry name="double-complex"/>
+        <!-- These will be converted to required -->
+        <optional name="bitsize" type="Integer"/>
+        <optional name="isfloat" type="Boolean"/>
+        <optional name="issigned" type="Boolean"/>
     </enum>
 
     <enum id="ome.model.enums.MicrobeamManipulationType">
