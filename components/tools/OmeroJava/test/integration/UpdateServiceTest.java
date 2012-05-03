@@ -9,17 +9,20 @@ package integration;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import omero.api.IPixelsPrx;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.Channel;
+import omero.model.ColorI;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -33,7 +36,10 @@ import omero.model.Dichroic;
 import omero.model.EllipseI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.FillRule;
 import omero.model.Filter;
+import omero.model.FontFamily;
+import omero.model.FontStyle;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -42,9 +48,11 @@ import omero.model.ImageI;
 import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.Line;
+import omero.model.LineCap;
 import omero.model.LineI;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
+import omero.model.Marker;
 import omero.model.Mask;
 import omero.model.MaskI;
 import omero.model.Objective;
@@ -106,6 +114,7 @@ import pojos.ROIData;
 import pojos.RectangleData;
 import pojos.ScreenData;
 import pojos.ShapeData;
+import pojos.ShapeSettingsData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
@@ -1087,7 +1096,7 @@ public class UpdateServiceTest
     }
     
     /**
-	 * Tests the creation of ROIs whose shapes are Points and converts them 
+	 * Tests the creation of ROIs whose shapes are rectangle and converts them 
 	 * into the corresponding <code>POJO</code> objects.
 	 * @throws Exception  Thrown if an error occurred.
 	 */
@@ -1138,6 +1147,90 @@ public class UpdateServiceTest
 		}
     }
     
+    /**
+	 * Tests the creation of ROIs whose shapes are Points and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateShapeSettings() 
+    	throws Exception
+    {
+        Image image = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        IPixelsPrx svc = factory.getPixelsService();
+     	List<IObject> values = svc.getAllEnumerations(FillRule.class.getName());
+     	FillRule rule = (FillRule) values.get(0);
+     	values = svc.getAllEnumerations(FontFamily.class.getName());
+     	FontFamily family = (FontFamily) values.get(0);
+     	values = svc.getAllEnumerations(FontStyle.class.getName());
+     	FontStyle style = (FontStyle) values.get(0);
+     	values = svc.getAllEnumerations(LineCap.class.getName());
+     	LineCap lineCap = (LineCap) values.get(0);
+     	Color fillColor = Color.RED;
+     	Color strokeColor = Color.GREEN;
+        ROI roi = new ROII();
+        roi.setImage(image);
+        ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double strokeWidth = 2;
+        double v = 10;
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        Rectangle rect = new RectangleI();
+        rect.setX(omero.rtypes.rdouble(v));
+        rect.setY(omero.rtypes.rdouble(v));
+        rect.setWidth(omero.rtypes.rdouble(v));
+        rect.setHeight(omero.rtypes.rdouble(v));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        //Set the settings
+        rect.setFillRule(rule);
+        rect.setFontFamily(family);
+        rect.setFontStyle(style);
+        rect.setLineCap(lineCap);
+        
+        rect.setFillColor(new ColorI(fillColor.getRGB()));
+        rect.setStrokeColor(new ColorI(strokeColor.getRGB()));
+        rect.setStrokeWidth(omero.rtypes.rdouble(strokeWidth));
+        
+        serverROI.addShape(rect);
+        
+        serverROI = (ROI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        RectangleData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        ShapeSettingsData settings;
+        Color color;
+        while (i.hasNext()) {
+        	shape = (RectangleData) i.next();
+        	settings = shape.getShapeSettings();
+        	assertEquals(settings.getFillRule(), rule.getValue().getValue());
+        	assertEquals(settings.getFontFamily(), family.getValue().getValue());
+        	assertEquals(settings.getFontStyle(), style.getValue().getValue());
+        	assertEquals(settings.getLineCap(), lineCap.getValue().getValue());
+        	color = settings.getFill();
+        	assertTrue(color.getRed() == fillColor.getRed());
+        	assertTrue(color.getGreen() == fillColor.getBlue());
+        	assertTrue(color.getBlue() == fillColor.getGreen());
+        	assertTrue(color.getAlpha() == fillColor.getAlpha());
+        	color = settings.getStroke();
+        	assertTrue(color.getRed() == fillColor.getRed());
+        	assertTrue(color.getGreen() == fillColor.getBlue());
+        	assertTrue(color.getBlue() == fillColor.getGreen());
+        	assertTrue(color.getAlpha() == fillColor.getAlpha());
+        	assertTrue(settings.getStrokeWidth() == strokeWidth);
+		}
+    }
     /**
      * Tests the creation of an ROI not linked to an image.
      * @throws Exception  Thrown if an error occurred.
@@ -1237,6 +1330,9 @@ public class UpdateServiceTest
     {
     	Image image = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
+    	IPixelsPrx svc = factory.getPixelsService();
+     	List<IObject> values = svc.getAllEnumerations(Marker.class.getName());
+     	Marker marker = (Marker) values.get(0);
     	ROI roi = new ROII();
         roi.setImage(image);
         ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
@@ -1253,8 +1349,8 @@ public class UpdateServiceTest
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
-        //rect.setMarkerStart(omero.rtypes.rstring(start));
-        //rect.setMarkerEnd(omero.rtypes.rstring(end));
+        rect.setMarkerStart(marker);
+        rect.setMarkerEnd(marker);
         serverROI.addShape(rect);
         
         serverROI = (ROI) iUpdate.saveAndReturnObject(serverROI);
@@ -1274,8 +1370,8 @@ public class UpdateServiceTest
         	assertTrue(shape.getZ() == z);
         	assertTrue(shape.getC() == c);
         	assertTrue(shape.getPoints().size() == 1);
-        	//assertEquals(shape.getMarkerStart(), start);
-        	//assertEquals(shape.getMarkerEnd(), end);
+        	assertEquals(shape.getMarkerStart(), marker.getValue().getValue());
+        	assertEquals(shape.getMarkerEnd(), marker.getValue().getValue());
 		}
     }
     
@@ -1290,6 +1386,11 @@ public class UpdateServiceTest
     {
         Image image = (Image) iUpdate.saveAndReturnObject(
         		mmFactory.simpleImage(0));
+        //Get marker enumeration
+        IPixelsPrx svc = factory.getPixelsService();
+    	List<IObject> values = svc.getAllEnumerations(Marker.class.getName());
+    	Marker marker = (Marker) values.get(0);
+    	
         ROI roi = new ROII();
         roi.setImage(image);
         ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
@@ -1309,8 +1410,8 @@ public class UpdateServiceTest
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
-        //rect.setMarkerStart(omero.rtypes.rstring(start));
-        //rect.setMarkerEnd(omero.rtypes.rstring(end));
+        rect.setMarkerStart(marker);
+        rect.setMarkerEnd(marker);
         serverROI.addShape(rect);
         
         serverROI = (ROI) iUpdate.saveAndReturnObject(serverROI);
@@ -1333,8 +1434,8 @@ public class UpdateServiceTest
         	assertTrue(shape.getY1() == v);
         	assertTrue(shape.getX2() == w);
         	assertTrue(shape.getY2() == w);
-        	//assertEquals(shape.getMarkerStart(), start);
-        	//assertEquals(shape.getMarkerEnd(), end);
+        	assertEquals(shape.getMarkerStart(), marker.getValue().getValue());
+        	assertEquals(shape.getMarkerEnd(), marker.getValue().getValue());
 		}
     }
     

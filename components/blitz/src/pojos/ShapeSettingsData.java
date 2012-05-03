@@ -408,27 +408,6 @@ public class ShapeSettingsData
 		shape.setFontStyle(fontStyle);
 		setDirty(true);
 	}
-
-	
-	/**
-	 * Returns the marker start.
-	 * 
-	 * @param start The value to set.
-	 */
-	public String setMarkerStart(String start)
-	{
-		return "";
-	}
-	
-	/**
-	 * Returns the marker end.
-	 * 
-	 * @param start The value to set.
-	 */
-	public String setMarkerEnd(String end)
-	{
-		return "";
-	}
 	
 	/**
 	 * Returns <code>true</code> if it is italic, <code>false</code>
