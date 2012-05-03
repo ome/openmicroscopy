@@ -102,8 +102,7 @@ def split_image(client, imageId, dir, unformattedImageName = "tubulin_P037_T%05d
     cIndex = 0
     pixels = pixelsService.retrievePixDescription(pixels.id.val)    # load channels
     for c in pixels.iterateChannels():
-        lc = c.getLogicalChannel()
-        channelMap[cIndex] = lc.getName() and lc.getName().getValue() or str(cIndex)
+        channelMap[cIndex] = c.getName() and c.getName().getValue() or str(cIndex)
         cIndex += 1
 
     def formatName(unformatted, z, c, t):

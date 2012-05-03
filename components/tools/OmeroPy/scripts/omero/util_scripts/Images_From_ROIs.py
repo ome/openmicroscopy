@@ -176,7 +176,7 @@ def processImage(conn, imageId, parameterMap):
 
     # ...otherwise, we're going to make a new 5D image per ROI
     else:
-        colors = [c.getColor().getRGB() for c in image.getChannels()]
+        colors = [c.getColor() for c in image.getChannels()]
         cNames = [c.getLabel() for c in image.getChannels()]
         iIds = []
         for r in rois:
@@ -208,16 +208,12 @@ def processImage(conn, imageId, parameterMap):
 
             # Apply colors from the original image to the new one
             for i, c in enumerate(newImg.getChannels()):
-                lc = c.getLogicalChannel()
-                lc.setName(cNames[i])
-                lc.save()
-                r,g,b = colors[i]
+                c.setName(cNames[i])
+                c.save()
+                color = colors[i]
                 # need to reload channels to avoid optimistic lock on update
                 cObj = conn.getQueryService().get("Channel", c.id)
-                cObj.red = rint(r)
-                cObj.green = rint(g)
-                cObj.blue = rint(b)
-                cObj.alpha = rint(255)
+                cObj.color = color
                 conn.getUpdateService().saveObject(cObj)
 
             newImg.resetRDefs() # reset based on colors above
