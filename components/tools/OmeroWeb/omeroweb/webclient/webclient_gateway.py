@@ -836,47 +836,148 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         """
         admin_serv = self.getAdminService() 
         admin_serv.changePasswordWithOldPassword(rstring(str(old_password)), rstring(str(password)))
-        
-    def createExperimenter(self, experimenter, defaultGroup, otherGroups, password):
+    
+    def createExperimenter(self, omeName, firstName, lastName, email, isAdmin, isActive, defaultGroup, otherGroups, password, middleName=None, institution=None):
         """
         Create and return a new user in the given groups with password.
-        
-        @param experimenter     A new Experimenter instance.
-        @type experimenter      ExperimenterI
-        @param defaultGroup     Instance of ExperimenterGroup selected as a first active group.
-        @type defaultGroup      ExperimenterGroupI
-        @param otherGroups      List of ExperimenterGroup instances. Can be empty.
-        @type otherGroups       L{ExperimenterGroupI}
-        @param password         Must pass validation in the security sub-system.
-        @type password          String
-        @return                 ID of the newly created Experimenter Not null.
-        @rtype                  Long
+        @param omeName A new username.
+        @type omeName String
+        @param firstName A new first name.
+        @type firstName String
+        @param lastName A new last name.
+        @type lastName String
+        @param email A new email.
+        @type email String
+        @param isAdmin An Admin permission.
+        @type isAdmin Boolean
+        @param isActive Active user (user can log in).
+        @type isActive Boolean
+        @param defaultGroup Instance of ExperimenterGroup selected as a first active group.
+        @type defaultGroup ExperimenterGroupI
+        @param otherGroups List of ExperimenterGroup instances. Can be empty.
+        @type otherGroups L{ExperimenterGroupI}
+        @param password Must pass validation in the security sub-system.
+        @type password String
+        @param middleName A middle name.
+        @type middleName String
+        @param institution An institution.
+        @type institution String
+        @return ID of the newly created Experimenter Not null.
+        @rtype Long
         """
+        experimenter = ExperimenterI()
+        experimenter.omeName = rstring(str(omeName))
+        experimenter.firstName = rstring(str(firstName))
+        experimenter.middleName = middleName is not None and rstring(str(middleName)) or None
+        experimenter.lastName = rstring(str(lastName))
+        experimenter.email = rstring(str(email))
+        experimenter.institution = (institution!="" and institution is not None) and rstring(str(institution)) or None
+
+        listOfGroups = list()
+        # system group
+        if isAdmin:
+            g = self.getObject("ExperimenterGroup", attributes={'name':'system'})
+            listOfGroups.append(g._obj)
+
+        # user group
+        if isActive:
+            g = self.getObject("ExperimenterGroup", attributes={'name':'user'})
+            listOfGroups.append(g._obj)
+
+        for g in otherGroups:
+            listOfGroups.append(g._obj)
+
         admin_serv = self.getAdminService()
-        return admin_serv.createExperimenterWithPassword(experimenter, rstring(str(password)), defaultGroup, otherGroups)
-    
-    def updateExperimenter(self, experimenter, defaultGroup, addGroups, rmGroups):
+        return admin_serv.createExperimenterWithPassword(experimenter, rstring(str(password)), defaultGroup._obj, listOfGroups)
+
+    def updateExperimenter(self, experimenter, omeName, firstName, lastName, email, isAdmin, isActive, defaultGroup, otherGroups, middleName=None, institution=None):
         """
         Update an existing user including groups user is a member of.
         Password cannot be changed by calling that method.
-        
-        @param experimenter     An existing Experimenter instance.
-        @type experimenter      ExperimenterI
-        @param defaultGroup     Instance of ExperimenterGroup selected as a new active group.
-        @type defaultGroup      ExperimenterGroupI
-        @param addGroups        List of new ExperimenterGroup instances user will be a member of. Can be empty.
-        @type addGroups         L{ExperimenterGroupI}
-        @param rmGroups         List of old ExperimenterGroup instances user no longer be a member of. Can be empty.
-        @type rmGroups          L{ExperimenterGroupI}
+        @param experimenter An existing Experimenter instance.
+        @type experimenter ExperimenterWrapper
+        @param omeName A new username.
+        @type omeName String
+        @param firstName A new first name.
+        @type firstName String
+        @param lastName A new last name.
+        @type lastName String
+        @param email A new email.
+        @type email String
+        @param isAdmin An Admin permission.
+        @type isAdmin Boolean
+        @param isActive Active user (user can log in).
+        @type isActive Boolean
+        @param defaultGroup Instance of ExperimenterGroup selected as a first active group.
+        @type defaultGroup ExperimenterGroupI
+        @param otherGroups List of ExperimenterGroup instances. Can be empty.
+        @type otherGroups L{ExperimenterGroupI}
+        @param middleName A middle name.
+        @type middleName String
+        @param institution An institution.
+        @type institution String
         """
-        
+        up_exp = experimenter._obj
+        up_exp.omeName = rstring(str(omeName))
+        up_exp.firstName = rstring(str(firstName))
+        up_exp.middleName = middleName is not None and rstring(str(middleName)) or None
+        up_exp.lastName = rstring(str(lastName))
+        up_exp.email = rstring(str(email))
+        up_exp.institution = (institution!="" and institution is not None) and rstring(str(institution)) or None
+
+        # old list of groups
+        old_groups = list()
+        for ogr in up_exp.copyGroupExperimenterMap():
+            old_groups.append(ogr.parent)
+
+        # create list of new groups
+        new_groups = list()
+
+        # default group
+        new_groups.append(defaultGroup._obj)
+
+        # system group
+        if isAdmin:
+            g = self.getObject("ExperimenterGroup", attributes={'name':'system'})
+            new_groups.append(g._obj)
+
+        # user group
+        if isActive:
+            g = self.getObject("ExperimenterGroup", attributes={'name':'user'})
+            new_groups.append(g._obj)
+
+        # rest of groups
+        for g in otherGroups:
+            new_groups.append(g._obj)
+
+        addGroups = list()
+        rmGroups = list()
+
+        # remove
+        for ogr in old_groups:
+            flag = False
+            for ngr in new_groups:
+                if ngr.id.val == ogr.id.val:
+                    flag = True
+            if not flag:
+                rmGroups.append(ogr)
+
+        # add
+        for ngr in new_groups:
+            flag = False
+            for ogr in old_groups:
+                if ogr.id.val == ngr.id.val:
+                    flag = True
+            if not flag:
+                addGroups.append(ngr)
+
         admin_serv = self.getAdminService()
-        admin_serv.updateExperimenter(experimenter)
+        admin_serv.updateExperimenter(up_exp)
         if len(addGroups) > 0:
-            admin_serv.addGroups(experimenter, addGroups)
-        admin_serv.setDefaultGroup(experimenter, defaultGroup)
+            admin_serv.addGroups(up_exp, addGroups)
+        admin_serv.setDefaultGroup(up_exp, defaultGroup._obj)
         if len(rmGroups) > 0:
-            admin_serv.removeGroups(experimenter, rmGroups)
+            admin_serv.removeGroups(up_exp, rmGroups)
     
     def setMembersOfGroup(self, group, add_exps, rm_exps):
         """
@@ -1726,9 +1827,9 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
     def getOtherGroups(self, excluded_names=("user","guest"), excluded_ids=list()):
         for gem in self.copyGroupExperimenterMap():
             flag = False
-            if gr.name in excluded_names:
+            if gem.parent.name.val in excluded_names:
                 flag = True
-            if gr.id in excluded_ids:
+            if gem.parent.id.val in excluded_ids:
                 flag = True
             if not flag:
                 yield ExperimenterGroupWrapper(self, gem.parent)

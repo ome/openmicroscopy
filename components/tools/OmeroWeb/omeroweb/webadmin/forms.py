@@ -74,17 +74,24 @@ class ExperimenterForm(NonASCIIForm):
         self.email_check=email_check 
         
         try:
-            self.fields['groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['others'], initial=kwargs['initial']['groups'])
+            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['other_groups'], required=False)
         except:
-            self.fields['groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['others'])
+            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], required=False)
+        
+        try:
+            if kwargs['initial']['default_group']: pass
+            self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['default_group'], empty_label=u"---------", required=False)
+        except:
+            self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], empty_label=u"---------", required=False)
+        self.fields['default_group'].widget.attrs['disabled'] = True
         
         if kwargs['initial'].has_key('with_password') and kwargs['initial']['with_password']:
             self.fields['password'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
             self.fields['confirmation'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
             
-            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'password', 'confirmation', 'groups']
+            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'password', 'confirmation', 'default_group', 'other_groups']
         else:
-            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'groups']
+            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
 
     omename = OmeNameField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), label="Username")
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
@@ -103,7 +110,7 @@ class ExperimenterForm(NonASCIIForm):
                 raise forms.ValidationError('Passwords do not match')
             else:
                 return self.cleaned_data.get('password')
-                
+    
     def clean_omename(self):
         if self.name_check:
             raise forms.ValidationError('This username already exist.')
@@ -113,6 +120,18 @@ class ExperimenterForm(NonASCIIForm):
         if self.email_check:
             raise forms.ValidationError('This email already exist.')
         return self.cleaned_data.get('email')
+    
+    def clean_default_group(self):
+        if self.cleaned_data.get('default_group') is None or len(self.cleaned_data.get('default_group')) <= 0:
+            raise forms.ValidationError('Choose default group by clicking on the one of chosen groups below.')
+        else:
+            return self.cleaned_data.get('default_group')
+    
+    def clean_other_groups(self):
+        if self.cleaned_data.get('other_groups') is None or len(self.cleaned_data.get('other_groups')) <= 0:
+            raise forms.ValidationError('User must to be a member of at least one group.')
+        else:
+            return self.cleaned_data.get('other_groups')
 
 class GroupForm(NonASCIIForm):
     

@@ -132,7 +132,30 @@ def prepare_experimenterList(conn):
         experimenters.append(exp)
     return experimenters
 
+def prepare_experimenter(conn, eid):
+    experimenter = conn.getObject("Experimenter", eid)
+    defaultGroup = experimenter.getDefaultGroup()
+    otherGroups = list(experimenter.getOtherGroups())
+    hasAvatar = conn.hasExperimenterPhoto()
+    isLdapUser = experimenter.isLdapUser()
+    return experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar
 
+def otherGroupsInitialList(groups, excluded_names=("user","guest"), excluded_ids=list()):
+    formGroups = list()
+    for gr in groups:
+        flag = False
+        if gr.name in excluded_names:
+            flag = True
+        if gr.id in excluded_ids:
+            flag = True
+        if not flag:
+            formGroups.append(gr)
+    return formGroups
+
+def getSelectedGroups(conn, ids):
+    if len(ids)>0:
+        return list(conn.getObjects("ExperimenterGroup", ids))
+    return list()
 
 ################################################################################
 # views controll
@@ -214,10 +237,11 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     template = "webadmin/experimenter_form.html"
     
     info = {'experimenters':experimenters}
-    controller = BaseExperimenter(conn, eid)
+    groups = list(conn.getObjects("ExperimenterGroup"))
+    groups.sort(key=lambda x: x.getName().lower())
     
     if action == 'new':
-        form = ExperimenterForm(initial={'with_password':True, 'active':True, 'others':controller.groups})
+        form = ExperimenterForm(initial={'with_password':True, 'active':True, 'groups':otherGroupsInitialList(groups)})
         context = {'info':info, 'form':form}
     elif action == 'create':
         if request.method != 'POST':
@@ -226,17 +250,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             name_check = conn.checkOmeName(request.REQUEST.get('omename'))
             email_check = conn.checkEmail(request.REQUEST.get('email'))
             
-            initial={'with_password':True}
-            
-            exclude = list()            
-            if len(request.REQUEST.getlist('other_groups')) > 0:
-                others = controller.getSelectedGroups(request.REQUEST.getlist('other_groups'))   
-                initial['others'] = others
-                initial['default'] = [(g.id, g.name) for g in others]
-                exclude.extend([g.id for g in others])
-            
-            available = controller.otherGroupsInitialList(exclude)
-            initial['available'] = available
+            initial={'with_password':True, 'groups':otherGroupsInitialList(groups)}
             form = ExperimenterForm(initial=initial, data=request.REQUEST.copy(), name_check=name_check, email_check=email_check)
             if form.is_valid():
                 logger.debug("Create experimenter form:" + str(form.cleaned_data))
@@ -251,36 +265,46 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 defaultGroup = form.cleaned_data['default_group']
                 otherGroups = form.cleaned_data['other_groups']
                 password = form.cleaned_data['password']
-                controller.createExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
+                
+                # default group
+                for g in groups:
+                    if long(defaultGroup) == g.id:
+                        dGroup = g
+                        break
+
+                listOfOtherGroups = set()
+                # rest of groups
+                for g in groups:
+                    for og in otherGroups:
+                        # remove defaultGroup from otherGroups if contains
+                        if long(og) == long(dGroup.id):
+                            pass
+                        elif long(og) == g.id:
+                            listOfOtherGroups.add(g)
+
+                conn.createExperimenter(omename, firstName, lastName, email, admin, active, dGroup, listOfOtherGroups, password, middleName, institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'info':info, 'form':form}
     elif action == 'edit' :
-        initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
-                                'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
-                                'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                'administrator': controller.experimenter.isAdmin(), 'active': controller.experimenter.isActive(), 
-                                'others': controller.groups, 'groups':controller.otherGroups}
+        experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
+        initial={'omename': experimenter.omeName, 'first_name':experimenter.firstName,
+                                'middle_name':experimenter.middleName, 'last_name':experimenter.lastName,
+                                'email':experimenter.email, 'institution':experimenter.institution,
+                                'administrator': experimenter.isAdmin(), 'active': experimenter.isActive(), 
+                                'default_group': defaultGroup.id, 'other_groups':[g.id for g in otherGroups],
+                                'groups':otherGroupsInitialList(groups)}
         
         form = ExperimenterForm(initial=initial)
         
-        context = {'info':info, 'form':form, 'eid': eid, 'ldapAuth': controller.ldapAuth}
+        context = {'info':info, 'form':form, 'eid': eid, 'ldapAuth': isLdapUser}
     elif action == 'save':
+        experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
         if request.method != 'POST':
-            return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", controller.experimenter.id]))
+            return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", experimenter.id]))
         else:            
-            name_check = conn.checkOmeName(request.REQUEST.get('omename'), controller.experimenter.omeName)
-            email_check = conn.checkEmail(request.REQUEST.get('email'), controller.experimenter.email)
-            initial={'active':True}
-            exclude = list()
-            
-            if len(request.REQUEST.getlist('other_groups')) > 0:
-                others = controller.getSelectedGroups(request.REQUEST.getlist('other_groups'))   
-                initial['others'] = others
-                initial['default'] = [(g.id, g.name) for g in others]
-                exclude.extend([g.id for g in others])
-            
-            available = controller.otherGroupsInitialList(exclude)
-            initial['available'] = available
+            name_check = conn.checkOmeName(request.REQUEST.get('omename'), experimenter.omeName)
+            email_check = conn.checkEmail(request.REQUEST.get('email'), experimenter.email)
+            initial={'active':True, 'groups':otherGroupsInitialList(groups)}
             
             form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
                
@@ -296,9 +320,26 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 active = toBoolean(form.cleaned_data['active'])
                 defaultGroup = form.cleaned_data['default_group']
                 otherGroups = form.cleaned_data['other_groups']
-                controller.updateExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution)
+                
+                # default group
+                for g in groups:
+                    if long(defaultGroup) == g.id:
+                        dGroup = g
+                        break
+
+                listOfOtherGroups = set()
+                # rest of groups
+                for g in groups:
+                    for og in otherGroups:
+                        # remove defaultGroup from otherGroups if contains
+                        if long(og) == long(dGroup.id):
+                            pass
+                        elif long(og) == g.id:
+                            listOfOtherGroups.add(g)
+
+                conn.updateExperimenter(experimenter, omename, firstName, lastName, email, admin, active, dGroup, listOfOtherGroups, middleName, institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
-            context = {'info':info, 'form':form, 'eid': eid, 'ldapAuth': controller.ldapAuth}
+            context = {'info':info, 'form':form, 'eid': eid, 'ldapAuth': isLdapUser}
     elif action == "delete":
         controller.deleteExperimenter()
         return HttpResponseRedirect(reverse("waexperimenters"))
