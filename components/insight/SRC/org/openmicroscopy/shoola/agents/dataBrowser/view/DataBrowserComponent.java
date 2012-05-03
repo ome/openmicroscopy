@@ -908,21 +908,9 @@ class DataBrowserComponent
 		long id = DataBrowserAgent.getUserDetails().getId();
 		boolean b = EditorUtil.isUserOwner(ho, id);
 		if (b) return b; //user it the owner.
-		GroupData group = null;
-		if (ho instanceof DataObject) {
-			DataObject data = (DataObject) ho;
-			group = model.getGroup(data.getGroupId());
-		}
-		if (group == null) return false;
-		int level = 
-			DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel(
-				group);
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
-		}
-		return EditorUtil.isUserGroupOwner(group, id);
+		if (!(ho instanceof DataObject)) return false;
+		DataObject data = (DataObject) ho;
+		return data.canEdit();
 	}
 	
 	/**
@@ -938,22 +926,9 @@ class DataBrowserComponent
 		long id = DataBrowserAgent.getUserDetails().getId();
 		boolean b = EditorUtil.isUserOwner(ho, id);
 		if (b) return b; //user it the owner.
-		GroupData group = null;
-		if (ho instanceof DataObject) {
-			DataObject data = (DataObject) ho;
-			group = model.getGroup(data.getGroupId());
-		}
-		if (group == null) return false;
-		int level = 
-		DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel(
-				group);
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
-		}
-		return false;//return EditorUtil.isUserGroupOwner(group, id);
+		if (!(ho instanceof DataObject)) return false;
+		DataObject data = (DataObject) ho;
+		return data.canAnnotate();
 	}
 	
 	/**

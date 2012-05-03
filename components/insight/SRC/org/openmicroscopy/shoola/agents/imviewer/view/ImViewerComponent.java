@@ -3132,15 +3132,7 @@ class ImViewerComponent
 	public boolean canAnnotate()
 	{
 		if (isUserOwner()) return true;
-		int level = 
-			ImViewerAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
-		}
-		return false;
+		return model.getImage().canAnnotate();
 	}
 
 	/** 

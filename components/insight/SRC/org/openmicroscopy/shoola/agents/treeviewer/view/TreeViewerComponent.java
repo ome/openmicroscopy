@@ -46,7 +46,6 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
@@ -1559,24 +1558,26 @@ class TreeViewerComponent
 		} else b = EditorUtil.isUserOwner(ho, id);
 		if (b) return b; //user is the owner.
 		GroupData group = null;
+		int level = 
+			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+					group);
 		if (ho instanceof DataObject) {
 			DataObject data = (DataObject) ho;
-			group = model.getGroup(data.getGroupId());
+			//group = model.getGroup(data.getGroupId());
+			return data.canEdit();
 		} else if (ho instanceof TreeImageTimeSet) {
 			Browser browser = model.getSelectedBrowser();
 			if (browser == null) return false;
 			group = browser.getNodeGroup((TreeImageDisplay) ho);
-		}
-		
-		int level = 
-		TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-				group);
-		switch (level) {
+			
+			switch (level) {
 			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
 			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
+			}
+			return EditorUtil.isUserGroupOwner(group, id);
 		}
-		return EditorUtil.isUserGroupOwner(group, id);
+		return false;
 	}
 	
 	/**
@@ -1639,6 +1640,7 @@ class TreeViewerComponent
 		} else b = EditorUtil.isUserOwner(ho, id);
 		if (b) return b; //user is the owner.
 		if (ho instanceof DataObject) {
+			/*
 			DataObject data = (DataObject) ho;
 			GroupData group = model.getGroup(data.getGroupId());
 			int level = 
@@ -1651,7 +1653,10 @@ class TreeViewerComponent
 					return true;
 			}
 			//EditorUtil.isUserGroupOwner(group, id);
-		}
+			 * */
+			DataObject data = (DataObject) ho;
+			return data.canAnnotate();
+		} // check the case of other nodes.
 		return false;
 	}
 	
@@ -4104,7 +4109,7 @@ class TreeViewerComponent
 			}
 			if (images.size() == 0) {
 				UserNotifier un = 
-					DataBrowserAgent.getRegistry().getUserNotifier();
+					TreeViewerAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("Dataset Creation", 
 						"No images to add to the dataset.");
 			}

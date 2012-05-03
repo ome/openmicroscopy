@@ -71,6 +71,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ROIData;
@@ -977,15 +978,11 @@ class MeasurementViewerComponent
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
 		long id = exp.getId();
-		boolean b = EditorUtil.isUserOwner(model.getRefObject(), id);
+		Object ref = model.getRefObject();
+		boolean b = EditorUtil.isUserOwner(ref, id);
 		if (b) return b;
-		int level = 
-		MeasurementAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
+		if (ref instanceof DataObject) {
+			return ((DataObject) ref).canAnnotate();
 		}
 		return false;
 	}
