@@ -30,8 +30,8 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.data.model.appdata.ApplicationDataExtractor;
+import org.openmicroscopy.shoola.env.data.model.appdata.LinuxApplicationDataExtractor;
 import org.openmicroscopy.shoola.env.data.model.appdata.MacApplicationDataExtractor;
 import org.openmicroscopy.shoola.env.data.model.appdata.WindowsApplicationDataExtractor;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -77,8 +77,10 @@ public class ApplicationData {
 	static {
 		if (UIUtilities.isWindowsOS())
 			extractor = new WindowsApplicationDataExtractor();
-		if (UIUtilities.isMacOS())
+		else if (UIUtilities.isMacOS())
 			extractor = new MacApplicationDataExtractor();
+		else if (UIUtilities.isLinuxOS())
+			extractor = new LinuxApplicationDataExtractor();
 	}
 
 	/**
@@ -101,7 +103,7 @@ public class ApplicationData {
 	public ApplicationData(File file) throws Exception {
 		this.file = file;
 		this.commands = new ArrayList<String>();
-		
+
 		if (!file.exists())
 			throw new Exception("Application does not exists @ "
 					+ file.getAbsolutePath());
@@ -213,9 +215,8 @@ public class ApplicationData {
 
 		List<String> commandLine = new ArrayList<String>();
 		commandLine.add(data.executable);
-		
-		for(String commandArg : data.getCommandLineArguments())
-		{
+
+		for (String commandArg : data.getCommandLineArguments()) {
 			commandLine.add(commandArg);
 		}
 
