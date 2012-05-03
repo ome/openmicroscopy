@@ -3,7 +3,6 @@
      ../../../InProgress/ome.xsd">
 	<SPW:Plate ID="Plate:1">
 		<SPW:Description>Plate 1 description.</SPW:Description>
-		<SPW:ScreenRef ID="Screen:1"/>
 		<SPW:Well ID="Well:1.1.1" Column="1" Row="1">
 			<SPW:WellSample ID="WellSample:1.1.1.1" Index="1">
 				<ImageRef ID="Image:0"/>
