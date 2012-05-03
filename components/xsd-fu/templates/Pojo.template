@@ -442,7 +442,7 @@ ${customUpdatePropertyContent[prop.name]}
 	// Property
 	public ${prop.javaType} get${prop.javaMethodName}()
 	{
-		return ${prop.javaArgumentName};
+		return ${prop.javaInstanceVariableName};
 	}
 
 	public void set${prop.javaMethodName}(${prop.javaType} ${prop.javaArgumentName})
