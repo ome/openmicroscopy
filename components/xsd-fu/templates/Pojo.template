@@ -360,7 +360,7 @@ ${customUpdatePropertyContent[prop.name]}
 \
 {% for prop in klass.properties.values() %}\
 {% choose %}\
-{% when (prop.isReference and prop.maxOccurs > 1) or prop.isBackReference %}
+{% when (prop.isReference or prop.isBackReference) and prop.maxOccurs > 1 %}
 	// Reference which occurs more than once
 	public int sizeOfLinked${prop.javaMethodName}List()
 	{
