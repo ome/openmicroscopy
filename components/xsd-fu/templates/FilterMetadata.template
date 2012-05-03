@@ -245,7 +245,7 @@ public class FilterMetadata implements MetadataStore
 {% if is_abstract(k) %}\
 {% for prop in sorted_properties(model.getObjectByName(k)) %}\
 {% choose %}\
-{% when not prop.isPrimitive %}\
+{% when not prop.isPrimitive and prop.isChoice %}\
 	// Ignoring ${prop.name} of parent abstract type
 {% end %}\
 {% otherwise %}\
