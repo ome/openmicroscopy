@@ -469,11 +469,17 @@ ${customUpdatePropertyContent[prop.name]}
 
 	public ${prop.javaType} set${prop.javaMethodName}(int index, ${prop.javaType} ${prop.javaArgumentName})
 	{
+{% if klass.type != 'OME' %}\
+        ${prop.javaArgumentName}.set${klass.type}(this);
+{% end %}\
 		return ${prop.javaInstanceVariableName}.set(index, ${prop.javaArgumentName});
 	}
 
 	public void add${prop.javaMethodName}(${prop.javaType} ${prop.javaArgumentName})
 	{
+{% if klass.type != 'OME' %}\
+        ${prop.javaArgumentName}.set${klass.type}(this);
+{% end %}\
 		${prop.javaInstanceVariableName}.add(${prop.javaArgumentName});
 	}
 
