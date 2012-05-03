@@ -263,7 +263,6 @@ public class BlobShareStore extends ShareStore implements
         /*
             + "left outer join fetch i.pixels as p "
             + "left outer join fetch p.channels as c "
-            + "left outer join fetch c.logicalChannel as lc "
             + "left outer join fetch lc.channels as c2 "
             + "left outer join fetch c.statsInfo as sinfo "
             + "left outer join fetch p.planeInfo as pinfo "

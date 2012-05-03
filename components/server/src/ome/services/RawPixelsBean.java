@@ -265,7 +265,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             {
             	pixelsInstance = iQuery.findByQuery(
             			"select p from Pixels as p " +
-            			"join fetch p.pixelsType where p.id = :id",
+            			"join fetch p.type where p.id = :id",
             			new Parameters().addId(id));
             }
 
@@ -299,7 +299,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     {
 	pixelsCache = new ConcurrentHashMap<Long, Pixels>(pixelsIds.size());
     	List<Pixels> pixelsList = iQuery.findAllByQuery(
-    			"select p from Pixels as p join fetch p.pixelsType " +
+    			"select p from Pixels as p join fetch p.type " +
         		"where p.id in (:ids)", new Parameters().addIds(pixelsIds));
     	for (Pixels pixels : pixelsList)
     	{

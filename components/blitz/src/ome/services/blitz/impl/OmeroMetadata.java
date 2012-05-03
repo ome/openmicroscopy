@@ -234,14 +234,13 @@ public class OmeroMetadata extends DummyMetadata {
                 qb.join("i_a_link.child",     "i_a",      true, true);
                 qb.join("p.details.owner",    "p_o",      false, true);
                 qb.join("p.details.group",    "p_g",      false, true);
-                qb.join("p.pixelsType",       "pt",       false, true);
+                qb.join("p.type",             "pt",       false, true);
                 qb.join("p.dimensionOrder",   "do",       false, true);
                 qb.join("p.channels",         "c",        false, true);
                 qb.join("p.planeInfo",        "pinfo",    true, true);
-                qb.join("c.logicalChannel",   "l",        false, true);
-                qb.join("l.mode",             "a_mode",   true, true);
-                qb.join("l.illumination",     "i_type",   true, true);
-                qb.join("l.contrastMethod",   "c_method", true, true);
+                qb.join("c.mode",             "a_mode",   true, true);
+                qb.join("c.illumination",     "i_type",   true, true);
+                qb.join("c.contrastMethod",   "c_method", true, true);
                 qb.where();
                 qb.and("i.id = " + id);
                 ome.model.core.Image _i =(ome.model.core.Image) qb.query(session).uniqueResult();

@@ -153,7 +153,7 @@ public class OmeroGateway extends AbstractAmdServant
 	}
 
 	/* (non-Javadoc)
-	 * @see omero.api._GatewayOperations#createImage(int, int, int, int, java.util.List, omero.model.PixelsType, java.lang.String, java.lang.String, Ice.Current)
+	 * @see omero.api._GatewayOperations#createImage(int, int, int, int, java.util.List, omero.model.PixelType, java.lang.String, java.lang.String, Ice.Current)
 	 */
 	public long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
 			List<Integer> channelList, PixelType pixelsType, String name,

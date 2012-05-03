@@ -83,7 +83,7 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
         	sb.append("left outer join fetch img.details.updateEvent as evt ");
             sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch img.format as format ");
-            sb.append("left outer join fetch pix.pixelsType as pt ");
+            sb.append("left outer join fetch pix.type as pt ");
             if (params.isAcquisitionData()) {
 	            sb.append("left outer join fetch img.stageLabel as position ");
 	            sb.append("left outer join fetch img.imagingEnvironment" +

@@ -351,7 +351,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                     ome.model.core.Image image = sf.getQueryService().findByQuery(
 				"select i from Image i " +
 				"join fetch i.pixels as p " +
-				"join fetch p.pixelsType " +
+				"join fetch p.type" +
 				"join fetch p.dimensionOrder " +
 				"left outer join fetch p.channels " +
 				"left outer join fetch p.planeInfo " +

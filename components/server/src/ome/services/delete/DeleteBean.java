@@ -82,7 +82,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
     public final static String CHANNELID_QUERY = "select ch.id, si.id, lc.id "
         + "from Channel ch "
         + "join ch.statsInfo si "
-        + "join ch.logicalChannel lc "
         + "join ch.pixels.image img where img.id = :id";
 
     public final static String PLATEIMAGES_QUERY = "select i.id from Image i "

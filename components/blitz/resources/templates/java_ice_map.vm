@@ -46,6 +46,9 @@ public class IceMap {
         public final static Map<Class, Class> OMEROtoOME;
 
         static {
+        _ome2omero.put(ome.model.core.Color.class,omero.model.ColorI.class);
+        _omero2ome.put(omero.model.Color.class,ome.model.core.Color.class);
+        _omero2ome.put(omero.model.ColorI.class,ome.model.core.Color.class);
 #macro(put $longtype $shorttype)
 #if(!$type.abstract)
 

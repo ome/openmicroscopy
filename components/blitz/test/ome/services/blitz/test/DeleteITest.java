@@ -648,18 +648,14 @@ public class DeleteITest extends AbstractServantTest {
         // Get target ids
         String siQuery = "select si.id from Channel ch join ch.statsInfo si join ch.pixels pix join pix.image img where img.id = "
                 + imageId;
-        String lcQuery = "select lc.id from Channel ch join ch.logicalChannel lc join ch.pixels pix join pix.image img where img.id = "
-                + imageId;
         String chQuery = "select ch.id from Channel ch join ch.pixels pix join pix.image img where img.id = "
                 + imageId;
 
         RLong statsInfoId = (RLong) assertProjection(siQuery, null).get(0).get(
                 0);
-        RLong logicalId = (RLong) assertProjection(lcQuery, null).get(0).get(0);
         RLong channelId = (RLong) assertProjection(chQuery, null).get(0).get(0);
 
         Long si = statsInfoId.getValue();
-        Long lc = logicalId.getValue();
         Long ch = channelId.getValue();
 
         // Run test
@@ -701,7 +697,6 @@ public class DeleteITest extends AbstractServantTest {
         // assertEquals(null, backupIds.get(0));
         assertEquals(ch, backupIds.get(0).get(0));
         assertEquals(si, backupIds.get(1).get(0));
-        assertEquals(lc, backupIds.get(2).get(0));
 
     }
 

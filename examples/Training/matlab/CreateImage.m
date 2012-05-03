@@ -49,7 +49,7 @@ try
     store.close();
     
     proxy = session.getPixelsService();
-    l = proxy.getAllEnumerations(omero.model.PixelsType.class);
+    l = proxy.getAllEnumerations(omero.model.PixelType.class);
     original = pixels.getPixelsType().getValue().getValue();
     for j = 0:l.size()-1,
         type = l.get(j);

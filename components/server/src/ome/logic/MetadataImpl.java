@@ -245,7 +245,7 @@ public class MetadataImpl
 		sb.append("left outer join fetch child.details.owner ownerChild ");
 		sb.append("left outer join fetch parent.details.owner ownerParent ");
 		sb.append("left outer join fetch img.pixels as pix ");
-		sb.append("left outer join fetch pix.pixelsType as pt ");
+		sb.append("left outer join fetch pix.type as pt ");
 		sb.append("where child.id = :id");
 		List l = iQuery.findAllByQuery(sb.toString(), param);
 		if (l != null) result.addAll(l);
@@ -354,7 +354,7 @@ public class MetadataImpl
     	sb.append("left outer join fetch inst.dichroic as di ");
     	//OTF
     	sb.append("left outer join fetch inst.otf as otf ");
-    	sb.append("left outer join fetch otf.pixelsType as type ");
+    	sb.append("left outer join fetch otf.type as type ");
     	sb.append("left outer join fetch otf.objective as obj ");
     	sb.append("left outer join fetch obj.immersion ");
     	sb.append("left outer join fetch obj.correction ");

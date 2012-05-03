@@ -413,7 +413,7 @@
             <!--
             // Property Pixels
             -->
-            <oneone name="pixels" type="ome.model.core.Pixels"/>
+            <oneone name="pixels" type="ome.model.core.Pixels" inverse="image"/>
             <!--
             // Many-to-many reference ROIRef
             -->
@@ -821,7 +821,7 @@
     <!-- OME model object Pixels -->
     <type id="ome.model.core.Pixels" annotated="true" >
         <properties>
-            <required name="image" type="ome.model.core.Image"/>
+            <oneoneowner name="image" type="ome.model.core.Image"/>
             <!--
             // Property which occurs more than once Channel
             -->
@@ -1546,9 +1546,13 @@
         <entry name="uint32"/>
         <entry name="float"/>
         <entry name="bit"/>
-        <entry name="Double"/>
+        <entry name="double"/>
         <entry name="complex"/>
         <entry name="double-complex"/>
+        <!-- These will be converted to required -->
+        <optional name="bitsize" type="Integer"/>
+        <optional name="isfloat" type="Boolean"/>
+        <optional name="issigned" type="Boolean"/>
     </enum>
 
     <enum id="ome.model.enums.MicrobeamManipulationType">

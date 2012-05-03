@@ -62,7 +62,7 @@ public class QueryBuilderMockTest extends MockObjectTestCase {
         qb.from("Image", "img");
         qb.join("img.pixels", "pix", true, false);
         qb.join("img.datasetImageLinks", "dil", false, false);
-        qb.join("pix.pixelsType", "pt", true, true);
+        qb.join("pix.type", "pt", true, true);
         // qb.cond(Dataset.class.equals(cls)).fetch("img.datasetLink")
 
         // Can't join anymore after this

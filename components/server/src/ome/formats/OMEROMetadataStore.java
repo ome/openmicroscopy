@@ -1697,9 +1697,11 @@ public class OMEROMetadataStore
     	// saveAndReturnIds(). DISABLED until we can find out what is causing
     	// the extreme memory usage on the graph reload.
     	StopWatch s1 = new CommonsLogStopWatch("omero.saveImportGraph");
-    	Image[] imageArray = 
-    		imageList.values().toArray(new Image[imageList.size()]);
-    	IObject[] saved = iUpdate.saveAndReturnArray(imageArray);
+        Pixels[] pixelArray = new Pixels[imageList.size()];
+        for (int i = 0; i < imageList.size(); i++) {
+            pixelArray[i] = imageList.get(i).getPixels();
+        }
+    	IObject[] saved = iUpdate.saveAndReturnArray(pixelArray);
     	s1.stop();
     	
     	// To conform loosely with the method contract, reload a subset of
@@ -1730,8 +1732,7 @@ public class OMEROMetadataStore
     	Pixels pixels;
     	for (int i = 0; i < saved.length; i++)
     	{
-    		image = (Image) saved[i];
-    		pixels = image.getPixels();
+    		pixels = (Pixels) saved[i];
     		pixelsList.put(i, pixels);
     		toReturn.add(pixels);
     	}

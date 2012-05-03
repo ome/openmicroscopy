@@ -93,7 +93,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	@RolesAllowed("user")
 	public Pixels retrievePixDescription(long pixId) {
 		Pixels p = iQuery.findByQuery("select p from Pixels as p "
-				+ "left outer join fetch p.pixelsType as pt "
+				+ "left outer join fetch p.type as pt "
 				+ "left outer join fetch p.channels as c "
 				+ "left outer join fetch c.statsInfo "
 				+ "left outer join fetch lc.photometricInterpretation "

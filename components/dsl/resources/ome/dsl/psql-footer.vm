@@ -58,7 +58,7 @@
   CREATE INDEX i_${tbl_name}_group ON $tbl_name(group_id);
 #end
 #foreach($prop in $type.classProperties)
-#if( $prop.foreignKey && ! $prop.name.equals("details")  && ! $prop.one2Many )
+#if( $prop.foreignKey && ! $prop.name.equals("details")  && ! $prop.one2Many && $prop.class.name != "ome.dsl.OneOneField")
 #set( $tbl_name = $prop.actualType.tableName() )
 #set( $col_name = $prop.actualType.columnName($prop, '"') )
   CREATE INDEX $type.indexName($prop) ON $tbl_name($col_name);
@@ -389,20 +389,24 @@ insert into $table (id,permissions,value)
 #end
 #end
 
--- Adding bit depth to pixelstype (#2724)
-update pixelstype set bitsize = 1 where value = 'bit';
-update pixelstype set bitsize = 8 where value = 'int8';
-update pixelstype set bitsize = 8 where value = 'uint8';
-update pixelstype set bitsize = 16 where value = 'int16';
-update pixelstype set bitsize = 16 where value = 'uint16';
-update pixelstype set bitsize = 32 where value = 'int32';
-update pixelstype set bitsize = 32 where value = 'uint16';
-update pixelstype set bitsize = 32 where value = 'uint32';
-update pixelstype set bitsize = 32 where value = 'float';
-update pixelstype set bitsize = 64 where value = 'double';
-update pixelstype set bitsize = 64 where value = 'complex';
-update pixelstype set bitsize = 128 where value = 'double-complex';
-alter table pixelstype alter column bitsize set not null;
+-- Adding bit depth, etc. to pixelstype (#2724)
+
+update pixeltype set (bitsize, issigned, isfloat) = (  1, false, false) where value = 'bit';
+update pixeltype set (bitsize, issigned, isfloat) = (  8,  true, false) where value = 'int8';
+update pixeltype set (bitsize, issigned, isfloat) = (  8, false, false) where value = 'uint8';
+update pixeltype set (bitsize, issigned, isfloat) = ( 16,  true, false) where value = 'int16';
+update pixeltype set (bitsize, issigned, isfloat) = ( 16, false, false) where value = 'uint16';
+update pixeltype set (bitsize, issigned, isfloat) = ( 32,  true, false) where value = 'int32';
+update pixeltype set (bitsize, issigned, isfloat) = ( 32,  true, false) where value = 'uint16';
+update pixeltype set (bitsize, issigned, isfloat) = ( 32, false, false) where value = 'uint32';
+update pixeltype set (bitsize, issigned, isfloat) = ( 32,  true,  true) where value = 'float';
+update pixeltype set (bitsize, issigned, isfloat) = ( 64,  true,  true) where value = 'double';
+update pixeltype set (bitsize, issigned, isfloat) = ( 64,  true,  true) where value = 'complex';
+update pixeltype set (bitsize, issigned, isfloat) = (128,  true,  true) where value = 'double-complex';
+
+alter table pixeltype alter column bitsize set not null;
+alter table pixeltype alter column isfloat set not null;
+alter table pixeltype alter column issigned set not null;
 
 --
 -- Cryptographic functions for specifying UUID
