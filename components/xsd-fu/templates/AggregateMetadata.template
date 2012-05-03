@@ -442,9 +442,11 @@ ${counter(k, o, v)}\
 {% end %}\
 {% otherwise %}\
 {% for parent_k, parent_v in indexes[k].items() %}\
+{% if not prop.isBackReference %}\
 	// ${prop.name} accessor from parent ${k}
 ${getter(k, o, prop, v)}\
 
+{% end %}\
 {% end %}\
 {% end %}\
 {% end %}\
