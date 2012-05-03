@@ -1532,6 +1532,8 @@ class RenderingControlProxy
 	public boolean validatePixels(PixelsData pixels)
 	{
 		if (pixels == null) return false;
+		long id = pixs.getDetails().getGroup().getId().getValue();
+		if (id != pixels.getGroupId()) return false;
 		if (getPixelsDimensionsC() != pixels.getSizeC()) return false;
 		if (getPixelsDimensionsY() != pixels.getSizeY()) return false;
 		if (getPixelsDimensionsX() != pixels.getSizeX()) return false;

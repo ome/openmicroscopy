@@ -220,7 +220,7 @@ public class DataBrowserAgent
      */
     private void handleCopyRndSettings(CopyRndSettings evt)
     {
-    	DataBrowserFactory.setRndSettingsToCopy(evt.getImage() != null);
+    	DataBrowserFactory.setRndSettingsToCopy(evt.getImage());
     }
     
     /**

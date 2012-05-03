@@ -2168,6 +2168,18 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#AreSettingsCompatible(long)
+	 */
+	public boolean areSettingsCompatible(long groupID)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException("This method cannot be invoked " +
+			"in the DISCARDED state.");
+		return model.areSettingsCompatible(groupID);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#pasteRndSettings(List, Class)
 	 */
 	public void pasteRndSettings(List<Long> ids, Class klass)

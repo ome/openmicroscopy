@@ -1369,6 +1369,15 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#areSettingsCompatible(long)
+	 */
+	public boolean areSettingsCompatible(long groupID)
+	{
+		return DataBrowserFactory.areSettingsCompatible(groupID);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#hasDataToCopy()
 	 */
 	public Class hasDataToCopy()

@@ -730,5 +730,14 @@ public interface DataBrowser
 	 * @return See above.
 	 */
 	SecurityContext getSecurityContext();
+	
+	/**
+	 * Returns <code>true</code> if the image to copy the rendering settings
+	 * from is in the specified group, <code>false</code> otherwise.
+	 * 
+	 * @param groupID The group to handle.
+	 * @return See above.
+	 */
+	boolean areSettingsCompatible(long groupID);
 
 }
