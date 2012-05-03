@@ -147,6 +147,9 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
 {% end %}\
 {% end %}\
         <properties>
+{% if o.name in customContent and 'properties' in customContent[o.name] %}\
+${customContent[o.name]['properties']}\
+{% end %}\
 {% choose %}\
 {% when o.isReference %}\
 {% for prop in sorted_and_filtered_properties(o) %}\
