@@ -34,6 +34,7 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
 import ome.model.core.Channel;
+import ome.model.core.Color;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
@@ -802,10 +803,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 cb = rendDefObj.getChannelBinding(index);
                 cb.setFamily(family);
                 cb.setActive(binding.getActive());
-                cb.setAlpha(binding.getAlpha());
-                cb.setBlue(binding.getBlue());
-                cb.setRed(binding.getRed());
-                cb.setGreen(binding.getGreen());
+                cb.setColor(binding.getColor());
                 cb.setId(binding.getId());
                 cb.setInputStart(binding.getInputStart());
                 cb.setInputEnd(binding.getInputEnd());
@@ -970,10 +968,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
             ChannelBinding[] cb = renderer.getChannelBindings();
             // NOTE: The rgba is supposed to be read-only; however we make a
             // copy to be on the safe side.
-            rgba[0] = cb[w].getRed().intValue();
-            rgba[1] = cb[w].getGreen().intValue();
-            rgba[2] = cb[w].getBlue().intValue();
-            rgba[3] = cb[w].getAlpha().intValue();
+            Color c = cb[w].getColor();
+            rgba[0] = c.getRed();
+            rgba[1] = c.getGreen();
+            rgba[2] = c.getBlue();
+            rgba[3] = c.getAlpha();
             return rgba;
         } finally {
             rwl.readLock().unlock();

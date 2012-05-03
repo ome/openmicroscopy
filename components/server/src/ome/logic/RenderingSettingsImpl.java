@@ -35,6 +35,7 @@ import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
+import ome.model.core.Color;
 import ome.model.core.Filter;
 import ome.model.core.Laser;
 import ome.model.core.LightSource;
@@ -763,6 +764,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         Map<ChannelBinding, Boolean> m = new HashMap<ChannelBinding, Boolean>();
         boolean v;
         int count = 0;
+        Color color;
+        java.awt.Color c;
         for (Channel channel : pixels.<Channel>collectChannels(null)) {
             family = quantumFactory.getFamily(QuantumFactory.LINEAR);
             
@@ -781,11 +784,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                 if (!v) count++;
                 m.put(channelBinding, v);
                 defaultColor = ColorsFactory.getColor(i, channel);
-            } 
-            channelBinding.setRed(defaultColor[ColorsFactory.RED_INDEX]);
-            channelBinding.setGreen(defaultColor[ColorsFactory.GREEN_INDEX]);
-            channelBinding.setBlue(defaultColor[ColorsFactory.BLUE_INDEX]);
-            channelBinding.setAlpha(defaultColor[ColorsFactory.ALPHA_INDEX]);
+            }
+            c = new java.awt.Color(defaultColor[ColorsFactory.RED_INDEX],
+            		defaultColor[ColorsFactory.GREEN_INDEX],
+            		defaultColor[ColorsFactory.BLUE_INDEX],
+            		defaultColor[ColorsFactory.ALPHA_INDEX]);
+            channelBinding.setColor(new Color(c.getRGB()));
 
             channelBinding.setNoiseReduction(false);
             i++;
@@ -796,14 +800,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			channelBinding = k.next();
     			if (!m.get(channelBinding)) {
     				defaultColor = ColorsFactory.newWhiteColor();
-    				channelBinding.setRed(
-    						defaultColor[ColorsFactory.RED_INDEX]);
-    	            channelBinding.setGreen(
-    	            		defaultColor[ColorsFactory.GREEN_INDEX]);
-    	            channelBinding.setBlue(
-    	            		defaultColor[ColorsFactory.BLUE_INDEX]);
-    	            channelBinding.setAlpha(
+    				c = new java.awt.Color(defaultColor[ColorsFactory.RED_INDEX],
+    	            		defaultColor[ColorsFactory.GREEN_INDEX],
+    	            		defaultColor[ColorsFactory.BLUE_INDEX],
     	            		defaultColor[ColorsFactory.ALPHA_INDEX]);
+    				channelBinding.setColor(new Color(c.getRGB()));
     			}
     		}
         }
@@ -986,10 +987,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             // turn on or off the noise reduction algo.
             bindingTo.setNoiseReduction(binding.getNoiseReduction());
             // color used
-            bindingTo.setAlpha(binding.getAlpha());
-            bindingTo.setBlue(binding.getBlue());
-            bindingTo.setGreen(binding.getGreen());
-            bindingTo.setRed(binding.getRed());
+            bindingTo.setColor(binding.getColor());
         }
         
         // Increment the version of the rendering settings so that we 
