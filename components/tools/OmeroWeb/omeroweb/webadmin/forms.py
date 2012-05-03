@@ -83,7 +83,7 @@ class ExperimenterForm(NonASCIIForm):
             self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['default_group'], empty_label=u"---------", required=False)
         except:
             self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], empty_label=u"---------", required=False)
-        self.fields['default_group'].widget.attrs['disabled'] = True
+        self.fields['default_group'].widget.attrs['class'] = 'hidden'
         
         if kwargs['initial'].has_key('with_password') and kwargs['initial']['with_password']:
             self.fields['password'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
@@ -123,7 +123,7 @@ class ExperimenterForm(NonASCIIForm):
     
     def clean_default_group(self):
         if self.cleaned_data.get('default_group') is None or len(self.cleaned_data.get('default_group')) <= 0:
-            raise forms.ValidationError('Choose default group by clicking on the one of chosen groups below.')
+            raise forms.ValidationError('Choose default group by clicking on the one of chosen groups.')
         else:
             return self.cleaned_data.get('default_group')
     

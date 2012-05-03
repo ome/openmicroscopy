@@ -57,8 +57,10 @@
                 });
                 $("#id_other_groups_chzn_c_"+selected[0].array_index).addClass('search-choice-default').find("a").first().attr('rel');
                 $('#id_default_group').val(selected[0].value);
+                $("#default_group_name").text(selected[0].html)
             } else {
                 $('#id_default_group').val("");
+                $("#default_group_name").text("Nothing selected");
             }
         }
 
@@ -71,6 +73,7 @@
                 return item.array_index == choice_id;
             })[0];
             $("#id_default_group").selectOptions(selected.value, true);
+            $("#default_group_name").text(selected.html);
         };
 
         $("#id_other_groups").chosen().change(function(evt, data) {
@@ -78,7 +81,11 @@
                 if (data.deselected === "0") {
                     $("input[name='administrator']").attr('checked', false);
                 }
-                $("#id_default_group").selectOptions("", true);
+                $df = $('#id_default_group')
+                if ($df.val() === data.deselected){
+                    $("#id_default_group").selectOptions("", true);
+                    $("#default_group_name").text("Nothing selected");
+                } 
             } else if (data && data.selected) {
                 if (data.selected === "0") {
                     $("input[name='administrator']").attr('checked', true);
@@ -130,18 +137,6 @@
     <form action="{% url wamanageexperimenterid "create" %}" method="POST" class="standard_form">
 {% endif %}
 
-        {% for field in form %}
-        
-        {% ifnotequal field.label_tag form.groups.label_tag %}
-        
-        {{ field.label_tag }}{% if field.field.required %}*{% endif %}
-        {{ field }}
-        {% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}
-        <br />
-        {% endifnotequal %}
-        
-        {% endfor %}
-
         {% if ldapAuth %}
         <label>LDAP:</label> {{ ldapAuth }} <br />
         {% else %}
@@ -152,8 +147,28 @@
             <br />
         {% endif %}
         
-        {{ form.groups.label_tag }}{% if form.groups.field.required %}*{% endif %}
-        {{ form.groups }}
+        {% for field in form %}
+        
+        {% ifnotequal field.label_tag form.default_group.label_tag %}{% ifnotequal field.label_tag form.other_groups.label_tag %}
+        
+        {{ field.label_tag }}{% if field.field.required %}*{% endif %}
+        {{ field }}
+        {% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}
+        <br />
+        {% endifnotequal %}{% endifnotequal %}
+        
+        {% endfor %}
+        
+        <br />
+        {{ form.default_group.label_tag }}*{{ form.default_group }}
+        <span id="default_group_name">Nothing selected</span>
+        <br />
+        {{ form.other_groups.label_tag }}*
+        {{ form.other_groups }}
+        {% if form.other_groups.errors %}{{ form.other_groups.errors }}{% endif %}
+        {% if form.default_group.errors %}{{ form.default_group.errors }}{% endif %}
+        
+        <br />
         
         <input type="submit" value="{% trans 'Save' %}" />
         
