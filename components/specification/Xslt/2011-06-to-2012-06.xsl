@@ -171,6 +171,48 @@
 		</xsl:element>
 	</xsl:template>
 
+	<xsl:template match="SPW:Plate">
+		<xsl:element name="SPW:Plate" namespace="{$newSPWNS}">
+			<xsl:apply-templates select="@*"/>
+			<xsl:apply-templates select="* [(local-name(.) = 'Description')]"/>
+			<xsl:comment>Remove ScreenRef elements and reverse </xsl:comment>
+			<xsl:apply-templates select="* [(local-name(.) = 'Well')]"/>
+			<xsl:apply-templates select="* [(local-name(.) = 'AnnotationRef')]"/>
+			<xsl:apply-templates select="* [(local-name(.) = 'PlateAcquisition')]"/>
+		</xsl:element>
+	</xsl:template>
+
+	<xsl:template match="SPW:Screen">
+		<xsl:element name="SPW:Screen" namespace="{$newSPWNS}">
+			<xsl:apply-templates select="@*"/>
+			<xsl:apply-templates select="* [(local-name(.) = 'Description')]"/>
+			<xsl:apply-templates select="* [(local-name(.) = 'Reagent')]"/>
+			<xsl:apply-templates select="* [(local-name(.) = 'PlateRef')]"/>
+			<xsl:comment>Insert reverses ScreenRef elements</xsl:comment>
+			<!-- Insert reverses ScreenRef elements -->
+			<xsl:variable name="screenID" select="@ID"/>
+			<xsl:for-each select="exsl:node-set(//SPW:Plate/SPW:ScreenRef[@ID=$screenID])">
+				<xsl:variable name="matchingPlateID"><xsl:for-each select=" parent::node()">
+					<xsl:value-of select="@ID"/>
+				</xsl:for-each></xsl:variable>
+				<xsl:if test="not(//SPW:Screen[@ID=$screenID]/SPW:PlateRef[@ID=$matchingPlateID])">
+					<xsl:comment>No existing PlateRef</xsl:comment>
+				</xsl:if>
+				<xsl:if test="//SPW:Screen[@ID=$screenID]/SPW:PlateRef[@ID=$matchingPlateID]">
+					<xsl:comment>Already matching PlateRef</xsl:comment>
+				</xsl:if>
+				<xsl:if test="not(//SPW:Screen[@ID=$screenID]/SPW:PlateRef[@ID=$matchingPlateID])">
+					<xsl:element name="SPW:PlateRef" namespace="{$newSPWNS}">
+						<xsl:attribute name="ID">
+							<xsl:value-of select="$matchingPlateID"/>
+						</xsl:attribute>
+					</xsl:element>
+				</xsl:if>
+			</xsl:for-each>
+			<xsl:apply-templates select="* [local-name(.) = 'AnnotationRef']"/>
+		</xsl:element>
+	</xsl:template>
+	
 	<xsl:template match="ROI:ROI">
 		<xsl:element name="ROI:ROI" namespace="{$newROINS}">
 			<xsl:apply-templates select="@*"/>
