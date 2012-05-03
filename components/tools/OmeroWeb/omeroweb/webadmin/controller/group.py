@@ -218,26 +218,11 @@ class BaseGroup(BaseController):
         p = int(p)        
         if p == 0:
             #private
-            permissions.setUserRead(True)
-            permissions.setUserWrite(True)
-            permissions.setGroupRead(False)
-            permissions.setGroupWrite(False)
-            permissions.setWorldRead(False)
-            permissions.setWorldWrite(False)
+            permissions = PermissionsI("rw----")
         elif p == 1:
-            #collaborative
-            permissions.setUserRead(True)
-            permissions.setUserWrite(True)
-            permissions.setGroupRead(True)
-            permissions.setGroupWrite(not r)
-            permissions.setWorldRead(False)
-            permissions.setWorldWrite(False)
+            #read-only
+            permissions = PermissionsI("rwr---")
         elif p == 2:
-            #public
-            permissions.setUserRead(True)
-            permissions.setUserWrite(True)
-            permissions.setGroupRead(True)
-            permissions.setGroupWrite(not r)
-            permissions.setWorldRead(True)
-            permissions.setWorldWrite(not r)
+            #read-annotate (pre 4.4 this was 'readonly')
+            permissions = PermissionsI("rwra--")
         return permissions
