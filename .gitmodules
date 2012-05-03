@@ -3,4 +3,4 @@
 	url = git://github.com/openmicroscopy/bioformats.git
 [submodule "docs/sphinx"]
 	path = docs/sphinx
-	url = git@github.com:openmicroscopy/ome-documentation.git
+	url = git://github.com/openmicroscopy/ome-documentation.git
