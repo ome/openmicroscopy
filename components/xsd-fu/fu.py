@@ -537,8 +537,8 @@ class OMEModelProperty(OMEModelEntity):
         doc="""If the property is an enumeration, it's possible values.""")
     
     def _get_javaInstanceVariableName(self):
+        name = self.javaArgumentName
         if self.isManyToMany:
-            name = self.javaArgumentName
             if self.isBackReference:
                 name = self.model.getObjectByName(self.type)
                 name = name.javaInstanceVariableName
@@ -552,7 +552,9 @@ class OMEModelProperty(OMEModelEntity):
                 return self.lowerCasePrefix(plural)
         except AttributeError:
             pass
-        return self.javaArgumentName
+        if self.isBackReference:
+            name = BACKREF_REGEX.sub('', name)
+        return name
     javaInstanceVariableName = property(_get_javaInstanceVariableName,
         doc="""The property's Java instance variable name.""")
 
@@ -869,6 +871,16 @@ class OMEModel(object):
             if children:
                 self.processTree(children, element)
 
+    def calculateMaxOccurs(self, o, prop):
+        if prop.isReference:
+            return 9999
+        return 1
+
+    def calculateMinOccurs(self, o, prop):
+        if prop.isReference:
+            return 0
+        return 1
+
     def postProcessReferences(self):
         """
         Examines the list of objects in the model for instances that conform
@@ -891,7 +903,8 @@ class OMEModel(object):
                 o.properties[ref] = prop
         for o in self.objects.values():
             for prop in o.properties.values():
-                if not prop.isReference:
+                if not prop.isReference and (prop.isAttribute or prop.maxOccurs == 1 \
+                        or o.name == 'OME' or o.isAbstractProprietary):
                     continue
                 shortName = REF_REGEX.sub('', prop.type)
                 try:
@@ -902,7 +915,9 @@ class OMEModel(object):
                 if shortName not in references:
                     references[shortName] = list()
                 v = {'data_type': o.name, 'property_name': prop.javaMethodName,
-                     'plural': prop.plural}
+                     'plural': prop.plural,
+                     'maxOccurs': self.calculateMaxOccurs(o, prop),
+                     'minOccurs': self.calculateMinOccurs(o, prop)}
                 references[shortName].append(v)
         logging.debug("Model references: %s" % references)
 
@@ -913,6 +928,8 @@ class OMEModel(object):
                 key = '%s.%s' % (ref['data_type'], ref['property_name'])
                 delegate = ReferenceDelegate(
                         ref['data_type'], ref['data_type'], ref['plural'])
+                delegate.minOccurs = ref['minOccurs']
+                delegate.maxOccurs = ref['maxOccurs']
                 prop = OMEModelProperty.fromReference(delegate, o, self)
                 prop.key = key
                 o.properties[key] = prop
