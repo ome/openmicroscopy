@@ -299,6 +299,14 @@ public class AbstractManagedContextTest extends TestCase {
         return i;
     }
 
+    protected Image save_new_Image(String name) {
+        Image i = new Image();
+        i.setName(name);
+        i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
+        i.setPixels(ObjectFactory.createPixelGraph(null));
+        return iUpdate.saveAndReturnObject(i.getPixels()).getImage();
+    }
+
     protected Pixels makePixels() {
         try {
             MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(

@@ -766,8 +766,8 @@ public class UpdateTest extends AbstractUpdateTest {
         trans.getSqlErrorCodes().setDeadlockLoserCodes(newLoserCodes);
         */
         loginNewUser();
-        final Image i1 = iUpdate.saveAndReturnObject(new_Image("catchDeadLock1"));
-        final Image i2 = iUpdate.saveAndReturnObject(new_Image("catchDeadLock2"));
+        final Image i1 = save_new_Image("catchDeadLock1");
+        final Image i2 = save_new_Image("catchDeadLock2");
 
         final CyclicBarrier barrier1 = new CyclicBarrier(2);
         final CyclicBarrier barrier2 = new CyclicBarrier(2);
