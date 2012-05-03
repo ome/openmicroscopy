@@ -168,6 +168,7 @@ public class PixelsServicesFactory
 		int i = 0;
 		int[] rgba;
 		ChannelBindingsProxy cb;
+		omero.model.Color color;
 		while (k.hasNext()) {
 			c = (ChannelBinding) k.next();
 			cb = proxy.getChannel(i);
@@ -177,10 +178,11 @@ public class PixelsServicesFactory
 			}
 			if (c != null) {
 				rgba = new int[4];
-				rgba[0] = c.getRed().getValue();
-				rgba[1] = c.getGreen().getValue();
-				rgba[2] = c.getBlue().getValue();
-				rgba[3] = c.getAlpha().getValue();
+				color = c.getColor();
+				rgba[0] = color.getRed();
+				rgba[1] = color.getGreen();
+				rgba[2] = color.getBlue();
+				rgba[3] = color.getAlpha();
 				
 				cb.setActive(c.getActive().getValue());
 				cb.setInterval(c.getInputStart().getValue(), 
