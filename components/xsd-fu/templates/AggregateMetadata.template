@@ -223,6 +223,7 @@ package loci.formats.meta;
 import java.util.Iterator;
 import java.util.List;
 
+import ome.xml.model.*;
 import ome.xml.model.enums.*;
 import ome.xml.model.primitives.*;
 

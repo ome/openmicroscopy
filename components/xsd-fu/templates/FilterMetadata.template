@@ -137,6 +137,7 @@ package loci.formats.meta;
 
 import loci.common.DataTools;
 
+import ome.xml.model.*;
 import ome.xml.model.enums.*;
 import ome.xml.model.primitives.*;
 
