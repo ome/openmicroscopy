@@ -821,7 +821,7 @@
     <!-- OME model object Pixels -->
     <type id="ome.model.core.Pixels" annotated="true" >
         <properties>
-            <required name="image" type="ome.model.core.Image"/>
+            <oneoneowner name="image" type="ome.model.core.Image"/>
             <!--
             // Property which occurs more than once Channel
             -->

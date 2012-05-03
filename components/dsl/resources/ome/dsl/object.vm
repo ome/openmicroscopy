@@ -321,9 +321,11 @@ implements java.io.Serializable, IObject
 #set( $cascadeHibCollection = "org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN" )
 #end
 ##
-#set( $one2one = "false" )
-#if( $prop.class.name == "ome.dsl.OneOneField" )
-#set( $one2one = "true")
+#set( $one2one = "" )
+#if( $prop.class.name == "ome.dsl.OneOneOwnerField" )
+#set( $one2one = "owner")
+#elseif( $prop.class.name == "ome.dsl.OneOneField" )
+#set( $one2one = "member")
 #end
 ##
     protected ${prop.fieldType} ${prop.name} = ${prop.fieldInitializer};
@@ -422,12 +424,7 @@ implements java.io.Serializable, IObject
     * know what you are doing. Use the iterate method instead.
     *
 ##
-#if($one2one == "true")
-    * one-to-one element ${type.id}.${prop.name} (${prop.type})
-    */
-    @javax.persistence.OneToOne(fetch=javax.persistence.FetchType.EAGER, cascade={${cascadeEjb}})
-    @javax.persistence.JoinColumn(name="${type.inverse($prop)}", nullable=false)
-#elseif($prop.ordered)
+#if($prop.ordered)
     * one-to-many List ${type.id}.${prop.name} (${prop.type})
     * Values are indexed by the column "index" on ${prop.type}
     */
@@ -964,12 +961,19 @@ implements java.io.Serializable, IObject
 #set( $fetchType = "EAGER" )
 #end
    /**
-#if($one2one == "true")
+#if($one2one != "")
     * one-to-one element ${type.id}.${prop.name} (${prop.type})
     */
-    @javax.persistence.OneToOne(fetch=javax.persistence.FetchType.EAGER, cascade={${cascadeEjb}})
-    @org.hibernate.annotations.Cascade({${cascadeHib}})
-    @javax.persistence.JoinColumn(name="${type.inverse($prop)}", nullable=false)
+#if($one2one == "member")
+    @javax.persistence.PrimaryKeyJoinColumn
+    @javax.persistence.OneToOne(mappedBy = "${type.inverse($prop)}")
+    @org.hibernate.annotations.NotFound(action=org.hibernate.annotations.NotFoundAction.IGNORE)
+#else
+    @javax.persistence.ManyToOne
+    @javax.persistence.JoinColumn(name = "${type.propName($prop)}", nullable=${prop.nullable})
+    @org.hibernate.annotations.Cascade({ org.hibernate.annotations.CascadeType.ALL })
+    @org.hibernate.annotations.NotFound(action=org.hibernate.annotations.NotFoundAction.IGNORE)
+#end
 #else
     * Many-to-one field ${type.id}.${prop.name} (${prop.type})
     */
@@ -992,8 +996,13 @@ implements java.io.Serializable, IObject
     public void set${prop.nameCapped}(${prop.fieldType} ${prop.name}) {
         $errorIfUnloaded
         this.${prop.name} = ${prop.name};
-#if($one2one == "true")
-        ${prop.name}.set${prop.inverseCapped} ( this );
+#if($one2one == "member")
+        // Note: this object cannot be unloaded
+        // because the relationship must be set on the
+        // reverse side. A null we assume is temporary.
+        if (${prop.name} != null) {
+            ${prop.name}.set${prop.inverseCapped} ( this );
+        }
 #end
     }
 #else## REGULAR PROPERTY #################################################TYPE
