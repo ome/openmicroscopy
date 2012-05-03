@@ -508,6 +508,10 @@ class OutputServerStrategy
 		Boolean italic;
 		String family = ShapeSettingsData.DEFAULT_FONT_FAMILY;
 		String fontStyle = ShapeSettingsData.FONT_REGULAR;
+		Coord3D coord = fig.getROIShape().getCoord3D();
+		int channel = coord.getChannel();
+		if (channel >= 0) shape.setC(channel);
+		
 		if (AttributeKeys.FILL_COLOR.get(fig) != null)
 		{
 			Color c = AttributeKeys.FILL_COLOR.get(fig);
@@ -613,4 +617,3 @@ class OutputServerStrategy
 	}
 
 }
-

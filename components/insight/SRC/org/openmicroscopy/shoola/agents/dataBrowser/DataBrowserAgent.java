@@ -33,10 +33,13 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -77,7 +80,7 @@ public class DataBrowserAgent
      * @return A reference to the <code>Registry</code>.
      */
     public static Registry getRegistry() { return registry; }
-    
+
 	/**
 	 * Returns the available user groups.
 	 * 
@@ -88,6 +91,22 @@ public class DataBrowserAgent
 		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 	}
 	
+    /**
+     * Returns the identifier of the plugin to run.
+     * 
+     * @return See above.
+     */
+    public static int runAsPlugin()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env == null) return -1;
+    	switch (env.runAsPlugin()) {
+			case LookupNames.IMAGE_J:
+				return DataBrowser.IMAGE_J;
+		}
+    	return -1;
+    }
+    
     /**
 	 * Helper method returning the current user's details.
 	 * 
@@ -240,6 +259,18 @@ public class DataBrowserAgent
     	DataBrowserFactory.onGroupSwitched(true);
     }
     
+    /**
+     * Indicates that some objects have been annotated.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleAnnotatedEvent(AnnotatedEvent evt)
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	DataBrowserFactory.onAnnotated(evt.getData(), evt.getCount());
+    }
+    
 	/** Creates a new instance. */
 	public DataBrowserAgent() {}
 	
@@ -253,7 +284,12 @@ public class DataBrowserAgent
      * Implemented as specified by {@link Agent}. 
      * @see Agent#terminate()
      */
-    public void terminate() {}
+    public void terminate()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env.isRunAsPlugin())
+    		DataBrowserFactory.onGroupSwitched(true);
+    }
 
     /** 
      * Implemented as specified by {@link Agent}. 
@@ -268,6 +304,7 @@ public class DataBrowserAgent
         bus.register(this, CopyItems.class);
         bus.register(this, UserGroupSwitched.class);
         bus.register(this, ReconnectedEvent.class);
+        bus.register(this, AnnotatedEvent.class);
     }
     
     /**
@@ -304,6 +341,8 @@ public class DataBrowserAgent
 			handleUserGroupSwitched((UserGroupSwitched) e);
     	else if (e instanceof ReconnectedEvent)
 			handleReconnectedEvent((ReconnectedEvent) e);
+    	else if (e instanceof AnnotatedEvent)
+			handleAnnotatedEvent((AnnotatedEvent) e);
     }
     
 }

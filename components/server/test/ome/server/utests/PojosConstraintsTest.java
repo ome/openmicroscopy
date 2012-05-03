@@ -47,7 +47,7 @@ public class PojosConstraintsTest extends MockObjectTestCase {
         super.setUp();
         impl = new PojosImpl();
         ProxyFactory pf = new ProxyFactory(impl);
-        PrincipalHolder holder = new CurrentDetails();
+        CurrentDetails holder = new CurrentDetails();
         LoginInterceptor login = new LoginInterceptor(holder);
         ServiceHandler serviceHandler = new ServiceHandler(new CurrentDetails());
         pf.addAdvice(serviceHandler);

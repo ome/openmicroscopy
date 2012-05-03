@@ -42,10 +42,12 @@ import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
@@ -94,6 +96,9 @@ public interface TreeViewer
 	extends ObservableComponent
 {
 
+	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
+	public static final int		IMAGE_J = ViewInPluginEvent.IMAGE_J;
+	
 	/** Indicates to open the editor without selection. */
 	public static final int		NO_SELECTION = 0;
 	
@@ -179,8 +184,11 @@ public interface TreeViewer
 	/** Identifies the <code>Create popUp menu</code> menu. */
 	public static final int         CREATE_MENU_SCREENS = 8;
 
+	/** Identifies the <code>View pop-up menu</code> menu. */
+	public static final int         VIEW_MENU = 9;
+	
 	/** Identifies the <code>Available Scripts</code> menu. */
-	public static final int         AVAILABLE_SCRIPTS_MENU = 9;
+	public static final int         AVAILABLE_SCRIPTS_MENU = 10;
 	
 	/** Identifies the <code>Copy and Paste</code> action. */
 	public static final int         COPY_AND_PASTE = 400;
@@ -440,10 +448,11 @@ public interface TreeViewer
 	 * Sets the root of the retrieved hierarchies. 
 	 * 
 	 * @param rootID    	The Id of the root.
-	 * @param experimenter	The experimenter or <code>null</code> if 
+	 * @param experimenters	The experimenters or <code>null</code> if 
 	 * 						the level is {@link #GROUP_ROOT}.
 	 */
-	public void setHierarchyRoot(long rootID, ExperimenterData experimenter);
+	public void setHierarchyRoot(long rootID, 
+			List<ExperimenterData> experimenters);
 
 	/**
 	 * Returns <code>true</code> if the specified object is writable,
@@ -497,8 +506,7 @@ public interface TreeViewer
 	 * Brings up the menu on top of the specified component at 
 	 * the specified location.
 	 * 
-	 * @param menuID    The id of the menu. One out of the following constants:
-	 *                  {@link #MANAGER_MENU}, {@link #CLASSIFIER_MENU}.
+	 * @param menuID    The id of the menu.
 	 * @param invoker   The component that requested the pop-up menu.
 	 * @param loc       The point at which to display the menu, relative to the
 	 *                  <code>component</code>'s coordinates.
@@ -567,8 +575,9 @@ public interface TreeViewer
 	 * Retrieves the user groups. 
 	 * 
 	 * @param location The location of the mouse pressed.
+	 * @param group The group to handle.
 	 */
-	public void retrieveUserGroups(Point location);
+	public void retrieveUserGroups(Point location, GroupData group);
 
 	/**
 	 * Returns the first name and the last name of the currently 
@@ -887,12 +896,11 @@ public interface TreeViewer
 	void openWith(ApplicationData data);
 
 	/**
-	 * Adds the group to the display if not already displayed
+	 * Adds/Removes the groups to/from the display.
 	 * 
-	 * @param group The group to set.
-	 * @param add Pass <code>true</code> to add, <code>false</code> otherwise.
+	 * @param groups The groups to set.
 	 */
-	void setUserGroup(GroupData group, boolean add);
+	void setUserGroup(List<GroupData> groups);
 
 	/** Opens the image in a separate window or in the main viewer. */
 	void setFullScreen();
@@ -1069,5 +1077,18 @@ public interface TreeViewer
 	 * @param group The data to move.
 	 */
 	void moveTo(GroupData group, List<DataObject> nodes);
+
+	/**
+	 * Displays the groups to select.
+	 * 
+	 * @param point The location of the mouse pressed.
+	 */
+	void displayUserGroups(Point point);
+
+	/** Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext();
 
 }

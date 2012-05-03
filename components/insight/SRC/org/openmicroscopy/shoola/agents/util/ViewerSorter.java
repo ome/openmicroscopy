@@ -39,6 +39,8 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -379,8 +381,10 @@ public class ViewerSorter
         else if ((o1 instanceof FileFilter) && (o2 instanceof FileFilter))
         	result = compareStrings(((FileFilter) o1).getDescription(), 
         			((FileFilter) o2).getDescription());
-        else  
-        	result = compareObjects(o1, o2);
+        else if (o1 instanceof ROIShape && o2 instanceof ROIShape) {
+        	result = compareLongs(((ROIShape) o1).getID(),
+        			((ROIShape) o2).getID());
+        } else result = compareObjects(o1, o2);
            
         if (result != 0) return ascending ? result : -result;
         return result;

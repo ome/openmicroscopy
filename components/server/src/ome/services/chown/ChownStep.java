@@ -145,32 +145,26 @@ public class ChownStep extends GraphStep {
     }
 
     private Long findImproperIncomingLinks(Session session, String[] lock) {
-        Long old = share.setShareId(-1L);
-        try {
+        CommonsLogStopWatch sw = new CommonsLogStopWatch();
+        String str = String.format(
+                "select count(*) from %s source where source.%s.id = ? and not " +
+                "(source.details.group.id = ? OR source.details.group.id = ?)",
+                lock[0], lock[1]);
 
-            CommonsLogStopWatch sw = new CommonsLogStopWatch();
-            String str = String.format(
-                    "select count(*) from %s source where source.%s.id = ? and not " +
-                    "(source.details.group.id = ? OR source.details.group.id = ?)",
-                    lock[0], lock[1]);
+        Query q = session.createQuery(str);
+        q.setLong(0, id);
+        q.setLong(1, grp);
+        q.setLong(2, userGroup);
+        Long rv = (Long) q.list().get(0);
 
-            Query q = session.createQuery(str);
-            q.setLong(0, id);
-            q.setLong(1, grp);
-            q.setLong(2, userGroup);
-            Long rv = (Long) q.list().get(0);
-
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("%s<==%s, id=%s, grp=%s, userGroup=%s",
-                        rv, str, id, grp, userGroup));
-            }
-
-            sw.stop("omero.chown.step." + lock[0] + "." + lock[1]);
-
-            return rv;
-        } finally {
-            share.setShareId(old);
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("%s<==%s, id=%s, grp=%s, userGroup=%s",
+                    rv, str, id, grp, userGroup));
         }
+
+        sw.stop("omero.chown.step." + lock[0] + "." + lock[1]);
+
+        return rv;
     }
 
     @Override

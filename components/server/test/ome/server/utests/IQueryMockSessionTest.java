@@ -53,7 +53,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         super.setUp();
         impl = new QueryImpl();
         ProxyFactory pf = new ProxyFactory(impl);
-        PrincipalHolder holder = new CurrentDetails();
+        CurrentDetails holder = new CurrentDetails();
         LoginInterceptor login = new LoginInterceptor(holder);
         ServiceHandler serviceHandler = new ServiceHandler(new CurrentDetails());
         pf.addAdvice(login);

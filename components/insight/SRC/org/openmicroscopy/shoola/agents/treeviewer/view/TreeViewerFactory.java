@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.StringComparator;
 
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -285,6 +286,23 @@ public class TreeViewerFactory
 	}
 	
 	/**
+	 * Notifies the model that the user has annotated data.
+	 * 
+	 * @param containers The objects to handle.
+	 * @param count A positive value if annotations are added, a negative value
+	 * if annotations are removed.
+	 */
+	public static void onAnnotated(List<DataObject> containers, int count)
+	{
+		Iterator v = singleton.viewers.iterator();
+		TreeViewerComponent comp;
+		while (v.hasNext()) {
+			comp = (TreeViewerComponent) v.next();
+			comp.onAnnotated(containers, count);
+		}
+	}
+	
+	/**
 	 * Returns the {@link TreeViewer}.
 	 * 
 	 * @param exp The experiment the TreeViewer is for.
@@ -299,6 +317,12 @@ public class TreeViewerFactory
 		return singleton.getTreeViewer(model, bounds);
 	}
 
+	/** Close all the instances.*/
+	public static void terminate()
+	{
+		singleton.shutDown();
+	}
+	
 	/** Writes the external applications used to open document. */
 	public static void writeExternalApplications()
 	{
@@ -373,6 +397,20 @@ public class TreeViewerFactory
 		comparator = new StringComparator();
 	}
 
+	private void shutDown()
+	{
+		Set<TreeViewer> viewers = singleton.viewers;
+		Iterator<TreeViewer> i = viewers.iterator();
+		TreeViewer viewer;
+		while (i.hasNext()) {
+			viewer = i.next();
+			((TreeViewerComponent) viewer).shutDown();
+			//viewer.removeChangeListener(this);
+			//viewer.discard();
+		}
+		viewers.clear();
+	}
+	
 	/**
 	 * Creates or recycles a viewer component for the specified 
 	 * <code>model</code>.

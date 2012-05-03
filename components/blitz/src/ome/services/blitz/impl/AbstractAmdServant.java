@@ -222,7 +222,7 @@ public abstract class AbstractAmdServant implements ApplicationContextAware,
 
         // First we call close on the object
         try {
-            preClose();
+            preClose(__current);
             if (service instanceof StatefulServiceInterface) {
                 StatefulServiceInterface ss = (StatefulServiceInterface) service;
                 ss.close();
@@ -258,8 +258,8 @@ public abstract class AbstractAmdServant implements ApplicationContextAware,
 
     }
 
-    protected void preClose() {
-
+    protected void preClose(Ice.Current current) throws Throwable {
+        log.debug("No pre-close define");
     }
 
 }

@@ -20,7 +20,8 @@ import omero.grid.ProcessorCallbackPrx;
 import omero.grid.ProcessorCallbackPrxHelper;
 import omero.grid.ProcessorPrx;
 import omero.grid.ProcessorPrxHelper;
-import omero.grid._ProcessorCallbackDisp;
+import omero.grid._ProcessorCallbackOperations;
+import omero.grid._ProcessorCallbackTie;
 import omero.model.Job;
 
 import org.apache.commons.logging.Log;
@@ -31,7 +32,8 @@ import Ice.Current;
 /**
  * Callback used to lookup active processors via IceStorm.
  */
-public class ProcessorCallbackI extends _ProcessorCallbackDisp {
+public class ProcessorCallbackI extends AbstractAmdServant
+    implements _ProcessorCallbackOperations {
 
     private final static Log log = LogFactory.getLog(ProcessorCallbackI.class);
 
@@ -66,6 +68,7 @@ public class ProcessorCallbackI extends _ProcessorCallbackDisp {
      */
     public ProcessorCallbackI(ServiceFactoryI sf, ResultHolder<String> holder,
             Job job) {
+        super(null, null);
         this.sf = sf;
         this.job = job;
         this.holder = holder;
@@ -96,7 +99,8 @@ public class ProcessorCallbackI extends _ProcessorCallbackDisp {
      */
     public ProcessorPrx activateAndWait(Ice.Current current,
             Ice.Identity acceptId) throws ServerError {
-        Ice.ObjectPrx prx = sf.registerServant(acceptId, this);
+        Ice.ObjectPrx prx = sf.registerServant(acceptId,
+                new _ProcessorCallbackTie(this));
 
         try {
             prx = sf.adapter.createDirectProxy(acceptId);

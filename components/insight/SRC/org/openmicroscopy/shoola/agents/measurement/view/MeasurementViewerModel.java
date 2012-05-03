@@ -32,8 +32,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -62,6 +60,7 @@ import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
@@ -203,29 +202,9 @@ class MeasurementViewerModel
     
     /** The enumerations to save.*/
     private Map<Integer, List<EnumerationObject>> enumerations;
-    
-    /** 
-	 * Sorts the passed nodes by row.
-	 * 
-	 * @param nodes The nodes to sort.
-	 * @return See above.
-	 */
-	private List sortROIShape(List nodes)
-	{
-		Comparator c = new Comparator() {
-            public int compare(Object o1, Object o2)
-            {
-            	long i1 = ((ROIShape) o1).getID();
-            	long i2 = ((ROIShape) o2).getID();
-                int v = 0;
-                if (i1 < i2) v = -1;
-                else if (i1 > i2) v = 1;
-                return v;
-            }
-        };
-        Collections.sort(nodes, c);
-		return nodes;
-	}
+	
+    /** The sorter to order shapes.*/
+    private ViewerSorter sorter;
 	
 	/**
 	 * Map figure attributes to ROI and ROIShape annotations where necessary. 
@@ -286,6 +265,7 @@ class MeasurementViewerModel
 		this.name = name;
 		requesterBounds = bounds;
 		state = MeasurementViewer.NEW;
+		sorter = new ViewerSorter();
 		drawingComponent = new DrawingComponent();
 		roiComponent = new ROIComponent();
 		fileSaved = null;
@@ -583,8 +563,6 @@ class MeasurementViewerModel
 			}
 			return false;
 		}
-		
-		component.attachListeners(roiList);
 		notifyDataChanged(true);
 		return true;
 	}
@@ -648,24 +626,30 @@ class MeasurementViewerModel
 		Iterator<ROI> i = roiList.iterator();
 		ROI roi;
 		TreeMap<Coord3D, ROIShape> shapeList;
-		Iterator<ROIShape> shapeIterator;
+		Iterator j;
 		ROIShape shape;
-		Coord3D c;
+		Coord3D coord;
 		int sizeZ = pixels.getSizeZ();
 		int sizeT = pixels.getSizeT();
-		
+		Entry entry;
+		int c;
+		ROIFigure f;
 		while (i.hasNext()) {
 			roi = i.next();
 			shapeList = roi.getShapes();
-			shapeIterator = shapeList.values().iterator();
-			while (shapeIterator.hasNext()) {
-				shape = shapeIterator.next();
-				c = shape.getCoord3D();
-				if (c.getTimePoint() > sizeT) return false;
-				if (c.getZSection() > sizeZ) return false;
+			j = shapeList.entrySet().iterator();
+			while (j.hasNext()) {
+				entry = (Entry) j.next();
+				shape = (ROIShape) entry.getValue();
+				coord = shape.getCoord3D();
+				if (coord.getTimePoint() > sizeT) return false;
+				if (coord.getZSection() > sizeZ) return false;
+				c = coord.getChannel();
+				f = shape.getFigure();
+				if (c >= 0 && f.isVisible()) 
+					f.setVisible(isChannelActive(c));
 			}
 		}
-		component.attachListeners(roiList);
 		checkIfHasROIToDelete();
 		return true;
 	}
@@ -1216,11 +1200,9 @@ class MeasurementViewerModel
 	void fireAnalyzeShape(List<ROIShape> shapeList)
 	{
 		state = MeasurementViewer.ANALYSE_SHAPE;
-		List channels = new ArrayList(activeChannels.size());
-		channels.addAll(activeChannels.keySet());
 		if (currentLoader != null) currentLoader.cancel();
 		currentLoader = new Analyser(component, getSecurityContext(), pixels,
-				channels, shapeList);
+				activeChannels.keySet(), shapeList);
 		currentLoader.load();
 	}
 	
@@ -1257,30 +1239,23 @@ class MeasurementViewerModel
 	 */
 	void setAnalysisResults(Map analysisResults)
 	{
-		this.analysisResults = analysisResults;
+		if (this.analysisResults != null) {
+			this.analysisResults.clear();
+		} else {
+			this.analysisResults = new LinkedHashMap();
+		}
+		//this.analysisResults = analysisResults;
 		//sort the map.
 		if (analysisResults != null) {
-			
-			Iterator i = analysisResults.entrySet().iterator();
-			List l = new ArrayList(analysisResults.size());
-			Entry entry;
+			List newList = sorter.sort(analysisResults.keySet());
+			Iterator i = newList.iterator();
 			ROIShape shape;
 			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				shape = (ROIShape) entry.getKey();
-				l.add(shape);
-			}
-			List newList = sortROIShape(l);
-			
-			LinkedHashMap m = new LinkedHashMap(analysisResults.size());
-			i = newList.iterator();
-			while (i.hasNext()) {
 				shape = (ROIShape) i.next();
-				m.put(shape, analysisResults.get(shape));
+				this.analysisResults.put(shape, analysisResults.get(shape));
 			}
-			this.analysisResults = m;
+			analysisResults.clear();
 		}
-		
 		state = MeasurementViewer.READY;
 	}
 	

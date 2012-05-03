@@ -717,6 +717,21 @@ class Connector
 	}
 	
 	/**
+	 * Shuts downs the rendering engine.
+	 * 
+	 * @param pixelsId The id of the pixels set.
+	 */
+	void shutDownRenderingEngine(long pixelsId)
+	{
+		try {
+			StatefulServiceInterfacePrx proxy = reServices.get(pixelsId);
+			if (proxy != null) proxy.close();
+			reServices.remove(pixelsId);
+		} catch (Exception e) {
+		}
+	}
+	
+	/**
 	 * Returns <code>true</code> if it is the connector corresponding to the
 	 * passed context, <code>false</code> otherwise.
 	 * 

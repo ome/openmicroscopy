@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -40,6 +39,7 @@ import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
+import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.MoveToEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
@@ -60,7 +60,6 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -264,6 +263,30 @@ public class TreeViewerAgent
     }
     
     /**
+     * Returns the identifier of the plugin to run.
+     * 
+     * @return See above.
+     */
+    public static int runAsPlugin()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env == null) return -1;
+    	switch (env.runAsPlugin()) {
+			case LookupNames.IMAGE_J:
+				return TreeViewer.IMAGE_J;
+		}
+    	return -1;
+    }
+    
+    /** 
+     * Returns <code>true</code> if the application is used as a plugin,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isRunAsPlugin() { return runAsPlugin() > 0; }
+    
+    /**
      * Handles the {@link CopyRndSettings} event.
      * 
      * @param evt The event to handle.
@@ -465,6 +488,18 @@ public class TreeViewerAgent
     }
     
     /**
+     * Indicates that some objects have been annotated.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleAnnotatedEvent(AnnotatedEvent evt)
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	TreeViewerFactory.onAnnotated(evt.getData(), evt.getCount());
+    }
+    
+    /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
      */
@@ -485,7 +520,12 @@ public class TreeViewerAgent
      * Implemented as specified by {@link Agent}.
      * @see Agent#terminate()
      */
-    public void terminate() {}
+    public void terminate()
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (env.isRunAsPlugin())
+    		TreeViewerFactory.terminate();
+    }
 
     /** 
      * Implemented as specified by {@link Agent}. 
@@ -494,6 +534,7 @@ public class TreeViewerAgent
     public void setContext(Registry ctx)
     {
         registry = ctx;
+        
         EventBus bus = registry.getEventBus();
         bus.register(this, CopyRndSettings.class);
         bus.register(this, SaveEventRequest.class);
@@ -508,6 +549,7 @@ public class TreeViewerAgent
         bus.register(this, ViewObjectEvent.class);
         bus.register(this, ReconnectedEvent.class);
         bus.register(this, MoveToEvent.class);
+        bus.register(this, AnnotatedEvent.class);
     }
 
     /**
@@ -564,6 +606,8 @@ public class TreeViewerAgent
 			handleReconnectedEvent((ReconnectedEvent) e);
 		else if (e instanceof MoveToEvent)
 			handleMoveToEvent((MoveToEvent) e);
+		else if (e instanceof AnnotatedEvent)
+			handleAnnotatedEvent((AnnotatedEvent) e);
 	}
 
 }

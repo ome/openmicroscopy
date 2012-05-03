@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.measurement;
 
 //Java imports
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -30,8 +31,10 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 import pojos.PixelsData;
@@ -54,27 +57,18 @@ import pojos.PixelsData;
 public class Analyser 
 	extends MeasurementViewerLoader
 {
-
-	/** Indicates to analyze a collection of shapes. */
-	public static final int	SHAPE = 0;
-	
-	/** Indicates to analyze a collection of ROIs. */ 
-	public static final int	ROI = 1;
 	
 	/** The pixels set to analyze. */
-	private PixelsData 	pixels;
-	
-	/** One of the constants defined by this class. */
-	private int			index;
-	
+	private PixelsData pixels;
+
 	/** Collection of active channels. */
-	private List		channels;
+	private Collection channels;
 	
 	/** Collection of shapes to analyze. */
-	private List		shapes;
+	private List shapes;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle handle;
    
     /**
      * Creates a new instance. 
@@ -89,7 +83,7 @@ public class Analyser
      * 					Mustn't be <code>null</code>.
      */
 	public Analyser(MeasurementViewer viewer, SecurityContext ctx,
-			PixelsData pixels, List channels, List shapes)
+			PixelsData pixels, Collection channels, List shapes)
 	{
 		super(viewer, ctx);
 		if (channels == null || channels.size() == 0)
@@ -99,7 +93,6 @@ public class Analyser
 		this.pixels = pixels;
 		this.channels = channels;
 		this.shapes = shapes;
-		index = SHAPE;
 	}
 	
 	/**
@@ -108,16 +101,7 @@ public class Analyser
      */
     public void load()
     {
-    	switch (index) {
-			case SHAPE:
-				handle = idView.analyseShapes(ctx, pixels, channels, shapes,
-						this);
-				break;
-			case ROI:
-				handle = idView.analyseShapes(ctx, pixels, channels, shapes,
-						this);
-				break;
-		}
+    	handle = idView.analyseShapes(ctx, pixels, channels, shapes, this);
     }
     
     /**
@@ -127,6 +111,24 @@ public class Analyser
     public void handleNullResult() 
     {
     	UserNotifier un = registry.getUserNotifier();
+    	un.notifyInfo("Analysing data", "An error occurred while analysing " +
+    			"the data.");
+    }
+    
+    /**
+     * Notifies the user that an error has occurred.
+     * @see DSCallAdapter#handleException(Throwable) 
+     */
+    public void handleException(Throwable exc) 
+    {
+    	int state = viewer.getState();
+        String s = "Data Retrieval Failure: ";
+        LogMessage msg = new LogMessage();
+        msg.print("State: "+state);
+        msg.print(s);
+        msg.print(exc);
+        registry.getLogger().error(this, msg);
+        UserNotifier un = registry.getUserNotifier();
     	un.notifyInfo("Analysing data", "An error occurred while analysing " +
     			"the data.");
     }
@@ -143,8 +145,8 @@ public class Analyser
      */
     public void handleResult(Object result)
     {
-    	if (viewer.getState() == MeasurementViewer.DISCARDED) return;  //Async cancel.
+    	if (viewer.getState() == MeasurementViewer.DISCARDED) return;
     	viewer.setStatsShapes((Map) result);
     }
-    
+
 }

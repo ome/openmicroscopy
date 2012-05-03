@@ -492,12 +492,14 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     Spreadsheet implementation based on pytables.
     """
 
-    def __init__(self, ctx, file_obj, factory, storage, uuid = "unknown"):
+    def __init__(self, ctx, file_obj, factory, storage, uuid = "unknown", \
+            call_context = None):
         self.uuid = uuid
         self.file_obj = file_obj
         self.factory = factory
         self.storage = storage
-        self.can_write = factory.getAdminService().canUpdate(file_obj)
+        self.call_context = call_context
+        self.can_write = factory.getAdminService().canUpdate(file_obj, call_context)
         omero.util.SimpleServant.__init__(self, ctx)
 
         self.stamp = time.time()
@@ -849,7 +851,8 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         storage = HDFLIST.getOrCreate(file_path)
         id = Ice.Identity()
         id.name = Ice.generateUUID()
-        table = TableI(self.ctx, file_obj, factory, storage, uuid = id.name)
+        table = TableI(self.ctx, file_obj, factory, storage, uuid = id.name, \
+                call_context=current.ctx)
         self.resources.add(table)
 
         prx = current.adapter.add(table, id)

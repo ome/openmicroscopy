@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -71,6 +72,7 @@ import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import Ice.ConnectionTimeoutException;
 import omero.ResourceError;
+import ome.conditions.SessionTimeoutException;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
@@ -422,6 +424,9 @@ class OMEROGateway
 			int index = DataServicesFactory.SERVER_OUT_OF_SERVICE;
 			if (cause instanceof ConnectionLostException ||
 				e instanceof ConnectionLostException)
+				index = DataServicesFactory.LOST_CONNECTION;
+			else if (cause instanceof SessionTimeoutException ||
+				e instanceof SessionTimeoutException)
 				index = DataServicesFactory.LOST_CONNECTION;
 			connected = false;
 			dsFactory.sessionExpiredExit(index, cause);
@@ -3670,7 +3675,7 @@ class OMEROGateway
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param ctx The security context.
-	 * @param path The location where to save the files.
+	 * @param folderPath The location where to save the files.
 	 * @param pixelsID The ID of the pixels set.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -3678,7 +3683,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service.  
 	 */
 	synchronized Map<Boolean, Object> getArchivedFiles(
-			SecurityContext ctx, String path, long pixelsID) 
+			SecurityContext ctx, String folderPath, long pixelsID) 
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
@@ -3696,7 +3701,7 @@ class OMEROGateway
 		}
 
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
-		if (files == null || files.size() == 0) return result;
+		if (files == null || files.size() == 0) return null;
 		RawFileStorePrx store;
 		Iterator i = files.iterator();
 		OriginalFile of;
@@ -3712,10 +3717,9 @@ class OMEROGateway
 			try {
 				store.setFileId(of.getId().getValue()); 
 			} catch (Exception e) {
-				e.printStackTrace();
 				handleException(e, "Cannot set the file's id.");
 			}
-			fullPath = path+of.getName().getValue();
+			fullPath = folderPath+of.getName().getValue();
 			f = new File(fullPath);
 			try {
 				stream = new FileOutputStream(f);
@@ -3823,7 +3827,6 @@ class OMEROGateway
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-		
 	}
 	
 	/** 
@@ -5348,9 +5351,8 @@ class OMEROGateway
 	{
 		isSessionAlive(ctx);
 		try {
-			List<Long> ids = new ArrayList<Long>(1);
-			ids.add(imageID);
-			Set result = getContainerImages(ctx, ImageData.class, ids, options);
+			Set result = getContainerImages(ctx, ImageData.class, 
+					Arrays.asList(imageID), options);
 			if (result != null && result.size() == 1) {
 				Iterator i = result.iterator();
 				while (i.hasNext())
@@ -6351,7 +6353,7 @@ class OMEROGateway
 		while (i.hasNext()) {
 			c = i.next();
 			if (c.isSame(ctx)) {
-				//c.shutDownRendering(pixelsID);
+				c.shutDownRenderingEngine(pixelsID);
 			}
 		}
 	}
@@ -6832,6 +6834,9 @@ class OMEROGateway
 	/**
 	 * Returns the file 
 	 * 
+	 * @param index Either OME-XML or OME-TIFF.
+	 * @param file		The file to write the bytes.
+	 * @param imageID	The id of the image.
 	 * @param ctx The security context.
 	 * @param file The file to write the bytes.
 	 * @param imageID The id of the image.
@@ -6841,7 +6846,8 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	File exportImageAsOMETiff(SecurityContext ctx, File f, long imageID)
+	File exportImageAsOMEObject(SecurityContext ctx, int index, File f, 
+			long imageID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
@@ -6855,7 +6861,10 @@ class OMEROGateway
 				store = getExporterService(ctx);
 				store.addImage(imageID);
 				try {
-					long size = store.generateTiff();
+					long size = 0;
+					if (index == OmeroImageService.EXPORT_AS_OME_XML)
+						size = store.generateXml();
+					else size = store.generateTiff();
 					long offset = 0;
 					try {
 						for (offset = 0; (offset+INC) < size;) {
@@ -6870,7 +6879,7 @@ class OMEROGateway
 					if (stream != null) stream.close();
 					if (f != null) f.delete();
 					exception = new DSAccessException(
-							"Cannot export the image as an OME-TIFF ", e);
+							"Cannot export the image as an OME-formats ", e);
 				}
 			} finally {
 				try {

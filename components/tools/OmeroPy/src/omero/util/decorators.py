@@ -91,18 +91,21 @@ class TimeIt (object):
     is available and is the logger instance from C{logging.getLogger()}.
 
     @param level: the level to use for logging
+    @param name: the name to use when logging, function name is used if None
     """
     logger = logging.getLogger('omero.timeit')
 
-    def __init__ (self, level=logging.DEBUG):
+    def __init__ (self, level=logging.DEBUG, name=None):
         self._level = level
+        self._name = name
  
     def __call__ (self, func):
         def wrapped (*args, **kwargs):
-            self.logger.log(self._level, "timing %s" % (func.func_name))
+            name = self._name or func.func_name
+            self.logger.log(self._level, "timing %s" % (name))
             now = time.time()
             rv = func(*args, **kwargs)
-            self.logger.log(self._level, "timed %s: %f" % (func.func_name, time.time()-now))
+            self.logger.log(self._level, "timed %s: %f" % (name, time.time()-now))
             return rv
         return wrapped
 
@@ -119,3 +122,16 @@ def timeit (func):
         return rv
     return TimeIt()(func)
 
+def setsessiongroup (func):
+    """
+    For BlitzObjectWrapper class derivate functions, sets the session group to match
+    the object group.
+    """
+    def wrapped (self, *args, **kwargs):
+        rev = self._conn.setGroupForSession(self.getDetails().getGroup().getId())
+        try:
+            return func(self, *args, **kwargs)
+        finally:
+            if rev:
+                self._conn.revertGroupForSession()
+    return wrapped

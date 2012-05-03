@@ -63,6 +63,8 @@ import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.CreateFigureAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.DeleteROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
@@ -70,6 +72,7 @@ import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAct
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
@@ -210,29 +213,7 @@ class MeasurementViewerControl
 	{
     	view.onSelectedFigures();
     	ROI roi = figure.getROI();
-    	/*
-    	if (roi.hasAnnotation(AnnotationKeys.NAMESPACE))
-    	{
-    		String namespaceString = (String) roi.getAnnotation(
-    				AnnotationKeys.NAMESPACE);
-    		String keywordsString = (String) roi.getAnnotation(
-    				AnnotationKeys.KEYWORDS);
-    		if (keywordsString != null)
-    		{
-    			List<String> stringList = new ArrayList<String>();
-        		if (keywordsString != "")
-    			{
-    				String[] splitStrings = keywordsString.split(",");
-    			    
-        			for (String word: splitStrings)
-        				stringList.add(word);				
-    			}
-    			model.setWorkflow(namespaceString);
-    			model.setKeyword(stringList);
-    			view.updateWorkflow();
-     		}
-    	}
-		*/
+    	
 		//TODO clean that code
     	if ((figure instanceof MeasureLineFigure) || 
 				(figure instanceof MeasurePointFigure)) {
@@ -619,8 +600,16 @@ class MeasurementViewerControl
 	public void figureChanged(FigureEvent e)
 	{
 		Figure f = e.getFigure();
-		if (f instanceof ROIFigure) 
-			handleFigureChange((ROIFigure) f);
+		if (f instanceof ROIFigure) {
+			ROIFigure fig = (ROIFigure) f;
+			Coord3D coord = fig.getROIShape().getCoord3D();
+	    	int c = coord.getChannel();
+	    	if (c >= 0 && !view.isChannelActive(c)) {
+	    		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
+	    		bus.post(new SelectChannel(view.getPixelsID(), c));
+	    	}
+			handleFigureChange(fig);
+		}
 	}
 	
 	/** 

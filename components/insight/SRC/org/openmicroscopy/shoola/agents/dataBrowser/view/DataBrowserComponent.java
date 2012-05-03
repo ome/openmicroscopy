@@ -59,10 +59,9 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
@@ -163,6 +162,26 @@ class DataBrowserComponent
 		view = new DataBrowserUI();
 		controller.initialize(this, view);
 		view.initialize(model, controller);
+	}
+	
+	/**
+	 * Notifies the model that the user has annotated data.
+	 * 
+	 * @param containers The objects to handle.
+	 * @param count A positive value if annotations are added, a negative value
+	 * if annotations are removed.
+	 */
+	void onAnnotated(List<DataObject> containers, int count)
+	{
+		if (containers == null || containers.size() == 0) return;
+		NodesFinder visitor = new NodesFinder(containers);
+		model.getBrowser().accept(visitor);
+		List<ImageDisplay> nodes = visitor.getFoundNodes();
+		if (nodes == null || nodes.size() == 0) return;
+		Iterator<ImageDisplay> i = nodes.iterator();
+		while (i.hasNext()) {
+			i.next().setAnnotationCount(count);
+		}
 	}
 	
 	/** 
@@ -865,7 +884,7 @@ class DataBrowserComponent
 		boolean b = EditorUtil.isUserOwner(ho, id);
 		if (b) return b; //user it the owner.
 		int level = 
-			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+			DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel();
 		switch (level) {
 			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
@@ -1534,9 +1553,9 @@ class DataBrowserComponent
 	
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#viewDisplay(ImageDisplay)
+	 * @see DataBrowser#viewDisplay(ImageDisplay, boolean)
 	 */
-	public void viewDisplay(ImageDisplay node)
+	public void viewDisplay(ImageDisplay node, boolean internal)
 	{
 		if (!(node instanceof ImageNode)) return;
 		EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
@@ -1554,22 +1573,21 @@ class DataBrowserComponent
 				if (go instanceof DataObject) 
 					data = (DataObject) go;
 				object.setContext(data, null);
-				bus.post(new ViewImage(ctx, object, null));
+				if (DataBrowserAgent.runAsPlugin() == DataBrowser.IMAGE_J) {
+					ViewInPluginEvent evt = new ViewInPluginEvent(ctx,
+							img, DataBrowser.IMAGE_J);
+					bus.post(evt);
+				} else {
+					bus.post(new ViewImage(ctx, object, null));
+				}
 			} else {
-				firePropertyChange(VIEW_IMAGE_NODE_PROPERTY, null, uo);
+				if (internal)
+					firePropertyChange(INTERNAL_VIEW_NODE_PROPERTY, null, uo);
+				else firePropertyChange(VIEW_IMAGE_NODE_PROPERTY, null, uo);
 			}
-			/*
-			object = new ViewImageObject((ImageData) uo);
-			go =  view.getParentOfNodes();
-			if (go instanceof DataObject) 
-				data = (DataObject) go;
-			object.setContext(data, null);
-			bus.post(new ViewImage(object, null));
-			if (go instanceof DataObject) data = (DataObject) go;
-			*/
-			
 		} else if (uo instanceof WellSampleData) {
-			object = new ViewImageObject((WellSampleData) uo);
+			WellSampleData wellSample = (WellSampleData) uo;
+			object = new ViewImageObject(wellSample);
 			WellSampleNode wsn = (WellSampleNode) node;
 			Object parent = wsn.getParentObject();
 			
@@ -1579,8 +1597,26 @@ class DataBrowserComponent
 					data = (DataObject) go;
 				object.setContext((DataObject) parent, data);
 			}
-			bus.post(new ViewImage(model.getSecurityContext(), object, null));
+			if (DataBrowserAgent.runAsPlugin() == DataBrowser.IMAGE_J) {
+				
+				ViewInPluginEvent evt = new ViewInPluginEvent(
+						model.getSecurityContext(),
+						wellSample.getImage(), DataBrowser.IMAGE_J);
+				bus.post(evt);
+			} else {
+				bus.post(new ViewImage(model.getSecurityContext(), object, 
+						null));
+			}
 		}
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#getSecurityContext()
+	 */
+	public SecurityContext getSecurityContext()
+	{
+		return model.getSecurityContext();
 	}
 	
 	/** 

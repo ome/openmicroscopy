@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.util.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.util.Iterator;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -81,14 +82,39 @@ class UserListRenderer
     /** The font to set when the value is a string.*/
     private Font defaultFont;
     
+    /** Reference to the model.*/
+    private UserManagerDialog model;
+    
+    /**
+     * Returns <code>true</code> if the experimenter is already displayed, 
+     * <code>false</code> otherwise.
+     * 
+     * @param experimenter The value to check.
+     * @return See above.
+     */
+    private boolean isAlreadySelected(ExperimenterData experimenter)
+    {
+    	long id = experimenter.getId();
+    	Iterator<ExperimenterData> i = model.getSelectedUsers().iterator();
+    	ExperimenterData exp;
+    	while (i.hasNext()) {
+			exp = i.next();
+			if (exp.getId() == id)
+				return true;
+		}
+    	return false;
+    }
+    
 	/** 
 	 * Creates a new instance. 
 	 * 
+	 * @param model Reference to the model.
 	 * @param userIcon The icon used to represent a user.
 	 */
-	public UserListRenderer(Icon userIcon)
+	public UserListRenderer(UserManagerDialog model, Icon userIcon)
 	{
 		setOpaque(true);
+		this.model = model;
 		this.userIcon = userIcon;
 		defaultFont = getFont();
 		font = defaultFont.deriveFont(Font.BOLD | Font.ITALIC,
@@ -104,6 +130,7 @@ class UserListRenderer
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean hasFocus) 
     {
+    	setEnabled(true);
     	if (value instanceof String) {
     		setFont(font);
     		setIcon(null);
@@ -125,6 +152,7 @@ class UserListRenderer
         		 if (index%2 == 0) setBackground(BACKGROUND);
                  else setBackground(BACKGROUND_ONE);
         	}
+    		setEnabled(!isAlreadySelected((ExperimenterData) value));
     	}
     	
     	setBorder(BORDER);

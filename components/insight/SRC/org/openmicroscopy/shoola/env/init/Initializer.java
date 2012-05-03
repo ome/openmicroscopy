@@ -73,7 +73,7 @@ public class Initializer
      * with tasks that provide service stubs to remove problematic 
      * dependencies on external resources.
      */
-    protected static final List<Class>     initList = new ArrayList<Class>();
+    protected static final List<Class<?>>     initList = new ArrayList<Class<?>>();
     
     static {
         //This must be the first task to run b/c it will bring up
@@ -122,7 +122,7 @@ public class Initializer
         //Instantiate through reflection, then link to c and i.
         InitializationTask task = null;
         try {
-            Class taskClass = (Class) taskType;
+            Class<?> taskClass = (Class<?>) taskType;
             task = (InitializationTask) taskClass.newInstance();
             task.linkContainer(c);
             task.linkInitializer(i);
@@ -226,7 +226,7 @@ public class Initializer
         throws StartupException
 	{
 		InitializationTask task;
-        Iterator<Class> type = initList.iterator();
+        Iterator<Class<?>> type = initList.iterator();
         while (type.hasNext()) {
             task = createInitTask(type.next(), container,this); 
             task.configure();

@@ -237,6 +237,35 @@ class TestTables(lib.ITest):
         table.addData([lc])
         self.assertEquals([123], table.read([0], 0, 0).columns[0].values)
 
+    def testCallContext(self):
+        """
+        When calling openTable with omero.group set, there have been some
+        issues.
+        """
+
+        # Create a user in one group and a table.
+        group1 = self.new_group()
+        gid1 = str(group1.id.val)
+        client = self.new_client(group1)
+        admin = client.sf.getAdminService()
+        sr = client.sf.sharedResources()
+        table = sr.newTable(1, "/test")
+        self.assert_( table )
+        ofile = table.getOriginalFile()
+
+        # Add the user to another group
+        # and try to load the table
+        group2 = self.new_group(experimenters=[client])
+        gid2 = str(group2.id.val)
+        admin.getEventContext() # Refresh
+        client.sf.setSecurityContext(group2)
+
+        # Use -1 for all group access
+        sr.openTable(ofile, {"omero.group":"-1"})
+
+        # Load the group explicitly
+        sr.openTable(ofile, {"omero.group":gid1})
+
 def test_suite():
     return 1
 

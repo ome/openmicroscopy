@@ -57,6 +57,7 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
@@ -87,6 +88,9 @@ class TreeViewerWin
 	extends TopWindow
 {
 
+	/** The text of the <code>View</code> menu.*/
+	static final String			VIEW_MENU = "View";
+	
 	/** Identifies the <code>JXTaskPane</code> layout. */
 	static final String			JXTASKPANE_TYPE = "JXTaskPane";
 
@@ -313,20 +317,20 @@ class TreeViewerWin
         	menus.add(createViewMenu());
        
         JMenuBar bar = tb.getTaskBarMenuBar();
-        JMenu[] existingMenus = new JMenu[bar.getMenuCount()];
-        
-		for (int i = 0; i < existingMenus.length; i++) {
-			existingMenus[i] = bar.getMenu(i);
+        List<JMenu> existingMenus = new ArrayList<JMenu>();
+        for (int i = 0; i < bar.getMenuCount(); i++) {
+			if (i != TaskBar.FILE_MENU)
+				existingMenus.add(bar.getMenu(i));
 		}
 		bar.removeAll();
 		
 		Iterator<JMenu> k = menus.iterator();
 		while (k.hasNext()) 
 			bar.add(k.next());
-			
-		for (int i = 0; i < existingMenus.length; i++) {
-			bar.add(existingMenus[i]);
-		}
+		
+		k = existingMenus.iterator();
+		while (k.hasNext()) 
+			bar.add(k.next());
         return bar;
     }
     
@@ -441,11 +445,30 @@ class TreeViewerWin
         item.setText(a.getActionName());
         menuItems.add(item);
         menu.add(item);
-        a = controller.getAction(TreeViewerControl.VIEW);
-        item = new JMenuItem(a);
-        item.setText(a.getActionName());
-        menuItems.add(item);
-        menu.add(item);
+        switch (TreeViewerAgent.runAsPlugin()) {
+			case TreeViewer.IMAGE_J:
+				a = controller.getAction(TreeViewerControl.VIEW);
+		        item = new JMenuItem(a);
+		        item.setText(a.getActionName());
+				JMenu viewMenu = new JMenu(TreeViewerWin.VIEW_MENU);
+				viewMenu.setIcon(item.getIcon());
+				viewMenu.add(item);
+				menuItems.add(item);
+				a = controller.getAction(TreeViewerControl.VIEW_IN_IJ);
+		        item = new JMenuItem(a);
+		        item.setText(a.getActionName());
+		        viewMenu.add(item);
+				menuItems.add(item);
+				menu.add(viewMenu);
+				break;
+			default:
+				a = controller.getAction(TreeViewerControl.VIEW);
+		        item = new JMenuItem(a);
+		        item.setText(a.getActionName());
+		        menuItems.add(item);
+		        menu.add(item);
+		}
+        
         a = controller.getAction(TreeViewerControl.REFRESH_TREE);
         item = new JMenuItem(a);
         item.setText(a.getActionName());
@@ -528,14 +551,25 @@ class TreeViewerWin
     private void handleDividerMoved()
     {
 		DataBrowser db = model.getDataViewer();
+		JViewport viewPort = workingPane.getViewport();
+		JComponent component;
 		if (db != null) {
-			JViewport viewPort = workingPane.getViewport();
-			JComponent component = db.getBrowser().getUI();
+			component = db.getBrowser().getUI();
 			component.setPreferredSize(viewPort.getExtentSize());
 			component.setSize(viewPort.getExtentSize());
 			component.validate();
 			component.repaint();
 			db.layoutDisplay();
+		}
+		MetadataViewer mv = model.getMetadataViewer();
+		if (mv != null && metadataVisible) {
+			component = mv.getEditorUI();
+			Dimension d = rightPane.getSize();
+			Dimension dd = viewPort.getExtentSize();
+			Dimension nd = new Dimension(Math.abs(d.width-dd.width), d.height);
+			component.setSize(nd);
+			component.validate();
+			component.repaint();
 		}
     }
     
@@ -763,6 +797,7 @@ class TreeViewerWin
 			case TreeViewer.FULL_POP_UP_MENU:
 			case TreeViewer.PARTIAL_POP_UP_MENU:
 			case TreeViewer.ADMIN_MENU:
+			case TreeViewer.VIEW_MENU:
 				PopupMenu popupMenu = new PopupMenu(controller, index);
 		        popupMenu.show(c, p.x, p.y);	
 		}
@@ -948,6 +983,7 @@ class TreeViewerWin
             case TreeViewer.CREATE_MENU_SCREENS:
             case TreeViewer.CREATE_MENU_TAGS:
             case TreeViewer.CREATE_MENU_ADMIN:
+            case TreeViewer.VIEW_MENU:
                 toolBar.showCreateMenu(c, p, menuID);
                 break;
             case TreeViewer.PERSONAL_MENU:

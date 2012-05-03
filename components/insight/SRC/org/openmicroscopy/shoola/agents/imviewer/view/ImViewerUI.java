@@ -1103,6 +1103,7 @@ class ImViewerUI
 		super(title);
 		loadingWindow = new LoadingWindow(this);
 		loadingWindow.setTitle("Opening Image Viewer...");
+		loadingWindow.setModal(false);
 		defaultIndex = UnitBarSizeAction.DEFAULT_UNIT_INDEX;
 		displayMode = NEUTRAL;
 		bigImageMagnification = 1.0;
@@ -1304,8 +1305,6 @@ class ImViewerUI
 	 */
 	void onStateChange(boolean b)
 	{ 
-		//TODO
-		//model.getRenderer().onStateChange(b);
 		model.getBrowser().onStateChange(b);
 		if (tabs != null) {
 			tabs.setEnabled(b);

@@ -7,14 +7,49 @@
  */
 
 #include <omero/model/PermissionsI.h>
+#include <omero/ClientErrors.h>
 
 namespace omero {
 
     namespace model {
 
 	PermissionsI::~PermissionsI() {}
-	PermissionsI::PermissionsI() : Permissions() {
-	    perm1 = -1L;
+	PermissionsI::PermissionsI(const std::string& perms) : Permissions() {
+            if (perms.empty()) {
+                perm1 = -1L;
+            } else {
+                // Due to lack of regex libraries
+                // this implementation is more naive
+                // than in the other SDKs
+                std::string rest = perms;
+                if (rest.size() == 7) {
+                    // ignore the locked character
+                    rest = rest.substr(1);
+                }
+                if (rest.size() != 6) {
+                    std::string msg = "Bad permissions:";
+                    msg += perms;
+                    throw omero::ClientError(__FILE__, __LINE__, msg.c_str());
+                }
+                if (rest[0] == 'r' || rest[0] == 'R') {
+                    setUserRead(true);
+                }
+                if (rest[1] == 'w' || rest[1] == 'W') {
+                    setUserWrite(true);
+                }
+                if (rest[2] == 'r' || rest[2] == 'R') {
+                    setGroupRead(true);
+                }
+                if (rest[3] == 'w' || rest[3] == 'W') {
+                    setGroupWrite(true);
+                }
+                if (rest[4] == 'r' || rest[4] == 'R') {
+                    setWorldRead(true);
+                }
+                if (rest[5] == 'w' || rest[5] == 'W') {
+                    setWorldWrite(true);
+                }
+            }
 	}
 
 	// shift 8; mask 4

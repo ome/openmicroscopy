@@ -33,13 +33,26 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery.cookie.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.17/external/jquery.cookie.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jquery.jstree.js" %}"></script>   
     <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
     <script type="text/javascript">
         String.prototype.capitalize = function() {
             return this.charAt(0).toUpperCase() + this.slice(1);
+        }
+        
+        var handleChgrp = function() {
+            $("#chgrp-form").dialog('open');
+        }
+
+        var handleNewContainer = function(container_type) {
+            
+            $("#new_container_type").text(container_type.capitalize());
+            var $f = $("#new-container-form");
+            var new_container_name = $("input[name='name']", $f).val("");     // clear fields
+            var new_container_desc = $("textarea[name='description']", $f).val("");
+            $("#new-container-form").dialog('open');
         }
 
         var handleDelete = function() {
@@ -92,7 +105,7 @@
                                   alert(r.errs);
                               } else {
                                   $("#dataTree").jstree('remove', selected);
-                                  refreshProgressBar();
+                                  refreshActivities();
                               }
                         },
                         error: function(response) {
@@ -129,6 +142,7 @@
             }
         }
 
+        // Stuff to do on load...
         $(function() 
             {
                 $("#left_panel_tabs").tabs({
@@ -141,6 +155,106 @@
                         return true;
                     }
                 });
+
+                // Handle creation of new Project, Dataset or Screen...
+                $("#new-container-form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 270,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "OK": function() {
+                             createNewContainer();
+                             $( this ).dialog( "close" );
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                // same code is called from closing dialog or 'submit' of form
+                $("#new-container-form").submit(function() {
+                    $("#new-container-form").dialog( "close" );
+                    createNewContainer();
+                    return false;
+                });
+                var createNewContainer = function() {
+                    var cont_type = $("#new_container_type").text().toLowerCase();  // E.g. 'project'
+                    var $f = $("#new-container-form");
+                    var new_container_name = $("input[name='name']", $f).val();
+                    var new_container_desc = $("textarea[name='description']", $f).val();
+                    if ($.trim(new_container_name).length == 0) {
+                        alert("Please enter a Name");
+                        return;
+                    }
+                    // if "project" is selected, createDataset under it
+                    var selected = $.jstree._focused().get_selected();
+                    if(selected.length==1 && selected.attr("rel") == "project" && cont_type == "dataset") {
+                        url = '{% url manage_action_containers "addnewcontainer" %}project/'+selected.attr("id").split("-")[1]+'/';
+                    // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen' etc. )
+                    } else { url = '{% url manage_action_containers "addnewcontainer" %}'; }
+
+                    $.ajax({
+                        url: url,
+                        //data: $new_cont_form.serialize();
+                        data: {
+                            "name" : new_container_name,
+                            "folder_type" : cont_type,
+                            "description" : new_container_desc
+                        },
+                        dataType: "json",
+                        type: "POST",
+                        success: function(r){
+                            var cont_id = cont_type + "-" + r['id'];
+                            var display_index = 0;
+                            $("#dataTree").jstree("create", selected, display_index, 
+                                { "attr" : { "rel":cont_type, "id":cont_id}, "data":new_container_name }, 
+                                false, true);
+                            $("#dataTree").jstree("deselect_all");
+                            $("#dataTree").jstree("select_node", "#"+cont_id);
+                        }
+                    });
+                }
+
+
+                $("#chgrp-form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 310,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "OK": function() {
+                            $("#chgrp-form").submit();
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                // handle chgrp 
+                $("#chgrp-form").submit(function(e){
+                    $("#chgrp-form").dialog("close");
+                    var selected = $.jstree._focused().get_selected();
+                    var postData = $(this).serialize();
+                    if ($(".group_option input[checked=true]", $(this)).length < 1) return false;   // no group chosen
+                    var actionUrl= $(this).attr('action') + "?" + get_tree_selection(); // E.g. ?Dataset=34,56$Image=12
+                    $.post(actionUrl, postData, function(data){
+                        showActivities();
+                        $("#dataTree").jstree('remove', selected);
+                        
+                    });
+                    
+                    return false
+                });
+                // chgrp form behavior
+                $("#chgrp-form .group_option").click(function(){
+                    $("#chgrp-form .group_option").removeClass('selected');
+                    $(this).addClass('selected');
+                    $("input[type='radio']", $(this)).attr('checked', true);
+                });
+                $("#chgrp-form .group_option :first").click();  // select first option
 
 
                 var buttonsShowHide = function(selected, inst) {
@@ -443,17 +557,17 @@
                                     "project": {
                                         "label" : "Project",
                                         "icon"  : '{% static "webclient/image/folder16.png" %}',
-                                        "action": function (obj) { this.create(obj, null, {"attr": {"rel": "project"}, "data":"New project"}, false, true); }
+                                        action: function (obj) {handleNewContainer("project"); },
                                     },
                                     "dataset": {
                                         "label" : "Dataset",
                                         "icon"  : '{% static "webclient/image/folder_image16.png" %}',
-                                        "action": function (obj) { this.create(obj, null, {"attr":{"rel": "dataset"}, "data":"New dataset"}, false, true); }
+                                        action: function (obj) {handleNewContainer("dataset"); },
                                       },
                                       "screen": {
                                         "label" : "Screen",
                                         "icon"  : '{% static "webclient/image/folder_screen16.png" %}',
-                                        "action": function (obj) { this.create(obj, null, {"attr":{"rel": "screen"}, "data":"New screen"}, false, true); }
+                                        action: function (obj) {handleNewContainer("screen"); },
                                       }
                                 }
                             };
@@ -504,6 +618,12 @@
                                 "action": handleDelete
                             };
                             
+                            config["chgrp"] = {
+                                "label" : "Move to Group...",
+                                "icon"  : '{% static "webclient/image/kuser16.png" %}',
+                                "action": handleChgrp
+                            };
+                            
                             config["basket"] = {
                                 "label" : "Add to Basket",
                                 "icon"  : '{% static "webclient/image/basket16.png" %}',                                    
@@ -523,6 +643,7 @@
                                     config["ccp"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
+                                    config["chgrp"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("experimenter")>=0) {
                                     config["delete"]["_disabled"] = true;
                                     config["ccp"]["_disabled"] = true;
@@ -581,7 +702,124 @@
                             
                             return config;
                         }
+                    },
+
+                    // default hotkeys only do 'hover' on up/down/left/right. We want to 'select'
+                    // up/down just move selection, don't expand/collapse
+                    // left/right expand and collapse. If right and no children, select next.
+                    // space+up/down to select range.
+                    "hotkeys" : {
+                        "right" : function () {
+                            // starting point is the last-selected...
+                            var o = this.data.ui.last_selected;
+                            // ...unless hover appears selected (we're in the process of rapidly traversing the tree)
+                            if (this.data.ui.hovered && this.data.ui.hovered.children("a").hasClass("jstree-clicked") ) {
+                                o = this.data.ui.hovered;
+                            }
+                            if(o && o.length) {
+                                if(o.hasClass("jstree-closed")) { this.open_node(o); }
+                                // if we are on a leaf and we have more siblings, select them
+                                else if (this.is_leaf(o) && (o.nextAll("li").size() > 0)){
+                                    var new_select = this._get_next(o);
+                                    // make the 'next' node appear selected
+                                    o.children("a").removeClass("jstree-clicked");
+                                    new_select.children("a").addClass("jstree-clicked");
+                                    this.hover_node(new_select);  // also add 'hover' as our marker
+                                    var datatree = this;
+                                    // our *actual* selection occurs after timeout, if selection hasn't moved yet
+                                    setTimeout(function (){
+                                        if (new_select.children("a").hasClass("jstree-hovered")) {
+                                            datatree.data.ui.selected = $();    // clears any previous selection
+                                            datatree.select_node(new_select);   // trigger selection event
+                                        }
+                                    }, 100);
+                                }
+                            }
+                            return false;
+                        },
+                        "down" : function () {
+                            // remove selection
+                            this.data.ui.selected && this.data.ui.selected.children("a").removeClass("jstree-clicked");
+                            // starting point is the last-selected...
+                            var o = this.data.ui.last_selected;
+                            // ...unless hover appears selected (we're in the process of rapidly traversing the tree)
+                            if (this.data.ui.hovered && this.data.ui.hovered.children("a").hasClass("jstree-clicked") ) {
+                                o = this.data.ui.hovered;
+                            }
+                            if(o && o.length) {
+                                var new_select = this._get_next(o);
+                                // make the 'next' node appear selected
+                                o.children("a").removeClass("jstree-clicked");
+                                new_select.children("a").addClass("jstree-clicked");
+                                this.hover_node(new_select);  // also add 'hover' as our marker
+                                var datatree = this;
+                                // our *actual* selection occurs after timeout, if selection hasn't moved yet
+                                setTimeout(function (){
+                                    if (new_select.children("a").hasClass("jstree-hovered")) {
+                                        datatree.data.ui.selected = $();    // clears any previous selection
+                                        datatree.select_node(new_select);   // trigger selection event
+                                    }
+                                }, 100);
+                            }
+                            return false;
+                        },
+                        "up" : function () {
+                            // remove selection
+                            this.data.ui.selected && this.data.ui.selected.children("a").removeClass("jstree-clicked");
+                            // starting point is the last-selected...
+                            var o = this.data.ui.last_selected;
+                            // ...unless hover appears selected (we're in the process of rapidly traversing the tree)
+                            if (this.data.ui.hovered && this.data.ui.hovered.children("a").hasClass("jstree-clicked") ) {
+                                o = this.data.ui.hovered;
+                            }
+                            if(o && o.length) {
+                                var new_select = this._get_prev(o);
+                                // make the 'previous' node appear selected
+                                o.children("a").removeClass("jstree-clicked");
+                                new_select.children("a").addClass("jstree-clicked");
+                                this.hover_node(new_select);  // also add 'hover' as our marker
+                                var datatree = this;
+                                // our *actual* selection occurs after timeout, if selection hasn't moved yet
+                                setTimeout(function (){
+                                    if (new_select.children("a").hasClass("jstree-hovered")) {
+                                        datatree.data.ui.selected = $();    // clears any previous selection
+                                        datatree.select_node(new_select);   // trigger selection event
+                                    }
+                                }, 100);
+                            }
+                            return false;
+                        },
+                        "left" : function () {
+                            var o = this.data.ui.last_selected || -1;
+                            if(o && o.length) {
+                                // if node is expanded, simply collapse
+                                if (o.hasClass("jstree-open")) {
+                                    this.close_node(o);
+                                } else if (this._get_parent(o)) {
+                                    var new_select = this._get_parent(o);
+                                    new_select.children("a:eq(0)").click();
+                                }
+                            }
+                            return false;
+                        },
+                        "shift+down" : function (e) {
+                            var o = this.data.ui.selected.last();
+                            if(o && o.length) {
+                                var new_select = this._get_next(o);
+                                this.select_node(new_select, true, e); // tree handles shift events for multi-select
+                            }
+                            return false;
+                        },
+                        "shift+up" : function (e) {
+                            var o = this.data.ui.selected.first();
+                            if(o && o.length) {
+                                var new_select = this._get_prev(o);
+                                this.select_node(new_select, true, e); // tree handles shift events for multi-select
+                            }
+                            return false;
+                        }
                     }
+
                 })
                 .delegate("a", "click.jstree", function (e) {
                     var data = $.jstree._focused();
@@ -622,35 +860,6 @@
                 })
                 .bind("open_node.jstree", function (e, data) {
 
-                })
-                .bind("create.jstree", function (e, data) {
-                    if(data.rslt.parent.attr("rel") == "project") {
-                        url = '{% url manage_action_containers "addnewcontainer" %}project/'+data.rslt.parent.attr("id").split("-")[1]+'/';
-                    } else {
-                        url = '{% url manage_action_containers "addnewcontainer" %}';
-                    }
-                    
-                    $.ajax({
-                      url: url,
-                      data: {
-                            "name" : data.rslt.name,
-                            "folder_type" : data.rslt.obj.attr("rel")
-                        },
-                      dataType: "json",
-                      type: "POST",
-                      success: function(r){
-                          if(eval(r.bad)) {
-                              $.jstree.rollback(data.rlbk);
-                                alert(r.errs);
-                            } else {
-                              $(data.rslt.obj).attr("id", data.rslt.obj.attr("rel")+"-"+r.id);
-                            }
-                      },
-                      error: function(response) {
-                          $.jstree.rollback(data.rlbk);
-                          alert("Internal server error. Cannot create object.");
-                      }
-                    });
                 })
                 .bind("move_node.jstree", function (e, data) {
                     var refresh = false;
@@ -729,13 +938,13 @@
         $("#buttons input").click(function () {
             switch(this.id) {
                 case "addprojectButton":
-                    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'project' }, "data":"New project" }, false, true);
+                    handleNewContainer("project");
                     break;
                 case "adddatasetButton":
-                    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'dataset' }, "data":"New dataset" }, false, true);
+                    handleNewContainer("dataset");
                     break;
                 case "addscreenButton":
-                    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'screen' }, "data":"New screen" }, false, true);
+                    handleNewContainer("screen");
                     break;
                 case "copyButton":
                     $("#dataTree").jstree('copy', $.jstree._focused().get_selected());
@@ -824,6 +1033,51 @@
             </fieldset>
             </form>
         </div>
+
+        <!-- hidden dialog for new Container -->
+        <form id="new-container-form" title="New...">
+            <p>Create a new <span id="new_container_type">Container</span>...</p>
+            <p>
+                <label for="id_name">Name:</label>
+                {{ new_container_form.name }}
+            </p>
+            <p>
+                <label for="id_description">Description:</label><br />
+                {{ new_container_form.description }}
+            </p>
+        </form>
+
+        <!-- hidden form for chgrp -->
+        <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}">
+            {% if eContext.allGroups|length_is:"1" %}
+                <p>
+                    You are only in a single group.<br>
+                    You cannot move data to another group.
+                </p>
+            {% else %}
+                <p>Choose group to move data</p>
+
+                <div class="gray_border">
+                {% for grp in eContext.allGroups %}
+                    {% ifnotequal grp.id eContext.context.groupId %}
+                        <div class='group_option'>
+                            <input type="radio" name="group_id" value="{{ grp.id }}" style="display:none"/>
+                            <img
+                            {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static "webclient/image/nuvola_ledorange16.png" %}"
+                            {% else %}
+                                {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/nuvola_ledorange_readOnly16.png" %}"
+                                {% else %}
+                                    src="{% static "webclient/image/nuvola_ledred16.png" %}"
+                                {% endif %}
+                            {% endif %} />
+                            {{ grp.name }}
+                        </div>
+                    {% endifnotequal %}
+                {% endfor %}
+                </div>
+            {% endif %}
+        </form>
+
     </div>
 {% endblock %}
 

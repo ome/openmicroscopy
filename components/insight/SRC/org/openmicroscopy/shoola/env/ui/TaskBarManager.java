@@ -24,6 +24,8 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import ij.IJ;
+
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -56,6 +58,7 @@ import org.w3c.dom.NodeList;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
@@ -70,6 +73,7 @@ import org.openmicroscopy.shoola.env.data.events.SaveEventResponse;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
@@ -90,6 +94,7 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLoginDialog;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * Creates and manages the {@link TaskBarView}.
@@ -134,6 +139,13 @@ public class TaskBarManager
 	private static final String		CLOSE_APP_TEXT = 
 		"Do you really want to close the application?";
 		
+	/** The title displayed before closing the application. */
+	private static final String		CLOSE_PLUGIN_TITLE = "Exit Plugin";
+		
+	/** The text displayed before closing the application. */
+	private static final String		CLOSE_PLUGIN_TEXT = 
+		"Do you really want to close the plugin?";
+	
 	/** The title displayed before logging out. */
 	private static final String		LOGOUT_TITLE = "Log out";
 		
@@ -329,6 +341,57 @@ public class TaskBarManager
 	}
 	
 	/**
+	 * Views the image as an <code>ImageJ</code>.
+	 * 
+	 * @param image The image to view.
+	 * @param ctx The security context.
+	 */
+	private void runAsImageJ(ImageData image, SecurityContext ctx)
+	{
+		UserCredentials lc = (UserCredentials) container.getRegistry().lookup(
+				LookupNames.USER_CREDENTIALS);
+		StringBuffer buffer = new StringBuffer();
+		try {
+			buffer.append("location=[OMERO] open=[omero:server=");
+			buffer.append(lc.getHostName());
+			buffer.append("\nuser=");
+			buffer.append(lc.getUserName());
+			buffer.append("\nport=");
+			buffer.append(lc.getPort());
+			buffer.append("\npass=");
+			buffer.append(lc.getPassword());
+			buffer.append("\ngroupID=");
+			buffer.append(ctx.getGroupID());
+			buffer.append("\niid=");
+			buffer.append(image.getId());
+			buffer.append("]");
+			IJ.runPlugIn("loci.plugins.LociImporter", buffer.toString());
+		} catch (Exception e) {
+			LogMessage message = new LogMessage();
+			message.println("Opening in image J");
+			message.print(e);
+			container.getRegistry().getLogger().debug(this, message);
+			IJ.showMessage("An error occurred while loading the image.");
+		}
+	}
+	
+	/**
+	 * Handles the event.
+	 * 
+	 * @param evt The event to handle.
+	 */
+	private void handleViewInPluginEvent(ViewInPluginEvent evt)
+	{
+		if (evt == null) return;
+		switch (evt.getPlugin()) {
+			case ViewInPluginEvent.IMAGE_J:
+				runAsImageJ((ImageData) evt.getObject(),
+						evt.getSecurityContext());
+				break;
+		}
+	}
+	
+	/**
 	 * Switches user group, notifies the agents to save data before switching.
 	 * 
 	 * @param evt The event to handle.
@@ -490,14 +553,23 @@ public class TaskBarManager
 	 */
 	private void doExit(boolean askQuestion, SecurityContext ctx)
     {
+		Environment env = (Environment) 
+			container.getRegistry().lookup(LookupNames.ENV);
+		String title = CLOSE_APP_TITLE;
+		String message = CLOSE_APP_TEXT;
+		if (env != null && env.isRunAsPlugin()) {
+			title = CLOSE_PLUGIN_TITLE;
+			message = CLOSE_PLUGIN_TEXT;
+		}
         IconManager icons = IconManager.getInstance(container.getRegistry());
         int option = MessageBox.YES_OPTION; 
         Map<Agent, AgentSaveInfo> instances = getInstancesToSave();
         CheckoutBox msg = null;
+        if (env.isRunAsPlugin()) askQuestion = false;
 		if (askQuestion) {
-			 msg = new CheckoutBox(view, CLOSE_APP_TITLE, CLOSE_APP_TEXT, 
-					 icons.getIcon(IconManager.QUESTION), instances);
-			 option = msg.centerMsgBox();
+			msg = new CheckoutBox(view, title, message,
+					icons.getIcon(IconManager.QUESTION), instances);
+			option = msg.centerMsgBox();
 		}
 		if (option == MessageBox.YES_OPTION) {
 			if (msg == null) {
@@ -547,6 +619,7 @@ public class TaskBarManager
 				AdminService svc = container.getRegistry().getAdminService();
 				svc.changeExperimenterGroup(ctx, null, ctx.getGroupID());
 			} catch (Exception e) {
+				IJ.log(e.getMessage());
 				Logger log = container.getRegistry().getLogger();
 				LogMessage msg = new LogMessage();
 				msg.print(e);
@@ -559,6 +632,7 @@ public class TaskBarManager
 				DataServicesFactory.getInstance(container);
 			f.exitApplication(false, true);
 		} catch (Exception e) {
+			IJ.log(e.getMessage());
 			Logger log = container.getRegistry().getLogger();
 			LogMessage msg = new LogMessage();
 			msg.print("Error while exiting");
@@ -723,9 +797,9 @@ public class TaskBarManager
 		bus.register(this, ServiceActivationResponse.class);
         bus.register(this, ExitApplication.class);
         bus.register(this, SaveEventResponse.class);
-
         bus.register(this, SwitchUserGroup.class);
         bus.register(this, LogOff.class);
+        bus.register(this, ViewInPluginEvent.class);
 		if (UIUtilities.isMacOS()) {
 			try {
 				MacOSMenuHandler handler = new MacOSMenuHandler(view);
@@ -791,7 +865,7 @@ public class TaskBarManager
 	{
 		container = c;
 		view = new TaskBarView(this, IconManager.getInstance(c.getRegistry()));
-		attachListeners();												
+		attachListeners();
 	}
 	
 	/**
@@ -912,6 +986,8 @@ public class TaskBarManager
         	handleSaveEventResponse((SaveEventResponse) e);
         else if (e instanceof LogOff)
         	handleLogOff((LogOff) e);
+        else if (e instanceof ViewInPluginEvent)
+        	handleViewInPluginEvent((ViewInPluginEvent) e);
 	}
 
 	/**

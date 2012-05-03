@@ -29,7 +29,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -42,13 +41,13 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
-import pojos.FileAnnotationData;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -72,6 +71,9 @@ import pojos.FileAnnotationData;
 public interface MetadataViewer
 	extends ObservableComponent
 {
+
+	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
+	public static final int		IMAGE_J = ViewInPluginEvent.IMAGE_J;
 	
 	/** Indicates to run the script. */
 	public static final int		RUN = 100;
@@ -435,15 +437,7 @@ public interface MetadataViewer
 	 * @param overlayColor The color of the scale bar and text. 
 	 */
 	public void makeMovie(int scaleBar, Color overlayColor);
-	
-	/**
-	 * Uploads the movie.
-	 * 
-	 * @param data 	 The annotation hosting the movie.
-	 * @param folder The location where to save the movie.
-	 */
-	public void uploadMovie(FileAnnotationData data, File folder);
-	
+
 	/**
 	 * Returns one of the rnd constants defined by this class.
 	 * 
@@ -507,14 +501,6 @@ public interface MetadataViewer
 	 */
 	void analyse(int index);
 
-	/**
-	 * Uploads the results of the fret analysis.
-	 * 
-	 * @param data   The file to upload.
-	 * @param folder The folder where to store the file.
-	 */
-	void uploadFret(FileAnnotationData data, File folder);
-	
 	/**
 	 * Notifies that the rendering settings have been copied.
 	 * Updates the UI if the renderer corresponds to one of the passed image.

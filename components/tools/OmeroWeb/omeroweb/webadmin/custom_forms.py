@@ -297,15 +297,37 @@ class ExperimenterModelChoiceField(ModelChoiceField):
     choices = property(_get_choices, _set_choices)
 
     def to_python(self, value):
+        """
+        Go through all values in queryset, looking to find 'value'. If not found raise ValidationError.
+        
+        @return value:      The input value
+        """
+
         if value in EMPTY_VALUES:
             return None
         res = False
-        for q in self.queryset:
+
+        def checkValue(q, value):
+            if not hasattr(q, 'id'):
+                return False
             if hasattr(q.id, 'val'):
                 if long(value) == q.id.val:
-                    res = True
+                    return True
+            if long(value) == q.id:
+                return True
+
+        for q in self.queryset:
+            if isinstance(q, tuple) or isinstance(q, list):
+                for qu in q:
+                    if isinstance(qu, tuple) or isinstance(qu, list):
+                        for qq in qu:
+                            if checkValue(qq, value):
+                                res = True
+                    else:
+                        if checkValue(qu, value):
+                            res = True
             else:
-                if long(value) == q.id:
+                if checkValue(q, value):
                     res = True
         if not res:
             raise ValidationError(self.error_messages['invalid_choice'])
