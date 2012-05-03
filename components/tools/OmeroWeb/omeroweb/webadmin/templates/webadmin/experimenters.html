@@ -84,20 +84,20 @@ OMERO Users
 
     <div id="experimenters_content">
         
-    {% if controller.experimentersCount %}
+    {% if experimenterList %}
         
-	<div class="one_column_header">
+    <div class="one_column_header">
         <form class="search filtersearch" id="filtersearch" action="#">
-			<input type="text" id="id_search">
-			<input type="submit" value="Go" /> 
-			<span class="loading">
-				<img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
-			</span>
-		</form>
-		
-		<div class="btn blue"><a href="{% url wamanageexperimenterid "new" %}"><span>{% trans "Add new User" %}</span></a></div>
-		
-	</div>
+            <input type="text" id="id_search">
+            <input type="submit" value="Go" /> 
+            <span class="loading">
+                <img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
+            </span>
+        </form>
+        
+        <div class="btn blue"><a href="{% url wamanageexperimenterid "new" %}"><span>{% trans "Add new User" %}</span></a></div>
+        
+    </div>
    
 
     <table id="experimenterTable" class="tablesorter tablesorter_basic">
@@ -108,36 +108,32 @@ OMERO Users
                 <th>{% trans "Username" %}</th>
                 <th>{% trans "Institution" %}</th>
                 <th>{% trans "Roles" %}</th>
-				<th></th>
+                <th></th>
             </tr> 
         </thead> 
         <tbody>
-        {% for dict in controller.experimenters %}
+        {% for experimenter in experimenterList %}
             <tr>
                 <td>
-                    {{ dict.experimenter.id }}
+                    {{ experimenter.id }}
                 </td>
-                <td>{{ dict.experimenter.getFullName }}</td>
-                <td>{{ dict.experimenter.omeName }}</td>
-                <td>{{ dict.experimenter.institution|default_if_none:"-"|truncatewords:"3" }}</td>
+                <td>{{ experimenter.getFullName }}</td>
+                <td>{{ experimenter.omeName }}</td>
+                <td>{{ experimenter.institution|default_if_none:"-"|truncatewords:"3" }}</td>
                 <td>
-                      {% if dict.admin %}<img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> {% endif %}
-                      {% if dict.guest %}<img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> {% endif %}
-                      {% if dict.ldap %}<img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> {% endif %}
-                      {% if dict.active %}<img src="{% static "webadmin/image/active.png" %}" alt="active" title="active">{% else %}<img src="{% static "webadmin/image/notactive.png" %}" alt="inactive" title="inactive">{% endif %}
+                      {% if experimenter.isAdmin %}<img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> {% endif %}
+                      {% if experimenter.isGuest %}<img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> {% endif %}
+                      {% if experimenter.isLdapUser %}<img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> {% endif %}
+                      {% if experimenter.isActive %}<img src="{% static "webadmin/image/active.png" %}" alt="active" title="active">{% else %}<img src="{% static "webadmin/image/notactive.png" %}" alt="inactive" title="inactive">{% endif %}
                 </td>
                 <td>
-                    {% if dict.experimenter.isEditable %}
-					<a href="{% url wamanageexperimenterid "edit" dict.experimenter.id %}" title="Edit User" class="btn silver btn_edit">
+                    {% if experimenter.isEditable %}
+                    <a href="{% url wamanageexperimenterid "edit" experimenter.id %}" title="Edit User" class="btn silver btn_edit">
                         <span></span>
                     </a>
-					
-					
-					
-					
-					{% endif %}
+                    {% endif %}
                 </td>
-				
+                
             </tr>
         {% endfor %}
       </tbody>

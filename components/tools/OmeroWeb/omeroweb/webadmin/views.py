@@ -105,6 +105,36 @@ class render_response_admin(omeroweb.webclient.decorators.render_response):
             context['info']['message'] = msg
 
 ################################################################################
+# utils
+
+from omero.rtypes import *
+from omero.model import ExperimenterI, GroupExperimenterMapI
+
+def prepare_experimenterList(conn):
+    
+    def isLdapUser(eid):
+        try:
+            if len(auth.val) > 0:
+                for a in auth.val:
+                    for k,v in a.val.iteritems():
+                        if long(eid) == long(v.val):
+                            return True
+        except:
+            return False
+        return False
+        
+    experimentersList = list(conn.getObjects("Experimenter"))
+    experimentersList.sort(key=lambda x: x.getOmeName().lower())
+    auth = conn.listLdapAuthExperimenters()
+    experimenters = list()
+    for exp in experimentersList:
+        exp.ldapUser = isLdapUser(exp.id)
+        experimenters.append(exp)
+    return experimenters
+
+
+
+################################################################################
 # views controll
 
 def forgotten_password(request, **kwargs):
@@ -171,9 +201,9 @@ def experimenters(request, conn=None, **kwargs):
     template = "webadmin/experimenters.html"
     
     info = {'experimenters':experimenters}
-    controller = BaseExperimenters(conn)
+    experimenterList = prepare_experimenterList(conn)
     
-    context = {'nav':request.session['nav'], 'info':info, 'controller':controller}
+    context = {'nav':request.session['nav'], 'info':info, 'experimenterList':experimenterList}
     context['template'] = template
     return context
 

@@ -1694,7 +1694,38 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
     
     def isEditable(self):
         return self.omeName.lower() not in ('guest')
+    
+    def isLdapUser(self):
+        """
+        Return DN of the specific experimenter if uses LDAP authentication
+        (has set dn on password table) or None.
+        @param eid: experimenter ID
+        @type eid: L{Long}
+        @return: Distinguished Name
+        @rtype: String
+        """
 
+        if self.ldapUser == None:
+            admin_serv = self._conn.getAdminService()
+            self.ldapUser = admin_serv.lookupLdapAuthExperimenter(self.id)
+        return self.ldapUser
+    
+    def getDefaultGroup(self):
+        geMap = self.copyGroupExperimenterMap()
+        if self.sizeOfGroupExperimenterMap() > 0:
+            return ExperimenterGroupWrapper(self, geMap[0].parent)
+        return None
+    
+    def getOtherGroups(self, excluded_names=("user","guest"), excluded_ids=list()):
+        for gem in self.copyGroupExperimenterMap():
+            flag = False
+            if gr.name in excluded_names:
+                flag = True
+            if gr.id in excluded_ids:
+                flag = True
+            if not flag:
+                yield ExperimenterGroupWrapper(self, gem.parent)
+    
 omero.gateway.ExperimenterWrapper = ExperimenterWrapper 
 
 class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterGroupWrapper): 
