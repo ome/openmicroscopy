@@ -933,7 +933,12 @@ public class TreeViewerTranslator
 	        		node.setToolTip(AdminObject.PERMISSIONS_GROUP_READ_TEXT);
 	        		break;
 	        	case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-	        		node.setToolTip(AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT);
+	        		node.setToolTip(
+	        				AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT);
+	        		break;
+	        	case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+	        		node.setToolTip(
+	        				AdminObject.PERMISSIONS_GROUP_READ_WRITE_TEXT);
 	        		break;
 	        	case AdminObject.PERMISSIONS_PUBLIC_READ:
 	        		node.setToolTip(AdminObject.PERMISSIONS_PUBLIC_READ_TEXT);

@@ -80,6 +80,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -677,7 +678,7 @@ class DataBrowserComponent
 			Collection list = new HashSet();
 			while (i.hasNext()) {
 				img = (ImageData) i.next();
-				if (isUserOwner(img)) list.add(img);
+				if (canEdit(img)) list.add(img);
 			}
 			if (list.size() == 0) {
 				UserNotifier un = 
@@ -894,17 +895,65 @@ class DataBrowserComponent
 	}
 
 	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#isObjectWritable(Object)
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#canEdit(Object)
 	 */
-	public boolean isUserOwner(Object ho)
+	public boolean canEdit(Object ho)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		//Check if current user can write in object
+		if (DataBrowserAgent.isAdministrator()) return true;
+		long id = DataBrowserAgent.getUserDetails().getId();
+		boolean b = EditorUtil.isUserOwner(ho, id);
+		if (b) return b; //user it the owner.
+		GroupData group = null;
+		if (ho instanceof DataObject) {
+			DataObject data = (DataObject) ho;
+			group = model.getGroup(data.getGroupId());
+		}
+		if (group == null) return false;
+		int level = 
+			DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel(
+				group);
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
+		}
+		return EditorUtil.isUserGroupOwner(group, id);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#canAnnotate(Object)
+	 */
+	public boolean canAnnotate(Object ho)
 	{
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		//Check if current user can write in object
 		long id = DataBrowserAgent.getUserDetails().getId();
-		return EditorUtil.isUserOwner(ho, id);
+		boolean b = EditorUtil.isUserOwner(ho, id);
+		if (b) return b; //user it the owner.
+		GroupData group = null;
+		if (ho instanceof DataObject) {
+			DataObject data = (DataObject) ho;
+			group = model.getGroup(data.getGroupId());
+		}
+		if (group == null) return false;
+		int level = 
+		DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel(
+				group);
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
+		}
+		return false;//return EditorUtil.isUserGroupOwner(group, id);
 	}
 	
 	/**
@@ -1318,6 +1367,15 @@ class DataBrowserComponent
 		return DataBrowserFactory.hasRndSettingsToCopy();
 	}
 
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#areSettingsCompatible(long)
+	 */
+	public boolean areSettingsCompatible(long groupID)
+	{
+		return DataBrowserFactory.areSettingsCompatible(groupID);
+	}
+	
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#hasDataToCopy()

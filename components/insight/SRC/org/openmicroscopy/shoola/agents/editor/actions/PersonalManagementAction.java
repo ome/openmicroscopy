@@ -96,6 +96,10 @@ public class PersonalManagementAction
     				desc = AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT;
     				iconID = IconManager.READ_LINK_GROUP_DD_12;
     				break;
+    			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+    				desc = AdminObject.PERMISSIONS_GROUP_READ_WRITE_TEXT;
+    				iconID = IconManager.READ_WRITE_GROUP_DD_12;
+    				break;
     			case AdminObject.PERMISSIONS_PUBLIC_READ:
     				desc = AdminObject.PERMISSIONS_PUBLIC_READ_TEXT;
     				iconID = IconManager.PUBLIC_GROUP_DD_12;

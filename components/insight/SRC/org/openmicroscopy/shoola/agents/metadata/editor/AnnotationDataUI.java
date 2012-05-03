@@ -934,7 +934,7 @@ class AnnotationDataUI
 		}
 		filterButton.setEnabled(count > 0);
 		//Allow to handle annotation.
-		boolean enabled = model.isWritable();
+		boolean enabled = model.canAnnotate();
 		if (enabled && model.isMultiSelection()) {
 			enabled = !model.isAcrossGroups();
 		}

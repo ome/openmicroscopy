@@ -199,34 +199,6 @@ public class TreeViewerAgent
 		return values;
 	}
 	
-	/**
-	 * Returns <code>true</code> if the user currently logged in 
-	 * is an owner of the current group, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public static boolean isLeaderOfCurrentGroup()
-	{
-		ExperimenterData exp = getUserDetails();
-		Set groups = getGroupsLeaderOf();
-		if (groups.size() == 0) return false;
-    	GroupData group = null;
-    	try {
-    		group = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-		if (group == null) return false;
-		Iterator i = groups.iterator();
-		GroupData g;
-		while (i.hasNext()) {
-			g = (GroupData) i.next();
-			if (g.getId() == group.getId())
-				return true;
-		}
-		return false;
-	}
-	
     /**
      * Returns <code>true</code> if all groups are displayed at the same time
      * <code>false</code> otherwise.

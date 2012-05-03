@@ -1052,7 +1052,7 @@ class PropertiesUI
 		Object refObject = model.getRefObject();
 		text = "";
 		
-		boolean b = model.isUserOwner(refObject);
+		boolean b = model.canEdit();
         if (refObject instanceof ImageData) text = "Image";
         else if (refObject instanceof DatasetData) text = "Dataset";
         else if (refObject instanceof ProjectData) text = "Project";
@@ -1134,7 +1134,7 @@ class PropertiesUI
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
-        boolean b = model.isUserOwner(model.getRefObject());
+        boolean b = model.canEdit();
         editDescription.setEnabled(b);
         if (b) {
         	//descriptionPane.getDocument().addDocumentListener(this);

@@ -175,6 +175,8 @@ class ToolBar
 	    		return icons.getIcon(IconManager.READ_GROUP);
 	    	case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 	    		return icons.getIcon(IconManager.READ_LINK_GROUP);
+	    	case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+	    		return icons.getIcon(IconManager.READ_WRITE_GROUP);
 	    	case AdminObject.PERMISSIONS_PUBLIC_READ:
 	    		return icons.getIcon(IconManager.PUBLIC_GROUP);
 	    	case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:

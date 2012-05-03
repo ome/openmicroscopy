@@ -104,6 +104,10 @@ public class GroupSelectionAction
 				desc = AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT;
 				icon = im.getIcon(IconManager.READ_LINK_GROUP);
 				break;
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+				desc = AdminObject.PERMISSIONS_GROUP_READ_WRITE_TEXT;
+				icon = im.getIcon(IconManager.READ_WRITE_GROUP);
+				break;
 			case AdminObject.PERMISSIONS_PUBLIC_READ:
 				desc = AdminObject.PERMISSIONS_PUBLIC_READ_TEXT;
 				icon = im.getIcon(IconManager.PUBLIC_GROUP);
