@@ -98,9 +98,13 @@ public class ${klass.name} extends ${klass.javaBase}
 	// Reference ${prop.name}
 	private List<${prop.javaType}> ${prop.javaInstanceVariableName} = new ArrayList<${prop.javaType}>();
 {% end %}\
-{% when prop.isBackReference %}
+{% when prop.isBackReference and prop.maxOccurs > 1 %}
 	// Back reference ${prop.name}
 	private List<${prop.javaType}> ${prop.javaInstanceVariableName} = new ArrayList<${prop.javaType}>();
+{% end %}\
+{% when prop.isBackReference %}
+	// Back reference ${prop.name}
+	private ${prop.javaType} ${prop.javaInstanceVariableName};
 {% end %}\
 {% when prop.maxOccurs == 1 and (not klass.isAbstractProprietary or prop.isAttribute or not prop.isComplex() or not prop.isChoice) %}
 	// Property
@@ -360,7 +364,7 @@ ${customUpdatePropertyContent[prop.name]}
 \
 {% for prop in klass.properties.values() %}\
 {% choose %}\
-{% when (prop.isReference and prop.maxOccurs > 1) or prop.isBackReference %}
+{% when (prop.isReference or prop.isBackReference) and prop.maxOccurs > 1 %}
 	// Reference which occurs more than once
 	public int sizeOfLinked${prop.javaMethodName}List()
 	{
@@ -438,7 +442,7 @@ ${customUpdatePropertyContent[prop.name]}
 	// Property
 	public ${prop.javaType} get${prop.javaMethodName}()
 	{
-		return ${prop.javaArgumentName};
+		return ${prop.javaInstanceVariableName};
 	}
 
 	public void set${prop.javaMethodName}(${prop.javaType} ${prop.javaArgumentName})
