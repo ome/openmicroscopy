@@ -47,6 +47,7 @@ import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.testing.InterceptingServiceFactory;
 import ome.testing.OMEData;
+import ome.testing.ObjectFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -294,6 +295,7 @@ public class AbstractManagedContextTest extends TestCase {
         Image i = new Image();
         i.setName(name);
         i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
+        i.setPixels(ObjectFactory.createPixelGraph(null));
         return i;
     }
 
