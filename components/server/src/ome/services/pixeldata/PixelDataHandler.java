@@ -189,7 +189,7 @@ public class PixelDataHandler extends SimpleWork {
         final Pixels pixels = iQuery.findByQuery(
                 "select p from Pixels as p " +
                 "left outer join fetch p.channels ch " + // For statsinfo
-                "join fetch p.pixelsType where p.id = :id ",
+                "join fetch p.type where p.id = :id ",
                 new Parameters().addId(id));
         return pixels;
     }

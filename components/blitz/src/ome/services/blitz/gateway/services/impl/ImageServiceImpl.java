@@ -75,7 +75,7 @@ public class ImageServiceImpl
 	}
 	
 	/* (non-Javadoc)
-	 * @see blitzgateway.service.ImageService#createImage(int, int, int, int, java.util.List, omero.model.PixelsType, java.lang.String, java.lang.String)
+	 * @see blitzgateway.service.ImageService#createImage(int, int, int, int, java.util.List, omero.model.PixelType, java.lang.String, java.lang.String)
 	 */
 	public Long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
 			List<Integer> channelList, PixelType pixelsType, String name,

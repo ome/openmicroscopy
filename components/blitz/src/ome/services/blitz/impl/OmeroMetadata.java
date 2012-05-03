@@ -234,7 +234,7 @@ public class OmeroMetadata extends DummyMetadata {
                 qb.join("i_a_link.child",     "i_a",      true, true);
                 qb.join("p.details.owner",    "p_o",      false, true);
                 qb.join("p.details.group",    "p_g",      false, true);
-                qb.join("p.pixelsType",       "pt",       false, true);
+                qb.join("p.type",             "pt",       false, true);
                 qb.join("p.dimensionOrder",   "do",       false, true);
                 qb.join("p.channels",         "c",        false, true);
                 qb.join("p.planeInfo",        "pinfo",    true, true);

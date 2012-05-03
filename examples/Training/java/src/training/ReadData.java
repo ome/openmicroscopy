@@ -254,7 +254,7 @@ public class ReadData
 		sb.append("left outer join fetch ws.plateAcquisition as pa ");
 		sb.append("left outer join fetch ws.image as img ");
 		sb.append("left outer join fetch img.pixels as pix ");
-        sb.append("left outer join fetch pix.pixelsType as pt ");
+        sb.append("left outer join fetch pix.pixelType as pt ");
         sb.append("where well.plate.id = :plateID");
         if (plateAcquisitionId > 0) {
         	 sb.append(" and pa.id = :acquisitionID");

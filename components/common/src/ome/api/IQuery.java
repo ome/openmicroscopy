@@ -295,7 +295,7 @@ public interface IQuery extends ServiceInterface {
      * <ul>
      * <li>select i.name, i.description from Image i where i.name like '%.dv'</li>
      * <li>select tag.textValue, tagset.textValue from TagAnnotation tag join tag.annotationLinks l join l.child tagset</li>
-     * <li>select p.pixelsType.value, count(p.id) from Pixel p group by p.pixelsType.value</li>
+     * <li>select p.type.value, count(p.id) from Pixel p group by p.type.value</li>
      * </ul>
      */
     List<Object[]> projection(@NotNull String query, Parameters parameters);

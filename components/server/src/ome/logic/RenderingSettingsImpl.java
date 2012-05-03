@@ -185,7 +185,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		p.addIds(pixelsIds);
 		String sql = "select pix from Pixels as pix " +
 			"join fetch pix.image " +
-			"join fetch pix.pixelsType " +
+			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
 			"join fetch c.logicalChannel " +
 			"where pix.id in (:ids)";
@@ -207,7 +207,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		p.addIds(imageIds);
 		String sql = "select pix from Pixels as pix " +
 			"join fetch pix.image as i " +
-			"join fetch pix.pixelsType " +
+			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
 			"join fetch c.logicalChannel " +
 			"where i.id in (:ids)";
@@ -229,7 +229,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		p.addIds(plateIds);
 		String sql = "select pix from Pixels as pix " +
 			"join fetch pix.image as i " +
-			"join fetch pix.pixelsType " +
+			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
 			"join fetch c.logicalChannel " +
 			"left outer join i.wellSamples as s " +
@@ -254,7 +254,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		p.addIds(ids);
 		String sql = "select pix from Pixels as pix " +
 			"join fetch pix.image as i " +
-			"join fetch pix.pixelsType " +
+			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
 			"join fetch c.logicalChannel " +
 			"left outer join i.wellSamples as s " +
@@ -278,7 +278,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		p.addIds(screenIds);
 		String sql = "select pix from Pixels as pix " +
 			"join fetch pix.image as i " +
-			"join fetch pix.pixelsType " +
+			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
 			"join fetch c.logicalChannel " +
 			"left outer join i.wellSamples as s " +
@@ -305,7 +305,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		p.addIds(datasetIds);
     	String sql = "select pix from Pixels as pix " +
     		"join fetch pix.image as i " +
-			"join fetch pix.pixelsType " +
+			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
 			"join fetch c.logicalChannel " +
 			"left outer join i.datasetLinks dil " +
@@ -329,7 +329,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		p.addIds(projectIds);
     	String sql = "select pix from Pixels as pix " +
     		"join fetch pix.image as i " +
-			"join fetch pix.pixelsType " +
+			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
 			"join fetch c.logicalChannel " +
 			"left outer join i.datasetLinks dil " +

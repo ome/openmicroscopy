@@ -44,9 +44,9 @@ public class ProjectionTest extends AbstractManagedContextTest {
     public void testSumMap() {
         loginNewUser();
         List<Object[]> rv = iQuery.projection("select "
-                + "p.pixelsType.value, "
+                + "p.type.value, "
                 + "sum(p.sizeX * p.sizeY * p.sizeZ * p.sizeT * p.sizeC) "
-                + "from Pixels p group by p.pixelsType.value", null);
+                + "from Pixels p group by p.type.value", null);
         assertEquals(0, rv.size());
     }
 

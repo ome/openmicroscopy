@@ -215,7 +215,7 @@ public class DataServiceImpl
 	{
 		IQueryPrx iQuery = gatewayFactory.getIQuery();
 		String queryStr = new String("select p from Pixels as p left outer " +
-			"join fetch p.pixelsType as pt " +
+			"join fetch p.type as pt " +
 			"where p.image = " + imageId + " order by relatedto");
 		return ServiceUtilities.collectionCast(Pixels.class, 
 			iQuery.findAllByQuery(queryStr, null));

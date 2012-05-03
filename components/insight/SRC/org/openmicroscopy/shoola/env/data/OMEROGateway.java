@@ -4762,7 +4762,7 @@ class OMEROGateway
 		StringBuffer buf = new StringBuffer();
 		buf.append("select img from Image as img ");
 		buf.append("left outer join fetch img.pixels as pix ");
-		buf.append("left outer join fetch pix.pixelsType as pt ");
+		buf.append("left outer join fetch pix.type as pt ");
 		buf.append("left outer join fetch img.details.owner as owner ");
 		boolean condition = false;
 		Timestamp start = context.getStart();
@@ -5097,7 +5097,7 @@ class OMEROGateway
 	                    + "img.annotationLinksCountPerOwner img_a_c ");
 				sb.append("left outer join fetch img.annotationLinks ail ");
 				sb.append("left outer join fetch img.pixels as pix ");
-	            sb.append("left outer join fetch pix.pixelsType as pt ");
+	            sb.append("left outer join fetch pix.type as pt ");
 	            sb.append("where ail.child.id in (:ids)");
 	            if (ownerIds != null && ownerIds.size() > 0) {
 	            	sb.append(" and img.details.owner.id in (:ownerIds)");
@@ -5418,7 +5418,7 @@ class OMEROGateway
 			sb.append("left outer join fetch well.wellSamples as ws ");
 			sb.append("left outer join fetch ws.image as img ");
 			sb.append("left outer join fetch img.pixels as pix ");
-            sb.append("left outer join fetch pix.pixelsType as pt ");
+            sb.append("left outer join fetch pix.type as pt ");
             sb.append("where img.id = :imageID");
             results = service.findAllByQuery(sb.toString(), param);
             if (results.size() > 0) {
@@ -5468,7 +5468,7 @@ class OMEROGateway
 			sb.append("left outer join fetch ws.plateAcquisition as pa ");
 			sb.append("left outer join fetch ws.image as img ");
 			sb.append("left outer join fetch img.pixels as pix ");
-            sb.append("left outer join fetch pix.pixelsType as pt ");
+            sb.append("left outer join fetch pix.type as pt ");
             sb.append("where well.plate.id = :plateID");
             if (acquisitionID > 0) {
             	sb.append(" and pa.id = :acquisitionID");

@@ -41,7 +41,7 @@ public interface IPixels extends ServiceInterface
     /**
      * Retrieves the pixels metadata with the following objects pre-linked:
      * <ul>
-     * <li>pixels.pixelsType</li>
+     * <li>pixels.type</li>
      * <li>pixels.pixelsDimensions</li>
      * <li>pixels.channels</li>
      * <li>pixels.channnels.statsInfo</li>

@@ -42,7 +42,7 @@ import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.model.ImageI;
-import omero.model.PixelsType;
+import omero.model.PixelType;
 import pojos.ImageData;
 import pojos.PixelsData;
 
