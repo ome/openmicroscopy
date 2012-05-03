@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 import java.util.Iterator;
 
 import ome.model.core.Channel;
+import ome.model.core.Color;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
@@ -167,16 +168,13 @@ public class ObjectFactory {
         family.setValue("linear");
 
         ChannelBinding binding = new ChannelBinding();
-        binding.setActive(Boolean.FALSE);
+        binding.setActive(Boolean.valueOf(false));
         binding.setCoefficient(new Double(1));
-        binding.setAlpha(new Integer(1));
-        binding.setBlue(new Integer(1));
-        binding.setGreen(new Integer(1));
-        binding.setRed(new Integer(1));
+        binding.setColor(new Color(100));
         binding.setFamily(family);
         binding.setInputEnd(new Double(1.0));
         binding.setInputStart(new Double(1.0));
-        binding.setNoiseReduction(Boolean.FALSE);
+        binding.setNoiseReduction(Boolean.valueOf(false));
 
         return binding;
     }

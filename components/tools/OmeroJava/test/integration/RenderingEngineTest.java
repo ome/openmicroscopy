@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 import omero.api.IPixelsPrx;
 import omero.api.RenderingEnginePrx;
 import omero.model.ChannelBinding;
+import omero.model.Color;
 import omero.model.Family;
 import omero.model.IObject;
 import omero.model.Image;
@@ -266,13 +267,16 @@ public class RenderingEngineTest
 		ChannelBinding c1;
 		int index = 0;
 		int[] rgba;
+		Color c1Color;
 		while (i.hasNext()) {
 			c1 = i.next();
 			rgba = re.getRGBA(index);
-			assertEquals(c1.getRed().getValue(), rgba[0]);
-			assertEquals(c1.getGreen().getValue(), rgba[1]);
-			assertEquals(c1.getBlue().getValue(), rgba[2]);
-			assertEquals(c1.getAlpha().getValue(), rgba[3]);
+			c1Color = c1.getColor();
+			assertNotNull(c1Color);
+			assertEquals(c1Color.getRed(), rgba[0]);
+			assertEquals(c1Color.getGreen(), rgba[1]);
+			assertEquals(c1Color.getBlue(), rgba[2]);
+			assertEquals(c1Color.getAlpha(), rgba[3]);
 			assertEquals(c1.getCoefficient().getValue(),
 					re.getChannelCurveCoefficient(index));
 			assertTrue(c1.getFamily().getValue().getValue().equals(

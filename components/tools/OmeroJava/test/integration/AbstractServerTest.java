@@ -59,6 +59,7 @@ import omero.grid.DeleteCallbackI;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.ChannelBinding;
+import omero.model.Color;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -681,13 +682,19 @@ public class AbstractServerTest
 		Iterator<ChannelBinding> i = channels1.iterator();
 		ChannelBinding c1, c2;
 		int index = 0;
+		Color c1Color, c2Color;
 		while (i.hasNext()) {
 			c1 = i.next();
 			c2 = channels2.get(index);
-			assertTrue(c1.getAlpha().getValue() == c2.getAlpha().getValue());
-			assertTrue(c1.getRed().getValue() == c2.getRed().getValue());
-			assertTrue(c1.getGreen().getValue() == c2.getGreen().getValue());
-			assertTrue(c1.getBlue().getValue() == c2.getBlue().getValue());
+			c1Color = c1.getColor();
+			c2Color = c2.getColor();
+			assertNotNull(c1Color);
+			assertNotNull(c2Color);
+			assertTrue(c1Color.getAlpha() == c2Color.getAlpha());
+			assertTrue(c1Color.getRed() == c2Color.getRed());
+			assertTrue(c1Color.getGreen() == c2Color.getGreen());
+			assertTrue(c1Color.getBlue() == c2Color.getBlue());
+			
 			assertTrue(c1.getCoefficient().getValue() 
 					== c2.getCoefficient().getValue());
 			assertTrue(c1.getFamily().getValue().getValue().equals(
