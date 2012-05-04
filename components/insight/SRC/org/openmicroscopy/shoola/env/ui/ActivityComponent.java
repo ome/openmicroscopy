@@ -600,11 +600,11 @@ public abstract class ActivityComponent
 			File f = new File(folder.getAbsolutePath(), name);
 			if (original != null) {
 				activity = new DownloadActivityParam(original,
-						f, icons.getIcon(IconManager.DOWNLOAD_22));
+						folder, icons.getIcon(IconManager.DOWNLOAD_22));
 				
 			} else {
 				activity = new DownloadActivityParam(id, type,
-						f, icons.getIcon(IconManager.DOWNLOAD_22));
+						folder, icons.getIcon(IconManager.DOWNLOAD_22));
 			}
 			activity.setLegend(desc);
 			activity.setUIRegister(false);
