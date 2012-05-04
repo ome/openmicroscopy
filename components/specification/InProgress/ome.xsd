@@ -1687,7 +1687,7 @@
 			<xsd:sequence>
 				<xsd:element name="ExcitationFilterRef" type="FilterRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo><xsdfu><plural>ExcitationFilters</plural><manytomany/></xsdfu></xsd:appinfo>
+                        <xsd:appinfo><xsdfu><plural>ExcitationFilters</plural><manytomany/><parentordered/></xsdfu></xsd:appinfo>
 						<xsd:documentation>
 							The Filters placed in the Excitation light path.
 						</xsd:documentation>

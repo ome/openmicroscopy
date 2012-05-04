@@ -396,12 +396,18 @@ class OMEModelProperty(OMEModelEntity):
         self.isChoice = self.isChoice and self.delegate.choice is not None
         self.plural = None
         self.manyToMany = False
+        self.isParentOrdered = False
+        self.isChildOrdered = False
         self._isReference = False
         try:
             root = ElementTree.fromstring(delegate.appinfo)
             self.plural = root.findtext('plural')
             if root.find('manytomany') is not None:
                 self.manyToMany = True
+            if root.find('parentordered') is not None:
+                self.isParentOrdered = True
+            if root.find('childordered') is not None:
+                self.isChildOrdered = True
         except AttributeError:
             pass
 

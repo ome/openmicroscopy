@@ -39,11 +39,15 @@ ${fully_qualified_link_class_name(o, prop)}\
 
     def fully_qualified_link_class_name(o, prop):
         if prop.isReference:
-            return '%s.%s%sLink' % (prop.omeroPackage, o.javaMethodName, prop.javaMethodName)
+            return '%s.%s%sLink' % \
+                    (prop.omeroPackage, o.javaMethodName, prop.javaMethodName)
         if prop.isBackReference:
             if prop.key in fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE:
-                return '%s.%s' % (o.omeroPackage, fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE[prop.key])
-            return '%s.%s%sLink' % (o.omeroPackage, prop.javaMethodName, o.javaMethodName)
+                return '%s.%s' % \
+                        (o.omeroPackage,
+                         fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE[prop.key])
+            return '%s.%s%sLink' % \
+                    (o.omeroPackage, prop.javaMethodName, o.javaMethodName)
 
     def parent_object(name):
         try:
@@ -258,8 +262,8 @@ ${customContent[o.name]['properties']}\
 {% for o in sorted_and_filtered_links() %}\
     <link id="${o['name']}">
         <properties>
-            <from_parent type="${fully_qualified_class_name(o['parent'])}"/>
-            <to_child type="${fully_qualified_class_name(o['child'])}"/>
+            <from_parent type="${fully_qualified_class_name(o['parent'])}"{% if o['child'].isParentOrdered %} ordered="true"{% end %}/>
+            <to_child type="${fully_qualified_class_name(o['child'])}"{% if o['child'].isChildOrdered %} ordered="true"{% end %}/>
         </properties>
     </link>
 {% end %}\
