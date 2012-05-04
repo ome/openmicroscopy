@@ -407,7 +407,11 @@ class OMEModelProperty(OMEModelEntity):
         self.isChildOrdered = False
         self._isReference = False
         try:
-            root = ElementTree.fromstring(delegate.appinfo)
+            try:
+                root = ElementTree.fromstring(delegate.appinfo)
+            except:
+                logging.error('Exception while parsing %r' % delegate.appinfo)
+                raise
             self.plural = root.findtext('plural')
             if root.find('manytomany') is not None:
                 self.manyToMany = True

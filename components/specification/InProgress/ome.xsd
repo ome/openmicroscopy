@@ -1005,7 +1005,11 @@
 					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>
-			<xsd:attribute name="Name" use="optional" type="xsd:string"/>
+			<xsd:attribute name="Name" use="optional" type="xsd:string">
+				<xsd:annotation>
+                    <xsd:appinfo><xsdfu><unique/></xsdfu></xsd:appinfo>
+				</xsd:annotation>
+            </xsd:attribute>
 			<xsd:attribute name="ID" use="required" type="ExperimenterGroupID"/>
 		</xsd:complexType>
 	</xsd:element>
