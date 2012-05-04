@@ -1000,7 +1000,7 @@
 				</xsd:element>
 				<xsd:element ref="ExperimenterRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
+                        <xsd:appinfo><xsdfu><manytomany/><childordered/></xsdfu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
 				<xsd:element ref="Leader" minOccurs="0" maxOccurs="unbounded"/>
