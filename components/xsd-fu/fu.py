@@ -178,6 +178,7 @@ OMERO_DEFAULT_PACKAGE = "ome.model"
 OMERO_PACKAGE_OVERRIDES = {
         "OME": "ome.model.core",
         "enum": "ome.model.enums",
+        "OMERO": "ome.model.meta",
 }
 
 # The default template for enum class processing.
