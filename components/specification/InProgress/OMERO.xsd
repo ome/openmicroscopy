@@ -56,7 +56,7 @@
 			<xsd:attribute name="Mtime" use="optional" type="xsd:dateTime"/>
 			<xsd:attribute name="Ctime" use="optional" type="xsd:dateTime"/>
 			<xsd:attribute name="SHA1" use="required" type="xsd:string"/>
-			<xsd:attribute name="Mimetype" use="optional" type="xsd:string"/>
+			<xsd:attribute name="MimeType" use="optional" type="xsd:string"/>
 		</xsd:complexType>
 	</xsd:element>
 
@@ -227,6 +227,123 @@
 		</xsd:complexType>
 	</xsd:element>
 
+	<xsd:element name = "Thumbnail"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>Thumbnails</plural></xsdfu></xsd:appinfo>
+			<xsd:documentation>Describes a Thumbnail</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="PixelsRef" minOccurs="1" maxOccurs="1" type="OME:PixelsID"/>
+			</xsd:sequence>
+			<xsd:attribute name="MimeType" use="required" type="xsd:string"/>
+			<xsd:attribute name="SizeX" use="required" type="OME:NonNegativeInt"/>
+			<xsd:attribute name="SizeY" use="required" type="OME:NonNegativeInt"/>
+			<xsd:attribute name="Ref" use="optional" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name = "RenderingDef"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>RenderingDefs</plural></xsdfu></xsd:appinfo>
+			<xsd:documentation>Describes a RenderingDef</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="PixelsRef" minOccurs="1" maxOccurs="unbounded" type="OME:PixelsID"/>
+				<xsd:element name="Model" minOccurs="1" maxOccurs="1" type="RenderingModel"/>
+				<xsd:element name="Quantization" minOccurs="1" maxOccurs="1" type="QuantumDef"/>
+				<xsd:element name="WaveRendering" minOccurs="1" maxOccurs="unbounded" type="ChannelBinding"/>
+				<xsd:element name="SpatialDomainEnhancement" minOccurs="0" maxOccurs="unbounded" type="CodomainMapContext"/>
+			</xsd:sequence>
+			<xsd:attribute name="DefaultZ" use="required" type="OME:NonNegativeInt"/>
+			<xsd:attribute name="DefaultT" use="required" type="OME:NonNegativeInt"/>
+			<xsd:attribute name="Name" use="optional" type="xsd:string"/>
+			<xsd:attribute name="Compression" use="optional" type="xsd:double"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name = "ReverseIntensityContext"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>ReverseIntensityContexts</plural></xsdfu></xsd:appinfo>
+			<xsd:documentation>Describes a ReverseIntensityContext</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:attribute name="Reverse" use="required" type="xsd:boolean"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name = "PlaneSlicingContext"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>PlaneSlicingContexts</plural></xsdfu></xsd:appinfo>
+			<xsd:documentation>Describes a PlaneSlicingContext</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:attribute name="UpperLimit" use="required" type="xsd:long"/>
+			<xsd:attribute name="LowerLimit" use="required" type="xsd:long"/>
+			<xsd:attribute name="PlaneSelected" use="required" type="xsd:long"/>
+			<xsd:attribute name="PlanePrevious" use="required" type="xsd:long"/>
+			<xsd:attribute name="Constant" use="required" type="xsd:boolean"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name = "ContrastStretchingContext"> <!-- top level definition -->
+		<xsd:annotation>
+			<xsd:appinfo><xsdfu><plural>ContrastStretchingContexts</plural></xsdfu></xsd:appinfo>
+			<xsd:documentation>Describes a ContrastStretchingContext</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:attribute name="XStart" use="required" type="xsd:long"/>
+			<xsd:attribute name="YStart" use="required" type="xsd:long"/>
+			<xsd:attribute name="XEnd" use="required" type="xsd:long"/>
+			<xsd:attribute name="YEnd" use="required" type="xsd:long"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:complexType name="QuantumDef">
+		<xsd:attribute name="CDStart" use="required" type="xsd:long"/>
+		<xsd:attribute name="CDEnd" use="required" type="xsd:long"/>
+		<xsd:attribute name="BitResolution" use="required" type="xsd:long"/>
+	</xsd:complexType>
+
+	<xsd:complexType name="ChannelBinding">
+		<xsd:attribute name="Family" use="required" type="Family"/>
+		<xsd:attribute name="Coefficient" use="required" type="xsd:double"/>
+		<xsd:attribute name="InputStart" use="required" type="xsd:double"/>
+		<xsd:attribute name="InputEnd" use="required" type="xsd:double"/>
+		<xsd:attribute name="Active" use="required" type="xsd:boolean"/>
+		<xsd:attribute name="NoiseReduction" use="required" type="xsd:boolean"/>
+		<xsd:attribute name="Color" use="required" type="OME:Color"/>
+	</xsd:complexType>
+
+	<xsd:complexType name="CodomainMapContext">
+		<!-- This needs some reference back to RenderingDef -->
+	</xsd:complexType>
+
+	<xsd:simpleType name="RenderingModel">
+		<xsd:annotation>
+			<xsd:documentation>
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value = "RGB"/>
+			<xsd:enumeration value = "Greyscale"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="Family">
+		<xsd:annotation>
+			<xsd:documentation>
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value = "Linear"/>
+			<xsd:enumeration value = "Polynomial"/>
+			<xsd:enumeration value = "Exponential"/>
+			<xsd:enumeration value = "Logarithmic"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
 	<xsd:simpleType name="StringArray">
 		<xsd:annotation>
 			<xsd:documentation>
@@ -281,10 +398,6 @@
 
 <type id="ome.model.internal.Link"/>
 
-<type id="ome.model.display.Thumbnail">
-<type id="ome.model.display.RenderingDef">
-<type id="ome.model.display.QuantumDef">
-<type id="ome.model.display.ChannelBinding">
 <type id="ome.model.display.ReverseIntensityContext" superclass="ome.model.display.CodomainMapContext">
 <type id="ome.model.display.PlaneSlicingContext" superclass="ome.model.display.CodomainMapContext">
 <type id="ome.model.display.ContrastStretchingContext" superclass="ome.model.display.CodomainMapContext">
