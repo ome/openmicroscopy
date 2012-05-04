@@ -53,7 +53,7 @@ from omero.rtypes import *
 from omero.model import FileAnnotationI, TagAnnotationI, \
                         DatasetI, ProjectI, ImageI, ScreenI, PlateI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, \
-                        LaserI, ExperimenterI
+                        LaserI, ExperimenterI, ExperimenterGroupI
 
 from omero.gateway import FileAnnotationWrapper, TagAnnotationWrapper, ExperimenterWrapper, \
                 ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper, \
@@ -148,8 +148,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             for k in self._proxies.keys():
                 self._proxies[k].close()
                 
-            self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
-            self.getAdminService().setDefaultGroup(self.getUser()._obj, omero.model.ExperimenterGroupI(gid, False))
+            self.c.sf.setSecurityContext(ExperimenterGroupI(gid, False))
+            self.getAdminService().setDefaultGroup(self.getUser()._obj, ExperimenterGroupI(gid, False))
             self._ctx = self.getAdminService().getEventContext()
             return True
         except omero.SecurityViolation:
@@ -1092,7 +1092,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         group_id = long(group_id)
         exp_id = exp_id is not None and long(exp_id) or self.getEventContext().userId
         admin_serv = self.getAdminService()
-        admin_serv.setDefaultGroup(omero.model.ExperimenterI(exp_id, False), omero.model.ExperimenterGroupI(group_id, False))
+        admin_serv.setDefaultGroup(ExperimenterI(exp_id, False), ExperimenterGroupI(group_id, False))
 
     def updatePermissions(self, obj, perm):
         """
