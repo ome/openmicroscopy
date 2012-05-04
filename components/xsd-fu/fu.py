@@ -640,7 +640,11 @@ class OMEModelObject(OMEModelEntity):
         self.plural = None
         self.manyToMany = False
         try:
-            root = ElementTree.fromstring(element.appinfo)
+            try:
+                root = ElementTree.fromstring(element.appinfo)
+            except:
+                logging.error('Exception while parsing %r' % element.appinfo)
+                raise
             if root.find('abstract') is not None:
                 self.isAbstract = True
             if root.find('abstractproprietary') is not None:
