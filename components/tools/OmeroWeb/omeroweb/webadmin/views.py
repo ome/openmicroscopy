@@ -64,11 +64,8 @@ from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
                    ContainedExperimentersForm, UploadPhotoForm, \
                    EnumerationEntry, EnumerationEntries
 
-from controller import BaseController
-from controller.experimenter import BaseExperimenters, BaseExperimenter
 from controller.group import BaseGroups, BaseGroup
 from controller.drivespace import BaseDriveSpace, usersData
-from controller.uploadfile import BaseUploadFile
 from controller.enums import BaseEnums
 
 from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck, getGuestConnection
@@ -132,7 +129,9 @@ def prepare_experimenterList(conn):
         experimenters.append(exp)
     return experimenters
 
-def prepare_experimenter(conn, eid):
+def prepare_experimenter(conn, eid=None):
+    if eid is None:
+        eid = conn.getEventContext().userId
     experimenter = conn.getObject("Experimenter", eid)
     defaultGroup = experimenter.getDefaultGroup()
     otherGroups = list(experimenter.getOtherGroups())
@@ -151,6 +150,30 @@ def otherGroupsInitialList(groups, excluded_names=("user","guest"), excluded_ids
         if not flag:
             formGroups.append(gr)
     return formGroups
+
+def ownedGroupsInitial(conn, excluded_names=("user","guest", "system"), excluded_ids=list()):
+    groupsList = list(conn.listOwnedGroups())
+    ownedGroups = list()
+    for gr in groupsList:
+        flag = False
+        if gr.name in excluded_names:
+            flag = True
+        if gr.id in excluded_ids:
+            flag = True
+        if not flag:
+            ownedGroups.append({'group': gr, 'permissions': gr.getPermissions()})
+    return ownedGroups
+
+
+def attach_photo(conn, newFile):
+    if newFile.content_type.startswith("image"):
+        f = newFile.content_type.split("/") 
+        format = f[1].upper()
+    else:
+        format = newFile.content_type
+    
+    conn.uploadMyUserPhoto(smart_str(newFile.name), format, newFile.read())
+
 
 def getSelectedGroups(conn, ids):
     if len(ids)>0:
@@ -536,42 +559,41 @@ def my_account(request, action=None, conn=None, **kwargs):
     
     info = {'myaccount':myaccount}
     
-    myaccount = BaseExperimenter(conn)
+    experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn)
+    ownedGroups = ownedGroupsInitial(conn)
+    
     password_form = ChangePassword()
-    myaccount.getMyDetails()
-    myaccount.getOwnedGroups()
     
     form = None
-    
     if action == "save":
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit"]))
         else:
-            email_check = conn.checkEmail(request.REQUEST.get('email'), myaccount.experimenter.email)
-            form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups}, email_check=email_check)
+            email_check = conn.checkEmail(request.REQUEST.get('email'), experimenter.email)
+            form = MyAccountForm(data=request.POST.copy(), initial={'groups':otherGroups}, email_check=email_check)
             if form.is_valid():
                 firstName = form.cleaned_data['first_name']
                 middleName = form.cleaned_data['middle_name']
                 lastName = form.cleaned_data['last_name']
                 email = form.cleaned_data['email']
                 institution = form.cleaned_data['institution']
-                defaultGroup = form.cleaned_data['default_group']
-                myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution)
+                defaultGroupId = form.cleaned_data['default_group']
+                conn.updateMyAccount(experimenter, firstName, lastName, email, defaultGroupId, middleName, institution)
                 return HttpResponseRedirect(reverse("wamyaccount"))
     
     else:
-        form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
-                                    'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
-                                    'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
-                                    'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
+        form = MyAccountForm(initial={'omename': experimenter.omeName, 'first_name':experimenter.firstName,
+                                    'middle_name':experimenter.middleName, 'last_name':experimenter.lastName,
+                                    'email':experimenter.email, 'institution':experimenter.institution,
+                                    'default_group':defaultGroup, 'groups':otherGroups})
     
     photo_size = conn.getExperimenterPhotoSize()
-    form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
-                                    'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
-                                    'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
-                                    'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
+    form = MyAccountForm(initial={'omename': experimenter.omeName, 'first_name':experimenter.firstName,
+                                    'middle_name':experimenter.middleName, 'last_name':experimenter.lastName,
+                                    'email':experimenter.email, 'institution':experimenter.institution,
+                                    'default_group':defaultGroup, 'groups':otherGroups})
         
-    context = {'info':info, 'form':form, 'ldapAuth': myaccount.ldapAuth, 'myaccount':myaccount, 'password_form':password_form}
+    context = {'info':info, 'form':form, 'ldapAuth': isLdapUser, 'experimenter':experimenter, 'ownedGroups':ownedGroups, 'password_form':password_form}
     context['template'] = template
     return context
 
@@ -590,10 +612,6 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
     
     info = {'myaccount':myaccount}
     
-    myaccount = BaseExperimenter(conn)
-    myaccount.getMyDetails()
-    myaccount.getOwnedGroups()
-    
     edit_mode = False
     photo_size = None
     form_file = UploadPhotoForm()
@@ -602,8 +620,7 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
         if request.method == 'POST':
             form_file = UploadPhotoForm(request.POST, request.FILES)
             if form_file.is_valid():
-                controller = BaseUploadFile(conn)
-                controller.attach_photo(request.FILES['photo'])
+                attach_photo(conn, request.FILES['photo'])
                 return HttpResponseRedirect(reverse(viewname="wamanageavatar", args=[conn.getEventContext().userId]))
     elif action == "crop": 
         x1 = long(request.REQUEST.get('x1'))
@@ -622,7 +639,7 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
         return HttpResponseRedirect(reverse("wamyaccount"))
     
     photo_size = conn.getExperimenterPhotoSize()
-    context = {'info':info, 'form_file':form_file, 'edit_mode':edit_mode, 'photo_size':photo_size, 'myaccount':myaccount}
+    context = {'info':info, 'form_file':form_file, 'edit_mode':edit_mode, 'photo_size':photo_size}
     context['template'] = template
     return context
 
