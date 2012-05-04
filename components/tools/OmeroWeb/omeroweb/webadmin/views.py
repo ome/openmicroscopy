@@ -66,7 +66,6 @@ from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
 
 from controller.group import BaseGroups, BaseGroup
 from controller.drivespace import BaseDriveSpace, usersData
-from controller.enums import BaseEnums
 
 from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck, getGuestConnection
 
