@@ -1008,22 +1008,33 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     #    admin_serv = self.getAdminService()
     #    admin_serv.deleteExperimenter(experimenter)
     
-    def createGroup(self, group, group_owners):
+    def createGroup(self, name, permissions, owners=list(), description=None):
         """
         Create and return a new group with the given owners.
         
-        @param group            A new ExperimenterGroup instance.
-        @type group             ExperimenterGroupI
-        @param group_owners     List of Experimenter instances. Can be empty.
-        @type group_owners      L{ExperimenterI}
-        @return                 ID of the newly created ExperimenterGroup Not null.
-        @rtype                  Long
+        @param group        A new ExperimenterGroup instance.
+        @type group         ExperimenterGroupI
+        @param owners       List of Experimenter instances. Can be empty.
+        @type owners        L{ExperimenterI}
+        @param permissions  Permissions instances.
+        @type permissions   L{PermissionsI}
+        @return             ID of the newly created ExperimenterGroup Not null.
+        @rtype              Long
         """
+        new_gr = ExperimenterGroupI()
+        new_gr.name = rstring(str(name))
+        new_gr.description = (description!="" and description is not None) and rstring(str(description)) or None
+        new_gr.details.permissions = permissions
         
         admin_serv = self.getAdminService()
-        gr_id = admin_serv.createGroup(group)
-        new_gr = admin_serv.getGroup(gr_id)
-        admin_serv.addGroupOwners(new_gr, group_owners)
+        gr_id = admin_serv.createGroup(new_gr)
+        group = admin_serv.getGroup(gr_id)
+        
+        listOfOwners = list()
+        for exp in owners:
+            listOfOwners.append(exp._obj)
+            
+        admin_serv.addGroupOwners(group, listOfOwners)
         return gr_id
     
     def updateGroup(self, group, add_exps, rm_exps, perm=None):
