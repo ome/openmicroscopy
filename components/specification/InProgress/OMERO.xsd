@@ -63,7 +63,7 @@
 
 	<xsd:element name = "Session"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>Sessions</plural></xsdfu></xsd:appinfo>
+            <xsd:appinfo><xsdfu><plural>Sessions</plural><global/></xsdfu></xsd:appinfo>
 			<xsd:documentation>Describes a session.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
@@ -84,7 +84,7 @@
 				</xsd:element>
 				<xsd:element name="Share">
 					<xsd:annotation>
-						<xsd:appinfo><xsdfu><plural>Share</plural></xsdfu></xsd:appinfo>
+                        <xsd:appinfo><xsdfu><plural>Share</plural><global/></xsdfu></xsd:appinfo>
 						<xsd:documentation> This . </xsd:documentation>
 					</xsd:annotation>
 					<xsd:complexType>
@@ -101,7 +101,7 @@
 				</xsd:element>
 				<xsd:element name="Event" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
-						<xsd:appinfo><xsdfu><plural>Events</plural><immutable/></xsdfu></xsd:appinfo>
+                        <xsd:appinfo><xsdfu><plural>Events</plural><immutable/><global/></xsdfu></xsd:appinfo>
 						<xsd:documentation>Describes an Event.</xsd:documentation>
 					</xsd:annotation>
 					<xsd:complexType>
@@ -119,7 +119,7 @@
 							</xsd:element>
 							<xsd:element name="EventLog" minOccurs="0" maxOccurs="unbounded">
 								<xsd:annotation>
-									<xsd:appinfo><xsdfu><plural>EventLogs</plural><immutable/></xsdfu></xsd:appinfo>
+                                    <xsd:appinfo><xsdfu><plural>EventLogs</plural><immutable/><global/></xsdfu></xsd:appinfo>
 									<xsd:documentation>Describes an EventLog.</xsd:documentation>
 								</xsd:annotation>
 								<xsd:complexType>
@@ -157,7 +157,7 @@
 
 	<xsd:element name = "Node"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>Nodes</plural></xsdfu></xsd:appinfo>
+            <xsd:appinfo><xsdfu><plural>Nodes</plural><global/></xsdfu></xsd:appinfo>
 			<xsd:documentation>Describes a node.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
@@ -188,7 +188,7 @@
 
 	<xsd:element name = "DBPatch"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>DBPatchs</plural></xsdfu></xsd:appinfo>
+            <xsd:appinfo><xsdfu><plural>DBPatchs</plural><global/></xsdfu></xsd:appinfo>
 			<xsd:documentation>Describes a database patch</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
