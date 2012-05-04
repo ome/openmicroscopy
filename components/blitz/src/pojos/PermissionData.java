@@ -48,6 +48,29 @@ public class PermissionData {
     	else p = permissions;
     }
 
+    /**
+     * Returns the permissions level.
+     * 
+     * @return See above.
+     */
+    public int getPermissionsLevel()
+    {
+    	if (isGroupRead()) {
+    		if (isGroupAnnotate()) {
+    			if (isGroupWrite())
+    				return GroupData.PERMISSIONS_GROUP_READ_WRITE;
+    			return GroupData.PERMISSIONS_GROUP_READ_LINK;
+    		}
+    		return GroupData.PERMISSIONS_GROUP_READ;
+    	}
+    	if (isWorldRead()) {
+    		if (isWorldWrite())
+    			return GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
+    		return GroupData.PERMISSIONS_PUBLIC_READ;
+    	}
+    	return GroupData.PERMISSIONS_PRIVATE;
+    }
+    
     // ~ Rights
     // =====================================================================
 
