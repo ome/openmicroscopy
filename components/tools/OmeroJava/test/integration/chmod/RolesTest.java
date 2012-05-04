@@ -33,6 +33,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
+import omero.api.delete.DeleteCommand;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
@@ -43,6 +44,7 @@ import omero.model.Permissions;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import integration.AbstractServerTest;
+import integration.DeleteServiceTest;
 
 /** 
  * Tests the can edit, can annotate.
@@ -67,13 +69,13 @@ public class RolesTest
         clean();
     }
     
-    //Group RW----
+    //Group RW---- i.e. private
     /**
      * Test the interaction with an image in a RW group by the owner
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testInteractionImageByOwnerRW()
+    public void testInteractionImageByGroupOwnerRW()
 	throws Exception
     {
     	EventContext ec = newUserAndGroup("rw----");
@@ -99,11 +101,47 @@ public class RolesTest
     }
 
     /**
+     * Test the interaction with an object in a RW member
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testInteractionByMemberRW()
+	throws Exception
+    {
+    	EventContext ec = newUserAndGroup("rw----");
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Permissions perms = d.getDetails().getPermissions();
+    	long id = d.getId().getValue();
+    	assertTrue(perms.canEdit());
+    	assertTrue(perms.canAnnotate());
+    	disconnect();
+    	//Now a new member to the group.
+    	newUserInGroup(ec);
+    	String sql = "select i from Dataset as i ";
+		sql += "where i.id = :id";
+		ParametersI param = new ParametersI();
+    	param.addId(id);
+    	List<IObject> datasets = iQuery.findAllByQuery(sql, param);
+    	assertEquals(datasets.size(), 0);
+    	try {
+			Image img = (Image) iUpdate.saveAndReturnObject(
+	    			mmFactory.createImage());
+			DatasetImageLink l = new DatasetImageLinkI();
+	    	l.link(new DatasetI(d.getId().getValue(), false), img);
+	    	iUpdate.saveAndReturnObject(l);
+    		fail("Owner should not be allowed to add an image to the dataset");
+		} catch (Exception e) {
+			
+		}
+    }
+    
+    /**
      * Test the interaction with an object in a RW group by the owner
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testInteractionByOwnerRW()
+    public void testInteractionByGroupOwnerRW()
 	throws Exception
     {
     	EventContext ec = newUserAndGroup("rw----");
@@ -121,10 +159,12 @@ public class RolesTest
 		sql += "where i.id = :id";
 		ParametersI param = new ParametersI();
     	param.addId(id);
-    	List<IObject> images = iQuery.findAllByQuery(sql, param);
-    	assertEquals(images.size(), 1);
-    	assertTrue(perms.canEdit());
-    	assertTrue(perms.canAnnotate());
+    	List<IObject> datasets = iQuery.findAllByQuery(sql, param);
+    	assertEquals(datasets.size(), 1);
+    	d = (Dataset) datasets.get(0);
+    	perms = d.getDetails().getPermissions();
+    	assertFalse(perms.canEdit());
+    	assertFalse(perms.canAnnotate());
     	try {
 			Image img = (Image) iUpdate.saveAndReturnObject(
 	    			mmFactory.createImage());
@@ -137,6 +177,45 @@ public class RolesTest
 		}
     }
     
+    /**
+     * Test the interaction with an object in a RW group by the owner
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteByGroupOwnerRW()
+	throws Exception
+    {
+    	EventContext ec = newUserAndGroup("rw----");
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Permissions perms = d.getDetails().getPermissions();
+    	long id = d.getId().getValue();
+    	assertTrue(perms.canEdit());
+    	assertTrue(perms.canAnnotate());
+    	disconnect();
+    	//Now a new member to the group.
+    	EventContext nec = newUserInGroup(ec);
+    	makeGroupOwner();
+    	
+    	String sql = "select i from Dataset as i ";
+		sql += "where i.id = :id";
+		ParametersI param = new ParametersI();
+    	param.addId(id);
+    	List<IObject> datasets = iQuery.findAllByQuery(sql, param);
+    	assertEquals(datasets.size(), 1);
+    	d = (Dataset) datasets.get(0);
+    	perms = d.getDetails().getPermissions();
+    	assertFalse(perms.canEdit());
+    	assertFalse(perms.canAnnotate());
+    	try {
+    		delete(iDelete, client, new DeleteCommand(
+        			DeleteServiceTest.REF_DATASET, d.getId().getValue(), null));
+
+    		assertDoesNotExist(d);
+		} catch (Exception e) {
+			
+		}
+    }
     /**
      * Test the interaction with an object in a RW group by the owner
      * @throws Exception Thrown if an error occurred.
@@ -158,10 +237,12 @@ public class RolesTest
 		sql += "where i.id = :id";
 		ParametersI param = new ParametersI();
     	param.addId(id);
-    	List<IObject> images = iQuery.findAllByQuery(sql, param);
-    	assertEquals(images.size(), 1);
-    	assertTrue(perms.canEdit());
-    	assertTrue(perms.canAnnotate());
+    	List<IObject> datasets = iQuery.findAllByQuery(sql, param);
+    	assertEquals(datasets.size(), 1);
+    	d = (Dataset) datasets.get(0);
+    	perms = d.getDetails().getPermissions();
+    	assertFalse(perms.canEdit());
+    	assertFalse(perms.canAnnotate());
     	try {
 			Image img = (Image) iUpdate.saveAndReturnObject(
 	    			mmFactory.createImage());
@@ -173,6 +254,7 @@ public class RolesTest
 			
 		}
     }
+    
     //Group RWR---
     /**
      * Test the interaction with an object in a RWR group by a member
@@ -195,13 +277,13 @@ public class RolesTest
 		sql += "where i.id = :id";
 		ParametersI param = new ParametersI();
     	param.addId(id);
-    	List<IObject> images = iQuery.findAllByQuery(sql, param);
-        assertEquals(images.size(), 1);
+    	List<IObject> datasets = iQuery.findAllByQuery(sql, param);
+        assertEquals(datasets.size(), 1);
 
     	// Just a member should be able to neither (for the moment)
     	// Reload the perms (from the object that the member loaded)
     	// and check status.
-    	perms = images.get(0).getDetails().getPermissions();
+    	perms = datasets.get(0).getDetails().getPermissions();
     	assertFalse(perms.canAnnotate());
     	assertFalse(perms.canEdit());
 
@@ -224,7 +306,7 @@ public class RolesTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testInteractionByOwnerRWR()
+    public void testInteractionByGroupOwnerRWR()
 	throws Exception
     {
     	EventContext ec = newUserAndGroup("rwr---");
@@ -240,8 +322,11 @@ public class RolesTest
 		sql += "where i.id = :id";
 		ParametersI param = new ParametersI();
     	param.addId(id);
-    	List<IObject> images = iQuery.findAllByQuery(sql, param);
-    	assertEquals(images.size(), 1);
+    	List<IObject> datasets = iQuery.findAllByQuery(sql, param);
+    	assertEquals(datasets.size(), 1);
+    	d = (Dataset) datasets.get(0);
+    	
+    	perms = d.getDetails().getPermissions();
     	assertTrue(perms.canEdit());
     	assertTrue(perms.canAnnotate());
     	//Try to link an image
@@ -269,6 +354,8 @@ public class RolesTest
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	Permissions perms = d.getDetails().getPermissions();
+    	assertTrue(perms.canEdit());
+    	assertTrue(perms.canAnnotate());
     	long id = d.getId().getValue();
     	disconnect();
     	//Now a new member to the group.
@@ -277,8 +364,142 @@ public class RolesTest
 		sql += "where i.id = :id";
 		ParametersI param = new ParametersI();
     	param.addId(id);
-    	List<IObject> images = iQuery.findAllByQuery(sql, param);
-    	assertEquals(images.size(), 1);
+    	List<IObject> datasets = iQuery.findAllByQuery(sql, param);
+    	assertEquals(datasets.size(), 1);
+    	
+        d = (Dataset) datasets.get(0);
+    	
+    	perms = d.getDetails().getPermissions();
+    	assertTrue(perms.canEdit());
+    	assertTrue(perms.canAnnotate());
+    	//Try to link an image
+    	try {
+			Image img = (Image) iUpdate.saveAndReturnObject(
+	    			mmFactory.createImage());
+			DatasetImageLink l = new DatasetImageLinkI();
+	    	l.link(new DatasetI(d.getId().getValue(), false), img);
+	    	iUpdate.saveAndReturnObject(l);
+	    	fail("Owner should not be allowed to add an image to the dataset");
+		} catch (Exception e) {
+			
+		}
+    }
+    
+  //Group RWRA--
+    /**
+     * Test the interaction with an object in a RWRA group by a member
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testInteractionByMemberRWRA()
+	throws Exception
+    {
+    	EventContext ec = newUserAndGroup("rwra--");
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Permissions perms = d.getDetails().getPermissions();
+    	assertTrue(perms.canAnnotate());
+    	assertTrue(perms.canEdit());
+    	long id = d.getId().getValue();
+    	disconnect();
+
+    	//Now a new member to the group.
+    	newUserInGroup(ec);
+    	String sql = "select i from Dataset as i ";
+		sql += "where i.id = :id";
+		ParametersI param = new ParametersI();
+    	param.addId(id);
+    	List<IObject> datasets = iQuery.findAllByQuery(sql, param);
+        assertEquals(datasets.size(), 1);
+
+    	// Just a member should be able to neither (for the moment)
+    	// Reload the perms (from the object that the member loaded)
+    	// and check status.
+    	perms = datasets.get(0).getDetails().getPermissions();
+    	assertTrue(perms.canAnnotate());
+    	assertFalse(perms.canEdit());
+
+    	
+    	//Try to link an image
+    	try {
+			Image img = (Image) iUpdate.saveAndReturnObject(
+	    			mmFactory.createImage());
+			DatasetImageLink l = new DatasetImageLinkI();
+	    	l.link(new DatasetI(d.getId().getValue(), false), img);
+	    	iUpdate.saveAndReturnObject(l);
+    		fail("Member should not be allowed to add an image to the dataset");
+		} catch (Exception e) {
+			
+		}
+    }
+    
+    /**
+     * Test the interaction with an object in a RWRA group by the owner
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testInteractionByGroupOwnerRWRA()
+	throws Exception
+    {
+    	EventContext ec = newUserAndGroup("rwra--");
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Permissions perms = d.getDetails().getPermissions();
+    	long id = d.getId().getValue();
+    	disconnect();
+    	//Now a new member to the group.
+    	newUserInGroup(ec);
+    	makeGroupOwner();
+    	String sql = "select i from Dataset as i ";
+		sql += "where i.id = :id";
+		ParametersI param = new ParametersI();
+    	param.addId(id);
+    	List<IObject> datasets = iQuery.findAllByQuery(sql, param);
+    	assertEquals(datasets.size(), 1);
+    	d = (Dataset) datasets.get(0);
+    	
+    	perms = d.getDetails().getPermissions();
+    	assertTrue(perms.canEdit());
+    	assertTrue(perms.canAnnotate());
+    	//Try to link an image
+    	try {
+			Image img = (Image) iUpdate.saveAndReturnObject(
+	    			mmFactory.createImage());
+			DatasetImageLink l = new DatasetImageLinkI();
+	    	l.link(new DatasetI(d.getId().getValue(), false), img);
+	    	iUpdate.saveAndReturnObject(l);
+	    	fail("Owner should not be allowed to add an image to the dataset");
+		} catch (Exception e) {
+			
+		}
+    }
+
+    /**
+     * Test the interaction with an object in a RWRA group by the admin
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testInteractionByAdminRWRA()
+	throws Exception
+    {
+    	EventContext ec = newUserAndGroup("rwr---");
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Permissions perms = d.getDetails().getPermissions();
+    	long id = d.getId().getValue();
+    	disconnect();
+    	//Now a new member to the group.
+    	logRootIntoGroup(ec);
+    	String sql = "select i from Dataset as i ";
+		sql += "where i.id = :id";
+		ParametersI param = new ParametersI();
+    	param.addId(id);
+    	List<IObject> datasets = iQuery.findAllByQuery(sql, param);
+    	assertEquals(datasets.size(), 1);
+    	
+        d = (Dataset) datasets.get(0);
+    	
+    	perms = d.getDetails().getPermissions();
     	assertTrue(perms.canEdit());
     	assertTrue(perms.canAnnotate());
     	//Try to link an image
@@ -317,8 +538,10 @@ public class RolesTest
 		sql += "where i.id = :id";
 		ParametersI param = new ParametersI();
     	param.addId(id);
-    	List<IObject> images = iQuery.findAllByQuery(sql, param);
-    	assertEquals(images.size(), 1);
+    	List<IObject> datasets = iQuery.findAllByQuery(sql, param);
+    	assertEquals(datasets.size(), 1);
+    	d = (Dataset) datasets.get(0);
+    	perms = d.getDetails().getPermissions();
     	assertTrue(perms.canAnnotate());
         assertTrue(perms.canEdit());
     	
@@ -339,7 +562,7 @@ public class RolesTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testInteractionByOwnerRWRW()
+    public void testInteractionByGroupOwnerRWRW()
 	throws Exception
     {
     	EventContext ec = newUserAndGroup("rwrw--");
@@ -355,8 +578,13 @@ public class RolesTest
 		sql += "where i.id = :id";
 		ParametersI param = new ParametersI();
     	param.addId(id);
-    	List<IObject> images = iQuery.findAllByQuery(sql, param);
-    	assertEquals(images.size(), 1);
+    	List<IObject> datasets = iQuery.findAllByQuery(sql, param);
+    	assertEquals(datasets.size(), 1);
+    	d = (Dataset) datasets.get(0);
+    	
+    	
+    	perms = d.getDetails().getPermissions();
+    	
     	assertTrue(perms.canEdit());
     	assertTrue(perms.canAnnotate());
     	//Try to link an image
@@ -388,8 +616,10 @@ public class RolesTest
 		sql += "where i.id = :id";
 		ParametersI param = new ParametersI();
     	param.addId(id);
-    	List<IObject> values = iQuery.findAllByQuery(sql, param);
-    	assertEquals(values.size(), 1);
+    	List<IObject> datasets = iQuery.findAllByQuery(sql, param);
+    	assertEquals(datasets.size(), 1);
+    	d = (Dataset) datasets.get(0);
+    	
     	assertTrue(perms.canEdit());
     	assertTrue(perms.canAnnotate());
     	//Try to link an image
