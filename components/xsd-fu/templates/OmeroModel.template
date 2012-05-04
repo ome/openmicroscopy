@@ -265,11 +265,13 @@ ${customContent[o.name]['properties']}\
 {% end %}\
 \
 {% for o in sorted_and_filtered_links() %}\
+{% if not o['parent'].isAnnotation and not o['child'].isAnnotation %}\
     <link id="${o['id']}"{% if o['parent'].isGlobal %} global="true"{% end %}>
         <properties>
             <from_parent type="${fully_qualified_class_name(o['parent'])}"{% if o['child'].isParentOrdered %} ordered="true"{% end %}/>
             <to_child type="${fully_qualified_class_name(o['child'])}"{% if o['child'].isChildOrdered %} ordered="true"{% end %}/>
         </properties>
     </link>
+{% end %}\
 {% end %}\
 </types>

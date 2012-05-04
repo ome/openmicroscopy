@@ -510,6 +510,15 @@ class OMEModelProperty(OMEModelEntity):
         return self.javaType
     metadataStoreType = property(_get_metadataStoreType,
         doc="""The property's MetadataStore type.""")
+
+    def _get_isAnnotation(self):
+        if self.isReference:
+            ref = REF_REGEX.sub('', self.type)
+            ref = self.model.getObjectByName(ref)
+            return ref.isAnnotation
+        return False
+    isAnnotation = property(_get_isAnnotation,
+        doc="""Whether or not the property is an Annotation.""")
     
     def _get_isPrimitive(self):
         if self.javaType in JAVA_PRIMITIVE_TYPE_MAP.values():
