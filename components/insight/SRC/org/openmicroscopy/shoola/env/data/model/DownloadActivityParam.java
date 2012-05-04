@@ -117,7 +117,7 @@ public class DownloadActivityParam
     	this.folder = folder;
     	this.icon = icon;
     	legend = null;
-    	fileName = null;//folder.getName();
+    	fileName = null;
     	legendExtension = null;
     	index = -1;
     	id = -1;
