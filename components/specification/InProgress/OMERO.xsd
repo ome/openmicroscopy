@@ -84,14 +84,24 @@
                         <xsd:documentation>Describes an Event.</xsd:documentation>
                     </xsd:annotation>
                     <xsd:complexType>
+			            <xsd:sequence>
+                            <xsd:element ref="OME:ExperimenterRef" minOccurs="1" maxOccurs="1"/>
+                            <xsd:element ref="OME:ExperimenterGroupRef" minOccurs="0" maxOccurs="1"/>
+                            <xsd:element name="EventRef" minOccurs="0" maxOccurs="1">
+                                <xsd:complexType>
+                                    <xsd:complexContent>
+                                        <xsd:extension base="OME:Reference">
+                                            <xsd:attribute name="ID" use="required" type="EventID"/>
+                                        </xsd:extension>
+                                    </xsd:complexContent>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
                         <xsd:attribute name="ID" use="required" type="EventID"/>
                         <xsd:attribute name="EntityId" use="required" type="OME:NonNegativeLong"/>
                         <xsd:attribute name="Status" use="optional" type="xsd:string"/>
                         <xsd:attribute name="Time" use="required" type="xsd:dateTime"/>
                         <xsd:attribute name="Type" use="required" type="EventType"/>
-                        <xsd:attribute name="Experimenter" use="required" type="OME:ExperimentID"/>
-                        <xsd:attribute name="ExperimenterGroup" use="required" type="OME:ExperimenterGroupID"/>
-                        <xsd:attribute name="ContainingEvent" use="optional" type="EventID"/>
                     </xsd:complexType>
                 </xsd:element>
                 <xsd:element ref="OME:ExperimenterRef" minOccurs="1" maxOccurs="1"/>
