@@ -405,6 +405,7 @@ class OMEModelProperty(OMEModelEntity):
         self.manyToMany = False
         self.isParentOrdered = False
         self.isChildOrdered = False
+        self.isUnique = False
         self._isReference = False
         try:
             try:
@@ -419,6 +420,8 @@ class OMEModelProperty(OMEModelEntity):
                 self.isParentOrdered = True
             if root.find('childordered') is not None:
                 self.isChildOrdered = True
+            if root.find('unique') is not None:
+                self.isUnique = True
         except AttributeError:
             pass
 
@@ -638,6 +641,7 @@ class OMEModelObject(OMEModelEntity):
         self.properties = odict()
         self.isAbstract = False
         self.isAbstractProprietary = False
+        self.isUnique = False
         self.isSettings = self.base == 'Settings'
         self.base in ('Annotation', 'BasicAnnotation') \
                 or self.name == 'Annotation'
@@ -653,6 +657,8 @@ class OMEModelObject(OMEModelEntity):
                 self.isAbstract = True
             if root.find('abstractproprietary') is not None:
                 self.isAbstractProprietary = True
+            if root.find('unique') is not None:
+                self.isUnique = True
             self.plural = root.findtext('plural')
         except AttributeError:
             pass
@@ -713,7 +719,7 @@ class OMEModelObject(OMEModelEntity):
 
     def _get_isNamed(self):
         for v in self.properties.values():
-            if v.name == "Name":
+            if v.name == "Name" and not v.isUnique:
                 return True
         return False
     isNamed = property(_get_isNamed,
