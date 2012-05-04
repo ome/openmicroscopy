@@ -889,7 +889,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 
         admin_serv = self.getAdminService()
         return admin_serv.createExperimenterWithPassword(experimenter, rstring(str(password)), defaultGroup._obj, listOfGroups)
-
+    
     def updateExperimenter(self, experimenter, omeName, firstName, lastName, email, isAdmin, isActive, defaultGroup, otherGroups, middleName=None, institution=None):
         """
         Update an existing user including groups user is a member of.
@@ -1051,21 +1051,40 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         admin_serv.addGroupOwners(group, add_exps)
         admin_serv.removeGroupOwners(group, rm_exps)
     
-    def updateMyAccount(self, experimenter, defultGroup):
+    def updateMyAccount(self, experimenter, firstName, lastName, email, defaultGroupId, middleName=None, institution=None):
         """
         Allows a user to update his/her own information and set the default group for a given user.
         @param experimenter     A data transfer object. Only the fields: firstName, middleName, 
                                 lastName, email, and institution are checked. Not null.
-        @type experimenter      ExperimenterI
-        @param defultGroup      The group which should be set as default group for this user. Not null
-        @type defultGroup       ExperimenterGroupI
+        @type experimenter      ExperimenterWrapper
+        @param firstName        A new first name.
+        @type firstName         String
+        @param lastName         A new last name.
+        @type lastName          String
+        @param email            A new email.
+        @type email             String
+        @param defaultGroup     Instance of ExperimenterGroup selected as a first active group.
+        @type defaultGroup      ExperimenterGroupI
+        @param middleName       A middle name.
+        @type middleName        String
+        @param institution      An institution.
+        @type institution       String
         """
+        
+        up_exp = experimenter._obj
+        up_exp.firstName = rstring(str(firstName))
+        up_exp.middleName = middleName is not None and rstring(str(middleName)) or None
+        up_exp.lastName = rstring(str(lastName))
+        up_exp.email = rstring(str(email))
+        up_exp.institution = (institution!="" and institution is not None) and rstring(str(institution)) or None
+        
         admin_serv = self.getAdminService()
-        admin_serv.updateSelf(experimenter)
-        admin_serv.setDefaultGroup(experimenter, defultGroup)
-        self.changeActiveGroup(defultGroup.id.val)
+        admin_serv.updateSelf(up_exp)
+        defultGroup = self.getObject("ExperimenterGroup", long(defaultGroupId))._obj
+        admin_serv.setDefaultGroup(up_exp, defultGroup)
+        self.changeActiveGroup(defultGroup.id)
         self._user = self.getObject("Experimenter", self._userid)
-    
+
     def setDefaultGroup(self, group_id, exp_id=None):
         """
         Sets the default group for the specified experimenter, or current user if not specified.
@@ -1766,6 +1785,27 @@ class OmeroWebObjectWrapper (object):
                 return self.annotation_counter
             else:
                 return None
+    
+    def getPermissions(self):
+        p = None
+        if self.details.getPermissions() is None:
+            return 'unknown'
+        else:
+            p = self.details.getPermissions()
+
+        if p.isUserRead() and p.isUserWrite():
+            flag = 'Private'
+        elif p.isUserRead() and not p.isUserWrite():
+            flag = 'Private (read-only)'
+        if p.isGroupRead() and p.isGroupWrite():
+            flag = 'Collaborative'
+        elif p.isGroupRead() and not p.isGroupWrite():
+            flag = 'Collaborative (read-only)'
+        if p.isWorldRead() and p.isWorldWrite():
+            flag = 'Public'
+        elif p.isWorldRead() and not p.isWorldWrite():
+            flag = 'Public (read-only)'
+        return flag
     
     def warpName(self):
         """
