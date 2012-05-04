@@ -328,6 +328,9 @@ class OMEModelEntity(object):
             raise ModelProcessingError(
                     'Cannot lower case %s on %s' % (v, self.name))
         match = PREFIX_CASE_REGEX.match(v)
+        if match is None:
+            raise ModelProcessingError(
+                    'No prefix match for %s on %s' % (v, self.name))
         prefix, = filter(None, match.groups())
         return prefix.lower() + v[len(prefix):]
 
