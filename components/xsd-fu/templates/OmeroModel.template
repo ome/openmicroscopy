@@ -272,6 +272,9 @@ ${customContent[o.name]['properties']}\
         <properties>
             <from_parent type="${fully_qualified_class_name(o['parent'])}"{% if o['child'].isParentOrdered %} ordered="true"{% end %}/>
             <to_child type="${fully_qualified_class_name(o['child'])}"{% if o['child'].isChildOrdered %} ordered="true"{% end %}/>
+{% if o['name'] in customContent and 'properties' in customContent[o['name']] %}\
+${customContent[o['name']]['properties']}\
+{% end %}\
         </properties>
     </link>
 {% end %}\
