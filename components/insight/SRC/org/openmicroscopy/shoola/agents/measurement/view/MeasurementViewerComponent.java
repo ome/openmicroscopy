@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;

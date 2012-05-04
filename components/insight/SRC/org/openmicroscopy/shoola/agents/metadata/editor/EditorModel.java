@@ -669,17 +669,7 @@ class EditorModel
 		boolean b = isUserOwner(data);
 		if (b) return b;
 		DataObject d = (DataObject) data;
-		GroupData group = getGroup(d.getGroupId());
-		int level = 
-		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-				group);
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
-		}
-		long id = MetadataViewerAgent.getUserDetails().getId();
-		return EditorUtil.isUserGroupOwner(group, id);
+		return d.canEdit();
 	}
 	
 	/**
@@ -692,20 +682,8 @@ class EditorModel
 	{ 
 		boolean b = isUserOwner(refObject);
 		if (b) return b;
-		DataObject data = (DataObject) refObject;
-		GroupData group = getGroup(data.getGroupId());
-		int level = 
-		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-				group);
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
-		}
-		//long id = MetadataViewerAgent.getUserDetails().getId();
-		//return EditorUtil.isUserGroupOwner(group, id);
-		return false;
+		DataObject d = (DataObject) refObject;
+		return d.canAnnotate();
 	}
 	
 	/**
