@@ -454,10 +454,26 @@ public interface TreeViewer
 	public void setHierarchyRoot(long rootID, 
 			List<ExperimenterData> experimenters);
 
+	/**
+	 * Returns <code>true</code> if the specified object can be deleted.
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canDelete(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the specified object can be edited.
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho    The data object to check.
+	 * @return See above.
+	 */
 	public boolean canEdit(Object ho);
 	
 	/**
-	 * Returns <code>true</code> if the specified object is writable,
+	 * Returns <code>true</code> if the specified object is annotated,
 	 * <code>false</code> otherwise, depending on the permission.
 	 * 
 	 * @param ho    The data object to check.

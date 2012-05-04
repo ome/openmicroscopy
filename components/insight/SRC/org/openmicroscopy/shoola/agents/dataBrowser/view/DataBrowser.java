@@ -498,6 +498,15 @@ public interface DataBrowser
 	public void remove();
 	
 	/**
+	 * Returns <code>true</code> if the specified object can be deleted.
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canDelete(Object ho);
+	
+	/**
 	 * Returns <code>true</code> if the specified object can be edited,
 	 * <code>false</code> otherwise, depending on the permission.
 	 * 

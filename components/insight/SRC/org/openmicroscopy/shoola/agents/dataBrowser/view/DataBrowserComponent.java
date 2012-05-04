@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
@@ -896,6 +897,35 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#canDelete(Object)
+	 */
+	public boolean canDelete(Object ho)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		if (DataBrowserAgent.isAdministrator()) return true;
+		long id = DataBrowserAgent.getUserDetails().getId();
+		if (EditorUtil.isUserOwner(ho, id)) return true; //user it the owner.
+		if (!(ho instanceof DataObject)) return false;
+
+		DataObject data = (DataObject) ho;
+		GroupData group = model.getGroup(data.getGroupId());
+		int level = 
+			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+					group);
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ:
+			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
+		}
+		return EditorUtil.isUserGroupOwner(group, id);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#canEdit(Object)
 	 */
 	public boolean canEdit(Object ho)
@@ -904,10 +934,8 @@ class DataBrowserComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		//Check if current user can write in object
-		if (DataBrowserAgent.isAdministrator()) return true;
 		long id = DataBrowserAgent.getUserDetails().getId();
-		boolean b = EditorUtil.isUserOwner(ho, id);
-		if (b) return b; //user it the owner.
+		if (EditorUtil.isUserOwner(ho, id)) return true; //user it the owner.
 		if (!(ho instanceof DataObject)) return false;
 		DataObject data = (DataObject) ho;
 		return data.canEdit();

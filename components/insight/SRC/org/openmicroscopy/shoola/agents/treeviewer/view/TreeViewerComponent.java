@@ -1582,6 +1582,43 @@ class TreeViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#canDelete(Object)
+	 */
+	public boolean canDelete(Object ho)
+	{
+		if (TreeViewerAgent.isAdministrator()) return true;
+		long id = model.getUserDetails().getId();
+		boolean b = false;
+		if (ho instanceof TreeImageTimeSet) {
+			Browser browser = model.getSelectedBrowser();
+			ExperimenterData exp = browser.getNodeOwner((TreeImageDisplay) ho);
+			if (exp.getId() == id) b = true;
+		} else b = EditorUtil.isUserOwner(ho, id);
+		if (b) return b; //user is the owner.
+		GroupData group = null;
+		if (ho instanceof DataObject) {
+			DataObject data = (DataObject) ho;
+			group = model.getGroup(data.getGroupId());
+		} else if (ho instanceof TreeImageTimeSet) {
+			Browser browser = model.getSelectedBrowser();
+			if (browser == null) return false;
+			group = browser.getNodeGroup((TreeImageDisplay) ho);
+		}
+		int level = 
+			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+					group);
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ:
+			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
+		}
+		return EditorUtil.isUserGroupOwner(group, id);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#canView(Object)
 	 */
 	public boolean canView(Object ho)

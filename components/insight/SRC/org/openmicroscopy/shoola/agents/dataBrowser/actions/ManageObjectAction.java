@@ -231,7 +231,7 @@ public class ManageObjectAction
 					|| ho instanceof ImageData || ho instanceof ScreenData) {
 					i = selected.iterator();
 					while (i.hasNext()) {
-						if (model.canEdit(i.next())) count++;
+						if (model.canDelete(i.next())) count++;
 					}
 					setEnabled(count == selected.size());
 				} else setEnabled(false);

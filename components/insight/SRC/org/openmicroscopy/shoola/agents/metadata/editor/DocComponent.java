@@ -212,7 +212,7 @@ class DocComponent
 		int count = 0;
 		if (enabled && data != null) {
 			b = model.canEdit(data);
-			link = model.isLinkOwner(data);
+			link = model.canAnnotate(data); //model.isLinkOwner(data);
 		}
 		if (unlinkButton != null) {
 			unlinkButton.setEnabled(link);

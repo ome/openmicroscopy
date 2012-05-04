@@ -665,9 +665,7 @@ class EditorModel
 	 */
 	boolean canEdit(Object data)
 	{ 
-		if (MetadataViewerAgent.isAdministrator()) return true;
-		boolean b = isUserOwner(data);
-		if (b) return b;
+		if (isUserOwner(data)) return true;
 		DataObject d = (DataObject) data;
 		return d.canEdit();
 	}
@@ -678,12 +676,21 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	boolean canAnnotate()
+	boolean canAnnotate() { return canAnnotate(refObject); }
+	
+	/**
+	 * Returns <code>true</code> if the object can be annotated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canAnnotate(Object data)
 	{ 
-		boolean b = isUserOwner(refObject);
+		boolean b = isUserOwner(data);
 		if (b) return b;
-		DataObject d = (DataObject) refObject;
-		return d.canAnnotate();
+		DataObject d = (DataObject) data;
+		return d.canEdit();
 	}
 	
 	/**
