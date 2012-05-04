@@ -670,7 +670,8 @@ class OMEModelObject(OMEModelEntity):
         doc="""Whether or not the model object is an Annotation.""")
 
     def _get_isGlobal(self):
-        return OMERO_GLOBAL_TYPE_MAP.get(self.name, False)
+        isGlobal = OMERO_GLOBAL_TYPE_MAP.get(self.name, False)
+        return isGlobal or ('OMERO' in self.namespace)
     isGlobal = property(_get_isGlobal,
         doc="""Whether or not the model object is an OMERO system type.""")
 
