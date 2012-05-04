@@ -113,11 +113,7 @@ button::-moz-focus-inner {
 		
 				.menu_btns li a {
 					display:block;
-					text-indent: 100%;  
-				    white-space: nowrap;  
-				    overflow: hidden; 
-					width:10px;
-					height:20px;
+					text-indent: -9999px;
 					-webkit-transition:none !important;		
 					   -moz-transition:none !important;
 					     -o-transition:none !important;
@@ -239,7 +235,7 @@ button::-moz-focus-inner {
 			-webkit-box-shadow: 0 1px 0 rgba(255,255,255,1); /* Saf3.0+, Chrome */
 			   -moz-box-shadow: 0 1px 0 rgba(255,255,255,1); /* FF3.5+ */
 			        box-shadow: 0 1px 0 rgba(255,255,255,1); /* Opera 10.5, IE 9.0 */
-			display:inline-block;
+
 		}
 		
 		
@@ -274,11 +270,10 @@ button::-moz-focus-inner {
 					line-height:1.3em;
 					display:inline-block;
 					cursor:pointer;
-					-webkit-box-shdaow: 0 1px 0 inset rgba(255,255,255,.4);
+					
 					-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.4); /* Saf3.0+, Chrome */
 					   -moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.4); /* FF3.5+ */
 					        box-shadow:inset 0 1px 0 rgba(255,255,255,0.4); /* Opera 10.5, IE 9.0 */
-					
 					background-image: -webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0)), to(rgba(255,255,255,.3)));
 					
 					background-image:-moz-linear-gradient(top, rgba(255,255,255,.3) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
@@ -288,6 +283,7 @@ button::-moz-focus-inner {
 					background-image:-ms-linear-gradient(top, rgba(255,255,255,.3) 0%,rgba(255,255,255,0) 100%); /* IE10+ */
 					
 					background:linear-gradient(top, rgba(255,255,255,.3) 0%,rgba(255,255,255,0) 100%); /* W3C */ 
+					
 				}
 
 				
@@ -318,8 +314,10 @@ button::-moz-focus-inner {
 		
 		
 		.menu_btns.silver li:active, .menu_btns.silver li:focus {
-			border-left: solid 1px rgba(0,0,0,.2);
+			border-left: solid 1px rgba(0,0,0,.15);
 			border-right:solid 1px transparent;
+			border-top:none;
+			border-bottom:none;
 		}
 		
 		
@@ -341,10 +339,9 @@ button::-moz-focus-inner {
 				background:linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,.2) 100%); /* W3C */ 
 			}
 			
+			
 			.menu_btns.silver li:active a, .menu_btns.silver li:focus a {
-				border-top:solid 1px rgba(0,0,0,.4);
 				background-image:-webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0.4)), to(rgba(255,255,255,0)));
-				
 				background-image:-moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,.4) 100%); /* FF3.6+ */
 				background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,0)), color-stop(100%,rgba(255,255,255,.4))); /* Chrome,Safari4+ */
 				background-image:-webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,.4) 100%); /* Chrome10+,Safari5.1+ */
@@ -352,8 +349,6 @@ button::-moz-focus-inner {
 				background-image:-ms-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,.4) 100%); /* IE10+ */
 				
 				background:linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,.4) 100%); /* W3C */ 
-				
-				
 				-webkit-box-shadow:inset 0 2px 5px rgba(0,0,0,.3); /* Saf3.0+, Chrome */
 				   -moz-box-shadow:inset 0 2px 5px rgba(0,0,0,.3); /* FF3.5+ */
 				        box-shadow:inset 0 2px 5px rgba(0,0,0,.3); /* Opera 10.5, IE 9.0 */

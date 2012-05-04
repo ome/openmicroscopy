@@ -668,6 +668,16 @@
 		.script_description {
 			width:200px;
 		}
+		
+		
+		#activities_content .menu_btns {
+			float:right;
+		}
+		
+			#activities_content .menu_btns li a {
+				width:26px;
+				height:26px;
+			}
 				
 			
 		
@@ -717,7 +727,7 @@
 				-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), 0 1px 1px rgba( 0, 0, 0, .4 ); /* Saf3.0+, Chrome */
 				   -moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), 0 1px 1px rgba( 0, 0, 0, .4 ); /* FF3.5+ */
 				        box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), 0 1px 1px rgba( 0, 0, 0, .4 ); /* Opera 10.5, IE 9.0 */
-				
+						
 				padding:0px 4px;
 				line-height:1.3em;
 			}
