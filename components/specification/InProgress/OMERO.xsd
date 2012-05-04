@@ -71,7 +71,11 @@
 					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>
-			<xsd:attribute name="Uuid" use="required" type="xsd:string"/>
+			<xsd:attribute name="Uuid" use="required" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo><xsdfu><unique/></xsdfu></xsd:appinfo>
+                </xsd:annotation>
+            </xsd:attribute>
 			<xsd:attribute name="DefaultEventType" use="required" type="EventType"/>
 			<xsd:attribute name="UserAgent" use="optional" type="xsd:string"/>
 			<xsd:attribute name="TimeToIdle" use="required" type="OME:NonNegativeLong"/>
