@@ -216,6 +216,7 @@ public class RolesTest
 			
 		}
     }
+    
     /**
      * Test the interaction with an object in a RW group by the owner
      * @throws Exception Thrown if an error occurred.
