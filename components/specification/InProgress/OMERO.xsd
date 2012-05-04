@@ -80,7 +80,7 @@
                 </xsd:element>
                 <xsd:element name = "Event" minOccurs="0" maxOccurs="unbounded">
                     <xsd:annotation>
-                        <xsd:appinfo><xsdfu><plural>Events</plural></xsdfu></xsd:appinfo>
+                        <xsd:appinfo><xsdfu><plural>Events</plural><immutable/></xsdfu></xsd:appinfo>
                         <xsd:documentation>Describes an Event.</xsd:documentation>
                     </xsd:annotation>
                     <xsd:complexType>
@@ -94,6 +94,17 @@
                                             <xsd:attribute name="ID" use="required" type="EventID"/>
                                         </xsd:extension>
                                     </xsd:complexContent>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name = "EventLog" minOccurs="0" maxOccurs="unbounded">
+                                <xsd:annotation>
+                                    <xsd:appinfo><xsdfu><plural>EventLogs</plural><immutable/></xsdfu></xsd:appinfo>
+                                    <xsd:documentation>Describes an EventLog.</xsd:documentation>
+                                </xsd:annotation>
+                                <xsd:complexType>
+                                    <xsd:attribute name="EntityId" use="required" type="OME:NonNegativeLong"/>
+                                    <xsd:attribute name="EntityType" use="required" type="xsd:string"/>
+                                    <xsd:attribute name="Action" use="required" type="xsd:string"/>
                                 </xsd:complexType>
                             </xsd:element>
                         </xsd:sequence>
@@ -139,21 +150,6 @@
 		</xsd:complexType>
 	</xsd:element>
 
-
-	<xsd:element name = "EventLog"> <!-- top level definition -->
-		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>EventLogs</plural></xsdfu></xsd:appinfo>
-			<xsd:documentation>Describes an EventLog.</xsd:documentation>
-		</xsd:annotation>
-		<xsd:complexType>
-			<xsd:sequence>
-				<xsd:element ref="Event" minOccurs="0" maxOccurs="unbounded"/>
-			</xsd:sequence>
-			<xsd:attribute name="EntityId" use="required" type="OME:NonNegativeLong"/>
-			<xsd:attribute name="EntityType" use="required" type="xsd:string"/>
-			<xsd:attribute name="Action" use="required" type="xsd:string"/>
-		</xsd:complexType>
-	</xsd:element>
 
 	<xsd:simpleType name="EventType">
 		<xsd:annotation>
