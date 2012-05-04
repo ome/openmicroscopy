@@ -22,17 +22,7 @@ ${fully_qualified_class_name(obj_or_prop)}\
 {% end %}\
 \
 {% def fq_link_class_name(o, prop) %}\
-{% if prop.isReference %}\
-${prop.omeroPackage}.${o.javaMethodName}${prop.javaMethodName}Link\
-{% end %}\
-{% if prop.isBackReference %}\
-{% if prop.key in fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE %}\
-${o.omeroPackage}.${fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE[prop.key]}\
-{% end %}\
-{% if prop.key not in fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE %}\
-${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
-{% end %}\
-{% end %}\
+${fully_qualified_link_class_name(o, prop)}\
 {% end %}\
 \
 {% python
@@ -46,6 +36,14 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
             return obj_or_prop.javaType
         else:
             return '%s.%s' % (obj_or_prop.omeroPackage, obj_or_prop.javaType)
+
+    def fully_qualified_link_class_name(o, prop):
+        if prop.isReference:
+            return '%s.%s%sLink' % (prop.omeroPackage, o.javaMethodName, prop.javaMethodName)
+        if prop.isBackReference:
+            if prop.key in fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE:
+                return '%s.%s' % (o.omeroPackage, fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE[prop.key])
+            return '%s.%s%sLink' % (o.omeroPackage, prop.javaMethodName, o.javaMethodName)
 
     def parent_object(name):
         try:
@@ -113,6 +111,23 @@ ${o.omeroPackage}.${prop.javaMethodName}${o.javaMethodName}Link\
         def f(x):
             return True
         return filter(f, enumerations)
+
+    def sorted_links():
+        links = list()
+        for o in model.objects.values():
+            for prop in o.properties.values():
+                if prop.isReference and prop.isManyToMany:
+                    link = {'name': fully_qualified_link_class_name(o, prop),
+                            'parent': o, 'child': prop}
+                    links.append(link)
+        return sorted(links, lambda x, y: cmp(x['name'], y['name']))
+
+    def sorted_and_filtered_links():
+        links = sorted_links()
+        def f(x):
+            return True
+        return filter(f, links)
+
 %}\
 \
 \
@@ -238,5 +253,14 @@ ${customContent[o.name]['properties']}\
 {% end %}\
     </enum>
 
+{% end %}\
+\
+{% for o in sorted_and_filtered_links() %}\
+    <link id="${o['name']}">
+        <properties>
+            <from_parent type="${fully_qualified_class_name(o['parent'])}"/>
+            <to_child type="${fully_qualified_class_name(o['child'])}"/>
+        </properties>
+    </link>
 {% end %}\
 </types>
