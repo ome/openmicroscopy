@@ -1,20 +1,20 @@
 {% def superclass(obj) %}\
 {% choose %}\
 {% when parent_object(o.name) is not None and parent_object(o.name).isAbstractProprietary %}\
-superclass="${fully_qualified_class_name(parent_object(o.name).name)}" \
+ superclass="${fully_qualified_class_name(parent_object(o.name).name)}"\
 {% end %}\
 {% otherwise %}\
 {% if obj.javaBase != fu.DEFAULT_BASE_CLASS %}\
-superclass="${fully_qualified_class_name(obj.javaBase)}" \
+ superclass="${fully_qualified_class_name(obj.javaBase)}"\
 {% end %}\
 {% end %}\
 {% end %}\
 {% end %}\
 \
 {% def type_attributes(obj) %}\
-{% if obj.isAnnotated %}annotated="true" {% end %}\
-{% if obj.isNamed %}named="true" {% end %}\
-{% if obj.isDescribed %}described="true"{% end %}\
+{% if obj.isAnnotated %} annotated="true"{% end %}\
+{% if obj.isNamed %} named="true"{% end %}\
+{% if obj.isDescribed %} described="true"{% end %}\
 {% end %}\
 \
 {% def fq_class_name(obj_or_prop) %}\
@@ -166,10 +166,10 @@ ${fully_qualified_link_class_name(o, prop)}\
     <!-- OME model object ${o.name} -->
 {% choose %}\
 {% when o.isAbstractProprietary or o.isAbstract %}\
-    <abstract id="${fq_class_name(o)}" {% if o.isGlobal %}global="true" {% end %}${superclass(o)}${type_attributes(o)}>
+    <abstract id="${fq_class_name(o)}"{% if o.isGlobal %} global="true"{% end %}${superclass(o)}${type_attributes(o)}{% if o.isImmutable %} immutable="true"{% end %}>
 {% end %}\
 {% otherwise %}\
-    <type id="${fq_class_name(o)}" {% if o.isGlobal %}global="true" {% end %}${superclass(o)}${type_attributes(o)}>
+    <type id="${fq_class_name(o)}"{% if o.isGlobal %} global="true"{% end %}${superclass(o)}${type_attributes(o)}{% if o.isImmutable %} immutable="true"{% end %}>
 {% end %}\
 {% end %}\
         <properties>

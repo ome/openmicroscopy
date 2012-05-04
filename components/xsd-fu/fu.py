@@ -406,6 +406,7 @@ class OMEModelProperty(OMEModelEntity):
         self.isParentOrdered = False
         self.isChildOrdered = False
         self.isUnique = False
+        self.isImmutable = False
         self._isReference = False
         try:
             try:
@@ -422,6 +423,8 @@ class OMEModelProperty(OMEModelEntity):
                 self.isChildOrdered = True
             if root.find('unique') is not None:
                 self.isUnique = True
+            if root.find('immutable') is not None:
+                self.isImmutable = True
         except AttributeError:
             pass
 
@@ -644,6 +647,7 @@ class OMEModelObject(OMEModelEntity):
         self.isAbstractProprietary = False
         self.isUnique = False
         self.isSettings = self.base == 'Settings'
+        self.isImmutable = False
         self.base in ('Annotation', 'BasicAnnotation') \
                 or self.name == 'Annotation'
         self.plural = None
@@ -660,6 +664,8 @@ class OMEModelObject(OMEModelEntity):
                 self.isAbstractProprietary = True
             if root.find('unique') is not None:
                 self.isUnique = True
+            if root.find('immutable') is not None:
+                self.isImmutable = True
             self.plural = root.findtext('plural')
         except AttributeError:
             pass
