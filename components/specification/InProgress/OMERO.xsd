@@ -47,13 +47,13 @@
 			<xsd:documentation>Describes a original file.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
-			<xsd:attribute name="path" use="required"  type="xsd:string"/>
-			<xsd:attribute name="size" use="required"  type="OME:NonNegativeLong"/>
-			<xsd:attribute name="atime" use="optional"  type="xsd:dateTime"/>
-			<xsd:attribute name="mtime" use="optional"  type="xsd:dateTime"/>
-			<xsd:attribute name="ctime" use="optional"  type="xsd:dateTime"/>
-			<xsd:attribute name="sha1" use="required"  type="xsd:string"/>
-			<xsd:attribute name="mimetype" use="optional"  type="xsd:string"/>
+			<xsd:attribute name="Path" use="required"  type="xsd:string"/>
+			<xsd:attribute name="Size" use="required"  type="OME:NonNegativeLong"/>
+			<xsd:attribute name="Atime" use="optional"  type="xsd:dateTime"/>
+			<xsd:attribute name="Mtime" use="optional"  type="xsd:dateTime"/>
+			<xsd:attribute name="Ctime" use="optional"  type="xsd:dateTime"/>
+			<xsd:attribute name="SHA1" use="required"  type="xsd:string"/>
+			<xsd:attribute name="Mimetype" use="optional"  type="xsd:string"/>
 		</xsd:complexType>
 	</xsd:element>
 
