@@ -64,12 +64,20 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element ref="Node" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
 						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
+                <xsd:element name="NodeRef" minOccurs="1" maxOccurs="1">
+                    <xsd:complexType>
+                        <xsd:complexContent>
+                            <xsd:extension base="OME:Reference">
+                                <xsd:attribute name="ID" use="required" type="NodeID"/>
+                            </xsd:extension>
+                        </xsd:complexContent>
+                    </xsd:complexType>
+                </xsd:element>
                 <xsd:element name = "Event" minOccurs="0" maxOccurs="unbounded">
                     <xsd:annotation>
                         <xsd:appinfo><xsdfu><plural>Events</plural></xsdfu></xsd:appinfo>
@@ -86,6 +94,7 @@
                         <xsd:attribute name="ContainingEvent" use="optional" type="EventID"/>
                     </xsd:complexType>
                 </xsd:element>
+                <xsd:element ref="OME:ExperimenterRef" minOccurs="1" maxOccurs="1"/>
 			</xsd:sequence>
 			<xsd:attribute name="Uuid" use="required" type="xsd:string">
                 <xsd:annotation>
@@ -99,7 +108,6 @@
 			<xsd:attribute name="Started" use="required" type="xsd:dateTime"/>
 			<xsd:attribute name="Closed" use="optional" type="xsd:dateTime"/>
 			<xsd:attribute name="Message" use="optional" type="xsd:string"/>
-			<xsd:attribute name="Owner" use="required" type="OME:ExperimentID"/>
 		</xsd:complexType>
 	</xsd:element>
 
@@ -161,6 +169,12 @@
 	<xsd:simpleType name="SessionID">
 		<xsd:restriction base="OME:LSID">
 			<xsd:pattern value="(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Session:\S+)|(Session:\S+)"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="NodeID">
+		<xsd:restriction base="OME:LSID">
+			<xsd:pattern value="(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Node:\S+)|(Node:\S+)"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 
