@@ -220,9 +220,16 @@ class BaseGroup(BaseController):
             #private
             permissions = PermissionsI("rw----")
         elif p == 1:
-            #read-only
-            permissions = PermissionsI("rwr---")
+            #collab read-only
+            if r:
+                permissions = PermissionsI("rwr---")
+            else:
+                # collab or 'read-annotate' (pre 4.4 this was 'readonly')
+                permissions = PermissionsI("rwra--")
         elif p == 2:
-            #read-annotate (pre 4.4 this was 'readonly')
-            permissions = PermissionsI("rwra--")
+            #public (not supported in current UI)
+            if r:
+                permissions = PermissionsI("rwrw--")
+            else:
+                permissions = PermissionsI("rwr-r-")
         return permissions
