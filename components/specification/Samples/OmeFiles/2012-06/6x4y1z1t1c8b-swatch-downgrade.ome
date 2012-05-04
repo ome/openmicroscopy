@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+<OME:OME xmlns:OME="http://www.openmicroscopy.org/Schemas/OME/2012-06"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:ROI="http://www.openmicroscopy.org/Schemas/ROI/2012-06"
 	xmlns:SA="http://www.openmicroscopy.org/Schemas/SA/2012-06"
@@ -7,14 +7,14 @@
 	xmlns:Bin="http://www.openmicroscopy.org/Schemas/BinaryFile/2012-06"
 	xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2012-06     ../../../InProgress/ome.xsd">
 
-	<OME:Project xmlns:OME="http://www.openmicroscopy.org/Schemas/OME/2012-06" ID="Project:1">
-		<OME:ExperimenterGroupRef ID="ExperimenterGroup:Group:1"/>
+	<OME:Project ID="Project:1">
+		<OME:ExperimenterGroupRef ID="ExperimenterGroup:1"/>
 		<!--Insert DatasetRef elements-->
 		<OME:DatasetRef ID="Dataset:1"/>
 		<SA:AnnotationRef ID="Annotation:1"/>
 	</OME:Project>
-	<OME:Dataset xmlns:OME="http://www.openmicroscopy.org/Schemas/OME/2012-06" ID="Dataset:1">
-		<OME:ExperimenterGroupRef ID="ExperimenterGroup:Group:1"/>
+	<OME:Dataset ID="Dataset:1">
+		<OME:ExperimenterGroupRef ID="ExperimenterGroup:1"/>
 		<!--Insert ImageRef elements-->
 		<OME:ImageRef ID="Image:0"/>
 		<SA:AnnotationRef ID="Annotation:2"/>
@@ -22,7 +22,7 @@
 	<SPW:Plate ID="Plate:1" FieldIndex="0" ColumnNamingConvention="letter" RowNamingConvention="number">
 		<SPW:Well ID="Well:1" Column="1" Row="1" Color="-2147483648" Type="TheWellStatus">
 			<SPW:WellSample ID="WellSample:1" Index="1">
-				<OME:ImageRef xmlns:OME="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+				<OME:ImageRef
 					ID="Image:0"/>
 			</SPW:WellSample>
 		</SPW:Well>
@@ -30,32 +30,71 @@
 	<SPW:Screen ID="Screen:1">
 		<SPW:PlateRef ID="Plate:1"/>
 	</SPW:Screen>
-	<OME:Experimenter xmlns:OME="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+	<OME:Experimenter
 		ID="Experimenter:1">
-		<OME:ExperimenterGroupRef ID="ExperimenterGroup:Group:1"/>
 	</OME:Experimenter>
-	<OME:Experimenter xmlns:OME="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+	<OME:Experimenter
 		ID="Experimenter:2" FirstName="John" MiddleName="Andrew" LastName="Smith"
 		Email="john@example.org"> </OME:Experimenter>
-	<OME:ExperimenterGroup xmlns:OME="http://www.openmicroscopy.org/Schemas/OME/2012-06"
-		Name="MyGroup" ID="ExperimenterGroup:Group:1">
-		<Description>A description for my group.
-Complete with basic formating, like new lines.</Description>
-		<Leader ID="Experimenter:1"/>
-		<Leader ID="Experimenter:2"/>
+	<OME:Experimenter
+		ID="Experimenter:3" FirstName="Mr" MiddleName="Group" LastName="Member">
+	</OME:Experimenter>
+	
+	<OME:Experimenter ID="Experimenter:11"/>
+	<OME:Experimenter ID="Experimenter:12" FirstName="John" MiddleName="Andrew" LastName="Smith"
+		Email="john@example.org"/>
+	<OME:Experimenter ID="Experimenter:13"/>
+	<OME:Experimenter ID="Experimenter:14"/>
+	<OME:Experimenter ID="Experimenter:15"/>
+	<OME:Experimenter ID="Experimenter:16"/>
+	<OME:Experimenter ID="Experimenter:17"/>
+	
+	<OME:ExperimenterGroup
+		Name="MyGroup" ID="ExperimenterGroup:1">
+		<OME:Description>A description for my group.
+Complete with basic formating, like new lines.</OME:Description>
+		<OME:ExperimenterRef ID="Experimenter:3"/>
+		<OME:Leader ID="Experimenter:1"/>
+		<OME:Leader ID="Experimenter:2"/>
+	</OME:ExperimenterGroup>
+	
+	<OME:ExperimenterGroup Name="MyGroup - Leader+Contact match" ID="ExperimenterGroup:11">
+		<OME:ExperimenterRef ID="Experimenter:16"/>
+		<OME:Leader ID="Experimenter:11"/>
+	</OME:ExperimenterGroup>
+	
+	<OME:ExperimenterGroup Name="MyOtherGroup" ID="ExperimenterGroup:12">
+		<OME:ExperimenterRef ID="Experimenter:13"/>
+		<OME:ExperimenterRef ID="Experimenter:14"/>
+		<OME:Leader ID="Experimenter:11"/>
+		<OME:Leader ID="Experimenter:12"/>
+		<OME:Leader ID="Experimenter:17"/>
+	</OME:ExperimenterGroup>
+	
+	<OME:ExperimenterGroup Name="NoMatch" ID="ExperimenterGroup:13">
+		<OME:ExperimenterRef ID="Experimenter:15"/>
+		<OME:Leader ID="Experimenter:17"/>
+	</OME:ExperimenterGroup>
+	
+	<OME:ExperimenterGroup Name="LeaderMatch" ID="ExperimenterGroup:14">
+		<OME:Leader ID="Experimenter:11"/>
 	</OME:ExperimenterGroup>
 
-	<Instrument ID="Instrument:1">
-		<Objective ID="Objective:1" LotNumber="123" Manufacturer="OME-Labs"
+	<OME:ExperimenterGroup Name="ContactMatch" ID="ExperimenterGroup:15">
+		<OME:Leader ID="Experimenter:11"/>
+	</OME:ExperimenterGroup>
+
+	<OME:Instrument ID="Instrument:1">
+		<OME:Objective ID="Objective:1" LotNumber="123" Manufacturer="OME-Labs"
 			NominalMagnification="20" CalibratedMagnification="20.34"/>
 
 		<!--OTF elements cannot be converted to 2012-06 Schema, they are not supported.-->
-	</Instrument>
-	<OME:Image xmlns:OME="http://www.openmicroscopy.org/Schemas/OME/2012-06" ID="Image:0"
+	</OME:Instrument>
+	<OME:Image ID="Image:0"
 		Name="6x6x1x8-swatch.tif">
 		<OME:AcquisitionDate>2010-02-23T12:51:30</OME:AcquisitionDate>
-		<ExperimenterRef ID="Experimenter:2"/>
-		<OME:ExperimenterGroupRef ID="ExperimenterGroup:Group:1"/>
+		<OME:ExperimenterRef ID="Experimenter:2"/>
+		<OME:ExperimenterGroupRef ID="ExperimenterGroup:1"/>
 		<OME:Pixels DimensionOrder="XYCZT" ID="Pixels:0:0" PhysicalSizeX="10000.0"
 			PhysicalSizeY="10000.0" Type="uint8" SizeC="3" SizeT="1" SizeX="6" SizeY="4" SizeZ="1">
 			<OME:Channel AcquisitionMode="LaserScanningConfocalMicroscopy" Color="-2147483648"
@@ -165,4 +204,4 @@ Complete with basic formating, like new lines.</Description>
 			</ROI:Shape>
 		</ROI:Union>
 	</ROI:ROI>
-</OME>
+</OME:OME>
