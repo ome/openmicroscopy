@@ -548,7 +548,8 @@ class OMEModelProperty(OMEModelEntity):
             name = REF_REGEX.sub('', self.type)
         if self.isBackReference:
             name = self.type
-        return OMERO_GLOBAL_TYPE_MAP.get(name, False)
+        isGlobal = OMERO_GLOBAL_TYPE_MAP.get(name, False)
+        return isGlobal or ('OMERO' in self.namespace)
     isGlobal = property(_get_isGlobal,
         doc="""Whether or not the property is an OMERO system type.""")
 
