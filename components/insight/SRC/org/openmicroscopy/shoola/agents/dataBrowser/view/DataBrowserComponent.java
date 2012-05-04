@@ -63,7 +63,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
@@ -888,8 +887,8 @@ class DataBrowserComponent
 		int level = 
 			DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel();
 		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 		}
 		return false;
@@ -915,10 +914,10 @@ class DataBrowserComponent
 			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
 					group);
 		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ:
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+			case GroupData.PERMISSIONS_GROUP_READ:
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 		}
 		return EditorUtil.isUserGroupOwner(group, id);

@@ -1571,8 +1571,8 @@ class TreeViewerComponent
 			group = browser.getNodeGroup((TreeImageDisplay) ho);
 			
 			switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 			}
 			return EditorUtil.isUserGroupOwner(group, id);
@@ -1608,51 +1608,10 @@ class TreeViewerComponent
 			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
 					group);
 		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ:
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
-		}
-		return EditorUtil.isUserGroupOwner(group, id);
-	}
-	
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#canView(Object)
-	 */
-	public boolean canView(Object ho)
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED state.");
-		//Check if current user can write in object
-		if (TreeViewerAgent.isAdministrator()) return true;
-		long id = model.getUserDetails().getId();
-		boolean b = false;
-		if (ho instanceof TreeImageTimeSet) {
-			Browser browser = model.getSelectedBrowser();
-			ExperimenterData exp = browser.getNodeOwner((TreeImageDisplay) ho);
-			if (exp.getId() == id) b = true;
-		} else b = EditorUtil.isUserOwner(ho, id);
-		if (b) return b; //user is the owner.
-		GroupData group = null;
-		if (ho instanceof DataObject) {
-			DataObject data = (DataObject) ho;
-			group = model.getGroup(data.getGroupId());
-		} else if (ho instanceof TreeImageTimeSet) {
-			Browser browser = model.getSelectedBrowser();
-			if (browser == null) return false;
-			group = browser.getNodeGroup((TreeImageDisplay) ho);
-		}
-		int level = 
-			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-					group);
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ:
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+			case GroupData.PERMISSIONS_GROUP_READ:
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 		}
 		return EditorUtil.isUserGroupOwner(group, id);
@@ -2072,7 +2031,7 @@ class TreeViewerComponent
 		int level = 
 		TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
 				group);
-		if (level == AdminObject.PERMISSIONS_PRIVATE) {
+		if (level == GroupData.PERMISSIONS_PRIVATE) {
 			ExperimenterData currentUser = model.getExperimenter();
 			Set leaders = group.getLeaders();
 			Iterator k = leaders.iterator();
@@ -3791,22 +3750,22 @@ class TreeViewerComponent
 	public int getGroupPermissions(GroupData group)
 	{
 		if (group == null)
-			return AdminObject.PERMISSIONS_PRIVATE;
+			return GroupData.PERMISSIONS_PRIVATE;
 		PermissionData data = group.getPermissions();
 		if (data.isGroupRead()) {
 			if (data.isGroupWrite())
-				return AdminObject.PERMISSIONS_GROUP_READ_WRITE;
+				return GroupData.PERMISSIONS_GROUP_READ_WRITE;
 			if (data.isGroupAnnotate()) {
-				return AdminObject.PERMISSIONS_GROUP_READ_LINK;
+				return GroupData.PERMISSIONS_GROUP_READ_LINK;
 			}
-			return AdminObject.PERMISSIONS_GROUP_READ;
+			return GroupData.PERMISSIONS_GROUP_READ;
 		}
 		if (data.isWorldRead()) {
 			if (data.isWorldWrite()) 
-				return AdminObject.PERMISSIONS_PUBLIC_READ_WRITE;
-			return AdminObject.PERMISSIONS_PUBLIC_READ;
+				return GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
+			return GroupData.PERMISSIONS_PUBLIC_READ;
 		}
-		return AdminObject.PERMISSIONS_PRIVATE;
+		return GroupData.PERMISSIONS_PRIVATE;
 	}
 
 	/** 

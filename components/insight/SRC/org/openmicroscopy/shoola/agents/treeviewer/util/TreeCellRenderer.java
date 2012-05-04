@@ -46,7 +46,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
@@ -397,22 +396,22 @@ public class TreeCellRenderer
             TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
                 			g);
         	switch (level) {
-	        	case AdminObject.PERMISSIONS_PRIVATE:
+	        	case GroupData.PERMISSIONS_PRIVATE:
 	        		icon = GROUP_PRIVATE_ICON;
 	        		break;
-	        	case AdminObject.PERMISSIONS_GROUP_READ:
+	        	case GroupData.PERMISSIONS_GROUP_READ:
 	        		icon = GROUP_READ_ONLY_ICON;
 	        		break;
-	        	case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+	        	case GroupData.PERMISSIONS_GROUP_READ_LINK:
 	        		icon = GROUP_READ_LINK_ICON;
 	        		break;
-	        	case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+	        	case GroupData.PERMISSIONS_GROUP_READ_WRITE:
 	        		icon = GROUP_READ_WRITE_ICON;
 	        		break;
-	        	case AdminObject.PERMISSIONS_PUBLIC_READ:
+	        	case GroupData.PERMISSIONS_PUBLIC_READ:
 	        		icon = GROUP_PUBLIC_READ_ICON;
 	        		break;
-	        	case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+	        	case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 	        		icon = GROUP_PUBLIC_READ_WRITE_ICON;
 	        	default:
 	        		icon = OWNER_GROUP_ICON;

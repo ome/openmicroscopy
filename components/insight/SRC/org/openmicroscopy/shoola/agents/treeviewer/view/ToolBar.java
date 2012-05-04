@@ -75,7 +75,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -701,28 +700,28 @@ class ToolBar
         			group);
 		Icon icon = null;
 		switch (level) {
-			case AdminObject.PERMISSIONS_PRIVATE:
-				desc = AdminObject.PERMISSIONS_PRIVATE_TEXT;
+			case GroupData.PERMISSIONS_PRIVATE:
+				desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
 				icon = PERMISSIONS_PRIVATE;
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ:
-				desc = AdminObject.PERMISSIONS_GROUP_READ_TEXT;
+			case GroupData.PERMISSIONS_GROUP_READ:
+				desc = GroupData.PERMISSIONS_GROUP_READ_TEXT;
 				icon = PERMISSIONS_GROUP_READ;
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-				desc = AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT;
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+				desc = GroupData.PERMISSIONS_GROUP_READ_LINK_TEXT;
 				icon = PERMISSIONS_GROUP_READ_LINK;
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-				desc = AdminObject.PERMISSIONS_GROUP_READ_WRITE_TEXT;
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				desc = GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT;
 				icon = PERMISSIONS_GROUP_READ_WRITE;
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ:
-				desc = AdminObject.PERMISSIONS_PUBLIC_READ_TEXT;
+			case GroupData.PERMISSIONS_PUBLIC_READ:
+				desc = GroupData.PERMISSIONS_PUBLIC_READ_TEXT;
 				icon = PERMISSIONS_PUBLIC_READ;
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				desc = AdminObject.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+				desc = GroupData.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
 				icon = PERMISSIONS_PUBLIC_READ;
 		}
 		if (icon != null) groupContext.setIcon(icon);

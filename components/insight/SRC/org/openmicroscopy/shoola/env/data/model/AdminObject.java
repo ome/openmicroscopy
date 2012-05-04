@@ -76,56 +76,6 @@ public class AdminObject
 	/** Indicates to reset the password. */
 	public static final int ACTIVATE_USER = 6;
 	
-	/** Indicates that the group is <code>Private</code> i.e. RW----. */
-	public static final int PERMISSIONS_PRIVATE = 100;
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWR---. */
-	public static final int PERMISSIONS_GROUP_READ = 101;
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWRA--. */
-	public static final int PERMISSIONS_GROUP_READ_LINK = 102;
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
-	public static final int PERMISSIONS_GROUP_READ_WRITE = 103;
-	
-	/** Indicates that the group is <code>Public</code> i.e. RWRWR-. */
-	public static final int PERMISSIONS_PUBLIC_READ = 104;
-	
-	/** Indicates that the group is <code>Public</code> i.e. RWRWRW. */
-	public static final int PERMISSIONS_PUBLIC_READ_WRITE = 105;
-	
-	/** Indicates that the group is <code>Private</code> i.e. RW----. */
-	public static final String PERMISSIONS_PRIVATE_TEXT = "Private Group";
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWR---. */
-	public static final String PERMISSIONS_GROUP_READ_TEXT = 
-		"Collaborators can only read your data.";
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWRA--. */
-	public static final String PERMISSIONS_GROUP_READ_LINK_TEXT = 
-		"Collaborators can read and annotate your data.";
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
-	public static final String PERMISSIONS_GROUP_READ_WRITE_TEXT = 
-		"Collaborators can read, annotate, delete, etc., your data.";
-	
-	/** Indicates that the group is <code>Public</code> i.e. RWRWR-. */
-	public static final String PERMISSIONS_PUBLIC_READ_TEXT = "Public";
-	
-	/** Indicates that the group is <code>Public</code> i.e. RWRWRW. */
-	public static final String PERMISSIONS_PUBLIC_READ_WRITE_TEXT = "Public";
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWR---. */
-	public static final String PERMISSIONS_GROUP_READ_SHORT_TEXT = "Read-Only";
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWRA--. */
-	public static final String PERMISSIONS_GROUP_READ_LINK_SHORT_TEXT = 
-		"Read-Annotate";
-	
-	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
-	public static final String PERMISSIONS_GROUP_READ_WRITE_SHORT_TEXT = 
-		"Read-Write";
-	
 	/**
 	 * Validates the index. 
 	 * 
@@ -227,16 +177,16 @@ public class AdminObject
 	public void setPermissions(int permissions)
 	{
 		switch (permissions) {
-			case PERMISSIONS_PRIVATE:
-			case PERMISSIONS_GROUP_READ:
-			case PERMISSIONS_GROUP_READ_LINK:
-			case PERMISSIONS_GROUP_READ_WRITE:
-			case PERMISSIONS_PUBLIC_READ:
-			case PERMISSIONS_PUBLIC_READ_WRITE:
+			case GroupData.PERMISSIONS_PRIVATE:
+			case GroupData.PERMISSIONS_GROUP_READ:
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+			case GroupData.PERMISSIONS_PUBLIC_READ:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				this.permissions = permissions;
 				break;
 			default:
-				this.permissions = PERMISSIONS_PRIVATE;
+				this.permissions = GroupData.PERMISSIONS_PRIVATE;
 		}
 	}
 	

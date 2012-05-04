@@ -35,7 +35,6 @@ import javax.swing.table.DefaultTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 
 import pojos.ExperimenterData;
@@ -89,19 +88,19 @@ class SelectionTableRenderer
 		Integer level = model.getLevel(group);
 		if (level == null) return;
 		switch (level.intValue()) {
-			case AdminObject.PERMISSIONS_PRIVATE:
+			case GroupData.PERMISSIONS_PRIVATE:
 				setIcon(PRIVATE);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ:
+			case GroupData.PERMISSIONS_GROUP_READ:
 				setIcon(READ_GROUP);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
 				setIcon(READ_LINK);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
 				setIcon(READ_WRITE);
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ:
+			case GroupData.PERMISSIONS_PUBLIC_READ:
 				setIcon(PUBLIC);
 		}
 	}

@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Parent of all classes that load data asynchronously for a {@link Importer}.
@@ -110,9 +111,9 @@ public abstract class DataImporterLoader
 		int level = 
 			ImporterAgent.getRegistry().getAdminService().getPermissionLevel();
 		switch (level) {
-				case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-					userID = -1;
+		case GroupData.PERMISSIONS_GROUP_READ_LINK:
+		case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+			userID = -1;
 		}
     }
     

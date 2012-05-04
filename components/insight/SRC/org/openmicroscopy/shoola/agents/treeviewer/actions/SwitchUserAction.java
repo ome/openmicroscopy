@@ -40,7 +40,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.GroupData;
 
@@ -93,7 +92,7 @@ public class SwitchUserAction
     	}
     	int level = model.getGroupPermissions(group);
     	boolean b = false;
-		if (level == AdminObject.PERMISSIONS_PRIVATE) {
+		if (level == GroupData.PERMISSIONS_PRIVATE) {
 			if (model.isLeaderOfGroup(group))
 				b = l.size() > 1;
 		} else {

@@ -368,17 +368,17 @@ class AdminServiceImpl
 		PermissionData perm = group.getPermissions();
 		if (perm.isGroupRead()) {
 			if (perm.isGroupWrite())  
-				return AdminObject.PERMISSIONS_GROUP_READ_WRITE;
+				return GroupData.PERMISSIONS_GROUP_READ_WRITE;
 			else if (perm.isGroupAnnotate())
-				return AdminObject.PERMISSIONS_GROUP_READ_LINK;
-			return AdminObject.PERMISSIONS_GROUP_READ;
+				return GroupData.PERMISSIONS_GROUP_READ_LINK;
+			return GroupData.PERMISSIONS_GROUP_READ;
 		}
 		if (perm.isWorldRead()) {
 			if (perm.isWorldWrite())  
-				return AdminObject.PERMISSIONS_PUBLIC_READ_WRITE;
-			return AdminObject.PERMISSIONS_PUBLIC_READ;
+				return GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
+			return GroupData.PERMISSIONS_PUBLIC_READ;
 		}
-		return AdminObject.PERMISSIONS_PRIVATE;
+		return GroupData.PERMISSIONS_PRIVATE;
 	}
 	
 	/**

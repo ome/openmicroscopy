@@ -42,7 +42,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -97,28 +96,28 @@ public class PersonalManagementAction
             TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
             			group);
             switch (level) {
-    			case AdminObject.PERMISSIONS_PRIVATE:
-    				desc = AdminObject.PERMISSIONS_PRIVATE_TEXT;
+    			case GroupData.PERMISSIONS_PRIVATE:
+    				desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
     				icon = icons.getIcon(IconManager.PRIVATE_GROUP_DD_12);
     				break;
-    			case AdminObject.PERMISSIONS_GROUP_READ:
-    				desc = AdminObject.PERMISSIONS_GROUP_READ_TEXT;
+    			case GroupData.PERMISSIONS_GROUP_READ:
+    				desc = GroupData.PERMISSIONS_GROUP_READ_TEXT;
     				icon = icons.getIcon(IconManager.READ_GROUP_DD_12);
     				break;
-    			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-    				desc = AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT;
+    			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+    				desc = GroupData.PERMISSIONS_GROUP_READ_LINK_TEXT;
     				icon = icons.getIcon(IconManager.READ_LINK_GROUP_DD_12);
     				break;
-    			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-        			desc = AdminObject.PERMISSIONS_GROUP_READ_WRITE_TEXT;
+    			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+        			desc = GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT;
         			icon = icons.getIcon(IconManager.READ_WRITE_GROUP_DD_12);
         			break;
-    			case AdminObject.PERMISSIONS_PUBLIC_READ:
-    				desc = AdminObject.PERMISSIONS_PUBLIC_READ_TEXT;
+    			case GroupData.PERMISSIONS_PUBLIC_READ:
+    				desc = GroupData.PERMISSIONS_PUBLIC_READ_TEXT;
     				icon = icons.getIcon(IconManager.PUBLIC_GROUP_DD_12);
     				break;
-    			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-    				desc = AdminObject.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
+    			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+    				desc = GroupData.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
     				icon = icons.getIcon(IconManager.PUBLIC_GROUP_DD_12);
     		}
 

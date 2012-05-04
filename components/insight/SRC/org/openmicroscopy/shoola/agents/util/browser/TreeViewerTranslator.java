@@ -48,7 +48,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
@@ -926,25 +925,24 @@ public class TreeViewerTranslator
         		TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
         				(GroupData) uo);
         	switch (level) {
-	        	case AdminObject.PERMISSIONS_PRIVATE:
-	        		node.setToolTip(AdminObject.PERMISSIONS_PRIVATE_TEXT);
+	        	case GroupData.PERMISSIONS_PRIVATE:
+	        		node.setToolTip(GroupData.PERMISSIONS_PRIVATE_TEXT);
 	        		break;
-	        	case AdminObject.PERMISSIONS_GROUP_READ:
-	        		node.setToolTip(AdminObject.PERMISSIONS_GROUP_READ_TEXT);
+	        	case GroupData.PERMISSIONS_GROUP_READ:
+	        		node.setToolTip(GroupData.PERMISSIONS_GROUP_READ_TEXT);
 	        		break;
-	        	case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+	        	case GroupData.PERMISSIONS_GROUP_READ_LINK:
+	        		node.setToolTip(GroupData.PERMISSIONS_GROUP_READ_LINK_TEXT);
+	        		break;
+	        	case GroupData.PERMISSIONS_GROUP_READ_WRITE:
 	        		node.setToolTip(
-	        				AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT);
+	        				GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT);
 	        		break;
-	        	case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-	        		node.setToolTip(
-	        				AdminObject.PERMISSIONS_GROUP_READ_WRITE_TEXT);
+	        	case GroupData.PERMISSIONS_PUBLIC_READ:
+	        		node.setToolTip(GroupData.PERMISSIONS_PUBLIC_READ_TEXT);
 	        		break;
-	        	case AdminObject.PERMISSIONS_PUBLIC_READ:
-	        		node.setToolTip(AdminObject.PERMISSIONS_PUBLIC_READ_TEXT);
-	        		break;
-	        	case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-	        		node.setToolTip(AdminObject.PERMISSIONS_PUBLIC_READ_WRITE_TEXT);
+	        	case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+	        		node.setToolTip(GroupData.PERMISSIONS_PUBLIC_READ_WRITE_TEXT);
             }
         	return;
         }

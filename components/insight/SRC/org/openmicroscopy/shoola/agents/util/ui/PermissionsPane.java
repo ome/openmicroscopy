@@ -45,8 +45,9 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.GroupData;
 import pojos.PermissionData;
 
 /** 
@@ -117,19 +118,19 @@ public class PermissionsPane
     	Font f = label.getFont();
     	label.setFont(f.deriveFont(Font.ITALIC, f.getSize()-2));
     	readOnlyGroupBox = new JRadioButton(
-    			AdminObject.PERMISSIONS_GROUP_READ_SHORT_TEXT);
+    			GroupData.PERMISSIONS_GROUP_READ_SHORT_TEXT);
     	readOnlyGroupBox.setToolTipText(
-    			AdminObject.PERMISSIONS_GROUP_READ_TEXT);
+    			GroupData.PERMISSIONS_GROUP_READ_TEXT);
     	readOnlyGroupBox.setEnabled(false);
     	readAnnotateGroupBox = new JRadioButton(
-    			AdminObject.PERMISSIONS_GROUP_READ_LINK_SHORT_TEXT);
+    			GroupData.PERMISSIONS_GROUP_READ_LINK_SHORT_TEXT);
     	readAnnotateGroupBox.setEnabled(false);
     	readAnnotateGroupBox.setToolTipText(
-    			AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT);
+    			GroupData.PERMISSIONS_GROUP_READ_LINK_TEXT);
     	readWriteGroupBox = new JRadioButton(
-    			AdminObject.PERMISSIONS_GROUP_READ_WRITE_SHORT_TEXT);
+    			GroupData.PERMISSIONS_GROUP_READ_WRITE_SHORT_TEXT);
     	readWriteGroupBox.setToolTipText(
-    			AdminObject.PERMISSIONS_GROUP_READ_WRITE_TEXT);
+    			GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT);
     	readWriteGroupBox.setEnabled(false);
     	
     	readOnlyGroupBox.setSelected(true);//default
@@ -149,10 +150,10 @@ public class PermissionsPane
         group.add(readWriteGroupBox);
         
         switch (permissions) {
-			case AdminObject.PERMISSIONS_PRIVATE:
+			case GroupData.PERMISSIONS_PRIVATE:
 				privateBox.setSelected(true);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ:
+			case GroupData.PERMISSIONS_GROUP_READ:
 				privateBox.setEnabled(false);
 				collaborativeGroupBox.setSelected(true);
 				
@@ -161,7 +162,7 @@ public class PermissionsPane
 				readAnnotateGroupBox.setEnabled(true);
 				readWriteGroupBox.setEnabled(true);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
 				privateBox.setEnabled(false);
 				collaborativeGroupBox.setSelected(true);
 				
@@ -170,7 +171,7 @@ public class PermissionsPane
 				readAnnotateGroupBox.setEnabled(true);
 				readWriteGroupBox.setEnabled(true);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
 				privateBox.setEnabled(false);
 				collaborativeGroupBox.setSelected(true);
 				
@@ -179,14 +180,14 @@ public class PermissionsPane
 				readAnnotateGroupBox.setEnabled(true);
 				readWriteGroupBox.setEnabled(true);
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ:
+			case GroupData.PERMISSIONS_PUBLIC_READ:
 				privateBox.setEnabled(false);
 				readAnnotateGroupBox.setEnabled(false);
 				readOnlyPublicBox.setSelected(true);
 				publicBox.setSelected(true);
 				readOnlyPublicBox.setEnabled(true);
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				privateBox.setEnabled(false);
 				readAnnotateGroupBox.setEnabled(false);
 				readOnlyPublicBox.setSelected(false);
@@ -278,7 +279,7 @@ public class PermissionsPane
 	/** Creates a new instance. */
 	public PermissionsPane()
 	{
-		this(AdminObject.PERMISSIONS_PRIVATE);
+		this(GroupData.PERMISSIONS_PRIVATE);
 	}
 	
 	/** 
@@ -288,7 +289,7 @@ public class PermissionsPane
 	 */
 	public PermissionsPane(Color background)
 	{
-		this(AdminObject.PERMISSIONS_PRIVATE, background);
+		this(GroupData.PERMISSIONS_PRIVATE, background);
 	}
 	
 	/** 
@@ -333,18 +334,18 @@ public class PermissionsPane
 	 */
 	public PermissionsPane(PermissionData permissions, Color background)
 	{
-		int level = AdminObject.PERMISSIONS_PRIVATE;
+		int level = GroupData.PERMISSIONS_PRIVATE;
 		if (permissions != null) {
 			if (permissions.isGroupRead()) {
 	    		if (permissions.isGroupWrite()) 
-	    			level = AdminObject.PERMISSIONS_GROUP_READ_WRITE;
+	    			level = GroupData.PERMISSIONS_GROUP_READ_WRITE;
 	    		else if (permissions.isGroupAnnotate())
-	    			level = AdminObject.PERMISSIONS_GROUP_READ_LINK;
-	    		else level = AdminObject.PERMISSIONS_GROUP_READ;
+	    			level = GroupData.PERMISSIONS_GROUP_READ_LINK;
+	    		else level = GroupData.PERMISSIONS_GROUP_READ;
 	    	} else if (permissions.isWorldRead()) {
 	    		if (permissions.isGroupWrite()) 
-	    			level = AdminObject.PERMISSIONS_PUBLIC_READ_WRITE;
-	    		else level = AdminObject.PERMISSIONS_PUBLIC_READ;
+	    			level = GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
+	    		else level = GroupData.PERMISSIONS_PUBLIC_READ;
 	    	}
 		}
     	if (background != null) setBackground(background);
@@ -360,17 +361,17 @@ public class PermissionsPane
 	 */
 	public int getPermissions()
 	{
-		if (privateBox.isSelected()) return AdminObject.PERMISSIONS_PRIVATE;
+		if (privateBox.isSelected()) return GroupData.PERMISSIONS_PRIVATE;
 		if (collaborativeGroupBox.isSelected()) {
 			if (readAnnotateGroupBox.isSelected()) 
-				return AdminObject.PERMISSIONS_GROUP_READ_LINK;
+				return GroupData.PERMISSIONS_GROUP_READ_LINK;
 			if (readOnlyGroupBox.isSelected())
-				return AdminObject.PERMISSIONS_GROUP_READ;
-			return AdminObject.PERMISSIONS_GROUP_READ_WRITE;
+				return GroupData.PERMISSIONS_GROUP_READ;
+			return GroupData.PERMISSIONS_GROUP_READ_WRITE;
 		}
 		if (readOnlyPublicBox.isSelected())
-			return AdminObject.PERMISSIONS_PUBLIC_READ;
-		return AdminObject.PERMISSIONS_PUBLIC_READ_WRITE;
+			return GroupData.PERMISSIONS_PUBLIC_READ;
+		return GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
 	}
 
 	/** Displays the warning text. */
@@ -401,17 +402,17 @@ public class PermissionsPane
         removeAll();
         JPanel p;
         switch (getPermissions()) {
-			case AdminObject.PERMISSIONS_PRIVATE:
+			case GroupData.PERMISSIONS_PRIVATE:
 				add(privateBox);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ:
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case GroupData.PERMISSIONS_GROUP_READ:
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
 				p = buildCollaborative();
 				add(p);
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+			case GroupData.PERMISSIONS_PUBLIC_READ:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				p = new JPanel();
 				p.setBackground(getBackground());
 				p.add(publicBox);
@@ -440,10 +441,10 @@ public class PermissionsPane
 		if (readAnnotateGroupBox != null)
 			readAnnotateGroupBox.setEnabled(enabled);
 		if (enabled) {
-			if (permissionsLevel >= AdminObject.PERMISSIONS_GROUP_READ) {
+			if (permissionsLevel >= GroupData.PERMISSIONS_GROUP_READ) {
 				privateBox.setEnabled(false);
 			} else if (permissionsLevel >= 
-				AdminObject.PERMISSIONS_PUBLIC_READ) {
+				GroupData.PERMISSIONS_PUBLIC_READ) {
 				privateBox.setEnabled(false);
 				collaborativeGroupBox.setEnabled(false);
 			}

@@ -7106,7 +7106,7 @@ class OMEROGateway
 			long groupID = svc.createGroup(g);
 			g = svc.getGroup(groupID);
 			int level = object.getPermissions();
-			if (level != AdminObject.PERMISSIONS_PRIVATE) {
+			if (level != GroupData.PERMISSIONS_PRIVATE) {
 				Permissions p = g.getDetails().getPermissions();
 				setPermissionsLevel(p, level);
 				svc.changePermissions(g, p);
@@ -7569,17 +7569,17 @@ class OMEROGateway
 	void setPermissionsLevel(Permissions p, int level)
 	{
 		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ:
+			case GroupData.PERMISSIONS_GROUP_READ:
 				p.setGroupRead(true);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
 				p.setGroupRead(true);
 				p.setGroupWrite(true);
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ:
+			case GroupData.PERMISSIONS_PUBLIC_READ:
 				p.setWorldRead(true);
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				p.setWorldRead(true);
 				p.setWorldWrite(true);
 		}

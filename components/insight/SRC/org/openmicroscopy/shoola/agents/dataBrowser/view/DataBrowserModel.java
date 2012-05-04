@@ -704,8 +704,8 @@ abstract class DataBrowserModel
 			DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel(
 				group);
 		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 		}
 		return EditorUtil.isUserGroupOwner(group, userID);

@@ -481,16 +481,6 @@ public interface TreeViewer
 	 */
 	public boolean canAnnotate(Object ho);
 	
-	/**
-	 * Returns <code>true</code> if the specified object is viewable,
-	 * <code>false</code> otherwise, depending on the permission.
-	 * 
-	 * @param ho    The data object to check.
-	 * @return See above.
-	 */
-	public boolean canView(Object ho);
-
-	
 	/** 
 	 * Adds existing objects to the currently selected node. 
 	 * 
