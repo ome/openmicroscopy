@@ -160,16 +160,16 @@ class BaseContainer(BaseController):
         if self.tag is not None: return self.tag.id
         if self.file is not None: return self.file.id
 
-    def isEditable(self):
-        if self.project is not None: return self.project.isEditable()
-        if self.dataset is not None: return self.dataset.isEditable()
-        if self.image is not None: return self.image.isEditable()
-        if self.screen is not None: return self.screen.isEditable()
-        if self.plate is not None: return self.plate.isEditable()
-        if self.acquisition is not None: return self.acquisition.isEditable()
-        if self.well is not None: return self.well.isEditable()
-        if self.tag is not None: return self.tag.isEditable()
-        if self.file is not None: return self.file.isEditable()
+    def canAnnotate(self):
+        if self.project is not None: return self.project.canAnnotate()
+        if self.dataset is not None: return self.dataset.canAnnotate()
+        if self.image is not None: return self.image.canAnnotate()
+        if self.screen is not None: return self.screen.canAnnotate()
+        if self.plate is not None: return self.plate.canAnnotate()
+        if self.acquisition is not None: return self.acquisition.canAnnotate()
+        if self.well is not None: return self.well.canAnnotate()
+        if self.tag is not None: return self.tag.canAnnotate()
+        if self.file is not None: return self.file.canAnnotate()
 
     def openAstexViewerCompatible(self):
         """

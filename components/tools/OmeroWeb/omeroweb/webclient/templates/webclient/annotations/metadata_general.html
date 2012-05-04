@@ -955,7 +955,7 @@
                 
 				
 				
-                {% if manager.isEditable %}
+                {% if manager.canAnnotate %}
 					<div>
 						<a id="launch_tags_form" href="{% url annotate_tags %}?{{manager.obj_type}}={{ manager.obj_id }}" class="btn silver btn_add"><span></span></a>
 					</div>
@@ -983,7 +983,7 @@
             <div class="annotations_section">
                 <h2>{% trans "Attachments" %}</h2>
 
-                    {% if manager.isEditable %}
+                    {% if manager.canAnnotate %}
                         <a id="choose_file_anns" href="{% url annotate_file %}?{{manager.obj_type}}={{ manager.obj_id }}" class="btn silver btn_add">
                             <span></span>
                         </a>
@@ -1085,7 +1085,7 @@
             <div class="annotations_section">
 				<h2>{% trans "Comment:" %}</h2>
 				
-                    {% if manager.project.isEditable or manager.dataset.isEditable or manager.image.isEditable or manager.screen.isEditable or manager.plate.isEditable or manager.acquisition.isEditable or  manager.well.isEditable %}
+                    {% if manager.canAnnotate %}
                     <form id="add_comment_form" action="{% url annotate_comment %}" method="post">
                     <table>
                         <tr class="hiddenField"><td>{{ form_comment.image }}</td></tr>
