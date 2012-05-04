@@ -37,17 +37,21 @@ ${fully_qualified_link_class_name(o, prop)}\
         else:
             return '%s.%s' % (obj_or_prop.omeroPackage, obj_or_prop.javaType)
 
+    def link_class_name(o, prop):
+        if prop.isReference:
+            v = (o.javaMethodName, prop.javaMethodName)
+        else:
+            v = (prop.javaMethodName, o.javaMethodName)
+        return '%s%sLink' % v
+
     def fully_qualified_link_class_name(o, prop):
         if prop.isReference:
-            return '%s.%s%sLink' % \
-                    (prop.omeroPackage, o.javaMethodName, prop.javaMethodName)
-        if prop.isBackReference:
-            if prop.key in fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE:
-                return '%s.%s' % \
-                        (o.omeroPackage,
-                         fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE[prop.key])
-            return '%s.%s%sLink' % \
-                    (o.omeroPackage, prop.javaMethodName, o.javaMethodName)
+            return '%s.%s' % (prop.omeroPackage, link_class_name(o, prop))
+        if prop.key in fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE:
+            return '%s.%s' % \
+                    (o.omeroPackage,
+                     fu.BACK_REFERENCE_CLASS_NAME_OVERRIDE[prop.key])
+        return '%s.%s' % (o.omeroPackage, link_class_name(o, prop))
 
     def parent_object(name):
         try:
@@ -121,7 +125,8 @@ ${fully_qualified_link_class_name(o, prop)}\
         for o in model.objects.values():
             for prop in o.properties.values():
                 if prop.isReference and prop.isManyToMany:
-                    link = {'name': fully_qualified_link_class_name(o, prop),
+                    link = {'id': fully_qualified_link_class_name(o, prop),
+                            'name': link_class_name(o, prop),
                             'parent': o, 'child': prop}
                     links.append(link)
         return sorted(links, lambda x, y: cmp(x['name'], y['name']))
@@ -260,7 +265,7 @@ ${customContent[o.name]['properties']}\
 {% end %}\
 \
 {% for o in sorted_and_filtered_links() %}\
-    <link id="${o['name']}">
+    <link id="${o['id']}">
         <properties>
             <from_parent type="${fully_qualified_class_name(o['parent'])}"{% if o['child'].isParentOrdered %} ordered="true"{% end %}/>
             <to_child type="${fully_qualified_class_name(o['child'])}"{% if o['child'].isChildOrdered %} ordered="true"{% end %}/>
