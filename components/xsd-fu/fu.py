@@ -324,6 +324,9 @@ class OMEModelEntity(object):
                 simpleTypeName = simpleType.getBase()
 
     def lowerCasePrefix(self, v):
+        if v is None:
+            raise ModelProcessingError(
+                    'Cannot lower case %s on %s' % (v, self.name))
         match = PREFIX_CASE_REGEX.match(v)
         prefix, = filter(None, match.groups())
         return prefix.lower() + v[len(prefix):]
