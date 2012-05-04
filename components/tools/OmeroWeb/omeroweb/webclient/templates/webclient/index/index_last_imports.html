@@ -27,7 +27,7 @@
     <ul id="dataIcons">
         {% for c in controller.lastAcquiredImages %}
             <li><em>{{ c.name }}</em>
-                <a href="{% url load_template "userdata" %}?path=project={{ c.getParent.getParent.id }}|dataset={{ c.getParent.id }}|image={{ c.id }}:selected"><img id="{{ c.id }}" class="imgzoom" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}"/></a>
+                <a href="{% url load_template "userdata" %}?path=project={{ c.getParent.getParent.id }}|dataset={{ c.getParent.id }}|image={{ c.id }}"><img id="{{ c.id }}" class="imgzoom" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}"/></a>
             </li>
         {% endfor %}
     </ul>

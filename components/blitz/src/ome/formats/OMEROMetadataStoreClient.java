@@ -227,6 +227,12 @@ public class OMEROMetadataStoreClient
 
     private MetadataStorePrx delegate;
 
+    /**
+     * Begins empty to allow access to all groups. Once a target object
+     * has been chosen, the map will be updated to reflect the chosen target.
+     */
+    private final Map<String, String> callCtx = new HashMap<String, String>();
+
     /** Our IObject container cache. */
     private Map<LSID, IObjectContainer> containerCache =
         new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
@@ -247,8 +253,7 @@ public class OMEROMetadataStoreClient
     private Map<String, String[]> referenceStringCache;
 
     /** Our model processors. Will be called on saveToDB(). */
-    private List<ModelProcessor> modelProcessors =
-        new ArrayList<ModelProcessor>();
+    private List<ModelProcessor> modelProcessors;
 
     /** Bio-Formats reader that's populating us. */
     private IFormatReader reader;
@@ -392,34 +397,42 @@ public class OMEROMetadataStoreClient
      *
      *  @param group
      *
-     *            Value to pass to {@link #setCurrentGroup(long)} if not null.
+     *            Value to pass set in {@link #callCtx}
      *
      * @throws ServerError
      */
     private void initializeServices(boolean manageLifecycle, Long group)
         throws ServerError
     {
-        // Blitz services
-        iAdmin = serviceFactory.getAdminService();
-        iQuery = serviceFactory.getQueryService();
-        eventContext = iAdmin.getEventContext();
-        if (group != null) {
-            setCurrentGroup(group);
+
+        closeServices();
+        if (group == null) {
+            callCtx.clear();
+        } else {
+            callCtx.put("omero.group", group.toString());
+            log.info(String.format("Call context: {omero.group:%s}", group));
         }
-        iUpdate = serviceFactory.getUpdateService();
-        rawFileStore = serviceFactory.createRawFileStore();
-        rawPixelStore = serviceFactory.createRawPixelsStore();
-        thumbnailStore = serviceFactory.createThumbnailStore();
-        iRepoInfo = serviceFactory.getRepositoryInfoService();
-        iContainer = serviceFactory.getContainerService();
-        iSettings = serviceFactory.getRenderingSettingsService();
-        delegate = MetadataStorePrxHelper.checkedCast(serviceFactory.getByName(METADATASTORE.value));
+
+        // Blitz services
+        iAdmin = (IAdminPrx) serviceFactory.getAdminService().ice_context(callCtx);
+        iQuery = (IQueryPrx) serviceFactory.getQueryService().ice_context(callCtx);
+        eventContext = iAdmin.getEventContext();
+        iUpdate = (IUpdatePrx) serviceFactory.getUpdateService().ice_context(callCtx);
+        rawFileStore = (RawFileStorePrx) serviceFactory.createRawFileStore().ice_context(callCtx);
+        rawPixelStore = (RawPixelsStorePrx) serviceFactory.createRawPixelsStore().ice_context(callCtx);
+        thumbnailStore = (ThumbnailStorePrx) serviceFactory.createThumbnailStore().ice_context(callCtx);
+        iRepoInfo = (IRepositoryInfoPrx) serviceFactory.getRepositoryInfoService().ice_context(callCtx);
+        iContainer = (IContainerPrx) serviceFactory.getContainerService().ice_context(callCtx);
+        iSettings = (IRenderingSettingsPrx) serviceFactory.getRenderingSettingsService().ice_context(callCtx);
+        delegate = (MetadataStorePrx) MetadataStorePrxHelper.checkedCast(
+                serviceFactory.getByName(METADATASTORE.value)).ice_context(callCtx);
 
         // Client side services
         enumProvider = new IQueryEnumProvider(iQuery);
         instanceProvider = new BlitzInstanceProvider(enumProvider);
 
         // Default model processors
+        modelProcessors = new ArrayList<ModelProcessor>();
         modelProcessors.add(new PixelsProcessor());
         modelProcessors.add(new ChannelProcessor());
         modelProcessors.add(new InstrumentProcessor());
@@ -1024,6 +1037,7 @@ public class OMEROMetadataStoreClient
         try
         {
             log.debug("Creating root!");
+            initializeServices(false, null); // Reset group
             authoritativeContainerCache =
 		new HashMap<Class<? extends IObject>, Map<String, IObjectContainer>>();
             containerCache =
@@ -1906,29 +1920,7 @@ public class OMEROMetadataStoreClient
 	public void setCurrentGroup(long groupID)
 		throws ServerError
 	{
-		ExperimenterGroup currentDefaultGroup = iAdmin.getDefaultGroup(eventContext.userId);
-		if (currentDefaultGroup.getId().getValue() == groupID)
-			return; // Already set so return
-
-		Experimenter exp = iAdmin.getExperimenter(eventContext.userId);
-		List<ExperimenterGroup> groups = getUserGroups();
-		Iterator<ExperimenterGroup> i = groups.iterator();
-		ExperimenterGroup group = null;
-		boolean in = false;
-		while (i.hasNext()) {
-			group = i.next();
-			if (group.getId().getValue() == groupID) {
-				in = true;
-				break;
-			}
-		}
-		if (!in) {
-			log.error("Can't modify the current group.\n\n");
-		} else
-		{
-			iAdmin.setDefaultGroup(exp, iAdmin.getGroup(groupID));
-			serviceFactory.setSecurityContext(new ExperimenterGroupI(groupID, false));
-		}
+                initializeServices(false, groupID);
 	}
 
 	/**
@@ -2190,7 +2182,16 @@ public class OMEROMetadataStoreClient
     {
         try
         {
-            return (T) iQuery.get(klass.getName(), id);
+            Map<String, String> allGroups = new HashMap<String, String>();
+            allGroups.put("omero.group", "-1");
+            T obj = (T) iQuery.get(klass.getName(), id, allGroups);
+            if (obj == null) {
+                throw new RuntimeException(String.format("Cannot find target: %s:%s",
+                            klass.getName(), id));
+            }
+            long grpID = obj.getDetails().getGroup().getId().getValue();
+            initializeServices(false, grpID);
+            return obj;
         }
         catch (ServerError e)
         {

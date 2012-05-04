@@ -164,6 +164,9 @@ class AnnotationDataUI
 	/** Reference to the control. */
 	private EditorControl					controller;
 	
+	/** Reference to the view. */
+	private EditorUI view;
+	
 	/** Flag indicating that tags have been added or removed. */
 	private boolean							tagFlag;
 	
@@ -387,13 +390,17 @@ class AnnotationDataUI
 									RatingComponent.MEDIUM_SIZE);
 		rating.setOpaque(false);
 		rating.setBackground(UIUtilities.BACKGROUND_COLOR);
-		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
+		rating.addPropertyChangeListener(this);
 		unrateButton = new JButton(icons.getIcon(IconManager.MINUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(unrateButton);
 		unrateButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		unrateButton.setToolTipText("Unrate.");
 		unrateButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { rating.setValue(0); }
+			public void actionPerformed(ActionEvent e)
+			{ 
+				rating.setValue(0);
+				view.saveData(true);
+			}
 		});
 		tagsPane = new JPanel();
 		tagsPane.setLayout(new BoxLayout(tagsPane, BoxLayout.Y_AXIS));
@@ -851,15 +858,20 @@ class AnnotationDataUI
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param model 	 Reference to the model. Mustn't be <code>null</code>.
+	 * @param view Reference to the view. Mustn't be <code>null</code>.
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
 	 * @param controller Reference to the control. Mustn't be <code>null</code>.
 	 */
-	AnnotationDataUI(EditorModel model, EditorControl controller)
+	AnnotationDataUI(EditorUI view, EditorModel model, 
+			EditorControl controller)
 	{
 		super(model);
 		if (controller == null)
 			throw new IllegalArgumentException("No control.");
+		if (view == null)
+			throw new IllegalArgumentException("No view.");
 		this.controller = controller;
+		this.view = view;
 		initComponents();
 		init = false;
 	}
@@ -1592,9 +1604,12 @@ class AnnotationDataUI
 			int newValue = (Integer) evt.getNewValue();
 			if (newValue != selectedValue) {
 				selectedValue = newValue;
-				firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-									Boolean.TRUE);
+				//firePropertyChange(EditorControl.SAVE_PROPERTY,
+				//	Boolean.valueOf(false), Boolean.valueOf(true));
+				view.saveData(true);
 			}
+		} else if (RatingComponent.RATE_END_PROPERTY.equals(name)) {
+			view.saveData(true);
 		}
 	}
 

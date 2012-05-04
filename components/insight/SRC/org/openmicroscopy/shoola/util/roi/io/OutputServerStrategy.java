@@ -465,6 +465,9 @@ class OutputServerStrategy
 		ShapeSettingsData settings = shape.getShapeSettings();
 		Boolean bold;
 		Boolean italic;
+		Coord3D coord = fig.getROIShape().getCoord3D();
+		int channel = coord.getChannel();
+		if (channel >= 0) shape.setC(channel);
 		if (AttributeKeys.FILL_COLOR.get(fig) != null)
 		{
 			Color c = AttributeKeys.FILL_COLOR.get(fig);

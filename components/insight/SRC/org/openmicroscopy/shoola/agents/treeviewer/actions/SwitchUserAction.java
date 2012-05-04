@@ -63,11 +63,14 @@ public class SwitchUserAction
 {
 
 	/** The name of the action. */
-	public static final String NAME = "Add User...";
+	public static final String NAME = "Display User...";
+	
+	/** The name of the action. */
+	public static final String NAME_TO = "Display User from";
 	
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Select another " +
-			"user and view his/her data.";
+	public static final String DESCRIPTION = "Select users and view their" +
+			" data.";
 	
     /** The location of the mouse pressed. */
     private Point point;
@@ -84,7 +87,10 @@ public class SwitchUserAction
     		return;
     	}
     	Collection l = group.getExperimenters();
-    	if (l == null) return;
+    	if (l == null) {
+    		setEnabled(false);
+    		return;
+    	}
     	int level = model.getGroupPermissions(group);
     	boolean b = false;
 		if (level == AdminObject.PERMISSIONS_PRIVATE) {
@@ -160,7 +166,7 @@ public class SwitchUserAction
 	public SwitchUserAction(TreeViewer model)
 	{
 		super(model);
-		setEnabled(true);
+		setEnabled(false);
 		name = NAME;
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -178,7 +184,7 @@ public class SwitchUserAction
     		SwingUtilities.convertPointToScreen(point, 
     				((Component) e.getSource()));
     	}
-    	model.retrieveUserGroups(point);
+    	model.retrieveUserGroups(point, null);
     }
     
     /** 

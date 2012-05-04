@@ -382,7 +382,7 @@ public class AdvancedFinder
 		IconManager icons = IconManager.getInstance();
 		UserManagerDialog dialog = new UserManagerDialog(
 				FinderFactory.getRefFrame(), getUserDetails(), 
-				getUserDetails().getDefaultGroup(),
+				getUserDetails().getDefaultGroup(), null,
 				icons.getIcon(IconManager.OWNER),
 				icons.getIcon(IconManager.OWNER_48));
 		dialog.addPropertyChangeListener(this);
@@ -642,11 +642,19 @@ public class AdvancedFinder
 			Map m = (Map) evt.getNewValue();
 			if (m == null) return;
 			Iterator i = m.keySet().iterator();
+			List<ExperimenterData> l;
 			ExperimenterData exp;
+			Iterator<ExperimenterData> j;
 			while (i.hasNext()) {
-				exp = (ExperimenterData) m.get(i.next());
-				users.put(exp.getId(), exp);
-				setUserString(exp.getId(), EditorUtil.formatExperimenter(exp));
+				l = (List<ExperimenterData>) m.get(i.next());
+				j = l.iterator();
+				while (j.hasNext()) {
+					exp = j.next();
+					users.put(exp.getId(), exp);
+					setUserString(exp.getId(), 
+							EditorUtil.formatExperimenter(exp));
+					
+				}
 				//uiValue += value;
 			}
 			//setUserString(uiValue);

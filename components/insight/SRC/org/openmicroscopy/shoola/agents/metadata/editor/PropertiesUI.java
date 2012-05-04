@@ -210,6 +210,9 @@ class PropertiesUI
 	/** The visible width.*/
 	private int width = 0;
 	
+	/** Flag indicating that the name is editable mode or not.*/
+	private boolean editableName;
+	
 	/** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -237,6 +240,7 @@ class PropertiesUI
        	ownerLabel = new JLabel();
        	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
     	namePane = createTextPane();
+    	editableName = false;
     	/*
     	namePane.addMouseListener(new MouseAdapter() {
     		public void mousePressed(MouseEvent e) {
@@ -247,7 +251,7 @@ class PropertiesUI
 		*/
     	typePane = createTextPane();
     	typePane.setEditable(false);
-    	namePane.setEditable(false);
+    	//namePane.setEditable(false);
     	namePane.addFocusListener(this);
     	f = namePane.getFont(); 
     	newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
@@ -820,7 +824,7 @@ class PropertiesUI
         	refObject instanceof ScreenData) {
         	p.add(Box.createVerticalStrut(5));
         	descriptionPanel = layoutEditablefield(editDescription, 
-        			 descriptionPane, 5);
+        			descriptionPane, 5);
         	 //descriptionPanel.setBorder(AnnotationUI.EDIT_BORDER);
 		
         	pane = new JScrollPane(descriptionPanel);
@@ -910,7 +914,8 @@ class PropertiesUI
 			boolean editable)
 	{
 		if (field == namePane) {
-			button.setEnabled(editable);
+			//namePane.setEnabled(editable);
+			editableName = editable;
 			namePane.setEditable(editable);
 			if (editable) {
 				panel.setBorder(EDIT_BORDER_BLACK);
@@ -1236,23 +1241,26 @@ class PropertiesUI
 	 */
 	void setExtentWidth(int width)
 	{
-		if (this.width == width) return;
+		width = width-10;
+		if (this.width != 0 && 
+				(this.width-10 <= width && width <= this.width+10)) return;
 		this.width = width;
-		
 		if (descriptionPanel != null) {
 			String newLineStr = null;
 			if (pane.getVerticalScrollBar().isVisible())
-				newLineStr = " ";
-			Dimension d = new Dimension(width, HEIGHT);
+				newLineStr = "\n";
+			//if (this.width < size.width) this.width = size.width;
+			Dimension d = new Dimension(this.width, HEIGHT);
 			pane.getViewport().setPreferredSize(d);
 			d = pane.getSize();
-			if (this.width > d.width) this.width = d.width;
 			int h = d.height;
 			if (h < HEIGHT) h = HEIGHT;
 			d = new Dimension(this.width, h);
 			descriptionPane.setSize(d);
-			//descriptionPane.setPreferredSize(d);
-			descriptionPane.wrapText(this.width-20, newLineStr);
+			descriptionPane.setPreferredSize(d);
+			descriptionPane.wrapText(this.width, newLineStr);
+			descriptionPanel.setSize(d);
+			descriptionPanel.setPreferredSize(d);
 		}
 	}
 	
@@ -1374,7 +1382,7 @@ class PropertiesUI
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case EDIT_NAME:
-				editField(namePanel, namePane, editName, !namePane.isEditable());
+				editField(namePanel, namePane, editName, !editableName);
 				break;
 			case EDIT_DESC:
 				editField(descriptionPanel, descriptionPane, editDescription,

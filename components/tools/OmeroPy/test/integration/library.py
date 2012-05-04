@@ -13,6 +13,7 @@ import Ice
 import sys
 import time
 import weakref
+import logging
 import unittest
 import tempfile
 import traceback
@@ -22,7 +23,7 @@ import subprocess
 import omero
 
 from omero.util.temp_files import create_path
-from omero.rtypes import rstring, rtime, rint
+from omero.rtypes import rstring, rtime, rint, unwrap
 from path import path
 
 from omero.cmd import State, ERR, OK
@@ -49,6 +50,8 @@ class Clients(object):
 
 class ITest(unittest.TestCase):
 
+    log = logging.getLogger("ITest")
+
     def setUp(self):
 
         self.OmeroPy = self.omeropydir()
@@ -61,7 +64,7 @@ class ITest(unittest.TestCase):
         name = None
         pasw = None
         if rootpass:
-            self.root = omero.client()
+            self.root = omero.client() # ok because adds self
             self.__clients.add(self.root)
             self.root.setAgent("OMERO.py.root_test")
             self.root.createSession("root", rootpass)
@@ -71,7 +74,7 @@ class ITest(unittest.TestCase):
         else:
             self.root = None
 
-        self.client = omero.client()
+        self.client = omero.client() # ok because adds self
         self.__clients.add(self.client)
         self.client.setAgent("OMERO.py.test")
         self.sf = self.client.createSession(name, pasw)
@@ -286,16 +289,33 @@ class ITest(unittest.TestCase):
 
         return adminService.getExperimenter(uid)
 
-    def new_client(self, group = None, user = None, perms = None,
-            admin = False, system = False):
+    def new_client(self, group=None, user=None, perms=None,
+            admin=False, system=False, session=None, password=None):
         """
         Like new_user() but returns an active client.
+
+        Passing user= or session= will prevent self.new_user
+        from being called, and instead the given user (by name
+        or ExperimenterI) or session will be logged in.
         """
-        if user is None:
-            user = self.new_user(group, perms, admin, system=system)
         props = self.root.getPropertyMap()
-        props["omero.user"] = user.omeName.val
-        props["omero.pass"] = user.omeName.val
+        if session is not None:
+            if user is not None:
+                self.log.warning("user= argument will be ignored: %s", user)
+            session = unwrap(session)
+            props["omero.user"] = session
+            props["omero.pass"] = session
+        else:
+            if user is not None:
+                user, name = self.user_and_name(user)
+            else:
+                user = self.new_user(group, perms, admin, system=system)
+            props["omero.user"] = user.omeName.val
+            if password is not None:
+                props["omero.pass"] = password
+            else:
+                props["omero.pass"] = user.omeName.val
+
         client = omero.client(props)
         self.__clients.add(client)
         client.setAgent("OMERO.py.new_client_test")
@@ -316,6 +336,7 @@ class ITest(unittest.TestCase):
         return elapsed, rv
 
     def group_and_name(self, group):
+        group = unwrap(group)
         admin = self.root.sf.getAdminService()
         if isinstance(group, omero.model.ExperimenterGroup):
             if group.isLoaded():
@@ -327,12 +348,16 @@ class ITest(unittest.TestCase):
         elif isinstance(group, (str, unicode)):
             name = group
             group = admin.lookupGroup(name)
+        elif isinstance(group, omero.model.Experimenter):
+            self.fail(\
+                "group is a user! Try adding group= to your method invocation")
         else:
             self.fail("Unknown type: %s=%s" % (type(group), group))
 
         return group, name
 
     def user_and_name(self, user):
+        user = unwrap(user)
         admin = self.root.sf.getAdminService()
         if isinstance(user, omero.clients.BaseClient):
             admin = user.sf.getAdminService()
@@ -349,6 +374,9 @@ class ITest(unittest.TestCase):
         elif isinstance(user, (str, unicode)):
             name = user
             user = admin.lookupExperimenter(name)
+        elif isinstance(user, omero.model.ExperimenterGroup):
+            self.fail(\
+                "user is a group! Try adding user= to your method invocation")
         else:
             self.fail("Unknown type: %s=%s" % (type(user), user))
 
@@ -476,7 +504,7 @@ class ITest(unittest.TestCase):
 
         See integration.tickets4000 and 5000
         """
-        c = omero.client()
+        c = omero.client() # ok because followed by __del__
         try:
             t1 = time.time()
             try:

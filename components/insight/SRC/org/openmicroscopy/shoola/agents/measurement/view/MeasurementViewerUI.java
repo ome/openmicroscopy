@@ -92,8 +92,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
-import com.sun.org.apache.bcel.internal.classfile.Code;
-
 /** 
  * The {@link MeasurementViewer} view.
  *
@@ -138,7 +136,7 @@ class MeasurementViewerUI
 	private static final Dimension		MAXIMUM_SIZE = new Dimension(700, 300);
 	
 	/** The title for the measurement tool main window. */
-	private static final String			WINDOW_TITLE = "Measurement Tool ";
+	private static final String			WINDOW_TITLE = "";//"Measurement Tool ";
 	
 	/** index to identify inspector tab. */
 	public static final int				INSPECTOR_INDEX = 0;
@@ -1512,6 +1510,17 @@ class MeasurementViewerUI
 	/** Invokes when the figures are selected. */
 	void onSelectedFigures()
 	{
+		Collection<Figure> figures = model.getSelectedFigures();
+		if (figures != null) {
+			Iterator<Figure> i = figures.iterator();
+			Figure f;
+			while (i.hasNext()) {
+				f = i.next();
+				if (measurementShown != null && measurementShown.booleanValue())
+					MeasurementAttributes.SHOWMEASUREMENT.set(f, true);
+			}
+		}
+		
 		roiManager.onSelectedFigures();
 	}
 	
@@ -1558,6 +1567,18 @@ class MeasurementViewerUI
 			}
 		}
 		model.getDrawingView().repaint();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the channel is active, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param channel The channel to handle
+	 * @return See above.
+	 */
+	boolean isChannelActive(int channel) 
+	{
+		return model.isChannelActive(channel);
 	}
 	
  	/**

@@ -242,13 +242,6 @@ public interface MeasurementViewer
 	 */
 	public Collection getSelectedFigures();
 	
-	/** 
-	 * Attaches listeners to the newly loaded ROI.
-	 * 
-	 * @param roiList list of the newly loaded ROI.
-	 */
-	public void attachListeners(List<ROI> roiList);
-	
 	/**
 	 * Creates single figures or multiple figures. 
 	 * 

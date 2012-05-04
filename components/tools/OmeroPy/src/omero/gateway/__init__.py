@@ -444,7 +444,8 @@ class BlitzObjectWrapper (object):
         @rtype:     Boolean
         @return:    see above
         """
-        g = self._obj.details.group or self._obj.details 
+        g = self.getDetails().getGroup()
+        g = g and g.details or self._obj.details
         return g.permissions.isWorldRead()
     
     def isShared(self):
@@ -456,7 +457,8 @@ class BlitzObjectWrapper (object):
                     object permissions allow group read.
         """
         if not self.isPublic():
-            g = self._obj.details.group or self._obj.details 
+            g = self.getDetails().getGroup()
+            g = g and g.details or self._obj.details
             return g.permissions.isGroupRead()
         return False
     
@@ -469,7 +471,8 @@ class BlitzObjectWrapper (object):
                     permissions allow user to read.
         """
         if not self.isPublic() and not self.isShared():
-            g = self._obj.details.group or self._obj.details 
+            g = self.getDetails().getGroup()
+            g = g and g.details or self._obj.details
             return g.permissions.isUserRead()
         return False
     
@@ -482,7 +485,8 @@ class BlitzObjectWrapper (object):
                     True if shared but not group writable
                     True if private but not user writable
         """
-        g = self._obj.details.group or self._obj.details 
+        g = self.getDetails().getGroup()
+        g = g and g.details or self._obj.details
         if self.isPublic() and not g.permissions.isWorldWrite():
             return True
         elif self.isShared() and not g.permissions.isGroupWrite():
@@ -741,7 +745,7 @@ class BlitzObjectWrapper (object):
 
         # Using queueDelete rather than deleteObjects since we need
         # spec/id pairs rather than spec+id_list as arguments
-        handle = self._conn.getDeleteService().queueDelete(dcs)
+        handle = self._conn.getDeleteService().queueDelete(dcs, self._conn.CONFIG['SERVICE_OPTS'])
         callback = omero.callbacks.DeleteCallbackI(self._conn.c, handle)
         # Maximum wait time 5 seconds, will raise a LockTimeout if the
         # delete has not finished by then.
@@ -844,13 +848,15 @@ class BlitzObjectWrapper (object):
         @param obj:     The object to link
         @type obj:      L{BlitzObjectWrapper}
         """
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
+        sopts['omero.group'] = str(self._obj.getDetails().getGroup().id.val)
         if not obj.getId():
             # Not yet in db, save it
-            obj = obj.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(obj._obj))
+            obj = obj.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(obj._obj, sopts))
         lnk = getattr(omero.model, lnkobjtype)()
         lnk.setParent(self._obj.__class__(self._obj.id, False))
         lnk.setChild(obj._obj.__class__(obj._obj.id, False))
-        self._conn.getUpdateService().saveObject(lnk)
+        self._conn.getUpdateService().saveObject(lnk, sopts)
         return obj
         
     def _linkAnnotation (self, ann):
@@ -1512,8 +1518,6 @@ class _BlitzGateway (object):
         if self._ctx is not None:
             self._userid = self._ctx.userId
             self._username = self._ctx.userName
-            # "guest" user has no access that method.
-            self._user = self._ctx.userName!="guest" and self.getObject("Experimenter", self._userid) or None
         else:
             self._userid = None
             self._username = None
@@ -1762,7 +1766,10 @@ class _BlitzGateway (object):
         @return:    Current Experimenter
         @rtype:     L{ExperimenterWrapper}
         """
-        
+        if self._ctx is None:
+            return None
+        if self._user is None:
+            self._user = self._ctx.userName!="guest" and self.getObject("Experimenter", self._userid) or None
         return self._user
     
     def getGroupFromContext(self):
@@ -1784,6 +1791,17 @@ class _BlitzGateway (object):
         
         return self.getEventContext().isAdmin
     
+    def isLeader(self):
+        """
+        Is the current group led by the current user? 
+        
+        @return:    True if user leads the current group
+        @rtype:     Boolean
+        """
+        if self.getEventContext().groupId in self.getEventContext().leaderOfGroups:
+            return True
+        return False
+
     def canBeAdmin (self):
         """
         Checks if a user is in system group, i.e. can have administration privileges.
@@ -1805,11 +1823,11 @@ class _BlitzGateway (object):
         if gid is not None:
             if not isinstance(gid, LongType) or not isinstance(gid, IntType):
                 gid = long(gid)
-            for gem in self._user.copyGroupExperimenterMap():
+            for gem in self.getUser().copyGroupExperimenterMap():
                 if gem.parent.id.val == gid and gem.owner.val == True:
                     return True
         else:
-            for gem in self._user.copyGroupExperimenterMap():
+            for gem in self.getUser()._user.copyGroupExperimenterMap():
                 if gem.owner.val == True:
                     return True
         return False
@@ -2331,7 +2349,7 @@ class _BlitzGateway (object):
         """
                 
         default = self.getObject("ExperimenterGroup", self.getEventContext().groupId)
-        if not default.isPrivate() or default.isLeader():
+        if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
                 if d.child.id.val != self.getEventContext().userId:
                     yield ExperimenterWrapper(self, d.child)
@@ -2353,7 +2371,7 @@ class _BlitzGateway (object):
         colleagues = []
         leaders = []
         default = self.getObject("ExperimenterGroup", gid)
-        if not default.isPrivate() or default.isLeader():
+        if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
                 if d.child.id.val == userId:
                     continue
@@ -2362,7 +2380,7 @@ class _BlitzGateway (object):
                 else:
                     colleagues.append(ExperimenterWrapper(self, d.child))
         else:
-            if  default.isLeader():
+            if  self.isLeader():
                 leaders =  [self.getUser()]
             else:
                 colleagues =  [self.getUser()]
@@ -2572,7 +2590,7 @@ class _BlitzGateway (object):
             toExclude.append(omero.constants.namespaces.NSEXPERIMENTERPHOTO)
             toExclude.append(omero.constants.analysis.flim.NSFLIM)
 
-        anns = self.getMetadataService().loadSpecifiedAnnotations("FileAnnotation", toInclude, toExclude, params)
+        anns = self.getMetadataService().loadSpecifiedAnnotations("FileAnnotation", toInclude, toExclude, params, self.CONFIG['SERVICE_OPTS'])
 
         for a in anns:
             yield(FileAnnotationWrapper(self, a))
@@ -2745,6 +2763,78 @@ class _BlitzGateway (object):
 
         return ImageWrapper(self, image)
 
+    def createOriginalFileFromFileObj (self, fo, name, path, fileSize, mimetype=None, ns=None, desc=None):
+        """
+        Creates a L{OriginalFileWrapper} from a local file.
+        File is uploaded to create an omero.model.OriginalFileI.
+        Returns a new L{OriginalFileWrapper}
+
+        @param conn:                    Blitz connection
+        @param localPath:               Location to find the local file to upload
+        @param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
+        @param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
+        @return:                        New L{OriginalFileWrapper}
+        """
+        updateService = self.getUpdateService()
+        rawFileStore = self.createRawFileStore()
+
+        # create original file, set name, path, mimetype
+        originalFile = omero.model.OriginalFileI()
+        originalFile.setName(rstring(name))
+        originalFile.setPath(rstring(path))
+        if mimetype:
+            originalFile.mimetype = rstring(mimetype)
+        originalFile.setSize(rlong(fileSize))
+        # set sha1
+        try:
+            import hashlib
+            hash_sha1 = hashlib.sha1
+        except:
+            import sha
+            hash_sha1 = sha.new
+        fo.seek(0)
+        h = hash_sha1()
+        h.update(fo.read())
+        shaHast = h.hexdigest()
+        originalFile.setSha1(rstring(shaHast))
+        originalFile = updateService.saveAndReturnObject(originalFile)
+
+        # upload file
+        fo.seek(0)
+        rawFileStore.setFileId(originalFile.getId().getValue())
+        buf = 10000
+        for pos in range(0,long(fileSize),buf):
+            block = None
+            if fileSize-pos < buf:
+                blockSize = fileSize-pos
+            else:
+                blockSize = buf
+            fo.seek(pos)
+            block = fo.read(blockSize)
+            rawFileStore.write(block, pos, blockSize)
+        return OriginalFileWrapper(self, originalFile)
+        
+    def createOriginalFileFromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None, desc=None):
+        """
+        Creates a L{OriginalFileWrapper} from a local file.
+        File is uploaded to create an omero.model.OriginalFileI.
+        Returns a new L{OriginalFileWrapper}
+
+        @param conn:                    Blitz connection
+        @param localPath:               Location to find the local file to upload
+        @param origFilePathAndName:     Provides the 'path' and 'name' of the OriginalFile. If None, use localPath
+        @param mimetype:                The mimetype of the file. String. E.g. 'text/plain'
+        @return:                        New L{OriginalFileWrapper}
+        """
+        if origFilePathAndName is None:
+            origFilePathAndName = localPath
+        path, name = os.path.split(origFilePathAndName)
+        fileSize = os.path.getsize(localPath)
+        fileHandle = open(localPath, 'rb')
+        try:
+            return self.createOriginalFileFromFileObj (fileHandle, path, name, fileSize, mimetype, ns, desc)
+        finally:
+            fileHandle.close()
 
     def createFileAnnfromLocalFile (self, localPath, origFilePathAndName=None, mimetype=None, ns=None, desc=None):
         """
@@ -2759,52 +2849,13 @@ class _BlitzGateway (object):
         @return:                        New L{FileAnnotationWrapper}
         """
         updateService = self.getUpdateService()
-        rawFileStore = self.createRawFileStore()
 
-        # create original file, set name, path, mimetype
-        if origFilePathAndName is None:
-            origFilePathAndName = localPath
-        originalFile = omero.model.OriginalFileI()
-        path, name = os.path.split(origFilePathAndName)
-        originalFile.setName(rstring(name))
-        originalFile.setPath(rstring(path))
-        if mimetype:
-            originalFile.mimetype = rstring(mimetype)
-        fileSize = os.path.getsize(localPath)
-        originalFile.setSize(rlong(fileSize))
-        # set sha1
-        try:
-            import hashlib
-            hash_sha1 = hashlib.sha1
-        except:
-            import sha
-            hash_sha1 = sha.new
-        fileHandle = open(localPath)
-        h = hash_sha1()
-        h.update(fileHandle.read())
-        shaHast = h.hexdigest()
-        fileHandle.close()
-        originalFile.setSha1(rstring(shaHast))
-        originalFile = updateService.saveAndReturnObject(originalFile)
-
-        # upload file
-        rawFileStore.setFileId(originalFile.getId().getValue())
-        fileHandle = open(localPath, 'rb')
-        buf = 10000
-        for pos in range(0,long(fileSize),buf):
-            block = None
-            if fileSize-pos < buf:
-                blockSize = fileSize-pos
-            else:
-                blockSize = buf
-            fileHandle.seek(pos)
-            block = fileHandle.read(blockSize)
-            rawFileStore.write(block, pos, blockSize)
-        fileHandle.close()
-
+        # create and upload original file
+        originalFile = self.createOriginalFileFromLocalFile(localPath, origFilePathAndName, mimetype, ns, desc)
+        
         # create FileAnnotation, set ns & description and return wrapped obj
         fa = omero.model.FileAnnotationI()
-        fa.setFile(originalFile)
+        fa.setFile(originalFile._obj)
         if desc:
             fa.setDescription(rstring(desc))
         if ns:
@@ -3147,10 +3198,10 @@ class _BlitzGateway (object):
             rv = []
             for t in types:
                 def actualSearch ():
-                    search.onlyType(t().OMERO_CLASS)
-                    search.byFullText(text)
+                    search.onlyType(t().OMERO_CLASS, self.CONFIG['SERVICE_OPTS'])
+                    search.byFullText(text, self.CONFIG['SERVICE_OPTS'])
                 timeit(actualSearch)()
-                if search.hasNext():
+                if search.hasNext(self.CONFIG['SERVICE_OPTS']):
                     def searchProcessing ():
                         rv.extend(map(lambda x: t(self, x), search.results()))
                     timeit(searchProcessing)()
@@ -4250,17 +4301,6 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         self.CHILD_WRAPPER_CLASS = 'ExperimenterWrapper'
         self.PARENT_WRAPPER_CLASS = None
 
-    def isLeader(self):
-        """
-        Is the current group led by the current user? 
-        
-        @return:    True if user leads the current group
-        @rtype:     Boolean
-        """
-        if self._conn.getEventContext().groupId in self._conn.getEventContext().leaderOfGroups:
-            return True
-        return False
-        
     def _getQueryString(self):
         """ 
         Returns string for building queries, loading Experimenters for each group. 
@@ -4986,7 +5026,7 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
     def __loadedHotSwap__ (self):
         """ Loads the logical channel using the metadata service """
         if self._obj is not None:
-            self._obj = self._conn.getMetadataService().loadChannelAcquisitionData([self._obj.id.val])[0]
+            self._obj = self._conn.getMetadataService().loadChannelAcquisitionData([self._obj.id.val],{'omero.group': '-1'})[0]
 
     def getLightPath(self):
         """ Make sure we have the channel fully loaded, then return L{LightPathWrapper}"""
@@ -5226,9 +5266,9 @@ class _ChannelWrapper (BlitzObjectWrapper):
 
         lc = self.getLogicalChannel()
         rv = lc.name
-        if rv is None:
+        if rv is None or len(rv.strip())==0:
             rv = lc.emissionWave
-        if rv is None:
+        if rv is None or len(str(rv).strip())==0:
             rv = self._idx
         return unicode(rv)
 
@@ -5448,7 +5488,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._re and self._re.untaint()
 
     def __loadedHotSwap__ (self):
-        self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None, {'omero.group': '-1'})[0]
+        ctx = self._conn.CONFIG['SERVICE_OPTS'] and self._conn.CONFIG['SERVICE_OPTS'].copy() or {}
+        ctx['omero.group'] = '-1'
+        self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None, ctx)[0]
     
     def getInstrument (self):
         """
@@ -5463,7 +5505,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             return None
         if not i.loaded:
             meta_serv = self._conn.getMetadataService()
-            i = self._obj.instrument = meta_serv.loadInstrument(i.id.val)
+            i = self._obj.instrument = meta_serv.loadInstrument(i.id.val, {'omero.group': '-1'})
         return InstrumentWrapper(self._conn, i)
 
     def _loadPixels (self):
@@ -5526,17 +5568,19 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         pid = self.getPrimaryPixels().id
         re = self._conn.createRenderingEngine()
-        re.lookupPixels(pid, self._conn.CONFIG['SERVICE_OPTS'])
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
+        sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+        if self._conn.canBeAdmin():
+            sopts['omero.user'] = str(self.getDetails().getOwner().getId())
+        re.lookupPixels(pid, sopts)
         rdid = self._getRDef()
         if rdid is None:
-            if not re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS']):
-                sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
-                sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+            if not re.lookupRenderingDef(pid, sopts):
                 re.resetDefaults(sopts)
-                re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS'])
-                self._onResetDefaults(re.getRenderingDefId(self._conn.CONFIG['SERVICE_OPTS']))
+                re.lookupRenderingDef(pid, sopts)
+            self._onResetDefaults(re.getRenderingDefId(self._conn.CONFIG['SERVICE_OPTS']))
         else:
-            re.loadRenderingDef(rdid, self._conn.CONFIG['SERVICE_OPTS'])
+            re.loadRenderingDef(rdid, sopts)
         re.load()
         return re
 
@@ -5565,7 +5609,16 @@ class _ImageWrapper (BlitzObjectWrapper):
     def resetRDefs (self):
         logger.debug('resetRDefs')
         if self.canWrite():
-            self._conn.getDeleteService().deleteSettings(self.getId())
+            self._conn.getDeleteService().deleteSettings(self.getId(), self._conn.CONFIG['SERVICE_OPTS'])
+            rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
+            logger.debug(rdefns)
+            if rdefns:
+                # Use the same group as the image in the context
+                defsopts = self._conn.CONFIG['SERVICE_OPTS']
+                self._conn.CONFIG['SERVICE_OPTS'] = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
+                self._conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(self.getDetails().getGroup().getId())
+                self.removeAnnotations(rdefns)
+                self._conn.CONFIG['SERVICE_OPTS'] = defsopts
             return True
         return False
 
@@ -5756,11 +5809,13 @@ class _ImageWrapper (BlitzObjectWrapper):
         pid = self.getPrimaryPixels().id
         rdid = self._getRDef()
         tb = self._conn.createThumbnailStore()
-        has_rendering_settings = tb.setPixelsId(pid, self._conn.CONFIG['SERVICE_OPTS'])
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
+        sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+        has_rendering_settings = tb.setPixelsId(pid, sopts)
         logger.debug("tb.setPixelsId(%d) = %s " % (pid, str(has_rendering_settings)))
         if rdid is not None:
             try:
-                tb.setRenderingDefId(rdid, self._conn.CONFIG['SERVICE_OPTS'])
+                tb.setRenderingDefId(rdid, sopts)
             except omero.ValidationException:
                 # The annotation exists, but not the rendering def?
                 logger.error('IMG %d, defrdef == %d but object does not exist?' % (self.getId(), rdid))
@@ -5768,8 +5823,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         if rdid is None:
             if not has_rendering_settings:
                 try:
-                    sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
-                    sopts['omero.group'] = str(self.getDetails().getGroup().getId())
                     tb.resetDefaults(sopts)      # E.g. May throw Missing Pyramid Exception
                 except omero.ConcurrencyException, ce:
                     logger.info( "ConcurrencyException: resetDefaults() failed in _prepareTB with backOff: %s" % ce.backOff)
@@ -6896,7 +6949,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             c.unloadBlue()
             c.unloadAlpha()
             c.save()
-        self._conn.getDeleteService().deleteSettings(self.getId())
+        self._conn.getDeleteService().deleteSettings(self.getId(), self._conn.CONFIG['SERVICE_OPTS'])
         return True
 
     def _collectRenderOptions (self):
@@ -6962,6 +7015,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             self.linkAnnotation(ann)
         sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
         sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+        sopts['omero.user'] = str(self.getDetails().getOwner().getId())
         self._re.saveCurrentSettings(sopts)
         return True
 

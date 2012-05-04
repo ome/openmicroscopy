@@ -23,10 +23,15 @@
 
 {% block title %}{% trans "Change avatar" %}{% endblock %}
 
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webadmin/javascript/jquery.imgareaselect-0.9.8/css/imgareaselect-default.css" %}" type="text/css" media="screen"/>
+{% endblock %}
+
 {% block script %}
     {{ block.super }}
 
-    <script type="text/javascript" src="{% static "webadmin/javascript/jquery.imgareaselect.js" %}"></script>
+    <script type="text/javascript" src="{% static "webadmin/javascript/jquery.imgareaselect-0.9.8/jquery.imgareaselect.js" %}"></script>
     
     <script type="text/javascript">
     
@@ -77,7 +82,7 @@
         var x2 = {{ photo_size.0.0 }}/2+dim
         var y1 = {{ photo_size.0.1 }}/2-dim
         var y2 = {{ photo_size.0.1 }}/2+dim
-        $('#thumbnail').imgAreaSelect({ x1: x1, y1: y1, x2: x2, y2: y2, selectionOpacity: 0.2, aspectRatio: '1:1', handles: true, onSelectChange: preview }); 
+        $('#thumbnail').imgAreaSelect({ x1: x1, y1: y1, x2: x2, y2: y2, selectionOpacity: 0.2, aspectRatio: '1:1', handles: 'corners', onSelectChange: preview }); 
     });
     {% endif %}
     </script>
@@ -87,8 +92,8 @@
 
 {% block center_details %}
 {{ block.super }}
-<div>
-    <h1>My avatar</h1>
+<div class="one_column_content">
+    <h1 class="page_title">My avatar</h1>
     
 {% if edit_mode %}
     <img src="{% url wamyphoto %}" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
@@ -98,7 +103,7 @@
     <div class="clear"> </div>
     <p>Drag or adjust the region on the image to select an area.</p>
     
-    <h1><form name="thumbnail" action="{% url wamanageavatar eventContext.userId "crop" %}" method="post">
+    <h1><form name="thumbnail" action="{% url wamanageavatar ome.eventContext.userId "crop" %}" method="post">
         <input type="hidden" name="x1" value="" id="x1" />
         <input type="hidden" name="y1" value="" id="y1" />
         <input type="hidden" name="x2" value="" id="x2" />
@@ -118,9 +123,9 @@
     </div>
     
     <div class="float_left">
-      {% if photo_size %}<p><a href="{% url wamanageavatar eventContext.userId "editphoto" %}"> Edit picture <img title="Crop" src="{% static "webadmin/image/frame_edit.png" %}" /></a></p>{% endif %}
+      {% if photo_size %}<p><a href="{% url wamanageavatar ome.eventContext.userId "editphoto" %}"> Edit picture <img title="Crop" src="{% static "webadmin/image/frame_edit.png" %}" /></a></p>{% endif %}
       <p>Upload new picture. Select an image file on your computer (max 200KB):</p>
-        <form enctype="multipart/form-data" method="post" action="{% url wamanageavatar eventContext.userId "upload" %}">
+        <form enctype="multipart/form-data" method="post" action="{% url wamanageavatar ome.eventContext.userId "upload" %}">
             <table>
               <tbody>
                 {% for field in form_file %}

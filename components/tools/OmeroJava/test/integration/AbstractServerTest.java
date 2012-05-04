@@ -842,7 +842,7 @@ public class AbstractServerTest
     protected List<Pixels> importFile(File file, String format)
         throws Throwable
     {
-        return importFile(importer, file, format, false);
+        return importFile(importer, file, format, false, null);
     }
 
     /**
@@ -857,7 +857,7 @@ public class AbstractServerTest
     protected List<Pixels> importFile(File file, String format, boolean metadata)
         throws Throwable
     {
-        return importFile(importer, file, format, metadata);
+        return importFile(importer, file, format, metadata, null);
     }
 
     /**
@@ -874,9 +874,25 @@ public class AbstractServerTest
 			File file, String format)
 		throws Throwable
 	{
-		return importFile(importer, file, format, false);
+		return importFile(importer, file, format, false, null);
 	}
 	
+	/**
+	 * Imports the specified OME-XML file and returns the pixels set
+	 * if successfully imported.
+	 * 
+	 * @param importer The metadataStore to use.
+	 * @param file The file to import.
+	 * @param target The container where to import the image.
+	 * @return The collection of imported pixels set.
+	 * @throws Throwable Thrown if an error occurred while encoding the image.
+	 */
+	protected List<Pixels> importFile(File file, String format, IObject target)
+		throws Throwable
+	{
+		return importFile(importer, file, format, false, target);
+	}
+
 	/**
 	 * Imports the specified OME-XML file and returns the pixels set
 	 * if successfully imported.
@@ -893,11 +909,30 @@ public class AbstractServerTest
 			File file, String format, boolean metadata)
 		throws Throwable
 	{
+		return importFile(importer, file, format, metadata, null);
+	}
+	
+	/**
+	 * Imports the specified OME-XML file and returns the pixels set
+	 * if successfully imported.
+	 * 
+	 * @param importer The metadataStore to use.
+	 * @param file The file to import.
+	 * @param format The format of the file to import.
+	 * @param metadata Pass <code>true</code> to only import the metadata,
+	 *                 <code>false</code> otherwise.
+	 * @return The collection of imported pixels set.
+	 * @throws Throwable Thrown if an error occurred while encoding the image.
+	 */
+	protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
+			File file, String format, boolean metadata, IObject target)
+		throws Throwable
+	{
 		ImportLibrary library = new ImportLibrary(importer, 
 				new OMEROWrapper(new ImportConfig()));
 		library.setMetadataOnly(metadata);
 		ImportContainer container = new ImportContainer(
-                file, null, null, false, null, null, null, null);
+                file, null, target, false, null, null, null, null);
 		container.setUseMetadataFile(true);
 		container.setCustomImageName(format);
 		List<Pixels> pixels = library.importImage(container, 0, 0, 1);
@@ -905,7 +940,18 @@ public class AbstractServerTest
 		assertTrue(pixels.size() > 0);
 		return pixels;
 	} 
+
 	
+	/**
+	 * Deletes the objects.
+	 * 
+	 * @param c
+	 * @param dc
+	 * @return
+	 * @throws ApiUsageException
+	 * @throws ServerError
+	 * @throws InterruptedException
+	 */
     protected String delete(omero.client c, DeleteCommand...dc)
     throws ApiUsageException, ServerError,
     InterruptedException

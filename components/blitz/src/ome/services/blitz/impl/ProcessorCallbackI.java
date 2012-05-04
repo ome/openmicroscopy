@@ -48,8 +48,6 @@ public class ProcessorCallbackI extends AbstractAmdServant
 
     private final ResultHolder<String> holder;
 
-    private final EventContext ec;
-
     /**
      * Simplified constructor used to see if any usermode processor is active
      * for either the current group or the current user. Currently uses a
@@ -77,7 +75,6 @@ public class ProcessorCallbackI extends AbstractAmdServant
         this.sf = sf;
         this.job = job;
         this.holder = holder;
-        this.ec = sf.sessionManager.getEventContext(sf.principal);
     }
 
     /**
@@ -151,6 +148,7 @@ public class ProcessorCallbackI extends AbstractAmdServant
             try {
                 EventContext procEc = sf.sessionManager
                         .getEventContext(new Principal(sessionUuid));
+                EventContext ec = sf.getEventContext(__current);
                 if (procEc.isCurrentUserAdmin()
                         || procEc.getCurrentUserId().equals(
                                 ec.getCurrentUserId())) {

@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block content %}
-    <div class="error">
+    <div id="form-500" class="error">   <!-- This div used for 500 dialog box (handling ajaxError) -->
         <h1>{% trans "Server Error." %} <em>(500)</em></h1>
 
         <p>{% trans "There's been an error. Please give us feedback to help to improve the OMERO applications. Thanks for your patience." %}</p>
