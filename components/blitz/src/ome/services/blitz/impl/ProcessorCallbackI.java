@@ -109,20 +109,15 @@ public class ProcessorCallbackI extends AbstractAmdServant
             ProcessorCallbackPrx cbPrx = ProcessorCallbackPrxHelper
                     .uncheckedCast(prx);
 
-            // TODO: this should be something simpler
-            Long gid = (Long) this.sf.executor.execute(current.ctx, this.sf.principal,
-                    new Executor.SimpleWork(this, "getEffectiveGid") {
-                        @Transactional(readOnly=true)
-                        public Object doWork(Session session, ServiceFactory sf) {
-                            return sf.getAdminService().getEventContext().getCurrentGroupId();
-                        }
-                    });
+            EventContext ec = sf.getEventContext(current);
 
             TopicManager.TopicMessage msg = new TopicManager.TopicMessage(this,
                     PROCESSORACCEPTS.value, new ProcessorPrxHelper(),
                     "willAccept", new omero.model.ExperimenterI(ec
                             .getCurrentUserId(), false),
-                    new omero.model.ExperimenterGroupI(gid, false), this.job, cbPrx);
+                    new omero.model.ExperimenterGroupI(ec
+                            .getCurrentGroupId(), false),
+                            this.job, cbPrx);
             sf.topicManager.onApplicationEvent(msg);
             String server = holder.get();
             Ice.ObjectPrx p = sf.adapter.getCommunicator()
