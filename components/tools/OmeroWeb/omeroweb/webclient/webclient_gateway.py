@@ -53,7 +53,7 @@ from omero.rtypes import *
 from omero.model import FileAnnotationI, TagAnnotationI, \
                         DatasetI, ProjectI, ImageI, ScreenI, PlateI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, \
-                        LaserI
+                        LaserI, ExperimenterI
 
 from omero.gateway import FileAnnotationWrapper, TagAnnotationWrapper, ExperimenterWrapper, \
                 ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper, \
@@ -1899,6 +1899,16 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
         self.colleagues = summary["colleagues"]
         self.colleagues.sort(key=lambda x: x.getLastName().lower())
 
+    def isLocked(self):
+        if self.name == "user":
+            return True
+        elif self.name == "system":
+            return True
+        elif self.name == "guest":
+            return True
+        else:
+            False
+    
 omero.gateway.ExperimenterGroupWrapper = ExperimenterGroupWrapper 
 
 class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper): 
