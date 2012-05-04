@@ -56,11 +56,28 @@
 	
 	<Experimenter ID="Experimenter:1" DisplayName="Joe Bloggs">
 		<GroupRef ID="Group:1"/>
+		<GroupRef ID="Group:4"/>
+		<GroupRef ID="Group:5"/>
 	</Experimenter>
 	<Experimenter ID="Experimenter:2" DisplayName="John Smith" FirstName="John" MiddleName="Andrew" LastName="Smith" Email="john@example.org">
-		
 	</Experimenter>
-	<Group ID="Group:1" Name="MyGroup">
+	
+	<Experimenter ID="Experimenter:3" DisplayName="Jane Bloggs">
+		<GroupRef ID="Group:2"/>
+	</Experimenter>
+	<Experimenter ID="Experimenter:4" DisplayName="Jack Bloggs">
+		<GroupRef ID="Group:2"/>
+	</Experimenter>
+	<Experimenter ID="Experimenter:5" DisplayName="Julian Bloggs">
+		<GroupRef ID="Group:3"/>
+	</Experimenter>
+	<Experimenter ID="Experimenter:6" DisplayName="Jeffery Bloggs">
+		<GroupRef ID="Group:1"/>
+	</Experimenter>
+	<Experimenter ID="Experimenter:7" DisplayName="Jake Bloggs">
+	</Experimenter>
+	
+	<Group ID="Group:1" Name="MyGroup - Leader+Contact match">
 		<Description>A description for my group.
 			Complete with basic formating, like new lines.</Description>
 		<Leader ID="Experimenter:1"/>
@@ -72,6 +89,24 @@
 			Complete with basic formating, like new lines.</Description>
 		<Leader ID="Experimenter:1"/>
 		<Contact ID="Experimenter:2"/>
+	</Group>
+	
+	<Group ID="Group:3" Name="NoMatch">
+		<Description>A description for my group.
+			Complete with basic formating, like new lines.</Description>
+		<Leader ID="Experimenter:7"/>
+		<Contact ID="Experimenter:7"/>
+	</Group>
+	
+	<Group ID="Group:4" Name="LeaderMatch">
+		<Description>A description for my group.
+			Complete with basic formating, like new lines.</Description>
+		<Leader ID="Experimenter:1"/>
+	</Group>
+	<Group ID="Group:5" Name="ContactMatch">
+		<Description>A description for my group.
+			Complete with basic formating, like new lines.</Description>
+		<Contact ID="Experimenter:1"/>
 	</Group>
 	
 	<Instrument ID="Instrument:1">

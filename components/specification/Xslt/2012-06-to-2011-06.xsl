@@ -112,7 +112,24 @@
 		<xsl:element name="OME:Experimenter" namespace="{$newOMENS}">
 			<!-- Calculate DisplayName -->
 			<xsl:attribute name="DisplayName"><xsl:value-of select="@FirstName"/>/<xsl:value-of select="@MiddleName"/>/<xsl:value-of select="@LastName"/>(<xsl:value-of select="@UserName"/>)[<xsl:value-of select="@Email"/>]</xsl:attribute>
-			<xsl:apply-templates select="@*|node()"/>
+			<xsl:apply-templates select="@*"/>
+			<xsl:apply-templates select="node()"/>
+			<xsl:variable name="experimenterID" select="@ID"/>
+			<xsl:for-each select="exsl:node-set(//OME:ExperimenterGroup/OME:ExperimenterRef[@ID=$experimenterID])">
+				<xsl:element name="OME:GroupRef" namespace="{$newOMENS}">
+					<xsl:attribute name="ID">Group:<xsl:for-each select=" parent::node()">
+						<xsl:value-of select="@ID"/>
+					</xsl:for-each></xsl:attribute>
+				</xsl:element>
+			</xsl:for-each>
+			<xsl:for-each select="exsl:node-set(//OME:ExperimenterGroup/OME:Leader[@ID=$experimenterID])">
+				<xsl:element name="OME:GroupRef" namespace="{$newOMENS}">
+					<xsl:attribute name="ID">Group:<xsl:for-each select=" parent::node()">
+						<xsl:value-of select="@ID"/>
+					</xsl:for-each></xsl:attribute>
+				</xsl:element>
+			</xsl:for-each>
+			
 		</xsl:element>
 	</xsl:template>
 	
@@ -185,7 +202,7 @@
 	<xsl:template match="ROI:Shape">
 		<xsl:element name="ROI:Shape" namespace="{$newROINS}">
 			<xsl:for-each
-				select="@* [not(name() = 'FillColor' or name() = 'StrokeColor' or name() = 'Text' or name() =  'Visible')]">
+				select="@* [not(name() = 'FillColor' or name() = 'StrokeColor' or name() = 'Text' or name() =  'Visible' or name() =  'Locked')]">
 				<xsl:attribute name="{local-name(.)}">
 					<xsl:value-of select="."/>
 				</xsl:attribute>
@@ -282,7 +299,7 @@
 	<!-- Rewriting all namespaces -->
 	
 	<xsl:template match="OME:OME">
-		<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2011-06"
+		<OME:OME xmlns:OME="http://www.openmicroscopy.org/Schemas/OME/2011-06"
 			xmlns:Bin="http://www.openmicroscopy.org/Schemas/BinaryFile/2011-06"
 			xmlns:SPW="http://www.openmicroscopy.org/Schemas/SPW/2011-06"
 			xmlns:SA="http://www.openmicroscopy.org/Schemas/SA/2011-06"
@@ -291,7 +308,7 @@
 			xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2011-06 
 			../../../Released-Schema/2011-06/V1/ome.xsd">
 			<xsl:apply-templates/>
-		</OME>
+		</OME:OME>
 	</xsl:template>
 	
 	<xsl:template match="OME:*">
