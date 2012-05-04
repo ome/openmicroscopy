@@ -173,19 +173,22 @@ public class DownloadActivity extends ActivityComponent {
 	 */
 	public DownloadActivity(UserNotifier viewer, Registry registry,
 			SecurityContext ctx, DownloadActivityParam parameters) {
-		
+
 		super(viewer, registry, ctx);
-		
+
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
-		
+
 		initialize("Download", parameters.getIcon());
-		
+
 		File folder = parameters.getFolder();
 
 		fileName = getFileName();
-		localFileName = folder + File.separator + fileName;
+		if (folder.isDirectory())
+			localFileName = folder + File.separator + fileName;
+		else
+			localFileName = folder.toString();
 		messageLabel.setText(localFileName);
 	}
 
@@ -197,15 +200,21 @@ public class DownloadActivity extends ActivityComponent {
 	protected UserNotifierLoader createLoader() {
 		OriginalFile f = parameters.getFile();
 		File folder = parameters.getFolder();
-		
-		file = new File(folder + File.separator + fileName);
-		
-		registry.getLogger().debug(this, String.format("Folder: %s Separator: %s Filename: %s", folder, File.separator, fileName));
-		
+
+		if (folder.isDirectory())
+			file = new File(folder + File.separator + fileName);
+		else
+			file = folder;
+
+		registry.getLogger().debug(
+				this,
+				String.format("Folder: %s Separator: %s Filename: %s", folder,
+						File.separator, fileName));
+
 		boolean load = true;
 		if (file.exists())
 			load = false;
-		
+
 		switch (parameters.getIndex()) {
 		case DownloadActivityParam.FILE_ANNOTATION:
 		case DownloadActivityParam.ORIGINAL_FILE:

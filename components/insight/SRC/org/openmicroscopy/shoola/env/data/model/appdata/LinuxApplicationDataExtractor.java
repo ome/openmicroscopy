@@ -42,12 +42,15 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
  */
 public class LinuxApplicationDataExtractor implements ApplicationDataExtractor {
 
+	/** The default location on <code>Linux</code> platforms that applications reside in. */
+	private static final String LOCATION_LINUX = "/usr/bin";
+	
 	/**
 	 * @return the Linux specific directory where applications are generally
 	 *         located
 	 */
 	public String getDefaultAppDirectory() {
-		return "/usr/bin/";
+		return LOCATION_LINUX;
 	}
 
 	/**

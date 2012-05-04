@@ -114,10 +114,10 @@ public class DownloadActivityParam
     	if (file == null) 
     		throw new IllegalArgumentException("No file to download.");
     	this.file = file;
-    	this.folder = folder.getParentFile();
+    	this.folder = folder;
     	this.icon = icon;
     	legend = null;
-    	fileName = folder.getName();
+    	fileName = null;//folder.getName();
     	legendExtension = null;
     	index = -1;
     	id = -1;
