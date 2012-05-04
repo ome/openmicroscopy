@@ -70,6 +70,22 @@
 						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
+                <xsd:element name = "Event" minOccurs="0" maxOccurs="unbounded">
+                    <xsd:annotation>
+                        <xsd:appinfo><xsdfu><plural>Events</plural></xsdfu></xsd:appinfo>
+                        <xsd:documentation>Describes an Event.</xsd:documentation>
+                    </xsd:annotation>
+                    <xsd:complexType>
+                        <xsd:attribute name="ID" use="required" type="EventID"/>
+                        <xsd:attribute name="EntityId" use="required" type="OME:NonNegativeLong"/>
+                        <xsd:attribute name="Status" use="optional" type="xsd:string"/>
+                        <xsd:attribute name="Time" use="required" type="xsd:dateTime"/>
+                        <xsd:attribute name="Type" use="required" type="EventType"/>
+                        <xsd:attribute name="Experimenter" use="required" type="OME:ExperimentID"/>
+                        <xsd:attribute name="ExperimenterGroup" use="required" type="OME:ExperimenterGroupID"/>
+                        <xsd:attribute name="ContainingEvent" use="optional" type="EventID"/>
+                    </xsd:complexType>
+                </xsd:element>
 			</xsd:sequence>
 			<xsd:attribute name="Uuid" use="required" type="xsd:string">
                 <xsd:annotation>
@@ -101,23 +117,6 @@
 		</xsd:complexType>
 	</xsd:element>
 
-	<xsd:element name = "Event"> <!-- top level definition -->
-		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>Events</plural></xsdfu></xsd:appinfo>
-			<xsd:documentation>Describes an Event.</xsd:documentation>
-		</xsd:annotation>
-		<xsd:complexType>
-			<xsd:attribute name="ID" use="required" type="EventID"/>
-			<xsd:attribute name="EntityId" use="required" type="OME:NonNegativeLong"/>
-			<xsd:attribute name="Status" use="optional" type="xsd:string"/>
-			<xsd:attribute name="Time" use="required" type="xsd:dateTime"/>
-			<xsd:attribute name="Type" use="required" type="EventType"/>
-			<xsd:attribute name="SessionRef" use="required" type="SessionID"/>
-			<xsd:attribute name="Experimenter" use="required" type="OME:ExperimentID"/>
-			<xsd:attribute name="ExperimenterGroup" use="required" type="OME:ExperimenterGroupID"/>
-			<xsd:attribute name="ContainingEvent" use="optional" type="EventID"/>
-		</xsd:complexType>
-	</xsd:element>
 
 	<xsd:element name = "EventLog"> <!-- top level definition -->
 		<xsd:annotation>
