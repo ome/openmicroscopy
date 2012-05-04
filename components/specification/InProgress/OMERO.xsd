@@ -117,7 +117,11 @@
 			<xsd:documentation>Describes a node.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
-			<xsd:attribute name="Uuid" use="required" type="xsd:string"/> <!--  Add UNIQUE constraint -->
+            <xsd:attribute name="Uuid" use="required" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo><xsdfu><unique/></xsdfu></xsd:appinfo>
+                </xsd:annotation>
+            </xsd:attribute>
 			<xsd:attribute name="Conn" use="required" type="xsd:string"/>
 			<xsd:attribute name="Up" use="required" type="xsd:dateTime"/>
 			<xsd:attribute name="Down" use="optional" type="xsd:dateTime"/>
