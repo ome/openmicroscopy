@@ -830,13 +830,19 @@ class TestIShare(lib.ITest):
         member, member_obj = self.new_client_and_user(perms="rw----") # Different group!
 
         member_suuid = member.sf.getAdminService().getEventContext().sessionUuid
+        owner_suuid = owner.sf.getAdminService().getEventContext().sessionUuid
+        
+        member_groupId = member.sf.getAdminService().getEventContext().groupId
+        owner_groupId = owner.sf.getAdminService().getEventContext().groupId
+        
+        self.assertFalse(member_suuid == owner_suuid) # just in case
 
         self.assertFalse(owner_obj.id.val == member_obj.id.val) # just in case
 
         owner_update = owner.sf.getUpdateService()
         image = self.new_image()
         image = owner_update.saveAndReturnObject(image)
-
+        
         member_update = member.sf.getUpdateService()
         image2 = self.new_image()
         image2 = member_update.saveAndReturnObject(image2)
@@ -849,19 +855,29 @@ class TestIShare(lib.ITest):
 
         member_share = member.sf.getShareService()
         share_obj = member_share.getShare(sid)
-        member_share.activate(long(sid))
+        # Activation shouldn't be needed any more as we pass {'omero.share': <sid>}
+        #member_share.activate(long(sid))
 
         # And the member should be able to use omero.share:sid
         member_query = member.sf.getQueryService()
-        rv = member_query.find("Image", image.id.val, {'omero.share': str(sid)})
+        
+        try:
+            rv = member.sf.getQueryService().find("Image", image.id.val, None)
+        except omero.SecurityViolation, sv:
+            pass
+        else:
+            self.fail("Error: Member shouldn't access image in share!")
+        
+        rv = member_query.find("Image", image.id.val, {'omero.share': str(sid), 'omero.group':str(image.details.group.id.val)})
         self.assertEquals(image.id.val, rv.id.val)
 
         # join share
         user_client = self.new_client(session=member_suuid)
         try:
-            user_client.sf.getShareService().deactivate()
+            # Deactivation shouldn't be needed any more as we pass {'omero.share': <sid>}
+            # user_client.sf.getShareService().deactivate()
             user_query = user_client.sf.getQueryService()
-            rv = user_query.find("Image", image2.id.val)
+            rv = user_query.find("Image", image2.id.val, {'omero.group':str(image2.details.group.id.val)})
             self.assertEquals(image2.id.val, rv.id.val)
         finally:
             user_client.__del__()
