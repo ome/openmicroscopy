@@ -363,10 +363,13 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     # check any change in experimenter...
     user_id = request.REQUEST.get('experimenter')
-    if user_id is not None and len(user_id)>0:
+    try:
+        user_id = long(user_id)
+    except:
+        user_id = None
+    if user_id is not None:
         form_users = UsersForm(initial={'users': users, 'empty_label':None, 'menu':menu}, data=request.REQUEST.copy())
         if not form_users.is_valid():
-            print "NOT VALID!"
             user_id = None
     if user_id is None:
         # ... or check that current user is valid in active group
