@@ -232,15 +232,12 @@ class ToolBar
 				b = new JButton(controller.getAction(TreeViewerControl.VIEW));
 		        UIUtilities.unifiedButtonLookAndFeel(b);
 		        bar.add(b);
-				break;
 		}
         
         b = new JButton(controller.getAction(TreeViewerControl.REFRESH_TREE));
         UIUtilities.unifiedButtonLookAndFeel(b);
         //bar.add(b);
         
-        
-       
         TreeViewerAction a = controller.getAction(TreeViewerControl.MANAGER);
         b = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(b);
@@ -495,7 +492,7 @@ class ToolBar
         	personalMenu = new JPopupMenu();
         	personalMenu.setBorder(
         			BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        	List<JMenuItem> l =  createMenuItem(false);
+        	List<JMenuItem> l = createMenuItem(false);
         	Iterator<JMenuItem> i = l.iterator();
         	while (i.hasNext()) {
 				personalMenu.add(i.next());

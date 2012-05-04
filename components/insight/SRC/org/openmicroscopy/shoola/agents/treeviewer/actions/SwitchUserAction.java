@@ -113,22 +113,6 @@ public class SwitchUserAction
             return;
         }
         handleGroupSelection(model.getSelectedGroup());
-        /*
-        Browser browser = model.getSelectedBrowser();
-        if (browser == null) {
-        	setEnabled(false);
-            return;
-        }
-        TreeImageDisplay[] selection = browser.getSelectedDisplays();
-        if (selection.length == 1) {
-        	Object ho = selectedDisplay.getUserObject();
-        	if (ho instanceof GroupData) {
-        		handleGroupSelection((GroupData) ho);
-        	} else setEnabled(false);
-        } else {
-        	setEnabled(false);
-        }
-        */
     }
     
     /** 
@@ -143,9 +127,7 @@ public class SwitchUserAction
     		return;
     	}
     	if (browser.getState() == Browser.READY) {
-    		//boolean enabled = false;
-    		TreeImageDisplay display = browser.getLastSelectedDisplay();
-    		onDisplayChange(display);
+    		onDisplayChange(browser.getLastSelectedDisplay());
     	} else setEnabled(false);
     }
     

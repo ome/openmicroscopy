@@ -2031,6 +2031,25 @@ class TreeViewerComponent
 		IconManager icons = IconManager.getInstance();
 		Set groups = TreeViewerAgent.getAvailableUserGroups();
 		if (group == null) group = model.getSelectedGroup();
+		
+		int level = 
+		TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+				group);
+		if (level == AdminObject.PERMISSIONS_PRIVATE) {
+			ExperimenterData currentUser = model.getExperimenter();
+			Set leaders = group.getLeaders();
+			Iterator k = leaders.iterator();
+			ExperimenterData exp;
+			boolean owner = false;
+			while (k.hasNext()) {
+				exp = (ExperimenterData) k.next();
+				if (exp.getId() == currentUser.getId()) {
+					owner = true;
+					break;
+				}
+			}
+			if (!owner) return;
+		}
 		Set experimenters = group.getExperimenters();
 		if (experimenters == null || experimenters.size() == 0) return;
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
