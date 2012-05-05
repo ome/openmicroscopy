@@ -41,6 +41,8 @@
     <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
+    <script language="javascript" type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.pie.js" %}"></script>
     
     <script type="text/javascript">
     
@@ -72,12 +74,6 @@
         {% endif %}
     }); 
 
-    </script>
-    
-    <script>
-        $(function() {
-            $( "#admin" ).tabs();
-        });
     </script>
     
     
@@ -160,6 +156,160 @@
         });
     </script>
     
+    <script type="text/javascript">
+        Number.prototype.filesizeformat = function () {
+            /*
+            Formats the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,
+            102 bytes, etc).*/
+            
+            var bytes = this;
+            if (bytes < 1024) {
+                return bytes + ' B';
+            } else if (bytes < (1024*1024)) {
+                return (bytes / 1024).toFixed(2) + ' KB';
+            } else if (bytes < (1024*1024*1024)) {
+                return (bytes / (1024*1024)).toFixed(2) + ' MB';
+            } else if (bytes < (1024*1024*1024*1024)) {
+                return (bytes / (1024*1024*1024)).toFixed(2) + ' GB';
+            } else if (bytes < (1024*1024*1024*1024*1024)) {
+                return (bytes / (1024*1024*1024*1024)).toFixed(2) + ' TB';
+            } else if (bytes < (1024*1024*1024*1024*1024*1024)) {
+                return (bytes / (1024*1024*1024*1024*1024)).toFixed(2) + ' PB';
+            } else {
+                return bytes + ' B';
+            }
+            
+        }
+        
+        var load_drivespace = function(freespace) {
+            $("#status").html('loading...');
+            $("#progress").show();
+            var usage = true;
+            var offsetQuery = '';
+            var piechart_data = {};
+            while (usage){ 
+                $.ajax({  
+                    type: "GET",  
+                    url: "{% url waloaddrivespace %}",  
+                    contentType: "application/json; charset=utf-8",  
+                    data: offsetQuery,
+                    dataType: "json",
+                    timeout: 10000, 
+                    async: false,
+                    success: function(data){  
+                        if (!data.loading) {
+                            usage = false;
+                            $("#usage").remove();
+                            $("#placeholder").css('width',700).css('height',300);
+                        }
+                        
+                        offsetQuery = "offset="+(data.offset);
+                        
+                        jQuery.each(data.usage, function(i, val) {
+                            if(val.label in piechart_data) {
+                                piechart_data[val.label] += val.data;
+                            } else {
+                                piechart_data[val.label] = val.data;
+                            }
+                        });
+                        
+                        $("#status").html('loading...');
+                        $("#progress").show();
+                        
+                    }
+                });
+            };
+            
+            $("#status").html('');
+            $("#progress").hide();
+            
+            
+            
+            
+            // do piechart
+            function sortByValue(keyArray, valueMap) {
+                return keyArray.sort(function(a,b){return valueMap[b]-valueMap[a];});
+            }
+            
+            var keyArray = [];
+            var sum = 0;
+            var i=0;
+            for (var l in piechart_data) { 
+                sum = sum + (piechart_data[l]);
+                keyArray[i]=l;
+                i++;
+            }
+            
+            keyArray = sortByValue(keyArray, piechart_data);
+            
+            var l = $('table#drivespaceTable');            
+            
+            //var chart_data = [{label:'Free space', data:{{ driveSpace.free}} }];
+            var chart_data = [{label:'Free space', data:freespace}];
+            for(i=0; i<keyArray.length; i++) {
+                
+                var key = keyArray[i];
+                if(i>10){
+                    var d = chart_data[11].data;
+                    chart_data[11] = {label:'Others', data:d+piechart_data[key]};
+                } else {
+                    chart_data[i+1]={label:key, data:piechart_data[key]};
+                }
+                
+                l.append('<tr id="'+i+'"><td class="link">' + key + '(id:'+i+')</td><td id="usage" class="link">' + (piechart_data[key]).filesizeformat() + '</td></tr>');
+            }
+            
+            $('#total').text('{% trans "Total usage" %}: ' + sum.filesizeformat())
+            
+            $('table#drivespaceTable').show();
+            
+
+            $.plot($("#placeholder"), chart_data, 
+            {
+                
+                series: {
+                    pie: {
+                        show: true,
+                        radius: 1,
+                        tilt: 0.7,
+                        label: {
+                            show: true,
+                            radius: 0.9,
+                            formatter: function(label, series){
+                                return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+Math.round(series.percent)+'%</div>';
+                            },
+                            background: { opacity: 0 }
+                        }
+                    }
+                },
+                legend: {
+                    show: true
+                }
+            });
+        };
+        
+        var drivespace_loaded = false;
+        $(function() {
+            $( "#admin" ).tabs({
+                select: function(event, ui) {
+                    if ( $(ui.tab).attr('title') == "Drivespace" ){
+                        
+                        if (!drivespace_loaded) {
+                            drivespace_loaded = true;
+                            $.getJSON("{% url wadrivespace %}", function(data){
+                                load_drivespace(data.free);
+                            });
+                        }
+                    }
+                    return true;
+                }
+            });
+            
+            //load_drivespace();
+        });
+        
+        
+    </script>
     
 {% endblock %}
 
@@ -313,7 +463,26 @@
     
     <div id="drivespace_settings" class="settings_content">
         
-        <h1 style="padding: 20px">Drive Space</h1>
+        <h1>Drive Space</h1>
+
+        <div id="placeholder"></div>
+
+        <h2>{% trans "Drive space usage" %}:</h2>
+
+        <div>{% trans "Free space" %}: {{ driveSpace.free|filesizeformat }}</div>
+        <div id="total"></div>
+
+        <div id="usage">
+            <img src="{% static "webgateway/img/spinner.gif" %}" id="progress" style="float:left"/>
+            <div id="status">loading...</div>
+        </div>
+
+
+        <table id="drivespaceTable" class="tablesorter" style="display: none;">
+            <thead>
+                <tr><th>User</th><th>Usage</th></tr>
+            </thead>
+        </table>
     </div>
 
 </div>

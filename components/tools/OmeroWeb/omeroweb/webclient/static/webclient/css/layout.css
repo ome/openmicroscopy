@@ -1747,7 +1747,7 @@
 	
 	/* Personal Settings */
 	
-	#personal_settings {
+	#personal_settings, #drivespace_settings {
 		padding:20px !important;
 	}
 	

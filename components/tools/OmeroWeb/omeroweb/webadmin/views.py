@@ -709,15 +709,9 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
 @login_required()
 @render_response_admin()
 def drivespace(request, conn=None, **kwargs):
-    drivespace = True
-    template = "webadmin/drivespace.html"
-    
-    info = {'drivespace':drivespace}
+
     controller = BaseDriveSpace(conn)
-        
-    context = {'info':info, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace }}
-    context['template'] = template
-    return context
+    return {'free':controller.freeSpace}
 
 
 @login_required()
