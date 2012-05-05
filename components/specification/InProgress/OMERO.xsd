@@ -161,6 +161,13 @@
 			<xsd:documentation>Describes a node.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
+            <xsd:sequence>
+				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
+            </xsd:sequence>
 			<xsd:attribute name="Uuid" use="required" type="OME:UniversallyUniqueIdentifier">
 				<xsd:annotation>
 					<xsd:appinfo><xsdfu><unique/></xsdfu></xsd:appinfo>
