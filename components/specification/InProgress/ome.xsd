@@ -1204,6 +1204,7 @@
 			</xsd:attribute>
 			<xsd:attribute name="UserName" use="optional" type="xsd:string">
 				<xsd:annotation>
+                    <xsd:appinfo><xsdfu><unique/></xsdfu></xsd:appinfo>
 					<xsd:documentation>This is the username of the experimenter (in a 'unix' or 'database' sense). [plain text string]</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
