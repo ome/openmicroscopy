@@ -182,7 +182,7 @@
 
 	<xsd:element name = "ExternalInfo"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>ExternalInfo</plural></xsdfu></xsd:appinfo>
+            <xsd:appinfo><xsdfu><plural>ExternalInfos</plural><immutable/></xsdfu></xsd:appinfo>
 			<xsd:documentation>Describes external info.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
