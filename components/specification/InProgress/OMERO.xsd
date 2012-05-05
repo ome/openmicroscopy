@@ -195,7 +195,7 @@
 
 	<xsd:element name = "DBPatch"> <!-- top level definition -->
 		<xsd:annotation>
-            <xsd:appinfo><xsdfu><plural>DBPatchs</plural><global/></xsdfu></xsd:appinfo>
+            <xsd:appinfo><xsdfu><plural>DBPatches</plural><global/><immutable/></xsdfu></xsd:appinfo>
 			<xsd:documentation>Describes a database patch</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
