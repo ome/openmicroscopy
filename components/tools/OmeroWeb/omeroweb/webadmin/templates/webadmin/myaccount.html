@@ -167,123 +167,108 @@
 
 
 {% block center_details %}
-{{ block.super }}
    
-    <div id="admin">
-        
-        <div>
-            <ul id="settings_tabs">
-                <li id="personal_settings_tab"><a href="#personal_settings" title="Personal Settings">Profile</a></li>
-                <li id="group_settings_tab"><a href="#groups_settings" title="Groups Settings">Groups</a></li>
-                <li id="drivespace_settings_tab"><a href="{% url wadrivespace %}" title="Drivespace">Drivespace</a></li>
-            </ul>
-        </div>
-         
-         
-         
-         <!-- Personal Settings -->
-        <div id="personal_settings" class="settings_content">
-         <!--<h1>{% trans "My account" %}</h1>-->
-        {{ block.super }}
+<div id="admin">
+    
+    <ul id="settings_tabs">
+        <li id="personal_settings_tab"><a href="#personal_settings" title="Personal Settings">Profile</a></li>
 
-            
-        <form class="standard_form" action="{% url wamyaccount "save" %}" method="POST">
-        
-            <div id="avatar">
-                <img src="{% url wamyphoto %}" class="imgzoom"/>                 
-                <a class="btn btn_text silver" href="{% url wamanageavatar ome.eventContext.userId %}">
-                    <span>Change</span>
-                </a> 
-         
-                {% if myaccount.hasAvatar %} 
-                <a class="btn btn_text silver" href="{% url wamanageavatar ome.eventContext.userId "deletephoto" %}">
-                    <span>Delete</span>
-                </a>
-                {% endif %}
+        <li id="group_settings_tab"><a href="#groups_settings" title="Groups Settings">Groups</a></li>
+
+        <li id="drivespace_settings_tab"><a href="#drivespace_settings" title="Drivespace">Drivespace</a></li>
+    </ul>
+     
+     <!-- Personal Settings -->
+    <div id="personal_settings" class="settings_content">
+
+        <h1>Personal Settings</h1>
+
+       <form class="standard_form" action="{% url wamyaccount "save" %}" method="POST">
+
+           <div id="avatar">
+               <img src="{% url wamyphoto %}" class="imgzoom"/>                 
+               <a class="btn btn_text silver" href="{% url wamanageavatar ome.eventContext.userId %}">
+                   <span>Change</span>
+               </a> 
+
+               {% if myaccount.hasAvatar %} 
+               <a class="btn btn_text silver" href="{% url wamanageavatar ome.eventContext.userId "deletephoto" %}">
+                   <span>Delete</span>
+               </a>
+               {% endif %}
+            </div>
+
+
+
+           <div id="personal_details">
+
+               {% for field in form %}
+                      {{ field.label_tag }}
+                   <!-- Commented out until this can sit inside the label -->
+                   <!--{% if field.field.required %}*{% endif %} -->
+                   {{ field }}
+                   {% if field.errors %}{{ field.errors }}{% endif %}
+                   {{ field.help_text|safe }}
+               {% endfor %}
+
+               {% if ldapAuth %}
+               LDAP: {{ ldapAuth }}
+               {% else %}
+
+               <div id="password">
+
+                   <div id="password_change">
+                       <label>Password:</label>
+                       <a class="btn btn_text silver" id="change_password">
+                           <span>Change  Password</span>
+                       </a>
+                   </div>
+
+                   <span id="password_change_message"></span>
+               </div>
+               {% endif %}
+
+
+               <input type="submit" value="{% trans 'Save' %}" />
              </div>
-            
-             
-             
-            <div id="personal_details">
-                
-                {% for field in form %}
-                       {{ field.label_tag }}
-                    <!-- Commented out until this can sit inside the label -->
-                    <!--{% if field.field.required %}*{% endif %} -->
-                    {{ field }}
-                    {% if field.errors %}{{ field.errors }}{% endif %}
-                    {{ field.help_text|safe }}
-                {% endfor %}
-            
-                {% if ldapAuth %}
-                LDAP: {{ ldapAuth }}
-                {% else %}
-                
-                <div id="password">
 
-                    <div id="password_change">
-                        <label>Password:</label>
-                        <a class="btn btn_text silver" id="change_password">
-                            <span>Change  Password</span>
-                        </a>
-                    </div>
+       </form>
 
-                    <span id="password_change_message"></span>
-                </div>
-                {% endif %}
-         
-                <!--<p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>-->
-         
-                <input type="submit" value="{% trans 'Save' %}" />
-              </div>
-              
-              
-              
-              
-          <!-- See. Much nicer without blasted tables. -->
-          
-        </form>
+
+           <!-- hidden dialog for password change -->
+           <div id="password_change_dialog" title="Change Password">
+               <h1>{% trans "Change Password" %}</h1>
+
+               <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
+               <br/>
+
+               <form id="change_password_form" action="{% url wamanagechangepasswordid ome.eventContext.userId %}" method="POST">
+
+                   <table>
+                       <tbody>
+                           {% for field in password_form %}
+                           <tr>
+                               <td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                               <td class="input">{{ field }}</td>
+                               <td>{{ field.help_text|safe }}</td>
+                           </tr>
+                           {% endfor %}
+
+                           <tr><td colspan="3">
+                               <div class="error"></div>
+                           </td></tr>
+                       </tbody>
+                   </table>
+               </form>
+           </div>
         
-    </div>
 
-    <!-- hidden dialog for password change -->
-    <div id="password_change_dialog" title="Change Password">
-        <h1>{% trans "Change Password" %}</h1>
-
-        <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
-        <br/>
-
-        <form id="change_password_form" action="{% url wamanagechangepasswordid ome.eventContext.userId %}" method="POST">
-
-            <table>
-                <tbody>
-                    {% for field in password_form %}
-                    <tr>
-                        <td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td class="input">{{ field }}</td>
-                        <td>{{ field.help_text|safe }}</td>
-                    </tr>
-                    {% endfor %}
-
-                    <tr><td colspan="3">
-                        <div class="error"></div>
-                    </td></tr>
-                </tbody>
-            </table>
-        </form>
     </div>
     
-    
-    
-    
-    
-    
-    
-    {% if ownedGroups %}
+
     <div id="groups_settings" class="settings_content">
-        
-        <!--<h1>{% trans "Owned Groups" %}</h1><br/>-->
-        
+
+       <h1 style="padding: 20px">{% trans "Owned Groups" %}</h1>
         
         <div class="one_column_header">
             <form class="search filtersearch" id="filtersearch" action="#">
@@ -322,9 +307,14 @@
             {% endfor %}
           </tbody>
         </table>
-
     </div>
-    {% endif %}
+
+    
+    
+    <div id="drivespace_settings" class="settings_content">
+        
+        <h1 style="padding: 20px">Drive Space</h1>
+    </div>
 
 </div>
 {% endblock %}
