@@ -49,45 +49,15 @@
                 $("#fileanns_container").hide_if_empty();
                 $("#tags_container").hide_if_empty();
                 
-                {% if manager.image.isOwned %}
-                $( "#imagename-{{ manager.image.id }} button" ).editable('{% url manage_action_containers "editname" "image" manager.image.id %}', '{% url manage_action_containers "savename" "image" manager.image.id %}', "imagename-{{ manager.image.id }}" );
-                $( "#imagedescription-{{ manager.image.id }} button" ).editable('{% url manage_action_containers "editdescription" "image" manager.image.id %}', '{% url manage_action_containers "savedescription" "image" manager.image.id %}', "imagedescription-{{ manager.image.id }}" );                
-                {% endif %}
-                
-                {% if manager.dataset.isOwned %}
-                $( "#datasetname-{{ manager.dataset.id }} button" ).editable('{% url manage_action_containers "editname" "dataset" manager.dataset.id %}', '{% url manage_action_containers "savename" "dataset" manager.dataset.id %}', "datasetname-{{ manager.dataset.id }}" );
-                $( "#datasetdescription-{{ manager.dataset.id }} button" ).editable('{% url manage_action_containers "editdescription" "dataset" manager.dataset.id %}', '{% url manage_action_containers "savedescription" "dataset" manager.dataset.id %}', "datasetdescription-{{ manager.dataset.id }}" );                
-                {% endif %}
-                
-                {% if manager.project.isOwned %}
-                $( "#projectname-{{ manager.project.id }} button" ).editable('{% url manage_action_containers "editname" "project" manager.project.id %}', '{% url manage_action_containers "savename" "project" manager.project.id %}', "projectname-{{ manager.project.id }}" );
-                $( "#projectdescription-{{ manager.project.id }} button" ).editable('{% url manage_action_containers "editdescription" "project" manager.project.id %}', '{% url manage_action_containers "savedescription" "project" manager.project.id %}', "projectdescription-{{ manager.project.id }}" );                
-                {% endif %}
-                
-                {% if manager.well.isOwned %}
-                $( "#wellname-{{ manager.well.getWellSample.image.id }} button" ).editable('{% url manage_action_containers "editname" "image" manager.well.getWellSample.image.id %}', '{% url manage_action_containers "savename" "image" manager.well.getWellSample.image.id %}', "wellname-{{ manager.well.getWellSample.image.id }}" );
-                $( "#welldescription-{{ manager.well.getWellSample.image.id }} button" ).editable('{% url manage_action_containers "editdescription" "image" manager.well.getWellSample.image.id %}', '{% url manage_action_containers "savedescription" "image" manager.well.getWellSample.image.id %}', "welldescription-{{ manager.well.getWellSample.image.id }}" );                
-                {% endif %}
-                
-                {% if manager.acquisition.isOwned %}
-                $( "#acquisitionname-{{ manager.acquisition.id }} button" ).editable('{% url manage_action_containers "editname" "acquisition" manager.acquisition.id %}', '{% url manage_action_containers "savename" "acquisition" manager.acquisition.id %}', "acquisitionname-{{ manager.acquisition.id }}" );                
-                $( "#acquisitiondescription-{{ manager.acquisition.id }} button" ).editable('{% url manage_action_containers "editdescription" "acquisition" manager.acquisition.id %}', '{% url manage_action_containers "savedescription" "acquisition" manager.acquisition.id %}', "acquisitiondescription-{{ manager.acquisition.id }}" );             
-                               
-                {% endif %}
-                
-                {% if manager.plate.isOwned %}
-                $( "#platename-{{ manager.plate.id }} button" ).editable('{% url manage_action_containers "editname" "plate" manager.plate.id %}', '{% url manage_action_containers "savename" "plate" manager.plate.id %}', "platename-{{ manager.plate.id }}" );
-                $( "#platedescription-{{ manager.plate.id }} button" ).editable('{% url manage_action_containers "editdescription" "plate" manager.plate.id %}', '{% url manage_action_containers "savedescription" "plate" manager.plate.id %}', "platedescription-{{ manager.plate.id }}" );                
-                {% endif %}
-                
-                {% if manager.screen.isOwned %}
-                $( "#screenname-{{ manager.screen.id }} button" ).editable('{% url manage_action_containers "editname" "screen" manager.screen.id %}', '{% url manage_action_containers "savename" "screen" manager.screen.id %}', "screenname-{{ manager.screen.id }}" );
-                $( "#screendescription-{{ manager.screen.id }} button" ).editable('{% url manage_action_containers "editdescription" "screen" manager.screen.id %}', '{% url manage_action_containers "savedescription" "screen" manager.screen.id %}', "screendescription-{{ manager.screen.id }}" );                
-                {% endif %}
-                
-                {% if manager.tag.isOwned %}
-                $( "#tagname-{{ manager.tag.id }} button" ).editable('{% url manage_action_containers "editname" "tag" manager.tag.id %}', '{% url manage_action_containers "savename" "tag" manager.tag.id %}', "tagname-{{ manager.tag.id }}" );
-                $( "#tagdescription-{{ manager.tag.id }} button" ).editable('{% url manage_action_containers "editdescription" "tag" manager.tag.id %}', '{% url manage_action_containers "savedescription" "tag" manager.tag.id %}', "tagdescription-{{ manager.tag.id }}" );                
+                {% if manager.canEdit %}
+                $( "#{{ manager.obj_type }}name-{{ manager.obj_id }} button" )      // E.g. imagename-123 button
+                    .editable('{% url manage_action_containers "editname" manager.obj_type manager.obj_id %}',
+                        '{% url manage_action_containers "savename" manager.obj_type manager.obj_id %}',
+                        "{{ manager.obj_type }}name-{{ manager.obj_id }}" );
+                $( "#{{ manager.obj_type }}description-{{ manager.obj_id }} button" )
+                    .editable('{% url manage_action_containers "editdescription" manager.obj_type manager.obj_id %}',
+                        '{% url manage_action_containers "savedescription" manager.obj_type manager.obj_id %}',
+                        "{{ manager.obj_type }}description-{{ manager.obj_id }}" );
                 {% endif %}
 
                 var acquisition_load = false;

@@ -138,6 +138,23 @@ class BaseContainer(BaseController):
         if orphaned:
             self.orphaned = True
             
+    def _get_object(self):
+        """
+        Since the container is often used to wrap a single Project, Dataset etc, several methods need access to 
+        the underlying object. E.g. obj_type(), obj_id(), canAnnotate(), canEdit().
+        This removes many if statements from the metadata_general.html template for places that are displaying
+        data for a single Object. E.g. Edit Name etc.
+        """
+        if self.project is not None: return self.project
+        if self.dataset is not None: return self.dataset
+        if self.image is not None: return self.image
+        if self.screen is not None: return self.screen
+        if self.plate is not None: return self.plate
+        if self.acquisition is not None: return self.acquisition
+        if self.well is not None: return self.well
+        if self.tag is not None: return self.tag
+        if self.file is not None: return self.file
+        
     def obj_type(self):
         if self.project is not None: return "project"
         if self.dataset is not None: return "dataset"
@@ -150,26 +167,17 @@ class BaseContainer(BaseController):
         if self.file is not None: return "file"
 
     def obj_id(self):
-        if self.project is not None: return self.project.id
-        if self.dataset is not None: return self.dataset.id
-        if self.image is not None: return self.image.id
-        if self.screen is not None: return self.screen.id
-        if self.plate is not None: return self.plate.id
-        if self.acquisition is not None: return self.acquisition.id
-        if self.well is not None: return self.well.id
-        if self.tag is not None: return self.tag.id
-        if self.file is not None: return self.file.id
+        obj = self._get_object()
+        return obj is not None and obj.id or None
 
     def canAnnotate(self):
-        if self.project is not None: return self.project.canAnnotate()
-        if self.dataset is not None: return self.dataset.canAnnotate()
-        if self.image is not None: return self.image.canAnnotate()
-        if self.screen is not None: return self.screen.canAnnotate()
-        if self.plate is not None: return self.plate.canAnnotate()
-        if self.acquisition is not None: return self.acquisition.canAnnotate()
-        if self.well is not None: return self.well.canAnnotate()
-        if self.tag is not None: return self.tag.canAnnotate()
-        if self.file is not None: return self.file.canAnnotate()
+        obj = self._get_object()
+        return obj is not None and obj.canAnnotate() or None
+
+    def canEdit(self):
+        obj = self._get_object()
+        return obj is not None and obj.canEdit() or None
+
 
     def openAstexViewerCompatible(self):
         """
