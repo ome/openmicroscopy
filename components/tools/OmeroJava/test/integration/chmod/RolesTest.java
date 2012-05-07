@@ -165,16 +165,15 @@ public class RolesTest
     	perms = d.getDetails().getPermissions();
     	assertFalse(perms.canEdit());
     	assertFalse(perms.canAnnotate());
-    	try {
-			Image img = (Image) iUpdate.saveAndReturnObject(
-	    			mmFactory.createImage());
-			DatasetImageLink l = new DatasetImageLinkI();
-	    	l.link(new DatasetI(d.getId().getValue(), false), img);
-	    	iUpdate.saveAndReturnObject(l);
-    		fail("Owner should not be allowed to add an image to the dataset");
-		} catch (Exception e) {
-			
-		}
+    	
+    	//Create a link
+    	Image img = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+		DatasetImageLink l = new DatasetImageLinkI();
+    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	iUpdate.saveAndReturnObject(l);
+    	
+    	//Annotate the dataset.
     }
     
     /**
@@ -337,7 +336,6 @@ public class RolesTest
 			DatasetImageLink l = new DatasetImageLinkI();
 	    	l.link(new DatasetI(d.getId().getValue(), false), img);
 	    	iUpdate.saveAndReturnObject(l);
-	    	fail("Owner should not be allowed to add an image to the dataset");
 		} catch (Exception e) {
 			
 		}
@@ -374,16 +372,11 @@ public class RolesTest
     	assertTrue(perms.canEdit());
     	assertTrue(perms.canAnnotate());
     	//Try to link an image
-    	try {
-			Image img = (Image) iUpdate.saveAndReturnObject(
-	    			mmFactory.createImage());
-			DatasetImageLink l = new DatasetImageLinkI();
-	    	l.link(new DatasetI(d.getId().getValue(), false), img);
-	    	iUpdate.saveAndReturnObject(l);
-	    	fail("Owner should not be allowed to add an image to the dataset");
-		} catch (Exception e) {
-			
-		}
+    	Image img = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+		DatasetImageLink l = new DatasetImageLinkI();
+    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	iUpdate.saveAndReturnObject(l);
     }
     
   //Group RWRA--
@@ -463,16 +456,11 @@ public class RolesTest
     	assertTrue(perms.canEdit());
     	assertTrue(perms.canAnnotate());
     	//Try to link an image
-    	try {
-			Image img = (Image) iUpdate.saveAndReturnObject(
-	    			mmFactory.createImage());
-			DatasetImageLink l = new DatasetImageLinkI();
-	    	l.link(new DatasetI(d.getId().getValue(), false), img);
-	    	iUpdate.saveAndReturnObject(l);
-	    	fail("Owner should not be allowed to add an image to the dataset");
-		} catch (Exception e) {
-			
-		}
+    	Image img = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+		DatasetImageLink l = new DatasetImageLinkI();
+    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	iUpdate.saveAndReturnObject(l);
     }
 
     /**
@@ -503,17 +491,13 @@ public class RolesTest
     	perms = d.getDetails().getPermissions();
     	assertTrue(perms.canEdit());
     	assertTrue(perms.canAnnotate());
-    	//Try to link an image
-    	try {
-			Image img = (Image) iUpdate.saveAndReturnObject(
-	    			mmFactory.createImage());
-			DatasetImageLink l = new DatasetImageLinkI();
-	    	l.link(new DatasetI(d.getId().getValue(), false), img);
-	    	iUpdate.saveAndReturnObject(l);
-	    	fail("Owner should not be allowed to add an image to the dataset");
-		} catch (Exception e) {
-			
-		}
+    	
+    	//link an image
+    	Image img = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+		DatasetImageLink l = new DatasetImageLinkI();
+    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	iUpdate.saveAndReturnObject(l);
     }
     
     //Group RWRW--
@@ -546,16 +530,11 @@ public class RolesTest
     	assertTrue(perms.canAnnotate());
         assertTrue(perms.canEdit());
     	
-    	//Try to link an image
-    	try {
-			Image img = (Image) iUpdate.saveAndReturnObject(
-	    			mmFactory.createImage());
-			DatasetImageLink l = new DatasetImageLinkI();
-	    	l.link(new DatasetI(d.getId().getValue(), false), img);
-	    	iUpdate.saveAndReturnObject(l);
-		} catch (Exception e) {
-			
-		}
+        Image img = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+		DatasetImageLink l = new DatasetImageLinkI();
+    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	iUpdate.saveAndReturnObject(l);
     }
     
     /**
