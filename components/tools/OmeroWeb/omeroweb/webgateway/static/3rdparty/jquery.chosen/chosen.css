@@ -181,12 +181,14 @@
   background-clip        : padding-box;
   background-color: #e4e4e4;
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f4f4f4', endColorstr='#eeeeee', GradientType=0 ); 
-  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(20%, #f4f4f4), color-stop(50%, #f0f0f0), color-stop(52%, #e8e8e8), color-stop(100%, #eeeeee));
-  background-image: -webkit-linear-gradient(top, #f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
-  background-image: -moz-linear-gradient(top, #f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
-  background-image: -o-linear-gradient(top, #f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
-  background-image: -ms-linear-gradient(top, #f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
-  background-image: linear-gradient(top, #f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%); 
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(20%, rgba(255,255,255,.4)), color-stop(50%, rgba(255,255,255,.5)), color-stop(52%, rgba(255,255,255,.1)), color-stop(100%, rgba(255,255,255,0)));
+  background-image: -webkit-linear-gradient(top, rgba(255,255,255,.4) 20%, rgba(255,255,255,.5) 50%, rgba(255,255,255,.1) 52%, rgba(255,255,255,0) 100%));
+  background-image: -moz-linear-gradient(top, rgba(255,255,255,.4) 20%, rgba(255,255,255,.5) 50%, rgba(255,255,255,.1) 52%, rgba(255,255,255,0) 100%));
+  background-image: -o-linear-gradient(top, rgba(255,255,255,.4) 20%, rgba(255,255,255,.5) 50%, rgba(255,255,255,.1) 52%, rgba(255,255,255,0) 100%));
+  background-image: -ms-linear-gradient(top, rgba(255,255,255,.4) 20%, rgba(255,255,255,.5) 50%, rgba(255,255,255,.1) 52%, rgba(255,255,255,0) 100%));
+  background-image: linear-gradient(top, rgba(255,255,255,.4) 20%, rgba(255,255,255,.5) 50%, rgba(255,255,255,.1) 52%, rgba(255,255,255,0) 100%)); 
+  background-image: -moz-linear-gradient(top, rgba(255,255,255,.4) 20%, rgba(255,255,255,.5) 50%, rgba(255,255,255,.1) 52%, rgba(255,255,255,0) 100%);
+  
   -webkit-box-shadow: 0 0 2px #ffffff inset, 0 1px 0 rgba(0,0,0,0.05);
   -moz-box-shadow   : 0 0 2px #ffffff inset, 0 1px 0 rgba(0,0,0,0.05);
   box-shadow        : 0 0 2px #ffffff inset, 0 1px 0 rgba(0,0,0,0.05);

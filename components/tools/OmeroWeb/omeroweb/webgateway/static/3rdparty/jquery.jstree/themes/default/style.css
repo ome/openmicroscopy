@@ -72,7 +72,8 @@
 	   -moz-border-radius:2px; /* FF1+ */
 	        border-radius:2px; /* Opera 10.5, IE 9 */ 
 	text-shadow:0 1px 0 white;
-	border: solid 1px transparent; 
+	border: solid 1px transparent;
+	color:#3D475C; 
 	color: hsl(220,20%,30%) !important; 
 	font-family: "HelveticaNeue-Medium", Helvetica, Arial, sans-serif;
 	padding:1px 1px !important;
@@ -82,10 +83,9 @@
 	}
 
 .jstree-default .jstree-hovered { 
+	background:#E0E5EB;
 	background:hsl(215,20%,90%);
 	border:solid 1px transparent;
-	-webkit-transition: .1s background linear; 
-	
 	-webkit-transition:1s background linear;		
 	   -moz-transition:1s background linear;
 	     -o-transition:1s background linear;
@@ -93,12 +93,13 @@
 	}
 	
 .jstree-default .jstree-clicked { 
+	background:#B3BDCC;
 	background:hsl(215,20%,75%);
+	border:solid 1px #8596AD;
 	border:solid 1px hsl(215,20%,60%);
 	text-shadow:0 1px 0 rgba(255,255,255,.4);
+	color: #242E42;
 	color: hsl(220,30%,20%) !important;
-	-webkit-transition: .1s background linear; 
-	
 	-webkit-transition:1s background linear;		
 	   -moz-transition:1s background linear;
 	     -o-transition:1s background linear;
@@ -139,7 +140,9 @@
 /* Targets Level 3 Grandchildren */
 
 .jstree-default .jstree-clicked .jstree-leaf a{ 
+	background:#C2C5D6;
 	background:hsl(230,20%,80%);
+	border: solid 1px #9CABC9;
 	border: solid 1px hsl(220,30%,70%);
 	text-shadow: 0 1px 0 rgba(255,255,255,.6);
 	}

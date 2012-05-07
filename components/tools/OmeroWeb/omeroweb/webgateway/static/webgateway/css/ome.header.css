@@ -856,7 +856,7 @@
 
 		#user_dropdown .dropdown {
 			width:200px;
-			left:-72px;
+			left:-77px;
 		}
 
 		#user_dropdown .dropdown a:hover {
@@ -872,6 +872,12 @@
 		#user_dropdown .dropdown:before {
 			left:88% !important;
 		}
+		
+		
+		#user_dropdown li {
+			overflow:hidden;
+		}
+		
 		
 				#user_dropdown .dropdown a {
 					padding-left:36px !important;
