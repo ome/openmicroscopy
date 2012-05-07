@@ -1008,48 +1008,94 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     #    admin_serv = self.getAdminService()
     #    admin_serv.deleteExperimenter(experimenter)
     
-    def createGroup(self, group, group_owners):
+    def createGroup(self, name, permissions, owners=list(), description=None):
         """
         Create and return a new group with the given owners.
         
-        @param group            A new ExperimenterGroup instance.
-        @type group             ExperimenterGroupI
-        @param group_owners     List of Experimenter instances. Can be empty.
-        @type group_owners      L{ExperimenterI}
-        @return                 ID of the newly created ExperimenterGroup Not null.
-        @rtype                  Long
+        @param group        A new ExperimenterGroup instance.
+        @type group         ExperimenterGroupI
+        @param owners       List of Experimenter instances. Can be empty.
+        @type owners        L{ExperimenterI}
+        @param permissions  Permissions instances.
+        @type permissions   L{PermissionsI}
+        @return             ID of the newly created ExperimenterGroup Not null.
+        @rtype              Long
         """
+        new_gr = ExperimenterGroupI()
+        new_gr.name = rstring(str(name))
+        new_gr.description = (description!="" and description is not None) and rstring(str(description)) or None
+        new_gr.details.permissions = permissions
         
         admin_serv = self.getAdminService()
-        gr_id = admin_serv.createGroup(group)
-        new_gr = admin_serv.getGroup(gr_id)
-        admin_serv.addGroupOwners(new_gr, group_owners)
+        gr_id = admin_serv.createGroup(new_gr)
+        group = admin_serv.getGroup(gr_id)
+        
+        listOfOwners = list()
+        for exp in owners:
+            listOfOwners.append(exp._obj)
+            
+        admin_serv.addGroupOwners(group, listOfOwners)
         return gr_id
     
-    def updateGroup(self, group, add_exps, rm_exps, perm=None):
+    def updateGroup(self, group, name, permissions, owners=list(), description=None):
         """
         Update an existing user including groups user is a member of.
         Password cannot be changed by calling that method.
         
-        @param group            An existing ExperimenterGroup instance.
-        @type group             ExperimenterGroupI
-        @param add_exps         List of new Experimenter instances. Can be empty.
-        @type add_exps          L{ExperimenterI}
-        @param rm_exps          List of old Experimenter instances who no longer will be a member of. Can be empty.
-        @type rm_exps           L{ExperimenterI}
-        @param perm             Permissions set on the given group
-        @type perm              PermissionsI
+        @param group        A new ExperimenterGroup instance.
+        @type group         ExperimenterGroupI
+        @param name         A new group name.
+        @type name          String
+        @param permissions  Permissions instances.
+        @type permissions   L{PermissionsI}
+        @param owners       List of Experimenter instances. Can be empty.
+        @type owners        L{ExperimenterI}
+        @param description  A description.
+        @type description   String
+        
         """
+        
+        up_gr = group._obj
+        up_gr.name = rstring(str(name))
+        up_gr.description = (description!="" and description is not None) and rstring(str(description)) or None
+
+        
+        # old list of owners
+        old_owners = list()
+        for oex in up_gr.copyGroupExperimenterMap():
+            if oex.owner.val:
+                old_owners.append(oex.child)
+
+        add_exps = list()
+        rm_exps = list()
+
+        # remove
+        for oex in old_owners:
+            flag = False
+            for nex in owners:
+                if nex._obj.id.val == oex.id.val:
+                    flag = True
+            if not flag:
+                rm_exps.append(oex)
+
+        # add
+        for nex in owners:
+            flag = False
+            for oex in old_owners:
+                if oex.id.val == nex._obj.id.val:
+                    flag = True
+            if not flag:
+                add_exps.append(nex._obj)
         
         admin_serv = self.getAdminService()
         # Should we update updateGroup so this would be atomic?
-        admin_serv.updateGroup(group)
-        if perm is not None:
+        admin_serv.updateGroup(up_gr)
+        if permissions is not None:
             logger.warning("WARNING: changePermissions was called!!!")
-            admin_serv.changePermissions(group, perm)
+            admin_serv.changePermissions(up_gr, permissions)
         self._user = self.getObject("Experimenter", self._userid)
-        admin_serv.addGroupOwners(group, add_exps)
-        admin_serv.removeGroupOwners(group, rm_exps)
+        admin_serv.addGroupOwners(up_gr, add_exps)
+        admin_serv.removeGroupOwners(up_gr, rm_exps)
     
     def updateMyAccount(self, experimenter, firstName, lastName, email, defaultGroupId, middleName=None, institution=None):
         """
@@ -1913,6 +1959,13 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
         self.colleagues = summary["colleagues"]
         self.colleagues.sort(key=lambda x: x.getLastName().lower())
 
+    def getOwners(self):
+        ownerIds = list()
+        for gem in self.copyGroupExperimenterMap():
+            if gem.owner.val:
+                ownerIds.append(gem.child.id.val)
+        return ownerIds
+    
     def isLocked(self):
         if self.name == "user":
             return True
@@ -1922,6 +1975,22 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
             return True
         else:
             False
+    
+    def isReadOnly(self):
+        p = None
+        if self.details.getPermissions() is None:
+            raise AttributeError('Object has no permissions')
+        else:
+            p = self.details.getPermissions()
+        
+        flag = False
+        if p.isUserRead() and not p.isUserWrite():
+            flag = True
+        if p.isGroupRead() and not p.isGroupWrite():
+            flag = True
+        if p.isWorldRead() and not p.isWorldWrite():
+            flag = True
+        return flag
     
 omero.gateway.ExperimenterGroupWrapper = ExperimenterGroupWrapper 
 

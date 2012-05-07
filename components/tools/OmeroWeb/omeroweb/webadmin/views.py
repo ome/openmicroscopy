@@ -104,7 +104,7 @@ class render_response_admin(omeroweb.webclient.decorators.render_response):
 # utils
 
 from omero.rtypes import *
-from omero.model import ExperimenterI, GroupExperimenterMapI
+from omero.model import PermissionsI
 
 def prepare_experimenterList(conn):
     
@@ -120,7 +120,7 @@ def prepare_experimenterList(conn):
         return False
         
     experimentersList = list(conn.getObjects("Experimenter"))
-    experimentersList.sort(key=lambda x: x.getOmeName().lower())
+    #experimentersList.sort(key=lambda x: x.getOmeName().lower())
     auth = conn.listLdapAuthExperimenters()
     experimenters = list()
     for exp in experimentersList:
@@ -163,7 +163,6 @@ def ownedGroupsInitial(conn, excluded_names=("user","guest", "system"), excluded
             ownedGroups.append({'group': gr, 'permissions': gr.getPermissions()})
     return ownedGroups
 
-
 def attach_photo(conn, newFile):
     if newFile.content_type.startswith("image"):
         f = newFile.content_type.split("/") 
@@ -173,12 +172,61 @@ def attach_photo(conn, newFile):
     
     conn.uploadMyUserPhoto(smart_str(newFile.name), format, newFile.read())
 
+def setActualPermissions(permissions, readonly=None):
+    p = PermissionsI()
+    permissions = int(permissions)
+    if permissions == 0:
+        # 0 private
+        p.setUserRead(True)
+        p.setUserWrite(True)
+        p.setGroupRead(False)
+        p.setGroupWrite(False)
+        p.setWorldRead(False)
+        p.setWorldWrite(False)
+    elif permissions == 1:
+        # 1 collaborative
+        p.setUserRead(True)
+        p.setUserWrite(True)
+        p.setGroupRead(True)
+        p.setGroupWrite(not readonly)
+        p.setWorldRead(False)
+        p.setWorldWrite(False)
+    elif permissions == 2:
+        # 2 public
+        p.setUserRead(True)
+        p.setUserWrite(True)
+        p.setGroupRead(True)
+        p.setGroupWrite(not readonly)
+        p.setWorldRead(True)
+        p.setWorldWrite(not readonly)
+    return p
+
+def getActualPermissions(group):
+    p = None
+    if group.details.getPermissions() is None:
+        raise AttributeError('Object has no permissions')
+    else:
+        p = group.details.getPermissions()
+    
+    flag = None
+    if p.isUserRead():
+        flag = 0
+    if p.isGroupRead():
+        flag = 1
+    if p.isWorldRead():
+        flag = 2
+    
+    return flag
 
 def getSelectedGroups(conn, ids):
     if len(ids)>0:
         return list(conn.getObjects("ExperimenterGroup", ids))
     return list()
 
+def getSelectedExperimenters(conn, ids):
+    if len(ids)>0:
+        return list(conn.getObjects("Experimenter", ids))
+    return list()
 ################################################################################
 # views controll
 
@@ -418,9 +466,9 @@ def groups(request, conn=None, **kwargs):
     
     info = {'groups':groups}
     
-    controller = BaseGroups(conn)
+    groups = conn.getObjects("ExperimenterGroup")
     
-    context = {'info':info, 'controller':controller}
+    context = {'info':info, 'groups':groups}
     context['template'] = template
     return context
 
@@ -432,17 +480,18 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
     template = "webadmin/group_form.html"
     
     info = {'groups':groups}
-    controller = BaseGroup(conn, gid)
+    
+    experimenters = list(conn.getObjects("Experimenter"))
     
     if action == 'new':
-        form = GroupForm(initial={'experimenters':controller.experimenters, 'permissions': 0})
+        form = GroupForm(initial={'experimenters':experimenters, 'permissions': 0})
         context = {'info':info, 'form':form}
     elif action == 'create':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["new"]))
         else:
             name_check = conn.checkGroupName(request.REQUEST.get('name'))
-            form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
+            form = GroupForm(initial={'experimenters':experimenters}, data=request.POST.copy(), name_check=name_check)
             if form.is_valid():
                 logger.debug("Create group form:" + str(form.cleaned_data))
                 name = form.cleaned_data['name']
@@ -450,21 +499,29 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 owners = form.cleaned_data['owners']
                 permissions = form.cleaned_data['permissions']
                 readonly = toBoolean(form.cleaned_data['readonly'])
-                controller.createGroup(name, owners, permissions, readonly, description)
+                
+                perm = setActualPermissions(permissions, readonly)
+                listOfOwners = getSelectedExperimenters(conn, owners)
+                conn.createGroup(name, perm, listOfOwners, description)
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'info':info, 'form':form}
     elif action == 'edit':
-        permissions = controller.getActualPermissions()
-        form = GroupForm(initial={'name': controller.group.name, 'description':controller.group.description,
-                                     'permissions': permissions, 'readonly': controller.isReadOnly(), 
-                                     'owners': controller.owners, 'experimenters':controller.experimenters})
+        group = conn.getObject("ExperimenterGroup", gid)
+        ownerIds = group.getOwners()
+        
+        permissions = getActualPermissions(group)
+        form = GroupForm(initial={'name': group.name, 'description':group.description,
+                                     'permissions': permissions, 'readonly': group.isReadOnly(), 
+                                     'owners': ownerIds, 'experimenters':experimenters})
         context = {'info':info, 'form':form, 'gid': gid, 'permissions': permissions}
     elif action == 'save':
         if request.method != 'POST':
-            return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["edit", controller.group.id]))
+            return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["edit", group.id]))
         else:
-            name_check = conn.checkGroupName(request.REQUEST.get('name'), controller.group.name)
-            form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
+            group = conn.getObject("ExperimenterGroup", gid)
+            
+            name_check = conn.checkGroupName(request.REQUEST.get('name'), group.name)
+            form = GroupForm(initial={'experimenters':experimenters}, data=request.POST.copy(), name_check=name_check)
             if form.is_valid():
                 logger.debug("Update group form:" + str(form.cleaned_data))
                 name = form.cleaned_data['name']
@@ -472,7 +529,13 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 owners = form.cleaned_data['owners']
                 permissions = form.cleaned_data['permissions']
                 readonly = toBoolean(form.cleaned_data['readonly'])
-                controller.updateGroup(name, owners, permissions, readonly, description)
+                
+                listOfOwners = getSelectedExperimenters(conn, owners)
+                if getActualPermissions(group) != int(permissions) or group.isReadOnly() != readonly:
+                    perm = setActualPermissions(permissions, readonly)
+                else:
+                    perm = None
+                conn.updateGroup(group, name, perm, listOfOwners, description)
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'info':info, 'form':form, 'gid': gid}
     elif action == "update":
@@ -646,15 +709,9 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
 @login_required()
 @render_response_admin()
 def drivespace(request, conn=None, **kwargs):
-    drivespace = True
-    template = "webadmin/drivespace.html"
-    
-    info = {'drivespace':drivespace}
+
     controller = BaseDriveSpace(conn)
-        
-    context = {'info':info, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace }}
-    context['template'] = template
-    return context
+    return {'free':controller.freeSpace}
 
 
 @login_required()

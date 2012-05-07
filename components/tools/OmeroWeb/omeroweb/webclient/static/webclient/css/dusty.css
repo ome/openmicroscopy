@@ -659,6 +659,7 @@ button::-moz-focus-inner {
 			
 			.ui-datepicker-next {
 				background:url(/static/webgateway/img/datepicker_next.png) center 60% no-repeat;
+				right: 0px;
 			}
 			
 			

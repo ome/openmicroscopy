@@ -155,15 +155,5 @@
         {% else %}
             <p class="center_message message_nodata">{% trans "No results found" %}</p>
         {% endif %}
-        
-
-        {% if manager.c_size %}<div>
-            <p class="legend">{% trans "Legend" %}: 
-                <img src="{% static "webclient/image/folder16.png" %}" title="Project" alt="project"/> - {% trans "Project" %}; 
-                <img src="{% static "webclient/image/folder_image16.png" %}" title="Dataset" alt="dataset"/> - {% trans "Dataset" %};
-                <img src="{% static "webclient/image/folder_screen16.png" %}" title="Screen" alt="screen"/> - {% trans "Screen" %};
-                <img src="{% static "webclient/image/folder_plate16.png" %}" title="Plate" alt="plate"/> - {% trans "Plate" %};
-            </p>
-        </div>{% endif %}
 
     </div>

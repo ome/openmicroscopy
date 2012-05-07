@@ -83,7 +83,7 @@ OMERO Groups
     
     <div id="Group_content">
     
-    {% if controller.groupsCount %}
+    {% if groups %}
 	
 	
 	<div class="one_column_header">
@@ -111,32 +111,32 @@ OMERO Groups
             </tr> 
         </thead> 
         <tbody>
-        {% for dict in controller.groups %}
+        {% for group in groups %}
             <tr>
                 <td>
-                    {{ dict.group.id }}
+                    {{ group.id }}
                 </td>
                 
                 <td>
-					<strong>{{ dict.group.name }}</strong>
+					<strong>{{ group.name }}</strong>
                   
-				    {% if dict.group.isEditable %}
-                    <a href="{% url wamanagegroupid "members" dict.group.id %}" title="Edit Group" class="btn silver btn_edit">
+				    {% if group.isEditable %}
+                    <a href="{% url wamanagegroupid "members" group.id %}" title="Edit Group" class="btn silver btn_edit">
                     	<span></span>
                     </a>
 					{% endif %}
 					
 				</td>
                 <td>
-					{{ dict.permissions }}({{ dict.group.details.permissions }})
-                    {% if dict.group.isEditable %}
-                        <a href="{% url wamanagegroupid "edit" dict.group.id %}" class="btn silver btn_edit">
+					{{ group.permissions }}({{ group.details.permissions }})
+                    {% if group.isEditable %}
+                        <a href="{% url wamanagegroupid "edit" group.id %}" class="btn silver btn_edit">
                         	<span></span>
                         </a>
 					{% endif %}
 					
 				</td>
-                <td>{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
+                <td>{{ group.description|default_if_none:"-"|truncatewords:"5" }}</td>
 				
 				
             </tr>
@@ -150,13 +150,5 @@ OMERO Groups
     
     </div>
 </div>
-
-{% endblock %}
-
-{% block metadata_details %}
-
-    <h1>{% trans "Summary" %}</h1>
-    <p>Currently there are <strong>{{ controller.groupsCount }} {% plural controller.groupsCount 'account' 'accounts' %}</strong> in total.</p>
-    
 
 {% endblock %}

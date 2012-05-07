@@ -93,12 +93,15 @@
                     $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
                     $("div#content_details").load('{% url load_searching "form" %}?'+url);
                     $("#filtersearch").show();
+                    search_selection_changed();
                     return false;
                 });
 
 
             {% if init.query %}
                 $("div#content_details").load('{% url load_searching "form" %}?query={{ init.query }}');
+                $("#filtersearch").show();
+                search_selection_changed();
                 var query_string = "{{ init.query }}";
                 query_string = query_string.replace("%20", " ");
                 $("input[name='query']").val(query_string);
@@ -124,6 +127,7 @@
                     $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
                     $("div#content_details").load('{% url load_searching %}', data);
                     $("#filtersearch").show();
+                    search_selection_changed()
                     return false;
                 });
 
