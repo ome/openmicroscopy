@@ -30,7 +30,7 @@ package org.openmicroscopy.shoola.env.config;
 //Application-internal dependencies
 
 /** 
- * Reports an error occured while configuring a registry.
+ * Reports an error occurred while configuring a registry.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

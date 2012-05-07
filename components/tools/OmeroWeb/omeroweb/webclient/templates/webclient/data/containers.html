@@ -33,7 +33,7 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery.cookie.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.17/external/jquery.cookie.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jquery.jstree.js" %}"></script>   
     <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
@@ -44,6 +44,15 @@
         
         var handleChgrp = function() {
             $("#chgrp-form").dialog('open');
+        }
+
+        var handleNewContainer = function(container_type) {
+            
+            $("#new_container_type").text(container_type.capitalize());
+            var $f = $("#new-container-form");
+            var new_container_name = $("input[name='name']", $f).val("");     // clear fields
+            var new_container_desc = $("textarea[name='description']", $f).val("");
+            $("#new-container-form").dialog('open');
         }
 
         var handleDelete = function() {
@@ -96,7 +105,7 @@
                                   alert(r.errs);
                               } else {
                                   $("#dataTree").jstree('remove', selected);
-                                  refreshProgressBar();
+                                  refreshActivities();
                               }
                         },
                         error: function(response) {
@@ -146,6 +155,67 @@
                         return true;
                     }
                 });
+
+                // Handle creation of new Project, Dataset or Screen...
+                $("#new-container-form").dialog({
+                    autoOpen: false,
+                    resizable: true,
+                    height: 270,
+                    width:420,
+                    modal: true,
+                    buttons: {
+                        "OK": function() {
+                             createNewContainer();
+                             $( this ).dialog( "close" );
+                        },
+                        "Cancel": function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+                // same code is called from closing dialog or 'submit' of form
+                $("#new-container-form").submit(function() {
+                    $("#new-container-form").dialog( "close" );
+                    createNewContainer();
+                    return false;
+                });
+                var createNewContainer = function() {
+                    var cont_type = $("#new_container_type").text().toLowerCase();  // E.g. 'project'
+                    var $f = $("#new-container-form");
+                    var new_container_name = $("input[name='name']", $f).val();
+                    var new_container_desc = $("textarea[name='description']", $f).val();
+                    if ($.trim(new_container_name).length == 0) {
+                        alert("Please enter a Name");
+                        return;
+                    }
+                    // if "project" is selected, createDataset under it
+                    var selected = $.jstree._focused().get_selected();
+                    if(selected.length==1 && selected.attr("rel") == "project" && cont_type == "dataset") {
+                        url = '{% url manage_action_containers "addnewcontainer" %}project/'+selected.attr("id").split("-")[1]+'/';
+                    // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen' etc. )
+                    } else { url = '{% url manage_action_containers "addnewcontainer" %}'; }
+
+                    $.ajax({
+                        url: url,
+                        //data: $new_cont_form.serialize();
+                        data: {
+                            "name" : new_container_name,
+                            "folder_type" : cont_type,
+                            "description" : new_container_desc
+                        },
+                        dataType: "json",
+                        type: "POST",
+                        success: function(r){
+                            var cont_id = cont_type + "-" + r['id'];
+                            var display_index = 0;
+                            $("#dataTree").jstree("create", selected, display_index, 
+                                { "attr" : { "rel":cont_type, "id":cont_id}, "data":new_container_name }, 
+                                false, true);
+                            $("#dataTree").jstree("deselect_all");
+                            $("#dataTree").jstree("select_node", "#"+cont_id);
+                        }
+                    });
+                }
 
 
                 $("#chgrp-form").dialog({
@@ -487,17 +557,17 @@
                                     "project": {
                                         "label" : "Project",
                                         "icon"  : '{% static "webclient/image/folder16.png" %}',
-                                        "action": function (obj) { this.create(obj, null, {"attr": {"rel": "project"}, "data":"New project"}, false, true); }
+                                        action: function (obj) {handleNewContainer("project"); },
                                     },
                                     "dataset": {
                                         "label" : "Dataset",
                                         "icon"  : '{% static "webclient/image/folder_image16.png" %}',
-                                        "action": function (obj) { this.create(obj, null, {"attr":{"rel": "dataset"}, "data":"New dataset"}, false, true); }
+                                        action: function (obj) {handleNewContainer("dataset"); },
                                       },
                                       "screen": {
                                         "label" : "Screen",
                                         "icon"  : '{% static "webclient/image/folder_screen16.png" %}',
-                                        "action": function (obj) { this.create(obj, null, {"attr":{"rel": "screen"}, "data":"New screen"}, false, true); }
+                                        action: function (obj) {handleNewContainer("screen"); },
                                       }
                                 }
                             };
@@ -791,35 +861,6 @@
                 .bind("open_node.jstree", function (e, data) {
 
                 })
-                .bind("create.jstree", function (e, data) {
-                    if(data.rslt.parent.attr("rel") == "project") {
-                        url = '{% url manage_action_containers "addnewcontainer" %}project/'+data.rslt.parent.attr("id").split("-")[1]+'/';
-                    } else {
-                        url = '{% url manage_action_containers "addnewcontainer" %}';
-                    }
-                    
-                    $.ajax({
-                      url: url,
-                      data: {
-                            "name" : data.rslt.name,
-                            "folder_type" : data.rslt.obj.attr("rel")
-                        },
-                      dataType: "json",
-                      type: "POST",
-                      success: function(r){
-                          if(eval(r.bad)) {
-                              $.jstree.rollback(data.rlbk);
-                                alert(r.errs);
-                            } else {
-                              $(data.rslt.obj).attr("id", data.rslt.obj.attr("rel")+"-"+r.id);
-                            }
-                      },
-                      error: function(response) {
-                          $.jstree.rollback(data.rlbk);
-                          alert("Internal server error. Cannot create object.");
-                      }
-                    });
-                })
                 .bind("move_node.jstree", function (e, data) {
                     var refresh = false;
                     data.rslt.o.each(function (i) {
@@ -897,13 +938,13 @@
         $("#buttons input").click(function () {
             switch(this.id) {
                 case "addprojectButton":
-                    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'project' }, "data":"New project" }, false, true);
+                    handleNewContainer("project");
                     break;
                 case "adddatasetButton":
-                    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'dataset' }, "data":"New dataset" }, false, true);
+                    handleNewContainer("dataset");
                     break;
                 case "addscreenButton":
-                    $("#dataTree").jstree("create", null, "first", { "attr" : { "rel" : 'screen' }, "data":"New screen" }, false, true);
+                    handleNewContainer("screen");
                     break;
                 case "copyButton":
                     $("#dataTree").jstree('copy', $.jstree._focused().get_selected());
@@ -992,6 +1033,19 @@
             </fieldset>
             </form>
         </div>
+
+        <!-- hidden dialog for new Container -->
+        <form id="new-container-form" title="New...">
+            <p>Create a new <span id="new_container_type">Container</span>...</p>
+            <p>
+                <label for="id_name">Name:</label>
+                {{ new_container_form.name }}
+            </p>
+            <p>
+                <label for="id_description">Description:</label><br />
+                {{ new_container_form.description }}
+            </p>
+        </form>
 
         <!-- hidden form for chgrp -->
         <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}">

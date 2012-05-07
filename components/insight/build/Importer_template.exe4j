@@ -13,7 +13,7 @@
     changeWorkingDirectory="true" workingDirectory="." singleInstance="false" 
     serviceStartType="2" serviceDependencies="" serviceDescription="" 
     jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" 
-    amd64="false">
+    amd64="@IS_64_BIT@">
     <messageSet />
     <versionInfo include="false" fileVersion="" fileDescription="" 
         legalCopyright="" internalName="" companyName="" productVersion="" />

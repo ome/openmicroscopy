@@ -582,7 +582,7 @@ public class OMEROMetadataStoreClient
      * server.
      */
 	public void initialize(String username, String password,
-            String server, int port, long group, boolean isSecure)
+            String server, int port, Long group, boolean isSecure)
 	throws CannotCreateSessionException, PermissionDeniedException, ServerError
 	{
         secure(server, port);

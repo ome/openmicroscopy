@@ -31,6 +31,10 @@
         <artifact pattern="${ivy.settings.dir}/../lib/repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].ivy"/>
       </filesystem>
+      <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*DEV.*">
+        <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
+        <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].ivy"/>
+      </filesystem>
       <url name="com.springsource.repository.bundles.release">
         <ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
         <artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
@@ -69,7 +73,6 @@
   configuration in local.properties to point to "loci-resolver" as configured above. -->
 
   <modules>
-    <module organisation="omero" name="bio-formats" resolver="${loci.resolver}" />
     <module organisation="omero" name="omejava" resolver="${loci.resolver}" />
     <module organisation="omero" name="*-test" resolver="test-resolver" matcher="glob"/>
   </modules>

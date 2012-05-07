@@ -325,12 +325,17 @@ class ImageEntry (ObjectEntry):
         host = dataset._conn.c.ic.getProperties().getProperty('omero.host') or 'localhost'
         port = dataset._conn.c.ic.getProperties().getProperty('omero.port') or '4063'
 
-        exe = path(".") / ".." / "bin" /"omero" # Running from dist
-        if not exe.exists():
-            exe = path(".") / ".." / ".."/ ".." / "dist" / "bin" / "omero" # Running from OmeroPy
-            if not exe.exists():
-                print "\n\nNo omero found! Add OMERO_HOME/bin to your PATH variable (See #5176)\n\n"
-                exe = "omero"
+        possiblepaths = (path(".") / ".." / "bin" /"omero", # Running from dist
+                         path(".") / ".." / ".."/ ".." / "dist" / "bin" / "omero", # Running from OmeroPy
+                         path(".") / ".." / ".."/ ".." / "bin" / "omero", # Running from OmeroWeb
+                         "omero", # not found
+                         )
+
+        for exe in possiblepaths:
+            if exe.exists():
+                break
+        if exe == 'omero':
+            print "\n\nNo omero found! Add OMERO_HOME/bin to your PATH variable (See #5176)\n\n"
 
         newconn = dataset._conn.clone()
         newconn.connect()
