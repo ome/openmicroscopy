@@ -247,18 +247,25 @@ public class RolesTest
     	assertEquals(datasets.size(), 1);
     	d = (Dataset) datasets.get(0);
     	perms = d.getDetails().getPermissions();
-    	assertFalse(perms.canEdit());
-    	assertFalse(perms.canAnnotate());
-    	try {
-			Image img = (Image) iUpdate.saveAndReturnObject(
-	    			mmFactory.createImage());
-			DatasetImageLink l = new DatasetImageLinkI();
-	    	l.link(new DatasetI(d.getId().getValue(), false), img);
-	    	iUpdate.saveAndReturnObject(l);
-    		fail("Admin should not be allowed to add an image to the dataset");
-		} catch (Exception e) {
-			
-		}
+    	assertTrue(perms.canEdit());
+    	assertTrue(perms.canAnnotate());
+    	Image img = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+		DatasetImageLink l = new DatasetImageLinkI();
+    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	iUpdate.saveAndReturnObject(l);
+		//Edit
+    	d.setName(rstring("newNAme"));
+		iUpdate.saveAndReturnObject(d);
+		
+		//Annotate the dataset
+		CommentAnnotation annotation = new CommentAnnotationI();
+    	annotation.setTextValue(omero.rtypes.rstring("comment"));
+    	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
+    	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
+    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
+    	
     }
     
     //Group RWR---
@@ -305,6 +312,31 @@ public class RolesTest
 		} catch (Exception e) {
 			
 		}
+		
+		//Edit
+		try {
+			d.setName(rstring("newNAme"));
+			iUpdate.saveAndReturnObject(d);
+			fail("Member should not be allowed to edit the dataset");
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+    	
+		
+		//Annotate the dataset
+		try {
+			CommentAnnotation annotation = new CommentAnnotationI();
+	    	annotation.setTextValue(omero.rtypes.rstring("comment"));
+	    	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
+	    	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
+	    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+	    	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
+	    	fail("Member should not be allowed to annotate the dataset");
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
     }
     
     /**
@@ -445,6 +477,23 @@ public class RolesTest
 		} catch (Exception e) {
 			
 		}
+		
+		//Edit
+		try {
+			d.setName(rstring("newNAme"));
+			iUpdate.saveAndReturnObject(d);
+			fail("Member should not be allowed to edit the dataset");
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+
+		//Annotate the dataset
+		CommentAnnotation annotation = new CommentAnnotationI();
+    	annotation.setTextValue(omero.rtypes.rstring("comment"));
+    	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
+    	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
+    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     }
     
     /**
@@ -583,6 +632,19 @@ public class RolesTest
 		DatasetImageLink l = new DatasetImageLinkI();
     	l.link(new DatasetI(d.getId().getValue(), false), img);
     	iUpdate.saveAndReturnObject(l);
+    	
+    	//Edit
+    	d.setName(rstring("newNAme"));
+		iUpdate.saveAndReturnObject(d);
+		fail("Member should not be allowed to edit the dataset");
+
+		//Annotate the dataset
+		CommentAnnotation annotation = new CommentAnnotationI();
+    	annotation.setTextValue(omero.rtypes.rstring("comment"));
+    	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
+    	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
+    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     }
     
     /**
