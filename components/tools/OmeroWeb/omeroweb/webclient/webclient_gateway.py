@@ -1827,6 +1827,20 @@ class OmeroWebObjectWrapper (object):
             logger.info(traceback.format_exc()) 
             return self.name
 
+    def getPermsCss(self):
+        """
+        Returns a string that can be used as classes on an html element to
+        indicate the permissions flags of the object. E.g. "canEdit canLink"
+        Flags/classes are canEdit, canAnnotate, canLink, canDelete
+        """
+        flags = []
+        if self.canEdit(): flags.append("canEdit")
+        if self.canAnnotate(): flags.append("canAnnotate")
+        if self.canLink(): flags.append("canLink")
+        if self.canDelete(): flags.append("canDelete")
+        return " ".join(flags)
+
+
 class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrapper): 
     """
     omero_model_ExperimenterI class wrapper overwrite omero.gateway.ExperimenterWrapper
