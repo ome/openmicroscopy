@@ -70,7 +70,7 @@ public class WindowsApplicationDataExtractor implements
 	private static final String APPLICATION_PROPERTY_KEY_SPECIAL_BUILD = "SpecialBuild";
 
 	private static final String WINDOWS_QUERYPATH_TRANSLATION = "\\VarFileInfo\\Translation";
-	
+
 	/** The default application location on <code>Windows</code> platform. */
 	private static final String LOCATION_WINDOWS = "C:\\Program Files\\";
 
@@ -119,12 +119,12 @@ public class WindowsApplicationDataExtractor implements
 
 		if (!fileVersionInfoSuccess)
 			throw new Exception("Unable to load application information");
-		
+
 		PointerByReference lplpBuffer = new PointerByReference();
 		IntByReference puLen = new IntByReference();
 
-		boolean verQueryValSuccess = ExecuteQuery(lpData, WINDOWS_QUERYPATH_TRANSLATION,
-				lplpBuffer, puLen);
+		boolean verQueryValSuccess = ExecuteQuery(lpData,
+				WINDOWS_QUERYPATH_TRANSLATION, lplpBuffer, puLen);
 
 		if (!verQueryValSuccess)
 			throw new Exception("Unable to load application information");
@@ -224,21 +224,20 @@ public class WindowsApplicationDataExtractor implements
 	 */
 	public ApplicationData extractAppData(File file) throws Exception {
 
+		String absPath = file.getAbsolutePath();
+
 		if (file == null || !file.exists())
-			throw new FileNotFoundException(file.getAbsolutePath());
+			throw new FileNotFoundException(absPath);
 
 		Icon icon = getSystemIconFor(file);
-
-		String absPath = file.getAbsolutePath();
 
 		IntByReference dwDummy = new IntByReference(0);
 		int fileVersionInfoSize = com.sun.jna.platform.win32.Version.INSTANCE
 				.GetFileVersionInfoSize(absPath, dwDummy);
 
-		String applicationName = FilenameUtils.getBaseName(file
-				.getAbsolutePath());
+		String applicationName = FilenameUtils.getBaseName(absPath);
 
-		if (fileVersionInfoSize >= 0) {
+		if (fileVersionInfoSize > 0) {
 			String translation = getTranslation(absPath, fileVersionInfoSize);
 
 			String fileDescription = getFilePropertyValue(absPath,
@@ -254,8 +253,7 @@ public class WindowsApplicationDataExtractor implements
 				applicationName = productName;
 		}
 
-		return new ApplicationData(icon, applicationName,
-				file.getAbsolutePath());
+		return new ApplicationData(icon, applicationName, absPath);
 	}
 
 	/**
