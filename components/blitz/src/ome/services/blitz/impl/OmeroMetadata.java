@@ -34,7 +34,6 @@ package ome.services.blitz.impl;
 
 import static omero.rtypes.rstring;
 
-import java.awt.Color;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,6 +56,7 @@ import ome.xml.model.enums.DimensionOrder;
 import ome.xml.model.enums.EnumerationException;
 import ome.xml.model.enums.IlluminationType;
 import ome.xml.model.enums.PixelType;
+import ome.xml.model.primitives.Color;
 import ome.xml.model.primitives.NonNegativeInteger;
 import ome.xml.model.primitives.PositiveInteger;
 import ome.xml.model.primitives.PositiveFloat;
@@ -673,7 +673,7 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Integer getChannelColor(int imageIndex, int channelIndex)
+    public Color getChannelColor(int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
         if (o == null)
@@ -682,10 +682,10 @@ public class OmeroMetadata extends DummyMetadata {
         }
         try
         {
-            Color color = new Color(o.getColor().getValue());
-            int argb = color.getRGB();
+            return new Color(o.getColor().getValue());
+            //int argb = color.getRGB();
             // ARGB --> RGBA
-            return (argb << 8) | (argb >>> (32-8));
+            //return (argb << 8) | (argb >>> (32-8));
         }
         catch (NullPointerException e)
         {
