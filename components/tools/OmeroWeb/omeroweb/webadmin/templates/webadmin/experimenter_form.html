@@ -123,9 +123,9 @@
 
 <div class="one_column_content">
 {% if eid %}
-    <h1>BACK {% trans "Edit scientist" %}</h1>
+    <h1><a href="{% url waexperimenters %}">BACK</a> {% trans "Edit scientist" %}</h1>
 {% else %}
-    <h1>BACK {% trans "Add scientist" %}</h1>
+    <h1><a href="{% url waexperimenters %}">BACK</a> {% trans "Add scientist" %}</h1>
 {% endif %}
 
 <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>

@@ -85,9 +85,9 @@
 
 <div class="one_column_content">
 {% if gid %}
-    <h1>BACK {% trans "Edit group" %}</h1>
+    <h1><a href="{% url wagroups %}">BACK</a> {% trans "Edit group" %}</h1>
 {% else %}
-    <h1>BACK {% trans "Add group" %}</h1>
+    <h1><a href="{% url wagroups %}">BACK</a> {% trans "Add group" %}</h1>
 {% endif %}
 
 
