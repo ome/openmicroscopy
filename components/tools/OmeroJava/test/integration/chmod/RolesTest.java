@@ -24,17 +24,20 @@
 package integration.chmod;
 
 
-//Java imports
-
-//Third-party libraries
 import java.util.List;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
-//Application-internal dependencies
+
+import static omero.rtypes.rstring;
 import omero.api.delete.DeleteCommand;
+import omero.model.Annotation;
+import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
+import omero.model.DatasetAnnotationLink;
+import omero.model.DatasetAnnotationLinkI;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -163,8 +166,8 @@ public class RolesTest
     	assertEquals(datasets.size(), 1);
     	d = (Dataset) datasets.get(0);
     	perms = d.getDetails().getPermissions();
-    	assertFalse(perms.canEdit());
-    	assertFalse(perms.canAnnotate());
+    	assertTrue(perms.canEdit());
+    	assertTrue(perms.canAnnotate());
     	
     	//Create a link
     	Image img = (Image) iUpdate.saveAndReturnObject(
@@ -173,8 +176,10 @@ public class RolesTest
     	l.link(new DatasetI(d.getId().getValue(), false), img);
     	iUpdate.saveAndReturnObject(l);
     	
-    	//Annotate the dataset.
     	
+    	//Edit
+		d.setName(rstring("newNAme"));
+		iUpdate.saveAndReturnObject(d);
     }
     
     /**
@@ -378,6 +383,20 @@ public class RolesTest
 		DatasetImageLink l = new DatasetImageLinkI();
     	l.link(new DatasetI(d.getId().getValue(), false), img);
     	iUpdate.saveAndReturnObject(l);
+    	
+        //Delete image already tested see DeletePermissionTest
+    	
+    	//Edit
+    	d.setName(rstring("newNAme"));
+		iUpdate.saveAndReturnObject(d);
+		
+		//Annotate the dataset
+		CommentAnnotation annotation = new CommentAnnotationI();
+    	annotation.setTextValue(omero.rtypes.rstring("comment"));
+    	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
+    	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
+    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     }
     
   //Group RWRA--
@@ -462,6 +481,20 @@ public class RolesTest
 		DatasetImageLink l = new DatasetImageLinkI();
     	l.link(new DatasetI(d.getId().getValue(), false), img);
     	iUpdate.saveAndReturnObject(l);
+    	
+    	//Delete image already tested see DeletePermissionTest
+    	
+    	//Edit
+    	d.setName(rstring("newNAme"));
+		iUpdate.saveAndReturnObject(d);
+		
+		//Annotate the dataset
+		CommentAnnotation annotation = new CommentAnnotationI();
+    	annotation.setTextValue(omero.rtypes.rstring("comment"));
+    	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
+    	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
+    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     }
 
     /**
@@ -499,6 +532,20 @@ public class RolesTest
 		DatasetImageLink l = new DatasetImageLinkI();
     	l.link(new DatasetI(d.getId().getValue(), false), img);
     	iUpdate.saveAndReturnObject(l);
+    	
+        //Delete image already tested see DeletePermissionTest
+    	
+    	//Edit
+    	d.setName(rstring("newNAme"));
+		iUpdate.saveAndReturnObject(d);
+		
+		//Annotate the dataset
+		CommentAnnotation annotation = new CommentAnnotationI();
+    	annotation.setTextValue(omero.rtypes.rstring("comment"));
+    	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
+    	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
+    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     }
     
     //Group RWRW--
