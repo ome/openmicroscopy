@@ -242,6 +242,35 @@
 			}
 	
 
+
+
+			.btn_view {background: transparent url('/static/webgateway/img/icon_view.png') center center no-repeat;}
+			.btn_folder {background:  transparent url('/static/webgateway/img/icon_folder.png') center center no-repeat;}
+			.btn_download {background:  transparent url('/static/webgateway/img/icon_download.png') center center no-repeat;}
+			.btn_filetype {background:  transparent url('/static/webgateway/img/icon_filetype.png') center center no-repeat;}
+			.btn_view_error {background:  transparent url('/static/webgateway/img/icon_view_error.png') center center no-repeat;}
+			.btn_info {background:  transparent url('/static/webgateway/img/icon_info.png' )center center no-repeat;}
+			.btn_add {background:  transparent url('/static/webgateway/img/icon_add.png' )center center no-repeat;}
+			.btn_scientist {background: transparent  url('/static/webgateway/img/icon_add_scientist.png ')center center no-repeat;}
+			.btn_group {background: transparent  url('/static/webgateway/img/icon_add_group.png ')center center no-repeat;}
+			.btn_delete {background: transparent  url('/static/webgateway/img/icon_delete.png ')center center no-repeat;}
+			.btn_edit {background: transparent  url('/static/webgateway/img/icon_edit.png' ) center center no-repeat; 
+			
+			border:solid 10px red !important;}
+			
+
+
+			a.btn_add span, a.btn_edit span, button.btn_add span, button.btn_edit span {
+				width:20px;
+				height:18px;
+				display:block;
+			}
+
+
+
+
+
+
 /*
 	------------------------------------------------
 	:: Tags

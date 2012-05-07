@@ -887,8 +887,8 @@ button::-moz-focus-inner {
 		-webkit-border-radius:50px;
 		-moz-border-radius:50px;
 		border-radius:50px;
-		border:solid 1px hsl(215,15%,50%);
-		border-top:solid 1px hsl(215,15%,38%);
+		border:solid 1px hsl(215,15%,30%);
+		border-top:solid 1px hsl(215,15%,18%);
 		padding: .2em .5em;
 		font-size:1.2em;
 		color:#333;
