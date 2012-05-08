@@ -625,6 +625,26 @@ class TreeViewerComponent
 	}
 	
 	/**
+	 * Returns <code>true</code> if the object can be moved to another group,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param ho The object to handle.
+	 * @return See above.
+	 */
+	private boolean canChangeGroup(Object ho)
+	{
+		if (TreeViewerAgent.isAdministrator()) return true;
+		long id = model.getUserDetails().getId();
+		boolean b = false;
+		if (ho instanceof TreeImageTimeSet) {
+			Browser browser = model.getSelectedBrowser();
+			ExperimenterData exp = browser.getNodeOwner((TreeImageDisplay) ho);
+			if (exp.getId() == id) b = true;
+		} else b = EditorUtil.isUserOwner(ho, id);
+		return b; //user is the owner if yes.
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straight 
 	 * after to complete the MVC set up.
@@ -4460,7 +4480,8 @@ class TreeViewerComponent
 					map.put(ctx, l);
 				}
 				l = map.get(ctx);
-				l.add(data);
+				if (canChangeGroup(data))
+					l.add(data);
 			}
 		}
 		if (map.size() == 0) {
