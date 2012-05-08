@@ -46,7 +46,7 @@
 		background-image:-o-linear-gradient(top, rgba(255,255,255,.2) 0%,rgba(255,255,255,.1) 100%); /* Opera11.10+ */
 		background-image:-ms-linear-gradient(top, rgba(255,255,255,.2) 0%,rgba(255,255,255,.1) 100%); /* IE10+ */
 		background:linear-gradient(top, rgba(255,255,255,.2) 0%,rgba(255,255,255,.1) 100%); /* W3C */ 
-	    border-bottom: solid 1px hsl(210,20%,35%); 
+	    border-bottom: solid 1px hsl(210,20%,25%); 
 	    border-right:solid 1px hsl(210,10%,40%);
 	    position:relative;
 	    height:31px;
@@ -54,7 +54,7 @@
 	
 	
 	#user_selection:hover {
-		background-color:hsla(212,15%,32%,1); 
+		background-color:hsla(212,8%,44%,1); 
 	}
 	
 	
@@ -91,15 +91,14 @@
 
 	    
 		#groupsUsersButton {
-			font-weight:bold;
 			overflow:hidden;
 			padding:.3em 1.8em .3em .7em;
 			-webkit-border-radius:5px; /* Saf3+, Chrome */
 			-moz-border-radius:5px; /* FF1+ */
 			border-radius:5px; /* Opera 10.5, IE 9 */ 
-
 			display: inline-block;
-			font-family:"HelveticaNeue-Medium", Helvetica;
+			font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-weight:500;
 			color:white;
 			background: url(../image/group_dropdown_arrow.png) 97% center no-repeat;
 			cursor:pointer;
@@ -117,9 +116,10 @@
 				display:inline-block;
 				font-size:1.15em;
 				overflow:hidden;
-				line-height:1.4em;
+				line-height:1.6em;
 				padding-right:8px;
 				color:white;
+				font-weight:900;
 			}
 			
 			#groupsUsersButton span:last-child {

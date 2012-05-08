@@ -254,8 +254,8 @@
 			.btn_scientist {background: transparent  url('/static/webgateway/img/icon_add_scientist.png ')center center no-repeat;}
 			.btn_group {background: transparent  url('/static/webgateway/img/icon_add_group.png ')center center no-repeat;}
 			.btn_delete {background: transparent  url('/static/webgateway/img/icon_delete.png ')center center no-repeat;}
-			.btn_edit {background: transparent  url('/static/webgateway/img/icon_edit.png' ) center center no-repeat; 
-			border:solid 10px red !important;}
+			.btn_edit {background: transparent  url('webgateway/img/icon_edit.png' ) center center no-repeat; 
+			border:solid 10px blue !important;}
 			
 
 
@@ -282,10 +282,6 @@
 	border:solid 1px #70A0C2;
 	filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#D6E8F5', endColorstr='#CBDBE6',GradientType=0 ); /* IE6-9 */
 	color: #3E5E74;
-	
-	-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
-	-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
-	box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
 }
     
 .tag .tag_inner:hover {

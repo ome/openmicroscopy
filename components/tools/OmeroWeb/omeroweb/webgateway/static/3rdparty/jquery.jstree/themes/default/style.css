@@ -76,6 +76,7 @@
 	color:#3D475C; 
 	color: hsl(220,20%,30%) !important; 
 	font-family: "HelveticaNeue-Medium", Helvetica, Arial, sans-serif;
+	font-weight:500;
 	padding:1px 1px !important;
 	left:-4px;
 	position:relative;
