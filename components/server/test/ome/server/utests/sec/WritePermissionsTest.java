@@ -41,13 +41,13 @@ import ome.system.Principal;
 @Test(groups = { "unit", "permissions", "ticket:8277" })
 public class WritePermissionsTest extends MockObjectTestCase {
 
-    final Long ROOT = 0L;
+    final static Long ROOT = 0L;
 
-    final Long THE_GROUP = 2L;
+    final static Long THE_GROUP = 2L;
 
-    final Long THE_OWNER = 2L;
+    final static Long THE_OWNER = 2L;
 
-    final Long GROUP_MEMBER = 3L;
+    final static Long GROUP_MEMBER = 3L;
 
     final SessionCache cache = new SessionCache();
 
@@ -118,32 +118,68 @@ public class WritePermissionsTest extends MockObjectTestCase {
     // rwr, non-system owner
     // =========================================================================
 
-    public void testOwnerCanAllByDefault() {
-        Session s = login("rwr---", THE_OWNER, false);
-        Details d = objectBelongingTo(s, THE_OWNER);
-        assertCanAnnotate(d);
-        assertCanEdit(d);
+    class Data {
+        final String name;
+        final String perms;
+        final Long user;
+        final boolean leader;
+        final Long owner;
+        boolean annotate, delete, edit, link;
+        Data(String name, String perms, Long user, boolean leader, Long owner,
+                boolean annotate, boolean delete, boolean edit, boolean link) {
+            this.name = name;
+            this.perms = perms;
+            this.user = user;
+            this.leader = leader;
+            this.owner = owner;
+            this.annotate = annotate;
+            this.delete = delete;
+            this.edit = edit;
+            this.link = link;
+        }
+
+        void run() {
+            Session s = login(perms, user, leader);
+            Details d = objectBelongingTo(s, owner);
+            Permissions p = d.getPermissions();
+            assertPerms("Annotate", annotate, !p.isDisallowAnnotate());
+            assertPerms("Delete", delete, !p.isDisallowDelete());
+            assertPerms("Edit", edit, !p.isDisallowEdit());
+            assertPerms("Link", link, !p.isDisallowLink());
+        }
+
+        void assertPerms(String type, boolean expected, boolean found) {
+            String msg = String.format("%s: disallow%s broken!", name, type);
+            assertEquals(msg, expected, found);
+        }
     }
 
-    public void testAdminCanAllByDefault() {
-        Session s = login("rwr---", ROOT, false);
-        Details d = objectBelongingTo(s, THE_OWNER);
-        assertCanAnnotate(d);
-        assertCanEdit(d);
-    }
+    final Data[] data = new Data[] {
+            // rw
+            new Data("rw: owner can all", "rw----", THE_OWNER, false, THE_OWNER,
+                    true, true, true, true),
+            new Data("rw: admin cannot link", "rw----", ROOT, false, THE_OWNER,
+                    false, true, true, false),
+            new Data("rw: member can do nothing", "rw----", GROUP_MEMBER, false, THE_OWNER,
+                    false, false, false, false),
+            new Data("rw: leader cannot link", "rw----", GROUP_MEMBER, true, THE_OWNER,
+                    false, true, true, false),
 
-    public void testGroupMemberCannotByDefault() {
-        Session s = login("rwr---", GROUP_MEMBER, false);
-        Details d = objectBelongingTo(s, THE_OWNER);
-        assertCannotAnnotate(d);
-        assertCannotEdit(d);
-    }
+            // rwr
+            new Data("rwr: owner can all", "rwr---", THE_OWNER, false, THE_OWNER,
+                    true, true, true, true),
+            new Data("rwr: admin can all", "rwr---", ROOT, false, THE_OWNER,
+                    true, true, true, true),
+            new Data("rwr: member cannot all", "rwr---", GROUP_MEMBER, false, THE_OWNER,
+                    false, false, false, false),
+            new Data("rwr: leader can all", "rwr---", GROUP_MEMBER, true, THE_OWNER,
+                    true, true, true, true)
+    };
 
-    public void testGroupLeaderCannotByDefault() {
-        Session s = login("rwr---", GROUP_MEMBER, true);
-        Details d = objectBelongingTo(s, THE_OWNER);
-        assertCanAnnotate(d);
-        assertCanEdit(d);
+    public void testData() {
+        for (Data entry : data) {
+            entry.run();
+        }
     }
 
     // Helpers
@@ -157,12 +193,28 @@ public class WritePermissionsTest extends MockObjectTestCase {
         assertFalse(d.getPermissions().isDisallowEdit());
     }
 
+    void assertCanLink(Details d) {
+        assertFalse(d.getPermissions().isDisallowLink());
+    }
+
+    void assertCanDelete(Details d) {
+        assertFalse(d.getPermissions().isDisallowDelete());
+    }
+
     void assertCannotAnnotate(Details d) {
         assertTrue(d.getPermissions().isDisallowAnnotate());
     }
 
     void assertCannotEdit(Details d) {
         assertTrue(d.getPermissions().isDisallowEdit());
+    }
+
+    void assertCannotDelete(Details d) {
+        assertTrue(d.getPermissions().isDisallowDelete());
+    }
+
+    void assertCannotLink(Details d) {
+        assertTrue(d.getPermissions().isDisallowLink());
     }
 
     Session sess(String perms, long user, long group) {

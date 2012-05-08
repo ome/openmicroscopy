@@ -292,10 +292,21 @@ public class BasicACLVoter implements ACLVoter {
 
             final BasicEventContext c = currentUser.current();
             final Permissions p = details.getPermissions();
-            p.setDisallowAnnotate(
-                    !allowUpdateOrDelete(c, object, details, true, ANNOTATE));
-            p.setDisallowEdit(
-                    !allowUpdateOrDelete(c, object, details, true, WRITE));
+            boolean disallowAnnotate = !allowUpdateOrDelete(c, object, details, true, ANNOTATE);
+            boolean disallowEdit = !allowUpdateOrDelete(c, object, details, true, WRITE);
+
+            boolean[] restrictions = new boolean[4];
+            restrictions[Permissions.ANNOTATERESTRICTION] = disallowAnnotate;
+            restrictions[Permissions.DELETERESTRICTION] = disallowEdit;
+            restrictions[Permissions.EDITRESTRICTION] = disallowEdit;
+            restrictions[Permissions.LINKRESTRICTION] = disallowEdit;
+            if (currentUser.isGraphCritical()) {
+                // If we're in the graph critical situation, then we open back
+                // up the permissions for edit and delete.
+                restrictions[Permissions.DELETERESTRICTION] = false;
+                restrictions[Permissions.EDITRESTRICTION] = false;
+            }
+            p.copyRestrictions(restrictions);
         }
     }
 

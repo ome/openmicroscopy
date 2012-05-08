@@ -7,6 +7,9 @@
  *
  */
 """
+
+import omero.constants.permissions as ocp
+
 import Ice, IceImport
 IceImport.load("omero_model_Permissions_ice")
 _omero = Ice.openModule("omero")
@@ -26,8 +29,7 @@ class PermissionsI(_omero_model.Permissions):
       def __init__(self, l = None):
             super(PermissionsI, self).__init__()
             self.__immutable = False
-            self._disallowAnnotate = False
-            self._disallowEdit = False
+            self._restrictions = None
             if isinstance(l, str):
                 self._perm1 = -1
                 self.from_string(l)
@@ -102,11 +104,23 @@ class PermissionsI(_omero_model.Permissions):
 
       # Calculated values
 
-      def canAnnotate(self):
-          return not self._disallowAnnotate
+      def isDisallow(self, restriction, current=None):
+          rs = self._restrictions
+          if rs is not None and len(rs) >= restriction:
+                return rs[restriction]
+          return False
 
-      def canEdit(self):
-          return not self._disallowEdit
+      def canAnnotate(self, current=None):
+          return not self.isDisallow(ocp.ANNOTATERESTRICTION)
+
+      def canDelete(self, current=None):
+          return not self.isDisallow(ocp.DELETERESTRICTION)
+
+      def canEdit(self, current=None):
+          return not self.isDisallow(ocp.EDITRESTRICTION)
+
+      def canLink(self, current=None):
+          return not self.isDisallow(ocp.LINKRESTRICTION)
 
       # Accessors; do not use
 
