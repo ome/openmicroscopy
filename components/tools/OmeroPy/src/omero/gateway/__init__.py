@@ -509,17 +509,15 @@ class BlitzObjectWrapper (object):
     def canDelete(self):
         """
         Determines if the current user can Delete the object
-        TODO: temp deletgate to canEdit() Fix when method available!
         """
-        return self.canEdit()
+        return self.getDetails().getPermissions().canDelete()
 
     def canLink(self):
         """
         Determines whether user can create 'hard' links (Not annotation links).
         E.g. Between Project/Dataset/Image etc.
-        TODO: temp deletgate to canEdit() Fix when method available!
         """
-        return self.canEdit()
+        return self.getDetails().getPermissions().canLink()
 
     def canAnnotate(self):
         """
