@@ -223,7 +223,7 @@ public class PermissionsPane
     	p.add(Box.createHorizontalStrut(5));
     	p.add(readOnlyGroupBox);
     	p.add(readAnnotateGroupBox);
-    	p.add(readWriteGroupBox);
+    	//p.add(readWriteGroupBox);
     	return p;
     }
     
