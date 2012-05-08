@@ -166,17 +166,16 @@ public class Permissions implements Serializable {
      */
     private long perm1 = -1; // all bits turned on.
 
+    // These are duplicated in Constants.ice
+    public static final int LINKRESTRICTION = 0;
+    public static final int EDITRESTRICTION = 1;
+    public static final int DELETERESTRICTION = 2;
+    public static final int ANNOTATERESTRICTION = 3;
     /**
-     * Calculated field which is based on both the stored representation
-     * ({@link #perm1}) and the current calling context.
+     * Calculated restrictions which are based on both the store
+     * representation({@link #perm1}) and the current calling context.
      */
-    private boolean disallowAnnotate = false;
-
-    /**
-     * Calculated field which is based on both the stored representation
-     * ({@link #perm1}) and the current calling context.
-     */
-    private boolean disallowEdit = false;
+    private boolean[] restrictions;
 
     // ~ Getters
     // =========================================================================
@@ -262,14 +261,50 @@ public class Permissions implements Serializable {
         return p;
     }
 
+    public static boolean isDisallow(final boolean[] restrictions, final int restriction) {
+        if (restrictions != null && restrictions.length >= restriction) {
+            return restrictions[restriction];
+        }
+        return false;
+    }
+
     @Transient
     public boolean isDisallowAnnotate() {
-        return disallowAnnotate;
+        return isDisallow(restrictions, ANNOTATERESTRICTION);
+    }
+
+
+    @Transient
+    public boolean isDisallowDelete() {
+        return isDisallow(restrictions, DELETERESTRICTION);
     }
 
     @Transient
     public boolean isDisallowEdit() {
-        return disallowEdit;
+        return isDisallow(restrictions, EDITRESTRICTION);
+    }
+
+    @Transient
+    public boolean isDisallowLink() {
+        return isDisallow(restrictions, LINKRESTRICTION);
+    }
+
+    public boolean[] copyRestrictions() {
+        if (restrictions == null) {
+            return null;
+        }
+        boolean[] copy = new boolean[restrictions.length];
+        System.arraycopy(restrictions, 0, copy, 0, restrictions.length);
+        return copy;
+    }
+
+    public void copyRestrictions(final boolean[] source) {
+        if (source == null) {
+            this.restrictions = null;
+        }
+        boolean[] copy = new boolean[source.length];
+        System.arraycopy(source, 0, copy, 0, source.length);
+        this.restrictions = copy;
     }
 
     // ~ Setters (return this)
@@ -370,13 +405,43 @@ public class Permissions implements Serializable {
         return this;
     }
 
+    public static void setDisallow(boolean[] restrictions,
+            int restriction, boolean disallow) {
+
+        // The array is already long enough, just set the value
+        if (restrictions != null && restrictions.length >= restriction) {
+            restrictions[restriction] = disallow;
+        } else {
+            // if !disallow, then we won't need to set anything,
+            // since the default value will be false.
+            if (disallow) {
+                boolean[] copy = new boolean[restriction+1];
+                if (restrictions != null) {
+                    System.arraycopy(restrictions, 0, copy, 0, restrictions.length);
+                }
+                copy[restriction] = disallow; // i.e. true
+                restrictions = copy;
+            }
+        }
+    }
+
     public Permissions setDisallowAnnotate(boolean disallowAnnotate) {
-        this.disallowAnnotate = disallowAnnotate;
+        setDisallow(restrictions, ANNOTATERESTRICTION, disallowAnnotate);
+        return this;
+    }
+
+    public Permissions setDisallowDelete(boolean disallowDelete) {
+        setDisallow(restrictions, DELETERESTRICTION, disallowDelete);
         return this;
     }
 
     public Permissions setDisallowEdit(boolean disallowEdit) {
-        this.disallowEdit = disallowEdit;
+        setDisallow(restrictions, EDITRESTRICTION, disallowEdit);
+        return this;
+    }
+
+    public Permissions setDisallowLink(boolean disallowLink) {
+        setDisallow(restrictions, LINKRESTRICTION, disallowLink);
         return this;
     }
 

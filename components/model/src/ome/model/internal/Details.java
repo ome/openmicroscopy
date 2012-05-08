@@ -167,7 +167,9 @@ public abstract class Details implements Filterable, Serializable {
         if (copy_p != null) {
             p = new Permissions().revokeAll(copy_p);
             p.setDisallowAnnotate(copy_p.isDisallowAnnotate());
+            p.setDisallowDelete(copy_p.isDisallowDelete());
             p.setDisallowEdit(copy_p.isDisallowEdit());
+            p.setDisallowLink(copy_p.isDisallowLink());
         }
         setPermissions(p);
     }

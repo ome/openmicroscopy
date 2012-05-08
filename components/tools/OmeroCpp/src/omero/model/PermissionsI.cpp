@@ -9,6 +9,7 @@
 #include <omero/ClientErrors.h>
 #include <omero/model/PermissionsI.h>
 #include <omero/ClientErrors.h>
+#include <omero/Constants.h>
 
 namespace omero {
 
@@ -17,8 +18,7 @@ namespace omero {
 	PermissionsI::~PermissionsI() {}
 	PermissionsI::PermissionsI(const std::string& perms) : Permissions() {
             __immutable = false;
-            disallowAnnotate = false;
-            disallowEdit = false;
+            restrictions = omero::api::BoolArray();
             if (perms.empty()) {
                 perm1 = -1L;
             } else {
@@ -40,18 +40,27 @@ namespace omero {
                 }
                 if (rest[1] == 'w' || rest[1] == 'W') {
                     setUserWrite(true);
+                    setUserAnnotate(true);
+                } else if (rest[1] == 'a' || rest[1] == 'A') {
+                    setUserAnnotate(true);
                 }
                 if (rest[2] == 'r' || rest[2] == 'R') {
                     setGroupRead(true);
                 }
                 if (rest[3] == 'w' || rest[3] == 'W') {
                     setGroupWrite(true);
+                    setGroupAnnotate(true);
+                } else if (rest[3] == 'a' || rest[3] == 'A') {
+                    setGroupAnnotate(true);
                 }
                 if (rest[4] == 'r' || rest[4] == 'R') {
                     setWorldRead(true);
                 }
                 if (rest[5] == 'w' || rest[5] == 'W') {
                     setWorldWrite(true);
+                    setWorldAnnotate(true);
+                } else if (rest[5] == 'a' || rest[5] == 'A') {
+                    setWorldAnnotate(true);
                 }
             }
 	}
@@ -70,12 +79,27 @@ namespace omero {
             // no-op
         }
 
+        bool PermissionsI::isDisallow(const int restriction, const Ice::Current& current) {
+            if (restrictions.size() >= restriction) {
+                return restrictions[restriction];
+            }
+            return false;
+        }
+
         bool PermissionsI::canAnnotate(const Ice::Current& current) {
-            return ! disallowAnnotate;
+            return ! isDisallow(omero::constants::permissions::ANNOTATERESTRICTION);
+        }
+
+        bool PermissionsI::canDelete(const Ice::Current& current) {
+            return ! isDisallow(omero::constants::permissions::DELETERESTRICTION);
         }
 
         bool PermissionsI::canEdit(const Ice::Current& current) {
-            return ! disallowEdit;
+            return ! isDisallow(omero::constants::permissions::EDITRESTRICTION);
+        }
+
+        bool PermissionsI::canLink(const Ice::Current& current) {
+            return ! isDisallow(omero::constants::permissions::LINKRESTRICTION);
         }
 
         Ice::Long PermissionsI::getPerm1(const Ice::Current& current) {
@@ -103,6 +127,14 @@ namespace omero {
 	    set(2,8, value);
 	}
 
+	// shift 8; mask 1
+	bool PermissionsI::isUserAnnotate(const Ice::Current& c) {
+	    return granted(1,8);
+	}
+	void PermissionsI::setUserAnnotate(bool value, const Ice::Current& c) {
+	    set(1,8, value);
+	}
+
 	// shift 4; mask 4
 	bool PermissionsI::isGroupRead(const Ice::Current& c) {
 	    return granted(4,4);
@@ -119,6 +151,14 @@ namespace omero {
 	    set(2,4, value);
 	}
 
+	// shift 4; mask 1
+	bool PermissionsI::isGroupAnnotate(const Ice::Current& c) {
+	    return granted(1,4);
+	}
+	void PermissionsI::setGroupAnnotate(bool value, const Ice::Current& c) {
+	    set(1,4, value);
+	}
+
 	// shift 0; mask 4
 	bool PermissionsI::isWorldRead(const Ice::Current& c) {
 	    return granted(4,0);
@@ -133,6 +173,14 @@ namespace omero {
 	}
 	void PermissionsI::setWorldWrite(bool value, const Ice::Current& c) {
 	    set(2,0, value);
+	}
+
+	// shift 0; mask 1
+	bool PermissionsI::isWorldAnnotate(const Ice::Current& c) {
+	    return granted(1,0);
+	}
+	void PermissionsI::setWorldAnnotate(bool value, const Ice::Current& c) {
+	    set(1,0, value);
 	}
 
 	bool PermissionsI::granted(int mask, int shift) {

@@ -6,6 +6,11 @@
 
 package omero.model;
 
+import static ome.model.internal.Permissions.ANNOTATERESTRICTION;
+import static ome.model.internal.Permissions.DELETERESTRICTION;
+import static ome.model.internal.Permissions.EDITRESTRICTION;
+import static ome.model.internal.Permissions.LINKRESTRICTION;
+
 import ome.util.Utils;
 import Ice.Object;
 
@@ -71,12 +76,25 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
         this.perm1 = l.longValue();
     }
 
-    public boolean canAnnotate(Ice.Current c) {
-        return ! disallowAnnotate;
+    public boolean isDisallow(final int restriction, final Ice.Current c) {
+        return ome.model.internal.Permissions
+            .isDisallow(restrictions, restriction);
     }
 
-    public boolean canEdit(Ice.Current c) {
-        return ! disallowEdit;
+    public boolean canAnnotate(final Ice.Current c) {
+        return !isDisallow(ANNOTATERESTRICTION, c);
+    }
+
+    public boolean canDelete(final Ice.Current c) {
+        return !isDisallow(DELETERESTRICTION, c);
+    }
+
+    public boolean canEdit(final Ice.Current c) {
+        return !isDisallow(EDITRESTRICTION, c);
+    }
+
+    public boolean canLink(final Ice.Current c) {
+        return !isDisallow(LINKRESTRICTION, c);
     }
 
     public PermissionsI(PermissionsI perms) {
@@ -85,8 +103,7 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
 
     public PermissionsI(ome.model.internal.Permissions sourceP) {
         setPerm1((Long) ome.util.Utils.internalForm(sourceP));
-        this.disallowAnnotate = sourceP.isDisallowAnnotate();
-        this.disallowEdit = sourceP.isDisallowEdit();
+        this.restrictions = sourceP.copyRestrictions();
     }
 
     public long getPerm1(Ice.Current current) {

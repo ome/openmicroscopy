@@ -49,24 +49,33 @@ public:
     PermissionsI(const std::string& perms = "");
     virtual void ice_postUnmarshal(); // For setting __immutable
 
+    virtual bool isDisallow(const int restriction, const Ice::Current& current = Ice::Current());
     virtual bool canAnnotate(const Ice::Current& current = Ice::Current());
+    virtual bool canDelete(const Ice::Current& current = Ice::Current());
     virtual bool canEdit(const Ice::Current& current = Ice::Current());
+    virtual bool canLink(const Ice::Current& current = Ice::Current());
 
     /*
      * Central methods. The optional argument is a requirement
      * of the Ice runtime and can safely be omitted.
      */
     virtual bool isUserRead(const Ice::Current& c = Ice::Current());
+    virtual bool isUserAnnotate(const Ice::Current& c = Ice::Current());
     virtual bool isUserWrite(const Ice::Current& c = Ice::Current());
     virtual bool isGroupRead(const Ice::Current& c = Ice::Current());
+    virtual bool isGroupAnnotate(const Ice::Current& c = Ice::Current());
     virtual bool isGroupWrite(const Ice::Current& c = Ice::Current());
     virtual bool isWorldRead(const Ice::Current& c = Ice::Current());
+    virtual bool isWorldAnnotate(const Ice::Current& c = Ice::Current());
     virtual bool isWorldWrite(const Ice::Current& c = Ice::Current());
     virtual void setUserRead(bool value, const Ice::Current& c = Ice::Current());
+    virtual void setUserAnnotate(bool value, const Ice::Current& c = Ice::Current());
     virtual void setUserWrite(bool value, const Ice::Current& c = Ice::Current());
     virtual void setGroupRead(bool value, const Ice::Current& c = Ice::Current());
+    virtual void setGroupAnnotate(bool value, const Ice::Current& c = Ice::Current());
     virtual void setGroupWrite(bool value, const Ice::Current& c = Ice::Current());
     virtual void setWorldRead(bool value, const Ice::Current& c = Ice::Current());
+    virtual void setWorldAnnotate(bool value, const Ice::Current& c = Ice::Current());
     virtual void setWorldWrite(bool value, const Ice::Current& c = Ice::Current());
 
     // Do not use !
