@@ -374,13 +374,11 @@ class AnnotationDataUI
 		removeTagsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		removeTagsButton.setToolTipText("Unlink Tags.");
 		removeTagsButton.addMouseListener(controller);
-		//removeTagsButton.addActionListener(controller);
 		removeTagsButton.setActionCommand(""+EditorControl.REMOVE_TAGS);
 		removeDocsButton = new JButton(icons.getIcon(IconManager.MINUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(removeDocsButton);
 		removeDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		removeDocsButton.setToolTipText("Unlink Attachments.");
-		//removeDocsButton.addActionListener(controller);
 		removeDocsButton.addMouseListener(controller);
 		removeDocsButton.setActionCommand(""+EditorControl.REMOVE_DOCS);
 		
@@ -941,6 +939,8 @@ class AnnotationDataUI
 		rating.setEnabled(enabled);
 		addTagsButton.setEnabled(enabled);
 		addDocsButton.setEnabled(enabled);
+		
+		enabled = model.canDelete();
 		removeTagsButton.setEnabled(enabled);
 		removeDocsButton.setEnabled(enabled);
 		unrateButton.setEnabled(enabled);
