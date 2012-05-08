@@ -60,7 +60,7 @@
                     src="{% static "webclient/image/nuvola_ledred16.png" %}"
                 {% endif %}
             {% endif %} />
-			<span>{{ active_group.name }}</span><span>{{ user.getFullName }}</span>
+			<span>{{ active_group.name }}</span><span>{{ ome.user.getFullName }}</span>
         </div>
 
         <ul id="groupList" class="sub_menu dropdown">
@@ -84,10 +84,10 @@
                                 <li {% ifequal user.id experimenter %}class="current_user"{% endifequal %}>
                                     <!-- if this user is in current group, we just switch user -->
                                     {% ifequal grp.id eContext.context.groupId %}
-                                    <a href="/webclient/userdata/?experimenter={{user.id}}">
+                                    <a href="/webclient/userdata/?experimenter={{ome.user.id}}">
                                     <!-- otherwise we switch group too -->
                                     {% else %}
-                                    <a href="{% url change_active_group %}?active_group={{grp.id}}&url=/webclient/userdata/?experimenter={{user.id}}">
+                                    <a href="{% url change_active_group %}?active_group={{grp.id}}&url=/webclient/userdata/?experimenter={{ome.user.id}}">
                                     {% endifequal %}
                                         {{ user.getFullName }}
                                     </a>
@@ -102,7 +102,7 @@
                                     {% ifequal grp.id eContext.context.groupId %}
                                     <a href="/webclient/userdata/?experimenter={{user.id}}">
                                     {% else %}
-                                    <a href="{% url change_active_group %}?active_group={{grp.id}}&url=/webclient/userdata/?experimenter={{user.id}}">
+                                    <a href="{% url change_active_group %}?active_group={{grp.id}}&url=/webclient/userdata/?experimenter={{ome.user.id}}">
                                     {% endifequal %}
                                         {{ user.getFullName }}
                                     </a>
