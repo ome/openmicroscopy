@@ -574,8 +574,9 @@ public abstract class DataObject {
     }
     
     /**
-     * Returns <code>true</code> if the object can be edited 
-     * <code>false</code> otherwise, depending on permissions level.
+     * Returns <code>true</code> if the object can be edited by the user
+     * currently logged in <code>false</code> otherwise,
+     * depending on permissions level.
      * 
      * @return See above.
      */
@@ -584,6 +585,35 @@ public abstract class DataObject {
     	Permissions p = asIObject().getDetails().getPermissions();
     	if (p == null) return false;
     	return p.canEdit();
+    }
+    
+    /**
+     * Returns <code>true</code> if the object can be linked e.g. image
+     * add to dataset, by the user currently logged in,
+     * <code>false</code> otherwise, depending on
+     * permissions level.
+     * 
+     * @return See above.
+     */
+    public boolean canLink()
+    {
+    	Permissions p = asIObject().getDetails().getPermissions();
+    	if (p == null) return false;
+    	return p.canLink();
+    }
+    
+    /**
+     * Returns <code>true</code> if the object can be deleted by the user 
+     * currently logged in,
+     * <code>false</code> otherwise, depending on permissions level.
+     * 
+     * @return See above.
+     */
+    public boolean canDelete()
+    {
+    	Permissions p = asIObject().getDetails().getPermissions();
+    	if (p == null) return false;
+    	return p.canDelete();
     }
     
 }
