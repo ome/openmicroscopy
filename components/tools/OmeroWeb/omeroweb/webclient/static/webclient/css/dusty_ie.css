@@ -247,7 +247,7 @@
 			.btn_scientist {background: transparent  url('/static/webgateway/img/icon_add_scientist.png ')center center no-repeat;}
 			.btn_group {background: transparent  url('/static/webgateway/img/icon_add_group.png ')center center no-repeat;}
 			.btn_delete {background: transparent  url('/static/webgateway/img/icon_delete.png ')center center no-repeat;}
-			.btn_edit {background: red; border:solid 1px blue }
+			.btn_edit {background: transparent  url('/static/webgateway/img/icon_edit.png ')center center no-repeat;}
 			
 			
 			
@@ -256,7 +256,6 @@
 			a.btn_add span, a.btn_edit span, button.btn_add span, button.btn_edit span {
 				width:20px;
 				height:18px;
-				border:solid 1px red;
 				display:block;
 			}
 

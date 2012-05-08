@@ -22,7 +22,7 @@
 
 body {
 	background: black url(../img/bg_thataintgonnafly.jpg) center bottom no-repeat;
-	background: hsl(210,7%,40%);
+	background: #5E666D;
 	min-height:100%;
 }
 
@@ -42,14 +42,13 @@ body {
 	#login form {
     padding: 40px;
 	overflow:hidden;
-	background:hsl(210,8%,25%);
-	border:solid 1px hsl(210,8%,45%);
-	border-bottom:solid 1px hsl(210,8%,55%);
-	-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,0.5); /* Saf3.0+, Chrome */
-	   -moz-box-shadow:inset 0 1px 2px rgba(0,0,0,0.5); /* FF3.5+ */
-	        box-shadow:inset 0 1px 2px rgba(0,0,0,0.5); /* Opera 10.5, IE 9.0 */
-	    filter:progid:DXImageTransform.Microsoft.dropshadow(OffX=inset, OffY=0, Color='#fff'); /* IE6,IE7 */
-	-ms-filter:"progid:DXImageTransform.Microsoft.dropshadow(OffX=inset, OffY=0, Color='#fff')"; /* IE8 */ 
+	background:#373B40;
+	background:url(../img/bg2.png);
+	border:solid 1px #69727B;
+	border-bottom:solid 1px #79828A;
+	-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,0.6); /* Saf3.0+, Chrome */
+	   -moz-box-shadow:inset 0 1px 2px rgba(0,0,0,0.6); /* FF3.5+ */
+	        box-shadow:inset 0 1px 2px rgba(0,0,0,0.6); /* Opera 10.5, IE 9.0 */
 	-webkit-border-radius:5px; /* Saf3+, Chrome */
 	   -moz-border-radius:5px; /* FF1+ */
 	        border-radius:5px; /* Opera 10.5, IE 9 */ 
@@ -239,12 +238,16 @@ body {
 #login-footer {
     clear: both;
     font-size: 1em;
+	padding-bottom:70px;
     text-align: center;
     margin-top: 10px;
 	line-height:1.5em;
+	color:#8A929A;
 	color:hsl(210,10%,65%);
+	background:url(../img/login_ome.png) center bottom no-repeat;
 }
 
 #login-footer a {
+	color:#96B9DB;
 	color:hsl(210,80%,80%);
 }

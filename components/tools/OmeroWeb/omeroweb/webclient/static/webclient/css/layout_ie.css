@@ -1118,23 +1118,9 @@ div.plane_info table div {
 
 
 
-#tooltip, .tooltip_html {
-background:#252626;	
 
-color:#999;
--webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.1), 3px 3px 3px rgba(0,0,0,.3); /* Saf3.0+, Chrome */
-   -moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.1), 3px 3px 3px rgba(0,0,0,.3); /* FF3.5+ */
-        box-shadow:inset 0 1px 0 rgba(255,255,255,0.1), 3px 3px 3px rgba(0,0,0,.3)); /* Opera 10.5, IE 9.0 */
 
--webkit-border-radius:3px; /* Saf3+, Chrome */
-   -moz-border-radius:3px; /* FF1+ */
-        border-radius:3px; /* Opera 10.5, IE 9 */ 
-}
 
-.tooltip_html {
-	background-color:#000 !important;	
-	color:#999;
-}
 
 
 /** Chgrp form **/
