@@ -1066,7 +1066,7 @@ public class EditorUtil
     	DataObject data = (DataObject) ho;
         try {
         	if (userID == data.getOwner().getId())
-                return true; // data.getPermissions().isUserWrite();
+                return true;
 		} catch (Exception e) { //owner not loaded
 			return false;
 		}

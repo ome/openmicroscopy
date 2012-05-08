@@ -665,7 +665,6 @@ class EditorModel
 	 */
 	boolean canEdit(Object data)
 	{ 
-		if (isUserOwner(data)) return true;
 		DataObject d = (DataObject) data;
 		return d.canEdit();
 	}
@@ -687,7 +686,6 @@ class EditorModel
 	 */
 	boolean canLink(Object data)
 	{ 
-		if (isUserOwner(data)) return true;
 		DataObject d = (DataObject) data;
 		return d.canLink();
 	}
@@ -709,8 +707,6 @@ class EditorModel
 	 */
 	boolean canAnnotate(Object data)
 	{ 
-		boolean b = isUserOwner(data);
-		if (b) return b;
 		DataObject d = (DataObject) data;
 		return d.canAnnotate();
 	}
@@ -732,8 +728,6 @@ class EditorModel
 	 */
 	boolean canDelete(Object data)
 	{ 
-		boolean b = isUserOwner(data);
-		if (b) return b;
 		DataObject d = (DataObject) data;
 		return d.canDelete();
 	}
