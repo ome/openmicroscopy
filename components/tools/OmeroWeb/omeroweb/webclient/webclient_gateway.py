@@ -1884,6 +1884,7 @@ class OmeroWebObjectWrapper (object):
         if self.canAnnotate(): flags.append("canAnnotate")
         if self.canLink(): flags.append("canLink")
         if self.canDelete(): flags.append("canDelete")
+        if self.canChgrp(): flags.append("canChgrp")
         return " ".join(flags)
 
 

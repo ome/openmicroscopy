@@ -604,12 +604,14 @@
                             if(!obj.hasClass('canDelete')) {
                                 config["delete"]["_disabled"] = true;
                             }
+                            if(!obj.hasClass('canChgrp')) {
+                                config["chgrp"]["_disabled"] = true;
+                            }
                             // if we DON'T have canLink, everything else is disabled
                             if(!obj.hasClass('canLink')) {
                                 config["ccp"]["_disabled"] = true;
                                 config["create"]["_disabled"] = true;
                                 config["basket"]["_disabled"] = true;
-                                config["chgrp"]["_disabled"] = true;
                                 config["create"]["submenu"]["project"]["_disabled"] = true;
                                 config["create"]["submenu"]["dataset"]["_disabled"] = true;
                                 config["create"]["submenu"]["screen"]["_disabled"] = true;
