@@ -448,6 +448,14 @@ public interface Editor
 	boolean canAnnotate();
 	
 	/**
+	 * Returns <code>true</code> if the object can be hard linked,
+	 * i.e. image added to dataset, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canLink();
+	
+	/**
 	 * Displays the results of analysis.
 	 * 
 	 * @param analysis Object hosting information about the results.

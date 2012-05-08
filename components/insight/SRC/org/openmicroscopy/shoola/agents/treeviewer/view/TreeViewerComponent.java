@@ -1582,6 +1582,15 @@ class TreeViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#canLink(Object)
+	 */
+	public boolean canLink(Object ho)
+	{
+		return canEdit(ho); //To be replaced.
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#canDelete(Object)
 	 */
 	public boolean canDelete(Object ho)

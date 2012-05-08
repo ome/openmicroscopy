@@ -678,7 +678,7 @@ class DataBrowserComponent
 			Collection list = new HashSet();
 			while (i.hasNext()) {
 				img = (ImageData) i.next();
-				if (canEdit(img)) list.add(img);
+				if (canLink(img)) list.add(img);
 			}
 			if (list.size() == 0) {
 				UserNotifier un = 
@@ -928,6 +928,23 @@ class DataBrowserComponent
 	 * @see DataBrowser#canEdit(Object)
 	 */
 	public boolean canEdit(Object ho)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		//Check if current user can write in object
+		long id = DataBrowserAgent.getUserDetails().getId();
+		if (EditorUtil.isUserOwner(ho, id)) return true; //user it the owner.
+		if (!(ho instanceof DataObject)) return false;
+		DataObject data = (DataObject) ho;
+		return data.canEdit();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#canLink(Object)
+	 */
+	public boolean canLink(Object ho)
 	{
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException(

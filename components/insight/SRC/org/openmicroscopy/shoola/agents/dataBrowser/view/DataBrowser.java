@@ -525,6 +525,16 @@ public interface DataBrowser
 	public boolean canAnnotate(Object ho);
 	
 	/**
+	 * Returns <code>true</code> if the specified object can be linked,
+	 * e.g. image added to dataset.
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canLink(Object ho);
+	
+	/**
 	 * Reloads the thumbnails. 
 	 * 
 	 * @param ids Collection of images to reload the thumbnails or 

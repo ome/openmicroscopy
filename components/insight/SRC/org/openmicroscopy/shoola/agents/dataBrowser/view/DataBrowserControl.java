@@ -339,11 +339,10 @@ class DataBrowserControl
 			int count = 0;
 			j = selection.iterator();
 			Object o;
-			DataObject data;
 			while (j.hasNext()) {
 				o = j.next();
 				if (o instanceof DataObject) {
-					if (model.canEdit(o)) count++;
+					if (model.canLink(o)) count++;
 				}
 			}
 			if (count != selection.size()) return null;

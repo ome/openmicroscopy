@@ -473,13 +473,23 @@ public interface TreeViewer
 	public boolean canEdit(Object ho);
 	
 	/**
-	 * Returns <code>true</code> if the specified object is annotated,
+	 * Returns <code>true</code> if the specified object can be annotated,
 	 * <code>false</code> otherwise, depending on the permission.
 	 * 
 	 * @param ho    The data object to check.
 	 * @return See above.
 	 */
 	public boolean canAnnotate(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the specified object can have hard links
+	 * i.e. image added to dataset, <code>false</code> otherwise,
+	 * depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canLink(Object ho);
 	
 	/** 
 	 * Adds existing objects to the currently selected node. 

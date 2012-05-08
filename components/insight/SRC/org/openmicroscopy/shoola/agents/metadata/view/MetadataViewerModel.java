@@ -967,6 +967,18 @@ class MetadataViewerModel
 		return editor.canAnnotate();
 	}
 	
+	/**
+	 * Returns <code>true</code> if the object can be hard linked,
+	 * i.e. image added to dataset, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canLink()
+	{
+		if (editor == null) return false;
+		return editor.canLink();
+	}
+	
 	/** 
 	 * Returns the security context.
 	 * 

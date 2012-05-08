@@ -671,6 +671,28 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns <code>true</code> if the object can be linked,
+	 * <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+	boolean canLink() { return canLink(refObject); }
+	
+	/**
+	 * Returns <code>true</code> if the object can be linked, e.g. 
+	 * image added to dataset, <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canLink(Object data)
+	{ 
+		if (isUserOwner(data)) return true;
+		DataObject d = (DataObject) data;
+		return d.canEdit();
+	}
+
+	/**
 	 * Returns <code>true</code> if the object can be annotated,
 	 * <code>false</code> otherwise.
 	 * 

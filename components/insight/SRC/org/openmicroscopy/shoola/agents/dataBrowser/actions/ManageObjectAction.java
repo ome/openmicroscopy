@@ -187,7 +187,7 @@ public class ManageObjectAction
 				    ho instanceof PlateData) {
 					i = selected.iterator();
 					while (i.hasNext()) {
-						if (model.canAnnotate(i.next())) count++;
+						if (model.canLink(i.next())) count++;
 					}
 					setEnabled(count == selected.size());
 				} else setEnabled(false);
@@ -201,7 +201,7 @@ public class ManageObjectAction
 		        	if (DatasetData.class.equals(klass)) {
 		        		i = selected.iterator();
 						while (i.hasNext()) {
-							if (model.canAnnotate(i.next())) count++;
+							if (model.canLink(i.next())) count++;
 						}
 						setEnabled(count == selected.size());
 		        	} else setEnabled(false);
@@ -209,7 +209,7 @@ public class ManageObjectAction
 		        	if (PlateData.class.equals(klass)) {
 		        		i = selected.iterator();
 						while (i.hasNext()) {
-							if (model.canAnnotate(i.next())) count++;
+							if (model.canLink(i.next())) count++;
 						}
 						setEnabled(count == selected.size());
 		        	} else setEnabled(false);
@@ -217,7 +217,7 @@ public class ManageObjectAction
 		        	if (ImageData.class.equals(klass)) {
 		        		i = selected.iterator();
 						while (i.hasNext()) {
-							if (model.canAnnotate(i.next())) count++;
+							if (model.canLink(i.next())) count++;
 						}
 						setEnabled(count == selected.size());
 		        	} else setEnabled(false);
@@ -246,7 +246,7 @@ public class ManageObjectAction
 							parent instanceof ScreenData)) {
 					i = selected.iterator();
 					while (i.hasNext()) {
-						if (model.canAnnotate(i.next())) count++;
+						if (model.canLink(i.next())) count++;
 					}
 					setEnabled(count == selected.size());
 				} else setEnabled(false);

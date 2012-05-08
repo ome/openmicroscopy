@@ -329,7 +329,6 @@ class EditorUI
 					
 					if (selected == RND_INDEX) {
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
-						//tabPane.setSelectedIndex(GENERAL_INDEX);
 						if (!preview && 
 								model.getRndIndex() != 
 									MetadataViewer.RND_SPECIFIC) 
