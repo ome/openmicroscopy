@@ -106,7 +106,6 @@ public class CreateAction
         switch (browser.getState()) {
 	        case Browser.LOADING_DATA:
 	        case Browser.LOADING_LEAVES:
-	        //case Browser.COUNTING_ITEMS:  
 	            setEnabled(false);
 	            break;
 	        default:
@@ -147,13 +146,13 @@ public class CreateAction
         	putValue(Action.SHORT_DESCRIPTION, 
         			UIUtilities.formatToolTipText(DESCRIPTION));
         } else if (ho instanceof ProjectData) {
-            setEnabled(model.canAnnotate(ho));
+            setEnabled(model.canLink(ho));
             name = NAME_DATASET; 
             nodeType = CreateCmd.DATASET;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
         } else if (ho instanceof ScreenData || ho instanceof DatasetData) {
-        	setEnabled(model.canAnnotate(ho));
+        	setEnabled(model.canLink(ho));
             name = NAME;  
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION));
