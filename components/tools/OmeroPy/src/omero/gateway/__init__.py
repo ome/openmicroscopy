@@ -1488,8 +1488,6 @@ class _BlitzGateway (object):
         if self._ctx is not None:
             self._userid = self._ctx.userId
             self._username = self._ctx.userName
-            # "guest" user has no access that method.
-            self._user = self._ctx.userName!="guest" and self.getObject("Experimenter", self._userid) or None
         else:
             self._userid = None
             self._username = None
@@ -1730,7 +1728,10 @@ class _BlitzGateway (object):
         @return:    Current Experimenter
         @rtype:     L{ExperimenterWrapper}
         """
-        
+        if self._ctx is None:
+            return None
+        if self._user is None:
+            self._user = self._ctx.userName!="guest" and self.getObject("Experimenter", self._userid) or None
         return self._user
     
     def getGroupFromContext(self):
@@ -1752,6 +1753,17 @@ class _BlitzGateway (object):
         
         return self.getEventContext().isAdmin
     
+    def isLeader(self):
+        """
+        Is the current group led by the current user? 
+        
+        @return:    True if user leads the current group
+        @rtype:     Boolean
+        """
+        if self.getEventContext().groupId in self.getEventContext().leaderOfGroups:
+            return True
+        return False
+
     def canBeAdmin (self):
         """
         Checks if a user is in system group, i.e. can have administration privileges.
@@ -1773,11 +1785,11 @@ class _BlitzGateway (object):
         if gid is not None:
             if not isinstance(gid, LongType) or not isinstance(gid, IntType):
                 gid = long(gid)
-            for gem in self._user.copyGroupExperimenterMap():
+            for gem in self.getUser().copyGroupExperimenterMap():
                 if gem.parent.id.val == gid and gem.owner.val == True:
                     return True
         else:
-            for gem in self._user.copyGroupExperimenterMap():
+            for gem in self.getUser()._user.copyGroupExperimenterMap():
                 if gem.owner.val == True:
                     return True
         return False
@@ -2299,7 +2311,7 @@ class _BlitzGateway (object):
         """
                 
         default = self.getObject("ExperimenterGroup", self.getEventContext().groupId)
-        if not default.isPrivate() or default.isLeader():
+        if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
                 if d.child.id.val != self.getEventContext().userId:
                     yield ExperimenterWrapper(self, d.child)
@@ -2321,7 +2333,7 @@ class _BlitzGateway (object):
         colleagues = []
         leaders = []
         default = self.getObject("ExperimenterGroup", gid)
-        if not default.isPrivate() or default.isLeader():
+        if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
                 if d.child.id.val == userId:
                     continue
@@ -2330,7 +2342,7 @@ class _BlitzGateway (object):
                 else:
                     colleagues.append(ExperimenterWrapper(self, d.child))
         else:
-            if  default.isLeader():
+            if  self.isLeader():
                 leaders =  [self.getUser()]
             else:
                 colleagues =  [self.getUser()]
@@ -2540,7 +2552,7 @@ class _BlitzGateway (object):
             toExclude.append(omero.constants.namespaces.NSEXPERIMENTERPHOTO)
             toExclude.append(omero.constants.analysis.flim.NSFLIM)
 
-        anns = self.getMetadataService().loadSpecifiedAnnotations("FileAnnotation", toInclude, toExclude, params)
+        anns = self.getMetadataService().loadSpecifiedAnnotations("FileAnnotation", toInclude, toExclude, params, self.CONFIG['SERVICE_OPTS'])
 
         for a in anns:
             yield(FileAnnotationWrapper(self, a))
@@ -3135,10 +3147,10 @@ class _BlitzGateway (object):
             rv = []
             for t in types:
                 def actualSearch ():
-                    search.onlyType(t().OMERO_CLASS)
-                    search.byFullText(text)
+                    search.onlyType(t().OMERO_CLASS, self.CONFIG['SERVICE_OPTS'])
+                    search.byFullText(text, self.CONFIG['SERVICE_OPTS'])
                 timeit(actualSearch)()
-                if search.hasNext():
+                if search.hasNext(self.CONFIG['SERVICE_OPTS']):
                     def searchProcessing ():
                         rv.extend(map(lambda x: t(self, x), search.results()))
                     timeit(searchProcessing)()
@@ -4238,17 +4250,6 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         self.CHILD_WRAPPER_CLASS = 'ExperimenterWrapper'
         self.PARENT_WRAPPER_CLASS = None
 
-    def isLeader(self):
-        """
-        Is the current group led by the current user? 
-        
-        @return:    True if user leads the current group
-        @rtype:     Boolean
-        """
-        if self._conn.getEventContext().groupId in self._conn.getEventContext().leaderOfGroups:
-            return True
-        return False
-        
     def _getQueryString(self):
         """ 
         Returns string for building queries, loading Experimenters for each group. 
@@ -4974,7 +4975,7 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
     def __loadedHotSwap__ (self):
         """ Loads the logical channel using the metadata service """
         if self._obj is not None:
-            self._obj = self._conn.getMetadataService().loadChannelAcquisitionData([self._obj.id.val])[0]
+            self._obj = self._conn.getMetadataService().loadChannelAcquisitionData([self._obj.id.val],{'omero.group': '-1'})[0]
 
     def getLightPath(self):
         """ Make sure we have the channel fully loaded, then return L{LightPathWrapper}"""
@@ -5214,9 +5215,9 @@ class _ChannelWrapper (BlitzObjectWrapper):
 
         lc = self.getLogicalChannel()
         rv = lc.name
-        if rv is None:
+        if rv is None or len(rv.strip())==0:
             rv = lc.emissionWave
-        if rv is None:
+        if rv is None or len(str(rv).strip())==0:
             rv = self._idx
         return unicode(rv)
 
@@ -5436,7 +5437,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._re and self._re.untaint()
 
     def __loadedHotSwap__ (self):
-        self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None, {'omero.group': '-1'})[0]
+        ctx = self._conn.CONFIG['SERVICE_OPTS'] and self._conn.CONFIG['SERVICE_OPTS'].copy() or {}
+        ctx['omero.group'] = '-1'
+        self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None, ctx)[0]
     
     def getInstrument (self):
         """
@@ -5451,7 +5454,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             return None
         if not i.loaded:
             meta_serv = self._conn.getMetadataService()
-            i = self._obj.instrument = meta_serv.loadInstrument(i.id.val)
+            i = self._obj.instrument = meta_serv.loadInstrument(i.id.val, {'omero.group': '-1'})
         return InstrumentWrapper(self._conn, i)
 
     def _loadPixels (self):
@@ -5514,19 +5517,19 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         pid = self.getPrimaryPixels().id
         re = self._conn.createRenderingEngine()
-        re.lookupPixels(pid, self._conn.CONFIG['SERVICE_OPTS'])
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
+        sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+        if self._conn.canBeAdmin():
+            sopts['omero.user'] = str(self.getDetails().getOwner().getId())
+        re.lookupPixels(pid, sopts)
         rdid = self._getRDef()
         if rdid is None:
-            if not re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS']):
-                sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
-                sopts['omero.group'] = str(self.getDetails().getGroup().getId())
-                if self._conn.canBeAdmin():
-                    sopts['omero.user'] = str(self.getDetails().getOwner().getId())
+            if not re.lookupRenderingDef(pid, sopts):
                 re.resetDefaults(sopts)
                 re.lookupRenderingDef(pid, sopts)
             self._onResetDefaults(re.getRenderingDefId(self._conn.CONFIG['SERVICE_OPTS']))
         else:
-            re.loadRenderingDef(rdid, self._conn.CONFIG['SERVICE_OPTS'])
+            re.loadRenderingDef(rdid, sopts)
         re.load()
         return re
 
@@ -5755,11 +5758,13 @@ class _ImageWrapper (BlitzObjectWrapper):
         pid = self.getPrimaryPixels().id
         rdid = self._getRDef()
         tb = self._conn.createThumbnailStore()
-        has_rendering_settings = tb.setPixelsId(pid, self._conn.CONFIG['SERVICE_OPTS'])
+        sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
+        sopts['omero.group'] = str(self.getDetails().getGroup().getId())
+        has_rendering_settings = tb.setPixelsId(pid, sopts)
         logger.debug("tb.setPixelsId(%d) = %s " % (pid, str(has_rendering_settings)))
         if rdid is not None:
             try:
-                tb.setRenderingDefId(rdid, self._conn.CONFIG['SERVICE_OPTS'])
+                tb.setRenderingDefId(rdid, sopts)
             except omero.ValidationException:
                 # The annotation exists, but not the rendering def?
                 logger.error('IMG %d, defrdef == %d but object does not exist?' % (self.getId(), rdid))
@@ -5767,8 +5772,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         if rdid is None:
             if not has_rendering_settings:
                 try:
-                    sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
-                    sopts['omero.group'] = str(self.getDetails().getGroup().getId())
                     tb.resetDefaults(sopts)      # E.g. May throw Missing Pyramid Exception
                 except omero.ConcurrencyException, ce:
                     logger.info( "ConcurrencyException: resetDefaults() failed in _prepareTB with backOff: %s" % ce.backOff)

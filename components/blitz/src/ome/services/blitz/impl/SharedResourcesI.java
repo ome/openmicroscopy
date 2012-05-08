@@ -215,7 +215,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
         final String query = QUERY;
         IceMapper mapper = new IceMapper();
         List<OriginalFile> objs = (List<OriginalFile>) mapper
-                .map((List<Filterable>) sf.executor.execute(sf.principal,
+                .map((List<Filterable>) sf.executor.execute(current.ctx, sf.principal,
                         new Executor.SimpleWork(this, "acquireRepositories") {
                             @Transactional(readOnly = true)
                             public Object doWork(Session session,
@@ -299,7 +299,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
         file.setPath(omero.rtypes.rstring(path));
         file.setName(omero.rtypes.rstring(path));
 
-        IObject obj = (IObject) sf.executor.execute(sf.principal, new Executor.SimpleWork(this, "newTable", repo, path) {
+        IObject obj = (IObject) sf.executor.execute(__current.ctx,
+                sf.principal, new Executor.SimpleWork(this, "newTable", repo, path) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 try {
@@ -333,7 +334,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         }
 
-        sf.executor.execute(sf.principal, new Executor.SimpleWork(this,
+        sf.executor.execute(__current.ctx, sf.principal, new Executor.SimpleWork(this,
                 "checkOriginalFilePermissions", file.getId().getValue()) {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
@@ -392,7 +393,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         // Check job
         final IceMapper mapper = new IceMapper();
-        final ome.model.jobs.Job savedJob = saveJob(submittedJob, mapper);
+        final ome.model.jobs.Job savedJob = saveJob(submittedJob, mapper, current);
         if (savedJob == null) {
             throw new ApiUsageException(null, null, "Could not submit job. ");
         }
@@ -405,7 +406,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         // Nothing left to try
         if (server == null) {
-            updateJob(job.getId().getValue(), "Error", "No processor available");
+            updateJob(job.getId().getValue(), "Error", "No processor available", current);
             throw new omero.ResourceError(null, null, "No processor available.");
         }
 
@@ -413,7 +414,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
                 sf.sessionManager, sf.executor, server, job, timeout,
-                sf.control, new ParamsHelper(this, sf.getExecutor(), sf.getPrincipal()));
+                sf.control, new ParamsHelper(this, sf.getExecutor(), sf.getPrincipal()),
+                current);
         Ice.Identity procId = sessionedID("InteractiveProcessor");
         Ice.ObjectPrx rv = sf.registerServant(procId, new _InteractiveProcessorTie(ip));
         sf.allow(rv);
@@ -448,12 +450,12 @@ public class SharedResourcesI extends AbstractAmdServant implements
     }
 
     private ome.model.jobs.Job saveJob(final Job submittedJob,
-            final IceMapper mapper) {
+            final IceMapper mapper, final Ice.Current current) {
         // First create the job with a status of WAITING.
         // The InteractiveProcessor will be responsible for its
         // further lifetime.
         final ome.model.jobs.Job savedJob = (ome.model.jobs.Job) sf.executor
-                .execute(sf.principal, new Executor.SimpleWork(this,
+                .execute(current.ctx, sf.principal, new Executor.SimpleWork(this,
                         "submitJob") {
                     @Transactional(readOnly = false)
                     public ome.model.jobs.Job doWork(Session session,
@@ -482,8 +484,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
         return savedJob;
     }
 
-    private void updateJob(final long id, final String status, final String message) {
-        sf.executor.execute(sf.principal, new Executor.SimpleWork(this, "updateJob") {
+    private void updateJob(final long id, final String status, final String message, final Ice.Current current) {
+        sf.executor.execute(current.ctx, sf.principal, new Executor.SimpleWork(this, "updateJob") {
             @Transactional(readOnly = false)
             public Object doWork(Session session,
                     ServiceFactory sf) {

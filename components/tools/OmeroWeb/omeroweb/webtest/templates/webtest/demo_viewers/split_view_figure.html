@@ -1,10 +1,9 @@
-{% extends "webgateway/core_html.html" %}
+{% extends "webgateway/base/base_main.html" %}
 
 {% block title %}Split View Figure{% endblock %}
 
+
 {% block link %}
-<!-- links to current version of jquery -->
-{% include "webgateway/base/includes/script_src_jquery.html" %}
 {% endblock %}
 
 {% block script %}
@@ -56,23 +55,20 @@ form dir {
     position: relative;
 }
 </style>
-<!--[if IE]>
-    <style>
-    	.Rotate-90 {
-    		filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
-    		right:-15px; top:5px;
-    	}
-    </style>
-    <![endif]-->
 
-<script type="text/javascript">
+<!-- this page is designed to work without jQuery, but use jQuery when this page is loaded E.g. into webclient -->
+<script>
+    $(document).ready(function() {
 
-$(document).ready(function() {
-    var url = window.location;
-    
-    var url_field = $("#url_field");
-    url_field.attr("value", url);
-});
+        $("#split_view_fig_form").ajaxForm({
+            success: function(data) {
+
+                var new_split_fig_data = $(data);
+                var panel = $("#split_view_fig_content", new_split_fig_data);
+                $("#split_view_fig_content").html(panel);
+            }
+        });
+    });
 
 function hideHeader() {
     if (document.getElementById) {
@@ -88,7 +84,7 @@ function hideHeader() {
 <div id="header">
     
     <div style="float:left">
-    <form method='get' action="">
+    <form id="split_view_fig_form" method='get' action="">
         <div>
             <label>Image IDs</label>
             <input type="text" name="imageIds" {% if imageIds %} value="{{ imageIds }}" {% endif %} /> 
@@ -197,6 +193,7 @@ function hideHeader() {
     
 </div>
     
+<div id="split_view_fig_content">
 {% if imageIds %}
 <table>
     <tr>
@@ -241,5 +238,6 @@ function hideHeader() {
 </table>
 
 {% endif %}
+</div>
 
 {% endblock %}

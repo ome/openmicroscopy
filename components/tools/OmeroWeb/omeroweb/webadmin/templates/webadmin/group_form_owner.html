@@ -72,41 +72,56 @@
 {% block center_details %}
 {{ block.super }}
 
-<div>
-<h2>{% trans "Edit group permissions" %}</h2>
-
-<h2>{% trans "Permission Levels" %}</h2>
-<ul>
-    <li>{% trans "<strong>Private</strong>: All data in this group is only visible to the user who owns it and the group owner. Other users cannot see who else is in the group or view their data. The group owner can view the data for other group members but not make any edits (same as read-only behaviour)." %}</li>
-    <li>{% trans "<strong>Collaborative - read-only</strong>: Users in groups with this permission setting can view each others' data, but cannot edit or annotate another user's data. You can view another users' images but not comment, rate or tag their images." %}</li>
-    <li>{% trans "<strong>Collaborative</strong>: Users in a collaborative group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</li>
-</ul>
-
-<p><div class="error">{% trans "<strong>WARNING</strong>: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative (or Collaborative - Read-only)</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group. " %}</div></p>
+<div class="one_column_content">
+	
+<h1 class="page_title">{% trans "Group permissions" %} for <strong>{{ group.name }}</strong></h1>
 
 
+	<dl>
+		
+	    <dt><strong>Name</strong></dt> 
+		<dd>{{ group.name }}</dd>
+	    
+		<dt><strong>Description</strong></dt> 
+		<dd>{{ group.description|default_if_none:"no description" }}</dd>
+	    
+		<dt><strong>Owners</strong></dt> 
+		<dd>{{ owners }}</dd>
+		
+	</dl>
+	
 {% if gid %}
-    <form action="{% url wamanagegroupownerid "save" gid %}" method="POST" id="">
+    <form action="{% url wamanagegroupownerid "save" gid %}" method="POST" id="" class="standard_form settings_form">
 {% endif %}
-
-<table><tbody>
-    <tr><td class="form" >Name</td><td class="input">{{ group.name }}</td><td></td></tr>
-    <tr><td class="form" >Description</td><td class="input">{{ group.description|default_if_none:"no description" }}</td><td></td></tr>
-    <tr><td class="form" >Owners</td><td class="input">{{ owners }}</td><td></td></tr>
     
     {% for field in form %}
     
     {% ifequal form.readonly.label_tag field.label_tag %}
-        <tr><td class="form" colspan="3"><span id="checkbox">{{ field }}{{ field.label_tag }}{% if field.field.required %}*{% endif %} {% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</span></td></tr>
-    {% else %}
-        <tr><td class="form" >{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
+     {{ field }}{{ field.label_tag }}{% if field.field.required %}*{% endif %}
+	 {% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}
+    
+	{% else %}
+        
+	{{ field.label_tag }}{% if field.field.required %}*{% endif %}{{ field }}
+	{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}
     {% endifequal %}
     
     {% endfor %}  
-  <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-  </tbody>
-</table>
+  
+	  <input type="submit" value="{% trans 'Save' %}" />
+
 </form>
+
+<p>{% trans "<strong>Private</strong>: All data in this group is only visible to the user who owns it and the group owner. Other users cannot see who else is in the group or view their data. The group owner can view the data for other group members but not make any edits (same as read-only behaviour)." %}</p>
+
+<p>{% trans "<strong>Collaborative - read-only</strong>: Users in groups with this permission setting can view each others' data, but cannot edit or annotate another user's data. You can view another users' images but not comment, rate or tag their images." %}</p>
+
+<p>{% trans "<strong>Collaborative</strong>: Users in a collaborative group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</p>
+
+<div class="error"><p>{% trans "<strong>WARNING</strong>: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative (or Collaborative - Read-only)</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group. " %}</p></div>
+</p>
+
+
 
 </div>
 {% endblock %}

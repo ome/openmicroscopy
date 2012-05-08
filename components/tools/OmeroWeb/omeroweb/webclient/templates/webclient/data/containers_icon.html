@@ -46,7 +46,7 @@
             
             // double-click handler on image - launches image viewer
             $("#dataIcons img").dblclick(function(event) {
-                openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
+                openPopup("{% url webgateway_full_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
             });
             
             // single click handler on image (container). Selection then update toolbar & metadata pane
@@ -56,12 +56,23 @@
             
             // handles selection for 'clicks' (not drags) 
             var handleClickSelection = function(event) {
-                var thumbs = $("#dataIcons img");
-                var selIndex = thumbs.index(event.target);
-                var branch = datatree._get_children('#'+$('#content_details').attr('rel'))
-                var selectee = $(branch[selIndex]);
-                datatree.select_node(selectee, true, event); // tree handles control/shift clicks for multi-select
-                return false;
+                var parent_id = '#'+$('#content_details').attr('rel');
+                var select_id = "image-" + $(event.target).attr('id');
+                // find the matching child node from the tree
+                var $children = datatree._get_children(parent_id);
+                var toSelect = $children.filter(function(index) {
+                    return ($(this).attr('id') == select_id);
+                });
+                // In case image not in tree (out of sync?), we refresh tree
+                if (toSelect.length == 0) {
+                    datatree.deselect_all();
+                    datatree.select_node(parent_id);
+                    datatree.refresh(parent_id);
+                } else {
+                    // tree handles control/shift clicks for multi-select
+                    datatree.select_node(toSelect, true, event);
+                    return false;
+                }
             }
             
             // plugin to handle drag-select of images
@@ -73,7 +84,8 @@
                     // get the image ids from the thumbnails
                     var toSelectIds = new Array();
                     $("li.ui-selected", this).each(function(i){
-                        toSelectIds[i] = "image-"+$(this).attr('id');
+                        var iId = $(this).attr('id').split("-")[1];
+                        toSelectIds[i] = "image-"+iId;
                     });
                     
                     // find the matching child nodes from the tree
@@ -102,13 +114,10 @@
 
 {% if manager.containers.images %}
 
-    <div id="toolbar" class="toolbar_noborder" rel="icon">
-        <input onclick="changeView('table',{{ manager.paging.page|default:"1" }});" class="button" type="image" src="{% static "webclient/image/view_detailed16.png" %}" alt="Change view to table" title="Change view to table"></div>
-    <div class="clear"> </div>
         
     <ul id="dataIcons">
         {% for c in manager.containers.images %}
-        <li id="{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
+        <li id="image_icon-{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
             <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
         </li>
         {% endfor %}
@@ -117,7 +126,7 @@
     {% include "webclient/data/container_paging.html" %}
     
 {% else %}
-    <p>{% trans "No images." %}</p>
+    <p class="center_message no_data">{% trans "No images." %}</p>
 {% endif %}
 
 

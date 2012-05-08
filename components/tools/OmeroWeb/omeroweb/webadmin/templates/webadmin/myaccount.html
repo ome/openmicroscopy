@@ -28,6 +28,11 @@
     <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
     
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" type="text/css" href="/static/webgateway/css/ome.table_ie.css" />
+    <![endif]-->
+    
+    
 {% endblock %}
 
 {% block script %}
@@ -35,6 +40,9 @@
 
     <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
+    <script language="javascript" type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.pie.js" %}"></script>
     
     <script type="text/javascript">
     
@@ -47,83 +55,431 @@
             'delay': 300,
             'loader': 'span.loading'
         });
+        
+        {% if edit_mode %}
+        $('#save_thumb').click(function() {
+            var x1 = $('#x1').val();
+            var y1 = $('#y1').val();
+            var x2 = $('#x2').val();
+            var y2 = $('#y2').val();
+            var w = $('#w').val();
+            var h = $('#h').val();
+            if(x1=="" || y1=="" || x2=="" || y2=="" || w=="" || h==""){
+                alert("You must make a selection first");
+                return false;
+            }else{
+                return true;
+            }
+        });
+        {% endif %}
     }); 
 
     </script>
     
     
+    <script>
+        // increase the default animation speed to exaggerate the effect
+        $.fx.speeds._default = 1000;
+        $(function() {
+            $( "#password_change_dialog" ).dialog({
+                autoOpen: false,
+                draggable: false,
+                resizable: false,
+                closeOnEscape: true,
+                modal: false,
+                dialogClass: 'reddit',
+                buttons: {
+                    "OK": function() {
+                        // simply submit the form (AJAX handling set-up above)
+                        $("#change_password_form").submit();
+                    },
+                    "Cancel": function() {
+                        $( this ).dialog( "close" );
+                    }
+                },
+                position: { 
+                    my: 'left center',
+                    at: 'right center',
+                    of: $('#change_password'),
+                    collision: "flip",
+                    offset: "10 0"
+                }
+            });
+            
+            $( "#change_password" ).click(function() {
+                // clear fields
+                var $pw_form = $("#change_password_form");
+                $("div.error", $pw_form).text("");
+                $("input[name='password']", $pw_form).val("");
+                $("input[name='confirmation']", $pw_form).val("");
+                $("input[name='old_password']", $pw_form).val("");
+                // show dialog
+                $( "#password_change_dialog" ).dialog( "open" );
+                return false;
+            });
+            $("#password_cancel").click(function() {
+                $( "#password_change_dialog" ).dialog( "close" );
+                return false;
+            });
+            
+            $("#password_change_message").hide();
+            $("#change_password_form").ajaxForm({
+                beforeSubmit: function(data) {
+                    // check that both new passwords match, fields aren't empty etc.
+                    var $pw_form = $("#change_password_form");
+                    var new_pw = $("input[name='password']", $pw_form).val();
+                    var conf_pw = $("input[name='confirmation']", $pw_form).val();
+                    var old_pw = $("input[name='old_password']", $pw_form).val();
+                    if ($.trim(new_pw).length==0 || $.trim(conf_pw).length==0 || $.trim(old_pw).length==0) {
+                        $("div.error", $pw_form).text("All fields must be filled in.");
+                        return false;
+                    }
+                    if (new_pw != conf_pw) {
+                        $("div.error", $pw_form).text("New passwords don't match.");
+                        return false;
+                    }
+                    if (new_pw == old_pw) {
+                        $("div.error", $pw_form).text("New password is the same as Old password");
+                        return false;
+                    }
+                    if ($.trim(new_pw).length<3 || $.trim(conf_pw).length<3 || $.trim(old_pw).length==0) {
+                        $("div.error", $pw_form).text("Passwords should be at least 3 characters long.");
+                        return false;
+                    }
+                    $( "#password_change_dialog" ).dialog( "close" );
+                },
+                success: function(html) {
+                    $("#password_change_message").html(html).show().delay(3000).fadeOut(2000);
+                }
+            });
+
+        });
+    </script>
+    
+    <script type="text/javascript">
+        Number.prototype.filesizeformat = function () {
+            /*
+            Formats the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,
+            102 bytes, etc).*/
+            
+            var bytes = this;
+            if (bytes < 1024) {
+                return bytes + ' B';
+            } else if (bytes < (1024*1024)) {
+                return (bytes / 1024).toFixed(2) + ' KB';
+            } else if (bytes < (1024*1024*1024)) {
+                return (bytes / (1024*1024)).toFixed(2) + ' MB';
+            } else if (bytes < (1024*1024*1024*1024)) {
+                return (bytes / (1024*1024*1024)).toFixed(2) + ' GB';
+            } else if (bytes < (1024*1024*1024*1024*1024)) {
+                return (bytes / (1024*1024*1024*1024)).toFixed(2) + ' TB';
+            } else if (bytes < (1024*1024*1024*1024*1024*1024)) {
+                return (bytes / (1024*1024*1024*1024*1024)).toFixed(2) + ' PB';
+            } else {
+                return bytes + ' B';
+            }
+            
+        }
+        
+        var load_drivespace = function(freespace) {
+            $("#status").html('loading...');
+            $("#progress").show();
+            var usage = true;
+            var offsetQuery = '';
+            var piechart_data = {};
+            while (usage){ 
+                $.ajax({  
+                    type: "GET",  
+                    url: "{% url waloaddrivespace %}",  
+                    contentType: "application/json; charset=utf-8",  
+                    data: offsetQuery,
+                    dataType: "json",
+                    timeout: 10000, 
+                    async: false,
+                    success: function(data){  
+                        if (!data.loading) {
+                            usage = false;
+                            $("#usage").remove();
+                            $("#placeholder").css('width',700).css('height',300);
+                        }
+                        
+                        offsetQuery = "offset="+(data.offset);
+                        
+                        jQuery.each(data.usage, function(i, val) {
+                            if(val.label in piechart_data) {
+                                piechart_data[val.label] += val.data;
+                            } else {
+                                piechart_data[val.label] = val.data;
+                            }
+                        });
+                        
+                        $("#status").html('loading...');
+                        $("#progress").show();
+                        
+                    }
+                });
+            };
+            
+            $("#status").html('');
+            $("#progress").hide();
+            
+            
+            
+            
+            // do piechart
+            function sortByValue(keyArray, valueMap) {
+                return keyArray.sort(function(a,b){return valueMap[b]-valueMap[a];});
+            }
+            
+            var keyArray = [];
+            var sum = 0;
+            var i=0;
+            for (var l in piechart_data) { 
+                sum = sum + (piechart_data[l]);
+                keyArray[i]=l;
+                i++;
+            }
+            
+            keyArray = sortByValue(keyArray, piechart_data);
+            
+            var l = $('table#drivespaceTable');            
+            
+            //var chart_data = [{label:'Free space', data:{{ driveSpace.free}} }];
+            var chart_data = [{label:'Free space', data:freespace}];
+            for(i=0; i<keyArray.length; i++) {
+                
+                var key = keyArray[i];
+                if(i>10){
+                    var d = chart_data[11].data;
+                    chart_data[11] = {label:'Others', data:d+piechart_data[key]};
+                } else {
+                    chart_data[i+1]={label:key, data:piechart_data[key]};
+                }
+                
+                l.append('<tr id="'+i+'"><td class="link">' + key + '(id:'+i+')</td><td id="usage" class="link">' + (piechart_data[key]).filesizeformat() + '</td></tr>');
+            }
+            
+            $('#total').text('{% trans "Total usage" %}: ' + sum.filesizeformat())
+            
+            $('table#drivespaceTable').show();
+            
+
+            $.plot($("#placeholder"), chart_data, 
+            {
+                
+                series: {
+                    pie: {
+                        show: true,
+                        radius: 1,
+                        tilt: 0.7,
+                        label: {
+                            show: true,
+                            radius: 0.9,
+                            formatter: function(label, series){
+                                return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+Math.round(series.percent)+'%</div>';
+                            },
+                            background: { opacity: 0 }
+                        }
+                    }
+                },
+                legend: {
+                    show: true
+                }
+            });
+        };
+        
+        var drivespace_loaded = false;
+        $(function() {
+            $( "#admin" ).tabs({
+                select: function(event, ui) {
+                    if ( $(ui.tab).attr('title') == "Drivespace" ){
+                        
+                        if (!drivespace_loaded) {
+                            drivespace_loaded = true;
+                            $.getJSON("{% url wadrivespace %}", function(data){
+                                load_drivespace(data.free);
+                            });
+                        }
+                    }
+                    return true;
+                }
+            });
+            
+            //load_drivespace();
+        });
+        
+        
+    </script>
+    
 {% endblock %}
 
 
-{% block thin_header_right %}
-    <a href="{% url wadrivespace %}">{% trans "Drive Space" %}</a> | 
-    {{ block.super }}
-{% endblock %}
 
 
 {% block center_details %}
-{{ block.super }}
-    <div id='parent_id'>webclient</div>
-    <div>
-        <div>
-            <h1>{% trans "My account" %}</h1>
+   
+<div id="admin">
+    
+    <ul id="settings_tabs">
+        <li id="personal_settings_tab"><a href="#personal_settings" title="Personal Settings">Profile</a></li>
 
-            <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
-            <br/>
-            
-            <form action="{% url wamyaccount "save" %}" method="POST">
-            <table>
-              <tbody>
-                <tr><td class="form"><img src="{% url wamyphoto %}" width="50" height="50" class="imgzoom"/></td><td colspan="2">&nbsp;</td></tr>
-                <tr><td class="form"><label>Avatar</label></td><td colspan="2"><a href="{% url wamanageavatar eventContext.userId %}">edit <img title="Edit avatar" src="{% static "webclient/image/color_line16.png" %}" /></a> {% if myaccount.hasAvatar %}or <a href="{% url wamanageavatar eventContext.userId "deletephoto" %}">delete <img title="Change avatar" src="{% static "webclient/image/cancel16.png" %}" /></a>{% endif %}</td></tr>
-                {% for field in form %}
-                <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
-                {% endfor %}
-                {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>
-                {% else %}<tr><td class="form"><label>Password:</label> </td><td colspan="2"><a href="{% url wamanagechangepasswordid eventContext.userId %}">change password <img title="Change password" src="{% static "webclient/image/color_line16.png" %}" /></a></td></tr>
-                {% endif %}
-              </tbody>
-              <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-            </table>
-            </form>
+        <li id="group_settings_tab"><a href="#groups_settings" title="Groups Settings">Groups</a></li>
+
+        <li id="drivespace_settings_tab"><a href="#drivespace_settings" title="Drivespace">Drivespace</a></li>
+    </ul>
+     
+     <!-- Personal Settings -->
+    <div id="personal_settings" class="settings_content">
+
+
+       <form class="standard_form" action="{% url wamyaccount "save" %}" method="POST">
+
+           <div id="avatar">
+               <img src="{% url wamyphoto %}" class="imgzoom"/>                 
+               <a class="btn btn_text silver" href="{% url wamanageavatar ome.eventContext.userId %}">
+                   <span>Change</span>
+               </a> 
+
+               {% if myaccount.hasAvatar %} 
+               <a class="btn btn_text silver" href="{% url wamanageavatar ome.eventContext.userId "deletephoto" %}">
+                   <span>Delete</span>
+               </a>
+               {% endif %}
+            </div>
+
+
+
+           <div id="personal_details">
+
+               {% for field in form %}
+                      {{ field.label_tag }}
+                   <!-- Commented out until this can sit inside the label -->
+                   <!--{% if field.field.required %}*{% endif %} -->
+                   {{ field }}
+                   {% if field.errors %}{{ field.errors }}{% endif %}
+                   {{ field.help_text|safe }}
+               {% endfor %}
+
+               {% if ldapAuth %}
+               LDAP: {{ ldapAuth }}
+               {% else %}
+
+               <div id="password">
+
+                   <div id="password_change">
+                       <label>Password:</label>
+                       <a class="btn btn_text silver" id="change_password">
+                           <span>Change  Password</span>
+                       </a>
+                   </div>
+
+                   <span id="password_change_message"></span>
+               </div>
+               {% endif %}
+
+
+               <input type="submit" value="{% trans 'Save' %}" />
+             </div>
+
+       </form>
+
+
+           <!-- hidden dialog for password change -->
+           <div id="password_change_dialog" title="Change Password">
+               <h1>{% trans "Change Password" %}</h1>
+
+               <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
+               <br/>
+
+               <form id="change_password_form" action="{% url wamanagechangepasswordid ome.eventContext.userId %}" method="POST">
+
+                   <table>
+                       <tbody>
+                           {% for field in password_form %}
+                           <tr>
+                               <td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                               <td class="input">{{ field }}</td>
+                               <td>{{ field.help_text|safe }}</td>
+                           </tr>
+                           {% endfor %}
+
+                           <tr><td colspan="3">
+                               <div class="error"></div>
+                           </td></tr>
+                       </tbody>
+                   </table>
+               </form>
+           </div>
+        
+
     </div>
+    
 
-    <div class="clear"></div>
-    
-    
-    {% if myaccount.groupsCount %}
-    <div>
-        <h1>{% trans "Owned Groups" %}</h1><br/>
-    
-        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
-    
-        <table id="groupTable" class="tablesorter"> 
+    <div id="groups_settings" class="settings_content">
+        
+        <div class="one_column_header">
+            <form class="search filtersearch" id="filtersearch" action="#">
+                <input type="text" id="id_search" value="">
+                <input type="submit" value="Go" />
+                <span class="loading">
+                    <img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
+                </span>
+            </form>
+            
+        </div>
+  
+        <table id="dataTable" class="tablesorter tablesorter_basic"> 
             <thead> 
                 <tr> 
-                    <th class="action">{% trans "Actions" %}</th> 
-                    <th class="link">{% trans "Name" %}</th> 
-                    <th class="link">{% trans "Permissions" %}</th> 
-                    <th class="desc">{% trans "Description" %}</th>
+                    <th>{% trans "Name" %}</th> 
+                    <th>{% trans "Permissions" %}</th> 
+                    <th>{% trans "Description" %}</th>
+                    <th >{% trans "Settings" %}</th>
                 </tr> 
             </thead> 
             <tbody>
-            {% for dict in myaccount.groups %}
+            {% for dict in ownedGroups %}
                 <tr>
-                    <td class="action">
+                    <td><strong>{{ dict.group.name }}</strong></td>
+                    <td>{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
+                    <td>{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
+                    <td class="table_settings">
                         {% if not dict.locked %}
-                            <a href="{% url wamanagegroupownerid "edit" dict.group.id %}"><img src="{% static "webadmin/image/edit.png" %}" alt="edit" title="edit"></a>
+                            <a href="{% url wamanagegroupownerid "edit" dict.group.id %}" alt="Edit Group" title="Edit Group" class="btn silver btn_edit">
+                            <span></span>
+                        </a>
                         {% endif %}                    
                     </td>
-                    <td class="link">{{ dict.group.name }}</td>
-                    <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
-                    <td class="desc">{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
                 </tr>
             {% endfor %}
           </tbody>
         </table>
-
     </div>
-    {% endif %}
+
+    
+    
+    <div id="drivespace_settings" class="settings_content">
+        
+
+        <div id="placeholder"></div>
+
+        <h2>{% trans "Drive space usage" %}:</h2>
+
+        <div>{% trans "Free space" %}: {{ driveSpace.free|filesizeformat }}</div>
+        <div id="total"></div>
+
+        <div id="usage">
+            <img src="{% static "webgateway/img/spinner.gif" %}" id="progress" style="float:left"/>
+            <div id="status">loading...</div>
+        </div>
+
+
+        <table id="drivespaceTable" class="tablesorter" style="display: none;">
+            <thead>
+                <tr><th>User</th><th>Usage</th></tr>
+            </thead>
+        </table>
+    </div>
 
 </div>
 {% endblock %}

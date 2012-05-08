@@ -23,42 +23,112 @@
 {% endcomment %}
 
 
-{% block link %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
-{% endblock %}
 
 
 {% block script %}
     {{ block.super }}
+    <!-- required for the script_launch html below -->
+    {% include "webclient/base/includes/script_launch_head.html" %}
+
     <!-- The following are required by the right-hand panel, E.g. annotations/metadata_general.html -->
     <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.tooltip/jquery.tooltip.pack.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
-{% endblock %}
 
 
-{% block middle_header_right %}
-    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-    <a href="{% url wamyaccount 'edit' %}" title="Edit Account"> {{ eContext.user.getFullName }}</a>
-    <a href="{% url load_template 'help' %}">{% trans "Help" %}</a>
-    {% include "webclient/base/logout.html" %}
+    <!-- preview viewer... -->
+    <script type="text/javascript" src="{% static "webgateway/js/ome.viewport.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.viewportImage.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_slider.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js" %}"></script>
+    <!-- ...including big images -->
+    <script type="text/javascript" src="{% static "3rdparty/panojs/utils.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/PanoJS.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/controls.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Bisque.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_imgcnv.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Zoomify.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.panojs.control_thumbnail.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/control_info.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/panojs/control_svg.js" %}"></script>
+
+    <script>
+        $(document).ready(function(){
+            // initially hidden
+            $("#user_dropdown ul").css('visibility', 'hidden');
+            // show on click
+            $("#show_user_dropdown").click(function(e) {
+                
+                $("ul", $(this).parent()).css('visibility', 'visible');
+                e.preventDefault();
+                return false;
+            });
+            // on hover-out, hide drop-down menus
+            $("#user_dropdown ul").hover(function(){}, function(){
+                $(this).css('visibility', 'hidden');
+            });
+        });
+    </script>
+    
+    <!-- keep-alive ping so that OMERO session doesn't die -->
+    {% include "webclient/base/includes/ping.html" %}
+
+    <!-- set-up right panel tabs -->
+    {% include "webclient/data/includes/right_plugin.general.js.html" %}
+
+    <!-- include scripts for loading data into right-hand tabs -->
+    <!-- these are configured in settings.py under "omero.web.ui.right_tabs" -->
+    {% for rt in ome.right_plugins %}
+        {% include rt.include %}
+    {% endfor %}
+
+
 {% endblock %}
 
 
 {% block middle_header_left %}
-    {% include "webclient/base/menu.html" %}
-    {% include "webclient/base/basket_info.html" %}
-    {% include "webclient/base/activities_info.html" %}
+    {% include "webclient/base/includes/menu.html" %}
 {% endblock %}
 
 
-{% block thin_header_right %}
-    {% include "webclient/base/search_field.html" %}
+{% block middle_header_right %}
+
+
+        <!-- Global Tools -->
+        {% include "webclient/base/includes/basket_info.html" %}
+        <ul class="header_toolbar" id="script_notifications">
+                {% include "webclient/base/includes/script_launch.html" %}
+            {% include "webclient/base/includes/activities_info.html" %}
+        </ul>
+        
+        <!-- Global Search -->
+        {% include "webclient/base/includes/search_field.html" %}
+        
+        <!-- User Dropdown -->
+        {% include "webclient/base/includes/user_dropdown.html" %}
 {% endblock %}
 
 
-{% block footer_content %}
-    {% include "webclient/base/footer_links.html" %}
+
+
+
+
+{% block right %}
+<div>
+    <div id="annotation_tabs" class="absolute_fill">
+        <ul id="annotation_tabs_list">
+            <li><a href="#metadata_general">{% trans "General" %}</a></li>
+            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
+            {% for rt in ome.right_plugins %}
+                <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
+            {% endfor %}
+        </ul>
+        <div id="metadata_general" class="right_tab_content"></div>
+        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
+        {% for rt in ome.right_plugins %}
+            <div id="{{ rt.plugin_id }}" class="right_tab_content" style="padding:10px"></div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

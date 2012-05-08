@@ -1,0 +1,146 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+# All rights reserved.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+"""
+Decorators for use with the webclient application.
+"""
+
+import logging
+
+import omeroweb.decorators
+
+from django.http import HttpResponseServerError, Http404
+from django.utils.http import urlencode
+from django.conf import settings
+from django.core.urlresolvers import reverse
+
+from omeroweb.webgateway import views as webgateway_views
+from omeroweb.webadmin.custom_models import Server
+from omeroweb.webclient.webclient_http import HttpLoginRedirect
+from omeroweb.webclient.webclient_utils import string_to_dict
+
+logger = logging.getLogger('omeroweb.webclient.decorators')
+
+class login_required(omeroweb.decorators.login_required):
+    """
+    webclient specific extension of the OMERO.web login_required() decorator.
+    """
+
+    def on_logged_in(self, request, conn):
+        """Called whenever the users is successfully logged in."""
+        super(login_required, self).on_logged_in(request, conn)
+        self.prepare_session(request)
+        self.conn_config(request, conn)
+
+    def conn_config(self, request, conn):
+        if conn.CONFIG['SERVICE_OPTS'] is None:
+            conn.CONFIG['SERVICE_OPTS'] = {}
+        if request.session.get('active_group'):
+            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(request.session.get('active_group'))
+        else:
+            conn.CONFIG['SERVICE_OPTS']['omero.group'] = str(conn.getEventContext().groupId)
+
+    def prepare_session(self, request):
+        """Prepares various session variables."""
+        changes = False
+        if request.session.get('callback') is None:
+            request.session['callback'] = dict()
+            changes = True
+        if request.session.get('shares') is None:
+            request.session['shares'] = dict()
+            changes = True
+        if request.session.get('imageInBasket') is None:
+            request.session['imageInBasket'] = set()
+            changes = True
+        if request.session.get('basekt_counter') is None:
+            request.session['basekt_counter'] = 0
+            changes = True
+        if request.session.get('user_id') is None:
+            request.session['user_id'] = 0
+            changes = True
+        if request.session.get('group_id') is None:
+            request.session['group_id'] = 0
+            changes = True
+        if changes:
+            request.session.modified = True
+
+class render_response(omeroweb.decorators.render_response):
+    """ Subclass for adding additional data to the 'context' dict passed to templates """
+
+    def prepare_context(self, request, context, *args, **kwargs):
+        """
+        This allows templates to access the current eventContext and user from the L{omero.gateway.BlitzGateway}.
+        E.g. <h1>{{ ome.user.getFullName }}</h1>
+        If these are not required by the template, then they will not need to be loaded by the Blitz Gateway.
+        The results are cached by Blitz Gateway, so repeated calls have no additional cost.
+        We also process some values from settings and add these to the context.
+        """
+
+        # we expect @login_required to pass us 'conn', but just in case...
+        if 'conn' not in kwargs:
+            return
+        conn = kwargs['conn']
+
+        context['ome'] = {}
+        context['ome']['eventContext'] = conn.getEventContext
+        context['ome']['user'] = conn.getUser
+        context['ome']['basket_counter'] = request.session.get('basekt_counter', 0)
+        context['ome']['user_id'] = request.session.get('user_id', None)
+        context['ome']['group_id'] = request.session.get('group_id', None)
+        self.load_settings(request, context, conn)
+
+
+    def load_settings(self, request, context, conn):
+
+        # Process various settings and add to the template context dict
+        ping_interval = settings.PING_INTERVAL
+        if ping_interval > 0:
+            context['ping_interval'] = ping_interval
+
+        top_links = settings.TOP_LINKS
+        links = []
+        for tl in top_links:
+            try:
+                label = tl[0]
+                link_id = tl[1]
+                link = reverse(link_id)
+                links.append( {"label":label, "link":link} )
+            except:
+                logger.error("Failed to reverse() tab_link: %s" % tl)
+        context['ome']['top_links'] = links
+
+        right_plugins = settings.RIGHT_PLUGINS
+        r_plugins = []
+        for rt in right_plugins:
+            label = rt[0]
+            include = rt[1]
+            plugin_id = rt[2]
+            r_plugins.append( {"label":label, "include":include, "plugin_id": plugin_id} )
+        context['ome']['right_plugins'] = r_plugins
+
+        center_plugins = settings.CENTER_PLUGINS
+        c_plugins = []
+        for cp in center_plugins:
+            label = cp[0]
+            include = cp[1]
+            plugin_id = cp[2]
+            c_plugins.append( {"label":label, "include":include, "plugin_id": plugin_id} )
+        context['ome']['center_plugins'] = c_plugins
