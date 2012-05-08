@@ -1693,7 +1693,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         elif otype == 'dataset':
             try:
                 for e in tm.getByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])['Dataset']:
-                    print "dataset getByPeriod", e
                     ds_list.append(DatasetWrapper(self, e))
             except:
                 pass
