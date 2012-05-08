@@ -203,11 +203,8 @@ def feed(request, conn=None, **kwargs):
     template = "webclient/index/index.html"
     
     controller = BaseIndex(conn)
-    #controller.loadData()
     
     context = {'controller':controller}
-    context['nav'] = {'basket': request.session.get('nav')['basket']}
-    context['nav']['error'] = request.REQUEST.get('error')      # Displays alert() if error
     context['template'] = template
     return context
 
@@ -264,18 +261,6 @@ def change_active_group(request, conn=None, url=None, **kwargs):
     request.session.modified = True
     request.session['active_group'] = active_group
     url = url or reverse("webindex")
-    """
-    if conn.changeActiveGroup(active_group):
-        request.session.modified = True                
-        url = url or reverse("webindex")
-    else:
-        error = 'You cannot change your group becuase the data is currently processing. You can force it by logging out and logging in again.'
-        url = reverse("webindex")+ ("?error=%s" % error)        # This is handled in index page with a javascript alert(error).
-        if request.session.get('nav')['experimenter'] is not None:
-            url += "&experimenter=%s" % request.session.get('nav')['experimenter']
-    
-    request.session['version'] = conn.getServerVersion()
-    """
     return HttpResponseRedirect(url)
 
 @login_required()
@@ -339,12 +324,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         init['query'] = str(request.REQUEST.get('search_query')).replace(" ", "%20")
 
 
-    try:
-        manager = BaseContainer(conn)
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(request, x)
-    
+    manager = BaseContainer(conn)
 
     # validate experimenter is in the active group
     active_group = request.session.get('active_group') or conn.getEventContext().groupId
@@ -373,11 +353,11 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
             user_id = None
     if user_id is None:
         # ... or check that current user is valid in active group
-        user_id = request.session.get('nav')['experimenter'] is not None and request.session.get('nav')['experimenter'] or -1
+        user_id = request.session.get('user_id') is not None and request.session.get('user_id') or -1
         if int(user_id) not in userIds:
             user_id = conn.getEventContext().userId
 
-    request.session.get('nav')['experimenter'] = user_id
+    request.session['user_id'] = user_id
 
     myGroups = list(conn.getGroupsMemberOf())
     myGroups.sort(key=lambda x: x.getName().lower())
@@ -386,12 +366,9 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     context = {'init':init, 'myGroups':myGroups, 'new_container_form':new_container_form}
     context['groups'] = myGroups
     context['active_group'] = conn.getObject("ExperimenterGroup", long(active_group))
-    context['experimenter'] = user_id
-    context['user'] = conn.getObject("Experimenter", long(user_id))
     for g in context['groups']:
         g.groupSummary()    # load leaders / members
     
-    context['nav'] = {'basket': request.session.get('nav')['basket']}
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
@@ -406,16 +383,12 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     By default this loads Projects and Datasets.
     E.g. /load_data?view=tree provides data for the tree as <li>.
     """
-    request.session.modified = True
-    
-    # check menu
-    menu = request.REQUEST.get("menu")
-    
-    # check view
-    view = request.REQUEST.get("view")
     
     # get page 
     page = int(request.REQUEST.get('page', 1))
+    
+    # get view 
+    view = str(request.REQUEST.get('view', None))
 
     # get index of the plate
     index = int(request.REQUEST.get('index', 0))
@@ -432,15 +405,10 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     if o3_type is not None and o3_id > 0:
         kw[str(o3_type)] = long(o3_id)   
 
-    try:
-        # we set up the manager with the datatypes & ids we require. Manager loads data below
-        manager= BaseContainer(conn, **kw)
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(request, "Object does not exist. Refresh the page.")
+    manager= BaseContainer(conn, **kw)
     
     # prepare forms
-    filter_user_id = request.session.get('nav')['experimenter']
+    filter_user_id = request.session.get('user_id')
     form_well_index = None
         
     # load data & template
@@ -481,7 +449,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             template = "webclient/data/containers.html"
 
     context = {'manager':manager, 'form_well_index':form_well_index, 'index':index}
-    context['nav'] = {'view':view}          # for pagination controls
+    context['template_view'] = view
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
@@ -493,7 +461,6 @@ def load_searching(request, form=None, conn=None, **kwargs):
     """
     Handles AJAX calls to search 
     """
-    request.session.modified = True
     
     manager = BaseSearch(conn)
     # form = 'form' if we are searching. Get query from request...
@@ -550,9 +517,7 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     Either get the P/D/I etc under tags, or the images etc under a tagged Dataset or Project.
     @param o_type       'tag' or 'project', 'dataset'.
     """
-
-    request.session.modified = True
-
+    
     if request.REQUEST.get("o_type") is not None and len(request.REQUEST.get("o_type")) > 0:
         o_type = request.REQUEST.get("o_type")
         try:
@@ -567,18 +532,15 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     index = int(request.REQUEST.get('index', 0))
     
     # prepare forms
-    filter_user_id = request.session.get('nav')['experimenter']
+    filter_user_id = request.session.get('user_id')
     
     # prepare data
     kw = dict()
     if o_type is not None and o_id > 0:
         kw[str(o_type)] = long(o_id)
-    try:
-        manager= BaseContainer(conn, **kw)
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(request, x)
-
+    
+    manager= BaseContainer(conn, **kw)
+    
     if o_id is not None:
         if o_type == "tag":
             manager.loadDataByTag()
@@ -600,6 +562,7 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     
     
     context = {'manager':manager, 'form_well_index':form_well_index}
+    context['template_view'] = view
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
@@ -737,26 +700,21 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells, 'shares': shares}
     
     form_comment = None
-    try:
-        if c_type in ("share", "discussion"):
-            template = "webclient/annotations/annotations_share.html"
-            manager = BaseShare(conn, c_id)
-            manager.getAllUsers(c_id)
-            manager.getComments(c_id)
+    if c_type in ("share", "discussion"):
+        template = "webclient/annotations/annotations_share.html"
+        manager = BaseShare(conn, c_id)
+        manager.getAllUsers(c_id)
+        manager.getComments(c_id)
+        form_comment = CommentAnnotationForm(initial=initial)
+    else:
+        manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+        if share_id is None:
+            template = "webclient/annotations/metadata_general.html"
+            manager.annotationList()
             form_comment = CommentAnnotationForm(initial=initial)
         else:
-            manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
-            if share_id is None:
-                template = "webclient/annotations/metadata_general.html"
-                manager.annotationList()
-                form_comment = CommentAnnotationForm(initial=initial)
-            else:
-                template = "webclient/annotations/annotations_share.html"
-            
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(request, x)    
-
+            template = "webclient/annotations/annotations_share.html"
+    
     if c_type in ("tag"):
         context = {'manager':manager}
     else:
@@ -779,18 +737,13 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
     except:
         index = 0
 
-    try:
-        template = "webclient/annotations/metadata_preview.html"
-        manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(request, x)
-
+    manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+    
     if c_type == "well":
         manager.image = manager.well.getImage(index)
 
     context = {'manager':manager, 'share_id':share_id}
-    context['template'] = template
+    context['template'] = "webclient/annotations/metadata_preview.html"
     return context
 
 
@@ -804,15 +757,11 @@ def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
 
     # the index of a field within a well
     index = int(request.REQUEST.get('index', 0))
-    try:
-        template = "webclient/annotations/metadata_hierarchy.html"
-        manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(request, x)
-
+    
+    manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+    
     context = {'manager':manager}
-    context['template'] = template
+    context['template'] = "webclient/annotations/metadata_hierarchy.html"
     return context
 
 
@@ -1689,7 +1638,6 @@ def download_annotation(request, action, iid, conn=None, **kwargs):
 @render_response()
 def load_public(request, share_id=None, conn=None, **kwargs):
     """ Loads data for the tree in the 'public' main page. """
-    request.session.modified = True
     
     # SUBTREE TODO:
     if share_id is None:
@@ -1728,7 +1676,6 @@ def basket_action (request, action=None, conn=None, **kwargs):
     @param action:      'toshare', 'createshare'    (form to create share and handling the action itself)
                         'todiscuss', 'createdisc'    (form to create discussion and handling the action itself)
     """
-    request.session.modified = True
     
     if action == "toshare":
         template = "webclient/basket/basket_share_action.html"
@@ -1804,17 +1751,10 @@ def empty_basket(request, **kwargs):
 
     try:
         del request.session['imageInBasket']
+        del request.session['basket_counter']
     except KeyError:
         logger.error(traceback.format_exc())
-    
-    #try:
-    #    del request.session['datasetInBasket']
-    #except KeyError:
-    #    logger.error(traceback.format_exc())
-        
-    request.session['nav']['basket'] = 0
-    request.session['imageInBasket'] = set()
-    #request.session['datasetInBasket'] = list()
+
     return HttpResponseRedirect(reverse("basket_action"))
 
 @login_required()
@@ -1877,7 +1817,7 @@ def update_basket(request, **kwargs):
                         return HttpResponse(rv)                
 
         total = len(request.session['imageInBasket'])#+len(request.session['datasetInBasket'])
-        request.session['nav']['basket'] = total
+        request.session['basket_counter'] = total
         return HttpResponse(total)
     else:
         return handlerInternalError(request, "Request method error in Basket.")
@@ -1904,7 +1844,7 @@ def load_calendar(request, year=None, month=None, conn=None, **kwargs):
     """
     
     template = "webclient/history/calendar.html"
-    filter_user_id = request.session.get('nav')['experimenter']
+    filter_user_id = request.session.get('user_id')
     
     if year is not None and month is not None:
         controller = BaseCalendar(conn=conn, year=year, month=month, eid=filter_user_id)
@@ -1937,7 +1877,7 @@ def load_history(request, year, month, day, conn=None, **kwargs):
     except:
         cal_type = None    
     
-    filter_user_id = request.session.get('nav')['experimenter']
+    filter_user_id = request.session.get('user_id')
     controller = BaseCalendar(conn=conn, year=year, month=month, day=day, eid=filter_user_id)
     controller.get_items(cal_type, page)
     
@@ -2242,50 +2182,43 @@ def render_thumbnail (request, iid, conn=None, share_id=None, **kwargs):
 
 @login_required()
 def render_image_region (request, iid, z, t, server_id=None, conn=None, share_id=None, **kwargs):
-    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
-        Many options are available from the request dict.
-    I am assuming a single Pixels object on image with id='iid'. May be wrong """
+    """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_image_region(request, iid, z, t, server_id=None, share_id=share_id, **kwargs)
 
 @login_required()
 def render_birds_eye_view (request, iid, size=None, conn=None, share_id=None, **kwargs):
-    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
-        Many options are available from the request dict.
-    I am assuming a single Pixels object on image with id='iid'. May be wrong """
+    """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_birds_eye_view(request, iid, size=None, share_id=share_id, **kwargs)
 
 @login_required()
 def render_image (request, iid, z, t, conn=None, share_id=None, **kwargs):
-    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
-        Many options are available from the request dict.
-    I am assuming a single Pixels object on image with id='iid'. May be wrong """
+    """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_image(request, iid, z, t, share_id=share_id, **kwargs)
 
 @login_required()
 def image_viewer (request, iid, conn=None, share_id=None, **kwargs):
-    """ This view is responsible for showing pixel data as images """
-    
+    """ Delegates to webgateway, using share connection if appropriate """
     kwargs['viewport_server'] = share_id is not None and reverse("webindex")+share_id or reverse("webindex")
     return webgateway_views.full_viewer(request, iid, share_id=share_id, **kwargs)
 
 @login_required()
 def imageData_json (request, iid, conn=None, share_id=None, **kwargs):
-    """ Get a dict with image information """
+    """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.imageData_json(request, iid=iid, share_id=share_id, **kwargs)
 
 @login_required()
 def render_row_plot (request, iid, z, t, y, w=1, conn=None, share_id=None, **kwargs):
-    """ Get a dict with image information """
+    """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, share_id=share_id, **kwargs)
 
 @login_required()
 def render_col_plot (request, iid, z, t, x, w=1, conn=None, share_id=None, **kwargs):
-    """ Get a dict with image information """
+    """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, share_id=share_id, **kwargs)
 
 @login_required()
 def render_split_channel (request, iid, z, t, conn=None, share_id=None, **kwargs):
-    """ Get a dict with image information """
+    """ Delegates to webgateway, using share connection if appropriate """
     return webgateway_views.render_split_channel(request, iid, z, t, share_id=share_id, **kwargs)
 
 ####################################################################################
@@ -2583,21 +2516,4 @@ def script_run(request, scriptId, conn=None, **kwargs):
         return HttpResponse(simplejson.dumps({'status': status, 'error': error}), mimetype='json')
 
     return HttpResponse(simplejson.dumps({'jobId': jobId, 'status':'in progress'}), mimetype='json')
-
-
-####################################################################################
-# utils
-
-GOOGLE_URL = "www.google.com"
-def spellchecker(request):
-    """ Spellchecker functionality - Not used currently """
-    if request.method == 'POST':
-        lang = request.GET.get("lang", "en")
-        data = request.raw_post_data
-        con = httplib.HTTPSConnection(GOOGLE_URL)
-        con.request("POST", "/tbproxy/spell?lang=%s" % lang, data)
-        response = con.getresponse()
-        r_text = response.read()
-        con.close()
-        return HttpJavascriptResponse(r_text)
 

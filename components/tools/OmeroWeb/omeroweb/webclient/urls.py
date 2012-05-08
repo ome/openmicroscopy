@@ -118,8 +118,6 @@ urlpatterns = patterns('django.views.generic.simple',
     
     url( r'^avatar/(?P<oid>[0-9]+)/$', views.avatar, name="avatar"),
     
-    url( r'^spellchecker/$', views.spellchecker, name="spellchecker"), 
-    
     # scripting service urls
     url( r'^list_scripts/$', views.list_scripts, name="list_scripts"),  # returns html list of scripts - click to run
     url( r'^script_ui/(?P<scriptId>[0-9]+)/$', views.script_ui, name='script_ui' ), # shows a form for running a script
