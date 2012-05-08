@@ -1116,6 +1116,8 @@ div.plane_info table div {
 
 /** tooltip **/
 
+
+
 #tooltip, .tooltip_html {
 background:#252626;	
 
@@ -1129,6 +1131,10 @@ color:#999;
         border-radius:3px; /* Opera 10.5, IE 9 */ 
 }
 
+.tooltip_html {
+	background-color:#000 !important;	
+	color:#999;
+}
 
 
 /** Chgrp form **/

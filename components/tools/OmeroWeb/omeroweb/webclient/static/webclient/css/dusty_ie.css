@@ -166,6 +166,7 @@
 		
 			.btn.silver, .menu_btns.silver li {
 				background-color: #E3E6E8;
+				border:solid 1px blue;
 				color: #494D50;
 				text-shadow: 0 1px 0 white;
 			}
@@ -191,7 +192,7 @@
 					   -moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.4); /* FF3.5+ */
 					        box-shadow:inset 0 1px 0 rgba(255,255,255,0.4); /* Opera 10.5, IE 9.0 */
 							
-					filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#EBECEE', endColorstr='#E4E6E8',GradientType=0 ); /* IE6-9 */
+					filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#EBECEE', endColorstr='#E4E6E8',GradientType=0 ); 
 
 				}
 
@@ -225,20 +226,12 @@
 		
 		
 			.btn.silver:active span, .btn.silver:focus span{
-				
-				-webkit-box-shadow:inset 0 1px 3px hsla(210,8%,50%,0.8); /* Saf3.0+, Chrome */
-				   -moz-box-shadow:inset 0 1px 3px hsla(210,8%,50%,0.8); /* FF3.5+ */
-				        box-shadow:inset 0 1px 3px hsla(210,8%,50%,0.8); /* Opera 10.5, IE 9.0 */
-				
 				filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#CBCBCB', endColorstr='#DBDBDB',GradientType=0 ); /* IE6-9 */
 			}
 			
 			.menu_btns.silver li:active a, .menu_btns.silver li:focus a {
 				border-top:solid 1px rgba(0,0,0,.4);
-				filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#CBCBCB', endColorstr='#DBDBDB',GradientType=0 ); /* IE6-9 */
-				-webkit-box-shadow:inset 0 2px 5px rgba(0,0,0,.3); /* Saf3.0+, Chrome */
-				   -moz-box-shadow:inset 0 2px 5px rgba(0,0,0,.3); /* FF3.5+ */
-				        box-shadow:inset 0 2px 5px rgba(0,0,0,.3); /* Opera 10.5, IE 9.0 */				
+				filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#CBCBCB', endColorstr='#DBDBDB',GradientType=0 ); 	
 			}
 	
 
@@ -254,14 +247,16 @@
 			.btn_scientist {background: transparent  url('/static/webgateway/img/icon_add_scientist.png ')center center no-repeat;}
 			.btn_group {background: transparent  url('/static/webgateway/img/icon_add_group.png ')center center no-repeat;}
 			.btn_delete {background: transparent  url('/static/webgateway/img/icon_delete.png ')center center no-repeat;}
-			.btn_edit {background: transparent  url('webgateway/img/icon_edit.png' ) center center no-repeat; 
-			border:solid 10px blue !important;}
+			.btn_edit {background: red; border:solid 1px blue }
 			
-
+			
+			
+			
 
 			a.btn_add span, a.btn_edit span, button.btn_add span, button.btn_edit span {
 				width:20px;
 				height:18px;
+				border:solid 1px red;
 				display:block;
 			}
 

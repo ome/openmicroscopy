@@ -126,9 +126,11 @@
 		
 		.dropdown, .dropdown ul, .info_panel {
 			background: #f2f2f2;
-	        border-radius:5px;
-			box-shadow:none;
-			behavior: url(/static/webclient/css/PIE.htc);
+		}
+		
+		.dropdown ul {
+			background: #f2f2f2;
+			border:solid 1px #B0B7BB;
 		}
 		
 		
