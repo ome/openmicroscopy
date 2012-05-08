@@ -10,6 +10,7 @@
 #define CLASS_PERMISSIONS
 
 #include <omero/model/IObject.ice>
+#include <omero/Collections.ice>
 
 module omero {
 
@@ -24,34 +25,15 @@ module omero {
     {
 
       /**
-       * Flag calculated server-side which says that the
-       * current user in the current context is not allowed
-       * to annotate the current object (e.g. by linking
-       * annotations or regions of interest).
+       * Restrictions placed on the current object for the current
+       * user. Indexes into this array are based on constants
+       * in the [omero::constants::permissions] module. If a
+       * restriction index is not present, then it is safe to
+       * assume that there is no such restriction.
        *
-       * If this is set to true, then the disallowEdit will
-       * also be set to true.
-       *
-       * The default value (false) will be used for newly
-       * created objects stating that no security restrictions
-       * are in place.
+       * If null, this should be assumed to have no restrictions.
        **/
-      bool disallowAnnotate;
-
-      /**
-       * Flag calculated server-side which says that the
-       * current user in the current context is not allowed
-       * to cross-link (e.g. images and datasets), modify,
-       * or delete this data object.
-       *
-       * If this is set to true, disallowAnnotate may still be
-       * false.
-       *
-       * The default value (false) will be used for newly
-       * created objects stating that no security restrictions
-       * are in place.
-       **/
-      bool disallowEdit;
+      omero::api::BoolArray restrictions;
 
       /**
        * Internal representation. May change!
@@ -77,6 +59,17 @@ module omero {
       //======================================================
 
       /**
+       * The basis for the other canX() methods. If the restriction
+       * at the given offset in the restriction array is true, then
+       * this method returns true (otherwise false) and the canX()
+       * methods return the opposite, i.e.
+       *
+       * isDisallow(ANNOTATERESTRICTION) == ! canAnnotate()
+       *
+       **/
+       bool isDisallow(int restriction);
+
+      /**
        * Whether the current user has permissions
        * for annotating this object.
        *
@@ -88,13 +81,30 @@ module omero {
       /**
        * Whether the current user has the "edit" permissions
        * for this object. This includes changing the values
-       * of the object, adding it to data graphs, and even
-       * deleting it.
+       * of the object.
        *
        * The fact that the user has this object in hand
        * already identifies that it's readable.
        **/
       bool canEdit();
+
+      /**
+       * Whether the current user has the "link" permissions
+       * for this object. This includes adding it to data graphs.
+       *
+       * The fact that the user has this object in hand
+       * already identifies that it's readable.
+       **/
+      bool canLink();
+
+      /**
+       * Whether the current user has the "delete" permissions
+       * for this object.
+       *
+       * The fact that the user has this object in hand
+       * already identifies that it's readable.
+       **/
+      bool canDelete();
 
       // Row-based values
       //======================================================
