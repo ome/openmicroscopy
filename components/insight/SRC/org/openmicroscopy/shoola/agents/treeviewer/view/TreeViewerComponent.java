@@ -1567,7 +1567,6 @@ class TreeViewerComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		//Check if current user can write in object
-		if (TreeViewerAgent.isAdministrator()) return true;
 		long id = model.getUserDetails().getId();
 		boolean b = false;
 		if (ho instanceof TreeImageTimeSet) {
@@ -1583,7 +1582,6 @@ class TreeViewerComponent
 					group);
 		if (ho instanceof DataObject) {
 			DataObject data = (DataObject) ho;
-			//group = model.getGroup(data.getGroupId());
 			return data.canEdit();
 		} else if (ho instanceof TreeImageTimeSet) {
 			Browser browser = model.getSelectedBrowser();
@@ -1606,7 +1604,40 @@ class TreeViewerComponent
 	 */
 	public boolean canLink(Object ho)
 	{
-		return canEdit(ho); //To be replaced.
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		//Check if current user can write in object
+		if (TreeViewerAgent.isAdministrator()) return true;
+		long id = model.getUserDetails().getId();
+		boolean b = false;
+		if (ho instanceof TreeImageTimeSet) {
+			Browser browser = model.getSelectedBrowser();
+			if (browser == null) return false;
+			ExperimenterData exp = browser.getNodeOwner((TreeImageDisplay) ho);
+			if (exp.getId() == id) b = true;
+		} else b = EditorUtil.isUserOwner(ho, id);
+		if (b) return b; //user is the owner.
+		GroupData group = null;
+		int level = 
+			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+					group);
+		if (ho instanceof DataObject) {
+			DataObject data = (DataObject) ho;
+			return data.canLink();
+		} else if (ho instanceof TreeImageTimeSet) {
+			Browser browser = model.getSelectedBrowser();
+			if (browser == null) return false;
+			group = browser.getNodeGroup((TreeImageDisplay) ho);
+			
+			switch (level) {
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
+			}
+			return EditorUtil.isUserGroupOwner(group, id);
+		}
+		return false;
 	}
 	
 	/**
@@ -1615,7 +1646,6 @@ class TreeViewerComponent
 	 */
 	public boolean canDelete(Object ho)
 	{
-		if (TreeViewerAgent.isAdministrator()) return true;
 		long id = model.getUserDetails().getId();
 		boolean b = false;
 		if (ho instanceof TreeImageTimeSet) {
@@ -1627,7 +1657,7 @@ class TreeViewerComponent
 		GroupData group = null;
 		if (ho instanceof DataObject) {
 			DataObject data = (DataObject) ho;
-			group = model.getGroup(data.getGroupId());
+			return data.canDelete();
 		} else if (ho instanceof TreeImageTimeSet) {
 			Browser browser = model.getSelectedBrowser();
 			if (browser == null) return false;
@@ -1637,8 +1667,6 @@ class TreeViewerComponent
 			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
 					group);
 		switch (level) {
-			case GroupData.PERMISSIONS_GROUP_READ:
-			case GroupData.PERMISSIONS_GROUP_READ_LINK:
 			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
 			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
@@ -1665,23 +1693,22 @@ class TreeViewerComponent
 		} else b = EditorUtil.isUserOwner(ho, id);
 		if (b) return b; //user is the owner.
 		if (ho instanceof DataObject) {
-			/*
-			DataObject data = (DataObject) ho;
-			GroupData group = model.getGroup(data.getGroupId());
-			int level = 
-			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-					group);
-			switch (level) {
-				case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-				case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-					return true;
-			}
-			//EditorUtil.isUserGroupOwner(group, id);
-			 * */
 			DataObject data = (DataObject) ho;
 			return data.canAnnotate();
-		} // check the case of other nodes.
+		} else if (ho instanceof TreeImageTimeSet) {
+			Browser browser = model.getSelectedBrowser();
+			if (browser == null) return false;
+			GroupData group = browser.getNodeGroup((TreeImageDisplay) ho);
+			int level = 
+			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+						group);
+			switch (level) {
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
+			}
+			return EditorUtil.isUserGroupOwner(group, id);
+		}
 		return false;
 	}
 	

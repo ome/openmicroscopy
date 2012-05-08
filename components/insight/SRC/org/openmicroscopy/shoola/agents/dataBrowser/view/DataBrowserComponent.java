@@ -907,20 +907,8 @@ class DataBrowserComponent
 		long id = DataBrowserAgent.getUserDetails().getId();
 		if (EditorUtil.isUserOwner(ho, id)) return true; //user it the owner.
 		if (!(ho instanceof DataObject)) return false;
-
 		DataObject data = (DataObject) ho;
-		GroupData group = model.getGroup(data.getGroupId());
-		int level = 
-			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-					group);
-		switch (level) {
-			case GroupData.PERMISSIONS_GROUP_READ:
-			case GroupData.PERMISSIONS_GROUP_READ_LINK:
-			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
-		}
-		return EditorUtil.isUserGroupOwner(group, id);
+		return data.canDelete();
 	}
 	
 	/**
@@ -954,7 +942,7 @@ class DataBrowserComponent
 		if (EditorUtil.isUserOwner(ho, id)) return true; //user it the owner.
 		if (!(ho instanceof DataObject)) return false;
 		DataObject data = (DataObject) ho;
-		return data.canEdit();
+		return data.canLink();
 	}
 	
 	/**

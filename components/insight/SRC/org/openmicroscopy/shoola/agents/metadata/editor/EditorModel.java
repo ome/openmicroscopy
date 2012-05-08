@@ -689,7 +689,7 @@ class EditorModel
 	{ 
 		if (isUserOwner(data)) return true;
 		DataObject d = (DataObject) data;
-		return d.canEdit();
+		return d.canLink();
 	}
 
 	/**
@@ -712,7 +712,30 @@ class EditorModel
 		boolean b = isUserOwner(data);
 		if (b) return b;
 		DataObject d = (DataObject) data;
-		return d.canEdit();
+		return d.canAnnotate();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object can be deleted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canDelete() { return canDelete(refObject); }
+	
+	/**
+	 * Returns <code>true</code> if the object can be deleted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canDelete(Object data)
+	{ 
+		boolean b = isUserOwner(data);
+		if (b) return b;
+		DataObject d = (DataObject) data;
+		return d.canDelete();
 	}
 	
 	/**
