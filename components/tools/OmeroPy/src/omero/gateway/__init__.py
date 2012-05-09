@@ -533,9 +533,9 @@ class BlitzObjectWrapper (object):
     def canChgrp(self):
         """
         Specifies whether the current user can move this object to another group. 
-        This is allowed for the owner of the data, group owner or admin
+        This is allowed for the owner of the data or admin
         """
-        return self.isOwned() or self._conn.isAdmin() or (self.getDetails().group.id.val in self._conn.getEventContext().leaderOfGroups)
+        return self.isOwned() or self._conn.isAdmin()
 
     def countChildren (self):
         """
