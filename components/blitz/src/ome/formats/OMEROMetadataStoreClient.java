@@ -31,7 +31,6 @@ import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -79,6 +78,12 @@ import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
 import ome.util.LSID;
+import ome.xml.model.enums.FillRule;
+import ome.xml.model.enums.FontFamily;
+import ome.xml.model.enums.FontStyle;
+import ome.xml.model.enums.LineCap;
+import ome.xml.model.enums.Marker;
+import ome.xml.model.primitives.Color;
 import ome.xml.model.primitives.NonNegativeInteger;
 import ome.xml.model.primitives.NonNegativeLong;
 import ome.xml.model.primitives.PercentFraction;
@@ -3068,6 +3073,22 @@ public class OMEROMetadataStoreClient
         // XXX: Not handled by OMERO.
     }
 
+    public void setBinaryFileFileName(String fileName, int fileAnnotationIndex)
+    {
+    	// XXX: Not handled by OMERO.
+    }
+
+	public void setBinaryFileMIMEType(String mimeType, int fileAnnotationIndex)
+	{
+		// XXX: Not handled by OMERO.
+	}
+
+	public void setBinaryFileSize(NonNegativeLong size, int fileAnnotationIndex)
+	{
+		// XXX: Not handled by OMERO.
+	}
+
+	
     //////// Channel /////////
 
     public Channel getChannel(int imageIndex, int channelIndex)
@@ -3107,14 +3128,15 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelColor(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setChannelColor(ome.xml.model.primitives.Color, int, int)
      */
-    public void setChannelColor(Integer color, int imageIndex, int channelIndex)
+    public void setChannelColor(Color color, 
+    		int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
         // RGBA --> ARGB
-        Color c = new Color((color >>> 8) | (color << (32-8)));
-        o.setColor(new ColorI(c.getRGB()));
+        //Color c = new Color((color >>> 8) | (color << (32-8)));
+        //o.setColor(new ColorI(color.getRGB()));
     }
 
     /* (non-Javadoc)
@@ -3201,15 +3223,6 @@ public class OMEROMetadataStoreClient
         Channel o = getChannel(imageIndex, channelIndex);
         o.setName(toRType(name));
     }
-
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelOTFRef(java.lang.String, int, int)
-     */
-    public void setChannelOTFRef(String otf, int imageIndex, int channelIndex)
-    {
-    }
-
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setChannelPinholeSize(java.lang.Double, int, int)
@@ -3333,9 +3346,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDatasetGroupRef(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setDatasetExperimenterGroupRef(java.lang.String, int)
      */
-    public void setDatasetGroupRef(String group, int datasetIndex)
+    public void setDatasetExperimenterGroupRef(String group, int datasetIndex)
     {
         // XXX: Not handled by OMERO.
     }
@@ -3349,14 +3362,13 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDatasetProjectRef(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setDatasetImageRef(java.lang.String, int, int)
      */
-    public void setDatasetProjectRef(String project, int datasetIndex,
-            int projectRefIndex)
+    public void setDatasetImageRef(String image, int datasetIndex, 
+    		int imageRefIndex)
     {
-        // XXX: Not handled by OMERO.
+    	
     }
-
     ////////Detector/////////
 
     /**
@@ -3714,21 +3726,30 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseDescription(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseFillColor(ome.xml.model.primitives.Color, int, int)
      */
-    public void setEllipseDescription(String description, int ROIIndex,
-            int shapeIndex)
-    {
-        //TODO: not in the OMERO model
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseFill(java.lang.Integer, int, int)
-     */
-    public void setEllipseFill(Integer fill, int ROIIndex, int shapeIndex)
+    public void setEllipseFillColor(Color fill, int ROIIndex, int shapeIndex)
     {
         //TODO: Which is this in the OMERO model?
     }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseFillRule(FillRule, int, int)
+     */
+	public void setEllipseFillRule(ome.model.enums.FillRule fillRule, 
+			int ROIIndex, int shapeIndex)
+	{
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setEllipseFontFamily(ome.model.enums.FontFamily, int, int)
+	 */
+	public void setEllipseFontFamily(ome.model.enums.FontFamily fontFamily,
+			int ROIIndex, int shapeIndex)
+	{
+
+	}
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setEllipseFontSize(java.lang.Integer, int, int)
@@ -3740,18 +3761,36 @@ public class OMEROMetadataStoreClient
         o.setFontSize(toRType(fontSize));
     }
 
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseLabel(java.lang.String, int, int)
-     */
-    public void setEllipseLabel(String label, int ROIIndex, int shapeIndex)
-    {
-        //TODO: not in the OMERO model
-    }
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setEllipseFontFamily(ome.model.enums.FontStyle, int, int)
+	 */
+	public void setEllipseFontStyle(ome.model.enums.FontStyle fontSyle,
+			int ROIIndex, int shapeIndex)
+	{
 
+	}
+	
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setEllipseLineCap(ome.model.enums.LineCap, int, int)
+	 */
+	public void setEllipseLineCap(ome.model.enums.LineCap lineCap,
+			int ROIIndex, int shapeIndex)
+	{
+
+	}
+	
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setEllipseLocked(Boolean, int, int)
+	 */
+	public void setEllipseLocked(Boolean locked, int ROIIndex, int shapeIndex)
+	{
+
+	}
+	
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseName(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseText(java.lang.String, int, int)
      */
-    public void setEllipseName(String name, int ROIIndex, int shapeIndex)
+    public void setEllipseText(String text, int ROIIndex, int shapeIndex)
     {
         //TODO: not in the OMERO model
     }
@@ -3775,9 +3814,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseStroke(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseStrokeColor(ome.xml.model.primitives.Color, int, int)
      */
-    public void setEllipseStroke(Integer stroke, int ROIIndex, int shapeIndex)
+    public void setEllipseStrokeColor(Color stroke, int ROIIndex, int shapeIndex)
     {
         //TODO: Which in OMERO model
     }
@@ -3830,9 +3869,10 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseTransform(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseTransform(ome.xml.model.AffineTransform, int, int)
      */
-    public void setEllipseTransform(String transform, int ROIIndex,
+    public void setEllipseTransform(ome.xml.model.AffineTransform transform,
+    		int ROIIndex,
             int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
@@ -3857,6 +3897,15 @@ public class OMEROMetadataStoreClient
         o.setY(toRType(y));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseY(java.lang.Double, int, int)
+     */
+    public void setEllipseVisible(Boolean visible, int ROIIndex, int shapeIndex)
+    {
+        Ellipse o = getEllipse(ROIIndex, shapeIndex);
+        //o.setVisible(toRType(visible));
+    }
+    
     ////////Experiment/////////
 
     private Experiment getExperiment(int experimentIndex)
@@ -3929,15 +3978,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimenterDisplayName(java.lang.String, int)
-     */
-    public void setExperimenterDisplayName(String displayName,
-            int experimenterIndex)
-    {
-        // XXX: Not handled by OMERO.
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setExperimenterEmail(java.lang.String, int)
      */
     public void setExperimenterEmail(String email, int experimenterIndex)
@@ -3949,15 +3989,6 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setExperimenterFirstName(java.lang.String, int)
      */
     public void setExperimenterFirstName(String firstName, int experimenterIndex)
-    {
-        // XXX: Not handled by OMERO.
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimenterGroupRef(java.lang.String, int, int)
-     */
-    public void setExperimenterGroupRef(String group, int experimenterIndex,
-            int groupRefIndex)
     {
         // XXX: Not handled by OMERO.
     }
@@ -3995,6 +4026,45 @@ public class OMEROMetadataStoreClient
     {
         // XXX: Not handled by OMERO.
     }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterGroupExperimenterRef(java.lang.String, int, int)
+     */
+    public void setExperimenterGroupExperimenterRef(String group, int experimenterIndex,
+            int groupRefIndex)
+    {
+        // XXX: Not handled by OMERO.
+    }
+    
+    public void setExperimenterGroupAnnotationRef(String annotation,
+    		int experimenterGroupIndex, int annotationRefIndex)
+    {
+    	
+    }
+
+	// Ignoring Dataset_BackReference back reference
+	public void setExperimenterGroupDescription(String description,
+			int experimenterGroupIndex)
+	{
+		
+	}
+
+	public void setExperimenterGroupID(String id, int experimenterGroupIndex)
+	{
+		
+	}
+
+	// Ignoring Image_BackReference back reference
+	public void setExperimenterGroupLeader(String leader, 
+			int experimenterGroupIndex, int leaderIndex)
+	{
+		
+	}
+
+	public void setExperimenterGroupName(String name, int experimenterGroupIndex)
+	{
+		
+	}
 
     ////////Filament/////////
 
@@ -4341,48 +4411,6 @@ public class OMEROMetadataStoreClient
          o.setSerialNumber(toRType(serialNumber));
     }
 
-    ////////Group/////////
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setGroupID(java.lang.String, int)
-     */
-    public void setGroupID(String id, int groupIndex)
-    {
-        // XXX: Not handled by OMERO.
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setGroupContact(java.lang.String, int)
-     */
-    public void setGroupContact(String contact, int groupIndex)
-    {
-        // XXX: Not handled by OMERO.
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setGroupDescription(java.lang.String, int)
-     */
-    public void setGroupDescription(String description, int groupIndex)
-    {
-        // XXX: Not handled by OMERO.
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setGroupLeader(java.lang.String, int)
-     */
-    public void setGroupLeader(String leader, int groupIndex)
-    {
-        // XXX: Not handled by OMERO.
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setGroupName(java.lang.String, int)
-     */
-    public void setGroupName(String name, int groupIndex)
-    {
-        // XXX: Not handled by OMERO.
-    }
-
     //////// Image /////////
 
     /**
@@ -4417,14 +4445,14 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageAcquiredDate(java.lang.String, int)
      */
-    public void setImageAcquiredDate(String acquiredDate, int imageIndex)
+    public void setImageAcquisitionDate(String acquisitionDate, int imageIndex)
     {
-        if (acquiredDate == null)
+        if (acquisitionDate == null)
         {
             return;
         }
         Image o = getImage(imageIndex);
-        o.setAcquisitionDate(toRType(timestampFromXmlString(acquiredDate)));
+        o.setAcquisitionDate(toRType(timestampFromXmlString(acquisitionDate)));
     }
 
     /* (non-Javadoc)
@@ -4475,9 +4503,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageGroupRef(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setImageExperimenterGroupRef(java.lang.String, int)
      */
-    public void setImageGroupRef(String group, int imageIndex)
+    public void setImageExperimenterGroupRef(String group, int imageIndex)
     {
         //LSID key = new LSID(Image.class, imageIndex);
         //addReference(key, new LSID(group));
@@ -4531,9 +4559,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsID(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsID(java.lang.String, int)
      */
-    public void setImageObjectiveSettingsID(String id, int imageIndex)
+    public void setObjectiveSettingsID(String id, int imageIndex)
     {
         getImageObjectiveSettings(imageIndex);
         LSID key = new LSID(ObjectiveSettings.class, imageIndex);
@@ -4541,9 +4569,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsCorrectionCollar(java.lang.Double, int)
+     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsCorrectionCollar(java.lang.Double, int)
      */
-    public void setImageObjectiveSettingsCorrectionCollar(
+    public void setObjectiveSettingsCorrectionCollar(
             Double correctionCollar, int imageIndex)
     {
         ObjectiveSettings o = getImageObjectiveSettings(imageIndex);
@@ -4551,9 +4579,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsMedium(ome.xml.model.enums.Medium, int)
+     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsMedium(ome.xml.model.enums.Medium, int)
      */
-    public void setImageObjectiveSettingsMedium(
+    public void setObjectiveSettingsMedium(
             ome.xml.model.enums.Medium medium, int imageIndex)
     {
         ObjectiveSettings o = getImageObjectiveSettings(imageIndex);
@@ -4563,7 +4591,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsRefractiveIndex(java.lang.Double, int)
      */
-    public void setImageObjectiveSettingsRefractiveIndex(
+    public void setObjectiveSettingsRefractiveIndex(
             Double refractiveIndex, int imageIndex)
     {
         ObjectiveSettings o = getImageObjectiveSettings(imageIndex);
@@ -4961,25 +4989,28 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineDescription(java.lang.String, int, int)
-     */
-    public void setLineDescription(String description, int ROIIndex,
-            int shapeIndex)
-    {
-        //Line o = getLine(ROIIndex, shapeIndex);
-        //o.setDescription()
-        // TODO not in OMERO model
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLineFill(java.lang.Integer, int, int)
      */
-    public void setLineFill(Integer fill, int ROIIndex, int shapeIndex)
+    public void setLineFillColor(Color fill, int ROIIndex, int shapeIndex)
     {
         //Line o = getLine(ROIIndex, shapeIndex);
         //o.setFill(toRType(fill));
         // TODO not in OMERO model
     }
+    
+    public void setLineFillRule(ome.xml.model.enums.FillRule fillRule,
+    		int ROIIndex, int shapeIndex)
+    {
+    	
+    }
+
+	// FontFamily accessor from parent Shape
+	public void setLineFontFamily(ome.xml.model.enums.FontFamily fontFamily,
+			int ROIIndex, int shapeIndex)
+	{
+		
+	}
+
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLineFontSize(java.lang.Integer, int, int)
@@ -4990,20 +5021,16 @@ public class OMEROMetadataStoreClient
         o.setFontSize(toRType(fontSize));
     }
 
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineLabel(java.lang.String, int, int)
-     */
-    public void setLineLabel(String label, int ROIIndex, int shapeIndex)
-    {
-        //Line o = getLine(ROIIndex, shapeIndex);
-        //o.setLineLabel(toRType(fontSize));
-        // TODO not in OMERO model
-    }
+ // FontStyle accessor from parent Shape
+	public void setLineFontStyle(ome.xml.model.enums.FontStyle fontStyle,
+			int ROIIndex, int shapeIndex)
+	{
 
+	}
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLineName(java.lang.String, int, int)
      */
-    public void setLineName(String name, int ROIIndex, int shapeIndex)
+    public void setLineText(String name, int ROIIndex, int shapeIndex)
     {
         //Line o = getLine(ROIIndex, shapeIndex);
         //o.setName(toRType(fontSize));
@@ -5014,10 +5041,9 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLineStroke(java.lang.Integer, int, int)
      */
-    public void setLineStroke(Integer stroke, int ROIIndex, int shapeIndex)
+    public void setLineStrokeColor(Color stroke, int ROIIndex, int shapeIndex)
     {
         Line o = getLine(ROIIndex, shapeIndex);
-        o.setStrokeWidth(toRType(stroke.doubleValue()));
     }
 
     /* (non-Javadoc)
@@ -5070,12 +5096,30 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLineTransform(java.lang.String, int, int)
      */
-    public void setLineTransform(String transform, int ROIIndex, int shapeIndex)
+    public void setLineTransform(ome.xml.model.AffineTransform transform, int ROIIndex, int shapeIndex)
     {
         Line o = getLine(ROIIndex, shapeIndex);
         //o.setTransform(toRType(transform));
     }
 
+    public void setLineVisible(Boolean visible, int ROIIndex, int shapeIndex)
+    {
+    	
+    }
+
+    public void setLineMarkerEnd(ome.xml.model.enums.Marker markerEnd,
+    		int ROIIndex, int shapeIndex)
+    {
+    	
+    }
+
+    public void setLineMarkerStart(ome.xml.model.enums.Marker markerStart,
+    		int ROIIndex, int shapeIndex)
+    {
+    	
+    }
+
+	
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLineX1(java.lang.Double, int, int)
      */
@@ -5235,20 +5279,42 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMaskFill(java.lang.Integer, int, int)
      */
-    public void setMaskFill(Integer fill, int ROIIndex, int shapeIndex)
+    public void setMaskFillColor(Color fill, int ROIIndex, int shapeIndex)
     {
         // TODO : not in OMERO model
         //Mask o = getMask(ROIIndex, shapeIndex);
         //o.setFill(toRType(fill));
     }
 
+ // FillRule accessor from parent Shape
+	public void setMaskFillRule(ome.xml.model.enums.FillRule fillRule,
+			int ROIIndex, int shapeIndex)
+	{
+		
+	}
+
+	// FontFamily accessor from parent Shape
+	public void setMaskFontFamily(ome.xml.model.enums.FontFamily fontFamily,
+			int ROIIndex, int shapeIndex)
+	{
+		
+	}
+
+	
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMaskFontSize(java.lang.Integer, int, int)
      */
-    public void setMaskFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
+    public void setMaskFontSize(NonNegativeInteger fontSize, int ROIIndex,
+    		int shapeIndex)
     {
         Mask o = getMask(ROIIndex, shapeIndex);
         o.setFontSize(toRType(fontSize));
+    }
+
+    public void setMaskFontStyle(ome.xml.model.enums.FontStyle fontStyle,
+    		int ROIIndex, int shapeIndex)
+    {
+    	
     }
 
     /* (non-Javadoc)
@@ -5269,6 +5335,27 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMaskLabel(java.lang.String, int, int)
      */
+    public void setMaskLineCap(ome.xml.model.enums.LineCap lineCap, 
+    		int ROIIndex, int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        //Mask o = getMask(Mask.class, id);
+        //o.setLabel(toRType(label));
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskLabel(java.lang.String, int, int)
+     */
+    public void setMaskLocked(Boolean locked, int ROIIndex, int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        //Mask o = getMask(Mask.class, id);
+        //o.setLabel(toRType(label));
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskLabel(java.lang.String, int, int)
+     */
     public void setMaskLabel(String label, int ROIIndex, int shapeIndex)
     {
         // TODO : not in OMERO model
@@ -5279,7 +5366,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMaskName(java.lang.String, int, int)
      */
-    public void setMaskName(String name, int ROIIndex, int shapeIndex)
+    public void setMaskText(String name, int ROIIndex, int shapeIndex)
     {
         // TODO : not in OMERO model
         // Mask o = getMask(Mask.class, id);
@@ -5289,7 +5376,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMaskStroke(java.lang.Integer, int, int)
      */
-    public void setMaskStroke(Integer stroke, int ROIIndex, int shapeIndex)
+    public void setMaskStrokeColor(Color stroke, int ROIIndex, int shapeIndex)
     {
         // TODO : not in OMERO model
         // Mask o = getMask(ROIIndex, shapeIndex);
@@ -5347,7 +5434,8 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMaskTransform(java.lang.String, int, int)
      */
-    public void setMaskTransform(String transform, int ROIIndex, int shapeIndex)
+    public void setMaskTransform(ome.xml.model.AffineTransform transform,
+    		int ROIIndex, int shapeIndex)
     {
         Mask o = getMask(ROIIndex, shapeIndex);
         //o.setTransform(toRType(transform));
@@ -5564,112 +5652,6 @@ public class OMEROMetadataStoreClient
                 getEnumeration(MicroscopeType.class, type.toString()));
     }
 
-    //////// OTF /////////
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFID(java.lang.String, int, int)
-     */
-    public void setOTFID(String id, int instrumentIndex, int OTFIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFBinaryFileFileName(java.lang.String, int, int)
-     */
-    public void setOTFBinaryFileFileName(String fileName, int instrumentIndex,
-            int OTFIndex)
-    {
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFBinaryFileMIMEType(java.lang.String, int, int)
-     */
-    public void setOTFBinaryFileMIMEType(String mimetype, int instrumentIndex,
-            int OTFIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFBinaryFileSize(java.lang.Integer, int, int)
-     */
-    public void setOTFBinaryFileSize(NonNegativeLong size, int instrumentIndex,
-            int OTFIndex)
-    {
-       
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFFilterSetRef(java.lang.String, int, int)
-     */
-    public void setOTFFilterSetRef(String filterSet, int instrumentIndex,
-            int OTFIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFOpticalAxisAveraged(java.lang.Boolean, int, int)
-     */
-    public void setOTFOpticalAxisAveraged(Boolean opticalAxisAveraged,
-            int instrumentIndex, int OTFIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFSizeX(ome.xml.model.primitives.PositiveInteger, int, int)
-     */
-    public void setOTFSizeX(PositiveInteger sizeX, int instrumentIndex,
-            int OTFIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFSizeY(ome.xml.model.primitives.PositiveInteger, int, int)
-     */
-    public void setOTFSizeY(PositiveInteger sizeY, int instrumentIndex,
-            int OTFIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFType(ome.xml.model.enums.PixelType, int, int)
-     */
-    public void setOTFType(ome.xml.model.enums.PixelType type, int instrumentIndex, int OTFIndex)
-    {
-    }
-    
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsID(java.lang.String, int, int)
-     */
-    public void setOTFObjectiveSettingsID(String id, int instrumentIndex,
-            int OTFIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsCorrectionCollar(java.lang.Double, int, int)
-     */
-    public void setOTFObjectiveSettingsCorrectionCollar(
-            Double correctionCollar, int instrumentIndex, int OTFIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsMedium(ome.xml.model.enums.Medium, int, int)
-     */
-    public void setOTFObjectiveSettingsMedium(
-            ome.xml.model.enums.Medium medium, int instrumentIndex,
-            int OTFIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsRefractiveIndex(java.lang.Double, int, int)
-     */
-    public void setOTFObjectiveSettingsRefractiveIndex(Double refractiveIndex,
-            int instrumentIndex, int OTFIndex)
-    {
-    }
-
 
     //////// Objective /////////
 
@@ -5811,126 +5793,6 @@ public class OMEROMetadataStoreClient
     {
         Objective o = getObjective(instrumentIndex, objectiveIndex);
         o.setWorkingDistance(toRType(workingDistance));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathDefinition(java.lang.String, int, int)
-     */
-    public void setPathDefinition(String definition, int ROIIndex,
-            int shapeIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathDescription(java.lang.String, int, int)
-     */
-    public void setPathDescription(String description, int ROIIndex,
-            int shapeIndex)
-    {
-        // TODO : not in OMERO model
-        // Path o = getPath(ROIIndex, shapeIndex);
-        // o.setDescription(toRType(description));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathFill(java.lang.Integer, int, int)
-     */
-    public void setPathFill(Integer fill, int ROIIndex, int shapeIndex)
-    {
-        // TODO : not in OMERO model
-        // Path o = getPath(ROIIndex, shapeIndex);
-        // o.setFill(toRType(fill));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathFontSize(java.lang.Integer, int, int)
-     */
-    public void setPathFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathID(java.lang.String, int, int)
-     */
-    public void setPathID(String id, int ROIIndex, int shapeIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathLabel(java.lang.String, int, int)
-     */
-    public void setPathLabel(String label, int ROIIndex, int shapeIndex)
-    {
-        // TODO : not in OMERO model
-        // Path o = getPath(ROIIndex, shapeIndex);
-        // o.setLabel(toRType(label));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathName(java.lang.String, int, int)
-     */
-    public void setPathName(String name, int ROIIndex, int shapeIndex)
-    {
-        // TODO : not in OMERO model
-        // Path o = getPath(ROIIndex, shapeIndex);
-        // o.setName(toRType(name));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathStroke(java.lang.Integer, int, int)
-     */
-    public void setPathStroke(Integer stroke, int ROIIndex, int shapeIndex)
-    {
-        // TODO : not in OMERO model
-        // Path o = getPath(ROIIndex, shapeIndex);
-        // o.setStroke(toRType(stroke));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathStrokeDashArray(java.lang.String, int, int)
-     */
-    public void setPathStrokeDashArray(String strokeDashArray, int ROIIndex,
-            int shapeIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathStrokeWidth(java.lang.Double, int, int)
-     */
-    public void setPathStrokeWidth(Double strokeWidth, int ROIIndex,
-            int shapeIndex)
-    {
-        // TODO : not in OMERO model
-        //Path o = getPath(ROIIndex, shapeIndex);
-        //o.setStrokeWidth(toRType(strokeWidth));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathTheC(java.lang.Integer, int, int)
-     */
-    public void setPathTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathTheT(java.lang.Integer, int, int)
-     */
-    public void setPathTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathTheZ(java.lang.Integer, int, int)
-     */
-    public void setPathTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathTransform(java.lang.String, int, int)
-     */
-    public void setPathTransform(String transform, int ROIIndex, int shapeIndex)
-    {
     }
 
     //////// Pixels /////////
@@ -6354,6 +6216,11 @@ public class OMEROMetadataStoreClient
         o.setExternalIdentifier(toRType(externalIdentifier));
     }
 
+    public void setPlateFieldIndex(NonNegativeInteger fieldIndex, int plateIndex)
+    {
+    	
+    }
+    
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlateID(java.lang.String, int)
      */
@@ -6990,7 +6857,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setRectangleFill(java.lang.Integer, int, int)
      */
-    public void setRectangleFill(Integer fill, int ROIIndex, int shapeIndex)
+    public void setRectangleFillColor(Color fill, int ROIIndex, int shapeIndex)
     {
 //        Rect o = getRectangle(ROIIndex, shapeIndex);
 //        o.set???(toRType(fill));
@@ -7039,7 +6906,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setRectangleStroke(java.lang.Integer, int, int)
      */
-    public void setRectangleStroke(Integer stroke, int ROIIndex, int shapeIndex)
+    public void setRectangleStrokeColor(Color stroke, int ROIIndex, int shapeIndex)
     {
 //        Rect o = getRectangle(ROIIndex, shapeIndex);
 //        o.set???(toRType(stroke));
@@ -7096,7 +6963,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setRectangleTransform(java.lang.String, int, int)
      */
-    public void setRectangleTransform(String transform, int ROIIndex,
+    public void setRectangleTransform(ome.xml.model.AffineTransform transform, int ROIIndex,
             int shapeIndex)
     {
     	Rectangle o = getRectangle(ROIIndex, shapeIndex);
@@ -7130,6 +6997,15 @@ public class OMEROMetadataStoreClient
         o.setY(toRType(y));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleY(java.lang.Double, int, int)
+     */
+    public void setRectangleVisible(Boolean visible, int ROIIndex, int shapeIndex)
+    {
+    	Rectangle o = getRectangle(ROIIndex, shapeIndex);
+        //o.setY(toRType(y));
+    }
+    
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setRoot(java.lang.Object)
      */
@@ -7399,9 +7275,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTextFill(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setLabelFillColor(java.lang.Integer, int, int)
      */
-    public void setTextFill(Integer fill, int ROIIndex, int shapeIndex)
+    public void setLabelFillColor(Color fill, int ROIIndex, int shapeIndex)
     {
 //        Label o = getText(ROIIndex, shapeIndex);
 //        o.set???(toRType(fill));
@@ -7409,38 +7285,68 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLabelFillRule(java.lang.Integer, int, int)
+     */
+	public void setLabelFillRule(ome.xml.model.enums.FillRule fillRule, int ROIIndex,
+			int shapeIndex)
+	{
+		
+	}
+
+	   /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLabelFillColor(java.lang.Integer, int, int)
+     */
+	public void setLabelFontFamily(ome.xml.model.enums.FontFamily fontFamily, int ROIIndex,
+			int shapeIndex)
+	{
+		
+	}
+
+	
+    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextFontSize(java.lang.Integer, int, int)
      */
-    public void setTextFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
+    public void setLabelFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
     {
         Label o = getText(ROIIndex, shapeIndex);
         o.setFontSize(toRType(fontSize));
     }
 
     /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextFontSize(java.lang.Integer, int, int)
+     */
+    public void setLabelFontStyle(ome.xml.model.enums.FontStyle fontStyle, int ROIIndex, int shapeIndex)
+    {
+        Label o = getText(ROIIndex, shapeIndex);
+    }
+    
+    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextLabel(java.lang.String, int, int)
      */
-    public void setTextLabel(String label, int ROIIndex, int shapeIndex)
+    public void setLabelText(String label, int ROIIndex, int shapeIndex)
     {
 //        Label o = getText(ROIIndex, shapeIndex);
 //        o.set???(toRType(label));
         // TODO not in OMERO Model
     }
 
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTextName(java.lang.String, int, int)
-     */
-    public void setTextName(String name, int ROIIndex, int shapeIndex)
+    public void setLabelLineCap(ome.xml.model.enums.LineCap lineCap,
+    		int ROIIndex, int shapeIndex)
     {
-//        Label o = getText(ROIIndex, shapeIndex);
-//        o.set???(toRType(name));
-     // TODO not in OMERO Model
+    	
     }
 
+	// Locked accessor from parent Shape
+	public void setLabelLocked(Boolean locked, int ROIIndex, int shapeIndex)
+	{
+		
+	}
+
+	
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextStroke(java.lang.Integer, int, int)
      */
-    public void setTextStroke(Integer stroke, int ROIIndex, int shapeIndex)
+    public void setLabelStrokeColor(Color stroke, int ROIIndex, int shapeIndex)
     {
 //        Label o = getText(ROIIndex, shapeIndex);
 //        o.set???(toRType(stroke));
@@ -7460,7 +7366,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextStrokeWidth(java.lang.Double, int, int)
      */
-    public void setTextStrokeWidth(Double strokeWidth, int ROIIndex,
+    public void setLabelStrokeWidth(Double strokeWidth, int ROIIndex,
             int shapeIndex)
     {
 //        Label o = getText(ROIIndex, shapeIndex);
@@ -7471,7 +7377,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextTheC(java.lang.Integer, int, int)
      */
-    public void setTextTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
+    public void setLabelTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
     {
         Label o = getText(ROIIndex, shapeIndex);
         o.setTheC(toRType(theC));
@@ -7480,7 +7386,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextTheT(java.lang.Integer, int, int)
      */
-    public void setTextTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
+    public void setLabelTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
     {
         Label o = getText(ROIIndex, shapeIndex);
         o.setTheT(toRType(theT));
@@ -7489,7 +7395,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextTheZ(java.lang.Integer, int, int)
      */
-    public void setTextTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
+    public void setLabelTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
     {
         Label o = getText(ROIIndex, shapeIndex);
         o.setTheZ(toRType(theZ));
@@ -7498,7 +7404,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextTransform(java.lang.String, int, int)
      */
-    public void setTextTransform(String transform, int ROIIndex, int shapeIndex)
+    public void setLabelTransform(ome.xml.model.AffineTransform transform, int ROIIndex, int shapeIndex)
     {
         Label o = getText(ROIIndex, shapeIndex);
         //o.setTransform(toRType(transform));
@@ -7507,16 +7413,16 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextValue(java.lang.String, int, int)
      */
-    public void setTextValue(String value, int ROIIndex, int shapeIndex)
+    public void setLabelVisible(Boolean value, int ROIIndex, int shapeIndex)
     {
         Label o = getText(ROIIndex, shapeIndex);
-        o.setText(toRType(value));
+        
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextX(java.lang.Double, int, int)
      */
-    public void setTextX(Double x, int ROIIndex, int shapeIndex)
+    public void setLabelX(Double x, int ROIIndex, int shapeIndex)
     {
         Label o = getText(ROIIndex, shapeIndex);
         o.setX(toRType(x));
@@ -7525,7 +7431,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextY(java.lang.Double, int, int)
      */
-    public void setTextY(Double y, int ROIIndex, int shapeIndex)
+    public void setLabelY(Double y, int ROIIndex, int shapeIndex)
     {
         Label o = getText(ROIIndex, shapeIndex);
         o.setY(toRType(y));
