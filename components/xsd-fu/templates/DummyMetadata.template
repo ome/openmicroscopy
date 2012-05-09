@@ -188,6 +188,11 @@ public class DummyMetadata implements IMetadata
 		return null;
 	}
 
+  public String getShapeType(int roiIndex, int shapeIndex)
+  {
+    return null;
+  }
+
 	// -- Entity counting (code generated definitions) --
 
 {% for o in sorted(model.objects.values(), lambda x, y: cmp(x.name, y.name)) %}\

@@ -327,6 +327,20 @@ public class AggregateMetadata implements IMetadata
 		return null;
 	}
 
+  public String getShapeType(int roiIndex, int shapeIndex)
+  {
+    for (Iterator iter = delegates.iterator(); iter.hasNext();)
+    {
+      Object o = iter.next();
+      if (o instanceof MetadataRetrieve)
+      {
+        MetadataRetrieve retrieve = (MetadataRetrieve) o;
+        return retrieve.getShapeType(roiIndex, shapeIndex);
+      }
+    }
+    return null;
+  }
+
 	// -- Entity counting (code generated definitions) --
 
 {% for o in sorted(model.objects.values(), lambda x, y: cmp(x.name, y.name)) %}\
