@@ -31,7 +31,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -246,14 +245,11 @@ class EditorUI
     	Object uo = model.getRefObject();
     	remove(component);
     	setDataToSave(false);
-    	boolean add = true;
     	if (uo instanceof ExperimenterData)  {
-			//if (current.getId() == exp.getId()) {
     		toolBar.buildUI();
     		userUI.buildUI();
     		userUI.repaint();
-    		component = userTabbedPane; 
-			//} else add = false;
+    		component = userTabbedPane;
     	} else if (uo instanceof GroupData) {
     		toolBar.buildUI();
     		groupUI.buildUI();
@@ -274,7 +270,7 @@ class EditorUI
 				tabPane.setEnabledAt(RND_INDEX, false);
 			}
     	}
-    	if (add) add(component, BorderLayout.CENTER);
+    	add(component, BorderLayout.CENTER);
     	validate();
     	repaint();
     }
@@ -333,7 +329,6 @@ class EditorUI
 					
 					if (selected == RND_INDEX) {
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
-						//tabPane.setSelectedIndex(GENERAL_INDEX);
 						if (!preview && 
 								model.getRndIndex() != 
 									MetadataViewer.RND_SPECIFIC) 
@@ -343,7 +338,7 @@ class EditorUI
 					ImageData img = ((WellSampleData) uo).getImage();
 					if (tabPane.getSelectedIndex() == RND_INDEX) {
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
-						if (model.isWritable())
+						if (model.canEdit())
 							tabPane.setSelectedIndex(GENERAL_INDEX);
 					}
 					if (img != null && img.getId() >= 0) {
@@ -528,22 +523,6 @@ class EditorUI
 	void attachFiles(File[] files)
 	{
 		if (files == null || files.length == 0) return;
-		//Check if valid file
-		//file w/o extension
-		/*
-		String name = file.getName();
-		int dot = name.lastIndexOf(".")+1;
-		String extension = name.substring(dot);
-		if (extension == null ||extension.trim().length() == 0 || 
-			extension.equals(name)) {
-			UserNotifier un = 
-				MetadataViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Attachment Selection", "The selected file " +
-					"has no extension. It is not possible to upload it.");
-			return;
-		}
-		*/
-		//if (generalPane.attachFile(file))
 		generalPane.attachFiles(files);
 		saveData(true);
 	}
@@ -594,8 +573,7 @@ class EditorUI
 	{
 		if (objects == null) return;
 		generalPane.handleObjectsSelection(type, objects);
-		//if (TagAnnotationData.class.equals(type))
-			saveData(true);	
+		saveData(true);	
 	}
 	
 	/** 

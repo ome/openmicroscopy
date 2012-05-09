@@ -84,7 +84,7 @@ public class TaggingAction
     	if (ho instanceof ImageData || ho instanceof DatasetData ||
     			ho instanceof ProjectData || ho instanceof ScreenData ||
     			ho instanceof PlateData) {
-    		if (model.isWritable(ho)) {
+    		if (model.canAnnotate(ho)) {
     			Collection l = model.getBrowser().getSelectedDataObjects();
         		List<Long> ids = new ArrayList<Long>();
         		Iterator i = l.iterator();

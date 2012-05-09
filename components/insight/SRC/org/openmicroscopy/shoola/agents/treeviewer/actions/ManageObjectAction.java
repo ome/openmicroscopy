@@ -241,7 +241,7 @@ public class ManageObjectAction
 		    				if (ho instanceof GroupData) {
 		    					count++;
 			    			} else {
-			    				if (model.isUserOwner(ho)) count++;
+			    				if (model.canLink(ho)) count++;
 			    			}
 		    			}
 					}
@@ -267,7 +267,7 @@ public class ManageObjectAction
 					ho instanceof ImageData) {
 					selected = browser.getSelectedDisplays();
 		    		for (int i = 0; i < selected.length; i++) {
-						if (model.canDeleteObject(selected[i].getUserObject())) 
+						if (model.canDelete(selected[i].getUserObject())) 
 							count++;
 					}
 		    		setEnabled(count == selected.length);
@@ -305,7 +305,7 @@ public class ManageObjectAction
 			         ho instanceof PlateData) {
 					selected = browser.getSelectedDisplays();
 		    		for (int i = 0; i < selected.length; i++) {
-						if (model.isUserOwner(selected[i].getUserObject())) 
+						if (model.canLink(selected[i].getUserObject())) 
 							count++;
 					}
 		    		if (index == CUT) {
@@ -339,7 +339,7 @@ public class ManageObjectAction
 					else {
 						selected = browser.getSelectedDisplays();
 			    		for (int i = 0; i < selected.length; i++) {
-			    			if (model.isUserOwner(selected[i].getUserObject())) 
+			    			if (model.canAnnotate(selected[i].getUserObject())) 
 			    				count++;
 						}
 			    		if (index == CUT) {

@@ -289,7 +289,7 @@ class DataBrowserToolBar
 		menuItem.setIcon(icons.getIcon(IconManager.CREATE));
 		menuItem.addActionListener(this);
 		menuItem.setActionCommand(""+NEW_OBJECT);
-		menuItem.setEnabled(model.isParentWritable());
+		menuItem.setEnabled(model.canEditParent());
 		createMenu.add(menuItem);
 		menuItem = new JMenuItem("Existing Dataset");
 		menuItem.setToolTipText("Select a dataset to add the images to.");
@@ -297,7 +297,7 @@ class DataBrowserToolBar
 		menuItem.addActionListener(this);
 		menuItem.setActionCommand(""+EXISTING_OBJECT);
 		createMenu.add(menuItem);
-		menuItem.setEnabled(model.isParentWritable());
+		menuItem.setEnabled(model.canEditParent());
 		return createMenu;
 	}
 	
@@ -317,7 +317,7 @@ class DataBrowserToolBar
 		menuItem.setIcon(icons.getIcon(IconManager.CREATE));
 		menuItem.addActionListener(this);
 		menuItem.setActionCommand(""+NEW_OBJECT);
-		menuItem.setEnabled(model.isParentWritable());
+		menuItem.setEnabled(model.canEditParent());
 		manageMenu.add(menuItem);
 		
 		JPanel panel = new JPanel();
@@ -551,7 +551,7 @@ class DataBrowserToolBar
 				"the displayed images.");
 		UIUtilities.unifiedButtonLookAndFeel(createDatasetButton);
 		createDatasetButton.setIcon(icons.getIcon(IconManager.DATASET));
-		createDatasetButton.setEnabled(model.isParentWritable());
+		createDatasetButton.setEnabled(model.canEditParent());
 		createDatasetButton.addMouseListener(new MouseAdapter() {
 			
 			/**
@@ -579,7 +579,7 @@ class DataBrowserToolBar
 		reportButton.setIcon(icons.getIcon(IconManager.REPORT));
 		reportButton.addActionListener(this);
 		reportButton.setActionCommand(""+REPORT);
-		reportButton.setEnabled(model.isParentWritable());
+		reportButton.setEnabled(model.canEditParent());
 		UIUtilities.unifiedButtonLookAndFeel(reportButton);
 		addPropertyChangeListener(controller);
 		codeCompletion = true;
@@ -774,7 +774,7 @@ class DataBrowserToolBar
 	/** Invokes when the parent has been set. */
 	void onExperimenterSet()
 	{
-		createDatasetButton.setEnabled(model.isParentWritable());
+		createDatasetButton.setEnabled(model.canEditParent());
 	}
 	
 	/**

@@ -175,7 +175,7 @@ class ToolBar
     		downloadItem.addActionListener(controller);
     		downloadItem.setActionCommand(""+EditorControl.DOWNLOAD);
     		downloadItem.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		downloadItem.setEnabled(false);
+    		//downloadItem.setEnabled(false);
     		saveAsMenu.add(downloadItem);
     		exportAsOmeTiffItem = new JMenuItem(icons.getIcon(
     				IconManager.EXPORT_AS_OMETIFF));
@@ -239,7 +239,7 @@ class ToolBar
 		downloadButton.setToolTipText("Download the Archived File(s).");
 		downloadButton.addActionListener(controller);
 		downloadButton.setActionCommand(""+EditorControl.DOWNLOAD);
-		downloadButton.setEnabled(false);
+		//downloadButton.setEnabled(false);
 		downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		rndButton = new JButton(icons.getIcon(IconManager.RENDERER));
@@ -638,7 +638,7 @@ class ToolBar
         			if (exportAsOmeTiffItem != null) {
         				exportAsOmeTiffButton.setEnabled(b);
         			}
-        			if (downloadItem != null && img.isArchived())
+        			if (downloadItem != null && model.isArchived())
         				downloadItem.setEnabled(true);
         			viewButton.setEnabled(true);
     			} catch (Exception e) {}

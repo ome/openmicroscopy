@@ -187,8 +187,7 @@ class ExperimenterPane
             c.fill = GridBagConstraints.NONE;      //reset to default
             c.weightx = 0.0;  
             content.add(label, c);
-            
-     
+
             c.gridx++;
             content.add(Box.createHorizontalStrut(5), c); 
             c.gridx++;
@@ -371,6 +370,19 @@ class ExperimenterPane
 		return groups;
 	}
 
+	/**
+	 * Returns <code>true</code> if the login name has been populated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasLoginName()
+	{
+		JTextField field = items.get(EditorUtil.DISPLAY_NAME);
+		String s = field.getText().trim();
+		return (s.length() != 0);
+	}
+	
 	/**
 	 * Controls if criteria are met to create a new user.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

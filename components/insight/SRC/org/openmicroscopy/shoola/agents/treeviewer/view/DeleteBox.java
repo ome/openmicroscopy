@@ -31,16 +31,15 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JSeparator;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -49,7 +48,6 @@ import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
@@ -99,12 +97,6 @@ public class DeleteBox
 	/** The button to display the tool tip. */
 	private JButton					infoButton;
 	
-	/** Delete the objects and the contents. */
-	private JRadioButton 			withContent;
-	
-	/** Delete the objects but not the contents. */
-	private JRadioButton 			withoutContent;
-	
 	/** Delete the related annotations if selected. */
 	private JCheckBox				withAnnotation;
 	
@@ -116,9 +108,6 @@ public class DeleteBox
 	
 	/** Flag indicating if the objects have been annotated. */
 	private boolean					annotation;
-	
-	/** Flag indicating if the objects have children. */
-	private boolean					children;
     
 	/** The components corresponding to the annotation. */
 	private Map<JCheckBox, Class>	annotationTypes;
@@ -157,12 +146,6 @@ public class DeleteBox
 		withAnnotation = new JCheckBox("Also delete the annotations " +
 				"linked to the objects.");
 		withAnnotation.setToolTipText(TOOL_TIP);
-		withContent = new JRadioButton("Also delete contents.");
-		withoutContent = new JRadioButton("Do not delete contents.");
-		ButtonGroup group = new ButtonGroup();
-		group.add(withContent);
-		group.add(withoutContent);
-		withoutContent.setSelected(true);
 		annotationTypes = new LinkedHashMap<JCheckBox, Class>();
 		annotationTypes.put(createBox("Tag"), TagAnnotationData.class);
 		annotationTypes.put(createBox("Attachment"), FileAnnotationData.class);
@@ -198,71 +181,59 @@ public class DeleteBox
 	 */
 	private JLabel buildAnnotationWarning()
 	{
-		JLabel label = UIUtilities.setTextFont(TOOL_TIP, 
-				Font.ITALIC);
+		JLabel label = UIUtilities.setTextFont(TOOL_TIP, Font.ITALIC);
 		Font f = label.getFont();
 		label.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
 		return label;
 	}
 	
-	/** Builds and lays out the component. */
-	private void layoutComponents()
+	/** 
+	 * Builds and lays out the component.
+	 * 
+	 * @param groupLeader Pass <code>true</code> to indicate that the user
+	 * currently logged in is the owner of one of the groups the objects 
+	 * belong to, <code>false</code> otherwise.
+	 */
+	private void layoutComponents(boolean groupLeader)
 	{
 		Iterator<JCheckBox> i = annotationTypes.keySet().iterator();
 		TableLayout layout = new TableLayout();
 		double[] columns = {130, TableLayout.PREFERRED};
 		layout.setColumn(columns);
-		typesPane.setLayout(layout);
+		//typesPane.setLayout(layout);
+		typesPane.setLayout(new BoxLayout(typesPane, BoxLayout.Y_AXIS));
+		typesPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 		int index = 0;
 		while (i.hasNext()) {
 			layout.insertRow(index, TableLayout.PREFERRED);
-			typesPane.add(Box.createHorizontalStrut(5), "0, "+index);
-			typesPane.add(i.next(), "1, "+index);
+			//typesPane.add(Box.createHorizontalStrut(5), "0, "+index);
+			//typesPane.add(i.next(), "1, "+index);
+			typesPane.add(i.next());
 			index++;
 		}
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		
 		boolean add = false;
-		if (ImageData.class.equals(type)) {
-			add = true;
-			if (annotation) {
-				p.add(buildAnnotationWarning());
-				p.add(Box.createVerticalStrut(10));
-				p.add(withAnnotation);
-				p.add(typesPane);
-			}
-		} else if (DatasetData.class.equals(type) || 
+		if (DatasetData.class.equals(type) || 
 				ProjectData.class.equals(type) ||
 				PlateData.class.equals(type) || 
 				ScreenData.class.equals(type) || 
-				PlateAcquisitionData.class.equals(type)) {
+				PlateAcquisitionData.class.equals(type) ||
+				ImageData.class.equals(type)) {
 			add = true;
-			if (children) {
-				p.add(withContent);
-				p.add(withoutContent);
-			}
 			if (annotation) {
-				p.add(new JSeparator());
 				p.add(buildAnnotationWarning());
 				p.add(Box.createVerticalStrut(10));
 				p.add(withAnnotation);
 				p.add(typesPane);
 			}
-		} else if (TagAnnotationData.class.equals(type)) {
-			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(nameSpace)) {
-				add = true;
-				if (children) {
-					p.add(withContent);
-					p.add(withoutContent);
-				}
-			}
 		}
 		JPanel body;
-		if (TreeViewerAgent.isLeaderOfCurrentGroup()) {
+		if (groupLeader) {
 			body = new JPanel();
 			body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
-			body.add(p);
+			body.add(UIUtilities.buildComponentPanel(p));
 			JLabel label = UIUtilities.setTextFont(WARNING_GROUP_OWNER, 
 					Font.BOLD);
 			label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
@@ -319,12 +290,10 @@ public class DeleteBox
 	 * @param nameSpace		Name space related to the data object if any.
 	 * @param annotation	Pass <code>true</code> if the objects have been 
 	 * 						annotated, <code>false</code> otherwise.
-	 * @param children		Pass <code>true</code> if the objects have been 
-	 * 						annotated, <code>false</code> otherwise.
 	 * @return See above. 
 	 */
 	private static String getMessage(Class type, int number, String nameSpace,
-						boolean annotation, boolean children)
+						boolean annotation)
 	{
 		StringBuffer buffer = new StringBuffer(); 
 		String value = getTypeAsString(type, number, nameSpace);
@@ -340,11 +309,8 @@ public class DeleteBox
 					ScreenData.class.equals(type) || 
 					PlateData.class.equals(type) ||
 					PlateAcquisitionData.class.equals(type)) {
-				if (annotation || children) buffer.append("If yes, ");
-			} else if (TagAnnotationData.class.equals(type) &&
-						TagAnnotationData.INSIGHT_TAGSET_NS.equals(nameSpace)) {
-				if (children) buffer.append("If yes, ");
-			}	
+				if (annotation) buffer.append("If yes, ");
+			}
 		}
 		return buffer.toString();
 	}
@@ -355,25 +321,23 @@ public class DeleteBox
 	 * @param type			The type of objects to delete.
 	 * @param annotation	Pass <code>true</code> if the object has 
 	 * 						been annotated, <code>false</code> otherwise.
-	 * @param children		Pass <code>true</code> if the object has 
-	 * 						children, <code>false</code> otherwise.
 	 * @param number		The number of objects to delete.
 	 * @param nameSpace		Name space related to the data object if any.
-	 * @param parent 		The parent of the frame
+	 * @param parent 		The parent of the frame.
+	 * @param groupLeader Pass <code>true</code> to indicate that the user
+	 * currently logged in is the owner of one of the groups the objects 
+	 * belong to, <code>false</code> otherwise.
 	 */
-	public DeleteBox(Class type, boolean annotation, boolean children,
-			int number, String nameSpace, JFrame parent)
+	public DeleteBox(JFrame parent, Class type, boolean annotation, int number,
+			String nameSpace, boolean groupLeader)
 	{
 		super(parent, TITLE, 
-				DeleteBox.getMessage(type, number, nameSpace,
-						annotation, children));
+				DeleteBox.getMessage(type, number, nameSpace, annotation));
 		this.nameSpace = nameSpace;
 		this.type = type;
 		this.annotation = annotation;
-		if (PlateData.class.equals(type)) children = false;
-		this.children = children;
 		initComponents(DeleteBox.getTypeAsString(type, number, nameSpace));
-		layoutComponents();
+		layoutComponents(groupLeader);
 		pack();
 		setResizable(false);
 	}
@@ -386,8 +350,7 @@ public class DeleteBox
      */
     public boolean deleteContents()
     {
-    	if (ImageData.class.equals(type)) return false;
-    	return (withContent.isSelected());
+    	return !ImageData.class.equals(type);
     }
     
     /**

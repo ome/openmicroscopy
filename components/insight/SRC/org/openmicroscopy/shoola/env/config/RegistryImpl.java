@@ -185,7 +185,7 @@ class RegistryImpl
      * Implemented as specified by {@link Registry}.
      * @see Registry#getDataServicesView(Class)
      */
-    public DataServicesView getDataServicesView(Class view)
+    public DataServicesView getDataServicesView(Class<?> view)
     {
         return DataViewsFactory.makeView(view);
     }

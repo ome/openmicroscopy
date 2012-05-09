@@ -2504,8 +2504,8 @@ class ImViewerModel
 		int level = 
 			ImViewerAgent.getRegistry().getAdminService().getPermissionLevel();
 		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 		}
 		return false;

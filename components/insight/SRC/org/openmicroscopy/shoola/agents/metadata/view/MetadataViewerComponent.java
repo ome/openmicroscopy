@@ -1108,7 +1108,7 @@ class MetadataViewerComponent
 				pixelsID = data.getDefaultPixels().getId();
 			}
 			//check if I can save first
-			if (model.isWritable()) {
+			if (model.canAnnotate()) {
 				Registry reg = MetadataViewerAgent.getRegistry();
 				RndProxyDef def = null;
 				try {
@@ -1132,7 +1132,7 @@ class MetadataViewerComponent
 				bus.post(new RndSettingsSaved(pixelsID, def));
 			}
 			
-			if (imageID >= 0 && model.isWritable()) {
+			if (imageID >= 0 && model.canAnnotate()) {
 				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
 			}
 		}	

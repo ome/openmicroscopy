@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -3675,7 +3676,7 @@ class OMEROGateway
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param ctx The security context.
-	 * @param path The location where to save the files.
+	 * @param folderPath The location where to save the files.
 	 * @param pixelsID The ID of the pixels set.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -3683,7 +3684,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service.  
 	 */
 	synchronized Map<Boolean, Object> getArchivedFiles(
-			SecurityContext ctx, String path, long pixelsID) 
+			SecurityContext ctx, String folderPath, long pixelsID) 
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
@@ -3701,7 +3702,7 @@ class OMEROGateway
 		}
 
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
-		if (files == null || files.size() == 0) return result;
+		if (files == null || files.size() == 0) return null;
 		RawFileStorePrx store;
 		Iterator i = files.iterator();
 		OriginalFile of;
@@ -3717,10 +3718,9 @@ class OMEROGateway
 			try {
 				store.setFileId(of.getId().getValue()); 
 			} catch (Exception e) {
-				e.printStackTrace();
 				handleException(e, "Cannot set the file's id.");
 			}
-			fullPath = path+of.getName().getValue();
+			fullPath = folderPath+of.getName().getValue();
 			f = new File(fullPath);
 			try {
 				stream = new FileOutputStream(f);
@@ -4492,6 +4492,7 @@ class OMEROGateway
 		List<Long> success = new ArrayList<Long>();
 		List<Long> failure = new ArrayList<Long>();
 		isSessionAlive(ctx);
+		ctx = new SecurityContext(-1);
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 			Map m  = service.applySettingsToSet(pixelsID, 
@@ -5352,9 +5353,8 @@ class OMEROGateway
 	{
 		isSessionAlive(ctx);
 		try {
-			List<Long> ids = new ArrayList<Long>(1);
-			ids.add(imageID);
-			Set result = getContainerImages(ctx, ImageData.class, ids, options);
+			Set result = getContainerImages(ctx, ImageData.class, 
+					Arrays.asList(imageID), options);
 			if (result != null && result.size() == 1) {
 				Iterator i = result.iterator();
 				while (i.hasNext())
@@ -7106,7 +7106,7 @@ class OMEROGateway
 			long groupID = svc.createGroup(g);
 			g = svc.getGroup(groupID);
 			int level = object.getPermissions();
-			if (level != AdminObject.PERMISSIONS_PRIVATE) {
+			if (level != GroupData.PERMISSIONS_PRIVATE) {
 				Permissions p = g.getDetails().getPermissions();
 				setPermissionsLevel(p, level);
 				svc.changePermissions(g, p);
@@ -7569,17 +7569,17 @@ class OMEROGateway
 	void setPermissionsLevel(Permissions p, int level)
 	{
 		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ:
+			case GroupData.PERMISSIONS_GROUP_READ:
 				p.setGroupRead(true);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
 				p.setGroupRead(true);
 				p.setGroupWrite(true);
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ:
+			case GroupData.PERMISSIONS_PUBLIC_READ:
 				p.setWorldRead(true);
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				p.setWorldRead(true);
 				p.setWorldWrite(true);
 		}

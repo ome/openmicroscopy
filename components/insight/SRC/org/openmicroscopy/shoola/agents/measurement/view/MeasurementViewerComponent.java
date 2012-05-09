@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -71,6 +70,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ROIData;
@@ -515,7 +515,7 @@ class MeasurementViewerComponent
      */
 	public void saveROIToServer()
 	{
-		if (!isImageWritable()) return;
+		if (!canAnnotate()) return;
 		List<ROI> l = model.getROIToDelete();
 		if (l != null && l.size() > 0) {
 			List<DeletableObject> objects = new ArrayList<DeletableObject>();
@@ -968,25 +968,20 @@ class MeasurementViewerComponent
 	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#isImageWritable()
+     * @see MeasurementViewer#canAnnotate()
      */
-	public boolean isImageWritable()
+	public boolean canAnnotate()
 	{
 		if (model.getState() == DISCARDED) return false;
 		//Check if current user can write in object
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
 		long id = exp.getId();
-		boolean b = EditorUtil.isUserOwner(model.getRefObject(), id);
+		Object ref = model.getRefObject();
+		boolean b = EditorUtil.isUserOwner(ref, id);
 		if (b) return b;
-		int level = 
-			MeasurementAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				
-				
-				return true;
+		if (ref instanceof DataObject) {
+			return ((DataObject) ref).canAnnotate();
 		}
 		return false;
 	}
@@ -1017,7 +1012,7 @@ class MeasurementViewerComponent
      */
 	public void deleteAllROIs()
 	{
-		if (!isImageWritable()) return;
+		if (!canAnnotate()) return;
 		List<ROIData> list = model.getROIData();
 		//ROI owned by the current user.
 		List<DeletableObject> l = new ArrayList<DeletableObject>();

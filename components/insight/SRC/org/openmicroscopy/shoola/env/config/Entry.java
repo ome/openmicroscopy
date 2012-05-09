@@ -95,11 +95,11 @@ abstract class Entry
     
     /**
      * Maps each predefined value of the <i>type</i> attribute onto the 
-     * <i>FQN</i> of the hanlder class.
+     * <i>FQN</i> of the handler class.
      */
-	static private Map<String, Class>	contentHandlers;
+	static private Map<String, Class<?>>	contentHandlers;
     static {
-        contentHandlers = new HashMap<String, Class>();
+        contentHandlers = new HashMap<String, Class<?>>();
         contentHandlers.put("map", MapEntry.class);
         contentHandlers.put("string", StringEntry.class);
         contentHandlers.put("integer", IntegerEntry.class);
@@ -148,8 +148,8 @@ abstract class Entry
     	//appropriate default if necessary.  
         NameTypePair ntp = retrieveEntryAttributes(tag);
           
-        //Retrieve the hanlder for type if it's a built-in type.   
-        Class handler = contentHandlers.get(ntp.type);
+        //Retrieve the handler for type if it's a built-in type.   
+        Class<?> handler = contentHandlers.get(ntp.type);
         
         try {
             if (handler == null)
@@ -157,7 +157,7 @@ abstract class Entry
             	//it must be the FQN of a custom handler. Load it.
             	handler = Class.forName(ntp.type);
             	
-            //Finally create the hanlder.
+            //Finally create the handler.
             entry = (Entry) handler.newInstance();
         } catch(Exception e) {
         	rethrow(ntp, e);
