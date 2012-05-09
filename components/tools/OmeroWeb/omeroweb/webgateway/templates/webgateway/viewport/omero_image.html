@@ -31,7 +31,7 @@
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/farbtastic/farbtastic.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.colorbtn.css" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/JQuerySpinBtn.css" %}" />
-    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/trash/jquery-ui-1.7.2.custom.css" %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/jquery-ui-1.8.19/jquery-ui-1.8.19.custom.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/omero_image.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/panojs/panojs.css" %}" media="all" />
 
@@ -43,7 +43,7 @@
     <script type="text/javascript" src="{{ src }}"></script>
     {% endfor %}
     
-    <script type="text/javascript" src="{% static "3rdparty/trash/jquery-1.3.2.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery-1.7.2.js" %}"></script>
 	<script type="text/javascript" src="{% static "3rdparty/aop.js" %}"></script>
 
 	<script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js" %}"></script>
@@ -51,7 +51,7 @@
 	<script type="text/javascript" src="{% static "webgateway/js/ome.gs_slider.js" %}"></script>
 	<script type="text/javascript" src="{% static "webgateway/js/ome.viewport.js" %}"></script>
 	
-    <script type="text/javascript" src="{% static "3rdparty/trash/jquery-ui-1.7.2.custom.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.19/jquery-ui-1.8.19.custom.min.js" %}"></script>
     <script type="text/javascript" src="{% static "webgateway/js/ome.smartdialog.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/JQuerySpinBtn.js" %}"></script>
     <script type="text/javascript" src="{% static "webgateway/js/ome.colorbtn.js" %}"></script>
@@ -63,7 +63,7 @@
     <script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js" %}"></script>
     <!-- for display of ROIs over the image -->
     <script type="text/javascript" src="{% static "webgateway/js/ome.roidisplay.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/raphael/raphael.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/raphael/raphael-min.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/raphael/scale.raphael.js" %}"></script>
 
     <!-- big images -->
@@ -78,6 +78,8 @@
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_info.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_svg.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/panojs/control_roi.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.mousewheel.js" %}"></script>
+    
 {% endblock %}
 
 
@@ -212,7 +214,7 @@
 
     var q = viewport.getQuality();
     if (q) {
-      var qr = $('#wblitz-quality > [value='+q.toFixed(1)+']');
+      var qr = $('#wblitz-quality > [value="+q.toFixed(1)+"]');
       if (qr.length) {
         qr.attr('selected','selected');
       }
@@ -428,7 +430,7 @@
 
   var editLinePlot = function (show) {
     if (show) {
-      viewport.prepareLinePlot($('#wblitz-lp-axis-select option[selected]').val());
+      viewport.prepareLinePlot($('#wblitz-lp-axis-select option[selected]').val() || 'h');
     } else {
       viewport.hidePlot();
     }
@@ -483,7 +485,7 @@
       var theT = viewport.getTPos();
         var theZ = viewport.getZPos();
         
-        // if the ROI plugin has not been initialised (method not available...)
+        // if the ROI plugin has not been initialised (method not available...) init and load ROIs...
       if (!viewport.viewportimg.get(0).show_rois) {
           var options = {'width':{{ image.getSizeX }}, 
                      'height':{{ image.getSizeY }},
@@ -495,11 +497,10 @@
           viewport.viewportimg.roi_display(options);
           viewport.viewportimg.get(0).setRoiZoom(viewport.getZoom());
       }
-      else {
-          // if ROIs already loaded, there won't be a callback to show table - do it manually
-          $("#roi_table_postit").show();
-      }                        
-             
+      
+      // Show postit. Table will be built on callback from loading
+      $("#roi_table_postit").show();
+
       // loads ROIs (if needed) and shows. 
     viewport.viewportimg.get(0).show_rois(theZ, theT);
   }
@@ -637,15 +638,12 @@
   
   // bound to call-back on roi plugin when ROIs loaded
   var handle_rois_loaded = function(e) {
+      $("#rois_loading_message").hide();
       build_roi_table();
-      $("#roi_table_postit").show();
       var $roi_table = $("#roi_small_table");
       $roi_table.find('tbody').hide();  // hides the shapes
       $roi_table.find('tbody.only_child').show();
-      
-      //var roi_count = $roi_table.find('thead').length;
-      //var shape_count = $roi_table.find('tbody tr').length;
-      //alert("ROIs: " + roi_count + " Shapes: " + shape_count);
+
   }
   
   // bound to clicks on shapes in the viewer
@@ -884,6 +882,7 @@
     <img id="roi_thumb_popup" style="border: solid #bbb 1px"/>
     <div id="roi_table_postit" class="postit">
         <h1>ROIs</h1>
+        <div id='rois_loading_message'>Loading ROI data...</div>
         <div id='roi_table_div'>
             <table id='roi_small_table' cellpadding='0' cellspacing='0'></table>
         </div>

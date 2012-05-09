@@ -41,7 +41,6 @@ class BaseSearch(BaseController):
 
     def __init__(self, conn, **kw):
         BaseController.__init__(self, conn)
-        self.eContext['breadcrumb'] = ['Search']
 
     def batch_search(self, query_list):
         im_list = list()

@@ -27,6 +27,11 @@
     <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
     
+	<!--[if lte IE 8]>
+		<link rel="stylesheet" type="text/css" href="/static/webgateway/css/ome.table_ie.css" />
+	<![endif]-->
+	
+	
 {% endblock %}
 
 {% block script %}
@@ -66,15 +71,83 @@
                         } else {
                             window.location = '{% url basket_action %}';
                         }
-                    },
-                    error: function(responce) {
-                        alert("Internal server error. Cannot remove from basket.")
                     }
                 });
             }
         };
+
+        function makeShare(prefix) {
+            if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
+                alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
+            } else { 
+                var productArray = $("input[type='checkbox']:checked");
+                var productListQuery = "";
+                if (productArray.length > 0 ) {
+                    productArray.each(function() {
+                        if(this.checked) {
+                            productListQuery += "&"+this.name+"="+this.id;
+                        }
+                    });
+                } else {
+                    productListQuery += "&"+productArray.name+"="+productArray.id;
+                }
+            }
+
+            src = prefix+'?'+productListQuery+'';
+            $("#create_share_form").dialog("open");
+            // load form via AJAX...
+            $("#create_share_form").load(src);
+            return false;
+        }
+        
+        function makeDiscussion() {
+            src = '/webclient/basket/todiscuss/';
+            $("#create_discussion_form").dialog("open");
+            $("#create_discussion_form").load(src);
+            return false;
+        }
         
         $(document).ready(function(){
+            
+            // since we are using 3-column layout (to extend the )
+            hide_left_panel();
+            
+            $("#create_discussion_form").dialog({
+                autoOpen: false,
+                resizable: true,
+                height: 470,
+                width:420,
+                modal: true,
+                buttons: {
+                    "Accept": function() {
+                        // simply submit the form
+                        $("#create_discussion_form").submit();
+                        $( this ).dialog( "close" );
+                    },
+                    "Cancel": function() {
+                        $( this ).dialog( "close" );
+                    }
+                }
+            });
+            
+            
+            $("#create_share_form").dialog({
+                autoOpen: false,
+                resizable: true,
+                height: 470,
+                width:420,
+                modal: true,
+                buttons: {
+                    "Accept": function() {
+                        // simply submit the form
+                        $("#create_share_form").submit();
+                        $( this ).dialog( "close" );
+                    },
+                    "Cancel": function() {
+                        $( this ).dialog( "close" );
+                    }
+                }
+            });
             
             $("table#dataTable tbody").selectable({
                 filter: 'tr',
@@ -83,13 +156,12 @@
                     $("tr.ui-selected td input", this).each(function(){
                         this.checked = true;
                     });
-                    if (l == 1) {
-                        $("#toolbar").html('<input class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% static "webclient/image/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare(\'{% url basket_action "toshare" %}\');"> <input class="button" type="image" src="{% static "webclient/image/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% static "webclient/image/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% static "webclient/image/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
-                        loadMetadataPanel('{% url load_metadata_details %}image/'+$("tr.ui-selected td input", this).first().attr("id")+'/');
+                    if (l > 0) {
+                        $("input.toggleEnabled").attr("disabled", null);
                     } else {
-                        $("#toolbar").html('<input class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% static "webclient/image/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare(\'{% url basket_action "toshare" %}\');"> <input class="button" type="image" src="{% static "webclient/image/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% static "webclient/image/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% static "webclient/image/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
-                        loadMetadataPanel(null, ('<p>'+ l +' elements selected.</p>'));
+                        $("input.toggleEnabled").attr("disabled", "true");
                     }
+                    basket_selection_changed($("tr.ui-selected td input", this));
                 },
                 start: function(){
                     $("tr input", this).each(function(){
@@ -112,69 +184,101 @@
 {% block center %}
 
 <div id="content_details">
-    <h1>Basket Test</h1>
+    
+
     {% if basket.sizeOfBasket %}
 
-        <div id="toolbar" class="toolbar_noborder">
-            <input class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url basket_action %}';">
-            <input class="button" type="image" src="{% static "webclient/image/wp_protocol16.png" %}" alt="Discuss" title="Discuss" onclick="makeDiscussion();"/>
-            <input class="button" type="image" src="{% static "webclient/image/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href='{% url empty_basket %}';">
-        </div>
-        <div class="clear"> </div>
+		
+		<div id="center_panel_header" >
+		
+				<form class="search filtersearch" id="filtersearch" action="#">
+					<input type="text" id="id_search" />
+					<input type="submit" value="Go" />
+					<span class="loading">
+						<img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
+					</span>
+				</form>
+		
+				<h1>Basket</h1>
+		
+			    <ul class="toolbar">
+			        <li>
+						<input id="refreshButton" alt="Refresh" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh2.png" %}" title="Refresh" onclick="document.location.href='{% url basket_action %}';">
+					</li>
+					
+					<li class="seperator2"></li>
+					
+			        <li>
+						<input id="chatButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_chat2.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();">
+					</li>
+				
+					<li>
+						<input disabled="true" class="toggleEnabled button" type="image"  title="Create a 'Share' with the selected images" src="{% static "webclient/image/icon_toolbar_share2.png" %}" onclick="makeShare('{% url basket_action 'toshare' %}');">
+					</li>
+					
+					
+					<li class="seperator2"></li>
+					
+					<li>
+				        <input disabled="true" class="toggleEnabled button" type="image" src="{% static "webclient/image/icon_toolbar_remove2.png" %}" alt="Remove Selected" title="Remove Selected" onclick="manyRemoveFromBasket();">
+					 </li>
+					 
+					 <li>
+					    <input type="image" class="button" src="{% static "webclient/image/icon_toolbar_clean2.png" %}" alt="Remove All" title="Remove All" onclick="document.location.href='{% url empty_basket %}';">
+					</li>
+					
+			        
+			    </ul>
+		
+		</div>
+		
+		<div class="center_panel_content">
+      
+		    <table id="dataTable" class="tablesorter">
+	            <thead> 
+	                <tr> 
+	                    <th class="table_images">{% trans "Image" %}</th> 
+	                    <th class="table_desc">{% trans "Name" %}</th> 
+	                    <th class="table_date">{% trans "Date" %}</th> 
+	                </tr> 
+	            </thead>
+	            <tbody>
+	                {% for c in basket.imageInBasket %}
+	                    <tr id="{{ c.id }}">
+	                        <td class="image">
+	                            <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
+	                            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
+	                        </td>
+	                        <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% static "webgateway/img/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% static "webclient/image/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+	                        <td class="date">{{ c.getDate }}</td>                    
+	                    </tr>
+	                {% endfor %}
+	            </tbody>
+	        </table>
+			
+		</div>	
+	{% else %}
+		
+		<div class="center_panel_content">
+	      	  <p class="center_message message_nodata">
+				{% trans "Basket is empty" %}
+			  </p>
+		</div>
+		
+	{% endif %}
+    
+		
+	
+</div>
 
-        <form class="quicksearch" id="quicksearch" action="#">
-            <label for="id_search">Filter:</label>
-            <input type="text" id="id_search">
-            <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span>
-        </form>
+<!-- hidden form for creating share - shown in dialog & loaded by AJAX -->
+<form id="create_share_form" action="{% url basket_action 'createshare' %}" method="post" title="Create Share">
+</form>
 
-        <table id="dataTable" class="tablesorter">
-            <thead> 
-                <tr> 
-                    <th class="action">{% trans "Image" %}</th> 
-                    <th class="desc">{% trans "Name" %}</th> 
-                    <th class="roles">{% trans "Date" %}</th> 
-                </tr> 
-            </thead>
-            <tbody>
-                {% for c in basket.imageInBasket %}
-                    <tr id="{{ c.id }}">
-                        <td class="action">
-                            <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
-                            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
-                        </td>
-                        <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% static "webgateway/img/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% static "webclient/image/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
-                        <td class="roles">{{ c.getDate }}</td>                    
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-    {% else %}
-        <p>{% trans "Basket is empty." %}</p>
-    {% endif %}
-</div>    
+<!-- hidden form for creating discussion - shown in dialog & loaded by AJAX -->
+<form id="create_discussion_form" action="{% url basket_action "createdisc" %}" method="post" title="Create Discussion">
+</form>
     
 {% endblock %}
 
-{% block right %}
-    
-    <div id="metadata_details">
-        <div id="metadata_description">
-            <h1>{% trans "Basket" %}</h1>
-                <p>{% trans "This page shows the current contents of your basket." %}
-                    {% if not basket.sizeOfBasket %}
-                        {% trans "Your basket is empty. Please add some of your bio-data from" %}
-                        <a href="{% url load_template "userdata" %}">{% trans "Data" %}</a>
-                        {% trans "or initiate a discussion." %}
-                    {% else %}
-                        <p><img class="loader" alt="Loading" src="{% static "webclient/image/help/basket1.gif" %}" /></p>
-                        {% trans "Now you can manage items from your basket by selecting them and then clicking the button on the toolbar." %}
-                        {% trans "To select more then one item just click and move mouse over them or use CTRL key and select each individual." %}
-                        {% trans "Selected items are market by gray." %}
-                    {% endif %}
-                </p>
-        </div>
-    </div>
-    
-{% endblock %}
+

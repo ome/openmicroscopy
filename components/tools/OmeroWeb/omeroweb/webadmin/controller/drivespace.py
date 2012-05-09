@@ -35,7 +35,6 @@ class BaseDriveSpace(BaseController):
     def __init__(self, conn):
         BaseController.__init__(self, conn)
         self.freeSpace = self.conn.getFreeSpace()
-        self.experimenters = list(self.conn.getObjects("Experimenter"))
 
 def _bytes_per_pixel(pixel_type):
     if pixel_type == "int8" or pixel_type == "uint8":

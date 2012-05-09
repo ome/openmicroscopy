@@ -25,7 +25,10 @@
 {% block link %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static "webadmin/css/picklist.css" %}" type="text/css" media="screen"/>
-
+    <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen/chosen.css' %}" type="text/css" media="screen"/>
+    
+    <link rel="stylesheet" href="{% static 'webadmin/css/chosen.css' %}" type="text/css" media="screen"/>
+    
 {% endblock %}
 
 {% block title %}
@@ -39,52 +42,76 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery-1.7.1.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery-1.7.2.js" %}"></script>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.chosen/chosen.jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.selectboxes.js' %}"></script>
     
     <script type="text/javascript">
     $(document).ready(function() 
     {
-        $('#add').click(function() {
-            $("option:selected", "select[name=available_groups]").each(function(){                
-                $('<li><label for="id_default_group_'+this.value+'"><input type="radio" name="default_group" value="'+this.value+'" id="id_default_group_'+this.value+'"> '+$(this).html()+' <input id="default_group_'+this.value+'" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove"></label></li>').appendTo("div.pickListRadio ul");
-                $("#id_other_groups").append(this);
-            });
-        });
-        
-        $('.removeButton').live("click", function() {
-            var val = $('#id_'+this.id).attr('value');
-            $("option:selected", "select[name=other_groups]").each(function(){
-                if(this.value == val) {
-                    if (val > 0) $('<option value="'+this.value+'">'+$(this).html()+'</option>').appendTo("#id_available_groups");
-                    $(this).remove();
-                    return false;
-                }
-            });
-            $(this).parent().parent().remove();
-            if (val == 0) $("input[name='administrator']").attr('checked', false);
-        });
-        
-        
-        $("input[name='administrator']").click( function() { 
-            if($("input[name='administrator']").is(':checked')) {
-                $('<option value="0">system</option>').attr('selected', true).appendTo("#id_other_groups");                
-                $('<li><label for="id_default_group_0"><input type="radio" name="default_group" value="0" id="id_default_group_0"> system <input id="default_group_0" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove"></label></li>').appendTo("div.pickListRadio ul");
-            } else {
-                $("option:selected", "select[name=other_groups]").each(function(){
-                    if(this.value == 0) {
-                        $(this).remove();
-                        return false;
-                    }
+        var highlightDefault = function() {
+            dv = $('#id_default_group').val();
+            if (dv.length > 0 && dv!== "0"){
+                selected = $.grep($('#id_other_groups').data('chosen').results_data, function(item){
+                    return item.value == dv;
                 });
-                $('#id_default_group_0').parent().parent().remove();                
+                $("#id_other_groups_chzn_c_"+selected[0].array_index).addClass('search-choice-default').find("a").first().attr('rel');
+                $('#id_default_group').val(selected[0].value);
+                $("#default_group_name").text(selected[0].html)
+            } else {
+                $('#id_default_group').val("");
+                $("#default_group_name").text("Nothing selected");
+            }
+        }
+
+        var selectDefaultGroup = function(evt) {
+            evt.stopPropagation();
+            var target = $(evt.target).hasClass("search-choice") ? $(evt.target) : $(evt.target).parents(".search-choice").first();
+            $(".chzn-choices li.search-choice").removeClass('search-choice-default');
+            choice_id = $(evt.currentTarget).addClass('search-choice-default').find("a").first().attr('rel');
+            selected = $.grep($('#id_other_groups').data('chosen').results_data, function(item){
+                return item.array_index == choice_id;
+            })[0];
+            $("#id_default_group").selectOptions(selected.value, true);
+            $("#default_group_name").text(selected.html);
+        };
+
+        $("#id_other_groups").chosen().change(function(evt, data) {
+            if (data && data.deselected) {
+                if (data.deselected === "0") {
+                    $("input[name='administrator']").attr('checked', false);
+                }
+                $df = $('#id_default_group')
+                if ($df.val() === data.deselected){
+                    $("#id_default_group").selectOptions("", true);
+                    $("#default_group_name").text("Nothing selected");
+                } 
+            } else if (data && data.selected) {
+                if (data.selected === "0") {
+                    $("input[name='administrator']").attr('checked', true);
+                }
+                $("li.search-choice").click(selectDefaultGroup);
             }
         });
-        
-        $("option:selected", "select[name=other_groups]").each(function(){
-            $('#id_default_group_'+this.value).parent().append('<input id="default_group_'+this.value+'" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove">');
+
+        $("input[name='administrator']").click( function(evt) {
+            evt.stopPropagation();
+            if($("input[name='administrator']").is(':checked')) {
+                $('#id_other_groups option[value=0]').prop('selected', true);
+            } else {
+                $('#id_other_groups option[value=0]').prop('selected', false);
+            }
+            $("#id_other_groups").trigger("liszt:updated");
+            $("li.search-choice").click(selectDefaultGroup);
+            highlightDefault();
         });
 
-    });    
+        $("li.search-choice").click(function(evt) {
+            evt.stopPropagation();
+            selectDefaultGroup(evt);
+        });
+        highlightDefault();
+    });
     
     </script>
 
@@ -94,67 +121,57 @@
 
 {{ block.super }}
 
-<div>
+<div class="one_column_content">
 {% if eid %}
-    <h1>{% trans "Edit scientist" %}</h1>
+    <h1><a href="{% url waexperimenters %}">BACK</a> {% trans "Edit scientist" %}</h1>
 {% else %}
-    <h1>{% trans "Add scientist" %}</h1>
+    <h1><a href="{% url waexperimenters %}">BACK</a> {% trans "Add scientist" %}</h1>
 {% endif %}
 
 <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
 <br/>
 
 {% if eid %}
-    <form action="{% url wamanageexperimenterid "save" eid %}" method="POST">
+    <form action="{% url wamanageexperimenterid "save" eid %}" method="POST" class="standard_form">
 {% else %}
-    <form action="{% url wamanageexperimenterid "create" %}" method="POST">
+    <form action="{% url wamanageexperimenterid "create" %}" method="POST" class="standard_form">
 {% endif %}
 
-<table>
-    <tbody>
-        {% for field in form %}
-        
-        {% ifequal field.label_tag form.default_group.label_tag %}{% else %}{% ifequal field.label_tag form.other_groups.label_tag %}{% else %}{% ifequal field.label_tag form.available_groups.label_tag %}{% else %}
-        
-        <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
-        
-        {% endifequal %}{% endifequal %}{% endifequal %}
-        
-        {% endfor %}
-
-        {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>
+        {% if ldapAuth %}
+        <label>LDAP:</label> {{ ldapAuth }} <br />
         {% else %}
-            {% if eid %}<tr><td class="form">Password: </td><td colspan="2"><a href="{% url wamanagechangepasswordid eid %}">change password</a></td></tr>{% endif %}
+            {% if eid %}
+            <label>Password</label>
+            <a href="{% url wamanagechangepasswordid eid %}" class="btn btn_text silver"><span>Change Password</span></a>
+            {% endif %}
+            <br />
         {% endif %}
         
-        <tr><td class="form" colspan="3"><p>{% trans "A user may belong to one or more groups. To define the list of groups user is member of, select them from the <strong>Available groups</strong> box and click the <strong>[<]</strong> button to move them to the <strong>Selected groups</strong> area. Once groups are chosen, select one to specify the user's <strong>Default Group</strong>. The <strong>Default Group</strong> is the group that the user will be logged in to, and will be updated when they switch between groups in the clients." %}</p></td></tr>
-        <tr><td></td><td class="form">{% trans "Selected groups" %}*</td><td class="form">{% trans "Available groups" %}</td></tr>
+        {% for field in form %}
         
-        {% if form.default_group.errors or form.available_groups.errors or form.other_groups.errors %}<tr><td></td><td colspan="2">{{ form.default_group.errors }}{{ form.other_groups.errors }}<br/>{{ form.available_groups.errors }}</td></tr>{% endif %}
-        <tr>
-            <td class="form">{{ form.default_group.label_tag }}{% if form.default_group.field.required %}*{% endif %}</td>
-            <td>
-                <div class="pickListRadio">
-                    {% if form.default_group %}
-                        {{ form.default_group }}
-                    {% else %}
-                        <ul></ul>
-                    {% endif %}
-                </div>
-                <div class="pickListSelectedHidden">
-                    {{ form.other_groups }}
-                </div>
-            </td>
-            <td>
-                <div class="pickListAvailable">
-                    {{ form.available_groups }}
-                </div>
-                <input id="add" name="add" type="button" class="button addButton" value="&lt;" title="Choose available and add">
-            </td>
-        </tr>    
-        <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-    </tbody>
-</table>
+        {% ifnotequal field.label_tag form.default_group.label_tag %}{% ifnotequal field.label_tag form.other_groups.label_tag %}
+        
+        {{ field.label_tag }}{% if field.field.required %}*{% endif %}
+        {{ field }}
+        {% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}
+        <br />
+        {% endifnotequal %}{% endifnotequal %}
+        
+        {% endfor %}
+        
+        <br />
+        {{ form.default_group.label_tag }}*{{ form.default_group }}
+        <span id="default_group_name">Nothing selected</span>
+        <br />
+        {{ form.other_groups.label_tag }}*
+        {{ form.other_groups }}
+        {% if form.other_groups.errors %}{{ form.other_groups.errors }}{% endif %}
+        {% if form.default_group.errors %}{{ form.default_group.errors }}{% endif %}
+        
+        <br />
+        
+        <input type="submit" value="{% trans 'Save' %}" />
+        
 </form>
 
 </div>

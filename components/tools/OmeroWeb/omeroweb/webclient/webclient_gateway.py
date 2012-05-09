@@ -53,7 +53,7 @@ from omero.rtypes import *
 from omero.model import FileAnnotationI, TagAnnotationI, \
                         DatasetI, ProjectI, ImageI, ScreenI, PlateI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, \
-                        LaserI
+                        LaserI, ExperimenterI, ExperimenterGroupI
 
 from omero.gateway import FileAnnotationWrapper, TagAnnotationWrapper, ExperimenterWrapper, \
                 ExperimenterGroupWrapper, WellWrapper, AnnotationWrapper, \
@@ -112,40 +112,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         super(OmeroWebGateway, self).__init__(*args, **kwargs)
         self._shareId = None
 
-    def connect (self, *args, **kwargs):
-        """
-        Creates or retrieves connection for the given sessionUuid and
-        removes some groups from the event context
-        Returns True if connected.
-        
-        @param sUuid:       session uuid
-        @type sUuid:        omero_model_SessionI
-        @return:            Boolean
-        """
-        
-        rv = super(OmeroWebGateway, self).connect(*args,**kwargs)
-        if rv: # No _ctx available otherwise #3218
-            if self._ctx.userName!="guest":
-                self.removeGroupFromContext()
-        return rv
     
-    def attachToShare (self, share_id):
-        """
-        Turns on the access control lists attached to the given share for the
-        current session. Warning: this will slow down the execution of the
-        current session for all database reads. Writing to the database will not
-        be allowed. If share does not exist or is not accessible (non-members) or
-        is disabled, then an ValidationException is thrown.
-        
-        @param shareId:     share id
-        @type shareId:      Long        
-        """
-        
-        sh = self._proxies['share'].getShare(long(share_id))
-        if self._shareId is None:
-            self._proxies['share'].activate(sh.id.val)
-        self._shareId = sh.id.val
-
     def getShareId(self):
         """
         Returns active share id .
@@ -159,18 +126,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 self._shareId = self.getEventContext().shareId
         return self._shareId
 
-    def removeGroupFromContext (self):
-        """
-        Removes group "User" from the current context.
-        """
-
-        a = self.getAdminService()
-        gr_u = a.lookupGroup('user')
-        try:
-            self._ctx.memberOfGroups.remove(gr_u.id.val)
-            self._ctx.leaderOfGroups.remove(gr_u.id.val)
-        except:
-            pass
 
     ##############################################
     #    Session methods                         #
@@ -193,8 +148,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             for k in self._proxies.keys():
                 self._proxies[k].close()
                 
-            self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
-            self.getAdminService().setDefaultGroup(self.getUser()._obj, omero.model.ExperimenterGroupI(gid, False))
+            self.c.sf.setSecurityContext(ExperimenterGroupI(gid, False))
+            self.getAdminService().setDefaultGroup(self.getUser()._obj, ExperimenterGroupI(gid, False))
             self._ctx = self.getAdminService().getEventContext()
             return True
         except omero.SecurityViolation:
@@ -256,7 +211,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.limit = rint(1)
         p.theFilter = f
         sql = "select g from ExperimenterGroup as g where g.name not in (:default_names)"
-        if len(q.findAllByQuery(sql, p)) > 0:
+        if len(q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])) > 0:
             return False
         return True
     
@@ -300,7 +255,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["id"] = rlong(self.getEventContext().userId)
         sql = "select e from Experimenter as e where e.id != :id "
-        for e in q.findAllByQuery(sql, p):
+        for e in q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS']):
             yield ExperimenterWrapper(self, e)
 
     #def getCurrentSupervisor(self):
@@ -358,7 +313,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
               inner join fetch ws.image as img 
               where well.plate.name = :pname and well.row = :row 
               and well.column = :column"""
-        well = q.findByQuery(sql, p)
+        well = q.findByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
         if well is None:
             return None
         else:
@@ -381,7 +336,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql+=" and tg.details.owner.id = :eid"
             
         q = self.getQueryService()
-        for ann in q.findAllByQuery(sql, params):
+        for ann in q.findAllByQuery(sql, params, self.CONFIG['SERVICE_OPTS']):
             yield TagAnnotationWrapper(self, ann)
     
     def countOrphans (self, obj_type, eid=None):
@@ -426,7 +381,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "select ws from WellSample as ws "\
                 "where ws.image=obj.id %s)" % eidWsFilter
         
-        rslt = q.projection(sql, p)
+        rslt = q.projection(sql, p, self.CONFIG['SERVICE_OPTS'])
         if len(rslt) > 0:
             if len(rslt[0]) > 0:
                 return rslt[0][0].val
@@ -484,7 +439,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql += "and not exists ( "\
                 "select ws from WellSample as ws "\
                 "where ws.image=obj.id %s)" % eidWsFilter
-        for e in q.findAllByQuery(sql, p):
+        for e in q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS']):
             yield links[obj_type][1](self, e)
     
     def listImagesInDataset (self, oid, eid=None, page=None):
@@ -520,7 +475,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql += " and im.details.owner.id=:eid"
         sql+=" order by im.name ASC"
         
-        for e in q.findAllByQuery(sql, p):
+        for e in q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS']):
             kwargs = {'link': omero.gateway.BlitzObjectWrapper(self, e.copyDatasetLinks()[0])}
             yield ImageWrapper(self, e, None, **kwargs)
     
@@ -555,7 +510,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if desc is not None:
             sql+= " and tg.description=:desc"
         sql+=" and tg.ns is null order by tg.textValue"
-        res = query_serv.findAllByQuery(sql, p)
+        res = query_serv.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
         if len(res) > 0:
             return TagAnnotationWrapper(self, res[0])
         return None
@@ -754,7 +709,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         """
         
         img = Image.open(settings.DEFAULT_USER)
-        img.thumbnail((32,32), Image.ANTIALIAS)
+        img.thumbnail((150,150), Image.ANTIALIAS)
         draw = ImageDraw.Draw(img)
         f = cStringIO.StringIO()
         img.save(f, "PNG")
@@ -801,7 +756,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["omeName"] = rstring(smart_str(ome_name))
         sql = "select e from Experimenter as e where e.omeName = (:omeName)"
-        exps = query_serv.findAllByQuery(sql, p)
+        exps = query_serv.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
         if len(exps) > 0:
             return True
         else:
@@ -815,7 +770,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["name"] = rstring(smart_str(name))
         sql = "select g from ExperimenterGroup as g where g.name = (:name)"
-        grs = query_serv.findAllByQuery(sql, p)
+        grs = query_serv.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
         if len(grs) > 0:
             return True
         else:
@@ -831,7 +786,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["email"] = rstring(smart_str(email))
         sql = "select e from Experimenter as e where e.email = (:email)"
-        exps = query_serv.findAllByQuery(sql, p)
+        exps = query_serv.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
         if len(exps) > 0:
             return True
         else:
@@ -881,47 +836,148 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         """
         admin_serv = self.getAdminService() 
         admin_serv.changePasswordWithOldPassword(rstring(str(old_password)), rstring(str(password)))
-        
-    def createExperimenter(self, experimenter, defaultGroup, otherGroups, password):
+    
+    def createExperimenter(self, omeName, firstName, lastName, email, isAdmin, isActive, defaultGroup, otherGroups, password, middleName=None, institution=None):
         """
         Create and return a new user in the given groups with password.
-        
-        @param experimenter     A new Experimenter instance.
-        @type experimenter      ExperimenterI
-        @param defaultGroup     Instance of ExperimenterGroup selected as a first active group.
-        @type defaultGroup      ExperimenterGroupI
-        @param otherGroups      List of ExperimenterGroup instances. Can be empty.
-        @type otherGroups       L{ExperimenterGroupI}
-        @param password         Must pass validation in the security sub-system.
-        @type password          String
-        @return                 ID of the newly created Experimenter Not null.
-        @rtype                  Long
+        @param omeName A new username.
+        @type omeName String
+        @param firstName A new first name.
+        @type firstName String
+        @param lastName A new last name.
+        @type lastName String
+        @param email A new email.
+        @type email String
+        @param isAdmin An Admin permission.
+        @type isAdmin Boolean
+        @param isActive Active user (user can log in).
+        @type isActive Boolean
+        @param defaultGroup Instance of ExperimenterGroup selected as a first active group.
+        @type defaultGroup ExperimenterGroupI
+        @param otherGroups List of ExperimenterGroup instances. Can be empty.
+        @type otherGroups L{ExperimenterGroupI}
+        @param password Must pass validation in the security sub-system.
+        @type password String
+        @param middleName A middle name.
+        @type middleName String
+        @param institution An institution.
+        @type institution String
+        @return ID of the newly created Experimenter Not null.
+        @rtype Long
         """
+        experimenter = ExperimenterI()
+        experimenter.omeName = rstring(str(omeName))
+        experimenter.firstName = rstring(str(firstName))
+        experimenter.middleName = middleName is not None and rstring(str(middleName)) or None
+        experimenter.lastName = rstring(str(lastName))
+        experimenter.email = rstring(str(email))
+        experimenter.institution = (institution!="" and institution is not None) and rstring(str(institution)) or None
+
+        listOfGroups = list()
+        # system group
+        if isAdmin:
+            g = self.getObject("ExperimenterGroup", attributes={'name':'system'})
+            listOfGroups.append(g._obj)
+
+        # user group
+        if isActive:
+            g = self.getObject("ExperimenterGroup", attributes={'name':'user'})
+            listOfGroups.append(g._obj)
+
+        for g in otherGroups:
+            listOfGroups.append(g._obj)
+
         admin_serv = self.getAdminService()
-        return admin_serv.createExperimenterWithPassword(experimenter, rstring(str(password)), defaultGroup, otherGroups)
+        return admin_serv.createExperimenterWithPassword(experimenter, rstring(str(password)), defaultGroup._obj, listOfGroups)
     
-    def updateExperimenter(self, experimenter, defaultGroup, addGroups, rmGroups):
+    def updateExperimenter(self, experimenter, omeName, firstName, lastName, email, isAdmin, isActive, defaultGroup, otherGroups, middleName=None, institution=None):
         """
         Update an existing user including groups user is a member of.
         Password cannot be changed by calling that method.
-        
-        @param experimenter     An existing Experimenter instance.
-        @type experimenter      ExperimenterI
-        @param defaultGroup     Instance of ExperimenterGroup selected as a new active group.
-        @type defaultGroup      ExperimenterGroupI
-        @param addGroups        List of new ExperimenterGroup instances user will be a member of. Can be empty.
-        @type addGroups         L{ExperimenterGroupI}
-        @param rmGroups         List of old ExperimenterGroup instances user no longer be a member of. Can be empty.
-        @type rmGroups          L{ExperimenterGroupI}
+        @param experimenter An existing Experimenter instance.
+        @type experimenter ExperimenterWrapper
+        @param omeName A new username.
+        @type omeName String
+        @param firstName A new first name.
+        @type firstName String
+        @param lastName A new last name.
+        @type lastName String
+        @param email A new email.
+        @type email String
+        @param isAdmin An Admin permission.
+        @type isAdmin Boolean
+        @param isActive Active user (user can log in).
+        @type isActive Boolean
+        @param defaultGroup Instance of ExperimenterGroup selected as a first active group.
+        @type defaultGroup ExperimenterGroupI
+        @param otherGroups List of ExperimenterGroup instances. Can be empty.
+        @type otherGroups L{ExperimenterGroupI}
+        @param middleName A middle name.
+        @type middleName String
+        @param institution An institution.
+        @type institution String
         """
-        
+        up_exp = experimenter._obj
+        up_exp.omeName = rstring(str(omeName))
+        up_exp.firstName = rstring(str(firstName))
+        up_exp.middleName = middleName is not None and rstring(str(middleName)) or None
+        up_exp.lastName = rstring(str(lastName))
+        up_exp.email = rstring(str(email))
+        up_exp.institution = (institution!="" and institution is not None) and rstring(str(institution)) or None
+
+        # old list of groups
+        old_groups = list()
+        for ogr in up_exp.copyGroupExperimenterMap():
+            old_groups.append(ogr.parent)
+
+        # create list of new groups
+        new_groups = list()
+
+        # default group
+        new_groups.append(defaultGroup._obj)
+
+        # system group
+        if isAdmin:
+            g = self.getObject("ExperimenterGroup", attributes={'name':'system'})
+            new_groups.append(g._obj)
+
+        # user group
+        if isActive:
+            g = self.getObject("ExperimenterGroup", attributes={'name':'user'})
+            new_groups.append(g._obj)
+
+        # rest of groups
+        for g in otherGroups:
+            new_groups.append(g._obj)
+
+        addGroups = list()
+        rmGroups = list()
+
+        # remove
+        for ogr in old_groups:
+            flag = False
+            for ngr in new_groups:
+                if ngr.id.val == ogr.id.val:
+                    flag = True
+            if not flag:
+                rmGroups.append(ogr)
+
+        # add
+        for ngr in new_groups:
+            flag = False
+            for ogr in old_groups:
+                if ogr.id.val == ngr.id.val:
+                    flag = True
+            if not flag:
+                addGroups.append(ngr)
+
         admin_serv = self.getAdminService()
-        admin_serv.updateExperimenter(experimenter)
+        admin_serv.updateExperimenter(up_exp)
         if len(addGroups) > 0:
-            admin_serv.addGroups(experimenter, addGroups)
-        admin_serv.setDefaultGroup(experimenter, defaultGroup)
+            admin_serv.addGroups(up_exp, addGroups)
+        admin_serv.setDefaultGroup(up_exp, defaultGroup._obj)
         if len(rmGroups) > 0:
-            admin_serv.removeGroups(experimenter, rmGroups)
+            admin_serv.removeGroups(up_exp, rmGroups)
     
     def setMembersOfGroup(self, group, add_exps, rm_exps):
         """
@@ -952,64 +1008,138 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     #    admin_serv = self.getAdminService()
     #    admin_serv.deleteExperimenter(experimenter)
     
-    def createGroup(self, group, group_owners):
+    def createGroup(self, name, permissions, owners=list(), description=None):
         """
         Create and return a new group with the given owners.
         
-        @param group            A new ExperimenterGroup instance.
-        @type group             ExperimenterGroupI
-        @param group_owners     List of Experimenter instances. Can be empty.
-        @type group_owners      L{ExperimenterI}
-        @return                 ID of the newly created ExperimenterGroup Not null.
-        @rtype                  Long
+        @param group        A new ExperimenterGroup instance.
+        @type group         ExperimenterGroupI
+        @param owners       List of Experimenter instances. Can be empty.
+        @type owners        L{ExperimenterI}
+        @param permissions  Permissions instances.
+        @type permissions   L{PermissionsI}
+        @return             ID of the newly created ExperimenterGroup Not null.
+        @rtype              Long
         """
+        new_gr = ExperimenterGroupI()
+        new_gr.name = rstring(str(name))
+        new_gr.description = (description!="" and description is not None) and rstring(str(description)) or None
+        new_gr.details.permissions = permissions
         
         admin_serv = self.getAdminService()
-        gr_id = admin_serv.createGroup(group)
-        new_gr = admin_serv.getGroup(gr_id)
-        admin_serv.addGroupOwners(new_gr, group_owners)
+        gr_id = admin_serv.createGroup(new_gr)
+        group = admin_serv.getGroup(gr_id)
+        
+        listOfOwners = list()
+        for exp in owners:
+            listOfOwners.append(exp._obj)
+            
+        admin_serv.addGroupOwners(group, listOfOwners)
         return gr_id
     
-    def updateGroup(self, group, add_exps, rm_exps, perm=None):
+    def updateGroup(self, group, name, permissions, owners=list(), description=None):
         """
         Update an existing user including groups user is a member of.
         Password cannot be changed by calling that method.
         
-        @param group            An existing ExperimenterGroup instance.
-        @type group             ExperimenterGroupI
-        @param add_exps         List of new Experimenter instances. Can be empty.
-        @type add_exps          L{ExperimenterI}
-        @param rm_exps          List of old Experimenter instances who no longer will be a member of. Can be empty.
-        @type rm_exps           L{ExperimenterI}
-        @param perm             Permissions set on the given group
-        @type perm              PermissionsI
+        @param group        A new ExperimenterGroup instance.
+        @type group         ExperimenterGroupI
+        @param name         A new group name.
+        @type name          String
+        @param permissions  Permissions instances.
+        @type permissions   L{PermissionsI}
+        @param owners       List of Experimenter instances. Can be empty.
+        @type owners        L{ExperimenterI}
+        @param description  A description.
+        @type description   String
+        
         """
+        
+        up_gr = group._obj
+        up_gr.name = rstring(str(name))
+        up_gr.description = (description!="" and description is not None) and rstring(str(description)) or None
+
+        
+        # old list of owners
+        old_owners = list()
+        for oex in up_gr.copyGroupExperimenterMap():
+            if oex.owner.val:
+                old_owners.append(oex.child)
+
+        add_exps = list()
+        rm_exps = list()
+
+        # remove
+        for oex in old_owners:
+            flag = False
+            for nex in owners:
+                if nex._obj.id.val == oex.id.val:
+                    flag = True
+            if not flag:
+                rm_exps.append(oex)
+
+        # add
+        for nex in owners:
+            flag = False
+            for oex in old_owners:
+                if oex.id.val == nex._obj.id.val:
+                    flag = True
+            if not flag:
+                add_exps.append(nex._obj)
         
         admin_serv = self.getAdminService()
         # Should we update updateGroup so this would be atomic?
-        admin_serv.updateGroup(group)
-        if perm is not None:
+        admin_serv.updateGroup(up_gr)
+        if permissions is not None:
             logger.warning("WARNING: changePermissions was called!!!")
-            admin_serv.changePermissions(group, perm)
+            admin_serv.changePermissions(up_gr, permissions)
         self._user = self.getObject("Experimenter", self._userid)
-        admin_serv.addGroupOwners(group, add_exps)
-        admin_serv.removeGroupOwners(group, rm_exps)
+        admin_serv.addGroupOwners(up_gr, add_exps)
+        admin_serv.removeGroupOwners(up_gr, rm_exps)
     
-    def updateMyAccount(self, experimenter, defultGroup):
+    def updateMyAccount(self, experimenter, firstName, lastName, email, defaultGroupId, middleName=None, institution=None):
         """
         Allows a user to update his/her own information and set the default group for a given user.
         @param experimenter     A data transfer object. Only the fields: firstName, middleName, 
                                 lastName, email, and institution are checked. Not null.
-        @type experimenter      ExperimenterI
-        @param defultGroup      The group which should be set as default group for this user. Not null
-        @type defultGroup       ExperimenterGroupI
+        @type experimenter      ExperimenterWrapper
+        @param firstName        A new first name.
+        @type firstName         String
+        @param lastName         A new last name.
+        @type lastName          String
+        @param email            A new email.
+        @type email             String
+        @param defaultGroup     Instance of ExperimenterGroup selected as a first active group.
+        @type defaultGroup      ExperimenterGroupI
+        @param middleName       A middle name.
+        @type middleName        String
+        @param institution      An institution.
+        @type institution       String
         """
+        
+        up_exp = experimenter._obj
+        up_exp.firstName = rstring(str(firstName))
+        up_exp.middleName = middleName is not None and rstring(str(middleName)) or None
+        up_exp.lastName = rstring(str(lastName))
+        up_exp.email = rstring(str(email))
+        up_exp.institution = (institution!="" and institution is not None) and rstring(str(institution)) or None
+        
         admin_serv = self.getAdminService()
-        admin_serv.updateSelf(experimenter)
-        admin_serv.setDefaultGroup(experimenter, defultGroup)
-        self.changeActiveGroup(defultGroup.id.val)
+        admin_serv.updateSelf(up_exp)
+        defultGroup = self.getObject("ExperimenterGroup", long(defaultGroupId))._obj
+        admin_serv.setDefaultGroup(up_exp, defultGroup)
+        self.changeActiveGroup(defultGroup.id)
         self._user = self.getObject("Experimenter", self._userid)
-    
+
+    def setDefaultGroup(self, group_id, exp_id=None):
+        """
+        Sets the default group for the specified experimenter, or current user if not specified.
+        """
+        group_id = long(group_id)
+        exp_id = exp_id is not None and long(exp_id) or self.getEventContext().userId
+        admin_serv = self.getAdminService()
+        admin_serv.setDefaultGroup(ExperimenterI(exp_id, False), ExperimenterGroupI(group_id, False))
+
     def updatePermissions(self, obj, perm):
         """
         Allow to change the permission on the object.
@@ -1037,7 +1167,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @type obj       ObjectI
         """
         u = self.getUpdateService()
-        u.saveObject(obj)
+        u.saveObject(obj, self.CONFIG['SERVICE_OPTS'])
     
     def saveArray (self, objs):
         """
@@ -1051,7 +1181,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @type obj       L{ObjectI}
         """
         u = self.getUpdateService()
-        u.saveArray(objs)
+        u.saveArray(objs, self.CONFIG['SERVICE_OPTS'])
     
     def saveAndReturnObject (self, obj):
         """
@@ -1067,7 +1197,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @rtype          ObjectI
         """
         u = self.getUpdateService()
-        res = u.saveAndReturnObject(obj)
+        res = u.saveAndReturnObject(obj, self.CONFIG['SERVICE_OPTS'])
         res.unload()
         obj = omero.gateway.BlitzObjectWrapper(self, res)
         return obj
@@ -1086,7 +1216,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @rtype          Long
         """
         u = self.getUpdateService()
-        res = u.saveAndReturnObject(obj)
+        res = u.saveAndReturnObject(obj, self.CONFIG['SERVICE_OPTS'])
         res.unload()
         return res.id.val
     
@@ -1102,7 +1232,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         """
         
         store = self.createRawFileStore()
-        store.setFileId(oFile_id);
+        store.setFileId(oFile_id, self.CONFIG['SERVICE_OPTS']);
         pos = 0
         rlen = 0
         
@@ -1110,7 +1240,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             rlen = len(chunk)
             store.write(chunk, pos, rlen)
             pos = pos + rlen
-        return store.save()
+        return store.save(self.CONFIG['SERVICE_OPTS'])
     
     ##############################################
     ##   IShare
@@ -1323,14 +1453,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if len(image) > 0:
             p.map["ids"] = rlist([rlong(long(a)) for a in image])
             sql = "select im from Image im join fetch im.details.owner join fetch im.details.group where im.id in (:ids) order by im.name"
-            items.extend(q.findAllByQuery(sql, p))
+            items.extend(q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS']))
         
         #members
         if members is not None:
             p.map["ids"] = rlist([rlong(long(a)) for a in members])
             sql = "select e from Experimenter e " \
                   "where e.id in (:ids) order by e.omeName"
-            ms = q.findAllByQuery(sql, p)
+            ms = q.findAllByQuery(sql, p, self.CONFIG['SERVICE_OPTS'])
         sid = sh.createShare(message, rtime(expiration), items, ms, [], enable)
         sh.addObjects(sid, items)
         
@@ -1543,7 +1673,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         f = omero.sys.Filter()
         f.ownerId = rlong(eid)
-        f.groupId = rlong(self.getEventContext().groupId)
+        #f.groupId = rlong(self.getEventContext().groupId)
         if page is not None:
             f.limit = rint(PAGE)
             f.offset = rint((int(page)-1)*PAGE)
@@ -1556,24 +1686,24 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
         if otype == 'image':
             try:
-                for e in tm.getByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, True)['Image']:
+                for e in tm.getByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])['Image']:
                     im_list.append(ImageWrapper(self, e))
             except:
                 pass
         elif otype == 'dataset':
             try:
-                for e in tm.getByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p, True)['Dataset']:
+                for e in tm.getByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])['Dataset']:
                     ds_list.append(DatasetWrapper(self, e))
             except:
                 pass
         elif otype == 'project':
             try:
-                for e in tm.getByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p, True)['Project']:
+                for e in tm.getByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])['Project']:
                     pr_list.append(ImageWrapper(self, e))
             except:
                 pass
         else:
-            res = tm.getByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p, True)
+            res = tm.getByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p, True, self.CONFIG['SERVICE_OPTS'])
             try:
                 for e in res['Image']:
                     im_list.append(ImageWrapper(self, e))
@@ -1610,16 +1740,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         f = omero.sys.Filter()
         f.ownerId = rlong(eid)
-        f.groupId = rlong(self.getEventContext().groupId)
+        #f.groupId = rlong(self.getEventContext().groupId)
         p.theFilter = f
         if otype == 'image':
-            return tm.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p)['Image']
+            return tm.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, self.CONFIG['SERVICE_OPTS'])['Image']
         elif otype == 'dataset':
-            return tm.countByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p)['Dataset']
+            return tm.countByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p, self.CONFIG['SERVICE_OPTS'])['Dataset']
         elif otype == 'project':
-            return tm.countByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p)['Project']
+            return tm.countByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p, self.CONFIG['SERVICE_OPTS'])['Project']
         else:
-            c = tm.countByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p)
+            c = tm.countByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p, self.CONFIG['SERVICE_OPTS'])
             return c['Image']+c['Dataset']+c['Project']
 
     def getEventsByPeriod (self, start, end, eid):
@@ -1640,9 +1770,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f = omero.sys.Filter()
         f.limit = rint(100000)
         f.ownerId = rlong(eid)
-        f.groupId = rlong(self.getEventContext().groupId)
+        #f.groupId = rlong(self.getEventContext().groupId)
         p.theFilter = f
-        return tm.getEventLogsByPeriod(rtime(start), rtime(end), p)
+        return tm.getEventLogsByPeriod(rtime(start), rtime(end), p, self.CONFIG['SERVICE_OPTS'])
         #yield EventLogWrapper(self, e)
 
 omero.gateway.BlitzGateway = OmeroWebGateway
@@ -1701,6 +1831,27 @@ class OmeroWebObjectWrapper (object):
             else:
                 return None
     
+    def getPermissions(self):
+        p = None
+        if self.details.getPermissions() is None:
+            return 'unknown'
+        else:
+            p = self.details.getPermissions()
+
+        if p.isUserRead() and p.isUserWrite():
+            flag = 'Private'
+        elif p.isUserRead() and not p.isUserWrite():
+            flag = 'Private (read-only)'
+        if p.isGroupRead() and p.isGroupWrite():
+            flag = 'Collaborative'
+        elif p.isGroupRead() and not p.isGroupWrite():
+            flag = 'Collaborative (read-only)'
+        if p.isWorldRead() and p.isWorldWrite():
+            flag = 'Public'
+        elif p.isWorldRead() and not p.isWorldWrite():
+            flag = 'Public (read-only)'
+        return flag
+    
     def warpName(self):
         """
         Warp name of the object if names is longer then 30 characters.
@@ -1727,9 +1878,47 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
     and extend OmeroWebObjectWrapper.
     """
     
+    ldapUser = None
+
+    def __prepare__ (self, **kwargs):
+        super(ExperimenterWrapper, self).__prepare__(**kwargs)
+        if kwargs.has_key('ldapUser'):
+            self.annotation_counter = kwargs['ldapUser']
+    
     def isEditable(self):
         return self.omeName.lower() not in ('guest')
+    
+    def isLdapUser(self):
+        """
+        Return DN of the specific experimenter if uses LDAP authentication
+        (has set dn on password table) or None.
+        @param eid: experimenter ID
+        @type eid: L{Long}
+        @return: Distinguished Name
+        @rtype: String
+        """
 
+        if self.ldapUser == None:
+            admin_serv = self._conn.getAdminService()
+            self.ldapUser = admin_serv.lookupLdapAuthExperimenter(self.id)
+        return self.ldapUser
+    
+    def getDefaultGroup(self):
+        geMap = self.copyGroupExperimenterMap()
+        if self.sizeOfGroupExperimenterMap() > 0:
+            return ExperimenterGroupWrapper(self, geMap[0].parent)
+        return None
+    
+    def getOtherGroups(self, excluded_names=("user","guest"), excluded_ids=list()):
+        for gem in self.copyGroupExperimenterMap():
+            flag = False
+            if gem.parent.name.val in excluded_names:
+                flag = True
+            if gem.parent.id.val in excluded_ids:
+                flag = True
+            if not flag:
+                yield ExperimenterGroupWrapper(self, gem.parent)
+    
 omero.gateway.ExperimenterWrapper = ExperimenterWrapper 
 
 class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterGroupWrapper): 
@@ -1740,7 +1929,54 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
     
     def isEditable(self):
         return self.name.lower() not in ('guest', 'user')
+    
+    def groupSummary(self):
+        """
+        Returns lists of 'leaders' and 'members' of the specified group (default is current group)
+        as a dict with those keys.
 
+        @return:    {'leaders': list L{ExperimenterWrapper}, 'colleagues': list L{ExperimenterWrapper}}
+        @rtype:     dict
+        """
+        summary = self._conn.groupSummary(self.getId())
+        self.leaders = summary["leaders"]
+        self.leaders.sort(key=lambda x: x.getLastName().lower())
+        self.colleagues = summary["colleagues"]
+        self.colleagues.sort(key=lambda x: x.getLastName().lower())
+
+    def getOwners(self):
+        ownerIds = list()
+        for gem in self.copyGroupExperimenterMap():
+            if gem.owner.val:
+                ownerIds.append(gem.child.id.val)
+        return ownerIds
+    
+    def isLocked(self):
+        if self.name == "user":
+            return True
+        elif self.name == "system":
+            return True
+        elif self.name == "guest":
+            return True
+        else:
+            False
+    
+    def isReadOnly(self):
+        p = None
+        if self.details.getPermissions() is None:
+            raise AttributeError('Object has no permissions')
+        else:
+            p = self.details.getPermissions()
+        
+        flag = False
+        if p.isUserRead() and not p.isUserWrite():
+            flag = True
+        if p.isGroupRead() and not p.isGroupWrite():
+            flag = True
+        if p.isWorldRead() and not p.isWorldWrite():
+            flag = True
+        return flag
+    
 omero.gateway.ExperimenterGroupWrapper = ExperimenterGroupWrapper 
 
 class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper): 

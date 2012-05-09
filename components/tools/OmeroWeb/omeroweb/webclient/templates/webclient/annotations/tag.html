@@ -30,14 +30,24 @@
 {% endcomment %}
 
 <span class="tag_annotation_wrapper">
-    <a class='tooltip' href="{% url load_template "usertags" %}{% if not tag.isOwned %}?experimenter={{ tag.getOwner.id }}{% endif %}" target="_top"> {{ tag.textValue }}</a> 
-    {% if tag.link.isOwned %}
-        <img class='removeTag' id="{{ tag.id }}-tag" src="{% static "webclient/image/minus_11.png" %}" title="Unlink"/>
-    {% endif %}
-    <span style='display:none'>
-        <b>Owner:</b> {{ tag.getOwner.getFullName }}<br />
-        <b>Linked by:</b> {{ tag.link.getDetails.getOwner.getFullName }}<br />
-        <b>On:</b> {{ tag.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
-        <b>Description:</b> {{ tag.description|default_if_none:""|truncatewords:10  }}
-    </span>
+	
+		<div class="tag">
+	        <a class='tooltip tag_inner' href="{% url load_template "usertags" %}?path=tag={{ tag.id }}{% if not tag.isOwned %}&experimenter={{ tag.getOwner.id }}{% endif %}" target="_top"> {{ tag.textValue }}</a>
+		
+			{% if tag.link.isOwned %}
+	        <span class='removeTag' id="{{ tag.id }}-tag" title="Remove Tag"> x </span>
+	        {% endif %}
+			
+		    <span class="tooltip_html" style='display:none'>
+		        <b>Owner:</b> {{ tag.getOwner.getFullName }}<br />
+		        <b>Linked by:</b> {{ tag.link.getDetails.getOwner.getFullName }}<br />
+		        <b>On:</b> {{ tag.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
+		        <b>Description:</b> {{ tag.description|default_if_none:""|truncatewords:10  }}
+		    </span>
+			
+			
+		</div>
+		
+
+    
 </span>

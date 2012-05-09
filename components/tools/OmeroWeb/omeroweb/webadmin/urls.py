@@ -28,12 +28,13 @@ from django.conf.urls.defaults import *
 from django.views.static import serve
 
 from omeroweb.webadmin import views
+import omeroweb.webclient.views
 
 # url patterns
 urlpatterns = patterns('',
 
     url( r'^$', views.index, name="waindex" ),
-    url( r'^login/$', views.login, name="walogin" ),
+    url( r'^login/$', omeroweb.webclient.views.login, name="walogin" ),
     url( r'^logout/$', views.logout, name="walogout" ),
     url( r'^forgottenpassword/$', views.forgotten_password, name="waforgottenpassword" ),
     url( r'^experimenters/$', views.experimenters, name="waexperimenters" ),
@@ -47,7 +48,7 @@ urlpatterns = patterns('',
     #url( r'^enum/(?P<action>((?i)new|edit|delete|save|reset))/(?P<klass>[a-zA-Z]+)/(?:(?P<eid>[0-9]+)/)?$', views.manage_enum, name="wamanageenum" ),
     #url( r'^imports/$', views.imports, name="waimports" ),
     url( r'^myaccount/(?:(?P<action>[a-z]+)/)?$', views.my_account, name="wamyaccount" ),
-    url( r'^drivespace/$', views.drivespace, name="wadrivespace"),
+    url( r'^drivespace/$', views.drivespace, {'template':'json'}, name="wadrivespace"),
     url( r'^load_drivespace/$', views.load_drivespace, name="waloaddrivespace"),
 
     url( r'^change_avatar/(?P<eid>[0-9]+)/(?:(?P<action>[a-z]+)/)?$', views.manage_avatar, name="wamanageavatar"),

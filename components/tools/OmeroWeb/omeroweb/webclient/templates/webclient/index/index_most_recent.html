@@ -21,7 +21,13 @@
 -->
 {% endcomment %}
 
-<h1>{% trans "Most recent share comments" %}:</h1>
+
+
+<div class="clear"></div>
+
+<hr/>
+
+<h2>{% trans "Most recent share comments" %}:</h2>
 {% if controller.mostRecentSharesComments %}
     <table>
         <tbody>
@@ -36,7 +42,12 @@
     <div><p>{% trans "No data commented." %}</p></div>
 {% endif %}
 
-<h1>{% trans "Most recent shares" %}:</h1>
+<hr/>
+
+<div class="clear"></div>
+
+
+<h2>{% trans "Most recent shares" %}:</h2>
 {% if controller.mostRecentShares %}
     <table>
         <tbody>

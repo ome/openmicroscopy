@@ -55,7 +55,7 @@ from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
 from django.core import template_loader
 from django.core.cache import cache
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
+from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError, HttpResponseForbidden
 from django.shortcuts import render_to_response
 from django.template import RequestContext as Context
 from django.utils import simplejson
@@ -72,7 +72,7 @@ from omeroweb.webclient.webclient_utils import string_to_dict
 from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
 
 from webclient_utils import _formatReport, _purgeCallback
-from forms import ShareForm, BasketShareForm, ShareCommentForm, \
+from forms import ShareForm, BasketShareForm, \
                     ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
                     CommentAnnotationForm, TagsAnnotationForm, \
                     UsersForm, ActiveGroupForm, HistoryTypeForm, \
@@ -96,135 +96,21 @@ from omeroweb.webadmin.custom_models import Server
 from omeroweb.webadmin.forms import LoginForm
 from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck
 
-from omeroweb.webgateway.views import getBlitzConnection
 from omeroweb.webgateway import views as webgateway_views
 
 from omeroweb.feedback.views import handlerInternalError
 
+from omeroweb.webclient.decorators import login_required
+from omeroweb.webclient.decorators import render_response
+from omeroweb.connector import Connector
+from omeroweb.decorators import ConnCleaningHttpResponse
+
 logger = logging.getLogger(__name__)
 
 connectors = {}
-share_connectors = {}
 
 logger.info("INIT '%s'" % os.getpid())
 
-
-################################################################################
-# Blitz Gateway Connection
-
-def getShareConnection (request, share_id):
-    browsersession_key = request.session.session_key
-    share_conn_key = "S:%s#%s#%s" % (browsersession_key, request.session.get('server'), share_id)
-    share = getBlitzConnection(request, force_key=share_conn_key, useragent="OMERO.web")
-    share.attachToShare(share_id)
-    request.session['shares'][share_id] = share._sessionUuid
-    request.session.modified = True    
-    logger.debug('shared connection: %s : %s' % (share_id, share._sessionUuid))
-    return share
-
-################################################################################
-# decorators
-
-def isUserConnected (f):
-    def wrapped (request, *args, **kwargs):
-        #this check the connection exist, if not it will redirect to login page
-        server = string_to_dict(request.REQUEST.get('path')).get('server',request.REQUEST.get('server', None))
-        url = request.REQUEST.get('url')
-        if url is None or len(url) == 0:
-            url = request.get_full_path()
-        
-        conn = None
-        try:
-            conn = getBlitzConnection(request, useragent="OMERO.web")
-        except Exception, x:
-            logger.error(traceback.format_exc())
-        
-        if conn is None:
-            # TODO: Should be changed to use HttpRequest.is_ajax()
-            # http://docs.djangoproject.com/en/dev/ref/request-response/
-            # Thu  6 Jan 2011 09:57:27 GMT -- callan at blackcat dot ca
-            if request.is_ajax():
-                return HttpResponseServerError(reverse("weblogin"))
-            _session_logout(request, request.REQUEST.get('server', None))
-            if server is not None:
-                return HttpLoginRedirect(reverse("weblogin")+(("?url=%s&server=%s") % (url,server)))
-            return HttpLoginRedirect(reverse("weblogin")+(("?url=%s") % url))
-        
-        conn_share = None
-        share_id = kwargs.get('share_id', None)
-        if share_id is not None:
-            sh = conn.getShare(share_id)
-            if sh is not None:
-                try:
-                    if sh.getOwner().id != conn.getEventContext().userId:
-                        conn_share = getShareConnection(request, share_id)
-                except Exception, x:
-                    logger.error(traceback.format_exc())
-        
-        sessionHelper(request)
-        navHelper(request, conn)
-        kwargs["error"] = request.REQUEST.get('error')
-        kwargs["conn"] = conn
-        kwargs["conn_share"] = conn_share
-        kwargs["url"] = url
-        return f(request, *args, **kwargs)
-    return wrapped
-
-
-def navHelper(request, conn):
-    
-    from django.conf import settings
-    top_links = settings.TOP_LINKS
-    links = []
-    for tl in top_links:
-        try:
-            label = tl[0]
-            link_id = tl[1]
-            link = reverse(link_id)
-            links.append( {"label":label, "link":link} )
-        except:
-            logger.error("Failed to reverse() tab_link: %s" % tl)
-    if request.session.get('nav') is None:
-        request.session['nav'] = {}
-    request.session['nav']['top_links'] = links
-    request.session.modified = True
-
-
-def sessionHelper(request):
-    """
-    Makes sure that various dictionaries exist under request.session, so that we don't have to check each time.
-    they are used. These are:
-    - 'callback'    Used to hold job handles and extra data for delete and scripts. Added in manage_action_containers and script_run,
-                    Accessed in progress and status views.
-    - 'shares'      Reset in login and change_active_group, added to in get_share_connection. Not accessed Anyware??
-    - 'imageInBasket'   Reset in login, change_active_group and empty_basket. Changed in update_basket. Used in controller/basket.py load_basket().
-    - 'nav'         This is a collection of parameters required for rendering various templates. Passed to the template context
-                    using context = {'nav':request.session['nav']... etc.
-    
-    """
-    changes = False
-    if request.session.get('callback') is None:
-        request.session['callback'] = dict()
-        changes = True
-    if request.session.get('shares') is None:
-        request.session['shares'] = dict()
-        changes = True
-    if request.session.get('imageInBasket') is None:
-        request.session['imageInBasket'] = set()
-        changes = True
-    #if request.session.get('datasetInBasket') is None:
-    #    request.session['datasetInBasket'] = set()
-    if request.session.get('nav') is None:
-        if request.session.get('server') is not None:
-            blitz = Server.get(pk=request.session.get('server'))
-        elif request.session.get('host') is not None:
-            blitz = Server.get(host=request.session.get('host'))
-        blitz = "%s:%s" % (blitz.host, blitz.port)
-        request.session['nav']={"blitz": blitz, "menu": "mydata", "view": "tree", "basket": 0, "experimenter":None}
-        changes = True
-    if changes:
-        request.session.modified = True
-        
 ################################################################################
 # views controll
 
@@ -237,311 +123,182 @@ def login(request):
     Tries to get connection to OMERO and if this works, then we are redirected to the 'index' page or url specified in REQUEST.
     If we can't connect, the login page is returned with appropriate error messages.
     """
+    
     request.session.modified = True
-    if request.REQUEST.get('server'):
-        blitz = Server.get(pk=request.REQUEST.get('server'))
-        request.session['server'] = blitz.id
-        request.session['host'] = blitz.host
-        request.session['port'] = blitz.port
-        request.session['username'] = smart_str(request.REQUEST.get('username',None))
-        request.session['password'] = smart_str(request.REQUEST.get('password',None))
-        request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
-        request.session['shares'] = dict()
-        request.session['imageInBasket'] = set()
-        blitz_host = "%s:%s" % (blitz.host, blitz.port)
-        request.session['nav']={"error": None, "blitz": blitz_host, "menu": "start", "view": "icon", "basket": 0, "experimenter":None, 'callback':dict()}
-        
-    error = request.REQUEST.get('error')
     
     conn = None
-    # TODO: version check should be done on the low level, see #5983
-    if _checkVersion(request.session.get('host'), request.session.get('port')):
-        try:
-            conn = getBlitzConnection(request, useragent="OMERO.web")
-        except Exception, x:
-            error = x.__class__.__name__
+    error = None
     
-    if conn is not None:
-        upgradeCheck()
-        request.session['version'] = conn.getServerVersion()
-        if request.REQUEST.get('noredirect'):
-            return HttpResponse('OK')
-        url = request.REQUEST.get("url")
-        if url is not None and len(url) != 0:
-            return HttpResponseRedirect(url)
-        else:
-            return HttpResponseRedirect(reverse("webindex"))
-    else:
-        if request.method == 'POST' and request.REQUEST.get('server'):
-            if not _isServerOn(request.session.get('host'), request.session.get('port')):
-                error = "Server is not responding, please contact administrator."
-            elif not _checkVersion(request.session.get('host'), request.session.get('port')):
-                error = "Client version does not match server, please contact administrator."
+    server_id = request.REQUEST.get('server')
+    form = LoginForm(data=request.REQUEST.copy())
+    if form.is_valid():
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        server_id = form.cleaned_data['server']
+        is_secure = toBoolean(form.cleaned_data['ssl'])
+        form.cleaned_data['username']
+    
+        connector = Connector(server_id, is_secure)
+        
+        # TODO: version check should be done on the low level, see #5983
+        if server_id is not None and username is not None and password is not None \
+                and _checkVersion(*connector.lookup_host_and_port()):
+            conn = connector.create_connection('OMERO.web', username, password)
+            if conn is not None:
+                request.session['connector'] = connector
+                
+                upgradeCheck()
+                request.session['version'] = conn.getServerVersion()
+                if request.REQUEST.get('noredirect'):
+                    return HttpResponse('OK')
+                url = request.REQUEST.get("url")
+                if url is not None and len(url) != 0:
+                    return HttpResponseRedirect(url)
+                else:
+                    return HttpResponseRedirect(reverse("webindex"))
             else:
-                error = "Connection not available, please check your user name and password."
-        url = request.REQUEST.get("url")
-        request.session['server'] = request.REQUEST.get('server')
-        
-        template = "webclient/login.html"
-        if request.method == 'POST':
-            form = LoginForm(data=request.REQUEST.copy())
+                error = 'Login failed.'
+    
+    if request.method == 'POST' and server_id is not None:
+        s = Server.get(server_id)
+        if not _isServerOn(s.host, s.port):
+            error = "Server is not responding, please contact administrator."
+        elif not _checkVersion(s.host, s.port):
+            error = "Client version does not match server, please contact administrator."
         else:
-            blitz = Server.get(request.session.get('server'))
-            if blitz is not None:
-                initial = {'server': unicode(blitz.id)}
-                form = LoginForm(initial=initial)
-            else:
-                form = LoginForm()
+            error = "Connection not available, please check your user name and password."
+    url = request.REQUEST.get("url")
+    
+    template = "webclient/login.html"
+    if request.method != 'POST':
+        if server_id is not None:
+            initial = {'server': unicode(server_id)}
+            form = LoginForm(initial=initial)
+        else:
+            form = LoginForm()
         
-        context = {"version": omero_version, 'error':error, 'form':form, 'url': url}
-        if url is not None and len(url) != 0:
-            context['url'] = url
-        
-        t = template_loader.get_template(template)
-        c = Context(request, context)
-        rsp = t.render(c)
-        return HttpResponse(rsp)
+    context = {"version": omero_version, 'error':error, 'form':form, 'url': url}
+    if url is not None and len(url) != 0:
+        context['url'] = url
+    
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
 
-@isUserConnected
-def index(request, **kwargs):
+@login_required()
+def keepalive_ping(request, conn=None, **kwargs):
+    """ Keeps the OMERO session alive by pinging the server """
+
+    # login_required handles ping, timeout etc, so we don't need to do anything else
+    return HttpResponse("OK")
+
+@login_required()
+@render_response()
+def feed(request, conn=None, **kwargs):
     """
-    The webclient home page. 
-    Viewing this page doesn't perform any action. All we do here is assemble various data for display, including form for changing current group.
+    Viewing this page doesn't perform any action. All we do here is assemble various data for display.
     Last imports, tag cloud etc are retrived via separate AJAX calls.
     """
     template = "webclient/index/index.html"
     
-    request.session['nav']['error'] = request.REQUEST.get('error')
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    try:
-        if request.session['nav']['menu'] != 'start':
-            request.session['nav']['menu'] = 'home'
-    except:
-        request.session['nav']['menu'] = 'start'
-    
     controller = BaseIndex(conn)
-    #controller.loadData()
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
     
-    context = {'nav':request.session['nav'], 'controller':controller, 'eContext': controller.eContext, 'form_active_group':form_active_group}
+    context = {'controller':controller}
+    context['template'] = template
+    return context
 
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
 
-@isUserConnected
-def index_context(request, **kwargs):
-    """ NOT USED? TODO: remove this, url and template """
-
-    template = "webclient/index/index_context.html"
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    controller = BaseIndex(conn)
-    #controller.loadData()
-    
-    context = {'nav':request.session['nav'], 'controller':controller}
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
-
-@isUserConnected
-def index_last_imports(request, **kwargs):
+@login_required()
+@render_response()
+def index_last_imports(request, conn=None, **kwargs):
     """
     Gets the most recent imports - Used in an AJAX call by home page.
     """
-    template = "webclient/index/index_last_imports.html"
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseIndex(conn)
     controller.loadLastAcquisitions()
     
-    context = {'controller':controller, 'eContext': controller.eContext }
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context = {'controller':controller}
+    context['template'] = "webclient/index/index_last_imports.html"
+    return context
 
-@isUserConnected
-def index_most_recent(request, **kwargs):
+@login_required()
+@render_response()
+def index_most_recent(request, conn=None, **kwargs):
     """ Gets the most recent 'shares' and 'share' comments. Used by the homepage via AJAX call """
 
-    template = "webclient/index/index_most_recent.html"
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
     controller = BaseIndex(conn)
     controller.loadMostRecent()
     
-    context = {'controller':controller, 'eContext': controller.eContext }
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context = {'controller':controller}
+    context['template'] = "webclient/index/index_most_recent.html"
+    return context
 
-@isUserConnected
-def index_tag_cloud(request, **kwargs):
+@login_required()
+@render_response()
+def index_tag_cloud(request, conn=None, **kwargs):
     """ Gets the most used Tags. Used by the homepage via AJAX call """
-
-    template = "webclient/index/index_tag_cloud.html"
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseIndex(conn)
     controller.loadTagCloud()
     
-    context = {'controller':controller, 'eContext': controller.eContext }
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    context = {'controller':controller }
+    context['template'] = "webclient/index/index_tag_cloud.html"
+    return context
 
-@isUserConnected
-def change_active_group(request, **kwargs):
+@login_required()
+def change_active_group(request, conn=None, url=None, **kwargs):
     """
     Changes the active group of the OMERO connection, using conn.changeActiveGroup() with 'active_group' from request.REQUEST.
     First we log out and log in again, to force closing of any processes?
     TODO: This requires usage of request.session.get('password'), which should be avoided.
     Finally this redirects to the 'url'.
     """
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    #TODO: we need to handle exception while changing active group faild, see #
     
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    server = request.session.get('server')
-    username = request.session.get('username')
-    password = request.session.get('password')
-    ssl = request.session.get('ssl')
-    version = request.session.get('version')
-       
-    webgateway_views._session_logout(request, request.session.get('server'))
-    
-    blitz = Server.get(pk=server) 
-    request.session['server'] = blitz.id
-    request.session['host'] = blitz.host
-    request.session['port'] = blitz.port
-    request.session['username'] = username
-    request.session['password'] = password
-    request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
-    request.session['shares'] = dict()
-    request.session['imageInBasket'] = set()
-    blitz_host = "%s:%s" % (blitz.host, blitz.port)
-    request.session['nav']={"error": None, "blitz": blitz_host, "menu": "start", "view": "icon", "basket": 0, "experimenter":None, 'callback':dict()}
-    
-    conn = getBlitzConnection(request, useragent="OMERO.web")
-
     active_group = request.REQUEST.get('active_group')
-    if conn.changeActiveGroup(active_group):
-        request.session.modified = True                
-    else:
-        error = 'You cannot change your group becuase the data is currently processing. You can force it by logging out and logging in again.'
-        url = reverse("webindex")+ ("?error=%s" % error)
-        if request.session.get('nav')['experimenter'] is not None:
-            url += "&experimenter=%s" % request.session.get('nav')['experimenter']
-    
-    request.session['version'] = conn.getServerVersion()
-    
+    request.session.modified = True
+    request.session['active_group'] = active_group
+    url = url or reverse("webindex")
     return HttpResponseRedirect(url)
 
-def _session_logout (request, server_id):
-    """ 
-    Delegates to the webgateway _session_logout, while also using this to log out any share sessions.
-    Used internally by logout and 
-    """
-
-    webgateway_views._session_logout(request, server_id)
-     
-    try:
-        if request.session.get('shares') is not None:
-            for key in request.session.get('shares').iterkeys():
-                session_key = "S:%s#%s#%s" % (request.session.session_key,server_id, key)
-                webgateway_views._session_logout(request,server_id, force_key=session_key)
-        for k in request.session.keys():
-            if request.session.has_key(k):
-                del request.session[k]      
-    except:
-        logger.error(traceback.format_exc())
-    
-@isUserConnected
-def logout(request, **kwargs):
+@login_required()
+def logout(request, conn=None, **kwargs):
     """ Logout of the session and redirects to the homepage (will redirect to login first) """
-    _session_logout(request, request.session.get('server'))
-    #request.session.set_expiry(1)
+
+    if request.session.get('active_group') is not None:
+        try:
+            conn.setDefaultGroup(request.session.get('active_group'))
+        except:
+            logger.error('Exception during logout.', exc_info=True)
+    try:
+        conn.seppuku()
+    except:
+        logger.error('Exception during logout.', exc_info=True)
+    finally:
+        request.session.flush()
     return HttpResponseRedirect(reverse("webindex"))
 
 
 ###########################################################################
-@isUserConnected
-def load_template(request, menu, **kwargs):
+@login_required()
+@render_response()
+def load_template(request, menu, conn=None, url=None, **kwargs):
     """
     This view handles most of the top-level pages, as specified by 'menu' E.g. userdata, usertags, history, search etc.
     Query string 'path' that specifies an object to display in the data tree is parsed.
     We also prepare the list of users in the current group, for the switch-user form. Change-group form is also prepared.
     """
     request.session.modified = True
-        
+    
     if menu == 'userdata':
         template = "webclient/data/containers.html"
     elif menu == 'usertags':
         template = "webclient/data/container_tags.html"
     else:
         template = "webclient/%s/%s.html" % (menu,menu)
-    request.session['nav']['menu'] = menu
     
-    request.session['nav']['error'] = request.REQUEST.get('error')
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
     if url is None:
         url = reverse(viewname="load_template", args=[menu])
     
@@ -567,115 +324,75 @@ def load_template(request, menu, **kwargs):
         init['query'] = str(request.REQUEST.get('search_query')).replace(" ", "%20")
 
 
-    try:
-        manager = BaseContainer(conn)
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(x)
-    
-    form_users = None
-    filter_user_id = None
-    
-    s = conn.groupSummary()
+    manager = BaseContainer(conn)
+
+    # validate experimenter is in the active group
+    active_group = request.session.get('active_group') or conn.getEventContext().groupId
+    # prepare members of group...
+    s = conn.groupSummary(active_group)
     leaders = s["leaders"]
     members = s["colleagues"]
+    userIds = [u.id for u in leaders]
+    userIds.extend( [u.id for u in members] )
     users = []
-    leaders.sort(key=lambda x: x.getOmeName().lower())
     if len(leaders) > 0:
         users.append( ("Owners", leaders) )
-    members.sort(key=lambda x: x.getOmeName().lower())
     if len(members) > 0:
         users.append( ("Members", members) )
     users = tuple(users)
-    empty_label = None #"*%s (%s)" % (conn.getUser().getFullName(), conn.getUser().omeName)
-    if len(users) > 0:
-        if request.REQUEST.get('experimenter') is not None and len(request.REQUEST.get('experimenter'))>0:
-            form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu}, data=request.REQUEST.copy())
-            if form_users.is_valid():
-                filter_user_id = request.REQUEST.get('experimenter', None)
-                request.session.get('nav')['experimenter'] = filter_user_id
-                form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
-        else:
-            if request.REQUEST.get('experimenter') == "":
-                request.session.get('nav')['experimenter'] = None
-            filter_user_id = request.session.get('nav')['experimenter'] is not None and request.session.get('nav')['experimenter'] or None
-            if filter_user_id is None:
-                filter_user_id = conn.getEventContext().userId
-            form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
-            
-    else:
-        form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
-            
-    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups'], 'url':url})
+
+    # check any change in experimenter...
+    user_id = request.REQUEST.get('experimenter')
+    try:
+        user_id = long(user_id)
+    except:
+        user_id = None
+    if user_id is not None:
+        form_users = UsersForm(initial={'users': users, 'empty_label':None, 'menu':menu}, data=request.REQUEST.copy())
+        if not form_users.is_valid():
+            user_id = None
+    if user_id is None:
+        # ... or check that current user is valid in active group
+        user_id = request.session.get('user_id') is not None and request.session.get('user_id') or -1
+        if int(user_id) not in userIds:
+            user_id = conn.getEventContext().userId
+
+    request.session['user_id'] = user_id
+
+    myGroups = list(conn.getGroupsMemberOf())
+    myGroups.sort(key=lambda x: x.getName().lower())
     new_container_form = ContainerForm()
-    
-    context = {'nav':request.session['nav'], 'url':url, 'init':init, 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users}
-    
-    context['new_container_form'] = new_container_form
 
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context = {'init':init, 'myGroups':myGroups, 'new_container_form':new_container_form}
+    context['groups'] = myGroups
+    context['active_group'] = conn.getObject("ExperimenterGroup", long(active_group))
+    for g in context['groups']:
+        g.groupSummary()    # load leaders / members
+    
+    context['isLeader'] = conn.isLeader()
+    context['template'] = template
+    return context
 
-@isUserConnected
-def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kwargs):
+
+@login_required()
+@render_response()
+def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, conn=None, **kwargs):
     """
     This loads data for the tree, via AJAX calls. 
     The template is specified by query string. E.g. icon, table, tree.
     By default this loads Projects and Datasets.
     E.g. /load_data?view=tree provides data for the tree as <li>.
     """
-    request.session.modified = True
-    
-    # check menu
-    menu = request.REQUEST.get("menu")
-    if menu is not None:
-        request.session['nav']['menu'] = menu
-    else:
-        menu = request.session['nav']['menu']
-    
-    # check view
-    view = request.REQUEST.get("view")
-    if view is not None:
-        request.session['nav']['view'] = view
-    else:
-        view = request.session['nav']['view']
-    
-    # get connection
-    conn = None
-    try:
-        conn = kwargs["conn"]        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    # get url to redirect. Not sure what this is used for?
-    url = None
-    if o1_type is None and o1_id is None:
-        args = [line for line in [o1_type, o1_id, o2_type, o2_id, o3_type, o3_id] if line is not None]
-        url = reverse(viewname="load_data", args=args)
-    else:
-        try:
-            url = kwargs["url"]
-        except:
-            logger.error(traceback.format_exc())
-        if url is None:
-            url = reverse(viewname="load_template", args=[menu])
     
     # get page 
-    try:
-        page = int(request.REQUEST['page'])
-    except:
-        #page = (1, None)[view=="tree"]
-        page = 1
-        
+    page = int(request.REQUEST.get('page', 1))
+    
+    # get view 
+    view = str(request.REQUEST.get('view', None))
+
     # get index of the plate
-    try:
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
-        
+    index = int(request.REQUEST.get('index', 0))
+
     # prepare data. E.g. kw = {}  or  {'dataset': 301L}  or  {'project': 151L, 'dataset': 301L}
     kw = dict()
     if o1_type is not None:
@@ -688,16 +405,10 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     if o3_type is not None and o3_id > 0:
         kw[str(o3_type)] = long(o3_id)   
 
-    try:
-        # we set up the manager with the datatypes & ids we require. Manager loads data below
-        manager= BaseContainer(conn, **kw)
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return HttpJavascriptResponse("Object does not exist. Refresh the page.")
-        #return handlerInternalError(x)
+    manager= BaseContainer(conn, **kw)
     
     # prepare forms
-    filter_user_id = request.session.get('nav')['experimenter']
+    filter_user_id = request.session.get('user_id')
     form_well_index = None
         
     # load data & template
@@ -737,55 +448,19 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         else:
             template = "webclient/data/containers.html"
 
-    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index, 'index':index}
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context = {'manager':manager, 'form_well_index':form_well_index, 'index':index}
+    context['template_view'] = view
+    context['isLeader'] = conn.isLeader()
+    context['template'] = template
+    return context
 
-@isUserConnected
-def load_searching(request, form=None, **kwargs):
+
+@login_required()
+@render_response()
+def load_searching(request, form=None, conn=None, **kwargs):
     """
     Handles AJAX calls to search 
     """
-    request.session.modified = True
-    
-    # check menu
-    menu = request.REQUEST.get("menu")
-    if menu is not None:
-        request.session['nav']['menu'] = menu
-    else:
-        menu = request.session['nav']['menu']
-    # check view
-    view = request.REQUEST.get("view")
-    if view is not None:
-        request.session['nav']['view'] = view
-    else:
-        view = request.session['nav']['view']
-    
-    # get connection
-    conn = None
-    try:
-        conn = kwargs["conn"]        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    # get url to redirect
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    if url is None:
-        url = reverse(viewname="load_template", args=[menu])
-
-    # get page    
-    try:
-        page = int(request.REQUEST['page'])
-    except:
-        page = 1
     
     manager = BaseSearch(conn)
     # form = 'form' if we are searching. Get query from request...
@@ -829,22 +504,19 @@ def load_searching(request, form=None, **kwargs):
         template = "webclient/search/search_details.html"
         manager.batch_search(batch_query)
     
-    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager}
-        
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context = {'manager':manager}
+    context['template'] = template
+    return context
 
-@isUserConnected
-def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
+
+@login_required()
+@render_response()
+def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     """ 
     Loads data for the tag tree and center panel.
     Either get the P/D/I etc under tags, or the images etc under a tagged Dataset or Project.
     @param o_type       'tag' or 'project', 'dataset'.
     """
-
-    request.session.modified = True
     
     if request.REQUEST.get("o_type") is not None and len(request.REQUEST.get("o_type")) > 0:
         o_type = request.REQUEST.get("o_type")
@@ -853,62 +525,22 @@ def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
         except:
             pass
             
-    # check menu
-    menu = request.REQUEST.get("menu")
-    if menu is not None:
-        request.session['nav']['menu'] = menu
-    else:
-        menu = request.session['nav']['menu']
-    
     # check view
     view = request.REQUEST.get("view")
-    if view is not None:
-        request.session['nav']['view'] = view
-    else:
-        view = request.session['nav']['view']
     
-    # get connection
-    conn = None
-    try:
-        conn = kwargs["conn"]        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    # get url to redirect
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    if url is None:
-        url = reverse(viewname="load_data_by_tag")
-    
-    # get page    
-    try:
-        page = int(request.REQUEST['page'])
-    except:
-        page = None
-    
-    # get index of the plate
-    try:
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
+    # the index of a field within a well
+    index = int(request.REQUEST.get('index', 0))
     
     # prepare forms
-    filter_user_id = request.session.get('nav')['experimenter']
+    filter_user_id = request.session.get('user_id')
     
     # prepare data
     kw = dict()
     if o_type is not None and o_id > 0:
         kw[str(o_type)] = long(o_id)
-    try:
-        manager= BaseContainer(conn, **kw)
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(x)
-
+    
+    manager= BaseContainer(conn, **kw)
+    
     if o_id is not None:
         if o_type == "tag":
             manager.loadDataByTag()
@@ -929,54 +561,34 @@ def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
     form_well_index = None    
     
     
-    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index}
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context = {'manager':manager, 'form_well_index':form_well_index}
+    context['template_view'] = view
+    context['isLeader'] = conn.isLeader()
+    context['template'] = template
+    return context
 
-@isUserConnected
-def autocomplete_tags(request, **kwargs):
-    """ Autocomplete for tag. Not used now? TODO: remove this? """
 
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    eid = conn.getGroupFromContext().isReadOnly() and conn.getEventContext().userId or None
-        
-    tags = [{'tag': t.textValue,'id':t.id, 'desc':t.description} for t in conn.listTags(eid)]
-    json_data = simplejson.dumps(tags)
-    return HttpResponse(json_data, mimetype='application/javascript')
-
-@isUserConnected
-def open_astex_viewer(request, obj_type, obj_id, **kwargs):
+@login_required()
+@render_response()
+def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
     """
     Opens the Open Astex Viewer applet, to display volume masks in a couple of formats:
     - mrc.map files that are attached to images. obj_type = 'file'
     - Convert OMERO image to mrc on the fly. obj_type = 'image_8bit' or 'image'
         In this case, we may use 'scipy' to scale the image volume. 
     """
-    conn = None
-    try:
-        conn = kwargs["conn"]        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     # can only populate these for 'image'
     image = None
-    data_storage_mode = None
+    data_storage_mode = ""
     pixelRange = None       # (min, max) values of the raw data
+    contourSliderInit, contourSliderIncr = None, None
+    sizeOptions = None  # only give user choice if we need to scale down (and we CAN scale with scipy)
     # If we convert to 8bit map, subtract dataOffset, multiply by mapPixelFactor add mapOffset. (used for js contour controls)
     if obj_type == 'file':
         ann = conn.getObject("Annotation", obj_id)
         if ann is None:
-            return handlerInternalError("Can't find file Annotation ID %s as data source for Open Astex Viewer." % obj_id)
+            return handlerInternalError(request, "Can't find file Annotation ID %s as data source for Open Astex Viewer." % obj_id)
         # determine mapType by name
         imageName = ann.getFileName()
         if imageName.endswith(".bit"):
@@ -987,7 +599,7 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
     elif obj_type in ('image', 'image_8bit'):
         image = conn.getObject("Image", obj_id)     # just check the image exists
         if image is None:
-            return handlerInternalError("Can't find image ID %s as data source for Open Astex Viewer." % obj_id)
+            return handlerInternalError(request, "Can't find image ID %s as data source for Open Astex Viewer." % obj_id)
         imageName = image.getName()
         c = image.getChannels()[0]
         # By default, scale to 120 ^3. Also give option to load 'bigger' map or full sized
@@ -996,7 +608,6 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
         targetSize = DEFAULTMAPSIZE * DEFAULTMAPSIZE * DEFAULTMAPSIZE
         biggerSize = BIGGERMAPSIZE * BIGGERMAPSIZE * BIGGERMAPSIZE
         imgSize = image.getSizeX() * image.getSizeY() * image.getSizeZ()
-        sizeOptions = None  # only give user choice if we need to scale down (and we CAN scale with scipy)
         if imgSize > targetSize:
             try:
                 import scipy.ndimage
@@ -1043,37 +654,24 @@ def open_astex_viewer(request, obj_type, obj_id, **kwargs):
                 data_storage_mode = 1   # E.g. uint16 image will get served as 8bit map
             data_url = reverse("webclient_image_as_map", args=[obj_id, DEFAULTMAPSIZE])
 
-    return render_to_response('webclient/annotations/open_astex_viewer.html', {'data_url': data_url, "image": image,
+    context = {'data_url': data_url, "image": image,
         "sizeOptions":sizeOptions, "contourSliderInit":contourSliderInit, "contourSliderIncr":contourSliderIncr,
-        "data_storage_mode": data_storage_mode,'pixelRange':pixelRange}, context_instance=Context(request))
+        "data_storage_mode": data_storage_mode,'pixelRange':pixelRange}
+    context['template'] = 'webclient/annotations/open_astex_viewer.html'
+    return context
 
 
-@isUserConnected
-def load_metadata_details(request, c_type, c_id, conn, share_id=None, **kwargs):
+@login_required()
+@render_response()
+def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwargs):
     """
     This page is the right-hand panel 'general metadata', first tab only.
     Shown for Projects, Datasets, Images, Screens, Plates, Wells, Tags etc.
     The data and annotations are loaded by the manager. Display of appropriate data is handled by the template.
     """
 
-    conn_share = None
-    try:
-        conn_share = kwargs["conn_share"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-
-    try:
-        # the index of a field within a well
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
+    # the index of a field within a well
+    index = int(request.REQUEST.get('index', 0))
 
     # we only expect a single object, but forms can take multiple objects
     images = c_type == "image" and list(conn.getObjects("Image", [c_id])) or list()
@@ -1082,6 +680,7 @@ def load_metadata_details(request, c_type, c_id, conn, share_id=None, **kwargs):
     screens = c_type == "screen" and list(conn.getObjects("Screen", [c_id])) or list()
     plates = c_type == "plate" and list(conn.getObjects("Plate", [c_id])) or list()
     acquisitions = c_type == "acquisition" and list(conn.getObjects("PlateAcquisition", [c_id])) or list()
+    shares = (c_type == "share" or c_type == "discussion") and [conn.getShare(c_id)] or list()
     wells = list()
     if c_type == "well":
         for w in conn.getObjects("Well", [c_id]):
@@ -1095,188 +694,103 @@ def load_metadata_details(request, c_type, c_id, conn, share_id=None, **kwargs):
         'screens':c_type == "screen" and [c_id] or [],
         'plates':c_type == "plate" and [c_id] or [],
         'acquisitions':c_type == "acquisition" and [c_id] or [],
-        'wells':c_type == "well" and [c_id] or []}
+        'wells':c_type == "well" and [c_id] or [],
+        'shares':(c_type == "share" or c_type == "discussion") and [c_id] or []}
 
-    initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells}
+    initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells, 'shares': shares}
     
     form_comment = None
-    try:
-        if c_type in ("share", "discussion"):
-            template = "webclient/annotations/annotations_share.html"
-            manager = BaseShare(conn, conn_share, c_id)
-            manager.getAllUsers(c_id)
-            manager.getComments(c_id)
-            form_comment = ShareCommentForm()
-        else:
-            if conn_share is not None:
-                # We are using a share connection to view Images etc
-                template = "webclient/annotations/annotations_share.html"
-                manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
-            else:
-                template = "webclient/annotations/metadata_general.html"
-                manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
-                manager.annotationList()
-                form_comment = CommentAnnotationForm(initial=initial)
-                
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(x)    
-
-    if c_type in ("tag"):
-        context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
+    if c_type in ("share", "discussion"):
+        template = "webclient/annotations/annotations_share.html"
+        manager = BaseShare(conn, c_id)
+        manager.getAllUsers(c_id)
+        manager.getComments(c_id)
+        form_comment = CommentAnnotationForm(initial=initial)
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'index':index}
-    context['share_id'] = share_id
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+        manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+        if share_id is None:
+            template = "webclient/annotations/metadata_general.html"
+            manager.annotationList()
+            form_comment = CommentAnnotationForm(initial=initial)
+        else:
+            template = "webclient/annotations/annotations_share.html"
+    
+    if c_type in ("tag"):
+        context = {'manager':manager}
+    else:
+        context = {'manager':manager, 'form_comment':form_comment, 'index':index, 'share_id':share_id}
+    context['template'] = template
+    return context
 
-@isUserConnected
-def load_metadata_preview(request, imageId, share_id=None, **kwargs):
+
+@login_required()
+@render_response()
+def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwargs):
     """
     This is the image 'Preview' tab for the right-hand panel. 
     Currently this doesn't do much except launch the view-port plugin using the image Id (and share Id if necessary)
     """
-    conn = None
-    try:
-        conn = kwargs["conn"]        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
 
-    conn_share = None
+    # the index of a field within a well
     try:
-        conn_share = kwargs["conn_share"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-
-    try:
-        # the index of a field within a well
-        index = int(request.REQUEST['index'])
+        index = int(request.REQUEST.get('index', 0))
     except:
         index = 0
 
-    try:
-        template = "webclient/annotations/metadata_preview.html"
-        if conn_share is not None:
-            manager = BaseContainer(conn_share, index=index, image=long(imageId))
-        else:
-            manager = BaseContainer(conn, index=index, image=long(imageId))
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(x)
+    manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     
-    context = {'imageId':imageId, 'manager':manager}
+    if c_type == "well":
+        manager.image = manager.well.getImage(index)
 
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context = {'manager':manager, 'share_id':share_id}
+    context['template'] = "webclient/annotations/metadata_preview.html"
+    return context
 
-@isUserConnected
-def load_metadata_hierarchy(request, c_type, c_id, **kwargs):
+
+@login_required()
+@render_response()
+def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
     """
     This loads the ancestors of the specified object and displays them in a static tree.
     Used by an AJAX call from the metadata_general panel.
     """
 
-    conn = None
-    try:
-        conn = kwargs["conn"]        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    conn_share = None
-    try:
-        conn_share = kwargs["conn_share"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-
-    try:
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
-
-    try:
-        template = "webclient/annotations/metadata_hierarchy.html"
-        if conn_share is not None:
-            manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
-        else:
-            manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(x)
-
+    # the index of a field within a well
+    index = int(request.REQUEST.get('index', 0))
+    
+    manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+    
     context = {'manager':manager}
+    context['template'] = "webclient/annotations/metadata_hierarchy.html"
+    return context
 
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
 
-@isUserConnected
-def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):  
+@login_required()
+@render_response()
+def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, **kwargs):  
     """
     The acquisition tab of the right-hand panel. Only loaded for images.
     TODO: urls regex should make sure that c_type is only 'image' OR 'well'
     """
-    conn = None
-    try:
-        conn = kwargs["conn"]        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
 
-    conn_share = None
+    # the index of a field within a well
     try:
-        conn_share = kwargs["conn_share"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-
-    try:
-        index = int(request.REQUEST['index'])
+        index = int(request.REQUEST.get('index', 0))
     except:
         index = 0
 
     try:
         if c_type in ("share", "discussion"):
             template = "webclient/annotations/annotations_share.html"
-            manager = BaseShare(conn, conn_share, c_id)
+            manager = BaseShare(conn, c_id)
             manager.getAllUsers(c_id)
             manager.getComments(c_id)
         else:
-            if conn_share is not None:
-                template = "webclient/annotations/metadata_acquisition.html"                
-                manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
-            else:
-                template = "webclient/annotations/metadata_acquisition.html"
-                manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+            template = "webclient/annotations/metadata_acquisition.html"
+            manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     except AttributeError, x:
         logger.error(traceback.format_exc())
-        return handlerInternalError(x)
+        return handlerInternalError(request, x)
 
     form_environment = None
     form_objective = None
@@ -1295,7 +809,9 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
     corrections = None
 
     if c_type == 'well' or c_type == 'image':
-        if conn_share is None:
+        if c_type == "well":
+            manager.image = manager.well.getImage(index)
+        if share_id is None:
             manager.originalMetadata()
         manager.channelMetadata()
         for theC, ch in enumerate(manager.channel_metadata):
@@ -1400,18 +916,15 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
 
     # TODO: remove this 'if' since we should only have c_type = 'image'?
     if c_type in ("share", "discussion", "tag"):
-        context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
+        context = {'manager':manager}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 
+        context = {'manager':manager, 
         'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 
         'form_microscope':form_microscope, 'form_instrument_objectives': form_instrument_objectives, 'form_filters':form_filters,
         'form_dichroics':form_dichroics, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
+    context['template'] = template
+    return context
 
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
-    
 
 ###########################################################################
 # ACTIONS
@@ -1426,7 +939,7 @@ def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):
 # In each case, the form itself contains hidden fields to specify the object(s) being annotated
 # All forms inherit from a single form that has these fields.
 
-def getObjects(request, conn):
+def getObjects(request, conn=None):
     """ 
     Prepare objects for use in the annotation forms. 
     These objects are required by the form superclass to populate hidden fields, so we know what we're annotating on submission
@@ -1438,30 +951,31 @@ def getObjects(request, conn):
     plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
     acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and \
             list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
+    shares = len(request.REQUEST.getlist('share')) > 0 and [conn.getShare(request.REQUEST.getlist('share')[0])] or list()
     wells = list()
     if len(request.REQUEST.getlist('well')) > 0:
         for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
             w.index=index
             wells.append(w)
-    return {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 'plate':plates, 'acquisitions':acquisitions, 'well':wells}
+    return {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens, 
+            'plate':plates, 'acquisitions':acquisitions, 'well':wells, 'share':shares}
 
 def getIds(request):
     """ Used by forms to indicate the currently selected objects prepared above """
     selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), \
             'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), \
             'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), \
-            'wells':request.REQUEST.getlist('well')}
+            'wells':request.REQUEST.getlist('well'), 'shares':request.REQUEST.getlist('share')}
     return selected
 
 
-@isUserConnected
-def batch_annotate(request, conn, **kwargs):
+@login_required()
+@render_response()
+def batch_annotate(request, conn=None, **kwargs):
     """
     This page gives a form for batch annotation. 
     Local File form and Comment form are loaded. Other forms are loaded via AJAX
     """
-
-    index = int(request.REQUEST.get('index', 0))
 
     oids = getObjects(request, conn)
     selected = getIds(request)
@@ -1475,17 +989,14 @@ def batch_annotate(request, conn, **kwargs):
         obj_ids += ["%s=%s"%(key,o.id) for o in oids[key]]
     obj_string = "&".join(obj_ids)
     
-    template = "webclient/annotations/batch_annotate.html"
     context = {'form_comment':form_comment, 'obj_string':obj_string}
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = "webclient/annotations/batch_annotate.html"
+    return context
 
 
-@isUserConnected
-def annotate_file(request, conn, **kwargs):
+@login_required()
+@render_response()
+def annotate_file(request, conn=None, **kwargs):
     """ 
     On 'POST', This handles attaching an existing file-annotation(s) and/or upload of a new file to one or more objects 
     Otherwise it generates the form for choosing file-annotations & local files.
@@ -1515,9 +1026,7 @@ def annotate_file(request, conn, **kwargs):
                 manager = BaseContainer(conn, **kw)
             except AttributeError, x:
                 logger.error(traceback.format_exc())
-                return handlerInternalError(x)
-        elif o_type in ("share", "sharecomment"):
-            manager = BaseShare(conn, None, o_id)
+                return handlerInternalError(request, x)
     if manager is None:
         manager = BaseContainer(conn)
     
@@ -1549,45 +1058,44 @@ def annotate_file(request, conn, **kwargs):
         form_file = FilesAnnotationForm(initial=initial)
         context = {'form_file': form_file}
         template = "webclient/annotations/files_form.html"
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
-    
-@isUserConnected
-def annotate_comment(request, conn, **kwargs):
-    """ Handle adding Comments to one or more objects """
+    context['template'] = template
+    return context
 
+@login_required()
+@render_response()
+def annotate_comment(request, conn=None, **kwargs):
+    """ Handle adding Comments to one or more objects 
+    Unbound instance of Comment form not available. 
+    If the form has been submitted, a bound instance of the form 
+    is created using request.POST"""
+
+    if request.method != 'POST':
+        raise Http404("Unbound instance of form not available.")
+    
     index = int(request.REQUEST.get('index', 0))
     oids = getObjects(request, conn)
     selected = getIds(request)
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well']}
+            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well'],
+            'shares':oids['share']}
 
     manager = BaseContainer(conn)
 
     # Handle form submission...
-    if request.method == 'POST':
-        form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
-        if form_multi.is_valid():
-            # In each case below, we pass the {'object_type': [ids]} map
-            content = form_multi.cleaned_data['comment']
-            if content is not None and content != "":
-                textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
-                template = "webclient/annotations/comment.html"
-                context = {'tann': textAnn}
-                
-                t = template_loader.get_template(template)
-                c = Context(request,context)
-                logger.debug('TEMPLATE: '+template)
-                return HttpResponse(t.render(c))
-        else:
-            return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
+    form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
+    if form_multi.is_valid():
+        # In each case below, we pass the {'object_type': [ids]} map
+        content = form_multi.cleaned_data['comment']
+        if content is not None and content != "":
+            textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
+            context = {'tann': textAnn, 'template':"webclient/annotations/comment.html"}
+            return context
+    else:
+        return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
 
-
-@isUserConnected
-def annotate_tags(request, conn, **kwargs):
+@login_required()
+@render_response()
+def annotate_tags(request, conn=None, **kwargs):
     """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
 
     index = int(request.REQUEST.get('index', 0))
@@ -1612,9 +1120,9 @@ def annotate_tags(request, conn, **kwargs):
                 manager = BaseContainer(conn, **kw)
             except AttributeError, x:
                 logger.error(traceback.format_exc())
-                return handlerInternalError(x)
+                return handlerInternalError(request, x)
         elif o_type in ("share", "sharecomment"):
-            manager = BaseShare(conn, None, o_id)
+            manager = BaseShare(conn, o_id)
 
     if manager is None:
         manager = BaseContainer(conn)
@@ -1649,15 +1157,12 @@ def annotate_tags(request, conn, **kwargs):
         form_tags = TagsAnnotationForm(initial=initial)
         context = {'form_tags': form_tags}
         template = "webclient/annotations/tags_form.html"
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
 
-
-@isUserConnected
-def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
+@login_required()
+@render_response()
+def manage_action_containers(request, action, o_type=None, o_id=None, conn=None, **kwargs):
     """
     Handles many different actions on various objects.
     
@@ -1669,31 +1174,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     """
     template = None
     
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    # check menu
-    menu = request.REQUEST.get("menu")
-    if menu is not None:
-        request.session['nav']['menu'] = menu
-    else:
-        menu = request.session['nav']['menu']
-    
-    # Url is often used to redirect after performing action.
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    try:
-        index = int(request.REQUEST['index'])
-    except:
-        index = None
+    # the index of a field within a well
+    index = int(request.REQUEST.get('index', 0))
     
     manager = None
     if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
@@ -1705,9 +1187,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             manager = BaseContainer(conn, **kw)
         except AttributeError, x:
             logger.error(traceback.format_exc())
-            return handlerInternalError(x)
+            return handlerInternalError(request, x)
     elif o_type in ("share", "sharecomment"):
-        manager = BaseShare(conn, None, o_id)
+        manager = BaseShare(conn, o_id)
     else:
         manager = BaseContainer(conn)
         
@@ -1768,12 +1250,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if manager.share.getExpireDate() is not None:
                 initial['expiration'] = manager.share.getExpireDate().strftime("%Y-%m-%d")
             form = ShareForm(initial=initial) #'guests': share.guestsInShare,
-            context = {'url':url, 'nav':request.session['nav'], 'eContext': manager.eContext, 'share':manager, 'form':form}
+            context = {'share':manager, 'form':form}
         elif hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
             template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': obj.name, 'description':obj.description})
-            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
+            context = {'manager':manager, 'form':form}
     elif action == 'save':
         # Handles submission of the 'edit' form above. TODO: not used now?
         if not request.method == 'POST':
@@ -1790,11 +1272,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 #guests = request.REQUEST['guests']
                 enable = toBoolean(form.cleaned_data['enable'])
                 host = request.build_absolute_uri(reverse("load_template", args=["public"]))
-                manager.updateShareOrDiscussion(host, request.session.get('server'), message, members, enable, expiration)
+                manager.updateShareOrDiscussion(host, conn.server_id, message, members, enable, expiration)
                 return HttpResponse("DONE")
             else:
                 template = "webclient/public/share_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'share':manager, 'form':form}
+                context = {'share':manager, 'form':form}
         elif o_type == "sharecomment":
             form_sharecomments = ShareCommentForm(data=request.REQUEST.copy())
             if form_sharecomments.is_valid():
@@ -1806,15 +1288,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 context = {'cm': textAnn}
             else:
                 template = "webclient/annotations/annotation_new_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 
-                        'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}
+                context = {'manager':manager, 'form_sharecomments':form_sharecomments}
     elif action == 'editname':
         # start editing 'name' in-line
         if hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
             template = "webclient/ajax_form/container_form_ajax.html"
             form = ContainerNameForm(initial={'name': ((o_type != ("tag")) and obj.getName() or obj.textValue)})
-            context = {'nav':request.session['nav'], 'manager':manager, 'eContext':manager.eContext, 'form':form}
+            context = {'manager':manager, 'form':form}
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'savename':
@@ -1845,7 +1326,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             obj = getattr(manager, o_type)
             template = "webclient/ajax_form/container_form_ajax.html"
             form = ContainerDescriptionForm(initial={'description': obj.description})
-            context = {'nav':request.session['nav'], 'manager':manager, 'eContext':manager.eContext, 'form':form}
+            context = {'manager':manager, 'form':form}
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'savedescription':
@@ -1972,28 +1453,22 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             rdict = {'bad':'false' }
         json = simplejson.dumps(rdict, ensure_ascii=False)
         return HttpResponse( json, mimetype='application/javascript')
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = template
+    return context
 
-@isUserConnected
-def get_original_file(request, fileId, **kwargs):
+@login_required(doConnectionCleanup=False)
+def get_original_file(request, fileId, conn=None, **kwargs):
     """ Returns the specified original file as an http response. Used for displaying text or png/jpeg etc files in browser """
 
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    # May be viewing results of a script run in a different group.
+    conn.CONFIG['SERVICE_OPTS']['omero.group'] = '-1'
 
     orig_file = conn.getObject("OriginalFile", fileId)
     if orig_file is None:
-        return handlerInternalError("Original File does not exists (id:%s)." % (iid))
+        return handlerInternalError(request, "Original File does not exists (id:%s)." % (fileId))
     
-    rsp = HttpResponse(orig_file.getFileInChunks())
+    rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
+    rsp.conn = conn
     mimetype = orig_file.mimetype
     if mimetype == "text/x-python": 
         mimetype = "text/plain" # allows display in browser
@@ -2003,25 +1478,18 @@ def get_original_file(request, fileId, **kwargs):
     return rsp
 
 
-@isUserConnected
-def image_as_map(request, imageId, **kwargs):
+@login_required()
+def image_as_map(request, imageId, conn=None, **kwargs):
     """ Converts OMERO image into mrc.map file (using tiltpicker utils) and returns the file """
 
     from omero_ext.tiltpicker.pyami import mrc
     from numpy import dstack, zeros, int8
 
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
     image = conn.getObject("Image", imageId)
     if image is None:
         message = "Image ID %s not found in image_as_map" % imageId
         logger.error(message)
-        return handlerInternalError(message)
+        return handlerInternalError(request, message)
 
     imageName = image.getName()
     downloadName = imageName.endswith(".map") and imageName or "%s.map" % imageName
@@ -2058,11 +1526,12 @@ def image_as_map(request, imageId, **kwargs):
                 pass
 
     header = {}
-    header["xlen"] = pixels.physicalSizeX * image.getSizeX()
-    header["ylen"] = pixels.physicalSizeY * image.getSizeY()
-    header["zlen"] = pixels.physicalSizeZ * image.getSizeZ()
-    if header["xlen"] == 0 or header["ylen"] == 0 or header["zlen"] == 0:
-        header = {}
+    # Sometimes causes scaling issues in OAV.
+    #header["xlen"] = pixels.physicalSizeX * image.getSizeX()
+    #header["ylen"] = pixels.physicalSizeY * image.getSizeY()
+    #header["zlen"] = pixels.physicalSizeZ * image.getSizeZ()
+    #if header["xlen"] == 0 or header["ylen"] == 0 or header["zlen"] == 0:
+        #header = {}
 
     # write mrc.map to temp file
     import tempfile
@@ -2080,36 +1549,30 @@ def image_as_map(request, imageId, **kwargs):
     except Exception, x:
         temp.close()
         logger.error(traceback.format_exc())
-        return handlerInternalError("Cannot generate map (id:%s)." % (imageId))
+        return handlerInternalError(request, "Cannot generate map (id:%s)." % (imageId))
     return rsp
 
 
-@isUserConnected
-def archived_files(request, iid, **kwargs):
+@login_required(doConnectionCleanup=False)
+def archived_files(request, iid, conn=None, **kwargs):
     """
     Downloads the archived file(s) as a single file or as a zip (if more than one file)
     """
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
     image = conn.getObject("Image", iid)
     if image is None:
         logger.debug("Cannot download archived file becuase Image does not exist.")
-        return handlerInternalError("Cannot download archived file becuase Image does not exist (id:%s)." % (iid))
+        return handlerInternalError(request, "Cannot download archived file becuase Image does not exist (id:%s)." % (iid))
     
     files = list(image.getArchivedFiles())
 
     if len(files) == 0:
         logger.debug("Tried downloading archived files from image with no files archived.")
-        return handlerInternalError("This image has no Archived Files.")
+        return handlerInternalError(request, "This image has no Archived Files.")
 
     if len(files) == 1:
         orig_file = files[0]
-        rsp = HttpResponse(orig_file.getFileInChunks())
+        rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
+        rsp.conn = conn
         rsp['Content-Length'] = orig_file.getSize()
         rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.getName().replace(" ","_"))
     else:
@@ -2144,140 +1607,75 @@ def archived_files(request, iid, **kwargs):
 
             # return the zip or single file
             archivedFile_data = FileWrapper(temp)
-            rsp = HttpResponse(archivedFile_data)
+            rsp = ConnCleaningHttpResponse(archivedFile_data)
+            rsp.conn = conn
             rsp['Content-Length'] = temp.tell()
             rsp['Content-Disposition'] = 'attachment; filename=%s' % file_name
             temp.seek(0)
         except Exception, x:
             temp.close()
             logger.error(traceback.format_exc())
-            return handlerInternalError("Cannot download file (id:%s)." % (iid))
+            return handlerInternalError(request, "Cannot download file (id:%s)." % (iid))
 
     rsp['Content-Type'] = 'application/force-download'
     return rsp
 
-@isUserConnected
-def download_annotation(request, action, iid, **kwargs):
+@login_required(doConnectionCleanup=False)
+def download_annotation(request, action, iid, conn=None, **kwargs):
     """ Returns the file annotation as an http response for download """
-
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
     ann = conn.getObject("Annotation", iid)
     if ann is None:
-        return handlerInternalError("Annotation does not exist (id:%s)." % (iid))
+        return handlerInternalError(request, "Annotation does not exist (id:%s)." % (iid))
     
-    rsp = HttpResponse(ann.getFileInChunks())
+    rsp = ConnCleaningHttpResponse(ann.getFileInChunks())
+    rsp.conn = conn
     rsp['Content-Type'] = 'application/force-download'
     rsp['Content-Length'] = ann.getFileSize()
     rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
     return rsp
 
-@isUserConnected
-def load_public(request, share_id=None, **kwargs):
+@login_required()
+@render_response()
+def load_public(request, share_id=None, conn=None, **kwargs):
     """ Loads data for the tree in the 'public' main page. """
-
-    request.session.modified = True
     
     # SUBTREE TODO:
     if share_id is None:
         share_id = request.REQUEST.get("o_id") is not None and long(request.REQUEST.get("o_id")) or None
     
-    # check menu
-    menu = request.REQUEST.get("menu")
-    if menu is not None:
-        request.session['nav']['menu'] = menu
-    else:
-        menu = request.session['nav']['menu']
     # check view
     view = request.REQUEST.get("view")
-    if view is not None:
-        request.session['nav']['view'] = view
-    else:
-        view = request.session['nav']['view']
-
-    # get connection
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    conn_share = None
-    try:
-        conn_share = kwargs["conn_share"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Share connection is not available. Please contact your administrator.")
-    
-    # get url to redirect
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    if url is None:
-        url = reverse(viewname="load_template", args=[menu])
-
-    # get page    
-    try:
-        page = int(request.REQUEST['page'])
-    except:
-        page = 1    
     
     if share_id is not None:
         if view == 'tree':
             template = "webclient/public/share_subtree.html"
         elif view == 'icon':
             template = "webclient/public/share_content_icon.html"
-        controller = BaseShare(conn, conn_share, share_id)
-        if conn_share is None:
-            controller.loadShareOwnerContent()
-        else:
-            controller.loadShareContent()
+        controller = BaseShare(conn, share_id)
+        controller.loadShareContent()
+        
     else:
         template = "webclient/public/share_tree.html"
         controller = BaseShare(conn)
         controller.getShares()
 
-    context = {'nav':request.session['nav'], 'eContext':controller.eContext, 'share':controller}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context = {'share':controller}
+    context['isLeader'] = conn.isLeader()
+    context['template'] = template
+    return context
 
 ##################################################################
 # Basket
 
-@isUserConnected
-def basket_action (request, action=None, **kwargs):
+@login_required()
+@render_response()
+def basket_action (request, action=None, conn=None, **kwargs):
     """
     Various actions for creating a 'share' or 'discussion' (no images).
     
     @param action:      'toshare', 'createshare'    (form to create share and handling the action itself)
                         'todiscuss', 'createdisc'    (form to create discussion and handling the action itself)
     """
-    request.session.modified = True
-    
-    request.session['nav']['menu'] = 'basket'
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
     
     if action == "toshare":
         template = "webclient/basket/basket_share_action.html"
@@ -2287,7 +1685,7 @@ def basket_action (request, action=None, **kwargs):
         experimenters.sort(key=lambda x: x.getOmeName().lower())
         selected = [long(i) for i in request.REQUEST.getlist('image')]        
         form = BasketShareForm(initial={'experimenters':experimenters, 'images':basket.imageInBasket, 'enable':True, 'selected':selected})            
-        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
+        context = {'form':form}
     elif action == "createshare":
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("basket_action"))
@@ -2305,18 +1703,18 @@ def basket_action (request, action=None, **kwargs):
             enable = toBoolean(form.cleaned_data['enable'])
             host = request.build_absolute_uri(reverse("load_template", args=["public"]))
             share = BaseShare(conn)
-            share.createShare(host, request.session.get('server'), images, message, members, enable, expiration)
+            share.createShare(host, conn.server_id, images, message, members, enable, expiration)
             return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
         else:
             template = "webclient/basket/basket_share_action.html"
-            context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
+            context = {'form':form}
     elif action == "todiscuss":
         template = "webclient/basket/basket_discussion_action.html"
         basket = BaseBasket(conn)
         experimenters = list(conn.getExperimenters())
         experimenters.sort(key=lambda x: x.getOmeName().lower())
         form = ShareForm(initial={'experimenters':experimenters, 'enable':True})            
-        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
+        context = {'form':form}
     elif action == "createdisc":
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("basket_action"))
@@ -2332,46 +1730,34 @@ def basket_action (request, action=None, **kwargs):
             enable = toBoolean(form.cleaned_data['enable'])
             host = request.build_absolute_uri(reverse("load_template", args=["public"]))
             share = BaseShare(conn)
-            share.createDiscussion(host, request.session.get('server'), message, members, enable, expiration)
+            share.createDiscussion(host, conn.server_id, message, members, enable, expiration)
             return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
         else:
             template = "webclient/basket/basket_discussion_action.html"
-            context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
+            context = {'form':form}
     else:
         template = kwargs.get("template", "webclient/basket/basket.html")
         
         basket = BaseBasket(conn)
         basket.load_basket(request)
         
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups'], 'url':url})
-        
-        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form_active_group':form_active_group }
+        context = {'basket':basket }
+    context['template'] = template
+    return context
 
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
-
-@isUserConnected
+@login_required()
 def empty_basket(request, **kwargs):
     """ Empty the basket of images """
 
     try:
         del request.session['imageInBasket']
+        del request.session['basket_counter']
     except KeyError:
         logger.error(traceback.format_exc())
-    
-    #try:
-    #    del request.session['datasetInBasket']
-    #except KeyError:
-    #    logger.error(traceback.format_exc())
-        
-    request.session['nav']['basket'] = 0
-    request.session['imageInBasket'] = set()
-    #request.session['datasetInBasket'] = list()
+
     return HttpResponseRedirect(reverse("basket_action"))
 
-@isUserConnected
+@login_required()
 def update_basket(request, **kwargs):
     """ Add or remove images to the set in the basket """
 
@@ -2382,7 +1768,7 @@ def update_basket(request, **kwargs):
             action = request.REQUEST['action']
         except Exception, x:
             logger.error(traceback.format_exc())
-            return handlerInternalError("Attribute error: 'action' is missed.")
+            return handlerInternalError(request, "Attribute error: 'action' is missed.")
         else:
             prod = request.REQUEST.get('productId')
             ptype = request.REQUEST.get('productType')
@@ -2431,95 +1817,57 @@ def update_basket(request, **kwargs):
                         return HttpResponse(rv)                
 
         total = len(request.session['imageInBasket'])#+len(request.session['datasetInBasket'])
-        request.session['nav']['basket'] = total
+        request.session['basket_counter'] = total
         return HttpResponse(total)
     else:
-        return handlerInternalError("Request method error in Basket.")
+        return handlerInternalError(request, "Request method error in Basket.")
 
-@isUserConnected
-def help(request, **kwargs):
+@login_required()
+@render_response()
+def help(request, conn=None, **kwargs):
     """ Displays help page. Includes the choosers for changing current group and current user. """
 
     template = "webclient/help.html"
-    request.session.modified = True
-        
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
     
     controller = BaseHelp(conn)
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
-    
-    context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context = {'controller':controller}
+    context['template'] = template
+    return context
 
-@isUserConnected
-def load_calendar(request, year=None, month=None, **kwargs):
+@login_required()
+@render_response()
+def load_calendar(request, year=None, month=None, conn=None, **kwargs):
     """ 
     Loads the calendar which is displayed in the left panel of the history page. 
     Shows current month by default. Filter by experimenter 
     """
-
-    template = "webclient/history/calendar.html"
     
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-   
-    filter_user_id = request.session.get('nav')['experimenter']
-   
+    template = "webclient/history/calendar.html"
+    filter_user_id = request.session.get('user_id')
+    
     if year is not None and month is not None:
         controller = BaseCalendar(conn=conn, year=year, month=month, eid=filter_user_id)
     else:
         today = datetime.datetime.today()
         controller = BaseCalendar(conn=conn, year=today.year, month=today.month, eid=filter_user_id)
     controller.create_calendar()
-    
-    context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
 
-@isUserConnected
-def load_history(request, year, month, day, **kwargs):
+    context = {'controller':controller}
+
+    context['template'] = template
+    return context
+
+
+@login_required()
+@render_response()
+def load_history(request, year, month, day, conn=None, **kwargs):
     """ The data for a particular date that is loaded into the center panel """
 
     template = "webclient/history/history_details.html"
     
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    try:
-        page = int(request.REQUEST['page'])
-    except:
-        page = 1
+    # get page 
+    page = int(request.REQUEST.get('page', 1))
     
     cal_type = None
     try:
@@ -2529,7 +1877,7 @@ def load_history(request, year, month, day, **kwargs):
     except:
         cal_type = None    
     
-    filter_user_id = request.session.get('nav')['experimenter']
+    filter_user_id = request.session.get('user_id')
     controller = BaseCalendar(conn=conn, year=year, month=month, day=day, eid=filter_user_id)
     controller.get_items(cal_type, page)
     
@@ -2538,22 +1886,22 @@ def load_history(request, year, month, day, **kwargs):
     #else:
     #    form_history_type = HistoryTypeForm(initial={'data_type':cal_type})
     
-    context = {'nav':request.session['nav'], 'url':url, 'eContext': controller.eContext, 'controller':controller}#, 'form_history_type':form_history_type}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context = {'controller':controller}#, 'form_history_type':form_history_type}
+    context['template'] = template
+    return context
 
 
 def getObjectUrl(conn, obj):
     """
     This provides a url to browse to the specified omero.model.ObjectI P/D/I, S/P, FileAnnotation etc.
     used to display results from the scripting service
-    E.g webclient/userdata/?path=project=1|dataset=5|image=12601:selected
+    E.g webclient/userdata/?path=project=1|dataset=5|image=12601
     If the object is a file annotation, try to browse to the parent P/D/I
     """
     base_url = reverse(viewname="load_template", args=['userdata'])
 
+    blitz_obj = None
+    url = None
     # if we have a File Annotation, then we want our URL to be for the parent object...
     if isinstance(obj, omero.model.FileAnnotationI):
         fa = conn.getObject("Annotation", obj.id.val)
@@ -2564,50 +1912,60 @@ def getObjectUrl(conn, obj):
 
     if isinstance(obj, omero.model.ImageI):
         # return path from first Project we find, or None if no Projects
-        image = conn.getObject("Image", obj.id.val)
-        for d in image.listParents():
+        blitz_obj = conn.getObject("Image", obj.id.val)
+        for d in blitz_obj.listParents():
             for p in d.listParents():
-                return "%s?path=project=%d|dataset=%d|image=%d:selected" % (base_url, p.id, d.id, image.id)
-        return None
+                url = "%s?path=project=%d|dataset=%d|image=%d" % (base_url, p.id, d.id, blitz_obj.id)
+                break
+            if url is None:
+                url = "%s?path=dataset=%d|image=%d:selected" % (base_url, d.id, blitz_obj.id)   # if Dataset is orphan
+            break
 
     if isinstance(obj, omero.model.DatasetI):
-        dataset = conn.getObject("Dataset", obj.id.val)
+        blitz_obj = conn.getObject("Dataset", obj.id.val)
         for p in dataset.listParents():
-            return "%s?path=project=%d|dataset=%d:selected" % (base_url, p.id, dataset.id)
-        return None
+            url = "%s?path=project=%d|dataset=%d" % (base_url, p.id, blitz_obj.id)
+            break
 
     if isinstance(obj, omero.model.ProjectI):
-        return "%s?path=project=%d:selected" % (base_url, obj.id.val)
+        blitz_obj = conn.getObject("Project", obj.id.val)
+        url = "%s?path=project=%d" % (base_url, obj.id.val)
 
     if isinstance(obj, omero.model.PlateI):
-        plate = conn.getObject("Plate", obj.id.val)
-        screen = plate.getParent()
+        blitz_obj = conn.getObject("Plate", obj.id.val)
+        screen = blitz_obj.getParent()
         if screen is not None:
-            return "%s?path=screen=%d|plate=%d:selected" % (base_url, screen.id, plate.id)
-        return "%s?path=plate=%d:selected" % (base_url, obj.id.val)
+            url = "%s?path=screen=%d|plate=%d" % (base_url, screen.id, blitz_obj.id)
+        else:
+            url = "%s?path=plate=%d" % (base_url, obj.id.val)
 
     if isinstance(obj, omero.model.ScreenI):
-        return "%s?path=screen=%d:selected" % (base_url, obj.id.val)
+        blitz_obj = conn.getObject("Screen", obj.id.val)
+        url = "%s?path=screen=%d" % (base_url, obj.id.val)
+
+    if blitz_obj is None:
+        return (url, None)
+    group_id = blitz_obj.getDetails().getGroup().id
+    return (url, group_id)
 
 
 ######################
 # Activities window & Progressbar
-@isUserConnected
-def activities(request, **kwargs):
+@login_required()
+@render_response()
+def activities(request, conn=None, **kwargs):
     """
     This refreshes callback handles (delete, scripts, chgrp etc) and provides html to update Activities window & Progressbar.
     The returned html contains details for ALL callbacks in web session, regardless of their status.
     We also add counts of jobs, failures and 'in progress' to update status bar.
     """
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    # need to be able to retrieve the results from any group
+    conn.CONFIG['SERVICE_OPTS']['omero.group'] = '-1'
 
     in_progress = 0
     failure = 0
+    new_results = []
     _purgeCallback(request)
 
 
@@ -2628,6 +1986,7 @@ def activities(request, **kwargs):
                 rsp = prx.getResponse()
                 # if response is None, then we're still in progress, otherwise...
                 if rsp is not None:
+                    new_results.append(cbString)
                     if isinstance(rsp, omero.cmd.ERR):
                         request.session['callback'][cbString]['status'] = "failed"
                         rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
@@ -2644,6 +2003,7 @@ def activities(request, **kwargs):
                 try:
                     handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                     cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
+                    new_results.append(cbString)
                     if cb.block(0) is None: # ms #500
                         err = handle.errors()
                         request.session['callback'][cbString]['derror'] = err
@@ -2695,6 +2055,7 @@ def activities(request, **kwargs):
                     try:
                         results = proc.getResults(0)        # we can only retrieve this ONCE - must save results
                         request.session['callback'][cbString]['status'] = "finished"
+                        new_results.append(cbString)
                     except Exception, x:
                         logger.error(traceback.format_exc())
                         continue
@@ -2709,7 +2070,9 @@ def activities(request, **kwargs):
                         else:
                             if hasattr(v, "id"):    # do we have an object (ImageI, FileAnnotationI etc)
                                 obj_data = {'id': v.id.val, 'type': v.__class__.__name__[:-1]}
-                                obj_data['browse_url'] = getObjectUrl(conn, v)
+                                browse_url, group_id = getObjectUrl(conn, v)
+                                obj_data['browse_url'] = browse_url
+                                obj_data['group_id'] = group_id
                                 if v.isLoaded() and hasattr(v, "file"):
                                     #try:
                                     mimetypes = {'image/png':'png', 'image/jpeg':'jpeg', 'image/tiff': 'tiff'}
@@ -2754,22 +2117,22 @@ def activities(request, **kwargs):
                 htmlId = htmlId.split("/")[1]
         rv[key]['id'] = htmlId
         rv[key]['key'] = key
+        if key in new_results:
+            rv[key]['new'] = True
         jobs.append(rv[key])
 
     jobs.sort(key=lambda x:x['start_time'], reverse=True)
     context = {'sizeOfJobs':len(request.session['callback']),
             'jobs':jobs,
             'inprogress':in_progress,
+            'new_results':len(new_results),
             'failure':failure}
 
-    template = "webclient/activities/activitiesContent.html"
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
+    context['template'] = "webclient/activities/activitiesContent.html"
+    return context
 
 
-@isUserConnected
+@login_required()
 def activities_update (request, action, **kwargs):
     """
     If the above 'action' == 'clean' then we clear jobs from request.session['callback']
@@ -2793,296 +2156,77 @@ def activities_update (request, action, **kwargs):
             for key, data in request.session['callback'].items():
                 if data['status'] != "in progress":
                     del request.session['callback'][key]
-        return HttpResponseRedirect(reverse("status"))
+    return HttpResponse("OK")
 
 ####################################################################################
 # User Photo
 
-@isUserConnected
-def avatar(request, oid=None, **kwargs):
+@login_required()
+def avatar(request, oid=None, conn=None, **kwargs):
     """ Returns the experimenter's photo """
-
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
     photo = conn.getExperimenterPhoto(oid)
     return HttpResponse(photo, mimetype='image/jpeg')
 
 ####################################################################################
-# Bird's eye view
+# webgateway extention
 
-@isUserConnected
-def render_birds_eye_view (request, iid, size=200, share_id=None, **kwargs):
+@login_required()
+def render_thumbnail_resize (request, size, iid, conn=None, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
+    return webgateway_views.render_thumbnail(request, iid, w=size, _defcb=conn.defaultThumbnail, share_id=share_id, **kwargs)
 
-    conn = None
-    if share_id is not None:
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
+@login_required()
+def render_thumbnail (request, iid, conn=None, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+    return webgateway_views.render_thumbnail(request, iid, w=80, _defcb=conn.defaultThumbnail, share_id=share_id, **kwargs)
 
-    if conn is None:
-        raise Exception("Connection not available")
+@login_required()
+def render_image_region (request, iid, z, t, server_id=None, conn=None, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+    return webgateway_views.render_image_region(request, iid, z, t, server_id=None, share_id=share_id, **kwargs)
 
-    return webgateway_views.render_birds_eye_view(request, iid, size=size, _conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
+@login_required()
+def render_birds_eye_view (request, iid, size=None, conn=None, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+    return webgateway_views.render_birds_eye_view(request, iid, size=None, share_id=share_id, **kwargs)
+
+@login_required()
+def render_image (request, iid, z, t, conn=None, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+    return webgateway_views.render_image(request, iid, z, t, share_id=share_id, **kwargs)
+
+@login_required()
+def image_viewer (request, iid, conn=None, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+    kwargs['viewport_server'] = share_id is not None and reverse("webindex")+share_id or reverse("webindex")
+    return webgateway_views.full_viewer(request, iid, share_id=share_id, **kwargs)
+
+@login_required()
+def imageData_json (request, iid, conn=None, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+    return webgateway_views.imageData_json(request, iid=iid, share_id=share_id, **kwargs)
+
+@login_required()
+def render_row_plot (request, iid, z, t, y, w=1, conn=None, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+    return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, share_id=share_id, **kwargs)
+
+@login_required()
+def render_col_plot (request, iid, z, t, x, w=1, conn=None, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+    return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, share_id=share_id, **kwargs)
+
+@login_required()
+def render_split_channel (request, iid, z, t, conn=None, share_id=None, **kwargs):
+    """ Delegates to webgateway, using share connection if appropriate """
+    return webgateway_views.render_split_channel(request, iid, z, t, share_id=share_id, **kwargs)
 
 ####################################################################################
-# Rendering
-
-@isUserConnected
-def render_thumbnail (request, iid, share_id=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-
-    conn = None
-    if share_id is not None:
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-         
-    if conn is None:
-        raise Exception("Connection not available")
-
-    return webgateway_views.render_thumbnail(request, iid, w=80, _conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
-
-@isUserConnected
-def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
-    """ Delegates to webgateway, using share connection if appropriate """
-
-    conn = None
-    if share_id is not None:
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-         
-    if conn is None:
-        raise Exception("Connection not available")
-    
-    return webgateway_views.render_thumbnail(request, iid, w=size, _conn=conn, _defcb=conn.defaultThumbnail, **kwargs)
-
-@isUserConnected
-def render_image (request, iid, z, t, share_id=None, **kwargs):
-    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
-        Many options are available from the request dict.
-    I am assuming a single Pixels object on image with imageId='iid'. May be wrong """
-
-    conn = None
-    if share_id is not None:
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-         
-    if conn is None:
-        raise Exception("Connection not available")
-
-    return webgateway_views.render_image(request, iid, z, t, _conn=conn, **kwargs)
-
-@isUserConnected
-def render_image_region (request, iid, z, t, server_id=None, share_id=None, _conn=None, **kwargs):
-    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
-        Many options are available from the request dict.
-    I am assuming a single Pixels object on image with imageId='iid'. May be wrong """
-
-    conn = None
-    if share_id is not None:
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-         
-    if conn is None:
-        raise Exception("Connection not available")
-
-    return webgateway_views.render_image_region(request, iid, z, t, server_id=None, _conn=conn, **kwargs)
-
-@isUserConnected
-def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs):
-    """ This view is responsible for showing well data within plate """
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    if conn is None:
-        raise Exception("Connection not available")
-    
-    def urlprefix(iid):
-        return reverse('render_thumbnail', args=(iid,))
-    kwargs['urlprefix'] = urlprefix
-    
-    return webgateway_views.plateGrid_json(request, pid, field=field, server_id=None, _conn=None, **kwargs)
-
-@isUserConnected
-def image_viewer (request, iid, share_id=None, **kwargs):
-    """ This view is responsible for showing pixel data as images. Delegates to webgateway, using share connection if appropriate """
-    
-    conn = None
-    if share_id is not None:
-        kwargs['viewport_server'] = reverse('webindex') + ("%s/" % share_id)
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        kwargs['viewport_server'] = reverse('webindex')
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-         
-    if conn is None:
-        raise Exception("Connection not available")
-
-    return webgateway_views.full_viewer(request, iid, _conn=conn, **kwargs)
-
-
-@isUserConnected
-def imageData_json (request, iid, share_id=None, **kwargs):
-    """ Get a dict with image information. Delegates to webgateway, using share connection if appropriate """
-    conn = None
-    if share_id is not None:
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-         
-    if conn is None:
-        raise Exception("Connection not available")
-
-    return HttpResponse(webgateway_views.imageData_json(request, iid=iid, _conn=conn, **kwargs), mimetype='application/javascript')
-
-@isUserConnected
-def render_row_plot (request, iid, z, t, y, share_id=None, w=1, **kwargs):
-    """ Plot of intenisty for a row of pixels. Delegates to webgateway, using share connection if appropriate """
-    conn = None
-    if share_id is not None:
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-         
-    if conn is None:
-        raise Exception("Connection not available")
-    img = conn.getObject("Image", iid)
-
-    return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, _conn=conn, **kwargs)
-
-@isUserConnected
-def render_col_plot (request, iid, z, t, x, share_id=None, w=1, **kwargs):
-    """ Plot of intenisty for a row of pixels. Delegates to webgateway, using share connection if appropriate """
-    conn = None
-    if share_id is not None:
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-         
-    if conn is None:
-        raise Exception("Connection not available")
-    img = conn.getObject("Image", iid)
-
-    return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, _conn=conn, **kwargs)
-
-@isUserConnected
-def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
-    """ Jpeg of each channel as a separate panel. Delegates to webgateway, using share connection if appropriate """
-
-    conn = None
-    if share_id is not None:
-        try:
-            conn = kwargs["conn_share"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-    else:
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-         
-    if conn is None:
-        raise Exception("Connection not available")
-    img = conn.getObject("Image", iid)
-
-    return webgateway_views.render_split_channel(request, iid, z, t, _conn=conn, **kwargs)
-
-
 # scripting service....
-@isUserConnected
-def list_scripts (request, **kwargs):
+@login_required()
+@render_response()
+def list_scripts (request, conn=None, **kwargs):
     """ List the available scripts - Just officical scripts for now """
-
-    conn = kwargs['conn']
-
     scriptService = conn.getScriptService()
     scripts = scriptService.getScripts()
 
@@ -3115,16 +2259,15 @@ def list_scripts (request, **kwargs):
         sData['path'] = path    # sData map has 'name', 'path', 'scripts'
         scriptList.append(sData)
     scriptList.sort(key=lambda x:x['name'])
+    return {'template':"webclient/scripts/list_scripts.html", 'scriptMenu': scriptList}
 
-    return render_to_response("webclient/scripts/list_scripts.html", {'scriptMenu': scriptList})
 
-@isUserConnected
-def script_ui(request, scriptId, **kwargs):
+@login_required()
+@render_response()
+def script_ui(request, scriptId, conn=None, **kwargs):
     """
     Generates an html form for the parameters of a defined script.
     """
-
-    conn = kwargs['conn']
     scriptService = conn.getScriptService()
 
     params = scriptService.getParams(long(scriptId))
@@ -3212,12 +2355,10 @@ def script_ui(request, scriptId, **kwargs):
 
     paramData["inputs"] = inputs
 
-    return render_to_response('webclient/scripts/script_ui.html', {'paramData': paramData, 'scriptId': scriptId}, 
-        context_instance=Context(request))
+    return {'template':'webclient/scripts/script_ui.html', 'paramData': paramData, 'scriptId': scriptId}
 
-
-@isUserConnected
-def chgrp(request, conn, **kwargs):
+@login_required()
+def chgrp(request, conn=None, **kwargs):
     """
     Moves data to a new group, using the chgrp queue.
     Handles submission of chgrp form: all data in POST.
@@ -3231,7 +2372,7 @@ def chgrp(request, conn, **kwargs):
 
     group = conn.getObject("ExperimenterGroup", group_id)
 
-    dtypes = ["Project", "Dataset", "Image"]
+    dtypes = ["Project", "Dataset", "Image", "Screen", "Plate"]
     for dtype in dtypes:
         oids = request.REQUEST.get(dtype, None)
         if oids is not None:
@@ -3253,12 +2394,11 @@ def chgrp(request, conn, **kwargs):
     return HttpResponse("OK")
 
 
-@isUserConnected
-def script_run(request, scriptId, **kwargs):
+@login_required()
+def script_run(request, scriptId, conn=None, **kwargs):
     """
     Runs a script using values in a POST
     """
-    conn = kwargs['conn']
     scriptService = conn.getScriptService()
 
     inputMap = {}
@@ -3342,7 +2482,7 @@ def script_run(request, scriptId, **kwargs):
 
     logger.debug("Running script %s with params %s" % (scriptName, inputMap))
     try:
-        handle = scriptService.runScript(sId, inputMap, None)
+        handle = scriptService.runScript(sId, inputMap, None, conn.CONFIG['SERVICE_OPTS'])
         # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
         jobId = str(handle)
         request.session['callback'][jobId] = {
@@ -3376,21 +2516,4 @@ def script_run(request, scriptId, **kwargs):
         return HttpResponse(simplejson.dumps({'status': status, 'error': error}), mimetype='json')
 
     return HttpResponse(simplejson.dumps({'jobId': jobId, 'status':'in progress'}), mimetype='json')
-
-
-####################################################################################
-# utils
-
-GOOGLE_URL = "www.google.com"
-def spellchecker(request):
-    """ Spellchecker functionality - Not used currently """
-    if request.method == 'POST':
-        lang = request.GET.get("lang", "en")
-        data = request.raw_post_data
-        con = httplib.HTTPSConnection(GOOGLE_URL)
-        con.request("POST", "/tbproxy/spell?lang=%s" % lang, data)
-        response = con.getresponse()
-        r_text = response.read()
-        con.close()
-        return HttpJavascriptResponse(r_text)
 

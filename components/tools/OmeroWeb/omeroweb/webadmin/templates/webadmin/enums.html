@@ -25,6 +25,11 @@
     {{ block.super }}
     <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
+	
+	<!--[if lte IE 8]>
+		<link rel="stylesheet" type="text/css" href="/static/webgateway/css/ome.table_ie.css" />
+	<![endif]-->
+	
     
 {% endblock %}
 

@@ -19,6 +19,11 @@
 
 .jstree-default-rtl.jstree-focused { background:#ffffee; }
 
+.children_count {
+	border:solid 1px red !important;
+	display:block;
+}
+
 .jstree-default-rtl .jstree-no-dots li, 
 .jstree-default-rtl .jstree-no-dots .jstree-leaf > ins { background:transparent; }
 .jstree-default-rtl .jstree-no-dots .jstree-open > ins { background-position:-18px 0; }
