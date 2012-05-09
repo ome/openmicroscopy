@@ -355,7 +355,7 @@
         <div id="general_tab" class="right_tab_inner" >
            
 		    {% if manager.image %}            
-            {% if manager.image.isOwned %}
+            {% if manager.image.canEdit %}
 				<div class="data_heading" id="imagename-{{ manager.image.id }}">
 					<h1>
 						<span id="imagename-{{ manager.image.id }}-name" style="word-wrap: break-word;">{{ manager.image.name }}</span>
@@ -416,7 +416,7 @@
 				  
 			<!-- Image Description -->	    
             <div class="description">
-                {% if manager.image.isOwned %}
+                {% if manager.image.canEdit %}
 					<div class="data_heading" id="imagedescription-{{ manager.image.id }}">
 						<p>
 						<span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default_if_none:"Add Description"}}</span>
@@ -438,13 +438,11 @@
 			
 			
 			
-            <table class="metadata_details">                    
-                {% if not manager.image.isOwned %}
+            <table class="metadata_details">
                 <tr>
                     <th>Owner:</th>
                     <td id='owner_fullname'>{{ manager.image.getOwner.getFullName }}</td>
                 </tr>
-                {% endif %}
                 <tr>
                     <th>Acquisition Date:</th>
                     <td id='acqu_date'>{{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
@@ -487,7 +485,7 @@
             </table>
             {% else %}
                 {% if manager.dataset %}
-                {% if manager.dataset.isOwned %}
+                {% if manager.dataset.canEdit %}
 
 				<!-- Dataset Name - Dataset Level -->
 				<div class="data_heading" id="datasetname-{{ manager.dataset.id }}">
@@ -518,7 +516,7 @@
 				
 				<!-- Dataset Description -->
                 <div class="description">
-                    {% if manager.dataset.isOwned %}
+                    {% if manager.dataset.canEdit %}
 					<div class="data_heading" id="datasetdescription-{{ manager.dataset.id }}">
 						<p>
 							<span id="datasetdescription-{{ manager.dataset.id }}-description">{{ manager.dataset.description|default_if_none:"Add a Description"|linebreaksbr}}</span>
@@ -534,12 +532,10 @@
                 </div>
                 
                 <table>
-                    {% if not manager.dataset.isOwned %}
                     <tr>
                         <th>Owner:</th>
                         <td id='owner_fullname'>{{ manager.dataset.getOwner.getFullName }}</td>
                     </tr>
-                    {% endif %}
                     <tr>
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.dataset.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -551,7 +547,7 @@
                 </table>
                 {% else %}
                     {% if manager.project %}
-                    {% if manager.project.isOwned %}
+                    {% if manager.project.canEdit %}
 					
 					
 					<!-- Project Name - Project Level -->
@@ -574,7 +570,7 @@
 					
 					<!--Project Description -->
 					<div class="description">
-                        {% if manager.project.isOwned %}
+                        {% if manager.project.canEdit %}
 						<div class="data_heading" id="projectdescription-{{ manager.project.id }}">
 						    <p>                          
 						        <span id="projectdescription-{{ manager.project.id }}-description">{{ manager.project.description|default_if_none:"Add a Description"|linebreaksbr}}
@@ -591,12 +587,10 @@
                     </div>
                     
                     <table>
-                        {% if not manager.project.isOwned %}
                         <tr>
                             <th>Owner:</th>
                             <td id='owner_fullname'>{{ manager.project.getOwner.getFullName }}</td>
                         </tr>
-                        {% endif %}
                         <tr>
                             <th>Creation Date:</th>
                             <td id='creation_date'>{{ manager.project.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -611,7 +605,7 @@
             {% endif %}
             
             {% if manager.well %}            
-            {% if manager.well.getWellSample.image.isOwned %}
+            {% if manager.well.getWellSample.image.canEdit %}
 			
 			<div id="wellname-{{ manager.well.getWellSample.image.id }}" class="data_heading">
 				<h1>
@@ -636,7 +630,7 @@
 			<hr/>
 			
             <div class="description">
-                {% if manager.well.getWellSample.image.isOwned %}
+                {% if manager.well.getWellSample.image.canEdit %}
                 <div class="data_heading" id="welldescription-{{ manager.well.getWellSample.image.id }}">
                     <p>
                         <span id="welldescription-{{ manager.well.getWellSample.image.id }}-description">{{ manager.well.getWellSample.image.description|default_if_none:"Add A Description"|linebreaksbr}}</span>
@@ -651,13 +645,11 @@
                 {% endif %}
             </div>
             
-            <table>                    
-                {% if not manager.well.getWellSample.image.isOwned %}
+            <table>
                 <tr>
                     <th>Owner:</th>
                     <td id='owner_fullname'>{{ manager.well.getWellSample.image.getOwner.getFullName }}</td>
                 </tr>
-                {% endif %}
                 <tr>
                     <th>Acquisition Date:</th>
                     <td id='acqu_date'>{{ manager.well.getWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
@@ -704,7 +696,7 @@
             </table>
             {% else %}
                 {% if manager.acquisition %}
-                {% if manager.acquisition.isOwned %}
+                {% if manager.acquisition.canEdit %}
 				<div id="acquisitionname-{{ manager.acquisition.id }}" class="data_heading">
 					<h1>
 						<p id="acquisitionname-{{ manager.acquisition.id }}-name" style="word-wrap: break-word;">{{ manager.acquisition.name }}</p>
@@ -722,7 +714,7 @@
 				<hr/>
 				
                 <div class="description">
-                    {% if manager.acquisition.isOwned %}
+                    {% if manager.acquisition.canEdit %}
                     <div class="data_heading" id="acquisitiondescription-{{ manager.acquisition.id }}">
                         <p>
                             <span id="acquisitiondescription-{{ manager.acquisition.id }}-description">{{ manager.acquisition.description|default_if_none:" Add a Description"|linebreaksbr}}</span>
@@ -739,12 +731,10 @@
                 </div>
                 
                 <table>
-                    {% if not manager.acquisition.isOwned %}
                     <tr>
                         <th>Owner:</th>
                         <td id='owner_fullname'>{{ manager.acquisition.getOwner.getFullName }}</td>
                     </tr>
-                    {% endif %}
                     <tr>
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.acquisition.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -758,7 +748,7 @@
                 </table>
                 {% else %}
                     {% if manager.plate %}
-                    {% if manager.plate.isOwned %}<div class="data_heading" id="platename-{{ manager.plate.id }}">
+                    {% if manager.plate.canEdit %}<div class="data_heading" id="platename-{{ manager.plate.id }}">
 						<h1>
 							<p id="platename-{{ manager.plate.id }}-name" style="word-wrap: break-word;">{{ manager.plate.name }}</p>
 						</h1>
@@ -777,7 +767,7 @@
 					<hr/>
 					
                     <div class="description">
-                        {% if manager.plate.isOwned %}
+                        {% if manager.plate.canEdit %}
                         <div class="data_heading" id="platedescription-{{ manager.plate.id }}">
                             <p>
                                 <span id="platedescription-{{ manager.plate.id }}-description">{{ manager.plate.description|default_if_none:"Add a Description"|linebreaksbr}}</span>
@@ -793,12 +783,10 @@
                     <span id='plate_desc'>{{ manager.plate.description|default_if_none:""|linebreaks }}</span>{% endif %}
                     </div>
                     <table>
-                        {% if not manager.plate.isOwned %}
                         <tr>
                             <th>Owner:</th>
                             <td id='owner_fullname'>{{ manager.plate.getOwner.getFullName }}</td>
                         </tr>
-                        {% endif %}
                         <tr>
                             <th>Creation Date:</th>
                             <td id='creation_date'>{{ manager.plate.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -812,7 +800,7 @@
                     </table>
                     {% else %}
                         {% if manager.screen %}
-                        {% if manager.screen.isOwned %}
+                        {% if manager.screen.canEdit %}
 						<div class="data_heading" id="screenname-{{ manager.screen.id }}">
 							<h1>
 								<p id="screenname-{{ manager.screen.id }}-name" style="word-wrap: break-word;">{{ manager.screen.name }}</p>
@@ -830,7 +818,7 @@
 						<hr/>	
 							
   						 <div class="description">
-                            {% if manager.screen.isOwned %}
+                            {% if manager.screen.canEdit %}
                             
                             <div class="data_heading" id="screendescription-{{ manager.screen.id }}">
                                 <p>
@@ -848,12 +836,10 @@
                             
                         </div>
                         <table>
-                            {% if not manager.screen.isOwned %}
                             <tr>
                                 <th>Owner:</th>
                                 <td id='owner_fullname'>{{ manager.screen.getOwner.getFullName }}</td>
                             </tr>
-                            {% endif %}
                             <tr>
                                 <th>Creation Date:</th>
                                 <td id='creation_date'>{{ manager.screen.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -1109,7 +1095,7 @@
 
         {% if manager.tag %}
             <div id="general_tab" class="right_tab_inner" >
-                {% if manager.tag.isOwned %}
+                {% if manager.tag.canEdit %}
 				<div class="data_heading" id="tagname-{{ manager.tag.id }}">
 					<h1>
 						<p id="tagname-{{ manager.tag.id }}-name" style="word-wrap: break-word;">{{ manager.tag.getValue }}</p>
@@ -1124,7 +1110,7 @@
 				<hr/>
 
                 <div class="description">
-                    {% if manager.tag.isOwned %}
+                    {% if manager.tag.canEdit %}
                     <div class="data_heading" id="tagdescription-{{ manager.tag.id }}">
                         <p>
                             <span id="tagdescription-{{ manager.tag.id }}-description">{{ manager.tag.description|default_if_none:"Add a Description"|linebreaksbr}}</span>
@@ -1140,12 +1126,10 @@
                 </div>
         
                 <table>
-                    {% if not manager.tag.isOwned %}
                     <tr>
                         <th>Owner:</th>
                         <td id='owner_fullname'>{{ manager.tag.getOwner.getFullName }}</td>
                     </tr>
-                    {% endif %}
                     <tr>
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.tag.getDate|date:"Y-m-d H:i:s" }}</td>
