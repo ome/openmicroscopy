@@ -54,7 +54,7 @@ import logging, os, traceback, time, zipfile, shutil
 
 logger = logging.getLogger(__name__)
 
-logger.debug("INIT")
+logger.info("INIT")
 
 try:
     import Image
@@ -355,7 +355,8 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                 ckey = 'S:' # postpone key creation to when we have a session uuid
 
     if r.get('username', None):
-        logger.info('getBlitzConnection(host=%s, port=%s, ssl=%s, username=%s)' %
+        logger.info('login request for experimenter "%s"' % str(username))
+        logger.debug('getBlitzConnection(host=%s, port=%s, ssl=%s, username=%s)' %
                     (str(host), str(port), str(secure), str(username)))
         logger.debug('k=%s' % str(browsersession_connection_key))
         blitzcon = None
@@ -397,9 +398,9 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                 # Have a blitzcon, but it doesn't connect.
                 if username:
                     _session_logout(request, server_id)
-                    logger.debug('connection failed with provided login information, bail out')
+                    logger.warn('connection failed with provided login information, bail out')
                     return None
-                logger.debug('Failed connection, logging out')
+                logger.warn('Failed connection, logging out')
                 _session_logout(request, server_id)
                 #return blitzcon
                 return None
@@ -1106,6 +1107,10 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
     """
     Renders the OME-TIFF representation of the image(s) with id cid in ctx (i)mage,
     (d)ataset, or (p)roject.
+    For multiple images export, images that require pixels pyramid (big images) will be silently skipped.
+    If exporting a single big image or if all images in a multple image export are big,
+    a 404 will be triggered.
+    A request parameter dryrun can be passed to return the count of images that would actually be exported.
     
     @param request:     http request
     @param ctx:         'p' or 'd' or 'i'
@@ -1113,6 +1118,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
     @param server_id:   
     @param _conn:       L{omero.gateway.BlitzGateway} connection
     @return:            http response wrapping the tiff (or zip for multiple files), or redirect to temp file/zip
+                        if dryrun is True, returns count of images that would be exported
     """
     if _conn is None:
         _conn = getBlitzConnection(request, server_id=server_id, with_session=False, useragent="OMERO.webgateway")
@@ -1154,6 +1160,17 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             raise Http404
         imgs.append(obj)
 
+    imgs = filter(lambda x: not x.requiresPixelsPyramid(), imgs)
+
+    if request.REQUEST.get('dryrun', False):
+        rv = simplejson.dumps(len(imgs))
+        c = request.REQUEST.get('callback', None)
+        if c is not None and not kwargs.get('_internal', False):
+            rv = '%s(%s)' % (c, rv)
+        return HttpResponse(rv, mimetype='application/javascript')
+    
+    if len(imgs) == 0:
+        raise Http404
     if len(imgs) == 1:
         obj = imgs[0]
         key = '_'.join((str(x.getId()) for x in obj.getAncestry())) + '_' + str(obj.getId()) + '_ome_tiff'
@@ -1495,12 +1512,45 @@ def imageMarshal (image, key=None):
         # or some other permissions related issue has tripped us up.
         logger.warn('Security violation while retrieving Dataset when ' \
                     'marshaling image metadata: %s' % e.message)
+    rv = {
+        'error': None,
+        'id': image.id,
+        'size': {'width': image.getSizeX(),
+                 'height': image.getSizeY(),
+                 'z': image.getSizeZ(),
+                 't': image.getSizeT(),
+                 'c': image.getSizeC(),},
+        'pixel_size': {'x': image.getPixelSizeX(),
+                       'y': image.getPixelSizeY(),
+                       'z': image.getPixelSizeZ(),},
+        'meta': {'imageName': image.name or '',
+                 'imageDescription': image.description or '',
+                 'imageAuthor': image.getAuthor(),
+                 'projectName': pr and pr.name or 'Multiple',
+                 'projectId': pr and pr.id or None,
+                 'projectDescription':pr and pr.description or '',
+                 'datasetName': ds and ds.name or 'Multiple',
+                 'datasetId': ds and ds.id or '',
+                 'datasetDescription': ds and ds.description or '',
+                 'imageTimestamp': time.mktime(image.getDate().timetuple()),
+                 'imageId': image.id,
+                 'pixel_range': (0, 0),
+                 'channels': (),
+                 'split_channel': (),
+                 'rdefs': {'model': 'color',
+                           'projection': image.getProjection(),
+                           'defaultZ': 0,
+                           'defaultT': 0,
+                           'invertAxis': image.isInvertedAxis()},
+                 },
+        }
 
     try:
         reOK = image._prepareRenderingEngine()
         if not reOK:
             logger.debug("Failed to prepare Rendering Engine for imageMarshal")
-            return None
+            rv['error'] = "Failed to prepare Rendering Engine for imageMarshal" 
+            return rv
     except omero.ConcurrencyException, ce:
         backOff = ce.backOff
         rv = {
@@ -1517,33 +1567,13 @@ def imageMarshal (image, key=None):
     init_zoom = image._re.getResolutionLevel()
 
     try:
-        rv = {
+        rv.update({
             'tiles': tiles,
             'tile_size': {'width': width,
                           'height': height},
             'init_zoom': init_zoom,
             'levels': levels,
-            'id': image.id,
-            'size': {'width': image.getSizeX(),
-                     'height': image.getSizeY(),
-                     'z': image.getSizeZ(),
-                     't': image.getSizeT(),
-                     'c': image.getSizeC(),},
-            'pixel_size': {'x': image.getPixelSizeX(),
-                           'y': image.getPixelSizeY(),
-                           'z': image.getPixelSizeZ(),},
-            'meta': {'imageName': image.name or '',
-                     'imageDescription': image.description or '',
-                     'imageAuthor': image.getAuthor(),
-                     'projectName': pr and pr.name or 'Multiple',
-                     'projectId': pr and pr.id or None,
-                     'projectDescription':pr and pr.description or '',
-                     'datasetName': ds and ds.name or 'Multiple',
-                     'datasetId': ds and ds.id or '',
-                     'datasetDescription': ds and ds.description or '',
-                     'imageTimestamp': time.mktime(image.getDate().timetuple()),
-                     'imageId': image.id,},
-            }
+            })
         try:
             rv['pixel_range'] = image.getPixelRange()
             rv['channels'] = map(lambda x: channelMarshal(x), image.getChannels())
@@ -1555,15 +1585,8 @@ def imageMarshal (image, key=None):
                            'invertAxis': image.isInvertedAxis()}
         except TypeError:
             # Will happen if an image has bad or missing pixel data
-            logger.error('imageMarshal', exc_info=True)
-            rv['pixel_range'] = (0, 0)
-            rv['channels'] = ()
-            rv['split_channel'] = ()
-            rv['rdefs'] = {'model': 'color',
-                           'projection': image.getProjection(),
-                           'defaultZ': 0,
-                           'defaultT': 0,
-                           'invertAxis': image.isInvertedAxis()}
+            logger.error('TypeError on imageMarshal(%d)' % image.getId())
+            logger.debug('imageMarshal', exc_info=True)
     except AttributeError:
         rv = None
         raise
@@ -1685,7 +1708,8 @@ def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     def urlprefix(iid):
         return reverse(prefix, args=(iid,))
-    xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
+    xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix),
+            'requiresPixelsPyramid': request.REQUEST.get('requiresPixelsPyramid', False) and True or False,}
     return map(lambda x: x.simpleMarshal(xtra=xtra), dataset.listChildren())
 
 @jsonp

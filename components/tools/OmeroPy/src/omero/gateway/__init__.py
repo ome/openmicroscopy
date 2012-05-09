@@ -1440,8 +1440,8 @@ class _BlitzGateway (object):
             return False
         except:
             # Something else happened
-            logger.debug(traceback.format_exc())
-            logger.debug("... error not reconnecting")
+            logger.error(traceback.format_exc())
+            logger.error("... error not reconnecting")
             return False
 
     def seppuku (self, softclose=False): #pragma: no cover
@@ -1701,14 +1701,14 @@ class _BlitzGateway (object):
                 except Ice.SyscallException: #pragma: no cover
                     raise
                 except:
-                    logger.info("BlitzGateway.connect().createSession(): " + traceback.format_exc())
+                    logger.warn("BlitzGateway.connect().createSession(): " + traceback.format_exc())
                     #time.sleep(10)
                     self._createSession()
 
             self._last_error = None
             self._createProxies()
             self._connected = True
-            logger.info('created connection (uuid=%s)' % str(self._sessionUuid))
+            logger.info('created connection (uuid=%s) for experimenter "%s"' % (str(self._sessionUuid), self._username))
         except Ice.SyscallException: #pragma: no cover
             logger.debug('This one is a SyscallException', exc_info=True)
             raise
@@ -3222,7 +3222,7 @@ class OmeroGatewaySafeCallWrapper(object): #pragma: no cover
             self.__f__name = "unknown"
 
     def debug(self, exc_class, args, kwargs):
-        logger.warn("%s on %s to <%s> %s(%r, %r)",
+        logger.debug("%s on %s to <%s> %s(%r, %r)",
                     exc_class, self.__class__, self.__f__name, self.attr,
                     args, kwargs, exc_info=True)
 
@@ -5562,7 +5562,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:            The Rendering Engine service
         @rtype:             L{ProxyObjectWrapper}
         """
-        
         pid = self.getPrimaryPixels().id
         re = self._conn.createRenderingEngine()
         re.lookupPixels(pid, self._conn.CONFIG['SERVICE_OPTS'])
@@ -5636,6 +5635,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                     rv['thumb_url'] = xtra['thumbUrlPrefix'](str(self.id))
                 else:
                     rv['thumb_url'] = xtra['thumbUrlPrefix'] + str(self.id) + '/'
+            if xtra.get('requiresPixelsPyramid', False):
+                rv['requiresPixelsPyramid'] = self.requiresPixelsPyramid()
         return rv
 
     def getStageLabel (self):
@@ -5703,8 +5704,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             ds = query.findByQuery(q,None, self._conn.CONFIG['SERVICE_OPTS'])
             return ds and DatasetWrapper(self._conn, ds) or None
         except: #pragma: no cover
-            logger.debug('on getDataset')
-            logger.debug(traceback.format_exc())
+            logger.error('on getDataset')
+            logger.error(traceback.format_exc())
             return None
         
     def getProject(self):
@@ -5725,8 +5726,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             prj = query.findByQuery(q,None, self._conn.CONFIG['SERVICE_OPTS'])
             return prj and ProjectWrapper(self._conn, prj) or None
         except: #pragma: no cover
-            logger.debug('on getProject')
-            logger.debug(traceback.format_exc())
+            logger.error('on getProject')
+            logger.error(traceback.format_exc())
             return None
 
     def getPlate(self):
@@ -5969,8 +5970,11 @@ class _ImageWrapper (BlitzObjectWrapper):
             self._thumbInProgress = tb.isInProgress()
             tb.close()      # close every time to prevent stale state
             return rv
-        except Exception: #pragma: no cover
-            logger.error(traceback.format_exc())
+        except Exception,e: #pragma: no cover
+            if hasattr(e,'serverExceptionClass'):
+                logger.error('ID=%d, size=%s, z=%s, t=%s: %s' % (self.getId(), str(size), str(z), str(t),
+                                                                 e.serverExceptionClass))
+            logger.debug(traceback.format_exc())
             if tb is not None:
                 tb.close()
             return None
@@ -5992,6 +5996,13 @@ class _ImageWrapper (BlitzObjectWrapper):
             return (-(pmax / 2), pmax / 2 - 1)
         else:
             return (0, pmax-1)
+
+    @assert_pixels
+    def requiresPixelsPyramid (self):
+        pixels_id = self._obj.getPrimaryPixels().getId().val
+        rp = self._conn.createRawPixelsStore()
+        rp.setPixelsId(pixels_id, True, self._conn.CONFIG['SERVICE_OPTS'])
+        return rp.requiresPixelsPyramid()
 
     @assert_pixels
     def getPrimaryPixels (self):
@@ -6320,8 +6331,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             rv = self._re.renderCompressed(self._pd, self._conn.CONFIG['SERVICE_OPTS'])
             return rv
         except omero.InternalException: #pragma: no cover
-            logger.debug('On renderJpegRegion');
-            logger.debug(traceback.format_exc())
+            logger.error('On renderJpegRegion');
+            logger.error(traceback.format_exc())
             return None
         except Ice.MemoryLimitException: #pragma: no cover
             # Make sure renderCompressed isn't called again on this re, as it hangs
@@ -6361,8 +6372,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                 rv = self._re.renderProjectedCompressed(projection, self._pd.t, 1, 0, self.getSizeZ()-1, self._conn.CONFIG['SERVICE_OPTS'])
             return rv
         except omero.InternalException: #pragma: no cover
-            logger.debug('On renderJpeg');
-            logger.debug(traceback.format_exc())
+            logger.error('On renderJpeg');
+            logger.error(traceback.format_exc())
             return None
         except Ice.MemoryLimitException: #pragma: no cover
             # Make sure renderCompressed isn't called again on this re, as it hangs
