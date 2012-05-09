@@ -90,15 +90,11 @@ class render_response_admin(omeroweb.webclient.decorators.render_response):
         If not, add an appropriate message to the template context
         """
         super(render_response_admin, self).prepare_context(request, context, *args, **kwargs)
-
-        if 'info' not in context:
-            context['info'] = {}
-        context['info']['today'] = _("Today is %(tday)s") % {'tday': datetime.date.today()}
-        context['omero_version'] = request.session.get('version')
+        
         noGroupsCreated = kwargs["conn"].isAnythingCreated()
         if noGroupsCreated:
             msg = _('User must be in a group - You have not created any groups yet. Click <a href="%s">here</a> to create a group') % (reverse(viewname="wamanagegroupid", args=["new"]))
-            context['info']['message'] = msg
+            context['ome']['message'] = msg
 
 ################################################################################
 # utils
@@ -290,29 +286,25 @@ def logout(request, **kwargs):
 @login_required(isAdmin=True)
 @render_response_admin()
 def experimenters(request, conn=None, **kwargs):
-    experimenters = True
     template = "webadmin/experimenters.html"
     
-    info = {'experimenters':experimenters}
     experimenterList = prepare_experimenterList(conn)
     
-    context = {'nav':request.session['nav'], 'info':info, 'experimenterList':experimenterList}
+    context = {'experimenterList':experimenterList}
     context['template'] = template
     return context
 
 @login_required(isAdmin=True)
 @render_response_admin()
 def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
-    experimenters = True
     template = "webadmin/experimenter_form.html"
     
-    info = {'experimenters':experimenters}
     groups = list(conn.getObjects("ExperimenterGroup"))
     groups.sort(key=lambda x: x.getName().lower())
     
     if action == 'new':
         form = ExperimenterForm(initial={'with_password':True, 'active':True, 'groups':otherGroupsInitialList(groups)})
-        context = {'info':info, 'form':form}
+        context = {'form':form}
     elif action == 'create':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["new"]))
@@ -354,7 +346,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
                 conn.createExperimenter(omename, firstName, lastName, email, admin, active, dGroup, listOfOtherGroups, password, middleName, institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
-            context = {'info':info, 'form':form}
+            context = {'form':form}
     elif action == 'edit' :
         experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
         initial={'omename': experimenter.omeName, 'first_name':experimenter.firstName,
@@ -366,7 +358,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
         
         form = ExperimenterForm(initial=initial)
         
-        context = {'info':info, 'form':form, 'eid': eid, 'ldapAuth': isLdapUser}
+        context = {'form':form, 'eid': eid, 'ldapAuth': isLdapUser}
     elif action == 'save':
         experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
         if request.method != 'POST':
@@ -409,7 +401,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
                 conn.updateExperimenter(experimenter, omename, firstName, lastName, email, admin, active, dGroup, listOfOtherGroups, middleName, institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
-            context = {'info':info, 'form':form, 'eid': eid, 'ldapAuth': isLdapUser}
+            context = {'form':form, 'eid': eid, 'ldapAuth': isLdapUser}
     elif action == "delete":
         controller.deleteExperimenter()
         return HttpResponseRedirect(reverse("waexperimenters"))
@@ -423,11 +415,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 @login_required()
 @render_response_admin()
 def manage_password(request, eid, conn=None, **kwargs):
-    experimenters = True
     template = "webadmin/password.html"
 
-    info = {'experimenters':experimenters}
-    
     error = None
     if request.method == 'POST':
         password_form = ChangePassword(data=request.POST.copy())
@@ -453,7 +442,7 @@ def manage_password(request, eid, conn=None, **kwargs):
             else:
                 raise AttributeError("Can't change another user's password unless you are an Admin")
                 
-    context = {'info':info, 'error':error, 'password_form':password_form, 'eid': eid}
+    context = {'error':error, 'password_form':password_form, 'eid': eid}
     context['template'] = template
     return context
 
@@ -461,14 +450,11 @@ def manage_password(request, eid, conn=None, **kwargs):
 @login_required(isAdmin=True)
 @render_response_admin()
 def groups(request, conn=None, **kwargs):
-    groups = True
     template = "webadmin/groups.html"
-    
-    info = {'groups':groups}
     
     groups = conn.getObjects("ExperimenterGroup")
     
-    context = {'info':info, 'groups':groups}
+    context = {'groups':groups}
     context['template'] = template
     return context
 
@@ -476,16 +462,13 @@ def groups(request, conn=None, **kwargs):
 @login_required(isAdmin=True)
 @render_response_admin()
 def manage_group(request, action, gid=None, conn=None, **kwargs):
-    groups = True
     template = "webadmin/group_form.html"
-    
-    info = {'groups':groups}
     
     experimenters = list(conn.getObjects("Experimenter"))
     
     if action == 'new':
         form = GroupForm(initial={'experimenters':experimenters, 'permissions': 0})
-        context = {'info':info, 'form':form}
+        context = {'form':form}
     elif action == 'create':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["new"]))
@@ -504,7 +487,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 listOfOwners = getSelectedExperimenters(conn, owners)
                 conn.createGroup(name, perm, listOfOwners, description)
                 return HttpResponseRedirect(reverse("wagroups"))
-            context = {'info':info, 'form':form}
+            context = {'form':form}
     elif action == 'edit':
         group = conn.getObject("ExperimenterGroup", gid)
         ownerIds = group.getOwners()
@@ -513,7 +496,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         form = GroupForm(initial={'name': group.name, 'description':group.description,
                                      'permissions': permissions, 'readonly': group.isReadOnly(), 
                                      'owners': ownerIds, 'experimenters':experimenters})
-        context = {'info':info, 'form':form, 'gid': gid, 'permissions': permissions}
+        context = {'form':form, 'gid': gid, 'permissions': permissions}
     elif action == 'save':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["edit", group.id]))
@@ -537,7 +520,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                     perm = None
                 conn.updateGroup(group, name, perm, listOfOwners, description)
                 return HttpResponseRedirect(reverse("wagroups"))
-            context = {'info':info, 'form':form, 'gid': gid}
+            context = {'form':form, 'gid': gid}
     elif action == "update":
         template = "webadmin/group_edit.html"
         controller.containedExperimenters()
@@ -549,12 +532,12 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             members = request.POST.getlist('members')
             controller.setMembersOfGroup(available, members)
             return HttpResponseRedirect(reverse("wagroups"))
-        context = {'info':info, 'form':form, 'controller': controller}
+        context = {'form':form, 'controller': controller}
     elif action == "members":
         template = "webadmin/group_edit.html"
         controller.containedExperimenters()
         form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
-        context = {'info':info, 'form':form, 'controller': controller}
+        context = {'form':form, 'controller': controller}
     else:
         return HttpResponseRedirect(reverse("wagroups"))
     
@@ -565,17 +548,14 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
 @login_required(isGroupOwner=True)
 @render_response_admin()
 def manage_group_owner(request, action, gid, conn=None, **kwargs):
-    myaccount = True
     template = "webadmin/group_form_owner.html"
-    
-    info = {'myaccount':myaccount}
     
     controller = BaseGroup(conn, gid)
     
     if action == 'edit':
         permissions = controller.getActualPermissions()
         form = GroupOwnerForm(initial={'permissions': permissions, 'readonly': controller.isReadOnly()})
-        context = {'info':info, 'form':form, 'gid': gid, 'permissions': permissions, 'group':controller.group, 'owners':controller.getOwnersNames()}
+        context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':controller.group, 'owners':controller.getOwnersNames()}
     elif action == "save":
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit", controller.group.id]))
@@ -586,27 +566,13 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
                 readonly = toBoolean(form.cleaned_data['readonly'])
                 controller.updatePermissions(permissions, readonly)
                 return HttpResponseRedirect(reverse("wamyaccount"))
-            context = {'info':info, 'form':form, 'gid': gid}
+            context = {'form':form, 'gid': gid}
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
     
     context['template'] = template
     return context
 
-
-@login_required(isAdmin=True)
-@render_response_admin()
-def ldap(request, conn=None, **kwargs):
-    scripts = True
-    template = "webadmin/ldap_search.html"
-    
-    info = {'scripts':scripts}
-
-    controller = None
-    
-    context = {'info':info, 'controller':controller}
-    context['template'] = template
-    return context
 
 @login_required(isAdmin=True)
 def imports(request, **kwargs):
@@ -616,10 +582,7 @@ def imports(request, **kwargs):
 @login_required()
 @render_response_admin()
 def my_account(request, action=None, conn=None, **kwargs):
-    myaccount = True
     template = "webadmin/myaccount.html"
-    
-    info = {'myaccount':myaccount}
     
     experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn)
     ownedGroups = ownedGroupsInitial(conn)
@@ -655,7 +618,7 @@ def my_account(request, action=None, conn=None, **kwargs):
                                     'email':experimenter.email, 'institution':experimenter.institution,
                                     'default_group':defaultGroup, 'groups':otherGroups})
         
-    context = {'info':info, 'form':form, 'ldapAuth': isLdapUser, 'experimenter':experimenter, 'ownedGroups':ownedGroups, 'password_form':password_form}
+    context = {'form':form, 'ldapAuth': isLdapUser, 'experimenter':experimenter, 'ownedGroups':ownedGroups, 'password_form':password_form}
     context['template'] = template
     return context
 
@@ -669,10 +632,7 @@ def myphoto(request, conn=None, **kwargs):
 @login_required()
 @render_response_admin()
 def manage_avatar(request, action=None, conn=None, **kwargs):
-    myaccount = True
     template = "webadmin/avatar.html"
-    
-    info = {'myaccount':myaccount}
     
     edit_mode = False
     photo_size = None
@@ -701,7 +661,7 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
         return HttpResponseRedirect(reverse("wamyaccount"))
     
     photo_size = conn.getExperimenterPhotoSize()
-    context = {'info':info, 'form_file':form_file, 'edit_mode':edit_mode, 'photo_size':photo_size}
+    context = {'form_file':form_file, 'edit_mode':edit_mode, 'photo_size':photo_size}
     context['template'] = template
     return context
 

@@ -72,7 +72,7 @@
 
 {% block content %}
     <div id="center_details">
-        {% if info.message %}<div class="error">{{ info.message|safe|linebreaks }}</div>{% endif %}
+        {% if ome.message %}<div class="error">{{ ome.message|safe|linebreaks }}</div>{% endif %}
         {% block center_details %}{% endblock %}
         <div id="metadata_details" class="overflow">{% block metadata_details %}{% endblock %}</div>
     </div>
