@@ -11,8 +11,11 @@ import java.util.UUID;
 
 import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.ResultHolder;
+import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
+
 import omero.ServerError;
 import omero.constants.categories.PROCESSORCALLBACK;
 import omero.constants.topics.PROCESSORACCEPTS;
@@ -26,6 +29,8 @@ import omero.model.Job;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 
@@ -107,12 +112,20 @@ public class ProcessorCallbackI extends AbstractAmdServant
             ProcessorCallbackPrx cbPrx = ProcessorCallbackPrxHelper
                     .uncheckedCast(prx);
 
+            // TODO: this should be something simpler
+            Long gid = (Long) this.sf.executor.execute(current.ctx, this.sf.principal,
+                    new Executor.SimpleWork(this, "getEffectiveGid") {
+                        @Transactional(readOnly=true)
+                        public Object doWork(Session session, ServiceFactory sf) {
+                            return sf.getAdminService().getEventContext().getCurrentGroupId();
+                        }
+                    });
+
             TopicManager.TopicMessage msg = new TopicManager.TopicMessage(this,
                     PROCESSORACCEPTS.value, new ProcessorPrxHelper(),
                     "willAccept", new omero.model.ExperimenterI(ec
                             .getCurrentUserId(), false),
-                    new omero.model.ExperimenterGroupI(ec.getCurrentGroupId(),
-                            false), this.job, cbPrx);
+                    new omero.model.ExperimenterGroupI(gid, false), this.job, cbPrx);
             sf.topicManager.onApplicationEvent(msg);
             String server = holder.get();
             Ice.ObjectPrx p = sf.adapter.getCommunicator()

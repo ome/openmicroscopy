@@ -211,7 +211,12 @@ public class CurrentDetails implements PrincipalHolder {
             throw new ApiUsageException("Object can't be null");
         }
         final Long o = HibernateUtils.nullSafeOwnerId(object);
-        final Long g = HibernateUtils.nullSafeGroupId(object);
+        final Long g; // see 2874 and chmod
+        if (object instanceof ExperimenterGroup) {
+            g = object.getId();
+        } else {
+            g = HibernateUtils.nullSafeGroupId(object);
+        }
 
         final EventContext ec = getCurrentEventContext();
         final boolean isAdmin = ec.isCurrentUserAdmin();
@@ -348,19 +353,50 @@ public class CurrentDetails implements PrincipalHolder {
      * @see <a href="https://trac.openmicroscopy.org.uk/trac/omero/ticket:1434">ticket:1434</a>
      */
     public Details createDetails() {
-        BasicEventContext c = current();
-        Details d = Details.create();
+        final BasicEventContext c = current();
+        final Details d = Details.create(new Object[]{c, c.getCallContext()});
         d.setCreationEvent(c.getEvent());
         d.setUpdateEvent(c.getEvent());
         d.setOwner(c.getOwner());
         d.setGroup(c.getGroup());
         // ticket:1434
-        Permissions groupPerms = c.getCurrentGroupPermissions();
-        Permissions userUmask = c.getCurrentUmask();
-        Permissions p = new Permissions(groupPerms);
+        final Permissions groupPerms = c.getCurrentGroupPermissions();
+        final Permissions userUmask = c.getCurrentUmask();
+        final Permissions p = new Permissions(groupPerms);
         p.revokeAll(userUmask);
         d.setPermissions(p);
         return d;
+    }
+
+    public void applyContext(Details details, boolean changePerms) {
+        final BasicEventContext c = current();
+        details.setContexts(new Object[]{c, c.getCallContext()});
+        if (changePerms) {
+            // Make the permissions match (#8277)
+            final Permissions groupPerms = c.getCurrentGroupPermissions();
+            Permissions copy = new Permissions(Permissions.EMPTY);
+            if (groupPerms != Permissions.DUMMY) {
+                copy = new Permissions(groupPerms);
+            } else {
+                // In the case of the dummy, we will be required to have
+                // the group id already set in the context.
+                ExperimenterGroup group = details.getGroup();
+                if (group != null) {
+                    // Systypes still will have DUMMY values.
+                    Long gid = details.getGroup().getId();
+                    Permissions p = c.getPermissionsForGroup(gid);
+                    if (p != null) {
+                        copy = p;
+                    }
+                }
+            }
+            details.setPermissions(copy);
+        }
+
+    }
+
+    public void loadPermissions(org.hibernate.Session session) {
+        current().loadPermissions(session);
     }
 
     public Experimenter getOwner() {
@@ -381,10 +417,11 @@ public class CurrentDetails implements PrincipalHolder {
      * updated via {@link #updateEvent(Event)}.
      */
     void setValues(Experimenter owner, ExperimenterGroup group,
+            Permissions perms,
             boolean isAdmin, boolean isReadOnly, Long shareId) {
         BasicEventContext c = current();
         c.setOwner(owner);
-        c.setGroup(group);
+        c.setGroup(group, perms);
         c.setAdmin(isAdmin);
         c.setReadOnly(isReadOnly);
         c.setShareId(shareId);

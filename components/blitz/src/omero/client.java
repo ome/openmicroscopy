@@ -350,7 +350,7 @@ public class client {
         }
 
         // Register Object Factories
-        new ModelObjectFactoryRegistry().setIceCommunicator(__ic);
+        new ModelObjectFactoryRegistry().setIceCommunicator(__ic, this);
         new rtypes.RTypeObjectFactoryRegistry().setIceCommunicator(__ic);
 
         // Define our unique identifer (used during close/detach)

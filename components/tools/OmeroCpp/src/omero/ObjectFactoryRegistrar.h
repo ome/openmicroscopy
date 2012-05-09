@@ -12,6 +12,7 @@
 #include <string>
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
+#include <omero/clientF.h>
 
 namespace omero {
 
@@ -27,7 +28,8 @@ namespace omero {
      * itself. (Normal Ice logic is to throw an exception
      * if a type has already been registered.)
      */
-    void registerObjectFactory(const Ice::CommunicatorPtr ic);
+    void registerObjectFactory(const Ice::CommunicatorPtr ic,
+        const omero::client_ptr& client);
 
 }
 

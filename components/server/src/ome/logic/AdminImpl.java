@@ -19,6 +19,20 @@ import java.util.Set;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
+import org.apache.commons.logging.Log;
+import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
 import ome.annotations.NotNull;
 import ome.annotations.PermitAll;
 import ome.annotations.RevisionDate;
@@ -51,6 +65,7 @@ import ome.model.meta.GroupExperimenterMap;
 import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.AdminAction;
+import ome.security.ChmodStrategy;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
 import ome.security.auth.PasswordChangeException;
@@ -71,20 +86,6 @@ import ome.tools.hibernate.SecureMerge;
 import ome.tools.hibernate.SessionFactory;
 import ome.util.SqlAction;
 import ome.util.Utils;
-
-import org.apache.commons.logging.Log;
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 
 /**
  * Provides methods for administering user accounts, passwords, as well as
@@ -124,6 +125,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     protected final LdapImpl ldapUtil;
 
+    protected final ChmodStrategy chmod;
+
     protected OmeroContext context;
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -134,7 +137,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public AdminImpl(SqlAction sql, SessionFactory osf,
             MailSender mailSender, SimpleMailMessage templateMessage,
             ACLVoter aclVoter, PasswordProvider passwordProvider,
-            RoleProvider roleProvider, LdapImpl ldapUtil, PasswordUtil passwordUtil) {
+            RoleProvider roleProvider, LdapImpl ldapUtil, PasswordUtil passwordUtil,
+            ChmodStrategy chmod) {
         this.sql = sql;
         this.osf = osf;
         this.mailSender = mailSender;
@@ -144,6 +148,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         this.roleProvider = roleProvider;
         this.ldapUtil = ldapUtil;
         this.passwordUtil = passwordUtil;
+        this.chmod = chmod;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -942,37 +947,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void changePermissions(final IObject iObject, final Permissions perms) {
-
-        // ticket:1434
-        if (iObject instanceof ExperimenterGroup) {
-            adminOrPiOfGroup((ExperimenterGroup) iObject);
-            handleGroupChange(iObject.getId(), perms);
-            return; // EARLY EXIT!
+        final Session s = osf.getSession();
+        final String p = perms.toString();
+        final Object[] checks = chmod.getChecks(iObject, p);
+        chmod.chmod(iObject, p);
+        for (Object check : checks) {
+            chmod.check(iObject, check);
         }
-
-        // inject
-        final IObject[] copy = new IObject[1];
-
-        // first load the instance.
-        getSecuritySystem().runAsAdmin(new AdminAction() {
-            public void runAsAdmin() {
-                copy[0] = iQuery.get(iObject.getClass(), iObject.getId());
-            }
-        });
-
-        // now check for ownership _outside_ of runAsAdmin
-        if (!aclVoter.allowChmod(copy[0])) {
-            throw new SecurityViolation("Cannot change permissions for:"
-                    + copy[0]);
-        }
-
-        // if we reach here, ok to save.
-        getSecuritySystem().runAsAdmin(new AdminAction() {
-            public void runAsAdmin() {
-                copy[0].getDetails().setPermissions(perms);
-                iUpdate.flush();
-            }
-        });
     }
 
     @RolesAllowed("user")
@@ -1029,46 +1010,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         // the values that could possibly link to this instance.
         final String[][] checks = metadata.getLockChecks(klass);
-
-        // reporting
-        final long total[] = new long[] { 0L };
-        final Map<String, Long> counts = new HashMap<String, Long>();
-
-        // run the individual queries
-        for (final String[] check : checks) {
-            final String hql = String.format(
-                    "select id from %s where %s%s = :id %s",
-                    check[0], check[1], ".id", groupClause);
-            this.iQuery.execute(new HibernateCallback() {
-
-                public Object doInHibernate(Session session)
-                        throws HibernateException, SQLException {
-
-                    org.hibernate.Query q = session.createQuery(hql);
-                    q.setLong("id", id);
-
-                    long count = 0L;
-                    Iterator<Long> it = q.iterate();
-
-                    // This is a slower implementation with the intent
-                    // that the actual ids will be returned soon.
-                    while (it.hasNext()) {
-                        Long countedId = it.next();
-                        count++;
-
-                    }
-
-                    if (count > 0) {
-                        total[0] += count;
-                        counts.put(check[0], count);
-                    }
-                    return null;
-                }
-
-            });
-        }
-        counts.put("*", total[0]);
-        return counts;
+        return this.metadata.countLocks(osf.getSession(), id, checks, groupClause);
 
     }
 
@@ -1342,60 +1284,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         } catch (Exception e) {
             throw new InternalException("Miss configuration. Should never happen.");
         }
-    }
-
-    private void handleGroupChange(Long id, Permissions newPerms) {
-
-        if (id == null) {
-            throw new ApiUsageException("ID cannot be null");
-        } else if (newPerms == null) {
-            throw new ApiUsageException("PERMS cannot be null");
-        }
-
-        final Session s = osf.getSession();
-        final ExperimenterGroup group = (ExperimenterGroup) s.get(ExperimenterGroup.class, id);
-        final Permissions oldPerms = group.getDetails().getPermissions();
-
-        if (oldPerms.sameRights(newPerms)) {
-            getBeanHelper().getLogger()
-                .debug(String.format("Ignoring unchanged permissions: %s",
-                        newPerms));
-            return;
-        }
-
-        Role u = Role.USER;
-        Role g = Role.GROUP;
-        Role a = Role.WORLD;
-        Right r = Right.READ;
-
-        if (!newPerms.isGranted(u, r)) {
-            throw new GroupSecurityViolation("Cannot remove user read: "+group);
-        } else if (oldPerms.isGranted(g, r) && ! newPerms.isGranted(g, r)) {
-            throw new GroupSecurityViolation("Cannot remove group read: "+group);
-        } else if (oldPerms.isGranted(a, r) && ! newPerms.isGranted(a, r)) {
-            throw new GroupSecurityViolation("Cannot remove world read: "+group);
-        }
-
-        final Long internal = (Long) Utils.internalForm(newPerms);
-
-        final Log log = getBeanHelper().getLogger();
-
-        for (String className : classes()) {
-            String table = table(className);
-            if (table == null) {
-                continue;
-            }
-            int changed = sql.changeTablePermissionsForGroup(table, id, internal);
-            if (changed > 0) {
-                log.info(
-                        String.format("# of perms changed for %s: %s",
-                                className, changed));
-            }
-        }
-
-        sql.changeGroupPermissions(id, internal);
-        log.info(String.format("Changed permissions for %s to %s", id, internal));
-
     }
 
     // ticket:1781 - group-owner admin privileges

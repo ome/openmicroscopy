@@ -1,2 +1,1 @@
-from  omero.util.FactoryMap import map
-map()
+from  omero import ObjectFactoryRegistrar

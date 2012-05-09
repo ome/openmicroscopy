@@ -7,15 +7,20 @@
 
 package ome.security.basic;
 
-import static ome.model.internal.Permissions.Right.READ;
-import static ome.model.internal.Permissions.Role.GROUP;
-import static ome.model.internal.Permissions.Role.USER;
-import static ome.model.internal.Permissions.Role.WORLD;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.CallbackException;
+import org.hibernate.EmptyInterceptor;
+import org.hibernate.EntityMode;
+import org.hibernate.Interceptor;
+import org.hibernate.Transaction;
+import org.hibernate.type.Type;
+import org.springframework.util.Assert;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
@@ -27,34 +32,28 @@ import ome.conditions.PermissionMismatchGroupSecurityViolation;
 import ome.conditions.ReadOnlyGroupSecurityViolation;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
+import ome.model.IAnnotationLink;
 import ome.model.IMutable;
 import ome.model.IObject;
+import ome.model.core.Image;
+import ome.model.core.Pixels;
+import ome.model.display.RenderingDef;
+import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.ExternalInfo;
+import ome.model.roi.Roi;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.services.sessions.stats.SessionStats;
-import ome.system.Principal;
+import ome.system.EventContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.CallbackException;
-import org.hibernate.EmptyInterceptor;
-import org.hibernate.EntityMode;
-import org.hibernate.Interceptor;
-import org.hibernate.Transaction;
-import org.hibernate.event.FlushEntityEventListener;
-import org.hibernate.type.Type;
-import org.springframework.util.Assert;
 
 /**
  * implements {@link org.hibernate.Interceptor} for controlling various aspects
@@ -369,7 +368,11 @@ public class OmeroInterceptor implements Interceptor {
             return null;
         }
 
+        final Class<?> changedClass = changedObject.getClass();
         final Details rv = changedObject.getDetails().newInstance();
+
+        // Valid to link to any system type or object in system group
+        // See #1784 and #8571
         if (sysTypes.isSystemType(changedObject.getClass()) ||
                 sysTypes.isInSystemGroup(changedObject.getDetails())) {
             return rv;
@@ -380,74 +383,124 @@ public class OmeroInterceptor implements Interceptor {
         final IObject[] candidates = em.getLockCandidates(changedObject);
         for (IObject linkedObject : candidates) {
 
-            if (!sysTypes.isSystemType(linkedObject.getClass()) &&
-                    !sysTypes.isInSystemGroup(linkedObject.getDetails()) &&
-                    !sysTypes.isInUserGroup(linkedObject.getDetails())) {
+            // If the linked object is a system type or object in the system
+            // group, or further in the shared user group, then we permit
+            // the linkage.
+            if (sysTypes.isSystemType(linkedObject.getClass()) ||
+                    sysTypes.isInSystemGroup(linkedObject.getDetails()) ||
+                    sysTypes.isInUserGroup(linkedObject.getDetails())) {
+                continue;
+            }
 
-                final Details linkedDetails = linkedObject.getDetails();
-                if (linkedDetails == null) {
-                    // ticket:2575. Previously, the details of the candidates
-                    // were never null. the addition of the reagent linkages
-                    // *somehow* led to NPEs here. for the moment, we're assuming
-                    // if null, then the object can't be mis-linked. (i.e. it's
-                    // probably new)
-                    continue;
-                }
+            final Class<?> linkedClass = linkedObject.getClass();
+            final Details linkedDetails = linkedObject.getDetails();
+            if (linkedDetails == null) {
+                // ticket:2575. Previously, the details of the candidates
+                // were never null. the addition of the reagent linkages
+                // *somehow* led to NPEs here. for the moment, we're assuming
+                // if null, then the object can't be mis-linked. (i.e. it's
+                // probably new)
+                continue;
+            }
 
-                // If this is -1 situation, then we pass back out the
-                // group for the linked object. In the case of new transient
-                // objects, this will be set as the new group.
-                if (currentGroupNegative) {
-                    if (rv.getGroup() == null) {
-                        // If this is the first linked object then we assume
-                        // that this object should use this value.
-                        rv.setGroup(linkedDetails.getGroup());
-                    } else {
-                        throwIfGroupsDontMatch(rv.getGroup(), changedObject,
-                                linkedDetails.getGroup(), linkedObject);
-                    }
+            // If this is -1 situation, then we pass back out the
+            // group for the linked object. In the case of new transient
+            // objects, this will be set as the new group.
+            if (currentGroupNegative) {
+                if (rv.getGroup() == null) {
+                    // If this is the first linked object then we assume
+                    // that this object should use this value.
+                    rv.setGroup(linkedDetails.getGroup());
                 } else {
-                    throwIfGroupsDontMatch(currentUser.getGroup(),
-                            changedObject, linkedDetails.getGroup(),
-                            linkedObject);
+                    throwIfGroupsDontMatch(rv.getGroup(), changedObject,
+                            linkedDetails.getGroup(), linkedObject);
                 }
+            } else {
+                throwIfGroupsDontMatch(currentUser.getGroup(),
+                        changedObject, linkedDetails.getGroup(),
+                        linkedObject);
+            }
 
-                // Rather than as in <=4.1 in which objects were scheduled
-                // for locking which prevented later actions, now we check
-                // whether or not we're graph critical and if so, and if
-                // the objects do not belong the current user, then we abort.
+            // Rather than as in <=4.1 in which objects were scheduled
+            // for locking which prevented later actions, now we check
+            // whether or not we're graph critical and if so, and if
+            // the objects do not belong to the current user, then we abort.
 
-                Experimenter linkedOwner = linkedObject.getDetails().getOwner();
-                if (linkedOwner == null) {
-                    continue;
-                }
-                Long linkedUid = linkedOwner.getId();
-                Long currentUid = currentUser.getOwner().getId();
-                if (linkedUid != null && !currentUid.equals(linkedUid)) {
-                    if (currentUser.isGraphCritical()) {  // ticket:1769
-                        String gname = currentUser.getGroup().getName();
-                        String oname = currentUser.getOwner().getOmeName();
-                        Permissions p = currentUser.getCurrentEventContext()
-                            .getCurrentGroupPermissions();
+            final Experimenter linkedOwner = linkedObject.getDetails().getOwner();
+            final ExperimenterGroup linkedGroup = linkedObject.getDetails().getGroup();
+            if (linkedOwner == null || linkedGroup == null) {
+                continue; // Only for system types which should be filtered
+            }
 
-                        throw new ReadOnlyGroupSecurityViolation(String.format(
-                            "Cannot link to %s\n" +
-                            "Current user (%s) is an admin or the owner of\n" +
-                            "the private group (%s=%s). It is not allowed to\n" +
-                            "link to users' data.", linkedObject, oname, gname, p));
+            final Long linkedUid = linkedOwner.getId();
+            final Long linkedGid = linkedGroup.getId();
+            if (linkedUid == null || linkedGid == null) {
+                continue; // Highly unlikely.
+            }
 
-                    } else if (!currentUser.getCurrentEventContext()
-                            .getCurrentGroupPermissions()
-                            .isGranted(Role.GROUP, Right.WRITE)) {// ticket:1992
+            final EventContext ec = currentUser.getCurrentEventContext();
+            final boolean isOwner = ec.getCurrentUserId().equals(linkedUid);
+            final boolean isOwnerOrSupervisor = currentUser.isOwnerOrSupervisor(linkedObject);
+            final boolean isSupervisor = (!isOwner) && isOwnerOrSupervisor;
+            final boolean isMember = ec.getMemberOfGroupsList().contains(linkedGid);
+            final Permissions p = currentUser.getCurrentEventContext()
+                .getCurrentGroupPermissions();
 
-                        throw new ReadOnlyGroupSecurityViolation("Group is READ-ONLY. " +
-                            "Cannot link to object: " + linkedObject);
+            if (currentUser.isGraphCritical()) {
+                // ticket:1769
+                String gname = currentUser.getGroup().getName();
+                String oname = currentUser.getOwner().getOmeName();
 
-                    }
-                }
+                throw new ReadOnlyGroupSecurityViolation(String.format(
+                    "Cannot link to %s\n" +
+                    "Current user (%s) is an admin or the owner of\n" +
+                    "the private group (%s=%s). It is not allowed to\n" +
+                    "link to users' data.", linkedObject, oname, gname, p));
+            }
+
+            final Right neededRight = neededRight(changedClass, linkedClass);
+            final Role neededRole = neededRole(isOwner, isMember);
+
+            if (!isSupervisor) {
+                throwIfNotGranted(p, neededRole, neededRight, linkedObject);
             }
         }
         return rv;
+    }
+
+    private Role neededRole(boolean isOwner, boolean isMember) {
+        if (isOwner) {
+            return Role.USER;
+        } else if (isMember) {
+            return Role.GROUP;
+        } else {
+            return Role.WORLD;
+        }
+    }
+
+    /**
+     * The default right need for a linkage is WRITE
+     * If however, this is only an annotation or only a viewing,
+     * then less permission is needed.
+     * @param changedClass
+     * @param linkedClass
+     * @return
+     */
+    protected Right neededRight(final Class<?> changedClass,
+            final Class<?> linkedClass) {
+
+        Right neededRight = Right.WRITE;
+        if (RenderingDef.class.isAssignableFrom(linkedClass) ||
+            RenderingDef.class.isAssignableFrom(changedClass) ||
+            (Pixels.class.isAssignableFrom(linkedClass) &&
+                 Thumbnail.class.isAssignableFrom(changedClass))) {
+            neededRight = Right.READ;
+        } else if (IAnnotationLink.class.isAssignableFrom(changedClass) ||
+                (Roi.class.isAssignableFrom(changedClass) &&
+                        Image.class.isAssignableFrom(linkedClass))) {
+            neededRight = Right.ANNOTATE;
+        }
+        return neededRight;
     }
 
     // TODO is this natural? perhaps permissions don't belong in details
@@ -484,7 +537,7 @@ public class OmeroInterceptor implements Interceptor {
         final BasicEventContext bec = currentUser.current();
 
         // Allow values to be passed in.
-        newDetails.copyWhereUnset(currentUser.createDetails());
+        newDetails.copyWhereUnset(null, currentUser.createDetails());
 
         // OWNER
         // users *aren't* allowed to set the owner of an item.
@@ -637,7 +690,7 @@ public class OmeroInterceptor implements Interceptor {
         boolean altered = false;
 
         final Details currentDetails = iobj.getDetails();
-        newDetails.copyWhereUnset(currentUser.createDetails());
+        newDetails.copyWhereUnset(previousDetails, currentUser.createDetails());
 
         // This happens if all fields of details are null (which can't happen)
         // And is so uninteresting for all of our checks. The object can't be
@@ -701,14 +754,6 @@ public class OmeroInterceptor implements Interceptor {
                         previousDetails, currentDetails, newDetails, bec);
             }
 
-            // implies that Permissions dosn't matter
-            //if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
-            // ticket:1434 re-activating permission mgmt for globals.
-            // ticket:1791 moving after managedGroup to re-use newDetails
-                altered |= managedPermissions(privileged, iobj,
-                        previousDetails, currentDetails, newDetails, sysType);
-            //}
-
             // the event check needs to be last, because we need to test
             // whether or not it is necessary to change the updateEvent
             // (i.e. last modification)
@@ -718,7 +763,13 @@ public class OmeroInterceptor implements Interceptor {
                         previousDetails, currentDetails, newDetails);
             }
 
+
         }
+
+        // ticket:8277 all permissions are ignored. We simply don't trust
+        // any coming in from outside. In the case of chgrp, the value
+        // will be modified in the DB directly. They've been marked as
+        // immutable in the model.
 
         return altered ? newDetails : previousDetails;
 
@@ -770,107 +821,6 @@ public class OmeroInterceptor implements Interceptor {
         }
 
         return altered;
-    }
-
-    /**
-     * responsible for properly copying user-requested permissions taking into
-     * account the {@link Flag#LOCKED} status. This method does not need to
-     * (like {@link #newTransientDetails(IObject)} take into account the session
-     * umask available from {@link CurrentDetails#createDetails()}
-     *
-     * @param locked
-     * @param privileged
-     * @param obj
-     * @param previousDetails
-     *            details representing the known DB state
-     * @param currentDetails
-     *            details representing the user request (UNTRUSTED)
-     * @param newDetails
-     *            details from the current context. Holder for the merged
-     *            {@link Permissions}
-     * @return true if the {@link Permissions} of newDetails are changed.
-     */
-    protected boolean managedPermissions(boolean privileged,
-            IObject obj, Details previousDetails, Details currentDetails,
-            Details newDetails, boolean sysType) {
-
-        // setup
-
-        boolean altered = false;
-
-        Permissions previousP = previousDetails == null ? null
-                : previousDetails.getPermissions();
-
-        Permissions currentP = currentDetails == null ? null : currentDetails
-                .getPermissions();
-
-        // ignore newDetails permissions.
-
-        // If the stored perms are null, then we can't validate anything
-        // TODO : is this alright. Should only happen for system types.
-        // Then can silently ignore ??
-        if (previousP == null) {
-            if (currentP == null) {
-                newDetails.setPermissions(null);
-                altered |= false; // don't need to update
-            } else {
-                newDetails.setPermissions(currentP);
-                altered = true;
-            }
-        }
-
-        // Users did not enter permission (normal case) so is null.
-        else if (currentP == null) {
-            newDetails.setPermissions(previousP);
-            altered = true;
-        }
-
-        // if the user has set the permissions (currentDetails), then we should
-        // try to allow that. if it's identical to the current, then there
-        // is no reason to hit the DB.
-        else {
-
-            // if we need to filter any permissions, do it here!
-
-            newDetails.setPermissions(currentP);
-
-            // see https://trac.openmicroscopy.org.uk/omero/ticket/1434
-            // and https://trac.openmicroscopy.org.uk/omero/ticket/1731
-            if (!currentP.identical(previousP) &&
-                    obj instanceof ExperimenterGroup) {
-                throw new PermissionMismatchGroupSecurityViolation(
-                        "Group permissions must be changed via IAdmin");
-            }
-
-            // see https://trac.openmicroscopy.org.uk/omero/ticket/1776
-            Permissions groupPerms = currentUser.getCurrentEventContext()
-                .getCurrentGroupPermissions();
-            if ( !(sysType || sysTypes.isInUserGroup(newDetails)) // ticket:1791
-                && !groupPerms.sameRights(currentP)) { // ticket:1779
-                // ticket:2204. After work on permissions upgrade, it was
-                // decide to just ignore all incorrect permissions for the
-                // moment.
-                newDetails.setPermissions(previousP);
-                altered = true;
-            }
-
-            // finally, check isOwnerOrSupervisor.
-            if (!currentP.identical(previousP)) {
-                if (!currentUser.isOwnerOrSupervisor(obj)) {
-                    // remove from below??
-                    throw new SecurityViolation(String.format(
-                            "You are not authorized to change "
-                                    + "the permissions for %s from %s to %s",
-                            obj, previousP, currentP));
-                }
-            }
-        }
-
-        // privileged plays no role since everyone can alter their permissions
-        // (within bounds)
-
-        return altered;
-
     }
 
     protected boolean managedOwner(boolean privileged,
@@ -1096,5 +1046,19 @@ public class OmeroInterceptor implements Interceptor {
                 linkedObject, linkedGroup));
         }
 
+    }
+
+    void throwIfNotGranted(Permissions p, Role role, Right right,
+            IObject linkedObject) {
+
+        if (!p.isGranted(role, right)) {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append(String.format("Group is %s. ", p));
+            sb.append("Cannot link to object: ");
+            sb.append(linkedObject);
+
+            throw new SecurityViolation(sb.toString());
+        }
     }
 }
