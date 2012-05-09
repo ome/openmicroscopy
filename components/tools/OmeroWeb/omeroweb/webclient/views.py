@@ -146,9 +146,10 @@ def login(request):
             conn = connector.create_connection('OMERO.web', username, password)
             if conn is not None:
                 request.session['connector'] = connector
-                
                 upgradeCheck()
-                request.session['version'] = conn.getServerVersion()
+                
+                # do we ned to display server version ?
+                # server_version = conn.getServerVersion()
                 if request.REQUEST.get('noredirect'):
                     return HttpResponse('OK')
                 url = request.REQUEST.get("url")
