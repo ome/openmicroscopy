@@ -1,0 +1,4 @@
+            <!--
+            // Property SHA1
+            -->
+            <required name="sha1" type="String"/>

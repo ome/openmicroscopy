@@ -328,7 +328,6 @@ ${customUpdatePropertyContent[prop.name]}
 			o_casted.link${klass.type}(this);
 {% end %}\
 {% if fu.backReference_overridden(prop.name, klass.name) %}\
-      System.out.println("overridden back reference");
       o_casted.link${klass.name}${prop.javaMethodName}(this);
 {% end %}\
 {% end %}\
@@ -411,7 +410,6 @@ ${customUpdatePropertyContent[prop.name]}
 			o.unlink${klass.type}(this);
 {% end %}\
 {% if fu.backReference_overridden(prop.name, klass.name) %}\
-      System.out.println("overridden back reference");
       o.unlink${klass.name}${prop.javaMethodName}(this);
 {% end %}\
 {% end %}\

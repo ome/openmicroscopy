@@ -110,13 +110,6 @@ BACK_REFERENCE_CLASS_NAME_OVERRIDE = {
 # for.
 ABSTRACT_PROPRIETARY_OVERRIDE = ('Transform',)
 
-# OMERO system (global) types
-OMERO_GLOBAL_TYPE_MAP = {
-    'Experimenter': True,
-    'ExperimenterGroup': True
-}
-
-
 def updateTypeMaps(namespace):
     """
     Updates the type maps with a new namespace. **Must** be executed at least 
@@ -371,6 +364,25 @@ class OMEModelEntity(object):
     javaMethodName = property(_get_javaMethodName,
         doc="""The property's Java method name.""")
 
+    def _get_isGlobal(self):
+        isGlobal = self._isGlobal
+        try:
+            if self.isBackReference:
+                ref = self.model.getObjectByName(BACKREF_REGEX.sub('', self.type))
+                if ref.name == self.name:
+                    return isGlobal
+                return isGlobal or ref.isGlobal
+        except AttributeError:
+            pass
+        if self.isReference:
+            ref = self.model.getObjectByName(REF_REGEX.sub('', self.type))
+            if ref.name == self.name:
+                return isGlobal
+            isGlobal = isGlobal or ref.isGlobal
+        return isGlobal
+    isGlobal = property(_get_isGlobal,
+        doc="""Whether or not the model object is an OMERO system type.""")
+
     def _get_isManyToMany(self):
         try:
             if self.isBackReference:
@@ -401,6 +413,7 @@ class OMEModelProperty(OMEModelEntity):
         self.isBackReference = False
         self.isChoice = hasattr(self.delegate, 'choice')
         self.isChoice = self.isChoice and self.delegate.choice is not None
+        self._isGlobal = False
         self.plural = None
         self.manyToMany = False
         self.isParentOrdered = False
@@ -425,6 +438,8 @@ class OMEModelProperty(OMEModelEntity):
                 self.isUnique = True
             if root.find('immutable') is not None:
                 self.isImmutable = True
+            if root.find('global') is not None:
+                self._isGlobal = True
         except AttributeError:
             pass
 
@@ -545,17 +560,6 @@ class OMEModelProperty(OMEModelEntity):
     isEnumeration = property(_get_isEnumeration,
         doc="""Whether or not the property is an enumeration.""")
 
-    def _get_isGlobal(self):
-        name = self.name
-        if self.isReference:
-            name = REF_REGEX.sub('', self.type)
-        if self.isBackReference:
-            name = self.type
-        isGlobal = OMERO_GLOBAL_TYPE_MAP.get(name, False)
-        return isGlobal or ('OMERO' in self.namespace)
-    isGlobal = property(_get_isGlobal,
-        doc="""Whether or not the property is an OMERO system type.""")
-
     def _get_isReference(self):
         o = self.model.getObjectByName(self.type)
         if o is not None:
@@ -648,6 +652,7 @@ class OMEModelObject(OMEModelEntity):
         self.isUnique = False
         self.isSettings = self.base == 'Settings'
         self.isImmutable = False
+        self._isGlobal = False
         self.base in ('Annotation', 'BasicAnnotation') \
                 or self.name == 'Annotation'
         self.plural = None
@@ -666,6 +671,8 @@ class OMEModelObject(OMEModelEntity):
                 self.isUnique = True
             if root.find('immutable') is not None:
                 self.isImmutable = True
+            if root.find('global') is not None:
+                self._isGlobal = True
             self.plural = root.findtext('plural')
         except AttributeError:
             pass
@@ -698,12 +705,6 @@ class OMEModelObject(OMEModelEntity):
             base = self.model.getObjectByName(base.base)
     isAnnotation = property(_get_isAnnotation,
         doc="""Whether or not the model object is an Annotation.""")
-
-    def _get_isGlobal(self):
-        isGlobal = OMERO_GLOBAL_TYPE_MAP.get(self.name, False)
-        return isGlobal or ('OMERO' in self.namespace)
-    isGlobal = property(_get_isGlobal,
-        doc="""Whether or not the model object is an OMERO system type.""")
 
     def _get_isReference(self):
         if self.base == "Reference":

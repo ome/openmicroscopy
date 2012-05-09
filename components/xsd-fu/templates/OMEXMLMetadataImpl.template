@@ -332,6 +332,14 @@ public class OMEXMLMetadataImpl extends AbstractOMEXMLMetadata
 			className.lastIndexOf('.') + 1, className.length());
 	}
 
+  public String getShapeType(int roiIndex, int shapeIndex)
+  {
+    Shape o = root.getROI(roiIndex).getUnion().getShape(shapeIndex);
+    String className = o.getClass().getName();
+    return className.substring(
+      className.lastIndexOf('.') + 1, className.length());
+  }
+
 	// -- Entity counting (code generated definitions) --
 
 {% for o in sorted(model.objects.values(), lambda x, y: cmp(x.name, y.name)) %}\

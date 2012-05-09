@@ -977,7 +977,7 @@
 	</xsd:element>
 	<xsd:element name="ExperimenterGroup"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>ExperimenterGroups</plural></xsdfu></xsd:appinfo>
+            <xsd:appinfo><xsdfu><plural>ExperimenterGroups</plural><global/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				The ExperimenterGroupID is required.
 				Contact information should be specified for the leader of the group and a contact person.
@@ -1155,7 +1155,7 @@
 	</xsd:element>
 	<xsd:element name="Experimenter"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>Experimenters</plural></xsdfu></xsd:appinfo>
+            <xsd:appinfo><xsdfu><plural>Experimenters</plural><global/></xsdfu></xsd:appinfo>
 			<xsd:documentation>
 				This element describes a person who performed an imaging experiment.
 				This person may also be a user of the OME system, in which case the UserName element contains their login name.
