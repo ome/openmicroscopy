@@ -36,6 +36,7 @@ dbhelpers.IMAGES = {
     'badimg' : dbhelpers.ImageEntry('weblitz_test_priv_image_bad', False, 'testds1'),
     'tinyimg2' : dbhelpers.ImageEntry('weblitz_test_priv_image_tiny2', 'imgs/tinyTest.d3d.dv', 'testds2'),
     'tinyimg3' : dbhelpers.ImageEntry('weblitz_test_priv_image_tiny3', 'imgs/tinyTest.d3d.dv', 'testds3'),
+    'bigimg' : dbhelpers.ImageEntry('weblitz_test_priv_image_big', 'imgs/big.tiff', 'testds3'),
 }
 
 
@@ -75,9 +76,12 @@ class GTest(unittest.TestCase):
         self.gateway = None
         self._has_connected = False
 
-    def doLogin (self, user, groupname=None):
+    def doLogin (self, user=None):
         self.doDisconnect()
-        self.gateway = dbhelpers.login(user, groupname)
+        if user:
+            self.gateway = dbhelpers.login(user)
+        else:
+            self.gateway = dbhelpers.loginAsPublic()
 
     def loginAsAdmin (self):
         self.doLogin(self.ADMIN)
@@ -87,6 +91,9 @@ class GTest(unittest.TestCase):
 
     def loginAsUser (self):
         self.doLogin(self.USER)
+
+    def loginAsPublic (self):
+        self.doLogin()
 
     def tearDown(self):
 
@@ -129,6 +136,9 @@ class GTest(unittest.TestCase):
 
     def getTinyTestImage2 (self, dataset=None):
         return dbhelpers.getImage(self.gateway, 'tinyimg2', dataset)
+
+    def getBigTestImage (self, dataset=None):
+        return dbhelpers.getImage(self.gateway, 'bigimg', dataset)
 
     def prepTestDB (self):
         dbhelpers.bootstrap()
