@@ -438,13 +438,11 @@
 			
 			
 			
-            <table class="metadata_details">                    
-                {% if not manager.image.isOwned %}
+            <table class="metadata_details">
                 <tr>
                     <th>Owner:</th>
                     <td id='owner_fullname'>{{ manager.image.getOwner.getFullName }}</td>
                 </tr>
-                {% endif %}
                 <tr>
                     <th>Acquisition Date:</th>
                     <td id='acqu_date'>{{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
@@ -534,12 +532,10 @@
                 </div>
                 
                 <table>
-                    {% if not manager.dataset.isOwned %}
                     <tr>
                         <th>Owner:</th>
                         <td id='owner_fullname'>{{ manager.dataset.getOwner.getFullName }}</td>
                     </tr>
-                    {% endif %}
                     <tr>
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.dataset.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -591,12 +587,10 @@
                     </div>
                     
                     <table>
-                        {% if not manager.project.isOwned %}
                         <tr>
                             <th>Owner:</th>
                             <td id='owner_fullname'>{{ manager.project.getOwner.getFullName }}</td>
                         </tr>
-                        {% endif %}
                         <tr>
                             <th>Creation Date:</th>
                             <td id='creation_date'>{{ manager.project.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -651,13 +645,11 @@
                 {% endif %}
             </div>
             
-            <table>                    
-                {% if not manager.well.getWellSample.image.isOwned %}
+            <table>
                 <tr>
                     <th>Owner:</th>
                     <td id='owner_fullname'>{{ manager.well.getWellSample.image.getOwner.getFullName }}</td>
                 </tr>
-                {% endif %}
                 <tr>
                     <th>Acquisition Date:</th>
                     <td id='acqu_date'>{{ manager.well.getWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
@@ -739,12 +731,10 @@
                 </div>
                 
                 <table>
-                    {% if not manager.acquisition.isOwned %}
                     <tr>
                         <th>Owner:</th>
                         <td id='owner_fullname'>{{ manager.acquisition.getOwner.getFullName }}</td>
                     </tr>
-                    {% endif %}
                     <tr>
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.acquisition.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -793,12 +783,10 @@
                     <span id='plate_desc'>{{ manager.plate.description|default_if_none:""|linebreaks }}</span>{% endif %}
                     </div>
                     <table>
-                        {% if not manager.plate.isOwned %}
                         <tr>
                             <th>Owner:</th>
                             <td id='owner_fullname'>{{ manager.plate.getOwner.getFullName }}</td>
                         </tr>
-                        {% endif %}
                         <tr>
                             <th>Creation Date:</th>
                             <td id='creation_date'>{{ manager.plate.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -848,12 +836,10 @@
                             
                         </div>
                         <table>
-                            {% if not manager.screen.isOwned %}
                             <tr>
                                 <th>Owner:</th>
                                 <td id='owner_fullname'>{{ manager.screen.getOwner.getFullName }}</td>
                             </tr>
-                            {% endif %}
                             <tr>
                                 <th>Creation Date:</th>
                                 <td id='creation_date'>{{ manager.screen.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -1140,12 +1126,10 @@
                 </div>
         
                 <table>
-                    {% if not manager.tag.isOwned %}
                     <tr>
                         <th>Owner:</th>
                         <td id='owner_fullname'>{{ manager.tag.getOwner.getFullName }}</td>
                     </tr>
-                    {% endif %}
                     <tr>
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.tag.getDate|date:"Y-m-d H:i:s" }}</td>
