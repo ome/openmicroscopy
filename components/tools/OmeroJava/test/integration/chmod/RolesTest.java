@@ -46,6 +46,7 @@ import omero.model.Image;
 import omero.model.Permissions;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
+import pojos.DatasetData;
 import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
@@ -452,6 +453,11 @@ public class RolesTest
     	assertFalse(perms.canDelete());
     	assertFalse(perms.canLink());
     	
+    	DatasetData data = new DatasetData(d);
+    	assertFalse(data.canEdit());
+    	assertFalse(data.canAnnotate());
+    	assertFalse(data.canDelete());
+    	assertFalse(data.canLink());
     	//Create a link canLink
     	//Try to delete the link i.e. canDelete
     	try {
