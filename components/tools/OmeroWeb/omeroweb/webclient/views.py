@@ -136,8 +136,7 @@ def login(request):
         password = form.cleaned_data['password']
         server_id = form.cleaned_data['server']
         is_secure = toBoolean(form.cleaned_data['ssl'])
-        form.cleaned_data['username']
-    
+        
         connector = Connector(server_id, is_secure)
         
         # TODO: version check should be done on the low level, see #5983
