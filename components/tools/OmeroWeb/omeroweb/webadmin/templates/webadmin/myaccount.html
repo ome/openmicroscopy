@@ -373,7 +373,7 @@
                        </a>
                    </div>
 
-                   <span id="password_change_message"></span>
+                   <span id="password_change_message" class="error">Message here</span>
                </div>
                {% endif %}
 
@@ -386,10 +386,6 @@
 
            <!-- hidden dialog for password change -->
            <div id="password_change_dialog" title="Change Password">
-               <h1>{% trans "Change Password" %}</h1>
-
-               <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
-               <br/>
 
                <form id="change_password_form" action="{% url wamanagechangepasswordid ome.eventContext.userId %}" method="POST">
 
@@ -397,7 +393,7 @@
                        <tbody>
                            {% for field in password_form %}
                            <tr>
-                               <td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                               <td class="form">{{ field.label_tag }}</td>
                                <td class="input">{{ field }}</td>
                                <td>{{ field.help_text|safe }}</td>
                            </tr>

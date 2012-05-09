@@ -1816,6 +1816,9 @@
 			margin-top:2px;
 		}
 	
+	#password_change_message {
+	    font-size:1.3em;
+	}
 
 
 	/* Group Settings */

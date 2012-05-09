@@ -42,7 +42,7 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery-1.7.2.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
     <script type="text/javascript" src="{% static '3rdparty/jquery.chosen/chosen.jquery.js' %}"></script>
     <script type="text/javascript" src="{% static '3rdparty/jquery.selectboxes.js' %}"></script>
     
@@ -111,6 +111,81 @@
             selectDefaultGroup(evt);
         });
         highlightDefault();
+        
+        
+        // code for Change Password dialog - NB this is duplicated in myaccount.html. 
+        $( "#password_change_dialog" ).dialog({
+            autoOpen: false,
+            draggable: false,
+            resizable: false,
+            closeOnEscape: true,
+            modal: false,
+            dialogClass: 'reddit',
+            buttons: {
+                "OK": function() {
+                    // simply submit the form (AJAX handling set-up above)
+                    $("#change_password_form").submit();
+                },
+                "Cancel": function() {
+                    $( this ).dialog( "close" );
+                }
+            },
+            position: { 
+                my: 'left center',
+                at: 'right center',
+                of: $('#change_password'),
+                collision: "flip",
+                offset: "10 0"
+            }
+        });
+        
+        $( "#change_password" ).click(function() {
+            // clear fields
+            var $pw_form = $("#change_password_form");
+            $("div.error", $pw_form).text("");
+            $("input[name='password']", $pw_form).val("");
+            $("input[name='confirmation']", $pw_form).val("");
+            $("input[name='old_password']", $pw_form).val("");
+            // show dialog
+            $( "#password_change_dialog" ).dialog( "open" );
+            return false;
+        });
+        $("#password_cancel").click(function() {
+            $( "#password_change_dialog" ).dialog( "close" );
+            return false;
+        });
+        
+        $("#password_change_message").hide();
+        $("#change_password_form").ajaxForm({
+            beforeSubmit: function(data) {
+                // check that both new passwords match, fields aren't empty etc.
+                var $pw_form = $("#change_password_form");
+                var new_pw = $("input[name='password']", $pw_form).val();
+                var conf_pw = $("input[name='confirmation']", $pw_form).val();
+                var old_pw = $("input[name='old_password']", $pw_form).val();
+                if ($.trim(new_pw).length==0 || $.trim(conf_pw).length==0 || $.trim(old_pw).length==0) {
+                    $("div.error", $pw_form).text("All fields must be filled in.");
+                    return false;
+                }
+                if (new_pw != conf_pw) {
+                    $("div.error", $pw_form).text("New passwords don't match.");
+                    return false;
+                }
+                if (new_pw == old_pw) {
+                    $("div.error", $pw_form).text("New password is the same as Old password");
+                    return false;
+                }
+                if ($.trim(new_pw).length<3 || $.trim(conf_pw).length<3 || $.trim(old_pw).length==0) {
+                    $("div.error", $pw_form).text("Passwords should be at least 3 characters long.");
+                    return false;
+                }
+                $( "#password_change_dialog" ).dialog( "close" );
+            },
+            success: function(html) {
+                $("#password_change_message").html(html).show().delay(3000).fadeOut(2000);
+            }
+        });
+
     });
     
     </script>
@@ -123,10 +198,12 @@
 
 <div class="one_column_content">
 {% if eid %}
-    <h1><a href="{% url waexperimenters %}">BACK</a> {% trans "Edit scientist" %}</h1>
+    <h1>{% trans "Edit scientist" %}</h1>
 {% else %}
-    <h1><a href="{% url waexperimenters %}">BACK</a> {% trans "Add scientist" %}</h1>
+    <h1>{% trans "Add scientist" %}</h1>
 {% endif %}
+
+<h1><a href="{% url waexperimenters %}" style="position:relative; top:-38px; float:right" title="Go Back to Experimenters">Cancel</a></h1>
 
 <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
 <br/>
@@ -140,11 +217,18 @@
         {% if ldapAuth %}
         <label>LDAP:</label> {{ ldapAuth }} <br />
         {% else %}
-            {% if eid %}
-            <label>Password</label>
-            <a href="{% url wamanagechangepasswordid eid %}" class="btn btn_text silver"><span>Change Password</span></a>
-            {% endif %}
-            <br />
+
+        <div id="password">
+
+            <div id="password_change">
+                <label>Password:</label>
+                <a class="btn btn_text silver" id="change_password">
+                    <span>Change User's Password</span>
+                </a>
+            </div>
+
+            <span id="password_change_message" class="error">Message here</span>
+        </div>
         {% endif %}
         
         {% for field in form %}
@@ -173,6 +257,34 @@
         <input type="submit" value="{% trans 'Save' %}" />
         
 </form>
+
+<!-- hidden dialog for password change - This is almost duplicated in myaccount.html-->
+<div id="password_change_dialog" title="Change Password">
+
+    <form id="change_password_form" action="{% url wamanagechangepasswordid eid %}" method="POST">
+
+        <table>
+            <tbody>
+                <tr>
+                    <td class="form"><label for"id_old_password">Admin Password</label></td>
+                    <td class="input">{{ password_form.old_password }}</td>
+                </tr>
+                <tr>
+                    <td class="form">{{ password_form.password.label_tag }}{% if password_form.password.required %}*{% endif %}</td>
+                    <td class="input">{{ password_form.password }}</td>
+                </tr>
+                <tr>
+                    <td class="form">{{ password_form.confirmation.label_tag }}{% if password_form.confirmation.required %}*{% endif %}</td>
+                    <td class="input">{{ password_form.confirmation }}</td>
+                </tr>
+
+                <tr><td colspan="3">
+                    <div class="error"></div>
+                </td></tr>
+            </tbody>
+        </table>
+    </form>
+</div>
 
 </div>
 

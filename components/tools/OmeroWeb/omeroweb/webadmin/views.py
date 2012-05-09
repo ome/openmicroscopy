@@ -357,8 +357,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                                 'groups':otherGroupsInitialList(groups)}
         
         form = ExperimenterForm(initial=initial)
-        
-        context = {'form':form, 'eid': eid, 'ldapAuth': isLdapUser}
+        password_form = ChangePassword()
+        context = {'form':form, 'eid': eid, 'ldapAuth': isLdapUser, 'password_form':password_form}
     elif action == 'save':
         experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
         if request.method != 'POST':
@@ -437,8 +437,6 @@ def manage_password(request, eid, conn=None, **kwargs):
                     conn.changeUserPassword(exp.omeName, password, old_password)
                 except Exception, x:
                     error = x.message
-                else:
-                    return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", eid]))
             else:
                 raise AttributeError("Can't change another user's password unless you are an Admin")
                 
