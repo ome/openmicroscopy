@@ -86,5 +86,17 @@ class UserTest (lib.GTest):
         finally:
             admin.removeGroups(omero.model.ExperimenterI(self.gateway._userid, False), [g._obj])
 
+    def testCrossGroupRead (self):
+        self.loginAsAuthor()
+        u = self.gateway.getUpdateService()
+        p = self.getTestProject()
+        self.assertEqual(str(p.getDetails().permissions)[4], '-')
+        d = p.getDetails()
+        g = d.getGroup()
+        self.loginAsUser()
+        self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
+        self.assert_(not g.getId() in self.gateway.getEventContext().memberOfGroups)
+        self.assertEqual(self.gateway.getObject('project', p.getId()), None)
+
 if __name__ == '__main__':
     unittest.main()
