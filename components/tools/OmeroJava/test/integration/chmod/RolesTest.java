@@ -61,6 +61,9 @@ public class RolesTest
 	extends AbstractServerTest
 {
 
+	/** Flag to turn on/off the deletion of a dataset.*/
+	private boolean delete = false;
+	
     /**
      * Since we are creating a new client on each invocation, we should also
      * clean it up. Note: {@link #newUserAndGroup(String)} also closes, but
@@ -146,20 +149,12 @@ public class RolesTest
 		} catch (Exception e) {}
     	
     	
-		try {
-			//Try to delete the image i.e. canDelete
-			delete(client, new DeleteCommand(
-	    			DeleteServiceTest.REF_IMAGE, id, null));
-			fail("Member should not be allowed to delete the image.");
-		} catch (Exception e) {
-			
-		}
     	//Try to link an image  i.e. canLink
 		try {
 			img = (Image) iUpdate.saveAndReturnObject(
 	    			mmFactory.createImage());
 			l = new DatasetImageLinkI();
-	    	l.link(new DatasetI(d.getId().getValue(), false), img);
+	    	l.link(new DatasetI(id, false), img);
 	    	iUpdate.saveAndReturnObject(l);
 	    	fail("Member should not be allowed to create an image/dataset link.");
 		} catch (Exception e) {}
@@ -216,7 +211,7 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	disconnect();
@@ -263,10 +258,6 @@ public class RolesTest
 			"an annoation.");
 		} catch (Exception e) {}
     	
-		//Try to delete the image i.e. canDelete
-		delete(client, new DeleteCommand(
-    			DeleteServiceTest.REF_IMAGE, id, null));
-		
     	//Try to link an image  i.e. canLink
 		try {
 			img = (Image) iUpdate.saveAndReturnObject(
@@ -310,6 +301,7 @@ public class RolesTest
     			mmFactory.simpleDatasetData().asIObject());
     	Permissions perms = d.getDetails().getPermissions();
     	long id = d.getId().getValue();
+    	
     	assertTrue(perms.canEdit());
     	assertTrue(perms.canAnnotate());
     	assertTrue(perms.canDelete());
@@ -320,7 +312,7 @@ public class RolesTest
     	Image img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
 		DatasetImageLink l = new DatasetImageLinkI();
-    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	l.link(new DatasetI(id, false), img);
     	l = (DatasetImageLink) iUpdate.saveAndReturnObject(l);
     	
     	//Create annotation
@@ -328,7 +320,7 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	disconnect();
@@ -345,7 +337,7 @@ public class RolesTest
 
     	assertFalse(perms.canAnnotate());
     	assertTrue(perms.canDelete());
-    	assertTrue(perms.canEdit());
+    	assertFalse(perms.canEdit());
     	assertFalse(perms.canLink());
     	
     	//Create a link canLink
@@ -360,16 +352,12 @@ public class RolesTest
     	//Try to delete the annotation  i.e. canDelete
     	iUpdate.deleteObject(ann);
     	
-		//Try to delete the image i.e. canDelete
-		delete(client, new DeleteCommand(
-    			DeleteServiceTest.REF_IMAGE, id, null));
-		
     	//Try to link an image  i.e. canLink
 		try {
 			img = (Image) iUpdate.saveAndReturnObject(
 	    			mmFactory.createImage());
 			l = new DatasetImageLinkI();
-	    	l.link(new DatasetI(d.getId().getValue(), false), img);
+	    	l.link(new DatasetI(id, false), img);
 	    	iUpdate.saveAndReturnObject(l);
 	    	fail("Admin should not be allowed to create an image/dataset link.");
 		} catch (Exception e) {}
@@ -381,15 +369,20 @@ public class RolesTest
 	    	annotation.setTextValue(omero.rtypes.rstring("comment"));
 	    	ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
 	    	dl = new DatasetAnnotationLinkI();
-	    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+	    	dl.link(new DatasetI(id, false), ann);
 	    	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
 			fail("Admin should not be allowed to annotate a dataset.");
 		} catch (Exception e) {}
     	
     	
     	//Try to edit i.e. canEdit
-		d.setName(rstring("newNAme"));
-		iUpdate.saveAndReturnObject(d);
+		try {
+			d.setName(rstring("newNAme"));
+			iUpdate.saveAndReturnObject(d);
+			fail("Admin should not be allowed to edit a dataset.");
+		} catch (Exception e) {
+			
+		}
     }
     
     //Group RWR---
@@ -404,7 +397,7 @@ public class RolesTest
     	EventContext ec = newUserAndGroup("rwr---");
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	
+    	long id = d.getId().getValue();
     	
     	Permissions perms = d.getDetails().getPermissions();
     	//make sure data owner can do everything
@@ -412,13 +405,13 @@ public class RolesTest
     	assertTrue(perms.canAnnotate());
     	assertTrue(perms.canDelete());
     	assertTrue(perms.canLink());
-    	long id = d.getId().getValue();
+    	
     	
     	Image img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
     	//Create link
 		DatasetImageLink l = new DatasetImageLinkI();
-    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	l.link(new DatasetI(id, false), img);
     	l = (DatasetImageLink) iUpdate.saveAndReturnObject(l);
     	
     	//Create annotation
@@ -426,7 +419,7 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	
@@ -481,22 +474,13 @@ public class RolesTest
 			iUpdate.deleteObject(ann);
 			fail("Member should not be allowed to delete an annoation.");
 		} catch (Exception e) {}
-    	
-		try {
-			//Try to delete the image i.e. canDelete
-			delete(client, new DeleteCommand(
-	    			DeleteServiceTest.REF_IMAGE, id, null));
-			fail("Member should not be allowed to delete the image.");
-		} catch (Exception e) {
-			
-		}
 		
     	//Try to link an image  i.e. canLink
 		try {
 			img = (Image) iUpdate.saveAndReturnObject(
 	    			mmFactory.createImage());
 			l = new DatasetImageLinkI();
-	    	l.link(new DatasetI(d.getId().getValue(), false), img);
+	    	l.link(new DatasetI(id, false), img);
 	    	iUpdate.saveAndReturnObject(l);
 	    	fail("Member should not be allowed to create an image/dataset link.");
 		} catch (Exception e) {}
@@ -508,7 +492,7 @@ public class RolesTest
 	    	annotation.setTextValue(omero.rtypes.rstring("comment"));
 	    	ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
 	    	dl = new DatasetAnnotationLinkI();
-	    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+	    	dl.link(new DatasetI(id, false), ann);
 	    	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
 			fail("Member should not be allowed to annotate a dataset.");
 		} catch (Exception e) {}
@@ -533,6 +517,7 @@ public class RolesTest
     	EventContext ec = newUserAndGroup("rwr---");
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
+    	long id = d.getId().getValue();
     	Permissions perms = d.getDetails().getPermissions();
     	//make sure owner can do everything
     	assertTrue(perms.canEdit());
@@ -545,7 +530,7 @@ public class RolesTest
     	Image img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
 		DatasetImageLink l = new DatasetImageLinkI();
-    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	l.link(new DatasetI(id, false), img);
     	l = (DatasetImageLink) iUpdate.saveAndReturnObject(l);
     	
     	//Create annotation
@@ -553,11 +538,11 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	
-    	long id = d.getId().getValue();
+    	
     	disconnect();
     	//Now a new member to the group.
     	newUserInGroup(ec);
@@ -587,10 +572,6 @@ public class RolesTest
     	//Try to delete the annotation  i.e. canDelete
     	iUpdate.deleteObject(ann);
     	
-    	//Try to delete the image i.e. canDelete
-		delete(client, new DeleteCommand(
-    			DeleteServiceTest.REF_IMAGE, id, null));
-		
     	//Try to link an image  i.e. canLink
     	img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
@@ -603,7 +584,7 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	//Try to edit i.e. canEdit
@@ -623,6 +604,8 @@ public class RolesTest
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	Permissions perms = d.getDetails().getPermissions();
+    	long id = d.getId().getValue();
+    	
     	assertTrue(perms.canEdit());
     	assertTrue(perms.canAnnotate());
     	assertTrue(perms.canDelete());
@@ -632,7 +615,7 @@ public class RolesTest
     	Image img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
 		DatasetImageLink l = new DatasetImageLinkI();
-    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	l.link(new DatasetI(id, false), img);
     	l = (DatasetImageLink) iUpdate.saveAndReturnObject(l);
     	
     	//Create annotation
@@ -640,10 +623,10 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
-    	long id = d.getId().getValue();
+    	
     	disconnect();
     	//Now a new member to the group.
     	logRootIntoGroup(ec);
@@ -654,6 +637,7 @@ public class RolesTest
     	List<IObject> datasets = iQuery.findAllByQuery(sql, param);
     	assertEquals(datasets.size(), 1);
     	d = (Dataset) datasets.get(0);
+    	id = d.getId().getValue();
     	
     	perms = d.getDetails().getPermissions();
     	
@@ -672,15 +656,11 @@ public class RolesTest
     	//Try to delete the annotation  i.e. canDelete
     	iUpdate.deleteObject(ann);
     	
-    	//Try to delete the image i.e. canDelete
-		delete(client, new DeleteCommand(
-    			DeleteServiceTest.REF_IMAGE, id, null));
-		
-    	//Try to link an image  i.e. canLink
+    	//Try to link an image i.e. canLink
     	img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
 		l = new DatasetImageLinkI();
-    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	l.link(new DatasetI(id, false), img);
     	iUpdate.saveAndReturnObject(l);
     	
     	//Try to create the annotation  i.e. canAnnotate
@@ -688,7 +668,7 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	//Try to edit i.e. canEdit
@@ -709,15 +689,18 @@ public class RolesTest
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	Permissions perms = d.getDetails().getPermissions();
+    	long id = d.getId().getValue();
+    	
     	assertTrue(perms.canAnnotate());
     	assertTrue(perms.canEdit());
-    	long id = d.getId().getValue();
+    	assertTrue(perms.canLink());
+    	assertTrue(perms.canAnnotate());
     	
     	Image img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
     	//Create link
 		DatasetImageLink l = new DatasetImageLinkI();
-    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	l.link(new DatasetI(id, false), img);
     	l = (DatasetImageLink) iUpdate.saveAndReturnObject(l);
     	
     	//Create annotation
@@ -725,7 +708,7 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	disconnect();
@@ -761,35 +744,21 @@ public class RolesTest
 		}
     	
     	
-    	//Try to delete the annotation i.e. canDelete
+    	//Try to delete the annotation link i.e. canDelete
 		try {
 			iUpdate.deleteObject(dl);
 			fail("Member should not be allowed to delete " +
 			"an image/dataset link.");
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
+		} catch (Exception e) {}
 		
     	
     	
-    	//Try to delete the annotation  i.e. canDelete
+    	//Try to delete the annotation i.e. canDelete
 		try {
 			iUpdate.deleteObject(ann);
 			fail("Member should not be allowed to delete " +
 			"the annotation.");
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-		
-    	
-		try {
-			//Try to delete the image i.e. canDelete
-			delete(client, new DeleteCommand(
-	    			DeleteServiceTest.REF_IMAGE, id, null));
-			fail("Member should not be allowed to delete the image.");
-		} catch (Exception e) {
-			
-		}
+		} catch (Exception e) {}
 		
     	//Try to link an image  i.e. canLink
 		try {
@@ -807,7 +776,7 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	//Try to edit i.e. canEdit
@@ -842,7 +811,7 @@ public class RolesTest
     			mmFactory.createImage());
     	//Create link
 		DatasetImageLink l = new DatasetImageLinkI();
-    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	l.link(new DatasetI(id, false), img);
     	l = (DatasetImageLink) iUpdate.saveAndReturnObject(l);
     	
     	//Create annotation
@@ -850,7 +819,7 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	
@@ -883,10 +852,6 @@ public class RolesTest
     	//Try to delete the annotation  i.e. canDelete
     	iUpdate.deleteObject(ann);
     	
-    	//Try to delete the image i.e. canDelete
-		delete(client, new DeleteCommand(
-    			DeleteServiceTest.REF_IMAGE, id, null));
-		
     	//Try to link an image  i.e. canLink
     	img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
@@ -899,7 +864,7 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	//Try to edit i.e. canEdit
@@ -919,6 +884,8 @@ public class RolesTest
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	
+    	long id = d.getId().getValue();
+    	
     	Image img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
     	//Create link
@@ -931,7 +898,7 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	
@@ -941,7 +908,7 @@ public class RolesTest
     	assertTrue(perms.canDelete());
     	assertTrue(perms.canLink());
     	
-    	long id = d.getId().getValue();
+    	
     	disconnect();
     	//Now a new member to the group.
     	logRootIntoGroup(ec);
@@ -970,15 +937,11 @@ public class RolesTest
     	//Try to delete the annotation  i.e. canDelete
     	iUpdate.deleteObject(ann);
     	
-    	//Try to delete the image i.e. canDelete
-		delete(client, new DeleteCommand(
-    			DeleteServiceTest.REF_IMAGE, id, null));
-		
     	//Try to link an image  i.e. canLink
     	img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
 		l = new DatasetImageLinkI();
-    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	l.link(new DatasetI(id, false), img);
     	iUpdate.saveAndReturnObject(l);
     	
     	//Try to create the annotation  i.e. canAnnotate
@@ -986,7 +949,7 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	//Try to edit i.e. canEdit
@@ -1025,11 +988,8 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
-        
-        
-        
         
     	disconnect();
     	//Now a new member to the group.
@@ -1059,15 +1019,16 @@ public class RolesTest
     	//Try to delete the annotation  i.e. canAnnotate
     	iUpdate.deleteObject(ann);
     	
-    	//Try to delete the image i.e. canDelete
+    	//Try to delete the dataset i.e. canDelete
+    	if (delete)
 		delete(client, new DeleteCommand(
-    			DeleteServiceTest.REF_IMAGE, id, null));
+    			DeleteServiceTest.REF_DATASET, id, null));
 		
     	//Try to link an image  i.e. canLink
     	img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
 		l = new DatasetImageLinkI();
-    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	l.link(new DatasetI(id, false), img);
     	iUpdate.saveAndReturnObject(l);
     	
     	//Try to create the annotation  i.e. canAnnotate
@@ -1075,7 +1036,7 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	//Try to edit i.e. canEdit
@@ -1095,6 +1056,8 @@ public class RolesTest
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	Permissions perms = d.getDetails().getPermissions();
+    	long id = d.getId().getValue();
+    	
     	//make sure data owner can do everything
     	assertTrue(perms.canEdit());
     	assertTrue(perms.canAnnotate());
@@ -1105,7 +1068,7 @@ public class RolesTest
     			mmFactory.createImage());
     	//Create link
 		DatasetImageLink l = new DatasetImageLinkI();
-    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	l.link(new DatasetI(id, false), img);
     	l = (DatasetImageLink) iUpdate.saveAndReturnObject(l);
     	
     	//Create annotation
@@ -1113,10 +1076,10 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
-    	long id = d.getId().getValue();
+    	
     	disconnect();
     	//Now a new member to the group.
     	newUserInGroup(ec);
@@ -1143,18 +1106,14 @@ public class RolesTest
     	//Try to delete the annotation link i.e. canDelete
     	iUpdate.deleteObject(dl);
     	
-    	//Try to delete the annotation  i.e. canDelete
+    	//Try to delete the annotation i.e. canDelete
     	iUpdate.deleteObject(ann);
     	
-    	//Try to delete the image i.e. canDelete
-		delete(client, new DeleteCommand(
-    			DeleteServiceTest.REF_IMAGE, id, null));
-		
     	//Try to link an image  i.e. canLink
     	img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
 		l = new DatasetImageLinkI();
-    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	l.link(new DatasetI(id, false), img);
     	iUpdate.saveAndReturnObject(l);
     	
     	//Try to create the annotation  i.e. canAnnotate
@@ -1162,7 +1121,7 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	//Try to edit i.e. canEdit
@@ -1181,6 +1140,14 @@ public class RolesTest
     	EventContext ec = newUserAndGroup("rwrw--");
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
+    	Permissions perms = d.getDetails().getPermissions();
+    	long id = d.getId().getValue();
+    	
+    	//Check what the group owner can do
+    	assertTrue(perms.canEdit());
+    	assertTrue(perms.canAnnotate());
+    	assertTrue(perms.canDelete());
+    	assertTrue(perms.canLink());
     	
     	Image img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
@@ -1194,18 +1161,9 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	Annotation ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
-    	
-    	Permissions perms = d.getDetails().getPermissions();
-    	
-    	//data owner
-    	assertTrue(perms.canEdit());
-    	assertTrue(perms.canAnnotate());
-    	assertTrue(perms.canDelete());
-    	assertTrue(perms.canLink());
-    	long id = d.getId().getValue();
     	disconnect();
     	//Now a new member to the group.
     	logRootIntoGroup(ec);
@@ -1233,15 +1191,11 @@ public class RolesTest
     	//Try to delete the annotation  i.e. canDelete
     	iUpdate.deleteObject(ann);
     	
-    	//Try to delete the image i.e. canDelete
-		delete(client, new DeleteCommand(
-    			DeleteServiceTest.REF_IMAGE, id, null));
-		
     	//Try to link an image  i.e. canLink
     	img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
 		l = new DatasetImageLinkI();
-    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	l.link(new DatasetI(id, false), img);
     	iUpdate.saveAndReturnObject(l);
     	
     	//Try to create the annotation  i.e. canAnnotate
@@ -1249,11 +1203,12 @@ public class RolesTest
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
     	ann = (Annotation) iUpdate.saveAndReturnObject(annotation);
     	dl = new DatasetAnnotationLinkI();
-    	dl.link(new DatasetI(d.getId().getValue(), false), ann);
+    	dl.link(new DatasetI(id, false), ann);
     	dl = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(dl);
     	
     	//Try to edit i.e. canEdit
     	d.setName(rstring("newNAme"));
 		iUpdate.saveAndReturnObject(d);
     }
+
 }
