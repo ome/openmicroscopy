@@ -79,6 +79,7 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.services.blitz.impl.commands.SaveI;
 import ome.system.UpgradeCheck;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
@@ -114,6 +115,7 @@ import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
+import omero.api.Save;
 import omero.api.SearchPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.StatefulServiceInterfacePrx;
@@ -1558,7 +1560,7 @@ class OMEROGateway
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
-			IAdminPrx prx = c.getAdminService(ctx);
+			IAdminPrx prx = c.getAdminService();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Admin service.");
@@ -7908,27 +7910,29 @@ class OMEROGateway
 			Iterator<IObject> j;
 			List<Request> commands = new ArrayList<Request>();
 			Chgrp cmd;
+			long id;
+			Save save;
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				data = (DataObject) entry.getKey();
 				l = (List<IObject>) entry.getValue();
+				id = data.getId();
 				cmd = new Chgrp(sessionUuid, createDeleteCommand(
-					data.getClass().getName()), data.getId(), options, 
+					data.getClass().getName()), id, options, 
 					target.getGroupID());
 				commands.add(cmd);
-				/*
 				j = l.iterator();
-				while (i.hasNext()) {
-					commands.add(new SaveI(sessionUuid, i.next()));
+				while (j.hasNext()) {
+					save = new Save();
+					save.obj = j.next();
+					save.session = sessionUuid;
+					commands.add(save);
 				}
-				*/
 			}
 			return c.submit(commands);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			handleException(e, "Cannot transfer the data.");
 		}
-		
-		
 		return null;
 	}
 	
