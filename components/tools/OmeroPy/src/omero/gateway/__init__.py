@@ -27,6 +27,7 @@ import omero.clients
 from omero.util.decorators import timeit, TimeIt, setsessiongroup
 from omero.cmd import Chgrp
 from omero.callbacks import CmdCallbackI
+import omero.scripts as scripts
 
 import Ice
 import Glacier2
@@ -5555,7 +5556,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             a.setValue(rdid)
             self.linkAnnotation(a, sameOwner=False)
 
-    def _prepareRE (self):
+    def _prepareRE (self, rdid=None):
         """
         Prepare the rendering engine with pixels ID and existing or new rendering def. 
         
@@ -5565,7 +5566,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         pid = self.getPrimaryPixels().id
         re = self._conn.createRenderingEngine()
         re.lookupPixels(pid, self._conn.CONFIG['SERVICE_OPTS'])
-        rdid = self._getRDef()
+        if rdid is None:
+            rdid = self._getRDef()
         if rdid is None:
             if not re.lookupRenderingDef(pid, self._conn.CONFIG['SERVICE_OPTS']):
                 sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
@@ -5580,7 +5582,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         re.load()
         return re
 
-    def _prepareRenderingEngine (self):
+    def _prepareRenderingEngine (self, rdid=None):
         """
         Checks that the rendering engine is prepared, calling L{_prepareRE} if needed.
         Used by the L{assert_re} method to wrap calls requiring rendering engine
@@ -5596,7 +5598,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             if self._pd is None:
                 self._pd = omero.romio.PlaneDef(self.PLANEDEF)
             try:
-                self._re = self._prepareRE()
+                self._re = self._prepareRE(rdid=rdid)
             except omero.ValidationException:
                 logger.debug('on _prepareRE()', exc_info=True)
                 self._re = None
@@ -6029,21 +6031,24 @@ class _ImageWrapper (BlitzObjectWrapper):
             pixels = self._conn.getQueryService().findByQuery(query, params, self._conn.CONFIG['SERVICE_OPTS'])
             return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(pixels.iterateChannels())]
 
-    def setActiveChannels(self, channels, windows=None, colors=None):
+    def setActiveChannels(self, channels, windows=None, colors=None, zeroidx=False):
         """
         Sets the active channels on the rendering engine.
         Also sets rendering windows and channel colors (for channels that are active)
         
-        @param channels:    List of active channel indexes ** 1-based index **
+        @param channels:    List of active channel indexes ** 1-based index if zeroidx is False **
         @type channels:     List of int
         @param windows:     Start and stop values for active channel rendering settings
         @type windows:      List of tuples. [(20, 300), (None, None), (50, 500)]. Must be tuples for all channels
         @param colors:      List of colors. ['F00', None, '00FF00'].  Must be item for each channel
+        @param zeroidx:     True is channels indexes is zero based, False if 1 based
         """
-
+        idx=1
+        if zeroidx:
+            idx=0
         for c in range(len(self.getChannels())):
-            self._re.setActive(c, (c+1) in channels, self._conn.CONFIG['SERVICE_OPTS'])
-            if (c+1) in channels:
+            self._re.setActive(c, (c+idx) in channels, self._conn.CONFIG['SERVICE_OPTS'])
+            if (c+idx) in channels:
                 if windows is not None and windows[c][0] is not None and windows[c][1] is not None:
                     self._re.setChannelWindow(c, *(windows[c] + [self._conn.CONFIG['SERVICE_OPTS']]))
                 if colors is not None and colors[c]:
@@ -6447,8 +6452,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         @type opts: dict
         @param opts: dictionary of extra options. Currently processed options are:
                      - watermark:string: path to image to use as watermark
-                     - slides:tuple: tuple of tuples with slides to prefix video with
+                     - slides:tuple: tuple of tuples with slides to prefix and postfix video with
                        in format (secs:int, topline:text[, middleline:text[, bottomline:text]])
+                       If more than 2 slides are provided they will be ignored
                      - fps:int: frames per second
                      - minsize: tuple of (minwidth, minheight, bgcolor)
                     - format:string: one of video/mpeg or video/quicktime
@@ -6456,95 +6462,117 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:    Tuple of (file-ext, format)
         @rtype:     (String, String)
         """
-        logger.warning('createMovie support is currently disabled.')
-        logger.warning('  - see https://trac.openmicroscopy.org.uk/ome/ticket/3857')
-        return None, None
-        if opts is None: opts = {}
-        slides = opts.get('slides', None)
-        minsize = opts.get('minsize', None)
-        w, h = self.getSizeX(), self.getSizeY()
+        todel = []
+        svc = self._conn.getScriptService()
+        mms = filter(lambda x: x.name.val == 'Make_Movie.py', svc.getScripts())
+        if not len(mms):
+            logger.error('No Make_Movie.py script found!')
+            return None, None
+        mms = mms[0]
+        params = svc.getParams(mms.id.val)
+        args = ['Image_ID=%d' % self.getId()]
+        args.append('Do_Link=False')
+        if opts.has_key('fps'):
+            args.append('FPS=%d' % opts['fps'])
+        if opts.has_key('format'):
+            if opts['format'] == 'video/mpeg':
+                args.append('Format=MPEG')
+            elif opts['format'] == 'video/wmv':
+                args.append('Format=WMV')
+            else:
+                args.append('Format=Quicktime')
+        rdid = self._getRDef()
+        if rdid is not None:
+            args.append('RenderingDef_ID=%d' % rdid)
+
         watermark = opts.get('watermark', None)
+        logger.debug('watermark: %s' % watermark)
         if watermark:
-            watermark = Image.open(watermark)
-            if minsize is not None:
-                ratio = min(float(w) / minsize[0], float(h) / minsize[1])
-                if ratio > 1:
-                    watermark = watermark.resize(map(lambda x: x*ratio, watermark.size), Image.ANTIALIAS)
-            ww, wh = watermark.size
-        else:
-            ww, wh = 0, 0
-        if minsize is not None and (w < minsize[0] or h < minsize[1]):
-            w = max(w, minsize[0])
-            h = max(h, minsize[1])
-        else:
-            minsize = None
-        wmpos = 0, h - wh
-        fps = opts.get('fps', 4)
-        def recb (*args):
-            return self._re
-        fsizes = (8,8,12,18,24,32,32,40,48,56,56,64)
-        fsize = fsizes[max(min(int(w / 256)-1, len(fsizes)), 1) - 1]
+            origFile = self._conn.createOriginalFileFromLocalFile(watermark)
+            args.append('Watermark=OriginalFile:%d' % origFile.getId())
+            todel.append(origFile.getId())
+            
+        w,h = self.getSizeX(), self.getSizeY()
+        if opts.has_key('minsize'):
+            args.append('Min_Width=%d' % opts['minsize'][0])
+            w = max(w, opts['minsize'][0])
+            args.append('Min_Height=%d' % opts['minsize'][1])
+            h = max(h, opts['minsize'][1])
+            args.append('Canvas_Colour=%s' % opts['minsize'][2])
+
         scalebars = (1,1,2,2,5,5,5,5,10,10,10,10)
         scalebar = scalebars[max(min(int(w / 256)-1, len(scalebars)), 1) - 1]
+        args.append('Scalebar=%d' % scalebar)
+        fsizes = (8,8,12,18,24,32,32,40,48,56,56,64)
+        fsize = fsizes[max(min(int(w / 256)-1, len(fsizes)), 1) - 1]
         font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize) )
-        def introcb (pixels, commandArgs):
-            for t in slides:
-                slide = Image.new("RGBA", (w,h))
-                for i, line in enumerate(t[1:4]):
-                    line = line.decode('utf8').encode('iso8859-1')
-                    wwline = self._wordwrap(w, line, font)
-                    for j, line in enumerate(wwline):
-                        tsize = font.getsize(line)
-                        draw = ImageDraw.Draw(slide)
-                        if i == 0:
-                            y = 10+j*tsize[1]
-                        elif i == 1:
-                            y = h / 2 - ((len(wwline)-j)*tsize[1]) + (len(wwline)*tsize[1])/2
-                        else:
-                            y = h - (len(wwline) - j)*tsize[1] - 10
-                        draw.text((w/2-tsize[0]/2,y), line, font=font)
-                for i in range(t[0]*fps):
-                    yield slide
-        if minsize is not None:
-            bg = Image.new("RGBA", (w, h), minsize[2])
-            ovlpos = (w-self.getSizeX()) / 2, (h-self.getSizeY()) / 2
-            def resize (image):
-                img = bg.copy()
-                img.paste(image, ovlpos, image)
-                return img
-        else:
-            def resize (image):
-                return image
-        def imgcb (z, t, pixels, image, commandArgs, frameNo):
-            image = resize(image)
-            if watermark:
-                image.paste(watermark, wmpos, watermark)
-            return image
-        d = tempfile.mkdtemp()
-        orig = os.getcwd()
-        os.chdir(d)
-        ca = makemovie.buildCommandArgs(self.getId(), scalebar=scalebar)
-        ca['imageCB'] = imgcb
-        if slides:
-            ca['introCB'] = introcb
-        ca['fps'] = fps
-        ca['format'] = opts.get('format', 'video/quicktime')
-        ca['zStart'] = int(zstart)
-        ca['zEnd'] = int(zend)
-        ca['tStart'] = int(tstart)
-        ca['tEnd'] = int(tend)
-        ca['font'] = font
-        logger.debug(ca)
-        try:
-            fn = os.path.abspath(makemovie.buildMovie(ca, self._conn.c.getSession(), self, self.getPrimaryPixels()._obj, recb))
-        except:
-            logger.error(traceback.format_exc())
-            raise
-        os.chdir(orig)
-        shutil.move(fn, outpath)
-        shutil.rmtree(d)
-        return os.path.splitext(fn)[-1], ca['format']
+        slides = opts.get('slides', [])
+        for slidepos in range(min(2, len(slides))):
+            t = slides[slidepos]
+            slide = Image.new("RGBA", (w,h))
+            for i, line in enumerate(t[1:4]):
+                line = line.decode('utf8').encode('iso8859-1')
+                wwline = self._wordwrap(w, line, font)
+                for j, line in enumerate(wwline):
+                    tsize = font.getsize(line)
+                    draw = ImageDraw.Draw(slide)
+                    if i == 0:
+                        y = 10+j*tsize[1]
+                    elif i == 1:
+                        y = h / 2 - ((len(wwline)-j)*tsize[1]) + (len(wwline)*tsize[1])/2
+                    else:
+                        y = h - (len(wwline) - j)*tsize[1] - 10
+                    draw.text((w/2-tsize[0]/2,y), line, font=font)
+            fp = StringIO()
+            slide.save(fp, "JPEG")
+            fileSize = len(fp.getvalue())
+            origFile = self._conn.createOriginalFileFromFileObj(fp, 'slide', '', fileSize)
+            if slidepos == 0:
+                args.append('Intro_Slide=OriginalFile:%d' % origFile.getId())
+                args.append('Intro_Duration=%d' % t[0])
+            else:
+                args.append('Ending_Slide=OriginalFile:%d' % origFile.getId())
+                args.append('Ending_Duration=%d' % t[0])
+            todel.append(origFile.getId())
 
+
+        m = scripts.parse_inputs(args, params)
+
+        try:
+            proc = svc.runScript(mms.id.val, m, None)
+            job = proc.getJob()
+        except omero.ValidationException, ve:
+            logger.error('Bad Parameters:\n%s' % ve)
+            return None, None
+
+        # Adding notification to wait on result
+        cb = scripts.ProcessCallbackI(self._conn.c, proc)
+        try:
+            while proc.poll() is None:
+                cb.block(1000)
+            rv = proc.getResults(3)
+        finally:
+            cb.close()
+
+        if not rv.has_key('File_Annotation'):
+            logger.error('Error in createMovie:')
+            if rv.has_key('stderr'):
+                x = StringIO()
+                self._conn.c.download(ofile=rv['stderr'].val, filehandle=x)
+                logger.error(x.getvalue())
+            return None, None
+
+        f = rv['File_Annotation'].val
+        ofw = OriginalFileWrapper(self._conn, f)
+        todel.append(ofw.getId())
+        logger.debug('writing movie on %s' % (outpath,))
+        outfile = file(outpath, 'w')
+        for chunk in ofw.getFileInChunks():
+            outfile.write(chunk)
+        outfile.close()
+        self._conn.deleteObjects('/OriginalFile', todel)
+        return os.path.splitext(f.name.val)[-1], f.mimetype.val
+        
     def renderImage (self, z, t, compression=0.9):
         """
         Render the Image, (projected) and compressed. 
