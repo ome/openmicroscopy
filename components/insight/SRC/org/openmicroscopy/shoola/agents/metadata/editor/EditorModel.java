@@ -687,6 +687,7 @@ class EditorModel
 	boolean canLink(Object data)
 	{ 
 		/*
+		if (!(data instanceof DataObject)) return false;
 		DataObject d = (DataObject) data;
 		return d.canLink();
 		*/
@@ -711,6 +712,7 @@ class EditorModel
 	 */
 	boolean canAnnotate(Object data)
 	{ 
+		if (!(data instanceof DataObject)) return false;
 		DataObject d = (DataObject) data;
 		return d.canAnnotate();
 	}
@@ -732,6 +734,7 @@ class EditorModel
 	 */
 	boolean canDelete(Object data)
 	{ 
+		if (!(data instanceof DataObject)) return false;
 		DataObject d = (DataObject) data;
 		return d.canDelete();
 	}

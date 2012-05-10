@@ -902,7 +902,6 @@ class DataBrowserComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
-		if (DataBrowserAgent.isAdministrator()) return true;
 		long id = DataBrowserAgent.getUserDetails().getId();
 		if (EditorUtil.isUserOwner(ho, id)) return true; //user it the owner.
 		if (!(ho instanceof DataObject)) return false;
