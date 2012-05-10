@@ -1277,18 +1277,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             else:
                 template = "webclient/public/share_form.html"
                 context = {'share':manager, 'form':form}
-        elif o_type == "sharecomment":
-            form_sharecomments = ShareCommentForm(data=request.REQUEST.copy())
-            if form_sharecomments.is_valid():
-                logger.debug("Create share comment: %s" % (str(form_sharecomments.cleaned_data)))
-                comment = form_sharecomments.cleaned_data['comment']
-                host = request.build_absolute_uri(reverse("load_template", args=["public"]))
-                textAnn = manager.addComment(host, request.session['server'], comment)
-                template = "webclient/annotations/share_comment.html"
-                context = {'cm': textAnn}
-            else:
-                template = "webclient/annotations/annotation_new_form.html"
-                context = {'manager':manager, 'form_sharecomments':form_sharecomments}
+        else:
+            return HttpResponseServerError("Object does not exist")
     elif action == 'editname':
         # start editing 'name' in-line
         if hasattr(manager, o_type) and o_id > 0:
