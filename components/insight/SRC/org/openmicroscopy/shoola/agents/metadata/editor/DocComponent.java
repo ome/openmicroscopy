@@ -227,8 +227,6 @@ class DocComponent
 				downloadButton.setVisible(false);
 			}
 			if (openButton != null) {
-				//openButton.setEnabled(enabled);
-				//openButton.setVisible(enabled);
 				openButton.setEnabled(false);
 				openButton.setVisible(false);
 			}
