@@ -1608,7 +1608,6 @@ class TreeViewerComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		//Check if current user can write in object
-		if (TreeViewerAgent.isAdministrator()) return true;
 		long id = model.getUserDetails().getId();
 		boolean b = false;
 		if (ho instanceof TreeImageTimeSet) {
@@ -1617,6 +1616,8 @@ class TreeViewerComponent
 			ExperimenterData exp = browser.getNodeOwner((TreeImageDisplay) ho);
 			if (exp.getId() == id) b = true;
 		} else b = EditorUtil.isUserOwner(ho, id);
+		return b;// user is the owner.
+		/*
 		if (b) return b; //user is the owner.
 		GroupData group = null;
 		int level = 
@@ -1638,6 +1639,7 @@ class TreeViewerComponent
 			return EditorUtil.isUserGroupOwner(group, id);
 		}
 		return false;
+		*/
 	}
 	
 	/**

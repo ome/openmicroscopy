@@ -59,7 +59,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
@@ -939,10 +938,12 @@ class DataBrowserComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		//Check if current user can write in object
 		long id = DataBrowserAgent.getUserDetails().getId();
-		if (EditorUtil.isUserOwner(ho, id)) return true; //user it the owner.
+		return (EditorUtil.isUserOwner(ho, id)); //user it the owner.
+		/*
 		if (!(ho instanceof DataObject)) return false;
 		DataObject data = (DataObject) ho;
 		return data.canLink();
+		*/
 	}
 	
 	/**

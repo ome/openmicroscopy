@@ -686,8 +686,12 @@ class EditorModel
 	 */
 	boolean canLink(Object data)
 	{ 
+		/*
 		DataObject d = (DataObject) data;
 		return d.canLink();
+		*/
+		long id = MetadataViewerAgent.getUserDetails().getId();
+		return EditorUtil.isUserOwner(data, id);
 	}
 
 	/**
