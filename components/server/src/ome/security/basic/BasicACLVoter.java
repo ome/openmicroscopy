@@ -302,9 +302,8 @@ public class BasicACLVoter implements ACLVoter {
             restrictions[Permissions.LINKRESTRICTION] = disallowEdit;
             if (currentUser.isGraphCritical()) {
                 // If we're in the graph critical situation, then we open back
-                // up the permissions for edit and delete.
+                // up the permissions for delete.
                 restrictions[Permissions.DELETERESTRICTION] = false;
-                restrictions[Permissions.EDITRESTRICTION] = false;
             }
             p.copyRestrictions(restrictions);
         }
