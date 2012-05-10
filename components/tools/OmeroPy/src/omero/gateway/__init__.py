@@ -516,8 +516,12 @@ class BlitzObjectWrapper (object):
         """
         Determines whether user can create 'hard' links (Not annotation links).
         E.g. Between Project/Dataset/Image etc.
+        We have decided to restrict the clients to only allow the OWNER of data
+        to create these links.
+        The server is more permissive. To see what the server will allow,
+        use self.getDetails().getPermissions().canLink()
         """
-        return self.getDetails().getPermissions().canLink()
+        return self.isOwned()
 
     def canAnnotate(self):
         """
