@@ -34,7 +34,7 @@ All requirements for OMERO will be installed in this location (e.g. /usr/local).
 
 Grab the omero_homebrew.sh installation script:
 
-    $ curl -fsSLk 'https://raw.github.com/joshmoore/openmicroscopy/homebrew-merge/docs/install/homebrew/omero_homebrew.sh' > omero_homebrew.sh
+    $ curl -fsSLk 'https://raw.github.com/openmicroscopy/openmicroscopy/develop/docs/install/homebrew/omero_homebrew.sh' > omero_homebrew.sh
 
 Run OMERO.homebrew script to install OMERO requirements:
 
