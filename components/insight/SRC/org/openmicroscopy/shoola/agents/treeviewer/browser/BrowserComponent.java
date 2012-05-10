@@ -1426,7 +1426,9 @@ class BrowserComponent
 	    }
 	    
 	    if (m.size() == 0) { //for new data the first time.
-	    	loadExperimenterData(getLoggedExperimenterNode(), null);
+	    	TreeImageDisplay node = getLoggedExperimenterNode();
+	    	if (node != null)
+	    		loadExperimenterData(node, null);
 	    	return;
 	    }
 	    model.loadRefreshExperimenterData(m, null, -1, refNode, toBrowse);
