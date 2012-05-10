@@ -79,7 +79,6 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
-import ome.services.blitz.impl.commands.SaveI;
 import ome.system.UpgradeCheck;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
@@ -167,6 +166,7 @@ import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Permissions;
+import omero.model.PermissionsI;
 import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.model.PixelsType;
@@ -435,46 +435,28 @@ class OMEROGateway
 			dsFactory.sessionExpiredExit(index, cause);
 		}
 	}
-
+	
 	/**
-	 * Returns the <code>RType</code> corresponding to the passed value.
+	 * Creates the permissions corresponding to the specified level.
 	 * 
-	 * @param value The value to convert.
-	 * @return See above.
+	 * @param level The level to handle.
+	 * @return
 	 */
-	private RType convertValue(Object value)
+	private Permissions createPermissions(int level)
 	{
-		Iterator i;
-		if (value instanceof String) 
-			return omero.rtypes.rstring((String) value);
-		else if (value instanceof Boolean) 
-			return omero.rtypes.rbool((Boolean) value);
-		else if (value instanceof Long) 
-			return omero.rtypes.rlong((Long) value);
-		else if (value instanceof Integer) 
-			return omero.rtypes.rint((Integer) value);
-		else if (value instanceof Float) 
-			return omero.rtypes.rfloat((Float) value);
-		else if (value instanceof List) {
-			List l = (List) value;
-			i = l.iterator();
-			List<RType> list = new ArrayList<RType>(l.size());
-			while (i.hasNext()) {
-				list.add(convertValue(i.next()));
-			}
-			return omero.rtypes.rlist(list);
-		} else if (value instanceof Map) {
-			Map map = (Map) value;
-			Map<String, RType> m = new HashMap<String, RType>();
-			Entry entry;
-			i = map.entrySet().iterator();
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				m.put((String) entry.getKey(), convertValue(entry.getValue())); 
-			}
-			return omero.rtypes.rmap(m);
+		String perms = "rw----"; //private group
+		switch (level) {
+			case GroupData.PERMISSIONS_GROUP_READ:
+				perms = "rwr---";
+				break;
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+				perms = "rwra--";
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				perms = "rwrw--";
+			case GroupData.PERMISSIONS_PUBLIC_READ:
+				perms = "rwrwr-";
 		}
-		return null;
+		return new PermissionsI(perms);
 	}
 	
 	/**
@@ -7103,17 +7085,14 @@ class OMEROGateway
 			ExperimenterGroup g = lookupGroup(ctx, groupData.getName());
 			
 			if (g != null) return null; 
-				
-			g = (ExperimenterGroup) ModelMapper.createIObject(groupData);
+			
+			g = new ExperimenterGroupI();
+			g.setName(omero.rtypes.rstring(groupData.getName()));
+			g.setDescription(omero.rtypes.rstring(groupData.getDescription()));
+			g.getDetails().setPermissions(createPermissions(
+					object.getPermissions()));
 			long groupID = svc.createGroup(g);
 			g = svc.getGroup(groupID);
-			int level = object.getPermissions();
-			if (level != GroupData.PERMISSIONS_PRIVATE) {
-				Permissions p = g.getDetails().getPermissions();
-				setPermissionsLevel(p, level);
-				svc.changePermissions(g, p);
-			}
-			
 			List<ExperimenterGroup> list = new ArrayList<ExperimenterGroup>();
 			list.add(g);
 
@@ -7576,6 +7555,11 @@ class OMEROGateway
 				break;
 			case GroupData.PERMISSIONS_GROUP_READ_LINK:
 				p.setGroupRead(true);
+				p.setGroupAnnotate(true);
+				break;
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				p.setGroupRead(true);
+				p.setGroupAnnotate(true);
 				p.setGroupWrite(true);
 				break;
 			case GroupData.PERMISSIONS_PUBLIC_READ:
