@@ -87,27 +87,27 @@ $.fn.roi_display = function(options) {
         var draw_shape = function(shape) {
             var newShape = null;
             if (shape['type'] == 'Ellipse') {
-              newShape = paper.ellipse(shape['cx'], shape['cy'], shape['rx'], shape['ry']);
+              newShape = paper.ellipse(shape['x'], shape['y'], shape['radiusX'], shape['radiusY']);
             }
             else if (shape['type'] == 'Rectangle') {
               newShape = paper.rect(shape['x'], shape['y'], shape['width'], shape['height']);
             }
             else if (shape['type'] == 'Point') {
-              newShape = paper.ellipse( shape['cx'], shape['cy'], 2, 2);
+              newShape = paper.ellipse( shape['x'], shape['y'], 2, 2);
             }
             else if (shape['type'] == 'Line') {
               // define line as 'path': Move then Line: E.g. "M10 10L90 90"
               newShape = paper.path("M"+ shape['x1'] +" "+ shape['y1'] +"L"+ shape['x2'] +" "+ shape['y2'] );
             }
             else if (shape['type'] == 'PolyLine') {
-              newShape = paper.path( shape['points'] );
+              newShape = paper.path( shape['svg'] );
             }
             else if (shape['type'] == 'Polygon') {
-              newShape = paper.path( shape['points'] );
+              newShape = paper.path( shape['svg'] );
             }
             else if (shape['type'] == 'Label') {
-              if (shape['textValue']) {
-                  newShape = paper.text(shape['x'], shape['y'], shape['textValue']).attr({'text-anchor':'start'});
+              if (shape['text']) {
+                  newShape = paper.text(shape['x'], shape['y'], shape['text']).attr({'text-anchor':'start'});
               }
             }
             // handle transforms. Insight supports: translate(354.05 83.01) and rotate(0 407.0 79.0)
@@ -143,14 +143,14 @@ $.fn.roi_display = function(options) {
         var get_tool_tip = function(shape) {
             var toolTip = "";
             if (shape['type'] == 'Ellipse') {
-              toolTip = "cx:"+ shape['cx'] +" cy:"+ shape['cy'] +" rx:"+ shape['rx'] + " ry: "+  shape['ry'];
+              toolTip = "x:"+ shape['x'] +" y:"+ shape['y'] +" RadiusX:"+ shape['radiusX'] + " RadiusY: "+  shape['RadiusY'];
             }
             else if (shape['type'] == 'Rectangle') {
               toolTip = "x:"+ shape['x'] +" y:"+ shape['y'] +
                 " width:"+ shape['width'] + " height: "+  shape['height'];
             }
             else if (shape['type'] == 'Point') {
-              toolTip = "cx:"+ shape['cx'] +" cy:"+ shape['cy'];
+              toolTip = "x:"+ shape['x'] +" y:"+ shape['y'];
             }
             else if (shape['type'] == 'Line') {
               toolTip = "x1:"+ shape['x1'] +" y1:"+ shape['y1'] +" x2:"+ shape['x2'] +" y2:"+ shape['y2'];
@@ -288,7 +288,7 @@ $.fn.roi_display = function(options) {
                             if (shape['type'] == 'PolyLine') {
                                 newShape.attr({'fill-opacity': 0});
                             }
-                            if ((shape['textValue'] != null) && (shape['textValue'].length > 0)) {
+                            if ((shape['text'] != null) && (shape['text'].length > 0)) {
                                 // Show text 
                                 if (shape['type'] == 'Label') {
                                     var txt = newShape; // if shape is label itself, use it
@@ -299,12 +299,12 @@ $.fn.roi_display = function(options) {
                                     var bb = newShape.getBBox();
                                     var textx = bb.x + (bb.width/2);
                                     var texty = bb.y + (bb.height/2);
-                                    var text_string = formatShapeText(shape['textValue'])
+                                    var text_string = formatShapeText(shape['text'])
                                     var txt = paper.text(textx, texty, text_string);    // draw a 'dummy' paragraph to work out it's dimensions
                                     var newY = (texty-txt.getBBox().height/2)+9;
                                     // moving the existing text to newY doesn't seem to work - instead, remove and draw a new one
                                     txt.remove();
-                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue'])).attr({'cursor':'default', 'fill': '#000'});
+                                    txt = paper.text(textx, newY, formatShapeText(shape['text'])).attr({'cursor':'default', 'fill': '#000'});
                                     txt_box = txt.getBBox();
                                     var txt_w = txt_box.width*1.3;
                                     var txt_h = txt_box.height*1.3;
