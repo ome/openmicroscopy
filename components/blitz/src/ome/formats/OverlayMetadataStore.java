@@ -45,6 +45,8 @@ import omero.model.Pixels;
 import omero.model.ROI;
 import omero.model.ROII;
 
+import ome.xml.model.primitives.Color;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -162,12 +164,17 @@ public class OverlayMetadataStore extends DummyMetadata
     }
 
     @Override
-    public void setMaskStroke(Integer stroke, int roiIndex, int shapeIndex)
+    public void setMaskStrokeColor(Color stroke, int roiIndex, int shapeIndex)
     {
         Mask o = getMask(roiIndex, shapeIndex);
         if (o != null)
         {
-            o.setStrokeColor(new ColorI((stroke)));
+            ColorI color = new ColorI();
+            color.setAlpha(stroke.getAlpha());
+            color.setRed(stroke.getRed());
+            color.setGreen(stroke.getGreen());
+            color.setBlue(stroke.getBlue());
+            o.setStrokeColor(color);
         }
     }
 

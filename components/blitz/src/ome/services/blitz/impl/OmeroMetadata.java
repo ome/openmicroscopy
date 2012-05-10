@@ -448,7 +448,7 @@ public class OmeroMetadata extends DummyMetadata {
     }
     
     @Override
-    public String getImageAcquiredDate(int imageIndex)
+    public String getImageAcquisitionDate(int imageIndex)
     {
         Image o = _getImage(imageIndex);
         return o != null? millisToXsdDateTime(
