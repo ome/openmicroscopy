@@ -342,7 +342,7 @@ class DataBrowserControl
 			while (j.hasNext()) {
 				o = j.next();
 				if (o instanceof DataObject) {
-					if (model.canLink(o)) count++;
+					if (model.canChgrp(o)) count++;
 				}
 			}
 			if (count != selection.size()) return null;

@@ -455,6 +455,15 @@ public interface TreeViewer
 			List<ExperimenterData> experimenters);
 
 	/**
+	 * Returns <code>true</code> if the specified object can be moved to another
+	 * group, <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canChgrp(Object ho);
+	
+	/**
 	 * Returns <code>true</code> if the specified object can be deleted.
 	 * <code>false</code> otherwise, depending on the permission.
 	 * 

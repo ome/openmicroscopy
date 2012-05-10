@@ -625,26 +625,6 @@ class TreeViewerComponent
 	}
 	
 	/**
-	 * Returns <code>true</code> if the object can be moved to another group,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param ho The object to handle.
-	 * @return See above.
-	 */
-	private boolean canChangeGroup(Object ho)
-	{
-		if (TreeViewerAgent.isAdministrator()) return true;
-		long id = model.getUserDetails().getId();
-		boolean b = false;
-		if (ho instanceof TreeImageTimeSet) {
-			Browser browser = model.getSelectedBrowser();
-			ExperimenterData exp = browser.getNodeOwner((TreeImageDisplay) ho);
-			if (exp.getId() == id) b = true;
-		} else b = EditorUtil.isUserOwner(ho, id);
-		return b; //user is the owner if yes.
-	}
-	
-	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straight 
 	 * after to complete the MVC set up.
@@ -1640,6 +1620,23 @@ class TreeViewerComponent
 		}
 		return false;
 		*/
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#canChgrp(Object)
+	 */
+	public boolean canChgrp(Object ho)
+	{
+		if (TreeViewerAgent.isAdministrator()) return true;
+		long id = model.getUserDetails().getId();
+		boolean b = false;
+		if (ho instanceof TreeImageTimeSet) {
+			Browser browser = model.getSelectedBrowser();
+			ExperimenterData exp = browser.getNodeOwner((TreeImageDisplay) ho);
+			if (exp.getId() == id) b = true;
+		} else b = EditorUtil.isUserOwner(ho, id);
+		return b;
 	}
 	
 	/**
@@ -4498,20 +4495,21 @@ class TreeViewerComponent
 		long refgid = group.getId();
 		while (i.hasNext()) {
 			data = i.next();
-			if (data instanceof ProjectData || data instanceof ScreenData)
-				b = data.getClass();
-			gid = data.getGroupId();
-			if (gid != refgid) {
-				ctx = getKey(map, gid);
-				if (ctx == null) {
-					l = new ArrayList<DataObject>();
-					ctx = new SecurityContext(gid);
-					map.put(ctx, l);
-				}
-				l = map.get(ctx);
-				if (canChangeGroup(data))
+		    if (canChgrp(data)) {
+		    	if (data instanceof ProjectData || data instanceof ScreenData)
+					b = data.getClass();
+				gid = data.getGroupId();
+				if (gid != refgid) {
+					ctx = getKey(map, gid);
+					if (ctx == null) {
+						l = new ArrayList<DataObject>();
+						ctx = new SecurityContext(gid);
+						map.put(ctx, l);
+					}
+					l = map.get(ctx);
 					l.add(data);
-			}
+				}
+		    }
 		}
 		if (map.size() == 0) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();

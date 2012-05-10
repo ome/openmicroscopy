@@ -757,7 +757,7 @@ class TreeViewerControl
 			while (j.hasNext()) {
 				o = j.next();
 				if (o instanceof DataObject) {
-					if (model.canEdit(o)) count++;
+					if (model.canChgrp(o)) count++;
 				}
 			}
 			if (count != selection.size()) return null;

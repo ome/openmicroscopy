@@ -929,6 +929,21 @@ class DataBrowserComponent
 	
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#canChgrp(Object)
+	 */
+	public boolean canChgrp(Object ho)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		//Check if current user can write in object
+		if (DataBrowserAgent.isAdministrator()) return true;
+		long id = DataBrowserAgent.getUserDetails().getId();
+		return EditorUtil.isUserOwner(ho, id);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#canLink(Object)
 	 */
 	public boolean canLink(Object ho)
