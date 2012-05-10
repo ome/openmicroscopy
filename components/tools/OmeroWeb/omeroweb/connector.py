@@ -43,11 +43,6 @@ class Connector(object):
 
     def create_gateway(self, useragent, username=None, password=None):
         host, port = self.lookup_host_and_port()
-        
-        logger.info('Trying to log in to %r' % {'username':username, 
-                'host': host, 'port':port, 'ssl':self.is_secure, 
-                'useragent':useragent, 'anonymous':self.is_public}, exc_info=True)
-        
         return client_wrapper(
                 username, password, host=host, port=port, secure=self.is_secure,
                 useragent=useragent, anonymous=self.is_public)
