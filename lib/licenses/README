@@ -877,7 +877,12 @@
   Web Site:     http://www.eclipse.org/
   License:      Common Public License (CPL) v1.0
   License File: cpl-v10.html
-
+  
+  Artifacts:    jna.jar, platform.jar
+  Project:      Java Native Access (JNA), used for calling platform specific methods.
+  Web Site:     https://github.com/twall/jna
+  License:      LGPL, version 2.1 (or later)
+  License File: lgpl.txt
 
   Artifacts:    nuvola_*
   Project:      The Nuvola icon theme. It provides most of the icons in OMERO.insight.

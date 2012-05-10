@@ -51,6 +51,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.Agent;
@@ -445,9 +446,11 @@ public class TreeViewerFactory
 	{
 		if (applications != null) return;
 		applications = new HashMap<String, List<ApplicationData>>();
+		
 		Environment env = (Environment) 
 		TreeViewerAgent.getRegistry().lookup(LookupNames.ENV);
-		String name = env.getOmeroHome()+File.separator+FILE_NAME;
+		String name = FilenameUtils.concat(env.getOmeroHome(),FILE_NAME);
+		
 		File f = new File(name);
 		if (!f.exists()) return;
 		try {
@@ -477,7 +480,8 @@ public class TreeViewerFactory
 								list = new ArrayList<ApplicationData>();
 								applications.put(mimeType, list);
 							}
-							list.add(new ApplicationData(buffer.toString()));
+							File application = new File(buffer.toString());
+							list.add(new ApplicationData(application));
 						}
 					}
 				}

@@ -321,7 +321,7 @@ class TreeViewerComponent
 				folder, icons.getIcon(IconManager.DOWNLOAD_22));
 		if (override)
 			activity.setFileName(fa.getFileName());
-		activity.setApplicationData(data);
+
 		un.notifyActivity(model.getSecurityContext(), activity);
 	}
 
@@ -3472,7 +3472,6 @@ class TreeViewerComponent
 			file = (OriginalFile) i.next();
 			activity = new DownloadActivityParam(file,
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
-			activity.setApplicationData(data);
 			un.notifyActivity(model.getSecurityContext(), activity);
 		}
 	}

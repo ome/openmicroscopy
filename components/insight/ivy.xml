@@ -62,7 +62,8 @@
     <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>
     <dependency org="insight" name="wsdl4j" rev="${versions.wsdl4j}"/>
     <dependency org="insight" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
-
+    <dependency org="insight" name="jna" rev="${versions.jna}"/>
+    <dependency org="insight" name="platform" rev="${versions.platform}"/>
 
     <!-- Bioformats -->
     <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true" conf="build,client->build">
@@ -76,6 +77,7 @@
         <artifact name="poi-loci"/>
         <artifact name="scifio"/>
     </dependency>
+    
     <!-- importer -->
     <dependency org="importer" name="slf4j-api" rev="${versions.slf4j}"/>
     <dependency org="importer" name="slf4j-log4j12" rev="${versions.slf4j}"/>
