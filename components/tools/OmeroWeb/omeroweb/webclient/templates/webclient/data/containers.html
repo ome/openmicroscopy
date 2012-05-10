@@ -216,7 +216,7 @@
                             var cont_id = cont_type + "-" + r['id'];
                             var display_index = 0;
                             $("#dataTree").jstree("create", selected, display_index, 
-                                { "attr" : { "rel":cont_type, "id":cont_id}, "data":new_container_name }, 
+                                { "attr" : { "rel":cont_type, "id":cont_id, "class":"canLink canDelete"}, "data":new_container_name },
                                 false, true);
                             $("#dataTree").jstree("deselect_all");
                             $("#dataTree").jstree("select_node", "#"+cont_id);
