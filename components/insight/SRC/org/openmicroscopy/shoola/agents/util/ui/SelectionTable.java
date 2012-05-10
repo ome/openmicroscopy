@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.util.ui;
 
 
 //Java imports
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -64,7 +65,7 @@ class SelectionTable
 	}
 	
 	/** The groups to display.*/
-	private Map<GroupData, Integer> groups;
+	private List<GroupData> groups;
 	
 	/** Creates a new instance.*/
 	SelectionTable()
@@ -96,7 +97,7 @@ class SelectionTable
 	 * 
 	 * @param groups The groups to set.
 	 */
-	void setGroups(Map<GroupData, Integer> groups)
+	void setGroups(List<GroupData> groups)
 	{
 		this.groups = groups;
 	}
@@ -107,9 +108,9 @@ class SelectionTable
 	 * @param group The group to handle.
 	 * @return See above.
 	 */
-	Integer getLevel(GroupData group)
+	int getLevel(GroupData group)
 	{
-		return groups.get(group);
+		return group.getPermissions().getPermissionsLevel();
 	}
 	
 	/** Inner class to display checkbox.*/

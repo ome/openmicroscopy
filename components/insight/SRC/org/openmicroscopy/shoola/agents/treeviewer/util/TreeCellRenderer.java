@@ -392,10 +392,7 @@ public class TreeCellRenderer
         	else icon = PLATE_ACQUISITION_ICON; 
         } else if (usrObject instanceof GroupData) {
         	GroupData g = (GroupData) usrObject;
-        	int level = 
-            TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-                			g);
-        	switch (level) {
+        	switch (g.getPermissions().getPermissionsLevel()) {
 	        	case GroupData.PERMISSIONS_PRIVATE:
 	        		icon = GROUP_PRIVATE_ICON;
 	        		break;

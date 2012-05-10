@@ -88,15 +88,13 @@ public class TagsLoader
 		ExperimenterData exp = DataBrowserAgent.getUserDetails();
 		long userID = exp.getId();//viewer.getUserID();
 		long groupID = -1;
-		int level = 
-		DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-				case GroupData.PERMISSIONS_GROUP_READ_LINK:
-					groupID = exp.getDefaultGroup().getId();
-					userID = -1;
-					break;
-				case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-					userID = -1;
+		switch (exp.getPermissions().getPermissionsLevel()) {
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+				groupID = exp.getDefaultGroup().getId();
+				userID = -1;
+				break;
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+				userID = -1;
 		}
 		
 		handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,

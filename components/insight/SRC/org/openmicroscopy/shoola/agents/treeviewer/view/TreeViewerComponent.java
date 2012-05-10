@@ -1557,9 +1557,6 @@ class TreeViewerComponent
 		} else b = EditorUtil.isUserOwner(ho, id);
 		if (b) return b; //user is the owner.
 		GroupData group = null;
-		int level = 
-			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-					group);
 		if (ho instanceof DataObject) {
 			DataObject data = (DataObject) ho;
 			return data.canEdit();
@@ -1568,10 +1565,10 @@ class TreeViewerComponent
 			if (browser == null) return false;
 			group = browser.getNodeGroup((TreeImageDisplay) ho);
 			
-			switch (level) {
-			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
+			switch (group.getPermissions().getPermissionsLevel()) {
+				case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+					return true;
 			}
 			return EditorUtil.isUserGroupOwner(group, id);
 		}
@@ -1662,10 +1659,7 @@ class TreeViewerComponent
 			if (browser == null) return false;
 			group = browser.getNodeGroup((TreeImageDisplay) ho);
 		}
-		int level = 
-			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-					group);
-		switch (level) {
+		switch (group.getPermissions().getPermissionsLevel()) {
 			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
 			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
@@ -1698,13 +1692,10 @@ class TreeViewerComponent
 			Browser browser = model.getSelectedBrowser();
 			if (browser == null) return false;
 			GroupData group = browser.getNodeGroup((TreeImageDisplay) ho);
-			int level = 
-			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-						group);
-			switch (level) {
-			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
+			switch (group.getPermissions().getPermissionsLevel()) {
+				case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+					return true;
 			}
 			return EditorUtil.isUserGroupOwner(group, id);
 		}
@@ -2083,9 +2074,7 @@ class TreeViewerComponent
 		Set groups = TreeViewerAgent.getAvailableUserGroups();
 		if (group == null) group = model.getSelectedGroup();
 		
-		int level = 
-		TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-				group);
+		int level = group.getPermissions().getPermissionsLevel();
 		if (level == GroupData.PERMISSIONS_PRIVATE) {
 			ExperimenterData currentUser = model.getExperimenter();
 			Set leaders = group.getLeaders();
@@ -4541,15 +4530,7 @@ class TreeViewerComponent
 		IconManager icons = IconManager.getInstance();
 		Set groups = TreeViewerAgent.getAvailableUserGroups();
 		if (groups.size() <= 1) return;
-		Map<GroupData, Integer> map = new HashMap<GroupData, Integer>();
-		Iterator k = groups.iterator();
-		GroupData g;
-		int level;
-		AdminService svc = TreeViewerAgent.getRegistry().getAdminService();
-		while (k.hasNext()) {
-			g = (GroupData) k.next();
-			map.put(g, svc.getPermissionLevel(g));
-		}
+		
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
 		ExperimenterVisitor visitor = new ExperimenterVisitor(browser, -1);
 		browser.accept(visitor);
@@ -4563,7 +4544,7 @@ class TreeViewerComponent
 				selected.add((GroupData) n.getUserObject());
 			}
 		}
-		GroupManagerDialog dialog = new GroupManagerDialog(f, map, selected,
+		GroupManagerDialog dialog = new GroupManagerDialog(f, groups, selected,
 				icons.getIcon(IconManager.OWNER_GROUP_48));
 		dialog.addPropertyChangeListener(controller);
 		dialog.setDefaultSize();

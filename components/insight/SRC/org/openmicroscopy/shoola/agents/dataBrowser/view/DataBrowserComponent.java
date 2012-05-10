@@ -880,12 +880,11 @@ class DataBrowserComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		//Check if current user can write in object
-		long id = DataBrowserAgent.getUserDetails().getId();
+		ExperimenterData exp = DataBrowserAgent.getUserDetails();
+		long id = exp.getId();
 		boolean b = EditorUtil.isUserOwner(ho, id);
 		if (b) return b; //user it the owner.
-		int level = 
-			DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
+		switch (exp.getPermissions().getPermissionsLevel()) {
 			case GroupData.PERMISSIONS_GROUP_READ_LINK:
 			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;

@@ -34,10 +34,8 @@ import javax.swing.Icon;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.GroupData;
@@ -87,11 +85,8 @@ public class GroupSelectionAction
 	{
 		IconManager im = IconManager.getInstance();
 		Icon icon = im.getIcon(IconManager.PERSONAL);
-        int level = 
-        	TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-        			group);
         String desc = "";
-        switch (level) {
+        switch (group.getPermissions().getPermissionsLevel()) {
 			case GroupData.PERMISSIONS_PRIVATE:
 				desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
 				icon = im.getIcon(IconManager.PRIVATE_GROUP);

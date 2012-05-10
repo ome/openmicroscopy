@@ -100,12 +100,10 @@ public abstract class EditorLoader
     	ExperimenterData exp = MetadataViewerAgent.getUserDetails();
 		userID = viewer.getUserID();
 		groupID = exp.getDefaultGroup().getId();
-		int level = 
-		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-		case GroupData.PERMISSIONS_GROUP_READ_LINK:
-		case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-			userID = -1;
+		switch (exp.getDefaultGroup().getPermissions().getPermissionsLevel()) {
+				case GroupData.PERMISSIONS_GROUP_READ_LINK:
+				case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+					userID = -1;
 		}
     }
     

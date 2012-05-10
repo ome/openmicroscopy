@@ -921,10 +921,8 @@ public class TreeViewerTranslator
         	l = EditorUtil.formatObjectTooltip((ImageData) uo);
         	s = UIUtilities.formatString(((ImageData) uo).getName(), -1);
         } else if (uo instanceof GroupData) {
-        	int level = 
-        		TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-        				(GroupData) uo);
-        	switch (level) {
+        	GroupData group = (GroupData) uo;
+        	switch (group.getPermissions().getPermissionsLevel()) {
 	        	case GroupData.PERMISSIONS_PRIVATE:
 	        		node.setToolTip(GroupData.PERMISSIONS_PRIVATE_TEXT);
 	        		break;

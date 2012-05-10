@@ -79,9 +79,7 @@ public class TagsLoader
     	ExperimenterData exp = FinderFactory.getUserDetails();
 		long userID = exp.getId();//viewer.getUserID();
 		long groupID = -1;
-		int level = 
-			FinderFactory.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
+		switch (exp.getDefaultGroup().getPermissions().getPermissionsLevel()) {
 				case GroupData.PERMISSIONS_GROUP_READ_LINK:
 					groupID = exp.getDefaultGroup().getId();
 					userID = -1;

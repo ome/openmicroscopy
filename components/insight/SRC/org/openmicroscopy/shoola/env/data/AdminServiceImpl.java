@@ -356,45 +356,6 @@ class AdminServiceImpl
 
 	/**
 	 * Implemented as specified by {@link AdminService}.
-	 * @see AdminService#getPermissionLevel(GroupData)
-	 */
-	public int getPermissionLevel(GroupData group)
-	{
-		ExperimenterData exp = (ExperimenterData) context.lookup(
-				LookupNames.CURRENT_USER_DETAILS);
-		if (group == null) {
-			group = exp.getDefaultGroup();
-		}
-		PermissionData perm = group.getPermissions();
-		if (perm.isGroupRead()) {
-			if (perm.isGroupWrite())  
-				return GroupData.PERMISSIONS_GROUP_READ_WRITE;
-			else if (perm.isGroupAnnotate())
-				return GroupData.PERMISSIONS_GROUP_READ_LINK;
-			return GroupData.PERMISSIONS_GROUP_READ;
-		}
-		if (perm.isWorldRead()) {
-			if (perm.isWorldWrite())  
-				return GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
-			return GroupData.PERMISSIONS_PUBLIC_READ;
-		}
-		return GroupData.PERMISSIONS_PRIVATE;
-	}
-	
-	/**
-	 * Implemented as specified by {@link AdminService}.
-	 * @see AdminService#getPermissionLevel()
-	 */
-	public int getPermissionLevel()
-	{
-		ExperimenterData exp = (ExperimenterData) context.lookup(
-				LookupNames.CURRENT_USER_DETAILS);
-		GroupData g = exp.getDefaultGroup();
-		return getPermissionLevel(g);
-	}
-
-	/**
-	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#updateGroup(SecurityContext, GroupData, int)
 	 */
 	public GroupData updateGroup(SecurityContext ctx, GroupData group,

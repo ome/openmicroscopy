@@ -85,9 +85,7 @@ class SelectionTableRenderer
 	 */
 	private void setGroupIcon(GroupData group)
 	{
-		Integer level = model.getLevel(group);
-		if (level == null) return;
-		switch (level.intValue()) {
+		switch (model.getLevel(group)) {
 			case GroupData.PERMISSIONS_PRIVATE:
 				setIcon(PRIVATE);
 				break;

@@ -33,7 +33,6 @@ import javax.swing.Icon;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
-import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.GroupData;
@@ -64,11 +63,8 @@ public class GroupSelectionAction
 	{
 		IconManager im = IconManager.getInstance();
 		Icon icon = im.getIcon(IconManager.PERSONAL);
-        int level = 
-        	ImporterAgent.getRegistry().getAdminService().getPermissionLevel(
-        			group);
         String desc = "";
-        switch (level) {
+        switch (group.getPermissions().getPermissionsLevel()) {
 			case GroupData.PERMISSIONS_PRIVATE:
 				desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
 				icon = im.getIcon(IconManager.PRIVATE_GROUP);

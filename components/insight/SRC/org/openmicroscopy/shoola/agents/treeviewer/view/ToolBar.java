@@ -695,11 +695,8 @@ class ToolBar
     	GroupData group = model.getSelectedGroup();
     	if (group == null || groupContext == null) return;
     	String desc = "";
-		int level = 
-        TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-        			group);
 		Icon icon = null;
-		switch (level) {
+		switch (group.getPermissions().getPermissionsLevel()) {
 			case GroupData.PERMISSIONS_PRIVATE:
 				desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
 				icon = PERMISSIONS_PRIVATE;

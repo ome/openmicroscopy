@@ -75,11 +75,8 @@ public class MoveToAction
 	{
 		IconManager im = IconManager.getInstance();
 		Icon icon = im.getIcon(IconManager.PERSONAL);
-        int level = 
-        	DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel(
-        			group);
         String desc = "";
-        switch (level) {
+        switch (group.getPermissions().getPermissionsLevel()) {
 			case GroupData.PERMISSIONS_PRIVATE:
 				desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
 				icon = im.getIcon(IconManager.PRIVATE_GROUP);

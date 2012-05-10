@@ -34,7 +34,6 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -79,10 +78,7 @@ public class PersonalManagementAction
     	int iconID = IconManager.UP_DOWN_9_12;
     	if (group != null) {
     		name = group.getName();
-    		int level = 
-            EditorAgent.getRegistry().getAdminService().getPermissionLevel(
-            			group);
-            switch (level) {
+            switch (group.getPermissions().getPermissionsLevel()) {
     			case GroupData.PERMISSIONS_PRIVATE:
     				desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
     				iconID = IconManager.PRIVATE_GROUP_DD_12;

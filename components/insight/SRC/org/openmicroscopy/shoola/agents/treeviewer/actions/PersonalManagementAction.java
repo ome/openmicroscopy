@@ -92,10 +92,7 @@ public class PersonalManagementAction
     	Icon icon = icons.getIcon(IconManager.UP_DOWN_9_12);
     	if (group != null) {
     		name = group.getName();
-    		int level = 
-            TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-            			group);
-            switch (level) {
+            switch (group.getPermissions().getPermissionsLevel()) {
     			case GroupData.PERMISSIONS_PRIVATE:
     				desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
     				icon = icons.getIcon(IconManager.PRIVATE_GROUP_DD_12);

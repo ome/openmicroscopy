@@ -700,10 +700,7 @@ abstract class DataBrowserModel
 			group = getGroup(data.getGroupId());
 		}
 		if (group == null) return false;
-		int level = 
-			DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel(
-				group);
-		switch (level) {
+		switch (group.getPermissions().getPermissionsLevel()) {
 			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
 			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
