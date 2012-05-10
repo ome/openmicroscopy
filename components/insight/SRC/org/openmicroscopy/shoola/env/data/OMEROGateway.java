@@ -451,8 +451,10 @@ class OMEROGateway
 				break;
 			case GroupData.PERMISSIONS_GROUP_READ_LINK:
 				perms = "rwra--";
+				break;
 			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
 				perms = "rwrw--";
+				break;
 			case GroupData.PERMISSIONS_PUBLIC_READ:
 				perms = "rwrwr-";
 		}
