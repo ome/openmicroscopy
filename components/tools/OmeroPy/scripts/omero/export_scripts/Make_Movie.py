@@ -62,6 +62,9 @@ import numpy
 import omero.util.pixelstypetopython as pixelstypetopython
 from struct import *
 from omero.rtypes import wrap, rstring, rlong, rint, robject
+from omero.gateway import BlitzGateway
+
+from cStringIO import StringIO
 
 try:
     from PIL import Image, ImageDraw # see ticket:2597
@@ -299,7 +302,99 @@ def calculateRanges(sizeZ, sizeT, commandArgs):
         planeMap = unrollPlaneMap(map)
     return planeMap
 
-def writeMovie(commandArgs, session):
+
+def reshape_to_fit(image, sizeX, sizeY, bg=(0,0,0)):
+    """
+    Make the PIL image fit the sizeX and sizeY dimensions by scaling as necessary
+    and then padding with background.
+    Used for watermark and intro & outro slides.
+    """
+    image_w, image_h = image.size
+    if (image_w, image_h) == (sizeX, sizeY):
+        return image
+    # scale
+    print "scale...from ", image.size, " to ", sizeX, sizeY
+    ratio = min(float(sizeX) / image_w, float(sizeY) / image_h)
+    image = image.resize(map(lambda x: x*ratio, image.size), Image.ANTIALIAS)
+    print ratio, image.size
+    # paste
+    bg = Image.new("RGBA", (sizeX, sizeY), (0,0,0))     # black bg
+    ovlpos = (sizeX-image.size[0]) / 2, (sizeY-image.size[1]) / 2
+    print "ovlpos", ovlpos
+    bg.paste(image, ovlpos)
+    return bg
+
+
+def write_intro_end_slides(conn, commandArgs, orig_file_id, duration, sizeX, sizeY):
+    """
+    Uses an original file (jpeg or png) to add frames to the movie.
+    Scales and pads to fit sizeX, sizeY.
+
+    @param orig_file_id:    Original File (png or jpeg) ID
+    @param duration:        Duration of intro / end (secs)
+    @param sizeX:           Width of the exported movie
+    @param sizeY:           Height of the exported movie
+    @return:                List of file names to add to mencoder list
+    """
+
+    slide_filenames = []
+    fps = commandArgs["FPS"]
+    format = commandArgs["Format"]
+
+    # get Original File as Image
+    slide_file = conn.getObject("OriginalFile", orig_file_id)
+    slide_data = "".join( slide_file.getFileInChunks() )
+    i = StringIO(slide_data)
+    slide = Image.open(i)
+    slide = reshape_to_fit(slide, sizeX, sizeY)
+
+    # write the file once
+    if format==QT:
+        filename = 'slide_%s.png' % orig_file_id
+        slide.save(filename,"PNG")
+    else:
+        filename = 'slide_%s.jpg' % orig_file_id
+        slide.save(filename,"JPEG")
+    # control duration by adding the filename multiple times
+    for i in range(duration * fps):
+        slide_filenames.append(filename)
+
+    return slide_filenames
+
+
+def prepareWatermark(conn, commandArgs, sizeX, sizeY):
+    """
+    Read Original File (png or jpeg) to use as watermark,
+    scale if needed to fit movie (sizeX, sizeY) and return
+
+    @return:        PIL Image to use as watermark.
+    """
+
+    wm_orig_file = commandArgs["Watermark"]
+    # get Original File as Image
+    wm_file = conn.getObject("OriginalFile", wm_orig_file.id.val)
+    wm_data = "".join( wm_file.getFileInChunks() )
+    i = StringIO(wm_data)
+    wm = Image.open(i)
+    wm_w, wm_h = wm.size
+    # only resize watermark if too big
+    if wm_w > sizeX or wm_h > sizeY:
+        wm = reshape_to_fit(wm, sizeX, sizeY)
+    wm = wm.convert("L")
+    return wm
+
+
+def pasteWatermark(image, watermark):
+    """ Paste the watermark onto the center of the image. Return image """
+
+    wm_w, wm_h = watermark.size
+    w, h = image.size
+    offset = (w-wm_w) / 2, (h-wm_h) / 2
+    image.paste(watermark, offset, watermark)
+    return image
+
+
+def writeMovie(commandArgs, conn):
     """
     Makes the movie.
     
@@ -307,6 +402,7 @@ def writeMovie(commandArgs, session):
     """
     log("Movie created by OMERO")
     log("")
+    session = conn.c.sf
     gateway = session.createGateway()
     scriptService = session.getScriptService()
     queryService = session.getQueryService()
@@ -354,6 +450,19 @@ def writeMovie(commandArgs, session):
     
     format = commandArgs["Format"]
     fileNames = []
+
+    # add intro...
+    if "Intro_Slide" in commandArgs and commandArgs["Intro_Slide"].id:
+        intro_duration = commandArgs["Intro_Duration"]
+        intro_fileId = commandArgs["Intro_Slide"].id.val
+        intro_filenames = write_intro_end_slides(conn, commandArgs, intro_fileId, intro_duration, sizeX, sizeY)
+        fileNames.extend(intro_filenames)
+
+    # prepare watermark
+    if "Watermark" in commandArgs and commandArgs["Watermark"].id:
+        watermark = prepareWatermark(conn, commandArgs, sizeX, sizeY)
+
+    # add movie frames...
     for tz in tzList:
         t = tz[0]
         z = tz[1]
@@ -371,6 +480,8 @@ def writeMovie(commandArgs, session):
             image = addTimePoints(time, pixels, image, overlayColour)
         if "Show_Plane_Info" in commandArgs and commandArgs["Show_Plane_Info"]:
             image = addPlaneInfo(z, t, pixels, image, overlayColour)
+        if "Watermark" in commandArgs and commandArgs["Watermark"].id:
+            image = pasteWatermark(image, watermark)
         if format==QT:
             filename = str(frameNo)+'.png'
             image.save(filename,"PNG")
@@ -379,7 +490,15 @@ def writeMovie(commandArgs, session):
             image.save(filename,"JPEG")
         fileNames.append(filename)
         frameNo +=1
-        
+
+    # add exit frames... "outro"
+    # add intro...
+    if "Ending_Slide" in commandArgs and commandArgs["Ending_Slide"].id:
+        end_duration = commandArgs["Ending_Duration"]
+        end_fileId = commandArgs["Ending_Slide"].id.val
+        end_filenames = write_intro_end_slides(conn, commandArgs, end_fileId, end_duration, sizeX, sizeY)
+        fileNames.extend(end_filenames)
+
     filelist= ",".join(fileNames)
         
     ext = formatMap[format]
@@ -425,6 +544,15 @@ def runAsScript():
     scripts.String("Format", description="Format to save movie", values=formats, default=QT, grouping="10"),
     scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=cOptions, grouping="11"),
     scripts.Map("Plane_Map", description="Specify the individual planes (instead of using T_Start, T_End, Z_Start and Z_End)", grouping="12"),
+    scripts.Object("Watermark", description="Specifiy a watermark as an Original File (png or jpeg)", 
+            default=omero.model.OriginalFileI()),
+    scripts.Object("Intro_Slide", description="Specifiy an Intro slide as an Original File (png or jpeg)",
+            default=omero.model.OriginalFileI()),
+    scripts.Int("Intro_Duration", default=3, description="Duration of Intro in seconds. Default is 3 secs."),
+    scripts.Object("Ending_Slide", description="Specifiy a finishing slide as an Original File, (png or jpeg)",
+            default=omero.model.OriginalFileI()),
+    scripts.Int("Ending_Duration", default=3, description="Duration of finishing slide in seconds. Default is 3 secs."),
+
     version = "4.2.0",
     authors = ["Donald MacDonald", "OME Team"],
     institutions = ["University of Dundee"],
@@ -432,7 +560,7 @@ def runAsScript():
     )
 
     try:
-        session = client.getSession()
+        conn = BlitzGateway(client_obj=client)
         commandArgs = {}
 
         for key in client.getInputKeys():
@@ -440,7 +568,7 @@ def runAsScript():
                 commandArgs[key] = client.getInput(key).getValue()
         print commandArgs
 
-        fileAnnotation = writeMovie(commandArgs, session)
+        fileAnnotation = writeMovie(commandArgs, conn)
         if fileAnnotation:
             client.setOutput("Message", rstring("Movie Created"))
             client.setOutput("File_Annotation", robject(fileAnnotation))
