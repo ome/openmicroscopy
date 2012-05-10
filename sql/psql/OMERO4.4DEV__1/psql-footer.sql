@@ -958,7 +958,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO4.4DEV',  0,    'OMERO4.4DEV',   0,             'Initializing');
+             values ('OMERO4.4DEV',  1,    'OMERO4.4DEV',   1,             'Initializing');
 
 --
 -- Here we will create the root account and the necessary groups
@@ -1786,9 +1786,9 @@ insert into password values (1,'');
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = now()
   where currentVersion = 'OMERO4.4DEV' and
-        currentPatch = 0 and
+        currentPatch = 1 and
         previousVersion = 'OMERO4.4DEV' and
-        previousPatch = 0;
+        previousPatch = 1;
 
 COMMIT;
 

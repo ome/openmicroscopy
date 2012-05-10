@@ -1938,7 +1938,7 @@
         theT int4,
         theZ int4,
         version int4,
-        visibility bool,
+        visibile bool,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
