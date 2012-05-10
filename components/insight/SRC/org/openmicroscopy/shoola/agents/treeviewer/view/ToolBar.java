@@ -693,7 +693,11 @@ class ToolBar
     void setPermissions()
     {
     	GroupData group = model.getSelectedGroup();
-    	if (group == null || groupContext == null) return;
+    	if (group == null || groupContext == null) {
+    		menuButton.setVisible(false);
+        	groupContext.setVisible(false);
+    		return;
+    	}
     	String desc = "";
 		Icon icon = null;
 		switch (group.getPermissions().getPermissionsLevel()) {

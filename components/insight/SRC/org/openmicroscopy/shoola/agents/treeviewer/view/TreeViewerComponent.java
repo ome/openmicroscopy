@@ -3669,22 +3669,34 @@ class TreeViewerComponent
 		Iterator<Browser> j = browsers.values().iterator();
 
 		//First remove the one that no longer in the list.
+		boolean displayed = false;
+		boolean set;
 		while (j.hasNext()) {
 			browser = j.next();
 			k = toRemove.iterator();
 			while (k.hasNext()) {
 				group = k.next();
+				if (group.getId() == model.getSelectedGroupId()) {
+					displayed = true;
+				}
 				browser.removeGroup(group);
 			}
 			//now add.
 			k = groups.iterator();
+			set = false;
 			while (k.hasNext()) {
 				group = k.next();
 				if (!already.contains(group.getId())) {
 					browser.setUserGroup(group);
 					model.setSelectedGroupId(group.getId());
 					notifyChangeGroup(group.getId());
+					set = true;
 				}
+			}
+			if (!set) {
+				group = groups.get(0);
+				model.setSelectedGroupId(group.getId());
+				notifyChangeGroup(group.getId());
 			}
 			view.setPermissions();
 		}
