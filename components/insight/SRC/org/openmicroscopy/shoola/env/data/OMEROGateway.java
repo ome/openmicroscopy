@@ -3271,18 +3271,24 @@ class OMEROGateway
 			IQueryPrx service = getQueryService(ctx);
 			String table = getTableForAnnotationLink(type.getName());
 			if (table == null) return null;
-			String sql = "select link from "+table+" as link where " +
-			"link.parent.id = :parentID and link.details.owner.id = :userID"; 
+			StringBuffer buffer = new StringBuffer();
+			
+			buffer.append("select link from "+table+" as link ");
+			
+			buffer.append("where link.parent.id = :parentID"); 
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();
 			p.map.put("parentID", omero.rtypes.rlong(parentID));
-			p.map.put("userID", omero.rtypes.rlong(userID));
+			if (userID >= 0) {
+				buffer.append(" and link.details.owner.id = :userID");
+				p.map.put("userID", omero.rtypes.rlong(userID));
+			}
 			if (childID >= 0) {
-				sql += " and link.child.id = :childID";
+				buffer.append(" and link.child.id = :childID");
 				p.map.put("childID", omero.rtypes.rlong(childID));
 			}
 
-			return service.findByQuery(sql, p);
+			return service.findByQuery(buffer.toString(), p);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
 					"parent ID: "+parentID+" and child " +
@@ -3297,7 +3303,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param parentType The type of parent to handle.
 	 * @param parentID The id of the parent to handle.
-	 * @param children Collection of the identifierss.
+	 * @param children Collection of the identifiers.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
@@ -7920,6 +7926,19 @@ class OMEROGateway
 			handleException(e, "Cannot transfer the data.");
 		}
 		return null;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object can be deleted, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param ho The object to handle.
+	 * @return See above.
+	 */
+	boolean canDelete(IObject ho)
+	{
+		if (ho == null) return false;
+		return ho.getDetails().getPermissions().canDelete();
 	}
 	
 }
