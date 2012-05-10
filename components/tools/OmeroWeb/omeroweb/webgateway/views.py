@@ -697,6 +697,20 @@ def render_shape_thumbnail (request, shapeId, server_id=None, w=None, h=None, _c
     return get_shape_thumbnail (request, _conn, image, shape, compress_quality)
 
 
+def pointsStringToXYlist(string):
+    """
+    Method for converting the string returned from omero.model.ShapeI.getPoints()
+    into list of (x,y) points.
+    E.g: "309,427 366,503 190,491"
+    """
+    pointLists = string.strip().split(" ")
+    xyList = []
+    for xy in pointLists.split(" "):
+        x, y = xy.split(",")
+        xyList.append( [int(x.strip()), int(y.strip())] )
+    return xyList
+
+
 def get_shape_thumbnail (request, conn, image, s, compress_quality):
     """
     Render a region around the specified Shape, scale to width and height (or default size) and draw the
@@ -713,23 +727,6 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
     if color in colours:
         lineColour = colours[color]
     bg_color = (221,221,221)        # used for padding if we go outside the image area
-    
-    def pointsStringToXYlist(string):
-        """
-        Method for converting the string returned from omero.model.ShapeI.getPoints()
-        into list of (x,y) points.
-        E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491] points2[309,427, 366,503, 190,491]"
-        """
-        pointLists = string.strip().split("points")
-        if len(pointLists) < 2:
-            logger.error("Unrecognised ROI shape 'points' string: %s" % string)
-            return ""
-        firstList = pointLists[1]
-        xyList = []
-        for xy in firstList.strip(" []").split(", "):
-            x, y = xy.split(",")
-            xyList.append( ( int( x.strip() ), int(y.strip() ) ) )
-        return xyList
 
     def xyListToBbox(xyList):
         """ Returns a bounding box (x,y,w,h) that will contain the shape represented by the XY points list """
@@ -761,10 +758,10 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
         # TODO: support for mask
     elif type(s) == omero.model.EllipseI:
         shape['type'] = 'Ellipse'
-        shape['cx'] = int(s.getCx().getValue())
-        shape['cy'] = int(s.getCy().getValue())
-        shape['rx'] = int(s.getRx().getValue())
-        shape['ry'] = int(s.getRy().getValue())
+        shape['cx'] = int(s.getX().getValue())
+        shape['cy'] = int(s.getY().getValue())
+        shape['rx'] = int(s.getRadiusX().getValue())
+        shape['ry'] = int(s.getRadiusY().getValue())
         bBox = (shape['cx']-shape['rx'], shape['cy']-shape['ry'], 2*shape['rx'], 2*shape['ry'])
     elif type(s) == omero.model.PolylineI:
         shape['type'] = 'PolyLine'
@@ -781,8 +778,8 @@ def get_shape_thumbnail (request, conn, image, s, compress_quality):
         bBox = (x, y, max(shape['x1'],shape['x2'])-x, max(shape['y1'],shape['y2'])-y)
     elif type(s) == omero.model.PointI:
         shape['type'] = 'Point'
-        shape['cx'] = s.getCx().getValue()
-        shape['cy'] = s.getCy().getValue()
+        shape['cx'] = s.getX().getValue()
+        shape['cy'] = s.getY().getValue()
         bBox = (shape['cx']-50, shape['cy']-50, 100, 100)
     elif type(s) == omero.model.PolygonI:
         shape['type'] = 'Polygon'
@@ -2096,16 +2093,11 @@ def get_rois_json(request, imageId, server_id=None):
         """
         Method for converting the string returned from omero.model.ShapeI.getPoints()
         into an SVG for display on web.
-        E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491] points2[309,427, 366,503, 190,491]"
-        To: M 309 427 L 366 503 L 190 491 z
+        E.g: "309,427 366,503 190,491"
+        To: M309 427 L366 503 L190 491
         """
-        pointLists = string.strip().split("points")
-        if len(pointLists) < 2:
-            logger.error("Unrecognised ROI shape 'points' string: %s" % string)
-            return ""
-        firstList = pointLists[1]
-        nums = firstList.strip("[]").replace(", ", " L").replace(",", " ")
-        return "M" + nums
+        pointLists = string.strip().replace(" ", " L").replace(",", " ")
+        return "M" + pointLists
 
     def rgb_int2css(rgbint):
         """
@@ -2124,6 +2116,10 @@ def get_rois_json(request, imageId, server_id=None):
     for r in result.rois:
         roi = {}
         roi['id'] = r.getId().getValue()
+        if r.getName():
+            roi['name'] = r.getName().getValue()
+        if r.getDescription():
+            roi['description'] = r.getDescription().getValue()
         # go through all the shapes of the ROI
         shapes = []
         for s in r.copyShapes():
@@ -2135,26 +2131,21 @@ def get_rois_json(request, imageId, server_id=None):
             shape['theZ'] = s.getTheZ().getValue()
             if type(s) == omero.model.RectI:
                 shape['type'] = 'Rectangle'
-                shape['x'] = s.getX().getValue()
-                shape['y'] = s.getY().getValue()
                 shape['width'] = s.getWidth().getValue()
                 shape['height'] = s.getHeight().getValue()
             elif type(s) == omero.model.MaskI:
                 shape['type'] = 'Mask'
-                shape['x'] = s.getX().getValue()
-                shape['y'] = s.getY().getValue()
                 shape['width'] = s.getWidth().getValue()
                 shape['height'] = s.getHeight().getValue()
                 # TODO: support for mask
             elif type(s) == omero.model.EllipseI:
                 shape['type'] = 'Ellipse'
-                shape['cx'] = s.getCx().getValue()
-                shape['cy'] = s.getCy().getValue()
-                shape['rx'] = s.getRx().getValue()
-                shape['ry'] = s.getRy().getValue()
+                shape['radiusX'] = s.getRadiusX().getValue()
+                shape['radiusY'] = s.getRadiusY().getValue()
             elif type(s) == omero.model.PolylineI:
                 shape['type'] = 'PolyLine'
-                shape['points'] = stringToSvg(s.getPoints().getValue())
+                shape['svg'] = stringToSvg(s.getPoints().getValue())
+                shape['points'] = pointsStringToXYlist(s.getPoints().getValue())
             elif type(s) == omero.model.LineI:
                 shape['type'] = 'Line'
                 shape['x1'] = s.getX1().getValue()
@@ -2163,20 +2154,21 @@ def get_rois_json(request, imageId, server_id=None):
                 shape['y2'] = s.getY2().getValue()
             elif type(s) == omero.model.PointI:
                 shape['type'] = 'Point'
-                shape['cx'] = s.getCx().getValue()
-                shape['cy'] = s.getCy().getValue()
             elif type(s) == omero.model.PolygonI:
                 shape['type'] = 'Polygon'
-                shape['points'] = stringToSvg(s.getPoints().getValue()) + "z" # z = closed line
+                shape['svg'] = stringToSvg(s.getPoints().getValue()) + "z" # z = closed line
+                shape['points'] = pointsStringToXYlist(s.getPoints().getValue())
             elif type(s) == omero.model.LabelI:
                 shape['type'] = 'Label'
-                shape['x'] = s.getX().getValue()
-                shape['y'] = s.getY().getValue()
             else:
                 logger.debug("Shape type not supported: %s" % str(type(s)))
             try:
-                if s.getTextValue() and s.getTextValue().getValue():
-                    shape['textValue'] = s.getTextValue().getValue()
+                shape['x'] = s.getX().getValue()
+                shape['y'] = s.getY().getValue()
+            except AttributeError: pass
+            try:
+                if s.getText() and s.getText().getValue():
+                    shape['text'] = s.getText().getValue()
                     # only populate json with font styles if we have some text
                     if s.getFontSize() and s.getFontSize().getValue():
                         shape['fontSize'] = s.getFontSize().getValue()
@@ -2184,6 +2176,12 @@ def get_rois_json(request, imageId, server_id=None):
                         shape['fontStyle'] = s.getFontStyle().getValue()
                     if s.getFontFamily() and s.getFontFamily().getValue():
                         shape['fontFamily'] = s.getFontFamily().getValue()
+            except AttributeError: pass
+            try:
+                if s.getMarkerStart():
+                    shape['markerStart'] = s.getMarkerStart().getValue()
+                if s.getMarkerEnd():
+                    shape['markerEnd'] = s.getMarkerEnd().getValue()
             except AttributeError: pass
             if s.getTransform():
                 t = s.getTransform().getValue()
