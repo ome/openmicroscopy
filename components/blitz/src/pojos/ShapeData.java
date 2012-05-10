@@ -444,7 +444,7 @@ public abstract class ShapeData
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) return false;
-		RBool b = shape.getVisibility();
+		RBool b = shape.getVisible();
 		if (b == null) return true;
 		return b.getValue();
 	}
@@ -460,7 +460,7 @@ public abstract class ShapeData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setVisibility(rtypes.rbool(visible));
+		shape.setVisible(rtypes.rbool(visible));
 		setDirty(true);
 	}
 	

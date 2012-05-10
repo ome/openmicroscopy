@@ -3943,7 +3943,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseVisible(Boolean visible, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
+        o.setVisible(toRType(visible));
     }
 
     ////////Experiment/////////
@@ -5170,7 +5170,7 @@ public class OMEROMetadataStoreClient
     public void setLineVisible(Boolean visible, int ROIIndex, int shapeIndex)
     {
         Line o = getLine(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
+        o.setVisible(toRType(visible));
     }
 
     public void setLineMarkerEnd(ome.xml.model.enums.Marker markerEnd,
@@ -5338,7 +5338,7 @@ public class OMEROMetadataStoreClient
     public void setMaskVisible(Boolean visible, int ROIIndex, int shapeIndex)
     {
         Mask o = getMask(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
+        o.setVisible(toRType(visible));
     }
 
     /* (non-Javadoc)
@@ -6373,7 +6373,7 @@ public class OMEROMetadataStoreClient
     public void setPointVisible(Boolean visible, int ROIIndex, int shapeIndex)
     {
         Point o = getPoint(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
+        o.setVisible(toRType(visible));
     }
 
     public void setPointFillColor(Color fillColor, int ROIIndex, int shapeIndex)
@@ -6562,7 +6562,7 @@ public class OMEROMetadataStoreClient
     public void setPolygonVisible(Boolean visible, int ROIIndex, int shapeIndex)
     {
         Polygon o = getPolygon(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
+        o.setVisible(toRType(visible));
     }
 
     public void setPolygonFillColor(Color fillColor, int ROIIndex,
@@ -6730,7 +6730,7 @@ public class OMEROMetadataStoreClient
     public void setPolylineVisible(Boolean visible, int ROIIndex, int shapeIndex)
     {
         Polyline o = getPolyline(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
+        o.setVisible(toRType(visible));
     }
 
     public void setPolylineMarkerEnd(ome.xml.model.enums.Marker markerEnd, int ROIIndex, int shapeIndex)
@@ -7276,7 +7276,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleVisible(Boolean visible, int ROIIndex, int shapeIndex)
     {
     	Rectangle o = getRectangle(ROIIndex, shapeIndex);
-      o.setVisibility(toRType(visible));
+        o.setVisible(toRType(visible));
     }
     
     /* (non-Javadoc)
@@ -7683,7 +7683,7 @@ public class OMEROMetadataStoreClient
     public void setLabelVisible(Boolean value, int ROIIndex, int shapeIndex)
     {
         Label o = getLabel(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(value));
+        o.setVisible(toRType(value));
     }
 
     /* (non-Javadoc)

@@ -1237,7 +1237,7 @@
             <!--
             // Property Visibility
             -->
-            <optional name="visibility" type="Boolean"/>
+            <optional name="visible" type="Boolean"/>
             <!-- add manually, It will be part of the model. -->
             <optional name="locked" type="Boolean"/>
         </properties>
