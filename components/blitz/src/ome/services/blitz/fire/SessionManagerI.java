@@ -192,7 +192,6 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             
             _ServiceFactoryTie tie = new _ServiceFactoryTie(session);
             Ice.ObjectPrx _prx = current.adapter.add(tie, id); // OK Usage
-            _prx = current.adapter.createDirectProxy(id);
 
             // Logging & sessionToClientIds addition
             if (!sessionToClientIds.containsKey(s.getUuid())) {

@@ -9,6 +9,8 @@ package omero.cmd;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.logging.Log;
@@ -29,7 +31,6 @@ import ome.util.SqlAction;
 
 import omero.LockTimeout;
 import omero.ServerError;
-import omero.util.CloseableServant;
 
 /**
  * Servant for the handle proxy from the Command API. This is also a
@@ -52,7 +53,7 @@ import omero.util.CloseableServant;
  * @since 4.3.2
  */
 public class HandleI implements _HandleOperations, IHandle,
-       SessionAware, CloseableServant {
+       SessionAware {
 
     private static enum State {
         CREATED, READY, RUNNING, CANCELLING, CANCELLED, FINISHED;
@@ -68,6 +69,12 @@ public class HandleI implements _HandleOperations, IHandle,
     private final int cancelTimeoutMs;
 
     /**
+     * Callbacks that have been added by clients.
+     */
+    private final ConcurrentHashMap<String, CmdCallbackPrx> callbacks =
+        new ConcurrentHashMap<String, CmdCallbackPrx>();
+
+    /**
      * State-diagram location. This instance is also used as a lock around
      * certain critical sections.
      */
@@ -78,6 +85,11 @@ public class HandleI implements _HandleOperations, IHandle,
      * processing is finished.
      */
     private final AtomicReference<Response> rsp = new AtomicReference<Response>();
+
+    /**
+     * Current step. should only be incremented during {@link #steps(SqlAction, Session, ServiceFactory)}.
+     */
+    private final AtomicInteger currentStep = new AtomicInteger();
 
     /**
      * Status which will be returned by {@link #getStatus()} and as a part of
@@ -133,6 +145,49 @@ public class HandleI implements _HandleOperations, IHandle,
     }
 
     //
+    // CALLBACKS
+    //
+
+    public void addCallback(CmdCallbackPrx cb, Current __current) {
+        Ice.Identity id = cb.ice_getIdentity();
+        String key = Ice.Util.identityToString(id);
+        cb = CmdCallbackPrxHelper.checkedCast(cb.ice_oneway());
+        callbacks.put(key, cb);
+    }
+
+    public void removeCallback(CmdCallbackPrx cb, Current __current) {
+        Ice.Identity id = cb.ice_getIdentity();
+        String key = Ice.Util.identityToString(id);
+        cb = CmdCallbackPrxHelper.checkedCast(cb.ice_oneway());
+        callbacks.remove(key);
+    }
+
+    /**
+     * Calls the proper notification on all callbacks based on the current
+     * {@link #state}. If the {@link State} is anything other than
+     * {@link State#CANCELLED} or {@link State#FINISHED} then
+     * {@link CmdCallbackPrx#step(int, int)} is called.
+     */
+    public void notifyCallbacks() {
+        final State state = this.state.get();
+        final boolean finished = state.equals(State.FINISHED);
+        final boolean cancelled = state.equals(State.CANCELLED);
+        for (final CmdCallbackPrx prx : callbacks.values()) {
+            try {
+                if (finished) {
+                    prx.finished(rsp.get());
+                } else if (cancelled) {
+                    prx.cancelled(rsp.get());
+                } else {
+                    prx.step(currentStep.get(), status.steps);
+                }
+            } catch (Exception e) {
+                sess.handleCallbackException(e);
+            }
+        }
+    }
+
+    //
     // GETTERS
     //
 
@@ -153,6 +208,14 @@ public class HandleI implements _HandleOperations, IHandle,
     //
 
     public boolean cancel(Current __current) throws LockTimeout {
+        try {
+            return cancelWithoutNotification();
+        } finally {
+            notifyCallbacks();
+        }
+    }
+
+    private boolean cancelWithoutNotification() throws LockTimeout {
 
         // If we can successfully catch the CREATED or READY state,
         // then there's no reason to wait for anything else.
@@ -219,10 +282,24 @@ public class HandleI implements _HandleOperations, IHandle,
     //
 
     public void close(Ice.Current current) {
-        sess.unregisterServant(id);
+        sess.unregisterServant(id); // No exception
+        try {
+            closeWithoutNotification(current);
+        } finally {
+            notifyCallbacks();
+        }
+    }
+
+    private void closeWithoutNotification(Ice.Current current) {
         final State s = state.get();
         if (!State.FINISHED.equals(s) && !State.CANCELLED.equals(s)) {
-            log.warn("Handle closed before finished! State=" + state.get());
+            log.info("Handle closed before finished! State=" + state.get());
+            try {
+                cancel(current);
+            }
+            catch (LockTimeout e) {
+                log.warn("Cancel failed");
+            }
         }
     }
 
@@ -271,6 +348,7 @@ public class HandleI implements _HandleOperations, IHandle,
         } finally {
             rsp.set(req.getResponse());
             sw.stop("omero.request.tx");
+            notifyCallbacks();
         }
     }
 
@@ -294,7 +372,8 @@ public class HandleI implements _HandleOperations, IHandle,
             StopWatch sw = new CommonsLogStopWatch();
             req.init(status, sql, session, sf);
 
-            for (int j = 0; j < status.steps; j++) {
+            int j = 0;
+            while (j < status.steps) {
                 sw = new CommonsLogStopWatch();
                 try {
                     if (!state.compareAndSet(State.READY, State.RUNNING)) {
@@ -307,6 +386,16 @@ public class HandleI implements _HandleOperations, IHandle,
                     // by the try/catch handler
                     state.compareAndSet(State.RUNNING, State.READY);
                 }
+
+                j = currentStep.incrementAndGet(); // SOLE INCREMENT
+
+                // The following would probably be better handled by a
+                // background thread, or via the heartbeat mechanism. For
+                // the moment, though we'll notify callbacks per decile.
+                if ((j % (status.steps/10)) == 0) {
+                    notifyCallbacks();
+                }
+
             }
         } catch (Cancel cancel) {
             throw cancel;
