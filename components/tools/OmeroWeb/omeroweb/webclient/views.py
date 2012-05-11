@@ -1078,16 +1078,21 @@ def annotate_comment(request, conn=None, **kwargs):
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well'],
             'shares':oids['share']}
-
-    manager = BaseContainer(conn)
-
+    
     # Handle form submission...
     form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
     if form_multi.is_valid():
         # In each case below, we pass the {'object_type': [ids]} map
         content = form_multi.cleaned_data['comment']
         if content is not None and content != "":
-            textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
+            if oids['share'] is not None and len(oids['share']) > 0:
+                sid = oids['share'][0].id
+                manager = BaseShare(conn, sid)
+                host = request.build_absolute_uri(reverse("load_template", args=["public"]))
+                textAnn = manager.addComment(host, conn.server_id, content)
+            else:
+                manager = BaseContainer(conn)
+                textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
             context = {'tann': textAnn, 'template':"webclient/annotations/comment.html"}
             return context
     else:
