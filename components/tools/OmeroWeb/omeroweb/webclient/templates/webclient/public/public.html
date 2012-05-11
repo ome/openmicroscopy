@@ -278,14 +278,6 @@
     <!-- include code to handle middle panel selection -->
     {% include "webclient/data/includes/center_plugin.thumbs.js.html" %}
 
-    <!-- set-up right panel tabs -->
-    {% include "webclient/data/includes/right_plugin.general.js.html" %}
-
-    <!-- include scripts for loading data into right-hand tabs -->
-    <!-- these are configured in settings.py under "omero.web.ui.right_tabs" -->
-    {% for rt in ome.right_plugins %}
-        {% include rt.include %}
-    {% endfor %}
 
 {% endblock %}
 

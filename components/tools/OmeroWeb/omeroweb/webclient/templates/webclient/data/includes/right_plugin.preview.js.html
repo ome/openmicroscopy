@@ -24,6 +24,7 @@ $(document).ready(function() {
     
     // this script is an 'include' within a django for-loop, so we can get our index:
     var preview_tab_index = {{ forloop.counter }};
+    var $metadata_preview = $("#preview_tab");
 
     var update_preview_tab = function() {
         
@@ -37,7 +38,6 @@ $(document).ready(function() {
         var oid = selected[0]["id"];
 
         // if the tab is visible and not loaded yet...
-        $metadata_preview = $("#preview_tab");
         if ($metadata_preview.is(":visible") && $metadata_preview.is(":empty")) {
             var well_index = selected[0]["index"] || 0;
             var url = null;
@@ -51,7 +51,13 @@ $(document).ready(function() {
     };
     
     // update tabs when tree selection changes or tabs switch
-    $("#annotation_tabs").bind( "tabsshow", update_preview_tab);
+    $("#annotation_tabs").bind( "tabsshow", function(tab_ui, tab){
+        if (tab.index == preview_tab_index) {
+            $metadata_preview.show();   // sometimes this doesn't get shown until too late
+            update_preview_tab();
+        }
+    });
+    
 
     // on change of selection, update which tabs are enabled
     $("body").bind("selection_change.ome", function(event) {
