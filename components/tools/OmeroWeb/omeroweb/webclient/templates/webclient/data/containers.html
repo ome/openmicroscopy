@@ -1104,11 +1104,11 @@
                         <div class='group_option'>
                             <input type="radio" name="group_id" value="{{ grp.id }}" style="display:none"/>
                             <img
-                            {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static "webclient/image/nuvola_ledorange16.png" %}"
+                            {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static "webclient/image/group_orange16.png" %}"
                             {% else %}
-                                {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/nuvola_ledorange_readOnly16.png" %}"
+                                {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
                                 {% else %}
-                                    src="{% static "webclient/image/nuvola_ledred16.png" %}"
+                                    src="{% static "webclient/image/personal16.png" %}"
                                 {% endif %}
                             {% endif %} />
                             {{ grp.name }}
