@@ -39,22 +39,24 @@ var addToBasket = function(selected, prefix) {
 
 // called on selection changes in jstree
 var tree_selection_changed = function(data) {
-    
-    var selected = data.inst.get_selected();
-    var share_id = null;
-    if (selected.length == 1) {
-        var pr = selected.parent().parent();
-        if (pr.length>0 && pr.attr('rel') && pr.attr('rel').replace("-locked", "")==="share") {
-            share_id = pr.attr("id").split("-")[1];
-        }
-    }
+
     var selected_objs = [];
-    selected.each(function(){
-        var selected_obj = {"id":$(this).attr('id'), "rel":$(this).attr('rel')}
-        if (share_id) selected_obj["share"] = share_id;
-        selected_objs.push(selected_obj);
-    });
-    
+
+    if (typeof data != 'undefined' && typeof data.inst != 'undefined') {
+        var selected = data.inst.get_selected();
+        var share_id = null;
+        if (selected.length == 1) {
+            var pr = selected.parent().parent();
+            if (pr.length>0 && pr.attr('rel') && pr.attr('rel').replace("-locked", "")==="share") {
+                share_id = pr.attr("id").split("-")[1];
+            }
+        }
+        selected.each(function(){
+            var selected_obj = {"id":$(this).attr('id'), "rel":$(this).attr('rel')}
+            if (share_id) selected_obj["share"] = share_id;
+            selected_objs.push(selected_obj);
+        });
+    }
     $("body")
         .data("selected_objects.ome", selected_objs)
         .trigger("selection_change.ome");

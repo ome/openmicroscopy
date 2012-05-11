@@ -972,7 +972,11 @@
                     addToBasket($.jstree._focused().get_selected(), '{% url update_basket %}');
                     break;
                 case "refreshButton":
+                    // clear selection of center/right panels, refresh and notify
+                    tree_selection_changed();
                     $("#dataTree").jstree("refresh");
+                    data = $.jstree._focused().get_selected();
+                    tree_selection_changed(data);
                     break;
                 default:
                     break;
