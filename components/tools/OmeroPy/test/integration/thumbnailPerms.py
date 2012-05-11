@@ -49,13 +49,7 @@ class TestThumbnailPerms(lib.ITest):
         #group1 - private
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring(group1name)
-        p = PermissionsI()
-        p.setUserRead(True)
-        p.setUserWrite(True)
-        p.setGroupRead(False)
-        p.setGroupWrite(False)
-        p.setWorldRead(False)
-        p.setWorldWrite(False)
+        p = PermissionsI('rw----')
         new_gr1.details.permissions = p
         gid = admin.createGroup(new_gr1)
         privateGroup = admin.getGroup(gid)
@@ -65,33 +59,21 @@ class TestThumbnailPerms(lib.ITest):
         #group2 - read-only
         new_gr2 = ExperimenterGroupI()
         new_gr2.name = rstring(group2name)
-        p2 = PermissionsI()
-        p2.setUserRead(True)
-        p2.setUserWrite(True)
-        p2.setGroupRead(True)
-        p2.setGroupWrite(False)
-        p2.setWorldRead(False)
-        p2.setWorldWrite(False)
+        p2 = PermissionsI('rwr---')
         new_gr2.details.permissions = p2
         gid2 = admin.createGroup(new_gr2)
         readOnlyGroup = admin.getGroup(gid2)
         self.assertEquals('rwr---', str(readOnlyGroup.details.permissions))
         listOfGroups.append(readOnlyGroup)
         
-        #group3 - collaborative
+        #group3 - read-annotate
         new_gr3 = ExperimenterGroupI()
         new_gr3.name = rstring(group3name)
-        p = PermissionsI()
-        p.setUserRead(True)
-        p.setUserWrite(True)
-        p.setGroupRead(True)
-        p.setGroupWrite(True)
-        p.setWorldRead(False)
-        p.setWorldWrite(False)
+        p = PermissionsI('rwra--')
         new_gr3.details.permissions = p
         gid3 = admin.createGroup(new_gr3)
         collaborativeGroup = admin.getGroup(gid3)
-        self.assertEquals('rwrw--', str(collaborativeGroup.details.permissions))
+        self.assertEquals('rwra--', str(collaborativeGroup.details.permissions))
         listOfGroups.append(collaborativeGroup)
         
         #new user (group owner)
