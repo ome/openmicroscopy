@@ -62,9 +62,9 @@ public class ObjectiveSettingsTest extends TestCase
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX);
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX + 1);
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX + 2);
-        store.setImageObjectiveSettingsID("Objective:0", IMAGE_INDEX);
-        store.setImageObjectiveSettingsID("Objective:0", IMAGE_INDEX + 1);
-        store.setImageObjectiveSettingsID("Objective:0", IMAGE_INDEX + 2);
+        store.setObjectiveSettingsID("Objective:0", IMAGE_INDEX);
+        store.setObjectiveSettingsID("Objective:0", IMAGE_INDEX + 1);
+        store.setObjectiveSettingsID("Objective:0", IMAGE_INDEX + 2);
 	}
 
 	@Test
