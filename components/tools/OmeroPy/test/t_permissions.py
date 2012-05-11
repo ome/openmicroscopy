@@ -64,6 +64,91 @@ class TestPermissions(unittest.TestCase):
         self.p.setGroupWrite(False)
         self.assert_( not self.p.isGroupWrite() )
 
+    def testPermissionsSetters(self):
+        # start with everythin false
+        p = omero.model.PermissionsI('------')
+
+        ## read flags are easy, straight binary
+        ## user flags
+        p.setUserRead(True)
+        self.assert_( p.isUserRead() )
+        self.assertEquals('r', str(p)[0])
+        p.setUserRead(False)
+        self.assert_( not p.isUserRead() )
+        self.assertEquals('-', str(p)[0])
+
+        ## group flags
+        p.setGroupRead(True)
+        self.assert_( p.isGroupRead() )
+        self.assertEquals('r', str(p)[2])
+        p.setGroupRead(False)
+        self.assert_( not p.isGroupRead() )
+        self.assertEquals('-', str(p)[2])
+
+        ## world flags
+        p.setWorldRead(True)
+        self.assert_( p.isWorldRead() )
+        self.assertEquals('r', str(p)[4])
+        p.setWorldRead(False)
+        self.assert_( not p.isWorldRead() )
+        self.assertEquals('-', str(p)[4])
+
+        ## write flags are trickier as the string
+        ## representation is ternary
+        ## user flags
+        p.setUserAnnotate(True)
+        self.assert_( p.isUserAnnotate() )
+        self.assert_( not p.isUserWrite() )
+        self.assertEquals('a', str(p)[1])
+        p.setUserWrite(True)
+        self.assert_( p.isUserAnnotate() )
+        self.assert_( p.isUserWrite() )
+        self.assertEquals('w', str(p)[1])
+        p.setUserWrite(False)
+        self.assert_( p.isUserAnnotate() )
+        self.assert_( not p.isUserWrite() )
+        self.assertEquals('a', str(p)[1])
+        p.setUserAnnotate(False)
+        self.assert_( not p.isUserAnnotate() )
+        self.assert_( not p.isUserWrite() )
+        self.assertEquals('-', str(p)[1])
+
+        ## group flags
+        p.setGroupAnnotate(True)
+        self.assert_( p.isGroupAnnotate() )
+        self.assert_( not p.isGroupWrite() )
+        self.assertEquals('a', str(p)[3])
+        p.setGroupWrite(True)
+        self.assert_( p.isGroupAnnotate() )
+        self.assert_( p.isGroupWrite() )
+        self.assertEquals('w', str(p)[3])
+        p.setGroupWrite(False)
+        self.assert_( p.isGroupAnnotate() )
+        self.assert_( not p.isGroupWrite() )
+        self.assertEquals('a', str(p)[3])
+        p.setGroupAnnotate(False)
+        self.assert_( not p.isGroupAnnotate() )
+        self.assert_( not p.isGroupWrite() )
+        self.assertEquals('-', str(p)[3])
+
+        ## world flags
+        p.setWorldAnnotate(True)
+        self.assert_( p.isWorldAnnotate() )
+        self.assert_( not p.isWorldWrite() )
+        self.assertEquals('a', str(p)[5])
+        p.setWorldWrite(True)
+        self.assert_( p.isWorldAnnotate() )
+        self.assert_( p.isWorldWrite() )
+        self.assertEquals('w', str(p)[5])
+        p.setWorldWrite(False)
+        self.assert_( p.isWorldAnnotate() )
+        self.assert_( not p.isWorldWrite() )
+        self.assertEquals('a', str(p)[5])
+        p.setWorldAnnotate(False)
+        self.assert_( not p.isWorldAnnotate() )
+        self.assert_( not p.isWorldWrite() )
+        self.assertEquals('-', str(p)[5])
+
     def test8564(self):
 
         p = omero.model.PermissionsI("rwrwrw")
