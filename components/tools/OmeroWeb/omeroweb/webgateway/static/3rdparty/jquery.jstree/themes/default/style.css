@@ -13,11 +13,10 @@
  
  
  
- .jstree-default > ul { 
- 	//background: hsl(220,20%,95%);
+.jstree-default > ul { 
 	font-size:1.2em;
- 	padding:10px 0 !important;
- 	}
+	padding:10px 0 !important;
+}
  
 
 .jstree-default li, 
@@ -116,26 +115,25 @@
 	
 	
 	
-.jstree-default a .jstree-icon {
+/* ticket #8757 .jstree-default a .jstree-icon {
 	background:url(box8.png) center center no-repeat;
 	width:17px;
-	}
-	
-	.jstree-default .data_screen a .jstree-icon{
-		background:url(plate.png) center center no-repeat !important;
-	}
+}*/
+/* ticket #8757 .jstree-default .data_screen a .jstree-icon{
+	background:url(plate.png) center center no-repeat !important;
+}*/
 
 
 
 /* Targets Children */
 
-	.jstree-default ul li ul li a {
-		opacity:.9;
-		}
+.jstree-default ul li ul li a {
+	opacity:.9;
+}
 	
-	.jstree-default ul li ul li a .jstree-icon {
-		background:url(folder.png) center center no-repeat;
-		}
+/* ticket #8757.jstree-default ul li ul li a .jstree-icon {
+	background:url(folder.png) center center no-repeat;
+}*/
 
 
 /* Targets Level 3 Grandchildren */
