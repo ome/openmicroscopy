@@ -1998,7 +1998,6 @@ def activities(request, conn=None, **kwargs):
                 try:
                     handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                     cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
-                    new_results.append(cbString)
                     if cb.block(0) is None: # ms #500
                         err = handle.errors()
                         request.session['callback'][cbString]['derror'] = err
@@ -2008,6 +2007,7 @@ def activities(request, conn=None, **kwargs):
                             request.session['callback'][cbString]['status'] = "failed"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                             failure+=1
+                            new_results.append(cbString)
                         else:
                             request.session['callback'][cbString]['status'] = "in progress"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
@@ -2015,6 +2015,7 @@ def activities(request, conn=None, **kwargs):
                     else:
                         err = handle.errors()
                         request.session['callback'][cbString]['derror'] = err
+                        new_results.append(cbString)
                         if err > 0:
                             request.session['callback'][cbString]['status'] = "failed"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
