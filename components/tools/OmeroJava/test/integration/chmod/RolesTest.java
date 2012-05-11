@@ -61,9 +61,6 @@ public class RolesTest
 	extends AbstractServerTest
 {
 
-	/** Flag to turn on/off the deletion of a dataset.*/
-	private boolean delete = false;
-	
     /**
      * Since we are creating a new client on each invocation, we should also
      * clean it up. Note: {@link #newUserAndGroup(String)} also closes, but
@@ -233,30 +230,16 @@ public class RolesTest
     	assertFalse(perms.canLink());
     	
     	//Create a link canLink
-    	//Try to delete the link i.e. canLink
-    	try {
-    		iUpdate.deleteObject(l);
-    		fail("Group owner should not be allowed to delete " +
-    				"an image/dataset link.");
-		} catch (Exception e) {
-		}
+    	//Try to delete the link i.e. canDelete
+    	iUpdate.deleteObject(l);
     	
     	
     	//Try to delete the annotation link i.e. canDelete
-		try {
-			iUpdate.deleteObject(dl);
-			fail("Group owner should not be allowed to delete " +
-			"an annoation link.");
-		} catch (Exception e) {
-		}
+    	iUpdate.deleteObject(dl);
     	
     	
     	//Try to delete the annotation i.e. canDelete
-		try {
-			iUpdate.deleteObject(ann);
-			fail("Group owner should not be allowed to delete " +
-			"an annoation.");
-		} catch (Exception e) {}
+    	iUpdate.deleteObject(ann);
     	
     	//Try to link an image  i.e. canLink
 		try {
@@ -284,8 +267,14 @@ public class RolesTest
     	
     	
     	//Try to edit i.e. canEdit
-		d.setName(rstring("newNAme"));
-		iUpdate.saveAndReturnObject(d);
+		try {
+
+			d.setName(rstring("newNAme"));
+			iUpdate.saveAndReturnObject(d);
+			fail("Group owner should not be allowed to edit a dataset.");
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
     }
     
     /**
@@ -1020,7 +1009,6 @@ public class RolesTest
     	iUpdate.deleteObject(ann);
     	
     	//Try to delete the dataset i.e. canDelete
-    	if (delete)
 		delete(client, new DeleteCommand(
     			DeleteServiceTest.REF_DATASET, id, null));
 		
