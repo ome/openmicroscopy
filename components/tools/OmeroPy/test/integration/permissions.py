@@ -133,8 +133,10 @@ class TestPermissions(lib.ITest):
         p.setUserRead(True)
         p.setUserWrite(True)
         p.setGroupRead(False)
+        p.setGroupAnnotate(False)
         p.setGroupWrite(False)
         p.setWorldRead(False)
+        p.setWorldAnnotate(False)
         p.setWorldWrite(False)
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
@@ -163,8 +165,10 @@ class TestPermissions(lib.ITest):
         p.setUserRead(True)
         p.setUserWrite(True)
         p.setGroupRead(True)
+        p.setGroupAnnotate(False)
         p.setGroupWrite(False)
         p.setWorldRead(False)
+        p.setWorldAnnotate(False)
         p.setWorldWrite(False)
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
@@ -172,6 +176,37 @@ class TestPermissions(lib.ITest):
         # update name of group1
         gr1 = admin.getGroup(g1_id)
         self.assertEquals('rwr---', str(gr1.details.permissions))
+        new_name = "changed_name_group1_%s" % uuid
+        gr1.name = rstring(new_name)
+        admin.updateGroup(gr1)
+        gr1_u = admin.getGroup(g1_id)
+        self.assertEquals(new_name, gr1_u.name.val)
+
+    def testCreatAndUpdatePublicGroupReadAnnotate(self):
+        # this is the test of creating public group and updating it
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        query = self.root.sf.getQueryService()
+        update = self.root.sf.getUpdateService()
+        admin = self.root.sf.getAdminService()
+
+        #create group1
+        new_gr1 = ExperimenterGroupI()
+        new_gr1.name = rstring("group1_%s" % uuid)
+        p = PermissionsI()
+        p.setUserRead(True)
+        p.setUserWrite(True)
+        p.setGroupRead(True)
+        p.setGroupAnnotate(True)
+        p.setGroupWrite(False)
+        p.setWorldRead(False)
+        p.setWorldAnnotate(False)
+        p.setWorldWrite(False)
+        new_gr1.details.permissions = p
+        g1_id = admin.createGroup(new_gr1)
+
+        # update name of group1
+        gr1 = admin.getGroup(g1_id)
+        self.assertEquals('rwra--', str(gr1.details.permissions))
         new_name = "changed_name_group1_%s" % uuid
         gr1.name = rstring(new_name)
         admin.updateGroup(gr1)
@@ -195,6 +230,7 @@ class TestPermissions(lib.ITest):
         p.setGroupRead(True)
         p.setGroupWrite(True)
         p.setWorldRead(False)
+        p.setWorldAnnotate(False)
         p.setWorldWrite(False)
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
@@ -223,36 +259,57 @@ class TestPermissions(lib.ITest):
         p.setUserRead(True)
         p.setUserWrite(True)
         p.setGroupRead(False)
+        p.setGroupAnnotate(False)
         p.setGroupWrite(False)
         p.setWorldRead(False)
+        p.setWorldAnnotate(False)
         p.setWorldWrite(False)
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
 
-        #incrise permissions of group1 to rwr---
+        #increase permissions of group1 to rwr---
         gr1 = admin.getGroup(g1_id)
         p1 = PermissionsI()
         p1.setUserRead(True)
         p1.setUserWrite(True)
         p1.setGroupRead(True)
+        p1.setGroupAnnotate(False)
         p1.setGroupWrite(False)
         p1.setWorldRead(False)
+        p1.setWorldAnnotate(False)
         p1.setWorldWrite(False)
         admin.changePermissions(gr1, p1)
         gr2 = admin.getGroup(g1_id)
         self.assertEquals('rwr---', str(gr2.details.permissions))
 
-        #incrise permissions of group1 to rwrw--
+        #increase permissions of group1 to rwra--
+        gr2 = admin.getGroup(g1_id)
         p2 = PermissionsI()
         p2.setUserRead(True)
         p2.setUserWrite(True)
         p2.setGroupRead(True)
-        p2.setGroupWrite(True)
+        p2.setGroupAnnotate(True)
+        p2.setGroupWrite(False)
         p2.setWorldRead(False)
+        p2.setWorldAnnotate(False)
         p2.setWorldWrite(False)
         admin.changePermissions(gr2, p2)
         gr3 = admin.getGroup(g1_id)
-        self.assertEquals('rwrw--', str(gr3.details.permissions))
+        self.assertEquals('rwra--', str(gr3.details.permissions))
+
+        #increase permissions of group1 to rwrw--
+        gr3 = admin.getGroup(g1_id)
+        p3 = PermissionsI()
+        p3.setUserRead(True)
+        p3.setUserWrite(True)
+        p3.setGroupRead(True)
+        p3.setGroupWrite(True)
+        p3.setWorldRead(False)
+        p3.setWorldAnnotate(False)
+        p3.setWorldWrite(False)
+        admin.changePermissions(gr3, p3)
+        gr4 = admin.getGroup(g1_id)
+        self.assertEquals('rwrw--', str(gr4.details.permissions))
 
     def testGroupOwners(self):
         # this is the test of creating private group and updating it
@@ -269,8 +326,10 @@ class TestPermissions(lib.ITest):
         p.setUserRead(True)
         p.setUserWrite(True)
         p.setGroupRead(True)
+        p.setGroupAnnotate(False)
         p.setGroupWrite(False)
         p.setWorldRead(False)
+        p.setWorldAnnotate(False)
         p.setWorldWrite(False)
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
