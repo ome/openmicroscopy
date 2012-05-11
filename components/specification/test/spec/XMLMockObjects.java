@@ -31,6 +31,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.xml.model.AffineTransform;
 import ome.xml.model.Arc;
 import ome.xml.model.BinData;
 import ome.xml.model.Channel;
@@ -65,7 +66,6 @@ import ome.xml.model.OMEModelObject;
 import ome.xml.model.Objective;
 import ome.xml.model.ObjectiveSettings;
 import ome.xml.model.OME;
-import ome.xml.model.OTF;
 import ome.xml.model.Pixels;
 import ome.xml.model.Plane;
 import ome.xml.model.Plate;
@@ -614,28 +614,6 @@ public class XMLMockObjects
 	}
 	
 	/**
-	 * Creates an OTF.
-	 * 
-	 * @param index The index of the OTF.
-	 * @param set   The related filter set.
-	 * @param settings The related settings.
-	 * @return See above.
-	 */
-	public OTF createOTF(int index, FilterSet set, ObjectiveSettings settings)
-	{
-		OTF otf = new OTF();
-		otf.setID("OTF:"+index);
-		otf.setOpticalAxisAveraged(true);
-		otf.setObjectiveSettings(settings);
-		otf.setSizeX(new PositiveInteger(SIZE_X));
-		otf.setSizeY(new PositiveInteger(SIZE_Y));
-		otf.setType(PIXEL_TYPE);
-		otf.linkFilterSet(set);
-		otf.setBinaryFile(createBinaryFile());
-		return otf;
-	}
-	
-	/**
 	 * Creates a binary file.
 	 * 
 	 * @return See above.
@@ -688,7 +666,6 @@ public class XMLMockObjects
 			shape = p;
 		} else if (Polyline.class.getName().equals(type)) {
 			Polyline pl = new Polyline();
-			pl.setClosed(false);
 			pl.setPoints(POINTS);
 			shape = pl;
 		} else if (Mask.class.getName().equals(type)) {
@@ -704,11 +681,18 @@ public class XMLMockObjects
 			shape.setTheC(new NonNegativeInteger(c));
 			shape.setTheZ(new NonNegativeInteger(z));
 			shape.setTheT(new NonNegativeInteger(t));
-			shape.setTransform("transform"+index);
-			shape.setFill(10);
-			shape.setStroke(255);
+			//shape.setTransform(createTransform());
+			shape.setFillColor(new ome.xml.model.primitives.Color(100));
+			shape.setStrokeColor(new ome.xml.model.primitives.Color(100));
 		}
 		return shape;
+	}
+	
+	private AffineTransform createTransform()
+	{
+		AffineTransform at = new AffineTransform();
+		
+		return at;
 	}
 	
 	/** 
@@ -885,10 +869,10 @@ public class XMLMockObjects
 				well.setID(String.format("Well:%d_%d_%d", row, column, index));
 				well.setRow(new NonNegativeInteger(row));
 				well.setColumn(new NonNegativeInteger(column));
-				well.setStatus("Transfection: done");
+				well.setType("Transfection: done");
 				well.setExternalDescription("External Description");
 				well.setExternalIdentifier("External Identifier");
-				well.setColor(255);
+				well.setColor(new ome.xml.model.primitives.Color(255));
 				if (pas.size() == 0) {
 					for (int field = 0; field < fields; field++) {
 						sample = new WellSample();
@@ -1037,8 +1021,8 @@ public class XMLMockObjects
 		channel.setID("Channel:"+index);
 		channel.setAcquisitionMode(AcquisitionMode.FLUORESCENCELIFETIME);
 		int argb = DEFAULT_COLOR.getRGB();
-		int	rgba = (argb << 8) | (argb >>> (32-8));
-		channel.setColor(rgba);
+		int rgba = (argb << 8) | (argb >>> (32-8));
+		channel.setColor(new ome.xml.model.primitives.Color(rgba));
 		channel.setName("Name");
 		channel.setIlluminationType(IlluminationType.OBLIQUE);
 		channel.setPinholeSize(0.5);
@@ -1332,8 +1316,6 @@ public class XMLMockObjects
         Image image = createImage(0, true);
         ObjectiveSettings settings = createObjectiveSettings(0);
         image.setObjectiveSettings(settings);
-        OTF otf = createOTF(0, instrument.getFilterSet(0), settings);
-        instrument.addOTF(otf);
 
         //Add microbeam
         Experiment exp = createExperiment(0);
@@ -1341,11 +1323,6 @@ public class XMLMockObjects
         MicrobeamManipulation mm = createMicrobeamManipulation(0);
         exp.addMicrobeamManipulation(mm);
         Pixels pixels = image.getPixels();
-        Channel c;
-        for (int i = 0; i < pixels.getSizeC().getValue().intValue(); i++) {
-            c = pixels.getChannel(i);
-            c.linkOTF(otf);
-        }
         image.linkExperiment(exp);
         image.linkInstrument(instrument);
         ome.addImage(image);

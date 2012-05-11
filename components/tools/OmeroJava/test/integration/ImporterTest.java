@@ -25,6 +25,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import omero.model.ColorI;
 import ome.xml.model.OME;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
@@ -511,11 +512,16 @@ public class ImporterTest
 				xml.getExternalDescription());
 		assertEquals(well.getExternalIdentifier().getValue(), 
 				xml.getExternalIdentifier());
-		Color xmlColor = new Color(xml.getColor());
-		assertEquals(c.getAlpha(), xmlColor.getAlpha());
-		assertEquals(c.getRed(), xmlColor.getRed());
-		assertEquals(c.getGreen(), xmlColor.getGreen());
-		assertEquals(c.getBlue(), xmlColor.getBlue());
+		ome.xml.model.primitives.Color color = xml.getColor();
+		ColorI argb = new ColorI();
+		argb.setAlpha(color.getAlpha());
+		argb.setRed(color.getRed());
+		argb.setGreen(color.getGreen());
+		argb.setBlue(color.getBlue());
+		assertEquals(c.getAlpha(), argb.getAlpha());
+		assertEquals(c.getRed(), argb.getRed());
+		assertEquals(c.getGreen(), argb.getGreen());
+		assertEquals(c.getBlue(), argb.getBlue());
 	}
 
 	/**
