@@ -209,11 +209,9 @@
 <br/>
 
 {% if eid %}
+    <!-- We are editing existing user -->
     <form action="{% url wamanageexperimenterid "save" eid %}" method="POST" class="standard_form">
-{% else %}
-    <form action="{% url wamanageexperimenterid "create" %}" method="POST" class="standard_form">
-{% endif %}
-
+        
         {% if ldapAuth %}
         <label>LDAP:</label> {{ ldapAuth }} <br />
         {% else %}
@@ -230,6 +228,11 @@
             <span id="password_change_message" class="error">Message here</span>
         </div>
         {% endif %}
+        
+{% else %}
+    <!-- We are creating new user -->
+    <form action="{% url wamanageexperimenterid "create" %}" method="POST" class="standard_form">
+{% endif %}
         
         {% for field in form %}
         
@@ -258,6 +261,7 @@
         
 </form>
 
+{% if eid %}
 <!-- hidden dialog for password change - This is almost duplicated in myaccount.html-->
 <div id="password_change_dialog" title="Change Password">
 
@@ -285,6 +289,7 @@
         </table>
     </form>
 </div>
+{% endif %}
 
 </div>
 

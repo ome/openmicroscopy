@@ -652,6 +652,10 @@
                                 }
                             };
                             
+                            {% if myGroups|length < 2 %}
+                            config["chgrp"]["_disabled"] = true;
+                            {% endif %}
+                            
                             if(obj.attr("rel").indexOf("locked")>=0) {
                                 {% if not isLeader %}config["delete"]["_disabled"] = true;{% endif %}
                                 config["ccp"]["_disabled"] = true;
