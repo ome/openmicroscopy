@@ -226,11 +226,11 @@
 	}
 	
 		#launch_basket  a{
-			background: url(/static/webgateway/img/icon_basket.png) center center no-repeat;
+			background: url(../img/icon_basket.png) center center no-repeat;
 		}
 	
 		#scriptButton{
-			background: url(/static/webgateway/img/icon_script.png) center center no-repeat;
+			background: url(../img/icon_script.png) center center no-repeat;
 		}
 	
 		#launch_activities{
@@ -592,7 +592,7 @@
 	}
 	
 		#launch_basket {
-			background: url(/static/webgateway/img/icon_basket.png) 8px center no-repeat;
+			background: url(../img/icon_basket.png) 8px center no-repeat;
 			display:inline-block;
 		}
 		

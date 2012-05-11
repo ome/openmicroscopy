@@ -81,9 +81,6 @@
 
 
 .header_toolbar {
-	//border-radius:3px;
-	//behavior: url(/static/webclient/css/PIE.htc);
-	
 	border-left:solid 1px #4C5359;
 	border-right:solid 1px #4C5359;
 	border-top:solid 1px #4C5359;
@@ -281,7 +278,7 @@
 				background-color: #803333;
 				border: 1px solid #4D0F0F;
 				text-shadow: 0 1px 0 #4D0F0F;
-				behavior: url(/static/webclient/css/PIE.htc);
+				behavior: url(../../webclient/css/PIE.htc);
 			}
 	
 		
@@ -311,7 +308,7 @@
 			-webkit-border-radius:2px; /* Saf3+, Chrome */
 			   -moz-border-radius:2px; /* FF1+ */
 			        border-radius:2px; /* Opera 10.5, IE 9 */ 
-				behavior: url(/static/webclient/css/PIE.htc);
+				behavior: url(../../webclient/css/PIE.htc);
 		}
 	
 

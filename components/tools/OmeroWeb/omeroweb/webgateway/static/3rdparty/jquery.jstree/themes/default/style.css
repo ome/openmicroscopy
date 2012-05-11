@@ -115,13 +115,13 @@
 	
 	
 	
-/* ticket #8757 .jstree-default a .jstree-icon {
-	background:url(box8.png) center center no-repeat;
+.jstree-default a .jstree-icon {
+	background:url("d.png") center center no-repeat;
 	width:17px;
-}*/
-/* ticket #8757 .jstree-default .data_screen a .jstree-icon{
-	background:url(plate.png) center center no-repeat !important;
-}*/
+}
+.jstree-default .data_screen a .jstree-icon{
+	background:url("d.png") center center no-repeat !important;
+}
 
 
 
@@ -131,9 +131,9 @@
 	opacity:.9;
 }
 	
-/* ticket #8757.jstree-default ul li ul li a .jstree-icon {
-	background:url(folder.png) center center no-repeat;
-}*/
+.jstree-default ul li ul li a .jstree-icon {
+	background:url("d.png") center center no-repeat;
+}
 
 
 /* Targets Level 3 Grandchildren */
@@ -154,12 +154,12 @@
 }
 
 .jstree-default li > ins {
-	background:url(/static/webgateway/img/folder_closed.png) center center no-repeat;
+	background:url(../../../../webgateway/img/folder_closed.png) center center no-repeat;
 }
 
 
 .jstree-open > ins {
-	background:url(/static/webgateway/img/folder_open.png) center center no-repeat !important;
+	background:url(../../../../webgateway/img/folder_open.png) center center no-repeat !important;
 }
 
 .jstree-leaf > ins {

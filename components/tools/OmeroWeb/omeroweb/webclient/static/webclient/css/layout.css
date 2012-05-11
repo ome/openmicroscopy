@@ -1728,16 +1728,16 @@
         /* Individual Images */
         
         #personal_settings_tab {
-            background:url(/static/webclient/image/icon_settings_user.png) center 14px no-repeat;
+            background:url(../../webclient/image/icon_settings_user.png) center 14px no-repeat;
         }
         
         #group_settings_tab {
-            background:url(/static/webclient/image/icon_settings_groups.png) center 14px no-repeat;
+            background:url(../../webclient/image/icon_settings_groups.png) center 14px no-repeat;
         }
         
         
         #drivespace_settings_tab {
-            background:url(/static/webclient/image/icon_settings_drivespace.png) center 14px no-repeat;
+            background:url(../../webclient/image/icon_settings_drivespace.png) center 14px no-repeat;
         }
         
         

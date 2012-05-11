@@ -125,17 +125,17 @@ button::-moz-focus-inner {
 	
 	/* Specific Buttons Images*/  
 	
-	.btn_view {background: url(/static/webgateway/img/icon_view.png) center center no-repeat;}
-	.btn_folder {background: url(/static/webgateway/img/icon_folder.png) center center no-repeat;}
-	.btn_download {background: url(/static/webgateway/img/icon_download.png) center center no-repeat;}
-	.btn_filetype {background: url(/static/webgateway/img/icon_filetype.png) center center no-repeat;}
-	.btn_view_error {background: url(/static/webgateway/img/icon_view_error.png) center center no-repeat;}
-	.btn_info {background: url(/static/webgateway/img/icon_info.png )center center no-repeat;}
-	.btn_add {background: url(/static/webgateway/img/icon_add.png )center center no-repeat;}
-	.btn_scientist {background: url(/static/webgateway/img/icon_add_scientist.png )center center no-repeat;}
-	.btn_group {background: url(/static/webgateway/img/icon_add_group.png )center center no-repeat;}
-	.btn_delete {background: url(/static/webgateway/img/icon_delete.png )center center no-repeat;}
-	.btn_edit {background: url(/static/webgateway/img/icon_edit.png )center center no-repeat;}
+	.btn_view {background: url(../../webgateway/img/icon_view.png) center center no-repeat;}
+	.btn_folder {background: url(../../webgateway/img/icon_folder.png) center center no-repeat;}
+	.btn_download {background: url(../../webgateway/img/icon_download.png) center center no-repeat;}
+	.btn_filetype {background: url(../../webgateway/img/icon_filetype.png) center center no-repeat;}
+	.btn_view_error {background: url(../../webgateway/img/icon_view_error.png) center center no-repeat;}
+	.btn_info {background: url(../../webgateway/img/icon_info.png )center center no-repeat;}
+	.btn_add {background: url(../../webgateway/img/icon_add.png )center center no-repeat;}
+	.btn_scientist {background: url(../../webgateway/img/icon_add_scientist.png )center center no-repeat;}
+	.btn_group {background: url(../../webgateway/img/icon_add_group.png )center center no-repeat;}
+	.btn_delete {background: url(../../webgateway/img/icon_delete.png )center center no-repeat;}
+	.btn_edit {background: url(../../webgateway/img/icon_edit.png )center center no-repeat;}
 	
 	
 	
@@ -649,11 +649,11 @@ button::-moz-focus-inner {
 			}
 			
 			.ui-datepicker-prev {
-				background:url(/static/webgateway/img/datepicker_prev.png) center 60% no-repeat;
+				background:url(../../webgateway/img/datepicker_prev.png) center 60% no-repeat;
 			}
 			
 			.ui-datepicker-next {
-				background:url(/static/webgateway/img/datepicker_next.png) center 60% no-repeat;
+				background:url(../../webgateway/img/datepicker_next.png) center 60% no-repeat;
 				right: 0px;
 			}
 			
@@ -773,11 +773,11 @@ button::-moz-focus-inner {
 			margin: -10px 0 0 0;
 			height: 18px; 
 			border:none;
-			background:url(/static/webgateway/img/close.png) center center no-repeat;
+			background:url(../../webgateway/img/close.png) center center no-repeat;
 		}
 	
 		.ui-dialog .ui-dialog-titlebar-close:hover, .ui-dialog .ui-dialog-titlebar-close:focus {
-			background:url(/static/webgateway/img/close.png) center center no-repeat;
+			background:url(../../webgateway/img/close.png) center center no-repeat;
 		}
 		
 		
