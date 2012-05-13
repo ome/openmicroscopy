@@ -611,7 +611,6 @@
                                 config["ccp"]["_disabled"] = true;
                                 config["basket"]["_disabled"] = true;
                                 if(obj.attr("rel").indexOf("locked")>=0) {
-                                    console.log('locked');
                                     config["create"]["_disabled"] = true;
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
                                     config["create"]["submenu"]["dataset"]["_disabled"] = true;
@@ -653,6 +652,9 @@
                                     }
                                     config["create"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("image")>=0) {
                                     if (obj.parent().parent().attr('rel').indexOf('orphaned')>=0) {
                                         config["ccp"]["submenu"]["cut"]["_disabled"] = true;
@@ -660,6 +662,9 @@
                                     }
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("screen")>=0) {
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
