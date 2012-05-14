@@ -29,6 +29,12 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 
+from os import getcwd
+from os.path import abspath, basename, dirname, join, pardir
+
+from glob import glob
+
+
 def index(request):
     template = settings.INDEX_TEMPLATE
     if template is None or len(template) < 1:
@@ -37,6 +43,13 @@ def index(request):
 
 def insight(request):
     t = template_loader.get_template('webstart/insight.xml')
-    context = {'codebase': request.build_absolute_uri(settings.STATIC_URL+'webstart/'), 'href':request.build_absolute_uri(reverse("webstart_insight"))}
+    codebase = request.build_absolute_uri(settings.STATIC_URL+'webstart/')
+    href = request.build_absolute_uri(reverse("webstart_insight"))
+
+    pattern = abspath(join(getcwd(), pardir, pardir, "insight", "*.jar"))
+    jarlist = glob(pattern)
+    jarlist = [basename(x) for x in jarlist]
+
+    context = {'codebase': codebase, 'href': href, 'jarlist': jarlist}
     c = Context(request, context)
     return HttpResponse(t.render(c), content_type="application/x-java-jnlp-file")

@@ -34,52 +34,8 @@
       <all-permissions/>
   </security>
   <resources>
-    <j2se version="1.5.0+" max-heap-size="512m"/>
-    <jar href="JHotDraw.jar"/>
-    <jar href="TableLayout.jar"/>
-    <jar href="ai_path.jar"/>
-    <jar href="axis.jar"/>
-    <jar href="backport-util-concurrent.jar"/>
-    <jar href="bio-formats.jar"/>
-    <jar href="bufr.jar"/>
-    <jar href="commons-codec.jar"/>
-    <jar href="commons-collections.jar"/>
-    <jar href="commons-digester.jar"/>
-    <jar href="commons-discovery.jar"/>
-    <jar href="commons-httpclient.jar"/>
-    <jar href="commons-io.jar"/>
-    <jar href="commons-lang.jar"/>
-    <jar href="commons-logging.jar"/>
-    <jar href="commons-validator.jar"/>
-    <jar href="ehcache.jar"/>
-    <jar href="gicentreUtils.jar"/>
-    <jar href="gluegen-rt.jar"/>
-    <jar href="grib.jar"/>
-    <jar href="ini4j.jar"/>
-    <jar href="jai_imageio.jar"/>
-    <jar href="jaxrpc.jar"/>
-    <jar href="jcommon.jar"/>
-    <jar href="jfreechart.jar"/>
-    <jar href="jogl.jar"/>
-    <jar href="loci-common.jar"/>
-    <jar href="log4j.jar"/>
-    <jar href="mdbtools-java.jar"/>
-    <!--<jar href="metakit.jar"/>-->
-    <jar href="nanoxml.jar"/>
-    <jar href="netcdf.jar"/>
-    <jar href="ols-client.jar"/>
-    <jar href="ome-xml.jar"/>
-    <jar href="omero.insight.jar"/>
-    <jar href="physics.jar"/>
-    <jar href="poi.jar"/>
-    <jar href="poi-loci.jar"/>
-    <jar href="saaj.jar"/>
-    <jar href="serializer.jar"/>
-    <jar href="slf4j-api.jar"/>
-    <jar href="slf4j-log4j12.jar"/>
-    <jar href="swingx.jar"/>
-    <jar href="wsdl4j.jar"/>
-    <jar href="xalan.jar"/>
+    <j2se version="1.5.0+" max-heap-size="512m"/>{% for jar in jarlist %}
+    <jar href="{{jar}}"/>{% endfor %}
   </resources>
   <application-desc main-class="org.openmicroscopy.shoola.Main"/>
 </jnlp>
