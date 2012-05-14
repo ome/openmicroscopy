@@ -234,7 +234,7 @@ public class MetadataImpl
     	Parameters param = new Parameters();
     	param.addId(id);
     	StringBuilder sb = new StringBuilder();
-    	Set result = new HashSet();    	//images linked to it.
+    	Set result = new HashSet();//images linked to it.
     	
     	sb.append("select img from Image as img ");
 		sb.append("left outer join fetch "
@@ -352,13 +352,6 @@ public class MetadataImpl
     	sb.append("left outer join fetch fs.dichroic as dichroic ");
     	//dichroic
     	sb.append("left outer join fetch inst.dichroic as di ");
-    	//OTF
-    	sb.append("left outer join fetch inst.otf as otf ");
-    	sb.append("left outer join fetch otf.type as type ");
-    	sb.append("left outer join fetch otf.objective as obj ");
-    	sb.append("left outer join fetch obj.immersion ");
-    	sb.append("left outer join fetch obj.correction ");
-    	sb.append("left outer join fetch otf.filterSet ");
     	
     	//light source
     	sb.append("left outer join fetch inst.lightSource as ls ");
@@ -417,8 +410,8 @@ public class MetadataImpl
     {
     	StringBuilder sb = new StringBuilder();
     	sb.append("select channel from Channel as channel ");
-    	sb.append("left outer join fetch channel.mode as mode ");
-        sb.append("left outer join fetch channel.illumination as illumination ");
+    	sb.append("left outer join fetch channel.acquisitionMode as mode ");
+        sb.append("left outer join fetch channel.illuminationType as illumination ");
         sb.append("left outer join fetch channel.contrastMethod as cm ");
 		sb.append("left outer join fetch channel.detectorSettings as ds ");
         sb.append("left outer join fetch channel.lightSourceSettings as lss ");
