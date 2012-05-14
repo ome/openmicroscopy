@@ -121,42 +121,10 @@ class TestPermissions(lib.ITest):
         # And edit? cF. READ-ONLY & READ-LINK
 
     def testLinkingInPrivateGroup(self):
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        query = self.root.sf.getQueryService()
-        update = self.root.sf.getUpdateService()
-        admin = self.root.sf.getAdminService()
 
-        #create group1
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring("group1_%s" % uuid)
-        p = PermissionsI()
-        p.setUserRead(True)
-        p.setUserWrite(True)
-        p.setGroupRead(False)
-        p.setGroupAnnotate(False)
-        p.setGroupWrite(False)
-        p.setWorldRead(False)
-        p.setWorldAnnotate(False)
-        p.setWorldWrite(False)
-        new_gr1.details.permissions = p
-        g1_id = admin.createGroup(new_gr1)
-        gr1 = admin.getGroup(g1_id)
-
-        #create user1
-        username = "user1_%s" % uuid
-        new_exp1 = ExperimenterI()
-        new_exp1.omeName = rstring(username)
-        new_exp1.firstName = rstring("New")
-        new_exp1.lastName = rstring("Test")
-        new_exp1.email = rstring("newtest@emaildomain.com")
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))
-        eid1 = admin.createExperimenterWithPassword(new_exp1, rstring("ome"), gr1, listOfGroups)
-        exp1 = admin.getExperimenter(eid1)
-        admin.addGroupOwners(gr1, [exp1])
-
-        client = omero.client()
-        client.createSession(username, "ome")
+        uuid = self.uuid()
+        group = self.new_group(perms="rw----")
+        client, user = self.new_client_and_user(group=group, admin=True)
         update = client.sf.getUpdateService()
 
         project = ProjectI()
