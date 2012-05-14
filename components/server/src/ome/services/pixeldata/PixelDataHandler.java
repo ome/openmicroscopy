@@ -16,11 +16,9 @@ import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.StatsInfo;
 import ome.model.meta.EventLog;
-import ome.parameters.Parameters;
-import ome.services.eventlogs.EventLogLoader;
+import ome.parameters.Parameters; 
 import ome.services.util.Executor.SimpleWork;
 import ome.system.ServiceFactory;
-import ome.util.ShallowCopy;
 import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;

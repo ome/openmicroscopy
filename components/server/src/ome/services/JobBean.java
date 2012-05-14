@@ -13,7 +13,6 @@ import ome.annotations.RolesAllowed;
 import ome.api.ITypes;
 import ome.api.JobHandle;
 import ome.api.ServiceInterface;
-import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;

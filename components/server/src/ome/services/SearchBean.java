@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.Search;
 import ome.api.ServiceInterface;
@@ -113,20 +112,20 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     // See documentation on JobBean#passivate
     @RolesAllowed("user")
-    @Transactional(readOnly = true)    
+    @Transactional(readOnly = true)
     public void passivate() {
 	// All state is passivatable.
     }
 
     // See documentation on JobBean#activate
     @RolesAllowed("user")
-    @Transactional(readOnly = true)    
+    @Transactional(readOnly = true)
     public void activate() {
 	// State needs to be read back with synchronization.
     }
 
     @RolesAllowed("user")
-    @Transactional(readOnly = true)    
+    @Transactional(readOnly = true)
     public void close() {
 	// Could null state.
     }

@@ -11,7 +11,6 @@ package ome.services.procs;
 //import ome.formats.importer.ImportLibrary;
 //import ome.formats.importer.OMEROWrapper;
 import ome.system.OmeroContext;
-import ome.system.ServiceFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
