@@ -63,7 +63,7 @@ public class DeleteStep extends GraphStep {
             }
         }
 
-        final QueryBuilder nullOp = optionalNullBuilder();
+        final QueryBuilder nullOp = null;//optionalNullBuilder();
         final QueryBuilder qb = queryBuilder(opts);
 
         // Phase 2: NULL
