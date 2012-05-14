@@ -23,7 +23,7 @@
 
 package ome.formats.model;
 
-import static omero.rtypes.rint;
+
 import static omero.rtypes.rstring;
 
 import java.awt.Color;

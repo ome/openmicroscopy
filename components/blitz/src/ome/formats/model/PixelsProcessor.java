@@ -24,7 +24,6 @@
 package ome.formats.model;
 
 import static omero.rtypes.rdouble;
-import static omero.rtypes.rfloat;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
