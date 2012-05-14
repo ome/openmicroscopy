@@ -1978,14 +1978,8 @@
 
 
 
-em {
-    background-color: #fff;
-    border: 1px solid #bbb;
-    position: absolute;
-    left: 0px;
-    padding: 5px;
-    z-index: 2;
-    display: none;
+.active-result em {
+    text-decoration: underline;
 }
 
 
