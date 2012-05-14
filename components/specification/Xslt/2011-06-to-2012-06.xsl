@@ -396,7 +396,7 @@
 	<!-- Rewriting all namespaces -->
 	
 	<xsl:template match="OME:OME">
-		<OME:OME xmlns:OME="http://www.openmicroscopy.org/Schemas/OME/2012-06"
+		<OME:OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2012-06"
 			xmlns:Bin="http://www.openmicroscopy.org/Schemas/BinaryFile/2012-06"
 			xmlns:SPW="http://www.openmicroscopy.org/Schemas/SPW/2012-06"
 			xmlns:SA="http://www.openmicroscopy.org/Schemas/SA/2012-06"
