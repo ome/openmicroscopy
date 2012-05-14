@@ -337,35 +337,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		s1.stop();
 		return pixels;
     }
-    
-    /**
-     * Loads the logical channel to determine the color correctly.
-     * 
-     * @param id The id of the channel.
-     * @return See above.
-     */
-    private Channel loadLogicalChannel(Long id)
-    {
-        StopWatch s1 = new CommonsLogStopWatch("omero.loadLogicalChannel");
-        Parameters p = new Parameters();
-        p.addId(id);
-        String sql = 
-            "select channel from Channel as channel " +
-            "left outer join fetch channel.filterSet as filter " +
-            "left outer join fetch channel.lightPath as lp " +
-            "left outer join fetch lp.emissionFilterLink as em_link " +
-            "left outer join fetch em_link.child as emFilter " +
-            "left outer join fetch emFilter.transmittanceRange " +
-            "left outer join fetch lp.excitationFilterLink as ex_link " +
-            "left outer join fetch ex_link.child as exFilter " +
-            "left outer join fetch exFilter.transmittanceRange " +
-            "left outer join fetch channel.lightSourceSettings as lss " +
-            "left outer join fetch lss.lightSource as ls " +
-            "where channel.id = :id";
-        Channel lc = iQuery.findByQuery(sql, p);
-        s1.stop();
-        return lc;
-    }
 
     /**
      * Retrieves all rendering settings associated with a given set of Pixels.
