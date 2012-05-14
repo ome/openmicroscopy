@@ -752,6 +752,7 @@ public class ImportLibrary implements IObservable
                     fileName, new RuntimeException(t), usedFiles, format));
             throw t;
         } finally {
+            store.setGroup(null);
             store.createRoot(); // CLEAR MetadataStore
         }
     }
@@ -1007,6 +1008,7 @@ public class ImportLibrary implements IObservable
 
     public void clear()
     {
+        store.setGroup(null);
         store.createRoot();
     }
 
