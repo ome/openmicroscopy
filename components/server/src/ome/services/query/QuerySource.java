@@ -26,13 +26,13 @@ import ome.parameters.Parameters;
  * Instances should be registered with the
  * {@link ome.services.query.QueryFactory} in the Spring configuration.
  * 
- * QuerySources are reponsible for mapping the given query ID to a Query
+ * QuerySources are responsible for mapping the given query ID to a Query
  * instance (possibly dependent on the {@link ome.parameters.Parameters}). The
  * order of sources provided to {@link ome.services.query.QueryFactory} is very
  * important.
  * 
  * QuerySources can use any mechanism available to perform the lookup, e.g. a
- * database backend, flat-files, the set of Hibernate named-queries, or concrete
+ * database back-end, flat-files, the set of Hibernate named-queries, or concrete
  * classes (see {@link ome.services.query.ClassQuerySource}).
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>

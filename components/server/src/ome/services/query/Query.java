@@ -16,7 +16,6 @@ package ome.services.query;
 
 import java.sql.SQLException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -35,7 +34,7 @@ import ome.parameters.QueryParameter;
  * base Query type to facilitate the creation of ORM queries. This class
  * attempts to enforce a strict usage pattern. First, subclasses must define a
  * {@link ome.services.query.Definitions} instance, which can optionally (and
- * perhaps preferrably) be static, which must be passed into the super
+ * perhaps preferably) be static, which must be passed into the super
  * constructor along with the {@link ome.parameters.Parameters} provided during
  * lookup.
  * <p>
