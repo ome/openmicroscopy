@@ -158,8 +158,9 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         the same order, but without loading them.
          */
 
-        execute(session, id, "update Pixels set relatedTo = null where id in" +
-			"(select p.id from Pixels p where p.relatedTo.image.id = :id)");
+        //J-M 14/05/12 remove reference to relatedTo
+        //execute(session, id, "update Pixels set relatedTo = null where id in" +
+		//	"(select p.id from Pixels p where p.relatedTo.image.id = :id)");
 
         execute(session, id, "delete PixelsOriginalFileMap where id in" +
 			"(select m.id from PixelsOriginalFileMap m where m.child.image.id = :id)");
@@ -288,15 +289,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
                     execute(session, chid, "delete Channel ch where ch.id = :id");
                     execute(session, siid, "delete StatsInfo si where si.id = :id");
-
-                    List<Object[]> remainingChannels = iQuery.projection(
-                            "select ch.id from LogicalChannel lc join lc.channels ch " +
-                            "where lc.id = :id",  new Parameters().addId(lcid));
-
-                    if (remainingChannels.size() == 0) {
-                        execute(session, lcid, "delete LogicalChannel lc where lc.id = :id");
-                    }
-
                 }
             }
         });
@@ -452,15 +444,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
             delete.call(channel);
             delete.call(channel.getStatsInfo());
 
-            //LogicalChannel lc = channel.getLogicalChannel();
-            //if (lc.sizeOfChannels() < 2) {
-            //    delete.call(lc);
-            //}
-            // delete.call(lc.getLightSource());
-            // // TODO lightsource
-            // delete.call(lc.getAuxLightSource());
-            // // TODO lightsource
-            // delete.call(lc.getOtf());
             delete.call(channel.getLightSourceSettings());
             LightSourceSettings ls = channel.getLightSourceSettings();
             delete.call(ls.getLightSource());
