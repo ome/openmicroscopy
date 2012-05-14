@@ -222,19 +222,27 @@ class UserEntry (object):
                 admin_gateway.seppuku()
 
     @staticmethod
-    def setGroupForSession (client, groupname):
+    def setGroupForSession (client, groupname, groupperms='rwrw--'):
         a = client.getAdminService()
         if not groupname in [x.name.val for x in a.containedGroups(client._userid)]:
-            UserEntry.addGroupToUser(client, groupname)
+            UserEntry.addGroupToUser(client, groupname, groupperms)
+            # Must reconnect to read new groupexperimentermap
+            t = client.clone()
+            client.c.closeSession()
+            client._proxies = omero.gateway.NoProxies()
+            client._ctx = None
+            client.c = t.c
+            client.connect()
+            a = client.getAdminService()
         g = a.lookupGroup(groupname)
         client.setGroupForSession(g.getId().val)
-
+        return client
 
 class ObjectEntry (object):
     pass
 
 class ProjectEntry (ObjectEntry):
-    def __init__ (self, name, owner, create_group=False, group_perms=False):
+    def __init__ (self, name, owner, create_group=False, group_perms=None):
         self.name = name
         self.owner = owner
         self.create_group = create_group
@@ -266,12 +274,12 @@ class ProjectEntry (ObjectEntry):
                 groupname = 'project_test'
 
             s = loginAsRoot()
+            g = UserEntry._getOrCreateGroup(s, groupname, self.group_perms)
             try:
-                UserEntry.addGroupToUser (s, groupname)
+                UserEntry.addGroupToUser (s, groupname, self.group_perms)
             finally:
                 s.seppuku()
-
-            UserEntry.setGroupForSession(client, groupname)
+            UserEntry.setGroupForSession(client, groupname, self.group_perms)
         p = omero.gateway.ProjectWrapper(client, client.getUpdateService().saveAndReturnObject(p))
         return self.get(client, True)
 
