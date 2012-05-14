@@ -205,7 +205,7 @@
 			<hr/>
                     
             <div class="description">
-                <span id='image_desc'>{{ manager.image.description|default_if_none:"no description"|linebreaks }}</span>
+                <span id='image_desc'>{{ manager.image.description|default:"no description"|linebreaks }}</span>
             </div>
             <table>                    
                 {% if not manager.image.isOwned %}
@@ -268,7 +268,7 @@
 				
                 <div class="description">
                     <div class="data_heading">
-						<p><span>{{ manager.share.message|default_if_none:""|sharewikify|safe|linebreaks }}</span></p>
+						<p><span>{{ manager.share.message|default:""|sharewikify|safe|linebreaks }}</span></p>
 					</div>
                 </div>
                 

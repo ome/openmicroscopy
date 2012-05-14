@@ -438,7 +438,7 @@
                 <tr>
                     <td><strong>{{ dict.group.name }}</strong></td>
                     <td>{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
-                    <td>{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
+                    <td>{{ dict.group.description|default:"-"|truncatewords:"5" }}</td>
                     <td class="table_settings">
                         {% if not dict.locked %}
                             <a href="{% url wamanagegroupownerid "edit" dict.group.id %}" alt="Edit Group" title="Edit Group" class="btn silver btn_edit">

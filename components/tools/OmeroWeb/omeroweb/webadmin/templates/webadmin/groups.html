@@ -136,7 +136,7 @@ OMERO Groups
 					{% endif %}
 					
 				</td>
-                <td>{{ group.description|default_if_none:"-"|truncatewords:"5" }}</td>
+                <td>{{ group.description|default:"-"|truncatewords:"5" }}</td>
 				
 				
             </tr>

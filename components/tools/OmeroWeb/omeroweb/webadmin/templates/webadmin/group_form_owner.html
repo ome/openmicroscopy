@@ -83,7 +83,7 @@
 		<dd>{{ group.name }}</dd>
 	    
 		<dt><strong>Description</strong></dt> 
-		<dd>{{ group.description|default_if_none:"no description" }}</dd>
+		<dd>{{ group.description|default:"no description" }}</dd>
 	    
 		<dt><strong>Owners</strong></dt> 
 		<dd>{{ owners }}</dd>
