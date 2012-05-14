@@ -82,23 +82,6 @@
 						</xsd:complexContent>
 					</xsd:complexType>
 				</xsd:element>
-				<xsd:element name="Share">
-					<xsd:annotation>
-                        <xsd:appinfo><xsdfu><plural>Share</plural><global/></xsdfu></xsd:appinfo>
-						<xsd:documentation> This . </xsd:documentation>
-					</xsd:annotation>
-					<xsd:complexType>
-						<xsd:sequence>
-							<xsd:element name="Group" minOccurs="0" maxOccurs="1"
-								type="OME:ExperimenterGroupID"/>
-							<xsd:element name="ShareMember" minOccurs="0" maxOccurs="1"
-								type="OME:ExperimenterID"/>
-							<xsd:element ref="BIN:BinData" minOccurs="1" maxOccurs="unbounded"/>
-						</xsd:sequence>
-						<xsd:attribute name="ItemCount" use="optional" type="xsd:long"/>
-						<xsd:attribute name="Active" use="optional" type="xsd:boolean"/>
-					</xsd:complexType>
-				</xsd:element>
 				<xsd:element name="Event" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
                         <xsd:appinfo><xsdfu><plural>Events</plural><immutable/><global/></xsdfu></xsd:appinfo>
@@ -154,6 +137,30 @@
 			<xsd:attribute name="Message" use="optional" type="xsd:string"/>
 		</xsd:complexType>
 	</xsd:element>
+
+	<xsd:element name = "Share"> <!-- top level definition -->
+        <xsd:annotation>
+            <xsd:appinfo><xsdfu><plural>Shares</plural><global/></xsdfu></xsd:appinfo>
+            <xsd:documentation>Describe and notates a share.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="Session">
+                    <xsd:sequence>
+                        <xsd:element ref="OME:ExperimenterRef" minOccurs="0" maxOccurs="unbounded">
+                            <xsd:annotation>
+                                <xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element ref="OME:ExperimenterGroupRef" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element ref="BIN:BinData" minOccurs="1" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                    <xsd:attribute name="ItemCount" use="optional" type="xsd:long"/>
+                    <xsd:attribute name="Active" use="optional" type="xsd:boolean"/>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
 
 	<xsd:element name = "Node"> <!-- top level definition -->
 		<xsd:annotation>
