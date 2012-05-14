@@ -56,11 +56,21 @@ class Fixture(object):
         dataset = self.update.saveAndReturnObject(dataset, ctx)
         return dataset
 
-    def load_pixels(self, pix_ids):
+    def check_pix(self, pix_ids):
         if len(pix_ids) != 1:
             raise Exception("Expecting one pixel id: %s" % pix_ids)
+
+    def load_pixels(self, pix_ids):
+        self.check_pix(pix_ids)
         return self.query.get("Pixels", long(pix_ids[0]))
 
+    def load_pixel_annotations(self, pix_ids):
+        self.check_pix(pix_ids)
+        return self.query.findAllByQuery("""select a from Image i
+            join i.annotationLinks l
+            join l.child a
+            join i.pixels p
+            where p.id = %s""" % pix_ids[0], None)
 
 class TestCliImport(lib.ITest):
 
@@ -106,6 +116,42 @@ class TestCliImport(lib.ITest):
         fixture.client.sf.setSecurityContext(group)
         pix = fixture.load_pixels(pix)
         self.assertGroup(group.id.val, pix)
+
+    def testAnnotationTextSimple(self):
+        fixture = Fixture(*self.new_client_and_user())
+        pix = self.cliimport(fixture, \
+                "--annotation_ns=test", \
+                "--annotation_text=test")
+        ann = fixture.load_pixel_annotations(pix)
+        self.assertEquals(1, len(ann))
+        self.assertEquals("test", ann[0].ns.val)
+        self.assertEquals("test", ann[0].textValue.val)
+
+    def testAnnotationTextMultiple(self):
+        fixture = Fixture(*self.new_client_and_user())
+        pix = self.cliimport(fixture, \
+                "--annotation_ns=test", \
+                "--annotation_text=test", \
+                "--annotation_ns=test", \
+                "--annotation_text=test")
+        ann = fixture.load_pixel_annotations(pix)
+        self.assertEquals(2, len(ann))
+        for x in ann:
+            self.assertEquals("test", x.ns.val)
+            self.assertEquals("test", x.textValue.val)
+
+    def testAnnotationComment(self):
+        fixture = Fixture(*self.new_client_and_user())
+        comment = omero.model.CommentAnnotationI()
+        comment.ns = rstring("test")
+        comment.textValue = rstring("test")
+        comment = fixture.update.saveAndReturnObject(comment)
+        pix = self.cliimport(fixture, \
+                "--annotation_link=%s" % comment.id.val)
+        ann = fixture.load_pixel_annotations(pix)
+        self.assertEquals(1, len(ann))
+        self.assertEquals("test", ann[0].ns.val)
+        self.assertEquals("test", ann[0].textValue.val)
 
 if __name__ == '__main__':
     unittest.main()
