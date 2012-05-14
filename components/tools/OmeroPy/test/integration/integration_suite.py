@@ -33,6 +33,7 @@ def additional_tests():
     suite.addTest(load("integration.bigImages"))
     suite.addTest(load("integration.client_ctors"))
     suite.addTest(load("integration.clientusage"))
+    suite.addTest(load("integration.cliimport"))
     suite.addTest(load("integration.counts"))
     suite.addTest(load("integration.delete"))
     suite.addTest(load("integration.emanScripts"))
