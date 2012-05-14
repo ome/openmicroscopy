@@ -148,7 +148,7 @@ class ITest(unittest.TestCase):
         img.acquisitionDate = rtime(0)
         return img
 
-    def import_image(self, filename = None, client = None):
+    def import_image(self, filename = None, client = None, extra_args=None):
         if filename is None:
             filename = self.OmeroPy / ".." / ".." / ".." / "components" / "common" / "test" / "tinyTest.d3d.dv"
         if client is None:
@@ -160,9 +160,14 @@ class ITest(unittest.TestCase):
 
         # Search up until we find "OmeroPy"
         dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
+
         args = [sys.executable]
         args.append(str(path(".") / "bin" / "omero"))
-        args.extend(["-s", server, "-k", key, "-p", port, "import", filename])
+        args.extend(["-s", server, "-k", key, "-p", port, "import", "--"])
+        if extra_args:
+            args.extend(extra_args)
+        args.append(filename)
+
         popen = subprocess.Popen(args, cwd=str(dist_dir), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = popen.communicate()
         rc = popen.wait()
