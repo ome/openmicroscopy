@@ -213,7 +213,6 @@ public class CommandLineImporter {
                                         + "  --annotation_ns=...\tNamespace to use for subsequent annotation\n"
                                         + "  --annotation_text=...\tContent for a text annotation (requires namespace)\n"
                                         + "  --annotation_link=...\tComment annotation ID to link all images to\n"
-                                        + "  --email=...\t\tEmail for reported errors\n"
                                         + "\n"
                                         + "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
                                         + "\n"
