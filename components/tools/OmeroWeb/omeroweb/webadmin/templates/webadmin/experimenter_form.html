@@ -219,7 +219,7 @@
         <div id="password">
 
             <div id="password_change">
-                <label>Password:</label>
+                <label>Password</label>
                 <a class="btn btn_text silver" id="change_password">
                     <span>Change User's Password</span>
                 </a>
@@ -233,18 +233,21 @@
     <!-- We are creating new user -->
     <form action="{% url wamanageexperimenterid "create" %}" method="POST" class="standard_form">
 {% endif %}
+
         
-        {% for field in form %}
-        
-        {% ifnotequal field.label_tag form.default_group.label_tag %}{% ifnotequal field.label_tag form.other_groups.label_tag %}
-        
-        {{ field.label_tag }}{% if field.field.required %}*{% endif %}
-        {{ field }}
-        {% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}
+        {{ form.omename.label_tag }} {% if form.omename.field.required %}*{% endif %} {{ form.omename }} <br />
+        {{ form.password.label_tag }} {% if form.password.field.required %}*{% endif %} {{ form.password }} <br />
+        {{ form.confirmation.label_tag }} {% if form.confirmation.field.required %}*{% endif %} {{ form.confirmation }} <br />
         <br />
-        {% endifnotequal %}{% endifnotequal %}
-        
-        {% endfor %}
+        {{ form.first_name.label_tag }} {% if form.first_name.field.required %}*{% endif %} {{ form.first_name }} <br />
+        {{ form.middle_name.label_tag }} {% if form.middle_name.field.required %}*{% endif %} {{ form.middle_name }} <br />
+        {{ form.last_name.label_tag }} {% if form.last_name.field.required %}*{% endif %} {{ form.last_name }} <br />
+        <br />
+        {{ form.email.label_tag }} {% if form.email.field.required %}*{% endif %} {{ form.email }} <br />
+        {{ form.institution.label_tag }} {% if form.institution.field.required %}*{% endif %} {{ form.institution }} <br />
+        <br />
+        {{ form.administrator.label_tag }} {% if form.administrator.field.required %}*{% endif %} {{ form.administrator }} <br />
+        {{ form.active.label_tag }} {% if form.active.field.required %}*{% endif %} {{ form.active }} <br />
         
         <br />
         {{ form.default_group.label_tag }}*{{ form.default_group }}
