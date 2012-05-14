@@ -14,11 +14,13 @@ import omero
 from omero_model_PermissionsI import PermissionsI
 from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
+from omero_model_ProjectI import ProjectI
 from omero_model_TagAnnotationI import TagAnnotationI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
+from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 from omero.rtypes import *
 
 class CallContextFixture(object):
@@ -117,6 +119,58 @@ class TestPermissions(lib.ITest):
         sf.getUpdateService().saveObject(tag)
         # And link?
         # And edit? cF. READ-ONLY & READ-LINK
+
+    def testLinkingInPrivateGroup(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        query = self.root.sf.getQueryService()
+        update = self.root.sf.getUpdateService()
+        admin = self.root.sf.getAdminService()
+
+        #create group1
+        new_gr1 = ExperimenterGroupI()
+        new_gr1.name = rstring("group1_%s" % uuid)
+        p = PermissionsI()
+        p.setUserRead(True)
+        p.setUserWrite(True)
+        p.setGroupRead(False)
+        p.setGroupAnnotate(False)
+        p.setGroupWrite(False)
+        p.setWorldRead(False)
+        p.setWorldAnnotate(False)
+        p.setWorldWrite(False)
+        new_gr1.details.permissions = p
+        g1_id = admin.createGroup(new_gr1)
+        gr1 = admin.getGroup(g1_id)
+
+        #create user1
+        username = "user1_%s" % uuid
+        new_exp1 = ExperimenterI()
+        new_exp1.omeName = rstring(username)
+        new_exp1.firstName = rstring("New")
+        new_exp1.lastName = rstring("Test")
+        new_exp1.email = rstring("newtest@emaildomain.com")
+        listOfGroups = list()
+        listOfGroups.append(admin.lookupGroup("user"))
+        eid1 = admin.createExperimenterWithPassword(new_exp1, rstring("ome"), gr1, listOfGroups)
+        exp1 = admin.getExperimenter(eid1)
+        admin.addGroupOwners(gr1, [exp1])
+
+        client = omero.client()
+        client.createSession(username, "ome")
+        update = client.sf.getUpdateService()
+
+        project = ProjectI()
+        project.setName(rstring("project1_%s" % uuid))
+        project = update.saveAndReturnObject(project)
+        dataset = DatasetI()
+        dataset.setName(rstring("dataset1_%s" % uuid))
+        dataset = update.saveAndReturnObject(dataset)
+        links = []
+        l = ProjectDatasetLinkI()
+        l.setChild(dataset)
+        l.setParent(project)
+        links.append(l)
+        update.saveAndReturnArray(links)
 
     def testCreatAndUpdatePrivateGroup(self):
         # this is the test of creating private group and updating it
