@@ -1423,14 +1423,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         return HttpResponse( json, mimetype='application/javascript')
     elif action == 'deletemany':
         # Handles multi-delete from jsTree.
-        object_ids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate'), 'well':request.REQUEST.getlist('well')}
+        object_ids = {'Image':request.REQUEST.getlist('image'), 'Dataset':request.REQUEST.getlist('dataset'), 'Project':request.REQUEST.getlist('project'), 'Screen':request.REQUEST.getlist('screen'), 'Plate':request.REQUEST.getlist('plate'), 'Well':request.REQUEST.getlist('well'), 'PlateAcquisition':request.REQUEST.getlist('acquisition')}
         child = toBoolean(request.REQUEST.get('child'))
         anns = toBoolean(request.REQUEST.get('anns'))
         logger.debug("Delete many: child? %s anns? %s object_ids %s" % (child, anns, object_ids))
         try:
             for key,ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
-                    handle = manager.deleteObjects(key.title(), ids, child, anns)
+                    handle = manager.deleteObjects(key, ids, child, anns)
                     dMap = {'job_type': 'delete', 'start_time': datetime.datetime.now(),'status':'in progress', 'derrors':handle.errors(),
                         'dreport':_formatReport(handle), 'dtype':key}
                     if len(ids) > 1:

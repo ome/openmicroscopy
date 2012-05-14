@@ -105,7 +105,7 @@
                                   $.jstree.rollback(data.rlbk);
                                   alert(r.errs);
                               } else {
-                                  datatree.remove(selected);
+                                  datatree.delete_node(selected);
                                   first_parent.children("a").click();
                                   refreshActivities();
                               }
@@ -524,8 +524,8 @@
                                 "create_node" : false,
                                 "start_drag" : false,
                                 "move_node" : false,
-                                "delete_node" : false,
-                                "remove" : false
+                                "delete_node" : true,
+                                "remove" : true
                             },
                             "acquisition-locked" : {
                                 "valid_children" : "none",
