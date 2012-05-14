@@ -864,7 +864,7 @@
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
-                    tree_selection_changed(data);
+                    tree_selection_changed(data, e);
                 })
                 .bind("open_node.jstree", function (e, data) {
 

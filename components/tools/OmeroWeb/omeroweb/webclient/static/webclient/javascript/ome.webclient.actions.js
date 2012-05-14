@@ -37,12 +37,12 @@ var addToBasket = function(selected, prefix) {
     });
 };
 
-// called on selection changes in jstree
-var tree_selection_changed = function(data) {
-
+// called from tree_selection_changed() below
+var handle_tree_selection = function(data) {
     var selected_objs = [];
 
     if (typeof data != 'undefined' && typeof data.inst != 'undefined') {
+        
         var selected = data.inst.get_selected();
         var share_id = null;
         if (selected.length == 1) {
@@ -60,6 +60,22 @@ var tree_selection_changed = function(data) {
     $("body")
         .data("selected_objects.ome", selected_objs)
         .trigger("selection_change.ome");
+}
+
+var deselect_timeout = false;
+// called on selection and deselection changes in jstree
+var tree_selection_changed = function(data, evt) {
+    
+    // handle case of deselection immediately followed by selection - Only fire on selection
+    if (typeof evt != 'undefined' && evt.type == "deselect_node") {
+        deselect_timeout = true;
+        setTimeout(function() {
+            if (deselect_timeout) handle_tree_selection(data);
+        }, 20);
+    } else {
+        deselect_timeout = false;
+        handle_tree_selection(data);
+    }
 }
 
 // called when we change the index of a plate or acquisition
