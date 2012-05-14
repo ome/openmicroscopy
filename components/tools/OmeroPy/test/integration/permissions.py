@@ -14,11 +14,13 @@ import omero
 from omero_model_PermissionsI import PermissionsI
 from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
+from omero_model_ProjectI import ProjectI
 from omero_model_TagAnnotationI import TagAnnotationI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
+from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 from omero.rtypes import *
 
 class CallContextFixture(object):
@@ -117,6 +119,26 @@ class TestPermissions(lib.ITest):
         sf.getUpdateService().saveObject(tag)
         # And link?
         # And edit? cF. READ-ONLY & READ-LINK
+
+    def testLinkingInPrivateGroup(self):
+
+        uuid = self.uuid()
+        group = self.new_group(perms="rw----")
+        client, user = self.new_client_and_user(group=group, admin=True)
+        update = client.sf.getUpdateService()
+
+        project = ProjectI()
+        project.setName(rstring("project1_%s" % uuid))
+        project = update.saveAndReturnObject(project)
+        dataset = DatasetI()
+        dataset.setName(rstring("dataset1_%s" % uuid))
+        dataset = update.saveAndReturnObject(dataset)
+        links = []
+        l = ProjectDatasetLinkI()
+        l.setChild(dataset)
+        l.setParent(project)
+        links.append(l)
+        update.saveAndReturnArray(links)
 
     def testCreatAndUpdatePrivateGroup(self):
         # this is the test of creating private group and updating it
