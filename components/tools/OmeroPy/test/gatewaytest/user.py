@@ -98,5 +98,49 @@ class UserTest (lib.GTest):
         self.assert_(not g.getId() in self.gateway.getEventContext().memberOfGroups)
         self.assertEqual(self.gateway.getObject('project', p.getId()), None)
 
+    def testGroupOverObjPermissions (self):
+        """ Object accesss must be dependent only of group permissions """
+        ns = 'omero.test.ns'
+        self.loginAsAdmin()
+        admin = self.gateway.getAdminService()
+        # Author
+        self.loginAsAuthor()
+        # create group with rw----
+        # create project and annotation in that group
+        p = dbhelpers.ProjectEntry('testAnnotationPermissions', None, create_group='testAnnotationPermissions', group_perms='rw----')
+        try:
+            p = p.create(self.gateway)
+        except dbhelpers.BadGroupPermissionsException:
+            admin.changePermissions(admin.lookupGroup('testAnnotationPermissions'), omero.model.PermissionsI('rw----'))
+            p = p.create(self.gateway)
+        pid = p.getId()
+        try:
+            # Admin
+            # add User to group
+            self.loginAsUser()
+            admin.addGroups(omero.model.ExperimenterI(self.gateway._userid, False), [p.getDetails().getGroup()._obj])
+            # User
+            # try to read project and annotation, which fails
+            self.loginAsUser()
+            self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
+            self.assertEqual(self.gateway.getObject('project', pid), None)
+            # Admin
+            # Chmod project to rwrw--
+            admin.changePermissions(p.getDetails().getGroup()._obj, omero.model.PermissionsI('rwrw--'))
+            # Author
+            # check project has proper permissions
+            self.loginAsAuthor()
+            self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
+            pa = self.gateway.getObject('project', pid)
+            self.assertNotEqual(pa, None)
+            # User
+            # read project and annotation
+            self.loginAsUser()
+            self.gateway.CONFIG['SERVICE_OPTS'] = {'omero.group':'-1'}
+            self.assertEqual(self.gateway.getObject('project', pid), None)
+        finally:
+            self.gateway.deleteObjects('Project', [p.getId()], deleteAnns=True, deleteChildren=True)
+
+        
 if __name__ == '__main__':
     unittest.main()
