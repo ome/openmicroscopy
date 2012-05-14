@@ -228,9 +228,8 @@ public class RenderingSettingsServiceTest
     	param.addIds(ids);
     	sql = "select pix from Pixels as pix " +
 		"join fetch pix.image as i " +
-		"join fetch pix.pixelsType " +
+		"join fetch pix.type " +
 		"join fetch pix.channels as c " +
-		"join fetch c.logicalChannel " +
 		"join i.datasetLinks as dil " +
 		"join dil.parent as d " +
 		"left outer join d.projectLinks as pdl " +

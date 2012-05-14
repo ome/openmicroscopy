@@ -280,7 +280,7 @@ public class UpdateServiceTest
     	StringBuilder sb = new StringBuilder();
     	sb.append("select i from Image i ");
     	sb.append("left outer join fetch i.pixels as pix ");
-        sb.append("left outer join fetch pix.pixelsType as pt ");
+        sb.append("left outer join fetch pix.type as pt ");
     	sb.append("where i.id = :id");
     	img = (Image) iQuery.findByQuery(sb.toString(), param);
     	assertNotNull(img);
