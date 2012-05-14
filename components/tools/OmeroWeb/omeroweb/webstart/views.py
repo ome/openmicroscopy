@@ -43,7 +43,7 @@ def index(request):
 
 def insight(request):
     t = template_loader.get_template('webstart/insight.xml')
-    codebase = request.build_absolute_uri(settings.STATIC_URL+'webstart/')
+    codebase = request.build_absolute_uri("jars/")
     href = request.build_absolute_uri(reverse("webstart_insight"))
 
     pattern = abspath(join(getcwd(), pardir, pardir, "insight", "*.jar"))

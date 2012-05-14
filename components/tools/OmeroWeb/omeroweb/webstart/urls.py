@@ -23,8 +23,11 @@
 #
 
 from django.conf.urls.defaults import *
+from django.views.static import serve
 from omeroweb.webstart import views
 
 urlpatterns = patterns('django.views.generic.simple',
     url( r'^insight\.jnlp$', views.insight, name='webstart_insight'),
+    (r'^jars/(?P<path>.*)$', serve, \
+            {'document_root': '../../insight/', 'show_indexes': True}),
 )
