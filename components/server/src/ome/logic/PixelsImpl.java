@@ -26,7 +26,6 @@ import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.PixelType;
-import ome.model.meta.Session;
 import ome.model.core.StatsInfo;
 import ome.parameters.Parameters;
 import ome.util.PixelData;
@@ -96,10 +95,9 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 				+ "left outer join fetch p.type as pt "
 				+ "left outer join fetch p.channels as c "
 				+ "left outer join fetch c.statsInfo "
-				+ "left outer join fetch lc.photometricInterpretation "
-				+ "left outer join fetch lc.illumination "
-				+ "left outer join fetch lc.mode "
-				+ "left outer join fetch lc.contrastMethod "
+				+ "left outer join fetch c.illuminationType "
+				+ "left outer join fetch c.mode "
+				+ "left outer join fetch c.contrastMethod "
 				+ "where p.id = :id",
 				new Parameters().addId(pixId));
 		return p;
