@@ -693,7 +693,7 @@ public class ImporterTest
 				XMLMockObjects.DIMENSION_ORDER.getValue()));
 		//Check the plane info
 		
-		String sql = "select p from PlaneInfo as p where pixels.id = :pid";
+		String sql = "select p from Plane as p where pixels.id = :pid";
 		ParametersI param = new ParametersI();
 		param.addLong("pid", p.getId().getValue());
 		List<IObject> l = iQuery.findAllByQuery(sql, param);
