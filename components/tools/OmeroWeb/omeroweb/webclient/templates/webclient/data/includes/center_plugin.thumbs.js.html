@@ -160,7 +160,7 @@ $(document).ready(function() {
         else if (update.rel!==null && update.url!==null && need_refresh){
             if (page) update['url'] += "&page="+page;
             if ($content_details.is(":visible")) {
-                $("div#content_details").html('<p class="loading_center">Loading... please wait. <img src ="../../static/webgateway/img/spinner_big.gif"/></p>');
+                $("div#content_details").html('<p class="loading_center">Loading... please wait. <img src ="{% static "/webgateway/img/spinner_big.gif" %}"/></p>');
                 $("div#content_details").attr('rel', update.rel);
                 $("div#content_details").load(update.url, function() {
                     syncPanels(selected);
