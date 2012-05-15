@@ -369,10 +369,12 @@ public class PixelsServiceTest
     			ModelMockFactory.SIZE_Z, ModelMockFactory.SIZE_T,
     			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
     	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(image.getPixels());
+    	assertTrue(pixels.getId().getValue() > 0);
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
-    	prx.setOriginalSettingsInSet(Pixels.class.getName(), 
+    	List<Long> r = prx.setOriginalSettingsInSet(Pixels.class.getName(), 
     			Arrays.asList(pixels.getId().getValue()));
+    	assertTrue(r.size() > 0);
     	IPixelsPrx svc = factory.getPixelsService();
     	long id = iAdmin.getEventContext().userId;
     	List<IObject> defs = svc.retrieveAllRndSettings(

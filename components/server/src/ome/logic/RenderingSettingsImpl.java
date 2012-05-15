@@ -668,6 +668,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private int[] hasOriginalColor(Channel channel)
     {
+    	if (channel.getColor() == null) return null;
     	Integer red = channel.getColor().getRed();
         Integer green = channel.getColor().getGreen();
         Integer blue = channel.getColor().getBlue();

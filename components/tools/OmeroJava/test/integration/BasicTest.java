@@ -23,11 +23,16 @@
  */
 package integration;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.LightSourceSettings;
 import omero.model.Pixels;
+import omero.sys.Parameters;
+import omero.sys.ParametersI;
 
 /** 
  * 
@@ -48,7 +53,19 @@ extends AbstractServerTest
 	throws Exception
 	{
 		Image image = mmFactory.createImage();
-		iUpdate.saveAndReturnObject(image.getPixels());
+		Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(image.getPixels());
+		String sql = "select pix from Pixels as pix " +
+		"join fetch pix.image " +
+		"join fetch pix.type " +
+		"join fetch pix.channels as c " +
+		"where pix.id in (:ids)";
+		ParametersI p = new ParametersI();
+		p.addIds(Arrays.asList(pixels.getId().getValue()));
+		
+	    List<IObject> l = iQuery.findAllByQuery(sql, p);
+	    assertTrue(l.size() == 1);
+	    assertTrue(l.get(0).getId().getValue() == pixels.getId().getValue());
+	
 	}
 	
 	/**
