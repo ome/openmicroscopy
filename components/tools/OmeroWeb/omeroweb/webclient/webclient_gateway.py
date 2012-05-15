@@ -1976,15 +1976,13 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
         self.colleagues.sort(key=lambda x: x.getLastName().lower())
 
     def getOwners(self):
-        ownerIds = list()
         for gem in self.copyGroupExperimenterMap():
             if gem.owner.val:
-                ownerIds.append(gem.child.id.val)
-        return ownerIds
+                yield ExperimenterWrapper(self, gem.child)
     
     def getOwnersNames(self):
         owners = list()
-        for e in self._conn.getObjects("Experimenter", self.getOwners()):
+        for e in self.getOwners():
             owners.append(e.getFullName())
         return ", ".join(owners)
         

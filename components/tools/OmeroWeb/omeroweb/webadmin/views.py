@@ -566,7 +566,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             context = {'form':form}
     elif action == 'edit':
         group = conn.getObject("ExperimenterGroup", gid)
-        ownerIds = group.getOwners()
+        ownerIds = [e.id for e in group.getOwners()]
         
         permissions = getActualPermissions(group)
         form = GroupForm(initial={'name': group.name, 'description':group.description,
