@@ -26,6 +26,7 @@ package integration;
 import java.util.Date;
 
 import omero.model.Image;
+import omero.model.LightSourceSettings;
 import omero.model.Pixels;
 
 /** 
@@ -48,6 +49,18 @@ extends AbstractServerTest
 	{
 		Image image = mmFactory.createImage();
 		iUpdate.saveAndReturnObject(image.getPixels());
+	}
+	
+	/**
+	 * Creates a basic image. Pixels need to be created.
+	 * @throws Exception
+	 */
+	public void testLightSource() 
+	throws Exception
+	{
+		LightSourceSettings settings = mmFactory.createLightSettings(
+				mmFactory.createLaser());
+		iUpdate.saveAndReturnObject(settings);
 	}
 	
 	/** Creates a basic pixels. Image needs to be created.

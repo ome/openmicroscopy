@@ -530,7 +530,7 @@ public class ModelMockFactory
     			ExperimentType.class.getName());
     	exp.setType((ExperimentType) types.get(0));
     	mm.setExperiment(exp);
-    	//settings.setMicrobeamManipulation(mm);
+    	settings.setMicrobeamManipulation(mm);
     	settings.setWavelength(omero.rtypes.rint(500));
     	return settings;
     }

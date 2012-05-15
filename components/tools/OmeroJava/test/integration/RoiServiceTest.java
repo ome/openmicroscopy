@@ -32,6 +32,7 @@ import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.OriginalFile;
+import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
@@ -44,6 +45,7 @@ import omero.model.ROIAnnotationLinkI;
 import omero.model.ROII;
 import omero.model.Shape;
 import omero.model.Well;
+import omero.model.WellSample;
 import pojos.FileAnnotationData;
 
 /**
@@ -65,10 +67,11 @@ public class RoiServiceTest
     public void testRemoveShape() 
     	throws Exception
     {
-        Image image = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0).getPixels());
         ROI roi = new ROII();
-        roi.setImage(image);
+        roi.setName(rstring("roi"));
+        roi.setImage(pixels.getImage());
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
@@ -100,12 +103,12 @@ public class RoiServiceTest
     public void testFindByImage() 
     	throws Exception
     {
-    	IRoiPrx svc = factory.getRoiService();
-    	//create the roi.
-        Image image = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
-        ROI roi = new ROII();
-        roi.setImage(image);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0).getPixels());
+    	Image image = pixels.getImage();
+    	ROI roi = new ROII();
+    	roi.setName(rstring("roi"));
+    	roi.setImage(image);
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
@@ -119,6 +122,7 @@ public class RoiServiceTest
             roi.addShape(rect);
         }
         roi = (ROII) iUpdate.saveAndReturnObject(roi);
+        IRoiPrx svc = factory.getRoiService();
         RoiResult r = svc.findByImage(image.getId().getValue(), 
         		new RoiOptions());
         assertNotNull(r);
@@ -143,12 +147,22 @@ public class RoiServiceTest
     	throws Exception
     {
     	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
+    	//Need to save the image first
+    	Pixels pix;
+        for (Well well : p.copyWells()) {
+            for (WellSample ws : well.copyWellSamples()) {
+            	pix = (Pixels) iUpdate.saveAndReturnObject(
+            			ws.getImage().getPixels());
+                ws.setImage(pix.getImage());
+            }
+        }
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = results.get(0);
     	//create the roi.
     	Image image = well.copyWellSamples().get(0).getImage();
     	ROI roi = new ROII();
+    	roi.setName(rstring("roi"));
         roi.setImage(image);
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
@@ -233,12 +247,22 @@ public class RoiServiceTest
     	throws Exception
     {
     	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
+    	//Need to save the image first
+    	Pixels pix;
+        for (Well well : p.copyWells()) {
+            for (WellSample ws : well.copyWellSamples()) {
+            	pix = (Pixels) iUpdate.saveAndReturnObject(
+            			ws.getImage().getPixels());
+                ws.setImage(pix.getImage());
+            }
+        }
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = results.get(0);
     	//create the roi.
     	Image image = well.copyWellSamples().get(0).getImage();
     	ROI roi = new ROII();
+    	roi.setName(rstring("roi"));
         roi.setImage(image);
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
@@ -315,15 +339,24 @@ public class RoiServiceTest
     	throws Exception
     {
     	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
+    	//Need to save the image first
+    	Pixels pix;
+        for (Well well : p.copyWells()) {
+            for (WellSample ws : well.copyWellSamples()) {
+            	pix = (Pixels) iUpdate.saveAndReturnObject(
+            			ws.getImage().getPixels());
+                ws.setImage(pix.getImage());
+            }
+        }
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = results.get(0);
     	//create the roi.
     	Image image = well.copyWellSamples().get(0).getImage();
     	ROI roi = new ROII();
+    	roi.setName(rstring("roi"));
         roi.setImage(image);
         Rectangle rect;
-        roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
             rect.setX(rdouble(10));

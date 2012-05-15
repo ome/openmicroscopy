@@ -735,7 +735,7 @@ public class AbstractServerTest
 		sb.append("left outer join fetch ws.image as img ");
 		if (pixels) {
 			sb.append("left outer join fetch img.pixels as pix ");
-	        sb.append("left outer join fetch pix.pixelsType as pixType ");
+	        sb.append("left outer join fetch pix.type as pixType ");
 		}
         sb.append("where pt.id = :plateID");
         return (List<Well>) (List<?>) 
