@@ -1170,19 +1170,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         admin_serv = self.getAdminService()
         admin_serv.setDefaultGroup(ExperimenterI(exp_id, False), ExperimenterGroupI(group_id, False))
 
-    def updatePermissions(self, obj, perm):
+    def updatePermissions(self, obj, permissions):
         """
         Allow to change the permission on the object.
         
-        @param obj      An entity or an unloaded reference to an entity. Not null.
-        @type obj       ObjectI
+        @param obj      A wrapped entity or an unloaded reference to an entity. Not null.
+        @type obj       BlitzObjectWrapper
         @param perm     The permissions value for this entity. Not null.
         @type perm      PermissionsI
         """
+        
         admin_serv = self.getAdminService()
-        if perm is not None:
+        if permissions is not None:
             logger.warning("WARNING: changePermissions was called!!!")
-            admin_serv.changePermissions(obj, perm)
+            admin_serv.changePermissions(obj._obj, permissions)
             self._user = self.getObject("Experimenter", self._userid)
     
     def saveObject (self, obj):
@@ -1981,6 +1982,12 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
                 ownerIds.append(gem.child.id.val)
         return ownerIds
     
+    def getOwnersNames(self):
+        owners = list()
+        for e in self._conn.getObjects("Experimenter", self.getOwners()):
+            owners.append(e.getFullName())
+        return ", ".join(owners)
+        
     def getMembers(self, excluded_omename=list(), excluded_ids=list()):
         for gem in self.copyGroupExperimenterMap():
             flag = False

@@ -64,8 +64,6 @@ from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
                    ContainedExperimentersForm, UploadPhotoForm, \
                    EnumerationEntry, EnumerationEntries
 
-from controller.group import BaseGroups, BaseGroup
-
 from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck, getGuestConnection
 
 from omeroweb.webadmin.custom_models import Server
@@ -638,21 +636,25 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
 def manage_group_owner(request, action, gid, conn=None, **kwargs):
     template = "webadmin/group_form_owner.html"
     
-    controller = BaseGroup(conn, gid)
+    group = conn.getObject("ExperimenterGroup", gid)
     
     if action == 'edit':
-        permissions = controller.getActualPermissions()
-        form = GroupOwnerForm(initial={'permissions': permissions, 'readonly': controller.isReadOnly()})
-        context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':controller.group, 'owners':controller.getOwnersNames()}
+        permissions = getActualPermissions(group)
+        form = GroupOwnerForm(initial={'permissions': permissions, 'readonly': group.isReadOnly()})
+        context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':group}
     elif action == "save":
         if request.method != 'POST':
-            return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit", controller.group.id]))
+            return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit", group.id]))
         else:
             form = GroupOwnerForm(data=request.POST.copy())
             if form.is_valid():
                 permissions = form.cleaned_data['permissions']
                 readonly = toBoolean(form.cleaned_data['readonly'])
-                controller.updatePermissions(permissions, readonly)
+                
+                permissions = int(permissions)
+                if getActualPermissions(group) != permissions or group.isReadOnly()!=readonly:
+                    perm = setActualPermissions(permissions, readonly)
+                    conn.updatePermissions(group, perm)
                 return HttpResponseRedirect(reverse("wamyaccount"))
             context = {'form':form, 'gid': gid}
     else:
