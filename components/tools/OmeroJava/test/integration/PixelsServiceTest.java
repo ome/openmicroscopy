@@ -217,7 +217,7 @@ public class PixelsServiceTest
     	IPixelsPrx svc = factory.getPixelsService();
     	List<IObject> values = svc.getAllEnumerations(name);
     	assertNotNull(values);
-    	assertTrue(values.size() >= max);
+    	assertTrue(values.size() >= max-1);
     	Iterator<IObject> i = values.iterator();
     	int count = 0;
     	String v;
@@ -271,6 +271,7 @@ public class PixelsServiceTest
 			channel = j.next();
 			assertNotNull(channel);
 			ids.add(channel.getId().getValue());
+			assertNotNull(channel.getName());
 			assertNotNull(channel.getStatsInfo());
 			assertNotNull(channel.getContrastMethod().getValue().getValue());
 			assertNotNull(channel.getIlluminationType().getValue().getValue());
@@ -336,6 +337,7 @@ public class PixelsServiceTest
     			ModelMockFactory.SIZE_Z, ModelMockFactory.SIZE_T,
     			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
     	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(image.getPixels());
+
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
     	prx.setOriginalSettingsInSet(Pixels.class.getName(), 
