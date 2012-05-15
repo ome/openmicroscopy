@@ -278,11 +278,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element ref="PixelsRef" minOccurs="1" maxOccurs="unbounded">
-					<xsd:annotation>
-						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
-					</xsd:annotation>
-				</xsd:element>
+                <xsd:element ref="PixelsRef" minOccurs="1" maxOccurs="unbounded"/>
 				<xsd:element name="Quantization" minOccurs="1" maxOccurs="1" type="QuantumDef"/>
 				<xsd:element name="WaveRendering" minOccurs="1" maxOccurs="unbounded" type="ChannelBinding"/>
 				<xsd:element name="SpatialDomainEnhancement" minOccurs="0" maxOccurs="unbounded" type="CodomainMapContext"/>
