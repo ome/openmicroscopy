@@ -731,7 +731,7 @@ public class AbstractServerTest
 		sb.append("select well from Well as well ");
 		sb.append("left outer join fetch well.plate as pt ");
 		sb.append("left outer join fetch well.wellSamples as ws ");
-		sb.append("left outer join fetch ws.plateAcquisition as pa ");
+		sb.append("left outer join fetch ws.plateAcquisitions as pa ");
 		sb.append("left outer join fetch ws.image as img ");
 		if (pixels) {
 			sb.append("left outer join fetch img.pixels as pix ");
