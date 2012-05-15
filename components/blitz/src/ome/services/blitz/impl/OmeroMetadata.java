@@ -237,9 +237,9 @@ public class OmeroMetadata extends DummyMetadata {
                 qb.join("p.type",             "pt",       false, true);
                 qb.join("p.dimensionOrder",   "do",       false, true);
                 qb.join("p.channels",         "c",        false, true);
-                qb.join("p.planeInfo",        "pinfo",    true, true);
-                qb.join("c.mode",             "a_mode",   true, true);
-                qb.join("c.illumination",     "i_type",   true, true);
+                qb.join("p.planes",        "pinfo",    true, true);
+                qb.join("c.acquisitionMode",             "a_mode",   true, true);
+                qb.join("c.illuminationType",     "i_type",   true, true);
                 qb.join("c.contrastMethod",   "c_method", true, true);
                 qb.where();
                 qb.and("i.id = " + id);

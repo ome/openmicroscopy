@@ -149,10 +149,9 @@ public class ExporterTest
 	{
 		//First create an image
     	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(image.getPixels());
+        image = pixels.getImage();
 
-    	Pixels pixels = image.getPixels();
-    	
     	//Need to have an annotation otherwise does not work
     	FileAnnotationI fa = new FileAnnotationI();
     	fa.setDescription(omero.rtypes.rstring("test"));
