@@ -101,6 +101,7 @@ class render_response_admin(omeroweb.webclient.decorators.render_response):
 from omero.rtypes import *
 from omero.model import PermissionsI
 
+# experimenter helpers
 def prepare_experimenterList(conn):
     
     def isLdapUser(eid):
@@ -158,6 +159,7 @@ def ownedGroupsInitial(conn, excluded_names=("user","guest", "system"), excluded
             ownedGroups.append({'group': gr, 'permissions': gr.getPermissions()})
     return ownedGroups
 
+# myphoto helpers
 def attach_photo(conn, newFile):
     if newFile.content_type.startswith("image"):
         f = newFile.content_type.split("/") 
@@ -167,6 +169,7 @@ def attach_photo(conn, newFile):
     
     conn.uploadMyUserPhoto(smart_str(newFile.name), format, newFile.read())
 
+# permission helpers
 def setActualPermissions(permissions, readonly=None):
     p = PermissionsI()
     permissions = int(permissions)
@@ -213,6 +216,7 @@ def getActualPermissions(group):
     
     return flag
 
+# getters
 def getSelectedGroups(conn, ids):
     if len(ids)>0:
         return list(conn.getObjects("ExperimenterGroup", ids))
