@@ -27,7 +27,7 @@ import logging
 
 import omeroweb.decorators
 
-from django.http import HttpResponseServerError, Http404
+from django.http import HttpResponse, HttpResponseServerError, Http404
 from django.utils.http import urlencode
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -44,11 +44,24 @@ class login_required(omeroweb.decorators.login_required):
     webclient specific extension of the OMERO.web login_required() decorator.
     """
 
+    def __init__(self, ignore_login_fail=False, **kwargs):
+        """
+        Initialises the decorator.
+        """
+        super(login_required, self).__init__(**kwargs)
+        self.ignore_login_fail = ignore_login_fail
+
     def on_logged_in(self, request, conn):
         """Called whenever the users is successfully logged in."""
         super(login_required, self).on_logged_in(request, conn)
         self.prepare_session(request)
         self.conn_config(request, conn)
+
+    def on_not_logged_in(self, request, url, error=None):
+        """ This can be used to fail silently (not return 403, 500 etc. E.g. keepalive ping)"""
+        if self.ignore_login_fail:
+            return HttpResponse("Connection Failed")
+        return super(login_required, self).on_not_logged_in(request, url, error)
 
     def conn_config(self, request, conn):
         if conn.CONFIG['SERVICE_OPTS'] is None:
