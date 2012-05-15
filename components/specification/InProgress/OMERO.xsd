@@ -393,8 +393,8 @@
 			<xsd:sequence>
 				<xsd:element name="OriginalFileRef" minOccurs="0" maxOccurs="unbounded" type="OriginalFileID"/>
 			</xsd:sequence>
-			<xsd:attribute name="Username" use="required" type="xsd:string"/>
-			<xsd:attribute name="Groupname" use="required" type="xsd:string"/>
+			<xsd:attribute name="UserName" use="required" type="xsd:string"/>
+			<xsd:attribute name="GroupName" use="required" type="xsd:string"/>
 			<xsd:attribute name="Type" use="required" type="xsd:string"/>
 			<xsd:attribute name="Message" use="required" type="xsd:string"/>
 			<xsd:attribute name="Status" use="required" type="JobStatus"/>
