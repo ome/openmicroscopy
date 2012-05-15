@@ -386,9 +386,13 @@
 			<xsd:documentation>Describes a ParseJob</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
-			<xsd:sequence>
-				<xsd:element ref="BIN:BinData" minOccurs="0" maxOccurs="unbounded"/>
-			</xsd:sequence>
+            <xsd:complexContent>
+                <xsd:extension base="Job">
+                    <xsd:sequence>
+                        <xsd:element ref="BIN:BinData" minOccurs="0" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                </xsd:extension>
+            </xsd:complexContent>
 		</xsd:complexType>
 	</xsd:element>
 
