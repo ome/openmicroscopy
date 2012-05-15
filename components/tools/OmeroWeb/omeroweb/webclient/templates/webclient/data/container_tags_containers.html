@@ -26,15 +26,20 @@
     {% if manager.containers.projects or manager.containers.datasets or manager.containers.screens or manager.containers.plates or manager.containers.images %}
     
     {% for i in manager.containers.images %}
-        <li id='image-{{ i.id }}' rel="image{% if not i.canEdit %}-locked{% endif %}"><a href="#">{{ i.name|truncatebefor:"30" }}</a></li>
+        <li id='image-{{ i.id }}' rel="image{% if not i.canEdit %}-locked{% endif %}" class="{{ i.getPermsCss }}">
+            <a href="#">{{ i.name|truncatebefor:"30" }}</a>
+        </li>
     {% endfor %}
     
     {% for c in manager.containers.projects %}
-    <li id='project-{{ c.id }}' rel="project{% if not c.canEdit %}-locked{% endif %}"><a href="#">{{ c.name|truncatebefor:"35" }}</a>
+    <li id='project-{{ c.id }}' rel="project{% if not c.canEdit %}-locked{% endif %}" class="{{ c.getPermsCss }}">
+        <a href="#">{{ c.name|truncatebefor:"35" }}</a>
         <ul>
             {% if c.countChildren %}
             {% for d in c.listChildren %}
-                <li id='dataset-{{ d.id }}' rel="dataset{% if not d.canEdit %}-locked{% endif %}" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
+                <li id='dataset-{{ d.id }}' rel="dataset{% if not d.canEdit %}-locked{% endif %}" class="{{ c.getPermsCss }}{% if d.countChildren %} jstree-closed{% endif %}">
+                    <a href="#">{{ d.name|truncatebefor:"35" }}</a>
+                </li>
             {% endfor %}
             {% endif %}
         </ul>
@@ -42,15 +47,20 @@
     {% endfor %}
 
     {% for d in manager.containers.datasets %}
-        <li id='dataset-{{ d.id }}' rel="dataset{% if not d.canEdit %}-locked{% endif %}" {% if d.countChildren %}class="jstree-closed"{% endif %}><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
+        <li id='dataset-{{ d.id }}' rel="dataset{% if not d.canEdit %}-locked{% endif %}" class="{{ c.getPermsCss }}{% if d.countChildren %} jstree-closed{% endif %}">
+            <a href="#">{{ d.name|truncatebefor:"35" }}</a>
+        </li>
     {% endfor %}
 
     {% for c in manager.containers.screens %}
-    <li id='screen-{{ c.id }}' rel="screen{% if not c.canEdit %}-locked{% endif %}"><a href="#">{{ c.name|truncatebefor:"35" }}</a>
+    <li id='screen-{{ c.id }}' rel="screen{% if not c.canEdit %}-locked{% endif %}" class="{{ c.getPermsCss }}">
+        <a href="#">{{ c.name|truncatebefor:"35" }}</a>
         <ul>
             {% if c.countChildren %}
             {% for d in c.listChildren %}
-                <li id='plate-{{ d.id }}' rel="plate{% if not d.canEdit %}-locked{% endif %}"><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
+                <li id='plate-{{ d.id }}' rel="plate{% if not d.canEdit %}-locked{% endif %}" class="{{ d.getPermsCss }}">
+                    <a href="#">{{ d.name|truncatebefor:"35" }}</a>
+                </li>
             {% endfor %}
             {% endif %}
         </ul>
@@ -58,7 +68,9 @@
     {% endfor %}
     
     {% for d in manager.containers.plates %}
-        <li id='plate-{{ d.id }}' rel="plate{% if not d.canEdit %}-locked{% endif %}"><a href="#">{{ d.name|truncatebefor:"35" }}</a></li>
+        <li id='plate-{{ d.id }}' rel="plate{% if not d.canEdit %}-locked{% endif %}" class="{{ d.getPermsCss }}">
+            <a href="#">{{ d.name|truncatebefor:"35" }}</a>
+        </li>
     {% endfor %}
     {% else %}
     <li>empty</li>

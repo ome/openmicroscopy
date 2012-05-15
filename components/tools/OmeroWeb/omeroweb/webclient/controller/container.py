@@ -172,7 +172,7 @@ class BaseContainer(BaseController):
 
     def canAnnotate(self):
         obj = self._get_object()
-        return obj is not None and obj.canAnnotate() or None
+        return obj is not None and obj.canAnnotate() or False
 
     def canEdit(self):
         obj = self._get_object()
