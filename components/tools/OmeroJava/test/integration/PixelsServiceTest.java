@@ -242,8 +242,7 @@ public class PixelsServiceTest
     			ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
     			ModelMockFactory.SIZE_T, 
     			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
-		image = (Image) iUpdate.saveAndReturnObject(image);
-        Pixels pixels = image.getPixels();
+		Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(image.getPixels());
         long id = pixels.getId().getValue();
         Pixels p = factory.getPixelsService().retrievePixDescription(id);
         assertNotNull(p);
@@ -336,8 +335,7 @@ public class PixelsServiceTest
     			ModelMockFactory.SIZE_X, ModelMockFactory.SIZE_Y, 
     			ModelMockFactory.SIZE_Z, ModelMockFactory.SIZE_T,
     			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
-    	image = (Image) iUpdate.saveAndReturnObject(image);
-    	Pixels pixels = image.getPixels();
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(image.getPixels());
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
     	prx.setOriginalSettingsInSet(Pixels.class.getName(), 
@@ -368,8 +366,7 @@ public class PixelsServiceTest
     			ModelMockFactory.SIZE_X, ModelMockFactory.SIZE_Y, 
     			ModelMockFactory.SIZE_Z, ModelMockFactory.SIZE_T,
     			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
-    	image = (Image) iUpdate.saveAndReturnObject(image);
-    	Pixels pixels = image.getPixels();
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(image.getPixels());
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
     	prx.setOriginalSettingsInSet(Pixels.class.getName(), 
@@ -422,8 +419,7 @@ public class PixelsServiceTest
     			ModelMockFactory.SIZE_X, ModelMockFactory.SIZE_Y, 
     			ModelMockFactory.SIZE_Z, ModelMockFactory.SIZE_T,
     			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
-    	image = (Image) iUpdate.saveAndReturnObject(image);
-    	Pixels pixels = image.getPixels();
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(image.getPixels());
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
     	long id = pixels.getId().getValue();

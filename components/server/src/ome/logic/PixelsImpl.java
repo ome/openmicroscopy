@@ -295,8 +295,8 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		image.setPixels(pixels);
 
 		// Save and return our newly created Image Id
-		image = iUpdate.saveAndReturnObject(image);
-		return image.getId();
+		pixels = iUpdate.saveAndReturnObject(image.getPixels());
+		return pixels.getImage().getId();
 	}
 
 	@RolesAllowed("user")
@@ -405,6 +405,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		for (Integer wavelength : channelList)
 		{
 			channel = new Channel();
+			channel.setName(""+wavelength);
 			info = new StatsInfo();
 			info.setGlobalMin(0.0);
 			info.setGlobalMax(1.0);
