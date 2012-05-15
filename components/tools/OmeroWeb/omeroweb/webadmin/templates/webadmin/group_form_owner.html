@@ -74,8 +74,9 @@
 
 <div class="one_column_content">
 	
-<h1 class="page_title">{% trans "Group permissions" %} for <strong>{{ group.name }}</strong></h1>
+<h1>{% trans "Group permissions" %} for <strong>{{ group.name }}</strong></h1>
 
+<h1><a href="{% url wamyaccount "edit" %}" style="position:relative; top:-38px; float:right" title="Go Back to Groups">Cancel</a></h1>
 
 	<dl>
 		
@@ -83,10 +84,10 @@
 		<dd>{{ group.name }}</dd>
 	    
 		<dt><strong>Description</strong></dt> 
-		<dd>{{ group.description|default_if_none:"no description" }}</dd>
+		<dd>{{ group.description|default:"no description" }}</dd>
 	    
 		<dt><strong>Owners</strong></dt> 
-		<dd>{{ owners }}</dd>
+		<dd>{{ group.getOwnersNames }}</dd>
 		
 	</dl>
 	
@@ -118,7 +119,7 @@
 
 <p>{% trans "<strong>Collaborative</strong>: Users in a collaborative group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</p>
 
-<div class="error"><p>{% trans "<strong>WARNING</strong>: It is not possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative (or Collaborative - Read-only)</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group. " %}</p></div>
+<div class="error"><p>{% trans "<strong>WARNING</strong>: It is <strong>NOT</strong> possible to <strong>reduce</strong> permissions to <strong>Private</strong>. Once links have been created in the database under <strong>Collaborative (or Collaborative - Read-only)</strong> permissions, these cannot be severed. However, it is possible to <strong>promote</strong> a Private group to be Collaborative or Read-only group. " %}</p></div>
 </p>
 
 

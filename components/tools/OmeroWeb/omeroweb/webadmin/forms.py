@@ -205,9 +205,14 @@ class ContainedExperimentersForm(NonASCIIForm):
 
     def __init__(self, *args, **kwargs):
         super(ContainedExperimentersForm, self).__init__(*args, **kwargs)
-        self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['members'], required=False, widget=forms.SelectMultiple(attrs={'size':25}))
-        self.fields['available'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['available'], required=False, widget=forms.SelectMultiple(attrs={'size':25}))
-        self.fields.keyOrder = ['members', 'available']
+        
+        try:
+            if kwargs['initial']['members']: pass
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['members'], required=False)
+        except:
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+
+        self.fields.keyOrder = ['members']
 
 
 class UploadPhotoForm(forms.Form):

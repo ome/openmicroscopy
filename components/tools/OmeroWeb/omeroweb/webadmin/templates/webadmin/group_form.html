@@ -85,11 +85,12 @@
 
 <div class="one_column_content">
 {% if gid %}
-    <h1><a href="{% url wagroups %}">BACK</a> {% trans "Edit group" %}</h1>
+    <h1>{% trans "Edit group" %}</h1>
 {% else %}
-    <h1><a href="{% url wagroups %}">BACK</a> {% trans "Add group" %}</h1>
+    <h1>{% trans "Add group" %}</h1>
 {% endif %}
 
+<h1><a href="{% url wagroups %}" style="position:relative; top:-38px; float:right" title="Go Back to Groups">Cancel</a></h1>
 
 
 {% if gid %}

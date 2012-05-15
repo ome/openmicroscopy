@@ -64,9 +64,6 @@ from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
                    ContainedExperimentersForm, UploadPhotoForm, \
                    EnumerationEntry, EnumerationEntries
 
-from controller.group import BaseGroups, BaseGroup
-from controller.drivespace import BaseDriveSpace, usersData
-
 from omeroweb.webadmin.webadmin_utils import _checkVersion, _isServerOn, toBoolean, upgradeCheck, getGuestConnection
 
 from omeroweb.webadmin.custom_models import Server
@@ -90,15 +87,11 @@ class render_response_admin(omeroweb.webclient.decorators.render_response):
         If not, add an appropriate message to the template context
         """
         super(render_response_admin, self).prepare_context(request, context, *args, **kwargs)
-
-        if 'info' not in context:
-            context['info'] = {}
-        context['info']['today'] = _("Today is %(tday)s") % {'tday': datetime.date.today()}
-        context['omero_version'] = request.session.get('version')
+        
         noGroupsCreated = kwargs["conn"].isAnythingCreated()
         if noGroupsCreated:
             msg = _('User must be in a group - You have not created any groups yet. Click <a href="%s">here</a> to create a group') % (reverse(viewname="wamanagegroupid", args=["new"]))
-            context['info']['message'] = msg
+            context['ome']['message'] = msg
 
 ################################################################################
 # utils
@@ -106,6 +99,7 @@ class render_response_admin(omeroweb.webclient.decorators.render_response):
 from omero.rtypes import *
 from omero.model import PermissionsI
 
+# experimenter helpers
 def prepare_experimenterList(conn):
     
     def isLdapUser(eid):
@@ -163,6 +157,7 @@ def ownedGroupsInitial(conn, excluded_names=("user","guest", "system"), excluded
             ownedGroups.append({'group': gr, 'permissions': gr.getPermissions()})
     return ownedGroups
 
+# myphoto helpers
 def attach_photo(conn, newFile):
     if newFile.content_type.startswith("image"):
         f = newFile.content_type.split("/") 
@@ -172,6 +167,7 @@ def attach_photo(conn, newFile):
     
     conn.uploadMyUserPhoto(smart_str(newFile.name), format, newFile.read())
 
+# permission helpers
 def setActualPermissions(permissions, readonly=None):
     p = PermissionsI()
     permissions = int(permissions)
@@ -218,6 +214,7 @@ def getActualPermissions(group):
     
     return flag
 
+# getters
 def getSelectedGroups(conn, ids):
     if len(ids)>0:
         return list(conn.getObjects("ExperimenterGroup", ids))
@@ -227,6 +224,83 @@ def getSelectedExperimenters(conn, ids):
     if len(ids)>0:
         return list(conn.getObjects("Experimenter", ids))
     return list()
+
+# Drivespace helpers
+def _bytes_per_pixel(pixel_type):
+    if pixel_type == "int8" or pixel_type == "uint8":
+        return 1
+    elif pixel_type == "int16" or pixel_type == "uint16":
+        return 2
+    elif pixel_type == "int32" or pixel_type == "uint32" or pixel_type == "float":
+        return 4
+    elif pixel_type == "double":
+        return 8;
+    else:
+        raise AttributeError("Unknown pixel type: %s" % (pixel_type))
+    
+def _usage_map_helper(pixels_list, pixels_originalFiles_list, exps):
+    tt = dict()
+    for p in pixels_list:
+        oid = p.details.owner.id.val
+        p_size = p.sizeX.val * p.sizeY.val * p.sizeZ.val * p.sizeC.val * p.sizeT.val
+        p_size = p_size*_bytes_per_pixel(p.pixelsType.value.val)
+        if tt.has_key(oid):
+            tt[oid]['data']+=p_size
+        else:
+            tt[oid] = dict()
+            tt[oid]['label']=exps[oid]
+            tt[oid]['data']=p_size
+    
+    for pof in pixels_originalFiles_list:
+        oid = pof.details.owner.id.val
+        p_size = pof.parent.size.val
+        if tt.has_key(oid):
+            tt[oid]['data']+=p_size
+        
+    return tt #sorted(tt.iteritems(), key=lambda (k,v):(v,k), reverse=True)
+
+def usersData(conn, offset=0):
+    loading = False
+    usage_map = dict()
+    exps = dict()
+    for e in list(conn.getObjects("Experimenter")):
+        exps[e.id] = e.getFullName()
+        
+    PAGE_SIZE = 1000
+    offset = long(offset)
+    
+    ctx = dict()
+    if conn.isAdmin():
+        ctx['omero.group'] = '-1'
+    else:
+        ctx['omero.group'] = str(conn.getEventContext().groupId)
+        
+    p = omero.sys.ParametersI()
+    p.page(offset, PAGE_SIZE)
+    pixels_list = conn.getQueryService().findAllByQuery(
+            "select p from Pixels as p join fetch p.pixelsType " \
+            "order by p.id", p, ctx)
+    
+    # archived files
+    if len(pixels_list) > 0:
+        pids = omero.rtypes.rlist([p.id for p in pixels_list])
+        p2 = omero.sys.ParametersI()
+        p2.add("pids", pids)
+        pixels_originalFiles_list = conn.getQueryService().findAllByQuery(
+            "select m from PixelsOriginalFileMap as m join fetch m.parent " \
+            "where m.child.id in (:pids)", p2, ctx)
+    
+        count = len(pixels_list)
+        usage_map = _usage_map_helper(pixels_list, pixels_originalFiles_list, exps)
+    
+        count = len(pixels_list)
+        offset += count
+    
+        if count == PAGE_SIZE:
+            loading = True
+    
+    return {'loading':loading, 'offset':offset, 'usage':usage_map}
+
 ################################################################################
 # views controll
 
@@ -290,29 +364,25 @@ def logout(request, **kwargs):
 @login_required(isAdmin=True)
 @render_response_admin()
 def experimenters(request, conn=None, **kwargs):
-    experimenters = True
     template = "webadmin/experimenters.html"
     
-    info = {'experimenters':experimenters}
     experimenterList = prepare_experimenterList(conn)
     
-    context = {'nav':request.session['nav'], 'info':info, 'experimenterList':experimenterList}
+    context = {'experimenterList':experimenterList}
     context['template'] = template
     return context
 
 @login_required(isAdmin=True)
 @render_response_admin()
 def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
-    experimenters = True
     template = "webadmin/experimenter_form.html"
     
-    info = {'experimenters':experimenters}
     groups = list(conn.getObjects("ExperimenterGroup"))
     groups.sort(key=lambda x: x.getName().lower())
     
     if action == 'new':
         form = ExperimenterForm(initial={'with_password':True, 'active':True, 'groups':otherGroupsInitialList(groups)})
-        context = {'info':info, 'form':form}
+        context = {'form':form}
     elif action == 'create':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["new"]))
@@ -354,7 +424,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
                 conn.createExperimenter(omename, firstName, lastName, email, admin, active, dGroup, listOfOtherGroups, password, middleName, institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
-            context = {'info':info, 'form':form}
+            context = {'form':form}
     elif action == 'edit' :
         experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
         initial={'omename': experimenter.omeName, 'first_name':experimenter.firstName,
@@ -365,8 +435,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                                 'groups':otherGroupsInitialList(groups)}
         
         form = ExperimenterForm(initial=initial)
-        
-        context = {'info':info, 'form':form, 'eid': eid, 'ldapAuth': isLdapUser}
+        password_form = ChangePassword()
+        context = {'form':form, 'eid': eid, 'ldapAuth': isLdapUser, 'password_form':password_form}
     elif action == 'save':
         experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
         if request.method != 'POST':
@@ -409,10 +479,10 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
                 conn.updateExperimenter(experimenter, omename, firstName, lastName, email, admin, active, dGroup, listOfOtherGroups, middleName, institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
-            context = {'info':info, 'form':form, 'eid': eid, 'ldapAuth': isLdapUser}
-    elif action == "delete":
-        controller.deleteExperimenter()
-        return HttpResponseRedirect(reverse("waexperimenters"))
+            context = {'form':form, 'eid': eid, 'ldapAuth': isLdapUser}
+    #elif action == "delete":
+    #    conn.deleteExperimenter()
+    #    return HttpResponseRedirect(reverse("waexperimenters"))
     else:
         return HttpResponseRedirect(reverse("waexperimenters"))
     
@@ -423,11 +493,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 @login_required()
 @render_response_admin()
 def manage_password(request, eid, conn=None, **kwargs):
-    experimenters = True
     template = "webadmin/password.html"
 
-    info = {'experimenters':experimenters}
-    
     error = None
     if request.method == 'POST':
         password_form = ChangePassword(data=request.POST.copy())
@@ -448,12 +515,10 @@ def manage_password(request, eid, conn=None, **kwargs):
                     conn.changeUserPassword(exp.omeName, password, old_password)
                 except Exception, x:
                     error = x.message
-                else:
-                    return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", eid]))
             else:
                 raise AttributeError("Can't change another user's password unless you are an Admin")
                 
-    context = {'info':info, 'error':error, 'password_form':password_form, 'eid': eid}
+    context = {'error':error, 'password_form':password_form, 'eid': eid}
     context['template'] = template
     return context
 
@@ -461,14 +526,11 @@ def manage_password(request, eid, conn=None, **kwargs):
 @login_required(isAdmin=True)
 @render_response_admin()
 def groups(request, conn=None, **kwargs):
-    groups = True
     template = "webadmin/groups.html"
-    
-    info = {'groups':groups}
     
     groups = conn.getObjects("ExperimenterGroup")
     
-    context = {'info':info, 'groups':groups}
+    context = {'groups':groups}
     context['template'] = template
     return context
 
@@ -476,16 +538,13 @@ def groups(request, conn=None, **kwargs):
 @login_required(isAdmin=True)
 @render_response_admin()
 def manage_group(request, action, gid=None, conn=None, **kwargs):
-    groups = True
     template = "webadmin/group_form.html"
-    
-    info = {'groups':groups}
     
     experimenters = list(conn.getObjects("Experimenter"))
     
     if action == 'new':
         form = GroupForm(initial={'experimenters':experimenters, 'permissions': 0})
-        context = {'info':info, 'form':form}
+        context = {'form':form}
     elif action == 'create':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["new"]))
@@ -504,16 +563,16 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 listOfOwners = getSelectedExperimenters(conn, owners)
                 conn.createGroup(name, perm, listOfOwners, description)
                 return HttpResponseRedirect(reverse("wagroups"))
-            context = {'info':info, 'form':form}
+            context = {'form':form}
     elif action == 'edit':
         group = conn.getObject("ExperimenterGroup", gid)
-        ownerIds = group.getOwners()
+        ownerIds = [e.id for e in group.getOwners()]
         
         permissions = getActualPermissions(group)
         form = GroupForm(initial={'name': group.name, 'description':group.description,
                                      'permissions': permissions, 'readonly': group.isReadOnly(), 
                                      'owners': ownerIds, 'experimenters':experimenters})
-        context = {'info':info, 'form':form, 'gid': gid, 'permissions': permissions}
+        context = {'form':form, 'gid': gid, 'permissions': permissions}
     elif action == 'save':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["edit", group.id]))
@@ -537,24 +596,34 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                     perm = None
                 conn.updateGroup(group, name, perm, listOfOwners, description)
                 return HttpResponseRedirect(reverse("wagroups"))
-            context = {'info':info, 'form':form, 'gid': gid}
+            context = {'form':form, 'gid': gid}
     elif action == "update":
         template = "webadmin/group_edit.html"
-        controller.containedExperimenters()
-        form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
-        if not form.is_valid():
-            #available = form.cleaned_data['available']
-            available = request.POST.getlist('available')
-            #members = form.cleaned_data['members']
-            members = request.POST.getlist('members')
-            controller.setMembersOfGroup(available, members)
+        
+        group = conn.getObject("ExperimenterGroup", gid)
+        memberIds = group.getMembers()
+        
+        form = ContainedExperimentersForm(initial={'experimenters':experimenters, 'members':memberIds}, data=request.POST.copy())
+        if form.is_valid():
+            members = form.cleaned_data['members']
+            new_members = getSelectedExperimenters(conn, members)
+            
+            conn.setMembersOfGroup(group, new_members)
             return HttpResponseRedirect(reverse("wagroups"))
-        context = {'info':info, 'form':form, 'controller': controller}
+            
+        context = {'form':form, 'group':group}
     elif action == "members":
         template = "webadmin/group_edit.html"
-        controller.containedExperimenters()
-        form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
-        context = {'info':info, 'form':form, 'controller': controller}
+        
+        group = conn.getObject("ExperimenterGroup", gid)
+        
+        for i, e in enumerate(experimenters):
+            if e.getDefaultGroup().id == group.id:
+                experimenters[i].setFirstName("*%s" % (e.firstName))
+        
+        memberIds = [m.id for m in group.getMembers()]
+        form = ContainedExperimentersForm(initial={'members':memberIds, 'experimenters':experimenters})
+        context = {'form':form, 'group':group}
     else:
         return HttpResponseRedirect(reverse("wagroups"))
     
@@ -565,28 +634,29 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
 @login_required(isGroupOwner=True)
 @render_response_admin()
 def manage_group_owner(request, action, gid, conn=None, **kwargs):
-    myaccount = True
     template = "webadmin/group_form_owner.html"
     
-    info = {'myaccount':myaccount}
-    
-    controller = BaseGroup(conn, gid)
+    group = conn.getObject("ExperimenterGroup", gid)
     
     if action == 'edit':
-        permissions = controller.getActualPermissions()
-        form = GroupOwnerForm(initial={'permissions': permissions, 'readonly': controller.isReadOnly()})
-        context = {'info':info, 'form':form, 'gid': gid, 'permissions': permissions, 'group':controller.group, 'owners':controller.getOwnersNames()}
+        permissions = getActualPermissions(group)
+        form = GroupOwnerForm(initial={'permissions': permissions, 'readonly': group.isReadOnly()})
+        context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':group}
     elif action == "save":
         if request.method != 'POST':
-            return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit", controller.group.id]))
+            return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit", group.id]))
         else:
             form = GroupOwnerForm(data=request.POST.copy())
             if form.is_valid():
                 permissions = form.cleaned_data['permissions']
                 readonly = toBoolean(form.cleaned_data['readonly'])
-                controller.updatePermissions(permissions, readonly)
+                
+                permissions = int(permissions)
+                if getActualPermissions(group) != permissions or group.isReadOnly()!=readonly:
+                    perm = setActualPermissions(permissions, readonly)
+                    conn.updatePermissions(group, perm)
                 return HttpResponseRedirect(reverse("wamyaccount"))
-            context = {'info':info, 'form':form, 'gid': gid}
+            context = {'form':form, 'gid': gid}
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
     
@@ -594,32 +664,10 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
     return context
 
 
-@login_required(isAdmin=True)
-@render_response_admin()
-def ldap(request, conn=None, **kwargs):
-    scripts = True
-    template = "webadmin/ldap_search.html"
-    
-    info = {'scripts':scripts}
-
-    controller = None
-    
-    context = {'info':info, 'controller':controller}
-    context['template'] = template
-    return context
-
-@login_required(isAdmin=True)
-def imports(request, **kwargs):
-    return HttpResponseRedirect(reverse("waindex"))
-
-
 @login_required()
 @render_response_admin()
 def my_account(request, action=None, conn=None, **kwargs):
-    myaccount = True
     template = "webadmin/myaccount.html"
-    
-    info = {'myaccount':myaccount}
     
     experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn)
     ownedGroups = ownedGroupsInitial(conn)
@@ -655,7 +703,7 @@ def my_account(request, action=None, conn=None, **kwargs):
                                     'email':experimenter.email, 'institution':experimenter.institution,
                                     'default_group':defaultGroup, 'groups':otherGroups})
         
-    context = {'info':info, 'form':form, 'ldapAuth': isLdapUser, 'experimenter':experimenter, 'ownedGroups':ownedGroups, 'password_form':password_form}
+    context = {'form':form, 'ldapAuth': isLdapUser, 'experimenter':experimenter, 'ownedGroups':ownedGroups, 'password_form':password_form}
     context['template'] = template
     return context
 
@@ -669,10 +717,7 @@ def myphoto(request, conn=None, **kwargs):
 @login_required()
 @render_response_admin()
 def manage_avatar(request, action=None, conn=None, **kwargs):
-    myaccount = True
     template = "webadmin/avatar.html"
-    
-    info = {'myaccount':myaccount}
     
     edit_mode = False
     photo_size = None
@@ -701,7 +746,7 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
         return HttpResponseRedirect(reverse("wamyaccount"))
     
     photo_size = conn.getExperimenterPhotoSize()
-    context = {'info':info, 'form_file':form_file, 'edit_mode':edit_mode, 'photo_size':photo_size}
+    context = {'form_file':form_file, 'edit_mode':edit_mode, 'photo_size':photo_size}
     context['template'] = template
     return context
 
@@ -709,9 +754,7 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
 @login_required()
 @render_response_admin()
 def drivespace(request, conn=None, **kwargs):
-
-    controller = BaseDriveSpace(conn)
-    return {'free':controller.freeSpace}
+    return {'free':conn.getFreeSpace()}
 
 
 @login_required()

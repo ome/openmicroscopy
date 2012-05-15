@@ -14,6 +14,7 @@ import ome.model.internal.Details;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.security.basic.CurrentDetails;
+import ome.security.basic.TokenHolder;
 import ome.services.sharing.ShareStore;
 
 import org.apache.commons.logging.Log;
@@ -36,8 +37,11 @@ public class SharingACLVoter implements ACLVoter {
 
     private final CurrentDetails cd;
 
+    private final TokenHolder tokenHolder;
+
     public SharingACLVoter(CurrentDetails cd, SystemTypes sysTypes,
-            ShareStore store) {
+            ShareStore store, TokenHolder tokenHolder) {
+        this.tokenHolder = tokenHolder;
         this.sysTypes = sysTypes;
         this.store = store;
         this.cd = cd;
@@ -74,6 +78,9 @@ public class SharingACLVoter implements ACLVoter {
     }
 
     public boolean allowCreation(IObject iObject) {
+        if (tokenHolder.hasPrivilegedToken(iObject)) {
+            return true;
+        }
         return false;
     }
 

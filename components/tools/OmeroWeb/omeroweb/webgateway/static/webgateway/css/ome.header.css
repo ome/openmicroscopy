@@ -63,7 +63,7 @@
 	 background-image:-o-linear-gradient(top, hsl(212,8%,49%) 0%,hsl(212,8%,34%) 100%); /* Opera11.10+ */
 	 background-image:-ms-linear-gradient(top, hsl(212,8%,49%) 0%,hsl(212,8%,34%) 100%); /* IE10+ */
 	 background:linear-gradient(top, hsl(212,8%,49%) 0%,hsl(212,8%,34%) 100%); /* W3C */ 
-     behavior: url(PIE.htc);
+     behavior: url(../../3rdparty/pie/PIE.htc);
 	 font-family: Helvetica,Arial,sans-serif;
  }
 	
@@ -226,11 +226,11 @@
 	}
 	
 		#launch_basket  a{
-			background: url(/static/webgateway/img/icon_basket.png) center center no-repeat;
+			background: url(../img/icon_basket.png) center center no-repeat;
 		}
 	
 		#scriptButton{
-			background: url(/static/webgateway/img/icon_script.png) center center no-repeat;
+			background: url(../img/icon_script.png) center center no-repeat;
 		}
 	
 		#launch_activities{
@@ -592,7 +592,7 @@
 	}
 	
 		#launch_basket {
-			background: url(/static/webgateway/img/icon_basket.png) 8px center no-repeat;
+			background: url(../img/icon_basket.png) 8px center no-repeat;
 			display:inline-block;
 		}
 		

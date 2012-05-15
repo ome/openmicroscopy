@@ -125,17 +125,17 @@ button::-moz-focus-inner {
 	
 	/* Specific Buttons Images*/  
 	
-	.btn_view {background: url(/static/webgateway/img/icon_view.png) center center no-repeat;}
-	.btn_folder {background: url(/static/webgateway/img/icon_folder.png) center center no-repeat;}
-	.btn_download {background: url(/static/webgateway/img/icon_download.png) center center no-repeat;}
-	.btn_filetype {background: url(/static/webgateway/img/icon_filetype.png) center center no-repeat;}
-	.btn_view_error {background: url(/static/webgateway/img/icon_view_error.png) center center no-repeat;}
-	.btn_info {background: url(/static/webgateway/img/icon_info.png )center center no-repeat;}
-	.btn_add {background: url(/static/webgateway/img/icon_add.png )center center no-repeat;}
-	.btn_scientist {background: url(/static/webgateway/img/icon_add_scientist.png )center center no-repeat;}
-	.btn_group {background: url(/static/webgateway/img/icon_add_group.png )center center no-repeat;}
-	.btn_delete {background: url(/static/webgateway/img/icon_delete.png )center center no-repeat;}
-	.btn_edit {background: url(/static/webgateway/img/icon_edit.png )center center no-repeat;}
+	.btn_view {background: url(../../webgateway/img/icon_view.png) center center no-repeat;}
+	.btn_folder {background: url(../../webgateway/img/icon_folder.png) center center no-repeat;}
+	.btn_download {background: url(../../webgateway/img/icon_download.png) center center no-repeat;}
+	.btn_filetype {background: url(../../webgateway/img/icon_filetype.png) center center no-repeat;}
+	.btn_view_error {background: url(../../webgateway/img/icon_view_error.png) center center no-repeat;}
+	.btn_info {background: url(../../webgateway/img/icon_info.png )center center no-repeat;}
+	.btn_add {background: url(../../webgateway/img/icon_add.png )center center no-repeat;}
+	.btn_scientist {background: url(../../webgateway/img/icon_add_scientist.png )center center no-repeat;}
+	.btn_group {background: url(../../webgateway/img/icon_add_group.png )center center no-repeat;}
+	.btn_delete {background: url(../../webgateway/img/icon_delete.png )center center no-repeat;}
+	.btn_edit {background: url(../../webgateway/img/icon_edit.png )center center no-repeat;}
 	
 	
 	
@@ -512,7 +512,7 @@ button::-moz-focus-inner {
 		-moz-border-radius: 2px;
 		border-radius: 2px;
 		padding:5px 2px;
-		font-size:1.2em;
+		font-size:1.1em;
 		color:#333;
 		font-family:"HelveticaNeue-Medium", Helvetica, Arial, sans-serif
 	}
@@ -649,11 +649,11 @@ button::-moz-focus-inner {
 			}
 			
 			.ui-datepicker-prev {
-				background:url(/static/webgateway/img/datepicker_prev.png) center 60% no-repeat;
+				background:url(../../webgateway/img/datepicker_prev.png) center 60% no-repeat;
 			}
 			
 			.ui-datepicker-next {
-				background:url(/static/webgateway/img/datepicker_next.png) center 60% no-repeat;
+				background:url(../../webgateway/img/datepicker_next.png) center 60% no-repeat;
 				right: 0px;
 			}
 			
@@ -729,7 +729,7 @@ button::-moz-focus-inner {
 	-webkit-border-radius:6px; /* Saf3+, Chrome */
 	   -moz-border-radius:6px; /* FF1+ */
 	        border-radius:6px; /* Opera 10.5, IE 9 */ 
-			border:solid 1px rgba(0,0,0,.1);
+			border:solid 1px rgba(0,0,0,.35);
 }
 
 
@@ -754,7 +754,7 @@ button::-moz-focus-inner {
 	
 	margin-bottom:15px;
 	position: relative;
-	border-bottom:solid 1px hsl(210,10%,80%);
+	border-bottom:solid 1px hsl(210,10%,65%);
 }
 
 	.ui-dialog-title{
@@ -773,11 +773,11 @@ button::-moz-focus-inner {
 			margin: -10px 0 0 0;
 			height: 18px; 
 			border:none;
-			background:url(/static/webgateway/img/close.png) center center no-repeat;
+			background:url(../../webgateway/img/close.png) center center no-repeat;
 		}
 	
 		.ui-dialog .ui-dialog-titlebar-close:hover, .ui-dialog .ui-dialog-titlebar-close:focus {
-			background:url(/static/webgateway/img/close.png) center center no-repeat;
+			background:url(../../webgateway/img/close.png) center center no-repeat;
 		}
 		
 		
@@ -785,13 +785,11 @@ button::-moz-focus-inner {
 	.ui-dialog h1{
 		font-size:1.2em;
 		font-weight:bold;
-		text-shadow:0 1px 0 white;
 	}
 
 	.ui-dialog p, .ui-dialog span {
 		display:inline-block;
-		margin-bottom:15px;
-			font-size:1.2em;
+		font-size:1.2em;
 	}
 
 	
@@ -821,7 +819,7 @@ button::-moz-focus-inner {
 	border-width: 1px 0 0 0; 
 	background-image: none;
 	background-color:hsl(210,5%,95%);
-	border-top:solid 1px hsl(210,5%,85%);
+	border-top:solid 1px hsl(210,5%,75%);
 }
 
 	.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset { 
