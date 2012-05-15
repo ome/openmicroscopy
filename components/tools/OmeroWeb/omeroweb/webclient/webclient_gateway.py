@@ -979,23 +979,53 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if len(rmGroups) > 0:
             admin_serv.removeGroups(up_exp, rmGroups)
     
-    def setMembersOfGroup(self, group, add_exps, rm_exps):
+    def setMembersOfGroup(self, group, new_members):
         """
         Change members of the group.
         
         @param group            An existing ExperimenterGroup instance.
         @type group             ExperimenterGroupI
-        @param add_exps         List of new Experimenters instances. Can be empty.
-        @type add_exps          L{ExperimenterI}
-        @param rm_exps          List of old Experimenters instances no longer be a member of that group. Can be empty.
-        @type rm_exps           L{ExperimenterI}
+        @param new_members      List of new new Experimenter Ids.
+        @type new_members       L{Long}
         """
         
+        experimenters = list(self.getObjects("Experimenter"))
+        
+        new_membersIds = [nm.id for nm in new_members]
+        
+        old_members = group.getMembers()
+        old_membersIds = [om.id for om in old_members]
+        
+        old_available = list()
+        for e in experimenters:
+            if e.id not in old_membersIds:
+                old_available.append(e)
+        old_availableIds = [oa.id for oa in old_available]
+        
+        new_available = list()
+        for e in experimenters:
+            if e.id not in new_membersIds:
+                new_available.append(e)
+        
+        new_availableIds = [na.id for na in new_available]
+        
+        rm_exps = list(set(old_membersIds) - set(new_membersIds))
+        add_exps = list(set(old_availableIds) - set(new_availableIds))
+        
+        to_remove = list()
+        to_add = list()
+        for e in experimenters:
+            if e.id in rm_exps:
+                if e.getDefaultGroup().id != group.id:
+                    to_remove.append(e._obj)
+            if e.id in add_exps:
+                to_add.append(e._obj)
+        
         admin_serv = self.getAdminService()
-        for e in add_exps:
-            admin_serv.addGroups(e, [group])
-        for e in rm_exps:
-            admin_serv.removeGroups(e, [group])
+        for e in to_add:
+            admin_serv.addGroups(e, [group._obj])
+        for e in to_remove:
+            admin_serv.removeGroups(e, [group._obj])
     
     #def deleteExperimenter(self, experimenter):
     #    """
@@ -1950,6 +1980,16 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
             if gem.owner.val:
                 ownerIds.append(gem.child.id.val)
         return ownerIds
+    
+    def getMembers(self, excluded_omename=list(), excluded_ids=list()):
+        for gem in self.copyGroupExperimenterMap():
+            flag = False
+            if gem.child.omeName.val in excluded_omename:
+                flag = True
+            if gem.parent.id.val in excluded_ids:
+                flag = True
+            if not flag:
+                yield ExperimenterWrapper(self, gem.child)
     
     def isLocked(self):
         if self.name == "user":

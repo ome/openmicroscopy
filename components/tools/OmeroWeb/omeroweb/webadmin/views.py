@@ -601,21 +601,31 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             context = {'form':form, 'gid': gid}
     elif action == "update":
         template = "webadmin/group_edit.html"
-        controller.containedExperimenters()
-        form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
-        if not form.is_valid():
-            #available = form.cleaned_data['available']
-            available = request.POST.getlist('available')
-            #members = form.cleaned_data['members']
-            members = request.POST.getlist('members')
-            controller.setMembersOfGroup(available, members)
+        
+        group = conn.getObject("ExperimenterGroup", gid)
+        memberIds = group.getMembers()
+        
+        form = ContainedExperimentersForm(initial={'experimenters':experimenters, 'members':memberIds}, data=request.POST.copy())
+        if form.is_valid():
+            members = form.cleaned_data['members']
+            new_members = getSelectedExperimenters(conn, members)
+            
+            conn.setMembersOfGroup(group, new_members)
             return HttpResponseRedirect(reverse("wagroups"))
-        context = {'form':form, 'controller': controller}
+            
+        context = {'form':form, 'group':group}
     elif action == "members":
         template = "webadmin/group_edit.html"
-        controller.containedExperimenters()
-        form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
-        context = {'form':form, 'controller': controller}
+        
+        group = conn.getObject("ExperimenterGroup", gid)
+        
+        for i, e in enumerate(experimenters):
+            if e.getDefaultGroup().id == group.id:
+                experimenters[i].setFirstName("*%s" % (e.firstName))
+        
+        memberIds = [m.id for m in group.getMembers()]
+        form = ContainedExperimentersForm(initial={'members':memberIds, 'experimenters':experimenters})
+        context = {'form':form, 'group':group}
     else:
         return HttpResponseRedirect(reverse("wagroups"))
     
