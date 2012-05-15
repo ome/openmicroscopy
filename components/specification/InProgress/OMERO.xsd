@@ -386,7 +386,7 @@
 
 	<xsd:element name = "Job"> <!-- top level definition -->
 		<xsd:annotation>
-			<xsd:appinfo><xsdfu><plural>Jobs</plural></xsdfu></xsd:appinfo>
+            <xsd:appinfo><xsdfu><plural>Jobs</plural><abstract/></xsdfu></xsd:appinfo>
 			<xsd:documentation>Describes a Job</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
