@@ -54,7 +54,7 @@ If you run into problems with Homebrew, you can always run
     $ brew doctor
 
 
-Below is a non-exhaustive list of errors/warnings
+Below is a non-exhaustive list of errors/warnings. Some if not all of them could be possible avoided by removing any previous OMERO installation artifacts from your system.
 
 ### Xcode
     Warning: Xcode is not installed! Builds may fail!
@@ -82,7 +82,7 @@ Try brew cleanup then brew link ossp-uuid
 
     Error: Failed executing: cd cpp && make M PP_HOME=/Users/sebastien/apps/    OMERO.libs/Cellar/mcpp/2.7.2 DB_HOME=/Users/sebastien/apps/OMERO.libs/Cellar/berkeley-    db46/4.6.21 OPTIMIZE=yes prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 embedded_runpath_prefix=/Users/sebastien/apps/OMERO.libs/Cellar/zeroc-ice33/3.3 install
 
-We have had problems building zeroc-ice33 under MacOS 10.7.3 [[see ticket #8075](http://trac.openmicroscopy.org.uk/ome/ticket/8075)]. If you will be developing OMERO rather than installing omero43, you can try installing `ice' (Ice 3.4) instead
+We have had problems building zeroc-ice33 under MacOS 10.7.3 and 10.6.8 [[see ticket #8075](http://trac.openmicroscopy.org.uk/ome/ticket/8075)]. If you will be developing OMERO rather than installing omero43, you can try installing `ice` (Ice 3.4) instead. If you decide to go with zeroc-ice33, make sure that you don't have `DYLD_LIBRARY_PATH` set to an existing Ice's installation lib directory path. In essence your `.bash_profile` shouldn't have any OMERO-related environment variables set before executing the installation script.
 
 ### szip
     ==> Installing hdf5 dependency: szip
@@ -95,6 +95,13 @@ We have had problems building zeroc-ice33 under MacOS 10.7.3 [[see ticket #8075]
     (To retry an incomplete download, remove the file above.)
 Manually remove the archived version [[here](/Users/moore/Library/Caches/Homebrew/szip-2.1.tar.gz)] since the maintainer may have updated the file.
 
+### numexpr (and other Python packages)
+	
+	If you encounter an issue related to numexpr complaining about NumPy having a too low version number, verify that you have not before installed any Python packages using pip. In the case where pip has been installed before homebrew, uninstall it:
+	
+	$ sudo pip uninstall pip
+	
+	After that try running omero_homebrew.sh again. That should install pip via homebrew and put the Python packages in correct folders.
 
 OMERO server
 -----------
