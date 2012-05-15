@@ -45,8 +45,8 @@ class ImmersionEnumHandler implements EnumerationHandler
             new PatternSet("^\\s*oil.*$", "Oil"),
             new PatternSet("^\\s*OI.*$", "Oil"),
             new PatternSet("^\\s*W", "Water"),
-            new PatternSet("^\\s*UV", "Unknown"),
-            new PatternSet("^\\s*Plan.*$", "Unknown"), // TODO: Remove when .nd2 bug which puts correction into immersion is fixed
+            new PatternSet("^\\s*UV", "Other"),
+            new PatternSet("^\\s*Plan.*$", "Other"), // TODO: Remove when .nd2 bug which puts correction into immersion is fixed
             new PatternSet("^\\s*DRY", "Air") //TODO: This needs to be changed to "Air" when immersion enum bug is fixed in 4.1
         };
 
