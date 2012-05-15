@@ -402,9 +402,9 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 conn.updateExperimenter(experimenter, omename, firstName, lastName, email, admin, active, dGroup, listOfOtherGroups, middleName, institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'form':form, 'eid': eid, 'ldapAuth': isLdapUser}
-    elif action == "delete":
-        controller.deleteExperimenter()
-        return HttpResponseRedirect(reverse("waexperimenters"))
+    #elif action == "delete":
+    #    conn.deleteExperimenter()
+    #    return HttpResponseRedirect(reverse("waexperimenters"))
     else:
         return HttpResponseRedirect(reverse("waexperimenters"))
     
@@ -570,11 +570,6 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
     
     context['template'] = template
     return context
-
-
-@login_required(isAdmin=True)
-def imports(request, **kwargs):
-    return HttpResponseRedirect(reverse("waindex"))
 
 
 @login_required()
