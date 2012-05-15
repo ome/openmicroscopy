@@ -372,7 +372,11 @@
 			<xsd:documentation>Describes a ScriptJob</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
-			<xsd:attribute name="Description" use="required" type="xsd:string"/>
+            <xsd:complexContent>
+                <xsd:extension base="Job">
+			        <xsd:attribute name="Description" use="required" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:complexContent>
 		</xsd:complexType>
 	</xsd:element>
 
