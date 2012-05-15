@@ -56,17 +56,10 @@
 						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
-				<xsd:element name="PixelsRef" minOccurs="0" maxOccurs="unbounded">
+				<xsd:element ref="PixelsRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>
 						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
 					</xsd:annotation>
-					<xsd:complexType>
-						<xsd:complexContent>
-							<xsd:extension base="OME:Reference">
-                                <xsd:attribute name="ID" use="required" type="OME:PixelsID"/>
-							</xsd:extension>
-						</xsd:complexContent>
-					</xsd:complexType>
 				</xsd:element>
             </xsd:sequence>
 			<xsd:attribute name="Name" use="optional" type="xsd:string"/>
@@ -269,7 +262,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element name="PixelsRef" minOccurs="1" maxOccurs="1" type="OME:PixelsID"/>
+                <xsd:element ref="PixelsRef" minOccurs="1" maxOccurs="1"/>
 			</xsd:sequence>
 			<xsd:attribute name="MimeType" use="required" type="xsd:string"/>
 			<xsd:attribute name="SizeX" use="required" type="OME:NonNegativeInt"/>
@@ -285,7 +278,11 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element name="PixelsRef" minOccurs="1" maxOccurs="unbounded" type="OME:PixelsID"/>
+				<xsd:element ref="PixelsRef" minOccurs="1" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
 				<xsd:element name="Model" minOccurs="1" maxOccurs="1" type="RenderingModel"/>
 				<xsd:element name="Quantization" minOccurs="1" maxOccurs="1" type="QuantumDef"/>
 				<xsd:element name="WaveRendering" minOccurs="1" maxOccurs="unbounded" type="ChannelBinding"/>
@@ -515,4 +512,16 @@
 		</xsd:restriction>
 	</xsd:simpleType>
 
+    <xsd:element name="PixelsRef" minOccurs="0" maxOccurs="unbounded"> <!-- top level definition -->
+        <xsd:annotation>
+            <xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="OME:Reference">
+                    <xsd:attribute name="ID" use="required" type="OME:PixelsID"/>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
 </xsd:schema>
