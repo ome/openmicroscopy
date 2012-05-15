@@ -24,6 +24,7 @@ $(document).ready(function() {
     
     // this script is an 'include' within a django for-loop, so we can get our index:
     var acquisition_tab_index = {{ forloop.counter }};
+    var $metadata_acquisition = $("#metadata_tab");
 
     var update_acquisition_tab = function() {
 
@@ -35,10 +36,8 @@ $(document).ready(function() {
         if ((orel!="image") && (orel!="well")) return;
 
         var oid = selected[0]["id"];
-
         // if the tab is visible and not loaded yet...
-        $metadata_preview = $("#metadata_tab");
-        if ($metadata_preview.is(":visible") && $metadata_preview.is(":empty")) {
+        if ($metadata_acquisition.is(":visible") && $metadata_acquisition.is(":empty")) {
             var url = null;
             var well_index = selected[0]["index"] || 0;
             if (selected[0]["share"]) {
@@ -46,12 +45,17 @@ $(document).ready(function() {
             } else {
                 url = '{% url webindex %}metadata_acquisition/'+orel+'/'+oid.split("-")[1]+'/?index='+well_index;
             }
-            $metadata_preview.load(url);
+            $metadata_acquisition.load(url);
         };
     };
     
     // update tabs when tree selection changes or tabs switch
-    $("#annotation_tabs").bind( "tabsshow", update_acquisition_tab);
+    $("#annotation_tabs").bind( "tabsshow", function(tab_ui, tab){
+        if (tab.index == acquisition_tab_index) {
+            $metadata_acquisition.show();   // sometimes this doesn't get shown until too late
+            update_acquisition_tab();
+        }
+    });
 
     // on change of selection, update which tabs are enabled
     $("body").bind("selection_change.ome", function(event) {

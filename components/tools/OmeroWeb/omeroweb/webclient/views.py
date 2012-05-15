@@ -136,8 +136,7 @@ def login(request):
         password = form.cleaned_data['password']
         server_id = form.cleaned_data['server']
         is_secure = toBoolean(form.cleaned_data['ssl'])
-        form.cleaned_data['username']
-    
+        
         connector = Connector(server_id, is_secure)
         
         # TODO: version check should be done on the low level, see #5983
@@ -146,9 +145,10 @@ def login(request):
             conn = connector.create_connection('OMERO.web', username, password)
             if conn is not None:
                 request.session['connector'] = connector
-                
                 upgradeCheck()
-                request.session['version'] = conn.getServerVersion()
+                
+                # do we ned to display server version ?
+                # server_version = conn.getServerVersion()
                 if request.REQUEST.get('noredirect'):
                     return HttpResponse('OK')
                 url = request.REQUEST.get("url")
@@ -1078,16 +1078,21 @@ def annotate_comment(request, conn=None, **kwargs):
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisitions'], 'wells':oids['well'],
             'shares':oids['share']}
-
-    manager = BaseContainer(conn)
-
+    
     # Handle form submission...
     form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
     if form_multi.is_valid():
         # In each case below, we pass the {'object_type': [ids]} map
         content = form_multi.cleaned_data['comment']
         if content is not None and content != "":
-            textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
+            if oids['share'] is not None and len(oids['share']) > 0:
+                sid = oids['share'][0].id
+                manager = BaseShare(conn, sid)
+                host = request.build_absolute_uri(reverse("load_template", args=["public"]))
+                textAnn = manager.addComment(host, conn.server_id, content)
+            else:
+                manager = BaseContainer(conn)
+                textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
             context = {'tann': textAnn, 'template':"webclient/annotations/comment.html"}
             return context
     else:
@@ -1277,18 +1282,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             else:
                 template = "webclient/public/share_form.html"
                 context = {'share':manager, 'form':form}
-        elif o_type == "sharecomment":
-            form_sharecomments = ShareCommentForm(data=request.REQUEST.copy())
-            if form_sharecomments.is_valid():
-                logger.debug("Create share comment: %s" % (str(form_sharecomments.cleaned_data)))
-                comment = form_sharecomments.cleaned_data['comment']
-                host = request.build_absolute_uri(reverse("load_template", args=["public"]))
-                textAnn = manager.addComment(host, request.session['server'], comment)
-                template = "webclient/annotations/share_comment.html"
-                context = {'cm': textAnn}
-            else:
-                template = "webclient/annotations/annotation_new_form.html"
-                context = {'manager':manager, 'form_sharecomments':form_sharecomments}
+        else:
+            return HttpResponseServerError("Object does not exist")
     elif action == 'editname':
         # start editing 'name' in-line
         if hasattr(manager, o_type) and o_id > 0:
@@ -1428,14 +1423,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         return HttpResponse( json, mimetype='application/javascript')
     elif action == 'deletemany':
         # Handles multi-delete from jsTree.
-        object_ids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate'), 'well':request.REQUEST.getlist('well')}
+        object_ids = {'Image':request.REQUEST.getlist('image'), 'Dataset':request.REQUEST.getlist('dataset'), 'Project':request.REQUEST.getlist('project'), 'Screen':request.REQUEST.getlist('screen'), 'Plate':request.REQUEST.getlist('plate'), 'Well':request.REQUEST.getlist('well'), 'PlateAcquisition':request.REQUEST.getlist('acquisition')}
         child = toBoolean(request.REQUEST.get('child'))
         anns = toBoolean(request.REQUEST.get('anns'))
         logger.debug("Delete many: child? %s anns? %s object_ids %s" % (child, anns, object_ids))
         try:
             for key,ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
-                    handle = manager.deleteObjects(key.title(), ids, child, anns)
+                    handle = manager.deleteObjects(key, ids, child, anns)
                     dMap = {'job_type': 'delete', 'start_time': datetime.datetime.now(),'status':'in progress', 'derrors':handle.errors(),
                         'dreport':_formatReport(handle), 'dtype':key}
                     if len(ids) > 1:
@@ -2003,7 +1998,6 @@ def activities(request, conn=None, **kwargs):
                 try:
                     handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                     cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
-                    new_results.append(cbString)
                     if cb.block(0) is None: # ms #500
                         err = handle.errors()
                         request.session['callback'][cbString]['derror'] = err
@@ -2013,6 +2007,7 @@ def activities(request, conn=None, **kwargs):
                             request.session['callback'][cbString]['status'] = "failed"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                             failure+=1
+                            new_results.append(cbString)
                         else:
                             request.session['callback'][cbString]['status'] = "in progress"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
@@ -2020,6 +2015,7 @@ def activities(request, conn=None, **kwargs):
                     else:
                         err = handle.errors()
                         request.session['callback'][cbString]['derror'] = err
+                        new_results.append(cbString)
                         if err > 0:
                             request.session['callback'][cbString]['status'] = "failed"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)

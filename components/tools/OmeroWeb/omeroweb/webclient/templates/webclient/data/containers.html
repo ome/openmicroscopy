@@ -105,7 +105,7 @@
                                   $.jstree.rollback(data.rlbk);
                                   alert(r.errs);
                               } else {
-                                  datatree.remove(selected);
+                                  datatree.delete_node(selected);
                                   first_parent.children("a").click();
                                   refreshActivities();
                               }
@@ -167,7 +167,7 @@
                 $("#new-container-form").dialog({
                     autoOpen: false,
                     resizable: true,
-                    height: 270,
+                    height: 280,
                     width:420,
                     modal: true,
                     buttons: {
@@ -524,8 +524,8 @@
                                 "create_node" : false,
                                 "start_drag" : false,
                                 "move_node" : false,
-                                "delete_node" : false,
-                                "remove" : false
+                                "delete_node" : true,
+                                "remove" : true
                             },
                             "acquisition-locked" : {
                                 "valid_children" : "none",
@@ -651,6 +651,10 @@
                                     addToBasket(this.get_selected(), '{% url update_basket %}');
                                 }
                             };
+                            
+                            {% if myGroups|length < 2 %}
+                            config["chgrp"]["_disabled"] = true;
+                            {% endif %}
                             
                             if(obj.attr("rel").indexOf("locked")>=0) {
                                 {% if not isLeader %}config["delete"]["_disabled"] = true;{% endif %}
@@ -860,7 +864,7 @@
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
-                    tree_selection_changed(data);
+                    tree_selection_changed(data, e);
                 })
                 .bind("open_node.jstree", function (e, data) {
 
@@ -972,7 +976,11 @@
                     addToBasket($.jstree._focused().get_selected(), '{% url update_basket %}');
                     break;
                 case "refreshButton":
+                    // clear selection of center/right panels, refresh and notify
+                    tree_selection_changed();
                     $("#dataTree").jstree("refresh");
+                    data = $.jstree._focused().get_selected();
+                    tree_selection_changed(data);
                     break;
                 default:
                     break;
@@ -1121,7 +1129,7 @@
                 <label for="id_name">Name:</label>
                 {{ new_container_form.name }}
             </p>
-            <p>
+            <p style="margin-bottom: 5px">
                 <label for="id_description">Description:</label><br />
                 {{ new_container_form.description }}
             </p>

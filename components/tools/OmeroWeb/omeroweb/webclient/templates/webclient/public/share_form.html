@@ -24,9 +24,10 @@
 <h1>{% trans "Edit" %} {{ share.share.getShareType|lower }}:</h1>
 
 <div id="share_content"></div>
-<div class="clear"> </div>
 
     <div>
+        <form id='edit_share_form' title="Edit Share" action="{% url manage_action_containers 'save' 'share' share.share.id %}" method="post">
+        
             <table>
             {% for field in form %}
                 {% ifequal field.label_tag form.enable.label_tag %}
@@ -38,5 +39,6 @@
                 {% endifequal %}
             {% endfor %}
             </table>
+        </form>
     </div>
 

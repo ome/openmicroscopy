@@ -124,41 +124,43 @@
                 
                 // Edit share: launch dialog with edit-share form
                 $("#edit_share").click(function(){
+                    // set-up the edit-share form to use dialog
+                    $("#edit_share_div").dialog({
+                        resizable: true,
+                        height: 410,
+                        width:420,
+                        modal: true,
+                        buttons: {
+                            "Accept": function() {
+                                // simply submit the form (AJAX handling set-up below)
+                                $("#edit_share_form").submit();
+                                $( this ).dialog( "destroy" );
+                                $("#edit_share_div").appendTo($("#metadata_general"))
+                            },
+                            "Cancel": function() {
+                                $( this ).dialog( "destroy" );
+                                $("#edit_share_div").appendTo($("#metadata_general"))
+                            }
+                        }
+                    });
                     var edit_share_url = $(this).attr('href');
-                    $("#edit_share_form").dialog("open");
                     // load form via AJAX...
-                    $("#edit_share_form").load(edit_share_url, function(){
+                    $("#edit_share_div").load(edit_share_url, function(){
+                        $('#edit_share_form').ajaxForm({
+                            success: function(data) {
+                                $("#edit_share_div").dialog( "close" );      // hide in case it was submitted via 'Enter'
+                                // update the UI  - only available if the owner is editing share
+                                {% if manager.share.id %}
+                                share_selection_changed({{ manager.share.id }});
+                                {% endif %}
+                            }
+                        });
                         $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
                     });
                     return false;
                 });
-                // set-up the edit-share form to use dialog
-                $("#edit_share_form").dialog({
-                    autoOpen: false,
-                    resizable: true,
-                    height: 410,
-                    width:420,
-                    modal: true,
-                    buttons: {
-                        "Accept": function() {
-                            // simply submit the form (AJAX handling set-up below)
-                            $("#edit_share_form").submit();
-                            $( this ).dialog( "close" );
-                        },
-                        "Cancel": function() {
-                            $( this ).dialog( "close" );
-                        }
-                    }
-                });
-                $('#edit_share_form').ajaxForm({
-                    success: function(data) {
-                        $("#edit_share_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
-                        // update the UI  - only available if the owner is editing share
-                        {% if manager.share.id %}
-                        share_selection_changed({{ manager.share.id }});
-                        {% endif %}
-                    }
-                });
+                
+                
             });
     </script>
     
@@ -203,7 +205,7 @@
 			<hr/>
                     
             <div class="description">
-                <span id='image_desc'>{{ manager.image.description|default_if_none:"no description"|linebreaks }}</span>
+                <span id='image_desc'>{{ manager.image.description|default:"no description"|linebreaks }}</span>
             </div>
             <table>                    
                 {% if not manager.image.isOwned %}
@@ -254,9 +256,7 @@
 
             {% if manager.share %}
                 <!-- hidden form for editing Share - load form via AJAX when we show dialog -->
-                <form id='edit_share_form' title="Edit Share" action="{% url manage_action_containers 'save' 'share' manager.share.id %}" 
-                    method="post" style="display:none">
-                </form>
+                <div id='edit_share_div'></div>
                 <h2>{{ manager.share.getShareType }} <strong>{{ manager.share.id }}</strong>
                     {% if manager.share.isOwned %}
                         <a id="edit_share" href="{% url manage_action_containers 'edit' 'share' manager.share.id %}">
@@ -268,7 +268,7 @@
 				
                 <div class="description">
                     <div class="data_heading">
-						<p><span>{{ manager.share.message|default_if_none:""|sharewikify|safe|linebreaks }}</span></p>
+						<p><span>{{ manager.share.message|default:""|sharewikify|safe|linebreaks }}</span></p>
 					</div>
                 </div>
                 

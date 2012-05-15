@@ -172,7 +172,7 @@ class ScriptTest (lib.GTest):
         cb = omero.scripts.ProcessCallbackI(self.gateway.c, process)
         while cb.block(500) is None:
             pass
-        results = process.getResults(0)
+        results = process.getResults(0, self.gateway.CONFIG['SERVICE_OPTS'])
         self.assertTrue('stdout' in results, "Failed to return stdout Original File. #8614")
         self.assertEqual(results["gid"].val, default_groupId, \
                 "We want script to have eventContext of group:%s not %s" % \

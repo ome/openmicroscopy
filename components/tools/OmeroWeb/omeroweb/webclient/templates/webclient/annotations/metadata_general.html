@@ -449,7 +449,7 @@
                 {% if manager.image.isOwned %}
 					<div class="data_heading" id="imagedescription-{{ manager.image.id }}">
 						<p>
-						<span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default_if_none:"Add Description"}}</span>
+						<span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default:"Add Description"}}</span>
 						<button class="btn silver btn_edit" alt="e" title="edit">
 							<span></span>
 						</button>
@@ -457,7 +457,7 @@
 					</div>
 					
 					{% else %}
-					<span id='image_desc'>{{ manager.image.description|default_if_none:""|linebreaks }} </span>{% endif %}
+					<span id='image_desc'>{{ manager.image.description|default:""|linebreaks }} </span>{% endif %}
             </div>
 			
 			
@@ -551,7 +551,7 @@
                     {% if manager.dataset.isOwned %}
 					<div class="data_heading" id="datasetdescription-{{ manager.dataset.id }}">
 						<p>
-							<span id="datasetdescription-{{ manager.dataset.id }}-description">{{ manager.dataset.description|default_if_none:"Add a Description"|linebreaksbr}}</span>
+							<span id="datasetdescription-{{ manager.dataset.id }}-description">{{ manager.dataset.description|default:"Add a Description"|linebreaksbr}}</span>
 						    <button class="btn silver btn_edit" alt="e" title="edit">
     							<span></span>
     						</button>
@@ -559,7 +559,7 @@
 
 					</div>
 					{% else %}
-					<span id='dataset_desc'>{{ manager.dataset.description|default_if_none:""|linebreaks }}</span>
+					<span id='dataset_desc'>{{ manager.dataset.description|default:""|linebreaks }}</span>
 					{% endif %}
                 </div>
                 
@@ -607,7 +607,7 @@
                         {% if manager.project.isOwned %}
 						<div class="data_heading" id="projectdescription-{{ manager.project.id }}">
 						    <p>                          
-						        <span id="projectdescription-{{ manager.project.id }}-description">{{ manager.project.description|default_if_none:"Add a Description"|linebreaksbr}}
+						        <span id="projectdescription-{{ manager.project.id }}-description">{{ manager.project.description|default:"Add a Description"|linebreaksbr}}
 						        </span>
 						        <button class="btn silver btn_edit" alt="e" title="edit">
         							<span></span>
@@ -616,7 +616,7 @@
 						</div>
 					    {% else %}
 					    
-					    <span id='project_desc'>{{ manager.project.description|default_if_none:""|linebreaks }}</span>
+					    <span id='project_desc'>{{ manager.project.description|default:""|linebreaks }}</span>
 					    {% endif %}
                     </div>
                     
@@ -669,7 +669,7 @@
                 {% if manager.well.getWellSample.image.isOwned %}
                 <div class="data_heading" id="welldescription-{{ manager.well.getWellSample.image.id }}">
                     <p>
-                        <span id="welldescription-{{ manager.well.getWellSample.image.id }}-description">{{ manager.well.getWellSample.image.description|default_if_none:"Add A Description"|linebreaksbr}}</span>
+                        <span id="welldescription-{{ manager.well.getWellSample.image.id }}-description">{{ manager.well.getWellSample.image.description|default:"Add A Description"|linebreaksbr}}</span>
                         <button class="btn silver btn_edit" alt="e" title="edit">
 							<span></span>
 						</button>
@@ -677,7 +677,7 @@
                 </div>
                 {% else %}
                 
-                <span id='well_desc'>{{ manager.well.getWellSample.image.description|default_if_none:""|linebreaks }}</span>
+                <span id='well_desc'>{{ manager.well.getWellSample.image.description|default:""|linebreaks }}</span>
                 {% endif %}
             </div>
             
@@ -728,7 +728,7 @@
                 <tr>
                     <th>Status:</th>
                     <td id='well_status'>
-                        {{ manager.well.status|default_if_none:"None" }}
+                        {{ manager.well.status|default:"None" }}
                     </td>
                 </tr>
             </table>
@@ -755,7 +755,7 @@
                     {% if manager.acquisition.isOwned %}
                     <div class="data_heading" id="acquisitiondescription-{{ manager.acquisition.id }}">
                         <p>
-                            <span id="acquisitiondescription-{{ manager.acquisition.id }}-description">{{ manager.acquisition.description|default_if_none:" Add a Description"|linebreaksbr}}</span>
+                            <span id="acquisitiondescription-{{ manager.acquisition.id }}-description">{{ manager.acquisition.description|default:" Add a Description"|linebreaksbr}}</span>
                             <button class="btn silver btn_edit" alt="e" title="edit">
     							<span></span>
     						</button>
@@ -764,7 +764,7 @@
                     </div>
                 {% else %}
                 
-                    <span id='acquisition_desc'>{{ manager.acquisition.description|default_if_none:""|linebreaks }}</span>
+                    <span id='acquisition_desc'>{{ manager.acquisition.description|default:""|linebreaks }}</span>
                 {% endif %}
                 </div>
                 
@@ -810,7 +810,7 @@
                         {% if manager.plate.isOwned %}
                         <div class="data_heading" id="platedescription-{{ manager.plate.id }}">
                             <p>
-                                <span id="platedescription-{{ manager.plate.id }}-description">{{ manager.plate.description|default_if_none:"Add a Description"|linebreaksbr}}</span>
+                                <span id="platedescription-{{ manager.plate.id }}-description">{{ manager.plate.description|default:"Add a Description"|linebreaksbr}}</span>
                                 <button class="btn silver btn_edit" alt="e" title="edit">
         							<span></span>
         						</button>
@@ -820,7 +820,7 @@
                     </div>
                     {% else %}
                     
-                    <span id='plate_desc'>{{ manager.plate.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                    <span id='plate_desc'>{{ manager.plate.description|default:""|linebreaks }}</span>{% endif %}
                     </div>
                     <table>
                         {% if not manager.plate.isOwned %}
@@ -864,7 +864,7 @@
                             
                             <div class="data_heading" id="screendescription-{{ manager.screen.id }}">
                                 <p>
-                                    <span id="screendescription-{{ manager.screen.id }}-description">{{ manager.screen.description|default_if_none:"Add a Description"|linebreaksbr}}</span>
+                                    <span id="screendescription-{{ manager.screen.id }}-description">{{ manager.screen.description|default:"Add a Description"|linebreaksbr}}</span>
                                     <button class="btn silver btn_edit" alt="e" title="edit">
             							<span></span>
             						</button>
@@ -873,7 +873,7 @@
                             </div>
                             {% else %}
                             
-                            <span id='screen_desc'>{{ manager.screen.description|default_if_none:""|linebreaks }}</span>
+                            <span id='screen_desc'>{{ manager.screen.description|default:""|linebreaks }}</span>
                             {% endif %}
                             
                         </div>
@@ -1157,7 +1157,7 @@
                     {% if manager.tag.isOwned %}
                     <div class="data_heading" id="tagdescription-{{ manager.tag.id }}">
                         <p>
-                            <span id="tagdescription-{{ manager.tag.id }}-description">{{ manager.tag.description|default_if_none:"Add a Description"|linebreaksbr}}</span>
+                            <span id="tagdescription-{{ manager.tag.id }}-description">{{ manager.tag.description|default:"Add a Description"|linebreaksbr}}</span>
                             <button class="btn silver btn_edit" alt="e" title="edit">
     							<span></span>
     						</button>
@@ -1166,7 +1166,7 @@
                     
                     {% else %}
                     
-                    <span id='tag_desc'>{{ manager.tag.description|default_if_none:""|linebreaks }}</span>{% endif %}
+                    <span id='tag_desc'>{{ manager.tag.description|default:""|linebreaks }}</span>{% endif %}
                 </div>
         
                 <table>

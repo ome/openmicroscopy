@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
     
     <!--[if lte IE 8]>
-        <link rel="stylesheet" type="text/css" href="/static/webgateway/css/ome.table_ie.css" />
+        <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
     <![endif]-->
     
     
@@ -200,7 +200,7 @@
                         if (!data.loading) {
                             usage = false;
                             $("#usage").remove();
-                            $("#placeholder").css('width',700).css('height',300);
+                            $("#placeholder").css('width',600).css('height',300);
                         }
                         
                         offsetQuery = "offset="+(data.offset);
@@ -373,7 +373,7 @@
                        </a>
                    </div>
 
-                   <span id="password_change_message"></span>
+                   <span id="password_change_message" class="error">Message here</span>
                </div>
                {% endif %}
 
@@ -386,10 +386,6 @@
 
            <!-- hidden dialog for password change -->
            <div id="password_change_dialog" title="Change Password">
-               <h1>{% trans "Change Password" %}</h1>
-
-               <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
-               <br/>
 
                <form id="change_password_form" action="{% url wamanagechangepasswordid ome.eventContext.userId %}" method="POST">
 
@@ -397,7 +393,7 @@
                        <tbody>
                            {% for field in password_form %}
                            <tr>
-                               <td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                               <td class="form">{{ field.label_tag }}</td>
                                <td class="input">{{ field }}</td>
                                <td>{{ field.help_text|safe }}</td>
                            </tr>
@@ -442,7 +438,7 @@
                 <tr>
                     <td><strong>{{ dict.group.name }}</strong></td>
                     <td>{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
-                    <td>{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
+                    <td>{{ dict.group.description|default:"-"|truncatewords:"5" }}</td>
                     <td class="table_settings">
                         {% if not dict.locked %}
                             <a href="{% url wamanagegroupownerid "edit" dict.group.id %}" alt="Edit Group" title="Edit Group" class="btn silver btn_edit">

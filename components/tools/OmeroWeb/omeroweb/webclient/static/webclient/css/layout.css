@@ -1728,16 +1728,16 @@
         /* Individual Images */
         
         #personal_settings_tab {
-            background:url(/static/webclient/image/icon_settings_user.png) center 14px no-repeat;
+            background:url(../../webclient/image/icon_settings_user.png) center 14px no-repeat;
         }
         
         #group_settings_tab {
-            background:url(/static/webclient/image/icon_settings_groups.png) center 14px no-repeat;
+            background:url(../../webclient/image/icon_settings_groups.png) center 14px no-repeat;
         }
         
         
         #drivespace_settings_tab {
-            background:url(/static/webclient/image/icon_settings_drivespace.png) center 14px no-repeat;
+            background:url(../../webclient/image/icon_settings_drivespace.png) center 14px no-repeat;
         }
         
         
@@ -1816,6 +1816,9 @@
 			margin-top:2px;
 		}
 	
+	#password_change_message {
+	    font-size:1.3em;
+	}
 
 
 	/* Group Settings */
@@ -1975,14 +1978,8 @@
 
 
 
-em {
-    background-color: #fff;
-    border: 1px solid #bbb;
-    position: absolute;
-    left: 0px;
-    padding: 5px;
-    z-index: 2;
-    display: none;
+.active-result em {
+    text-decoration: underline;
 }
 
 

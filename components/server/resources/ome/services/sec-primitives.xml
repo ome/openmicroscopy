@@ -70,6 +70,7 @@
     <constructor-arg ref="systemTypes"/>
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="shareStore"/>
+    <constructor-arg ref="tokenHolder"/>
   </bean>
   
   <bean id="basicACLVoter" class="ome.security.basic.BasicACLVoter">

@@ -80,7 +80,6 @@ class login_required(object):
             except:
                 conn.CONFIG['SERVICE_OPTS'] = {'omero.share': str(share_id)}
             share = conn.getShare(share_id)
-            conn.getShareService().activate(long(share_id))
             return conn
         except:
             logger.error('Error activating share.', exc_info=True)
@@ -90,7 +89,6 @@ class login_required(object):
         """Prepares the share connection if we have a valid share ID."""
         if share_id is None:
             if conn.getEventContext().shareId > 0:
-                conn.getShareService().deactivate()
                 try:
                     del conn.CONFIG['SERVICE_OPTS']['omero.share']
                 except:
