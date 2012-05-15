@@ -24,6 +24,7 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.SecurityFilter;
 import ome.system.EventContext;
 import ome.system.Roles;
@@ -82,7 +83,7 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
      * @see FilterDefinitionFactoryBean#setDefaultFilterCondition(String)
      */
     public AllGroupsSecurityFilter() {
-        super();
+        this(new Roles());
     }
 
     public AllGroupsSecurityFilter(Roles roles) {
@@ -116,7 +117,7 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
      *            null all {@link Right rights} will be assumed.
      * @return true if the object to which this
      */
-    public boolean passesFilter(Details d, EventContext c) {
+    public boolean passesFilter(Session session, Details d, EventContext c) {
 
         final Long currentUserId = c.getCurrentUserId();
         final boolean admin = c.isCurrentUserAdmin();
@@ -124,19 +125,12 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
         final List<Long> memberOfGroups = c.getMemberOfGroupsList();
         final List<Long> leaderOfGroups = c.getLeaderOfGroupsList();
 
-        if (d == null || d.getPermissions() == null) {
-            throw new InternalException("Details/Permissions null! "
-                    + "Security system failure -- refusing to continue. "
-                    + "The Permissions should be set to a default value.");
-        }
+        final Long o = d.getOwner().getId();
+        final Long g = d.getGroup().getId();
 
-        Permissions p = d.getPermissions();
-        if (p == Permissions.DUMMY) {
-            throw new InternalException("Need real group permissions");
-        }
-
-        Long o = d.getOwner().getId();
-        Long g = d.getGroup().getId();
+        // ticket:8798 - load permissions for group of object regardless.
+        final Permissions p = ((ExperimenterGroup) session.get(ExperimenterGroup.class, g))
+            .getDetails().getPermissions();
 
         if (share || admin) {
             return true;
@@ -152,7 +146,7 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
         }
 
         if (memberOfGroups.contains(g)
-                && d.getPermissions().isGranted(GROUP, READ)) {
+                && p.isGranted(GROUP, READ)) {
             return true;
         }
 

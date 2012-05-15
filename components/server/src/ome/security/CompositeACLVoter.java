@@ -18,6 +18,7 @@ import ome.system.EventContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 
 /**
  * 
@@ -66,9 +67,9 @@ public class CompositeACLVoter implements ACLVoter {
         return choose().allowDelete(object, trustedDetails);
     }
 
-    public boolean allowLoad(Class<? extends IObject> klass,
+    public boolean allowLoad(Session session,Class<? extends IObject> klass,
             Details trustedDetails, long id) {
-        return choose().allowLoad(klass, trustedDetails, id);
+        return choose().allowLoad(session, klass, trustedDetails, id);
     }
 
     public boolean allowUpdate(IObject object, Details trustedDetails) {

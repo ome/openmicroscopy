@@ -18,6 +18,7 @@ import static ome.model.internal.Permissions.Role.WORLD;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 import org.springframework.util.Assert;
 
 import ome.annotations.RevisionDate;
@@ -89,7 +90,7 @@ public class BasicACLVoter implements ACLVoter {
      * different {@link ACLVoter} implementation will almost certainly be active
      * for share use.
      */
-    public boolean allowLoad(Class<? extends IObject> klass, Details d, long id) {
+    public boolean allowLoad(Session session, Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
 
         if (d == null ||
@@ -99,7 +100,7 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
 
-        boolean rv = securityFilter.passesFilter(d, currentUser.current());
+        boolean rv = securityFilter.passesFilter(session, d, currentUser.current());
 
         // Misusing this location to store the loaded objects perms for later.
         if (this.currentUser.getCurrentEventContext().getCurrentGroupId() < 1) {
