@@ -272,11 +272,10 @@ public class ModelMockFactory
      * @return See above.
      */
     public Image simpleImage(long time)
+    throws Exception
     {
         // prepare data
-        Image img = new ImageI();
-        img.setName(rstring("image1"));
-        img.setDescription(rstring("descriptionImage1"));
+        Image img = createImage();
         img.setAcquisitionDate(rtime(time));
         return img;
     }
@@ -833,7 +832,7 @@ public class ModelMockFactory
 		    }
 		}
 
-		Image image = simpleImage(new Date().getTime());
+		Image image = createBasicImage(new Date().getTime());
 		image.setPixels(pixels);
 		// Image.setPixels also does:
 		// pixels.setImage(image);
@@ -914,14 +913,27 @@ public class ModelMockFactory
 			int sizeT, int sizeC)
 		throws Exception
 	{
-		Image image = simpleImage(new Date().getTime());
+		// prepare data
+        Image img = createBasicImage(new Date().getTime());
 		Pixels pixels = createPixels(sizeX, sizeY, sizeZ, sizeT, sizeC);
-		image.setPixels(pixels);
-		// setPixels also does:
-		// pixels.setImage(image);
-		return image;
+		img.setPixels(pixels);
+		return img;
 	}
 
+	/**
+	 * Creates an image object. 
+	 * @param time
+	 * @return
+	 */
+	private Image createBasicImage(long time)
+	{
+		Image img = new ImageI();
+        img.setName(rstring("image1"));
+        img.setDescription(rstring("descriptionImage1"));
+        img.setAcquisitionDate(rtime(time));
+        return img;
+	}
+	
 	/**
 	 * Creates a plate.
 	 * 
@@ -966,6 +978,7 @@ public class ModelMockFactory
                 if (pas.size() == 0) {
                 	for (int field = 0; field < fields; field++) {
                         sample = new WellSampleI();
+                        sample.setIndex(omero.rtypes.rint(field));
                         if (fullImage) sample.setImage(createImage());
                         else sample.setImage(simpleImage(0));
                         well.addWellSample(sample);
@@ -976,6 +989,7 @@ public class ModelMockFactory
 						pa = i.next();
 						for (int field = 0; field < fields; field++) {
 	                        sample = new WellSampleI();
+	                        sample.setIndex(omero.rtypes.rint(field));
 	                        if (fullImage) sample.setImage(createImage());
 	                        else sample.setImage(simpleImage(0));
 	                        well.addWellSample(sample);
@@ -1000,6 +1014,7 @@ public class ModelMockFactory
      * @return See above.
      */
     public Plate createPlateWithReagent(int rows, int columns, int fields, Reagent r)
+    throws Exception
     {
     	Plate p = new PlateI();
         p.setRows(omero.rtypes.rint(rows));
@@ -1017,7 +1032,7 @@ public class ModelMockFactory
                 well.setReagent(r);
                 for (int field = 0; field < fields; field++) {
                     sample = new WellSampleI();
-                    sample.setImage(simpleImage(0));
+                    sample.setImage(createImage());
                     well.addWellSample(sample);
                 }
                 p.addWell(well);

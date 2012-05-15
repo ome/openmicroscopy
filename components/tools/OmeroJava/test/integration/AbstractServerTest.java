@@ -1092,8 +1092,8 @@ public class AbstractServerTest
      */
     protected Image createBinaryImage() throws Exception {
         Image image = mmFactory.createImage();
-        image = (Image) iUpdate.saveAndReturnObject(image);
-        return createBinaryImage(image);
+        Pixels pix = (Pixels) iUpdate.saveAndReturnObject(image.getPixels());
+        return createBinaryImage(pix.getImage());
     }
 
     /**
