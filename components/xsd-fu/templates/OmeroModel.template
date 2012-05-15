@@ -278,6 +278,7 @@ ${customContent[o['name']]['properties']}\
 {% end %}\
         </properties>
     </link>
+
 {% end %}\
 {% end %}\
 </types>
