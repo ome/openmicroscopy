@@ -357,8 +357,12 @@
 			<xsd:documentation>Describes a ImportJob</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
-			<xsd:attribute name="ImageName" use="required" type="xsd:string"/>
-			<xsd:attribute name="ImageDescription" use="required" type="xsd:string"/>
+            <xsd:complexContent>
+                <xsd:extension base="Job">
+                    <xsd:attribute name="ImageName" use="required" type="xsd:string"/>
+                    <xsd:attribute name="ImageDescription" use="required" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:complexContent>
 		</xsd:complexType>
 	</xsd:element>
 
