@@ -332,7 +332,7 @@
     /* http://bugs.jqueryui.com/ticket/7233
     - Resizable: resizable handles fail to work in IE if transparent and content overlaps
     */
-    background-image:url(data:);
+    background-image:url(data:'');
 }
 
 .ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle { display: none; }
