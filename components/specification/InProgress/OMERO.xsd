@@ -56,6 +56,18 @@
 						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
+				<xsd:element name="PixelsRef" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:complexContent>
+							<xsd:extension base="OME:Reference">
+                                <xsd:attribute name="ID" use="required" type="OME:PixelsID"/>
+							</xsd:extension>
+						</xsd:complexContent>
+					</xsd:complexType>
+				</xsd:element>
             </xsd:sequence>
 			<xsd:attribute name="Name" use="optional" type="xsd:string"/>
 			<xsd:attribute name="ID" use="required" type="OriginalFileID"/>
