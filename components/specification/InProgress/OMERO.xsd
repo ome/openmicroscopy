@@ -283,11 +283,11 @@
 						<xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
 					</xsd:annotation>
 				</xsd:element>
-				<xsd:element name="Model" minOccurs="1" maxOccurs="1" type="RenderingModel"/>
 				<xsd:element name="Quantization" minOccurs="1" maxOccurs="1" type="QuantumDef"/>
 				<xsd:element name="WaveRendering" minOccurs="1" maxOccurs="unbounded" type="ChannelBinding"/>
 				<xsd:element name="SpatialDomainEnhancement" minOccurs="0" maxOccurs="unbounded" type="CodomainMapContext"/>
 			</xsd:sequence>
+			<xsd:attribute name="Model" use="required" type="RenderingModel"/>
 			<xsd:attribute name="DefaultZ" use="required" type="OME:NonNegativeInt"/>
 			<xsd:attribute name="DefaultT" use="required" type="OME:NonNegativeInt"/>
 			<xsd:attribute name="Name" use="optional" type="xsd:string"/>
