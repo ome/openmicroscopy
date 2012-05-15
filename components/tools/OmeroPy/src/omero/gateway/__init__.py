@@ -5513,7 +5513,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def __loadedHotSwap__ (self):
         ctx = self._conn.CONFIG['SERVICE_OPTS'] and self._conn.CONFIG['SERVICE_OPTS'].copy() or {}
-        ctx['omero.group'] = '-1'
+        ctx['omero.group'] = str(self.getDetails().group.id.val)
         self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None, ctx)[0]
     
     def getInstrument (self):
