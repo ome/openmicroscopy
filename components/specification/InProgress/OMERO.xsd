@@ -391,7 +391,18 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element name="OriginalFileRef" minOccurs="0" maxOccurs="unbounded" type="OriginalFileID"/>
+				<xsd:element name="OriginalFileRef" minOccurs="1" maxOccurs="1">
+                    <xsd:annotation>
+                        <xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
+                    </xsd:annotation>
+					<xsd:complexType>
+						<xsd:complexContent>
+							<xsd:extension base="OME:Reference">
+								<xsd:attribute name="ID" use="required" type="OriginalFileID"/>
+							</xsd:extension>
+						</xsd:complexContent>
+					</xsd:complexType>
+				</xsd:element>
 			</xsd:sequence>
 			<xsd:attribute name="UserName" use="required" type="xsd:string"/>
 			<xsd:attribute name="GroupName" use="required" type="xsd:string"/>
