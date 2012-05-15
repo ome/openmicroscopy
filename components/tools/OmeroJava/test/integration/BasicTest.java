@@ -46,8 +46,8 @@ extends AbstractServerTest
 	public void testImage() 
 	throws Exception
 	{
-		Image image = mmFactory.simpleImage(new Date().getTime());
-		iUpdate.saveAndReturnObject(image);
+		Image image = mmFactory.createImage();
+		iUpdate.saveAndReturnObject(image.getPixels());
 	}
 	
 	/** Creates a basic pixels. Image needs to be created.

@@ -832,6 +832,11 @@ public class ModelMockFactory
 		        }
 		    }
 		}
+
+		Image image = simpleImage(new Date().getTime());
+		image.setPixels(pixels);
+		// Image.setPixels also does:
+		// pixels.setImage(image);
 		return pixels;
 	}
 	
@@ -846,6 +851,7 @@ public class ModelMockFactory
 		throws Exception
 	{
 		Channel channel = new ChannelI();
+		channel.setName(omero.rtypes.rstring("mock channel"));
 		channel.setEmissionWavelength(omero.rtypes.rint(200));
 		List<IObject> types = pixelsService.getAllEnumerations(
     			ContrastMethod.class.getName());
@@ -911,6 +917,8 @@ public class ModelMockFactory
 		Image image = simpleImage(new Date().getTime());
 		Pixels pixels = createPixels(sizeX, sizeY, sizeZ, sizeT, sizeC);
 		image.setPixels(pixels);
+		// setPixels also does:
+		// pixels.setImage(image);
 		return image;
 	}
 

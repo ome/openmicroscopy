@@ -973,6 +973,12 @@ methods below will be used for access.
 ASSOCIATION TYPES BLOCK:
 =====================================================================================================
 
+#set( $one2one = "" )
+#if( $property.class.name == "ome.dsl.OneOneOwnerField" )
+#set( $one2one = "owner")
+#elseif( $property.class.name == "ome.dsl.OneOneField" )
+#set( $one2one = "member")
+#end
 #set( $hasSet  = false )
 #set( $hasLink = false )
 #set( $Col = "NOT")
@@ -1035,6 +1041,14 @@ the special set methods are added.
 [$jav]       $access void set${PropertyName}($javaType $property.name, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           this.$fieldName = $setter;
+#if($one2one == "member")
+[$jav]           // Note: this object cannot be unloaded
+[$jav]           // because the relationship must be set on the
+[$jav]           // reverse side. A null we assume is temporary.
+[$jav]           if (this.${fieldName} != null) {
+[$jav]               this.${fieldName}.set${property.inverseCapped} ( this );
+[$jav]           }
+#end
 [$jav]           $unloadedJava
 [$jav]       }
 [$jav]
@@ -1103,6 +1117,14 @@ ticket:684 This is necessary to map back and forth from sets.
 [$cpp]       void ${PojoI}::set${PropertyName}(const ${cppType}& _$property.name, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           $fieldName = $!{prefix}_${property.name}$!{suffix};
+#if($one2one == "member")
+[$cpp]           // Note: this object cannot be unloaded
+[$cpp]           // because the relationship must be set on the
+[$cpp]           // reverse side. A null we assume is temporary.
+[$cpp]           if (${fieldName}) {
+[$cpp]               ${fieldName}->set${property.inverseCapped}( this );
+[$cpp]           }
+#end
 [$cpp]           $unloadedCpp
 [$cpp]       }
 
@@ -1121,6 +1143,13 @@ It's unclear if these methods are useful at all, but for the moment lowering the
 [$pyc]       def ${pyaccess}set${PropertyName}(self, _${property.name}, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           self._${fieldName} = _${property.name}
+#if($one2one == "member")
+[$pyc]           # Note: this object cannot be unloaded
+[$pyc]           # because the relationship must be set on the
+[$pyc]           # reverse side. A null we assume is temporary.
+[$pyc]           if self._${fieldName} is not None:
+[$pyc]               self._${fieldName}.set${property.inverseCapped}( self )
+#end
 [$pyc]           $unloadedPython
 [$pyc]
 
