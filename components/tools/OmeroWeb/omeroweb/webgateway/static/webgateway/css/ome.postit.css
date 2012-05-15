@@ -125,3 +125,11 @@
 .postit tr > td:first-child {
   text-align: right;
 }
+
+.postit .ui-resizable {
+  position: initial;
+}
+
+.postit .ui-icon {
+  background-image: url(../../3rdparty/jquery-ui-1.8.19/themes/base/images/ui-icons_222222_256x240.png);
+}
