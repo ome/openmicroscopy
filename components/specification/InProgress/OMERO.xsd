@@ -329,10 +329,14 @@
 			<xsd:documentation>Describes a ContrastStretchingContext</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
-			<xsd:attribute name="XStart" use="required" type="xsd:long"/>
-			<xsd:attribute name="YStart" use="required" type="xsd:long"/>
-			<xsd:attribute name="XEnd" use="required" type="xsd:long"/>
-			<xsd:attribute name="YEnd" use="required" type="xsd:long"/>
+            <xsd:complexContent>
+                <xsd:extension base="CodomainMapContext">
+                    <xsd:attribute name="XStart" use="required" type="xsd:long"/>
+                    <xsd:attribute name="YStart" use="required" type="xsd:long"/>
+                    <xsd:attribute name="XEnd" use="required" type="xsd:long"/>
+                    <xsd:attribute name="YEnd" use="required" type="xsd:long"/>
+                </xsd:extension>
+            </xsd:complexContent>
 		</xsd:complexType>
 	</xsd:element>
 
