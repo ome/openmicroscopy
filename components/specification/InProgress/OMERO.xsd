@@ -521,9 +521,6 @@
 	</xsd:simpleType>
 
     <xsd:element name="PixelsRef" minOccurs="0" maxOccurs="unbounded"> <!-- top level definition -->
-        <xsd:annotation>
-            <xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
-        </xsd:annotation>
         <xsd:complexType>
             <xsd:complexContent>
                 <xsd:extension base="OME:Reference">
