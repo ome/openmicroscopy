@@ -524,10 +524,12 @@ public class XMLMockObjects
 	 */
 	public LightSourceSettings createLightSourceSettings(int ref)
 	{
+		if (instrument == null) populateInstrument();
 		LightSourceSettings settings = new LightSourceSettings();
 		settings.setID("LightSource:"+ref);
 		settings.setAttenuation(new PercentFraction(1.0f));
 		settings.setWavelength(new PositiveInteger(200));
+		settings.setLightSource(intrument.copyLightSources().get(0));
 		return settings;
 	}
 
@@ -706,6 +708,7 @@ public class XMLMockObjects
 	public ROI createROI(int index, int z, int c, int t)
 	{
 		ROI roi = new ROI();
+		roi.setName("ROI name:"+index);
 		roi.setID("ROI:"+index);
 		int n = SHAPES.length;
 		int j = index;
