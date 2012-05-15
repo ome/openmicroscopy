@@ -377,6 +377,44 @@ class ManualCreateEditTest (ChmodBaseTest):
         self.assertCanAnnotate(project, False)
 
 
+class Test8800 (lib.GTest):
+    """ Test for #8800 where ImageWrapper.canEdit() etc return different values after we load Pixels """
+
+    def setUp (self):
+        """ This is called at the start of tests """
+        super(Test8800, self).setUp()
+        self.loginAsAuthor()    # sets self.gateway
+
+    def testWithBlitzWrappers(self):
+        """ Uses ImageWrapper.getPrimaryPixels() which loads pixels on the fly """
+        image = self.getTestImage()
+        before = image.canEdit()
+        image.getPrimaryPixels()
+        after = image.canEdit()
+        self.assertEqual(before, after, "canEdit() affected by ImageWrapper.getPrimaryPixels()")
+
+    def testWithoutWrappers(self):
+        """
+        Here we can test loading the image again (with Pixels loaded) using different
+        values of omero.group.
+        Bug #8800 is due to the image returned with 'omero.group':'-1' has canEdit() = False.
+        """
+
+        image = self.getTestImage()
+        imgObj = image._obj
+        gid = image.getDetails().group.id.val
+        before = imgObj.getDetails().getPermissions().canEdit()
+        ctx = {'omero.group':str(gid)}
+        imgObj = self.gateway.getContainerService().getImages("Image", (imgObj.id.val,), None, ctx)[0]
+        after = imgObj.getDetails().getPermissions().canEdit()
+        self.assertEqual(before, after, "canEdit() affected by loading image with 'omero.group':gid")
+
+        ctx = {'omero.group':'-1'}
+        imgObj = self.gateway.getContainerService().getImages("Image", (imgObj.id.val,), None, ctx)[0]
+        after = imgObj.getDetails().getPermissions().canEdit()
+        self.assertNotEqual(before, after, "canEdit() is False with 'omero.group':'-1'")
+
+
 class DefaultSetupTest (lib.GTest):
 
     def setUp (self):
