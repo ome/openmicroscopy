@@ -500,7 +500,6 @@
                                 var p = this._get_parent(m.r);
                                 if(!p) return false;
                                 if (p == -1) return true;
-                                console.log(p,m, p.attr("rel"), m.r.attr("rel"))
                                 if ($.inArray(m.r.attr("rel").replace("-locked", ""), ["orphaned"]) > -1)
                                     return false;
                                 if ($.inArray(p.attr("rel").replace("-locked", ""), ["orphaned"]) > -1)
