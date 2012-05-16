@@ -367,12 +367,12 @@ class GroupProfile
 	 */
 	protected boolean hasDataToSave()
 	{
-		saveButton.setEnabled(false);
+		if (saveButton != null) saveButton.setEnabled(false);
 		if (namePane == null) return false;
 		String v = namePane.getText();
 		v = v.trim();
 		if (!ref.getName().equals(v)) {
-			saveButton.setEnabled(true);
+			if (saveButton != null) saveButton.setEnabled(true);
 			return true;
 		}
 		//check description
@@ -381,11 +381,11 @@ class GroupProfile
 		String description = ref.getDescription();
 		if (description == null) description = "";
 		if (!description.equals(v)) {
-			saveButton.setEnabled(true);
+			if (saveButton != null) saveButton.setEnabled(true);
 			return true;
 		}
 		boolean b = level != permissionsPane.getPermissions();
-		saveButton.setEnabled(b);
+		if (saveButton != null) saveButton.setEnabled(b);
 		return b;
 	}
 
