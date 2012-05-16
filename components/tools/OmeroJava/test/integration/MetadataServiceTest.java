@@ -48,6 +48,7 @@ import omero.model.IObject;
 import omero.model.IlluminationType;
 import omero.model.Image;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.ImageI;
 import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.LightSource;
@@ -166,8 +167,10 @@ public class MetadataServiceTest
 		assertNotNull(data);
 		//link the image 
 		  //create an image and link the annotation
-        Image image = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+		Image image = mmFactory.simpleImage(0);
+        Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(
+        		image.getPixels());
+        image = pixels.getImage();
         ImageAnnotationLinkI link = new ImageAnnotationLinkI();
         link.setParent(image);
         link.setChild(data);
@@ -635,12 +638,15 @@ public class MetadataServiceTest
     	
         f = client.createSession(uuid, uuid);
         //Create an image.
-        Image img = (Image) f.getUpdateService().saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image image = mmFactory.simpleImage(0);
+        Pixels pixels = (Pixels) f.getUpdateService().saveAndReturnObject(
+        		image.getPixels());
+        image = pixels.getImage();
+        assertTrue(image.getId().getValue() > 0);
         //Link the tag and the image.
         ImageAnnotationLinkI link = new ImageAnnotationLinkI();
-        link.setChild((Annotation) tagData);
-        link.setParent(img);
+        link.setChild(new TagAnnotationI(tagData.getId().getValue(), false));
+        link.setParent(new ImageI(image.getId().getValue(), false));
         //Save the link
         f.getUpdateService().saveAndReturnObject(link);
 
@@ -675,12 +681,14 @@ public class MetadataServiceTest
     	TagAnnotation tag = new TagAnnotationI();
         tag.setTextValue(omero.rtypes.rstring("tag1"));
         Annotation tagData = (Annotation) iUpdate.saveAndReturnObject(tag);
-        Image img = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image image = mmFactory.simpleImage(0);
+        Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(
+        		image.getPixels());
+        image = pixels.getImage();
         //Link the tag and the image.
         ImageAnnotationLinkI link = new ImageAnnotationLinkI();
         link.setChild(tagData);
-        link.setParent(img);
+        link.setParent(image);
         iUpdate.saveAndReturnObject(link);
         
         Project pData = (Project) iUpdate.saveAndReturnObject(
@@ -712,7 +720,7 @@ public class MetadataServiceTest
     	while (i.hasNext()) {
 			o = i.next();
 			if (o instanceof Image) {
-				if (o.getId().getValue() == img.getId().getValue()) count++;
+				if (o.getId().getValue() == image.getId().getValue()) count++;
 			} else if (o instanceof Dataset) {
 				if (o.getId().getValue() == dData.getId().getValue()) count++;
 			} else if (o instanceof Project) {

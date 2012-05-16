@@ -337,24 +337,24 @@ public class MetadataImpl
     	sb.append("left outer join fetch inst.microscope as m ");
     	sb.append("left outer join fetch m.type ");
     	//objective
-    	sb.append("left outer join fetch inst.objective as o ");
+    	sb.append("left outer join fetch inst.objectives as o ");
     	sb.append("left outer join fetch o.immersion ");
     	sb.append("left outer join fetch o.correction ");
     	//detector
-    	sb.append("left outer join fetch inst.detector as d ");
+    	sb.append("left outer join fetch inst.detectors as d ");
     	sb.append("left outer join fetch d.type ");
     	//filter
-    	sb.append("left outer join fetch inst.filter as f ");
+    	sb.append("left outer join fetch inst.filters as f ");
     	sb.append("left outer join fetch f.type ");
     	sb.append("left outer join fetch f.transmittanceRange as trans ");
     	//filterset
-    	sb.append("left outer join fetch inst.filterSet as fs ");
+    	sb.append("left outer join fetch inst.filterSets as fs ");
     	sb.append("left outer join fetch fs.dichroic as dichroic ");
     	//dichroic
-    	sb.append("left outer join fetch inst.dichroic as di ");
+    	sb.append("left outer join fetch inst.dichroics as di ");
     	
     	//light source
-    	sb.append("left outer join fetch inst.lightSource as ls ");
+    	sb.append("left outer join fetch inst.lightSources as ls ");
     	sb.append("where inst.id = :id ");
     	
     	Parameters params = new Parameters(); 
