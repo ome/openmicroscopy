@@ -706,6 +706,19 @@ public class Schema2011_06_File_Upgrade_Test {
         shape2 = union2.getShape(0);
         Assert.assertEquals(Rectangle.class.getName(), shape2.getClass().getName());
         Rectangle rectangle2 = (Rectangle) shape2;
+        Assert.assertEquals(ref.ROI2Shape2FillRule, rectangle2.getFillRule());
+        Assert.assertEquals(ref.ROI2Shape2Label, rectangle2.getText());
+        Assert.assertEquals(ref.ROI2Shape2RectangleX, rectangle2.getX());
+        Assert.assertEquals(ref.ROI2Shape2RectangleY, rectangle2.getY());
+        Assert.assertEquals(ref.ROI2Shape2RectangleWidth, rectangle2.getWidth());
+        Assert.assertEquals(ref.ROI2Shape2RectangleHeight, rectangle2.getHeight());
+        Assert.assertNotNull(rectangle2.getTransform());
+        Assert.assertEquals(ref.ROI2Shape2TransformA00, rectangle2.getTransform().getA00());
+        Assert.assertEquals(ref.ROI2Shape2TransformA01, rectangle2.getTransform().getA01());
+        Assert.assertEquals(ref.ROI2Shape2TransformA02, rectangle2.getTransform().getA02());
+        Assert.assertEquals(ref.ROI2Shape2TransformA10, rectangle2.getTransform().getA10());
+        Assert.assertEquals(ref.ROI2Shape2TransformA11, rectangle2.getTransform().getA11());
+        Assert.assertEquals(ref.ROI2Shape2TransformA12, rectangle2.getTransform().getA12());       
     }
 
     @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
@@ -714,6 +727,12 @@ public class Schema2011_06_File_Upgrade_Test {
         shape3 = union2.getShape(1);
         Assert.assertEquals(Label.class.getName(), shape3.getClass().getName());
         Label label3 = (Label) shape3;
+        Assert.assertEquals(ref.ROI2Shape3FillRule, label3.getFillRule());
+        Assert.assertEquals(ref.ROI2Shape3FontFamily, label3.getFontFamily());
+        Assert.assertEquals(ref.ROI2Shape3FontStyle, label3.getFontStyle());
+        Assert.assertEquals(ref.ROI2Shape3TextX, label3.getX());
+        Assert.assertEquals(ref.ROI2Shape3TextY, label3.getY());
+        Assert.assertEquals(ref.ROI2Shape3TextValue, label3.getText());
     }
 
     @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
@@ -722,6 +741,9 @@ public class Schema2011_06_File_Upgrade_Test {
         shape4 = union2.getShape(2);
         Assert.assertEquals(Polygon.class.getName(), shape4.getClass().getName());
         Polygon polygon4 = (Polygon) shape4;
+        Assert.assertEquals(ref.ROI2Shape4Stroke, polygon4.getStrokeColor());
+        Assert.assertEquals(ref.ROI2Shape4StrokeWidth, polygon4.getStrokeWidth());
+        Assert.assertEquals(ref.ROI2Shape4PolylinePoints, polygon4.getPoints());
     }
 
     @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
@@ -730,6 +752,11 @@ public class Schema2011_06_File_Upgrade_Test {
         shape5 = union2.getShape(3);
         Assert.assertEquals(Polyline.class.getName(), shape5.getClass().getName());
         Polyline polyline5 = (Polyline) shape5;
+        Assert.assertEquals(ref.ROI2Shape5Stroke, polyline5.getStrokeColor());
+        Assert.assertEquals(ref.ROI2Shape5StrokeWidth, polyline5.getStrokeWidth());
+        Assert.assertEquals(ref.ROI2Shape5PolylinePoints, polyline5.getPoints());
+        Assert.assertEquals(ref.ROI2Shape5MarkerStart, polyline5.getMarkerStart());
+        Assert.assertEquals(ref.ROI2Shape5MarkerEnd, polyline5.getMarkerEnd());
    }
 
     @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
@@ -738,6 +765,10 @@ public class Schema2011_06_File_Upgrade_Test {
         shape6 = union2.getShape(4);
         Assert.assertEquals(Polyline.class.getName(), shape6.getClass().getName());
         Polyline polyline6 = (Polyline) shape6;
+        Assert.assertEquals(ref.ROI2Shape6Stroke, polyline6.getStrokeColor());
+        Assert.assertEquals(ref.ROI2Shape6StrokeWidth, polyline6.getStrokeWidth());
+        Assert.assertEquals(ref.ROI2Shape6PolylinePoints, polyline6.getPoints());
+        Assert.assertEquals(ref.ROI2Shape6MarkerStart, polyline6.getMarkerStart());
     }
 
     @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
@@ -746,6 +777,14 @@ public class Schema2011_06_File_Upgrade_Test {
         shape7 = union2.getShape(5);
         Assert.assertEquals(Line.class.getName(), shape7.getClass().getName());
         Line line7 = (Line) shape7;
+        Assert.assertEquals(ref.ROI2Shape7Stroke, line7.getStrokeColor());
+        Assert.assertEquals(ref.ROI2Shape7StrokeWidth, line7.getStrokeWidth());
+        Assert.assertEquals(ref.ROI2Shape7MarkerStart, line7.getMarkerStart());
+        Assert.assertEquals(ref.ROI2Shape7MarkerEnd, line7.getMarkerEnd());
+        Assert.assertEquals(ref.ROI2Shape7LineX1, line7.getX1());
+        Assert.assertEquals(ref.ROI2Shape7LineY1, line7.getY1());
+        Assert.assertEquals(ref.ROI2Shape7LineX2, line7.getX2());
+        Assert.assertEquals(ref.ROI2Shape7LineY2, line7.getY2());
    }
 
     @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
@@ -754,6 +793,13 @@ public class Schema2011_06_File_Upgrade_Test {
         shape8 = union2.getShape(6);
         Assert.assertEquals(Line.class.getName(), shape8.getClass().getName());
         Line line8 = (Line) shape8;
+        Assert.assertEquals(ref.ROI2Shape8Stroke, line8.getStrokeColor());
+        Assert.assertEquals(ref.ROI2Shape8StrokeWidth, line8.getStrokeWidth());
+        Assert.assertEquals(ref.ROI2Shape8MarkerEnd, line8.getMarkerEnd());
+        Assert.assertEquals(ref.ROI2Shape8LineX1, line8.getX1());
+        Assert.assertEquals(ref.ROI2Shape8LineY1, line8.getY1());
+        Assert.assertEquals(ref.ROI2Shape8LineX2, line8.getX2());
+        Assert.assertEquals(ref.ROI2Shape8LineY2, line8.getY2());
     }
 
     @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
@@ -762,6 +808,13 @@ public class Schema2011_06_File_Upgrade_Test {
         shape9 = union2.getShape(7);
         Assert.assertEquals(Line.class.getName(), shape9.getClass().getName());
         Line line9 = (Line) shape9;
+        Assert.assertEquals(ref.ROI2Shape9Stroke, line9.getStrokeColor());
+        Assert.assertEquals(ref.ROI2Shape9StrokeWidth, line9.getStrokeWidth());
+        Assert.assertEquals(ref.ROI2Shape9MarkerEnd, line9.getMarkerEnd());
+        Assert.assertEquals(ref.ROI2Shape9LineX1, line9.getX1());
+        Assert.assertEquals(ref.ROI2Shape9LineY1, line9.getY1());
+        Assert.assertEquals(ref.ROI2Shape9LineX2, line9.getX2());
+        Assert.assertEquals(ref.ROI2Shape9LineY2, line9.getY2());
    }
 
     @Test (groups = {"roi-extra"}, dependsOnGroups = {"roi"})
@@ -777,6 +830,8 @@ public class Schema2011_06_File_Upgrade_Test {
         Label label11 = (Label) shape11;
         Assert.assertEquals(MESSAGE_REMOVED_PATH, label11.getText());
         Assert.assertFalse(label11.getVisible());
+        Assert.assertEquals(Double.valueOf(0), label11.getX());
+        Assert.assertEquals(Double.valueOf(0), label11.getY());
     }
 
     @Test (groups = {"roi"}, dependsOnMethods = {"testROI4AndUnion"})
@@ -787,6 +842,8 @@ public class Schema2011_06_File_Upgrade_Test {
         Label label12 = (Label) shape12;
         Assert.assertEquals(MESSAGE_REMOVED_PATH, label12.getText());
         Assert.assertFalse(label12.getVisible());
+        Assert.assertEquals(Double.valueOf(0), label12.getX());
+        Assert.assertEquals(Double.valueOf(0), label12.getY());
     }
     @Test (groups = {"roi"}, dependsOnMethods = {"testROI4AndUnion"})
     public void testShape13() {
@@ -796,6 +853,8 @@ public class Schema2011_06_File_Upgrade_Test {
         Label label13 = (Label) shape13;
         Assert.assertEquals(MESSAGE_REMOVED_PATH, label13.getText());
         Assert.assertFalse(label13.getVisible());
+        Assert.assertEquals(Double.valueOf(0), label13.getX());
+        Assert.assertEquals(Double.valueOf(0), label13.getY());
     }
 
     
