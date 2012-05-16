@@ -63,7 +63,7 @@ public class ObjectFactory {
     }
 
     public static Channel createChannel(Channel example) {
-        Channel ch = new Channel(null, "channel");
+        Channel ch = new Channel(null);
         StatsInfo si = new StatsInfo();
         si.setGlobalMax(0.0);
         si.setGlobalMin(0.0);
@@ -82,7 +82,7 @@ public class ObjectFactory {
         StatsInfo[] si = new StatsInfo[channelCount];
         Plane[] pl = new Plane[channelCount];
         for (int w = 0; w < channelCount; w++) {
-            c[w] = new Channel(null, "channel");
+            c[w] = new Channel(null);
             si[w] = new StatsInfo();
             pl[w] = new Plane();
         }
