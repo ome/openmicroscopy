@@ -244,7 +244,7 @@
 			<xsl:if test="count(descendant::ROI:Path) = count(descendant::ROI:Shape)">
 				<xsl:apply-templates select="* [local-name(.) = 'Union']" mode="replacePaths"/>
 			</xsl:if>
-			<xsl:apply-templates select="* [local-name(.) = 'Descriptiom']"/>
+			<xsl:apply-templates select="* [local-name(.) = 'Description']"/>
 		</xsl:element>
 	</xsl:template>
 	

@@ -29,16 +29,26 @@ import loci.formats.services.OMEXMLService;
 
 import ome.xml.model.BinData;
 import ome.xml.model.Channel;
+import ome.xml.model.Ellipse;
 import ome.xml.model.Experimenter;
 import ome.xml.model.ExperimenterGroup;
 import ome.xml.model.Image;
 import ome.xml.model.Instrument;
+import ome.xml.model.Label;
+import ome.xml.model.Line;
 import ome.xml.model.OME;
 import ome.xml.model.Objective;
 import ome.xml.model.Pixels;
 import ome.xml.model.Plate;
+import ome.xml.model.Point;
+import ome.xml.model.Polygon;
+import ome.xml.model.Polyline;
+import ome.xml.model.ROI;
+import ome.xml.model.Rectangle;
 import ome.xml.model.Screen;
+import ome.xml.model.Shape;
 import ome.xml.model.StructuredAnnotations;
+import ome.xml.model.Union;
 import ome.xml.model.Well;
 import ome.xml.model.PlateAcquisition;
 import ome.xml.model.WellSample;
@@ -69,6 +79,7 @@ public class Schema2011_06_File_Upgrade_Test {
         XMLTools.getStylesheet("/Xslt/2011-06-to-2012-06.xsl",
                 Schema2011_06_TO_2012_06_Test.class);
 
+    private static final String MESSAGE_REMOVED_PATH = "Removed Path";
     private OME ome;
     
     private Image image0;
@@ -106,6 +117,46 @@ public class Schema2011_06_File_Upgrade_Test {
     private BinData bindata2;
     private XMLAnnotation xmlAnnotation0;
     private XMLAnnotation xmlAnnotation1;
+    private ROI roi0;
+    private ROI roi1;
+    private ROI roi2;
+    private Union union0;
+    private Union union1;
+    private Union union2;
+
+    private ROI roi3;
+
+    private Union union3;
+
+    private ROI roi4;
+
+    private Union union4;
+
+    private Shape shape0;
+
+    private Shape shape1;
+
+    private Shape shape2;
+
+    private Shape shape3;
+
+    private Shape shape4;
+
+    private Shape shape5;
+
+    private Shape shape6;
+
+    private Shape shape7;
+
+    private Shape shape8;
+
+    private Shape shape9;
+
+    private Shape shape11;
+
+    private Shape shape12;
+
+    private Shape shape13;
 
     @BeforeClass
     public void setUp() throws Exception {
@@ -557,11 +608,199 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(xmlAnnotation1.getDescription());
     }
 
-/*
-    @Test (groups = {"roi"})
-    public void testROI() {
-        Assert.assertTrue(false,"To Do");
+    @Test (groups = {"roi"}, dependsOnMethods = {"testOmeNode"})
+    public void testROI0AndUnion() {
+        Assert.assertNotNull(ome);
+        roi0 = ome.getROI(0);
+        Assert.assertNull(roi0.getDescription());
+        Assert.assertNull(roi0.getName());
+        Assert.assertNull(roi0.getNamespace());
+        union0 = roi0.getUnion();
+        Assert.assertNotNull(union0);
+        Assert.assertEquals(1, union0.sizeOfShapeList());
     }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testOmeNode"})
+    public void testROI1AndUnion() {
+        Assert.assertNotNull(ome);
+        roi1 = ome.getROI(1);
+        Assert.assertEquals(ref.ROI1Description, roi1.getDescription());
+        Assert.assertNull(roi1.getName());
+        Assert.assertNull(roi1.getNamespace());
+        union1 = roi1.getUnion();
+        Assert.assertNotNull(union1);
+        Assert.assertEquals(1, union1.sizeOfShapeList());
+    }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testOmeNode"})
+    public void testROI2AndUnion() {
+        Assert.assertNotNull(ome);
+        roi2 = ome.getROI(2);
+        Assert.assertNull(roi2.getDescription());
+        Assert.assertNull(roi2.getName());
+        Assert.assertNull(roi2.getNamespace());
+        union2 = roi2.getUnion();
+        Assert.assertNotNull(union2);
+        Assert.assertEquals(8, union2.sizeOfShapeList());
+    }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testOmeNode"})
+    public void testROI3AndUnion() {
+        Assert.assertNotNull(ome);
+        roi3  = ome.getROI(3);
+        Assert.assertNull(roi3.getDescription());
+        Assert.assertNull(roi3.getName());
+        Assert.assertNull(roi3.getNamespace());
+        union3 = roi3.getUnion();
+        Assert.assertNotNull(union3);
+        Assert.assertEquals(1, union3.sizeOfShapeList());
+    }
+    
+    @Test (groups = {"roi"}, dependsOnMethods = {"testOmeNode"})
+    public void testROI4AndUnion() {
+        Assert.assertNotNull(ome);
+        roi4 = ome.getROI(4);
+        Assert.assertNull(roi4.getDescription());
+        Assert.assertNull(roi4.getName());
+        Assert.assertNull(roi4.getNamespace());
+        union4 = roi4.getUnion();
+        Assert.assertNotNull(union4);
+        Assert.assertEquals(2, union4.sizeOfShapeList());
+    }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testROI0AndUnion"})
+    public void testShape0() {
+        Assert.assertNotNull(union0);
+        shape0 = union0.getShape(0);
+        Assert.assertEquals(Point.class.getName(), shape0.getClass().getName());
+        Point point0 = (Point) shape0;
+        Assert.assertEquals(ref.ROI0Shape0TheC, point0.getTheC());
+        Assert.assertEquals(ref.ROI0Shape0PointX, point0.getX());
+        Assert.assertEquals(ref.ROI0Shape0PointY, point0.getY());
+    }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testROI1AndUnion"})
+    public void testShape1() {
+        Assert.assertNotNull(union1);
+        shape1 = union1.getShape(0);
+        Assert.assertEquals(Point.class.getName(), shape1.getClass().getName());
+        Point point1 = (Point) shape1;
+        Assert.assertEquals(ref.ROI1Shape1TheC, point1.getTheC());
+        Assert.assertEquals(ref.ROI1Shape1PointX, point1.getX());
+        Assert.assertEquals(ref.ROI1Shape1PointY, point1.getY());
+        Assert.assertEquals(ref.ROI1Shape1FillRule, point1.getFillRule());
+        Assert.assertEquals(ref.ROI1Shape1FontFamily, point1.getFontFamily());
+        Assert.assertEquals(ref.ROI1Shape1FontSize, point1.getFontSize());
+        Assert.assertEquals(ref.ROI1Shape1FontStyle, point1.getFontStyle());
+        Assert.assertEquals(ref.ROI1Shape1LineCap, point1.getLineCap());
+        Assert.assertEquals(ref.ROI1Shape1StrokeDashArray, point1.getStrokeDashArray());
+        Assert.assertEquals(ref.ROI1Shape1StrokeWidth, point1.getStrokeWidth());
+        Assert.assertEquals(ref.ROI1Shape1Fill, point1.getFillColor());
+        Assert.assertEquals(ref.ROI1Shape1Stroke, point1.getStrokeColor());
+        Assert.assertEquals(ref.ROI1Shape1Label, point1.getText());
+    }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    public void testShape2() {
+        Assert.assertNotNull(union2);
+        shape2 = union2.getShape(0);
+        Assert.assertEquals(Rectangle.class.getName(), shape2.getClass().getName());
+        Rectangle rectangle2 = (Rectangle) shape2;
+    }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    public void testShape3() {
+        Assert.assertNotNull(union2);
+        shape3 = union2.getShape(1);
+        Assert.assertEquals(Label.class.getName(), shape3.getClass().getName());
+        Label label3 = (Label) shape3;
+    }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    public void testShape4() {
+        Assert.assertNotNull(union2);
+        shape4 = union2.getShape(2);
+        Assert.assertEquals(Polygon.class.getName(), shape4.getClass().getName());
+        Polygon polygon4 = (Polygon) shape4;
+    }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    public void testShape5() {
+        Assert.assertNotNull(union2);
+        shape5 = union2.getShape(3);
+        Assert.assertEquals(Polyline.class.getName(), shape5.getClass().getName());
+        Polyline polyline5 = (Polyline) shape5;
+   }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    public void testShape6() {
+        Assert.assertNotNull(union2);
+        shape6 = union2.getShape(4);
+        Assert.assertEquals(Polyline.class.getName(), shape6.getClass().getName());
+        Polyline polyline6 = (Polyline) shape6;
+    }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    public void testShape7() {
+        Assert.assertNotNull(union2);
+        shape7 = union2.getShape(5);
+        Assert.assertEquals(Line.class.getName(), shape7.getClass().getName());
+        Line line7 = (Line) shape7;
+   }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    public void testShape8() {
+        Assert.assertNotNull(union2);
+        shape8 = union2.getShape(6);
+        Assert.assertEquals(Line.class.getName(), shape8.getClass().getName());
+        Line line8 = (Line) shape8;
+    }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    public void testShape9() {
+        Assert.assertNotNull(union2);
+        shape9 = union2.getShape(7);
+        Assert.assertEquals(Line.class.getName(), shape9.getClass().getName());
+        Line line9 = (Line) shape9;
+   }
+
+    @Test (groups = {"roi-extra"}, dependsOnGroups = {"roi"})
+    public void testShape10() {
+        /* this path should be striped, if all other roi tests pass it must not be present */
+   }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testROI3AndUnion"})
+    public void testShape11() {
+        Assert.assertNotNull(union3);
+        shape11 = union3.getShape(0);
+        Assert.assertEquals(Label.class.getName(), shape11.getClass().getName());
+        Label label11 = (Label) shape11;
+        Assert.assertEquals(MESSAGE_REMOVED_PATH, label11.getText());
+        Assert.assertFalse(label11.getVisible());
+    }
+
+    @Test (groups = {"roi"}, dependsOnMethods = {"testROI4AndUnion"})
+    public void testShape12() {
+        Assert.assertNotNull(union4);
+        shape12 = union4.getShape(0);
+        Assert.assertEquals(Label.class.getName(), shape12.getClass().getName());
+        Label label12 = (Label) shape12;
+        Assert.assertEquals(MESSAGE_REMOVED_PATH, label12.getText());
+        Assert.assertFalse(label12.getVisible());
+    }
+    @Test (groups = {"roi"}, dependsOnMethods = {"testROI4AndUnion"})
+    public void testShape13() {
+        Assert.assertNotNull(union4);
+        shape13 = union4.getShape(1);
+        Assert.assertEquals(Label.class.getName(), shape13.getClass().getName());
+        Label label13 = (Label) shape13;
+        Assert.assertEquals(MESSAGE_REMOVED_PATH, label13.getText());
+        Assert.assertFalse(label13.getVisible());
+    }
+
+    
+    
+    /*
 
     @Test (groups = {"links"}, dependsOnGroups = {"roi", "image"})
     public void testROILinkage() {
