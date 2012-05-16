@@ -82,13 +82,14 @@ public class RenderingSettingsServiceTest
        
         iUpdate.saveAndReturnObject(plate);
         plate = (Plate) iUpdate.saveAndReturnObject(plate);
+        /*
         for (Well well : plate.copyWells()) {
             for (WellSample ws : well.copyWellSamples()) {
                 Image image = createBinaryImage(ws.getImage());
                 ws.setImage(image);
             }
         }
-        
+        */
 
         return plate;
 

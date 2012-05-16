@@ -257,7 +257,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			"join fetch pix.type " +
 			"join fetch pix.channels as c " +
 			"left outer join i.wellSamples as s " +
-			"left outer join s.plateAcquisition as p " +
+			"left outer join s.plateAcquisitions as p " +
 			"where p.id in (:ids)";
 		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
 		s1.stop();
