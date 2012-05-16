@@ -192,7 +192,6 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             
             _ServiceFactoryTie tie = new _ServiceFactoryTie(session);
             Ice.ObjectPrx _prx = current.adapter.add(tie, id); // OK Usage
-            _prx = current.adapter.createDirectProxy(id);
 
             // Logging & sessionToClientIds addition
             if (!sessionToClientIds.containsKey(s.getUuid())) {
@@ -317,8 +316,9 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 if (sf != null) {
                     String servants = sf.getStatefulServiceCount();
                     if (servants.length() > 0) {
-                        csce.cancel("Client " + clientId +
-                                " has active stateful services:\n" + servants);
+                        String msg = sf.toString() + " has active stateful services:\n" + servants;
+                        log.debug(msg);
+                        csce.cancel(msg);
                     }
                 }
             } catch (Exception e) {

@@ -42,7 +42,7 @@
 		        <b>Owner:</b> {{ tag.getOwner.getFullName }}<br />
 		        <b>Linked by:</b> {{ tag.link.getDetails.getOwner.getFullName }}<br />
 		        <b>On:</b> {{ tag.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
-		        <b>Description:</b> {{ tag.description|default_if_none:""|truncatewords:10  }}
+		        <b>Description:</b> {{ tag.description|default:""|truncatewords:10  }}
 		    </span>
 			
 			

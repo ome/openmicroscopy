@@ -70,7 +70,7 @@ public class ScriptProcessI extends AbstractAmdServant
         this.processor = processor;
         this.process = process;
         this.sf = sf;
-        this.cb = new ProcessCallbackI(sf.getAdapter(), process);
+        this.cb = new ProcessCallbackI(sf.getAdapter(), "ProcessCallback", process);
         this.id = new Ice.Identity(UUID.randomUUID().toString(), PROCESSCALLBACK.value);
         this.self = ScriptProcessPrxHelper.uncheckedCast(
                 sf.registerServant(this.id, new _ScriptProcessTie(this)));

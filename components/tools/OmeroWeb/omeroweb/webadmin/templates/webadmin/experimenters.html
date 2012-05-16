@@ -33,7 +33,7 @@ OMERO Users
     <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
     
 	<!--[if lte IE 8]>
-		<link rel="stylesheet" type="text/css" href="/static/webgateway/css/ome.table_ie.css" />
+		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
 	<![endif]-->
 	
 	
@@ -119,7 +119,7 @@ OMERO Users
                 </td>
                 <td>{{ experimenter.getFullName }}</td>
                 <td>{{ experimenter.omeName }}</td>
-                <td>{{ experimenter.institution|default_if_none:"-"|truncatewords:"3" }}</td>
+                <td>{{ experimenter.institution|default:"-"|truncatewords:"3" }}</td>
                 <td>
                       {% if experimenter.isAdmin %}<img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> {% endif %}
                       {% if experimenter.isGuest %}<img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> {% endif %}

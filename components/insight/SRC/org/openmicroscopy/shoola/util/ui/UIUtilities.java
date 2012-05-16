@@ -2050,7 +2050,7 @@ public class UIUtilities
 	 */
 	public static boolean isLinuxOS()
 	{
-		return (!(isWindowsOS() || isMacOS()));
+		return SystemUtils.IS_OS_LINUX;
 	}
 	
 	/**

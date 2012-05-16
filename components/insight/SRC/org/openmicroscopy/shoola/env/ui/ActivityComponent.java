@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -41,6 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -52,23 +55,22 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
-//Third-party libraries
-import info.clearthought.layout.TableLayout;
-import org.jdesktop.swingx.JXBusyLabel;
+import omero.model.OriginalFile;
 
-//Application-internal dependencies
+import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ProcessException;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-import omero.model.OriginalFile;
+
 import pojos.FileAnnotationData;
 
 /**
@@ -252,11 +254,14 @@ public abstract class ActivityComponent
 				ff.delete();
 			f = new File(path);
 		}
-		DownloadActivityParam activity;
+		
+		DownloadAndLaunchActivityParam activity;
+		
 		if (index != -1) 
-			activity = new DownloadActivityParam(id, index, f, null);
+			activity = new DownloadAndLaunchActivityParam(id, index, f, null);
 		else 
-			activity = new DownloadActivityParam(of, f, null);
+			activity = new DownloadAndLaunchActivityParam(of, f, null);
+		
 		if (parameters instanceof ApplicationData) {
 			activity.setApplicationData((ApplicationData) parameters);
 		}
@@ -595,11 +600,11 @@ public abstract class ActivityComponent
 			File f = new File(folder.getAbsolutePath(), name);
 			if (original != null) {
 				activity = new DownloadActivityParam(original,
-						f, icons.getIcon(IconManager.DOWNLOAD_22));
+						folder, icons.getIcon(IconManager.DOWNLOAD_22));
 				
 			} else {
 				activity = new DownloadActivityParam(id, type,
-						f, icons.getIcon(IconManager.DOWNLOAD_22));
+						folder, icons.getIcon(IconManager.DOWNLOAD_22));
 			}
 			activity.setLegend(desc);
 			activity.setUIRegister(false);
@@ -661,7 +666,7 @@ public abstract class ActivityComponent
 	{
 		if (object instanceof FileAnnotationData || 
 				object instanceof OriginalFile) {
-			open(object, new ApplicationData(""), source);
+			open(object, null, source);
 		} else if (object instanceof File) {
 			viewer.openApplication(null, ((File) object).getAbsolutePath());
 			if (source != null) source.setEnabled(true);
@@ -821,8 +826,8 @@ public abstract class ActivityComponent
 				}
 				add(row, paneIndex);
 			} else {
-				Entry entry;
-				Iterator i = m.entrySet().iterator();
+				Entry<String, Object> entry;
+				Iterator<Entry<String, Object>> i = m.entrySet().iterator();
 				ActivityResultRow row = null;
 				JPanel content = new JPanel();
 				content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
@@ -832,7 +837,7 @@ public abstract class ActivityComponent
 				int max = 2;
 				JButton moreButton = null;
 				while (i.hasNext()) {
-					entry = (Entry) i.next();
+					entry = (Entry<String, Object>) i.next();
 					this.result = entry.getValue();
 					row = new ActivityResultRow((String) entry.getKey(), 
 							entry.getValue(), this);

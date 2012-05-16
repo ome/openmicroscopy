@@ -113,7 +113,26 @@ public class BasicEventContext extends SimpleEventContext {
 
         // Now re-apply values.
         List<String> toPrint = null;
-        
+
+        final Long sid = parseId(callContext, "omero.share");
+        if (sid != null) {
+            if (!isAdmin) {
+                // If the user is not an admin then we need to verify that
+                // s/he is a valid member of the share.
+                ShareData data = store.getShareIfAccessible(sid, isAdmin, this.cuId);
+                if (data == null) {
+                    throw new SecurityViolation(String.format(
+                            "User %s cannot access share %s", this.cuId, sid));
+                }
+            }
+            setShareId(sid);
+            if (toPrint == null) {
+                toPrint = new ArrayList<String>();
+            }
+            toPrint.add("share="+sid);
+            return; // IGNORE all other settings for share (#8608)
+        }
+
         final Long uid = parseId(callContext, "omero.user");
         if (uid != null) {
             // Here we trust the setting of the admin flag if we also have
@@ -144,24 +163,6 @@ public class BasicEventContext extends SimpleEventContext {
                 toPrint = new ArrayList<String>();
             }
             toPrint.add("group="+gid);
-        }
-
-        final Long sid = parseId(callContext, "omero.share");
-        if (sid != null) {
-            if (!isAdmin) {
-                // If the user is not an admin then we need to verify that
-                // s/he is a valid member of the share.
-                ShareData data = store.getShareIfAccessible(sid, isAdmin, this.cuId);
-                if (data == null) {
-                    throw new SecurityViolation(String.format(
-                            "User %s cannot access share %s", this.cuId, sid));
-                }
-            }
-            setShareId(sid);
-            if (toPrint == null) {
-                toPrint = new ArrayList<String>();
-            }
-            toPrint.add("share="+sid);
         }
 
         if (toPrint != null && toPrint.size() > 0) {

@@ -85,6 +85,7 @@ class BaseClient(object):
         self.__previous = None
         self.__ic = None
         self.__oa = None
+        self.__cb = None
         self.__sf = None
         self.__uuid = None
         self.__resources = None
@@ -194,11 +195,6 @@ class BaseClient(object):
         self.parseAndSetInt(id, "Ice.Override.ConnectTimeout",\
                            omero.constants.CONNECTTIMEOUT)
 
-        # Endpoints set to tcp if not present
-        endpoints = id.properties.getProperty("omero.ClientCallback.Endpoints")
-        if not endpoints or len(endpoints) == 0:
-            id.properties.setProperty("omero.ClientCallback.Endpoints", "tcp")
-
         # ThreadPool to 5 if not present
         threadpool = id.properties.getProperty("omero.ClientCallback.ThreadPool.Size")
         if not threadpool or len(threadpool) == 0:
@@ -260,11 +256,6 @@ class BaseClient(object):
             if group:
                 ctx.put("omero.group", group)
 
-            # Register the default client callback
-            self.__oa = self.__ic.createObjectAdapter("omero.ClientCallback")
-            cb = BaseClient.CallbackI(self.__ic, self.__oa)
-            self.__oa.add(cb, self.__ic.stringToIdentity("ClientCallback/%s" % self.__uuid))
-            self.__oa.activate()
         finally:
             self.__lock.release()
 
@@ -366,6 +357,13 @@ class BaseClient(object):
         """
         return self.getSession().ice_getIdentity().name
 
+    def getCategory(self):
+        """
+        Returns the category which should be used for all callbacks
+        passed to the server.
+        """
+        return self.getRouter(self.__ic).getCategoryForClient()
+
     def getImplicitContext(self):
         """
         Returns the Ice.ImplicitContext which defines what properties
@@ -461,7 +459,22 @@ class BaseClient(object):
                 try:
                     ctx = dict(self.getImplicitContext().getContext())
                     ctx[omero.constants.AGENT] = self.__agent
-                    prx = self.getRouter(self.__ic).createSession(username, password, ctx)
+                    rtr = self.getRouter(self.__ic)
+                    prx = rtr.createSession(username, password, ctx)
+
+                    # Create the adapter
+                    self.__oa = self.__ic.createObjectAdapterWithRouter( \
+                            "omero.ClientCallback", rtr)
+                    self.__oa.activate()
+
+                    id = Ice.Identity()
+                    id.name = self.__uuid
+                    id.category = rtr.getCategoryForClient()
+
+                    self.__cb = BaseClient.CallbackI(self.__ic, self.__oa, id)
+                    self.__oa.add(self.__cb, id)
+
+
                     break
                 except omero.WrappedCreateSessionException, wrapped:
                     if not wrapped.concurrency:
@@ -486,8 +499,8 @@ class BaseClient(object):
             # Set the client callback on the session
             # and pass it to icestorm
             try:
-                id = self.__ic.stringToIdentity("ClientCallback/%s" % self.__uuid )
-                raw = self.__oa.createProxy(id)
+
+                raw = self.__oa.createProxy(self.__cb.id)
                 self.__sf.setCallback(omero.api.ClientCallbackPrx.uncheckedCast(raw))
                 #self.__sf.subscribe("/public/HeartBeat", raw)
             except:
@@ -938,22 +951,14 @@ class BaseClient(object):
     #
     # Callback
     #
-    def _getCb(self):
-        if not self.__oa:
-            raise omero.ClientError("No session active; call createSession()")
-        obj = self.__oa.find(self.ic.stringToIdentity("ClientCallback/%s" %  self.__uuid))
-        if not isinstance(obj, BaseClient.CallbackI):
-            raise omero.ClientError("Cannot find CallbackI in ObjectAdapter")
-        return obj
-
     def onHeartbeat(self, myCallable):
-        self._getCb().onHeartbeat = myCallable
+        self.__cb.onHeartbeat = myCallable
 
     def onSessionClosed(self, myCallable):
-        self._getCb().onSessionClosed = myCallable
+        self.__cb.onSessionClosed = myCallable
 
     def onShutdownIn(self, myCallable):
-        self._getCb().onShutdownIn = myCallable
+        self.__cb.onShutdownIn = myCallable
 
     class CallbackI(omero.api.ClientCallback):
         """
@@ -974,9 +979,10 @@ class BaseClient(object):
             except exceptions.Exception, e:
                 sys.err.write("On session closed: " + str(e))
 
-        def __init__(self, ic, oa):
+        def __init__(self, ic, oa, id):
             self.ic = ic
             self.oa = oa
+            self.id = id
             self.onHeartbeat = self._noop
             self.onShutdownIn = self._noop
             self.onSessionClosed = self._noop

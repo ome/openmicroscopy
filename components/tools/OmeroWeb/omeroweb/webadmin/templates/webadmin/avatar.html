@@ -93,7 +93,10 @@
 {% block center_details %}
 {{ block.super }}
 <div class="one_column_content">
-    <h1 class="page_title">My avatar</h1>
+    <h1>My avatar</h1>
+    
+    <h1><a href="{% url wamyaccount %}" style="position:relative; top:-38px; float:right" title="Go Back to Account Settings">Cancel</a></h1>
+    
     
 {% if edit_mode %}
     <img src="{% url wamyphoto %}" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
@@ -125,17 +128,13 @@
     <div class="float_left">
       {% if photo_size %}<p><a href="{% url wamanageavatar ome.eventContext.userId "editphoto" %}"> Edit picture <img title="Crop" src="{% static "webadmin/image/frame_edit.png" %}" /></a></p>{% endif %}
       <p>Upload new picture. Select an image file on your computer (max 200KB):</p>
-        <form enctype="multipart/form-data" method="post" action="{% url wamanageavatar ome.eventContext.userId "upload" %}">
-            <table>
-              <tbody>
-                {% for field in form_file %}
-                <tr><td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td></tr>
-                <tr><td class="input">{{ field }}</td><td>{{ field.help_text|safe }}</td></tr>
-                {% endfor %}
-              </tbody>
-              <tr><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Upload' %}" /></td></tr>
-              
-            </table>
+        <form enctype="multipart/form-data" method="post" action="{% url wamanageavatar ome.eventContext.userId "upload" %}" class="standard_form">
+            {% for field in form_file %}
+                {% if field.errors %}{{ field.errors }}{% endif %}<br />
+                {{ field }}{{ field.help_text|safe }}
+                <br />
+            {% endfor %}
+             <input type="submit" value="{% trans 'Upload' %}" />
         </form>
     </div>
 </div>

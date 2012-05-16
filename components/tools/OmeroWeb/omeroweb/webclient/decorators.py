@@ -83,11 +83,14 @@ class login_required(omeroweb.decorators.login_required):
         if request.session.get('imageInBasket') is None:
             request.session['imageInBasket'] = set()
             changes = True
-        if request.session.get('nav') is None:
-            connector = request.session['connector']
-            blitz = '%s:%s' % connector.lookup_host_and_port()
-            request.session['nav'] = {'blitz': blitz, 'menu': 'mydata',
-                    'view': 'tree', 'basket': 0,'experimenter': None}
+        if request.session.get('basekt_counter') is None:
+            request.session['basekt_counter'] = 0
+            changes = True
+        if request.session.get('user_id') is None:
+            request.session['user_id'] = 0
+            changes = True
+        if request.session.get('group_id') is None:
+            request.session['group_id'] = 0
             changes = True
         if changes:
             request.session.modified = True
@@ -112,7 +115,9 @@ class render_response(omeroweb.decorators.render_response):
         context['ome'] = {}
         context['ome']['eventContext'] = conn.getEventContext
         context['ome']['user'] = conn.getUser
-
+        context['ome']['basket_counter'] = request.session.get('basekt_counter', 0)
+        context['ome']['user_id'] = request.session.get('user_id', None)
+        context['ome']['group_id'] = request.session.get('group_id', None)
         self.load_settings(request, context, conn)
 
 

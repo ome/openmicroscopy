@@ -269,16 +269,11 @@ class ExperimenterQuerySetIterator(object):
         except:
             name = _("Unknown")
 
-        if obj.is_self():
-            name = "* %s" % name
         if hasattr(obj.id, 'val'):
             oid = obj.id.val
         else:
             oid = obj.id
         return (smart_unicode(oid), smart_unicode(name))
-    
-                
-            
 
 class ExperimenterModelChoiceField(ModelChoiceField):
     

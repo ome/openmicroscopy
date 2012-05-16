@@ -28,8 +28,8 @@
     <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
 	
 	<!--[if lte IE 8]>
-		<link rel="stylesheet" type="text/css" href="/static/webgateway/css/ome.header_ie8.css" />
-		<link rel="stylesheet" type="text/css" href="/static/webclient/css/layout_ie.css" />
+		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.header_ie.css" %}" />
+		<link rel="stylesheet" type="text/css" href="{% static "webclient/css/layout_ie.css" %}" />
 	<![endif]-->
 	
 	
@@ -49,6 +49,19 @@
             }
         });
     </script>
+	
+	<!-- Such horseshit that we need to add this shit in -->
+	<!--[if lte IE 8]>
+	<script>
+		$(function(){
+		   $(".header_toolbar li:last-child").addClass('last-child'),
+		   $("#activities_panel table tr:last-child").addClass('last-child'),
+		    $("#groupsUsersButton span:last-child").addClass('last-child')
+		   
+		})
+		</script>
+	<![endif]-->
+	
 {% endblock %}
 
 

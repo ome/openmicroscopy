@@ -26,7 +26,7 @@
     <dependency org="omero" name="common" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
     <dependency org="omero" name="model-${omero.db.profile}" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
     <!-- For Schema -->
-    <dependency org="omero" name="specification" rev="${omero.version}" changing="true" conf="build->build;client->build"/>
+    <dependency org="ome" name="specification" rev="${omero.version}" changing="true" conf="build->build;client->build"/>
     <!-- For build -->
     <dependency org="insight" name="jarbundler" rev="${versions.jarbundler}" conf="build->default"/>
     <!-- From classpath -->
@@ -62,24 +62,24 @@
     <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>
     <dependency org="insight" name="wsdl4j" rev="${versions.wsdl4j}"/>
     <dependency org="insight" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
+    <dependency org="insight" name="jna" rev="${versions.jna}"/>
+    <dependency org="insight" name="platform" rev="${versions.platform}"/>
+
+    <!-- Bioformats -->
+    <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true" conf="build,client->build">
+        <artifact name="bio-formats"/>
+        <artifact name="jai_imageio"/>
+        <artifact name="loci-common"/>
+        <artifact name="mdbtools-java"/>
+        <artifact name="metakit"/>
+        <artifact name="ome-io"/>
+        <artifact name="ome-xml"/>
+        <artifact name="poi-loci"/>
+        <artifact name="scifio"/>
+    </dependency>
     
-    <!-- Loci -->
-    <!-- TODO: copied from OmeroImporter -->
-    <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/>
-    <dependency org="OME" name="loci-common" rev="${versions.bio-formats}"/>
-    <dependency org="OME" name="ome-io" rev="${versions.bio-formats}"/>
-    <dependency org="OME" name="scifio" rev="${versions.bio-formats}"/>
-    <dependency org="loci" name="xalan" rev="${versions.xalan}"/>
-    <dependency org="loci" name="serializer" rev="${versions.xalan}"/>
-    <dependency org="loci" name="poi-loci" rev="${versions.bio-formats}"/>
-    <dependency org="loci" name="ome-xml" rev="${versions.bio-formats}"/>
-    <dependency org="loci" name="mdbtools-java" rev="${versions.bio-formats}"/>
-    <dependency org="loci" name="jai_imageio" rev="${versions.bio-formats}"/>
-    <dependency org="loci" name="bufr" rev="1.1.00"/>
-    <dependency org="loci" name="grib" rev="5.1.03"/>
-    <dependency org="loci" name="netcdf" rev="4.0"/>
+    <!-- importer -->
     <dependency org="importer" name="slf4j-api" rev="${versions.slf4j}"/>
     <dependency org="importer" name="slf4j-log4j12" rev="${versions.slf4j}"/>
-    
   </dependencies>
 </ivy-module>

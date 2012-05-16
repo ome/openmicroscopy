@@ -274,13 +274,17 @@
 
                             <!-- if there were no results items, we have to display info and error here -->
                             {% if not j.results %}
-                                <div class="error" style='float:left'>
+							<ul class="menu_btns silver">
+                                <li class="btn_view_error" style='float:left'>
                                     {% if j.stderr %}<a href="#" onClick="return openPopup('{% url get_original_file j.stderr %}');">Error</a>{% endif %}
-                                </div>
-                                <div class="info">
+                                </li>
+								
+                                <li class="btn_info">
                                     {% if j.stdout %}<a href="#" onClick="return openPopup('{% url get_original_file j.stdout %}');">Info</a>{% endif %}
-                                </div>
-                            {% endif %}
+                                </li>
+							</ul>
+							{% endif %}
+							
                         </td>
 						
 						

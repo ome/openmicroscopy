@@ -6,6 +6,10 @@
  
  
 
+ .jstree-default {
+	 border:Solid 1px red;
+ }
+
 .jstree-default li, 
 .jstree-default ins {}
 .jstree-default li { }
@@ -18,8 +22,8 @@
 
 
 .children_count {
-	background-color:rgba(0,0,0,.05);
-	-webkit-border-radius:2px;
+	background-color: #E8EAEC;
+
 	-webkit-border-radius:2px; /* Saf3+, Chrome */
 	   -moz-border-radius:2px; /* FF1+ */
 	        border-radius:2px; /* Opera 10.5, IE 9 */ 
@@ -51,10 +55,9 @@
 .jstree-default .jstree-clicked { 
 	background: #B3BDCC;
 	border:solid 1px #8596AD;
-	text-shadow:0 1px 0 rgba(255,255,255,.4);
+
 	color: #242E42 !important;
 	
-	-webkit-transition:1s background linear;		
 	   -moz-transition:1s background linear;
 	     -o-transition:1s background linear;
 	        transition:1s background linear; 

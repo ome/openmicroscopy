@@ -108,7 +108,7 @@ class BasketShareForm(ShareForm):
 class ContainerForm(NonASCIIForm):
     
     name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':45}))
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'cols': 39}), required=False, help_text=help_wiki)
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 49}), required=False, help_text=help_wiki)
 
 class ContainerNameForm(NonASCIIForm):
     

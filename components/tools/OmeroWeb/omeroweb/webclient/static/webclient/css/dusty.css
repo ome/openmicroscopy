@@ -113,11 +113,7 @@ button::-moz-focus-inner {
 		
 				.menu_btns li a {
 					display:block;
-					text-indent: 100%;  
-				    white-space: nowrap;  
-				    overflow: hidden; 
-					width:10px;
-					height:20px;
+					text-indent: -9999px;
 					-webkit-transition:none !important;		
 					   -moz-transition:none !important;
 					     -o-transition:none !important;
@@ -129,17 +125,17 @@ button::-moz-focus-inner {
 	
 	/* Specific Buttons Images*/  
 	
-	.btn_view {background: url(/static/webgateway/img/icon_view.png) center center no-repeat;}
-	.btn_folder {background: url(/static/webgateway/img/icon_folder.png) center center no-repeat;}
-	.btn_download {background: url(/static/webgateway/img/icon_download.png) center center no-repeat;}
-	.btn_filetype {background: url(/static/webgateway/img/icon_filetype.png) center center no-repeat;}
-	.btn_view_error {background: url(/static/webgateway/img/icon_view_error.png) center center no-repeat;}
-	.btn_info {background: url(/static/webgateway/img/icon_info.png )center center no-repeat;}
-	.btn_add {background: url(/static/webgateway/img/icon_add.png )center center no-repeat;}
-	.btn_scientist {background: url(/static/webgateway/img/icon_add_scientist.png )center center no-repeat;}
-	.btn_group {background: url(/static/webgateway/img/icon_add_group.png )center center no-repeat;}
-	.btn_delete {background: url(/static/webgateway/img/icon_delete.png )center center no-repeat;}
-	.btn_edit {background: url(/static/webgateway/img/icon_edit.png )center center no-repeat;}
+	.btn_view {background: url(../../webgateway/img/icon_view.png) center center no-repeat;}
+	.btn_folder {background: url(../../webgateway/img/icon_folder.png) center center no-repeat;}
+	.btn_download {background: url(../../webgateway/img/icon_download.png) center center no-repeat;}
+	.btn_filetype {background: url(../../webgateway/img/icon_filetype.png) center center no-repeat;}
+	.btn_view_error {background: url(../../webgateway/img/icon_view_error.png) center center no-repeat;}
+	.btn_info {background: url(../../webgateway/img/icon_info.png )center center no-repeat;}
+	.btn_add {background: url(../../webgateway/img/icon_add.png )center center no-repeat;}
+	.btn_scientist {background: url(../../webgateway/img/icon_add_scientist.png )center center no-repeat;}
+	.btn_group {background: url(../../webgateway/img/icon_add_group.png )center center no-repeat;}
+	.btn_delete {background: url(../../webgateway/img/icon_delete.png )center center no-repeat;}
+	.btn_edit {background: url(../../webgateway/img/icon_edit.png )center center no-repeat;}
 	
 	
 	
@@ -239,7 +235,7 @@ button::-moz-focus-inner {
 			-webkit-box-shadow: 0 1px 0 rgba(255,255,255,1); /* Saf3.0+, Chrome */
 			   -moz-box-shadow: 0 1px 0 rgba(255,255,255,1); /* FF3.5+ */
 			        box-shadow: 0 1px 0 rgba(255,255,255,1); /* Opera 10.5, IE 9.0 */
-			display:inline-block;
+
 		}
 		
 		
@@ -274,11 +270,10 @@ button::-moz-focus-inner {
 					line-height:1.3em;
 					display:inline-block;
 					cursor:pointer;
-					-webkit-box-shdaow: 0 1px 0 inset rgba(255,255,255,.4);
+					
 					-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.4); /* Saf3.0+, Chrome */
 					   -moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.4); /* FF3.5+ */
 					        box-shadow:inset 0 1px 0 rgba(255,255,255,0.4); /* Opera 10.5, IE 9.0 */
-					
 					background-image: -webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0)), to(rgba(255,255,255,.3)));
 					
 					background-image:-moz-linear-gradient(top, rgba(255,255,255,.3) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
@@ -288,6 +283,7 @@ button::-moz-focus-inner {
 					background-image:-ms-linear-gradient(top, rgba(255,255,255,.3) 0%,rgba(255,255,255,0) 100%); /* IE10+ */
 					
 					background:linear-gradient(top, rgba(255,255,255,.3) 0%,rgba(255,255,255,0) 100%); /* W3C */ 
+					
 				}
 
 				
@@ -318,8 +314,10 @@ button::-moz-focus-inner {
 		
 		
 		.menu_btns.silver li:active, .menu_btns.silver li:focus {
-			border-left: solid 1px rgba(0,0,0,.2);
+			border-left: solid 1px rgba(0,0,0,.15);
 			border-right:solid 1px transparent;
+			border-top:none;
+			border-bottom:none;
 		}
 		
 		
@@ -341,10 +339,9 @@ button::-moz-focus-inner {
 				background:linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,.2) 100%); /* W3C */ 
 			}
 			
+			
 			.menu_btns.silver li:active a, .menu_btns.silver li:focus a {
-				border-top:solid 1px rgba(0,0,0,.4);
 				background-image:-webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0.4)), to(rgba(255,255,255,0)));
-				
 				background-image:-moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,.4) 100%); /* FF3.6+ */
 				background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,0)), color-stop(100%,rgba(255,255,255,.4))); /* Chrome,Safari4+ */
 				background-image:-webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,.4) 100%); /* Chrome10+,Safari5.1+ */
@@ -352,8 +349,6 @@ button::-moz-focus-inner {
 				background-image:-ms-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,.4) 100%); /* IE10+ */
 				
 				background:linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,.4) 100%); /* W3C */ 
-				
-				
 				-webkit-box-shadow:inset 0 2px 5px rgba(0,0,0,.3); /* Saf3.0+, Chrome */
 				   -moz-box-shadow:inset 0 2px 5px rgba(0,0,0,.3); /* FF3.5+ */
 				        box-shadow:inset 0 2px 5px rgba(0,0,0,.3); /* Opera 10.5, IE 9.0 */
@@ -485,7 +480,7 @@ button::-moz-focus-inner {
 
 	
 	.standard_form {
-		overflow:hidden;
+		overflow:visible;
 	}
 	
 	
@@ -517,7 +512,7 @@ button::-moz-focus-inner {
 		-moz-border-radius: 2px;
 		border-radius: 2px;
 		padding:5px 2px;
-		font-size:1.2em;
+		font-size:1.1em;
 		color:#333;
 		font-family:"HelveticaNeue-Medium", Helvetica, Arial, sans-serif
 	}
@@ -654,11 +649,11 @@ button::-moz-focus-inner {
 			}
 			
 			.ui-datepicker-prev {
-				background:url(/static/webgateway/img/datepicker_prev.png) center 60% no-repeat;
+				background:url(../../webgateway/img/datepicker_prev.png) center 60% no-repeat;
 			}
 			
 			.ui-datepicker-next {
-				background:url(/static/webgateway/img/datepicker_next.png) center 60% no-repeat;
+				background:url(../../webgateway/img/datepicker_next.png) center 60% no-repeat;
 				right: 0px;
 			}
 			
@@ -734,7 +729,7 @@ button::-moz-focus-inner {
 	-webkit-border-radius:6px; /* Saf3+, Chrome */
 	   -moz-border-radius:6px; /* FF1+ */
 	        border-radius:6px; /* Opera 10.5, IE 9 */ 
-			border:solid 1px rgba(0,0,0,.1);
+			border:solid 1px rgba(0,0,0,.35);
 }
 
 
@@ -759,7 +754,7 @@ button::-moz-focus-inner {
 	
 	margin-bottom:15px;
 	position: relative;
-	border-bottom:solid 1px hsl(210,10%,80%);
+	border-bottom:solid 1px hsl(210,10%,65%);
 }
 
 	.ui-dialog-title{
@@ -778,11 +773,11 @@ button::-moz-focus-inner {
 			margin: -10px 0 0 0;
 			height: 18px; 
 			border:none;
-			background:url(/static/webgateway/img/close.png) center center no-repeat;
+			background:url(../../webgateway/img/close.png) center center no-repeat;
 		}
 	
 		.ui-dialog .ui-dialog-titlebar-close:hover, .ui-dialog .ui-dialog-titlebar-close:focus {
-			background:url(/static/webgateway/img/close.png) center center no-repeat;
+			background:url(../../webgateway/img/close.png) center center no-repeat;
 		}
 		
 		
@@ -790,13 +785,11 @@ button::-moz-focus-inner {
 	.ui-dialog h1{
 		font-size:1.2em;
 		font-weight:bold;
-		text-shadow:0 1px 0 white;
 	}
 
 	.ui-dialog p, .ui-dialog span {
 		display:inline-block;
-		margin-bottom:15px;
-			font-size:1.2em;
+		font-size:1.2em;
 	}
 
 	
@@ -826,7 +819,7 @@ button::-moz-focus-inner {
 	border-width: 1px 0 0 0; 
 	background-image: none;
 	background-color:hsl(210,5%,95%);
-	border-top:solid 1px hsl(210,5%,85%);
+	border-top:solid 1px hsl(210,5%,75%);
 }
 
 	.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset { 
@@ -892,8 +885,8 @@ button::-moz-focus-inner {
 		-webkit-border-radius:50px;
 		-moz-border-radius:50px;
 		border-radius:50px;
-		border:solid 1px hsl(215,15%,50%);
-		border-top:solid 1px hsl(215,15%,38%);
+		border:solid 1px hsl(215,15%,30%);
+		border-top:solid 1px hsl(215,15%,18%);
 		padding: .2em .5em;
 		font-size:1.2em;
 		color:#333;

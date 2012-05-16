@@ -24,7 +24,7 @@
 {% block link %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" />
-    <link rel="stylesheet" href="{% static "webgateway/css/ome.login_notgoingtofly.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.login.css" %}" type="text/css" />
 {% endblock %}
 
 {% block title %}
@@ -55,7 +55,7 @@
 
 
 <div id="login-logo">
-    <img src="{% static "webclient/image/logo_login2.png" %}" />
+    <img src="{% static "webclient/image/logo_login.png" %}" />
 </div>
 
 	
@@ -127,16 +127,12 @@
 
 <div id="login-footer">
 	
-	<p>Yeh this ain't gonna fly, is it?</p>
 	
-	<!--
 	<p>
 		OMERO.web {{ version }}.<br/>
 		&copy; 2007-2011 University of Dundee &amp; Open Microscopy Environment<br/><br/>
 		OMERO is developed under the GPL. For more information, visit <a href="http://www.openmicroscopy.org">Open Microscopy</a>
 	</p>
-	-->
-	
 	
 {% endblock %}
 </div>
