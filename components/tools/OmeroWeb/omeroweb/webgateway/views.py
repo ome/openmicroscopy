@@ -375,7 +375,7 @@ def render_roi_thumbnail (request, roiId, w=None, h=None, conn=None, **kwargs):
     server_id = request.session['connector'].server_id
     
     # need to find the z indices of the first shape in T
-    roiResult = conn.getRoiService().findByRoi(long(roiId), None)
+    roiResult = conn.getRoiService().findByRoi(long(roiId), None, conn.CONFIG['SERVICE_OPTS'])
     if roiResult is None or roiResult.rois is None:
         raise Http404
     zz = set()
@@ -1802,7 +1802,7 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
     rois = []
     roiService = conn.getRoiService()
     #rois = webfigure_utils.getRoiShapes(roiService, long(imageId))  # gets a whole json list of ROIs
-    result = roiService.findByImage(long(imageId), None)
+    result = roiService.findByImage(long(imageId), None, conn.CONFIG['SERVICE_OPTS'])
     
     for r in result.rois:
         roi = {}
