@@ -110,9 +110,11 @@ import omero.model.Thumbnail;
 import omero.model.Well;
 import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
+import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.WellSampleAnnotationLink;
 import omero.model.WellSampleAnnotationLinkI;
+import omero.model.WellSampleI;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.AfterMethod;
@@ -164,7 +166,7 @@ public class DeleteServiceTest
 	public static final String REF_PLATE = "/Plate";
 	
     /** Identifies the ROI as root. */
-    public static final String REF_ROI = "/Roi";
+    public static final String REF_ROI = "/ROI";
 
 	/** Identifies the Plate Acquisition as root. */
 	public static final String REF_PLATE_ACQUISITION = "/PlateAcquisition";
@@ -275,7 +277,7 @@ public class DeleteServiceTest
     	throws Exception 
     {
         Map<String, IObject> objects = new HashMap<String, IObject>();
-        objects.put(REF_IMAGE, iUpdate.saveAndReturnObject(mmFactory.createImage()) );
+        objects.put(REF_IMAGE, iUpdate.saveAndReturnObject(createTestImage(0)) );
         objects.put(REF_DATASET, iUpdate.saveAndReturnObject(
 			mmFactory.simpleDatasetData().asIObject()));
         objects.put(REF_PROJECT, iUpdate.saveAndReturnObject(
@@ -324,11 +326,11 @@ public class DeleteServiceTest
     public void testDeleteBasicImage() 
     	throws Exception
     {
-    	Image img = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image img =  createTestImage(0);
+    	
     	assertNotNull(img);
     	long id = img.getId().getValue();
-    	iDelete.deleteImage(id, false); //do not force.
+    	iDelete.deleteImage(id, true); //do not force.
     	ParametersI param = new ParametersI();
     	param.addId(id);
 
@@ -386,8 +388,7 @@ public class DeleteServiceTest
 		int n;
     	for (int i = 0; i < values.length; i++) {
 			n = values[i];
-            p = (Plate) iUpdate.saveAndReturnObject(
-                    mmFactory.createPlate(1, 1, 1, n, false));
+            p = createPlate(1, 1, 1, n);
 			results = loadWells(p.getId().getValue(), false);
 
 			param = new ParametersI();
@@ -484,8 +485,7 @@ public class DeleteServiceTest
 		List<Long> imageIds;
     	for (int i = 0; i < values.length; i++) {
 			b = values[i];
-			p = (Plate) iUpdate.saveAndReturnObject(
-					mmFactory.createPlate(1, 1, 1, b, false));
+			p = createPlate(1, 1, 1, b);
 			param = new ParametersI();
 			param.addLong("plateID", p.getId().getValue());
 			sb = new StringBuilder();
@@ -571,10 +571,9 @@ public class DeleteServiceTest
     {
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	Image image1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image image2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image image1 = createTestImage(0);
+    	Image image2 = createTestImage(0);
+    	
     	List<IObject> links = new ArrayList<IObject>();
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setChild(image1);
@@ -622,10 +621,10 @@ public class DeleteServiceTest
     			mmFactory.simpleProjectData().asIObject());
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	Image image1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image image2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+		
+    	Image image1 = createTestImage(0);
+    	Image image2 = createTestImage(0);
+    	
     	List<IObject> links = new ArrayList<IObject>();
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setChild(image1);
@@ -668,6 +667,13 @@ public class DeleteServiceTest
     	sql = "select i from Project as i where i.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     }
+
+	private Image createTestImage(long time) throws Exception, ServerError {
+		Image image = mmFactory.simpleImage(time);
+		Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(image.getPixels());
+		image = pixels.getImage();
+		return image;
+	}
     
     /**
      * Tests to delete a screen containing 2 plates, one w/o plate acquisition
@@ -682,11 +688,10 @@ public class DeleteServiceTest
     	Screen screen = (Screen) iUpdate.saveAndReturnObject(
     			mmFactory.simpleScreenData().asIObject());
     	//Plate w/o plate acquisition
-    	Plate p1 = (Plate) iUpdate.saveAndReturnObject(
-    			mmFactory.createPlate(1, 1, 1, 0, false)); 
+    	Plate p1 = createPlate(1, 1, 1, 0); 
     	//Plate with plate acquisition
-    	Plate p2 = (Plate) iUpdate.saveAndReturnObject(
-    			mmFactory.createPlate(1, 1, 1, 1, false));
+    	Plate p2 = createPlate(1, 1, 1, 1);
+    	
     	List<IObject> links = new ArrayList<IObject>();
     	ScreenPlateLink link = new ScreenPlateLinkI();
     	link.setChild(p1);
@@ -729,8 +734,8 @@ public class DeleteServiceTest
     public void testDeleteImage() 
     	throws Exception
     {
-    	Image img = mmFactory.createImage();
-    	img = (Image) iUpdate.saveAndReturnObject(img);
+    	Image img =  createTestImage(0);
+    	
     	Pixels pixels = img.getPixels();
     	long pixId = pixels.getId().getValue();
     	//method already tested in PixelsServiceTest
@@ -799,8 +804,8 @@ public class DeleteServiceTest
     public void testDeleteImageUsingQueue() 
     	throws Exception
     {
-    	Image img = mmFactory.createImage();
-    	img = (Image) iUpdate.saveAndReturnObject(img);
+    	Image img =  createTestImage(0);
+    	
     	Pixels pixels = img.getPixels();
     	long pixId = pixels.getId().getValue();
     	//method already tested in PixelsServiceTest
@@ -868,8 +873,8 @@ public class DeleteServiceTest
     public void testDeleteImageWithRenderingSettings() 
     	throws Exception
     {
-    	Image img = mmFactory.createImage();
-    	img = (Image) iUpdate.saveAndReturnObject(img);
+    	Image img =  createTestImage(0);
+    	
     	Pixels pixels = img.getPixels();
     	//method already tested in RenderingSettingsServiceTest
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
@@ -906,8 +911,8 @@ public class DeleteServiceTest
     public void testDeleteImageWithRenderingSettingsUsingQueue() 
     	throws Exception
     {
-    	Image img = mmFactory.createImage();
-    	img = (Image) iUpdate.saveAndReturnObject(img);
+    	Image img =  createTestImage(0);
+    	
     	Pixels pixels = img.getPixels();
     	//method already tested in RenderingSettingsServiceTest
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
@@ -943,8 +948,8 @@ public class DeleteServiceTest
     public void testDeleteImageWithAcquisitionData() 
     	throws Exception
     {
-    	Image img = mmFactory.createImage();
-    	img = (Image) iUpdate.saveAndReturnObject(img);
+    	Image img =  createTestImage(0);
+    	
     	Pixels pixels = img.getPixels();
     	long pixId = pixels.getId().getValue();
     	//method already tested in PixelsServiceTest
@@ -989,7 +994,6 @@ public class DeleteServiceTest
     	ImagingEnvironment env = img.getImagingEnvironment();
     	
     	
-    	Channel channel;
     	ids = new ArrayList<Long>();
     	long detectorSettingsID = 0;
     	long lightSourceSettingsID = 0;
@@ -997,7 +1001,7 @@ public class DeleteServiceTest
     	
     	Iterator<Channel> i = pixels.copyChannels().iterator();
     	while (i.hasNext()) {
-			channel = i.next();
+			Channel channel = i.next();
 			channel.setDetectorSettings(mmFactory.createDetectorSettings(
 					detector));
 			channel.setFilterSet(filterSet);
@@ -1005,13 +1009,18 @@ public class DeleteServiceTest
 					mmFactory.createLightSettings(laser));
 			channel.setLightPath(
 					mmFactory.createLightPath(null, dichroic, null));
-			channel = (Channel) iUpdate.saveAndReturnObject(channel);
-	    	assertNotNull(channel);
-	    	ids.add(channel.getId().getValue());
-	    	detectorSettingsID = channel.getDetectorSettings().getId().getValue();
-	    	lightSourceSettingsID = 
-	    		channel.getLightSourceSettings().getId().getValue();
-	    	ligthPathID = channel.getLightPath().getId().getValue();
+		}
+    	
+    	pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
+    	
+    	for (Channel channel : pixels.copyChannels()) {
+    		assertNotNull(channel);
+    		
+    		ids.add(channel.getId().getValue());
+        	detectorSettingsID = channel.getDetectorSettings().getId().getValue();
+        	lightSourceSettingsID = 
+        		channel.getLightSourceSettings().getId().getValue();
+        	ligthPathID = channel.getLightPath().getId().getValue();
 		}
     	
     	//Now we try to delete the image.
@@ -1076,8 +1085,7 @@ public class DeleteServiceTest
     public void testDeleteImageWithROIs() 
     	throws Exception
     {
-    	Image image = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image image =  createTestImage(0);
     	ROI roi = new ROII();
     	roi.setImage(image);
     	Rectangle rect;
@@ -1106,7 +1114,7 @@ public class DeleteServiceTest
 
     	ParametersI param = new ParametersI();
     	param.addId(serverROI.getId().getValue());
-    	String sql = "select d from Roi as d where d.id = :id";
+    	String sql = "select d from ROI as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));  
     	
     	//shapes
@@ -1127,8 +1135,7 @@ public class DeleteServiceTest
     public void testDeleteROIs() 
     	throws Exception
     {
-    	Image image = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image image =  createTestImage(0);
     	ROI roi = new ROII();
     	roi.setImage(image);
     	Rectangle rect;
@@ -1164,7 +1171,7 @@ public class DeleteServiceTest
     	//check if the objects have been delete.
     	param = new ParametersI();
     	param.addId(serverROI.getId().getValue());
-    	sql = "select d from Roi as d where d.id = :id";
+    	sql = "select d from ROI as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));  
 
     	//shapes
@@ -1282,8 +1289,7 @@ public class DeleteServiceTest
 		List<Long> annotationIds = new ArrayList<Long>();
 		List<Long> r;
 		List l;
-		p = (Plate) iUpdate.saveAndReturnObject(
-				mmFactory.createPlate(1, 1, 1, 0, false));
+		p =createPlate(1, 1, 1, 0);
 		param = new ParametersI();
 		param.addLong("plateID", p.getId().getValue());
 		sb = new StringBuilder();
@@ -1367,8 +1373,8 @@ public class DeleteServiceTest
     public void testDeletePlateWithROIMeasurements() 
 		throws Exception
 	{
-    	Plate p = (Plate) iUpdate.saveAndReturnObject(
-				mmFactory.createPlate(1, 1, 1, 0, false));
+    	Plate p = createPlate(1, 1, 1, 0);
+    	
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = (Well) results.get(0);
     	//create the roi.
@@ -1455,8 +1461,7 @@ public class DeleteServiceTest
     		b = values[i];
     		for (int k = 0; k < annotations.length; k++) {
     			annotationIds.clear();
-    			p = (Plate) iUpdate.saveAndReturnObject(
-    					mmFactory.createPlate(1, 1, 1, b, false));
+    			p = createPlate(1, 1, 1, b);
     	        results = loadWells(p.getId().getValue(), true);
     	        sb = new StringBuilder();
     	        param = new ParametersI();
@@ -1563,10 +1568,8 @@ public class DeleteServiceTest
     {
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	Image img1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
-    	Image img2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
+    	Image img1 =  createTestImage(0);
+    	Image img2 =  createTestImage(0);
     	DatasetImageLink l = new DatasetImageLinkI();
     	l.link(new DatasetI(d.getId().getValue(), false), img1);
     	iUpdate.saveAndReturnObject(l);
@@ -1604,10 +1607,8 @@ public class DeleteServiceTest
     			mmFactory.simpleDatasetData().asIObject());
     	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	Image img1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
-    	Image img2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
+    	Image img1 =  createTestImage(0);
+    	Image img2 =  createTestImage(0);
     	DatasetImageLink l = new DatasetImageLinkI();
     	l.link(new DatasetI(d.getId().getValue(), false), img1);
     	iUpdate.saveAndReturnObject(l);
@@ -1651,6 +1652,29 @@ public class DeleteServiceTest
     }
     
     /**
+     * TODO: Review this after release!
+     * @param rows
+     * @param cols
+     * @param fields
+     * @param acquisitions
+     * @return
+     * @throws Exception
+     */
+    public Plate createPlate(int rows, int cols, int fields, int acquisitions) throws Exception {
+        Plate plate = mmFactory.createPlate(rows, cols, fields, acquisitions, false);
+        //Need to save the image first.
+        Pixels pix;
+        for (Well well : plate.copyWells()) {
+            for (WellSample ws : well.copyWellSamples()) {
+            	pix = (Pixels) iUpdate.saveAndReturnObject(
+            			ws.getImage().getPixels());
+            	ws.setImage(pix.getImage());
+            }
+        }
+        return (Plate) iUpdate.saveAndReturnObject(plate);
+    }
+    
+    /**
      * Tests to delete a screen.
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
@@ -1668,8 +1692,7 @@ public class DeleteServiceTest
     	ScreenPlateLink link;
     	for (int i = 0; i < values.length; i++) {
     		param = new ParametersI();
-			plate = mmFactory.createPlate(1, 1, 1, values[i], false);
-			plate = (Plate) iUpdate.saveAndReturnObject(plate);
+			plate = createPlate(1, 1, 1, values[i]);
 			sql = "select pa from PlateAcquisition as pa " +
     		 "where pa.plate.id = :plateID"; 
 			param.addLong("plateID", plate.getId().getValue());
@@ -1713,8 +1736,7 @@ public class DeleteServiceTest
     public void testDeleteImageWithCompanionFile() 
     	throws Exception
     {
-    	Image img = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
+    	Image img =  createTestImage(0);
     	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
     			mmFactory.createOriginalFile());
     	FileAnnotation fa = new FileAnnotationI();
@@ -1752,10 +1774,8 @@ public class DeleteServiceTest
     { 
     	int n = SHARABLE_TO_KEEP.size();
     	//images
-    	Image img1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image img2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image img1 =  createTestImage(0);
+    	Image img2 =  createTestImage(0);
     	List<Long> ids = createSharableAnnotation(img1, img2);
     	assertEquals(n, ids.size());
     	//now delete the image 1.
@@ -1834,8 +1854,7 @@ public class DeleteServiceTest
     public void testDeleteSharableTagAsRoot() 
     	throws Exception
     { 
-    	Image img1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image img1 =  createTestImage(0);
     	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	Project p1 = (Project) iUpdate.saveAndReturnObject(
@@ -1915,8 +1934,7 @@ public class DeleteServiceTest
     public void testDeleteSharableTermAsRoot() 
     	throws Exception
     { 
-    	Image img1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image img1 =  createTestImage(0);
     	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	Project p1 = (Project) iUpdate.saveAndReturnObject(
@@ -1996,8 +2014,7 @@ public class DeleteServiceTest
     public void testDeleteSharableFileAsRoot() 
     	throws Exception
     { 
-    	Image img1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image img1 =  createTestImage(0);
     	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	Project p1 = (Project) iUpdate.saveAndReturnObject(
@@ -2069,6 +2086,33 @@ public class DeleteServiceTest
 		assertNotNull(iQuery.findByQuery(sql, param));
     }
     
+    
+    private Plate createPlateWithReagent(int rows, int columns, int fields, Reagent r) throws ServerError, Exception{
+    	Plate p = new PlateI();
+        p.setRows(omero.rtypes.rint(rows));
+        p.setColumns(omero.rtypes.rint(columns));
+        p.setName(omero.rtypes.rstring("plate"));
+        //now make wells
+        Well well;
+        WellSample sample;
+
+        for (int row = 0; row < rows; row++) {
+            for (int column = 0; column < columns; column++) {
+                well = new WellI();
+                well.setRow(omero.rtypes.rint(row));
+                well.setColumn(omero.rtypes.rint(column));
+                well.setReagent(r);
+                for (int field = 0; field < fields; field++) {
+                    sample = new WellSampleI();
+                    sample.setIndex(omero.rtypes.rint(field));
+                    sample.setImage(createTestImage(0));
+                    well.addWellSample(sample);
+                }
+                p.addWell(well);
+            }
+        }
+        return p;
+    }
     /**
      * Tests to delete screen with a plate and a reagent.
      * The <code>queueDelete</code> method is tested.
@@ -2081,13 +2125,13 @@ public class DeleteServiceTest
     	Screen s = mmFactory.simpleScreenData().asScreen();
     	Reagent r = mmFactory.createReagent();
     	s.addReagent(r);
-    	Plate p = mmFactory.createPlateWithReagent(1, 1, 1, r);
+    	Plate p = createPlateWithReagent(1, 1, 1, r);
     	s.linkPlate(p);
     	s = (Screen) iUpdate.saveAndReturnObject(s);
     	long screenId = s.getId().getValue();
     	//reagent first
     	String sql = "select r from Reagent as r ";
-    	sql += "join fetch r.screen as s ";
+    	sql += "join fetch r.screens as s ";
     	sql += "where s.id = :id";
     	ParametersI param = new ParametersI();
     	param.addId(screenId);
@@ -2137,13 +2181,13 @@ public class DeleteServiceTest
     	Screen s = mmFactory.simpleScreenData().asScreen();
     	Reagent r = mmFactory.createReagent();
     	s.addReagent(r);
-    	Plate p = mmFactory.createPlateWithReagent(1, 1, 1, r);
+    	Plate p = createPlateWithReagent(1, 1, 1, r);
     	s.linkPlate(p);
     	s = (Screen) iUpdate.saveAndReturnObject(s);
     	long screenId = s.getId().getValue();
     	//reagent first
     	String sql = "select r from Reagent as r ";
-    	sql += "join fetch r.screen as s ";
+    	sql += "join fetch r.screens as s ";
     	sql += "where s.id = :id";
     	ParametersI param = new ParametersI();
     	param.addId(screenId);
@@ -2195,8 +2239,7 @@ public class DeleteServiceTest
     	StringBuilder sb;
 		ParametersI param;
 		List<Long> annotationIds = new ArrayList<Long>();
-		p = (Plate) iUpdate.saveAndReturnObject(
-				mmFactory.createPlate(1, 1, 1, 1, false));
+		p = createPlate(1, 1, 1, 1);
         sb = new StringBuilder();
         param = new ParametersI();
 		param.addLong("plateID", p.getId().getValue());
@@ -2438,8 +2481,7 @@ public class DeleteServiceTest
     public void testDeleteImageWithAcquisitionDataUsingQueue() 
     	throws Exception
     {
-    	Image img = mmFactory.createImage();
-    	img = (Image) iUpdate.saveAndReturnObject(img);
+    	Image img =  createTestImage(0);
     	Pixels pixels = img.getPixels();
     	long pixId = pixels.getId().getValue();
     	//method already tested in PixelsServiceTest
@@ -2566,8 +2608,7 @@ public class DeleteServiceTest
     public void testDeleteImageWithInstrument() 
     	throws Exception
     {
-    	Image img = mmFactory.createImage();
-    	img = (Image) iUpdate.saveAndReturnObject(img);
+    	Image img =  createTestImage(0);
     	Pixels pixels = img.getPixels();
     	long pixId = pixels.getId().getValue();
     	//method already tested in PixelsServiceTest
@@ -2596,7 +2637,7 @@ public class DeleteServiceTest
     	sql = "select d from Dichroic as d where d.instrument.id = :iid";
     	Dichroic dichroic = (Dichroic) iQuery.findByQuery(sql, param);
     	sql = "select d from Objective as d where d.instrument.id = :iid";
-    	objective = (Objective) iQuery.findByQuery(sql, param);
+    	objective = (Objective) iQuery.findAllByQuery(sql, param).get(0);
     	img.setInstrument(instrument);
     	img.setImagingEnvironment(mmFactory.createImageEnvironment());
     	img.setObjectiveSettings(mmFactory.createObjectiveSettings(objective));
@@ -2702,8 +2743,7 @@ public class DeleteServiceTest
 		ParametersI param;
 		int n = 2;
 		int fields = 3;
-		p = (Plate) iUpdate.saveAndReturnObject(
-				mmFactory.createPlate(1, 1, fields, n, false));
+		p = createPlate(1, 1, fields, n);
 		String sql = "select pa from PlateAcquisition as pa ";
 		sql += "where pa.plate.id = :id";
 		param = new ParametersI();
@@ -2716,18 +2756,18 @@ public class DeleteServiceTest
     	param = new ParametersI();
     	param.addId(id);
     	sql = "select ws from WellSample as ws ";
-		sql += "join fetch ws.plateAcquisition as pa ";
+		sql += "join fetch ws.plateAcquisitions as pa ";
 		sql += "where pa.id = :id";
 		List<IObject> wellSamples = iQuery.findAllByQuery(sql, param);
 		assertEquals(wellSamples.size(), fields);
 		
     	delete(new DeleteCommand(REF_PLATE_ACQUISITION, id, null));
-    	sql = "select pa from PlateAcquisition as pa ";
+    	sql = "select pa from PlateAcquisitions as pa ";
 		sql += "where pa.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	
     	sql = "select ws from WellSample as ws ";
-		sql += "join fetch ws.plateAcquisition as pa ";
+		sql += "join fetch ws.plateAcquisitions as pa ";
 		sql += "where pa.id = :id";
 		assertEquals(iQuery.findAllByQuery(sql, param).size(), 0);
 		
@@ -2746,7 +2786,7 @@ public class DeleteServiceTest
 		param = new ParametersI();
 		param.addId(id);
 		sql = "select ws from WellSample as ws ";
-		sql += "join fetch ws.plateAcquisition as pa ";
+		sql += "join fetch ws.plateAcquisitions as pa ";
 		sql += "where pa.id = :id";
 		List<IObject> samples = iQuery.findAllByQuery(sql, param);
 		assertEquals(samples.size(), fields);
@@ -2794,8 +2834,7 @@ public class DeleteServiceTest
     			new DatasetI(d.getId().getValue(), false));
     	iUpdate.saveAndReturnObject(pl);
     	
-    	Image image = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image image =  createTestImage(0);
     	DatasetImageLink dl = new DatasetImageLinkI();
     	dl.link(new DatasetI(d.getId().getValue(), false), 
     			new ImageI(image.getId().getValue(), false));
@@ -2858,8 +2897,7 @@ public class DeleteServiceTest
     {
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	Image img = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
+    	Image img =  createTestImage(0);
     	Pixels pixels = img.getPixels();
     	assertNotNull(pixels);
     	DatasetImageLink l = new DatasetImageLinkI();
@@ -2886,13 +2924,11 @@ public class DeleteServiceTest
     public void testDeleteImagesSharingAcquisitionData() 
     	throws Exception
     {
-    	Image img1 = mmFactory.createImage();
-    	img1 = (Image) iUpdate.saveAndReturnObject(img1);
+    	Image img1 = createTestImage(0);
     	Pixels pixels = img1.getPixels();
     	long pixId1 = pixels.getId().getValue();
     	
-    	Image img2 = mmFactory.createImage();
-    	img2 = (Image) iUpdate.saveAndReturnObject(img2);
+    	Image img2 =  createTestImage(0);
     	
     	pixels = img2.getPixels();
     	long pixId2 = pixels.getId().getValue();
@@ -3043,13 +3079,11 @@ public class DeleteServiceTest
     public void testDeleteImagesSharingAcquisitionSettings() 
     	throws Exception
     {
-    	Image img1 = mmFactory.createImage();
-    	img1 = (Image) iUpdate.saveAndReturnObject(img1);
+    	Image img1 =  createTestImage(0);
     	Pixels pixels = img1.getPixels();
     	long pixId1 = pixels.getId().getValue();
     	
-    	Image img2 = mmFactory.createImage();
-    	img2 = (Image) iUpdate.saveAndReturnObject(img2);
+    	Image img2 =  createTestImage(0);
     	
     	pixels = img2.getPixels();
     	long pixId2 = pixels.getId().getValue();
@@ -3199,16 +3233,14 @@ public class DeleteServiceTest
     public void testDeleteImagesSharingChannels() 
     	throws Exception
     {
-    	Image img1 = mmFactory.createImage();
-    	img1 = (Image) iUpdate.saveAndReturnObject(img1);
-    	Pixels pixels = img1.getPixels();
-    	long pixId1 = pixels.getId().getValue();
+    	Image img1 =  createTestImage(0);
+    	Pixels pixels1tmp = img1.getPixels();
+    	long pixId1 = pixels1tmp.getId().getValue();
     	
-    	Image img2 = mmFactory.createImage();
-    	img2 = (Image) iUpdate.saveAndReturnObject(img2);
+    	Image img2 =  createTestImage(0);
     	
-    	pixels = img2.getPixels();
-    	long pixId2 = pixels.getId().getValue();
+    	Pixels pixels2tmp = img2.getPixels();
+    	long pixId2 = pixels2tmp.getId().getValue();
     	
     	IPixelsPrx prx = factory.getPixelsService();
     	Pixels pixels1 = prx.retrievePixDescription(pixId1);
@@ -3258,8 +3290,7 @@ public class DeleteServiceTest
         throws Exception
     {
 
-        Plate p = (Plate) iUpdate.saveAndReturnObject(
-                mmFactory.createPlate(1, 1, 1, 0, false));
+        Plate p = createPlate(1, 1, 1, 0 );
         List<Well> wells = loadWells(p.getId().getValue(), false);
         List<Image> images = new ArrayList<Image>();
         for (Well well : wells) {
@@ -3289,10 +3320,8 @@ public class DeleteServiceTest
     public void testDeleteMultipleObjectsOfSameType() 
     	throws Exception
     {
-    	Image img1 = mmFactory.createImage();
-    	img1 = (Image) iUpdate.saveAndReturnObject(img1);
-    	Image img2 = mmFactory.createImage();
-    	img2 = (Image) iUpdate.saveAndReturnObject(img2);
+    	Image img1 =  createTestImage(0);
+    	Image img2 =  createTestImage(0);
     	DeleteCommand[] commands = new DeleteCommand[2];
     	commands[0] = new DeleteCommand(REF_IMAGE, img1.getId().getValue(), 
     			null);
@@ -3319,8 +3348,7 @@ public class DeleteServiceTest
     public void testDeleteMultipleObjectsOfDifferentTypes() 
     	throws Exception
     {
-    	Image img1 = mmFactory.createImage();
-    	img1 = (Image) iUpdate.saveAndReturnObject(img1);
+    	Image img1 =  createTestImage(0);
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	DeleteCommand[] commands = new DeleteCommand[2];
@@ -3352,10 +3380,8 @@ public class DeleteServiceTest
     public void testDeleteTaggedImages() 
     	throws Exception
     {
-    	Image img1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	Image img2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image img1 =  createTestImage(0);
+    	Image img2 =  createTestImage(0);
     	List<Long> ids = createSharableAnnotation(img1, img2);
     	assertTrue(ids.size() > 0);
     	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
@@ -3406,10 +3432,8 @@ public class DeleteServiceTest
         //
         // Create two images
         //
-        Image image0 = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
-        Image image1 = (Image)  iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
+        Image image0 =  createTestImage(0);
+        Image image1 =  createTestImage(0);
         OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
                 mmFactory.createOriginalFile());
         of.unload();
@@ -3471,8 +3495,7 @@ public class DeleteServiceTest
     	throws Exception
     {
     	//First create an image
-    	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image =  createTestImage(0);
     	Pixels pixels = image.getPixels();
     	
     	OriginalFile f = mmFactory.createOriginalFile();
@@ -3515,8 +3538,7 @@ public class DeleteServiceTest
     public void testDeleteImageWithThumbnail() 
     	throws Exception
     {
-    	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image =  createTestImage(0);
     	Pixels pixels = image.getPixels();
     	Thumbnail thumbnail = mmFactory.createThumbnail();
     	thumbnail.setPixels(pixels);
@@ -3542,8 +3564,8 @@ public class DeleteServiceTest
     	throws Exception
     {
         List<IObject> images = new ArrayList<IObject>();
-        images.add(mmFactory.createImage());
-        images.add(mmFactory.createImage());
+        images.add( createTestImage(0));
+        images.add( createTestImage(0));
         StageLabel sl = mmFactory.createStageLabel();
         ((Image) images.get(0)).setStageLabel(sl);
         ((Image) images.get(1)).setStageLabel(sl);
@@ -3612,8 +3634,7 @@ public class DeleteServiceTest
     public void testDeleteTwice()
     	throws Exception
     {
-    	 Image img = (Image) iUpdate.saveAndReturnObject(
-                 mmFactory.createImage());
+    	 Image img =  createTestImage(0);
     	 long id = img.getId().getValue();
     	 delete(new DeleteCommand(REF_IMAGE, id, null));
     	 delete(new DeleteCommand(REF_IMAGE, id, null)); 
@@ -3628,8 +3649,7 @@ public class DeleteServiceTest
     public void testDeleteFullImage()
     	throws Exception
     {
-    	Image image = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
+    	Image image =  createTestImage(0);
     	
     	List<Long> ids = createNonSharableAnnotation(image, null);
     	iDelete.deleteImage(image.getId().getValue(), true);
@@ -3648,8 +3668,7 @@ public class DeleteServiceTest
     public void testDeleteImageWithPlaneInfo()
     	throws Exception
     {
-    	Image image = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
+    	Image image =  createTestImage(0);
         Pixels pixels = image.getPixels();
         pixels.clearPlanes();
         Plane planeInfo = mmFactory.createPlaneInfo();
@@ -3817,8 +3836,8 @@ public class DeleteServiceTest
     public void testDeletePixelsAndFiles()
         throws Exception
     {
-        Image img1 = mmFactory.createImage();
-        Image img2 = mmFactory.createImage();
+        Image img1 =  createTestImage(0);
+        Image img2 =  createTestImage(0);
         OriginalFile file = mmFactory.createOriginalFile();
         img1.getPixels().linkOriginalFile(file);
         img2.getPixels().linkOriginalFile(file);
