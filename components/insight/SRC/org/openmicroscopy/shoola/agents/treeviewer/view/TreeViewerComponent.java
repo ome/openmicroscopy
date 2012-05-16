@@ -93,7 +93,6 @@ import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -2076,16 +2075,20 @@ class TreeViewerComponent
 		
 		int level = group.getPermissions().getPermissionsLevel();
 		if (level == GroupData.PERMISSIONS_PRIVATE) {
-			ExperimenterData currentUser = model.getExperimenter();
-			Set leaders = group.getLeaders();
-			Iterator k = leaders.iterator();
-			ExperimenterData exp;
 			boolean owner = false;
-			while (k.hasNext()) {
-				exp = (ExperimenterData) k.next();
-				if (exp.getId() == currentUser.getId()) {
-					owner = true;
-					break;
+			if (TreeViewerAgent.isAdministrator()) owner = true;
+			else {
+				ExperimenterData currentUser = model.getExperimenter();
+				Set leaders = group.getLeaders();
+				Iterator k = leaders.iterator();
+				ExperimenterData exp;
+				
+				while (k.hasNext()) {
+					exp = (ExperimenterData) k.next();
+					if (exp.getId() == currentUser.getId()) {
+						owner = true;
+						break;
+					}
 				}
 			}
 			if (!owner) return;
