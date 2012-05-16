@@ -122,6 +122,7 @@ import omero.api.ThumbnailStorePrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.cmd.Chgrp;
+import omero.cmd.Chmod;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.grid.BoolColumn;
@@ -274,6 +275,9 @@ class OMEROGateway
 	
 	/** Identifies the File. */
 	private static final String REF_FILE= "/FileAnnotation";
+	
+	/** Identifies the group. */
+	private static final String REF_GROUP = "/ExperimenterGroup";
 	
 	/** Indicates to keep a certain type of annotations. */
 	static final String KEEP = "KEEP";
@@ -4066,16 +4070,19 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	GroupData updateGroup(SecurityContext ctx, ExperimenterGroup group, 
-			Permissions permissions) 
+			String permissions) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
 		try {
 			IAdminPrx svc = getAdminService(ctx);
 			svc.updateGroup(group);
-			if (permissions != null) {
-				svc.changePermissions(findIObject(ctx, group), permissions);
-			}
+			Chmod chmod = new Chmod(svc.getEventContext().sessionUuid,
+					REF_GROUP, 
+					group.getId().getValue(), null, permissions);
+			List<Request> l = new ArrayList<Request>();
+			l.add(chmod);
+			getConnector(ctx).submit(l);
 			return (GroupData) PojoMapper.asDataObject(
 					(ExperimenterGroup) findIObject(ctx, group));
 		} catch (Throwable t) {
@@ -7547,36 +7554,6 @@ class OMEROGateway
 	{
 		//root need to login and send an e-mail.
 		
-	}
-	
-	/**
-	 * Sets the permissions level.
-	 * 
-	 * @param p		The permissions of the object.
-	 * @param level The permissions to set.
-	 */
-	void setPermissionsLevel(Permissions p, int level)
-	{
-		switch (level) {
-			case GroupData.PERMISSIONS_GROUP_READ:
-				p.setGroupRead(true);
-				break;
-			case GroupData.PERMISSIONS_GROUP_READ_LINK:
-				p.setGroupRead(true);
-				p.setGroupAnnotate(true);
-				break;
-			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-				p.setGroupRead(true);
-				p.setGroupAnnotate(true);
-				p.setGroupWrite(true);
-				break;
-			case GroupData.PERMISSIONS_PUBLIC_READ:
-				p.setWorldRead(true);
-				break;
-			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-				p.setWorldRead(true);
-				p.setWorldWrite(true);
-		}
 	}
 	
 	/**
