@@ -529,7 +529,7 @@ public class XMLMockObjects
 		settings.setID("LightSource:"+ref);
 		settings.setAttenuation(new PercentFraction(1.0f));
 		settings.setWavelength(new PositiveInteger(200));
-		settings.setLightSource(intrument.copyLightSources().get(0));
+		settings.setLightSource(instrument.copyLightSourceList().get(0));
 		return settings;
 	}
 
