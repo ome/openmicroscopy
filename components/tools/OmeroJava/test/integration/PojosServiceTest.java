@@ -32,6 +32,7 @@ import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLinkI;
+import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
@@ -40,11 +41,13 @@ import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageI;
 import omero.model.ImagingEnvironment;
 import omero.model.Instrument;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.PermissionsI;
+import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionAnnotationLinkI;
@@ -53,6 +56,7 @@ import omero.model.Project;
 import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
+import omero.model.ProjectI;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLinkI;
 import omero.model.ScreenPlateLink;
@@ -124,7 +128,7 @@ public class PojosServiceTest
     	super.setUp();
     	iContainer = factory.getContainerService();
         fixture = CreatePojosFixture2.withNewUser(root);
-        fixture.createAllPojos();
+        //fixture.createAllPojos();
     }
 
     /**
@@ -414,8 +418,9 @@ public class PojosServiceTest
     {
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	Image img = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image img = mmFactory.simpleImage(0);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(img.getPixels());
+    	img = pixels.getImage();
     	//link the 2
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d);
@@ -463,8 +468,9 @@ public class PojosServiceTest
     {
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	Image 
-    	img = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
+    	Image img = mmFactory.simpleImage(0);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(img.getPixels());
+    	img = pixels.getImage();
     	//link the 2
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d);
@@ -509,8 +515,9 @@ public class PojosServiceTest
     			mmFactory.simpleDatasetData().asIObject());
     	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	Image i = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image i = mmFactory.simpleImage(0);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(i.getPixels());
+    	i = pixels.getImage();
     	//link the d and i
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d1);
@@ -536,8 +543,9 @@ public class PojosServiceTest
     public void testGetImagesByOwner() 
     	throws Exception
     {
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image i1 = mmFactory.simpleImage(0);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(i1.getPixels());
+    	i1 = pixels.getImage();
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	DatasetImageLink link = new DatasetImageLinkI();
@@ -576,8 +584,9 @@ public class PojosServiceTest
     public void testGetImagesByOwnerWithPixels() 
     	throws Exception
     {
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
+    	Image i1 = mmFactory.simpleImage(0);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(i1.getPixels());
+    	i1 = pixels.getImage();
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	DatasetImageLink link = new DatasetImageLinkI();
@@ -618,8 +627,9 @@ public class PojosServiceTest
     public void testDuplicateDatasetImageLink() 
     	throws Exception
     {
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image i1 = mmFactory.simpleImage(0);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(i1.getPixels());
+    	i1 = pixels.getImage();
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	DatasetImageLink link = new DatasetImageLinkI();
@@ -704,8 +714,9 @@ public class PojosServiceTest
         		mmFactory.simpleDatasetData().asIObject());
         long d1 = d.getId().getValue();
         
-        Image image1 = (Image) update.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image image1 = mmFactory.simpleImage(0);
+    	Pixels pixels = (Pixels) update.saveAndReturnObject(image1.getPixels());
+    	image1 = pixels.getImage();
     	//link the 2
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d);
@@ -771,8 +782,9 @@ public class PojosServiceTest
     	param.exp(omero.rtypes.rlong(id));
     	
     	
-    	Image i = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image i = mmFactory.simpleImage(0);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(i.getPixels());
+    	i = pixels.getImage();
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	Project p = (Project) iUpdate.saveAndReturnObject(
@@ -875,8 +887,10 @@ public class PojosServiceTest
     	ParametersI po = new ParametersI();
 		po.leaves();
 		po.startTime(omero.rtypes.rtime(startTime-1));
-		Image i = (Image) iUpdate.saveAndReturnObject(
-				mmFactory.simpleImage(startTime));
+		
+		Image i = mmFactory.simpleImage(startTime);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(i.getPixels());
+    	i = pixels.getImage();
 		
 		List result = iContainer.getImagesByOptions(po);
 		assertTrue(result.size() > 0);
@@ -920,8 +934,9 @@ public class PojosServiceTest
     {
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	Image img = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image img = mmFactory.simpleImage(0);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(img.getPixels());
+    	img = pixels.getImage();
     	//link the 2
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d);
@@ -972,8 +987,9 @@ public class PojosServiceTest
     	throws Exception 
     {
     	//First create an image 
-    	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = mmFactory.simpleImage(0);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(image.getPixels());
+    	image = pixels.getImage();
     	//create an instrument
     	Instrument instrument = (Instrument) iUpdate.saveAndReturnObject(
     			mmFactory.createInstrument(ModelMockFactory.LASER));
@@ -1217,17 +1233,18 @@ public class PojosServiceTest
     			mmFactory.simpleProjectData().asIObject());
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	Image i = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(10));
+    	Image i = mmFactory.simpleImage(10);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(i.getPixels());
+    	i = pixels.getImage();
     	//link the project and the dataset
     	ProjectDatasetLink l = new ProjectDatasetLinkI();
-    	l.setParent((Project) p.proxy());
-    	l.setChild((Dataset) d.proxy());
+    	l.setParent(new ProjectI(p.getId().getValue(), false));
+    	l.setChild(new DatasetI(d.getId().getValue(), false));
     	iUpdate.saveAndReturnObject(l);
     	
     	DatasetImageLink link = new DatasetImageLinkI();
-    	link.setParent((Dataset) d.proxy());
-    	link.setChild((Image) i.proxy());
+    	link.setParent(new DatasetI(d.getId().getValue(), false));
+    	link.setChild(new ImageI(i.getId().getValue(), false));
     	iUpdate.saveAndReturnObject(link);
     	
     	
@@ -1268,8 +1285,9 @@ public class PojosServiceTest
     {
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	Image i = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(10));
+    	Image i = mmFactory.simpleImage(10);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(i.getPixels());
+    	i = pixels.getImage();
     	//link the project and the dataset
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent((Dataset) d.proxy());
@@ -1303,8 +1321,9 @@ public class PojosServiceTest
     public void testFindContainerHierarchyFromImage() 
     	throws Exception 
     {
-    	Image i = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(10));
+    	Image i = mmFactory.simpleImage(10);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(i.getPixels());
+    	i = pixels.getImage();
     	
     	ParametersI param = new ParametersI();
         List<Long> ids = new ArrayList<Long>();
@@ -1324,8 +1343,9 @@ public class PojosServiceTest
     public void testFindContainerHierarchyWrongType() 
     	throws Exception 
     {
-    	Image i = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(10));
+    	Image i = mmFactory.simpleImage(10);
+    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(i.getPixels());
+    	i = pixels.getImage();
     	
     	ParametersI param = new ParametersI();
         List<Long> ids = new ArrayList<Long>();
