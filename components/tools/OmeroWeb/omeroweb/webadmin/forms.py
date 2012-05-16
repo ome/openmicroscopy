@@ -152,9 +152,16 @@ class GroupForm(NonASCIIForm):
         except:
             self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
         
+        try:
+            if kwargs['initial']['members']: pass
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['members'], required=False)
+        except:
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+        
+        
         self.fields['permissions'] = forms.ChoiceField(choices=self.PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text=help_text)
         
-        self.fields.keyOrder = ['name', 'description', 'owners', 'permissions', 'readonly']
+        self.fields.keyOrder = ['name', 'description', 'owners', 'members', 'permissions', 'readonly']
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}))
     description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}), required=False)    

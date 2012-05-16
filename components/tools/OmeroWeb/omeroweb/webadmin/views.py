@@ -568,16 +568,33 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         group = conn.getObject("ExperimenterGroup", gid)
         ownerIds = [e.id for e in group.getOwners()]
         
+        experimenterDefaultIds = list()
+        for e in (experimenters):
+            if e.getDefaultGroup().id == group.id:
+                experimenterDefaultIds.append(str(e.id))
+        experimenterDefaultGroups = ",".join(experimenterDefaultIds)
+        
+        memberIds = [m.id for m in group.getMembers()]
+        
         permissions = getActualPermissions(group)
         form = GroupForm(initial={'name': group.name, 'description':group.description,
                                      'permissions': permissions, 'readonly': group.isReadOnly(), 
-                                     'owners': ownerIds, 'experimenters':experimenters})
-        context = {'form':form, 'gid': gid, 'permissions': permissions}
+                                     'owners': ownerIds, 'members':memberIds, 'experimenters':experimenters})
+        
+        context = {'form':form, 'gid': gid, 'permissions': permissions, 'experimenterDefaultGroups':experimenterDefaultGroups}
     elif action == 'save':
+        group = conn.getObject("ExperimenterGroup", gid)
+        
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["edit", group.id]))
         else:
-            group = conn.getObject("ExperimenterGroup", gid)
+            experimenterDefaultIds = list()
+            for e in (experimenters):
+                if e.getDefaultGroup().id == group.id:
+                    experimenterDefaultIds.append(e.id)
+            experimenterDefaultGroups = ",".join(experimenterDefaultIds)
+            
+            permissions = getActualPermissions(group)
             
             name_check = conn.checkGroupName(request.REQUEST.get('name'), group.name)
             form = GroupForm(initial={'experimenters':experimenters}, data=request.POST.copy(), name_check=name_check)
@@ -588,42 +605,20 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 owners = form.cleaned_data['owners']
                 permissions = form.cleaned_data['permissions']
                 readonly = toBoolean(form.cleaned_data['readonly'])
+                members = form.cleaned_data['members']
                 
                 listOfOwners = getSelectedExperimenters(conn, owners)
-                if getActualPermissions(group) != int(permissions) or group.isReadOnly() != readonly:
+                if permissions != int(permissions) or group.isReadOnly() != readonly:
                     perm = setActualPermissions(permissions, readonly)
                 else:
                     perm = None
                 conn.updateGroup(group, name, perm, listOfOwners, description)
+                
+                new_members = getSelectedExperimenters(conn, members)
+                conn.setMembersOfGroup(group, new_members)
+                
                 return HttpResponseRedirect(reverse("wagroups"))
-            context = {'form':form, 'gid': gid}
-    elif action == "update":
-        template = "webadmin/group_edit.html"
-        
-        group = conn.getObject("ExperimenterGroup", gid)
-        memberIds = group.getMembers()
-        
-        form = ContainedExperimentersForm(initial={'experimenters':experimenters, 'members':memberIds}, data=request.POST.copy())
-        if form.is_valid():
-            members = form.cleaned_data['members']
-            new_members = getSelectedExperimenters(conn, members)
-            
-            conn.setMembersOfGroup(group, new_members)
-            return HttpResponseRedirect(reverse("wagroups"))
-            
-        context = {'form':form, 'group':group}
-    elif action == "members":
-        template = "webadmin/group_edit.html"
-        
-        group = conn.getObject("ExperimenterGroup", gid)
-        
-        for i, e in enumerate(experimenters):
-            if e.getDefaultGroup().id == group.id:
-                experimenters[i].setFirstName("*%s" % (e.firstName))
-        
-        memberIds = [m.id for m in group.getMembers()]
-        form = ContainedExperimentersForm(initial={'members':memberIds, 'experimenters':experimenters})
-        context = {'form':form, 'group':group}
+            context = {'form':form, 'gid': gid, 'permissions': permissions, 'experimenterDefaultGroups':experimenterDefaultGroups}
     else:
         return HttpResponseRedirect(reverse("wagroups"))
     
