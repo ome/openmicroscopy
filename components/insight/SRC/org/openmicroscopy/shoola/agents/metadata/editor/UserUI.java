@@ -92,6 +92,7 @@ class UserUI
 		
 		JXTaskPane pane = EditorUtil.createTaskPane(TITLE_DETAILS);
 		pane.add(profile, null, 0);
+		pane.setCollapsed(false);
 		
 		diskSpace = new UserDiskSpace(this);
 		diskTask = EditorUtil.createTaskPane(TITLE);
