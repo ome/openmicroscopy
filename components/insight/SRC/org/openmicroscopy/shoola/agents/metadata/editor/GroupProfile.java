@@ -29,6 +29,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -38,6 +40,7 @@ import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -94,6 +97,12 @@ class GroupProfile
     /** The group object displayed.*/
     private GroupData ref;
     
+    /** Save changes.*/
+    private JButton saveButton;
+    
+    /** Reference to the view.*/
+    private EditorUI view;
+    
     /** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -134,6 +143,14 @@ class GroupProfile
     		namePane.getDocument().addDocumentListener(this);
     		descriptionPane.getDocument().addDocumentListener(this);
     	}
+    	saveButton = new JButton("Save");
+    	saveButton.setEnabled(false);
+    	saveButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	saveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {  
+            	view.saveData(true); 
+            }
+        });
     }
     
     /**
@@ -224,9 +241,12 @@ class GroupProfile
      * @param model	Reference to the model. Mustn't be <code>null</code>. 
      * @param view 	Reference to the control. Mustn't be <code>null</code>.
      */
-	GroupProfile(EditorModel model)
+	GroupProfile(EditorModel model, EditorUI view)
 	{
 		super(model);
+		if (view == null)
+			throw new IllegalArgumentException("No view");
+		this.view = view;
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
     
@@ -287,6 +307,10 @@ class GroupProfile
     	p.add(permissionsPane, c);
 		c.gridy++;
 		p.add(buildOwnersPane(), c);
+		c.gridy++;
+		JPanel buttonPanel = UIUtilities.buildComponentPanel(saveButton);
+    	buttonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(buttonPanel, c);
 		setLayout(new BorderLayout(0, 0));
 		add(p, BorderLayout.NORTH);
 	}
@@ -342,18 +366,27 @@ class GroupProfile
 	 * @see AnnotationUI#hasDataToSave()
 	 */
 	protected boolean hasDataToSave()
-	{ 
+	{
+		saveButton.setEnabled(false);
 		if (namePane == null) return false;
 		String v = namePane.getText();
 		v = v.trim();
-		if (!ref.getName().equals(v)) return true;
+		if (!ref.getName().equals(v)) {
+			saveButton.setEnabled(true);
+			return true;
+		}
 		//check description
 		v = descriptionPane.getText();
 		v = v.trim();
 		String description = ref.getDescription();
 		if (description == null) description = "";
-		if (!description.equals(v)) return true;
-		return level != permissionsPane.getPermissions();
+		if (!description.equals(v)) {
+			saveButton.setEnabled(true);
+			return true;
+		}
+		boolean b = level != permissionsPane.getPermissions();
+		saveButton.setEnabled(b);
+		return b;
 	}
 
 	/**

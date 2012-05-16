@@ -620,11 +620,14 @@ class MetadataViewerModel
 			switch (data.getIndex()) {
 				case AdminObject.UPDATE_GROUP:
 					GroupData group = data.getGroup();
-					loader = new GroupEditor(component, ctx, group, 
-							data.getPermissions());
+					loader = new GroupEditor(component, getAdminContext(),
+							group, data.getPermissions());
 					break;
 				case AdminObject.UPDATE_EXPERIMENTER:
-					loader = new AdminEditor(component, ctx, data.getGroup(),
+					SecurityContext c = ctx;
+					if (MetadataViewerAgent.isAdministrator())
+						c = getAdminContext();
+					loader = new AdminEditor(component, c, data.getGroup(),
 							data.getExperimenters());
 			}	
 			if (loader != null) {
@@ -639,13 +642,14 @@ class MetadataViewerModel
 				case AdminObject.UPDATE_GROUP:
 					try {
 						GroupData group = data.getGroup();
-						GroupData g = svc.lookupGroup(ctx, group.getName());
+						GroupData g = svc.lookupGroup(getAdminContext(),
+								group.getName());
 						if (g == null || group.getId() == g.getId())
-							svc.updateGroup(ctx, data.getGroup(),
+							svc.updateGroup(getAdminContext(), data.getGroup(),
 									data.getPermissions());
 						else {
 							UserNotifier un = 
-								MetadataViewerAgent.getRegistry().getUserNotifier();
+							MetadataViewerAgent.getRegistry().getUserNotifier();
 							un.notifyInfo("Update Group", "A group with the " +
 									"same name already exists.");
 						}
