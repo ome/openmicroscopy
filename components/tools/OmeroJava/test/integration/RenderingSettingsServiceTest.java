@@ -76,23 +76,10 @@ public class RenderingSettingsServiceTest
             for (WellSample ws : well.copyWellSamples()) {
             	pix = (Pixels) iUpdate.saveAndReturnObject(
             			ws.getImage().getPixels());
-                ws.setImage(createBinaryImage(pix.getImage()));
+            	ws.setImage(createBinaryImage(pix.getImage()));
             }
         }
-       
-        iUpdate.saveAndReturnObject(plate);
-        plate = (Plate) iUpdate.saveAndReturnObject(plate);
-        /*
-        for (Well well : plate.copyWells()) {
-            for (WellSample ws : well.copyWellSamples()) {
-                Image image = createBinaryImage(ws.getImage());
-                ws.setImage(image);
-            }
-        }
-        */
-
-        return plate;
-
+        return (Plate) iUpdate.saveAndReturnObject(plate);
     }
 
     /**
