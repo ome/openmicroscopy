@@ -75,14 +75,21 @@ public class RawPixelsStoreTest
         return buf;
     }
 
+    private Image createTestImage() throws Exception {
+    	 Image image = mmFactory.createImage(ModelMockFactory.SIZE_X,
+                 ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
+                 ModelMockFactory.SIZE_T, 1);
+    	  Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(image.getPixels());
+    	  image = pixels.getImage();
+    	  return image;
+     }
+    
     @BeforeMethod
     public void localSetUp() 
     	throws Exception
     {
-        Image image = mmFactory.createImage(ModelMockFactory.SIZE_X,
-                ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
-                ModelMockFactory.SIZE_T, 1);
-        image = (Image) iUpdate.saveAndReturnObject(image);
+        Image image = createTestImage();
+        
         Pixels pixels = image.getPixels();
         planeSize = pixels.getSizeX().getValue()*pixels.getSizeY().getValue();
         planeSize = planeSize * 2;  // UINT16
