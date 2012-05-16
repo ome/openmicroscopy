@@ -40,6 +40,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -485,7 +487,7 @@ public abstract class TreeImageDisplay
         String name = getNodeName();
         Object uo = getUserObject();
         if (uo instanceof ImageData) {
-        	if (partialName) return EditorUtil.getPartialName(name);
+        	if (partialName) return UIUtilities.formatPartialName(name);
         	return name;
         } else if (uo instanceof ExperimenterData) return name;
         else if (uo instanceof FileAnnotationData) return name;
