@@ -569,6 +569,8 @@ public class TaskBarManager
 		if (askQuestion) {
 			msg = new CheckoutBox(view, title, message,
 					icons.getIcon(IconManager.QUESTION), instances);
+			msg.setYesText("Quit");
+			msg.setNoText("Do Not Quit");
 			option = msg.centerMsgBox();
 		}
 		if (option == MessageBox.YES_OPTION) {
