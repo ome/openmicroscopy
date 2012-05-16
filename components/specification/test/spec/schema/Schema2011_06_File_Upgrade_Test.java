@@ -150,7 +150,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(1, plate0.sizeOfPlateAcquisitionList());
         plateAcquisition0 = plate0.getPlateAcquisition(0);
         Assert.assertNotNull(plateAcquisition0);
-        Assert.assertEquals(ref.Plate1PlateAcquisition1Description, plateAcquisition0.getDescription());
+        Assert.assertEquals(ref.Plate0PlateAcquisition0Description, plateAcquisition0.getDescription());
     }
     
     @Test (groups = {"spw"}, dependsOnMethods = {"testPlate0Description"})
@@ -159,10 +159,10 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(1, plate0.sizeOfWellList());
         well0 = plate0.getWell(0);
         Assert.assertNotNull(well0);
-        Assert.assertEquals(ref.Plate1Well1Column, well0.getColumn());
-        Assert.assertEquals(ref.Plate1Well1Row, well0.getRow());
-        Assert.assertEquals(ref.Plate1Well1Color, well0.getColor());
-        Assert.assertEquals(ref.Plate1Well1Status, well0.getType());
+        Assert.assertEquals(ref.Plate0Well0Column, well0.getColumn());
+        Assert.assertEquals(ref.Plate0Well0Row, well0.getRow());
+        Assert.assertEquals(ref.Plate0Well0Color, well0.getColor());
+        Assert.assertEquals(ref.Plate0Well0Status, well0.getType());
     }
     @Test (groups = {"spw"}, dependsOnMethods = {"testPlate0Well0"})
     public void testPlate0WellSample0() {
@@ -170,7 +170,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(1, well0.sizeOfWellSampleList());
         wellSample0 = well0.getWellSample(0);
         Assert.assertNotNull(wellSample0);
-        Assert.assertEquals(ref.Plate1Well1WellSample1Index, wellSample0.getIndex());
+        Assert.assertEquals(ref.Plate0Well0WellSample0Index, wellSample0.getIndex());
     }
 
     @Test (groups = {"spw"}, dependsOnMethods = {"testOmeNode"})
@@ -187,12 +187,12 @@ public class Schema2011_06_File_Upgrade_Test {
         screen0 = ome.getScreen(0);
         Assert.assertNotNull(screen0);
         Assert.assertEquals(ref.Screen0Name, screen0.getName());
-        Assert.assertEquals(ref.Screen1Description, screen0.getDescription());
+        Assert.assertEquals(ref.Screen0Description, screen0.getDescription());
         Assert.assertEquals(ref.Screen0ProtocolDescription, screen0.getProtocolDescription());
-        Assert.assertEquals(ref.Screen1ProtocolIdentifier, screen0.getProtocolIdentifier());
-        Assert.assertEquals(ref.Screen1ReagentSetDescription, screen0.getReagentSetDescription());
-        Assert.assertEquals(ref.Screen1ReagentSetIdentifier, screen0.getReagentSetIdentifier());
-        Assert.assertEquals(ref.Screen1Type, screen0.getType());
+        Assert.assertEquals(ref.Screen0ProtocolIdentifier, screen0.getProtocolIdentifier());
+        Assert.assertEquals(ref.Screen0ReagentSetDescription, screen0.getReagentSetDescription());
+        Assert.assertEquals(ref.Screen0ReagentSetIdentifier, screen0.getReagentSetIdentifier());
+        Assert.assertEquals(ref.Screen0Type, screen0.getType());
     }
 
     @Test (groups = {"spw"}, dependsOnMethods = {"testOmeNode"})
@@ -200,13 +200,13 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNotNull(ome);
         screen1 = ome.getScreen(1);
         Assert.assertNotNull(screen1);
-        Assert.assertEquals(ref.Screen2Name, screen1.getName());
-        Assert.assertEquals(ref.Screen2Description, screen1.getDescription());
-        Assert.assertEquals(ref.Screen2ProtocolDescription, screen1.getProtocolDescription());
-        Assert.assertEquals(ref.Screen2ProtocolIdentifier, screen1.getProtocolIdentifier());
-        Assert.assertEquals(ref.Screen2ReagentSetDescription, screen1.getReagentSetDescription());
-        Assert.assertEquals(ref.Screen2ReagentSetIdentifier, screen1.getReagentSetIdentifier());
-        Assert.assertEquals(ref.Screen2Type, screen1.getType());
+        Assert.assertEquals(ref.Screen1Name, screen1.getName());
+        Assert.assertEquals(ref.Screen1Description, screen1.getDescription());
+        Assert.assertEquals(ref.Screen1ProtocolDescription, screen1.getProtocolDescription());
+        Assert.assertEquals(ref.Screen1ProtocolIdentifier, screen1.getProtocolIdentifier());
+        Assert.assertEquals(ref.Screen1ReagentSetDescription, screen1.getReagentSetDescription());
+        Assert.assertEquals(ref.Screen1ReagentSetIdentifier, screen1.getReagentSetIdentifier());
+        Assert.assertEquals(ref.Screen1Type, screen1.getType());
     }
     
     @Test (groups = {"spw"}, dependsOnMethods = {"testOmeNode"})
@@ -214,26 +214,26 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNotNull(ome);
         screen2 = ome.getScreen(2);
         Assert.assertNotNull(screen2);
-        Assert.assertEquals(ref.Screen3Name, screen2.getName());
-        Assert.assertEquals(ref.Screen3Description, screen2.getDescription());
-        Assert.assertEquals(ref.Screen3ProtocolDescription, screen2.getProtocolDescription());
-        Assert.assertEquals(ref.Screen3ProtocolIdentifier, screen2.getProtocolIdentifier());
-        Assert.assertEquals(ref.Screen3ReagentSetDescription, screen2.getReagentSetDescription());
-        Assert.assertEquals(ref.Screen3ReagentSetIdentifier, screen2.getReagentSetIdentifier());
-        Assert.assertEquals(ref.Screen3Type, screen2.getType());
+        Assert.assertEquals(ref.Screen2Name, screen2.getName());
+        Assert.assertEquals(ref.Screen2Description, screen2.getDescription());
+        Assert.assertEquals(ref.Screen2ProtocolDescription, screen2.getProtocolDescription());
+        Assert.assertEquals(ref.Screen2ProtocolIdentifier, screen2.getProtocolIdentifier());
+        Assert.assertEquals(ref.Screen2ReagentSetDescription, screen2.getReagentSetDescription());
+        Assert.assertEquals(ref.Screen2ReagentSetIdentifier, screen2.getReagentSetIdentifier());
+        Assert.assertEquals(ref.Screen2Type, screen2.getType());
     }
     @Test (groups = {"spw"}, dependsOnMethods = {"testOmeNode"})
     public void testScreen3() {
         Assert.assertNotNull(ome);
         screen3 = ome.getScreen(3);
         Assert.assertNotNull(screen3);
-        Assert.assertEquals(ref.Screen4Name, screen3.getName());
-        Assert.assertEquals(ref.Screen4Description, screen3.getDescription());
-        Assert.assertEquals(ref.Screen4ProtocolDescription, screen3.getProtocolDescription());
-        Assert.assertEquals(ref.Screen4ProtocolIdentifier, screen3.getProtocolIdentifier());
-        Assert.assertEquals(ref.Screen4ReagentSetDescription, screen3.getReagentSetDescription());
-        Assert.assertEquals(ref.Screen4ReagentSetIdentifier, screen3.getReagentSetIdentifier());
-        Assert.assertEquals(ref.Screen4Type, screen3.getType());
+        Assert.assertEquals(ref.Screen3Name, screen3.getName());
+        Assert.assertEquals(ref.Screen3Description, screen3.getDescription());
+        Assert.assertEquals(ref.Screen3ProtocolDescription, screen3.getProtocolDescription());
+        Assert.assertEquals(ref.Screen3ProtocolIdentifier, screen3.getProtocolIdentifier());
+        Assert.assertEquals(ref.Screen3ReagentSetDescription, screen3.getReagentSetDescription());
+        Assert.assertEquals(ref.Screen3ReagentSetIdentifier, screen3.getReagentSetIdentifier());
+        Assert.assertEquals(ref.Screen3Type, screen3.getType());
     }
 
     @Test (groups = {"exper"}, dependsOnMethods = {"testOmeNode"})
