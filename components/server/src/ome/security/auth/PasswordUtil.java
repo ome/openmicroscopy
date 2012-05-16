@@ -72,7 +72,9 @@ public class PasswordUtil {
     }
 
     public String getDnById(Long id) {
-        return sql.dnForUser(id);
+        // FIXME8344
+        // this needs to use ldaptemplate based on the experimenter omename
+        return null;
     }
 
     public void changeUserPasswordById(Long id, String password) {
