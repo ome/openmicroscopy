@@ -321,9 +321,13 @@ public class ExporterTest
 		schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
 				"/Released-Schema/2010-06/V1/ome.xsd"));
 
-		InputStream sheet = this.getClass().getResourceAsStream(
+		InputStream firstSheet = this.getClass().getResourceAsStream(
+				"/Xslt/2012-06-to-2011-06.xsl");
+		InputStream secondSheet = this.getClass().getResourceAsStream(
 				"/Xslt/2011-06-to-2010-06.xsl");
-		List<InputStream> transforms = Arrays.asList(sheet);
+		List<InputStream> transforms = new ArrayList<InputStream>();
+    transforms.add(firstSheet);
+    transforms.add(secondSheet);
 		
 		File downgraded = File.createTempFile(RandomStringUtils.random(10),
 				"."+OME_TIFF);
@@ -346,7 +350,7 @@ public class ExporterTest
 		ra.close();
 		
 		//validate schema
-		File downgradedXML = File.createTempFile(RandomStringUtils.random(10),
+		File downgradedXML = File.createTempFile(RandomStringUtils.randomAscii(10),
 				"."+OME_XML);
 		c = new TiffParser(path).getComment();
 		FileUtils.writeStringToFile(downgradedXML, c);
