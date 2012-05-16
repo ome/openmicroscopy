@@ -22,6 +22,8 @@ import org.testng.annotations.Test;
 //Application-internal dependencies
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
+import omero.cmd.Chmod;
+import omero.cmd.graphs.ChmodI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -50,6 +52,9 @@ import pojos.GroupData;
 public class AdminServiceTest 
 	extends AbstractServerTest
 {
+	
+	/** Identifies the image as root. */
+	public static final String REF_GROUP = "/ExperimenterGroup";
 	
 	/** The password of the user. */
 	private String PASSWORD = "password";
@@ -935,7 +940,8 @@ public class AdminServiceTest
         // First group rwr---
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(rstring(uuid));
-        g.getDetails().setPermissions(new PermissionsI("rwr---"));
+        String representation = "rwr---";
+        g.getDetails().setPermissions(new PermissionsI(representation));
         long id = prx.createGroup(g);
         g = prx.getGroup(id);
         Permissions permissions = g.getDetails().getPermissions();
@@ -943,25 +949,21 @@ public class AdminServiceTest
         assertFalse(permissions.isGroupWrite());
         
         //change permissions
-        permissions.setGroupWrite(true);
-        prx.changePermissions(g, permissions);
+        representation = "rwrw--";
+        
+        Chmod mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        		g.getId().getValue(), representation);
+        doChange(root, root.getSession(), mod, true);
+        //prx.changePermissions(g, permissions);
         g = prx.getGroup(id);
         permissions = g.getDetails().getPermissions();
         assertTrue(permissions.isGroupRead());
         assertTrue(permissions.isGroupWrite());
-        
-        //now reduce the permissions.
-        permissions.setGroupWrite(false);
-        prx.changePermissions(g, permissions);
-        g = prx.getGroup(id);
-        permissions = g.getDetails().getPermissions();
-        assertTrue(permissions.isGroupRead());
-        assertFalse(permissions.isGroupWrite());
     }
 	
     /**
 	 * Tests to promote a group. The permissions of the group are initially
-	 * <code>rw---</code> then upgrade to <code>rwr--</code>. This tests the 
+	 * <code>rwr---</code> then upgrade to <code>rwrw--</code>. This tests the 
 	 * <code>ChangePermissions</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
@@ -974,18 +976,21 @@ public class AdminServiceTest
         // First create a user in two groups, one rwrw-- and one rwr---
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(rstring(uuid));
-        g.getDetails().setPermissions(new PermissionsI("rw----"));
+        String representation = "rw----";
+        g.getDetails().setPermissions(new PermissionsI(representation));
         long id = prx.createGroup(g);
         g = prx.getGroup(id);
         Permissions permissions = g.getDetails().getPermissions();
-        
         //change permissions and promote the group
-        permissions.setGroupRead(true);
-        prx.changePermissions(g, permissions);
+        representation = "rwrw--";
+        Chmod mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        		g.getId().getValue(), representation);
+        
+        doChange(root, root.getSession(), mod, true);
         g = prx.getGroup(id);
         permissions = g.getDetails().getPermissions();
         assertTrue(permissions.isGroupRead());
-        assertFalse(permissions.isGroupWrite());
+        assertTrue(permissions.isGroupWrite());
     }
 	
     /**
@@ -1005,27 +1010,31 @@ public class AdminServiceTest
         // First create a user in two groups, one rwrw-- and one rwr---
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(rstring(uuid));
-        g.getDetails().setPermissions(new PermissionsI("rw----"));
+        String representation = "rw----";
+        g.getDetails().setPermissions(new PermissionsI(representation));
         long id = prx.createGroup(g);
         g = prx.getGroup(id);
         Permissions permissions = g.getDetails().getPermissions();
         
+        
+        
         //change permissions and promote the group
-        permissions.setGroupRead(true);
-        prx.changePermissions(g, permissions);
+        representation = "rwr---";
+        Chmod mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        		g.getId().getValue(), representation);
+        
+        doChange(root, root.getSession(), mod, true);
         g = prx.getGroup(id);
         permissions = g.getDetails().getPermissions();
         assertTrue(permissions.isGroupRead());
         assertFalse(permissions.isGroupWrite());
         g = prx.getGroup(id);
         //now try to turn it back to rw----
-        try {
-        	permissions = g.getDetails().getPermissions();
-        	permissions.setGroupRead(false);
-        	prx.changePermissions(g, permissions);
-        	fail("Not possible to turn group back to private");
-		} catch (Exception e) {
-		}
+        representation = "rw----";
+        mod = createChmodCommand(root.getSessionId(), REF_GROUP, 
+        		g.getId().getValue(), representation);
+        
+        doChange(root, root.getSession(), mod, true);
     }
 	
     /**

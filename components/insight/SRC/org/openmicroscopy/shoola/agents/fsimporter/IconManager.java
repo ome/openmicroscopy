@@ -157,11 +157,17 @@ public class IconManager
     /** The <code>Log in</code> icon. */
     public static final int		LOGIN = 33;
     
+    /** The <code>Read Link Group</code> icon. */
+    public static final int		READ_WRITE_GROUP = 34;
+    
+    /** The 12x12 <code>Read Link Group Drop Down</code> icon. */
+    public static final int		READ_WRITE_GROUP_DD_12 = 35;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int	MAX_ID = 33;
+    private static final int	MAX_ID = 35;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -192,12 +198,14 @@ public class IconManager
         relPaths[PRIVATE_GROUP] = "nuvola_ledred16.png";
         relPaths[READ_GROUP] = "nuvola_ledorange_readOnly16.png";
         relPaths[READ_LINK_GROUP] = "nuvola_ledorange16.png";
+        relPaths[READ_WRITE_GROUP] = "nuvola_ledorange16.png";
         relPaths[PUBLIC_GROUP] = "nuvola_ledgreen16.png";
         relPaths[UP_DOWN_9_12] = "upDown.png";
         relPaths[PRIVATE_GROUP_DD_12] = "nuvola_permission_private_dd12.png";
         relPaths[READ_GROUP_DD_12] = "nuvola_permission_readOnly_dd12.png";
         relPaths[READ_LINK_GROUP_DD_12] = "nuvola_permission_read_dd12.png";//"nuvola_permission_readLink_dd12.png";
         relPaths[PUBLIC_GROUP_DD_12] = "nuvola_permission_public_dd12.png";
+        relPaths[READ_WRITE_GROUP_DD_12] = "nuvola_permission_read_dd12.png";
         relPaths[EXIT_APPLICATION] = "nuvola_exit16.png";
         relPaths[DEBUG] = "nuvola_bug16.png";
         relPaths[LOGIN] = "nuvola_login16.png";

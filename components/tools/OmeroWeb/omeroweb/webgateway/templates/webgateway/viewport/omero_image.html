@@ -173,7 +173,7 @@
     $.blockUI({
       timeout: 0,
       message: $('#channel-window-help'),
-{% if image.isOwned %}
+{% if image.canAnnotate %}
       css: {width: '60%', left: '20%', top: '20%'}
 {% else %}
       css: {width: '50%', left: '25%', top: '20%'}
@@ -822,7 +822,7 @@
     return false;
   }
 
-{% if image.isOwned %}
+{% if image.canAnnotate %}
   function resetImageDefaults (obj) {
     var msg = '<h2>Resetting rendering settings</h2><ul><li>This will reset the image rendering settings to their original state at time of import.</li></ul>';
     var url = '/webgateway/resetImgRDef/'+viewport.loadedImg.id+'/';
@@ -949,9 +949,9 @@
       <ul>
         <li class="buttonbar">
         {% block save_rdef %}
-        {% if image.isEditable and not blitzcon.getShareId %}
+        {% if image.canAnnotate and not blitzcon.getShareId %}
           <button id="rdef-reset-btn" class="editor" onclick="return resetImageDefaults(this)" title="Returns the image settings to their original state at time of import.">reset</button>
-          {% if image.isEditable %}<button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save</button>{% endif %}
+          {% if image.canAnnotate %}<button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save</button>{% endif %}
           
         {% endif %}
         {% endblock save_rdef %}

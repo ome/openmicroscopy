@@ -334,13 +334,13 @@ public interface MeasurementViewer
 	public void setKeyword(List<String> keyword);
 	
 	/**
-	 * Returns <code>true</code> if the specified image is writable,
+	 * Returns <code>true</code> if the specified image can be annotated
 	 * <code>false</code> otherwise, depending on the permission.
 	 * 
 	 * @return See above.
 	 */
-	public boolean isImageWritable();
-
+	public boolean canAnnotate();
+	
 	/**
 	 * Set the workflows in the measurement tool to be list passed.
 	 * @param workflows See above.

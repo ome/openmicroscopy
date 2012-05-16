@@ -143,7 +143,7 @@ namespace omero {
 	}
 
 	// Register Object Factory
-	omero::registerObjectFactory(__ic);
+	omero::registerObjectFactory(__ic, this);
         omero::rtypes::registerObjectFactory(__ic);
 
 	// Define our unique identifier (used during close/detach)

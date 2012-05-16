@@ -65,11 +65,11 @@
     
     <ul id="dataIcons">
         {% for c in share.imageInShare %}
-        <li id="image_icon-{{ c.id }}" title="{{ c.name }}" {% if not c.isOwned %}{% if isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
+        <li id="image_icon-{{ c.id }}" title="{{ c.name }}" {% if not c.canEdit %}class="editonly"{% else %}class="readonly"{% endif %}>
             {% if share.share.isOwned %}
-            <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+            <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"/>
             {% else %}
-            <img id="{{ c.id }}" src="{% url render_thumbnail c.id share.share.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+            <img id="{{ c.id }}" src="{% url render_thumbnail c.id share.share.id %}" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"/>
             {% endif %}
         </li>
         {% endfor %}

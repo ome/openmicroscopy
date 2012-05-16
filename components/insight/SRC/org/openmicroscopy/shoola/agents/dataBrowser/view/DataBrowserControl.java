@@ -330,14 +330,46 @@ class DataBrowserControl
 	 */
 	List<MoveToAction> getMoveAction()
 	{
-		if (moveActions != null) return moveActions;
+		Browser browser = model.getBrowser();
+		Collection selection = null;
+		Iterator j;
+		if (browser != null) {
+			selection = browser.getSelectedDataObjects();
+			if (selection == null) return null;
+			int count = 0;
+			j = selection.iterator();
+			Object o;
+			while (j.hasNext()) {
+				o = j.next();
+				if (o instanceof DataObject) {
+					if (model.canChgrp(o)) count++;
+				}
+			}
+			if (count != selection.size()) return null;
+		}
+		
 		Set l = DataBrowserAgent.getAvailableUserGroups();
 		ViewerSorter sorter = new ViewerSorter();
 		List values = sorter.sort(l);
-		moveActions = new ArrayList<MoveToAction>(l.size());
+		if (moveActions == null)
+			moveActions = new ArrayList<MoveToAction>(l.size());
+		moveActions.clear();
+		List<Long> ids = new ArrayList<Long>();
+		if (browser != null && selection != null) {
+			j = selection.iterator();
+			DataObject data;
+			while (j.hasNext()) {
+				data = (DataObject) j.next();
+				if (!ids.contains(data.getGroupId()))
+					ids.add(data.getGroupId());
+			}
+		}
+		GroupData group;
 		Iterator i = values.iterator();
 		while (i.hasNext()) {
-			moveActions.add(new MoveToAction(model, (GroupData) i.next()));
+			group = (GroupData) i.next();
+			if (!ids.contains(group.getGroupId()))
+				moveActions.add(new MoveToAction(model, group));
 		}
 		return moveActions;
 	}

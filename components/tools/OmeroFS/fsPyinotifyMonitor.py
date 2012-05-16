@@ -17,7 +17,8 @@ import time
 # Imported as pathModule to avoid potential clashes.
 import path as pathModule
 
-from omero.grid import monitors
+import omero.all
+import omero.grid.monitors as monitors
 from fsAbstractPlatformMonitor import AbstractPlatformMonitor
 
 importlog = logging.getLogger("fsserver."+__name__)     

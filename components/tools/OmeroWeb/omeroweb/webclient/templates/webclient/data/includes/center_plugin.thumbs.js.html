@@ -144,12 +144,23 @@ $(document).ready(function() {
         if (update.empty) {
             $("div#content_details").empty();
             $("div#content_details").removeAttr('rel');
+            if (orel == 'project' || orel == 'screen') {
+                var cCount = datatree._get_children(selected).length;
+                if (cCount == 0) {
+                    // show helpful message
+                    var msg = "<p class='center_message' title='Create Datasets using toolbar or right-click menu'>No Datasets in Project</a>";
+                    if (orel == 'screen') {
+                        msg = "<p class='center_message' title='Import Plates using OMERO.insight'>No Plates in Screen</a>";
+                    }
+                    $("div#content_details").html(msg);
+                }
+            }
         }
         // only load data if panel is visible, otherwise clear panel
         else if (update.rel!==null && update.url!==null && need_refresh){
             if (page) update['url'] += "&page="+page;
             if ($content_details.is(":visible")) {
-                $("div#content_details").html('<p class="loading_center">Loading... please wait. <img src ="../../static/webgateway/img/spinner_big.gif"/></p>');
+                $("div#content_details").html('<p class="loading_center">Loading... please wait. <img src ="{% static "/webgateway/img/spinner_big.gif" %}"/></p>');
                 $("div#content_details").attr('rel', update.rel);
                 $("div#content_details").load(update.url, function() {
                     syncPanels(selected);

@@ -32,6 +32,16 @@ import java.util.HashMap;
 
 public class ModelObjectFactoryRegistry extends ObjectFactoryRegistry {
 
+    public void setIceCommunicator(Communicator ic, omero.client client) {
+
+        // Non-conditional
+        ic.addObjectFactory(DetailsI.makeFactory(client), DetailsI.ice_staticId());
+        ic.addObjectFactory(PermissionsI.Factory, PermissionsI.ice_staticId());
+
+        // Conditional
+        super.setIceCommunicator(ic);
+    }
+
     @Override
     public void setIceCommunicator(Communicator ic) {
 

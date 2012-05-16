@@ -186,7 +186,7 @@ def login(request):
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@login_required()
+@login_required(ignore_login_fail=True)
 def keepalive_ping(request, conn=None, **kwargs):
     """ Keeps the OMERO session alive by pinging the server """
 
@@ -1972,19 +1972,24 @@ def activities(request, conn=None, **kwargs):
         if status == "failed":
             failure+=1
 
+        request.session.modified = True
+
         # update chgrp
         if job_type == 'chgrp':
             if status not in ("failed", "finished"):
-                prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
-                #cb = CmdCallbackI(conn.c, prx)
-                #cb.loop(20, 500)
-                rsp = prx.getResponse()
+                rsp = None
+                try:
+                    prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                    rsp = prx.getResponse()
+                except:
+                    logger.info("Activities chgrp handle not found: %s" % cbString)
                 # if response is None, then we're still in progress, otherwise...
                 if rsp is not None:
                     new_results.append(cbString)
                     if isinstance(rsp, omero.cmd.ERR):
                         request.session['callback'][cbString]['status'] = "failed"
                         rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
+                        logger.error("chgrp failed with: %s" % rsp_params)
                         request.session['callback'][cbString]['results'] = "%s %s" % (rsp.name, rsp_params)
                     elif isinstance(rsp, omero.cmd.OK):
                         request.session['callback'][cbString]['status'] = "finished"
@@ -2035,7 +2040,6 @@ def activities(request, conn=None, **kwargs):
                     request.session['callback'][cbString]['status'] = "failed"
                     request.session['callback'][cbString]['dreport'] = str(x)
                     failure+=1
-                request.session.modified = True
 
         # update scripts
         elif job_type == 'script':
@@ -2084,7 +2088,6 @@ def activities(request, conn=None, **kwargs):
                             else:
                                 rMap[key] = v
                     request.session['callback'][cbString]['results'] = rMap
-                    request.session.modified = True
                 else:
                     in_progress+=1
 

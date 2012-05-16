@@ -18,8 +18,8 @@ except:
 # Imported as pathModule to avoid potential clashes.
 import path as pathModule
 
-import omero
-from omero.grid import monitors
+import omero.all
+import omero.grid.monitors as monitors
 
 class FileServerI(monitors.FileServer):
     """

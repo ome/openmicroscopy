@@ -16,9 +16,11 @@ import ome.security.SystemTypes;
 import ome.security.basic.CurrentDetails;
 import ome.security.basic.TokenHolder;
 import ome.services.sharing.ShareStore;
+import ome.system.EventContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 import org.springframework.util.Assert;
 
 /**
@@ -60,7 +62,7 @@ public class SharingACLVoter implements ACLVoter {
     /**
      * 
      */
-    public boolean allowLoad(Class<? extends IObject> klass, Details d, long id) {
+    public boolean allowLoad(Session session, Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
         // Assert.notNull(d);
         if (d == null ||
@@ -68,8 +70,8 @@ public class SharingACLVoter implements ACLVoter {
                 sysTypes.isInSystemGroup(d)) {
             return true;
         }
-        long session = cd.getCurrentEventContext().getCurrentShareId();
-        return store.contains(session, klass, id);
+        long sessionID = cd.getCurrentEventContext().getCurrentShareId();
+        return store.contains(sessionID, klass, id);
     }
 
     public void throwLoadViolation(IObject iObject) throws SecurityViolation {

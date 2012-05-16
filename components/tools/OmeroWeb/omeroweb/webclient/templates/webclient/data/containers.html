@@ -216,7 +216,7 @@
                             var cont_id = cont_type + "-" + r['id'];
                             var display_index = 0;
                             $("#dataTree").jstree("create", selected, display_index, 
-                                { "attr" : { "rel":cont_type, "id":cont_id}, "data":new_container_name }, 
+                                { "attr" : { "rel":cont_type, "id":cont_id, "class":"canLink canDelete"}, "data":new_container_name },
                                 false, true);
                             $("#dataTree").jstree("deselect_all");
                             $("#dataTree").jstree("select_node", "#"+cont_id);
@@ -271,17 +271,18 @@
                     var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
                     
                     if(selected.length > 0) {
-                        if(selected.attr("rel").indexOf("locked") < 0) {
+                        if(selected.hasClass('canDelete')) {
                             toolbar_config['delete'] = true;
-                            if(selected.attr("id").indexOf("experimenter")>=0) {
-                                toolbar_config['delete'] = false;
+                        }
+                        if(selected.attr("id").indexOf("experimenter")>=0) {
+                            // if experimenter is selected, use 'locked' to enable create
+                            if(selected.attr("rel").indexOf("locked")<=0) {
                                 toolbar_config["addproject"] = true;
                                 toolbar_config['adddataset'] = true;
                                 toolbar_config['addscreen'] = true;
-                                if ($.inArray(selected.attr('rel').replace("-locked", ""), ["dataset", "plate"]) > -1) {
-                                    toolbar_config['copy'] = true;
-                                }
-                            } else if(selected.attr("id").indexOf("project")>=0) {
+                            }
+                        } else if(selected.hasClass('canLink')) {
+                            if(selected.attr("id").indexOf("project")>=0) {
                                 toolbar_config['adddataset'] = true;
                             } else if(selected.attr("id").indexOf("dataset")>=0) {
                                 toolbar_config['copy'] = true;
@@ -307,8 +308,6 @@
                         if ((inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes) && ($.inArray(selected.attr('rel').replace("-locked", ""), ["project", "dataset", "screen"]) > -1)) {
                             toolbar_config['paste'] = true;
                         }
-                    } else {
-                        toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':{% if isLeader %}true{% else %}false{% endif %}, 'annotation':false, 'basket':false};
                     }
                     
                     for (var sIndex in toolbar_config) { 
@@ -400,121 +399,77 @@
                                 "icon" : {
                                     "image" : '{% static "webclient/image/personal16.png" %}'
                                 },
-                                "create_node" : false,
-                                "start_drag" : false,
-                                "move_node" : false,
-                                "delete_node" : false,
-                                "remove" : false
+                                "start_drag" : false
                             },
                             "project" : {
                                 "valid_children" : [ "dataset" ],
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder16.png" %}'
                                 },
-                                "create_node" : true,
-                                "start_drag" : false,
-                                "move_node" : true,
-                                "delete_node" : true,
-                                "remove" : true
+                                "start_drag" : false
                             },
                             "project-locked" : {
                                 "valid_children" : [ "dataset", "dataset-locked" ],
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder_locked16.png" %}'
                                 },
-                                "create_node" : true,
-                                "start_drag" : false,
-                                "move_node" : false,
-                                "delete_node" : {% if isLeader %}true{% else %}false{% endif %},
-                                "remove" : {% if isLeader %}true{% else %}false{% endif %}
+                                "start_drag" : false
                             },
                             "dataset" : {
                                 "valid_children" : [ "image", "image-locked" ],
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder_image16.png" %}'
                                 },
-                                "create_node" : false,
-                                "start_drag" : true,
-                                "move_node" : true,
-                                "delete_node" : true,
-                                "remove" : true
+                                "start_drag" : function(obj){return obj.hasClass('canLink');}
                             },
                             "dataset-locked" : {
                                 "valid_children" : [ "image", "image-locked" ],
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder_image_locked16.png" %}'
                                 },
-                                "create_node" : false,
-                                "start_drag" : false,
-                                "move_node" : false,
-                                "delete_node" : {% if isLeader %}true{% else %}false{% endif %},
-                                "remove" : {% if isLeader %}true{% else %}false{% endif %}
+                                "start_drag" : function(obj){return obj.hasClass('canLink');}
                             },
                             "image" : {
                                 "valid_children" : "none",
                                 "icon" : {
                                     "image" : '{% static "webclient/image/image16.png" %}'
                                 },
-                                "create_node" : false,
-                                "start_drag" : true,
-                                "move_node" : true,
-                                "delete_node" : true,
-                                "remove" : true
+                                "start_drag" : function(obj){return obj.hasClass('canLink');}
                             },
                             "image-locked" : {
                                 "valid_children" : "none",
                                 "icon" : {
                                     "image" : '{% static "webclient/image/image_locked16.png" %}'
                                 },
-                                "create_node" : false,
-                                "start_drag" : false,
-                                "move_node" : false,
-                                "delete_node" : {% if isLeader %}true{% else %}false{% endif %},
-                                "remove" : {% if isLeader %}true{% else %}false{% endif %}
+                                "start_drag" : function(obj){return obj.hasClass('canLink');}
                             },
                             "screen" : {
                                 "valid_children" : [ "plate", "plate-locked" ],
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder_screen16.png" %}'
                                 },
-                                "create_node" : true,
-                                "start_drag" : false,
-                                "move_node" : true,
-                                "delete_node" : true,
-                                "remove" : true
+                                "start_drag" : false
                             },
                             "screen-locked" : {
                                 "valid_children" : [ "plate", "plate-locked" ],
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder_screen_locked16.png" %}'
                                 },
-                                "create_node" : true,
-                                "start_drag" : false,
-                                "move_node" : false,
-                                "delete_node" : {% if isLeader %}true{% else %}false{% endif %},
-                                "remove" : {% if isLeader %}true{% else %}false{% endif %}
+                                "start_drag" : false
                             },
                             "plate" : {
                                 "valid_children" : "acquisition",
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder_plate16.png" %}'
                                 },
-                                "create_node" : false,
-                                "start_drag" : true,
-                                "move_node" : true,
-                                "delete_node" : true,
-                                "remove" : true
+                                "start_drag" : function(obj){return obj.hasClass('canLink');}
                             },
                             "plate-locked" : {
                                 "valid_children" : "acquisition",
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder_plate_locked16.png" %}'
                                 },
-                                "create_node" : false,
-                                "start_drag" : false,
-                                "move_node" : false,
-                                "delete_node" : {% if isLeader %}true{% else %}false{% endif %},
-                                "remove" : {% if isLeader %}true{% else %}false{% endif %}
+                                "start_drag" : function(obj){return obj.hasClass('canLink');}
                             },
                             "acquisition" : {
                                 "valid_children" : "none",
@@ -532,11 +487,7 @@
                                 "icon" : {
                                     "image" : '{% static "webclient/image/image16.png" %}'
                                 },
-                                "create_node" : false,
-                                "start_drag" : false,
-                                "move_node" : false,
-                                "delete_node" : false,
-                                "remove" : false
+                                "start_drag" : false
                             },
                             "orphaned" : {
                                 "valid_children" : [ "image", "image_locked" ],
@@ -656,26 +607,39 @@
                             config["chgrp"]["_disabled"] = true;
                             {% endif %}
                             
-                            if(obj.attr("rel").indexOf("locked")>=0) {
-                                {% if not isLeader %}config["delete"]["_disabled"] = true;{% endif %}
+                            // use canLink, canDelete etc classes on each node to enable/disable right-click menu
+                            if(!obj.hasClass('canDelete')) {
+                                config["delete"]["_disabled"] = true;
+                            }
+                            if(!obj.hasClass('canChgrp')) {
+                                config["chgrp"]["_disabled"] = true;
+                            }
+                            // if experimenter is selected, use 'locked' flag to decide permissions
+                            if(obj.attr("id").indexOf("experimenter")>=0) {
+                                config["ccp"]["_disabled"] = true;
+                                config["basket"]["_disabled"] = true;
+                                if(obj.attr("rel").indexOf("locked")>=0) {
+                                    config["create"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
+                                }
+                            // if we DON'T have canLink, everything else is disabled
+                            } else if(!obj.hasClass('canLink')) {
                                 config["ccp"]["_disabled"] = true;
                                 config["create"]["_disabled"] = true;
                                 config["basket"]["_disabled"] = true;
-                                config["chgrp"]["_disabled"] = true;
                                 config["create"]["submenu"]["project"]["_disabled"] = true;
                                 config["create"]["submenu"]["dataset"]["_disabled"] = true;
                                 config["create"]["submenu"]["screen"]["_disabled"] = true;
                             } else {
+                                // otherwise the options depend on type of node...
                                 if(obj.attr("id").indexOf("orphaned")>=0) {
                                     config["delete"]["_disabled"] = true;
                                     config["ccp"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                     config["chgrp"]["_disabled"] = true;
-                                } else if(obj.attr("id").indexOf("experimenter")>=0) {
-                                    config["delete"]["_disabled"] = true;
-                                    config["ccp"]["_disabled"] = true;
-                                    config["basket"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("project")>=0) {
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
@@ -696,6 +660,9 @@
                                     }
                                     config["create"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("image")>=0) {
                                     if (obj.parent().parent().attr('rel').indexOf('orphaned')>=0) {
                                         config["ccp"]["submenu"]["cut"]["_disabled"] = true;
@@ -703,6 +670,9 @@
                                     }
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("screen")>=0) {
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
@@ -1151,11 +1121,11 @@
                         <div class='group_option'>
                             <input type="radio" name="group_id" value="{{ grp.id }}" style="display:none"/>
                             <img
-                            {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static "webclient/image/nuvola_ledorange16.png" %}"
+                            {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static "webclient/image/group_orange16.png" %}"
                             {% else %}
-                                {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/nuvola_ledorange_readOnly16.png" %}"
+                                {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
                                 {% else %}
-                                    src="{% static "webclient/image/nuvola_ledred16.png" %}"
+                                    src="{% static "webclient/image/personal16.png" %}"
                                 {% endif %}
                             {% endif %} />
                             {{ grp.name }}

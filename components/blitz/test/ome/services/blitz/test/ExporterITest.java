@@ -35,11 +35,11 @@ public class ExporterITest extends AbstractServantTest {
     protected void setUp() throws Exception {
         super.setUp();
 
-        user_e = new ExporterI(be, db, null);
-        user_e.setServiceFactory(user_sf);
+        user_e = new ExporterI(user.be, db, null);
+        user_e.setServiceFactory(user.sf);
 
-        root_e = new ExporterI(be, db, null);
-        root_e.setServiceFactory(root_sf);
+        root_e = new ExporterI(root.be, db, null);
+        root_e.setServiceFactory(root.sf);
     }
 
     //
@@ -53,7 +53,7 @@ public class ExporterITest extends AbstractServantTest {
     @Test
     public void testForDatabaseUuid() throws Exception {
         final RV rv = new RV();
-        user_config.getDatabaseUuid_async(new AMD_IConfig_getDatabaseUuid(){
+        user.config.getDatabaseUuid_async(new AMD_IConfig_getDatabaseUuid(){
 
             public void ice_exception(Exception ex) {
                 rv.ex = ex;

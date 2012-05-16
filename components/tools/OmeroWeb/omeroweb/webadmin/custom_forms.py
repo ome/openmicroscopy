@@ -116,7 +116,7 @@ class GroupQuerySetIterator(object):
             l = len(name)
             if l > 35:
                 name = name[:35] + "..."
-            
+            name += " (%s)" % str(obj.getDetails().permissions)
             if hasattr(obj.id, 'val'):
                 oid = obj.id.val
             else:

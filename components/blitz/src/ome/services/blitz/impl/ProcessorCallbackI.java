@@ -11,8 +11,11 @@ import java.util.UUID;
 
 import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.ResultHolder;
+import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
+
 import omero.ServerError;
 import omero.constants.categories.PROCESSORCALLBACK;
 import omero.constants.topics.PROCESSORACCEPTS;
@@ -26,6 +29,8 @@ import omero.model.Job;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 

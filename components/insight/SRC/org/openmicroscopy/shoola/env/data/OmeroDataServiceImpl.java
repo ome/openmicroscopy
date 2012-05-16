@@ -42,8 +42,6 @@ import java.util.Map.Entry;
 
 //Application-internal dependencies
 import omero.api.delete.DeleteCommand;
-import omero.cmd.Chgrp;
-import omero.cmd.CmdCallbackI;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.Channel;
@@ -919,6 +917,7 @@ class OmeroDataServiceImpl
 		List<IObject> l;
 		Iterator<DataObject> j;
 		DataObject object;
+		IObject link;
 		while (i.hasNext()) {
 			data = i.next();
 			l = new ArrayList<IObject>();
@@ -926,9 +925,11 @@ class OmeroDataServiceImpl
 				j = targetNodes.iterator();
 				while (j.hasNext()) {
 					object = j.next();
-					if (object != null)
-						l.add(ModelMapper.linkParentToChild(data.asIObject(),
-							object.asIObject()));
+					if (object != null) {
+						link = ModelMapper.linkParentToChild(data.asIObject(),
+								object.asIObject());
+						if (link != null) l.add(link);
+					}
 				}
 			}
 			map.put(data, l);

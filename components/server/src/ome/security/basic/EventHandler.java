@@ -164,6 +164,7 @@ public class EventHandler implements MethodInterceptor {
             secSys.enableReadFilter(session);
             retVal = arg0.proceed();
             saveLogs(readOnly, session);
+            secSys.cd.loadPermissions(session);
             return retVal;
         } catch (Throwable ex) {
             failure = true;

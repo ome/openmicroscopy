@@ -45,7 +45,7 @@
     </span>
 	
 	<div class="attachment_actions">
-	    {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}
+	    {% if fileann.link.canDelete and not fileann.isOriginalMetadata %}
 	        <a class='removeFile action' id="{{ fileann.id }}-file" title="Remove File">-</a>
 	    {% endif %}
 	

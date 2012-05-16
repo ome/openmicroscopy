@@ -18,7 +18,7 @@ public class AdminITest extends AbstractServantTest {
     @Test
     public void testgetEventContext() throws Exception {
         final RV rv = new RV();
-        user_admin.getEventContext_async(new AMD_IAdmin_getEventContext() {
+        user.admin.getEventContext_async(new AMD_IAdmin_getEventContext() {
             public void ice_exception(Exception ex) {
                 rv.ex = ex;
             }
@@ -33,7 +33,7 @@ public class AdminITest extends AbstractServantTest {
     @Test(groups = "ticket:1204")
     public void testGetGroup() throws Exception {
         final RV rv = new RV();
-        user_admin.getGroup_async(new AMD_IAdmin_getGroup() {
+        user.admin.getGroup_async(new AMD_IAdmin_getGroup() {
 
             public void ice_exception(Exception exc) {
                 rv.ex = exc;
