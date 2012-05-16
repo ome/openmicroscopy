@@ -957,9 +957,21 @@ class EditorComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#isWritable()
+	 * @see Editor#canLink()
 	 */
-	public boolean isWritable() { return model.isWritable(); }
+	public boolean canLink() { return model.canLink(); }
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#canEdit()
+	 */
+	public boolean canEdit() { return model.canEdit(); }
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#canAnnotate()
+	 */
+	public boolean canAnnotate() { return model.canAnnotate(); }
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.

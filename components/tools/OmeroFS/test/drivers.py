@@ -16,8 +16,9 @@ import threading
 import time
 import unittest
 
-import omero_ext.uuid as uuid # see ticket:3774
+import omero.all
 import omero.grid.monitors as monitors
+import omero_ext.uuid as uuid # see ticket:3774
 import IceGrid
 
 from path import path

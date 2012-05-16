@@ -107,7 +107,7 @@ public class OneGroupSecurityFilter extends AbstractSecurityFilter {
      *            null all {@link Right rights} will be assumed.
      * @return true if the object to which this
      */
-    public boolean passesFilter(Details d, EventContext c) {
+    public boolean passesFilter(Session session, Details d, EventContext c) {
 
         final Long currentGroupId = c.getCurrentGroupId();
         final Long currentUserId = c.getCurrentUserId();

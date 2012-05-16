@@ -22,6 +22,7 @@ import exceptions
 import logging.handlers
 import omero.util.concurrency
 import omero_ext.uuid as uuid # see ticket:3774
+import omero.ObjectFactoryRegistrar as ofr
 
 from omero.util.decorators import locked
 
@@ -410,8 +411,7 @@ class Server(Ice.Application):
 
         try:
 
-            self.objectfactory = omero.clients.ObjectFactory()
-            self.objectfactory.registerObjectFactory(self.communicator())
+            ofr.registerObjectFactory(self.communicator(), None) # No client
             for of in rFactories.values() + cFactories.values():
                 of.register(self.communicator())
 

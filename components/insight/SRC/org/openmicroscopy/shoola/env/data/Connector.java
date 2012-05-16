@@ -577,11 +577,10 @@ class Connector
 	/**
 	 * Returns the {@link IAdminPrx} service.
 	 * 
-	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws Throwable Thrown if the service cannot be initialized.
 	 */
-	IAdminPrx getAdminService(SecurityContext ctx)
+	IAdminPrx getAdminService()
 		throws Throwable
 	{ 
 		if (adminService == null) {
@@ -759,28 +758,19 @@ class Connector
 	 * @return See above.
 	 */
 	RequestCallback submit(List<Request> commands)
-		throws Exception
+		throws Throwable
 	{
 		if (commands == null || commands.size() == 0)
 			return null;
 		DoAll all = new DoAll();
-		Iterator<Request> i = commands.iterator();
-		all.list = new ArrayList<Request>();
-		while (i.hasNext()) {
-			all.list.add(i.next());
-		}
-		
+		all.requests = commands;
+		all.session = getAdminService().getEventContext().sessionUuid;
 		if (entryUnencrypted != null) {
-			//to be modified.
 			return new RequestCallback(getClient(), 
-					entryUnencrypted.submit(commands.get(0)));
-			//return new RequestCallback(getClient(), 
-			//		entryUnencrypted.submit(all));
+					entryUnencrypted.submit(all));
 		}
-		//to be modified
 		return new RequestCallback(getClient(), 
-				entryEncrypted.submit(commands.get(0)));
-		//return new RequestCallback(getClient(), entryEncrypted.submit(all));
+				entryEncrypted.submit(all));
 	}
 
 }

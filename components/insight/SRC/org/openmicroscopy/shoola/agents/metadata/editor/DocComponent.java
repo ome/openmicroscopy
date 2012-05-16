@@ -207,42 +207,63 @@ class DocComponent
 	 */
 	private boolean setControlsEnabled(boolean enabled)
 	{
-		boolean b = enabled;
-		boolean link = enabled;
 		int count = 0;
-		if (enabled && data != null) {
-			b = model.isUserOwner(data);
-			link = model.isLinkOwner(data);
+		if (infoButton != null) {
+			infoButton.setEnabled(true);
+			infoButton.setVisible(true);
+			count++;
 		}
+		if (!enabled) {
+			if (unlinkButton != null) {
+				unlinkButton.setEnabled(false);
+				unlinkButton.setVisible(false);
+			}
+			if (editButton != null) {
+				editButton.setEnabled(false);
+				editButton.setVisible(false);
+			}
+			if (downloadButton != null) {
+				downloadButton.setEnabled(false);
+				downloadButton.setVisible(false);
+			}
+			if (openButton != null) {
+				openButton.setEnabled(false);
+				openButton.setVisible(false);
+			}
+			if (deleteButton != null) {
+				deleteButton.setEnabled(false);
+				deleteButton.setVisible(false);
+			}
+			return count > 0;
+		}
+		boolean b = false;
 		if (unlinkButton != null) {
-			unlinkButton.setEnabled(link);
-			unlinkButton.setVisible(link);
-			if (link) count++;
+			b = model.canDelete(data);
+			unlinkButton.setEnabled(b);
+			unlinkButton.setVisible(b);
+			if (b) count++;
 		} 
 		
 		if (editButton != null) {
+			b = model.canEdit(data);
 			editButton.setEnabled(b);
 			editButton.setVisible(b);
 			if (b) count++;
 		}
 		if (downloadButton != null) {
-			downloadButton.setEnabled(link);
-			downloadButton.setVisible(link);
-			if (link) count++;
+			b = model.canAnnotate(data);
+			downloadButton.setEnabled(b);
+			downloadButton.setVisible(b);
+			if (b) count++;
 		}
 		if (openButton != null) {
-			//openButton.setEnabled(enabled);
-			//openButton.setVisible(enabled);
-			openButton.setEnabled(link);
-			openButton.setVisible(link);
-			if (link) count++;
-		}
-		if (infoButton != null) {
-			infoButton.setEnabled(true);
-			infoButton.setVisible(true);
-			if (link) count++;
+			b = model.canAnnotate(data);
+			openButton.setEnabled(b);
+			openButton.setVisible(b);
+			if (b) count++;
 		}
 		if (deleteButton != null) {
+			b = model.canDelete(data);
 			deleteButton.setEnabled(b);
 			deleteButton.setVisible(b);
 			if (b) count++;
@@ -472,8 +493,6 @@ class DocComponent
 		});
 		unlinkButton = new JMenuItem(icons.getIcon(IconManager.MINUS_12));
 		unlinkButton.setText("Unlink");
-		//UIUtilities.unifiedButtonLookAndFeel(unlinkButton);
-		//unlinkButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		unlinkButton.addActionListener(this);
 		unlinkButton.setActionCommand(""+UNLINK);
 		if (data instanceof FileAnnotationData) {
@@ -549,8 +568,7 @@ class DocComponent
 	private void initComponents()
 	{
 		imageToLoad = -1;
-		if (model.isUserOwner(data)) 
-			initButtons();
+		initButtons();
 		label = new JLabel();
 		label.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		if (data == null) {

@@ -19,7 +19,9 @@ import shutil
 # Imported as pathModule to avoid clashes.
 import path as pathModule
 
-import omero
+import omero.all
+import omero.grid.monitors as monitors
+
 import omero.rtypes
 import omero_ext.uuid as uuid # see ticket:3774
 import Ice, IceImport
@@ -28,11 +30,7 @@ import Glacier2
 
 from omero.util import configure_server_logging
 
-IceImport.load("omero_FS_ice")
-monitors = Ice.openModule('omero.grid.monitors')
-
-from omero.clients import ObjectFactory
-
+import omero.ObjectFactoryRegistrar as ofr
 import fsDropBoxMonitorClient
 
 class DropBox(Ice.Application):
@@ -43,7 +41,7 @@ class DropBox(Ice.Application):
 
     def run(self, args):
         # Configure our communicator
-        ObjectFactory().registerObjectFactory(self.communicator())
+        ofr.registerObjectFactory(self.communicator())
         for of in omero.rtypes.ObjectFactories.values():
             of.register(self.communicator())
 

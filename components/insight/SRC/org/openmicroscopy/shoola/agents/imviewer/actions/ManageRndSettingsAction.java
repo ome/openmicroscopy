@@ -222,16 +222,16 @@ public class ManageRndSettingsAction
 					if (!model.hasSettingsToPaste()) {
 						setEnabled(false);
 					} else {
-						setEnabled(!model.isReadOnly());
+						setEnabled(model.canAnnotate());
 					}
 					break;
 				case RESET:
 				case SET_MIN_MAX:
-					setEnabled(!model.isReadOnly());
+					setEnabled(model.canAnnotate());
 					break;
 				case SET_OWNER:
 					if (model.isUserOwner()) setEnabled(false);
-					else setEnabled(!model.isReadOnly());
+					else setEnabled(model.canAnnotate());
 					break;
 				case COPY:
 					setEnabled(true);

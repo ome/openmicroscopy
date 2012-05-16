@@ -21,7 +21,8 @@ import Ice
 import IceGrid
 import Glacier2
 
-from omero.grid import monitors
+import omero.all
+import omero.grid.monitors as monitors
 from drivers import MockMonitor
 
 class MockDropBox(Ice.Application):

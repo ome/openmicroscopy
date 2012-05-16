@@ -244,22 +244,6 @@ public interface AdminService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Returns the permissions associated to the specified group.
-	 * 
-	 * @param group The group to handle. If <code>null</code>, 
-	 * 				returns the permissions of the default group.
-	 * @return See above.
-	 */
-	public int getPermissionLevel(GroupData group);
-	
-	/**
-	 * Returns the permissions associated to the current group.
-	 * 
-	 * @return See above.
-	 */
-	public int getPermissionLevel();
-	
-	/**
 	 * Copies the passed experimenters to the specified group.
 	 * 
 	 * @param ctx The security context.

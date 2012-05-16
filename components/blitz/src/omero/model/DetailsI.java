@@ -8,6 +8,10 @@
 
 package omero.model;
 
+import java.util.Map;
+
+import ome.system.EventContext;
+
 import Ice.Object;
 
 
@@ -15,18 +19,56 @@ import Ice.Object;
 
 public class DetailsI extends Details implements ome.model.ModelBased {
 
-    public final static Ice.ObjectFactory Factory = new Ice.ObjectFactory() {
+    public static final Ice.ObjectFactory makeFactory(final omero.client client) {
 
-        public Object create(String arg0) {
-            return new DetailsI();
-        }
+        return new Ice.ObjectFactory() {
 
-        public void destroy() {
-            // no-op
-        }
-        
+            public Object create(String arg0) {
+                return new DetailsI(client);
+            }
+
+            public void destroy() {
+                // no-op
+            }
+
+        };
     };
-    
+
+    public final static Ice.ObjectFactory Factory = makeFactory(null);
+
+    protected final omero.client client;
+
+    protected final omero.api.ServiceFactoryPrx session;
+
+    public DetailsI() {
+        this(null);
+    }
+
+    public DetailsI(omero.client client) {
+        this.client = client;
+        if (client != null) {
+            this.session = client.getSession();
+        } else {
+            this.session = null;
+        }
+    }
+
+    public omero.client getClient() {
+        return this.client;
+    }
+
+    public omero.api.ServiceFactoryPrx getSession() {
+        return this.session;
+    }
+
+    public omero.sys.EventContext getEventContext() {
+        return this.event;
+    }
+
+    public Map<String, String> getCallContext() {
+        return this.call;
+    }
+
     public omero.model.Experimenter getOwner(Ice.Current current) {
         return this.owner;
     }
@@ -86,6 +128,7 @@ public class DetailsI extends Details implements ome.model.ModelBased {
 
     }
 
+    @SuppressWarnings("unchecked")
     public void copyObject(ome.util.Filterable model,
             ome.util.ModelMapper _mapper) {
         omero.util.IceMapper mapper = (omero.util.IceMapper) _mapper;
@@ -101,11 +144,18 @@ public class DetailsI extends Details implements ome.model.ModelBased {
                     .getUpdateEvent()));
             this.setExternalInfo((omero.model.ExternalInfoI) mapper
                     .findTarget(source.getExternalInfo()));
+
+            // Since ome.system.EventContext is later in the build
+            // graph than ome.model.internal.Details, it's only
+            // possible to load it as a java.lang.Object.
+            // Note: call context will frequently be null.
+            this.event = omero.util.IceMapper.convert(
+                    (EventContext) source.contextAt(0));
+            this.call = (Map<String, String>) source.contextAt(1);
+
             ome.model.internal.Permissions sourceP = source.getPermissions();
             if (sourceP != null) {
-                PermissionsI targetP = new PermissionsI();
-                targetP.setPerm1((Long) ome.util.Utils.internalForm(sourceP));
-                this.setPermissions(targetP);
+                this.setPermissions(new PermissionsI(sourceP));
             }
         } else {
             throw new IllegalArgumentException("Details cannot copy from "
@@ -115,24 +165,22 @@ public class DetailsI extends Details implements ome.model.ModelBased {
 
     public ome.util.Filterable fillObject(ome.util.ReverseModelMapper _mapper) {
         omero.util.IceMapper mapper = (omero.util.IceMapper) _mapper;
-        ome.model.internal.Details target = ome.model.internal.Details.create();
+        ome.model.internal.Details target = ome.model.internal.Details.create(null);
         mapper.store(this, target);
-        target.putAt(ome.model.internal.Details.OWNER,
+        target.setOwner(
                 (ome.model.meta.Experimenter) mapper
                         .reverse((ome.model.ModelBased) this.getOwner()));
-        target.putAt(ome.model.internal.Details.GROUP,
+        target.setGroup(
                 (ome.model.meta.ExperimenterGroup) mapper
                         .reverse((ome.model.ModelBased) this.getGroup()));
-        target
-                .putAt(ome.model.internal.Details.CREATIONEVENT,
+        target.setCreationEvent(
                         (ome.model.meta.Event) mapper
                                 .reverse((ome.model.ModelBased) this
                                         .getCreationEvent()));
-        target.putAt(ome.model.internal.Details.UPDATEEVENT,
+        target.setUpdateEvent(
                 (ome.model.meta.Event) mapper
                         .reverse((ome.model.ModelBased) this.getUpdateEvent()));
-        target
-                .putAt(ome.model.internal.Details.EXTERNALINFO,
+        target.setExternalInfo(
                         (ome.model.meta.ExternalInfo) mapper
                                 .reverse((ome.model.ModelBased) this
                                         .getExternalInfo()));

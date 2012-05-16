@@ -203,8 +203,7 @@
             {% for c in manager.containers.images %}
                 <tr id="image_row-{{ c.id }}" {% if not c.isOwned %}{% if isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
                     <td class="image">
-                        {% comment %}<img src="{% url render_thumbnail_resize 32 c.id  %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>{% endcomment %}
-                        <img src="{% static "webclient/image/image16.png" %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+                        <img src="{% static "webclient/image/image16.png" %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"/>
                         <input type="checkbox" name="image" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>

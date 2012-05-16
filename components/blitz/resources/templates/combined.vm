@@ -178,23 +178,6 @@ STATIC FIELDS:
 
 [$hdr]     protected:
 
-GENERATOR:
-
-[$pyc]       class ${Pojo}I_generator:
-[$pyc]           """
-[$pyc]           This generator is used by the ObjectFactory to create
-[$pyc]           new ${Pojo}I instances.
-[$pyc]           """
-[$pyc]           def __iter__(self):
-[$pyc]               return self
-[$pyc]           def next(self):
-[$pyc]               return ${Pojo}I()
-[$pyc]
-[$pyc]       def generator(cls):
-[$pyc]           return cls.${Pojo}I_generator()
-[$pyc]       generator = classmethod(generator)
-[$pyc]
-
 INTERNAL METHODS:
 
 [$hdr]       void errorIfUnloaded();

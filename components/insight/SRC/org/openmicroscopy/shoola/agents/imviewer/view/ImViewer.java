@@ -1156,7 +1156,7 @@ public interface ImViewer
 	 * 
 	 * @return See above.
 	 */
-	public boolean isReadOnly();
+	public boolean canAnnotate();
 	
 	/**
 	 * Returns <code>true</code> if the user currently logged in is the

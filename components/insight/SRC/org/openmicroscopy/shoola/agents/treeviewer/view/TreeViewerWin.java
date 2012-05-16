@@ -512,7 +512,7 @@ class TreeViewerWin
 	private JMenu createMoveToMenu()
 	{
 		List<MoveToAction> actions = controller.getMoveAction();
-		if (actions.size() <= 1) return null;
+		if (actions == null || actions.size() <= 1) return null;
 		JMenu menu = new JMenu(MoveToAction.NAME);
 		Iterator<MoveToAction> i = actions.iterator();
 		while (i.hasNext()) {

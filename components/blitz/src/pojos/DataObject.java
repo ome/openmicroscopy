@@ -37,6 +37,7 @@ import omero.model.FileAnnotation;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.LongAnnotation;
+import omero.model.Permissions;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Project;
@@ -557,6 +558,62 @@ public abstract class DataObject {
      */
     public Channel asChannel() {
         return (Channel) asIObject();
+    }
+    
+    /**
+     * Returns <code>true</code> if the object can be annotated 
+     * <code>false</code> otherwise, depending on permissions level.
+     * 
+     * @return See above.
+     */
+    public boolean canAnnotate()
+    {
+    	Permissions p = asIObject().getDetails().getPermissions();
+    	if (p == null) return false;
+    	return p.canAnnotate();
+    }
+    
+    /**
+     * Returns <code>true</code> if the object can be edited by the user
+     * currently logged in <code>false</code> otherwise,
+     * depending on permissions level.
+     * 
+     * @return See above.
+     */
+    public boolean canEdit()
+    {
+    	Permissions p = asIObject().getDetails().getPermissions();
+    	if (p == null) return false;
+    	return p.canEdit();
+    }
+    
+    /**
+     * Returns <code>true</code> if the object can be linked e.g. image
+     * add to dataset, by the user currently logged in,
+     * <code>false</code> otherwise, depending on
+     * permissions level.
+     * 
+     * @return See above.
+     */
+    public boolean canLink()
+    {
+    	Permissions p = asIObject().getDetails().getPermissions();
+    	if (p == null) return false;
+    	return p.canLink();
+    }
+    
+    /**
+     * Returns <code>true</code> if the object can be deleted by the user 
+     * currently logged in,
+     * <code>false</code> otherwise, depending on permissions level.
+     * 
+     * @return See above.
+     */
+    public boolean canDelete()
+    {
+    	Permissions p = asIObject().getDetails().getPermissions();
+    	if (p == null) return false;
+    	return p.canDelete();
     }
     
 }

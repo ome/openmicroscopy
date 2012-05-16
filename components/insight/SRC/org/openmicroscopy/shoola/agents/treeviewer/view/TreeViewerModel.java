@@ -926,6 +926,20 @@ class TreeViewerModel
 		if (refImage == null) return null;
 		return UIUtilities.removeFileExtension(refImage.getName());
 	}
+	
+	/**
+	 * Returns <code>true</code> if the image to copy the rendering settings
+	 * from is in the specified group, <code>false</code> otherwise.
+	 * 
+	 * @param groupID The group to handle.
+	 * @return See above.
+	 */
+	boolean areSettingsCompatible(long groupID)
+	{
+		if (refImage == null) return false;
+		return refImage.getGroupId() == groupID;
+	}
+	
 	/**
 	 * Returns the type of nodes to copy or <code>null</code> if no nodes 
 	 * to copy or cut.
@@ -1373,6 +1387,25 @@ class TreeViewerModel
 	{
 		MoveDataLoader loader = new MoveDataLoader(component, ctx, type, dialog);
 		loader.load();
+	}
+
+	/**
+	 * Returns the group corresponding to the specified id or <code>null</code>.
+	 * 
+	 * @param groupId The identifier of the group.
+	 * @return See above.
+	 */
+	GroupData getGroup(long groupId)
+	{
+		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		if (groups == null) return null;
+		Iterator i = groups.iterator();
+		GroupData group;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			if (group.getId() == groupId) return group;
+		}
+		return null;
 	}
 
 }

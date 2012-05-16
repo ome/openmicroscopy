@@ -282,12 +282,11 @@ public class DataBrowserFactory
 	}
 	
 	/**
-	 * Sets to <code>true</code> if some rendering settings have to be copied.
-	 * <code>false</code> otherwise.
+	 * Sets the image to copy the settings from.
 	 * 
 	 * @param rndSettingsToCopy The value to set.
 	 */
-	public static final void setRndSettingsToCopy(boolean rndSettingsToCopy)
+	public static final void setRndSettingsToCopy(ImageData rndSettingsToCopy)
 	{
 		singleton.rndSettingsToCopy = rndSettingsToCopy; 
 		Iterator v = singleton.browsers.entrySet().iterator();
@@ -376,9 +375,22 @@ public class DataBrowserFactory
 	 */
 	static boolean hasRndSettingsToCopy()
 	{
-		return singleton.rndSettingsToCopy;
+		return singleton.rndSettingsToCopy != null;
 	}
     
+	/**
+	 * Returns <code>true</code> if the image to copy the rendering settings
+	 * from is in the specified group, <code>false</code> otherwise.
+	 * 
+	 * @param groupID The group to handle.
+	 * @return See above.
+	 */
+	static boolean areSettingsCompatible(long groupID)
+	{
+		if (!hasRndSettingsToCopy()) return false;
+		return singleton.rndSettingsToCopy.getGroupId() == groupID;
+	}
+	
 	/**
 	 * Returns the type of objects to copy or <code>null</code> if no objects
 	 * selected.
@@ -397,7 +409,7 @@ public class DataBrowserFactory
 	private DataBrowser					searchBrowser;
 	
 	/** Flag indicating if some rendering settings have been copied. */
-	private boolean						rndSettingsToCopy;
+	private ImageData rndSettingsToCopy;
 	
 	/** The type identifying the object to copy. */
 	private Class						dataToCopy;
@@ -408,7 +420,7 @@ public class DataBrowserFactory
 		browsers = new HashMap<Object, DataBrowser>();
 		discardedBrowsers = new HashSet<String>();
 		searchBrowser = null;
-		rndSettingsToCopy = false;
+		rndSettingsToCopy = null;
 		dataToCopy = null;
 	}
 	

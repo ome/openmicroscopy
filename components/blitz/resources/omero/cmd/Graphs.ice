@@ -43,6 +43,29 @@ module omero {
         class ChgrpRsp extends Response {
         };
 
+        /**
+         * Modifies the permissions settings for the given object.
+         * Most permission modifications will be quite fast and will
+         * specify this as returning a small number of steps in the
+         * status object. When lowering a READ setting, however, all
+         * existing data will need to be checked and there will be a
+         * minimum of one step per table in the database.
+         *
+         * At the moment, the only supported type is "/ExperimenterGroup".
+         *
+         **/
+        class Chmod extends GraphModify {
+
+            /**
+             * String representation of the permissions
+             * which should be set on the object.
+             **/
+            string permissions;
+        };
+
+        class ChmodRsp extends Response {
+        };
+
         class Chown extends GraphModify {
             long user;
         };

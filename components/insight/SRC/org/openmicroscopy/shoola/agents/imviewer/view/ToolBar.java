@@ -165,19 +165,19 @@ class ToolBar
      */
     private Icon getPermissionsIcon(GroupData g)
     {
-    	int level = 
-    		ImViewerAgent.getRegistry().getAdminService().getPermissionLevel(g);
     	IconManager icons = IconManager.getInstance();
-    	switch (level) {
-	    	case AdminObject.PERMISSIONS_PRIVATE:
+    	switch (g.getPermissions().getPermissionsLevel()) {
+	    	case GroupData.PERMISSIONS_PRIVATE:
 	    		return icons.getIcon(IconManager.PRIVATE_GROUP);
-	    	case AdminObject.PERMISSIONS_GROUP_READ:
+	    	case GroupData.PERMISSIONS_GROUP_READ:
 	    		return icons.getIcon(IconManager.READ_GROUP);
-	    	case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+	    	case GroupData.PERMISSIONS_GROUP_READ_LINK:
 	    		return icons.getIcon(IconManager.READ_LINK_GROUP);
-	    	case AdminObject.PERMISSIONS_PUBLIC_READ:
+	    	case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+	    		return icons.getIcon(IconManager.READ_WRITE_GROUP);
+	    	case GroupData.PERMISSIONS_PUBLIC_READ:
 	    		return icons.getIcon(IconManager.PUBLIC_GROUP);
-	    	case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+	    	case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 	    		return icons.getIcon(IconManager.PUBLIC_GROUP);
 		}
     	return null;

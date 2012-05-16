@@ -79,8 +79,8 @@ public class SecurityFilterHolder implements SecurityFilter {
         choose().disable(sess);
     }
 
-    public boolean passesFilter(Details d, EventContext c) {
-        return choose().passesFilter(d, c);
+    public boolean passesFilter(Session s, Details d, EventContext c) {
+        return choose().passesFilter(s, d, c);
     }
 
 }

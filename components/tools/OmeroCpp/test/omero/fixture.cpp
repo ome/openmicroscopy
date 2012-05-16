@@ -21,10 +21,6 @@ using namespace omero::api;
 using namespace omero::model;
 using namespace omero::rtypes;
 
-void stringHandler(std::string str) {
-  std::cout << "Handling:" << str << std::endl;
-}
-
 omero::model::ImagePtr new_ImageI()
 {
     omero::model::ImagePtr img = new omero::model::ImageI();

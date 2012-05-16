@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.metadata;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.AdminView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
@@ -40,6 +39,7 @@ import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Parent of all classes that load data asynchronously for a {@link Editor}.
@@ -100,11 +100,9 @@ public abstract class EditorLoader
     	ExperimenterData exp = MetadataViewerAgent.getUserDetails();
 		userID = viewer.getUserID();
 		groupID = exp.getDefaultGroup().getId();
-		int level = 
-		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-				case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+		switch (exp.getDefaultGroup().getPermissions().getPermissionsLevel()) {
+				case GroupData.PERMISSIONS_GROUP_READ_LINK:
+				case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 					userID = -1;
 		}
     }

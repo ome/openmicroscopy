@@ -68,16 +68,10 @@ class ProjectionUI
 	/** The UI component hosting the {@link ProjectionCanvas}. */
     private JLayeredPane			layeredPane;
     
-    /** 
-     * Flag indicating if the projection has already been done for the 
-     * first time. 
-     */
-    private boolean					init;
     
 	/** Initializes the components composing the display. */
     private void initComponents()
     {
-    	init = false;
         layeredPane = new JLayeredPane();
         if (ImViewerAgent.hasOpenGLSupport())
         	canvas = new ProjectionCanvas(model, view);
@@ -109,7 +103,6 @@ class ProjectionUI
 		if (model == null) throw new NullPointerException("No model.");
 		this.model = model;
 		this.view = view;
-		init = false;
 		initComponents();
 		buildGUI();
 	}

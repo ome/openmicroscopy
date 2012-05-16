@@ -53,11 +53,11 @@
 	    <!-- Group / User drop-down -->
         
 		<div id="groupsUsersButton" title="Switch Group/User">
-			<img  {% if active_group.getDetails.getPermissions.isGroupWrite %} src="{% static "webclient/image/nuvola_ledorange16.png" %}"
+			<img  {% if active_group.getDetails.getPermissions.isGroupAnnotate %} src="{% static "webclient/image/group_orange16.png" %}"
             {% else %}
-                {% if active_group.details.permissions.isGroupRead %} src="{% static "webclient/image/nuvola_ledorange_readOnly16.png" %}"
+                {% if active_group.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
                 {% else %}
-                    src="{% static "webclient/image/nuvola_ledred16.png" %}"
+                    src="{% static "webclient/image/personal16.png" %}"
                 {% endif %}
             {% endif %} />
 			<span>{{ active_group.name }}</span><span>{{ ome.user.getFullName }}</span>
@@ -68,11 +68,11 @@
                 <li title="Click to switch Group" {% ifequal grp.id eContext.context.groupId %}class="current_group"{% endifequal %}>
                     <a href="{% url change_active_group %}?active_group={{grp.id}}&url=/webclient/userdata" class="switch_to_group">
                         <img
-                        {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static "webclient/image/nuvola_ledorange16.png" %}"
+                        {% if grp.getDetails.getPermissions.isGroupAnnotate %} src="{% static "webclient/image/group_orange16.png" %}"
                         {% else %}
-                            {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/nuvola_ledorange_readOnly16.png" %}"
+                            {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
                             {% else %}
-                                src="{% static "webclient/image/nuvola_ledred16.png" %}"
+                                src="{% static "webclient/image/personal16.png" %}"
                             {% endif %}
                         {% endif %} />
                         {{ grp.getName }}
@@ -83,7 +83,7 @@
                             {% for user in grp.leaders %}
                                 <li {% ifequal user.id experimenter %}class="current_user"{% endifequal %}>
                                     <!-- if this user is in current group, we just switch user -->
-                                    {% ifequal grp.id eContext.context.groupId %}
+                                    {% ifequal grp.id active_group.id %}
                                     <a href="/webclient/userdata/?experimenter={{user.id}}">
                                     <!-- otherwise we switch group too -->
                                     {% else %}
@@ -99,7 +99,7 @@
                             <li class="non_selectable"><strong>Members</strong></li>
                             {% for user in grp.colleagues %}
                                 <li {% ifequal user.id experimenter %}class="current_user"{% endifequal %}>
-                                    {% ifequal grp.id eContext.context.groupId %}
+                                    {% ifequal grp.id active_group.id %}
                                     <a href="/webclient/userdata/?experimenter={{user.id}}">
                                     {% else %}
                                     <a href="{% url change_active_group %}?active_group={{grp.id}}&url=/webclient/userdata/?experimenter={{user.id}}">

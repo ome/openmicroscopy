@@ -13,6 +13,7 @@ logging.basicConfig(level=logging.WARN)
 
 import omero
 
+import omero.all
 import omero.grid.monitors as monitors
 from fsDropBoxMonitorClient import *
 from drivers import *
