@@ -682,6 +682,18 @@
                                     config["create"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
+                                } else if(obj.attr("id").indexOf("acquisition")>=0) {
+                                    config["ccp"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
+                                    config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                    config["basket"]["_disabled"] = true;
+                                    config["chgrp"]["_disabled"] = true;
+                                    config["create"]["_disabled"] = true;
+                                    config["create"]["submenu"]["project"]["_disabled"] = true;
+                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
+                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 } else {
                                     config["ccp"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
