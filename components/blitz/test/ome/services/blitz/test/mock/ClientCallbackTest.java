@@ -89,7 +89,7 @@ public class ClientCallbackTest extends MockObjectTestCase {
                     e.printStackTrace();
                 }
             }};
-            client.onHearbeat(r);
+            client.onHeartbeat(r);
             barrier.await(10, TimeUnit.SECONDS);
             assertEquals(0, barrier.getNumberWaiting());
             assertFalse(barrier.isBroken());
