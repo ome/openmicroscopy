@@ -242,10 +242,11 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
                 filter.encode(), getContextMapper());
     }
 
+    @Deprecated
     @RolesAllowed("system")
     @Transactional(readOnly = false)
     public void setDN(@NotNull Long experimenterID, String dn) {
-        sql.setUserDn(experimenterID, dn);
+        throw new ApiUsageException("No longer supported. Change the DN via LDAP");
     }
 
     @RolesAllowed("system")
@@ -500,19 +501,16 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     }
 
     public List<Map<String, Object>> lookupLdapAuthExperimenters() {
-        return sql.dnExperimenterMaps();
+        // FIXME8344
+        // need to load all experiments with ldap=true, and then
+        // map then to their DNs
+        return null;
     }
 
     public String lookupLdapAuthExperimenter(Long id) {
-        String s = null;
-
-        try {
-            s = sql.dnForUser(id);
-        } catch (EmptyResultDataAccessException e) {
-            s = null;
-        }
-
-        return s;
+        // FIXME8344
+        // see above
+        return null;
     }
 
     // Helpers
