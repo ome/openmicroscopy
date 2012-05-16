@@ -2395,7 +2395,7 @@ class _BlitzGateway (object):
         colleagues = []
         leaders = []
         default = self.getObject("ExperimenterGroup", gid)
-        if not default.isPrivate() or self.isLeader():
+        if not default.isPrivate() or self.isLeader() or self.isAdmin():
             for d in default.copyGroupExperimenterMap():
                 if d.child.id.val == userId:
                     continue
