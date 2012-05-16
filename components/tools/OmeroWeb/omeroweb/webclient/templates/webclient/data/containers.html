@@ -268,8 +268,10 @@
 
 
                 var buttonsShowHide = function(selected, inst) {
-                    var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
+                    var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 
+                        'paste': false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
                     
+                    var to_paste = inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes || false;
                     if(selected.length > 0) {
                         if(selected.hasClass('canDelete')) {
                             toolbar_config['delete'] = true;
@@ -284,8 +286,14 @@
                         } else if(selected.hasClass('canLink')) {
                             if(selected.attr("id").indexOf("project")>=0) {
                                 toolbar_config['adddataset'] = true;
+                                if (to_paste && to_paste[0].id.indexOf("dataset")>=0) {  // if wehave a dataset
+                                    toolbar_config['paste'] = true;                // allow paste
+                                }
                             } else if(selected.attr("id").indexOf("dataset")>=0) {
                                 toolbar_config['copy'] = true;
+                                if (to_paste && to_paste[0].id.indexOf("image")>=0) {
+                                    toolbar_config['paste'] = true;
+                                }
                                 if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
                                     toolbar_config["cut"] = true;
                                     toolbar_config["unlink"] = true;
@@ -297,13 +305,17 @@
                                     toolbar_config["copy"] = true;
                                     toolbar_config["unlink"] = true;
                                 }
+                            } else if(selected.attr("id").indexOf("screen")>=0) {
+                                if (to_paste && to_paste[0].id.indexOf("plate")>=0) {
+                                    toolbar_config['paste'] = true;
+                                }
                             } else if(selected.attr("id").indexOf("plate")>=0) {
                                 toolbar_config['copy'] = true;
                                 if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("experimenter") < 0) {
                                     toolbar_config["cut"] = true;
                                     toolbar_config["unlink"] = true;
                                 }
-                            } 
+                            }
                         }
                         if ((inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes) && ($.inArray(selected.attr('rel').replace("-locked", ""), ["project", "dataset", "screen"]) > -1)) {
                             toolbar_config['paste'] = true;
@@ -644,6 +656,7 @@
                                 config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                             } else {
                                 // otherwise the options depend on type of node...
+                                var to_paste = this.data.crrm.cp_nodes || this.data.crrm.ct_nodes || false;
                                 if(obj.attr("id").indexOf("project")>=0) {
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
@@ -651,15 +664,15 @@
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
-                                    if (!this.data.crrm.cp_nodes && !this.data.crrm.ct_nodes) {
-                                        config["ccp"]["submenu"]["paste"]["_disabled"] = true;
+                                    if (!(to_paste && to_paste[0].id.indexOf("dataset")>=0)) {  // if we don't have a dataset
+                                        config["ccp"]["submenu"]["paste"]["_disabled"] = true;  // disable paste
                                     }
                                 } else if(obj.attr("id").indexOf("dataset")>=0) {
                                     if (obj.parent().parent().attr('rel').indexOf('experimenter')>=0) {
                                         config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                         config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                     }
-                                    if (!this.data.crrm.cp_nodes && !this.data.crrm.ct_nodes) {
+                                    if (!(to_paste && to_paste[0].id.indexOf("image")>=0)) {
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     }
                                     config["create"]["_disabled"] = true;
@@ -683,7 +696,7 @@
                                     config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                     config["create"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
-                                    if (!this.data.crrm.cp_nodes && !this.data.crrm.ct_nodes) {
+                                    if (!(to_paste && to_paste[0].id.indexOf("plate")>=0)) {
                                         config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                     }
                                 } else if(obj.attr("id").indexOf("plate")>=0) {
