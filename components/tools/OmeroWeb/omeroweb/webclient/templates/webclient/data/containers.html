@@ -292,9 +292,9 @@
                                 }
                             } else if(selected.attr("id").indexOf("image")>=0) {
                                 toolbar_config['basket'] = true;
-                                toolbar_config['copy'] = true;
+                                toolbar_config['cut'] = true;
                                 if (selected.parent().parent().length > 0 && selected.parent().parent().attr('rel').replace("-locked", "").indexOf("orphaned") < 0) {
-                                    toolbar_config["cut"] = true;
+                                    toolbar_config["copy"] = true;
                                     toolbar_config["unlink"] = true;
                                 }
                             } else if(selected.attr("id").indexOf("plate")>=0) {
@@ -632,22 +632,19 @@
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 }
                             // if we DON'T have canLink, everything else is disabled
-                            } else if(!obj.hasClass('canLink')) {
+                            } else if(!obj.hasClass('canLink')) {   // this will include 'orphaned' node
                                 config["ccp"]["_disabled"] = true;
                                 config["create"]["_disabled"] = true;
                                 config["basket"]["_disabled"] = true;
                                 config["create"]["submenu"]["project"]["_disabled"] = true;
                                 config["create"]["submenu"]["dataset"]["_disabled"] = true;
                                 config["create"]["submenu"]["screen"]["_disabled"] = true;
+                                config["ccp"]["submenu"]["copy"]["_disabled"] = true;
+                                config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
+                                config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                             } else {
                                 // otherwise the options depend on type of node...
-                                if(obj.attr("id").indexOf("orphaned")>=0) {
-                                    config["delete"]["_disabled"] = true;
-                                    config["ccp"]["_disabled"] = true;
-                                    config["create"]["_disabled"] = true;
-                                    config["basket"]["_disabled"] = true;
-                                    config["chgrp"]["_disabled"] = true;
-                                } else if(obj.attr("id").indexOf("project")>=0) {
+                                if(obj.attr("id").indexOf("project")>=0) {
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
@@ -672,7 +669,7 @@
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("image")>=0) {
                                     if (obj.parent().parent().attr('rel').indexOf('orphaned')>=0) {
-                                        config["ccp"]["submenu"]["cut"]["_disabled"] = true;
+                                        config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                         config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                     }
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
