@@ -494,6 +494,21 @@
                             }
                         }
                     },
+                    "crrm" : {
+                        "move" : {
+                            "check_move" : function (m) {
+                                var p = this._get_parent(m.r);
+                                if(!p) return false;
+                                p = p == -1 ? this.get_container() : p;
+                                if ($.inArray(p.attr("rel").replace("-locked", ""), ["orphaned"]) > -1)
+                                    return false;
+                                if ($.inArray(m.r.attr("rel").replace("-locked", ""), ["orphaned"]) > -1)
+                                    return false;
+                                return true;
+                            }
+                        }
+                    },
+                    
                     // For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
                     // the UI plugin - it handles selecting/deselecting/hovering nodes
                     "ui" : {
