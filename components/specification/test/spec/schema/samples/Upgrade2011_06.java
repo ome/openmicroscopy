@@ -18,6 +18,12 @@
  */
 package spec.schema.samples;
 
+import ome.xml.model.enums.DimensionOrder;
+import ome.xml.model.enums.PixelType;
+import ome.xml.model.primitives.Color;
+import ome.xml.model.primitives.NonNegativeInteger;
+import ome.xml.model.primitives.PositiveInteger;
+
 /**
  * This class represents the sample file 2011-06/6x4y1z1t1c8b-swatch-upgrade.ome
  * 
@@ -31,14 +37,14 @@ public class Upgrade2011_06
      * This inner class holds all the string used by this file and the file location.
      * It is imported into the associated test class
      */
-    public class ref {
+    public static class ref {
         public static final String FILE_LOCATION = "/OmeFiles/2011-06/6x4y1z1t3c8b-swatch-upgrade.ome";
         public static final String Plate1Description = "Plate 1 Description";
-        public static final String Plate1Well1Column = "1";
-        public static final String Plate1Well1Row = "1";
+        public static final NonNegativeInteger Plate1Well1Column = NonNegativeInteger.valueOf("1");
+        public static final NonNegativeInteger Plate1Well1Row = NonNegativeInteger.valueOf("1");
         public static final String Plate1Well1Status = "TheWell1Status";
-        public static final String Plate1Well1Color = "-2147483648";
-        public static final String Plate1Well1WellSample1Index = "1";
+        public static final Color Plate1Well1Color = Color.valueOf("-2147483648");
+        public static final NonNegativeInteger Plate1Well1WellSample1Index = NonNegativeInteger.valueOf("1");
         public static final String Plate1PlateAcquisition1Description = "Plate Acquisition 1 Description";
         public static final String Screen1Name = "ScreenName1";
         public static final String Screen1ProtocolDescription = "Protocol Description Test1";
@@ -96,8 +102,8 @@ public class Upgrade2011_06
         "\t\t\tComplete with basic formatting, like new lines.";
         public static final String Instrument1Objective1LotNumber = "123";
         public static final String Instrument1Objective1Manufacturer = "OME-Labs";
-        public static final String Instrument1Objective1NominalMagnification = "20";
-        public static final String Instrument1Objective1CalibratedMagnification = "20.34";
+        public static final PositiveInteger Instrument1Objective1NominalMagnification = PositiveInteger.valueOf("20");
+        public static final Double Instrument1Objective1CalibratedMagnification = Double.valueOf(20.34);
         public static final String Instrument1Objective1OTF1Type = "bit";
         public static final String Instrument1Objective1OTF1OpticalAxisAveraged = "true";
         public static final String Instrument1Objective1OTF1SizeX = "1";
@@ -105,21 +111,21 @@ public class Upgrade2011_06
         public static final String Instrument1Objective1OTF1FileName = "dummy.dat";
         public static final String Image0Name = "6x6x1x8-swatch.tif";
         public static final String Image0AcquiredDate = "2010-02-23T12:51:30";
-        public static final String Image0Pixels0_0DimensionOrder = "XYCZT";
-        public static final String Image0Pixels0_0PhysicalSizeX = "10000.0";
-        public static final String Image0Pixels0_0PhysicalSizeY = "10000.0";
-        public static final String Image0Pixels0_0Type = "uint8";
-        public static final String Image0Pixels0_0SizeC = "3";
-        public static final String Image0Pixels0_0SizeT = "1";
-        public static final String Image0Pixels0_0SizeX = "6";
-        public static final String Image0Pixels0_0SizeY = "4";
-        public static final String Image0Pixels0_0SizeZ = "1";
+        public static final DimensionOrder Image0Pixels0_0DimensionOrder = DimensionOrder.XYCZT;
+        public static final Double Image0Pixels0_0PhysicalSizeX = Double.valueOf(10000.0);
+        public static final Double Image0Pixels0_0PhysicalSizeY = Double.valueOf(10000.0);
+        public static final PixelType Image0Pixels0_0Type = PixelType.UINT8;
+        public static final PositiveInteger Image0Pixels0_0SizeC = PositiveInteger.valueOf("3");
+        public static final PositiveInteger Image0Pixels0_0SizeT = PositiveInteger.valueOf("1");
+        public static final PositiveInteger Image0Pixels0_0SizeX = PositiveInteger.valueOf("6");
+        public static final PositiveInteger Image0Pixels0_0SizeY = PositiveInteger.valueOf("4");
+        public static final PositiveInteger Image0Pixels0_0SizeZ = PositiveInteger.valueOf("1");
         public static final String Image0Pixels0_0Channel0AcquisitionMode = "LaserScanningConfocalMicroscopy";
-        public static final String Image0Pixels0_0Channel0Color = "-1147483648";
+        public static final Color Image0Pixels0_0Channel0Color = Color.valueOf("-1147483648");
         public static final String Image0Pixels0_0Channel1AcquisitionMode = "LaserScanningConfocalMicroscopy";
-        public static final String Image0Pixels0_0Channel1Color = "-1474836488";
+        public static final Color Image0Pixels0_0Channel1Color = Color.valueOf("-1474836488");
         public static final String Image0Pixels0_0Channel2AcquisitionMode = "MultiPhotonMicroscopy";
-        public static final String Image0Pixels0_0Channel2Color = "-2144364811";
+        public static final Color Image0Pixels0_0Channel2Color = Color.valueOf("-2144364811");
         public static final String Annotation1Value = "<test1/>";
         public static final String Annotation2Value = "<test2/>";
         public static final String ROI1Shape1TheC = "0";
