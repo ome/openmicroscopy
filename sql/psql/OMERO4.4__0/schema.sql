@@ -613,6 +613,7 @@
         lastName varchar(255) not null,
         middleName varchar(255),
         omeName varchar(255) not null unique,
+        ldap bool, -- default set in footer
         version int4,
         external_id int8 unique,
         primary key (id)
@@ -638,6 +639,7 @@
         description text,
         permissions int8 not null,
         name varchar(255) not null unique,
+        ldap bool, -- default set in footer
         version int4,
         external_id int8 unique,
         primary key (id)
