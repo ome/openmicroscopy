@@ -59,8 +59,9 @@
     </type>
 
     <!-- OME model object Channel -->
-    <type id="ome.model.core.Channel" annotated="true" named="true" >
+    <type id="ome.model.core.Channel" annotated="true">
         <properties>
+            <optional name="name" type="String"/>
 	        <!-- inserted manually for now, so code can compile. -->
 	        <optional name="statsInfo" type="ome.model.core.StatsInfo"/>
             <!--
@@ -620,7 +621,7 @@
             // Property Wavelength
             -->
             <optional name="wavelength" type="PositiveInteger"/>
-            <manyone name="microbeamManipulation" type="ome.model.core.MicrobeamManipulation"/>
+            <manyzero name="microbeamManipulation" type="ome.model.core.MicrobeamManipulation"/>
         </properties>
     </type>
 
@@ -1059,8 +1060,9 @@
     </type>
 
     <!-- OME model object ROI -->
-    <type id="ome.model.roi.ROI" annotated="true" named="true" described="true">
+    <type id="ome.model.roi.ROI" annotated="true" described="true">
         <properties>
+            <optional name="name" type="String"/>
             <!--
             // Many-to-many back reference Image_BackReference
             -->

@@ -91,7 +91,7 @@
         emissionWavelength int4,
         excitationWavelength int4,
         fluor varchar(255),
-        name varchar(255) not null,
+        name varchar(255),
         ndFilter float8,
         pinholeSize float8,
         pockelCellSetting int4,
@@ -1173,7 +1173,7 @@
         owner_id int8 not null,
         update_id int8 not null,
         lightSource int8 not null,
-        microbeamManipulation int8 not null,
+        microbeamManipulation int8,
         primary key (id),
         check (attenuation >= 0 and attenuation <= 1 and wavelength > 0)
     );;
@@ -1806,7 +1806,7 @@
         id int8 not null,
         description text,
         permissions int8 not null,
-        name varchar(255) not null,
+        name varchar(255),
         namespace varchar(255),
         version int4,
         creation_id int8 not null,
