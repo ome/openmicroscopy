@@ -76,7 +76,6 @@ import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LightSourceData;
 import pojos.ObjectiveData;
-import pojos.PermissionData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
@@ -1042,13 +1041,6 @@ public class EditorUtil
     		ho instanceof String)
         	return false;
     	if (!(ho instanceof DataObject)) return false;
-    	/*
-    	DataObject data = (DataObject) ho;
-        PermissionData permissions = data.getPermissions();
-        if (userID == data.getOwner().getId())
-            return permissions.isUserRead();
-        return permissions.isGroupRead();
-        */
     	return true; //change in permissions.
     }
     
