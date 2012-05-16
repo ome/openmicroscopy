@@ -357,6 +357,7 @@
   CREATE INDEX i_channelbinding_group ON channelbinding(group_id);
   CREATE INDEX i_ChannelBinding_renderingDef ON channelbinding(renderingDef);
   CREATE INDEX i_ChannelBinding_family ON channelbinding(family);
+  CREATE INDEX i_ChannelBinding_color ON channelbinding(color);
   CREATE INDEX i_filterset_owner ON filterset(owner_id);
   CREATE INDEX i_filterset_group ON filterset(group_id);
   CREATE INDEX i_FilterSet_channels ON filterset(channels);
@@ -958,7 +959,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO4.4DEV',  3,    'OMERO4.4DEV',   3,             'Initializing');
+             values ('OMERO4.4DEV',  3,    'OMERO4.4DEV',   0,             'Initializing');
 
 --
 -- Here we will create the root account and the necessary groups
@@ -1788,7 +1789,7 @@ update dbpatch set message = 'Database ready.', finished = now()
   where currentVersion = 'OMERO4.4DEV' and
         currentPatch = 3 and
         previousVersion = 'OMERO4.4DEV' and
-        previousPatch = 3;
+        previousPatch = 0;
 
 COMMIT;
 

@@ -133,8 +133,8 @@
     create table channelbinding (
         id int8 not null,
         active bool not null,
-        color int4 not null,
         coefficient float8 not null,
+        color int4 not null,
         permissions int8 not null,
         inputEnd float8 not null,
         inputStart float8 not null,
@@ -1935,7 +1935,7 @@
         theT int4,
         theZ int4,
         version int4,
-        visibile bool,
+        visible bool,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
