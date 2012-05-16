@@ -18,10 +18,12 @@
  */
 package spec.schema.samples;
 
+import ome.xml.model.enums.AcquisitionMode;
 import ome.xml.model.enums.DimensionOrder;
 import ome.xml.model.enums.PixelType;
 import ome.xml.model.primitives.Color;
 import ome.xml.model.primitives.NonNegativeInteger;
+import ome.xml.model.primitives.NonNegativeLong;
 import ome.xml.model.primitives.PositiveInteger;
 
 /**
@@ -39,15 +41,15 @@ public class Upgrade2011_06
      */
     public static class ref {
         public static final String FILE_LOCATION = "/OmeFiles/2011-06/6x4y1z1t3c8b-swatch-upgrade.ome";
-        public static final String Plate1Description = "Plate 1 Description";
+        public static final String Plate0Description = "Plate 1 Description";
         public static final NonNegativeInteger Plate1Well1Column = NonNegativeInteger.valueOf("1");
         public static final NonNegativeInteger Plate1Well1Row = NonNegativeInteger.valueOf("1");
         public static final String Plate1Well1Status = "TheWell1Status";
         public static final Color Plate1Well1Color = Color.valueOf("-2147483648");
         public static final NonNegativeInteger Plate1Well1WellSample1Index = NonNegativeInteger.valueOf("1");
         public static final String Plate1PlateAcquisition1Description = "Plate Acquisition 1 Description";
-        public static final String Screen1Name = "ScreenName1";
-        public static final String Screen1ProtocolDescription = "Protocol Description Test1";
+        public static final String Screen0Name = "ScreenName1";
+        public static final String Screen0ProtocolDescription = "Protocol Description Test1";
         public static final String Screen1ProtocolIdentifier = "ProtocolTest1ID";
         public static final String Screen1ReagentSetDescription = "Reagents Set XYZ";
         public static final String Screen1ReagentSetIdentifier = "ReagentsXYZ-ID";
@@ -74,41 +76,41 @@ public class Upgrade2011_06
         public static final String Screen4ReagentSetIdentifier = "ReagentsAJP-ID";
         public static final String Screen4Type = "ScreenType4";
         public static final String Screen4Description = "Screen 4 Description";
-        public static final String Experimenter1DisplayName = "Joe Bloggs";
-        public static final String Experimenter2DisplayName = "John Smith";
-        public static final String Experimenter2FirstName = "John";
-        public static final String Experimenter2MiddleName = "Andrew";
-        public static final String Experimenter2LastName = "Smith";
-        public static final String Experimenter2Email = "john@example.org";
-        public static final String Experimenter3DisplayName = "Jane Bloggs";
-        public static final String Experimenter4DisplayName = "Jack Bloggs";
-        public static final String Experimenter5DisplayName = "Julian Bloggs";
-        public static final String Experimenter6DisplayName = "Jeffery Bloggs";
-        public static final String Experimenter7DisplayName = "Jake Bloggs";
-        public static final String Group1Name = "MyGroup - Leader+Contact match";
-        public static final String Group1Description = "A description for my group 1.\n"+
+        public static final String Experimenter0DisplayName = "Joe Bloggs";
+        public static final String Experimenter1DisplayName = "John Smith";
+        public static final String Experimenter1FirstName = "John";
+        public static final String Experimenter1MiddleName = "Andrew";
+        public static final String Experimenter1LastName = "Smith";
+        public static final String Experimenter1Email = "john@example.org";
+        public static final String Experimenter2DisplayName = "Jane Bloggs";
+        public static final String Experimenter3DisplayName = "Jack Bloggs";
+        public static final String Experimenter4DisplayName = "Julian Bloggs";
+        public static final String Experimenter5DisplayName = "Jeffery Bloggs";
+        public static final String Experimenter6DisplayName = "Jake Bloggs";
+        public static final String Group0Name = "MyGroup - Leader+Contact match";
+        public static final String Group0Description = "A description for my group 1.\n"+
         "\t\t\tComplete with basic formatting, like new lines.";
-        public static final String Group2Name = "MyOtherGroup";
-        public static final String Group2Description = "A description for my group 2.\n"+
+        public static final String Group1Name = "MyOtherGroup";
+        public static final String Group1Description = "A description for my group 2.\n"+
         "\t\t\tComplete with basic formatting, like new lines.";
-        public static final String Group3Name = "NoMatch";
-        public static final String Group3Description = "A description for my group 3.\n"+
+        public static final String Group2Name = "NoMatch";
+        public static final String Group2Description = "A description for my group 3.\n"+
         "\t\t\tComplete with basic formatting, like new lines.";
-        public static final String Group4Name = "LeaderMatch";
-        public static final String Group4Description = "A description for my group 4.\n"+
+        public static final String Group3Name = "LeaderMatch";
+        public static final String Group3Description = "A description for my group 4.\n"+
         "\t\t\tComplete with basic formatting, like new lines.";
-        public static final String Group5Name = "ContactMatch";
-        public static final String Group5Description = "A description for my group 5.\n"+
+        public static final String Group4Name = "ContactMatch";
+        public static final String Group4Description = "A description for my group 5.\n"+
         "\t\t\tComplete with basic formatting, like new lines.";
-        public static final String Instrument1Objective1LotNumber = "123";
-        public static final String Instrument1Objective1Manufacturer = "OME-Labs";
-        public static final PositiveInteger Instrument1Objective1NominalMagnification = PositiveInteger.valueOf("20");
-        public static final Double Instrument1Objective1CalibratedMagnification = Double.valueOf(20.34);
-        public static final String Instrument1Objective1OTF1Type = "bit";
-        public static final String Instrument1Objective1OTF1OpticalAxisAveraged = "true";
-        public static final String Instrument1Objective1OTF1SizeX = "1";
-        public static final String Instrument1Objective1OTF1SizeY = "1";
-        public static final String Instrument1Objective1OTF1FileName = "dummy.dat";
+        public static final String Instrument0Objective0LotNumber = "123";
+        public static final String Instrument0Objective0Manufacturer = "OME-Labs";
+        public static final PositiveInteger Instrument0Objective0NominalMagnification = PositiveInteger.valueOf("20");
+        public static final Double Instrument0Objective0CalibratedMagnification = Double.valueOf(20.34);
+        public static final String Instrument0Objective0OTF1Type = "bit";
+        public static final String Instrument0Objective0OTF1OpticalAxisAveraged = "true";
+        public static final String Instrument0Objective0OTF1SizeX = "1";
+        public static final String Instrument0Objective0OTF1SizeY = "1";
+        public static final String Instrument0Objective0OTF1FileName = "dummy.dat";
         public static final String Image0Name = "6x6x1x8-swatch.tif";
         public static final String Image0AcquiredDate = "2010-02-23T12:51:30";
         public static final DimensionOrder Image0Pixels0_0DimensionOrder = DimensionOrder.XYCZT;
@@ -120,12 +122,18 @@ public class Upgrade2011_06
         public static final PositiveInteger Image0Pixels0_0SizeX = PositiveInteger.valueOf("6");
         public static final PositiveInteger Image0Pixels0_0SizeY = PositiveInteger.valueOf("4");
         public static final PositiveInteger Image0Pixels0_0SizeZ = PositiveInteger.valueOf("1");
-        public static final String Image0Pixels0_0Channel0AcquisitionMode = "LaserScanningConfocalMicroscopy";
+        public static final AcquisitionMode Image0Pixels0_0Channel0AcquisitionMode = AcquisitionMode.LASERSCANNINGCONFOCALMICROSCOPY;
         public static final Color Image0Pixels0_0Channel0Color = Color.valueOf("-1147483648");
-        public static final String Image0Pixels0_0Channel1AcquisitionMode = "LaserScanningConfocalMicroscopy";
+        public static final AcquisitionMode Image0Pixels0_0Channel1AcquisitionMode = AcquisitionMode.LASERSCANNINGCONFOCALMICROSCOPY;
         public static final Color Image0Pixels0_0Channel1Color = Color.valueOf("-1474836488");
-        public static final String Image0Pixels0_0Channel2AcquisitionMode = "MultiPhotonMicroscopy";
+        public static final AcquisitionMode Image0Pixels0_0Channel2AcquisitionMode = AcquisitionMode.MULTIPHOTONMICROSCOPY;
         public static final Color Image0Pixels0_0Channel2Color = Color.valueOf("-2144364811");
+        public static final NonNegativeLong Image0Pixels0_0Bindata0Length = NonNegativeLong.valueOf("32");
+        public static final Boolean Image0Pixels0_0Bindata0BigEndian = Boolean.FALSE;
+        public static final NonNegativeLong Image0Pixels0_0Bindata1Length = NonNegativeLong.valueOf("32");
+        public static final Boolean Image0Pixels0_0Bindata1BigEndian = Boolean.FALSE;
+        public static final NonNegativeLong Image0Pixels0_0Bindata2Length = NonNegativeLong.valueOf("32");
+        public static final Boolean Image0Pixels0_0Bindata2BigEndian = Boolean.FALSE;
         public static final String Annotation1Value = "<test1/>";
         public static final String Annotation2Value = "<test2/>";
         public static final String ROI1Shape1TheC = "0";
