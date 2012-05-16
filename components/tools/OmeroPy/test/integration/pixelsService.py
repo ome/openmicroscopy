@@ -19,7 +19,7 @@ class TestPixelsService(lib.ITest):
         pixelsService = self.client.sf.getPixelsService()
         queryService = self.client.sf.getQueryService()
 
-        pixelsType = queryService.findByQuery("from PixelsType as p where p.value='int8'", None)
+        pixelsType = queryService.findByQuery("from PixelType as p where p.value='int8'", None)
         self.assertTrue(pixelsType is not None)
 
         sizeX = 1

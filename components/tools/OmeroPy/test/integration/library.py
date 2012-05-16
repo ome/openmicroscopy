@@ -204,10 +204,10 @@ class ITest(unittest.TestCase):
             return x
 
         pType = "int16"
-        # look up the PixelsType object from DB
-        pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+        # look up the PixelType object from DB
+        pixelsType = queryService.findByQuery("from PixelType as p where p.value='%s'" % pType, None) # omero::model::PixelType
         if pixelsType == None and pType.startswith("float"):    # e.g. float32
-            pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % "float", None) # omero::model::PixelsType
+            pixelsType = queryService.findByQuery("from PixelType as p where p.value='%s'" % "float", None) # omero::model::PixelType
         if pixelsType == None:
             print "Unknown pixels type for: " % pType
             raise "Unknown pixels type for: " % pType
@@ -219,7 +219,7 @@ class ITest(unittest.TestCase):
         imageId = iId.getValue()
         image = containerService.getImages("Image", [imageId], None)[0]
 
-        pixelsId = image.getPrimaryPixels().getId().getValue()
+        pixelsId = image.getPixels().getId().getValue()
         rawPixelStore.setPixelsId(pixelsId, True)
 
         colourMap = {0: (0,0,255,255), 1:(0,255,0,255), 2:(255,0,0,255), 3:(255,0,255,255)}
@@ -427,7 +427,7 @@ class ITest(unittest.TestCase):
         pixels.sizeC = rint(c)
         pixels.sizeT = rint(t)
         pixels.sha1 = rstring("")
-        pixels.pixelsType = omero.model.PixelsTypeI()
+        pixels.pixelsType = omero.model.PixelTypeI()
         pixels.pixelsType.value = rstring("int8")
         pixels.dimensionOrder = omero.model.DimensionOrderI()
         pixels.dimensionOrder.value = rstring("XYZCT")
@@ -437,7 +437,7 @@ class ITest(unittest.TestCase):
             client = self.client
         update = client.sf.getUpdateService()
         image = update.saveAndReturnObject(image)
-        pixels = image.getPrimaryPixels()
+        pixels = image.getPixels()
         return pixels
 
     def write(self, pix, rps):

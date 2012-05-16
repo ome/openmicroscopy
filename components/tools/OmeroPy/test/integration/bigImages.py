@@ -47,7 +47,7 @@ class TestFigureExportScripts(lib.ITest):
         print "sizeX", sizeX, "sizeY", sizeY
         image = self.createTestImage(sizeX, sizeY, sizeZ, sizeC, sizeT)
         print "Image ID", image.getId().getValue()
-        pixelsId = image.getPrimaryPixels().id.val
+        pixelsId = image.getPixels().id.val
         
         renderingEngine = session.createRenderingEngine()
         renderingEngine.lookupPixels(pixelsId)
