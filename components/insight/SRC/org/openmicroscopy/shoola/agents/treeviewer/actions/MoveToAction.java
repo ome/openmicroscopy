@@ -99,7 +99,7 @@ public class MoveToAction
         putValue(Action.SMALL_ICON, icon);
         putValue(Action.SHORT_DESCRIPTION, UIUtilities.formatToolTipText(desc));
 	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -112,10 +112,10 @@ public class MoveToAction
 		if (group == null)
 			throw new IllegalArgumentException("No group.");
 		this.group = group;
-		setEnabled(true);
 		name = group.getName()+"...";
 		putValue(Action.NAME, name);
 		setPermissions();
+		setEnabled(true);
 	}
 
 	/**

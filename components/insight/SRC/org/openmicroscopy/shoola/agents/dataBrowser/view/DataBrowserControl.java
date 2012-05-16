@@ -77,8 +77,10 @@ import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 
 /** 
  * The DataBrowser's Controller.
@@ -342,7 +344,11 @@ class DataBrowserControl
 			while (j.hasNext()) {
 				o = j.next();
 				if (o instanceof DataObject) {
-					if (model.canChgrp(o)) count++;
+					if (!(o instanceof GroupData ||
+						o instanceof ExperimenterData ||
+						o instanceof PlateAcquisitionData)) {
+						if (model.canChgrp(o)) count++;
+					}
 				}
 			}
 			if (count != selection.size()) return null;
