@@ -139,7 +139,7 @@
                 var confirm_remove = confirm_dialog(removeTxt,
                     function() {
                         if (confirm_remove.data('clicked_button') == "OK") {
-                            if (images.length > 0) tree.move_node(images,$("li#orphaned-0"))
+                            if (images.length > 0) tree.move_node(images,$("li#orphaned-0"), undefined, undefined, false, true);
                             if (datasets.length > 0) tree.move_node(datasets, $("li#experimenter-0"));
                             if (plates.length > 0) tree.move_node(plates, $("li#experimenter-0"));
                         }
@@ -499,10 +499,11 @@
                             "check_move" : function (m) {
                                 var p = this._get_parent(m.r);
                                 if(!p) return false;
-                                p = p == -1 ? this.get_container() : p;
-                                if ($.inArray(p.attr("rel").replace("-locked", ""), ["orphaned"]) > -1)
-                                    return false;
+                                if (p == -1) return true;
+                                console.log(p,m, p.attr("rel"), m.r.attr("rel"))
                                 if ($.inArray(m.r.attr("rel").replace("-locked", ""), ["orphaned"]) > -1)
+                                    return false;
+                                if ($.inArray(p.attr("rel").replace("-locked", ""), ["orphaned"]) > -1)
                                     return false;
                                 return true;
                             }
