@@ -1968,7 +1968,12 @@ create index eventlog_entitytype on eventlog(entitytype);
 create index eventlog_entityid on eventlog(entityid);
 create index eventlog_action on eventlog(action);
 
-create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash char(24), dn text );
+-- Security items
+
+alter table experimenter      alter column ldap set default false;
+alter table experimentergroup alter column ldap set default false;
+
+create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash char(24) );
 insert into password values (0,'@ROOTPASS@');
 insert into password values (1,'');
 -- root can now login with omero.rootpass property value
