@@ -205,17 +205,17 @@ class ITest(unittest.TestCase):
 
         pType = "int16"
         # look up the PixelType object from DB
-        pixelsType = queryService.findByQuery("from PixelType as p where p.value='%s'" % pType, None) # omero::model::PixelType
-        if pixelsType == None and pType.startswith("float"):    # e.g. float32
-            pixelsType = queryService.findByQuery("from PixelType as p where p.value='%s'" % "float", None) # omero::model::PixelType
-        if pixelsType == None:
+        pixelType = queryService.findByQuery("from PixelType as p where p.value='%s'" % pType, None) # omero::model::PixelType
+        if pixelType == None and pType.startswith("float"):    # e.g. float32
+            pixelType = queryService.findByQuery("from PixelType as p where p.value='%s'" % "float", None) # omero::model::PixelType
+        if pixelType == None:
             print "Unknown pixels type for: " % pType
             raise "Unknown pixels type for: " % pType
 
         # code below here is very similar to combineImages.py
         # create an image in OMERO and populate the planes with numpy 2D arrays
         channelList = range(1, sizeC+1)
-        iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, "testImage", "description")
+        iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelType, "testImage", "description")
         imageId = iId.getValue()
         image = containerService.getImages("Image", [imageId], None)[0]
 
@@ -427,17 +427,16 @@ class ITest(unittest.TestCase):
         pixels.sizeC = rint(c)
         pixels.sizeT = rint(t)
         pixels.sha1 = rstring("")
-        pixels.pixelsType = omero.model.PixelTypeI()
-        pixels.pixelsType.value = rstring("int8")
+        pixels.type = omero.model.PixelTypeI()
+        pixels.type.value = rstring("int8")
         pixels.dimensionOrder = omero.model.DimensionOrderI()
         pixels.dimensionOrder.value = rstring("XYZCT")
-        image.addPixels(pixels)
+        image.setPixels(pixels)
 
         if client is None:
             client = self.client
         update = client.sf.getUpdateService()
-        image = update.saveAndReturnObject(image)
-        pixels = image.getPixels()
+        pixels = update.saveAndReturnObject(pixels)
         return pixels
 
     def write(self, pix, rps):
