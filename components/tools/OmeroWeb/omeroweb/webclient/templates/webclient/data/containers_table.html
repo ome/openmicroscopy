@@ -24,7 +24,11 @@
 {% endcomment %}
 
     <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
+	
+	<!--[if lte IE 8]>
+		<link rel="stylesheet" type="text/css" href={% static "webgateway/css/ome.table_ie.css" %}" />
+	<![endif]-->
+	
     
     <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
@@ -43,17 +47,43 @@
                 }
             });
         };
+        
+        var update_tree_selection = function() {
+            var datatree = $.jstree._focused();
+            var toSelectIds = new Array();
+            $("#dataTable tr.ui-selected").each(function(i){
+                var iId = $(this).attr('id').split("-")[1];
+                toSelectIds[i] = "image-"+iId;
+            });
+            // find the matching child nodes from the tree
+            var parent_id = $('#image_table').attr('rel');
+            var $children = datatree._get_children('#'+parent_id);
+            var toSelect = $children.filter(function(index) {
+                return ($.inArray($(this).attr('id'),toSelectIds)!=-1);
+            });
+
+            // we want to manually select a bunch of nodes, firing only a single selection event (when we're done)
+            datatree.data.ui.selected.children("a").removeClass("jstree-clicked");
+            // choose the first of our selection
+            var $first = toSelect.first();
+            toSelect = toSelect.slice(1);   // the rest
+            // manually select all apart from the first
+            datatree.data.ui.selected = toSelect;
+            toSelect.children("a").addClass("jstree-clicked");
+            // select the first (triggers selection event)
+            datatree.select_node($first);
+        }
 
         $(document).ready(function(){
 
             // when the jstree removes objects from the tree, handle each object...
-            $("#dataTree").one("remove.jstree", handleRemove});
+            $("#dataTree").one("remove.jstree", handleRemove);
             
             var datatree = $.jstree._focused();
 
             // double-click handler on image - launches image viewer
             $("table#dataTable tbody tr").dblclick(function(event) {
-                openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
+                openPopup("{% url webgateway_full_viewer 0 %}".replace('0', parseInt( $(this).attr('id') )));
             });
 
             // single click handler on image (container). Selection then update toolbar & metadata pane
@@ -62,6 +92,8 @@
             });
 
             // handles selection for 'clicks' (not drags) including multi-select for shift and meta keys
+            // We indicate selection with "ui-selected" class, then update tree in one go, using ids
+            // in case the order in the table is not the same as in the tree.
             var handleClickSelection = function(event) {
 
                 var $clickedRow = $(event.target).parents('tr:first');
@@ -70,37 +102,25 @@
                 var rows = $("table#dataTable tbody tr");
                 var $images = $("table#dataTable tbody tr td img");
 
-                //rows.css('background', 'green');
-                //$clickedRow.css('background', 'red');
-
                 var primaryIndex = -1;
-                var lastSelected = datatree.data.ui.last_selected
+                var lastSelected = datatree.data.ui.last_selected;
                 if (lastSelected && (lastSelected.length > 0)) {
-                    primaryIndex = rows.index($('#dataTable tr#'+ lastSelected.attr('id').split('-')[1]).get(0));
+                    var img_id = lastSelected.attr('id').split('-')[1];
+                    var $row = $('#image_row-'+ img_id);
+                    primaryIndex = rows.index($row.get(0));
                 }
                 
                 var selIndex = rows.index($clickedRow.get(0));
 
                 if ( event.shiftKey ) {
                     // user tried to select a range, but we don't have a first selection yet...
-                    //if ( primaryIndex == -1 ) {
-                    //    primaryIndex = selIndex;
-                    //    $clickedImage.parent().addClass("ui-selected");
-                    //    return;
-                    //}
-                    // select range
-                    //var start = Math.min(primaryIndex,selIndex);
-                    //var end = Math.max(primaryIndex,selIndex);
-                    //thumbs.slice(start, end+1).parent().addClass("ui-selected");
-
-                    var branch = datatree._get_children('#'+$('#content_details').attr('rel'));
+                    var branch = datatree._get_children('#'+$('#image_table').attr('rel'));
 
                     if ( primaryIndex == -1 ) {
                         primaryIndex = selIndex;
                         var selectee = $(branch[selIndex]);
                         if(!datatree.is_selected(selectee)) {
                             $clickedRow.addClass("ui-selected");
-                            datatree.select_node(selectee);
                         }
                         return;
                     }
@@ -111,52 +131,37 @@
                     rows.slice(start, end+1).addClass("ui-selected");
                     for (var i = start; i< end+1; i++) {
                         var selectee = $(branch[i]);
-                        if(!datatree.is_selected(selectee)) datatree.select_node(selectee);
                     }
 
                 }
                 else if (event.metaKey) {
                     // user wants to add a single image to selection
-                    //if ( primaryIndex == -1 ) {
-                    //    primaryIndex = selIndex;
-                    //}
-                    //$clickedImage.parent().addClass("ui-selected");
-
-                    // user wants to add a single image to selection
                     if ( primaryIndex == -1 ) {
                         primaryIndex = selIndex;
                     }
 
-                    var branch = datatree._get_children('#'+$('#content_details').attr('rel'))
+                    var branch = datatree._get_children('#'+$('#image_table').attr('rel'))
                     var selectee = $(branch[selIndex]);
 
                     if(!datatree.is_selected(selectee)) {
                         $clickedRow.addClass("ui-selected");
-                        datatree.select_node(selectee);
                     } else {
                         $clickedRow.removeClass("ui-selected");
-                        datatree.deselect_node(selectee);
                     }
                 }
                 else {
                     // regular click - remove selection
-                    //thumbs.parent().removeClass("ui-selected");
-                    //$("#dataIcons li input").each(function(){
-                    //    this.checked = false;
-                    //});
-                    // and select a single image
-                    //$clickedImage.parent().addClass("ui-selected");
-                    //primaryIndex = selIndex;
                     datatree.deselect_all();
                     rows.removeClass("ui-selected");
 
-                    var branch = datatree._get_children('#'+$('#content_details').attr('rel'))
+                    var branch = datatree._get_children('#'+$('#image_table').attr('rel'))
                     var selectee = $(branch[selIndex]);
                     $clickedRow.addClass("ui-selected");
-                    if(!datatree.is_selected(selectee)) datatree.select_node(selectee);
                     primaryIndex = selIndex;
 
                 }
+                // finally, apply all the changes to the tree
+                update_tree_selection();
             }
 
             // plugin to handle drag-select of images
@@ -164,17 +169,8 @@
                 filter: 'tr',
                 distance: 2,
                 stop: function(){
-                    var toSelect = new Array();
-                    $("tr.ui-selected", this).each(function(i){
-                        toSelect[i] = "image-"+$(this).attr('id');
-                    });
-
-                    datatree.deselect_all();
-                    datatree._get_children('#'+$('#content_details').attr('rel')).each(function(){
-                        if($.inArray($(this).attr('id'),toSelect)!=-1) {
-                            if(!datatree.is_selected(this)) datatree.select_node(this);
-                        }
-                    });
+                    // get the image ids from the rows
+                    update_tree_selection();
                 },
                 start: function(){
                 }
@@ -191,31 +187,27 @@
 
 {% if manager.containers.images %}
 
-    <div id="toolbar" class="toolbar_noborder" rel="table">
-        <input onclick="changeView('icon',{{ manager.paging.page|default:"1" }});" class="button" type="image" src="{% static "webclient/image/view_icon16.png" %}" alt="Change view to icon" title="Change view to icon">
-    </div>
-    <div class="clear"> </div>
-    
-    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
-    
+    <!--
+    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
+    --> 
+	
     <table id="dataTable" class="tablesorter">
         <thead> 
             <tr> 
-                <th class="action">{% trans "Image" %}</th> 
-                <th class="desc">{% trans "Name" %}</th> 
-                <th class="roles">{% trans "Date" %}</th> 
+                <th class="table_images">{% trans "Images" %}</th> 
+                <th class="table_desc">{% trans "Name" %}</th> 
+                <th class="table_date">{% trans "Date" %}</th> 
             </tr> 
         </thead>
         <tbody>
             {% for c in manager.containers.images %}
-                <tr id="{{ c.id }}" {% if not c.isOwned %}{% if eContext.isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
-                    <td class="action">
-                        {% comment %}<img src="{% url render_thumbnail_resize 32 c.id  %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>{% endcomment %}
-                        <img src="{% static "webclient/image/image16.png" %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+                <tr id="image_row-{{ c.id }}" {% if not c.isOwned %}{% if isLeader %}class="editonly"{% else %}class="readonly"{% endif %}{% endif %}>
+                    <td class="image">
+                        <img src="{% static "webclient/image/image16.png" %}" id="{{ c.id }}" alt="image" alt="image" title="{{ c.name }}, owned by {{ c.getOwner.getNameWithInitial }}"/>
                         <input type="checkbox" name="image" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
-                    <td class="roles">{{ c.getDate }}</td>                    
+                    <td class="date">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
         </tbody>
@@ -226,5 +218,9 @@
     {% include "webclient/data/container_paging.html" %}
     
 {% else %}
-    <p>{% trans "No images." %}</p>
+
+    <p class="center_message no_data">
+		{% trans "No images." %}
+	</p>
+	
 {% endif %}

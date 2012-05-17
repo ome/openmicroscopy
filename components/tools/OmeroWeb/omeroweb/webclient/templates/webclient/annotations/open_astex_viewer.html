@@ -26,7 +26,7 @@
 {% endblock %}
 
 {% block link %}
-    {{ block.super }}
+    
     <style type="text/css">
         /*
 		back:	rgb(230,230,230)
@@ -202,18 +202,6 @@
             window.status = command;
         };
 
-        // depending on whether the map is 'raw' data or '8bit' we have to convert slider value (raw) before applying
-        function av_map_level(sliderVal){
-            var oavContourVal = sliderVal;
-            if ($(".current").attr('id') == "loadCompressed") {
-                dataOffset = {{ pixelRange.0 }};
-                mapPixelFactor = 255.0 / ({{ pixelRange.1 }} - {{ pixelRange.0 }});
-                mapOffset = -127;
-                oavContourVal = (( (sliderVal - dataOffset) * mapPixelFactor )) + mapOffset;
-            }
-            var command = "map mapA -level " + oavContourVal + ";map mapA -reread true;";
-            execute_oav_command(command);
-        }
 
         var resizeOav = function() {
             $("#oavDiv").width($(window).width() - 200);
@@ -226,26 +214,43 @@
             
             $(window).resize(resizeOav);
 
-            var s2 = new Slider(document.getElementById("slider-2"), document.getElementById("slider-input-2"));
+            {% if contourSliderInit %}
+            // we may not have contourSliderInit, E.g. if map from file
 
-            s2.setMinMax({{ pixelRange.0|floatformat:4 }},{{ pixelRange.1|floatformat:4 }});
-            s2.setValue({{ contourSliderInit }}); // best guess is average of min & max
-            s2.setUnitIncrement({{ contourSliderIncr }});
-            s2.setBlockIncrement( {{ contourSliderIncr }});
-            document.getElementById("h-min-2").innerHTML = s2.getMinimum();
-            document.getElementById("h-max-2").innerHTML = s2.getMaximum();
-            document.getElementById("h-value-2").innerHTML = "("+ s2.getValue() + ")";
+                // depending on whether the map is 'raw' data or '8bit' we have to convert slider value (raw) before applying
+                function av_map_level(sliderVal){
+                    var oavContourVal = sliderVal;
+                    if ($(".current").attr('id') == "loadCompressed") {
+                        dataOffset = {{ pixelRange.0 }};
+                        mapPixelFactor = 255.0 / ({{ pixelRange.1 }} - {{ pixelRange.0 }});
+                        mapOffset = -127;
+                        oavContourVal = (( (sliderVal - dataOffset) * mapPixelFactor )) + mapOffset;
+                    }
+                    var command = "map mapA -level " + oavContourVal + ";map mapA -reread true;";
+                    execute_oav_command(command);
+                }
 
-            // Update the slider values only on onchange
-            s2.onchange = function () {
+                var s2 = new Slider(document.getElementById("slider-2"), document.getElementById("slider-input-2"));
+
+                s2.setMinMax({{ pixelRange.0|floatformat:4 }},{{ pixelRange.1|floatformat:4 }});
+                s2.setValue({{ contourSliderInit }}); // best guess is average of min & max
+                s2.setUnitIncrement({{ contourSliderIncr }});
+                s2.setBlockIncrement( {{ contourSliderIncr }});
+                document.getElementById("h-min-2").innerHTML = s2.getMinimum();
+                document.getElementById("h-max-2").innerHTML = s2.getMaximum();
                 document.getElementById("h-value-2").innerHTML = "("+ s2.getValue() + ")";
-                return false;
-            };
 
-            // Do functional update on doupdate - (onmouseup and onkeyup events)
-            s2.doupdate = function () {
-                av_map_level(s2.getValue());
-            };
+                // Update the slider values only on onchange
+                s2.onchange = function () {
+                    document.getElementById("h-value-2").innerHTML = "("+ s2.getValue() + ")";
+                    return false;
+                };
+
+                // Do functional update on doupdate - (onmouseup and onkeyup events)
+                s2.doupdate = function () {
+                    av_map_level(s2.getValue());
+                };
+            {% endif %}
             
             // toggle between solid and wire-frame
             $("input[name='solidWire']").click(function() {
@@ -296,6 +301,7 @@
                 <input type="radio" name="solidWire" value="wire" /> Wire Frame
             </div>
             <hr />
+            {% if contourSliderInit %}
             Contour Level:
             <div class="slider" id="slider-2" tabIndex="1">
                 <input class="slider-input" id="slider-input-2"/>
@@ -303,10 +309,14 @@
                 <div class="aligncenter" id="h-value-2"> </div>
                 <div class="alignright" id="h-max-2"></div>
             </div>
+            {% endif %}
         </form>
             <div style="clear:both"></div>
         <!--    {% if pixelRange %} ({{ pixelRange.0|floatformat:4 }} - {{ pixelRange.1|floatformat:4 }}) {% endif %} -->
             <hr />
+
+        <!-- form only valid if data is from an image -->
+        {% if image %}
         <form onsubmit="return false">
             Map Size: {{ image.getSizeX }} x {{ image.getSizeY }} x {{ image.getSizeZ }}
             {% if sizeOptions.small %}
@@ -357,6 +367,8 @@
         </form>
         <div style="clear:both"></div>
         <hr />
+        <!-- form above only shown if image -->
+        {% endif %}
 
         <div class="controlsInfo">
         Controls:

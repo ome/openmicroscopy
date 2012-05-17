@@ -34,9 +34,12 @@ import omero.config
 import omero.clients
 import tempfile
 import exceptions
+import re
 
 from django.utils import simplejson as json
 from portalocker import LockException
+
+logger = logging.getLogger(__name__)
 
 # LOGS
 # NEVER DEPLOY a site into production with DEBUG turned on.
@@ -62,7 +65,6 @@ if not os.path.isdir(LOGDIR):
 # DEBUG: Never deploy a site into production with DEBUG turned on.
 # Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
 # FORMAT: 2010-01-01 00:00:00,000 INFO  [omeroweb.webadmin.webadmin_utils        ] (proc.1308 ) getGuestConnection:20 Open connection is not available
-
 
 LOGGING = {
     'version': 1,
@@ -118,9 +120,6 @@ LOGGING = {
     }
 }
 
-logger = logging.getLogger(__name__)
-
-
 # Load custom settings from etc/grid/config.xml
 # Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
 from omero.util.concurrency import get_event
@@ -135,15 +134,17 @@ while True:
         CONFIG_XML.close()
         break
     except LockException:
-        logger.error("Exception while loading configuration retrying...", exc_info=True)
+        #logger.error("Exception while loading configuration retrying...", exc_info=True)
+        exctype, value = sys.exc_info()[:2]
         count -= 1
         if not count:
-            raise
+            raise exctype, value
         else:
             event.wait(1) # Wait a total of 10 seconds
     except:
-        logger.error("Exception while loading configuration...", exc_info=True)
-        raise
+        #logger.error("Exception while loading configuration...", exc_info=True)
+        exctype, value = sys.exc_info()[:2]
+        raise exctype, value
 
 del event
 del count
@@ -200,6 +201,9 @@ def leave_none_unset(s):
 
 CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads],
+    "omero.web.public.enabled": ["PUBLIC_ENABLED", "false", parse_boolean],
+    "omero.web.public.url_filter": ["PUBLIC_URL_FILTER", r'^/(?!webadmin)', re.compile],
+    "omero.web.public.server_id": ["PUBLIC_SERVER_ID", 1, int],
     "omero.web.public.user": ["PUBLIC_USER", None, leave_none_unset],
     "omero.web.public.password": ["PUBLIC_PASSWORD", None, leave_none_unset],
     "omero.web.databases": ["DATABASES", '{}', json.loads],
@@ -207,6 +211,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.application_server": ["APPLICATION_SERVER", DEFAULT_SERVER_TYPE, check_server_type],
     "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
     "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
+    "omero.web.ping_interval": ["PING_INTERVAL", 60000, int],
     "omero.web.static_url": ["STATIC_URL", "/static/", str],
     "omero.web.staticfile_dirs": ["STATICFILES_DIRS", '[]', json.loads],
     "omero.web.index_template": ["INDEX_TEMPLATE", "webstart/index.html", str],
@@ -229,10 +234,20 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],
     "omero.web.open_astex_max_voxels": ["OPEN_ASTEX_MAX_VOXELS", 27000000, int],  # 300 x 300 x 300
     "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', parse_paths],
+    
     # Add links to the top header: links are ['Link Text', 'url_name'], where the url is reverse("url_name")
     "omero.web.ui.top_links": ["TOP_LINKS", '[]', json.loads],  # E.g. '[["Webtest", "webtest_index"]]'
     
-    
+    # Add plugins to the right-hand & center panels: plugins are ['Label', 'include.js', 'div_id']. The javascript loads data into $('#div_id').
+    "omero.web.ui.right_plugins": ["RIGHT_PLUGINS", '[["Acquisition", "webclient/data/includes/right_plugin.acquisition.js.html", "metadata_tab"],'\
+            #'["ROIs", "webtest/webclient_plugins/right_plugin.rois.js.html", "image_roi_tab"],'\
+            '["Preview", "webclient/data/includes/right_plugin.preview.js.html", "preview_tab"]]', json.loads],
+            
+    # E.g. Center plugin: ["Channel overlay", "webtest/webclient_plugins/center_plugin.overlay.js.html", "channel_overlay_panel"]
+    "omero.web.ui.center_plugins": ["CENTER_PLUGINS", '['\
+            '["Table", "webclient/data/includes/center_plugin.table.js.html", "image_table"],'\
+            '["Split-view", "webclient/data/includes/center_plugin.splitview.js.html", "split_view_panel"]]', json.loads],
+
     # sharing no longer use this variable. replaced by request.build_absolute_uri
     # after testing this line should be removed.
     # "omero.web.application_host": ["APPLICATION_HOST", None, remove_slash], 
@@ -258,6 +273,7 @@ for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
     except LeaveUnset:
         pass
 
+
 if not DEBUG:
     LOGGING['loggers']['django.request']['level'] = 'INFO'
     LOGGING['loggers']['django']['level'] = 'INFO'
@@ -279,8 +295,8 @@ for key in sorted(CUSTOM_SETTINGS_MAPPINGS):
     source = using_default and "default" or key
     global_value = globals().get(global_name, None)
     if global_name.isupper():
-        logger.debug(cleanse_setting(global_name, global_value))
-
+        logger.debug("%s = %r (source:%s)", global_name, cleanse_setting(global_name, global_value), source)
+        
 SITE_ID = 1
 
 # Local time zone for this installation. Choices can be found here:
@@ -294,11 +310,6 @@ FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 # LANGUAGE_CODE: A string representing the language code for this installation. This should be
 # in standard language format. For example, U.S. English is "en-us".
 LANGUAGE_CODE = 'en-gb'
-
-# FORCE_SCRIPT_NAME: This will be used as the value of the SCRIPT_NAME environment variable in any HTTP request. 
-# This setting can be used to override the server-provided value of SCRIPT_NAME, which may be a rewritten 
-# version of the preferred value or not supplied at all.
-FORCE_SCRIPT_NAME = None
 
 # SECRET_KEY: A secret key for this particular Django installation. Used to provide a seed 
 # in secret-key hashing algorithms. Set this to a random string -- the longer, the better. 

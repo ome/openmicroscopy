@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -113,6 +114,7 @@ import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
+import omero.api.Save;
 import omero.api.SearchPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.StatefulServiceInterfacePrx;
@@ -164,6 +166,7 @@ import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Permissions;
+import omero.model.PermissionsI;
 import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.model.PixelsType;
@@ -432,46 +435,30 @@ class OMEROGateway
 			dsFactory.sessionExpiredExit(index, cause);
 		}
 	}
-
+	
 	/**
-	 * Returns the <code>RType</code> corresponding to the passed value.
+	 * Creates the permissions corresponding to the specified level.
 	 * 
-	 * @param value The value to convert.
-	 * @return See above.
+	 * @param level The level to handle.
+	 * @return
 	 */
-	private RType convertValue(Object value)
+	private Permissions createPermissions(int level)
 	{
-		Iterator i;
-		if (value instanceof String) 
-			return omero.rtypes.rstring((String) value);
-		else if (value instanceof Boolean) 
-			return omero.rtypes.rbool((Boolean) value);
-		else if (value instanceof Long) 
-			return omero.rtypes.rlong((Long) value);
-		else if (value instanceof Integer) 
-			return omero.rtypes.rint((Integer) value);
-		else if (value instanceof Float) 
-			return omero.rtypes.rfloat((Float) value);
-		else if (value instanceof List) {
-			List l = (List) value;
-			i = l.iterator();
-			List<RType> list = new ArrayList<RType>(l.size());
-			while (i.hasNext()) {
-				list.add(convertValue(i.next()));
-			}
-			return omero.rtypes.rlist(list);
-		} else if (value instanceof Map) {
-			Map map = (Map) value;
-			Map<String, RType> m = new HashMap<String, RType>();
-			Entry entry;
-			i = map.entrySet().iterator();
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				m.put((String) entry.getKey(), convertValue(entry.getValue())); 
-			}
-			return omero.rtypes.rmap(m);
+		String perms = "rw----"; //private group
+		switch (level) {
+			case GroupData.PERMISSIONS_GROUP_READ:
+				perms = "rwr---";
+				break;
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+				perms = "rwra--";
+				break;
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				perms = "rwrw--";
+				break;
+			case GroupData.PERMISSIONS_PUBLIC_READ:
+				perms = "rwrwr-";
 		}
-		return null;
+		return new PermissionsI(perms);
 	}
 	
 	/**
@@ -1557,7 +1544,7 @@ class OMEROGateway
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
-			IAdminPrx prx = c.getAdminService(ctx);
+			IAdminPrx prx = c.getAdminService();
 			if (prx == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the Admin service.");
@@ -3284,18 +3271,24 @@ class OMEROGateway
 			IQueryPrx service = getQueryService(ctx);
 			String table = getTableForAnnotationLink(type.getName());
 			if (table == null) return null;
-			String sql = "select link from "+table+" as link where " +
-			"link.parent.id = :parentID and link.details.owner.id = :userID"; 
+			StringBuffer buffer = new StringBuffer();
+			
+			buffer.append("select link from "+table+" as link ");
+			
+			buffer.append("where link.parent.id = :parentID"); 
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();
 			p.map.put("parentID", omero.rtypes.rlong(parentID));
-			p.map.put("userID", omero.rtypes.rlong(userID));
+			if (userID >= 0) {
+				buffer.append(" and link.details.owner.id = :userID");
+				p.map.put("userID", omero.rtypes.rlong(userID));
+			}
 			if (childID >= 0) {
-				sql += " and link.child.id = :childID";
+				buffer.append(" and link.child.id = :childID");
 				p.map.put("childID", omero.rtypes.rlong(childID));
 			}
 
-			return service.findByQuery(sql, p);
+			return service.findByQuery(buffer.toString(), p);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
 					"parent ID: "+parentID+" and child " +
@@ -3310,7 +3303,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param parentType The type of parent to handle.
 	 * @param parentID The id of the parent to handle.
-	 * @param children Collection of the identifierss.
+	 * @param children Collection of the identifiers.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
@@ -3675,7 +3668,7 @@ class OMEROGateway
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param ctx The security context.
-	 * @param path The location where to save the files.
+	 * @param folderPath The location where to save the files.
 	 * @param pixelsID The ID of the pixels set.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -3683,7 +3676,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service.  
 	 */
 	synchronized Map<Boolean, Object> getArchivedFiles(
-			SecurityContext ctx, String path, long pixelsID) 
+			SecurityContext ctx, String folderPath, long pixelsID) 
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
@@ -3701,7 +3694,7 @@ class OMEROGateway
 		}
 
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
-		if (files == null || files.size() == 0) return result;
+		if (files == null || files.size() == 0) return null;
 		RawFileStorePrx store;
 		Iterator i = files.iterator();
 		OriginalFile of;
@@ -3717,10 +3710,9 @@ class OMEROGateway
 			try {
 				store.setFileId(of.getId().getValue()); 
 			} catch (Exception e) {
-				e.printStackTrace();
 				handleException(e, "Cannot set the file's id.");
 			}
-			fullPath = path+of.getName().getValue();
+			fullPath = folderPath+of.getName().getValue();
 			f = new File(fullPath);
 			try {
 				stream = new FileOutputStream(f);
@@ -4492,6 +4484,7 @@ class OMEROGateway
 		List<Long> success = new ArrayList<Long>();
 		List<Long> failure = new ArrayList<Long>();
 		isSessionAlive(ctx);
+		ctx = new SecurityContext(-1);
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 			Map m  = service.applySettingsToSet(pixelsID, 
@@ -5352,9 +5345,8 @@ class OMEROGateway
 	{
 		isSessionAlive(ctx);
 		try {
-			List<Long> ids = new ArrayList<Long>(1);
-			ids.add(imageID);
-			Set result = getContainerImages(ctx, ImageData.class, ids, options);
+			Set result = getContainerImages(ctx, ImageData.class, 
+					Arrays.asList(imageID), options);
 			if (result != null && result.size() == 1) {
 				Iterator i = result.iterator();
 				while (i.hasNext())
@@ -7101,17 +7093,14 @@ class OMEROGateway
 			ExperimenterGroup g = lookupGroup(ctx, groupData.getName());
 			
 			if (g != null) return null; 
-				
-			g = (ExperimenterGroup) ModelMapper.createIObject(groupData);
+			
+			g = new ExperimenterGroupI();
+			g.setName(omero.rtypes.rstring(groupData.getName()));
+			g.setDescription(omero.rtypes.rstring(groupData.getDescription()));
+			g.getDetails().setPermissions(createPermissions(
+					object.getPermissions()));
 			long groupID = svc.createGroup(g);
 			g = svc.getGroup(groupID);
-			int level = object.getPermissions();
-			if (level != AdminObject.PERMISSIONS_PRIVATE) {
-				Permissions p = g.getDetails().getPermissions();
-				setPermissionsLevel(p, level);
-				svc.changePermissions(g, p);
-			}
-			
 			List<ExperimenterGroup> list = new ArrayList<ExperimenterGroup>();
 			list.add(g);
 
@@ -7569,17 +7558,22 @@ class OMEROGateway
 	void setPermissionsLevel(Permissions p, int level)
 	{
 		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ:
+			case GroupData.PERMISSIONS_GROUP_READ:
 				p.setGroupRead(true);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
 				p.setGroupRead(true);
+				p.setGroupAnnotate(true);
+				break;
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				p.setGroupRead(true);
+				p.setGroupAnnotate(true);
 				p.setGroupWrite(true);
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ:
+			case GroupData.PERMISSIONS_PUBLIC_READ:
 				p.setWorldRead(true);
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 				p.setWorldRead(true);
 				p.setWorldWrite(true);
 		}
@@ -7908,28 +7902,43 @@ class OMEROGateway
 			Iterator<IObject> j;
 			List<Request> commands = new ArrayList<Request>();
 			Chgrp cmd;
+			long id;
+			Save save;
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				data = (DataObject) entry.getKey();
 				l = (List<IObject>) entry.getValue();
+				id = data.getId();
 				cmd = new Chgrp(sessionUuid, createDeleteCommand(
-					data.getClass().getName()), data.getId(), options, 
+					data.getClass().getName()), id, options, 
 					target.getGroupID());
 				commands.add(cmd);
-				/*
 				j = l.iterator();
-				while (i.hasNext()) {
-					commands.add(new SaveI(sessionUuid, i.next()));
+				while (j.hasNext()) {
+					save = new Save();
+					save.obj = j.next();
+					save.session = sessionUuid;
+					commands.add(save);
 				}
-				*/
 			}
 			return c.submit(commands);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			handleException(e, "Cannot transfer the data.");
 		}
-		
-		
 		return null;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object can be deleted, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param ho The object to handle.
+	 * @return See above.
+	 */
+	boolean canDelete(IObject ho)
+	{
+		if (ho == null) return false;
+		return ho.getDetails().getPermissions().canDelete();
 	}
 	
 }

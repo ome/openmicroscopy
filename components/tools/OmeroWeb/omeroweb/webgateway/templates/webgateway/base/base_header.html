@@ -25,6 +25,14 @@
 {% block link %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static "webgateway/css/ome.header.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
+	
+	<!--[if lte IE 8]>
+		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.header_ie.css" %}" />
+		<link rel="stylesheet" type="text/css" href="{% static "webclient/css/layout_ie.css" %}" />
+	<![endif]-->
+	
+	
 {% endblock %}
 
 
@@ -41,6 +49,19 @@
             }
         });
     </script>
+	
+	<!-- Such horseshit that we need to add this shit in -->
+	<!--[if lte IE 8]>
+	<script>
+		$(function(){
+		   $(".header_toolbar li:last-child").addClass('last-child'),
+		   $("#activities_panel table tr:last-child").addClass('last-child'),
+		    $("#groupsUsersButton span:last-child").addClass('last-child')
+		   
+		})
+		</script>
+	<![endif]-->
+	
 {% endblock %}
 
 
@@ -49,55 +70,41 @@
         {% block middle_header %}
         <div id="middle_header">
 
-            <div id="logo">
-                <img src="{% static "webgateway/img/ome_text_109.png" %}" height="30" />
-            </div>
-            
-            <div id="middle_header_right">
-                {% block middle_header_right %}
-                {% endblock %}
-            </div>
+            <a id="logo">
+                <img src="{% static "webgateway/img/logo2.png" %}"/>
+            </a>
+
             
             <div id="middle_header_left">
-                {% block middle_header_left %}
-                {% endblock %}
+				{% block middle_header_left %}
+				    {% include "webclient/base/includes/menu.html" %}
+				{% endblock %}
             </div>
-        
-        </div>
-        {% endblock %}
-        
-        
-        {% block thin_header %}
-        <div id="thin_header">
-
-            <div id="thin_header_left">
-                {% block thin_header_left %}
-                {% endblock %}
+			
+			
+            <div id="middle_header_right">
+				{% block middle_header_right %}
+				{% endblock %}
             </div>
-
-            <div id="thin_header_right">
-                {% block thin_header_right %}
-                {% endblock %}
-            </div>
-
-        </div>
-        {% endblock %}
-
+			
+	        <div class="clear"></div>
+	
+		</div>
+    	{% endblock %}
+        
         <div id="content">
         {% block content %}
         {% endblock %}
         </div>
-
+		
+		<!--
         {% block footer %}
             <div id="footer">
-                <div>
-                    {% block footer_content %}
-                    {% endblock %}
-                </div>
                 {% block copywrite %}
-                    <p>&copy; 2007-2011 University of Dundee & Open Microscopy Environment</p>
+                    <p>&copy; 2007-2011 University of Dundee &amp; Open Microscopy Environment</p>
                 {% endblock %}
             </div>
         {% endblock %}
+		-->
 
 {% endblock %}

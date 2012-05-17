@@ -3,131 +3,14 @@ var multi_key = function() {
     else return "ctrl";
 };
 
-var loadOtherPanels = function(inst, prefix) {
-    var selected = inst.get_selected();
-    if(selected.length > 0) {
-        var cm_var = new Object();
-        cm_var['content_details'] = {'url': null, 'rel': null, 'empty':false };
-        cm_var['metadata_details']= {'iframe': null, 'html': null};
-
-        var oid = selected.attr('id');
-        var orel = selected.attr('rel').replace("-locked", "");
-        var crel = $("div#content_details").attr('rel');
-        if (typeof oid!=="undefined" && oid!==false) {
-            if (oid.indexOf("orphaned")>=0) {
-                if(oid!==crel) {
-                    cm_var['metadata_details']['html'] = '<p>This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container.</p>';
-                    cm_var['content_details']['rel'] = oid;
-                    cm_var['content_details']['url'] = prefix+'load_data/'+orel+'/?view=icon';
-                } else {
-                    cm_var['metadata_details']['html'] = '<p>This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container.</p>';
-                    cm_var['content_details']['empty'] = true;
-                }
-            } else if(oid.indexOf("experimenter")<0) {
-                //METADATA panel
-                if(orel=="image") {
-                    var pr = selected.parent().parent();
-                    if (pr.length>0 && pr.attr('rel').replace("-locked", "")==="share") {
-                        cm_var['metadata_details']['iframe'] = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/'+pr.attr("id").split("-")[1]+'/';
-                    } else {
-                        cm_var['metadata_details']['iframe'] = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
-                    }
-                } else {
-                    cm_var['metadata_details']['iframe'] = prefix+'metadata_details/'+orel+'/'+oid.split("-")[1]+'/';
-                }
-                
-                // CONTENT panel
-                if ($.inArray(orel, ["project", "screen"]) > -1) {
-                    cm_var['content_details']['empty'] = true;
-                } else if($.inArray(orel, ["plate"]) > -1) {
-                    if (inst.is_leaf(selected)) {
-                        cm_var['content_details']['rel'] = oid;
-                        cm_var['content_details']['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/';
-                    } else {
-                        cm_var['content_details']['empty'] = true;
-                    }
-                } else if($.inArray(orel, ["acquisition"]) > -1 && oid!==crel) {
-                    var plate = inst._get_parent(selected).attr('id').replace("-", "/");
-                    cm_var['content_details']['rel'] = oid;
-                    cm_var['content_details']['url'] = prefix+'load_data/'+plate+'/'+orel+'/'+oid.split("-")[1]+'/';
-                } else if($.inArray(orel, ["dataset"]) > -1 && oid!==crel) {
-                    cm_var['content_details']['rel'] = oid;
-                    cm_var['content_details']['url'] = prefix+'load_data/'+orel+'/'+oid.split("-")[1]+'/?view=icon';
-                    
-                } else if($.inArray(orel, ["share"]) > -1 && oid!==crel) {
-                    cm_var['content_details']['rel'] = oid;
-                    cm_var['content_details']['url'] = prefix+'load_public/'+oid.split("-")[1]+'/?view=icon';
-                    
-                } else if($.inArray(orel, ["tag"]) > -1 && oid!==crel) {
-                    cm_var['content_details']['rel'] = oid;
-                    cm_var['content_details']['url'] = prefix+'load_tags/?view=icon&o_type=tag&o_id='+oid.split("-")[1];
-                } else if(orel=="image") {
-                    var pr = selected.parent().parent();
-                    if (pr.length>0 && pr.attr('id')!==crel) {
-                        if(pr.attr('rel').replace("-locked", "")==="share" && pr.attr('id')!==crel) {
-                            cm_var['content_details']['rel'] = pr.attr('id');
-                            cm_var['content_details']['url'] = prefix+'load_public/'+pr.attr('id').split("-")[1]+'/?view=icon';
-                        } else if (pr.attr('rel').replace("-locked", "")=="tag") {
-                            cm_var['content_details']['rel'] = pr.attr('id');
-                            cm_var['content_details']['url'] = prefix+'load_tags/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
-                        } else if (pr.attr('rel').replace("-locked", "")!=="orphaned") {
-                            cm_var['content_details']['rel'] = pr.attr('id');
-                            cm_var['content_details']['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/'+pr.attr("id").split("-")[1]+'/?view=icon';
-                        } else {
-                            cm_var['content_details']['rel'] = pr.attr("id");
-                            cm_var['content_details']['url'] = prefix+'load_data/'+pr.attr('rel').replace("-locked", "")+'/?view=icon';
-                        }
-                    }
-                } 
-            } else {
-                cm_var['metadata_details']['html'] = '<p>'+selected.children().eq(1).text()+'</p>';
-                cm_var['content_details']['empty'] = true;
-            }
-        }
-
-        if (cm_var.metadata_details.iframe!==null || cm_var.metadata_details.html!==null) {
-            if (cm_var.metadata_details.iframe!==null) {
-                loadMetadataPanel(cm_var.metadata_details.iframe)
-            } 
-            if (cm_var.metadata_details.html!==null) {
-                loadMetadataPanel(null, cm_var.metadata_details.html);
-            }
-        }
-        
-        if (cm_var.content_details.rel!==null && cm_var.content_details.url!==null){
-            $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/webgateway/img/spinner.gif"/></p>');
-            $("div#content_details").attr('rel', cm_var.content_details.rel);
-            $("div#content_details").load(cm_var.content_details.url, function() {
-                syncPanels(selected);
-            });
-        } else if (cm_var.content_details.empty){
-            $("div#content_details").empty();
-            $("div#content_details").removeAttr('rel');
-        }
+jQuery.fn.hide_if_empty = function() {
+    if ($(this).children().length == 0) {
+        $(this).hide();
     } else {
-        $("div#content_details").empty();
-        $("div#content_details").removeAttr('rel');
-        loadMetadataPanel(null,'<p></p>');
+        $(this).show();
     }
+  return this;
 };
-
-var syncPanels = function(get_selected) {
-    var toSelect = new Array();
-    get_selected.each(function(i) {
-        var _this = $(this)
-        if ($.inArray(_this.attr("rel").replace("-locked", ""), ["image"]) >= 0) toSelect[i]=_this.attr("id").split("-")[1];
-    });
-    $(".ui-selectee", $("ul.ui-selectable")).each(function(){
-        var selectee = $(this);
-        if ($.inArray(selectee.attr('id'), toSelect) != -1) {
-            if(!selectee.hasClass('ui-selected')) {
-                selectee.addClass('ui-selected');
-            }
-        } else {
-            selectee.removeClass('ui-selected');
-        }
-    });
-}
 
 var addToBasket = function(selected, prefix) {
     var productListQuery = new Array("action=add");
@@ -150,89 +33,134 @@ var addToBasket = function(selected, prefix) {
             } else {
                 calculateCartTotal(responce);
             }
-        },
-        error: function(responce) {
-            alert("Internal server error. Cannot add to basket.")
         }
     });
 };
+
+// called from tree_selection_changed() below
+var handle_tree_selection = function(data) {
+    var selected_objs = [];
+
+    if (typeof data != 'undefined' && typeof data.inst != 'undefined') {
+        
+        var selected = data.inst.get_selected();
+        var share_id = null;
+        if (selected.length == 1) {
+            var pr = selected.parent().parent();
+            if (pr.length>0 && pr.attr('rel') && pr.attr('rel').replace("-locked", "")==="share") {
+                share_id = pr.attr("id").split("-")[1];
+            }
+        }
+        selected.each(function(){
+            var selected_obj = {"id":$(this).attr('id'), "rel":$(this).attr('rel')}
+            if (share_id) selected_obj["share"] = share_id;
+            selected_objs.push(selected_obj);
+        });
+    }
+    $("body")
+        .data("selected_objects.ome", selected_objs)
+        .trigger("selection_change.ome");
+}
+
+var deselect_timeout = false;
+// called on selection and deselection changes in jstree
+var tree_selection_changed = function(data, evt) {
+    
+    // handle case of deselection immediately followed by selection - Only fire on selection
+    if (typeof evt != 'undefined' && evt.type == "deselect_node") {
+        deselect_timeout = true;
+        setTimeout(function() {
+            if (deselect_timeout) handle_tree_selection(data);
+        }, 20);
+    } else {
+        deselect_timeout = false;
+        handle_tree_selection(data);
+    }
+}
+
+// called when we change the index of a plate or acquisition
+var field_selection_changed = function(field) {
+    
+    var datatree = $.jstree._focused();
+    datatree.data.ui.last_selected;
+    $("body")
+        .data("selected_objects.ome", [{"id":datatree.data.ui.last_selected.attr("id"), "index":field}])
+        .trigger("selection_change.ome", $(this).attr('id'));
+}
+
+// change in seletion of search results - only single object selection
+var search_selection_changed = function($row) {
+    var $body = $("body");
+    if (typeof $row != 'undefined') {
+        $body.data("selected_objects.ome", [{"id": $row.attr("id")}])
+    } else {
+        $body.data("selected_objects.ome", [])
+    }
+    $body.trigger("selection_change.ome");
+}
+
+// change in seletion of history results - only single object selection
+var history_selection_changed = function($row) {
+    var $body = $("body");
+    if (typeof $row != 'undefined') {
+        $body.data("selected_objects.ome", [{"id": $row.attr("id")}])
+    } else {
+        $body.data("selected_objects.ome", [])
+    }
+    $body.trigger("selection_change.ome");
+}
+
+// actually called when share is edited, to refresh right-hand panel
+var share_selection_changed = function(share_id) {
+    $("body")
+        .data("selected_objects.ome", [{"id": share_id}])
+        .trigger("selection_change.ome");
+}
+
+var basket_selection_changed = function($selected) {
+
+    var selected_objs = [];
+    $selected.each(function(i){
+        // we only support images in basket:
+        selected_objs.push( {"id":"image-"+$(this).attr('id'), "rel":"image"} );
+    });
+    
+    $("body")
+        .data("selected_objects.ome", selected_objs)
+        .trigger("selection_change.ome");
+}
+
+// called from click events on plate. Selected wells 
+var well_selection_changed = function($selected, well_index) {
+    var selected_objs = [];
+    $selected.each(function(i){
+        selected_objs.push( {"id":$(this).attr('id').replace("=","-"), "rel":$(this).attr('rel'), "index":well_index} );
+    });
+    
+    $("body")
+        .data("selected_objects.ome", selected_objs)
+        .trigger("selection_change.ome");
+}
 
 var multipleAnnotation = function(selected, index, prefix){
     if (selected != null && selected.length > 0) {
         var productListQuery = new Array(); 
         selected.each( function(i){
-            productListQuery[i] = $(this).attr('id').replace("-","=");
+            productListQuery[i] = {"id":$(this).attr('id').replace("-","=")};
         });
         var query = prefix+"?"+productListQuery.join("&")
         if (index != null && index > -1) {
             query += "&index="+index;
         }
-        loadMetadataPanel(query);
+        $("body")
+            .data("selected_objects.ome", productListQuery)
+            .trigger("selection_change.ome");
+        
     } else {
         alert ("Please select at least one element."); 
     }
 };
 
-var loadMetadataPanel = function(src, html) {
-    
-    var $metadataPanel = $("#right_panel");
-
-    if (src!=null) {
-        $metadataPanel.load(src);
-    } else {
-        $metadataPanel.html(html);
-    }
-};
-
-var refreshCenterPanel = function() {
-    var rel = $("div#content_details").attr("rel");
-    var page = parseInt($("div#content_details").find("#page").attr("rel"));
-    
-    if (typeof rel!=="undefined") {
-        if (rel.indexOf("orphaned")>=0) {
-            $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/webgateway/img/spinner.gif"/></p>');
-            url = '/webclient/load_data/'+rel.split('-')[0]+'/';
-        } else if (rel.indexOf("share")>=0) {
-            $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/webgateway/img/spinner.gif"/></p>');
-            url = '/webclient/load_public/'+rel.split('-')[1]+'/';
-        } else if(rel.indexOf('tag')>=0) {
-            $("div#content_details").html('<p>Loading data... please wait <img src="../../static/webgateway/img/spinner.gif"/></p>');
-            url = '/webclient/load_tags/tag/'+rel.split('-')[1]+'/';
-        } else {
-            $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/webgateway/img/spinner.gif"/></p>');
-            url = '/webclient/load_data/'+rel.replace('-', '/')+'/';
-        }
-        
-        var view = $("div#content_details").find("#toolbar").attr('rel') ? $("div#content_details").find("#toolbar").attr('rel') : "icon";
-        
-        $("div#content_details").html('<p>Loading data... please wait <img src ="../../static/webgateway/img/spinner.gif"/></p>');
-        url = url+'?view='+view
-        if (page!=null && page > 0) {
-            url = url+"&page="+page;
-        }        
-        $("div#content_details").load(url);
-        if(rel.indexOf('tag')<0) $("div#content_details").attr('rel', rel);
-    }
-};
-
-function changeView(view, page) { 
-    var rel = $("div#content_details").attr('rel').split("-");
-    if(rel.indexOf('orphaned')>=0) {
-        url = '/webclient/load_data/orphaned/?view='+view;
-    } else if(rel.indexOf('tag')>=0) {
-        $("div#content_details").html('<p>Loading data... please wait <img src="../../static/webgateway/img/spinner.gif"/></p>');
-        url = '/webclient/load_tags/tag/'+rel[1]+'/?view='+view;
-    } else {
-        $("div#content_details").html('<p>Loading data... please wait <img src="../../static/webgateway/img/spinner.gif"/></p>');
-        url = '/webclient/load_data/dataset/'+rel[1]+'/?view='+view;
-    }
-    if (page!=null && page > 0) {
-        url = url+"&page="+page;
-    }
-    $("div#content_details").html('<p>Loading data... please wait <img src="../../static/webgateway/img/spinner.gif"/></p>');
-    $("div#content_details").load(url);
-    return false;
-};
 
 function saveMetadata (image_id, metadata_type, metadata_value) {
     if (image_id == null) {
@@ -247,52 +175,20 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
             cache:false,
             success: function(responce){
                 $($('#id_'+metadata_type).parent().find('img')).remove()
-            },
-            error: function(responce) {
-                $($('#id_'+metadata_type).parent().find('img')).remove()
-                alert("Cannot save new value for '"+metadata_type+"'.")
             }
         });
     }
 }
 
+// This is called by the Pagination controls at the bottom of icon or table pages.
+// We simply update the 'page' data on the parent (E.g. dataset node in tree) and refresh
 function doPagination(view, page) {
-    var rel = $("div#content_details").attr('rel').split("-");
-    $("div#content_details").html('<p>Loading data... please wait <img src="../../static/webgateway/img/spinner.gif"/></p>');
-    $("div#content_details").load('/webclient/load_data/'+rel[0]+'/'+rel[1]+'/?view='+view+'&page='+page, function() {
-        $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
-        if(rel[0].indexOf("orphaned")<0) {
-            src = '/webclient/metadata_details/'+rel[0]+'/'+rel[1]+'/';
-            loadMetadataPanel(src);
-        }
-    });
-    return false;
-}
-
-function makeShare(prefix) {
-    if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
-        alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
-    } else { 
-        var productArray = $("input[type='checkbox']:checked");
-        var productListQuery = "";
-        if (productArray.length > 0 ) {
-            productArray.each(function() {
-                if(this.checked) {
-                    productListQuery += "&"+this.name+"="+this.id;
-                }
-            });
-        } else {
-            productListQuery += "&"+productArray.name+"="+productArray.id;
-        }
-    }
-    
-    src = prefix+'?'+productListQuery+'';
-    loadMetadataPanel(src);
-    return false;
-}
-
-function makeDiscussion() {
-    src = '/webclient/basket/todiscuss/';
-    loadMetadataPanel(src);
+    if (view == "icon") var $container = $("#content_details");
+    else if (view == "table") $container = $("#image_table");
+    var rel = $container.attr('rel').split("-");
+    var $parent = $("#dataTree #"+ rel[0]+'-'+rel[1]);
+    $parent.data("page", page);     // let the parent node keep track of current page
+    $("#dataTree").jstree("refresh", $('#'+rel[0]+'-'+rel[1]));
+    $parent.children("a:eq(0)").click();    // this will cause center and right panels to update
     return false;
 }

@@ -21,17 +21,19 @@
 -->
 {% endcomment %}
 
-<h1>{% trans "Most recent tags" %}:</h1>
+<h2>{% trans "Most recent tags" %}:</h2>
 {% if controller.mostRecentTags %}
-    <table>
-        <tbody>
-            <tr><td>
+    <div class="tags">
             {% for key,value in controller.mostRecentTags.items %}
-                {% ifequal value.count controller.font.min %}<a href="{% url load_template "usertags" %}{% if not value.obj.isOwned %}?experimenter={{  value.obj.getOwner.id }}{% endif %}" class="smalltag" target="_top">{{ value.obj.textValue }}</a>{% else %}{% ifequal value.count controller.font.max %}<a href="{% url load_template "usertags" %}{% if not value.obj.isOwned %}?experimenter={{  value.obj.getOwner.id }}{% endif %}" class="bigtag"  target="_top">{{ value.obj.textValue }}</a>{% else %}<a href="{% url load_template "usertags" %}{% if not value.obj.isOwned %}?experimenter={{  value.obj.getOwner.id }}{% endif %}" class="middletag"  target="_top">{{ value.obj.textValue }}</a>{% endifequal %}{% endifequal %}, 
-            {% endfor %}
-            </td></tr>
-        </tbody>
-    </table>
+              
+				<span class="tag_annotation_wrapper">
+					<div class="tag">
+						<a class="tag_inner" href="{% url load_template "usertags" %}{% if not value.obj.isOwned %}?experimenter={{  value.obj.getOwner.id }}{% endif %}" class="tag" target="_top">{{ value.obj.textValue }}</a>
+					</div>
+				</span>	
+           
+		    {% endfor %}
+    </div>
 {% else %}
     <div><p>{% trans "No tags." %}</p></div>
 {% endif %}

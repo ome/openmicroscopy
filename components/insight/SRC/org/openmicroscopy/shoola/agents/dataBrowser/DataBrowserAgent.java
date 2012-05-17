@@ -39,7 +39,6 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -220,7 +219,7 @@ public class DataBrowserAgent
      */
     private void handleCopyRndSettings(CopyRndSettings evt)
     {
-    	DataBrowserFactory.setRndSettingsToCopy(evt.getImage() != null);
+    	DataBrowserFactory.setRndSettingsToCopy(evt.getImage());
     }
     
     /**

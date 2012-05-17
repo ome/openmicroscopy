@@ -22,6 +22,32 @@
 -->
 {% endcomment %}
 
+{% block script %}
+    {{ block.super }}
+
+
+    <script>
+        $(document).ready(function(){
+            // initially hidden
+            $("#user_dropdown ul").css('visibility', 'hidden');
+            // show on click
+            $("#show_user_dropdown").click(function(e) {
+                
+                $("ul", $(this).parent()).css('visibility', 'visible');
+                e.preventDefault();
+                return false;
+            });
+            // on hover-out, hide drop-down menus
+            $("#user_dropdown ul").hover(function(){}, function(){
+                $(this).css('visibility', 'hidden');
+            });
+        });
+    </script>
+
+    <!-- keep-alive ping so that OMERO session doesn't die -->
+    {% include "webclient/base/includes/ping.html" %}
+
+{% endblock %}
 
 {% block link %}
     {{ block.super }}
@@ -29,51 +55,26 @@
 {% endblock %}
 
 
-{% block middle_header_left %}
-    {% include "webclient/base/menu.html" %}
-    {% if eventContext.isAdmin %}
-        <li class="menu_link admin"><a href="{% url waindex %}" title="Web-Admin: Edit users and groups">{% trans "Admin" %}</a></li>
-    {% endif %}
-{% endblock %}
+
+			{% block middle_header_right %}
+					
+		        
+					
+				<!-- Global Search -->
+				{% include "webclient/base/includes/search_field.html" %}
+					
+				<!-- User Dropdown -->
+				{% include "webclient/base/includes/user_dropdown.html" %}
+			{% endblock %}
+        
 
 
-{% block middle_header_right %}
-    <!-- Include is simply the <li><a>Link</a></li> links for webclient -->
-    <a href="{% url wamyaccount 'edit' %}" title="Edit Account">{{ eventContext.userName }}</a>
-    <a href="{% url load_template 'help' %}">{% trans "Help" %}</a>
-    {% include "webclient/base/logout.html" %}
-{% endblock %}
-
-
-{% block thin_header_left %}
-    {% trans "Role" %}:
-    <strong>
-        {% if eventContext.isAdmin %}admin
-        {% else %}user{% endif %}
-    </strong>
-    {% trans "Version" %}:
-    <strong>OMERO {{ eventContext.version }}.</strong> |
-
-    {% if eventContext.isAdmin %}
-    <a href="{% url wagroups %}"{% if info.groups %} class="menu" {% endif %}>{% trans "Groups" %}</a> |
-    <a href="{% url waexperimenters %}"{% if info.experimenters %} class="menu" {% endif %}>{% trans "Scientists" %}</a> |
-    {% endif %}
-    <a href="{% url wadrivespace %}"{% if info.drivespace %} class="menu" {% endif %}>{% trans "Drive Space" %}</a>
-{% endblock %}
-
-
-{% block thin_header_right %}
-    {{ info.today }}
-{% endblock %}
 
 {% block content %}
-    <div id="center_details" class="padding">
-        {% if info.message %}<div class="error">{{ info.message|safe|linebreaks }}</div>{% endif %}
+    <div id="center_details">
+        {% if ome.message %}<div class="error">{{ ome.message|safe|linebreaks }}</div>{% endif %}
         {% block center_details %}{% endblock %}
         <div id="metadata_details" class="overflow">{% block metadata_details %}{% endblock %}</div>
     </div>
 {% endblock %}
 
-{% block footer_content %}
-    <a href="/webclient/">WEBCLIENT</a> | <a href="{% url wadrivespace %}"{% if info.drivespace %} class="menu" {% endif %}>{% trans "Drive Space" %}</a> | {% if eventContext.isAdmin %} <a href="{% url waexperimenters %}"{% if info.experimenters %} class="menu" {% endif %}>{% trans "Scientists" %}</a> | <a href="{% url wagroups %}"{% if info.groups %} class="menu" {% endif %}>{% trans "Groups" %}</a> | {% endif %} <a href="{% url wamyaccount "edit" %}"{% if info.myaccount %} class="menu" {% endif %}>{% trans "My Account" %}</a> | <a href="{% url csend %}" title="Contact">{% trans "Contact" %}</a>
-{% endblock %}

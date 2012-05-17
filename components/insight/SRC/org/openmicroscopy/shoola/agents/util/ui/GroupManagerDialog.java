@@ -31,6 +31,7 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,7 @@ public class GroupManagerDialog
 	private JButton apply;
 	
 	/** The groups to display.*/
-	private Map<GroupData, Integer> groups;
+	private Collection groups;
 	
 	/** Closes and disposes. */
 	private void cancel()
@@ -156,16 +157,17 @@ public class GroupManagerDialog
 		apply.setToolTipText(
 				UIUtilities.formatToolTipText(APPLY_DESCRIPTION));
 		getRootPane().setDefaultButton(apply);
+		ViewerSorter sorter = new ViewerSorter();
+		List<GroupData> l = (List<GroupData>) sorter.sort(groups);
 		groupsTable = new SelectionTable();
-		groupsTable.setGroups(groups);
+		groupsTable.setGroups(l);
 		List<Long> ids = new ArrayList<Long>(selectedGroups.size());
 		Iterator<GroupData> i = selectedGroups.iterator();
 		while (i.hasNext()) {
 			ids.add(i.next().getId());
 		}
 		DefaultTableModel model = (DefaultTableModel) groupsTable.getModel();
-		ViewerSorter sorter = new ViewerSorter();
-		List<GroupData> l = (List<GroupData>) sorter.sort(groups.keySet());
+
 		i = l.iterator();
 		GroupData g;
 		int index = 0;
@@ -228,7 +230,7 @@ public class GroupManagerDialog
 	 * @param icon The icon displayed in the title panel.
 	 */
 	public GroupManagerDialog(JFrame parent, 
-			Map<GroupData, Integer> groups, List<GroupData> selectedGroups,
+			Collection groups, List<GroupData> selectedGroups,
 			Icon icon)
 	{
 		super(parent);

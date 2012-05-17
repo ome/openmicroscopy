@@ -24,11 +24,11 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.17/external/jquery.cookie.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery-ui-1.8.19/external/jquery.cookie.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.hotkeys.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jquery.jstree.js" %}"></script>
 
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
+    <!-- set-up left-panel tabs, jsTree, toolbar etc -->
     <script type="text/javascript">
         $(function() 
             {
@@ -72,7 +72,7 @@
                     }
                 }
                 
-                $("#datashareTree").jstree({ 
+                $("#dataTree").jstree({
                         // the list of plugins to include
                         "plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
                         // Plugin configuration
@@ -117,7 +117,7 @@
                                 "share" : {
                                     "valid_children" : [ "image", "image-locked" ],
                                     "icon" : {
-                                        "image" : '{% static "webclient/image/folder_html16.png" %}'
+                                        "image" : '{% static "webclient/image/left_sidebar_icon_public.png" %}'
                                     },
                                     "create_node" : false,
                                     "start_drag" : false,
@@ -217,16 +217,15 @@
                         data.open_node(data.get_selected());
                     }
                 })
-                .bind("select_node.jstree", function (e, data) {
+                .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     buttonsShowHide(data.rslt.obj);
-                    loadOtherPanels(data.inst, '{% url webindex %}');
-                    syncPanels(data.inst.get_selected());
+                    tree_selection_changed(data);
                 })
                 .bind("remove.jstree", function (e, data) {
                     var pr = $(data.args[1]);
                     
                     data.args[0].each(function (i) {
-                        url = '/webclient/action/removefromshare/share/'+pr.attr('id').split('-')[1]+'/'
+                        url = '{% url manage_action_containers "removefromshare" "share" %}'+pr.attr('id').split('-')[1]+'/'
                         $.ajax({
                             async : false,
                             url: url,
@@ -237,13 +236,10 @@
                                 if(eval(r.bad)) {
                                       $.jstree.rollback(data.rlbk);
                                       alert(r.errs);
-                                  } else {
-                                      refreshCenterPanel();
                                   }
                             },
                             error: function(response) {
                                 $.jstree.rollback(data.rlbk);
-                                alert("Internal server error. Cannot remove image.");
                             }
                         });
                     });
@@ -253,30 +249,24 @@
             });
         
     </script>
+
+    <!-- handle toolbar clicks -->
     <script type="text/javascript">
     $(function () { 
-        $("#buttons input").click(function () {
+        $(".toolbar input").click(function () {
             switch(this.id) {
-                case "adddiscussionButton":
-                    makeDiscussion();
-                    break;
                 case "removecontentButton":
                     var confirm_remove = confirm_dialog('Remove Image?',
                         function() {
                             if(confirm_remove.data("clicked_button") == "OK") {
                                 var jstree = $.jstree._focused();
-                                $("#datashareTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
+                                $("#dataTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
                             }
                         }
                     );
-                    if (confirm("Remove image?")) {
-                        var jstree = $.jstree._focused();
-                        $("#datashareTree").jstree('remove', jstree.get_selected(), jstree._get_parent(jstree.get_selected()));
-                    }                    
                     break;
                 case "refreshButton":
-                    $("#datashareTree").jstree("refresh");
-                    refreshCenterPanel();
+                    $("#dataTree").jstree("refresh");
                     break;
                 default:
                     break;
@@ -284,28 +274,78 @@
         });
     });
     </script>
+
+    <!-- include code to handle middle panel selection -->
+    {% include "webclient/data/includes/center_plugin.thumbs.js.html" %}
+
+
 {% endblock %}
 
 
 {% block left %}
+
+<div id="user_selection">
+	
+    <!-- Switch Group / User -->
+    <script>
+        $(document).ready(function(){
+
+            $('body').click(function(event) {
+                if (event.target.id != 'groupsUsersButton') {
+                    $("#groupList").css('visibility', 'hidden');
+                }
+            });
+            // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
+            // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
+            $("#groupsUsersButton").click(function(e){
+                // show menu
+                $('#groupList').css('visibility', 'visible');
+            });
+            // on hover-out, hide drop-down menus
+            $("#groupList").hover(function(){}, function(){
+                $(this).css('visibility', 'hidden');
+            });
+                
+                
+
+        });
+    </script>
+	
+	
+	{% include "webclient/base/includes/group_user_dropdown.html" %}
+	
+</div>
+
 <div id="left_panel_tabs" class="absolute_fill">
-    <ul class="tabslist">
-        <li><a href="{% url load_template 'userdata' %}">{% trans "Projects+Screens" %}</a></li>
-        <li><a href="{% url load_template 'usertags' %}" title="Tags">{% trans "Tags" %}</a></li>
+    
+    <ul id="left_panel_tab_list">
+        <li><a href="{% url load_template 'userdata' %}">{% trans "Explore" %}</a></li>
+        <li><a href="{% url load_template 'usertags' %}">{% trans "Tags" %}</a></li>
+		<!-- <li><a href="{% url load_template 'usertags' %}">{% trans "History" %}</a></li> -->
         <li><a href="#Public" title="Public">{% trans "Public" %}</a></li>
     </ul>
+	
+	
 
     <div id="Public">
         <div class="toolbar">
-            <div id="buttons" class="align_left">
-                <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/reload16.png" %}" alt="Refresh" title="Refresh" {% comment %}onclick="document.location.href='{% url load_template nav.menu %}'"{% endcomment %}> 
-                <input id="adddiscussionButton" class="button button-disabled" type="image" src="{% static "webclient/image/wp_protocol16.png" %}" alt="Create discussion" title="Create discussion" /> 
-                <input id="removecontentButton" class="button button-disabled" type="image" src="{% static "webclient/image/cancel16.png" %}" alt="Remove content" title="Remove content" /> 
-            </div>
+            <ul id="buttons">
+				
+                <li>
+					<input id="removecontentButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Remove content" title="Remove content" /> 
+				</li>
+				
+				<li class=seperator></li>
+				
+                <li>
+				<input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh"> 
+				</li>
+                
+            </ul>
         </div>
 
-        <div id="tree_details">
-            <div class="datashareTree" id="datashareTree"></div>
+        <div id="tree_details" class="left_panel_inner">
+            <div class="datashareTree" id="dataTree"></div>
         </div>
     </div>
 </div>
@@ -318,4 +358,24 @@
 
 <div id="content_details"> </div>
 
+{% endblock %}
+
+
+{% block right %}
+<div>
+    <div id="annotation_tabs" class="absolute_fill">
+        <ul id="annotation_tabs_list">
+            <li><a href="#metadata_general">{% trans "General" %}</a></li>
+            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
+            {% for rt in ome.right_plugins %}
+                <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
+            {% endfor %}
+        </ul>
+        <div id="metadata_general" class="right_tab_content" ></div>
+        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
+        {% for rt in ome.right_plugins %}
+            <div id="{{ rt.plugin_id }}" class="right_tab_content"></div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

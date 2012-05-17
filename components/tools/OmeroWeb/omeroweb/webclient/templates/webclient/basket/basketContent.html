@@ -30,21 +30,28 @@
 {% endcomment %}
 
 
-<table width="100%" cellpadding="6" cellspacing="0" border="0">
+<ul>
     <tbody>
         {% for c in basket.imageInBasket %}
-            <tr>
-                <td>
-                    <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
-                    <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
-                </td>
-                <td>
-                    {{ c.name|truncatebefor:"65" }}
-                    {% if c.annotation_counter %}<img src="{% static "webgateway/img/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}
-                    {% if not c.isOwned %} <img src="{% static "webclient/image/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
-                </td>
-                <td>{{ c.getDate }}</td>
-            </tr>
+            <li>
+				
+				<div class="basket_image">
+	                <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
+				</div>
+					
+	            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
+
+	            <h1>{{ c.name|truncatebefor:"35" }}</h1>
+	            {% if c.annotation_counter %}
+					<img src="{% static "webgateway/img/knotes16.png" %}" alt="a" title="annotation"/>
+				{% endif %}
+	            {% if not c.canEdit %} 
+					<img src="{% static "webclient/image/kgpg12.png" %}" alt="l" title="locked"/>
+				{% endif %}
+                	
+				<span class="date">{{ c.getDate }}</span>
+				
+            </li>
         {% endfor %}
     </tbody>
-</table>
+</ul>

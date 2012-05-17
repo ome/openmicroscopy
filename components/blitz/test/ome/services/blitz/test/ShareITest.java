@@ -41,7 +41,7 @@ public class ShareITest extends AbstractServantTest {
     private long assertCreateShare() throws Exception {
 
         final RV rv = new RV();
-        user_share.createShare_async(new AMD_IShare_createShare() {
+        user.share.createShare_async(new AMD_IShare_createShare() {
 
             public void ice_response(long __ret) {
                 rv.rv = __ret;
@@ -58,7 +58,7 @@ public class ShareITest extends AbstractServantTest {
 
     private Share assertGetShare(long sid) throws Exception {
         final RV rv = new RV();
-        user_share.getShare_async(new AMD_IShare_getShare() {
+        user.share.getShare_async(new AMD_IShare_getShare() {
 
             public void ice_response(Share __ret) {
                 rv.rv = __ret;

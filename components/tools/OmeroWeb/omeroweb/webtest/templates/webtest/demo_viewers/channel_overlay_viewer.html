@@ -9,10 +9,8 @@ body {
 }
 </style>
 
-<!-- links to current version of jquery -->
-{% include "webgateway/base/includes/script_src_jquery.html" %}
-<script type="text/javascript" src="{% static 'webadmin/javascript/jquery.imgareaselect-0.9.8/jquery.imgareaselect.js' %}"></script>
-<link rel="stylesheet" href="{% static "webadmin/javascript/jquery.imgareaselect-0.9.8/css/imgareaselect-default.css" %}" type="text/css" media="screen"/>
+<script type="text/javascript" src="/webtest/statictest/js/imgareaselect/jquery.imgareaselect.js"></script>
+<link rel="stylesheet" type="text/css" href="/webtest/statictest/css/imgareaselect-default.css" /> 
 
 <script type="text/javascript">
 
@@ -191,7 +189,7 @@ $(document).ready(function() {
         query += "&imageIds="+imageId
         
         // bit of a hack - should really POST properly.
-        var url = "/webtest/add_annotations/" + "?" + query;
+        var url = "{% url webtest_add_annotations %}" + "?" + query;
         window.location = url;
     });
 });
@@ -201,13 +199,19 @@ $(document).ready(function() {
 
 <body>
 
-<table><tr>
-    <td valign='top'>
+
+    <div style="float:left">
         <img id='viewer' src="" width="{{ image.width }}" height="{{ image.height }}"/>
-    </td>
+    </div>
     
-    <td valign='top'>
-        
+    <div id="preview" style="float:left; width: 100px; height: 100px; overflow: hidden;">
+        <img id="lens" src="" style="width: 100px; height: 100px;" />
+    </div>
+    
+    <div style="padding:10px; margin:10px; float:left">
+        <div style="float:right">
+                Zoom: <input id='zoomSelect' type="text" size="5" name="zoom" value='200'/> %
+        </div>
         Adjust the x-shift and y-shift of individual planes to align them. <br />
         Draw a rectangle on the image to zoom that region.<br />
         Also possible to pick the Z, C, T and Image-ID to mix planes from different images.
@@ -268,15 +272,7 @@ $(document).ready(function() {
             </tr>
         </table>
         <hr />
-        <div>
-            Zoom: <input id='zoomSelect' type="text" size="5" name="zoom" value='200'/> %
-        </div>
-        <div id="preview" style="width: 100px; height: 100px; overflow: hidden;">
-            <img id="lens" src="" style="width: 100px; height: 100px;" />
-        </div>
         
-        
-    </td>
-</table>
+    </div>
 
 </body> </html>

@@ -35,6 +35,57 @@ import omero.model.GroupExperimenterMap;
  */
 public class GroupData extends DataObject {
 
+	
+	/** Indicates that the group is <code>Private</code> i.e. RW----. */
+	public static final int PERMISSIONS_PRIVATE = 0;
+	
+	/** Indicates that the group is <code>Group</code> i.e. RWR---. */
+	public static final int PERMISSIONS_GROUP_READ = 1;
+	
+	/** Indicates that the group is <code>Group</code> i.e. RWRA--. */
+	public static final int PERMISSIONS_GROUP_READ_LINK = 2;
+	
+	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
+	public static final int PERMISSIONS_GROUP_READ_WRITE = 3;
+	
+	/** Indicates that the group is <code>Public</code> i.e. RWRWR-. */
+	public static final int PERMISSIONS_PUBLIC_READ = 4;
+	
+	/** Indicates that the group is <code>Public</code> i.e. RWRWRW. */
+	public static final int PERMISSIONS_PUBLIC_READ_WRITE = 5;
+	
+	/** Indicates that the group is <code>Private</code> i.e. RW----. */
+	public static final String PERMISSIONS_PRIVATE_TEXT = "Private Group";
+	
+	/** Indicates that the group is <code>Group</code> i.e. RWR---. */
+	public static final String PERMISSIONS_GROUP_READ_TEXT = 
+		"Collaborators can only read your data.";
+	
+	/** Indicates that the group is <code>Group</code> i.e. RWRA--. */
+	public static final String PERMISSIONS_GROUP_READ_LINK_TEXT = 
+		"Collaborators can read and annotate your data.";
+	
+	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
+	public static final String PERMISSIONS_GROUP_READ_WRITE_TEXT = 
+		"Collaborators can read, annotate, delete, etc., your data.";
+	
+	/** Indicates that the group is <code>Public</code> i.e. RWRWR-. */
+	public static final String PERMISSIONS_PUBLIC_READ_TEXT = "Public";
+	
+	/** Indicates that the group is <code>Public</code> i.e. RWRWRW. */
+	public static final String PERMISSIONS_PUBLIC_READ_WRITE_TEXT = "Public";
+	
+	/** Indicates that the group is <code>Group</code> i.e. RWR---. */
+	public static final String PERMISSIONS_GROUP_READ_SHORT_TEXT = "Read-Only";
+	
+	/** Indicates that the group is <code>Group</code> i.e. RWRA--. */
+	public static final String PERMISSIONS_GROUP_READ_LINK_SHORT_TEXT = 
+		"Read-Annotate";
+	
+	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
+	public static final String PERMISSIONS_GROUP_READ_WRITE_SHORT_TEXT = 
+		"Read-Write";
+	
     /** Identifies the {@link ExperimenterGroup#NAME} field. */
     public final static String NAME = ExperimenterGroupI.NAME;
 

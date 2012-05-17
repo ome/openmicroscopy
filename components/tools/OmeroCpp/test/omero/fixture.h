@@ -57,11 +57,24 @@ struct Fixture
         std::string uuid();
 
         /*
-         *
+         * Create a new omero::client object by logging
+         * in with the username and password. For most
+         * users created via Fixture::newUser no password
+         * is necessary.
          */
         omero::client_ptr login(
                 const std::string& username = std::string(),
                 const std::string& password = std::string());
+
+        /*
+         * Like login(username, password) but takes an experimenter
+         * object and calls ->getOmeName()->getValue() for you.
+         */
+        omero::client_ptr login(
+                const omero::model::ExperimenterPtr& user,
+                const std::string& password = std::string()) {
+            return this->login(user->getOmeName()->getValue(), password);
+        }
 
         /*
          *

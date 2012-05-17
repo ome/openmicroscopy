@@ -33,19 +33,6 @@ Extends "webgateway/base/container3.html"
     <li><a href="{% url common 'container3' %}">container3</a></li>
 {% endblock %}
 
-
-{% block thin_header_left %}
-    <a href="{% url common 'header_links' %}">header_links</a> | 
-    <a href="{% url common 'header_icon' %}">header_icon</a>
-{% endblock %}
-
-
-{% block thin_header_right %}
-    <a href="#">Extra Links</a> |
-    {% include 'webclient/base/logout.html' %}
-{% endblock %}
-
-
 {% block left %}
 <div style="position:absolute; top:0px; left:0px; right:0px; height:25px; border-bottom: solid black 1px">
     toolbar
@@ -81,8 +68,4 @@ Extends "webgateway/base/container3.html"
 {% block right %}
     <h1>block right</h1>
 
-{% endblock %}
-
-{% block footer_content %}
-    {% include "webclient/base/footer_links.html" %}
 {% endblock %}

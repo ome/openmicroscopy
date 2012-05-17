@@ -71,24 +71,6 @@ class SearchModel
 	private Map<SecurityContext, Collection<DataObject>> results;
 	
 	/**
-	 * Returns the group corresponding to the specified id.
-	 * 
-	 * @param groupId The id of the group.
-	 * @return See above.
-	 */
-	private GroupData getGroup(long groupId)
-	{
-		Set groups = DataBrowserAgent.getAvailableUserGroups();
-		Iterator i = groups.iterator();
-		GroupData g;
-		while (i.hasNext()) {
-			g = (GroupData) i.next();
-			if (g.getId() == groupId) return g;
-		}
-		return null;
-	}
-	
-	/**
 	 * Creates a new instance.
 	 * 
 	 * @param results The results to display.
@@ -102,17 +84,17 @@ class SearchModel
 		numberOfImages = 0;
 		long userID = DataBrowserAgent.getUserDetails().getId();
 		Set<ImageDisplay> vis = new HashSet<ImageDisplay>();
-		Iterator i = results.entrySet().iterator();
-		Entry e;
+		Iterator<Entry<SecurityContext, Collection<DataObject>>> 
+		i = results.entrySet().iterator();
+		Entry<SecurityContext, Collection<DataObject>> e;
 		SecurityContext ctx;
 		GroupData g;
 		Collection<DataObject> objects;
 		boolean singleGroup = isSingleGroup();
 		while (i.hasNext()) {
-			e = (Entry) i.next();
-			ctx = (SecurityContext) e.getKey();
-			
-			objects = (Collection<DataObject>) e.getValue();
+			e = i.next();
+			ctx = e.getKey();
+			objects = e.getValue();
 			numberOfImages += objects.size();
 			if (singleGroup) {
 				 vis.addAll(DataBrowserTranslator.transformObjects(objects,

@@ -67,7 +67,7 @@ public class DeleteROIAction
 	protected void onStateChange()
 	{
 		if (model.getState() == MeasurementViewer.READY)
-			setEnabled(model.isImageWritable() && model.hasROIToDelete());
+			setEnabled(model.canAnnotate() && model.hasROIToDelete());
 		else setEnabled(false);
 	}
 	

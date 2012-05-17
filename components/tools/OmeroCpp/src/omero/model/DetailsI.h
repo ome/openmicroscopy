@@ -9,6 +9,7 @@
 #ifndef OMERO_MODEL_DETAILSI_H
 #define OMERO_MODEL_DETAILSI_H
 
+#include <omero/client.h>
 #include <omero/model/Details.h>
 #include <omero/model/ExperimenterI.h>
 #include <omero/model/ExperimenterGroupI.h>
@@ -40,14 +41,31 @@ namespace omero {
 
 	protected:
 	    virtual ~DetailsI(); // protected as outlined in Ice docs.
-
+            const omero::client_ptr client;
+            /*const*/ omero::api::ServiceFactoryPrx session;
 	public:
 
-	    DetailsI();
+          DetailsI(const omero::client_ptr& client = omero::client_ptr());
 
-	    virtual omero::model::ExperimenterPtr getOwner(const Ice::Current& current = Ice::Current()) {
-		return owner ;
-	    }
+          const omero::client_ptr getClient() const {
+              return client;
+          }
+
+          const omero::api::ServiceFactoryPrx getSession() const {
+              return session;
+          }
+
+          /*const*/ omero::sys::EventContextPtr getEventContext() const {
+              return event;
+          }
+
+          /*const*/ std::map<std::string, std::string> getCallContext() const {
+              return call;
+          }
+
+          virtual omero::model::ExperimenterPtr getOwner(const Ice::Current& current = Ice::Current()) {
+              return owner ;
+          }
 
 	  virtual void setOwner(const omero::model::ExperimenterPtr& _owner, const Ice::Current& current = Ice::Current()) {
 		owner = _owner ;

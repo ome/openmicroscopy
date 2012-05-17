@@ -25,7 +25,10 @@
 {% block link %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static "webadmin/css/picklist.css" %}" type="text/css" media="screen"/>
-
+    <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen/chosen.css' %}" type="text/css" media="screen"/>
+    
+    <link rel="stylesheet" href="{% static 'webadmin/css/chosen.css' %}" type="text/css" media="screen"/>
+    
 {% endblock %}
 
 {% block title %}
@@ -39,52 +42,151 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery-1.7.1.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.chosen/chosen.jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.selectboxes.js' %}"></script>
     
     <script type="text/javascript">
     $(document).ready(function() 
     {
-        $('#add').click(function() {
-            $("option:selected", "select[name=available_groups]").each(function(){                
-                $('<li><label for="id_default_group_'+this.value+'"><input type="radio" name="default_group" value="'+this.value+'" id="id_default_group_'+this.value+'"> '+$(this).html()+' <input id="default_group_'+this.value+'" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove"></label></li>').appendTo("div.pickListRadio ul");
-                $("#id_other_groups").append(this);
-            });
-        });
-        
-        $('.removeButton').live("click", function() {
-            var val = $('#id_'+this.id).attr('value');
-            $("option:selected", "select[name=other_groups]").each(function(){
-                if(this.value == val) {
-                    if (val > 0) $('<option value="'+this.value+'">'+$(this).html()+'</option>').appendTo("#id_available_groups");
-                    $(this).remove();
-                    return false;
-                }
-            });
-            $(this).parent().parent().remove();
-            if (val == 0) $("input[name='administrator']").attr('checked', false);
-        });
-        
-        
-        $("input[name='administrator']").click( function() { 
-            if($("input[name='administrator']").is(':checked')) {
-                $('<option value="0">system</option>').attr('selected', true).appendTo("#id_other_groups");                
-                $('<li><label for="id_default_group_0"><input type="radio" name="default_group" value="0" id="id_default_group_0"> system <input id="default_group_0" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove"></label></li>').appendTo("div.pickListRadio ul");
-            } else {
-                $("option:selected", "select[name=other_groups]").each(function(){
-                    if(this.value == 0) {
-                        $(this).remove();
-                        return false;
-                    }
+        var highlightDefault = function() {
+            dv = $('#id_default_group').val();
+            if (dv.length > 0 && dv!== "0"){
+                selected = $.grep($('#id_other_groups').data('chosen').results_data, function(item){
+                    return item.value == dv;
                 });
-                $('#id_default_group_0').parent().parent().remove();                
+                $("#id_other_groups_chzn_c_"+selected[0].array_index).addClass('search-choice-default').find("a").first().attr('rel');
+                $('#id_default_group').val(selected[0].value);
+                $("#default_group_name").text(selected[0].html)
+            } else {
+                $('#id_default_group').val("");
+                $("#default_group_name").text("Nothing selected");
+            }
+        }
+
+        var selectDefaultGroup = function(evt) {
+            evt.stopPropagation();
+            var target = $(evt.target).hasClass("search-choice") ? $(evt.target) : $(evt.target).parents(".search-choice").first();
+            $(".chzn-choices li.search-choice").removeClass('search-choice-default');
+            choice_id = $(evt.currentTarget).addClass('search-choice-default').find("a").first().attr('rel');
+            selected = $.grep($('#id_other_groups').data('chosen').results_data, function(item){
+                return item.array_index == choice_id;
+            })[0];
+            $("#id_default_group").selectOptions(selected.value, true);
+            $("#default_group_name").text(selected.html);
+        };
+
+        $("#id_other_groups").chosen().change(function(evt, data) {
+            if (data && data.deselected) {
+                if (data.deselected === "0") {
+                    $("input[name='administrator']").attr('checked', false);
+                }
+                $df = $('#id_default_group')
+                if ($df.val() === data.deselected){
+                    $("#id_default_group").selectOptions("", true);
+                    $("#default_group_name").text("Nothing selected");
+                } 
+            } else if (data && data.selected) {
+                if (data.selected === "0") {
+                    $("input[name='administrator']").attr('checked', true);
+                }
+                $("li.search-choice").click(selectDefaultGroup);
+            }
+        });
+
+        $("input[name='administrator']").click( function(evt) {
+            evt.stopPropagation();
+            if($("input[name='administrator']").is(':checked')) {
+                $('#id_other_groups option[value=0]').prop('selected', true);
+            } else {
+                $('#id_other_groups option[value=0]').prop('selected', false);
+            }
+            $("#id_other_groups").trigger("liszt:updated");
+            $("li.search-choice").click(selectDefaultGroup);
+            highlightDefault();
+        });
+
+        $("li.search-choice").click(function(evt) {
+            evt.stopPropagation();
+            selectDefaultGroup(evt);
+        });
+        highlightDefault();
+        
+        
+        // code for Change Password dialog - NB this is duplicated in myaccount.html. 
+        $( "#password_change_dialog" ).dialog({
+            autoOpen: false,
+            draggable: false,
+            resizable: false,
+            closeOnEscape: true,
+            modal: false,
+            dialogClass: 'reddit',
+            buttons: {
+                "OK": function() {
+                    // simply submit the form (AJAX handling set-up above)
+                    $("#change_password_form").submit();
+                },
+                "Cancel": function() {
+                    $( this ).dialog( "close" );
+                }
+            },
+            position: { 
+                my: 'left center',
+                at: 'right center',
+                of: $('#change_password'),
+                collision: "flip",
+                offset: "10 0"
             }
         });
         
-        $("option:selected", "select[name=other_groups]").each(function(){
-            $('#id_default_group_'+this.value).parent().append('<input id="default_group_'+this.value+'" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove">');
+        $( "#change_password" ).click(function() {
+            // clear fields
+            var $pw_form = $("#change_password_form");
+            $("div.error", $pw_form).text("");
+            $("input[name='password']", $pw_form).val("");
+            $("input[name='confirmation']", $pw_form).val("");
+            $("input[name='old_password']", $pw_form).val("");
+            // show dialog
+            $( "#password_change_dialog" ).dialog( "open" );
+            return false;
+        });
+        $("#password_cancel").click(function() {
+            $( "#password_change_dialog" ).dialog( "close" );
+            return false;
+        });
+        
+        $("#password_change_message").hide();
+        $("#change_password_form").ajaxForm({
+            beforeSubmit: function(data) {
+                // check that both new passwords match, fields aren't empty etc.
+                var $pw_form = $("#change_password_form");
+                var new_pw = $("input[name='password']", $pw_form).val();
+                var conf_pw = $("input[name='confirmation']", $pw_form).val();
+                var old_pw = $("input[name='old_password']", $pw_form).val();
+                if ($.trim(new_pw).length==0 || $.trim(conf_pw).length==0 || $.trim(old_pw).length==0) {
+                    $("div.error", $pw_form).text("All fields must be filled in.");
+                    return false;
+                }
+                if (new_pw != conf_pw) {
+                    $("div.error", $pw_form).text("New passwords don't match.");
+                    return false;
+                }
+                if (new_pw == old_pw) {
+                    $("div.error", $pw_form).text("New password is the same as Old password");
+                    return false;
+                }
+                if ($.trim(new_pw).length<3 || $.trim(conf_pw).length<3 || $.trim(old_pw).length==0) {
+                    $("div.error", $pw_form).text("Passwords should be at least 3 characters long.");
+                    return false;
+                }
+                $( "#password_change_dialog" ).dialog( "close" );
+            },
+            success: function(html) {
+                $("#password_change_message").html(html).show().delay(3000).fadeOut(2000);
+            }
         });
 
-    });    
+    });
     
     </script>
 
@@ -94,68 +196,103 @@
 
 {{ block.super }}
 
-<div>
+<div class="one_column_content">
 {% if eid %}
     <h1>{% trans "Edit scientist" %}</h1>
 {% else %}
     <h1>{% trans "Add scientist" %}</h1>
 {% endif %}
 
+<h1><a href="{% url waexperimenters %}" style="position:relative; top:-38px; float:right" title="Go Back to Experimenters">Cancel</a></h1>
+
 <p>{% trans "Fields marked with an asterisk (*) are mandatory." %}</p>
 <br/>
 
 {% if eid %}
-    <form action="{% url wamanageexperimenterid "save" eid %}" method="POST">
-{% else %}
-    <form action="{% url wamanageexperimenterid "create" %}" method="POST">
-{% endif %}
-
-<table>
-    <tbody>
-        {% for field in form %}
+    <!-- We are editing existing user -->
+    <form action="{% url wamanageexperimenterid "save" eid %}" method="POST" class="standard_form">
         
-        {% ifequal field.label_tag form.default_group.label_tag %}{% else %}{% ifequal field.label_tag form.other_groups.label_tag %}{% else %}{% ifequal field.label_tag form.available_groups.label_tag %}{% else %}
-        
-        <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
-        
-        {% endifequal %}{% endifequal %}{% endifequal %}
-        
-        {% endfor %}
-
-        {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>
+        {% if ldapAuth %}
+        <label>LDAP:</label> {{ ldapAuth }} <br />
         {% else %}
-            {% if eid %}<tr><td class="form">Password: </td><td colspan="2"><a href="{% url wamanagechangepasswordid eid %}">change password</a></td></tr>{% endif %}
+
+        <div id="password">
+
+            <div id="password_change">
+                <label>Password</label>
+                <a class="btn btn_text silver" id="change_password">
+                    <span>Change User's Password</span>
+                </a>
+            </div>
+
+            <span id="password_change_message" class="error">Message here</span>
+        </div>
         {% endif %}
         
-        <tr><td class="form" colspan="3"><p>{% trans "A user may belong to one or more groups. To define the list of groups user is member of, select them from the <strong>Available groups</strong> box and click the <strong>[<]</strong> button to move them to the <strong>Selected groups</strong> area. Once groups are chosen, select one to specify the user's <strong>Default Group</strong>. The <strong>Default Group</strong> is the group that the user will be logged in to, and will be updated when they switch between groups in the clients." %}</p></td></tr>
-        <tr><td></td><td class="form">{% trans "Selected groups" %}*</td><td class="form">{% trans "Available groups" %}</td></tr>
+{% else %}
+    <!-- We are creating new user -->
+    <form action="{% url wamanageexperimenterid "create" %}" method="POST" class="standard_form">
+{% endif %}
+
         
-        {% if form.default_group.errors or form.available_groups.errors or form.other_groups.errors %}<tr><td></td><td colspan="2">{{ form.default_group.errors }}{{ form.other_groups.errors }}<br/>{{ form.available_groups.errors }}</td></tr>{% endif %}
-        <tr>
-            <td class="form">{{ form.default_group.label_tag }}{% if form.default_group.field.required %}*{% endif %}</td>
-            <td>
-                <div class="pickListRadio">
-                    {% if form.default_group %}
-                        {{ form.default_group }}
-                    {% else %}
-                        <ul></ul>
-                    {% endif %}
-                </div>
-                <div class="pickListSelectedHidden">
-                    {{ form.other_groups }}
-                </div>
-            </td>
-            <td>
-                <div class="pickListAvailable">
-                    {{ form.available_groups }}
-                </div>
-                <input id="add" name="add" type="button" class="button addButton" value="&lt;" title="Choose available and add">
-            </td>
-        </tr>    
-        <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-    </tbody>
-</table>
+        {{ form.omename.label_tag }} {% if form.omename.field.required %}*{% endif %} {{ form.omename }} <br />
+        {{ form.password.label_tag }} {% if form.password.field.required %}*{% endif %} {{ form.password }} <br />
+        {{ form.confirmation.label_tag }} {% if form.confirmation.field.required %}*{% endif %} {{ form.confirmation }} <br />
+        <br />
+        {{ form.first_name.label_tag }} {% if form.first_name.field.required %}*{% endif %} {{ form.first_name }} <br />
+        {{ form.middle_name.label_tag }} {% if form.middle_name.field.required %}*{% endif %} {{ form.middle_name }} <br />
+        {{ form.last_name.label_tag }} {% if form.last_name.field.required %}*{% endif %} {{ form.last_name }} <br />
+        <br />
+        {{ form.email.label_tag }} {% if form.email.field.required %}*{% endif %} {{ form.email }} <br />
+        {{ form.institution.label_tag }} {% if form.institution.field.required %}*{% endif %} {{ form.institution }} <br />
+        <br />
+        {{ form.administrator.label_tag }} {% if form.administrator.field.required %}*{% endif %} {{ form.administrator }} <br />
+        {{ form.active.label_tag }} {% if form.active.field.required %}*{% endif %} {{ form.active }} <br />
+        
+        <br />
+        {{ form.default_group.label_tag }}*{{ form.default_group }}
+        <span id="default_group_name">Nothing selected</span>
+        <br />
+        {{ form.other_groups.label_tag }}*
+        {{ form.other_groups }}
+        {% if form.other_groups.errors %}{{ form.other_groups.errors }}{% endif %}
+        {% if form.default_group.errors %}{{ form.default_group.errors }}{% endif %}
+        
+        <br />
+        
+        <input type="submit" value="{% trans 'Save' %}" />
+        
 </form>
+
+{% if eid %}
+<!-- hidden dialog for password change - This is almost duplicated in myaccount.html-->
+<div id="password_change_dialog" title="Change Password">
+
+    <form id="change_password_form" action="{% url wamanagechangepasswordid eid %}" method="POST">
+
+        <table>
+            <tbody>
+                <tr>
+                    <td class="form"><label for"id_old_password">Admin Password</label></td>
+                    <td class="input">{{ password_form.old_password }}</td>
+                </tr>
+                <tr>
+                    <td class="form">{{ password_form.password.label_tag }}{% if password_form.password.required %}*{% endif %}</td>
+                    <td class="input">{{ password_form.password }}</td>
+                </tr>
+                <tr>
+                    <td class="form">{{ password_form.confirmation.label_tag }}{% if password_form.confirmation.required %}*{% endif %}</td>
+                    <td class="input">{{ password_form.confirmation }}</td>
+                </tr>
+
+                <tr><td colspan="3">
+                    <div class="error"></div>
+                </td></tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+{% endif %}
 
 </div>
 

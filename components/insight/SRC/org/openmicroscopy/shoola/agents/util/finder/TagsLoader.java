@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -78,14 +79,12 @@ public class TagsLoader
     	ExperimenterData exp = FinderFactory.getUserDetails();
 		long userID = exp.getId();//viewer.getUserID();
 		long groupID = -1;
-		int level = 
-			FinderFactory.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-				case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+		switch (exp.getDefaultGroup().getPermissions().getPermissionsLevel()) {
+				case GroupData.PERMISSIONS_GROUP_READ_LINK:
 					groupID = exp.getDefaultGroup().getId();
 					userID = -1;
 					break;
-				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
 					userID = -1;
 		}
 		

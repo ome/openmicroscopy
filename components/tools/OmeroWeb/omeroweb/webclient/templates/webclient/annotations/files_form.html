@@ -30,12 +30,15 @@
 {% endcomment %}
 
 <div>
+
     <h1>{% trans "Upload a new file" %}:</h1>
-    <p>Choose a local file to upload and attach</p>
+    <span>Choose a local file to upload and attach</span>
     {{ form_file.annotation_file }}
-    
-    <h1>Attach an existing File:</h1>
-    <p>Select the attachments to add</p>
+</div>
+
+<p>
+    <h1>And/Or Attach an existing File:</h1>
+    <span>Select the attachments to add</span>
     <table>
         <tr>
             <td>{{ form_file.files }}</td>
@@ -49,5 +52,5 @@
         <tr class="hiddenField"><td>{{ form_file.acquisition }}</td></tr>
         <tr class="hiddenField"><td>{{ form_file.well }}</td></tr>
     </table>
-    
-</div>
+
+</p>

@@ -498,22 +498,50 @@ public interface DataBrowser
 	public void remove();
 	
 	/**
-	 * Returns <code>true</code> if the specified object is writable,
+	 * Returns <code>true</code> if the specified object can be deleted.
 	 * <code>false</code> otherwise, depending on the permission.
 	 * 
-	 * @param ho    The data object to check.
+	 * @param ho The data object to check.
 	 * @return See above.
 	 */
-	public boolean isWritable(Object ho);
+	public boolean canDelete(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the specified object can be edited,
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canEdit(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the specified object can be moved to 
+	 * another group, <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canChgrp(Object ho);
 
 	/**
-	 * Returns <code>true</code> if the user currently logged in is the
-	 * owner of the object, <code>false</code> otherwise.
+	 * Returns <code>true</code> if the specified object can be annotated,
+	 * <code>false</code> otherwise, depending on the permission.
 	 * 
-	 * @param ho    The data object to check.
+	 * @param ho The data object to check.
 	 * @return See above.
 	 */
-	public boolean isUserOwner(Object ho);
+	public boolean canAnnotate(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the specified object can be linked,
+	 * e.g. image added to dataset.
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canLink(Object ho);
 	
 	/**
 	 * Reloads the thumbnails. 
@@ -730,5 +758,14 @@ public interface DataBrowser
 	 * @return See above.
 	 */
 	SecurityContext getSecurityContext();
+	
+	/**
+	 * Returns <code>true</code> if the image to copy the rendering settings
+	 * from is in the specified group, <code>false</code> otherwise.
+	 * 
+	 * @param groupID The group to handle.
+	 * @return See above.
+	 */
+	boolean areSettingsCompatible(long groupID);
 
 }

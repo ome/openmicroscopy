@@ -29,28 +29,11 @@
     <link rel="stylesheet" href="{% static "webgateway/css/ome.viewport.css" %}" type="text/css" media="screen"/>
 
 
-    <script type="text/javascript" src="{% static "webgateway/js/ome.viewport.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/ome.viewportImage.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_slider.js" %}"></script>
-    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js" %}"></script>
-    
-    <!-- big images -->
-    <script type="text/javascript" src="{% static "3rdparty/panojs/utils.js" %}"></script>    
-    <script type="text/javascript" src="{% static "3rdparty/panojs/PanoJS.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/controls.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Bisque.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_imgcnv.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/pyramid_Zoomify.js" %}"></script>        
-    <script type="text/javascript" src="{% static "webgateway/js/ome.panojs.control_thumbnail.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/control_info.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/panojs/control_svg.js" %}"></script>
-
-
     <script type="text/javascript">
         $(document).ready(function() {
-            {% if manager.getShareId %}
-            var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}{{ manager.getShareId }}", {'mediaroot': '{{ STATIC_URL }}' } );
-            viewport.load({{ imageId }}, null, location.search);
+            {% if share_id %}
+            var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}{{ share_id }}", {'mediaroot': '{{ STATIC_URL }}' } );
+            viewport.load({{ manager.image.id }}, null, location.search);
             {% else %}
             var viewport = $.WeblitzViewport($("#viewport"), "{% url webindex %}", {'mediaroot': '{{ STATIC_URL }}' } );
             viewport.load({{ manager.image.id }});
@@ -60,10 +43,19 @@
 
 
 <!-- VIEWER "Preview"-->
-
+<div class="right_tab_inner">
+	
 <!-- open-image link -->
-<div style="padding-bottom:6px">{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% if manager.getShareId %}{% url web_image_viewer manager.getShareId manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')"><img src="{% static "webclient/image/kview16.png" %}" alt="View" title="Open full viewer"/></a></div>
+
+			<button class="btn silver btn_text" href="#" onclick="return openPopup('{% if share_id %}{% url web_image_viewer share_id manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')" alt="View" title="Open full viewer">
+				<span>
+                {% trans "Launch full viewer" %} 
+				</span>
+			</button>
 
 
-    <div class="miniview" id="viewport"></div>
 
+    <div class="miniview" id="viewport">
+    </div>
+
+</div>
