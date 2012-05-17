@@ -37,6 +37,7 @@ import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -163,6 +164,9 @@ class TreeViewerWin
 	/** The first selected pane. */
     private JXTaskPane 			firstPane;
     
+    /** The first selected pane. */
+    private JXTaskPane 			searchPane;
+    
     /** The component hosting the task panes. */
     private JXTaskPaneContainerSingle 	container;
 
@@ -267,7 +271,8 @@ class TreeViewerWin
             AdvancedFinder finder = model.getAdvancedFinder(
             		model.getSecurityContext());
     		finder.addPropertyChangeListener(controller);
-    		container.add(new TaskPaneBrowser(new JScrollPane(finder)));
+    		searchPane = new TaskPaneBrowser(new JScrollPane(finder));
+    		container.add(searchPane);
     		JScrollPane s = new JScrollPane(container);
     		s.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
             browsersDisplay = s;
@@ -1179,6 +1184,57 @@ class TreeViewerWin
 	
 	/** Indicates the group context.*/
 	void setPermissions() { toolBar.setPermissions(); }
+	
+	/** Resets the layout.*/
+	void resetLayout()
+	{
+		layoutBrowsers();
+		splitPane.setLeftComponent(browsersDisplay);
+    	if (TreeViewerWin.JXTASKPANE_TYPE.equals(getLayoutType())) {
+    		//if (firstPane != null) firstPane.setCollapsed(false);
+    		Browser browser = model.getSelectedBrowser();
+    		Browser b;
+    		List<JXTaskPane> list = container.getTaskPanes();
+    		TaskPaneBrowser tpb;
+    		if (browser != null) {
+    			if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+        			if (TreeViewerAgent.isAdministrator()) {
+        				for (JXTaskPane pane: list) {
+        					if (pane instanceof TaskPaneBrowser) {
+        						tpb = (TaskPaneBrowser) pane;
+        						b = tpb.getBrowser();
+        						if (b == browser) {
+        							tpb.setCollapsed(false);
+        						}
+        					}
+        				}
+        			} else {
+        				if (firstPane != null) firstPane.setCollapsed(false);
+        			}
+        		} else {
+        			for (JXTaskPane pane: list) {
+    					if (pane instanceof TaskPaneBrowser) {
+    						tpb = (TaskPaneBrowser) pane;
+    						b = tpb.getBrowser();
+    						if (b == browser) {
+    							tpb.setCollapsed(false);
+    						}
+    					}
+    				}
+        		}
+    		} else { //that's the search.
+    			if (searchPane != null) searchPane.setCollapsed(false);
+    		}
+    		
+        	if (!UIUtilities.isLinuxOS()) {
+        		for (JXTaskPane pane: list) 
+            		pane.setAnimated(true);
+        	}
+    	}
+    	
+		validate();
+		repaint();
+	}
 	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()

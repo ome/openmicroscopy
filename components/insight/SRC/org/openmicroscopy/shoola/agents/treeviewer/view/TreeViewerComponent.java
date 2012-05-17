@@ -3907,7 +3907,7 @@ class TreeViewerComponent
 		model.getMetadataViewer().onGroupSwitched(true);
 		view.createTitle();
 		view.setPermissions();
-		//model.resetMetadataViewer();
+		view.resetLayout();
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Entry entry;
 		Browser browser;
