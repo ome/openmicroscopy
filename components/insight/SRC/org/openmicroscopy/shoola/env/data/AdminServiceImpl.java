@@ -365,12 +365,22 @@ class AdminServiceImpl
 		if (group == null)
 			throw new IllegalArgumentException("No group to update.");
 		ExperimenterGroup g = group.asGroup();
-		Permissions p = null;
-		if (permissions != -1) {
-			p = g.getDetails().getPermissions();
-			gateway.setPermissionsLevel(p, permissions);
+		String r = "rw----";
+		switch (permissions) {
+			case GroupData.PERMISSIONS_GROUP_READ:
+				r = "rwr---";
+				break;
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+				r = "rwra--";
+				break;
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				r = "rwrw--";
+				break;
+			case GroupData.PERMISSIONS_PUBLIC_READ:
+				r = "rwrwr-";
+				break;
 		}
-		return gateway.updateGroup(ctx, g, p);
+		return gateway.updateGroup(ctx, g, r);
 	}
 
 	/**

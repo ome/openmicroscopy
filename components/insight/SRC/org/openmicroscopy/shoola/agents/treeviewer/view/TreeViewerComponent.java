@@ -93,7 +93,6 @@ import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -2076,16 +2075,20 @@ class TreeViewerComponent
 		
 		int level = group.getPermissions().getPermissionsLevel();
 		if (level == GroupData.PERMISSIONS_PRIVATE) {
-			ExperimenterData currentUser = model.getExperimenter();
-			Set leaders = group.getLeaders();
-			Iterator k = leaders.iterator();
-			ExperimenterData exp;
 			boolean owner = false;
-			while (k.hasNext()) {
-				exp = (ExperimenterData) k.next();
-				if (exp.getId() == currentUser.getId()) {
-					owner = true;
-					break;
+			if (TreeViewerAgent.isAdministrator()) owner = true;
+			else {
+				ExperimenterData currentUser = model.getExperimenter();
+				Set leaders = group.getLeaders();
+				Iterator k = leaders.iterator();
+				ExperimenterData exp;
+				
+				while (k.hasNext()) {
+					exp = (ExperimenterData) k.next();
+					if (exp.getId() == currentUser.getId()) {
+						owner = true;
+						break;
+					}
 				}
 			}
 			if (!owner) return;
@@ -2271,7 +2274,7 @@ class TreeViewerComponent
 	 */
 	public void pasteRndSettings(TimeRefObject ref)
 	{
-		//TODO Check state.
+		if (model.getState() == DISCARDED) return;
 		if (!hasRndSettings()) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Paste settings", "No rendering settings to" +
@@ -3904,7 +3907,7 @@ class TreeViewerComponent
 		model.getMetadataViewer().onGroupSwitched(true);
 		view.createTitle();
 		view.setPermissions();
-		//model.resetMetadataViewer();
+		view.resetLayout();
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Entry entry;
 		Browser browser;
@@ -4174,7 +4177,7 @@ class TreeViewerComponent
 			Object ho; 
 			for (int i = 0; i < selection.length; i++) {
 				ho = selection[i].getUserObject();
-				if (ho instanceof ImageData && canEdit(ho))
+				if (ho instanceof ImageData && canLink(ho))
 					images.add(ho);
 			}
 			if (images.size() == 0) {
@@ -4228,6 +4231,7 @@ class TreeViewerComponent
 		if (browser == null) objects = new ArrayList<DataObject>();
 		else objects = browser.getSelectedDataObjects();
 
+		if (objects == null) objects = new ArrayList<DataObject>();
 		//setStatus(false);
 		//Check if the objects are in the same group.
 		Iterator<DataObject> i = objects.iterator();
@@ -4290,7 +4294,7 @@ class TreeViewerComponent
 				return;
 			}
 		}
-		if (!canEdit(ot) && !(ot instanceof ExperimenterData ||
+		if (!canLink(ot) && !(ot instanceof ExperimenterData ||
 				ot instanceof GroupData)) {
 			un.notifyInfo("DnD", 
 					"You must be the owner of the container.");

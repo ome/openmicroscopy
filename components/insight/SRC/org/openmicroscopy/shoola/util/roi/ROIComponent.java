@@ -388,7 +388,7 @@ public class ROIComponent
 	public ROI createROI(long id)
 		throws ROICreationException
 	{
-		return roiCollection.createROI(id, true);
+		return roiCollection.createROI(id, true, true, true, true);
 	}
 
 	/**
@@ -399,16 +399,21 @@ public class ROIComponent
 	 * old one.
 	 * 
 	 * @param id The ROI id. 
-	 * @param clientSideObject Is this object a client-side object
+	 * @param clientSideObject Is this object a client-side object.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 * @return See above.
 	 * @throws ROICreationException	If an error occurred while creating 
 	 * 								an ROI, basic assumption is this is 
 	 * 								linked to memory issues.
 	 */
-	public ROI createROI(long id, boolean clientSideObject)
+	public ROI createROI(long id, boolean clientSideObject,
+			boolean editable, boolean deletable, boolean annotatable)
 		throws ROICreationException
 	{
-		return roiCollection.createROI(id, clientSideObject);
+		return roiCollection.createROI(id, clientSideObject, editable,
+				deletable, annotatable);
 	}
 
 	/**

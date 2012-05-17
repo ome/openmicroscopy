@@ -208,6 +208,8 @@ public class PermissionsPane
         collaborativeGroupBox.addChangeListener(this);
         publicBox.addChangeListener(this);
         privateBox.addChangeListener(this);
+        readOnlyGroupBox.addChangeListener(this);
+        readAnnotateGroupBox.addChangeListener(this);
     }
     
     /**
@@ -335,19 +337,8 @@ public class PermissionsPane
 	public PermissionsPane(PermissionData permissions, Color background)
 	{
 		int level = GroupData.PERMISSIONS_PRIVATE;
-		if (permissions != null) {
-			if (permissions.isGroupRead()) {
-	    		if (permissions.isGroupWrite()) 
-	    			level = GroupData.PERMISSIONS_GROUP_READ_WRITE;
-	    		else if (permissions.isGroupAnnotate())
-	    			level = GroupData.PERMISSIONS_GROUP_READ_LINK;
-	    		else level = GroupData.PERMISSIONS_GROUP_READ;
-	    	} else if (permissions.isWorldRead()) {
-	    		if (permissions.isGroupWrite()) 
-	    			level = GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
-	    		else level = GroupData.PERMISSIONS_PUBLIC_READ;
-	    	}
-		}
+		if (permissions != null)
+			level = permissions.getPermissionsLevel();
     	if (background != null) setBackground(background);
 		initComponents(level);
 		buildGUI();
@@ -471,7 +462,11 @@ public class PermissionsPane
 	{
 		Object src = e.getSource();
 		//turn controls on/off
-		JRadioButton b = (JRadioButton) src;
+		if (readOnlyGroupBox == src || readAnnotateGroupBox == src) {
+			firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, -1,
+					getPermissions());
+			return;
+		}
 		readWriteGroupBox.setEnabled(false);
 		readOnlyGroupBox.setEnabled(false);
 		readAnnotateGroupBox.setEnabled(false);
@@ -480,19 +475,7 @@ public class PermissionsPane
 			readOnlyGroupBox.setEnabled(true);
 			readAnnotateGroupBox.setEnabled(true);
 		}
-		/*
-		if (readOnlyGroupBox == src || readOnlyPublicBox == src) {
-			firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, 
-					-1, getPermissions());
-		} else {
-			readOnlyGroupBox.setEnabled(false);
-			readOnlyPublicBox.setEnabled(false);
-			if (readAnnotateGroupBox == src || readWriteGroupBox == src)
-				readOnlyGroupBox.setEnabled(true);
-			else if (publicBox == src) readOnlyPublicBox.setEnabled(true);
-			firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, 
-					-1, getPermissions());
-		}*/
+		firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, -1, getPermissions());
 	}
 	
 }

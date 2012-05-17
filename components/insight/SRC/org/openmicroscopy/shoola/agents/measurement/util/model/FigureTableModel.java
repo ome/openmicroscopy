@@ -128,7 +128,9 @@ public class FigureTableModel
 					if (MeasurementAttributes.TEXT.equals(key) ||
 							MeasurementAttributes.WIDTH.equals(key) ||
 							MeasurementAttributes.HEIGHT.equals(key)) {
-						fieldName.setEditable(!figure.isReadOnly());
+						if (figure.isReadOnly())
+							fieldName.setEditable(false);
+						else fieldName.setEditable(figure.canEdit());
 					}
 					keys.add(key);
 					values.add(figure.getAttribute(key));

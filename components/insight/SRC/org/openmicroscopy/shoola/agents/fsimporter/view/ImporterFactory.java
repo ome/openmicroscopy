@@ -119,10 +119,10 @@ public class ImporterFactory
 		singleton.clear();
 	}
 	
+	/** Invokes when a new user has reconnected.*/
 	public static void onReconnected()
 	{
-		if (singleton.importer != null && 
-				((ImporterComponent) singleton.importer).isMaster()) {
+		if (singleton.importer != null) {
 			((ImporterComponent) singleton.importer).onReconnected();
 		}
 	}

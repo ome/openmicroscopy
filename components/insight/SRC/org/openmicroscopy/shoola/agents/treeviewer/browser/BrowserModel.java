@@ -832,7 +832,7 @@ class BrowserModel
     	int count = 0;
     	boolean b = false;
 		for (int i = 0; i < selected.length; i++) {
-			b = parent.canEdit(selected[i].getUserObject());
+			b = parent.canDelete(selected[i].getUserObject());
 			if (b) count++;
 		}
 		if (count == selected.length) {
@@ -904,8 +904,14 @@ class BrowserModel
 		}
 		if (node.getUserObject() instanceof ExperimenterData) {
 			TreeImageDisplay parent = node.getParentDisplay();
-			GroupData group = (GroupData) parent.getUserObject();
-			return new SecurityContext(group.getId());
+			Object p = parent.getUserObject();
+			if (p instanceof GroupData) {
+				GroupData group = (GroupData) p;
+				return new SecurityContext(group.getId());
+			} else {
+				return new SecurityContext(
+				TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+			}
 		}
 		if (node.getUserObject() instanceof GroupData) {
 			GroupData group = (GroupData) node.getUserObject();

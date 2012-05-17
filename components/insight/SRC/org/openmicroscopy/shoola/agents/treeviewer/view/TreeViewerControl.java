@@ -148,6 +148,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.WellData;
 import pojos.WellSampleData;
@@ -756,7 +757,11 @@ class TreeViewerControl
 			while (j.hasNext()) {
 				o = j.next();
 				if (o instanceof DataObject) {
-					if (model.canChgrp(o)) count++;
+					if (!(o instanceof GroupData ||
+						o instanceof ExperimenterData ||
+						o instanceof PlateAcquisitionData)) {
+						if (model.canChgrp(o)) count++;
+					}
 				}
 			}
 			if (count != selection.size()) return null;
