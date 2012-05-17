@@ -3640,7 +3640,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
             sql+=" and pa.id in (:pids)" 
             
         for al in self._conn.getQueryService().findAllByQuery(sql, p, self._conn.CONFIG['SERVICE_OPTS']):
-            yield AnnotationLinkWrapper(self, al)
+            yield AnnotationLinkWrapper(self._conn, al)
 
 class _AnnotationLinkWrapper (BlitzObjectWrapper):
     """
