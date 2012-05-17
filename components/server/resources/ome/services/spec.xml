@@ -83,16 +83,17 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Roi">
+    <bean parent="delSpec" name="/ROI">
         <description>
         Deletes a Region of interest, its shapes, and any attached annotations.
         </description>
         <constructor-arg>
             <list>
-                <value>/Roi/Shape</value>
-                <value>/Roi/RoiAnnotationLink;FORCE</value>
-                <value>/Annotation;SOFT;/Roi/RoiAnnotationLink/</value>
-                <value>/Roi</value>
+                <value>/ROI/Shape</value>
+                <value>/ROI/ROIAnnotationLink;FORCE</value>
+                <value>/ROI/ImageROILink;FORCE</value>
+                <value>/Annotation;SOFT;/ROI/ROIAnnotationLink/</value>
+                <value>/ROI</value>
             </list>
         </constructor-arg>
     </bean>
@@ -122,19 +123,18 @@
                 <value>/Annotation;SOFT;/Image/Pixels/Channel/ChannelAnnotationLink</value>
                 <value>/Image/Pixels/Channel</value>
                 <value>/Image/Pixels/Channel/StatsInfo</value>
-                <value>/Image/Pixels/Channel/LogicalChannel;SOFT</value> <!-- REAP -->
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/OTF;REAP</value -->
-                <value>/Image/Pixels/Channel/LogicalChannel/LightSettings;SOFT</value>
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/LightSettings/LightSource;SOFT</value -->
-                <value>/Image/Pixels/Channel/LogicalChannel/LightSettings/MicrobeamManipulation</value>
-                <value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings;SOFT</value>
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings/Detector;SOFT</value -->
-                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink</value>
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink/Filter;SOFT</value -->
-                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink</value>
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink/Filter;SOFT</value -->
-                <value>/Image/Pixels/Channel/LogicalChannel/LightPath;SOFT</value>
-                <!-- value>/Image/Pixels/Channel/LogicalChannel/LightPath/Dichroic;SOFT</value -->
+                <!-- value>/Image/Pixels/Channel/OTF;REAP</value -->
+                <value>/Image/Pixels/Channel/LightSourceSettings;SOFT</value>
+                <!-- value>/Image/Pixels/Channel/LightSourceSettings/LightSource;SOFT</value -->
+                <value>/Image/Pixels/Channel/LightSourceSettings/MicrobeamManipulation</value>
+                <value>/Image/Pixels/Channel/DetectorSettings;SOFT</value>
+                <!-- value>/Image/Pixels/Channel/DetectorSettings/Detector;SOFT</value -->
+                <value>/Image/Pixels/Channel/LightPath/LightPathEmissionFilterLink</value>
+                <!-- value>/Image/Pixels/Channel/LightPath/LightPathEmissionFilterLink/Filter;SOFT</value -->
+                <value>/Image/Pixels/Channel/LightPath/LightPathExcitationFilterLink</value>
+                <!-- value>/Image/Pixels/Channel/LightPath/LightPathExcitationFilterLink/Filter;SOFT</value -->
+                <value>/Image/Pixels/Channel/LightPath;SOFT</value>
+                <!-- value>/Image/Pixels/Channel/LightPath/Dichroic;SOFT</value -->
             </list>
         </constructor-arg>
     </bean>
@@ -159,7 +159,7 @@
     <bean parent="delSpec" name="/Experiment">
         <constructor-arg>
             <list>
-                <value>/Experiment/MicrobeamManipulation/LightSettings</value>
+                <value>/Experiment/MicrobeamManipulation/LightSourceSettings</value>
                 <value>/Experiment/MicrobeamManipulation</value>
                 <value>/Experiment</value>
             </list>
@@ -188,12 +188,13 @@
         </description>
         <constructor-arg>
             <list>
-                <value>/Roi;FORCE;/Image</value>
+                <value>/ImageROILink/ROI;SOFT;/Image</value>
+                <value>/ImageROILink;FORCE;/Image</value>
                 <value>/Image/Pixels/PixelsOriginalFileMap;REAP</value>
                 <value>/OriginalFile;SOFT;/Image/Pixels/PixelsOriginalFileMap</value><!-- #5273 -->
-                <value>/Image/Pixels/PlaneInfo/PlaneInfoAnnotationLink;FORCE</value>
-                <value>/Annotation;SOFT;/Image/Pixels/PlaneInfo/PlaneInfoAnnotationLink</value>
-                <value>/Image/Pixels/PlaneInfo</value>
+                <value>/Image/Pixels/Plane/PlaneAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Image/Pixels/Plane/PlaneAnnotationLink</value>
+                <value>/Image/Pixels/Plane</value>
                 <value>/Image/Pixels/RenderingDef;FORCE</value>
                 <value>/Image/Pixels/Channel</value>
                 <value>/Image/Pixels/Thumbnail;FORCE</value>
@@ -255,7 +256,7 @@
                 <value>/Image;;/Well/WellSample</value>
                 <value>/Well/WellAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Well/WellAnnotationLink</value>
-                <value>/Well/WellReagentLink;FORCE</value>
+                <value>/Well/Reagent;FORCE</value>
                 <value>/Well</value>
             </list>
         </constructor-arg>
@@ -335,12 +336,12 @@
     <bean parent="delSpec" name="/NodeAnnotationLink"> <constructor-arg> <list> <value>/NodeAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="delSpec" name="/OriginalfileAnnotationLink"> <constructor-arg> <list> <value>/OriginalfileAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="delSpec" name="/PixelsAnnotationLink"> <constructor-arg> <list> <value>/PixelsAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/PlaneinfoAnnotationLink"> <constructor-arg> <list> <value>/PlaneinfoAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/PlaneAnnotationLink"> <constructor-arg> <list> <value>/PlaneAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="delSpec" name="/PlateAcquisitionAnnotationLink"> <constructor-arg> <list> <value>/PlateAcquisitionAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="delSpec" name="/PlateAnnotationLink"> <constructor-arg> <list> <value>/PlateAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="delSpec" name="/ProjectAnnotationLink"> <constructor-arg> <list> <value>/ProjectAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="delSpec" name="/ReagentAnnotationLink"> <constructor-arg> <list> <value>/ReagentAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/RoiAnnotationLink"> <constructor-arg> <list> <value>/RoiAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="delSpec" name="/ROIAnnotationLink"> <constructor-arg> <list> <value>/ROIAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="delSpec" name="/ScreenAnnotationLink"> <constructor-arg> <list> <value>/ScreenAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="delSpec" name="/SessionAnnotationLink"> <constructor-arg> <list> <value>/SessionAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="delSpec" name="/WellAnnotationLink"> <constructor-arg> <list> <value>/WellAnnotationLink</value> </list> </constructor-arg> </bean>
