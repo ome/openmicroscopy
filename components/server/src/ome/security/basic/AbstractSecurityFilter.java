@@ -8,18 +8,8 @@
 package ome.security.basic;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
-import org.hibernate.Filter;
-import org.hibernate.Session;
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
-
-import ome.conditions.InternalException;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
@@ -27,6 +17,12 @@ import ome.model.internal.Permissions.Role;
 import ome.security.SecurityFilter;
 import ome.system.EventContext;
 import ome.system.Roles;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
 
 /**
  * overrides {@link FilterDefinitionFactoryBean} in order to construct our
@@ -42,7 +38,9 @@ import ome.system.Roles;
 public abstract class AbstractSecurityFilter extends FilterDefinitionFactoryBean
     implements SecurityFilter {
 
-   protected final Roles roles;
+    protected final Log log = LogFactory.getLog(getClass());
+
+    protected final Roles roles;
 
     /**
      * default constructor which calls all the necessary setters for this
