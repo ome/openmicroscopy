@@ -869,16 +869,16 @@ class BaseContainer(BaseController):
     def remove(self, parent):
         if self.tag:
             for al in self.tag.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None and al.details.owner.id.val == self.conn.getUser().id:
+                if al is not None and al.canDelete():
                     self.conn.deleteObjectDirect(al._obj)
         elif self.file:
             for al in self.file.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None and al.details.owner.id.val == self.conn.getUser().id:
+                if al is not None and al.canDelete():
                     self.conn.deleteObjectDirect(al._obj)
         elif self.comment:
             # remove the comment from specified parent
             for al in self.comment.getParentLinks(str(parent[0]), [long(parent[1])]):
-                if al is not None and al.details.owner.id.val == self.conn.getUser().id:
+                if al is not None and al.canDelete():
                     self.conn.deleteObjectDirect(al._obj)
             # if comment is orphan, delete it directly
             orphan = True
