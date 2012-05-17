@@ -171,10 +171,6 @@
                     $("div.error", $pw_form).text("New passwords don't match.");
                     return false;
                 }
-                if (new_pw == old_pw) {
-                    $("div.error", $pw_form).text("New password is the same as Old password");
-                    return false;
-                }
                 if ($.trim(new_pw).length<3 || $.trim(conf_pw).length<3 || $.trim(old_pw).length==0) {
                     $("div.error", $pw_form).text("Passwords should be at least 3 characters long.");
                     return false;
@@ -273,7 +269,7 @@
         <table>
             <tbody>
                 <tr>
-                    <td class="form"><label for"id_old_password">Admin Password</label></td>
+                    <td class="form"><label for="id_old_password">Admin Password</label></td>
                     <td class="input">{{ password_form.old_password }}</td>
                 </tr>
                 <tr>
