@@ -44,9 +44,7 @@ public class SearchServiceTest
 	public void testByFullTextImageType()
 		throws Exception
 	{
-		Image p = (Image) 
-    	factory.getUpdateService().saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+		Image p = createBasicImage();
 		String name = p.getName().getValue();
 		SearchPrx svc = factory.createSearchService();
 		svc.onlyType(Image.class.getName());
@@ -63,9 +61,7 @@ public class SearchServiceTest
 	public void testByFullTextProjectType()
 		throws Exception
 	{
-		Image p = (Image) 
-    	factory.getUpdateService().saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+		Image p = createBasicImage();
 		String name = p.getName().getValue();
 		SearchPrx svc = factory.createSearchService();
 		svc.onlyType(Project.class.getName());
