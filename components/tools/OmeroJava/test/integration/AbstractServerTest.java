@@ -1569,5 +1569,21 @@ public class AbstractServerTest
 		}
 		return rsp;
 	}
+	
+	protected Image createBasicImage() throws Exception {
+		return createImage(1, 1, 1, 1, 1);
+	}
+
+	protected Image createImage(int x, int y, int z, int time,
+			int channels) throws Exception {
+
+		Image image = mmFactory.createImage(x, y, z, time, channels);
+
+		Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(image
+				.getPixels());
+		image = pixels.getImage();
+
+		return image;
+	}
 
 }
