@@ -333,7 +333,7 @@ public class CreateTopContainerAction
         		switch (nodeType) {
 					case DATASET:
 						if (uo instanceof ProjectData) 
-							withParent = model.canEdit(uo);
+							withParent = model.canLink(uo);
 						break;
 					case EXPERIMENTER:
 						if (uo instanceof ExperimenterData) 
@@ -346,7 +346,7 @@ public class CreateTopContainerAction
 							if (ns != null && 
 								TagAnnotationData.INSIGHT_TAGSET_NS.equals(
 											ns));
-								withParent = model.canEdit(tag);
+								withParent = model.canLink(tag);
 						}
 				}
         	}

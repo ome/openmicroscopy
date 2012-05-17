@@ -4177,7 +4177,7 @@ class TreeViewerComponent
 			Object ho; 
 			for (int i = 0; i < selection.length; i++) {
 				ho = selection[i].getUserObject();
-				if (ho instanceof ImageData && canEdit(ho))
+				if (ho instanceof ImageData && canLink(ho))
 					images.add(ho);
 			}
 			if (images.size() == 0) {
@@ -4294,7 +4294,7 @@ class TreeViewerComponent
 				return;
 			}
 		}
-		if (!canEdit(ot) && !(ot instanceof ExperimenterData ||
+		if (!canLink(ot) && !(ot instanceof ExperimenterData ||
 				ot instanceof GroupData)) {
 			un.notifyInfo("DnD", 
 					"You must be the owner of the container.");

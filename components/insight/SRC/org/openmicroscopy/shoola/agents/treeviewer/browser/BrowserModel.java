@@ -832,7 +832,7 @@ class BrowserModel
     	int count = 0;
     	boolean b = false;
 		for (int i = 0; i < selected.length; i++) {
-			b = parent.canEdit(selected[i].getUserObject());
+			b = parent.canDelete(selected[i].getUserObject());
 			if (b) count++;
 		}
 		if (count == selected.length) {
