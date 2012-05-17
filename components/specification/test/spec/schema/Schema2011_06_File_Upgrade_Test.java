@@ -29,6 +29,7 @@ import loci.formats.services.OMEXMLService;
 
 import ome.xml.model.BinData;
 import ome.xml.model.Channel;
+import ome.xml.model.Dataset;
 import ome.xml.model.Ellipse;
 import ome.xml.model.Experimenter;
 import ome.xml.model.ExperimenterGroup;
@@ -43,7 +44,9 @@ import ome.xml.model.Plate;
 import ome.xml.model.Point;
 import ome.xml.model.Polygon;
 import ome.xml.model.Polyline;
+import ome.xml.model.Project;
 import ome.xml.model.ROI;
+import ome.xml.model.Reagent;
 import ome.xml.model.Rectangle;
 import ome.xml.model.Screen;
 import ome.xml.model.Shape;
@@ -83,6 +86,8 @@ public class Schema2011_06_File_Upgrade_Test {
     private OME ome;
     
     private Image image0;
+    private Dataset dataset0;
+    private Project project0;
     private Plate plate0;
     private Plate plate1;
     private Well well0;
@@ -90,7 +95,6 @@ public class Schema2011_06_File_Upgrade_Test {
     private Pixels pixels0;
     private StructuredAnnotations annotations;
     private WellSample wellSample0;
-
     private PlateAcquisition plateAcquisition0;
     private Screen screen0;
     private Screen screen1;
@@ -120,43 +124,32 @@ public class Schema2011_06_File_Upgrade_Test {
     private ROI roi0;
     private ROI roi1;
     private ROI roi2;
+    private ROI roi3;
+    private ROI roi4;
     private Union union0;
     private Union union1;
     private Union union2;
-
-    private ROI roi3;
-
     private Union union3;
-
-    private ROI roi4;
-
     private Union union4;
 
     private Shape shape0;
-
     private Shape shape1;
-
     private Shape shape2;
-
     private Shape shape3;
-
     private Shape shape4;
-
     private Shape shape5;
-
     private Shape shape6;
-
     private Shape shape7;
-
     private Shape shape8;
-
     private Shape shape9;
-
+    /* Shape 10 is removed by the upgrade */
     private Shape shape11;
-
     private Shape shape12;
-
     private Shape shape13;
+    private Reagent reagent0;
+    private Reagent reagent1;
+    private Reagent reagent2;
+    private Reagent reagent3;
 
     @BeforeClass
     public void setUp() throws Exception {
@@ -186,16 +179,29 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNotNull(ome.getStructuredAnnotations());
     }
 
+    @Test (groups = {"proj"}, dependsOnMethods = {"testOmeNode"})
+    public void testDataset0() {
+        Assert.assertNotNull(ome);
+        dataset0 = ome.getDataset(0);
+        Assert.assertNotNull(dataset0);
+    }
+    
+    @Test (groups = {"proj"}, dependsOnMethods = {"testOmeNode"})
+    public void testProject0() {
+        Assert.assertNotNull(ome);
+        project0 = ome.getProject(0);
+        Assert.assertNotNull(project0);
+     }
     
     @Test (groups = {"spw"}, dependsOnMethods = {"testOmeNode"})
-    public void testPlate0Description() {
+    public void testPlate0() {
         Assert.assertNotNull(ome);
         plate0 = ome.getPlate(0);
         Assert.assertNotNull(plate0);
         Assert.assertEquals(ref.Plate0Description, plate0.getDescription());
     }
 
-    @Test (groups = {"spw"}, dependsOnMethods = {"testPlate0Description"})
+    @Test (groups = {"spw"}, dependsOnMethods = {"testPlate0"})
     public void testPlateAcquisition0Description() {
         Assert.assertNotNull(plate0);
         Assert.assertEquals(1, plate0.sizeOfPlateAcquisitionList());
@@ -204,7 +210,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Plate0PlateAcquisition0Description, plateAcquisition0.getDescription());
     }
     
-    @Test (groups = {"spw"}, dependsOnMethods = {"testPlate0Description"})
+    @Test (groups = {"spw"}, dependsOnMethods = {"testPlate0"})
     public void testPlate0Well0() {
         Assert.assertNotNull(plate0);
         Assert.assertEquals(1, plate0.sizeOfWellList());
@@ -244,8 +250,9 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Screen0ReagentSetDescription, screen0.getReagentSetDescription());
         Assert.assertEquals(ref.Screen0ReagentSetIdentifier, screen0.getReagentSetIdentifier());
         Assert.assertEquals(ref.Screen0Type, screen0.getType());
+        Assert.assertEquals(1, screen0.sizeOfReagentList());
     }
-
+    
     @Test (groups = {"spw"}, dependsOnMethods = {"testOmeNode"})
     public void testScreen1() {
         Assert.assertNotNull(ome);
@@ -286,6 +293,47 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Screen3ReagentSetIdentifier, screen3.getReagentSetIdentifier());
         Assert.assertEquals(ref.Screen3Type, screen3.getType());
     }
+
+    @Test (groups = {"spw"}, dependsOnMethods = {"testScreen0"})
+    public void testReagent0() {
+        Assert.assertNotNull(screen0);
+        reagent0 = screen0.getReagent(0);
+        Assert.assertNotNull(reagent0);
+        Assert.assertNull(reagent0.getName());
+        Assert.assertNull(reagent0.getReagentIdentifier());
+        Assert.assertNull(reagent0.getName());
+    }
+    
+    @Test (groups = {"spw"}, dependsOnMethods = {"testScreen1"})
+    public void testReagent1() {
+        Assert.assertNotNull(screen1);
+        reagent1 = screen1.getReagent(0);
+        Assert.assertNotNull(reagent1);
+        Assert.assertNull(reagent1.getName());
+        Assert.assertNull(reagent1.getReagentIdentifier());
+        Assert.assertNull(reagent1.getName());
+    }
+    
+    @Test (groups = {"spw"}, dependsOnMethods = {"testScreen2"})
+    public void testReagent2() {
+        Assert.assertNotNull(screen2);
+        reagent2 = screen2.getReagent(0);
+        Assert.assertNotNull(reagent2);
+        Assert.assertNull(reagent2.getName());
+        Assert.assertNull(reagent2.getReagentIdentifier());
+        Assert.assertNull(reagent2.getName());
+    }
+    
+    @Test (groups = {"spw"}, dependsOnMethods = {"testScreen3"})
+    public void testReagent3() {
+        Assert.assertNotNull(screen3);
+        reagent3 = screen3.getReagent(0);
+        Assert.assertNotNull(reagent3);
+        Assert.assertNull(reagent3.getName());
+        Assert.assertNull(reagent3.getReagentIdentifier());
+        Assert.assertNull(reagent3.getName());
+    }
+    
 
     @Test (groups = {"exper"}, dependsOnMethods = {"testOmeNode"})
     public void testExperimenter0() {
@@ -718,7 +766,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.ROI2Shape2TransformA02, rectangle2.getTransform().getA02());
         Assert.assertEquals(ref.ROI2Shape2TransformA10, rectangle2.getTransform().getA10());
         Assert.assertEquals(ref.ROI2Shape2TransformA11, rectangle2.getTransform().getA11());
-        Assert.assertEquals(ref.ROI2Shape2TransformA12, rectangle2.getTransform().getA12());       
+        Assert.assertEquals(ref.ROI2Shape2TransformA12, rectangle2.getTransform().getA12());
     }
 
     @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
@@ -857,14 +905,139 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(Double.valueOf(0), label13.getY());
     }
 
-    
-    
-    /*
-
-    @Test (groups = {"links"}, dependsOnGroups = {"roi", "image"})
-    public void testROILinkage() {
-        Assert.assertTrue(false,"To Do");
+    @Test (groups = {"links"}, dependsOnGroups = {"spw", "annotation"})
+    public void testPlate0Linkage() {
+        Assert.assertNotNull(plate0);
+        Assert.assertEquals(1, plate0.sizeOfLinkedAnnotationList());
+        Assert.assertEquals(xmlAnnotation0, plate0.getLinkedAnnotation(0));
     }
-*/
+       
+    @Test (groups = {"links"}, dependsOnGroups = {"spw", "annotation"})
+    public void testPlate1Linkage() {
+        Assert.assertNotNull(plate1);
+        Assert.assertEquals(0, plate1.sizeOfLinkedAnnotationList());
+    }
 
+    @Test (groups = {"links"}, dependsOnGroups = {"spw", "annotation"})
+    public void testPlateAcquisition0Linkage() {
+        Assert.assertNotNull(plateAcquisition0);
+        Assert.assertEquals(1, plateAcquisition0.sizeOfLinkedAnnotationList());
+        Assert.assertEquals(xmlAnnotation1, plateAcquisition0.getLinkedAnnotation(0));
+    }
+
+    @Test (groups = {"links"}, dependsOnGroups = {"spw", "image"})
+    public void testWellSample0Linkage() {
+        Assert.assertNotNull(wellSample0);
+        Assert.assertEquals(image0, wellSample0.getLinkedImage());
+    }
+
+    @Test (groups = {"links"}, dependsOnGroups = {"spw", "annotation"})
+    public void testScreen0Linkage() {
+        Assert.assertNotNull(screen0);
+        Assert.assertEquals(1, screen0.sizeOfLinkedAnnotationList());
+        Assert.assertEquals(1, screen0.sizeOfLinkedPlateList());
+        Assert.assertEquals(plate0, screen0.getLinkedPlate(0));
+        Assert.assertEquals(xmlAnnotation1, screen0.getLinkedAnnotation(0));
+     }
+
+    @Test (groups = {"links"}, dependsOnGroups = {"spw", "annotation"})
+    public void testScreen1Linkage() {
+        Assert.assertNotNull(screen1);
+        Assert.assertEquals(1, screen1.sizeOfLinkedAnnotationList());
+        Assert.assertEquals(2, screen1.sizeOfLinkedPlateList());
+        Assert.assertEquals(plate1, screen1.getLinkedPlate(0));
+        Assert.assertEquals(plate0, screen1.getLinkedPlate(1));
+        Assert.assertEquals(xmlAnnotation1, screen1.getLinkedAnnotation(0));
+     }
+
+    @Test (groups = {"links"}, dependsOnGroups = {"spw", "annotation"})
+    public void testScreen2Linkage() {
+        Assert.assertNotNull(screen2);
+        Assert.assertEquals(1, screen2.sizeOfLinkedAnnotationList());
+        Assert.assertEquals(0, screen2.sizeOfLinkedPlateList());
+        Assert.assertEquals(xmlAnnotation1, screen2.getLinkedAnnotation(0));
+     }
+
+    @Test (groups = {"links"}, dependsOnGroups = {"spw", "annotation"})
+    public void testScreen3Linkage() {
+        Assert.assertNotNull(screen3);
+        Assert.assertEquals(1, screen3.sizeOfLinkedAnnotationList());
+        Assert.assertEquals(1, screen3.sizeOfLinkedPlateList());
+        Assert.assertEquals(plate0, screen3.getLinkedPlate(0));
+        Assert.assertEquals(xmlAnnotation1, screen3.getLinkedAnnotation(0));
+     }
+
+    @Test (groups = {"links"}, dependsOnGroups = {"exper"})
+    public void testExperimenterGroup0Linkage() {
+        Assert.assertNotNull(experimenterGroup0);
+        Assert.assertEquals(1, experimenterGroup0.sizeOfLinkedExperimenterList());
+        Assert.assertEquals(1, experimenterGroup0.sizeOfLinkedLeaderList());
+        Assert.assertEquals(experimenter5, experimenterGroup0.getLinkedExperimenter(0));
+        Assert.assertEquals(experimenter0, experimenterGroup0.getLinkedLeader(0));
+     }
+
+    @Test (groups = {"links"}, dependsOnGroups = {"exper"})
+    public void testExperimenterGroup1Linkage() {
+        Assert.assertNotNull(experimenterGroup1);
+        Assert.assertEquals(2, experimenterGroup1.sizeOfLinkedExperimenterList());
+        Assert.assertEquals(2, experimenterGroup1.sizeOfLinkedLeaderList());
+        Assert.assertEquals(experimenter2, experimenterGroup1.getLinkedExperimenter(0));
+        Assert.assertEquals(experimenter3, experimenterGroup1.getLinkedExperimenter(1));
+        Assert.assertEquals(experimenter0, experimenterGroup1.getLinkedLeader(0));
+        Assert.assertEquals(experimenter1, experimenterGroup1.getLinkedLeader(1));
+     }
+
+    @Test (groups = {"links"}, dependsOnGroups = {"exper"})
+    public void testExperimenterGroup2Linkage() {
+        Assert.assertNotNull(experimenterGroup2);
+        Assert.assertEquals(1, experimenterGroup2.sizeOfLinkedExperimenterList());
+        Assert.assertEquals(1, experimenterGroup2.sizeOfLinkedLeaderList());
+        Assert.assertEquals(experimenter4, experimenterGroup2.getLinkedExperimenter(0));
+        Assert.assertEquals(experimenter6, experimenterGroup2.getLinkedLeader(0));
+     }
+
+    @Test (groups = {"links"}, dependsOnGroups = {"exper"})
+    public void testExperimenterGroup3Linkage() {
+        Assert.assertNotNull(experimenterGroup3);
+        Assert.assertEquals(0, experimenterGroup3.sizeOfLinkedExperimenterList());
+        Assert.assertEquals(1, experimenterGroup3.sizeOfLinkedLeaderList());
+        Assert.assertEquals(experimenter0, experimenterGroup3.getLinkedLeader(0));
+     }
+
+    @Test (groups = {"links"}, dependsOnGroups = {"exper"})
+    public void testExperimenterGroup4Linkage() {
+        Assert.assertNotNull(experimenterGroup4);
+        Assert.assertEquals(0, experimenterGroup4.sizeOfLinkedExperimenterList());
+        Assert.assertEquals(1, experimenterGroup4.sizeOfLinkedLeaderList());
+        Assert.assertEquals(experimenter0, experimenterGroup4.getLinkedLeader(0));
+     }
+
+    @Test (groups = {"links"}, dependsOnGroups = {"image", "exper", "roi", "annotation"})
+    public void testImage0Linkage() {
+        Assert.assertNotNull(image0);
+        Assert.assertEquals(0, image0.sizeOfLinkedAnnotationList());
+        Assert.assertEquals(3, image0.sizeOfLinkedROIList());
+        Assert.assertEquals(experimenter1, image0.getLinkedExperimenter());
+        Assert.assertEquals(roi0, image0.getLinkedROI(0));
+        Assert.assertEquals(roi1, image0.getLinkedROI(1));
+        Assert.assertEquals(roi2, image0.getLinkedROI(2));
+     }
+
+    @Test (groups = {"links"}, dependsOnGroups = {"proj", "annotation"})
+    public void testProject0Linkage() {
+        Assert.assertNotNull(project0);
+        Assert.assertEquals(1, project0.sizeOfLinkedAnnotationList());
+        Assert.assertEquals(1, project0.sizeOfLinkedDatasetList());
+        Assert.assertEquals(dataset0, project0.getLinkedDataset(0));
+        Assert.assertEquals(xmlAnnotation0, project0.getLinkedAnnotation(0));
+     }
+    
+    @Test (groups = {"links"}, dependsOnGroups = {"image", "proj", "annotation"})
+    public void testDataset0Linkage() {
+        Assert.assertNotNull(dataset0);
+        Assert.assertEquals(1, dataset0.sizeOfLinkedAnnotationList());
+        Assert.assertEquals(1, dataset0.sizeOfLinkedImageList());
+        Assert.assertEquals(image0, dataset0.getLinkedImage(0));
+        Assert.assertEquals(xmlAnnotation1, dataset0.getLinkedAnnotation(0));
+     }
 }
