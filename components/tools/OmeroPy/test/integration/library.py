@@ -23,7 +23,7 @@ import subprocess
 import omero
 
 from omero.util.temp_files import create_path
-from omero.rtypes import rstring, rtime, rint, unwrap
+from omero.rtypes import rstring, rtime, rint, rdouble, unwrap
 from path import path
 
 
@@ -520,6 +520,13 @@ class ITest(unittest.TestCase):
         finally:
             c.__del__()
 
+    def new_rectangle(self, height=1.0, width=1.0, x=1.0, y=1.0):
+        rect = omero.model.RectangleI()
+        rect.height = rdouble(height)
+        rect.width = rdouble(width)
+        rect.x = rdouble(x)
+        rect.y = rdouble(y)
+        return rect
 
     def tearDown(self):
         failure = False
