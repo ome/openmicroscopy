@@ -181,11 +181,12 @@ public class Upgrade2011_06
         public static final FontStyle ROI2Shape3FontStyle = FontStyle.NORMAL;
         public static final FontFamily ROI2Shape3FontFamily = FontFamily.SERIF;
         public static final String ROI2Shape3Name = "Name of shape 3";
+        public static final String ROI2Shape3Label = "Hello World Label!(from shape 3)";
         public static final Marker ROI2Shape3MarkerStart = Marker.SQUARE;
         public static final Marker ROI2Shape3MarkerEnd = Marker.SQUARE;
         public static final Double ROI2Shape3TextX = Double.valueOf("1");
         public static final Double ROI2Shape3TextY = Double.valueOf("1");
-        public static final String ROI2Shape3TextValue = "Hello World!(from shape 3)";
+        public static final String ROI2Shape3TextValue = "Hello World Text Value!(from shape 3)";
         public static final Marker ROI2Shape4MarkerStart = Marker.CIRCLE;
         public static final Marker ROI2Shape4MarkerEnd = Marker.ARROW;
         public static final Color ROI2Shape4Stroke = Color.valueOf("15");

@@ -171,9 +171,9 @@
 			<ROI:Shape ID="Shape:2" FillRule="EvenOdd" Label="Hi There! (from shape 2)" Transform="10, 20, 30, 40, 50, 60">
 				<ROI:Rectangle X="1" Y="2" Width="3" Height="4"/>
 			</ROI:Shape>
-			<ROI:Shape ID="Shape:3" FillRule="EvenOdd" FontStyle="Normal" FontFamily="serif" Name="Name of shape 3" MarkerStart="Square" MarkerEnd="Square">
+			<ROI:Shape ID="Shape:3" FillRule="EvenOdd" FontStyle="Normal" FontFamily="serif" Name="Name of shape 3" MarkerStart="Square" MarkerEnd="Square" Label="Hello World Label!(from shape 3)">
 				<ROI:Text X="1" Y="1">
-					<ROI:Value>Hello World!(from shape 3)</ROI:Value>
+					<ROI:Value>Hello World Text Value!(from shape 3)</ROI:Value>
 				</ROI:Text>
 			</ROI:Shape>
 			<ROI:Shape ID="Shape:4" MarkerStart="Circle" MarkerEnd="Arrow" Stroke="15" StrokeWidth="2">
