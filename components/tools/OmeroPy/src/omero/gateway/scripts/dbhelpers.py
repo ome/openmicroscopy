@@ -279,6 +279,7 @@ class ProjectEntry (ObjectEntry):
                 UserEntry.addGroupToUser (s, groupname, self.group_perms)
             finally:
                 s.seppuku()
+            
             UserEntry.setGroupForSession(client, groupname, self.group_perms)
         p = omero.gateway.ProjectWrapper(client, client.getUpdateService().saveAndReturnObject(p))
         return self.get(client, True)
