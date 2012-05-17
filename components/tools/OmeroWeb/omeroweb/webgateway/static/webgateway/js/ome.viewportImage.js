@@ -328,10 +328,12 @@ $.fn.viewportImage = function(options) {
       this.setZoom(parseInt(increment));
     }
 
+	/*
     dragdiv.mousewheel(function (e, delta) {
       _this.doZoom(delta, true);
       e.preventDefault();
     });
+	*/
 
 
     /**

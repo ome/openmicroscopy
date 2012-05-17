@@ -97,7 +97,7 @@ public class ParamsHelper {
     }
 
     JobParams getParamsOrNull(final long scriptId, Current __current) {
-        ome.model.jobs.ParseJob job = getParseJobForScript(scriptId);
+        ome.model.jobs.ParseJob job = getParseJobForScript(scriptId, __current);
 
         if (job != null) {
             return parse(job.getParams(), __current);
@@ -105,8 +105,8 @@ public class ParamsHelper {
         return null;
     }
 
-    ome.model.jobs.ParseJob getParseJobForScript(final long scriptId) {
-        ome.model.jobs.ParseJob job = (ome.model.jobs.ParseJob) ex.execute(p,
+    ome.model.jobs.ParseJob getParseJobForScript(final long scriptId, final Ice.Current current) {
+        ome.model.jobs.ParseJob job = (ome.model.jobs.ParseJob) ex.execute(current.ctx, p,
                 new Executor.SimpleWork(this, "getParseJobForScript", scriptId) {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
@@ -139,8 +139,8 @@ public class ParamsHelper {
             throw new InternalException(null, null, "No processor acquired.");
         }
 
-        job = (ParseJob) proc.getJob();
-        final JobParams rv = proc.params();
+        job = (ParseJob) proc.getJob(__current.ctx);
+        final JobParams rv = proc.params(__current.ctx);
         // Guaranteed non-null for a parse job
         saveScriptParams(rv, job, __current);
         return rv;
@@ -151,7 +151,7 @@ public class ParamsHelper {
             throws ServerError {
 
         final byte[] data = parse(params, __current);
-        ex.execute(p, new Executor.SimpleWork(this, "saveScriptParams", job.getId().getValue()) {
+        ex.execute(__current.ctx, p, new Executor.SimpleWork(this, "saveScriptParams", job.getId().getValue()) {
             @Transactional(readOnly = false)
             public Object doWork(final Session session, final ServiceFactory sf) {
                 ome.model.jobs.ParseJob parseJob = sf.getQueryService().get(

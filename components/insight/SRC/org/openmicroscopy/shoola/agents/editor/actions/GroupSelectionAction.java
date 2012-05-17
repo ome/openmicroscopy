@@ -31,10 +31,8 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.GroupData;
 
@@ -59,29 +57,30 @@ public class GroupSelectionAction
 	private void setPermissions()
 	{
 		int iconID = IconManager.PERSONAL;
-		int level = 
-            EditorAgent.getRegistry().getAdminService().getPermissionLevel(
-            			group);
 		String desc = "";
-		switch (level) {
-			case AdminObject.PERMISSIONS_PRIVATE:
-				desc = AdminObject.PERMISSIONS_PRIVATE_TEXT;
+		switch (group.getPermissions().getPermissionsLevel()) {
+			case GroupData.PERMISSIONS_PRIVATE:
+				desc = GroupData.PERMISSIONS_PRIVATE_TEXT;
 				iconID = IconManager.PRIVATE_GROUP_DD_12;
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ:
-				desc = AdminObject.PERMISSIONS_GROUP_READ_TEXT;
+			case GroupData.PERMISSIONS_GROUP_READ:
+				desc = GroupData.PERMISSIONS_GROUP_READ_TEXT;
 				iconID = IconManager.READ_GROUP_DD_12;
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-				desc = AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT;
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
+				desc = GroupData.PERMISSIONS_GROUP_READ_LINK_TEXT;
 				iconID = IconManager.READ_LINK_GROUP_DD_12;
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ:
-				desc = AdminObject.PERMISSIONS_PUBLIC_READ_TEXT;
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				desc = GroupData.PERMISSIONS_GROUP_READ_WRITE_TEXT;
+				iconID = IconManager.READ_WRITE_GROUP_DD_12;
+				break;
+			case GroupData.PERMISSIONS_PUBLIC_READ:
+				desc = GroupData.PERMISSIONS_PUBLIC_READ_TEXT;
 				iconID = IconManager.PUBLIC_GROUP_DD_12;
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				desc = AdminObject.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
+			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
+				desc = GroupData.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
 				iconID = IconManager.PUBLIC_GROUP_DD_12;
 		}
 

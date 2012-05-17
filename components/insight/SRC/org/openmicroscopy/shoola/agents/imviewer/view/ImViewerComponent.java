@@ -81,7 +81,6 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -290,7 +289,7 @@ class ImViewerComponent
 	 */
 	private boolean saveOnClose(boolean notifyUser)
 	{
-		if (isReadOnly()) return true;
+		if (!canAnnotate()) return true;
 		if (!notifyUser) {
 			//savePlane();
 			try {
@@ -3127,20 +3126,12 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#isReadOnly()
+	 * @see ImViewer#canAnnotate()
 	 */
-	public boolean isReadOnly()
+	public boolean canAnnotate()
 	{
-		if (isUserOwner()) return false;
-		int level = 
-			ImViewerAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_PUBLIC_READ:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				return false;
-		}
-		return true;
+		if (isUserOwner()) return true;
+		return model.getImage().canAnnotate();
 	}
 
 	/** 

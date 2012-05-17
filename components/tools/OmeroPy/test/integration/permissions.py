@@ -14,11 +14,13 @@ import omero
 from omero_model_PermissionsI import PermissionsI
 from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
+from omero_model_ProjectI import ProjectI
 from omero_model_TagAnnotationI import TagAnnotationI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
+from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 from omero.rtypes import *
 
 class CallContextFixture(object):
@@ -118,6 +120,26 @@ class TestPermissions(lib.ITest):
         # And link?
         # And edit? cF. READ-ONLY & READ-LINK
 
+    def testLinkingInPrivateGroup(self):
+
+        uuid = self.uuid()
+        group = self.new_group(perms="rw----")
+        client, user = self.new_client_and_user(group=group, admin=True)
+        update = client.sf.getUpdateService()
+
+        project = ProjectI()
+        project.setName(rstring("project1_%s" % uuid))
+        project = update.saveAndReturnObject(project)
+        dataset = DatasetI()
+        dataset.setName(rstring("dataset1_%s" % uuid))
+        dataset = update.saveAndReturnObject(dataset)
+        links = []
+        l = ProjectDatasetLinkI()
+        l.setChild(dataset)
+        l.setParent(project)
+        links.append(l)
+        update.saveAndReturnArray(links)
+
     def testCreatAndUpdatePrivateGroup(self):
         # this is the test of creating private group and updating it
         # including changes in #1434
@@ -133,8 +155,10 @@ class TestPermissions(lib.ITest):
         p.setUserRead(True)
         p.setUserWrite(True)
         p.setGroupRead(False)
+        p.setGroupAnnotate(False)
         p.setGroupWrite(False)
         p.setWorldRead(False)
+        p.setWorldAnnotate(False)
         p.setWorldWrite(False)
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
@@ -163,8 +187,10 @@ class TestPermissions(lib.ITest):
         p.setUserRead(True)
         p.setUserWrite(True)
         p.setGroupRead(True)
+        p.setGroupAnnotate(False)
         p.setGroupWrite(False)
         p.setWorldRead(False)
+        p.setWorldAnnotate(False)
         p.setWorldWrite(False)
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
@@ -172,6 +198,37 @@ class TestPermissions(lib.ITest):
         # update name of group1
         gr1 = admin.getGroup(g1_id)
         self.assertEquals('rwr---', str(gr1.details.permissions))
+        new_name = "changed_name_group1_%s" % uuid
+        gr1.name = rstring(new_name)
+        admin.updateGroup(gr1)
+        gr1_u = admin.getGroup(g1_id)
+        self.assertEquals(new_name, gr1_u.name.val)
+
+    def testCreatAndUpdatePublicGroupReadAnnotate(self):
+        # this is the test of creating public group and updating it
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        query = self.root.sf.getQueryService()
+        update = self.root.sf.getUpdateService()
+        admin = self.root.sf.getAdminService()
+
+        #create group1
+        new_gr1 = ExperimenterGroupI()
+        new_gr1.name = rstring("group1_%s" % uuid)
+        p = PermissionsI()
+        p.setUserRead(True)
+        p.setUserWrite(True)
+        p.setGroupRead(True)
+        p.setGroupAnnotate(True)
+        p.setGroupWrite(False)
+        p.setWorldRead(False)
+        p.setWorldAnnotate(False)
+        p.setWorldWrite(False)
+        new_gr1.details.permissions = p
+        g1_id = admin.createGroup(new_gr1)
+
+        # update name of group1
+        gr1 = admin.getGroup(g1_id)
+        self.assertEquals('rwra--', str(gr1.details.permissions))
         new_name = "changed_name_group1_%s" % uuid
         gr1.name = rstring(new_name)
         admin.updateGroup(gr1)
@@ -195,6 +252,7 @@ class TestPermissions(lib.ITest):
         p.setGroupRead(True)
         p.setGroupWrite(True)
         p.setWorldRead(False)
+        p.setWorldAnnotate(False)
         p.setWorldWrite(False)
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
@@ -223,36 +281,57 @@ class TestPermissions(lib.ITest):
         p.setUserRead(True)
         p.setUserWrite(True)
         p.setGroupRead(False)
+        p.setGroupAnnotate(False)
         p.setGroupWrite(False)
         p.setWorldRead(False)
+        p.setWorldAnnotate(False)
         p.setWorldWrite(False)
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
 
-        #incrise permissions of group1 to rwr---
+        #increase permissions of group1 to rwr---
         gr1 = admin.getGroup(g1_id)
         p1 = PermissionsI()
         p1.setUserRead(True)
         p1.setUserWrite(True)
         p1.setGroupRead(True)
+        p1.setGroupAnnotate(False)
         p1.setGroupWrite(False)
         p1.setWorldRead(False)
+        p1.setWorldAnnotate(False)
         p1.setWorldWrite(False)
         admin.changePermissions(gr1, p1)
         gr2 = admin.getGroup(g1_id)
         self.assertEquals('rwr---', str(gr2.details.permissions))
 
-        #incrise permissions of group1 to rwrw--
+        #increase permissions of group1 to rwra--
+        gr2 = admin.getGroup(g1_id)
         p2 = PermissionsI()
         p2.setUserRead(True)
         p2.setUserWrite(True)
         p2.setGroupRead(True)
-        p2.setGroupWrite(True)
+        p2.setGroupAnnotate(True)
+        p2.setGroupWrite(False)
         p2.setWorldRead(False)
+        p2.setWorldAnnotate(False)
         p2.setWorldWrite(False)
         admin.changePermissions(gr2, p2)
         gr3 = admin.getGroup(g1_id)
-        self.assertEquals('rwrw--', str(gr3.details.permissions))
+        self.assertEquals('rwra--', str(gr3.details.permissions))
+
+        #increase permissions of group1 to rwrw--
+        gr3 = admin.getGroup(g1_id)
+        p3 = PermissionsI()
+        p3.setUserRead(True)
+        p3.setUserWrite(True)
+        p3.setGroupRead(True)
+        p3.setGroupWrite(True)
+        p3.setWorldRead(False)
+        p3.setWorldAnnotate(False)
+        p3.setWorldWrite(False)
+        admin.changePermissions(gr3, p3)
+        gr4 = admin.getGroup(g1_id)
+        self.assertEquals('rwrw--', str(gr4.details.permissions))
 
     def testGroupOwners(self):
         # this is the test of creating private group and updating it
@@ -269,8 +348,10 @@ class TestPermissions(lib.ITest):
         p.setUserRead(True)
         p.setUserWrite(True)
         p.setGroupRead(True)
+        p.setGroupAnnotate(False)
         p.setGroupWrite(False)
         p.setWorldRead(False)
+        p.setWorldAnnotate(False)
         p.setWorldWrite(False)
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
@@ -606,6 +687,40 @@ class TestPermissions(lib.ITest):
                 "omero.group":str(group.id.val)}
         query = client.sf.getQueryService()
         query.get("Image", image.id.val, callcontext)
+
+    # chmod
+    # ==============================================
+
+    def testImmutablePermissions(self):
+        # See #8277 permissions returned from the server
+        # should now be immutable.
+
+        # Test on the raw object
+        p = omero.model.PermissionsI()
+        p.ice_postUnmarshal()
+        self.assertRaises(omero.ClientError, \
+                p.setPerm1, 1)
+
+        # and on one returned from the server
+        c = omero.model.CommentAnnotationI()
+        c = self.update.saveAndReturnObject(c)
+        p = c.details.permissions
+        self.assertRaises(omero.ClientError, \
+                p.setPerm1, 1)
+
+    def testDisallow(self):
+        p = omero.model.PermissionsI()
+        self.assertTrue(p.canAnnotate())
+        self.assertTrue(p.canEdit())
+
+    def testClientSet(self):
+        c = omero.model.CommentAnnotationI()
+        c = self.update.saveAndReturnObject(c)
+        d = c.getDetails()
+        self.assertTrue( d.getClient() is not None)
+        self.assertTrue( d.getSession() is not None)
+        self.assertTrue( d.getCallContext() is not None)
+        self.assertTrue( d.getEventContext() is not None)
 
 if __name__ == '__main__':
     unittest.main()

@@ -44,26 +44,29 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
 
     public ProcessCallbackI(omero.client client, ProcessPrx process)
     throws ServerError {
-        this(client.getAdapter(), process, true);
+        this(client, process, true);
     }
 
     public ProcessCallbackI(omero.client client, ProcessPrx process, boolean poll)
     throws ServerError {
-        this(client.getAdapter(), process, poll);
+        this(client.getAdapter(), client.getCategory(), process, poll);
     }
 
-    public ProcessCallbackI(Ice.ObjectAdapter adapter, ProcessPrx process)
-    throws ServerError {
-        this(adapter, process, true);
+    public ProcessCallbackI(Ice.ObjectAdapter adapter, String category,
+            ProcessPrx process) throws ServerError {
+        this(adapter, category, process, true);
     }
 
-    public ProcessCallbackI(Ice.ObjectAdapter adapter, ProcessPrx process, boolean poll)
-    throws ServerError {
+    public ProcessCallbackI(Ice.ObjectAdapter adapter, String category,
+            ProcessPrx process, boolean poll)
+        throws ServerError {
+
+        this.adapter = adapter;
         this.poll = poll;
         this.process = process;
-        this.adapter = adapter;
-        this.id = new Ice.Identity(UUID.randomUUID().toString(),
-                "ProcessCallback");
+        this.id = new Ice.Identity();
+        this.id.name = UUID.randomUUID().toString();
+        this.id.category = category;
         Ice.ObjectPrx prx = adapter.add(this, id);
         ProcessCallbackPrx cb = ProcessCallbackPrxHelper.uncheckedCast(prx);
         process.registerCallback(cb);

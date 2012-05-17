@@ -68,7 +68,7 @@ public interface SecurityFilter {
      *            null all {@link Right rights} will be assumed.
      * @return true if the object to which this
      */
-    public boolean passesFilter(Details d, EventContext c);
+    public boolean passesFilter(Session session, Details d, EventContext c);
 
     /**
      * Enables this filter with the settings from this filter. The intent is

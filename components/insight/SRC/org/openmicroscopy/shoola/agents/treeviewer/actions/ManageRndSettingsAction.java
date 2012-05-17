@@ -36,6 +36,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateAcquisitionData;
@@ -134,16 +136,7 @@ public class ManageRndSettingsAction
 		for (int i = 0; i < nodes.length; i++) {
 			node = (TreeImageTimeSet) nodes[i];
 			if (node.getNumberItems() > 0) {
-				/*
-				if (index == COPY) {
-					if (model.isObjectWritable(node))
-						count++;
-				} else {
-					if (model.isUserOwner(node))
-						count++;
-				}
-				*/
-				if (model.isObjectWritable(node))
+				if (model.canAnnotate(node))
 					count++;
 			}
 		}
@@ -234,7 +227,7 @@ public class ManageRndSettingsAction
 				if (selected.length > 1) setEnabled(false);
 				else {
 					if (ho instanceof ImageData || ho instanceof WellSampleData)
-						setEnabled(true);//setEnabled(model.isUserOwner(ho));
+						setEnabled(model.canAnnotate(ho));
 					else setEnabled(false);
 				}
 				break;
@@ -253,10 +246,11 @@ public class ManageRndSettingsAction
 						ho instanceof PlateAcquisitionData))
 					setEnabled(false);
 				else {
-					
+					DataObject data;
 					for (int i = 0; i < selected.length; i++) {
-						//if (model.isUserOwner(selected[i].getUserObject()))
-						if (model.isObjectWritable(selected[i].getUserObject()))
+						data = (DataObject) selected[i].getUserObject();
+						if (model.canAnnotate(ho) && 
+								model.areSettingsCompatible(data.getGroupId()))
 							count++;
 					}
 					setEnabled(count == selected.length);
@@ -274,8 +268,7 @@ public class ManageRndSettingsAction
 					setEnabled(false);
 				else {
 					for (int i = 0; i < selected.length; i++) {
-						//if (model.isUserOwner(selected[i].getUserObject()))
-						if (model.isObjectWritable(selected[i].getUserObject()))
+						if (model.canAnnotate(selected[i].getUserObject()))
 							count++;
 					}
 					setEnabled(count == selected.length);
@@ -294,8 +287,7 @@ public class ManageRndSettingsAction
 					Object object;
 					for (int i = 0; i < selected.length; i++) {
 						object = selected[i].getUserObject();
-						if (model.isObjectWritable(object) && 
-								!model.isUserOwner(object))
+						if (model.canAnnotate(object))
 							count++;
 					}
 					setEnabled(count == selected.length);

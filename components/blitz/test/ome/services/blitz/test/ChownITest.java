@@ -675,13 +675,13 @@ public class ChownITest extends AbstractGraphTest {
     //
 
     private void changeToNewGroup() throws ServerError {
-        user_sf.setSecurityContext(new ExperimenterGroupI(newUserId, false), null);
+        user.sf.setSecurityContext(new ExperimenterGroupI(newUserId, false), null);
     }
 
     private _HandleTie doChown(ChownI chown) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", "chown");
         HandleI handle = new HandleI(1000);
-        handle.setSession(user_sf);
+        handle.setSession(user.sf);
         handle.initialize(id, chown);
         handle.run();
         // Client side this would need a try/finally { handle.close() }

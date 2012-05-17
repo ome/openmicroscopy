@@ -7,8 +7,12 @@
 
 package omero.cmd;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.logging.Log;
@@ -29,7 +33,6 @@ import ome.util.SqlAction;
 
 import omero.LockTimeout;
 import omero.ServerError;
-import omero.util.CloseableServant;
 
 /**
  * Servant for the handle proxy from the Command API. This is also a
@@ -52,7 +55,7 @@ import omero.util.CloseableServant;
  * @since 4.3.2
  */
 public class HandleI implements _HandleOperations, IHandle,
-       SessionAware, CloseableServant {
+       SessionAware {
 
     private static enum State {
         CREATED, READY, RUNNING, CANCELLING, CANCELLED, FINISHED;
@@ -68,6 +71,12 @@ public class HandleI implements _HandleOperations, IHandle,
     private final int cancelTimeoutMs;
 
     /**
+     * Callbacks that have been added by clients.
+     */
+    private final ConcurrentHashMap<String, CmdCallbackPrx> callbacks =
+        new ConcurrentHashMap<String, CmdCallbackPrx>();
+
+    /**
      * State-diagram location. This instance is also used as a lock around
      * certain critical sections.
      */
@@ -80,10 +89,22 @@ public class HandleI implements _HandleOperations, IHandle,
     private final AtomicReference<Response> rsp = new AtomicReference<Response>();
 
     /**
+     * Current step. should only be incremented during {@link #steps(SqlAction, Session, ServiceFactory)}.
+     */
+    private final AtomicInteger currentStep = new AtomicInteger();
+
+    /**
      * Status which will be returned by {@link #getStatus()} and as a part of
      * the {@link Response} value.
      */
     private final Status status = new Status();
+
+    /**
+     * Context to be passed to
+     * {@link Executor#execute(Map, Principal, ome.services.util.Executor.Work)}
+     * for properly setting the call context.
+     */
+    private final Map<String, String> callContext;
 
     /**
      * The principal, i.e. the session information, about the current users
@@ -112,12 +133,20 @@ public class HandleI implements _HandleOperations, IHandle,
     //
 
     /**
+     * Calls {@link #HandleI(int, Map)} with a null call context.
+     */
+    public HandleI(int cancelTimeoutMs) {
+        this(cancelTimeoutMs, null);
+    }
+
+    /**
      * Create and
      *
      * @param cancelTimeoutMs
      */
-    public HandleI(int cancelTimeoutMs) {
+    public HandleI(int cancelTimeoutMs, Map<String, String> callContext) {
         this.cancelTimeoutMs = cancelTimeoutMs;
+        this.callContext = callContext;
         this.state.set(State.CREATED);
     }
 
@@ -130,6 +159,49 @@ public class HandleI implements _HandleOperations, IHandle,
     public void initialize(Identity id, IRequest req) {
         this.id = id;
         this.req = req;
+    }
+
+    //
+    // CALLBACKS
+    //
+
+    public void addCallback(CmdCallbackPrx cb, Current __current) {
+        Ice.Identity id = cb.ice_getIdentity();
+        String key = Ice.Util.identityToString(id);
+        cb = CmdCallbackPrxHelper.checkedCast(cb.ice_oneway());
+        callbacks.put(key, cb);
+    }
+
+    public void removeCallback(CmdCallbackPrx cb, Current __current) {
+        Ice.Identity id = cb.ice_getIdentity();
+        String key = Ice.Util.identityToString(id);
+        cb = CmdCallbackPrxHelper.checkedCast(cb.ice_oneway());
+        callbacks.remove(key);
+    }
+
+    /**
+     * Calls the proper notification on all callbacks based on the current
+     * {@link #state}. If the {@link State} is anything other than
+     * {@link State#CANCELLED} or {@link State#FINISHED} then
+     * {@link CmdCallbackPrx#step(int, int)} is called.
+     */
+    public void notifyCallbacks() {
+        final State state = this.state.get();
+        final boolean finished = state.equals(State.FINISHED);
+        final boolean cancelled = state.equals(State.CANCELLED);
+        for (final CmdCallbackPrx prx : callbacks.values()) {
+            try {
+                if (finished) {
+                    prx.finished(rsp.get());
+                } else if (cancelled) {
+                    prx.cancelled(rsp.get());
+                } else {
+                    prx.step(currentStep.get(), status.steps);
+                }
+            } catch (Exception e) {
+                sess.handleCallbackException(e);
+            }
+        }
     }
 
     //
@@ -153,6 +225,14 @@ public class HandleI implements _HandleOperations, IHandle,
     //
 
     public boolean cancel(Current __current) throws LockTimeout {
+        try {
+            return cancelWithoutNotification();
+        } finally {
+            notifyCallbacks();
+        }
+    }
+
+    private boolean cancelWithoutNotification() throws LockTimeout {
 
         // If we can successfully catch the CREATED or READY state,
         // then there's no reason to wait for anything else.
@@ -219,10 +299,24 @@ public class HandleI implements _HandleOperations, IHandle,
     //
 
     public void close(Ice.Current current) {
-        sess.unregisterServant(id);
+        sess.unregisterServant(id); // No exception
+        try {
+            closeWithoutNotification(current);
+        } finally {
+            notifyCallbacks();
+        }
+    }
+
+    private void closeWithoutNotification(Ice.Current current) {
         final State s = state.get();
         if (!State.FINISHED.equals(s) && !State.CANCELLED.equals(s)) {
-            log.warn("Handle closed before finished! State=" + state.get());
+            log.info("Handle closed before finished! State=" + state.get());
+            try {
+                cancel(current);
+            }
+            catch (LockTimeout e) {
+                log.warn("Cancel failed");
+            }
         }
     }
 
@@ -244,23 +338,30 @@ public class HandleI implements _HandleOperations, IHandle,
 
         StopWatch sw = new CommonsLogStopWatch();
         try {
-            Map<String, String> callContext = new HashMap<String, String>();
-            callContext.put("omero.group", "-1");
-            executor.execute(callContext, principal,
+            Map<String, String> merged = mergeContexts();
+            
+            @SuppressWarnings("unchecked")
+            List<Object> rv = (List<Object>) executor.execute(merged, principal,
                     new Executor.SimpleWork(this, "run",
                     Ice.Util.identityToString(id), req) {
                 @Transactional(readOnly = false)
-                public Object doWork(Session session, ServiceFactory sf) {
+                public List<Object> doWork(Session session, ServiceFactory sf) {
                     try {
-                        doRun(getSqlAction(), session, sf);
+                        List<Object> rv = doRun(getSqlAction(), session, sf);
                         state.compareAndSet(State.READY, State.FINISHED);
+                        return rv;
                     } catch (Cancel c) {
                         state.set(State.CANCELLED);
                         throw c; // Exception intended to rollback transaction
                     }
-                    return null;
                 }
             });
+
+            // Post-process
+            for (int step = 0; step < status.steps; step++) {
+                Object obj = rv.get(step);
+                req.buildResponse(step, obj);
+            }
 
         } catch (Throwable t) {
             if (t instanceof Cancel) {
@@ -271,15 +372,31 @@ public class HandleI implements _HandleOperations, IHandle,
         } finally {
             rsp.set(req.getResponse());
             sw.stop("omero.request.tx");
+            notifyCallbacks();
         }
     }
 
-    public void doRun(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {
+    private Map<String, String> mergeContexts() {
+
+        final Map<String, String> merged = new HashMap<String, String>();
+        final Map<String, String> reqCctx = req.getCallContext();
+
+        if (callContext != null) {
+            merged.putAll(callContext);
+        }
+
+        if (reqCctx != null) {
+            merged.putAll(reqCctx);
+        }
+
+        return merged;
+    }
+
+    public List<Object> doRun(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {
         log.info("Running " + req);
         StopWatch sw = new CommonsLogStopWatch();
         try {
-            steps(sql, session, sf);
-            req.finish();
+            return steps(sql, session, sf);
         } finally {
             sw.stop("omero.request");
             status.startTime = sw.getStartTime();
@@ -287,27 +404,40 @@ public class HandleI implements _HandleOperations, IHandle,
         }
     }
 
-    public void steps(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {
+    public List<Object> steps(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {
         try {
 
             // Initialize. Any exceptions should cancel the process
+            List<Object> rv = new ArrayList<Object>();
             StopWatch sw = new CommonsLogStopWatch();
             req.init(status, sql, session, sf);
 
-            for (int j = 0; j < status.steps; j++) {
+            int j = 0;
+            while (j < status.steps) {
                 sw = new CommonsLogStopWatch();
                 try {
                     if (!state.compareAndSet(State.READY, State.RUNNING)) {
                         throw new Cancel("Not ready");
                     }
-                    req.step(j);
+                    rv.add(req.step(j));
                 } finally {
                     sw.stop("omero.request.step." + j);
                     // If cancel was thrown, then this value will be overwritten
                     // by the try/catch handler
                     state.compareAndSet(State.RUNNING, State.READY);
                 }
+
+                j = currentStep.incrementAndGet(); // SOLE INCREMENT
+
+                // The following would probably be better handled by a
+                // background thread, or via the heartbeat mechanism. For
+                // the moment, though we'll notify callbacks per decile.
+                if ((j % (status.steps/10)) == 0) {
+                    notifyCallbacks();
+                }
+
             }
+            return rv;
         } catch (Cancel cancel) {
             throw cancel;
         } catch (Throwable t) {

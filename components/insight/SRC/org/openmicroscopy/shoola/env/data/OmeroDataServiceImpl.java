@@ -25,8 +25,10 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,8 +42,6 @@ import java.util.Map.Entry;
 
 //Application-internal dependencies
 import omero.api.delete.DeleteCommand;
-import omero.cmd.Chgrp;
-import omero.cmd.CmdCallbackI;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.Channel;
@@ -63,6 +63,8 @@ import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+
+import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -72,6 +74,7 @@ import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 
 import pojos.ChannelData;
 import pojos.DataObject;
@@ -507,11 +510,24 @@ class OmeroDataServiceImpl
 	 * @see OmeroDataService#getArchivedFiles(SecurityContext, String, long)
 	 */
 	public Map<Boolean, Object> getArchivedImage(SecurityContext ctx,
-			String path, long pixelsID) 
+			String folderPath, long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		context.getLogger().debug(this, path);
-		return gateway.getArchivedFiles(ctx, path, pixelsID);
+		context.getLogger().debug(this, folderPath);
+		//Check the image is archived.
+		Pixels pixels = gateway.getPixels(ctx, pixelsID);
+		long imageID = pixels.getImage().getId().getValue();
+		ImageData image = gateway.getImage(ctx, imageID, null);
+		String name = image.getName()+"."+OMETIFFFilter.OME_TIF;
+		Map<Boolean, Object> result = 
+			gateway.getArchivedFiles(ctx, folderPath, pixelsID);
+		if (result != null) return result;
+		Object file = context.getImageService().exportImageAsOMEFormat(ctx, 
+				OmeroImageService.EXPORT_AS_OMETIFF, imageID, 
+				new File(FilenameUtils.concat(folderPath, name)), null);
+		Map<Boolean, Object> files = new HashMap<Boolean, Object>();
+		files.put(Boolean.valueOf(true), Arrays.asList(file));
+		return files;
 	}
 
 	/**
@@ -901,6 +917,7 @@ class OmeroDataServiceImpl
 		List<IObject> l;
 		Iterator<DataObject> j;
 		DataObject object;
+		IObject link;
 		while (i.hasNext()) {
 			data = i.next();
 			l = new ArrayList<IObject>();
@@ -908,9 +925,11 @@ class OmeroDataServiceImpl
 				j = targetNodes.iterator();
 				while (j.hasNext()) {
 					object = j.next();
-					if (object != null)
-						l.add(ModelMapper.linkParentToChild(data.asIObject(),
-							object.asIObject()));
+					if (object != null) {
+						link = ModelMapper.linkParentToChild(data.asIObject(),
+								object.asIObject());
+						if (link != null) l.add(link);
+					}
 				}
 			}
 			map.put(data, l);

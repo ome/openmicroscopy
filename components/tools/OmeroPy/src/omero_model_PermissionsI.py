@@ -7,6 +7,9 @@
  *
  */
 """
+
+import omero.constants.permissions as ocp
+
 import Ice, IceImport
 IceImport.load("omero_model_Permissions_ice")
 _omero = Ice.openModule("omero")
@@ -23,18 +26,10 @@ object #0 (::omero::model::Permissions)
 """
 class PermissionsI(_omero_model.Permissions):
 
-      class PermissionsI_generator:
-          def __iter__(self):
-              return self
-          def next(self):
-              return PermissionsI()
-
-      def generator(cls):
-          return cls.PermissionsI_generator()
-      generator = classmethod(generator)
-
       def __init__(self, l = None):
             super(PermissionsI, self).__init__()
+            self.__immutable = False
+            self._restrictions = None
             if isinstance(l, str):
                 self._perm1 = -1
                 self.from_string(l)
@@ -47,6 +42,7 @@ class PermissionsI(_omero_model.Permissions):
             return (self._perm1 & (mask<<shift)) == (mask<<shift)
 
       def set(self, mask, shift, on):
+            self.throwIfImmutable()
             if on:
                   self._perm1 = (self._perm1 | ( 0L | (mask<<shift)))
             else:
@@ -64,6 +60,12 @@ class PermissionsI(_omero_model.Permissions):
       def setUserWrite(self, value):
             self.set(2,8,value)
 
+      # shift 8; mask 1
+      def isUserAnnotate(self):
+            return self.granted(1,8)
+      def setUserAnnotate(self, value):
+            self.set(1,8,value)
+
       # shift 4; mask 4
       def isGroupRead(self):
             return self.granted(4,4)
@@ -75,6 +77,12 @@ class PermissionsI(_omero_model.Permissions):
             return self.granted(2,4)
       def setGroupWrite(self, value):
             self.set(2,4,value)
+
+      # shift 4; mask 1
+      def isGroupAnnotate(self):
+            return self.granted(1,4)
+      def setGroupAnnotate(self, value):
+            self.set(1,4,value)
 
       # shift 0; mask 4
       def isWorldRead(self):
@@ -88,18 +96,50 @@ class PermissionsI(_omero_model.Permissions):
       def setWorldWrite(self, value):
             self.set(2,0,value)
 
+      # shift 0; mask 1
+      def isWorldAnnotate(self):
+            return self.granted(1,0)
+      def setWorldAnnotate(self, value):
+            self.set(1,0,value)
+
+      # Calculated values
+
+      def isDisallow(self, restriction, current=None):
+          rs = self._restrictions
+          if rs is not None and len(rs) >= restriction:
+                return rs[restriction]
+          return False
+
+      def canAnnotate(self, current=None):
+          return not self.isDisallow(ocp.ANNOTATERESTRICTION)
+
+      def canDelete(self, current=None):
+          return not self.isDisallow(ocp.DELETERESTRICTION)
+
+      def canEdit(self, current=None):
+          return not self.isDisallow(ocp.EDITRESTRICTION)
+
+      def canLink(self, current=None):
+          return not self.isDisallow(ocp.LINKRESTRICTION)
+
       # Accessors; do not use
 
       def getPerm1(self):
           return self._perm1
 
       def setPerm1(self, _perm1):
+          self.throwIfImmutable()
           self._perm1 = _perm1
           pass
 
       def from_string(self, perms):
+          """
+          Sets the state of this instance via the 'perms' string.
+          Returns 'self'. Also used by the constructor which
+          takes a string.
+          """
           import re
-          base = "([rR\-_])([wW\-_])"
+          base = "([rR\-_])([aAwW\-_])"
           regex = re.compile("^(L?)%s$" % (base*3))
           match = regex.match(perms)
           if match is None:
@@ -111,31 +151,77 @@ class PermissionsI(_omero_model.Permissions):
           gw = match.group(5)
           wr = match.group(6)
           ww = match.group(7)
+          # User
           self.setUserRead(ur.lower() == "r")
-          self.setUserWrite(uw.lower() == "w")
+          self.setUserAnnotate(uw.lower() == "a")
+          if uw.lower() == "w":
+              self.setUserAnnotate(True) # w implies a
+              self.setUserWrite(True)
+          else:
+              self.setUserWrite(False)
+          # Group
           self.setGroupRead(gr.lower() == "r")
-          self.setGroupWrite(gw.lower() == "w")
+          self.setGroupAnnotate(gw.lower() == "a")
+          if gw.lower() == "w":
+              self.setGroupAnnotate(True) # w implies a
+              self.setGroupWrite(True)
+          else:
+              self.setGroupWrite(False)
+          # World
           self.setWorldRead(wr.lower() == "r")
-          self.setWorldWrite(ww.lower() == "w")
+          self.setWorldAnnotate(ww.lower() == "a")
+          if ww.lower() == "w":
+              self.setWorldAnnotate(True) # w implies a
+              self.setWorldWrite(True)
+          else:
+              self.setWorldWrite(False)
+
+          return self
 
       def __str__(self):
           vals = []
+          # User
           vals.append(self.isUserRead() and "r" or "-")
-          vals.append(self.isUserWrite() and "w" or "-")
+          if self.isUserWrite():
+              vals.append("w")
+          elif self.isUserAnnotate():
+              vals.append("a")
+          else:
+              vals.append("-")
+          # Group
           vals.append(self.isGroupRead() and "r" or "-")
-          vals.append(self.isGroupWrite() and "w" or "-")
+          if self.isGroupWrite():
+              vals.append("w")
+          elif self.isGroupAnnotate():
+              vals.append("a")
+          else:
+              vals.append("-")
+          # World
           vals.append(self.isWorldRead() and "r" or "-")
-          vals.append(self.isWorldWrite() and "w" or "-")
+          if self.isWorldWrite():
+              vals.append("w")
+          elif self.isWorldAnnotate():
+              vals.append("a")
+          else:
+              vals.append("-")
           return "".join(vals)
 
+      def throwIfImmutable(self):
+          """
+          Check the __immutable field and throw a ClientError
+          if it's true.
+          """
+          if self.__immutable:
+              raise _omero.ClientError("ImmutablePermissions: %s" % \
+                      self.__str__())
 
       def ice_postUnmarshal(self):
           """
           Provides additional initialization once all data loaded
           Required due to __getattr__ implementation.
           """
-          pass # Currently unused
-
+          #_omero_model.Permissions.ice_postUnmarshal(self)
+          self.__immutable = True
 
       def ice_preMarshal(self):
           """

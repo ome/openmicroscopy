@@ -296,7 +296,10 @@ class PrefsControl(BaseControl):
 
         _key = parts[0]
         _new = parts[1]
-        _old = config[_key]
+        if _key in config.keys():
+            _old = config[_key]
+        else:
+            _old = None
 
         if keys and _key in keys and _new != _old:
 

@@ -35,7 +35,6 @@ import javax.swing.table.DefaultTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 
 import pojos.ExperimenterData;
@@ -55,11 +54,14 @@ class SelectionTableRenderer
 	/** The private group icon.*/
 	private static Icon PRIVATE;
 	
-	/** The private group icon.*/
+	/** The icon for <code>RWR---</code> group.*/
 	private static Icon READ_GROUP;
 	
-	/** The private group icon.*/
+	/** The icon for <code>RWRA--</code> group.*/
 	private static Icon READ_LINK;
+	
+	/** The icon for <code>RWRW--</code> group.*/
+	private static Icon READ_WRITE;
 	
 	/** The private group icon.*/
 	private static Icon PUBLIC;
@@ -69,6 +71,7 @@ class SelectionTableRenderer
 		PRIVATE = icons.getIcon(IconManager.PRIVATE_GROUP);
 		READ_GROUP = icons.getIcon(IconManager.READ_GROUP);
 		READ_LINK = icons.getIcon(IconManager.READ_LINK_GROUP);
+		READ_WRITE = icons.getIcon(IconManager.READ_WRITE_GROUP);
 		PUBLIC = icons.getIcon(IconManager.PUBLIC_GROUP);
 	}
 	
@@ -82,19 +85,20 @@ class SelectionTableRenderer
 	 */
 	private void setGroupIcon(GroupData group)
 	{
-		Integer level = model.getLevel(group);
-		if (level == null) return;
-		switch (level.intValue()) {
-			case AdminObject.PERMISSIONS_PRIVATE:
+		switch (model.getLevel(group)) {
+			case GroupData.PERMISSIONS_PRIVATE:
 				setIcon(PRIVATE);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ:
+			case GroupData.PERMISSIONS_GROUP_READ:
 				setIcon(READ_GROUP);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case GroupData.PERMISSIONS_GROUP_READ_LINK:
 				setIcon(READ_LINK);
 				break;
-			case AdminObject.PERMISSIONS_PUBLIC_READ:
+			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
+				setIcon(READ_WRITE);
+				break;
+			case GroupData.PERMISSIONS_PUBLIC_READ:
 				setIcon(PUBLIC);
 		}
 	}

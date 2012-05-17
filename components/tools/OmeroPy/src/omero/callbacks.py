@@ -26,6 +26,26 @@ DEL_LOG = logging.getLogger("omero.api.DeleteCallback")
 CMD_LOG = logging.getLogger("omero.cmd.CmdCallback")
 
 
+def adapter_and_category(adapter_or_client, category):
+    if isinstance(adapter_or_client, Ice.ObjectAdapter):
+        # This should be the case either when an
+        # instance is created server-side or when
+        # the user has passed in a category
+        # explicitly. If it's missing, then we'll
+        # have to throw
+        if not category:
+            raise omero.ClientError("No category available")
+        return adapter_or_client, category
+    else:
+        # This is the case client-side, where an
+        # omero.client instance is available.
+        # If a category is passed we use that
+        # (though it's unlikely that that will be useful)
+        if not category:
+            category = adapter_or_client.getCategory()
+        return adapter_or_client.getAdapter(), category
+
+
 class ProcessCallbackI(omero.grid.ProcessCallback):
     """
     Simple callback which registers itself with the given process.
@@ -35,15 +55,15 @@ class ProcessCallbackI(omero.grid.ProcessCallback):
     CANCELLED = "CANCELLED"
     KILLED = "KILLED"
 
-    def __init__(self, adapter_or_client, process, poll = True):
+    def __init__(self, adapter_or_client, process, poll = True, category=None):
         self.event = omero.util.concurrency.get_event(name="ProcessCallbackI")
         self.result = None
         self.poll = poll
         self.process = process
-        self.adapter = adapter_or_client
-        self.id = Ice.Identity(str(uuid.uuid4()), "ProcessCallback")
-        if not isinstance(self.adapter, Ice.ObjectAdapter):
-            self.adapter = self.adapter.adapter
+        self.adapter, self.category = \
+                adapter_and_category(adapter_or_client, category)
+
+        self.id = Ice.Identity(str(uuid.uuid4()), self.category)
         self.prx = self.adapter.add(self, self.id) # OK ADAPTER USAGE
         self.prx = omero.grid.ProcessCallbackPrx.uncheckedCast(self.prx)
         process.registerCallback(self.prx)
@@ -175,14 +195,13 @@ class DeleteCallbackI(object):
             DEL_LOG.warn("Error calling DeleteHandlePrx.close: %s" % self.handle, exc_info=True)
 
 
-class CmdCallbackI(object):
+class CmdCallbackI(omero.cmd.CmdCallback):
     """
-    Callback used for waiting until HandlePrx will non-null
-    on getReponse.
-
-    The block(long) method will wait the given number of
-    milliseconds and then return the number of errors if any or None
-    if the delete is not yet complete.
+    Callback servant used to wait until a HandlePrx would
+    return non-null on getReponse. The server will notify
+    of completion to prevent constantly polling on
+    getResponse. Subclasses can override methods for handling
+    based on the completion status.
 
     Example usage:
 
@@ -196,7 +215,7 @@ class CmdCallbackI(object):
         response = cb.loop(5, 500)
     """
 
-    def __init__(self, adapter_or_client, handle, poll = True):
+    def __init__(self, adapter_or_client, handle, poll=True, category=None):
 
         if adapter_or_client is None:
             raise omero.ClientError("Null client")
@@ -208,13 +227,22 @@ class CmdCallbackI(object):
         self.result = None
         self.poll = poll
         self.handle = handle
-        self.adapter = adapter_or_client
-        self.id = Ice.Identity(str(uuid.uuid4()), "CmdHandleCallback")
-        if not isinstance(self.adapter, Ice.ObjectAdapter):
-            self.adapter = self.adapter.adapter
-        #self.prx = self.adapter.add(self, self.id) # OK ADAPTER USAGE
-        #self.prx = omero.grid.ProcessCallbackPrx.uncheckedCast(self.prx)
-        #process.registerCallback(self.prx)
+        self.adapter, self.category = \
+                adapter_and_category(adapter_or_client, category)
+
+        self.id = Ice.Identity(str(uuid.uuid4()), self.category)
+        self.prx = self.adapter.add(self, self.id) # OK ADAPTER USAGE
+        self.prx = omero.cmd.CmdCallbackPrx.uncheckedCast(self.prx)
+        handle.addCallback(self.prx)
+
+        # Now check just in case the process exited VERY quickly
+        rsp = handle.getResponse()
+        if rsp is not None:
+            self.finished(rsp) # Only time that current should be null
+
+    #
+    # Local invocations
+    #
 
     def loop(self, loops, ms):
         """
@@ -249,35 +277,55 @@ class CmdCallbackI(object):
         in place. If "event.set" does not get called, this method will always
         block for the given milliseconds.
         """
-        if self.poll:
-            try:
-                rsp = self.handle.getResponse()
-                if rsp is not None:
-                    try:
-                        status = self.handle.getStatus()
-                        self.finished(status, rsp)
-                    except exceptions.Exception, e:
-                        CMD_LOG.warn("Error calling CmdCallbackI.finished: %s" % e, exc_info=True)
-            except Ice.ObjectNotExistException, onee:
-                raise omero.ClientError("Handle is gone! %s" % self.handle)
-            except:
-                CMD_LOG.warn("Error polling CmdHandle:" + str(self.handle), exc_info=True)
-
-
         self.event.wait(float(ms) / 1000)
-        if self.event.isSet():
-            return self.result
-        return None
+        return self.event.isSet()
 
+    #
+    # Remote invocations
+    #
 
-    def finished(self, status, response):
-        self.status = status
-        self.result = response
+    def step(self, complete, total, current=None):
+        """
+        Called periodically by the server to signal that processing is
+        moving forward. Default implementation does nothing.
+        """
+        pass
+
+    def cancelled(self, rsp, current=None):
+        """
+        Called when cancelled successfully, i.e. handle.cancel would return
+        true.
+        """
         self.event.set()
+        self.onCancelled(rsp, current)
 
-    def close(self):
-        #self.adapter.remove(self.id) # OK ADAPTER USAGE
-        try:
-            self.handle.close() # ticket:2978
-        except exceptions.Exception, e:
-            CMD_LOG.warn("Error calling CmdHandlePrx.close: %s" % self.handle, exc_info=True)
+    def onCancelled(self, rsp, current):
+        """
+        Method intended to be overridden by subclasses. Default logic does
+        nothing.
+        """
+        pass
+
+    def finished(self, rsp, current=None):
+        """
+        Called when the command has completed with anything other than
+        a cancellation.
+        """
+        self.event.set()
+        self.onFinished(rsp, current)
+
+    def onFinished(self, rsp, current):
+        """
+        Method intended to be overridden by subclasses. Default logic does
+        nothing.
+        """
+        pass
+
+    def close(self, closeHandle):
+        """
+        First removes self from the adapter so as to no longer receive
+        notifications, and the calls close on the remote handle if requested.
+        """
+        self.adapter.remove(self.id) # OK ADAPTER USAGE
+        if closeHandle:
+            self.handle.close();

@@ -136,7 +136,7 @@ public class ProcessCallback
 		} else if (callback instanceof DeleteCallback) {
 			((DeleteCallback) callback).close();
 		} else if (callback instanceof RequestCallback) {
-			((RequestCallback) callback).close();
+			((RequestCallback) callback).close(true); // Closes handle
 		}
 	}
 	

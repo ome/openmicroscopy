@@ -45,7 +45,7 @@ public class DataTransferActivity
 {
 
 	/** The description of the activity. */
-	private static final String		DESCRIPTION_START = "Moving data to ";
+	private static final String		DESCRIPTION_START = "Moving data ";
 		
 	/** The description of the activity when finished. */
 	private static final String		DESCRIPTION_END = "Moved completed";
@@ -75,8 +75,14 @@ public class DataTransferActivity
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
-		initialize(DESCRIPTION_START+parameters.getGroupName(),
-				parameters.getIcon());
+		String name = parameters.getGroupName();
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(DESCRIPTION_START);
+		if (name != null && name.length() > 0) {
+			buffer.append("to ");
+			buffer.append(name);
+		}
+		initialize(buffer.toString(), parameters.getIcon());
 		int n = parameters.getNumber();
 		String end = "";
 		if (n > 1) end = "s";

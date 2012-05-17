@@ -35,11 +35,11 @@ import org.openmicroscopy.shoola.env.data.login.LoginManager;
 import org.openmicroscopy.shoola.env.data.login.LoginServiceImpl;
 
 /** 
- * This task intializes the 
+ * This task initializes the 
  * {@link org.openmicroscopy.shoola.env.data.login.LoginService}.
  * The Container will use to manage the link to <i>OMEDS</i>.
  * This task has to be run after reading in the Container's configuration and
- * after intializing the Event Bus.
+ * after initializing the Event Bus.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

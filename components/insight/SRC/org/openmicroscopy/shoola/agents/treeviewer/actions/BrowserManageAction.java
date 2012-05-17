@@ -169,7 +169,7 @@ public class BrowserManageAction
     		handleExperimenter(selectedDisplay);
     		return;
     	} 
-    	setEnabled(model.isUserOwner(ho));
+    	setEnabled(model.canAnnotate(ho));
     }
     
 	/**

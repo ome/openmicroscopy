@@ -14,6 +14,7 @@ import java.util.Set;
 
 import ome.api.IAdmin;
 import ome.api.IShare;
+import ome.api.local.LocalAdmin;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.fire.Registry;
@@ -565,8 +566,20 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
         return holder.getServantList();
     }
 
+    /** Doesn't take current into account */
     public EventContext getEventContext() {
         return sessionManager.getEventContext(this.principal);
+    }
+
+    /** Takes current into account */
+    public EventContext getEventContext(final Ice.Current current) {
+        return (EventContext) executor.execute(current.ctx, this.principal,
+                new Executor.SimpleWork(this, "getEventContext") {
+                    @Transactional(readOnly=true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
+                    }
+                });
     }
 
     public long keepAllAlive(ServiceInterfacePrx[] proxies, Current __current)

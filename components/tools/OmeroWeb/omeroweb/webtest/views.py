@@ -1,10 +1,11 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
-from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
-from omeroweb.webclient.views import isUserConnected
 from omeroweb.webadmin.custom_models import Server
+
+from omeroweb.webclient.decorators import login_required
+from omeroweb.connector import Connector
 
 from cStringIO import StringIO
 
@@ -29,18 +30,15 @@ except: #pragma: nocover
         logger.error('No PIL installed, line plots and split channel will fail!')
 
 
-@isUserConnected    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
-def dataset(request, datasetId, **kwargs):
+@login_required()    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
+def dataset(request, datasetId, conn=None, **kwargs):
     """ 'Hello World' example from tutorial on http://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb """
-    conn = kwargs['conn']
     ds = conn.getObject("Dataset", datasetId)     # before OMERO 4.3 this was conn.getDataset(datasetId)
     return render_to_response('webtest/dataset.html', {'dataset': ds})    # generate html from template
 
 
-@isUserConnected    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
-def index(request, **kwargs):
-    conn = kwargs['conn']
-    
+@login_required()    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
+def index(request, conn=None, **kwargs):
     # use Image IDs from request...
     if request.REQUEST.get("Image", None):
         imageIds = request.REQUEST.get("Image", None)
@@ -60,14 +58,12 @@ def index(request, **kwargs):
     return render_to_response('webtest/index.html', {'images': images, 'imgIds': imgIds, 'dataset': dataset})
 
 
-@isUserConnected
-def channel_overlay_viewer(request, imageId, **kwargs):
+@login_required()
+def channel_overlay_viewer(request, imageId, conn=None, **kwargs):
     """
     Viewer for overlaying separate channels from the same image or different images
     and adjusting horizontal and vertical alignment of each
     """
-    conn = kwargs['conn']
-
     image = conn.getObject("Image", imageId)
     default_z = image.getSizeZ()/2
     
@@ -118,14 +114,12 @@ def channel_overlay_viewer(request, imageId, **kwargs):
         'image': image, 'channels':channels, 'default_z':default_z, 'red': red, 'green': green, 'blue': blue})
 
 
-@isUserConnected
-def render_channel_overlay (request, **kwargs):
+@login_required()
+def render_channel_overlay (request, conn=None, **kwargs):
     """
     Overlays separate channels (red, green, blue) from the same image or different images
     manipulating each indepdently (translate, scale, rotate etc? )
     """
-    conn = kwargs['conn']
-
     # request holds info on all the planes we are working on and offset (may not all be visible)
     # planes=0|imageId:z:c:t$x:shift_y:shift_rot:etc,1|imageId...
     # E.g. planes=0|2305:7:0:0$x:-50_y:10,1|2305:7:1:0,2|2305:7:2:0&red=2&blue=0&green=1
@@ -231,8 +225,8 @@ def render_channel_overlay (request, **kwargs):
     return rsp
 
 
-@isUserConnected
-def add_annotations (request, **kwargs):
+@login_required()
+def add_annotations (request, conn=None, **kwargs):
     """
     Creates a L{omero.gateway.CommentAnnotationWrapper} and adds it to the images according 
     to variables in the http request. 
@@ -245,9 +239,6 @@ def add_annotations (request, **kwargs):
                             
     @return:            A simple html page with a success message 
     """
-    
-    conn = kwargs['conn']
-    
     idList = request.REQUEST.get('imageIds', None)    # comma - delimited list
     if idList:
         imageIds = [long(i) for i in idList.split(",")]
@@ -285,8 +276,8 @@ def add_annotations (request, **kwargs):
     return render_to_response('webtest/util/add_annotations.html', {'images':images, 'comment':comment})
     
 
-@isUserConnected
-def split_view_figure (request, **kwargs):
+@login_required()
+def split_view_figure (request, conn=None, **kwargs):
     """
     Generates an html page displaying a number of images in a grid with channels split into different columns. 
     The page also includes a form for modifying various display parameters and re-submitting
@@ -299,13 +290,11 @@ def split_view_figure (request, **kwargs):
     
     @return:            The http response - html page displaying split view figure.  
     """
-    
-    conn = kwargs['conn']
-    
     query_string = request.META["QUERY_STRING"]
     
     
     idList = request.REQUEST.get('imageIds', None)    # comma - delimited list
+    idList = request.REQUEST.get('Image', idList)    # we also support 'Image'
     if idList:
         imageIds = [long(i) for i in idList.split(",")]
     else:
@@ -382,12 +371,13 @@ def split_view_figure (request, **kwargs):
         # turn merged channels on in the last image
         c_strs.append( ",".join(mergedFlags) )
     
-    return render_to_response('webtest/demo_viewers/split_view_figure.html', {'images':images, 'c_strs': c_strs,'imageIds':idList,
+    template = kwargs.get('template', 'webtest/demo_viewers/split_view_figure.html')
+    return render_to_response(template, {'images':images, 'c_strs': c_strs,'imageIds':idList,
         'channels': channels, 'split_grey':split_grey, 'merged_names': merged_names, 'proj': proj, 'size': size, 'query_string':query_string})
 
 
-@isUserConnected
-def dataset_split_view (request, datasetId, **kwargs):
+@login_required()
+def dataset_split_view (request, datasetId, conn=None, **kwargs):
     """
     Generates a web page that displays a dataset in two panels, with the option to choose different
     rendering settings (channels on/off) for each panel. It uses the render_image url for each
@@ -402,9 +392,6 @@ def dataset_split_view (request, datasetId, **kwargs):
     
     @return:            The http response - html page displaying split view figure.
     """
-    
-    conn = kwargs['conn']
-        
     dataset = conn.getObject("Dataset", datasetId)
     
     try:
@@ -470,19 +457,18 @@ def dataset_split_view (request, datasetId, **kwargs):
     c_left = ",".join(leftFlags)
     c_right = ",".join(rightFlags)
     
-    return render_to_response('webtest/demo_viewers/dataset_split_view.html', {'dataset': dataset, 'images': images, 
+    template = kwargs.get('template', 'webtest/webclient_plugins/dataset_split_view.html')
+
+    return render_to_response(template, {'dataset': dataset, 'images': images, 
         'channels':channels, 'size': size, 'c_left': c_left, 'c_right': c_right})
 
 
-@isUserConnected
-def image_dimensions (request, imageId, **kwargs):
+@login_required()
+def image_dimensions (request, imageId, conn=None, **kwargs):
     """
     Prepare data to display various dimensions of a multi-dim image as axes of a grid of image planes. 
     E.g. x-axis = Time, y-axis = Channel.
     """
-        
-    conn = kwargs['conn']
-    
     image = conn.getObject("Image", imageId)
     if image is None:
         return render_to_response('webtest/demo_viewers/image_dimensions.html', {}) 
@@ -540,7 +526,7 @@ def image_dimensions (request, imageId, **kwargs):
         'xFrames':xFrames, 'yFrames':yFrames})
 
 
-@isUserConnected
+@login_required()
 def image_rois (request, imageId, conn=None, **kwargs):
     """ Simply shows a page of ROI thumbnails for the specified image """
     roiService = conn.getRoiService()
@@ -554,3 +540,14 @@ def common_templates (request, base_template):
     template_name = 'webtest/common/%s.html' % base_template
     from django.template import RequestContext
     return render_to_response(template_name, context_instance=RequestContext(request))
+
+@login_required()
+def image_viewer (request, iid=None, conn=None, **kwargs):
+    """ This view is responsible for showing pixel data as images. Delegates to webgateway, using share connection if appropriate """
+    
+    if iid is None:
+        iid = request.REQUEST.get('image')
+
+    template = 'webtest/webclient_plugins/center_plugin.fullviewer.html'
+    
+    return webgateway_views.full_viewer(request, iid, _conn=conn, template=template, **kwargs)

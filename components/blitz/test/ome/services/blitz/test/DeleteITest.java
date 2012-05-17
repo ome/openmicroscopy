@@ -663,13 +663,13 @@ public class DeleteITest extends AbstractServantTest {
         Long ch = channelId.getValue();
 
         // Run test
-        final ApplicationContext dsf = user_delete.loadSpecs();
+        final ApplicationContext dsf = user.delete.loadSpecs();
         final BaseGraphSpec spec = dsf
                 .getBean("/Image/Pixels/Channel", BaseGraphSpec.class);
         spec.initialize(imageId, null, null);
 
-        List<List<Long>> backupIds = (List<List<Long>>) user_sf.getExecutor()
-                .execute(user_sf.getPrincipal(),
+        List<List<Long>> backupIds = (List<List<Long>>) user.sf.getExecutor()
+                .execute(user.sf.getPrincipal(),
                         new Executor.SimpleWork(this, "testBackpIds") {
                             @Transactional(readOnly = true)
                             public Object doWork(Session session,
@@ -722,7 +722,7 @@ public class DeleteITest extends AbstractServantTest {
     private _DeleteHandleTie doDelete(DeleteCommand... dc) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", "delete");
         //DeleteSpecFactory factory = specFactory();
-        DeleteHandleI handle = new DeleteHandleI(user_delete.loadSpecs(), id, user_sf, afs, dc, 1000);
+        DeleteHandleI handle = new DeleteHandleI(user.delete.loadSpecs(), id, user.sf, afs, dc, 1000);
         handle.run();
         assertEquals(handle.report(null).toString(), 0, handle.errors(null));
         return new _DeleteHandleTie(handle);
@@ -738,7 +738,7 @@ public class DeleteITest extends AbstractServantTest {
     private DeleteHandlePrx queueDelete(DeleteCommand... dc) throws Exception {
 
         final RV rv = new RV();
-        user_delete.queueDelete_async(new AMD_IDelete_queueDelete() {
+        user.delete.queueDelete_async(new AMD_IDelete_queueDelete() {
 
             public void ice_response(DeleteHandlePrx __ret) {
                 rv.rv = __ret;

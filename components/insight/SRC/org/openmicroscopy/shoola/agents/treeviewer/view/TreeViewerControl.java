@@ -40,8 +40,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -57,11 +57,8 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
-//Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -69,6 +66,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivatedUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
@@ -103,7 +101,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchGroup;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.UploadScriptAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewImageAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewInPlugin;
@@ -119,10 +116,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog
 import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.GroupManagerDialog;
@@ -133,6 +130,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
@@ -144,6 +142,7 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -743,14 +742,51 @@ class TreeViewerControl
 	 */
 	List<MoveToAction> getMoveAction()
 	{
-		if (moveActions != null) return moveActions;
+		//First check that we can move the data.
+		Browser browser = model.getSelectedBrowser();
+		List selection = null;
+		Iterator j;
+		if (browser != null) {
+			selection = browser.getSelectedDataObjects();
+			if (selection == null) return null;
+			int count = 0;
+			j = selection.iterator();
+			Object o;
+			DataObject data;
+			while (j.hasNext()) {
+				o = j.next();
+				if (o instanceof DataObject) {
+					if (model.canChgrp(o)) count++;
+				}
+			}
+			if (count != selection.size()) return null;
+		}
 		Set l = TreeViewerAgent.getAvailableUserGroups();
+		if (moveActions == null)
+			moveActions = new ArrayList<MoveToAction>(l.size());
+		moveActions.clear();
+		List<Long> ids = new ArrayList<Long>();
+		if (browser != null && selection != null) {
+			j = selection.iterator();
+			DataObject data;
+			while (j.hasNext()) {
+				data = (DataObject) j.next();
+				if (!ids.contains(data.getGroupId()))
+					ids.add(data.getGroupId());
+			}
+		}
+		
 		ViewerSorter sorter = new ViewerSorter();
 		List values = sorter.sort(l);
-		moveActions = new ArrayList<MoveToAction>(l.size());
+		if (moveActions == null)
+			moveActions = new ArrayList<MoveToAction>(l.size());
+		moveActions.clear();
+		GroupData group;
 		Iterator i = values.iterator();
 		while (i.hasNext()) {
-			moveActions.add(new MoveToAction(model, (GroupData) i.next()));
+			group = (GroupData) i.next();
+			if (!ids.contains(group.getGroupId()))
+				moveActions.add(new MoveToAction(model, group));
 		}
 		return moveActions;
 	}
@@ -856,11 +892,11 @@ class TreeViewerControl
 			String path = env.getOmeroFilesHome();
 			path += File.separator+script.getName();
 			File f = new File(path);
-			DownloadActivityParam activity;
-			activity = new DownloadActivityParam(
+			DownloadAndLaunchActivityParam activity;
+			activity = new DownloadAndLaunchActivityParam(
 					script.getScriptID(), 
-					DownloadActivityParam.ORIGINAL_FILE, f, null);
-			activity.setApplicationData(new ApplicationData(""));
+					DownloadAndLaunchActivityParam.ORIGINAL_FILE, f, null);
+
 			un.notifyActivity(ctx, activity);
 		} else if (index == ScriptActivityParam.DOWNLOAD) {
 			downloadScript(new ScriptActivityParam(script,
@@ -1279,11 +1315,10 @@ class TreeViewerControl
 				String path = env.getOmeroFilesHome();
 				path += File.separator+script.getName();
 				File f = new File(path);
-				DownloadActivityParam activity;
-				activity = new DownloadActivityParam(
+				DownloadAndLaunchActivityParam activity = new DownloadAndLaunchActivityParam(
 						p.getScript().getScriptID(), 
-						DownloadActivityParam.ORIGINAL_FILE, f, null);
-				activity.setApplicationData(new ApplicationData(""));
+						DownloadAndLaunchActivityParam.ORIGINAL_FILE, f, null);
+
 				un.notifyActivity(model.getSecurityContext(), activity);
 			} else if (index == ScriptActivityParam.DOWNLOAD) {
 				downloadScript(p);

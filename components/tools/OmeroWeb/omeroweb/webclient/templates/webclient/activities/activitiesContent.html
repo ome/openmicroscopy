@@ -30,19 +30,25 @@
 <div id='activities_content'>
     <div id="sizeOfJobs" style="display:none">{{ sizeOfJobs }}</div>
     <div id="inprogress" style="display:none">{{ inprogress }}</div>
+    <div id="new_results" style="display:none">{{ new_results }}</div>
     <div id="failure" style="display:none">{{ failure }}</div>
 
     <table id="jobsTable" width="100%" cellpadding="6" cellspacing="0" border="0">
 
         <tbody>
             {% ifequal sizeOfJobs 0 %}
-                <tr><td>No Activities</td></tr>
+                <tr><td><span>No Activities</span></td></tr>
             {% endifequal %}
+
+
+
+
+
 
             {% for j in jobs %}
                 <!-- Chgrp jobs -->
                 {% ifequal j.job_type "chgrp" %}
-                    <tr id="{{ j.id }}">
+                    <tr id="{{ j.id }}" {% if j.new %}class="new_result"{% endif %}>
                         <td width="25px">
                             {% ifequal j.status "in progress" %}<img class="icon" src="{% static "webgateway/img/spinner.gif" %}" />
                             {% else %} <img class="icon" src="{% static "webclient/image/nuvola_apply22.png" %}" />
@@ -67,74 +73,75 @@
                     </tr>
                 {% endifequal %}
 
+
                 <!-- Delete jobs -->
                 {% ifequal j.job_type "delete" %}
-                    <tr id="{{ j.id }}">
-                        <td width="25px">
-                            {% ifequal j.status "in progress" %}<img class="icon" src="{% static "webgateway/img/spinner.gif" %}" />
-                            {% else %} <img class="icon" src="{% static "webclient/image/nuvola_apply22.png" %}" />
+                    <tr id="{{ j.id }}" {% if j.new %}class="new_result"{% endif %}>
+                        <td class="activities_state">
+                            {% ifequal j.status "in progress" %}
+                                <img alt="Deleting" src="{% static "webgateway/img/spinner.gif" %}" />
+                            {% else %}
+                                {% if j.error %}
+                                    <div class='script_error' title="{{ j.error }}">
+                                        <img alt="Failed to run script properly" src="{% static "webgateway/img/failed.png" %}" />
+                                    </div>
+                                {% else %}
+                                    <img alt="Success" src="{% static "webgateway/img/success.png" %}" />
+                                {% endif %}
                             {% endifequal %}
                         </td>
-                        <td width="50%">
+                        <td class="script_description">
                             {% if j.delmany %}
-                                <div class="activity_title">
-                                    Delete {{ j.delmany }} {{ j.dtype }}s:
-                                    <span class="status">{{ j.status }}</span>
-                                </div>
-                                <div class="message">
+                                <span class="activity_title">
+                                    Delete {{ j.delmany }} {{ j.dtype }}s
+                                </span>
+                                <span class="message">
                                 {% for iid in j.did %}
                                     {% ifequal j.status "failed" %}
-                                        <a onclick="loadMetadataPanel('{% url load_metadata_details j.dtype iid %}');">{{ j.dtype }} {{ iid }}</a>,
+                                        {{ j.dtype }} {{ iid }},
                                     {% else %}
                                         {{ j.dtype }} {{ iid }},
                                     {% endifequal %}
                                 {% endfor %}
-                                </div>
+                                </span>
                             {% else %}
-                                <div class="activity_title">
-                                    Delete {{ j.dtype }}:
-                                    <span class="status">{{ j.status }}</span>
-                                </div>
-                                <div class="message">
+                                <span class="activity_title">
+                                    Delete {{ j.dtype }}
+                                </span>
+                                <span class="message">
                                 {% ifequal j.status "failed" %}
-                                    <a onclick="loadMetadataPanel('{% url load_metadata_details j.dtype j.did %}');">{{ j.dtype }} {{ j.did }}</a>
+                                    {{ j.dtype }} {{ j.did }}
                                 {% else %}
                                     {{ j.dtype }} {{ j.did }}
                                 {% endifequal %}
-                                </div>
+                                </span>
                             {% endif %}
 
                         </td>
-                        <td class="action">
+                        <td class="results">
                                 {% if j.dreport %}{{ j.derror }} error(s) ({{ j.dreport }}){% endif %}
                         </td>
-                        <td width="16px">
-                            <img id="{{ j.key }}" title="Remove from list" src="{% static "webclient/image/nuvola_cancel16.png" %}" class="remove" />
-                        </td>
-                        <td width="40px">{{ j.start_time|date:"H:i" }}</td>
                     </tr>
                 {% endifequal %}
 
 
-                <!-- Scripts -->
+
+
+                <!-- Status -->
                 {% ifequal j.job_type "script" %}
-                    <tr class="script" id="{{ j.id }}">
-                        <td width="25px">
-                            {% ifequal j.status "in progress" %}<img class="icon" src="{% static "webgateway/img/spinner.gif" %}" />
-                            {% else %} <img class="icon" src="{% static "webclient/image/tango_text-x-python16.png" %}" />
-                            {% endifequal %}
-                        </td>
-                        <td width="50%">
-                            <div class="activity_title">
-                                {{ j.job_name }}:
-                                <span class="status">{{ j.status }}</span>
-                            </div>
-                            <div class="message">{{ j.Message }}</div>
-                        </td>
-                        <td class="results" align="middle">
-                            {% if j.error %}
+                    <tr class="script{% if j.new %} new_result{% endif %}" id="{{ j.id }}">
+						
+						<!-- State -->
+                        <td class="activities_state">
+                            {% ifequal j.status "in progress" %}
+								<img alt="Running Script" src="{% static "webgateway/img/spinner.gif" %}" />
+                            
+							{% else %} 
+								{% if j.error %} 
                                 <div class='script_error' title="{{ j.error }}">
-                                    Failure
+                                    <img alt="Failed to run script properly" src="{% static "webgateway/img/failed.png" %}" />
+								
+									
                                     {% comment %}
                                     <!-- Don't allow submitting now. TODO: launch submit page -->
                                     <img src="{% static "webclient/image/info16.png" %}"/>
@@ -145,54 +152,114 @@
                                         value='Submit Feedback'
                                     {% endif %} />
                                     {% endcomment %}
+									
                                 </div>
-                            {% endif %}
+								{% else %}
+								<img alt="Success" src="{% static "webgateway/img/success.png" %}" />
+	                            {% endif %}
+								
+                            {% endifequal %}
+                        </td>
+						
+						
+						
+						<!-- General Script Info -->
+                        <td class="script_description">
+                            <span class="activity_title">{{ j.job_name }}</span>
+                            <span class="message">{{ j.Message }}</span>
+                        </td>
+						
+						
+						<!-- I need to put this back in -->
+						<!--{{ j.start_time|date:"H:i" }}-->
+						
+						<!-- Out until there is a better way of displaying -->
+						<!--<span class="status">{{ j.status }}</span>-->
+						
+						
+						
+						
+						<!-- Result of script -->
+                        <td class="results">
+                            
 
+							<!-- Drop Down -->
                             {% for k,v in j.results.iteritems %}
                                 <div>
                                     {% if v.type and v.id %}
-                                        <span class="dropdown_menu">
-                                        <!-- Handle robjects, E.g. ImageI, FileAnnotation etc -->
-                                        <span class="menu_launch" title="Script Result: '{{ k }}'">
-                                        {% if v.name %} {{ v.name|truncatebefor:"30" }} {% else %} {{ v.type }} ID: {{ v.id }} {% endif %}
-                                        </span>
-                                            <ul class="dropdown_menu_options">
+									    
+										{% comment %}
+											{% if v.name %} 
+												{{ v.name|truncatebefor:"30" }} {% else %} {{ v.type }} ID: {{ v.id }}
+											{% endif %}
+                                        {% endcomment %}
+										
+										    <ul class="menu_btns silver">
+												
+												<!-- Browser to file in tree -->
                                                 {% if v.browse_url %}
-                                                    <li><a href='{{ v.browse_url}}' class='browse' title="Navigate to {{ v.type }} in the main window">
-                                                        Go to {% ifequal v.type "FileAnnotation" %} Attachment {% else %} {{ v.type }} {% endifequal %}
-                                                    </a></li>
+                                                    <li class="btn_folder">
+														<a href='{% url change_active_group %}?active_group={{ v.group_id }}&url={{ v.browse_url }}' class='browse' title="Navigate to {{ v.type }} in the main window">
+                                                        	Go to {% ifequal v.type "FileAnnotation" %} Attachment {% else %} {{ v.type }} {% endifequal %}
+														</a>
+													</li>
                                                 {% endif %}
-
+												
+													
                                                 {% ifequal v.type "FileAnnotation" %}
-                                                    <li><a href="{% url download_annotation 'download' v.id %}" title="Download File">
-                                                        Download
-                                                    </a></li>
-                                                    {% if v.fileId %}
-                                                        <li><a href="#" onClick="return openPopup('{% url get_original_file v.fileId %}');">View {{ v.fileType }}</a></li>
+												
+													<!-- Download -->
+                                                    <li class="btn_download">
+														<a href="{% url download_annotation 'download' v.id %}" title="Download File">Download</a>
+													</li>
+                                                    
+													{% if v.fileId %}
+														<!-- View File Type -->
+                                                        <li class="btn_filetype">
+															<a href="#" onClick="return openPopup('{% url get_original_file v.fileId %}');">View {{ v.fileType }}</a>
+														</li>
                                                     {% endif %}
-                                                {% else %}
+												{% else %}
+												
                                                     {% ifequal v.type "Image" %}
-                                                        <li><a href="#" onClick="return openPopup('{% url webgateway.views.full_viewer v.id %}');" title="Open Image in Viewer">
-                                                            View Image
-                                                        </a></li>
+														<!-- View Image -->
+                                                        <li class="btn_view">
+															<a href="#" onClick="return openPopup('{% url webgateway.views.full_viewer v.id %}');" title="Open Image in Viewer">View Image</a>
+														</li>
                                                     {% endifequal %}
+													
                                                 {% endifequal %}
+
 
                                                 <!-- add stderr and stdout to first result only -->
                                                 {% if forloop.first %}
                                                     {% if j.stderr %}
-                                                        <li><a href="#" onClick="return openPopup('{% url get_original_file j.stderr %}');"
-                                                            title="Show error produced by the script">
-                                                            Error
-                                                        </a></li>
+                                                        
+														<!-- View error -->
+														<li class="btn_view_error">
+															<a href="#" onClick="return openPopup('{% url get_original_file j.stderr %}');"
+                                                            title="Show error produced by the script">Error</a>
+														</li>
                                                     {% endif %}
+													
                                                     {% if j.stdout %}
-                                                        <li><a href="#" onClick="return openPopup('{% url get_original_file j.stdout %}');" 
-                                                            title="Show additional info generated by the script">
-                                                            Info
-                                                        </a></li>
+                                                        
+														<!-- More Information -->
+														<li class="btn_info">
+															<a href="#" onClick="return openPopup('{% url get_original_file j.stdout %}');" 
+                                                            title="Show additional info generated by the script">Info</a>
+														</li>
                                                     {% endif %}
                                                 {% endif %}
+												
+												<!-- No need to clear from the list
+												<li class="btn_trash">
+													<a href="#" title="Remove from List" id="{{ j.key }}" class="remove" title="Show additional info generated by the script">
+                                                    	Delete
+                                                	</a>
+												</li>
+												-->
+												
                                             </ul>
                                         </span>
                                     {% else %}
@@ -204,20 +271,26 @@
                                 </div>
                             {% endfor %}
 
+
                             <!-- if there were no results items, we have to display info and error here -->
                             {% if not j.results %}
-                                <div class="error" style='float:left'>
+							<ul class="menu_btns silver">
+                                <li class="btn_view_error" style='float:left'>
                                     {% if j.stderr %}<a href="#" onClick="return openPopup('{% url get_original_file j.stderr %}');">Error</a>{% endif %}
-                                </div>
-                                <div class="info">
+                                </li>
+								
+                                <li class="btn_info">
                                     {% if j.stdout %}<a href="#" onClick="return openPopup('{% url get_original_file j.stdout %}');">Info</a>{% endif %}
-                                </div>
-                            {% endif %}
+                                </li>
+							</ul>
+							{% endif %}
+							
                         </td>
-                        <td width="16px">
-                            <img id="{{ j.key }}" title="Remove from list" src="{% static "webclient/image/nuvola_cancel16.png" %}" class="remove" />
-                        </td>
-                        <td width="40px">{{ j.start_time|date:"H:i" }}</td>
+						
+						
+						
+						
+						<!-- Time -->
                     </tr>
                 {% endifequal %}
             {% endfor %}

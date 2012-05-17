@@ -169,7 +169,7 @@ public class EditorAction
 	    						(ho instanceof ImageData) ||
 	    						(ho instanceof ScreenData) ||
 	    						(ho instanceof PlateData))
-	    					setEnabled(model.isObjectWritable(ho));
+	    					setEnabled(model.canAnnotate(ho));
 	    				else setEnabled(false);
 	    			}
 	    		} else setEnabled(false);

@@ -1272,10 +1272,18 @@ implements java.io.Serializable, IObject
 
         private final static long serialVersionUID = 0000000030000020301L;
 
-        public ome.model.internal.Details newInstance() {
-            return new Details();
+        public Details() {
+            super();
         }
-        
+
+        public Details(Object[] contexts) {
+            super(contexts);
+        }
+
+        public ome.model.internal.Details newInstance() {
+            return new Details(contexts);
+        }
+
         @javax.persistence.Embedded
         public ome.model.internal.Permissions getPermissions() {
             return super.getPermissions();

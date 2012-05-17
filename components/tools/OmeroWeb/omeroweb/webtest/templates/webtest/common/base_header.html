@@ -41,17 +41,6 @@ Extends "webgateway/base/base_header.html"
 {% endblock %}
 
 
-{% block thin_header_left %}
-    <a href="{% url common 'header_links' %}">header_links</a> | 
-    <a href="{% url common 'header_icon' %}">header_icon</a> |
-    block 'thin_header_left'
-{% endblock %}
-
-
-{% block thin_header_right %}
-    block 'thin_header_right' | <a href="#">Extra Links</a>
-{% endblock %}
-
 
 {% block content %}
     <h1>block 'content'</h1>
@@ -71,8 +60,4 @@ Extends "webgateway/base/base_header.html"
         showing other options for customising things.
     </p>
     
-{% endblock %}
-
-{% block footer_content %}
-    {% include "webclient/base/footer_links.html" %}
 {% endblock %}

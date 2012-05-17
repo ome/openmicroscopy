@@ -575,6 +575,14 @@ public interface Browser
 	 * @return See above.
 	 */
 	ExperimenterData getNodeOwner(TreeImageDisplay node);
+	
+	/**
+	 * Returns the group the node is representing.
+	 * 
+	 * @param node The node to handle.
+	 * @return See above.
+	 */
+	GroupData getNodeGroup(TreeImageDisplay node);
 
 	/** 
 	 * Sets the node the user wished to save before being prompt with
@@ -724,15 +732,6 @@ public interface Browser
 	 * @param result
 	 */
 	void setExperimenters(TreeImageSet node, List result);
-	
-	/**
-	 * Returns <code>true</code> if the user currently logged in is the
-	 * owner of the object, <code>false</code> otherwise.
-	 * 
-	 * @param ho    The data object to check.
-	 * @return See above.
-	 */
-	boolean isUserOwner(Object ho);
 
 	/** Expands the node corresponding to the user currently logged in. */
 	void expandUser();
@@ -770,12 +769,21 @@ public interface Browser
 	
 	/**
 	 * Returns <code>true</code> if the user currently logged in can
-	 * delete the passed object.
+	 * edit the passed object, <code>false</code> otherwise.
 	 * 
 	 * @param ho The data object to check.
 	 * @return See above.
 	 */
-	public boolean canDeleteObject(Object ho);
+	public boolean canEdit(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the user currently logged in can
+	 * annotate the passed object, <code>false</code> otherwise.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canAnnotate(Object ho);
 	
 	/**
 	 * Returns the node corresponding to the experimenter currently logged in.

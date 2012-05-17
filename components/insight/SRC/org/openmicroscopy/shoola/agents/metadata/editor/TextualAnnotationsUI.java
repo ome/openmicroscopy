@@ -354,7 +354,7 @@ class TextualAnnotationsUI
 			setAreaText(DEFAULT_TEXT_COMMENT, true);
 		}
 		
-		boolean enabled = model.isWritable();
+		boolean enabled = model.canAnnotate();
 		if (enabled && model.isMultiSelection()) {
 			enabled = !model.isAcrossGroups();
 		}

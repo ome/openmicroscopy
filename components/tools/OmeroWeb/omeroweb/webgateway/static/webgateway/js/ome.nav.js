@@ -35,7 +35,7 @@ var show_left_panel = function() {
     var lp = $("#left_panel");
     var lp_width = lp.data('expand_width');
     lp.css('width', lp_width+'px');
-    $("#center_container").css('left', + lp_width+1 + 'px');    // 1px for border
+    $("#center_container").css('left', + lp_width + 'px');    // 1px for border
     $("#swapTree").children('img').removeClass("collapsed-left").addClass("expanded-left");
 }
 
@@ -51,7 +51,7 @@ var show_right_panel = function() {
     var rp = $("#right_panel");
     var rp_width = rp.data('expand_width');
     rp.css('width', rp_width+'px');
-    $("#center_container").css('right', + rp_width+1 + 'px');
+    $("#center_container").css('right', + rp_width + 'px');
     $("#swapMeta").children('img').removeClass("expanded-right").addClass("collapsed-right");
 }
 
@@ -109,9 +109,10 @@ $(document).ready(function()
         .bind("drag", function(event, ui) {
             var moved = event.pageX - $(this).data("drag_start_x");
             var new_width = $(this).data("lp_width") + moved;
-            if ((moved < $(this).data("cp_width")) && (new_width > 0)) {
+            var new_center_w = $(this).data("cp_width") - moved;
+            if ((moved < $(this).data("cp_width")) && (new_width > 50) && (new_center_w > 50)) {
                 $("#left_panel").css('width', new_width+"px");
-                $("#center_container").css('left', new_width+1+"px");   // border 1px
+                $("#center_container").css('left', new_width+"px");
             }
         })
         .bind("dragstop", function(event, ui) {
@@ -131,9 +132,10 @@ $(document).ready(function()
         .bind("drag", function(event, ui) {
             var moved = event.pageX - $(this).data("drag_start_x");
             var new_width = $(this).data("rp_width") - moved;
-            if (((moved*-1) < $(this).data("cp_width")) && (new_width > 0)) {
+            var new_center_w = $(this).data("cp_width") + moved;
+            if (((moved) < $(this).data("cp_width")) && (new_width > 50) && (new_center_w > 50)) {
                 $("#right_panel").css('width', new_width+"px");
-                $("#center_container").css('right', new_width+1 +"px"); // border 1px
+                $("#center_container").css('right', new_width +"px");
             }
         })
         .bind("dragstop", function(event, ui) {

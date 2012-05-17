@@ -287,13 +287,12 @@ class EditorModel
 				o = (Object) i.next();
 				if (o instanceof ImageData) {
 					img = (ImageData) o;
-					if (img.isArchived()) 
-						images.add(img);
+					images.add(img);
 				}
 			}
 		}
 		img = (ImageData) getRefObject();
-		if (img.isArchived()) images.add(img);
+		images.add(img);
 		
 		if (images.size() > 0) {
 			Iterator<ImageData> i = images.iterator();
@@ -406,6 +405,26 @@ class EditorModel
     		}
     	}
     }
+    
+	/**
+	 * Returns the group corresponding to the specified id or <code>null</code>.
+	 * 
+	 * @param groupId The identifier of the group.
+	 * @return See above.
+	 */
+	private GroupData getGroup(long groupId)
+	{
+		Set groups = MetadataViewerAgent.getAvailableUserGroups();
+		if (groups == null) return null;
+		Iterator i = groups.iterator();
+		GroupData group;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			if (group.getId() == groupId) return group;
+		}
+		return null;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -630,23 +649,94 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns <code>true</code> if the object is writable,
+	 * Returns <code>true</code> if the object can be edited,
+	 * <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+	boolean canEdit() { return canEdit(refObject); }
+	
+	/**
+	 * Returns <code>true</code> if the object can be edited,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canEdit(Object data)
+	{ 
+		DataObject d = (DataObject) data;
+		return d.canEdit();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object can be linked,
+	 * <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+	boolean canLink() { return canLink(refObject); }
+	
+	/**
+	 * Returns <code>true</code> if the object can be linked, e.g. 
+	 * image added to dataset, <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canLink(Object data)
+	{ 
+		/*
+		if (!(data instanceof DataObject)) return false;
+		DataObject d = (DataObject) data;
+		return d.canLink();
+		*/
+		long id = MetadataViewerAgent.getUserDetails().getId();
+		return EditorUtil.isUserOwner(data, id);
+	}
+
+	/**
+	 * Returns <code>true</code> if the object can be annotated,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	boolean isWritable()
+	boolean canAnnotate() { return canAnnotate(refObject); }
+	
+	/**
+	 * Returns <code>true</code> if the object can be annotated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canAnnotate(Object data)
 	{ 
-		boolean b = isUserOwner(refObject);
-		if (b) return b;
-		int level = 
-		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel();
-		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
-			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
-		}
-		return false;
+		if (!(data instanceof DataObject)) return false;
+		DataObject d = (DataObject) data;
+		return d.canAnnotate();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object can be deleted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canDelete() { return canDelete(refObject); }
+	
+	/**
+	 * Returns <code>true</code> if the object can be deleted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canDelete(Object data)
+	{ 
+		if (!(data instanceof DataObject)) return false;
+		DataObject d = (DataObject) data;
+		return d.canDelete();
 	}
 	
 	/**
@@ -679,7 +769,7 @@ class EditorModel
 	 */
 	boolean isAnnotationAllowed()
 	{
-		if (!isWritable()) return false;
+		if (!canAnnotate()) return false;
 		if (!isMultiSelection()) return true;
 		//multi selection.
 		List l = parent.getRelatedNodes();
@@ -1806,22 +1896,7 @@ class EditorModel
 	 */
 	boolean isArchived()
 	{ 
-		Object ref = getRefObject();
-		if (!(ref instanceof ImageData)) return false;
-		ImageData img = (ImageData) ref;
-		if (img.isArchived()) return true;
-		Collection l = parent.getRelatedNodes();
-		if (l == null || l.size() == 0) return false;
-		Iterator i = l.iterator();
-		Object o;
-		while (i.hasNext()) {
-			o = (Object) i.next();
-			if (o instanceof ImageData) {
-				img = (ImageData) o;
-				if (img.isArchived()) return true;
-			}
-		}
-		return false;
+		return getRefObject() instanceof ImageData;
 	}
 
 	/** 

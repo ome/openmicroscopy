@@ -15,7 +15,8 @@ import time
 # Imported as pathModule to avoid clashes.
 import path as pathModule
 
-from omero.grid import monitors
+import omero.all
+import omero.grid.monitors as monitors
 from fsAbstractPlatformMonitor import AbstractPlatformMonitor
 
 import win32file

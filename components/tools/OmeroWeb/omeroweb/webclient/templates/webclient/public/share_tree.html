@@ -21,12 +21,12 @@
 {% endcomment %}
 
 <ul>
-    <li id="experimenter-0" rel="experimenter"><a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</a>
+    <li id="experimenter-0" rel="experimenter"><a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ ome.user.getFullName }}{% endif %}</a>
         {% if share.shSize %}
         <ul>
             {% for s in share.shares %}
             {% if s.isEmpty %}
-            <li id='discussion-{{ s.id }}' rel="discussion{% if not s.isOwned %}-locked{% endif %}"><a href="#">{{ s.id }}</a></li>
+            <li id='discussion-{{ s.id }}' rel="discussion{% if not s.canEdit %}-locked{% endif %}"><a href="#">{{ s.id }}</a></li>
             {% else %}
                 {% if s.isOwned %}
                 <li id='share-{{ s.id }}' rel="share" class="jstree-closed"><a href="#">{{ s.id }}</a></li>

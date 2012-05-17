@@ -11,8 +11,11 @@ import java.util.UUID;
 
 import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.ResultHolder;
+import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
+
 import omero.ServerError;
 import omero.constants.categories.PROCESSORCALLBACK;
 import omero.constants.topics.PROCESSORACCEPTS;
@@ -26,6 +29,8 @@ import omero.model.Job;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 
@@ -42,8 +47,6 @@ public class ProcessorCallbackI extends AbstractAmdServant
     private final ServiceFactoryI sf;
 
     private final ResultHolder<String> holder;
-
-    private final EventContext ec;
 
     /**
      * Simplified constructor used to see if any usermode processor is active
@@ -72,7 +75,6 @@ public class ProcessorCallbackI extends AbstractAmdServant
         this.sf = sf;
         this.job = job;
         this.holder = holder;
-        this.ec = sf.sessionManager.getEventContext(sf.principal);
     }
 
     /**
@@ -107,12 +109,15 @@ public class ProcessorCallbackI extends AbstractAmdServant
             ProcessorCallbackPrx cbPrx = ProcessorCallbackPrxHelper
                     .uncheckedCast(prx);
 
+            EventContext ec = sf.getEventContext(current);
+
             TopicManager.TopicMessage msg = new TopicManager.TopicMessage(this,
                     PROCESSORACCEPTS.value, new ProcessorPrxHelper(),
                     "willAccept", new omero.model.ExperimenterI(ec
                             .getCurrentUserId(), false),
-                    new omero.model.ExperimenterGroupI(ec.getCurrentGroupId(),
-                            false), this.job, cbPrx);
+                    new omero.model.ExperimenterGroupI(ec
+                            .getCurrentGroupId(), false),
+                            this.job, cbPrx);
             sf.topicManager.onApplicationEvent(msg);
             String server = holder.get();
             Ice.ObjectPrx p = sf.adapter.getCommunicator()
@@ -138,6 +143,7 @@ public class ProcessorCallbackI extends AbstractAmdServant
             try {
                 EventContext procEc = sf.sessionManager
                         .getEventContext(new Principal(sessionUuid));
+                EventContext ec = sf.getEventContext(__current);
                 if (procEc.isCurrentUserAdmin()
                         || procEc.getCurrentUserId().equals(
                                 ec.getCurrentUserId())) {

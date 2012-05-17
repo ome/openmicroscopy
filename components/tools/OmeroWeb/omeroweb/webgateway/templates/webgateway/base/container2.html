@@ -36,11 +36,6 @@
     {{ block.super }}
     <script type="text/javascript" src="{% static "webgateway/js/ome.nav.js" %}"></script> <!-- handles expand  / collapse columns -->
     
-    <script type="text/javascript">
-    {% if nav.error %}
-        alert("{{ nav.error }}");
-    {% endif %}
-    </script>
 {% endblock %}
 
 
@@ -55,6 +50,7 @@
         <div id="dragRight"></div>
     </div>
 </div>
+
 <div id="right_panel">
     {% block right %}{% endblock %}
 </div>

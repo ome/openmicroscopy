@@ -128,6 +128,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 ProcessPrx proc = ip.execute(omero.rtypes.rmap(inputs), __current);
 
                 ScriptProcessI process = new ScriptProcessI(factory, __current, ipPrx, ip, proc);
+                process.setApplicationContext(factory.context);
                 return process.getProxy();
             }
 

@@ -30,14 +30,25 @@
 {% endcomment %}
 
 <div class="ann_comment_wrapper">
-    <div class="avatar"><img src="{% url avatar tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" width="20" height="20" /></div>
-    <div>
-        <span class="ann_comment_header">{{ tann.getOwner.getFullName }} {% trans "at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+
+    <div class="avatar">
+		<img src="{% url avatar tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" />
+	</div>
+
+    <div class="ann_comment_text">
+        <span class="ann_comment_header">
+            <strong>{{ tann.getOwner.getFullName }}</strong> 
+            {% trans "at" %} 
+            {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}
+        </span>
+    
         {% if tann.canDelete %}
-            <img class='removeComment' id="{{ tann.id }}-comment" src="{% static "webclient/image/cancel12.png" %}" title="Delete comment"/>
+            <img class='removeComment' id="{{ tann.id }}-comment" src="{% static "webclient/image/icon_basic_delete.png"%}" title="Delete comment"/>
         {% endif %}
-        <div class='commentText'>
+    
+        <span class='commentText'>
         {{ tann.getTextValue|wikify|safe|linebreaks }}
-        </div>
+        </span>
     </div>
+
 </div>

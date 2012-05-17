@@ -138,6 +138,23 @@ class BaseContainer(BaseController):
         if orphaned:
             self.orphaned = True
             
+    def _get_object(self):
+        """
+        Since the container is often used to wrap a single Project, Dataset etc, several methods need access to 
+        the underlying object. E.g. obj_type(), obj_id(), canAnnotate(), canEdit().
+        This removes many if statements from the metadata_general.html template for places that are displaying
+        data for a single Object. E.g. Edit Name etc.
+        """
+        if self.project is not None: return self.project
+        if self.dataset is not None: return self.dataset
+        if self.image is not None: return self.image
+        if self.screen is not None: return self.screen
+        if self.plate is not None: return self.plate
+        if self.acquisition is not None: return self.acquisition
+        if self.well is not None: return self.well
+        if self.tag is not None: return self.tag
+        if self.file is not None: return self.file
+        
     def obj_type(self):
         if self.project is not None: return "project"
         if self.dataset is not None: return "dataset"
@@ -150,26 +167,17 @@ class BaseContainer(BaseController):
         if self.file is not None: return "file"
 
     def obj_id(self):
-        if self.project is not None: return self.project.id
-        if self.dataset is not None: return self.dataset.id
-        if self.image is not None: return self.image.id
-        if self.screen is not None: return self.screen.id
-        if self.plate is not None: return self.plate.id
-        if self.acquisition is not None: return self.acquisition.id
-        if self.well is not None: return self.well.id
-        if self.tag is not None: return self.tag.id
-        if self.file is not None: return self.file.id
+        obj = self._get_object()
+        return obj is not None and obj.id or None
 
-    def isEditable(self):
-        if self.project is not None: return self.project.isEditable()
-        if self.dataset is not None: return self.dataset.isEditable()
-        if self.image is not None: return self.image.isEditable()
-        if self.screen is not None: return self.screen.isEditable()
-        if self.plate is not None: return self.plate.isEditable()
-        if self.acquisition is not None: return self.acquisition.isEditable()
-        if self.well is not None: return self.well.isEditable()
-        if self.tag is not None: return self.tag.isEditable()
-        if self.file is not None: return self.file.isEditable()
+    def canAnnotate(self):
+        obj = self._get_object()
+        return obj is not None and obj.canAnnotate() or False
+
+    def canEdit(self):
+        obj = self._get_object()
+        return obj is not None and obj.canEdit() or None
+
 
     def openAstexViewerCompatible(self):
         """
@@ -261,78 +269,26 @@ class BaseContainer(BaseController):
         sc_list = list(self.conn.getObjectsByAnnotations('Screen',[self.tag.id]))
         pl_list = list(self.conn.getObjectsByAnnotations('Plate',[self.tag.id]))
         
-        pr_list_with_counters = list()
-        ds_list_with_counters = list()
-        im_list_with_counters = list()
-        sc_list_with_counters = list()
-        pl_list_with_counters = list()
+        pr_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        ds_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        im_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        sc_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        pl_list.sort(key=lambda x: x.getName() and x.getName().lower())
         
-        pr_ids = [pr.id for pr in pr_list]
-        if len(pr_ids) > 0:
-            pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
-            
-            for pr in pr_list:
-                pr.annotation_counter = pr_annotation_counter.get(pr.id)
-                pr_list_with_counters.append(pr)
-        
-        ds_ids = [ds.id for ds in ds_list]
-        if len(ds_ids) > 0:
-            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-            
-            for ds in ds_list:
-                ds.annotation_counter = ds_annotation_counter.get(ds.id)
-                ds_list_with_counters.append(ds)
-        
-        im_ids = [im.id for im in im_list]
-        if len(im_ids) > 0:
-            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-            
-            for im in im_list:
-                im.annotation_counter = im_annotation_counter.get(im.id)
-                im_list_with_counters.append(im)
-        
-        sc_ids = [sc.id for sc in sc_list]
-        if len(sc_ids) > 0:
-            sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
-            
-            for sc in sc_list:
-                sc.annotation_counter = sc_annotation_counter.get(sc.id)
-                sc_list_with_counters.append(sc)
-        
-        pl_ids = [pl.id for pl in pl_list]
-        if len(pl_ids) > 0:
-            pl_annotation_counter = self.conn.getCollectionCount("Plate", "annotationLinks", pl_ids)
-            
-            for pl in pl_list:
-                pl.annotation_counter = pl_annotation_counter.get(pl.id)
-                pl_list_with_counters.append(pl)
-        
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'images': im_list_with_counters, 'screens':sc_list_with_counters, 'plates':pl_list_with_counters}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(im_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
+        self.containers={'projects': pr_list, 'datasets': ds_list, 'images': im_list, 'screens':sc_list, 'plates':pl_list}
+        self.c_size = len(pr_list)+len(ds_list)+len(im_list)+len(sc_list)+len(pl_list)
         
     def listImagesInDataset(self, did, eid=None, page=None):
         if eid is not None:
             self.experimenter = self.conn.getObject("Experimenter", eid)  
         
         im_list = list(self.conn.listImagesInDataset(oid=did, eid=eid, page=page))
-        # Not displaying annotation icons (same as Insight). #5514.
-        #im_list_with_counters = list()
-        
-        #im_ids = [im.id for im in im_list]
-        #if len(im_ids) > 0:
-        #    im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-            
-        #    for im in im_list:
-        #        im.annotation_counter = im_annotation_counter.get(im.id)
-        #        im_list_with_counters.append(im)
-        
-        im_list_with_counters = im_list
-        im_list_with_counters.sort(key=lambda x: x.getName().lower())
-        self.containers = {'images': im_list_with_counters}
+        im_list.sort(key=lambda x: x.getName().lower())
+        self.containers = {'images': im_list}
         self.c_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(did)])[long(did)]
         
         if page is not None:
-            self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
+            self.paging = self.doPaging(page, len(im_list), self.c_size)
     
     def listContainerHierarchy(self, eid=None):
         if eid is not None:
@@ -345,52 +301,15 @@ class BaseContainer(BaseController):
         sc_list = list(self.conn.listScreens(eid))
         pl_list = list(self.conn.listOrphans("Plate", eid))
 
-        pr_list_with_counters = list()
-        ds_list_with_counters = list()
-        sc_list_with_counters = list()
-        pl_list_with_counters = list()
-        
-        pr_ids = [pr.id for pr in pr_list]
-        if len(pr_ids) > 0:
-            pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
-            
-            for pr in pr_list:
-                pr.annotation_counter = pr_annotation_counter.get(pr.id)
-                pr_list_with_counters.append(pr)
-                
-        ds_ids = [ds.id for ds in ds_list]
-        if len(ds_ids) > 0:
-            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-            
-            for ds in ds_list:
-                ds.annotation_counter = ds_annotation_counter.get(ds.id)
-                ds_list_with_counters.append(ds)
-        
-        sc_ids = [sc.id for sc in sc_list]
-        if len(sc_ids) > 0:
-            sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
-
-            for sc in sc_list:
-                sc.annotation_counter = sc_annotation_counter.get(sc.id)
-                sc_list_with_counters.append(sc)
-
-        pl_ids = [pl.id for pl in pl_list]
-        if len(pl_ids) > 0:
-            pl_annotation_counter = self.conn.getCollectionCount("Plate", "annotationLinks", ds_ids)
-
-            for pl in pl_list:
-                pl.annotation_counter = pl_annotation_counter.get(pl.id)
-                pl_list_with_counters.append(pl)
-
-        pr_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
-        ds_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
-        sc_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
-        pl_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
+        pr_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        ds_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        sc_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        pl_list.sort(key=lambda x: x.getName() and x.getName().lower())
 
         self.orphans = self.conn.countOrphans("Image", eid)
         
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'screens': sc_list_with_counters, 'plates': pl_list_with_counters}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
+        self.containers={'projects': pr_list, 'datasets': ds_list, 'screens': sc_list, 'plates': pl_list}
+        self.c_size = len(pr_list)+len(ds_list)+len(sc_list)+len(pl_list)
     
     def listOrphanedImages(self, eid=None, page=None):
         if eid is not None:
@@ -399,24 +318,12 @@ class BaseContainer(BaseController):
             eid = self.conn.getEventContext().userId
         
         im_list = list(self.conn.listOrphans("Image", eid=eid, page=page))
-        # Not displaying annotation icons (same as Insight). #5514.
-        #im_list_with_counters = list()
-        
-        #im_ids = [im.id for im in im_list]
-        #if len(im_ids) > 0:
-            #im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-            
-            #for im in im_list:
-                #im.annotation_counter = im_annotation_counter.get(im.id)
-                #im_list_with_counters.append(im)
-        
-        im_list_with_counters = im_list
-        im_list_with_counters.sort(key=lambda x: x.getName().lower())
-        self.containers = {'orphaned': True, 'images': im_list_with_counters}
+        im_list.sort(key=lambda x: x.getName().lower())
+        self.containers = {'orphaned': True, 'images': im_list}
         self.c_size = self.conn.countOrphans("Image", eid=eid)
         
         if page is not None:
-            self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
+            self.paging = self.doPaging(page, len(im_list), self.c_size)
 
     # Annotation list
     def annotationList(self):
@@ -701,7 +608,7 @@ class BaseContainer(BaseController):
                     l_ann.setChild(fa._obj)
                     new_links.append(l_ann)
         if len(new_links) > 0 :
-            new_links = self.conn.getUpdateService().saveAndReturnArray(new_links)
+            new_links = self.conn.getUpdateService().saveAndReturnArray(new_links, self.conn.CONFIG['SERVICE_OPTS'])
         
         # if we only annotated a single object, return file-ann with link loaded
         if len(new_links) == 1:
@@ -749,11 +656,11 @@ class BaseContainer(BaseController):
         saved_links = []
         try:
             # will fail if any of the links already exist
-            saved_links = self.conn.getUpdateService().saveAndReturnArray(new_links)
+            saved_links = self.conn.getUpdateService().saveAndReturnArray(new_links, self.conn.CONFIG['SERVICE_OPTS'])
         except omero.ValidationException, x:
             for l in new_links:
                 try:
-                    saved_links.append(self.conn.getUpdateService().saveAndReturnObject(l))
+                    saved_links.append(self.conn.getUpdateService().saveAndReturnObject(l, self.conn.CONFIG['SERVICE_OPTS']))
                 except:
                     failed+=1
 

@@ -122,7 +122,7 @@ class TextualAnnotationComponent
 			}
 		});
 		IconManager icons = IconManager.getInstance();
-		if (model.isUserOwner(data)) {
+		if (model.canEdit(data)) {
 			menuButton = new JButton(icons.getIcon(IconManager.UP_DOWN_9_12));
 			UIUtilities.unifiedButtonLookAndFeel(menuButton);
 			menuButton.setBackground(UIUtilities.BACKGROUND_COLOR);

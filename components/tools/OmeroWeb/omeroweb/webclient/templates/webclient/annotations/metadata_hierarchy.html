@@ -24,6 +24,9 @@
 
 {% block link %}
     <link rel="stylesheet" href="{% static "3rdparty/jquery.jstree/themes/default/style.css" %}" type="text/css" media="screen"/>
+	
+	
+	
     <style>
         #hierarchyTree ul li.clear { clear:both; }
         .jstree ul, .jstree li { display:block; margin:0 0 0 0; padding:0 0 0 0; list-style-type:none; }
@@ -35,8 +38,8 @@
         .jstree a { display:inline-block; line-height:16px; height:16px; color:#555555; white-space:nowrap; text-decoration:none; padding:1px 2px; margin:0; }
         .jstree a:focus { outline: none; }
         .jstree a > ins { height:16px; width:16px; }
-        .jstree a > .jstree-icon { margin-right:3px; }
-        .jstree-rtl a > .jstree-icon { margin-left:3px; margin-right:0; }
+        .jstree a > .jstree-icon { }
+        .jstree-rtl a > .jstree-icon { margin-right:0; }
         li.jstree-open > ul { display:block; }
         li.jstree-closed > ul { display:none; }
     </style>

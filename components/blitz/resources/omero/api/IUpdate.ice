@@ -9,6 +9,7 @@
 #ifndef OMERO_API_IUPDATE_ICE
 #define OMERO_API_IUPDATE_ICE
 
+#include <omero/cmd/API.ice>
 #include <omero/ServicesF.ice>
 #include <omero/Collections.ice>
 
@@ -30,6 +31,15 @@ module omero {
                 void deleteObject(omero::model::IObject row) throws ServerError;
                 void indexObject(omero::model::IObject row) throws ServerError;
             };
+
+        class Save extends omero::cmd::Request {
+            omero::model::IObject obj;
+        };
+
+        class SaveRsp extends omero::cmd::Response {
+            omero::model::IObject obj;
+        };
+
     };
 };
 

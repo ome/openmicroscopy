@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ParentVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.ContainerFinder;
 import org.openmicroscopy.shoola.agents.util.browser.NodeSelectionVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.NodesFinder;
@@ -1425,7 +1426,9 @@ class BrowserComponent
 	    }
 	    
 	    if (m.size() == 0) { //for new data the first time.
-	    	loadExperimenterData(getLoggedExperimenterNode(), null);
+	    	TreeImageDisplay node = getLoggedExperimenterNode();
+	    	if (node != null)
+	    		loadExperimenterData(node, null);
 	    	return;
 	    }
 	    model.loadRefreshExperimenterData(m, null, -1, refNode, toBrowse);
@@ -1635,6 +1638,19 @@ class BrowserComponent
 		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
 		if (n == null) return model.getUserDetails();
 		return (ExperimenterData) n.getUserObject();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getNodeGroup(TreeImageDisplay)
+	 */
+	public GroupData getNodeGroup(TreeImageDisplay node)
+	{
+		if (node == null) 
+			throw new IllegalArgumentException("No node specified.");
+		TreeImageDisplay n = EditorUtil.getDataGroup(node);
+		if (n == null) return model.getUserDetails().getDefaultGroup();
+		return (GroupData) n.getUserObject();
 	}
 	
 	/**
@@ -2009,21 +2025,21 @@ class BrowserComponent
 	}
 
 	/**
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#isObjectWritable(Object)
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Browser#canEdit(Object)
 	 */
-	public boolean isUserOwner(Object ho)
+	public boolean canEdit(Object ho)
 	{
-		return model.getParentModel().isUserOwner(ho);
+		return model.getParentModel().canEdit(ho);
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see Browser#canDeleteObject(Object)
+	 * @see Browser#canAnnotate(Object)
 	 */
-	public boolean canDeleteObject(Object ho)
+	public boolean canAnnotate(Object ho)
 	{
-		return model.getParentModel().canDeleteObject(ho);
+		return model.getParentModel().canAnnotate(ho);
 	}
 	
 	/**

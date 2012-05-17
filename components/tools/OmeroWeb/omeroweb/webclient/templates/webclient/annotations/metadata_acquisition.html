@@ -76,10 +76,13 @@
     </script>
 
     <!-- METADATA "Acquisition" TAB -->
-
+	
+		
             
         {% if manager.well or manager.image%}
             
+			<div class="right_tab_inner">
+			
             {% if manager.companion_files %}
             <h1 class="can-collapse defclose">{% trans "Companion Files" %}</h1>                
                 <div>
@@ -88,7 +91,7 @@
                         <a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';">
                             {{ fileann.getFileName|shortening:40 }}
                         </a>
-                        ({{ fileann.getFileSize|default_if_none:0|filesizeformat }})
+                        ({{ fileann.getFileSize|default:0|filesizeformat }})
                     </p>
                     {% endfor %}
                 </div>
@@ -339,5 +342,9 @@
                 {% endif %}
             </div>
             {% endfor %}
+			
+			</div>
 
         {% endif %}
+		
+		
