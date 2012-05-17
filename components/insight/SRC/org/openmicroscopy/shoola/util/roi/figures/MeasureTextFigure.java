@@ -62,6 +62,15 @@ public class MeasureTextFigure
 	implements ROIFigure
 {
 	
+	/** Flag indicating the figure can/cannot be deleted.*/
+	private boolean deletable;
+	
+	/** Flag indicating the figure can/cannot be annotated.*/
+	private boolean annotatable;
+	
+	/** Flag indicating the figure can/cannot be edited.*/
+	private boolean editable;
+	
 	/** Is this figure read only. */
 	private boolean readOnly;
 	
@@ -92,7 +101,7 @@ public class MeasureTextFigure
     /** Creates a new instance. Default value <code>(0, 0) </code>.*/
     public MeasureTextFigure() 
     {
-        this(0, 0, false, true);
+        this(0, 0);
     }
     
     /** Creates a new instance. Default value <code>(0, 0) </code>.
@@ -102,9 +111,23 @@ public class MeasureTextFigure
      */
     public MeasureTextFigure(boolean readOnly, boolean clientObject) 
     {
-        this(0, 0, readOnly,clientObject);
+        this(0, 0, readOnly,clientObject, true, true, true);
     }
 
+    /** Creates a new instance. Default value <code>(0, 0) </code>.
+     * 
+	 * @param readOnly The figure is read only.
+	 * @param clientObject The figure is created client-side.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
+     */
+    public MeasureTextFigure(boolean readOnly, boolean clientObject,
+    		boolean editable, boolean deletable, boolean annotatable) 
+    {
+        this(0, 0, readOnly,clientObject, true, true, true);
+    }
+    
     
     /**
      * Creates a new instance.
@@ -114,7 +137,7 @@ public class MeasureTextFigure
   	 */
     public MeasureTextFigure(double x, double y)
     {
-    	this(x, y, false, true);
+    	this(x, y, false, true, true, true, true);
     }
     
     /**
@@ -124,9 +147,13 @@ public class MeasureTextFigure
      * @param y The y-coordinate of the top-left corner.
 	 * @param readOnly The figure is read only.
 	 * @param clientObject The figure is created client-side.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
  	 */
     public MeasureTextFigure(double x, double y, boolean readOnly, 
-    							boolean clientObject) 
+    	boolean clientObject, boolean editable, boolean deletable, boolean
+    	annotatable)
     {
     	super();
     	setAttribute(MeasurementAttributes.FONT_FACE, ROIFigure.DEFAULT_FONT);
@@ -139,6 +166,9 @@ public class MeasureTextFigure
    		status = IDLE;
    		setReadOnly(readOnly);
    		setClientObject(clientObject);
+   		this.deletable = deletable;
+   		this.annotatable = annotatable;
+   		this.editable = editable;
    }
 	
 	/**
@@ -147,7 +177,7 @@ public class MeasureTextFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (!readOnly)
+		if (!readOnly && canAnnotate())
 		{
 			super.transform(tx);
 			this.setObjectDirty(true);
@@ -160,7 +190,7 @@ public class MeasureTextFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if (!readOnly)
+		if (!readOnly && canAnnotate())
 		{
 			super.setBounds(anchor, lead);
 			this.setObjectDirty(true);
@@ -336,5 +366,23 @@ public class MeasureTextFigure
 				figListeners.add((FigureListener)listener);
 		return figListeners;
 	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canAnnotate() { return annotatable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canDelete()
+	 */
+	public boolean canDelete() { return deletable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canEdit() { return editable; }
 	
 }

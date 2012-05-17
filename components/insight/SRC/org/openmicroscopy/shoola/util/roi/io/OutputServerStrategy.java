@@ -105,7 +105,7 @@ class OutputServerStrategy
 		while (roiIterator.hasNext())
 		{
 			roi = roiIterator.next();
-			if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1)
+			if (roi.canAnnotate())
 				ROIList.add(createServerROI(roi, image));
 		}
 	}

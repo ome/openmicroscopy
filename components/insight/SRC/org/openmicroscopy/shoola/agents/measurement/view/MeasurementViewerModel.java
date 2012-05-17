@@ -235,9 +235,6 @@ class MeasurementViewerModel
 	private void checkIfHasROIToDelete()
 	{
 		if (dataToDelete) return;
-		ExperimenterData exp = 
-			(ExperimenterData) MeasurementAgent.getUserDetails();
-		long ownerID = exp.getId();
 		Collection<ROI> rois = roiComponent.getROIMap().values();
 		Iterator<ROI> i = rois.iterator();
 		List<ROI> ownedRois = new ArrayList<ROI>();
@@ -245,7 +242,8 @@ class MeasurementViewerModel
 		List<ROIFigure> figures = new ArrayList<ROIFigure>();
 		while (i.hasNext()) {
 			roi = i.next();
-			if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+			//if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+			if (roi.canDelete()) {
 				figures.addAll(roi.getAllFigures());
 				ownedRois.add(roi);
 			}
@@ -861,7 +859,8 @@ class MeasurementViewerModel
 		List<ROIFigure> figures = new ArrayList<ROIFigure>();
 		while (i.hasNext()) {
 			roi = i.next();
-			if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+			//if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+			if (roi.canDelete()) {
 				figures.addAll(roi.getAllFigures());
 				ownedRois.add(roi);
 			}

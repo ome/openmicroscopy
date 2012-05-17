@@ -69,6 +69,15 @@ public class MeasureRectangleFigure
 	implements ROIFigure
 {
 	
+	/** Flag indicating the figure can/cannot be deleted.*/
+	private boolean deletable;
+	
+	/** Flag indicating the figure can/cannot be annotated.*/
+	private boolean annotatable;
+	
+	/** Flag indicating the figure can/cannot be edited.*/
+	private boolean editable;
+	
 	/** Is this figure read only. */
 	protected boolean readOnly;
 	
@@ -101,17 +110,25 @@ public class MeasureRectangleFigure
     /** Creates a new instance. */
     public MeasureRectangleFigure() 
     {
-        this(DEFAULT_TEXT, 0, 0, 0, 0, false, true);
+        this(DEFAULT_TEXT);
     }
 
     /** 
      * Creates a new instance.
      *  
 	 * @param readOnly The figure is read only.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
-    public MeasureRectangleFigure(boolean readOnly, boolean clientObject) 
+    public MeasureRectangleFigure(boolean readOnly, boolean clientObject,
+    		boolean editable, boolean deletable, boolean annotatable) 
     {
-        this(DEFAULT_TEXT, 0, 0, 0, 0, readOnly, clientObject);
+        this(DEFAULT_TEXT, 0, 0, 0, 0, readOnly, clientObject, editable,
+        		deletable, annotatable);
     }
 
     /** 
@@ -121,9 +138,23 @@ public class MeasureRectangleFigure
      * */
     public MeasureRectangleFigure(String text) 
     {
-        this(text, 0, 0, 0, 0, false, true);
+        this(text, 0, 0, 0, 0);
     }
  
+    /** 
+     * Creates a new instance.
+     * 
+     * @param x    coordinate of the figure. 
+     * @param y    coordinate of the figure. 
+     * @param width of the figure. 
+     * @param height of the figure. 
+      * */
+    public MeasureRectangleFigure(String text, double x, double y, double width, 
+			double height) 
+    {
+    	this(text, x, y, width, height, false, true, true, true, true);
+    }
+    
     /** 
      * Creates a new instance.
      * 
@@ -135,7 +166,7 @@ public class MeasureRectangleFigure
     public MeasureRectangleFigure(double x, double y, double width, 
 			double height) 
     {
-    	this(DEFAULT_TEXT, x, y, width, height, false, true);
+    	this(DEFAULT_TEXT, x, y, width, height);
     }
 
     /** 
@@ -146,11 +177,16 @@ public class MeasureRectangleFigure
      * @param width of the figure. 
      * @param height of the figure. 
  	 * @param readOnly The figure is read only.
-     * */
+ 	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
+     */
     public MeasureRectangleFigure(double x, double y, double width, 
-			double height, boolean readOnly, boolean clientObject) 
+			double height, boolean readOnly, boolean clientObject,
+			boolean editable, boolean deletable, boolean annotatable) 
     {
-    	this(DEFAULT_TEXT, x, y, width, height, readOnly, clientObject);
+    	this(DEFAULT_TEXT, x, y, width, height, readOnly, clientObject,
+    			editable, deletable, annotatable);
     }
     
     /** 
@@ -162,9 +198,13 @@ public class MeasureRectangleFigure
      * @param width of the figure. 
      * @param height of the figure. 
  	 * @param readOnly The figure is read only.
- 	 * */
+ 	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
+ 	 */
     public MeasureRectangleFigure(String text, double x, double y, double width, 
-    					double height, boolean readOnly, boolean clientObject) 
+    	double height, boolean readOnly, boolean clientObject,
+    	boolean editable, boolean deletable, boolean annotatable) 
     {
 		super(text, x, y, width, height);
 		setAttributeEnabled(MeasurementAttributes.HEIGHT, true);
@@ -178,6 +218,9 @@ public class MeasureRectangleFigure
 		status = IDLE;
 		setReadOnly(readOnly);
 		setClientObject(clientObject);
+		this.deletable = deletable;
+   		this.annotatable = annotatable;
+   		this.editable = editable;
     }
     
     /** 
@@ -305,7 +348,7 @@ public class MeasureRectangleFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (!readOnly)
+		if (!readOnly && canAnnotate())
 		{
 			super.transform(tx);
 			this.setObjectDirty(true);
@@ -318,7 +361,7 @@ public class MeasureRectangleFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if (!readOnly)
+		if (!readOnly && canAnnotate())
 		{
 			super.setBounds(anchor, lead);
 			this.setObjectDirty(true);
@@ -611,5 +654,23 @@ public class MeasureRectangleFigure
 				figListeners.add((FigureListener)listener);
 		return figListeners;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canAnnotate() { return annotatable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canDelete()
+	 */
+	public boolean canDelete() { return deletable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canEdit() { return editable; }
 	
 }

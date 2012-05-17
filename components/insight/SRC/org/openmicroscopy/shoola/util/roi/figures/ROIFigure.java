@@ -212,5 +212,29 @@ public interface ROIFigure
 	 * @return See above.
 	 */
 	public List<FigureListener> getFigureListeners();
+	
+	/** 
+	 * Indicates if the ROI can be edited if <code>true</code>,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean canEdit();
+	
+	/** 
+	 * Indicates if the ROI can be annotated if <code>true</code>,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean canAnnotate();
+	
+	/** 
+	 * Indicates if the ROI can be deleted if <code>true</code>,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean canDelete();
 
 }
