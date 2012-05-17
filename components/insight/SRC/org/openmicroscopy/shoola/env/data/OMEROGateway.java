@@ -4491,7 +4491,6 @@ class OMEROGateway
 		List<Long> success = new ArrayList<Long>();
 		List<Long> failure = new ArrayList<Long>();
 		isSessionAlive(ctx);
-		ctx = new SecurityContext(-1);
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 			Map m  = service.applySettingsToSet(pixelsID, 

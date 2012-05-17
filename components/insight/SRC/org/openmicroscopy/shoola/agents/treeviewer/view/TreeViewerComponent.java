@@ -2274,7 +2274,7 @@ class TreeViewerComponent
 	 */
 	public void pasteRndSettings(TimeRefObject ref)
 	{
-		//TODO Check state.
+		if (model.getState() == DISCARDED) return;
 		if (!hasRndSettings()) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Paste settings", "No rendering settings to" +
