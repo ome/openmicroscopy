@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -883,12 +884,20 @@ class MetadataViewerModel
 	 */
 	void setViewedBy(Map viewedBy)
 	{ 
-		Map m = new HashMap();
+		Map m = new LinkedHashMap();
 		if (viewedBy != null) {
 			long id = MetadataViewerAgent.getUserDetails().getId();
 			Entry entry;
 			Iterator i = viewedBy.entrySet().iterator();
 			ExperimenterData exp;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				exp = (ExperimenterData) entry.getKey();
+				if (exp.getId() == id) {
+					m.put(exp, entry.getValue());
+				}
+			}
+			i = viewedBy.entrySet().iterator();
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				exp = (ExperimenterData) entry.getKey();
