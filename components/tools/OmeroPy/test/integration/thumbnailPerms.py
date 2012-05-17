@@ -235,7 +235,7 @@ class TestThumbnailPerms(lib.ITest):
             "join fetch i.pixels where i.id = '%d'" % imageId, None)
         if image is None:
             return None
-        pId = image.getPrimaryPixels().getId().getValue()
+        pId = image.getPixels().getId().getValue()
     
         pixelsIds = [pId]
         s = thumbnailStore.getThumbnailByLongestSideSet(rint(16), pixelsIds)
