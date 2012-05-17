@@ -402,6 +402,11 @@ class OMEModelEntity(object):
     isManyToMany = property(_get_isManyToMany,
         doc="""Whether or not the entity is a many-to-many reference.""")
 
+    def _get_isSettings(self):
+        return self.name.endswith('Settings')
+    isSettings = property(_get_isSettings,
+        doc="""Whether or not the entity is a Settings reference.""")
+
 class OMEModelProperty(OMEModelEntity):
     """
     An aggregate type representing either an OME XML Schema element, 
@@ -656,7 +661,6 @@ class OMEModelObject(OMEModelEntity):
         self.isAbstract = False
         self.isAbstractProprietary = False
         self.isUnique = False
-        self.isSettings = self.base == 'Settings'
         self.isImmutable = False
         self._isGlobal = False
         self.base in ('Annotation', 'BasicAnnotation') \
@@ -928,7 +932,7 @@ class OMEModel(object):
         return 1
 
     def calculateMinOccurs(self, o, prop):
-        if prop.isReference:
+        if prop.isReference or prop.isSettings:
             return 0
         return 1
 
