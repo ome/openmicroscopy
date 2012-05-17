@@ -174,6 +174,12 @@ OMERO_PACKAGE_OVERRIDES = {
         "OMERO": "ome.model.meta",
 }
 
+# The OMERO classes for which the type's Name attribute is optional
+OMERO_NAMED_OPTIONAL = (
+        "ROI",
+        "Channel",
+)
+
 # The default template for enum class processing.
 ENUM_TEMPLATE = "templates/Enum.template"
 
@@ -1019,6 +1025,7 @@ class TemplateInfo(object):
         self.BACK_REFERENCE_LINK_OVERRIDE = BACK_REFERENCE_LINK_OVERRIDE
         self.BACK_REFERENCE_NAME_OVERRIDE = BACK_REFERENCE_NAME_OVERRIDE
         self.REF_REGEX = REF_REGEX
+        self.OMERO_NAMED_OPTIONAL = OMERO_NAMED_OPTIONAL
     
     def link_overridden(self, property_name, class_name):
         """Whether or not a back reference link should be overridden."""

@@ -13,7 +13,7 @@
 \
 {% def type_attributes(obj) %}\
 {% if obj.isAnnotated %} annotated="true"{% end %}\
-{% if obj.isNamed %} named="true"{% end %}\
+{% if obj.isNamed and obj.name not in fu.OMERO_NAMED_OPTIONAL %} named="true"{% end %}\
 {% if obj.isDescribed %} described="true"{% end %}\
 {% end %}\
 \
@@ -98,7 +98,9 @@ ${fully_qualified_link_class_name(o, prop)}\
                 return True
             if x.isGlobal and (not o.isAnnotation and not o.isGlobal):
                 return False
-            if x.name in ('ID', 'Description', 'Name', 'AnnotationRef',
+            if x.name == 'Name' and o.name not in fu.OMERO_NAMED_OPTIONAL:
+                return False
+            if x.name in ('ID', 'Description', 'AnnotationRef',
                           'BinData', 'TiffData', 'MetadataOnly', 'Union',
                           'Union_BackReference'):
                 return False
