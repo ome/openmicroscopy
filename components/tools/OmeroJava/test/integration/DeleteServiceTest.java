@@ -2762,7 +2762,7 @@ public class DeleteServiceTest
 		assertEquals(wellSamples.size(), fields);
 		
     	delete(new DeleteCommand(REF_PLATE_ACQUISITION, id, null));
-    	sql = "select pa from PlateAcquisitions as pa ";
+    	sql = "select pa from PlateAcquisition as pa ";
 		sql += "where pa.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	
