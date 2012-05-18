@@ -302,7 +302,7 @@ public class ImViewerFactory
 		ImViewerComponent comp;
 		while (i.hasNext()) {
 			comp = (ImViewerComponent) i.next();
-			if (!comp.isOriginalSettings()) 
+			if (comp.hasSettingsToSave())
 				instances.add(comp);
 		}
 		return instances;
