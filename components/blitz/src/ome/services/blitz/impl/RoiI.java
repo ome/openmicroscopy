@@ -119,7 +119,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 	for(Map<String, Object> idMap : mapList)
                 		 idList.add((Long)idMap.get("id"));
                 	if (idList.size() == 0) return new ArrayList();
-                	String hqlQuery = "select distinct r from Roi r join " +
+                	String hqlQuery = "select distinct r from ROI r join " +
                 			"r.image i join fetch r.shapes where r.id in (:ids)";
                 	hqlQuery = hqlQuery + " order by r.id";
         		    Query q = session.createQuery(hqlQuery);
@@ -128,7 +128,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             	}
             	else
             	{
-        		    String queryString = "select distinct r from Roi r join r.image i "
+        		    String queryString = "select distinct r from ROI r join r.image i "
                         + "join fetch r.shapes where i.id = :id";
         		    queryString = queryString + " order by r.id";
         		    Query q = session.createQuery(queryString);
@@ -170,7 +170,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
 
-                Query q = session.createQuery("select distinct r from Roi r "
+                Query q = session.createQuery("select distinct r from ROI r "
                         + "join fetch r.shapes s where r.id = :id "
                         + "and ( s.theZ is null or s.theZ = :z ) "
                         + "and ( s.theT is null or s.theT = :t ) "
@@ -268,7 +268,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 QueryBuilder qb = new QueryBuilder();
                 qb.select("distinct fa");
                 qb.from("Image", "i");
-                qb.append(", Roi roi ");
+                qb.append(", ROI roi ");
                 qb.join("roi.annotationLinks", "rlinks", false, false);
                 qb.join("rlinks.child", "rfa", false, false);
                 qb.join("i.wellSamples", "ws", false, false);
@@ -291,7 +291,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
     protected List<ome.model.roi.ROI> loadMeasuredRois(Session session,
             long imageId, long annotationId) {
         Query q = session
-                .createQuery("select distinct r from Roi r join r.image i "
+                .createQuery("select distinct r from ROI r join r.image i "
                         + "join fetch r.shapes join i.wellSamples ws join ws.well well "
                         + "join well.plate plate join plate.annotationLinks links "
                         + "join links.child a where a.id = :aid and i.id = :iid "
@@ -595,7 +595,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
         RoiQueryBuilder(List<Long> roiIds) {
             this.paramList("ids", roiIds);
             this.select("distinct r");
-            this.from("Roi", "r");
+            this.from("ROI", "r");
             this.join("r.shapes", "s", false, true);
             this.where();
         }
