@@ -1281,11 +1281,10 @@ class BrowserComponent
 			Map<SecurityContext, RefreshExperimenterDef> 
 				m = new HashMap<SecurityContext, RefreshExperimenterDef>(1);
 			SecurityContext ctx = TreeViewerAgent.getAdminContext();
-			if (ctx != null) {
-				m.put(ctx, def);
-				model.loadRefreshExperimenterData(m, null, -1, null, null);
-				fireStateChange();
-			}
+			if (ctx == null) ctx = model.getSecurityContext(null);
+			m.put(ctx, def);
+			model.loadRefreshExperimenterData(m, null, -1, null, null);
+			fireStateChange();
 		} else {
 			display = model.getLastSelectedDisplay();
 			if (display == null) return;

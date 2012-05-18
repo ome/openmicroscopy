@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -338,6 +339,11 @@ public class RefreshExperimenterDataLoader
         		viewer.setGroups((Collection) result, 
         				(List) nodes.get(GroupData.class));
 			}
+        	//
+        	if (!TreeViewerAgent.isAdministrator()) {
+        		TreeViewerAgent.getRegistry().bind(
+        				LookupNames.USER_GROUP_DETAILS, result);
+        	}
         	return;
         }
         Map m = (Map) result;
