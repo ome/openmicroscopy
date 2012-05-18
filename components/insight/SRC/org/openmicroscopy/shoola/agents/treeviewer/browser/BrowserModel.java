@@ -923,8 +923,13 @@ class BrowserModel
 					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
 		}
 		TreeImageDisplay parent = n.getParentDisplay();
-		GroupData group = (GroupData) parent.getUserObject();
-		return new SecurityContext(group.getId());
+		Object p = parent.getUserObject();
+		if (p instanceof GroupData) {
+			GroupData group = (GroupData) p;
+			return new SecurityContext(group.getId());
+		}
+		return new SecurityContext(
+				TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
 	}
 	
 	/**
