@@ -66,7 +66,7 @@ class UserUI
 	static final String TITLE = "Disk Space";
 
 	/** The title of the chart. */
-	private static final String TITLE_DETAILS = "Personal details";
+	private static final String TITLE_DETAILS = "User settings";
 
 	/** The component displaying the user profile. */
 	private UserProfile 	profile;

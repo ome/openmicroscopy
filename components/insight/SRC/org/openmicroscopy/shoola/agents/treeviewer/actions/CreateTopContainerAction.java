@@ -103,7 +103,7 @@ public class CreateTopContainerAction
     private static final String NAME_GROUP = "New Group...";
     
     /** The name of the action for the creation of a <code>Screen</code>. */
-    private static final String NAME_EXPERIMENTER = "New Experimenter...";
+    private static final String NAME_EXPERIMENTER = "New User...";
     
     /** Description of the action for a <code>Tag</code> . */
     private static final String DESCRIPTION_TAG_SET = "Create a new Tag Set.";

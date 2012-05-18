@@ -270,7 +270,7 @@ class ExperimenterPane
     		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
     		p.add(UIUtilities.buildComponentPanel(
     				UIUtilities.setTextFont("Select the group(s) to add the " +
-    				"Experimenter to")));
+    				"User to")));
     		p.add(selectionComponent);
     		c.gridy++;
     		add(new JSeparator(), c);
