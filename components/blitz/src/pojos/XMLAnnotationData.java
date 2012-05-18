@@ -87,6 +87,7 @@ public class XMLAnnotationData
     {
         if (value == null || value.trim().length() == 0) 
         	return;
+        setDirty(true);
         asAnnotation().setDescription(rstring(value));
     }
 
@@ -158,6 +159,7 @@ public class XMLAnnotationData
             throw new IllegalArgumentException(
                     "Annotation value cannot be null.");
         }
+        setDirty(true);
         ((XmlAnnotation) asAnnotation()).setTextValue(rstring(value));
 	}
 	

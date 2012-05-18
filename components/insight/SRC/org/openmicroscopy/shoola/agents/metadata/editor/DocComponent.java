@@ -882,6 +882,8 @@ class DocComponent
 			TagAnnotationData tag = (TagAnnotationData) data;
 			label.setText(tag.getTagValue());
 			label.setToolTipText(formatTootTip(tag, null));
+			originalName = tag.getTagValue();
+			originalDescription = tag.getTagDescription();
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
 		} else if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			if (data == null) return;

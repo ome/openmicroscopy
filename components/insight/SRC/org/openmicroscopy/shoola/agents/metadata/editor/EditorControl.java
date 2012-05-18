@@ -35,6 +35,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -71,12 +72,15 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -553,7 +557,22 @@ class EditorControl
 		} else if (AnnotationUI.EDIT_TAG_PROPERTY.equals(name)) {
 			Object object = evt.getNewValue();
 			if (object instanceof DocComponent) {
-				view.setDataToSave(view.hasDataToSave());
+				//Save the tag w/o update.
+				DataObject d = (DataObject) ((DocComponent) object).getData();
+				//Save the tag
+				OmeroMetadataService svc = 
+					MetadataViewerAgent.getRegistry().getMetadataService();
+				long id = MetadataViewerAgent.getUserDetails().getId();
+				try {
+					svc.saveData(model.getSecurityContext(), Arrays.asList(d),
+							null, null, id);
+				} catch (Exception e) {
+					Logger l = MetadataViewerAgent.getRegistry().getLogger();
+					LogMessage msg = new LogMessage();
+					msg.print("Saving object");
+					msg.print(e);
+					l.error(this, msg);
+				}
 			}
 		} else if (OMEWikiComponent.WIKI_DATA_OBJECT_PROPERTY.equals(name)) {
 			WikiDataObject object = (WikiDataObject) evt.getNewValue();

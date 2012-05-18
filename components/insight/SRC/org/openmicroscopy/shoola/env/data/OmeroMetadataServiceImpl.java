@@ -509,7 +509,6 @@ class OmeroMetadataServiceImpl
 		long id;
 		String ioType;
 		TagAnnotation ho;
-		IObject link = null;
 		if (ann instanceof TagAnnotationData && ann.isDirty()) {
 			TagAnnotationData tag = (TagAnnotationData) ann;
 			id = tag.getId();
