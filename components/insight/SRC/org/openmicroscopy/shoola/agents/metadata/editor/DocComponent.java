@@ -578,11 +578,20 @@ class DocComponent
 				FileAnnotationData f = (FileAnnotationData) data;
 				String fileName = f.getFileName();
 				String s = fileName;
-				if (FileAnnotationData.MEASUREMENT_NS.equals(fileName)) {
-					label.setText(f.getDescription());
+				if (FileAnnotationData.MEASUREMENT_NS.equals(f.getNameSpace())) {
+					String desc = f.getDescription();
+					if (desc != null && desc.trim().length() > 0)
+						label.setText(desc);
+					else {
+						label.setText(UIUtilities.formatPartialName(
+								EditorUtil.getPartialName(fileName)));
+					}
 					s = label.getText();
-				} else label.setText(UIUtilities.formatPartialName(
-						EditorUtil.getPartialName(fileName)));
+				} else {
+					label.setText(UIUtilities.formatPartialName(
+							EditorUtil.getPartialName(fileName)));
+				}
+						
 				label.setToolTipText(formatTootTip(f, s));
 				Iterator<CustomizedFileFilter> i = FILTERS.iterator();
 				CustomizedFileFilter filter;
