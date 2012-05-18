@@ -34,7 +34,6 @@ package ome.services.blitz.impl;
 
 import static omero.rtypes.rstring;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,6 +59,7 @@ import ome.xml.model.primitives.Color;
 import ome.xml.model.primitives.NonNegativeInteger;
 import ome.xml.model.primitives.PositiveInteger;
 import ome.xml.model.primitives.PositiveFloat;
+import ome.xml.model.primitives.Timestamp;
 import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;
@@ -335,13 +335,13 @@ public class OmeroMetadata extends DummyMetadata {
         }
     }
 
-    private String millisToXsdDateTime(Long millis)
+    private Timestamp millisToXsdDateTime(Long millis)
     {
         if (millis == null)
         {
             return null;
         }
-        return xsdDateTimeFormat.format(new Timestamp(millis));
+        return new Timestamp(new java.sql.Timestamp(millis));
     }
 
     private Image _getImage(int imageIndex)
@@ -448,7 +448,7 @@ public class OmeroMetadata extends DummyMetadata {
     }
     
     @Override
-    public String getImageAcquisitionDate(int imageIndex)
+    public Timestamp getImageAcquisitionDate(int imageIndex)
     {
         Image o = _getImage(imageIndex);
         return o != null? millisToXsdDateTime(
@@ -1168,7 +1168,7 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public String getTimestampAnnotationValue(int timestampAnnotationIndex)
+    public Timestamp getTimestampAnnotationValue(int timestampAnnotationIndex)
     {
         TimestampAnnotation o = getAnnotation(
                 TimestampAnnotation.class, timestampAnnotationIndex);

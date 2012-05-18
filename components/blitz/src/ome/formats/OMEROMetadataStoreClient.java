@@ -35,7 +35,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -84,6 +83,7 @@ import ome.xml.model.primitives.NonNegativeLong;
 import ome.xml.model.primitives.PercentFraction;
 import ome.xml.model.primitives.PositiveInteger;
 import ome.xml.model.primitives.PositiveFloat;
+import ome.xml.model.primitives.Timestamp;
 import omero.RBool;
 import omero.RDouble;
 import omero.RInt;
@@ -859,7 +859,7 @@ public class OMEROMetadataStoreClient
      * @return RType or <code>null</code> if <code>value</code> is
      * <code>null</code>.
      */
-    public RTime toRType(Timestamp value)
+    public RTime toRType(java.sql.Timestamp value)
     {
         return value == null? null : rtime(value);
     }
@@ -871,24 +871,9 @@ public class OMEROMetadataStoreClient
      * <code>null</code> if timestamp parsing failed. The error will be logged
      * at the <code>ERROR</code> log level.
      */
-    private Timestamp timestampFromXmlString(String value)
+    private java.sql.Timestamp timestampFromXmlString(Timestamp value)
     {
-        if (value == null)
-        {
-            return null;
-        }
-        try
-        {
-            SimpleDateFormat sdf =
-                new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
-            return new Timestamp(sdf.parse(value).getTime());
-        }
-        catch (ParseException e)
-        {
-            log.error(String.format(
-                    "Parsing timestamp '%s' failed!", value), e);
-        }
-        return null;
+        return new java.sql.Timestamp(value.asDate().getTime());
     }
 
     /**
@@ -4495,9 +4480,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageAcquiredDate(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setImageAcquiredDate(ome.xml.model.primitives.Timestamp, int)
      */
-    public void setImageAcquisitionDate(String acquisitionDate, int imageIndex)
+    public void setImageAcquisitionDate(Timestamp acquisitionDate, int imageIndex)
     {
         if (acquisitionDate == null)
         {
@@ -6138,9 +6123,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionEndTime(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionEndTime(ome.xml.model.primitives.Timestamp, int, int)
      */
-    public void setPlateAcquisitionEndTime(String endTime, int plateIndex,
+    public void setPlateAcquisitionEndTime(Timestamp endTime, int plateIndex,
             int plateAcquisitionIndex)
     {
         PlateAcquisition o =
@@ -6188,9 +6173,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionStartTime(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionStartTime(ome.xml.model.primitives.Timestamp, int, int)
      */
-    public void setPlateAcquisitionStartTime(String startTime, int plateIndex,
+    public void setPlateAcquisitionStartTime(Timestamp startTime, int plateIndex,
             int plateAcquisitionIndex)
     {
         PlateAcquisition o =
@@ -7786,9 +7771,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTimestampAnnotationValue(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setTimestampAnnotationValue(ome.xml.model.primitives.Timestamp, int)
      */
-    public void setTimestampAnnotationValue(String value,
+    public void setTimestampAnnotationValue(Timestamp value,
             int timestampAnnotationIndex)
     {
         TimestampAnnotation o = getTimestampAnnotation(timestampAnnotationIndex);
@@ -8085,9 +8070,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellSampleTimepoint(java.lang.Integer, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setWellSampleTimepoint(ome.xml.model.primitives.Timestamp, int, int, int)
      */
-    public void setWellSampleTimepoint(String timepoint, int plateIndex,
+    public void setWellSampleTimepoint(Timestamp timepoint, int plateIndex,
             int wellIndex, int wellSampleIndex)
     {
         if (timepoint == null)
