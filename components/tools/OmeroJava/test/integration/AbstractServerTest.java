@@ -1579,13 +1579,12 @@ public class AbstractServerTest
 		if(name != null)
 			image.setName(omero.rtypes.rstring(name));
 			
-		Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(image
-				.getPixels());
+		Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(image.getPixels());
 		image = pixels.getImage();
 
 		return image;
 	}
-
+	
 	protected Image createBasicImage() throws Exception {
 		return createImage(1, 1, 1, 1, 1, null);
 	}
@@ -1594,5 +1593,22 @@ public class AbstractServerTest
 	{
 		return createImage(1, 1, 1, 1, 1, name);
 	}
+	
+	protected Plate savePlate(IUpdatePrx svc, Plate plate, boolean binary)
+			throws Exception {
+
+		Pixels pix;
+        for (Well well : plate.copyWells()) {
+            for (WellSample ws : well.copyWellSamples()) {
+            	pix = (Pixels) svc.saveAndReturnObject(
+            			ws.getImage().getPixels());
+            	if (binary)
+            		ws.setImage(createBinaryImage(pix.getImage()));
+            	else ws.setImage(pix.getImage());
+            }
+        }
+        return (Plate) svc.saveAndReturnObject(plate);
+	}
+	
 
 }

@@ -336,24 +336,28 @@ public class UpdateServiceTest
 		throws Exception
     {
     	Plate p = mmFactory.createPlate(1, 1, 1, 1, false);
-    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	p = savePlate(iUpdate, p, false);
+    	
     	assertNotNull(p);
     	assertNotNull(p.getName().getValue());
     	assertNotNull(p.getStatus().getValue());
     	assertNotNull(p.getDescription().getValue());
     	assertNotNull(p.getExternalIdentifier().getValue());
+    	
     	String sql = "select l from PlateAcquisition as l ";
     	sql += "join fetch l.plate as p ";
     	sql += "where p.id = :id";
+    	
     	ParametersI param = new ParametersI();
     	param.addId(p.getId());
     	assertNotNull(iQuery.findByQuery(sql, param));
     	
     	p = mmFactory.createPlate(1, 1, 1, 0, false);
-    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	p = savePlate(iUpdate, p, false);
     	assertNotNull(p);
+    	
     	p = mmFactory.createPlate(1, 1, 1, 1, true);
-    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	p = savePlate(iUpdate, p, false);
     	assertNotNull(p);
     }
     
@@ -817,7 +821,7 @@ public class UpdateServiceTest
     	throws Exception
     {
     	int totalInitalChannels = ModelMockFactory.DEFAULT_CHANNELS_NUMBER;
-    	Image image = null;// createImage(1,1,1,1,totalInitalChannels, "testChannelMoveWithFullArrayGoesToEnd");
+    	Image image = createImage(1,1,1,1,totalInitalChannels, "testChannelMoveWithFullArrayGoesToEnd");
         Pixels pixels = image.getPixels();
 
         assertEquals(totalInitalChannels, pixels.sizeOfChannels());
@@ -862,7 +866,7 @@ public class UpdateServiceTest
     	throws Exception
     {
     	int totalChannels = ModelMockFactory.DEFAULT_CHANNELS_NUMBER;
-    	Image image = null;//createImage(1, 1, 1, 0, totalChannels, "testChannelMoveWithSpaceFillsSpace");
+    	Image image = createImage(1, 1, 1, 0, totalChannels, "testChannelMoveWithSpaceFillsSpace");
         
         Pixels pixels = image.getPixels();
         pixels.copyChannels().add(1, null);
@@ -906,7 +910,7 @@ public class UpdateServiceTest
     	throws Exception
     {
     	int totalChannels = ModelMockFactory.DEFAULT_CHANNELS_NUMBER;
-    	Image image = null;//createImage(1, 1, 1, 0, totalChannels, "testChannelToSpaceChangesNothing");
+    	Image image = createImage(1, 1, 1, 0, totalChannels, "testChannelToSpaceChangesNothing");
 
         Pixels p = image.getPixels();
         p.copyChannels().add(1, null);
@@ -940,19 +944,19 @@ public class UpdateServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test(groups = { "ticket:168", "ticket:767" })
-    public void testPlaneInfoSetPixelsSavePlaneInfo() 
+    public void testPlaneSetPixelsSavePlaneInfo() 
     	throws Exception
     {
     	Image image = createBasicImage();
         Pixels pixels = image.getPixels();
         pixels.clearPlanes();
-        Plane planeInfo = mmFactory.createPlaneInfo();
+        Plane planeInfo = mmFactory.createPlane();
         planeInfo.setPixels(pixels);
         planeInfo = (Plane) iUpdate.saveAndReturnObject(planeInfo);
         ParametersI param = new ParametersI();
     	param.addId(planeInfo.getId());
         Pixels test = (Pixels) iQuery.findByQuery(
-                "select pi.pixels from PlaneInfo pi where pi.id = :id",
+                "select pi.pixels from Plane pi where pi.id = :id",
                 param);
         assertNotNull(test);
     }
@@ -964,19 +968,19 @@ public class UpdateServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test(groups = "ticket:168")
-    public void testPixelsAddToPlaneInfoSavePixels() 
+    public void testPixelsAddToPlaneSavePixels() 
     	throws Exception
     {
     	Image image = createBasicImage();
         Pixels pixels = image.getPixels();
     	pixels.clearPlanes();
-    	Plane planeInfo = mmFactory.createPlaneInfo();
+    	Plane planeInfo = mmFactory.createPlane();
     	pixels.addPlane(planeInfo);
     	pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
     	ParametersI param = new ParametersI();
     	param.addId(pixels.getId());
     	List<IObject> test = (List<IObject>) iQuery.findAllByQuery(
-    			"select pi from PlaneInfo pi where pi.pixels.id = :id",
+    			"select pi from Plane pi where pi.pixels.id = :id",
     			param);
     	assertTrue(test.size() > 0);
     }
@@ -1687,8 +1691,10 @@ public class UpdateServiceTest
     	Reagent r = mmFactory.createReagent();
     	s.addReagent(r);
     	Plate p = mmFactory.createPlateWithReagent(1, 1, 1, r);
+    	p = savePlate(iUpdate, p, false);
     	s.linkPlate(p);
     	s = (Screen) iUpdate.saveAndReturnObject(s);
+    	
     	assertNotNull(s);
     	assertNotNull(s.getName().getValue());
     	assertNotNull(s.getDescription().getValue());
@@ -1882,7 +1888,7 @@ public class UpdateServiceTest
     	//comment linked to plate
     	Plate plate = new PlateI();
     	plate.setName(omero.rtypes.rstring("p"));
-    	plate = (Plate) iUpdate.saveAndReturnObject(plate);
+    	plate = savePlate(iUpdate, plate, false);
     	cp = new CommentAnnotationI();
     	cp.setTextValue(omero.rtypes.rstring("comment"));
     	cp = (CommentAnnotation) iUpdate.saveAndReturnObject(cp);
@@ -1899,10 +1905,7 @@ public class UpdateServiceTest
     	assertEquals(results.size(), 0);
     	
     	//comment linked to image
-    	Image image = new ImageI();
-    	image.setName(omero.rtypes.rstring("p"));
-    	image.setAcquisitionDate(omero.rtypes.rtime(100000));
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = createImage(1,1,1,1,1,"p");
     	cp = new CommentAnnotationI();
     	cp.setTextValue(omero.rtypes.rstring("comment"));
     	cp = (CommentAnnotation) iUpdate.saveAndReturnObject(cp);
@@ -1920,16 +1923,15 @@ public class UpdateServiceTest
     	
     	
     	
-    	Plate p;
-		p = (Plate) iUpdate.saveAndReturnObject(
-				mmFactory.createPlate(1, 1, 1, 1, false));
+    	Plate newPlate = mmFactory.createPlate(1, 1, 1, 1, false);
+    	newPlate = savePlate(iUpdate, newPlate, false);
 		sql = "select pa from PlateAcquisition as pa ";
 		sql += "where pa.plate.id = :id";
-		param = new ParametersI();
-    	param.addId(p.getId().getValue());
-    	List<IObject> pas = iQuery.findAllByQuery(sql, param);
+		ParametersI plateSQLParams = new ParametersI();
+		plateSQLParams.addId(newPlate.getId().getValue());
+    	List<IObject> plateAquisitions = iQuery.findAllByQuery(sql, plateSQLParams);
     	//Delete the first one.
-    	PlateAcquisition pa = (PlateAcquisition) pas.get(0);
+    	PlateAcquisition pa = (PlateAcquisition) plateAquisitions.get(0);
     	
     	CommentAnnotation c = new CommentAnnotationI();
     	c.setTextValue(omero.rtypes.rstring("comment"));
