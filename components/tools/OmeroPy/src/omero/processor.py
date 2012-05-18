@@ -890,7 +890,7 @@ def usermode_processor(client, serverid = "UsermodeProcessor",\
                        cfg = None, accepts_list = None, stop_event = None,\
                        omero_home = path.getcwd()):
     """
-    Creates an activates a usermode processor for the given client.
+    Creates and activates a usermode processor for the given client.
     It is the responsibility of the client to call "cleanup()" on
     the ProcessorI implementation which is returned.
 
@@ -917,9 +917,13 @@ def usermode_processor(client, serverid = "UsermodeProcessor",\
     if stop_event is None:
         stop_event = omero.util.concurrency.get_event(name="UsermodeProcessor")
 
+    id = Ice.Identity()
+    id.name = serverid # TODO: needs UUID
+    id.category = client.getCategory()
+
     ctx = omero.util.ServerContext(serverid, client.ic, stop_event)
     impl = omero.processor.ProcessorI(ctx,
         use_session=client.sf, accepts_list=accepts_list, cfg=cfg,
         omero_home = omero_home)
-    ctx.add_servant(client.adapter, impl)
+    ctx.add_servant(client.adapter, impl, ice_identity=id)
     return impl
