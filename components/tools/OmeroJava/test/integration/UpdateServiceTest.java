@@ -671,15 +671,15 @@ public class UpdateServiceTest
     		iUpdate.saveAndReturnObject(annotation);
     	assertNotNull(data);
     	//Image
-        Image i = createBasicImage();
-        ImageAnnotationLink l = new ImageAnnotationLinkI();
-        l.setParent((Image) i.proxy());
-        l.setChild((Annotation) data.proxy());
-        l = (ImageAnnotationLink) iUpdate.saveAndReturnObject(l);
-        assertNotNull(l);
-        long id = l.getId().getValue();
+        Image image = createBasicImage();
+        ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.setParent((Image) image.proxy());
+        link.setChild((Annotation) data.proxy());
+        link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+        assertNotNull(link);
+        long id = link.getId().getValue();
         //annotation and image are linked. Remove the link.
-        iUpdate.deleteObject(l);
+        iUpdate.deleteObject(link);
         //now check that the image is no longer linked to the annotation
         String sql = "select link from ImageAnnotationLink as link";
 		sql += " where link.id = :id";
@@ -1199,7 +1199,7 @@ public class UpdateServiceTest
         	assertEquals(settings.getFillRule(), rule.getValue().getValue());
         	assertEquals(settings.getFontFamily(), family.getValue().getValue());
         	assertEquals(settings.getFontStyle(), style.getValue().getValue());
-        	assertEquals(settings.getLineCap(), lineCap.getValue().getValue());
+        	assertEquals(settings.getLineCapAsString(), lineCap.getValue().getValue());
         	color = settings.getFill();
         	assertTrue(color.getRed() == fillColor.getRed());
         	assertTrue(color.getGreen() == fillColor.getBlue());
