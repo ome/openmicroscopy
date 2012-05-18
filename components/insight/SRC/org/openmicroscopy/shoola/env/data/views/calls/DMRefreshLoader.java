@@ -40,6 +40,8 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -251,7 +253,43 @@ public class DMRefreshLoader
         return new BatchCall("Loading groups: ") {
             public void doCall() throws Exception
             {
-            	/* TODO, move that outside.
+            	AdminService svc = context.getAdminService();
+            	//Check if the user is an administrator
+                Boolean admin = (Boolean)
+                	context.lookup(LookupNames.USER_ADMINISTRATOR);
+                if (admin != null && admin.booleanValue()) {
+                	Iterator<Entry<SecurityContext, List>> i = 
+                		nodes.entrySet().iterator();
+                	Entry<SecurityContext, List> e;
+                	SecurityContext ctx;
+                	while (i.hasNext()) {
+    					e = i.next();
+    					ctx = e.getKey();
+    					List<GroupData> groups = svc.loadGroups(ctx, -1);
+                        List<GroupData> r = new ArrayList<GroupData>();
+                        List<Long> toRemove = new ArrayList<Long>();
+                        List<GroupData> l;
+                        List list;
+                        list = e.getValue();
+    					Iterator j = list.iterator();
+    					while (j.hasNext()) {
+    						long groupID = (Long) j.next();
+    						l = svc.loadGroups(ctx, groupID);
+    						toRemove.add(groupID);
+    						if (l.size() == 1) r.add(l.get(0));
+    					}
+    					Iterator<GroupData> k = groups.iterator();
+                        GroupData g;
+                        while (k.hasNext()) {
+        					g = (GroupData) k.next();
+        					if (!toRemove.contains(g.getId())) 
+        						r.add(g);
+        				}
+                        results = r;
+    				}
+                }
+            	
+            	/*
                 AdminService svc = context.getAdminService();
                 Entry entry;
                 Iterator i = nodes.entrySet().iterator();

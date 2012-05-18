@@ -34,7 +34,6 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -135,7 +134,7 @@ public class MetadataViewerAgent
 	public static SecurityContext getAdminContext()
 	{
 		if (!isAdministrator()) return null;
-		Set groups = TreeViewerAgent.getAvailableUserGroups();
+		Set groups = getAvailableUserGroups();
 		Iterator i = groups.iterator();
 		GroupData g;
 		while (i.hasNext()) {
@@ -146,6 +145,7 @@ public class MetadataViewerAgent
 		}
 		return null;
 	}
+	
 	/**
 	 * Helper method returning <code>true</code> if the connection is fast,
 	 * <code>false</code> otherwise.

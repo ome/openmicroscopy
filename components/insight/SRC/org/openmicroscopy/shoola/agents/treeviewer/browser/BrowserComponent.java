@@ -1107,7 +1107,7 @@ class BrowserComponent
 			case DISCARDED:
 			case LOADING_LEAVES:
 				return;
-		}   
+		}
         if (n == null) model.fireExperimenterDataLoading((TreeImageSet) exp);
         else {
         	n.setToRefresh(false);
@@ -1273,18 +1273,19 @@ class BrowserComponent
 		RefreshVisitor v = new RefreshVisitor(this);
 		if (model.getBrowserType() == ADMIN_EXPLORER) {
 			display = view.getTreeRoot();
-			id = TreeViewerAgent.getUserDetails().getId();
 			//review for admin.
 			display.accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 			RefreshExperimenterDef def = new RefreshExperimenterDef(
 				(TreeImageSet) display, v.getFoundNodes(), 
 				v.getExpandedTopNodes());
-			Map<Long, RefreshExperimenterDef> 
-				m = new HashMap<Long, RefreshExperimenterDef>(1);
-			m.put(id, def);
-			fireStateChange();
-			//model.loadRefreshExperimenterData(m, null, -1, null, null);
-			
+			Map<SecurityContext, RefreshExperimenterDef> 
+				m = new HashMap<SecurityContext, RefreshExperimenterDef>(1);
+			SecurityContext ctx = TreeViewerAgent.getAdminContext();
+			if (ctx != null) {
+				m.put(ctx, def);
+				model.loadRefreshExperimenterData(m, null, -1, null, null);
+				fireStateChange();
+			}
 		} else {
 			display = model.getLastSelectedDisplay();
 			if (display == null) return;
