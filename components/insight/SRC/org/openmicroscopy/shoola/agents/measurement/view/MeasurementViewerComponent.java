@@ -847,7 +847,7 @@ class MeasurementViewerComponent
 					"be invoked in the LOADING_ROI state.");
 		try {
 			if (result != null) { //some ROI previously saved.
-				model.setServerROI(result, true);
+				model.setServerROI(result);
 			} 	
 		} catch (Exception e) {
 			String s = "Cannot convert server ROI into UI objects:";
@@ -900,7 +900,7 @@ class MeasurementViewerComponent
 			if (hasResult) {
 				//some ROI previously saved.
 				//result.ge
-				model.setServerROI(result, false);	
+				model.setServerROI(result);	
 			} else {
 				model.fireROILoading(null);
 				return;

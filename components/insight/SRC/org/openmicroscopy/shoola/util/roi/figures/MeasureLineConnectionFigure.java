@@ -116,6 +116,9 @@ public class MeasureLineConnectionFigure
 	 */
 	private int 					status;
 	
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
+	
 	/** Creates instance of line connection figure.*/
 	public MeasureLineConnectionFigure()
 	{
@@ -149,6 +152,7 @@ public class MeasureLineConnectionFigure
 		this.deletable = deletable;
    		this.annotatable = annotatable;
    		this.editable = editable;
+   		interactable = true;
 	}
 
 	 /**
@@ -243,7 +247,7 @@ public class MeasureLineConnectionFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (!readOnly && canAnnotate())
+		if (!readOnly && interactable)
 			super.transform(tx);
 	}
 		
@@ -253,7 +257,7 @@ public class MeasureLineConnectionFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if (!readOnly && canAnnotate())
+		if (!readOnly && interactable)
 			super.setBounds(anchor, lead);
 	}
 	
@@ -700,4 +704,14 @@ public class MeasureLineConnectionFigure
 	 * @see ROIFigure#canAnnotate()
 	 */
 	public boolean canEdit() { return editable; }
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
+
 }

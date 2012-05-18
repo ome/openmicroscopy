@@ -59,6 +59,9 @@ public class MeasureMaskFigure
 	/** The BufferedImage of the Mask. */
 	protected BufferedImage 			mask;
 	
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
+	
     /** Creates a new instance. */
     public MeasureMaskFigure() 
     {
@@ -132,6 +135,7 @@ public class MeasureMaskFigure
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
 		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
 		setMask(mask);
+		interactable = true;
     }
     
     /**
@@ -242,5 +246,13 @@ public class MeasureMaskFigure
 		return figListeners;
 	}
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
 }
 

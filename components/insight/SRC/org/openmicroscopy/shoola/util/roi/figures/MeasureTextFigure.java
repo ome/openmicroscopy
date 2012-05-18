@@ -92,6 +92,9 @@ public class MeasureTextFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 	
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
+	
 	/** 
 	 * The status of the figure i.e. {@link ROIFigure#IDLE} or 
 	 * {@link ROIFigure#MOVING}. 
@@ -169,6 +172,7 @@ public class MeasureTextFigure
    		this.deletable = deletable;
    		this.annotatable = annotatable;
    		this.editable = editable;
+   		interactable = true;
    }
 	
 	/**
@@ -177,7 +181,7 @@ public class MeasureTextFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (!readOnly && canAnnotate())
+		if (!readOnly && interactable)
 		{
 			super.transform(tx);
 			this.setObjectDirty(true);
@@ -190,7 +194,7 @@ public class MeasureTextFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if (!readOnly && canAnnotate())
+		if (!readOnly && interactable)
 		{
 			super.setBounds(anchor, lead);
 			this.setObjectDirty(true);
@@ -384,5 +388,14 @@ public class MeasureTextFigure
 	 * @see ROIFigure#canAnnotate()
 	 */
 	public boolean canEdit() { return editable; }
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
 	
 }

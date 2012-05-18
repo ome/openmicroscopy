@@ -236,5 +236,13 @@ public interface ROIFigure
 	 * @return See above.
 	 */
 	public boolean canDelete();
+	
+	/**
+	 * Sets to <code>true</code> if the user can move/resize the shape,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param interactable The value to set.
+	 */
+	public void setInteractable(boolean interactable);
 
 }

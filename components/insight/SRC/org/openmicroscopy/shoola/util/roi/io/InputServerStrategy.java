@@ -159,10 +159,10 @@ class InputServerStrategy
 	 * Transforms a server ROI into its UI representation.
 	 * 
 	 * @param roi The object to transform.
-	 * @param readOnly The object is readOnly.
+	 * @param userID The id of the user currently logged in.
 	 * @return See above.
 	 */
-	private ROI createROI(ROIData roi, boolean readOnly)
+	private ROI createROI(ROIData roi, long userID)
 		throws NoSuchROIException, ROICreationException
 	{
 		long id = roi.getId();
@@ -195,7 +195,7 @@ class InputServerStrategy
 			j = list.iterator();
 			while (j.hasNext()) {
 				shapeData = (ShapeData) j.next();
-				shape = createROIShape(shapeData, newROI, readOnly);
+				shape = createROIShape(shapeData, newROI, userID);
 				if (shape != null) {
 					shape.getFigure().setMeasurementUnits(
 							component.getMeasurementUnits());
@@ -216,16 +216,19 @@ class InputServerStrategy
 	 * 
 	 * @param data 	The object to transform.
 	 * @param roi	The UI ROI hosting the newly created shape.
-	 * @param readOnly The object is readOnly.
+	 * @param userID The id of the user currently logged in.
 	 * @return See above.
 	 */
-	private ROIShape createROIShape(ShapeData data, ROI roi, boolean readOnly)
+	private ROIShape createROIShape(ShapeData data, ROI roi, long userID)
 	{
 		int z = data.getZ();
 		int t = data.getT();
 		if (z < 0 || t < 0) return null;
 		Coord3D coord = new Coord3D(z, t);
-		ROIFigure fig = createROIFigure(data, readOnly);
+		ROIFigure fig = createROIFigure(data);
+		fig.setReadOnly(data.isReadOnly());
+		long id = data.getOwner().getId();
+		if (id >= 0) fig.setInteractable(id == userID);
 		try {
 			coord.setChannel(data.getC());
 		} catch (Exception e) {
@@ -238,20 +241,7 @@ class InputServerStrategy
 		shape.setROIShapeID(data.getId());
 		return shape;
 	}
-	
-	/**
-	 * Creates a figure corresponding to the passed shape.
-	 * 
-	 * @param shape The shape to transform.
- 	 * @param readOnly The object is readOnly.
-	 * @return See above.
-	 */
-	private ROIFigure createROIFigure(ShapeData shape, boolean readOnly)
-	{
-		ROIFigure fig = createROIFigure(shape);
-		fig.setReadOnly(readOnly);
-		return fig;
-	}
+
 	
 	/**
 	 * Creates a figure corresponding to the passed shape.
@@ -612,8 +602,7 @@ class InputServerStrategy
 	 * @throws NoSuchROIException if there is an error creating line connection 
 	 * figure.
 	 */
-	List<ROI> readROI(Collection rois, ROIComponent component, boolean readOnly,
-			long userID)
+	List<ROI> readROI(Collection rois, ROIComponent component, long userID)
 			throws ROICreationException, NoSuchROIException
 	{
 		if (component == null)
@@ -622,13 +611,11 @@ class InputServerStrategy
 		Iterator i = rois.iterator();
 		Object o;
 		ROIData roi;
-		boolean r;
 		while (i.hasNext()) {
 			o = i.next();
 			if (o instanceof ROIData) {
 				roi = (ROIData) o;
-				r = readOnly;
-				roiList.add(createROI(roi, readOnly));
+				roiList.add(createROI(roi, userID));
 			}
 		}
 		return roiList;

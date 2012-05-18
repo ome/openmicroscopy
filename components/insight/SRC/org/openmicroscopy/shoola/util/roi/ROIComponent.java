@@ -324,7 +324,6 @@ public class ROIComponent
 	 * 
 	 * @param fileID The id of the file.
 	 * @param rois The collection of ROIs to convert.
-	 * @param readOnly Are the ROI readOnly.
 	 * @param userID The identifier of the user currently logged in.
 	 * @return See above.
 	 * @throws NoSuchROIException		 	Tried to access a ROI which does not
@@ -336,15 +335,14 @@ public class ROIComponent
 	 * @throws ROICreationException		 	Thrown while trying to create an 
 	 * 										ROI.
 	 */
-	public List<ROI> loadROI(long fileID, Collection rois, boolean readOnly, 
-			long userID) 
+	public List<ROI> loadROI(long fileID, Collection rois, long userID) 
 		throws NoSuchROIException, ROICreationException	
 	{
 		if (rois == null)
 			throw new NullPointerException("No rois to transform.");
 		if (serverStrategy == null)
 			serverStrategy = new ServerROIStrategy();
-		List<ROI> l = serverStrategy.read(rois, this, readOnly, userID);
+		List<ROI> l = serverStrategy.read(rois, this, userID);
 		if (fileID > 0)
 			roiResult.put(fileID, l);
 		return l;

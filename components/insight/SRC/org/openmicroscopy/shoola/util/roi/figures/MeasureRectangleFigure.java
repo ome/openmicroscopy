@@ -107,6 +107,9 @@ public class MeasureRectangleFigure
 	 */
 	protected int 					status;
 
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
+	
     /** Creates a new instance. */
     public MeasureRectangleFigure() 
     {
@@ -221,6 +224,7 @@ public class MeasureRectangleFigure
 		this.deletable = deletable;
    		this.annotatable = annotatable;
    		this.editable = editable;
+   		interactable = true;
     }
     
     /** 
@@ -348,7 +352,7 @@ public class MeasureRectangleFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (!readOnly && canAnnotate())
+		if (!readOnly && interactable)
 		{
 			super.transform(tx);
 			this.setObjectDirty(true);
@@ -361,7 +365,7 @@ public class MeasureRectangleFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if (!readOnly && canAnnotate())
+		if (!readOnly && interactable)
 		{
 			super.setBounds(anchor, lead);
 			this.setObjectDirty(true);
@@ -673,4 +677,12 @@ public class MeasureRectangleFigure
 	 */
 	public boolean canEdit() { return editable; }
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
 }

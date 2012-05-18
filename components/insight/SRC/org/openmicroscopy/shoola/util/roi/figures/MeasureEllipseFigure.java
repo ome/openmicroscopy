@@ -105,6 +105,9 @@ public class MeasureEllipseFigure
 	 */
 	private int 				status;
 	
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
+	
 	/** Creates a new instance. */
 	public MeasureEllipseFigure()
 	{
@@ -141,6 +144,7 @@ public class MeasureEllipseFigure
 		this.deletable = deletable;
    		this.annotatable = annotatable;
    		this.editable = editable;
+   		interactable = true;
 	}
 	
 	/** 
@@ -549,7 +553,7 @@ public class MeasureEllipseFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (!readOnly && canAnnotate())
+		if (!readOnly && interactable)
 		{
 			this.setObjectDirty(true);
 			super.transform(tx);
@@ -562,7 +566,7 @@ public class MeasureEllipseFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if (!readOnly && canAnnotate())
+		if (!readOnly && interactable)
 		{
 			this.setObjectDirty(true);
 			super.setBounds(anchor, lead);
@@ -707,4 +711,14 @@ public class MeasureEllipseFigure
 	 * @see ROIFigure#canAnnotate()
 	 */
 	public boolean canEdit() { return editable; }
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
+
 }

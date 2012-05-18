@@ -612,12 +612,11 @@ class MeasurementViewerModel
 	 * Sets the server ROIS.
 	 * 
 	 * @param rois The collection of Rois.
-	 * @param readOnly Are the ROI read only.
 	 * @return See above.
 	 * @throws ROICreationException
 	 * @throws NoSuchROIException
 	 */
-	boolean setServerROI(Collection rois, boolean readOnly)
+	boolean setServerROI(Collection rois)
 		throws ROICreationException, NoSuchROIException
 	{
 		measurementResults = rois;
@@ -629,7 +628,7 @@ class MeasurementViewerModel
 		while (r.hasNext()) {
 			result = (ROIResult) r.next();
 			roiList.addAll(roiComponent.loadROI(result.getFileID(),
-					result.getROIs(), readOnly, userID));
+					result.getROIs(), userID));
 		}
 		if (roiList == null) return false;
 		Iterator<ROI> i = roiList.iterator();

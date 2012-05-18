@@ -92,6 +92,9 @@ public class MeasureBezierFigure
 	/** has the figure been modified. */
 	private boolean dirty;
 	
+	/** Flag indicating if the user can move or resize the shape.*/
+	private boolean interactable;
+	
 	/** The list of X coordinates of the nodes on the line. */
 	private List<Double>			pointArrayX;
 
@@ -299,6 +302,7 @@ public class MeasureBezierFigure
 		this.deletable = deletable;
    		this.annotatable = annotatable;
    		this.editable = editable;
+   		interactable = true;
 	}
 
     /**
@@ -740,7 +744,7 @@ public class MeasureBezierFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (!readOnly && canAnnotate())
+		if (!readOnly && interactable)
 		{
 			super.transform(tx);
 			this.setObjectDirty(true);
@@ -753,7 +757,7 @@ public class MeasureBezierFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if (!readOnly && canAnnotate())
+		if (!readOnly && interactable)
 		{
 			super.setBounds(anchor, lead);
 			this.setObjectDirty(true);
@@ -975,4 +979,13 @@ public class MeasureBezierFigure
 	 */
 	public boolean canEdit() { return editable; }
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setInteractable(boolean)
+	 */
+	public void setInteractable(boolean interactable)
+	{
+		this.interactable = interactable;
+	}
+
 }
