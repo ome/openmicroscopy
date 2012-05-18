@@ -118,7 +118,7 @@ def updateTypeMaps(namespace):
     global JAVA_PRIMITIVE_TYPE_MAP
     JAVA_PRIMITIVE_TYPE_MAP = {
         namespace + 'boolean': 'Boolean',
-        namespace + 'dateTime': 'String',
+        namespace + 'dateTime': 'Timestamp',
         namespace + 'string': 'String',
         namespace + 'integer': 'Integer',
         namespace + 'int': 'Integer',
