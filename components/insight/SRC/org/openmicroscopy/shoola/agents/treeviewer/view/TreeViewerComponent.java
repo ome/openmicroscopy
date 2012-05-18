@@ -1915,22 +1915,38 @@ class TreeViewerComponent
 		Map<Long, List<DataObject>> elements = 
 			new HashMap<Long, List<DataObject>>();
 		long gid;
-		List<DataObject> l;
+		List<DataObject> l = new ArrayList<DataObject>();
 		TreeImageDisplay n;
 		Object os;
+		boolean admin = false;
+		Browser browser = model.getSelectedBrowser();
+		if (browser != null) {
+			admin = browser.getBrowserType() == Browser.ADMIN_EXPLORER;
+		}
 		for (int j = 0; j < nodes.length; j++) {
 			n = nodes[j];
 			os = n.getUserObject();
-			if (os instanceof DataObject &&
-				!(os instanceof ExperimenterData ||
+			if (os instanceof DataObject) {
+				if (!(os instanceof ExperimenterData ||
 					os instanceof GroupData)) {
-				gid = ((DataObject) os).getGroupId();
-				if (!elements.containsKey(gid)) {
-					elements.put(gid, new ArrayList<DataObject>());
+					gid = ((DataObject) os).getGroupId();
+					if (!elements.containsKey(gid)) {
+						elements.put(gid, new ArrayList<DataObject>());
+					}
+					l = elements.get(gid);
+					l.add((DataObject) os);
+				} else if (os instanceof ExperimenterData) {
+					l.add((DataObject) os);
 				}
-				l = elements.get(gid);
-				l.add((DataObject) os);
 			}
+		}
+		if (admin && l.size() > 0) {
+			boolean b = model.paste(parents);
+			if (!b) {
+				un.notifyInfo("Paste", 
+				"The Users to copy cannot be added to the selected Groups."); 
+			} else fireStateChange();
+			return;
 		}
 		if (elements.size() == 0) return;
 		Iterator<Long> i;
