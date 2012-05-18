@@ -20,13 +20,11 @@ import os
 class TestDelete(lib.ITest):
 
     def testBasicUsage(self):
-        img = omero.model.ImageI()
-        img.name = omero.rtypes.rstring("delete test")
-        img.acquisitionDate = omero.rtypes.rtime(0)
+        pix = self.pix(name="delete test")
+        img = pix.getImage()
         tag = omero.model.TagAnnotationI()
         img.linkAnnotation( tag )
-
-        img = self.client.sf.getUpdateService().saveAndReturnObject( img )
+        pix = self.client.sf.getUpdateService().saveAndReturnObject( pix )
 
         command = omero.api.delete.DeleteCommand("/Image", img.id.val, None)
         handle = self.client.sf.getDeleteService().queueDelete([command])
@@ -42,13 +40,12 @@ class TestDelete(lib.ITest):
     def testDeleteMany(self):
         images = list()
         for i in range(0,5):
-            img = omero.model.ImageI()
-            img.name = omero.rtypes.rstring("delete test")
-            img.acquisitionDate = omero.rtypes.rtime(0)
+            pix = self.pix(name="test-delete-image-%i" % i)
+            img = pix.getImage()
             tag = omero.model.TagAnnotationI()
             img.linkAnnotation( tag )
-
-            images.append(self.client.sf.getUpdateService().saveAndReturnObject( img ))
+            pix = self.client.sf.getUpdateService().saveAndReturnObject( pix )
+            images.append(pix.getImage())
         
         commands = list()
         for img in images:
@@ -71,13 +68,15 @@ class TestDelete(lib.ITest):
         delete = self.client.sf.getDeleteService()
         
         images = list()
+        imgIds = list()
         for i in range(0,5):
-            img = omero.model.ImageI()
-            img.name = omero.rtypes.rstring("test-delete-image-%i" % i)
-            img.acquisitionDate = omero.rtypes.rtime(0)
+            pix = self.pix(name="test-delete-image-%i" % i)
+            img = pix.getImage()
             tag = omero.model.TagAnnotationI()
             img.linkAnnotation( tag )
-            images.append(update.saveAndReturnObject( img ).id.val)
+            pix = self.client.sf.getUpdateService().saveAndReturnObject( pix )
+            images.append(pix.getImage())
+            imgIds.append(pix.getImage().id.val)
             
         # create dataset
         dataset = omero.model.DatasetI()
@@ -93,10 +92,10 @@ class TestDelete(lib.ITest):
         link.child = omero.model.DatasetI(dataset.id.val, False)
         update.saveAndReturnObject(link)
         # put image in dataset
-        for iid in images:
+        for img in images:
             dlink = omero.model.DatasetImageLinkI()
             dlink.parent = omero.model.DatasetI(dataset.id.val, False)
-            dlink.child = omero.model.ImageI(iid, False)
+            dlink.child = omero.model.ImageI(img.id.val, False)
             update.saveAndReturnObject(dlink)
                 
         op = dict()
@@ -127,8 +126,8 @@ class TestDelete(lib.ITest):
         res = query.findAllByQuery(sql, p)
         self.assertEquals(5, len(res))       
         for e in res:
-            if e.id.val not in images:
-                self.assertRaises('Image %i is not in the [%s]' % (e.id.val, ",".join(images)))
+            if e.id.val not in imgIds:
+                self.assertRaises('Image %i is not in the [%s]' % (e.id.val, ",".join(imgIds)))
     
     def testCheckIfDeleted(self):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
@@ -137,15 +136,13 @@ class TestDelete(lib.ITest):
         update = self.client.sf.getUpdateService()
         delete = self.client.sf.getDeleteService()
         
-        img = omero.model.ImageI()
-        img.name = omero.rtypes.rstring("to delete - test")
-        img.acquisitionDate = omero.rtypes.rtime(0)
+        pix = self.pix(name="delete test")
+        img = pix.getImage()
         tag = omero.model.TagAnnotationI()
         img.linkAnnotation( tag )
+        pix = self.client.sf.getUpdateService().saveAndReturnObject( pix )
         
-        iid = update.saveAndReturnObject( img ).id.val
-        
-        cmd = omero.api.delete.DeleteCommand("/Image", iid, None)
+        cmd = omero.api.delete.DeleteCommand("/Image", img.id.val, None)
         
         handle = delete.queueDelete([cmd])
         cbString = str(handle)
@@ -157,7 +154,7 @@ class TestDelete(lib.ITest):
         callback.close()
 
         self.assertEquals(0, err)
-        self.assertEquals(None, query.find("Image", iid))
+        self.assertEquals(None, query.find("Image", img.id.val))
 
         # create new session and double check
         import os
@@ -194,12 +191,12 @@ class TestDelete(lib.ITest):
         #dataset with many images
         images = list()
         for i in range(0,50):
-            img = omero.model.ImageI()
-            img.name = omero.rtypes.rstring("test-delete-image-%i" % i)
-            img.acquisitionDate = omero.rtypes.rtime(0)
+            pix = self.pix(name="test-delete-image-%i" % i)
+            img = pix.getImage()
             tag = omero.model.TagAnnotationI()
             img.linkAnnotation( tag )
-            images.append(update.saveAndReturnObject( img ))
+            pix = self.client.sf.getUpdateService().saveAndReturnObject( pix )
+            images.append(pix.getImage())
 
         # create dataset
         dataset = omero.model.DatasetI()
@@ -426,16 +423,13 @@ class TestDelete(lib.ITest):
         query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()
 
-        img = omero.model.ImageI()
-        img.name = omero.rtypes.rstring("delete tagset test")
-        img.acquisitionDate = omero.rtypes.rtime(0)
-
+        pix = self.pix(name="delete tagset test")
+        img = pix.getImage()
         tag = omero.model.TagAnnotationI()
         tag.textValue = omero.rtypes.rstring("tag %s" % uuid)
         tag = self.client.sf.getUpdateService().saveAndReturnObject( tag )
-
         img.linkAnnotation( tag )
-        img = self.client.sf.getUpdateService().saveAndReturnObject( img )
+        pix = self.client.sf.getUpdateService().saveAndReturnObject( pix )
 
         tagset = omero.model.TagAnnotationI()
         tagset.textValue = omero.rtypes.rstring("tagset %s" % uuid)
