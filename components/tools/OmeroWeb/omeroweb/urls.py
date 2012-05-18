@@ -29,29 +29,51 @@ from django.conf.urls.defaults import *
 from django.views.static import serve
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
+from django.core.urlresolvers import reverse
+from django.utils.functional import lazy
+from django.http import HttpResponse
+from django.views.generic import RedirectView
+
 # error handler
 handler404 = "omeroweb.feedback.views.handler404"
 handler500 = "omeroweb.feedback.views.handler500"
 
+reverse_lazy = lazy(reverse, str) 
+
+def redirect_urlpatterns():
+    """
+    Helper function to return a URL pattern for index page http://host/.
+    """
+    if settings.INDEX_TEMPLATE is None:
+        return patterns('', url(r'^$', RedirectView.as_view(url=reverse_lazy('webindex')), name="index" ))
+    else:
+        return patterns('', url( r'^$', 'omeroweb.webstart.views.index', name="index" ),)
+
+
 # url patterns
+
 urlpatterns = patterns('',
     
     (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '%swebgateway/img/ome.ico' % settings.STATIC_URL}),
     
-    url( r'^$', 'omeroweb.webstart.views.index', name="index" ),
-    
+    (r'(?i)^webgateway/', include('omeroweb.webgateway.urls')),
     (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),
     (r'(?i)^webclient/', include('omeroweb.webclient.urls')),
-    (r'(?i)^feedback/', include('omeroweb.feedback.urls')),
-    (r'(?i)^webgateway/', include('omeroweb.webgateway.urls')),
-    (r'(?i)^webtest/', include('omeroweb.webtest.urls')),    
-    (r'(?i)^url/', include('omeroweb.webredirect.urls')),
     (r'(?i)^webstart/', include('omeroweb.webstart.urls')),
     
+    (r'(?i)^url/', include('omeroweb.webredirect.urls')),
+    (r'(?i)^feedback/', include('omeroweb.feedback.urls')),
+    
+    (r'(?i)^webtest/', include('omeroweb.webtest.urls')),
+
 )
+
+urlpatterns += redirect_urlpatterns()
 
 for app in settings.ADDITIONAL_APPS:
     regex = '(?i)^%s/' % app
     urlpatterns += patterns('', (regex, include('omeroweb.%s.urls' % app)),)
 
-urlpatterns += staticfiles_urlpatterns()
+# Only append if urlpatterns are empty
+if settings.DEBUG and not urlpatterns:
+    urlpatterns += staticfiles_urlpatterns()
