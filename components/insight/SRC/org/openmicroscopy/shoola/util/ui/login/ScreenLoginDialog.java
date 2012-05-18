@@ -134,6 +134,13 @@ public class ScreenLoginDialog
 	 */
 	public void resetLoginText(String value) { view.resetLoginText(value); }
 	
+	/** 
+	 * Modifies the text and the tool tip of the <code>Quit</code> button.
+	 * 
+	 * @param text The text to display.
+	 */
+	public void setQuitButtonText(String text) { view.setQuitButtonText(text); }
+	
 	/** Closes the dialog. */
 	public void close()
 	{
