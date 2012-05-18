@@ -244,5 +244,12 @@ public interface ROIFigure
 	 * @param interactable The value to set.
 	 */
 	public void setInteractable(boolean interactable);
+	
+	/** 
+	 * Indicates if the user can or cannot move/resize the figure.
+	 * 
+	 * @return See above.
+	 */
+	public boolean canInteract();
 
 }

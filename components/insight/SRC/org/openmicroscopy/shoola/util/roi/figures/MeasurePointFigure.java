@@ -606,4 +606,11 @@ public class MeasurePointFigure
 	{
 		this.interactable = interactable;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canInteract()
+	 */
+	public boolean canInteract() { return interactable; }
+
 }
