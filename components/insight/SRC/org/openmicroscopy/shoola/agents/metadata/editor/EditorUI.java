@@ -189,9 +189,9 @@ class EditorUI
 	private void initComponents()
 	{
 		dummyPanel = new JPanel();
-		groupUI = new GroupProfile(model);
+		groupUI = new GroupProfile(model, this);
 		groupUI.addPropertyChangeListener(controller);
-		userUI = new UserUI(model, controller);
+		userUI = new UserUI(model, controller, this);
 		toolBar = new ToolBar(model, controller);
 		generalPane = new GeneralPaneUI(this, model, controller, toolBar);
 		acquisitionPane = new AcquisitionDataUI(this, model, controller);

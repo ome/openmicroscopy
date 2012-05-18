@@ -123,6 +123,13 @@ class TextualAnnotationComponent
 		});
 		IconManager icons = IconManager.getInstance();
 		if (model.canEdit(data)) {
+			
+			editButton = new JMenuItem(icons.getIcon(IconManager.EDIT_12));
+			editButton.setText("Edit");
+			editButton.setActionCommand(""+EDIT);
+			editButton.addActionListener(this);
+		}
+		if (model.canDelete(data)) {
 			menuButton = new JButton(icons.getIcon(IconManager.UP_DOWN_9_12));
 			UIUtilities.unifiedButtonLookAndFeel(menuButton);
 			menuButton.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -137,10 +144,6 @@ class TextualAnnotationComponent
 			deleteButton.setText("Delete");
 			deleteButton.addActionListener(this);
 			deleteButton.setActionCommand(""+DELETE);
-			editButton = new JMenuItem(icons.getIcon(IconManager.EDIT_12));
-			editButton.setText("Edit");
-			editButton.setActionCommand(""+EDIT);
-			editButton.addActionListener(this);
 		}
 	}
 	

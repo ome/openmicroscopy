@@ -474,7 +474,7 @@ class PopupMenu
 				add(openWithMenu);
 				add(editFile);
 				add(downloadElement);
-				add(sendFeedbackElement);
+				//add(sendFeedbackElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(createDatasetFromSelection);
 				add(importElement);

@@ -68,6 +68,15 @@ public class MeasurePointFigure
 	implements ROIFigure
 {
 	
+	/** Flag indicating the figure can/cannot be deleted.*/
+	private boolean deletable;
+	
+	/** Flag indicating the figure can/cannot be annotated.*/
+	private boolean annotatable;
+	
+	/** Flag indicating the figure can/cannot be edited.*/
+	private boolean editable;
+	
 	/** Is this figure read only. */
 	private boolean readOnly;
 
@@ -107,9 +116,13 @@ public class MeasurePointFigure
 	 * @param height of the figure. 
 	 * @param readOnly The figure is read only.
 	 * @param clientObject The figure is created client-side.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
-	public MeasurePointFigure(String text, double x, double y, double width, 
-					double height, boolean readOnly, boolean clientObject) 
+	public MeasurePointFigure(String text, double x, double y, double width,
+					double height, boolean readOnly, boolean clientObject,
+					boolean editable, boolean deletable, boolean annotatable)
     {
     	super(text, x, y, width, height);
     	setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
@@ -120,29 +133,37 @@ public class MeasurePointFigure
 		status = IDLE;
 		setReadOnly(readOnly);
 		setClientObject(clientObject);
+		this.deletable = deletable;
+   		this.annotatable = annotatable;
+   		this.editable = editable;
     }
 
-	  /** 
-     * Creates a new instance.
-     * 
-     * @param x    coordinate of the figure. 
-     * @param y    coordinate of the figure. 
-     * @param width of the figure. 
-     * @param height of the figure. 
-     * */  
-    public MeasurePointFigure(double x, double y, double width, double height) 
+	/** 
+	 * Creates a new instance.
+	 * 
+	 * @param x    coordinate of the figure. 
+	 * @param y    coordinate of the figure. 
+	 * @param width of the figure. 
+	 * @param height of the figure. 
+	 */
+    public MeasurePointFigure(double x, double y, double width, double height)
     {
-    	this(DEFAULT_TEXT, x, y, width, height, false, true);
+    	this(DEFAULT_TEXT, x, y, width, height, false, true, true, true, true);
     }
 
     /**
 	 * Create an instance of the Point Figure.
 	 * @param readOnly The figure is read only.
 	 * @param clientObject The figure is created client-side.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
-	public MeasurePointFigure(boolean readOnly, boolean clientObject)
+	public MeasurePointFigure(boolean readOnly, boolean clientObject,
+			boolean editable, boolean deletable, boolean annotatable)
 	{
-		this(DEFAULT_TEXT, 0, 0, 0, 0, readOnly, clientObject);
+		this(DEFAULT_TEXT, 0, 0, 0, 0, readOnly, clientObject, editable,
+				deletable, annotatable);
 	}
 
     /**
@@ -150,7 +171,7 @@ public class MeasurePointFigure
 	 */
 	public MeasurePointFigure()
 	{
-		this(DEFAULT_TEXT, 0, 0, 0, 0, false, true);
+		this(0, 0, 0, 0);
 	}
 
 	/** 
@@ -286,7 +307,7 @@ public class MeasurePointFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if(!readOnly)
+		if (!readOnly && canAnnotate())
 		{
 			super.transform(tx);
 			this.setObjectDirty(true);
@@ -299,7 +320,7 @@ public class MeasurePointFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if(!readOnly)
+		if (!readOnly && canAnnotate())
 		{
 			super.setBounds(anchor, lead);
 			this.setObjectDirty(true);
@@ -554,4 +575,22 @@ public class MeasurePointFigure
 				figListeners.add((FigureListener)listener);
 		return figListeners;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canAnnotate() { return annotatable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canDelete()
+	 */
+	public boolean canDelete() { return deletable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canEdit() { return editable; }
 }

@@ -1908,9 +1908,8 @@ class BrowserComponent
 	{
 		view.reActivate();
 		if (!model.isSelected()) return;
-		//Reload data.
-		//TreeImageDisplay node = getLoggedExperimenterNode();
-    	//view.expandNode(node, true);
+		model.setState(NEW);
+		activate();
 	}
 
 	/**

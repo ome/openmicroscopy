@@ -1884,7 +1884,7 @@ class EditorModel
 	 */
 	void fireAdminSaving(Object data, boolean asynch)
 	{
-		if ((data instanceof ExperimenterData) || (data instanceof AdminObject))	
+		if ((data instanceof ExperimenterData) || (data instanceof AdminObject))
 			parent.updateAdminObject(data, asynch);
 	}
 	

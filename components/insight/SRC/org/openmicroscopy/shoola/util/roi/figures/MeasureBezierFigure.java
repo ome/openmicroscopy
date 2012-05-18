@@ -74,6 +74,15 @@ public class MeasureBezierFigure
 	implements ROIFigure
 {
 	
+	/** Flag indicating the figure can/cannot be deleted.*/
+	private boolean deletable;
+	
+	/** Flag indicating the figure can/cannot be annotated.*/
+	private boolean annotatable;
+	
+	/** Flag indicating the figure can/cannot be edited.*/
+	private boolean editable;
+	
 	/** Is this figure read only. */
 	private boolean readOnly;
 
@@ -213,13 +222,13 @@ public class MeasureBezierFigure
 	/** Creates an instance of the Bezier figure. */
 	public MeasureBezierFigure()
 	{
-		this(false, false, true);
+		this(false, false, true, true, true, true);
 	}
 	
 	/** Creates an instance of the Bezier figure. */
 	public MeasureBezierFigure(boolean closed)
 	{
-		this(closed, false, true);
+		this(closed, false, true, true, true, true);
 	}
 
 	/**
@@ -227,11 +236,16 @@ public class MeasureBezierFigure
 	 * 
 	 * @param closed Pass <code>true</code> if the figure is a polygon,
 	 * 				 <code>false</code> if it is a polyline.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
 	public MeasureBezierFigure(boolean closed, boolean readOnly, 
-			boolean clientObject)
+			boolean clientObject, boolean editable, boolean deletable,
+			boolean annotatable)
 	{
-		this(ROIFigure.DEFAULT_TEXT, closed, readOnly, clientObject);
+		this(ROIFigure.DEFAULT_TEXT, closed, readOnly, clientObject, editable,
+				deletable, annotatable);
 	}
 	
 	/**
@@ -241,7 +255,7 @@ public class MeasureBezierFigure
 	 */
 	public MeasureBezierFigure(String text)
 	{
-		this(text, false, false, true);
+		this(text, false);
 	}
 	
 	/**
@@ -253,7 +267,7 @@ public class MeasureBezierFigure
 	 */
 	public MeasureBezierFigure(String text, boolean closed)
 	{
-		this(text, closed, false, true);
+		this(text, closed, false, true, true, true, true);
 	}
 	
 	/**
@@ -264,9 +278,13 @@ public class MeasureBezierFigure
 	 * 				 <code>false</code> if it is a polyline.
 	 * @param readOnly The figure is read only.
 	 * @param clientObject The figure is a client object.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
 	public MeasureBezierFigure(String text, boolean closed, boolean readOnly, 
-			boolean clientObject)
+			boolean clientObject, boolean editable, boolean deletable,
+			boolean annotatable)
 	{
 		super(text, closed);
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
@@ -278,6 +296,9 @@ public class MeasureBezierFigure
 		status = IDLE;
 		setReadOnly(readOnly);
 		setClientObject(clientObject);
+		this.deletable = deletable;
+   		this.annotatable = annotatable;
+   		this.editable = editable;
 	}
 
     /**
@@ -719,7 +740,7 @@ public class MeasureBezierFigure
 	 */
 	public void transform(AffineTransform tx)
 	{
-		if (!readOnly)
+		if (!readOnly && canAnnotate())
 		{
 			super.transform(tx);
 			this.setObjectDirty(true);
@@ -732,7 +753,7 @@ public class MeasureBezierFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
-		if (!readOnly)
+		if (!readOnly && canAnnotate())
 		{
 			super.setBounds(anchor, lead);
 			this.setObjectDirty(true);
@@ -935,5 +956,23 @@ public class MeasureBezierFigure
 	{
 		return super.removeNode(node);
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canAnnotate() { return annotatable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canDelete()
+	 */
+	public boolean canDelete() { return deletable; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#canAnnotate()
+	 */
+	public boolean canEdit() { return editable; }
 	
 }

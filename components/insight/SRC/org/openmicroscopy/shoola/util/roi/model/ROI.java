@@ -69,6 +69,15 @@ public class ROI
 	/** The id of the ROI. */
 	private long							id;
 	
+	/** Flag indicating the figure can/cannot be deleted.*/
+	private boolean deletable;
+	
+	/** Flag indicating the figure can/cannot be annotated.*/
+	private boolean annotatable;
+	
+	/** Flag indicating the figure can/cannot be edited.*/
+	private boolean editable;
+	
 	/** Is the object a server-side or client-side object. */
 	private boolean clientSide;
 	
@@ -102,12 +111,20 @@ public class ROI
 	 * the ROIShapes of the ROI and there mapping the coord3D they exist on.
 	 * 
 	 * @param id id of the ROI.
+	 * @param shape The ROIShape being constructed with the ROI.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
-	private void init(long id, boolean clientSide)
+	private void init(long id, boolean clientSide,
+			boolean editable, boolean deletable, boolean annotatable)
 	{
 		ownerID = -1;
 		this.id = id;
 		this.clientSide = clientSide;
+		this.deletable = deletable;
+   		this.annotatable = annotatable;
+   		this.editable = editable;
 		roiShapes = new TreeMap<Coord3D, ROIShape>(new Coord3D());
 		attachments = new AttachmentMap();
 	}
@@ -115,10 +132,15 @@ public class ROI
     /**
      * Construct the ROI with id.
      * @param id see above.
+     * @param clientSide
+     * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
      */
-	public ROI(long id, boolean clientSide)	
+	public ROI(long id, boolean clientSide, boolean editable, boolean deletable,
+			boolean annotatable)
 	{
-		init(id, clientSide);
+		init(id, clientSide, editable, deletable, annotatable);
 	}
 	
 	/**
@@ -127,11 +149,15 @@ public class ROI
 	 * @param id The ID of the ROI.
 	 * @param coord The coordinate of the ROIShape being constructed with the 
 	 * ROI. 
-	 * @param shape The ROIShape being constructed with the ROI. 
+	 * @param shape The ROIShape being constructed with the ROI.
+	 * @param editable Flag indicating the figure can/cannot be edited.
+	 * @param deletable Flag indicating the figure can/cannot be deleted.
+	 * @param annotatable Flag indicating the figure can/cannot be annotated.
 	 */
-	public ROI(long id, boolean clientSide, Coord3D coord, ROIShape shape)
+	public ROI(long id, boolean clientSide, Coord3D coord, ROIShape shape,
+			boolean editable, boolean deletable, boolean annotatable)
 	{
-		this(id, clientSide);
+		init(id, clientSide, editable, deletable, annotatable);
 		roiShapes.put(coord, shape);
 	}
 	
@@ -618,6 +644,27 @@ public class ROI
 	 */
 	public long getOwnerID() { return ownerID; }
 	
+	/** 
+	 * Indicates if the ROI can be annotated if <code>true</code>,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean canAnnotate() { return annotatable; }
+
+	/** 
+	 * Indicates if the ROI can be deleted if <code>true</code>,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean canDelete() { return deletable; }
+
+	/** 
+	 * Indicates if the ROI can be edited if <code>true</code>,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean canEdit() { return editable; }
 }
-
-
