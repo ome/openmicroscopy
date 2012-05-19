@@ -679,7 +679,7 @@ class DocComponent
 		if (infoButton != null) count++;
 		if (openButton != null) count++;
 		if (deleteButton != null) count++;
-		if (count > 0) {
+		if (count > 0 && data != null) {
 			menuButton.setEnabled(true);
 			if (model.isAcrossGroups()) menuButton.setEnabled(false);
 			bar.add(menuButton);
