@@ -315,7 +315,7 @@ public class DataObjectListCellRenderer
 			setIcon(GROUP_ICON);
 		} else if (value instanceof ExperimenterData) {
 			ExperimenterData exp = (ExperimenterData) value;
-			setText(EditorUtil.getExperimenterName(exp));
+			setText(EditorUtil.formatExperimenter(exp));
 			setIcon(OWNER_ICON);
 		}
 		setEnabled(!isImmutable(value));

@@ -788,7 +788,13 @@ public class EditorUtil
 	public static String formatExperimenter(ExperimenterData exp)
 	{
 		if (exp == null) return "";
-		return exp.getFirstName()+" "+exp.getLastName();
+		String s1 = exp.getFirstName();
+		String s2 = exp.getLastName();
+		if (s1.trim().length() == 0 && s2.trim().length() == 0)
+			return exp.getUserName();
+		if (s1.length() == 0) return s2;
+		if (s2.length() == 0) return s1;
+		return s1+" "+s2;
 	}
     
 	/**
@@ -2192,18 +2198,7 @@ public class EditorUtil
 		}
 		return result;
     }
-    
-    /**
-     * Returns the name of the experimenter.
-     * 
-     * @param exp The experimenter to handle.
-     * @return See above.
-     */
-    public static String getExperimenterName(ExperimenterData exp)
-    {
-    	if (exp == null) return "";
-    	return exp.getFirstName()+" "+exp.getLastName();
-    }
+
     
 	/**
 	 * Returns the date.

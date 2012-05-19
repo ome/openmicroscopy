@@ -486,7 +486,7 @@ class MetadataViewerModel
 		else if (ref instanceof ScreenData)
 			return ((ScreenData) ref).getName();
 		else if (ref instanceof ExperimenterData)
-			return EditorUtil.getExperimenterName((ExperimenterData) ref);
+			return EditorUtil.formatExperimenter((ExperimenterData) ref);
 		else if (ref instanceof GroupData)
 			return ((GroupData) ref).getName();
 		return "";
@@ -521,7 +521,7 @@ class MetadataViewerModel
 			v = "Screen's Data: ";
 			v += EditorUtil.truncate(((ScreenData) ref).getName());
 		} else if (ref instanceof ExperimenterData) {
-			v = EditorUtil.getExperimenterName((ExperimenterData) ref);
+			v = EditorUtil.formatExperimenter((ExperimenterData) ref);
 			v += "'s details";
 		} if (ref instanceof GroupData) {
 			v = ((GroupData) ref).getName();

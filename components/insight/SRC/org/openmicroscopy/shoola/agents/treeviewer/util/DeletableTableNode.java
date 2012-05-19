@@ -162,7 +162,7 @@ class DeletableTableNode
 				if (object instanceof GroupData)
 					return ((GroupData) object).getName();
 				if (object instanceof ExperimenterData) {
-					return EditorUtil.getExperimenterName(
+					return EditorUtil.formatExperimenter(
 							(ExperimenterData) object);
 				}
 				return "";
