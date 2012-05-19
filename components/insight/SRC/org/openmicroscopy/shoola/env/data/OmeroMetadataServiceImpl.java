@@ -454,6 +454,7 @@ class OmeroMetadataServiceImpl
 	{			
 		String ioType = gateway.convertPojos(data).getName();
 		IObject ho = gateway.findIObject(ctx, ioType, data.getId());
+		if (ho == null) return;
 		ModelMapper.unloadCollections(ho);
 		IObject link = null;
 		boolean exist = false;
