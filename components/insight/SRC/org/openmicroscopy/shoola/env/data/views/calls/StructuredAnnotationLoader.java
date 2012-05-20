@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -99,6 +101,33 @@ public class StructuredAnnotationLoader
         };
     }
  
+    /**
+     * Creates a {@link BatchCall} to load the existing annotations of the 
+     * specified type related to the passed type of object.
+     * 
+     * @param annotationType 	The type of annotation to load.
+     * @param userID			The id of the user or <code>-1</code> if the id 
+     * 							is not specified.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadAnnotations(final List<SecurityContext> ctx,
+    		final Class annotationType, final long userID)
+    {
+        return new BatchCall("Loading Existing annotations") {
+            public void doCall() throws Exception
+            {
+                OmeroMetadataService os = context.getMetadataService();
+                Iterator<SecurityContext> i = ctx.iterator();
+                List l = new ArrayList();
+                while (i.hasNext()) {
+                	l.addAll(os.loadAnnotations(i.next(), annotationType, null,
+                			userID, -1));
+				}
+                result = l;
+            }
+        };
+    }
+    
     /**
      * Creates a {@link BatchCall} to load the ratings related to the object
      * identified by the class and the id.
@@ -359,4 +388,22 @@ public class StructuredAnnotationLoader
     	loadCall = loadAnnotation(annotationID);
     }
     
+    /**
+     * Creates a new instance. Builds the call corresponding to the passed
+     * index, throws an {@link IllegalArgumentException} if the index is not
+     * supported.
+     * 
+     * @param ctx The security context.
+     * @param annotationType The type of annotations to fetch.
+     * @param objectType The type of object the annotations is related
+     *                   to, or <code>null</code>.
+     * @param userID The id of the user or <code>-1</code> if the id 
+     *               is not specified.
+     * @param groupID The id of the group or <code>-1</code>.
+     */
+    public StructuredAnnotationLoader(List<SecurityContext> ctx, 
+    		Class annotationType, long userID)
+    {
+    	loadCall = loadAnnotations(ctx, annotationType, userID);
+    }
 }
