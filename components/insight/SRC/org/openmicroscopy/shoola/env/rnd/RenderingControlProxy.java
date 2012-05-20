@@ -1766,7 +1766,7 @@ class RenderingControlProxy
 		if (def.getCdEnd() != getCodomainEnd()) return false;
 		if (def.getCdStart() != getCodomainStart()) return false;
 		if (!def.getColorModel().equals(getModel())) return false;
-		if (def.getCompression() != rndDef.getCompression()) return false;
+		//if (def.getCompression() != rndDef.getCompression()) return false;
 		ChannelBindingsProxy channel;
 		int[] rgba;
 		Color color;
