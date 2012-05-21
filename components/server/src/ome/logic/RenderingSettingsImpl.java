@@ -54,6 +54,7 @@ import ome.model.enums.RenderingModel;
 import ome.model.spw.PlateAcquisition;
 import ome.model.spw.Screen;
 import ome.model.spw.Plate;
+import ome.model.spw.WellSample;
 import ome.model.core.StatsInfo;
 import ome.parameters.Parameters;
 import omeis.providers.re.ColorsFactory;
@@ -228,15 +229,22 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		StopWatch s1 = new CommonsLogStopWatch("omero.loadPlatePixels");
 		Parameters p = new Parameters();
 		p.addIds(plateIds);
-		String sql = "select pix from Pixels as pix " +
-			"join fetch pix.image as i " +
-			"join fetch pix.type " +
-			"join fetch pix.channels as c " +
-			"left outer join i.wellSamples as s " +
-			"left outer join s.well as w " +
-			"left outer join w.plate as p " +
-			"where p.id in (:ids)";
-		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
+		String sql = "select ws from WellSample as ws " +
+    	"left outer join fetch ws.well as w "+
+    	"left outer join fetch w.plate as p "+
+    	"left outer join fetch ws.image as img "+
+    	"left outer join fetch img.pixels as pix "+
+    	"left outer join fetch pix.type as pixType "+
+    	"left outer join fetch pix.channels as c "+
+		"where p.id in (:ids)";
+		
+		List<WellSample> samples = iQuery.findAllByQuery(sql, p);
+		List<Pixels> pixels = new ArrayList<Pixels>();
+		Iterator<WellSample> i = samples.iterator();
+		while (i.hasNext()) {
+			pixels.add(i.next().getImage().getPixels());
+		}
+		
 		s1.stop();
 		return pixels;
     }
@@ -252,14 +260,20 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		StopWatch s1 = new CommonsLogStopWatch("omero.loadPlatePixels");
 		Parameters p = new Parameters();
 		p.addIds(ids);
-		String sql = "select pix from Pixels as pix " +
-			"join fetch pix.image as i " +
-			"join fetch pix.type " +
-			"join fetch pix.channels as c " +
-			"left outer join i.wellSamples as s " +
-			"left outer join s.plateAcquisitions as p " +
-			"where p.id in (:ids)";
-		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
+		String sql = "select ws from WellSample as ws " +
+    	"left outer join fetch ws.plateAcquisitions as p "+
+    	"left outer join fetch ws.image as img "+
+    	"left outer join fetch img.pixels as pix "+
+    	"left outer join fetch pix.type as pixType "+
+    	"left outer join fetch pix.channels as c "+
+		"where p.id in (:ids)";
+		List<WellSample> samples = iQuery.findAllByQuery(sql, p);
+		List<Pixels> pixels = new ArrayList<Pixels>();
+		Iterator<WellSample> i = samples.iterator();
+		while (i.hasNext()) {
+			pixels.add(i.next().getImage().getPixels());
+		}
+		
 		s1.stop();
 		return pixels;
     }
@@ -275,17 +289,22 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		StopWatch s1 = new CommonsLogStopWatch("omero.loadScreenPixels");
 		Parameters p = new Parameters();
 		p.addIds(screenIds);
-		String sql = "select pix from Pixels as pix " +
-			"join fetch pix.image as i " +
-			"join fetch pix.type " +
-			"join fetch pix.channels as c " +
-			"left outer join i.wellSamples as s " +
-			"left outer join s.well as w " +
-			"left outer join w.plate as p " +
-			"left outer join p.screenLinks as spl " +
-			"left outer join spl.parent as s " +
-			"where s.id in (:ids)";
-		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
+		String sql = "select ws from WellSample as ws " +
+    	"left outer join fetch ws.well as w "+
+    	"left outer join fetch w.plate as p "+
+    	"left outer join p.screenLinks as spl " +
+		"left outer join spl.parent as s " +
+    	"left outer join fetch ws.image as img "+
+    	"left outer join fetch img.pixels as pix "+
+    	"left outer join fetch pix.type as pixType "+
+    	"left outer join fetch pix.channels as c "+
+		"where s.id in (:ids)";
+		List<WellSample> samples = iQuery.findAllByQuery(sql, p);
+		List<Pixels> pixels = new ArrayList<Pixels>();
+		Iterator<WellSample> i = samples.iterator();
+		while (i.hasNext()) {
+			pixels.add(i.next().getImage().getPixels());
+		}
 		s1.stop();
 		return pixels;
     }
