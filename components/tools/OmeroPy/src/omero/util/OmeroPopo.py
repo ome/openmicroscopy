@@ -33,7 +33,7 @@ import math;
 import numpy;
 import omero.clients
 from omero.model import ImageI
-from omero.model import RoiI
+from omero.model import ROII
 from omero.model import EllipseI
 from omero.model import LineI
 from omero.model import RectangleI
@@ -355,7 +355,7 @@ class ROIData(DataObject):
     def __init__(self, roi = None):
         DataObject.__init__(self);
         if(roi==None):
-            self.setValue(RoiI());
+            self.setValue(ROII());
         else:
             self.setValue(roi);
         self.roiShapes = dict();

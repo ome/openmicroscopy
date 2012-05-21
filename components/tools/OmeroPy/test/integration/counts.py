@@ -11,7 +11,6 @@
 import unittest
 import integration.library as lib
 import omero
-from omero_model_ImageI import ImageI
 from omero_model_TagAnnotationI import TagAnnotationI
 from omero.rtypes import rstring, rtime
 
@@ -20,13 +19,11 @@ class TestCounts(lib.ITest):
     def testBasicUsage(self):
         usr = self.client.sf.getAdminService().getEventContext().userId
 
-        img = ImageI()
-        img.name = rstring("name")
-        img.acquisitionDate = rtime(0)
+        pix = self.pix()
+        img = pix.getImage()
         tag = TagAnnotationI()
         img.linkAnnotation( tag )
-
-        img = self.client.sf.getUpdateService().saveAndReturnObject( img )
+        pix = self.client.sf.getUpdateService().saveAndReturnObject( pix )
 
         img = self.client.sf.getQueryService().findByQuery(
         """

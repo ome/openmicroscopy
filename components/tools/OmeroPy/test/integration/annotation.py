@@ -15,8 +15,6 @@ class TestFigureExportScripts(lib.ITest):
 
     def testAddAnnotations(self):
 
-        print "testAddAnnotations"
-        
         # root session is root.sf
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         admin = self.root.sf.getAdminService()
