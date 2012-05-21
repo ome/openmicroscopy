@@ -67,11 +67,11 @@ public class RoiServiceTest
     public void testRemoveShape() 
     	throws Exception
     {
-        Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0).getPixels());
+    	Image image = createBasicImage();
+    	
         ROI roi = new ROII();
         roi.setName(rstring("roi"));
-        roi.setImage(pixels.getImage());
+        roi.setImage(image);
         Rectangle rect;
         roi = (ROI) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
@@ -103,9 +103,7 @@ public class RoiServiceTest
     public void testFindByImage() 
     	throws Exception
     {
-    	Pixels pixels = (Pixels) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0).getPixels());
-    	Image image = pixels.getImage();
+    	Image image = createBasicImage();
     	ROI roi = new ROII();
     	roi.setName(rstring("roi"));
     	roi.setImage(image);

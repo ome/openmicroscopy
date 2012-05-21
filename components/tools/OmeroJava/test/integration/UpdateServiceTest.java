@@ -95,6 +95,8 @@ import omero.model.TermAnnotation;
 import omero.model.TermAnnotationI;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import pojos.BooleanAnnotationData;
@@ -145,16 +147,14 @@ public class UpdateServiceTest
     public void testVersionHandling() 
     	throws Exception
     {
-        Image img = mmFactory.simpleImage(0);
-        img.setName(rstring("version handling"));
-        Image sent = (Image) iUpdate.saveAndReturnObject(img);
-        long version = sent.getDetails().getUpdateEvent().getId().getValue();
+        Image originalImage = createImage(1, 1, 1, 1, 1, "version handling");
+        long originalVersion = originalImage.getDetails().getUpdateEvent().getId().getValue();
         
-        sent.setDescription(rstring("version handling update"));
+        originalImage.setDescription(rstring("version handling update"));
         // Update event should be created
-        Image sent2 = (Image) iUpdate.saveAndReturnObject(sent);
-        long version2 = sent2.getDetails().getUpdateEvent().getId().getValue();
-        assertTrue(version != version2);
+        Image updatedImage = (Image) iUpdate.saveAndReturnObject(originalImage);
+        long updatedVersion = updatedImage.getDetails().getUpdateEvent().getId().getValue();
+        assert originalVersion != updatedVersion;
     }
     
     /**
@@ -163,13 +163,11 @@ public class UpdateServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test(groups = { "versions", "ticket:118" })
-    public void tesVersionNotIncreasingAfterUpdate()
+    public void testVersionNotIncreasingAfterUpdate()
             throws Exception 
     {
         CommentAnnotation ann = new CommentAnnotationI();
-        Image img = mmFactory.simpleImage(0);
-        img.setName(rstring("version_test"));
-        img = (Image) iUpdate.saveAndReturnObject(img);
+        Image img = createImageWithName("version_test");
         
         ann.setTextValue(rstring("version_test"));
         img.linkAnnotation(ann);
@@ -197,8 +195,8 @@ public class UpdateServiceTest
     public void testVersionNotIncreasingOnUnmodifiedObject() 
     	throws Exception 
     {
-        Image img = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image img = createBasicImage();
+        
         assertNotNull(img.getDetails().getUpdateEvent());
         long id = img.getDetails().getUpdateEvent().getId().getValue();
         Image test = (Image) iUpdate.saveAndReturnObject(img);
@@ -243,20 +241,20 @@ public class UpdateServiceTest
     }
     
     /**
-     * Tests the creation of a dataset.
+     * Tests the creation of an empty image and image data.
      * @throws Exception Thrown if an error occurred.
      */
     @Test(groups = "ticket:1106")
     public void testEmptyImage() 
     	throws Exception
     {
-        Image p = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
-        ImageData img = new ImageData(p);
-    	assertNotNull(p);
-    	assertTrue(p.getId().getValue() > 0);
-    	assertTrue(p.getId().getValue() == img.getId());
-    	assertTrue(p.getName().getValue() == img.getName());
-    	assertTrue(p.getDescription().getValue() == img.getDescription());
+        Image image = createBasicImage();
+        ImageData imageData = new ImageData(image);
+    	
+    	assertTrue(image.getId().getValue() > 0);
+    	assertEquals(image.getId().getValue(),imageData.getId());
+    	assertEquals(image.getName().getValue(),imageData.getName());
+    	assertEquals(image.getDescription().getValue(),imageData.getDescription());
     }
     
     /**
@@ -267,25 +265,23 @@ public class UpdateServiceTest
     public void testCreateImageWithPixels()
     	throws Exception 
     {
-    	Image img = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
-    	assertNotNull(img);
-    	Pixels pixels = mmFactory.createPixels();
-    	img.setPixels(pixels);
-    	img = (Image) iUpdate.saveAndReturnObject(img);
+    	Image sourceImage = createBasicImage();
+    	assertNotNull(sourceImage);
     	
     	ParametersI param = new ParametersI();
-    	param.addId(img.getId().getValue());
+    	param.addId(sourceImage.getId().getValue());
 
     	StringBuilder sb = new StringBuilder();
     	sb.append("select i from Image i ");
     	sb.append("left outer join fetch i.pixels as pix ");
         sb.append("left outer join fetch pix.type as pt ");
     	sb.append("where i.id = :id");
-    	img = (Image) iQuery.findByQuery(sb.toString(), param);
-    	assertNotNull(img);
+    	
+    	Image returnedImage = (Image) iQuery.findByQuery(sb.toString(), param);
+    	assertNotNull(returnedImage);
+    	
     	//Make sure we have a pixels set.
-    	pixels = img.getPixels();
+    	Pixels pixels = returnedImage.getPixels();
     	assertNotNull(pixels);
     }
     
@@ -340,24 +336,28 @@ public class UpdateServiceTest
 		throws Exception
     {
     	Plate p = mmFactory.createPlate(1, 1, 1, 1, false);
-    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	p = savePlate(iUpdate, p, false);
+    	
     	assertNotNull(p);
     	assertNotNull(p.getName().getValue());
     	assertNotNull(p.getStatus().getValue());
     	assertNotNull(p.getDescription().getValue());
     	assertNotNull(p.getExternalIdentifier().getValue());
+    	
     	String sql = "select l from PlateAcquisition as l ";
     	sql += "join fetch l.plate as p ";
     	sql += "where p.id = :id";
+    	
     	ParametersI param = new ParametersI();
     	param.addId(p.getId());
     	assertNotNull(iQuery.findByQuery(sql, param));
     	
     	p = mmFactory.createPlate(1, 1, 1, 0, false);
-    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	p = savePlate(iUpdate, p, false);
     	assertNotNull(p);
+    	
     	p = mmFactory.createPlate(1, 1, 1, 1, true);
-    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	p = savePlate(iUpdate, p, false);
     	assertNotNull(p);
     }
     
@@ -436,15 +436,8 @@ public class UpdateServiceTest
 
         p = (Dataset) iUpdate.saveAndReturnObject(p);
 
-        Image d1 = new ImageI();
-        d1.setName(rstring(name));
-        d1.setAcquisitionDate(rtime(0));
-        d1 = (Image) iUpdate.saveAndReturnObject(d1);
-
-        Image d2 = new ImageI();
-        d2.setAcquisitionDate(rtime(0));
-        d2.setName(rstring(name));
-        d2 = (Image) iUpdate.saveAndReturnObject(d2);
+        Image d1 = createImageWithName(name);
+        Image d2 = createImageWithName(name);
 
         List<IObject> links = new ArrayList<IObject>();
         DatasetImageLink link = new DatasetImageLinkI();
@@ -495,8 +488,8 @@ public class UpdateServiceTest
     	throws Exception 
     {
     	//Image
-        Image i = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image i = createBasicImage();
+        
         ImageAnnotationLink l = new ImageAnnotationLinkI();
         l.setParent((Image) i.proxy());
         l.setChild((Annotation) data.proxy());
@@ -682,15 +675,15 @@ public class UpdateServiceTest
     		iUpdate.saveAndReturnObject(annotation);
     	assertNotNull(data);
     	//Image
-        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
-        ImageAnnotationLink l = new ImageAnnotationLinkI();
-        l.setParent((Image) i.proxy());
-        l.setChild((Annotation) data.proxy());
-        l = (ImageAnnotationLink) iUpdate.saveAndReturnObject(l);
-        assertNotNull(l);
-        long id = l.getId().getValue();
+        Image image = createBasicImage();
+        ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.setParent((Image) image.proxy());
+        link.setChild((Annotation) data.proxy());
+        link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+        assertNotNull(link);
+        long id = link.getId().getValue();
         //annotation and image are linked. Remove the link.
-        iUpdate.deleteObject(l);
+        iUpdate.deleteObject(link);
         //now check that the image is no longer linked to the annotation
         String sql = "select link from ImageAnnotationLink as link";
 		sql += " where link.id = :id";
@@ -737,8 +730,7 @@ public class UpdateServiceTest
         String groupName = newUserAndGroup("rwrw--").groupName;
 
         //create an image.
-        Image image = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image image = createBasicImage();
 
         //create the tag.
         TagAnnotationI tag = new TagAnnotationI();
@@ -828,32 +820,41 @@ public class UpdateServiceTest
     public void testChannelMoveWithFullArrayGoesToEnd() 
     	throws Exception
     {
-    	Image i = mmFactory.createImage(ModelMockFactory.SIZE_X, 
-    			ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z, 
-    			ModelMockFactory.SIZE_T, 
-    			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
-        i = (Image) iUpdate.saveAndReturnObject(i);
-        Pixels p = i.getPixels();
+    	int totalInitalChannels = ModelMockFactory.DEFAULT_CHANNELS_NUMBER;
+    	Image image = createImage(1,1,1,1,totalInitalChannels, "testChannelMoveWithFullArrayGoesToEnd");
+        Pixels pixels = image.getPixels();
 
-        Set<Long> ids = new HashSet<Long>();
-        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
-        		p.sizeOfChannels());
-        for (Channel ch : p.copyChannels()) {
-            assertNotNull(ch);
-            ids.add(ch.getId().getValue());
+        assertEquals(totalInitalChannels, pixels.sizeOfChannels());
+        
+        List<Channel> initialChannels = pixels.copyChannels();
+        Set<Long> initalChannelIds = new HashSet<Long>();
+        	
+        for (Channel channel : initialChannels) {
+            assertNotNull(channel);
+            initalChannelIds.add(channel.getId().getValue());
         }
 
         // Now add another channel
-        Channel extra = mmFactory.createChannel(0); // Copies dimension orders, etc.
-        p.copyChannels().add(extra);
+        Channel extra = mmFactory.createChannel(0);
+        image.getPixels().addChannel(extra);
+        Pixels returnedPixels = (Pixels) iUpdate.saveAndReturnObject(image.getPixels());
 
-        i = (Image) iUpdate.saveAndReturnObject(i);
-        p = i.getPixels();
+        // assert we have 1 more channel
+        assertEquals(totalInitalChannels + 1, returnedPixels.sizeOfChannels());
+        
+        // assert that the returnedChannels contains all the existing channels
+        List<Channel> returnedChannels =  returnedPixels.copyChannels();
+        Set<Long> returnedChannelIds = new HashSet<Long>();
+        
+        for(Channel returnedChannel : returnedChannels)
+        {
+        	returnedChannelIds.add(returnedChannel.getId().getValue());
+        }
 
-        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER+1, 
-        		p.sizeOfChannels());
-        assertFalse(ids.contains(p.copyChannels().get(
-        		ModelMockFactory.DEFAULT_CHANNELS_NUMBER).getId().getValue()));
+        for(Long initalChannelId : initalChannelIds)
+        {
+        	assert returnedChannelIds.contains(initalChannelId);
+        }
     }
 
     /**
@@ -864,46 +865,40 @@ public class UpdateServiceTest
     public void testChannelMoveWithSpaceFillsSpace() 
     	throws Exception
     {
-    	Image i = mmFactory.createImage(ModelMockFactory.SIZE_X, 
-    			ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z, 
-    			ModelMockFactory.SIZE_T, 
-    			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
-        i = (Image) iUpdate.saveAndReturnObject(i);
+    	int totalChannels = ModelMockFactory.DEFAULT_CHANNELS_NUMBER;
+    	Image image = createImage(1, 1, 1, 0, totalChannels, "testChannelMoveWithSpaceFillsSpace");
         
-        Pixels p = i.getPixels();
-        p.copyChannels().add(1, null);
-       
-        p = (Pixels) iUpdate.saveAndReturnObject(p);
-        
+        Pixels pixels = image.getPixels();
+        pixels.copyChannels().add(1, null);
+        pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);      
 
         Set<Long> ids = new HashSet<Long>();
-        Channel old = p.copyChannels().get(0);
-        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
-        		p.sizeOfChannels());
+        Channel old = pixels.copyChannels().get(0);
+        assertEquals(totalChannels, pixels.sizeOfChannels());
         assertNotNull(old);
-        ids.add(p.copyChannels().get(0).getId().getValue());
+        ids.add(pixels.copyChannels().get(0).getId().getValue());
 
         // Middle should be empty
-        assertNull(p.copyChannels().get(1));
+        assertNull(pixels.copyChannels().get(1));
 
-        assertNotNull(p.copyChannels().get(2));
-        ids.add(p.copyChannels().get(2).getId().getValue());
+        assertNotNull(pixels.copyChannels().get(2));
+        ids.add(pixels.copyChannels().get(2).getId().getValue());
 
         // Now add a channel to the front
         
         //extra = (Channel) iUpdate.saveAndReturnObject(extra);
         //p.setChannel(0, extra);
-        p.copyChannels().add(1, old);
+        pixels.copyChannels().add(1, old);
         
-        p = (Pixels) iUpdate.saveAndReturnObject(p);
+        pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
         Channel extra =  mmFactory.createChannel(0);
-        p.copyChannels().add(0, extra);
+        pixels.copyChannels().add(0, extra);
         
-        p = (Pixels) iUpdate.saveAndReturnObject(p);
+        pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
 
         assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
-        		p.sizeOfChannels());
-        assertFalse(ids.contains(p.copyChannels().get(0).getId().getValue()));
+        		pixels.sizeOfChannels());
+        assertFalse(ids.contains(pixels.copyChannels().get(0).getId().getValue()));
     }
 
     /**
@@ -914,13 +909,10 @@ public class UpdateServiceTest
     public void testChannelToSpaceChangesNothing() 
     	throws Exception
     {
-    	Image i = mmFactory.createImage(ModelMockFactory.SIZE_X, 
-    			ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z, 
-    			ModelMockFactory.SIZE_T, 
-    			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
-        i = (Image) iUpdate.saveAndReturnObject(i);
-        
-        Pixels p = i.getPixels();
+    	int totalChannels = ModelMockFactory.DEFAULT_CHANNELS_NUMBER;
+    	Image image = createImage(1, 1, 1, 0, totalChannels, "testChannelToSpaceChangesNothing");
+
+        Pixels p = image.getPixels();
         p.copyChannels().add(1, null);
         p = (Pixels) iUpdate.saveAndReturnObject(p);
 
@@ -952,20 +944,19 @@ public class UpdateServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test(groups = { "ticket:168", "ticket:767" })
-    public void testPlaneInfoSetPixelsSavePlaneInfo() 
+    public void testPlaneSetPixelsSavePlaneInfo() 
     	throws Exception
     {
-    	Image image = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
+    	Image image = createBasicImage();
         Pixels pixels = image.getPixels();
         pixels.clearPlanes();
-        Plane planeInfo = mmFactory.createPlaneInfo();
+        Plane planeInfo = mmFactory.createPlane();
         planeInfo.setPixels(pixels);
         planeInfo = (Plane) iUpdate.saveAndReturnObject(planeInfo);
         ParametersI param = new ParametersI();
     	param.addId(planeInfo.getId());
         Pixels test = (Pixels) iQuery.findByQuery(
-                "select pi.pixels from PlaneInfo pi where pi.id = :id",
+                "select pi.pixels from Plane pi where pi.id = :id",
                 param);
         assertNotNull(test);
     }
@@ -977,20 +968,19 @@ public class UpdateServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test(groups = "ticket:168")
-    public void testPixelsAddToPlaneInfoSavePixels() 
+    public void testPixelsAddToPlaneSavePixels() 
     	throws Exception
     {
-    	Image image = mmFactory.createImage();
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = createBasicImage();
         Pixels pixels = image.getPixels();
     	pixels.clearPlanes();
-    	Plane planeInfo = mmFactory.createPlaneInfo();
+    	Plane planeInfo = mmFactory.createPlane();
     	pixels.addPlane(planeInfo);
     	pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
     	ParametersI param = new ParametersI();
     	param.addId(pixels.getId());
     	List<IObject> test = (List<IObject>) iQuery.findAllByQuery(
-    			"select pi from PlaneInfo pi where pi.pixels.id = :id",
+    			"select pi from Plane pi where pi.pixels.id = :id",
     			param);
     	assertTrue(test.size() > 0);
     }
@@ -1004,8 +994,7 @@ public class UpdateServiceTest
     public void testCreateROIWithEllipse() 
     	throws Exception
     {
-    	ImageI image = (ImageI) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image image = createBasicImage();
         ROI roi = new ROII();
         roi.setImage(image);
         ROI serverROI = (ROII) iUpdate.saveAndReturnObject(roi);
@@ -1056,8 +1045,7 @@ public class UpdateServiceTest
     public void testCreateROIWithPoint() 
     	throws Exception
     {
-        Image image = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image image = createBasicImage();
         ROI roi = new ROII();
         roi.setImage(image);
         ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
@@ -1104,8 +1092,7 @@ public class UpdateServiceTest
     public void testCreateROIWithRectangle() 
     	throws Exception
     {
-        Image image = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image image = createBasicImage();
         ROI roi = new ROII();
         roi.setImage(image);
         ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
@@ -1156,8 +1143,7 @@ public class UpdateServiceTest
     public void testCreateShapeSettings() 
     	throws Exception
     {
-        Image image = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image image = createBasicImage();
         IPixelsPrx svc = factory.getPixelsService();
      	List<IObject> values = svc.getAllEnumerations(FillRule.class.getName());
      	FillRule rule = (FillRule) values.get(0);
@@ -1217,7 +1203,7 @@ public class UpdateServiceTest
         	assertEquals(settings.getFillRule(), rule.getValue().getValue());
         	assertEquals(settings.getFontFamily(), family.getValue().getValue());
         	assertEquals(settings.getFontStyle(), style.getValue().getValue());
-        	assertEquals(settings.getLineCap(), lineCap.getValue().getValue());
+        	assertEquals(settings.getLineCapAsString(), lineCap.getValue().getValue());
         	color = settings.getFill();
         	assertTrue(color.getRed() == fillColor.getRed());
         	assertTrue(color.getGreen() == fillColor.getBlue());
@@ -1253,8 +1239,7 @@ public class UpdateServiceTest
     public void testCreateROI()
     	throws Exception
     {
-    	Image image = (Image) iUpdate.saveAndReturnObject(
-       			mmFactory.simpleImage(0));
+    	Image image = createBasicImage();
     	ROI roi = new ROII();
     	roi.setImage(image);
     	String name = "roi name";
@@ -1280,8 +1265,7 @@ public class UpdateServiceTest
     public void testCreateROIWithPolygon() 
     	throws Exception
     {
-       	Image image = (Image) iUpdate.saveAndReturnObject(
-       			mmFactory.simpleImage(0));
+       	Image image = createBasicImage();
        	ROI roi = new ROII();
         roi.setImage(image);
         ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
@@ -1328,8 +1312,7 @@ public class UpdateServiceTest
     public void testCreateROIWithPolyline() 
     	throws Exception
     {
-    	Image image = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image image = createBasicImage();
     	IPixelsPrx svc = factory.getPixelsService();
      	List<IObject> values = svc.getAllEnumerations(Marker.class.getName());
      	Marker marker = (Marker) values.get(0);
@@ -1384,8 +1367,7 @@ public class UpdateServiceTest
     public void testCreateROIWithLine() 
     	throws Exception
     {
-        Image image = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image image = createBasicImage();
         //Get marker enumeration
         IPixelsPrx svc = factory.getPixelsService();
     	List<IObject> values = svc.getAllEnumerations(Marker.class.getName());
@@ -1448,8 +1430,7 @@ public class UpdateServiceTest
     public void testCreateROIWithMask() 
     	throws Exception
     {
-        Image image = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image image = createBasicImage();
         ROI roi = new ROII();
         roi.setImage(image);
         ROI serverROI = (ROI) iUpdate.saveAndReturnObject(roi);
@@ -1710,8 +1691,10 @@ public class UpdateServiceTest
     	Reagent r = mmFactory.createReagent();
     	s.addReagent(r);
     	Plate p = mmFactory.createPlateWithReagent(1, 1, 1, r);
+    	p = savePlate(iUpdate, p, false);
     	s.linkPlate(p);
     	s = (Screen) iUpdate.saveAndReturnObject(s);
+    	
     	assertNotNull(s);
     	assertNotNull(s.getName().getValue());
     	assertNotNull(s.getDescription().getValue());
@@ -1722,7 +1705,7 @@ public class UpdateServiceTest
     	
     	//reagent first
     	String sql = "select r from Reagent as r ";
-    	sql += "join fetch r.screen as s ";
+    	sql += "join fetch r.screens as s ";
     	sql += "where s.id = :id";
     	ParametersI param = new ParametersI();
     	param.addId(s.getId().getValue());
@@ -1760,10 +1743,9 @@ public class UpdateServiceTest
 		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
 		assertNotNull(data);
 		//Image
-        Image i1 = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
-        Image i2 = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image i1 = createBasicImage();
+        Image i2 = createBasicImage();
+        
         List<IObject> links = new ArrayList<IObject>();
         ImageAnnotationLink l = new ImageAnnotationLinkI();
         l.setParent((Image) i1.proxy());
@@ -1808,11 +1790,10 @@ public class UpdateServiceTest
 		fa.setFile(of);
 		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
 		assertNotNull(data);
-		//Image
-        Image i1 = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
-        Image i2 = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+		
+        Image i1 = createBasicImage();
+        Image i2 = createBasicImage();
+        
         ImageAnnotationLink l = new ImageAnnotationLinkI();
         l.setParent((Image) i1.proxy());
         l.setChild((Annotation) data.proxy());
@@ -1907,7 +1888,7 @@ public class UpdateServiceTest
     	//comment linked to plate
     	Plate plate = new PlateI();
     	plate.setName(omero.rtypes.rstring("p"));
-    	plate = (Plate) iUpdate.saveAndReturnObject(plate);
+    	plate = savePlate(iUpdate, plate, false);
     	cp = new CommentAnnotationI();
     	cp.setTextValue(omero.rtypes.rstring("comment"));
     	cp = (CommentAnnotation) iUpdate.saveAndReturnObject(cp);
@@ -1924,10 +1905,7 @@ public class UpdateServiceTest
     	assertEquals(results.size(), 0);
     	
     	//comment linked to image
-    	Image image = new ImageI();
-    	image.setName(omero.rtypes.rstring("p"));
-    	image.setAcquisitionDate(omero.rtypes.rtime(100000));
-    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = createImage(1,1,1,1,1,"p");
     	cp = new CommentAnnotationI();
     	cp.setTextValue(omero.rtypes.rstring("comment"));
     	cp = (CommentAnnotation) iUpdate.saveAndReturnObject(cp);
@@ -1945,16 +1923,15 @@ public class UpdateServiceTest
     	
     	
     	
-    	Plate p;
-		p = (Plate) iUpdate.saveAndReturnObject(
-				mmFactory.createPlate(1, 1, 1, 1, false));
+    	Plate newPlate = mmFactory.createPlate(1, 1, 1, 1, false);
+    	newPlate = savePlate(iUpdate, newPlate, false);
 		sql = "select pa from PlateAcquisition as pa ";
 		sql += "where pa.plate.id = :id";
-		param = new ParametersI();
-    	param.addId(p.getId().getValue());
-    	List<IObject> pas = iQuery.findAllByQuery(sql, param);
+		ParametersI plateSQLParams = new ParametersI();
+		plateSQLParams.addId(newPlate.getId().getValue());
+    	List<IObject> plateAquisitions = iQuery.findAllByQuery(sql, plateSQLParams);
     	//Delete the first one.
-    	PlateAcquisition pa = (PlateAcquisition) pas.get(0);
+    	PlateAcquisition pa = (PlateAcquisition) plateAquisitions.get(0);
     	
     	CommentAnnotation c = new CommentAnnotationI();
     	c.setTextValue(omero.rtypes.rstring("comment"));

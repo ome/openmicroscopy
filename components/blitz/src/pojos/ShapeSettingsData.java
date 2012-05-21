@@ -280,6 +280,17 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
+	public String getLineCapAsString()
+	{
+		Shape shape = (Shape) asIObject();
+		return shape.getLineCap().getValue().getValue();
+	}
+	
+	/**
+	 * Returns the shape of the end of the line..
+	 * 
+	 * @return See above.
+	 */
 	public int getLineCap()
 	{
 		Shape shape = (Shape) asIObject();

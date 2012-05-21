@@ -3671,7 +3671,7 @@ public class DeleteServiceTest
     	Image image =  createTestImage(0);
         Pixels pixels = image.getPixels();
         pixels.clearPlanes();
-        Plane planeInfo = mmFactory.createPlaneInfo();
+        Plane planeInfo = mmFactory.createPlane();
         planeInfo.setPixels(pixels);
         planeInfo = (Plane) iUpdate.saveAndReturnObject(planeInfo);
         //now Delete the image.
