@@ -109,6 +109,7 @@ import ome.xml.model.primitives.NonNegativeInteger;
 import ome.xml.model.primitives.NonNegativeLong;
 import ome.xml.model.primitives.PercentFraction;
 import ome.xml.model.primitives.PositiveInteger;
+import ome.xml.model.primitives.Timestamp;
 
 /** 
  * Creates XML objects for the 2010-06 schema.
@@ -853,8 +854,8 @@ public class XMLMockObjects
 				pa.setID("PlateAcquisition:"+v);
 				pa.setName("PlateAcquisition Name "+v);
 				pa.setDescription("PlateAcquisition Description "+v);
-				pa.setEndTime(TIME);
-				pa.setStartTime(TIME);
+				pa.setEndTime(new Timestamp(TIME));
+				pa.setStartTime(new Timestamp(TIME));
 				plate.addPlateAcquisition(pa);
 				pas.add(pa);
 			}
@@ -881,7 +882,7 @@ public class XMLMockObjects
 						sample = new WellSample();
 						sample.setPositionX(0.0);
 						sample.setPositionY(1.0);
-						sample.setTimepoint(TIME);
+						sample.setTimepoint(new Timestamp(TIME));
 						sample.setID(String.format("WellSample:%d_%d_%d_%d", 
 								index, row, column, field));
 						sample.setIndex(new NonNegativeInteger(i));
@@ -903,7 +904,7 @@ public class XMLMockObjects
 							sample = new WellSample();
 							sample.setPositionX(0.0);
 							sample.setPositionY(1.0);
-							sample.setTimepoint(TIME);
+							sample.setTimepoint(new Timestamp(TIME));
 							sample.setID(String.format("WellSample:%d_%d_%d_%d_%d", 
 									index, row, column, field, v));
 							sample.setIndex(new NonNegativeInteger(i));
