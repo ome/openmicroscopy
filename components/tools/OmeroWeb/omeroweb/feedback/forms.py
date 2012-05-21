@@ -34,4 +34,4 @@ class ErrorForm(forms.Form):
 class CommentForm(forms.Form):
 
     email = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':40}), label="Your email", required=False)
-    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}))
+    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'cols': 120}))
