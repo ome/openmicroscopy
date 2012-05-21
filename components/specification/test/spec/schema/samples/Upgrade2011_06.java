@@ -18,9 +18,6 @@
  */
 package spec.schema.samples;
 
-import org.testng.Assert;
-
-import ome.xml.model.AffineTransform;
 import ome.xml.model.enums.AcquisitionMode;
 import ome.xml.model.enums.DimensionOrder;
 import ome.xml.model.enums.FillRule;
@@ -35,7 +32,7 @@ import ome.xml.model.primitives.NonNegativeLong;
 import ome.xml.model.primitives.PositiveInteger;
 
 /**
- * This class represents the sample file 2011-06/6x4y1z1t1c8b-swatch-upgrade.ome
+ * This class represents the sample file 2011-06/6x4y1z1t3c8b-swatch-upgrade.ome
  * 
  * @author Andrew Patterson &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:ajpatterson@lifesci.dundee.ac.uk">ajpatterson@lifesci.dundee.ac.uk</a>

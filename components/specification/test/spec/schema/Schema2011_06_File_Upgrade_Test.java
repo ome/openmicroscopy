@@ -30,7 +30,6 @@ import loci.formats.services.OMEXMLService;
 import ome.xml.model.BinData;
 import ome.xml.model.Channel;
 import ome.xml.model.Dataset;
-import ome.xml.model.Ellipse;
 import ome.xml.model.Experimenter;
 import ome.xml.model.ExperimenterGroup;
 import ome.xml.model.Image;
@@ -69,7 +68,7 @@ import spec.schema.samples.Upgrade2011_06.ref;
 /** 
  * Collections of tests.
  * Checks if the upgrade from 2011-06 schema to 2012-06 schema works for
- * the file 2011-06/6x4y1z1t1c8b-swatch-upgrade.ome
+ * the file 2011-06/6x4y1z1t3c8b-swatch-upgrade.ome
  *
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:callan@lifesci.dundee.ac.uk">callan@lifesci.dundee.ac.uk</a>
@@ -179,21 +178,21 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNotNull(ome.getStructuredAnnotations());
     }
 
-    @Test (groups = {"proj"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-proj"}, dependsOnMethods = {"testOmeNode"})
     public void testDataset0() {
         Assert.assertNotNull(ome);
         dataset0 = ome.getDataset(0);
         Assert.assertNotNull(dataset0);
     }
     
-    @Test (groups = {"proj"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-proj"}, dependsOnMethods = {"testOmeNode"})
     public void testProject0() {
         Assert.assertNotNull(ome);
         project0 = ome.getProject(0);
         Assert.assertNotNull(project0);
      }
     
-    @Test (groups = {"spw"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-spw"}, dependsOnMethods = {"testOmeNode"})
     public void testPlate0() {
         Assert.assertNotNull(ome);
         plate0 = ome.getPlate(0);
@@ -201,7 +200,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Plate0Description, plate0.getDescription());
     }
 
-    @Test (groups = {"spw"}, dependsOnMethods = {"testPlate0"})
+    @Test (groups = {"11-06-u-spw"}, dependsOnMethods = {"testPlate0"})
     public void testPlateAcquisition0Description() {
         Assert.assertNotNull(plate0);
         Assert.assertEquals(1, plate0.sizeOfPlateAcquisitionList());
@@ -210,7 +209,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Plate0PlateAcquisition0Description, plateAcquisition0.getDescription());
     }
     
-    @Test (groups = {"spw"}, dependsOnMethods = {"testPlate0"})
+    @Test (groups = {"11-06-u-spw"}, dependsOnMethods = {"testPlate0"})
     public void testPlate0Well0() {
         Assert.assertNotNull(plate0);
         Assert.assertEquals(1, plate0.sizeOfWellList());
@@ -221,7 +220,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Plate0Well0Color, well0.getColor());
         Assert.assertEquals(ref.Plate0Well0Status, well0.getType());
     }
-    @Test (groups = {"spw"}, dependsOnMethods = {"testPlate0Well0"})
+    @Test (groups = {"11-06-u-spw"}, dependsOnMethods = {"testPlate0Well0"})
     public void testPlate0WellSample0() {
         Assert.assertNotNull(well0);
         Assert.assertEquals(1, well0.sizeOfWellSampleList());
@@ -230,7 +229,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Plate0Well0WellSample0Index, wellSample0.getIndex());
     }
 
-    @Test (groups = {"spw"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-spw"}, dependsOnMethods = {"testOmeNode"})
     public void testPlate1Description() {
         Assert.assertNotNull(ome);
         plate1 = ome.getPlate(1);
@@ -238,7 +237,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(plate1.getDescription());
     }
 
-    @Test (groups = {"spw"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-spw"}, dependsOnMethods = {"testOmeNode"})
     public void testScreen0() {
         Assert.assertNotNull(ome);
         screen0 = ome.getScreen(0);
@@ -253,7 +252,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(1, screen0.sizeOfReagentList());
     }
     
-    @Test (groups = {"spw"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-spw"}, dependsOnMethods = {"testOmeNode"})
     public void testScreen1() {
         Assert.assertNotNull(ome);
         screen1 = ome.getScreen(1);
@@ -267,7 +266,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Screen1Type, screen1.getType());
     }
     
-    @Test (groups = {"spw"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-spw"}, dependsOnMethods = {"testOmeNode"})
     public void testScreen2() {
         Assert.assertNotNull(ome);
         screen2 = ome.getScreen(2);
@@ -280,7 +279,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Screen2ReagentSetIdentifier, screen2.getReagentSetIdentifier());
         Assert.assertEquals(ref.Screen2Type, screen2.getType());
     }
-    @Test (groups = {"spw"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-spw"}, dependsOnMethods = {"testOmeNode"})
     public void testScreen3() {
         Assert.assertNotNull(ome);
         screen3 = ome.getScreen(3);
@@ -294,7 +293,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Screen3Type, screen3.getType());
     }
 
-    @Test (groups = {"spw"}, dependsOnMethods = {"testScreen0"})
+    @Test (groups = {"11-06-u-spw"}, dependsOnMethods = {"testScreen0"})
     public void testReagent0() {
         Assert.assertNotNull(screen0);
         reagent0 = screen0.getReagent(0);
@@ -304,7 +303,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(reagent0.getName());
     }
     
-    @Test (groups = {"spw"}, dependsOnMethods = {"testScreen1"})
+    @Test (groups = {"11-06-u-spw"}, dependsOnMethods = {"testScreen1"})
     public void testReagent1() {
         Assert.assertNotNull(screen1);
         reagent1 = screen1.getReagent(0);
@@ -314,7 +313,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(reagent1.getName());
     }
     
-    @Test (groups = {"spw"}, dependsOnMethods = {"testScreen2"})
+    @Test (groups = {"11-06-u-spw"}, dependsOnMethods = {"testScreen2"})
     public void testReagent2() {
         Assert.assertNotNull(screen2);
         reagent2 = screen2.getReagent(0);
@@ -324,7 +323,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(reagent2.getName());
     }
     
-    @Test (groups = {"spw"}, dependsOnMethods = {"testScreen3"})
+    @Test (groups = {"11-06-u-spw"}, dependsOnMethods = {"testScreen3"})
     public void testReagent3() {
         Assert.assertNotNull(screen3);
         reagent3 = screen3.getReagent(0);
@@ -335,7 +334,7 @@ public class Schema2011_06_File_Upgrade_Test {
     }
     
 
-    @Test (groups = {"exper"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-exper"}, dependsOnMethods = {"testOmeNode"})
     public void testExperimenter0() {
         Assert.assertNotNull(ome);
         experimenter0 = ome.getExperimenter(0);
@@ -347,7 +346,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(experimenter0.getInstitution());
         Assert.assertNull(experimenter0.getEmail());
     }
-    @Test (groups = {"exper"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-exper"}, dependsOnMethods = {"testOmeNode"})
     public void testExperimenter1() {
         Assert.assertNotNull(ome);
         experimenter1 = ome.getExperimenter(1);
@@ -359,7 +358,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(experimenter1.getInstitution());
         Assert.assertEquals(ref.Experimenter1Email, experimenter1.getEmail());
     }
-    @Test (groups = {"exper"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-exper"}, dependsOnMethods = {"testOmeNode"})
     public void testExperimenter2() {
         Assert.assertNotNull(ome);
         experimenter2 = ome.getExperimenter(2);
@@ -371,7 +370,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(experimenter2.getInstitution());
         Assert.assertNull(experimenter2.getEmail());
     }
-    @Test (groups = {"exper"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-exper"}, dependsOnMethods = {"testOmeNode"})
     public void testExperimenter3() {
         Assert.assertNotNull(ome);
         experimenter3 = ome.getExperimenter(3);
@@ -383,7 +382,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(experimenter3.getInstitution());
         Assert.assertNull(experimenter3.getEmail());
     }
-    @Test (groups = {"exper"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-exper"}, dependsOnMethods = {"testOmeNode"})
     public void testExperimenter4() {
         Assert.assertNotNull(ome);
         experimenter4 = ome.getExperimenter(4);
@@ -395,7 +394,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(experimenter4.getInstitution());
         Assert.assertNull(experimenter4.getEmail());
     }
-    @Test (groups = {"exper"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-exper"}, dependsOnMethods = {"testOmeNode"})
     public void testExperimenter5() {
         Assert.assertNotNull(ome);
         experimenter5 = ome.getExperimenter(5);
@@ -407,7 +406,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(experimenter5.getInstitution());
         Assert.assertNull(experimenter5.getEmail());
     }
-    @Test (groups = {"exper"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-exper"}, dependsOnMethods = {"testOmeNode"})
     public void testExperimenter6() {
         Assert.assertNotNull(ome);
         experimenter6 = ome.getExperimenter(6);
@@ -420,7 +419,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(experimenter6.getEmail());
     }
 
-    @Test (groups = {"exper"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-exper"}, dependsOnMethods = {"testOmeNode"})
     public void testExperimenterGroup0() {
         Assert.assertNotNull(ome);
         experimenterGroup0 = ome.getExperimenterGroup(0);
@@ -429,7 +428,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Group0Description, experimenterGroup0.getDescription());
     }
 
-    @Test (groups = {"exper"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-exper"}, dependsOnMethods = {"testOmeNode"})
     public void testExperimenterGroup1() {
         Assert.assertNotNull(ome);
         experimenterGroup1 = ome.getExperimenterGroup(1);
@@ -437,7 +436,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Group1Name, experimenterGroup1.getName());
         Assert.assertEquals(ref.Group1Description, experimenterGroup1.getDescription());
     }
-    @Test (groups = {"exper"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-exper"}, dependsOnMethods = {"testOmeNode"})
     public void testExperimenterGroup2() {
         Assert.assertNotNull(ome);
         experimenterGroup2 = ome.getExperimenterGroup(2);
@@ -446,7 +445,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Group2Description, experimenterGroup2.getDescription());
     }
 
-    @Test (groups = {"exper"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-exper"}, dependsOnMethods = {"testOmeNode"})
     public void testExperimenterGroup3() {
         Assert.assertNotNull(ome);
         experimenterGroup3 = ome.getExperimenterGroup(3);
@@ -455,7 +454,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Group3Description, experimenterGroup3.getDescription());
     }
 
-    @Test (groups = {"exper"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-exper"}, dependsOnMethods = {"testOmeNode"})
     public void testExperimenterGroup4() {
         Assert.assertNotNull(ome);
         experimenterGroup4 = ome.getExperimenterGroup(4);
@@ -464,7 +463,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Group4Description, experimenterGroup4.getDescription());
     }
 
-    @Test (groups = {"instrument"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-instrument"}, dependsOnMethods = {"testOmeNode"})
     public void testInstrument0() {
         Assert.assertNotNull(ome);
         instrument0 = ome.getInstrument(0);
@@ -478,7 +477,7 @@ public class Schema2011_06_File_Upgrade_Test {
         /* Perhaps: Assert.assertEquals(1, instrument1()); */
     }
 
-    @Test (groups = {"instrument"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-instrument"}, dependsOnMethods = {"testOmeNode"})
     public void testObjective0() {
         Assert.assertNotNull(ome);
         objective0 = instrument0.getObjective(0);
@@ -496,7 +495,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(objective0.getWorkingDistance());
     }
 
-    @Test (groups = {"image"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-image"}, dependsOnMethods = {"testOmeNode"})
     public void testImage0Name() {
         Assert.assertNotNull(ome);
         Assert.assertEquals(1, ome.sizeOfImageList());
@@ -505,13 +504,13 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.Image0Name, image0.getName());
     }
 
-    @Test (groups = {"image"}, dependsOnMethods = {"testImage0Name"})
+    @Test (groups = {"11-06-u-image"}, dependsOnMethods = {"testImage0Name"})
     public void testImage0Date() {
         Assert.assertNotNull(image0);
         Assert.assertEquals(ref.Image0AcquiredDate, image0.getAcquisitionDate());
     }
 
-    @Test (groups = {"image"}, dependsOnMethods = {"testImage0Name"})
+    @Test (groups = {"11-06-u-image"}, dependsOnMethods = {"testImage0Name"})
     public void testPixels0() {
         Assert.assertNotNull(image0);
         pixels0 = image0.getPixels();
@@ -533,7 +532,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(pixels0.getTimeIncrement());
     }
 
-    @Test (groups = {"image"}, dependsOnMethods = {"testPixels0"})
+    @Test (groups = {"11-06-u-image"}, dependsOnMethods = {"testPixels0"})
     public void testChannel0() {
         Assert.assertNotNull(pixels0);
         channel0 = pixels0.getChannel(0);
@@ -554,7 +553,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(channel0.getSamplesPerPixel());
     }
 
-    @Test (groups = {"image"}, dependsOnMethods = {"testPixels0"})
+    @Test (groups = {"11-06-u-image"}, dependsOnMethods = {"testPixels0"})
     public void testChannel1() {
         Assert.assertNotNull(pixels0);
         channel1 = pixels0.getChannel(1);
@@ -574,7 +573,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(channel1.getPockelCellSetting());
         Assert.assertNull(channel1.getSamplesPerPixel());
     }
-    @Test (groups = {"image"}, dependsOnMethods = {"testPixels0"})
+    @Test (groups = {"11-06-u-image"}, dependsOnMethods = {"testPixels0"})
     public void testChannel2() {
         Assert.assertNotNull(pixels0);
         channel2 = pixels0.getChannel(2);
@@ -595,7 +594,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(channel2.getSamplesPerPixel());
     }
 
-    @Test (groups = {"image"}, dependsOnMethods = {"testPixels0"})
+    @Test (groups = {"11-06-u-image"}, dependsOnMethods = {"testPixels0"})
     public void testBinData0() {
         Assert.assertNotNull(pixels0);
         bindata0 = pixels0.getBinData(0);
@@ -604,7 +603,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(bindata0.getCompression());
     }
 
-    @Test (groups = {"image"}, dependsOnMethods = {"testPixels0"})
+    @Test (groups = {"11-06-u-image"}, dependsOnMethods = {"testPixels0"})
     public void testBinData1() {
         Assert.assertNotNull(pixels0);
         bindata1 = pixels0.getBinData(1);
@@ -613,7 +612,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(bindata1.getCompression());
     }
     
-    @Test (groups = {"image"}, dependsOnMethods = {"testPixels0"})
+    @Test (groups = {"11-06-u-image"}, dependsOnMethods = {"testPixels0"})
     public void testBinData2() {
         Assert.assertNotNull(pixels0);
         bindata2 = pixels0.getBinData(2);
@@ -622,7 +621,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(bindata2.getCompression());
     }
 
-    @Test (groups = {"annotation"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-annotation"}, dependsOnMethods = {"testOmeNode"})
     public void testAnnotations() {
         Assert.assertNotNull(ome);
         annotations = ome.getStructuredAnnotations();
@@ -638,7 +637,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(0, annotations.sizeOfTimestampAnnotationList());
     }
 
-    @Test (groups = {"annotation"}, dependsOnMethods = {"testAnnotations"})
+    @Test (groups = {"11-06-u-annotation"}, dependsOnMethods = {"testAnnotations"})
     public void testXMLAnnotation0() {
         Assert.assertNotNull(annotations);
         xmlAnnotation0 = annotations.getXMLAnnotation(0);
@@ -647,7 +646,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(xmlAnnotation0.getDescription());
     }
     
-    @Test (groups = {"annotation"}, dependsOnMethods = {"testAnnotations"})
+    @Test (groups = {"11-06-u-annotation"}, dependsOnMethods = {"testAnnotations"})
     public void testXMLAnnotation1() {
         Assert.assertNotNull(annotations);
         xmlAnnotation1 = annotations.getXMLAnnotation(1);
@@ -656,7 +655,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertNull(xmlAnnotation1.getDescription());
     }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testOmeNode"})
     public void testROI0AndUnion() {
         Assert.assertNotNull(ome);
         roi0 = ome.getROI(0);
@@ -668,7 +667,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(1, union0.sizeOfShapeList());
     }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testOmeNode"})
     public void testROI1AndUnion() {
         Assert.assertNotNull(ome);
         roi1 = ome.getROI(1);
@@ -680,7 +679,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(1, union1.sizeOfShapeList());
     }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testOmeNode"})
     public void testROI2AndUnion() {
         Assert.assertNotNull(ome);
         roi2 = ome.getROI(2);
@@ -692,7 +691,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(8, union2.sizeOfShapeList());
     }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testOmeNode"})
     public void testROI3AndUnion() {
         Assert.assertNotNull(ome);
         roi3  = ome.getROI(3);
@@ -704,7 +703,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(1, union3.sizeOfShapeList());
     }
     
-    @Test (groups = {"roi"}, dependsOnMethods = {"testOmeNode"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testOmeNode"})
     public void testROI4AndUnion() {
         Assert.assertNotNull(ome);
         roi4 = ome.getROI(4);
@@ -716,7 +715,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(2, union4.sizeOfShapeList());
     }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testROI0AndUnion"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testROI0AndUnion"})
     public void testShape0() {
         Assert.assertNotNull(union0);
         shape0 = union0.getShape(0);
@@ -727,7 +726,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.ROI0Shape0PointY, point0.getY());
     }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testROI1AndUnion"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testROI1AndUnion"})
     public void testShape1() {
         Assert.assertNotNull(union1);
         shape1 = union1.getShape(0);
@@ -748,7 +747,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.ROI1Shape1Label, point1.getText());
     }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testROI2AndUnion"})
     public void testShape2() {
         Assert.assertNotNull(union2);
         shape2 = union2.getShape(0);
@@ -769,7 +768,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.ROI2Shape2TransformA12, rectangle2.getTransform().getA12());
     }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testROI2AndUnion"})
     public void testShape3() {
         Assert.assertNotNull(union2);
         shape3 = union2.getShape(1);
@@ -783,7 +782,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.ROI2Shape3TextValue, label3.getText());
     }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testROI2AndUnion"})
     public void testShape4() {
         Assert.assertNotNull(union2);
         shape4 = union2.getShape(2);
@@ -794,7 +793,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.ROI2Shape4PolylinePoints, polygon4.getPoints());
     }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testROI2AndUnion"})
     public void testShape5() {
         Assert.assertNotNull(union2);
         shape5 = union2.getShape(3);
@@ -807,7 +806,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.ROI2Shape5MarkerEnd, polyline5.getMarkerEnd());
    }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testROI2AndUnion"})
     public void testShape6() {
         Assert.assertNotNull(union2);
         shape6 = union2.getShape(4);
@@ -819,7 +818,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.ROI2Shape6MarkerStart, polyline6.getMarkerStart());
     }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testROI2AndUnion"})
     public void testShape7() {
         Assert.assertNotNull(union2);
         shape7 = union2.getShape(5);
@@ -835,7 +834,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.ROI2Shape7LineY2, line7.getY2());
    }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testROI2AndUnion"})
     public void testShape8() {
         Assert.assertNotNull(union2);
         shape8 = union2.getShape(6);
@@ -850,7 +849,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.ROI2Shape8LineY2, line8.getY2());
     }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testROI2AndUnion"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testROI2AndUnion"})
     public void testShape9() {
         Assert.assertNotNull(union2);
         shape9 = union2.getShape(7);
@@ -865,12 +864,12 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(ref.ROI2Shape9LineY2, line9.getY2());
    }
 
-    @Test (groups = {"roi-extra"}, dependsOnGroups = {"roi"})
+    @Test (groups = {"11-06-u-roi-extra"}, dependsOnGroups = {"11-06-u-roi"})
     public void testShape10() {
         /* this path should be striped, if all other roi tests pass it must not be present */
    }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testROI3AndUnion"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testROI3AndUnion"})
     public void testShape11() {
         Assert.assertNotNull(union3);
         shape11 = union3.getShape(0);
@@ -882,7 +881,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(Double.valueOf(0), label11.getY());
     }
 
-    @Test (groups = {"roi"}, dependsOnMethods = {"testROI4AndUnion"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testROI4AndUnion"})
     public void testShape12() {
         Assert.assertNotNull(union4);
         shape12 = union4.getShape(0);
@@ -893,7 +892,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(Double.valueOf(0), label12.getX());
         Assert.assertEquals(Double.valueOf(0), label12.getY());
     }
-    @Test (groups = {"roi"}, dependsOnMethods = {"testROI4AndUnion"})
+    @Test (groups = {"11-06-u-roi"}, dependsOnMethods = {"testROI4AndUnion"})
     public void testShape13() {
         Assert.assertNotNull(union4);
         shape13 = union4.getShape(1);
@@ -905,33 +904,33 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(Double.valueOf(0), label13.getY());
     }
 
-    @Test (groups = {"links"}, dependsOnGroups = {"spw", "annotation"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-spw", "11-06-u-annotation"})
     public void testPlate0Linkage() {
         Assert.assertNotNull(plate0);
         Assert.assertEquals(1, plate0.sizeOfLinkedAnnotationList());
         Assert.assertEquals(xmlAnnotation0, plate0.getLinkedAnnotation(0));
     }
        
-    @Test (groups = {"links"}, dependsOnGroups = {"spw", "annotation"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-spw", "11-06-u-annotation"})
     public void testPlate1Linkage() {
         Assert.assertNotNull(plate1);
         Assert.assertEquals(0, plate1.sizeOfLinkedAnnotationList());
     }
 
-    @Test (groups = {"links"}, dependsOnGroups = {"spw", "annotation"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-spw", "11-06-u-annotation"})
     public void testPlateAcquisition0Linkage() {
         Assert.assertNotNull(plateAcquisition0);
         Assert.assertEquals(1, plateAcquisition0.sizeOfLinkedAnnotationList());
         Assert.assertEquals(xmlAnnotation1, plateAcquisition0.getLinkedAnnotation(0));
     }
 
-    @Test (groups = {"links"}, dependsOnGroups = {"spw", "image"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-spw", "11-06-u-image"})
     public void testWellSample0Linkage() {
         Assert.assertNotNull(wellSample0);
         Assert.assertEquals(image0, wellSample0.getLinkedImage());
     }
 
-    @Test (groups = {"links"}, dependsOnGroups = {"spw", "annotation"})
+    @Test (groups = {"links"}, dependsOnGroups = {"11-06-u-spw", "11-06-u-annotation"})
     public void testScreen0Linkage() {
         Assert.assertNotNull(screen0);
         Assert.assertEquals(1, screen0.sizeOfLinkedAnnotationList());
@@ -940,7 +939,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(xmlAnnotation1, screen0.getLinkedAnnotation(0));
      }
 
-    @Test (groups = {"links"}, dependsOnGroups = {"spw", "annotation"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-spw", "11-06-u-annotation"})
     public void testScreen1Linkage() {
         Assert.assertNotNull(screen1);
         Assert.assertEquals(1, screen1.sizeOfLinkedAnnotationList());
@@ -950,7 +949,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(xmlAnnotation1, screen1.getLinkedAnnotation(0));
      }
 
-    @Test (groups = {"links"}, dependsOnGroups = {"spw", "annotation"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-spw", "11-06-u-annotation"})
     public void testScreen2Linkage() {
         Assert.assertNotNull(screen2);
         Assert.assertEquals(1, screen2.sizeOfLinkedAnnotationList());
@@ -958,7 +957,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(xmlAnnotation1, screen2.getLinkedAnnotation(0));
      }
 
-    @Test (groups = {"links"}, dependsOnGroups = {"spw", "annotation"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-spw", "11-06-u-annotation"})
     public void testScreen3Linkage() {
         Assert.assertNotNull(screen3);
         Assert.assertEquals(1, screen3.sizeOfLinkedAnnotationList());
@@ -967,7 +966,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(xmlAnnotation1, screen3.getLinkedAnnotation(0));
      }
 
-    @Test (groups = {"links"}, dependsOnGroups = {"exper"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-exper"})
     public void testExperimenterGroup0Linkage() {
         Assert.assertNotNull(experimenterGroup0);
         Assert.assertEquals(1, experimenterGroup0.sizeOfLinkedExperimenterList());
@@ -976,7 +975,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(experimenter0, experimenterGroup0.getLinkedLeader(0));
      }
 
-    @Test (groups = {"links"}, dependsOnGroups = {"exper"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-exper"})
     public void testExperimenterGroup1Linkage() {
         Assert.assertNotNull(experimenterGroup1);
         Assert.assertEquals(2, experimenterGroup1.sizeOfLinkedExperimenterList());
@@ -987,7 +986,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(experimenter1, experimenterGroup1.getLinkedLeader(1));
      }
 
-    @Test (groups = {"links"}, dependsOnGroups = {"exper"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-exper"})
     public void testExperimenterGroup2Linkage() {
         Assert.assertNotNull(experimenterGroup2);
         Assert.assertEquals(1, experimenterGroup2.sizeOfLinkedExperimenterList());
@@ -996,7 +995,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(experimenter6, experimenterGroup2.getLinkedLeader(0));
      }
 
-    @Test (groups = {"links"}, dependsOnGroups = {"exper"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-exper"})
     public void testExperimenterGroup3Linkage() {
         Assert.assertNotNull(experimenterGroup3);
         Assert.assertEquals(0, experimenterGroup3.sizeOfLinkedExperimenterList());
@@ -1004,7 +1003,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(experimenter0, experimenterGroup3.getLinkedLeader(0));
      }
 
-    @Test (groups = {"links"}, dependsOnGroups = {"exper"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-exper"})
     public void testExperimenterGroup4Linkage() {
         Assert.assertNotNull(experimenterGroup4);
         Assert.assertEquals(0, experimenterGroup4.sizeOfLinkedExperimenterList());
@@ -1012,7 +1011,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(experimenter0, experimenterGroup4.getLinkedLeader(0));
      }
 
-    @Test (groups = {"links"}, dependsOnGroups = {"image", "exper", "roi", "annotation"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-image", "11-06-u-exper", "11-06-u-roi", "11-06-u-annotation"})
     public void testImage0Linkage() {
         Assert.assertNotNull(image0);
         Assert.assertEquals(0, image0.sizeOfLinkedAnnotationList());
@@ -1023,7 +1022,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(roi2, image0.getLinkedROI(2));
      }
 
-    @Test (groups = {"links"}, dependsOnGroups = {"proj", "annotation"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-proj", "11-06-u-annotation"})
     public void testProject0Linkage() {
         Assert.assertNotNull(project0);
         Assert.assertEquals(1, project0.sizeOfLinkedAnnotationList());
@@ -1032,7 +1031,7 @@ public class Schema2011_06_File_Upgrade_Test {
         Assert.assertEquals(xmlAnnotation0, project0.getLinkedAnnotation(0));
      }
     
-    @Test (groups = {"links"}, dependsOnGroups = {"image", "proj", "annotation"})
+    @Test (groups = {"11-06-u-links"}, dependsOnGroups = {"11-06-u-image", "11-06-u-proj", "11-06-u-annotation"})
     public void testDataset0Linkage() {
         Assert.assertNotNull(dataset0);
         Assert.assertEquals(1, dataset0.sizeOfLinkedAnnotationList());
