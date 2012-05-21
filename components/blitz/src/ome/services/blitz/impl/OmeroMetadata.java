@@ -254,7 +254,7 @@ public class OmeroMetadata extends DummyMetadata {
                     qb.select("i");
                     qb.from("Image","i");
                     qb.join("i.instrument",    "n",     true,  true);
-                    qb.join("n.objective",     "o",     true,  true);
+                    qb.join("n.objectives",    "o",     true,  true);
                     qb.join("o.correction",    "o_cor", true,  true);
                     qb.join("o.immersion",     "o_imm", true,  true);
                     qb.join("n.details.owner", "n_o",   true,  true);
