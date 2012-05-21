@@ -101,12 +101,18 @@ public abstract class ShapeData
 	protected List<Point2D.Double> parsePointsToPoint2DList(String str)
 	{
 		List<Point2D.Double> points = new ArrayList<Point2D.Double>();
-		StringTokenizer tt = new StringTokenizer(str, ",");
+		StringTokenizer tt = new StringTokenizer(str, " ");
 		int numTokens = tt.countTokens()/2;
-		for (int i = 0; i < numTokens; i++)
-			points.add(
-					new Point2D.Double(new Double(tt.nextToken()), new Double(
-						tt.nextToken())));
+		StringTokenizer t;
+		int n;
+		for (int i = 0; i < numTokens; i++) {
+			t = new StringTokenizer(tt.nextToken(), ",");
+			n = t.countTokens()/2;
+			for (int j = 0; j < n; j++) {
+				points.add(new Point2D.Double(new Double(t.nextToken()),
+						new Double(t.nextToken())));
+			}
+		}
 		return points;
 	}
 	
