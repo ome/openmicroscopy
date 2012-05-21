@@ -55,8 +55,7 @@ public class RenderingSettingsMoveTest
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
 
-	Image img = mmFactory.createImage();
-	img = (Image) iUpdate.saveAndReturnObject(img);
+	Image img = createBasicImage();
 	Pixels pixels = img.getPixels();
 	//method already tested in RenderingSettingsServiceTest
 	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
@@ -128,8 +127,7 @@ public class RenderingSettingsMoveTest
 	String permsDestination = "rw----";
 	EventContext ctx = newUserAndGroup("rwr---");
 
-	Image img = mmFactory.createImage();
-	img = (Image) iUpdate.saveAndReturnObject(img);
+	Image img = createBasicImage();
 	Pixels pixels = img.getPixels();
 	//method already tested in RenderingSettingsServiceTest
 	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
@@ -240,8 +238,7 @@ public class RenderingSettingsMoveTest
 	String permsDestination = "rwr---";
 	EventContext ctx = newUserAndGroup("rwr---");
 
-	Image img = mmFactory.createImage();
-	img = (Image) iUpdate.saveAndReturnObject(img);
+	Image img = createBasicImage();
 	Pixels pixels = img.getPixels();
 	//method already tested in RenderingSettingsServiceTest
 	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
