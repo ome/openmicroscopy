@@ -4243,7 +4243,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
             middleName = self.middleName
             
             if middleName is not None and middleName != '':
-                name = "%s %s. %s" % (firstName, middleName, lastName)
+                name = "%s %s %s" % (firstName, middleName, lastName)
             else:
                 name = "%s %s" % (firstName, lastName)
             return name

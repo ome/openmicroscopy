@@ -264,7 +264,7 @@ def usersData(conn, offset=0):
     usage_map = dict()
     exps = dict()
     for e in list(conn.getObjects("Experimenter")):
-        exps[e.id] = e.getFullName()
+        exps[e.id] = e.getNameWithInitial()
         
     PAGE_SIZE = 1000
     offset = long(offset)
