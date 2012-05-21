@@ -89,8 +89,7 @@ public class HierarchyMoveTest
 	String perms = "rw----";
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
 	long id = img.getId().getValue();
 	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_IMAGE, id,
 			null, g.getId().getValue()));
@@ -120,8 +119,7 @@ public class HierarchyMoveTest
 		String perms = "rw----";
 		EventContext ctx = newUserAndGroup(perms);
 		ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
-		Image img = mmFactory.createImage();
-		img = (Image) iUpdate.saveAndReturnObject(img);
+		Image img = createBasicImage();
 		Pixels pixels = img.getPixels();
 		long pixId = pixels.getId().getValue();
 		//method already tested in PixelsServiceTest
@@ -231,8 +229,7 @@ public class HierarchyMoveTest
     	EventContext ctx = newUserAndGroup(perms);
     	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
 
-    	Image image = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image image = createBasicImage();
     	ROI roi = new ROII();
     	roi.setImage(image);
     	Rectangle rect;
@@ -293,45 +290,41 @@ public class HierarchyMoveTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testMovePlate()
-	throws Exception
+    public void testMovePlate() throws Exception
     {
-	String perms = "rw----";
-	EventContext ctx = newUserAndGroup(perms);
-	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
-
-	Plate p;
-	List results;
-	PlateAcquisition pa = null;
-	StringBuilder sb;
-	Well well;
-	WellSample field;
-	Iterator j;
-		ParametersI param;
-		List<Long> wellSampleIds;
-		List<Long> imageIds;
-		p = (Plate) iUpdate.saveAndReturnObject(
-				mmFactory.createPlate(1, 1, 1, 1, false));
-		param = new ParametersI();
+		String perms = "rw----";
+		EventContext ctx = newUserAndGroup(perms);
+		ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+		
+		PlateAcquisition pa = null;
+		StringBuilder sb;
+		Well well;
+		WellSample field;
+		
+		Plate p = mmFactory.createPlate(1, 1, 1, 1, false);
+		p = savePlate(iUpdate, p, false);
+			
+		ParametersI param = new ParametersI();
 		param.addLong("plateID", p.getId().getValue());
 		sb = new StringBuilder();
 		sb.append("select well from Well as well ");
 		sb.append("left outer join fetch well.plate as pt ");
 		sb.append("left outer join fetch well.wellSamples as ws ");
 		sb.append("left outer join fetch ws.image as img ");
-        sb.append("where pt.id = :plateID");
-        results = iQuery.findAllByQuery(sb.toString(), param);
-
-        sb = new StringBuilder();
-        sb.append("select pa from PlateAcquisition as pa " +
-			"where pa.plate.id = :plateID");
-        pa = (PlateAcquisition) iQuery.findByQuery(sb.toString(), param);
-
-        j = results.iterator();
-        wellSampleIds = new ArrayList<Long>();
-        imageIds = new ArrayList<Long>();
-        Iterator<WellSample> k;
-        while (j.hasNext()) {
+	    sb.append("where pt.id = :plateID");
+	    List results = iQuery.findAllByQuery(sb.toString(), param);
+	
+	    sb = new StringBuilder();
+	    sb.append("select pa from PlateAcquisition as pa " +
+				"where pa.plate.id = :plateID");
+	    pa = (PlateAcquisition) iQuery.findByQuery(sb.toString(), param);
+	
+	    Iterator j = results.iterator();
+	    List<Long> wellSampleIds = new ArrayList<Long>();
+	    List<Long> imageIds = new ArrayList<Long>();
+	    
+	    Iterator<WellSample> k;
+	    while (j.hasNext()) {
 			well = (Well) j.next();
 			k = well.copyWellSamples().iterator();
 			while (k.hasNext()) {
@@ -341,10 +334,10 @@ public class HierarchyMoveTest
 				imageIds.add(field.getImage().getId().getValue());
 			}
 		}
-        //Now delete the plate
-      //Move the plate.
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
-			p.getId().getValue(), null, g.getId().getValue()));
+	        //Now delete the plate
+	      //Move the plate.
+		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+				p.getId().getValue(), null, g.getId().getValue()));
 
         //check the well
         param = new ParametersI();
@@ -422,24 +415,24 @@ public class HierarchyMoveTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testMovePlateNoPlateAcquisition()
-	throws Exception
+    public void testMovePlateNoPlateAcquisition() throws Exception
     {
-	String perms = "rw----";
-	EventContext ctx = newUserAndGroup(perms);
-	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
-
-	Plate p;
-	List results;
-	StringBuilder sb;
-	Well well;
-	WellSample field;
-	Iterator j;
+		String perms = "rw----";
+		EventContext ctx = newUserAndGroup(perms);
+		ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+		
+		List results;
+		StringBuilder sb;
+		Well well;
+		WellSample field;
+		Iterator j;
 		ParametersI param;
 		List<Long> wellSampleIds;
 		List<Long> imageIds;
-		p = (Plate) iUpdate.saveAndReturnObject(
-				mmFactory.createPlate(1, 1, 1, 0, false));
+
+		Plate p = mmFactory.createPlate(1, 1, 1, 0, false);
+		p = savePlate(iUpdate, p, false);
+		
 		param = new ParametersI();
 		param.addLong("plateID", p.getId().getValue());
 		sb = new StringBuilder();
@@ -465,8 +458,8 @@ public class HierarchyMoveTest
 			}
 		}
         //Now delete the plate
-      //Move the plate.
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+        //Move the plate.
+        doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
 			p.getId().getValue(), null, g.getId().getValue()));
 
         //check the well
@@ -496,7 +489,7 @@ public class HierarchyMoveTest
         assertTrue(results.size() == 0);
 
         loginUser(g);
-      //check the well
+        //check the well
         param = new ParametersI();
         param.addLong("plateID", p.getId().getValue());
         sb = new StringBuilder();
@@ -529,65 +522,67 @@ public class HierarchyMoveTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testMoveScreen()
-	throws Exception
+    public void testMoveScreen() throws Exception
     {
-	String perms = "rw----";
-	EventContext ctx = newUserAndGroup(perms);
-	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+		String perms = "rw----";
+		EventContext ctx = newUserAndGroup(perms);
+		ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	
+		Screen screen = (Screen) iUpdate.saveAndReturnObject(
+				mmFactory.simpleScreenData().asIObject());
+		//Plate w/o plate acquisition
 
-	Screen screen = (Screen) iUpdate.saveAndReturnObject(
-			mmFactory.simpleScreenData().asIObject());
-	//Plate w/o plate acquisition
-	Plate p1 = (Plate) iUpdate.saveAndReturnObject(
-			mmFactory.createPlate(1, 1, 1, 0, false));
-	//Plate with plate acquisition
-	Plate p2 = (Plate) iUpdate.saveAndReturnObject(
-			mmFactory.createPlate(1, 1, 1, 1, false));
-	List<IObject> links = new ArrayList<IObject>();
-	ScreenPlateLink link = new ScreenPlateLinkI();
-	link.setChild(p1);
-	link.setParent(screen);
-	links.add(link);
-	link = new ScreenPlateLinkI();
-	link.setChild(p2);
-	link.setParent(screen);
-	links.add(link);
-	iUpdate.saveAndReturnArray(links);
+		Plate p1 = mmFactory.createPlate(1, 1, 1, 0, false);
+		p1 = savePlate(iUpdate, p1, false);
 
-
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
-			screen.getId().getValue(), null, g.getId().getValue()));
-
-
-	List<Long> ids = new ArrayList<Long>();
-	ids.add(p1.getId().getValue());
-	ids.add(p2.getId().getValue());
-
-	//Check if the plates exist.
-	ParametersI param = new ParametersI();
-	param.addIds(ids);
-	String sql = "select i from Plate as i where i.id in (:ids)";
-	List results = iQuery.findAllByQuery(sql, param);
-	assertEquals(results.size(), 0);
-
-	param = new ParametersI();
-	param.addId(screen.getId().getValue());
-	sql = "select i from Screen as i where i.id = :id";
-	assertNull(iQuery.findByQuery(sql, param));
-
-	//Check that the data moved
-	loginUser(g);
-	param = new ParametersI();
-	param.addIds(ids);
-	sql = "select i from Plate as i where i.id in (:ids)";
-	results = iQuery.findAllByQuery(sql, param);
-	assertTrue(results.size() > 0);
-
-	param = new ParametersI();
-	param.addId(screen.getId().getValue());
-	sql = "select i from Screen as i where i.id = :id";
-	assertNotNull(iQuery.findByQuery(sql, param));
+		//Plate with plate acquisition
+		Plate p2 = mmFactory.createPlate(1, 1, 1, 1, false);
+		p2 = savePlate(iUpdate, p2, false);
+		
+		List<IObject> links = new ArrayList<IObject>();
+		ScreenPlateLink link = new ScreenPlateLinkI();
+		link.setChild(p1);
+		link.setParent(screen);
+		links.add(link);
+		link = new ScreenPlateLinkI();
+		link.setChild(p2);
+		link.setParent(screen);
+		links.add(link);
+		iUpdate.saveAndReturnArray(links);
+	
+	
+		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
+				screen.getId().getValue(), null, g.getId().getValue()));
+	
+	
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(p1.getId().getValue());
+		ids.add(p2.getId().getValue());
+	
+		//Check if the plates exist.
+		ParametersI param = new ParametersI();
+		param.addIds(ids);
+		String sql = "select i from Plate as i where i.id in (:ids)";
+		List results = iQuery.findAllByQuery(sql, param);
+		assertEquals(results.size(), 0);
+	
+		param = new ParametersI();
+		param.addId(screen.getId().getValue());
+		sql = "select i from Screen as i where i.id = :id";
+		assertNull(iQuery.findByQuery(sql, param));
+	
+		//Check that the data moved
+		loginUser(g);
+		param = new ParametersI();
+		param.addIds(ids);
+		sql = "select i from Plate as i where i.id in (:ids)";
+		results = iQuery.findAllByQuery(sql, param);
+		assertTrue(results.size() > 0);
+	
+		param = new ParametersI();
+		param.addId(screen.getId().getValue());
+		sql = "select i from Screen as i where i.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
     }
 
     /**
@@ -595,79 +590,81 @@ public class HierarchyMoveTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testMoveScreenWithReagent()
-	throws Exception
+    public void testMoveScreenWithReagent() throws Exception
     {
-	String perms = "rw----";
-	EventContext ctx = newUserAndGroup(perms);
-	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
-
-	Screen s = mmFactory.simpleScreenData().asScreen();
-	Reagent r = mmFactory.createReagent();
-	s.addReagent(r);
-	Plate p = mmFactory.createPlateWithReagent(1, 1, 1, r);
-	s.linkPlate(p);
-	s = (Screen) iUpdate.saveAndReturnObject(s);
-	long screenId = s.getId().getValue();
-	//reagent first
-	String sql = "select r from Reagent as r ";
-	sql += "join fetch r.screen as s ";
-	sql += "where s.id = :id";
-	ParametersI param = new ParametersI();
-	param.addId(screenId);
-	r = (Reagent) iQuery.findByQuery(sql, param);
-	long reagentID = r.getId().getValue();
-	//
-	sql = "select s from ScreenPlateLink as s ";
-	sql += "join fetch s.child as c ";
-	sql += "join fetch s.parent as p ";
-	sql += "where p.id = :id";
-	param = new ParametersI();
-	param.addId(screenId);
-	ScreenPlateLink link = (ScreenPlateLink) iQuery.findByQuery(sql, param);
-	p = link.getChild();
-	long plateID = p.getId().getValue();
-
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
-			screenId, null, g.getId().getValue()));
-
-	sql = "select r from Screen as r ";
-	sql += "where r.id = :id";
-	param = new ParametersI();
-	param.addId(screenId);
-	assertNull(iQuery.findByQuery(sql, param));
-
-	sql = "select r from Reagent as r ";
-	sql += "where r.id = :id";
-	param = new ParametersI();
-	param.addId(reagentID);
-	assertNull(iQuery.findByQuery(sql, param));
-
-	sql = "select r from Plate as r ";
-	sql += "where r.id = :id";
-	param = new ParametersI();
-	param.addId(plateID);
-	assertNull(iQuery.findByQuery(sql, param));
-
-	//Check data moved
-	loginUser(g);
-	sql = "select r from Screen as r ";
-	sql += "where r.id = :id";
-	param = new ParametersI();
-	param.addId(screenId);
-	assertNotNull(iQuery.findByQuery(sql, param));
-
-	sql = "select r from Reagent as r ";
-	sql += "where r.id = :id";
-	param = new ParametersI();
-	param.addId(reagentID);
-	assertNotNull(iQuery.findByQuery(sql, param));
-
-	sql = "select r from Plate as r ";
-	sql += "where r.id = :id";
-	param = new ParametersI();
-	param.addId(plateID);
-	assertNotNull(iQuery.findByQuery(sql, param));
+		String perms = "rw----";
+		EventContext ctx = newUserAndGroup(perms);
+		ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	
+		Screen s = mmFactory.simpleScreenData().asScreen();
+		Reagent r = mmFactory.createReagent();
+		s.addReagent(r);
+		
+		Plate p = mmFactory.createPlateWithReagent(1, 1, 1, r);
+		p = savePlate(iUpdate, p, false);
+		
+		s.linkPlate(p);
+		s = (Screen) iUpdate.saveAndReturnObject(s);
+		long screenId = s.getId().getValue();
+		//reagent first
+		String sql = "select r from Reagent as r ";
+		sql += "join fetch r.screens as s ";
+		sql += "where s.id = :id";
+		ParametersI param = new ParametersI();
+		param.addId(screenId);
+		r = (Reagent) iQuery.findByQuery(sql, param);
+		long reagentID = r.getId().getValue();
+		//
+		sql = "select s from ScreenPlateLink as s ";
+		sql += "join fetch s.child as c ";
+		sql += "join fetch s.parent as p ";
+		sql += "where p.id = :id";
+		param = new ParametersI();
+		param.addId(screenId);
+		ScreenPlateLink link = (ScreenPlateLink) iQuery.findByQuery(sql, param);
+		p = link.getChild();
+		long plateID = p.getId().getValue();
+	
+		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
+				screenId, null, g.getId().getValue()));
+	
+		sql = "select r from Screen as r ";
+		sql += "where r.id = :id";
+		param = new ParametersI();
+		param.addId(screenId);
+		assertNull(iQuery.findByQuery(sql, param));
+	
+		sql = "select r from Reagent as r ";
+		sql += "where r.id = :id";
+		param = new ParametersI();
+		param.addId(reagentID);
+		assertNull(iQuery.findByQuery(sql, param));
+	
+		sql = "select r from Plate as r ";
+		sql += "where r.id = :id";
+		param = new ParametersI();
+		param.addId(plateID);
+		assertNull(iQuery.findByQuery(sql, param));
+	
+		//Check data moved
+		loginUser(g);
+		sql = "select r from Screen as r ";
+		sql += "where r.id = :id";
+		param = new ParametersI();
+		param.addId(screenId);
+		assertNotNull(iQuery.findByQuery(sql, param));
+	
+		sql = "select r from Reagent as r ";
+		sql += "where r.id = :id";
+		param = new ParametersI();
+		param.addId(reagentID);
+		assertNotNull(iQuery.findByQuery(sql, param));
+	
+		sql = "select r from Plate as r ";
+		sql += "where r.id = :id";
+		param = new ParametersI();
+		param.addId(plateID);
+		assertNotNull(iQuery.findByQuery(sql, param));
     }
 
     /**
@@ -676,80 +673,81 @@ public class HierarchyMoveTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test(enabled = true)
-    public void testMovePlateWithReagent()
-	throws Exception
+    public void testMovePlateWithReagent() throws Exception
     {
-	String perms = "rw----";
-	EventContext ctx = newUserAndGroup(perms);
-	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
-
-	Screen s = mmFactory.simpleScreenData().asScreen();
-	Reagent r = mmFactory.createReagent();
-	s.addReagent(r);
-	Plate p = mmFactory.createPlateWithReagent(1, 1, 1, r);
-	s.linkPlate(p);
-	s = (Screen) iUpdate.saveAndReturnObject(s);
-	long screenId = s.getId().getValue();
-	//reagent first
-	String sql = "select r from Reagent as r ";
-	sql += "join fetch r.screen as s ";
-	sql += "where s.id = :id";
-	ParametersI param = new ParametersI();
-	param.addId(screenId);
-	r = (Reagent) iQuery.findByQuery(sql, param);
-	long reagentID = r.getId().getValue();
-	//
-	sql = "select s from ScreenPlateLink as s ";
-	sql += "join fetch s.child as c ";
-	sql += "join fetch s.parent as p ";
-	sql += "where p.id = :id";
-	param = new ParametersI();
-	param.addId(screenId);
-	ScreenPlateLink link = (ScreenPlateLink) iQuery.findByQuery(sql, param);
-	p = link.getChild();
-	long plateID = p.getId().getValue();
-	Map<String, String> options = new HashMap<String, String>();
-	options.put("/Well/WellReagentLink", DeleteServiceTest.FORCE);
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
-			plateID, null, g.getId().getValue()));
-
-	sql = "select r from Screen as r ";
-	sql += "where r.id = :id";
-	param = new ParametersI();
-	param.addId(screenId);
-	assertNotNull(iQuery.findByQuery(sql, param));
-
-	sql = "select r from Reagent as r ";
-	sql += "where r.id = :id";
-	param = new ParametersI();
-	param.addId(reagentID);
-	assertNotNull(iQuery.findByQuery(sql, param));
-
-	sql = "select r from Plate as r ";
-	sql += "where r.id = :id";
-	param = new ParametersI();
-	param.addId(plateID);
-	assertNull(iQuery.findByQuery(sql, param));
-
-	//Check move
-	loginUser(g);
-	sql = "select r from Screen as r ";
-	sql += "where r.id = :id";
-	param = new ParametersI();
-	param.addId(screenId);
-	assertNull(iQuery.findByQuery(sql, param));
-
-	sql = "select r from Reagent as r ";
-	sql += "where r.id = :id";
-	param = new ParametersI();
-	param.addId(reagentID);
-	assertNull(iQuery.findByQuery(sql, param));
-
-	sql = "select r from Plate as r ";
-	sql += "where r.id = :id";
-	param = new ParametersI();
-	param.addId(plateID);
-	assertNotNull(iQuery.findByQuery(sql, param));
+		String perms = "rw----";
+		EventContext ctx = newUserAndGroup(perms);
+		ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	
+		Screen s = mmFactory.simpleScreenData().asScreen();
+		Reagent r = mmFactory.createReagent();
+		s.addReagent(r);
+		Plate p = mmFactory.createPlateWithReagent(1, 1, 1, r);
+		p = savePlate(iUpdate, p, false);
+		
+		s.linkPlate(p);
+		s = (Screen) iUpdate.saveAndReturnObject(s);
+		long screenId = s.getId().getValue();
+		//reagent first
+		String sql = "select r from Reagent as r ";
+		sql += "join fetch r.screens as s ";
+		sql += "where s.id = :id";
+		ParametersI param = new ParametersI();
+		param.addId(screenId);
+		r = (Reagent) iQuery.findByQuery(sql, param);
+		long reagentID = r.getId().getValue();
+		//
+		sql = "select s from ScreenPlateLink as s ";
+		sql += "join fetch s.child as c ";
+		sql += "join fetch s.parent as p ";
+		sql += "where p.id = :id";
+		param = new ParametersI();
+		param.addId(screenId);
+		ScreenPlateLink link = (ScreenPlateLink) iQuery.findByQuery(sql, param);
+		p = link.getChild();
+		long plateID = p.getId().getValue();
+		Map<String, String> options = new HashMap<String, String>();
+		options.put("/Well/WellReagentLink", DeleteServiceTest.FORCE);
+		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PLATE,
+				plateID, null, g.getId().getValue()));
+	
+		sql = "select r from Screen as r ";
+		sql += "where r.id = :id";
+		param = new ParametersI();
+		param.addId(screenId);
+		assertNotNull(iQuery.findByQuery(sql, param));
+	
+		sql = "select r from Reagent as r ";
+		sql += "where r.id = :id";
+		param = new ParametersI();
+		param.addId(reagentID);
+		assertNotNull(iQuery.findByQuery(sql, param));
+	
+		sql = "select r from Plate as r ";
+		sql += "where r.id = :id";
+		param = new ParametersI();
+		param.addId(plateID);
+		assertNull(iQuery.findByQuery(sql, param));
+	
+		//Check move
+		loginUser(g);
+		sql = "select r from Screen as r ";
+		sql += "where r.id = :id";
+		param = new ParametersI();
+		param.addId(screenId);
+		assertNull(iQuery.findByQuery(sql, param));
+	
+		sql = "select r from Reagent as r ";
+		sql += "where r.id = :id";
+		param = new ParametersI();
+		param.addId(reagentID);
+		assertNull(iQuery.findByQuery(sql, param));
+	
+		sql = "select r from Plate as r ";
+		sql += "where r.id = :id";
+		param = new ParametersI();
+		param.addId(plateID);
+		assertNotNull(iQuery.findByQuery(sql, param));
     }
 
     /**
@@ -758,19 +756,19 @@ public class HierarchyMoveTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testDeletePlateWithROIMeasurements()
-		throws Exception
+    public void testDeletePlateWithROIMeasurements() throws Exception
 	{
-	String perms = "rw----";
-	EventContext ctx = newUserAndGroup(perms);
-	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
-
-	Plate p = (Plate) iUpdate.saveAndReturnObject(
-				mmFactory.createPlate(1, 1, 1, 0, false));
-	List<Well> results = loadWells(p.getId().getValue(), true);
-	Well well = (Well) results.get(0);
-	//create the roi.
-	Image image = well.copyWellSamples().get(0).getImage();
+		String perms = "rw----";
+		EventContext ctx = newUserAndGroup(perms);
+		ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	
+		Plate p = mmFactory.createPlate(1, 1, 1, 0, false);
+		p = savePlate(iUpdate, p, false);
+		
+		List<Well> results = loadWells(p.getId().getValue(), true);
+		Well well = (Well) results.get(0);
+		//create the roi.
+		Image image = well.copyWellSamples().get(0).getImage();
         ROI roi = new ROII();
         roi.setImage(image);
         Rectangle rect;
@@ -831,81 +829,78 @@ public class HierarchyMoveTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testMoveProject()
-	throws Exception
+    public void testMoveProject() throws Exception
     {
-	String perms = "rw----";
-	EventContext ctx = newUserAndGroup(perms);
-	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
-
-	Project p = (Project) iUpdate.saveAndReturnObject(
-			mmFactory.simpleProjectData().asIObject());
-	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-			mmFactory.simpleDatasetData().asIObject());
-	Image image1 = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.simpleImage(0));
-	Image image2 = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.simpleImage(0));
-	List<IObject> links = new ArrayList<IObject>();
-	DatasetImageLink link = new DatasetImageLinkI();
-	link.setChild(image1);
-	link.setParent(d);
-	links.add(link);
-
-	link = new DatasetImageLinkI();
-	link.setChild(image2);
-	link.setParent(d);
-	links.add(link);
-
-	ProjectDatasetLink l = new ProjectDatasetLinkI();
-	l.setChild(d);
-	l.setParent(p);
-	links.add(l);
-	iUpdate.saveAndReturnArray(links);
-
-	List<Long> ids = new ArrayList<Long>();
-	ids.add(image1.getId().getValue());
-	ids.add(image2.getId().getValue());
-
-
+		String perms = "rw----";
+		EventContext ctx = newUserAndGroup(perms);
+		ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	
+		Project p = (Project) iUpdate.saveAndReturnObject(
+				mmFactory.simpleProjectData().asIObject());
+		Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+				mmFactory.simpleDatasetData().asIObject());
+		Image image1 = createBasicImage();
+		Image image2 = createBasicImage();
+		List<IObject> links = new ArrayList<IObject>();
+		DatasetImageLink link = new DatasetImageLinkI();
+		link.setChild(image1);
+		link.setParent(d);
+		links.add(link);
+	
+		link = new DatasetImageLinkI();
+		link.setChild(image2);
+		link.setParent(d);
+		links.add(link);
+	
+		ProjectDatasetLink l = new ProjectDatasetLinkI();
+		l.setChild(d);
+		l.setParent(p);
+		links.add(l);
+		iUpdate.saveAndReturnArray(links);
+	
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(image1.getId().getValue());
+		ids.add(image2.getId().getValue());
+	
+	
         doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_PROJECT,
 			p.getId().getValue(), null, g.getId().getValue()));
-
-	//Check if objects have been deleted
-	ParametersI param = new ParametersI();
-	param.addIds(ids);
-	String sql = "select i from Image as i where i.id in (:ids)";
-	List results = iQuery.findAllByQuery(sql, param);
-	assertTrue(results.size() == 0);
-
-	param = new ParametersI();
-	param.addId(d.getId().getValue());
-	sql = "select i from Dataset as i where i.id = :id";
-	assertNull(iQuery.findByQuery(sql, param));
-
-	param = new ParametersI();
-	param.addId(p.getId().getValue());
-	sql = "select i from Project as i where i.id = :id";
-	assertNull(iQuery.findByQuery(sql, param));
-
-	//Log in to other group
-	loginUser(g);
-
-	param = new ParametersI();
-	param.addIds(ids);
-	sql = "select i from Image as i where i.id in (:ids)";
-	results = iQuery.findAllByQuery(sql, param);
-	assertEquals(results.size(), ids.size());
-
-	param = new ParametersI();
-	param.addId(d.getId().getValue());
-	sql = "select i from Dataset as i where i.id = :id";
-	assertNotNull(iQuery.findByQuery(sql, param));
-
-	param = new ParametersI();
-	param.addId(p.getId().getValue());
-	sql = "select i from Project as i where i.id = :id";
-	assertNotNull(iQuery.findByQuery(sql, param));
+	
+		//Check if objects have been deleted
+		ParametersI param = new ParametersI();
+		param.addIds(ids);
+		String sql = "select i from Image as i where i.id in (:ids)";
+		List results = iQuery.findAllByQuery(sql, param);
+		assertTrue(results.size() == 0);
+	
+		param = new ParametersI();
+		param.addId(d.getId().getValue());
+		sql = "select i from Dataset as i where i.id = :id";
+		assertNull(iQuery.findByQuery(sql, param));
+	
+		param = new ParametersI();
+		param.addId(p.getId().getValue());
+		sql = "select i from Project as i where i.id = :id";
+		assertNull(iQuery.findByQuery(sql, param));
+	
+		//Log in to other group
+		loginUser(g);
+	
+		param = new ParametersI();
+		param.addIds(ids);
+		sql = "select i from Image as i where i.id in (:ids)";
+		results = iQuery.findAllByQuery(sql, param);
+		assertEquals(results.size(), ids.size());
+	
+		param = new ParametersI();
+		param.addId(d.getId().getValue());
+		sql = "select i from Dataset as i where i.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+	
+		param = new ParametersI();
+		param.addId(p.getId().getValue());
+		sql = "select i from Project as i where i.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
     }
 
     /**
@@ -914,72 +909,72 @@ public class HierarchyMoveTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testMoveScreenWithSharedPlate()
-	throws Exception
+    public void testMoveScreenWithSharedPlate() throws Exception
     {
-	String perms = "rw----";
-	EventContext ctx = newUserAndGroup(perms);
-	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
-
-	Screen s1 = (Screen) iUpdate.saveAndReturnObject(
-			mmFactory.simpleScreenData().asIObject());
-
-	Screen s2 = (Screen) iUpdate.saveAndReturnObject(
-			mmFactory.simpleScreenData().asIObject());
-
-	//Plate w/o plate acquisition
-	Plate p1 = (Plate) iUpdate.saveAndReturnObject(
-			mmFactory.createPlate(1, 1, 1, 0, false));
-	//Plate with plate acquisition
-	List<IObject> links = new ArrayList<IObject>();
-	ScreenPlateLink link = new ScreenPlateLinkI();
-	link.setChild((Plate) p1.proxy());
-	link.setParent(s1);
-	links.add(link);
-	link = new ScreenPlateLinkI();
-	link.setChild((Plate) p1.proxy());
-	link.setParent(s2);
-	links.add(link);
-	iUpdate.saveAndReturnArray(links);
-
-
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
-			s1.getId().getValue(), null, g.getId().getValue()));
-
-
-	List<Long> ids = new ArrayList<Long>();
-	ids.add(p1.getId().getValue());
-
-	//Check if the plates exist.
-	ParametersI param = new ParametersI();
-	param.addIds(ids);
-	String sql = "select i from Plate as i where i.id in (:ids)";
-	List results = iQuery.findAllByQuery(sql, param);
-	assertEquals(results.size(), ids.size());
-
-	param = new ParametersI();
-	param.addId(s1.getId().getValue());
-	sql = "select i from Screen as i where i.id = :id";
-	assertNull(iQuery.findByQuery(sql, param));
-
-	param = new ParametersI();
-	param.addId(s2.getId().getValue());
-	assertNotNull(iQuery.findByQuery(sql, param));
-
-
-	loginUser(g);
-	param = new ParametersI();
-	param.addIds(ids);
-	//plate should not have moved.
-	sql = "select i from Plate as i where i.id in (:ids)";
-	results = iQuery.findAllByQuery(sql, param);
-	assertEquals(results.size(), 0);
-
-	//screen should move
-	param = new ParametersI();
-	param.addId(s1.getId().getValue());
-	sql = "select i from Screen as i where i.id = :id";
-	assertNotNull(iQuery.findByQuery(sql, param));
+		String perms = "rw----";
+		EventContext ctx = newUserAndGroup(perms);
+		ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	
+		Screen s1 = (Screen) iUpdate.saveAndReturnObject(
+				mmFactory.simpleScreenData().asIObject());
+	
+		Screen s2 = (Screen) iUpdate.saveAndReturnObject(
+				mmFactory.simpleScreenData().asIObject());
+	
+		//Plate w/o plate acquisition
+		Plate p1 = mmFactory.createPlate(1, 1, 1, 0, false);
+		p1 = savePlate(iUpdate, p1, false);
+		
+		//Plate with plate acquisition
+		List<IObject> links = new ArrayList<IObject>();
+		ScreenPlateLink link = new ScreenPlateLinkI();
+		link.setChild((Plate) p1.proxy());
+		link.setParent(s1);
+		links.add(link);
+		link = new ScreenPlateLinkI();
+		link.setChild((Plate) p1.proxy());
+		link.setParent(s2);
+		links.add(link);
+		iUpdate.saveAndReturnArray(links);
+	
+	
+		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_SCREEN,
+				s1.getId().getValue(), null, g.getId().getValue()));
+	
+	
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(p1.getId().getValue());
+	
+		//Check if the plates exist.
+		ParametersI param = new ParametersI();
+		param.addIds(ids);
+		String sql = "select i from Plate as i where i.id in (:ids)";
+		List results = iQuery.findAllByQuery(sql, param);
+		assertEquals(results.size(), ids.size());
+	
+		param = new ParametersI();
+		param.addId(s1.getId().getValue());
+		sql = "select i from Screen as i where i.id = :id";
+		assertNull(iQuery.findByQuery(sql, param));
+	
+		param = new ParametersI();
+		param.addId(s2.getId().getValue());
+		assertNotNull(iQuery.findByQuery(sql, param));
+	
+	
+		loginUser(g);
+		param = new ParametersI();
+		param.addIds(ids);
+		//plate should not have moved.
+		sql = "select i from Plate as i where i.id in (:ids)";
+		results = iQuery.findAllByQuery(sql, param);
+		assertEquals(results.size(), 0);
+	
+		//screen should move
+		param = new ParametersI();
+		param.addId(s1.getId().getValue());
+		sql = "select i from Screen as i where i.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
     }
 
     /**
@@ -988,71 +983,68 @@ public class HierarchyMoveTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testMoveDatasetWithSharedImage()
-	throws Exception
+    public void testMoveDatasetWithSharedImage() throws Exception
     {
-	String perms = "rw----";
-	EventContext ctx = newUserAndGroup(perms);
-	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
-
-	Dataset s1 = (Dataset) iUpdate.saveAndReturnObject(
-			mmFactory.simpleDatasetData().asIObject());
-
-	Dataset s2 = (Dataset) iUpdate.saveAndReturnObject(
-			mmFactory.simpleDatasetData().asIObject());
-
-	//Plate w/o plate acquisition
-	Image i1 = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.simpleImage(10));
-	//Plate with plate acquisition
-	List<IObject> links = new ArrayList<IObject>();
-	DatasetImageLink link = new DatasetImageLinkI();
-	link.setChild((Image) i1.proxy());
-	link.setParent(s1);
-	links.add(link);
-	link = new DatasetImageLinkI();
-	link.setChild((Image) i1.proxy());
-	link.setParent(s2);
-	links.add(link);
-	iUpdate.saveAndReturnArray(links);
-
-
-	doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_DATASET,
-			s1.getId().getValue(), null, g.getId().getValue()));
-
-
-	List<Long> ids = new ArrayList<Long>();
-	ids.add(i1.getId().getValue());
-
-
-	ParametersI param = new ParametersI();
-	param.addIds(ids);
-	String sql = "select i from Image as i where i.id in (:ids)";
-	List results = iQuery.findAllByQuery(sql, param);
-	assertEquals(results.size(), ids.size());
-
-	//S1 should have moved
-	param = new ParametersI();
-	param.addId(s1.getId().getValue());
-	sql = "select i from Dataset as i where i.id = :id";
-	assertNull(iQuery.findByQuery(sql, param));
-
-	param = new ParametersI();
-	param.addId(s2.getId().getValue());
-	assertNotNull(iQuery.findByQuery(sql, param));
-
-	//Check that the data moved
-	loginUser(g);
-	param = new ParametersI();
-	param.addIds(ids);
-	sql = "select i from Image as i where i.id in (:ids)";
-	results = iQuery.findAllByQuery(sql, param);
-	assertEquals(results.size(), 0);
-
-	param = new ParametersI();
-	param.addId(s1.getId().getValue());
-	sql = "select i from Dataset as i where i.id = :id";
-	assertNotNull(iQuery.findByQuery(sql, param));
+		String perms = "rw----";
+		EventContext ctx = newUserAndGroup(perms);
+		ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
+	
+		Dataset s1 = (Dataset) iUpdate.saveAndReturnObject(
+				mmFactory.simpleDatasetData().asIObject());
+	
+		Dataset s2 = (Dataset) iUpdate.saveAndReturnObject(
+				mmFactory.simpleDatasetData().asIObject());
+	
+		Image i1 = createBasicImage();
+		
+		List<IObject> links = new ArrayList<IObject>();
+		DatasetImageLink link = new DatasetImageLinkI();
+		link.setChild((Image) i1.proxy());
+		link.setParent(s1);
+		links.add(link);
+		link = new DatasetImageLinkI();
+		link.setChild((Image) i1.proxy());
+		link.setParent(s2);
+		links.add(link);
+		iUpdate.saveAndReturnArray(links);
+	
+	
+		doChange(new Chgrp(ctx.sessionUuid, DeleteServiceTest.REF_DATASET,
+				s1.getId().getValue(), null, g.getId().getValue()));
+	
+	
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(i1.getId().getValue());
+	
+	
+		ParametersI param = new ParametersI();
+		param.addIds(ids);
+		String sql = "select i from Image as i where i.id in (:ids)";
+		List results = iQuery.findAllByQuery(sql, param);
+		assertEquals(results.size(), ids.size());
+	
+		//S1 should have moved
+		param = new ParametersI();
+		param.addId(s1.getId().getValue());
+		sql = "select i from Dataset as i where i.id = :id";
+		assertNull(iQuery.findByQuery(sql, param));
+	
+		param = new ParametersI();
+		param.addId(s2.getId().getValue());
+		assertNotNull(iQuery.findByQuery(sql, param));
+	
+		//Check that the data moved
+		loginUser(g);
+		param = new ParametersI();
+		param.addIds(ids);
+		sql = "select i from Image as i where i.id in (:ids)";
+		results = iQuery.findAllByQuery(sql, param);
+		assertEquals(results.size(), 0);
+	
+		param = new ParametersI();
+		param.addId(s1.getId().getValue());
+		sql = "select i from Dataset as i where i.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
     }
 
 }
