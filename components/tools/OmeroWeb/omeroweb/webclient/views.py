@@ -298,10 +298,10 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         template = "webclient/data/container_tags.html"
     else:
         template = "webclient/%s/%s.html" % (menu,menu)
-    
-    if url is None:
-        url = reverse(viewname="load_template", args=[menu])
-    
+
+    # get url without request string - used to refresh page after switch user/group etc
+    url = reverse(viewname="load_template", args=[menu])
+
     #tree support
     init = {'initially_open':[], 'initially_select': None}
     # E.g. path=project=51|dataset=502|image=607:selected
@@ -371,6 +371,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     context['active_user'] = conn.getObject("Experimenter", long(user_id))
     
     context['isLeader'] = conn.isLeader()
+    context['current_url'] = url
     context['template'] = template
     return context
 
