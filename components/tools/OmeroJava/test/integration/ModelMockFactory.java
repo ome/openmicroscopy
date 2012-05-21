@@ -740,10 +740,10 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    public Plane createPlaneInfo()
+    public Plane createPlane()
    		throws Exception
     {
-        return createPlaneInfo(0, 0, 0);
+        return createPlane(0, 0, 0);
     }
     
     /**
@@ -755,15 +755,15 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    public Plane createPlaneInfo(int z, int t, int c)
+    public Plane createPlane(int z, int t, int c)
    		throws Exception
     {
-    	Plane planeInfo = new PlaneI();
-        planeInfo.setTheZ(omero.rtypes.rint(z));
-        planeInfo.setTheC(omero.rtypes.rint(c));
-        planeInfo.setTheT(omero.rtypes.rint(t));
-        planeInfo.setDeltaT(omero.rtypes.rdouble(0.5));
-        return planeInfo;
+    	Plane plane = new PlaneI();
+        plane.setTheZ(omero.rtypes.rint(z));
+        plane.setTheC(omero.rtypes.rint(c));
+        plane.setTheT(omero.rtypes.rint(t));
+        plane.setDeltaT(omero.rtypes.rdouble(0.5));
+        return plane;
     }
 	
 	/**
@@ -827,7 +827,7 @@ public class ModelMockFactory
 		for (int z = 0; z < sizeZ; z++) {
 		    for (int t = 0; t < sizeT; t++) {
 		        for (int c = 0; c < sizeC; c++) {
-		            pixels.addPlane(createPlaneInfo(z, t, c));
+		            pixels.addPlane(createPlane(z, t, c));
 		        }
 		    }
 		}
@@ -1032,6 +1032,7 @@ public class ModelMockFactory
                 well.setReagent(r);
                 for (int field = 0; field < fields; field++) {
                     sample = new WellSampleI();
+                    sample.setIndex(omero.rtypes.rint(field * row * column));
                     sample.setImage(createImage());
                     well.addWellSample(sample);
                 }
