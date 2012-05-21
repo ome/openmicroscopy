@@ -54,8 +54,8 @@ public class AnnotationMoveTest
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
 
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
+	
 	//Annotate the image.
 	List<Long> annotationIds = createNonSharableAnnotation(img, null);
 	//now move the image.
@@ -94,8 +94,8 @@ public class AnnotationMoveTest
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
 
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
+	
 	//Annotate the image.
 	List<Long> annotationIds = createSharableAnnotation(img, null);
 	//now move the image.
@@ -134,8 +134,8 @@ public class AnnotationMoveTest
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
 
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
+	
 	//Annotate the image.
 	List<Long> annotationIds = createSharableAnnotation(img, null);
 	//now move the image.
@@ -176,8 +176,7 @@ public class AnnotationMoveTest
     {
 	String permsDestination = "rw----";
 	EventContext ctx = newUserAndGroup("rwrw--");
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
 
 	long id = img.getId().getValue();
 	List<Long> annotationIdsUser1 = createNonSharableAnnotation(img, null);
@@ -245,8 +244,7 @@ public class AnnotationMoveTest
     {
 	String permsDestination = "rwr---";
 	EventContext ctx = newUserAndGroup("rwrw--");
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
 
 	long id = img.getId().getValue();
 	List<Long> annotationIdsUser1 = createNonSharableAnnotation(img, null);
@@ -312,8 +310,7 @@ public class AnnotationMoveTest
     {
 	String permsDestination = "rwrw--";
 	EventContext ctx = newUserAndGroup("rwrw--");
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
 
 	long id = img.getId().getValue();
 	List<Long> annotationIdsUser1 = createNonSharableAnnotation(img, null);
@@ -381,8 +378,7 @@ public class AnnotationMoveTest
     {
 	String permsDestination = "rwrw--";
 	EventContext ctx = newUserAndGroup("rwrw--");
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
 
 	long id = img.getId().getValue();
 	List<Long> annotationIdsUser1 = createNonSharableAnnotation(img, null);
@@ -443,10 +439,8 @@ public class AnnotationMoveTest
 	EventContext ctx = newUserAndGroup(perms);
 	ExperimenterGroup g = newGroupAddUser(perms, ctx.userId);
 
-	Image img1 = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
-	Image img2 = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img1 = createBasicImage();
+	Image img2 = createBasicImage();
 	//
 	TagAnnotation c = new TagAnnotationI();
 	c.setTextValue(omero.rtypes.rstring("tag"));

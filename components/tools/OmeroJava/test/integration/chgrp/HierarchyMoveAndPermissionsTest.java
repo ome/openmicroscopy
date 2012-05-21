@@ -58,8 +58,7 @@ public class HierarchyMoveAndPermissionsTest
 	//group and group owner.
 	EventContext ctx = newUserAndGroup(perms, true);
 	EventContext dataOwner = newUserInGroup();
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
 	long id = img.getId().getValue();
 	disconnect();
 	ctx = init(ctx);
@@ -98,8 +97,7 @@ public class HierarchyMoveAndPermissionsTest
 	//group and group owner.
 	EventContext ctx = newUserAndGroup(perms, true);
 	EventContext dataOwner = newUserInGroup();
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
 	long id = img.getId().getValue();
 	disconnect();
 	ctx = init(ctx);
@@ -136,8 +134,7 @@ public class HierarchyMoveAndPermissionsTest
 	//group and group owner.
 	EventContext ctx = newUserAndGroup(perms, true);
 	EventContext dataOwner = newUserInGroup();
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
 	long id = img.getId().getValue();
 	disconnect();
 	ctx = init(ctx);
@@ -175,8 +172,7 @@ public class HierarchyMoveAndPermissionsTest
         //group and group owner.
         EventContext ctx = newUserAndGroup(perms, true);
         EventContext dataOwner = newUserInGroup();
-        Image img = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
+        Image img = createBasicImage();
         long id = img.getId().getValue();
         disconnect();
         ctx = init(ctx);
@@ -214,8 +210,7 @@ public class HierarchyMoveAndPermissionsTest
         //group and group owner.
         EventContext oldGroupOwner = newUserAndGroup(perms, true);
         EventContext dataOwner = newUserInGroup();
-        Image img = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
+        Image img = createBasicImage();
         long id = img.getId().getValue();
         disconnect();
         oldGroupOwner = init(oldGroupOwner);
@@ -253,8 +248,7 @@ public class HierarchyMoveAndPermissionsTest
 	//group and group owner.
 	EventContext ctx = newUserAndGroup(perms, true);
 	EventContext dataOwner = newUserInGroup();
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
 	long id = img.getId().getValue();
 	disconnect();
 	ctx = init(ctx);
@@ -292,8 +286,7 @@ public class HierarchyMoveAndPermissionsTest
 	//group and group owner.
 	EventContext ctx = newUserAndGroup(perms, true);
 	EventContext dataOwner = newUserInGroup();
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
 	long id = img.getId().getValue();
 	disconnect();
 	ctx = init(ctx);
@@ -331,8 +324,7 @@ public class HierarchyMoveAndPermissionsTest
 	//group and group owner.
 	EventContext ctx = newUserAndGroup(perms, false);
 	EventContext dataOwner = newUserInGroup();
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
 	long id = img.getId().getValue();
 	disconnect();
 	ctx = init(ctx);
@@ -370,8 +362,7 @@ public class HierarchyMoveAndPermissionsTest
 	//group and group owner.
 	EventContext ctx = newUserAndGroup(perms, false);
 	EventContext dataOwner = newUserInGroup();
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
 	long id = img.getId().getValue();
 	disconnect();
 	ctx = init(ctx);
@@ -410,8 +401,7 @@ public class HierarchyMoveAndPermissionsTest
 	//new user
 	EventContext ctx = newUserAndGroup(perms, false);
 	EventContext dataOwner = newUserInGroup();
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
 	long id = img.getId().getValue();
 
 
@@ -456,8 +446,7 @@ public class HierarchyMoveAndPermissionsTest
 
         //new user
 	EventContext user2 = newUserInGroup(ctx);
-	Image image = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.simpleImage(10));
+	Image image = createImage(1,1,1,10,1,null);
 	long imageId = image.getId().getValue();
 	//now link the image and dataset.
 	DatasetImageLink link = new DatasetImageLinkI();
@@ -520,8 +509,7 @@ public class HierarchyMoveAndPermissionsTest
 
         //new user
 	EventContext user2 = newUserInGroup(ctx);
-	Image image = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.simpleImage(10));
+	Image image = createImage(1,1,1,10,1,null);
 	long imageId = image.getId().getValue();
 	//now link the image and dataset.
 	DatasetImageLink link = new DatasetImageLinkI();
@@ -585,8 +573,7 @@ public class HierarchyMoveAndPermissionsTest
         //new user
 	EventContext ctx2 = newUserInGroup(ctx);
 
-	Image image = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.simpleImage(10));
+	Image image = createImage(1,1,1,10,1,null);
 	long imageId = image.getId().getValue();
 	//now link the image and dataset.
 	DatasetImageLink link = new DatasetImageLinkI();
@@ -662,8 +649,7 @@ public class HierarchyMoveAndPermissionsTest
         //new user
 	EventContext ctx2 = newUserInGroup(ctx);
 
-	Image image = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.simpleImage(10));
+	Image image = createImage(1,1,1,10,1,null);
 	long imageId = image.getId().getValue();
 	//now link the image and dataset.
 	DatasetImageLink link = new DatasetImageLinkI();
@@ -739,8 +725,7 @@ public class HierarchyMoveAndPermissionsTest
 	disconnect();
 	loginUser(ctx1);
 	//user 1 owner of the image.
-	Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.createImage());
+	Image img = createBasicImage();
 	long id = img.getId().getValue();
 	disconnect();
 
