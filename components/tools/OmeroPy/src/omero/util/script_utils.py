@@ -45,7 +45,6 @@ import omero.util.pixelstypetopython as pixelstypetopython
 from omero.util.OmeroPopo import EllipseData as EllipseData
 from omero.util.OmeroPopo import RectangleData as RectangleData
 from omero.util.OmeroPopo import MaskData as MaskData
-from omero.util.OmeroPopo import WorkflowData as WorkflowData
 from omero.util.OmeroPopo import ROIData as ROIData
 
 
@@ -383,10 +382,10 @@ def readFlimImageFile(rawPixelsStore, pixels):
     sizeX = pixels.getSizeX().getValue();
     sizeY = pixels.getSizeY().getValue();
     id = pixels.getId().getValue();
-    pixelsType = pixels.getPixelsType().getValue().getValue();
+    pixelType = pixels.getType().getValue().getValue();
     rawPixelsStore.setPixelsId(id , False);
     cRange = range(0, sizeC);
-    stack = zeros((sizeC, sizeX, sizeY),dtype=pixelstypetopython.toNumpy(pixelsType));
+    stack = zeros((sizeC, sizeX, sizeY),dtype=pixelstypetopython.toNumpy(pixelType));
     for c in cRange:
         plane = downloadPlane(rawPixelsStore, pixels, 0, c, 0);
         stack[c,:,:]=plane;
@@ -394,7 +393,7 @@ def readFlimImageFile(rawPixelsStore, pixels):
     
 def downloadPlane(rawPixelsStore, pixels, z, c, t):
     """
-    Download the plane [z,c,t] for image pixels. Pixels must have pixelsType loaded. 
+    Download the plane [z,c,t] for image pixels. Pixels must have pixelType loaded. 
     N.B. The rawPixelsStore must have already been initialised by setPixelsId()
     @param rawPixelsStore The rawPixelStore service to get the image.
     @param pixels The pixels of the image.
@@ -408,7 +407,7 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
     sizeX = pixels.getSizeX().getValue();
     sizeY = pixels.getSizeY().getValue();
     pixelsId = pixels.getId().getValue();
-    pixelType = pixels.getPixelsType().getValue().getValue();
+    pixelType = pixels.getType().getValue().getValue();
     convertType ='>'+str(sizeX*sizeY)+pixelstypetopython.toPython(pixelType);
     convertedPlane = unpack(convertType, rawPlane);
     numpyType = pixelstypetopython.toNumpy(pixelType)
@@ -535,13 +534,13 @@ def uploadDirAsImages(sf, queryService, updateService, pixelsService, path, data
     else:
         plane = getPlaneFromImage(fullpath)
     pType = plane.dtype.name
-    # look up the PixelsType object from DB
-    pixelsType = queryService.findByQuery(\
-        "from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
-    if pixelsType == None and pType.startswith("float"):    # e.g. float32
-        pixelsType = queryService.findByQuery(\
-            "from PixelsType as p where p.value='%s'" % "float", None) # omero::model::PixelsType
-    if pixelsType == None:
+    # look up the PixelType object from DB
+    pixelType = queryService.findByQuery(\
+        "from PixelType as p where p.value='%s'" % pType, None) # omero::model::PixelType
+    if pixelType == None and pType.startswith("float"):    # e.g. float32
+        pixelType = queryService.findByQuery(\
+            "from PixelType as p where p.value='%s'" % "float", None) # omero::model::PixelType
+    if pixelType == None:
         SU_LOG.warn("Unknown pixels type for: %s" % pType)
         return
     sizeY, sizeX = plane.shape
@@ -551,7 +550,7 @@ def uploadDirAsImages(sf, queryService, updateService, pixelsService, path, data
     # code below here is very similar to combineImages.py
     # create an image in OMERO and populate the planes with numpy 2D arrays
     channelList = range(sizeC)
-    imageId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
+    imageId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelType, imageName, description)
     params = omero.sys.ParametersI()
     params.addId(imageId)
     pixelsId = queryService.projection(\
@@ -725,7 +724,7 @@ def split_image(client, imageId, dir, unformattedImageName = "tubulin_P037_T%05d
     except:
         import Image
 
-    query_string = "select p from Pixels p join fetch p.image as i join fetch p.pixelsType where i.id='%s'" % imageId
+    query_string = "select p from Pixels p join fetch p.image as i join fetch p.pixelType where i.id='%s'" % imageId
     pixels = queryService.findByQuery(query_string, None)
     sizeX = pixels.getSizeX().getValue()
     sizeY = pixels.getSizeY().getValue()
@@ -1012,7 +1011,7 @@ def createNewImage(session, plane2Dlist, imageName, description, dataset=None):
     containerService = session.getContainerService()
     
     pType = plane2Dlist[0].dtype.name
-    pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+    pixelType = queryService.findByQuery("from PixelType as p where p.value='%s'" % pType, None) # omero::model::PixelType
     
     theC, theT = (0,0)
     
@@ -1025,12 +1024,12 @@ def createNewImage(session, plane2Dlist, imageName, description, dataset=None):
     # get some other dimensions and create the image.
     channelList = [theC]  # omero::sys::IntList
     sizeZ, sizeT = (len(plane2Dlist),1)
-    iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
+    iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelType, imageName, description)
     imageId = iId.getValue()
     image = containerService.getImages("Image", [imageId], None)[0]
     
     # upload plane data
-    pixelsId = image.getPrimaryPixels().getId().getValue()
+    pixelsId = image.getPixels().getId().getValue()
     rawPixelStore.setPixelsId(pixelsId, True)
     for theZ, plane2D in enumerate(plane2Dlist):
         minValue = min(minValue, plane2D.min())

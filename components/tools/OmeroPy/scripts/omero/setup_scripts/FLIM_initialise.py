@@ -42,7 +42,6 @@ from omero.rtypes import *
 from omero.util.OmeroPopo import EllipseData as EllipseData
 from omero.util.OmeroPopo import RectData as RectData
 from omero.util.OmeroPopo import MaskData as MaskData
-from omero.util.OmeroPopo import WorkflowData as WorkflowData
 from omero.util.OmeroPopo import ROIData as ROIData
 from omero.util.OmeroPopo import ROICoordinate as ROICoordinate
 
