@@ -412,18 +412,30 @@ public class OMEROMetadataStoreClient
         }
 
         // Blitz services
-        iAdmin = (IAdminPrx) serviceFactory.getAdminService().ice_context(callCtx);
-        iQuery = (IQueryPrx) serviceFactory.getQueryService().ice_context(callCtx);
+        iAdmin = serviceFactory.getAdminService();
+        iQuery = serviceFactory.getQueryService();
+        iUpdate = serviceFactory.getUpdateService();
+        rawFileStore = serviceFactory.createRawFileStore();
+        rawPixelStore = serviceFactory.createRawPixelsStore();
+        thumbnailStore = serviceFactory.createThumbnailStore();
+        iRepoInfo = serviceFactory.getRepositoryInfoService();
+        iContainer = serviceFactory.getContainerService();
+        iSettings = serviceFactory.getRenderingSettingsService();
+        delegate = MetadataStorePrxHelper.checkedCast(
+                serviceFactory.getByName(METADATASTORE.value));
+        if (!callCtx.isEmpty()) {
+            iAdmin = (IAdminPrx) iAdmin.ice_context(callCtx);
+            iQuery = (IQueryPrx) iQuery.ice_context(callCtx);
+            iUpdate = (IUpdatePrx) iUpdate.ice_context(callCtx);
+            rawFileStore = (RawFileStorePrx) rawFileStore.ice_context(callCtx);
+            rawPixelStore = (RawPixelsStorePrx) rawPixelStore.ice_context(callCtx);
+            thumbnailStore = (ThumbnailStorePrx) thumbnailStore.ice_context(callCtx);
+            iRepoInfo = (IRepositoryInfoPrx) iRepoInfo.ice_context(callCtx);
+            iContainer = (IContainerPrx) iContainer.ice_context(callCtx);
+            iSettings = (IRenderingSettingsPrx) iSettings.ice_context(callCtx);
+            delegate = (MetadataStorePrx) delegate.ice_context(callCtx);
+        }
         eventContext = iAdmin.getEventContext();
-        iUpdate = (IUpdatePrx) serviceFactory.getUpdateService().ice_context(callCtx);
-        rawFileStore = (RawFileStorePrx) serviceFactory.createRawFileStore().ice_context(callCtx);
-        rawPixelStore = (RawPixelsStorePrx) serviceFactory.createRawPixelsStore().ice_context(callCtx);
-        thumbnailStore = (ThumbnailStorePrx) serviceFactory.createThumbnailStore().ice_context(callCtx);
-        iRepoInfo = (IRepositoryInfoPrx) serviceFactory.getRepositoryInfoService().ice_context(callCtx);
-        iContainer = (IContainerPrx) serviceFactory.getContainerService().ice_context(callCtx);
-        iSettings = (IRenderingSettingsPrx) serviceFactory.getRenderingSettingsService().ice_context(callCtx);
-        delegate = (MetadataStorePrx) MetadataStorePrxHelper.checkedCast(
-                serviceFactory.getByName(METADATASTORE.value)).ice_context(callCtx);
 
         // Client side services
         enumProvider = new IQueryEnumProvider(iQuery);
