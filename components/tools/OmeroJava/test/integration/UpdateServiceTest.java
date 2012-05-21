@@ -1705,7 +1705,7 @@ public class UpdateServiceTest
     	
     	//reagent first
     	String sql = "select r from Reagent as r ";
-    	sql += "join fetch r.screen as s ";
+    	sql += "join fetch r.screens as s ";
     	sql += "where s.id = :id";
     	ParametersI param = new ParametersI();
     	param.addId(s.getId().getValue());
