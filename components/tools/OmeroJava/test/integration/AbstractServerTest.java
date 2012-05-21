@@ -92,6 +92,8 @@ import omero.model.Project;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectAnnotationLinkI;
 import omero.model.QuantumDef;
+import omero.model.ROI;
+import omero.model.ROII;
 import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
@@ -1573,9 +1575,16 @@ public class AbstractServerTest
 
 	protected Image createImage(int x, int y, int z, int time,
 			int channels, String name) throws Exception {
+		return createImageWithROI(x,y,z,time,channels,name, null);
+	}
+	
+	protected Image createImageWithROI(int x, int y, int z, int time,
+			int channels, String name, ROI roi) throws Exception {
 
 		Image image = mmFactory.createImage(x, y, z, time, channels);
-		
+        if(roi != null)
+        	image.linkROI(roi);
+        
 		if(name != null)
 			image.setName(omero.rtypes.rstring(name));
 			

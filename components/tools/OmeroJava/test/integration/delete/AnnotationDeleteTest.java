@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import ome.model.roi.Rectangle;
 import omero.RLong;
 import omero.RString;
 import omero.api.delete.DeleteCommand;
@@ -34,6 +35,8 @@ import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Plane;
 import omero.model.ROI;
+import omero.model.ROII;
+import omero.model.RectangleI;
 import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
 
@@ -187,7 +190,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
     public void testOtherUsersRatingsIsDeleted() throws Exception {
 
         EventContext owner = newUserAndGroup("rwrw--");
-        Image i1 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
+        Image i1 = createBasicImage();
         disconnect();
 
         newUserInGroup(owner);
@@ -241,8 +244,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
     @Test(groups = { "ticket:3002" })
     public void testAnnotationsRemovedFromChannel() throws Exception {
         newUserAndGroup("rw----");
-        Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .createImage());
+        Image image = createBasicImage();
         Channel ch = image.getPixels().copyChannels().get(0);
         annotateSaveDeleteAndCheck(ch, DeleteServiceTest.REF_IMAGE,
                 image.getId());
@@ -270,8 +272,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
     @Test(groups = { "ticket:3002" })
     public void testAnnotationsRemovedFromPixels() throws Exception {
         newUserAndGroup("rw----");
-        Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .createImage());
+        Image image = createBasicImage();
         Pixels pixels = image.getPixels();
         annotateSaveDeleteAndCheck(pixels, DeleteServiceTest.REF_IMAGE,
                 image.getId());
@@ -285,8 +286,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
     @Test(groups = { "ticket:3002" })
     public void testAnnotationsRemovedFromPlaneInfo() throws Exception {
         newUserAndGroup("rw----");
-        Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .createImage());
+        Image image = createBasicImage();
         Plane info = image.getPixels().copyPlanes().get(0);
         annotateSaveDeleteAndCheck(info, DeleteServiceTest.REF_IMAGE,
                 image.getId());
@@ -300,10 +300,33 @@ public class AnnotationDeleteTest extends AbstractServerTest {
     @Test(groups = { "ticket:3002" })
     public void testAnnotationsRemovedFromRoi() throws Exception {
         newUserAndGroup("rw----");
-        Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
-                .createImageWithRoi());
-        ROI roi = image.copyRoiLinks().get(0).getChild();
-        annotateSaveDeleteAndCheck(roi, DeleteServiceTest.REF_ROI, roi.getId());
+        
+        RectangleI rect = new RectangleI();
+        rect.setHeight(omero.rtypes.rdouble(1.0));
+        rect.setWidth(omero.rtypes.rdouble(1.0));
+        rect.setX(omero.rtypes.rdouble(1.0));
+        rect.setY(omero.rtypes.rdouble(1.0));
+        
+        ROI roi = new ROII();
+        roi.addShape(rect);
+        
+        Image image = createImageWithROI(1,1,1,1,1,null,roi);
+        ROI returnedROI = image.copyRoiLinks().get(0).getChild();
+        
+        annotateSaveDeleteAndCheck(returnedROI, DeleteServiceTest.REF_ROI, returnedROI.getId());
+    }
+    
+    /**
+     * Returns an Image with a Roi and one Rect attached.
+     * @return
+     */
+    public Image createImageWithRoi() throws Exception
+    {
+        ROI roi = new ROII();
+        roi.addShape(new RectangleI());
+        Image image = createBasicImage();
+        image.linkROI(roi);
+        return image;
     }
     
 }
