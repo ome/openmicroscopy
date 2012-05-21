@@ -662,6 +662,9 @@ class TreeViewerModel
 		if (toKeep.size() == 0) return;
 		state = TreeViewer.SETTINGS_RND;
 		SecurityContext ctx = getSecurityContext();
+		if (ctx == null) {
+			ctx = new SecurityContext(refImage.getGroupId());
+		}
 		currentLoader = new RndSettingsSaver(component, ctx, klass, toKeep, 
 								refImage.getDefaultPixels().getId());
 		currentLoader.load();

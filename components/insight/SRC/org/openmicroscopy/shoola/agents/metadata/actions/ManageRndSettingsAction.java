@@ -77,7 +77,7 @@ public class ManageRndSettingsAction
 	public static final int SAVE = 6;
 	
 	/** The description of the action if {@link #SET_OWNER_SETTING}. */
-	public static final String NAME_OWNER = "Viewed by";
+	public static final String NAME_OWNER = "Saved by";
 
 	/** The description of the action if {@link #SAVE}. */
 	public static final String NAME_SAVE = "Apply";

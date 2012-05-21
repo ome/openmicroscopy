@@ -578,11 +578,20 @@ class DocComponent
 				FileAnnotationData f = (FileAnnotationData) data;
 				String fileName = f.getFileName();
 				String s = fileName;
-				if (FileAnnotationData.MEASUREMENT_NS.equals(fileName)) {
-					label.setText(f.getDescription());
+				if (FileAnnotationData.MEASUREMENT_NS.equals(f.getNameSpace())) {
+					String desc = f.getDescription();
+					if (desc != null && desc.trim().length() > 0)
+						label.setText(desc);
+					else {
+						label.setText(UIUtilities.formatPartialName(
+								EditorUtil.getPartialName(fileName)));
+					}
 					s = label.getText();
-				} else label.setText(UIUtilities.formatPartialName(
-						EditorUtil.getPartialName(fileName)));
+				} else {
+					label.setText(UIUtilities.formatPartialName(
+							EditorUtil.getPartialName(fileName)));
+				}
+						
 				label.setToolTipText(formatTootTip(f, s));
 				Iterator<CustomizedFileFilter> i = FILTERS.iterator();
 				CustomizedFileFilter filter;
@@ -670,7 +679,7 @@ class DocComponent
 		if (infoButton != null) count++;
 		if (openButton != null) count++;
 		if (deleteButton != null) count++;
-		if (count > 0) {
+		if (count > 0 && data != null) {
 			menuButton.setEnabled(true);
 			if (model.isAcrossGroups()) menuButton.setEnabled(false);
 			bar.add(menuButton);
@@ -873,6 +882,8 @@ class DocComponent
 			TagAnnotationData tag = (TagAnnotationData) data;
 			label.setText(tag.getTagValue());
 			label.setToolTipText(formatTootTip(tag, null));
+			originalName = tag.getTagValue();
+			originalDescription = tag.getTagDescription();
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
 		} else if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			if (data == null) return;

@@ -2107,7 +2107,7 @@ class BrowserUI
 		if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
 			ExperimenterData exp = TreeViewerAgent.getUserDetails();
 			TreeImageDisplay node = buildTreeNodes(exp);
-            if (model.isSelected() && node != null) expandNode(node, true);
+            //if (model.isSelected() && node != null) expandNode(node, true);
         }
 		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
 		tm.reload();

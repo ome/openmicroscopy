@@ -182,6 +182,21 @@ public interface MetadataHandlerView
 			AgentEventListener observer);
 
 	/**
+	 * Loads the existing annotations defined by the annotation type
+	 * linked to a given type of object.
+	 * Loads all the annotations if the object's type is <code>null</code>.
+	 * 
+	 * @param ctx The security contexts.
+	 * @param annotation 	The annotation type. Mustn't be <code>null</code>.
+	 * @param userID		The id of the user the annotations are owned by,
+	 * 						or <code>-1</code> if no user specified.
+	 * @param observer  	Call-back handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadExistingAnnotations(List<SecurityContext> ctx, 
+			Class annotation, long userID, AgentEventListener observer);
+	
+	/**
 	 * Saves the object, adds (resp. removes) annotations to (resp. from)
 	 * the object if any.
 	 * 

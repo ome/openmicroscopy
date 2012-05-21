@@ -144,17 +144,22 @@ class GroupForm(NonASCIIForm):
     def __init__(self, name_check=False, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
         self.name_check=name_check
-        help_text = None
         try:
             if kwargs['initial']['owners']: pass
             self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['owners'], required=False)
-            help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group. This will take some time for large groups and could break the server.</div>"
         except:
             self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
         
-        self.fields['permissions'] = forms.ChoiceField(choices=self.PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text=help_text)
+        try:
+            if kwargs['initial']['members']: pass
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['members'], required=False)
+        except:
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
         
-        self.fields.keyOrder = ['name', 'description', 'owners', 'permissions', 'readonly']
+        
+        self.fields['permissions'] = forms.ChoiceField(choices=self.PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
+        
+        self.fields.keyOrder = ['name', 'description', 'owners', 'members', 'permissions', 'readonly']
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}))
     description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}), required=False)    

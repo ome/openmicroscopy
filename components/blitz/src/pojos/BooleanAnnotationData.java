@@ -138,7 +138,7 @@ public class BooleanAnnotationData extends AnnotationData {
             throw new IllegalArgumentException("Object must be of type "
                     + "Boolean");
         }
-
+        setDirty(true);
         omero.RBool b = rbool(((Boolean) content).booleanValue());
         ((BooleanAnnotation) asAnnotation()).setBoolValue(b);
     }

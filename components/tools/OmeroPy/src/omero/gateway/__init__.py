@@ -3640,7 +3640,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
             sql+=" and pa.id in (:pids)" 
             
         for al in self._conn.getQueryService().findAllByQuery(sql, p, self._conn.CONFIG['SERVICE_OPTS']):
-            yield AnnotationLinkWrapper(self, al)
+            yield AnnotationLinkWrapper(self._conn, al)
 
 class _AnnotationLinkWrapper (BlitzObjectWrapper):
     """
@@ -4243,7 +4243,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
             middleName = self.middleName
             
             if middleName is not None and middleName != '':
-                name = "%s %s. %s" % (firstName, middleName, lastName)
+                name = "%s %s %s" % (firstName, middleName, lastName)
             else:
                 name = "%s %s" % (firstName, lastName)
             return name
@@ -7027,7 +7027,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return: Boolean
         """
         
-        if not self.isEditable():
+        if not self.canAnnotate():
             return False
         ns = self._conn.CONFIG.get('IMG_ROPTSNS', None)
         if ns:
@@ -7039,7 +7039,6 @@ class _ImageWrapper (BlitzObjectWrapper):
             self.linkAnnotation(ann)
         sopts = dict(self._conn.CONFIG['SERVICE_OPTS'] or {})
         sopts['omero.group'] = str(self.getDetails().getGroup().getId())
-        sopts['omero.user'] = str(self.getDetails().getOwner().getId())
         self._re.saveCurrentSettings(sopts)
         return True
 

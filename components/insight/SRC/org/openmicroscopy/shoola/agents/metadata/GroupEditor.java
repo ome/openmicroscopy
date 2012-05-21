@@ -73,7 +73,7 @@ public class GroupEditor
     public GroupEditor(MetadataViewer viewer, SecurityContext ctx,
     		GroupData group, int permissions)
     {
-    	super(viewer, null);
+    	super(viewer, ctx);
     	if (group == null)
     		throw new IllegalArgumentException("No group to edit.");
     	this.group = group;

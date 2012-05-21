@@ -593,7 +593,6 @@ class AnnotationDataUI
 				loadThumbnails = 
 					new LinkedHashMap<FileAnnotationData, Object>();
 			DataObject data;
-			List<Long> immutable;
 			switch (filter) {
 				case SHOW_ALL:
 					while (i.hasNext()) {
@@ -630,26 +629,6 @@ class AnnotationDataUI
 							}
 						}
 					}
-					/*
-					immutable = model.getImmutableAnnotationIds();
-					while (i.hasNext()) {
-						data = (DataObject) i.next();
-						if (!toReplace.contains(data)) {
-							doc = new DocComponent(data, model);
-							doc.addPropertyChangeListener(controller);
-							filesDocList.add(doc);
-							if (immutable.contains(data.getId())) {
-								if (doc.hasThumbnailToLoad()) {
-									loadThumbnails.put(
-											(FileAnnotationData) data, doc);
-								}
-								docPane.add(doc);
-								v = doc.getPreferredSize().height;
-								if (h < v) h = v;
-							}
-						}
-					}
-					*/
 					break;
 				case ADDED_BY_ME:
 					while (i.hasNext()) {
@@ -669,26 +648,6 @@ class AnnotationDataUI
 							}
 						}
 					}
-					/*
-					immutable = model.getImmutableAnnotationIds();
-					while (i.hasNext()) {
-						data = (DataObject) i.next();
-						if (!toReplace.contains(data)) {
-							doc = new DocComponent(data, model);
-							doc.addPropertyChangeListener(controller);
-							filesDocList.add(doc);
-							if (!immutable.contains(data.getId())) {
-								if (doc.hasThumbnailToLoad()) {
-									loadThumbnails.put(
-											(FileAnnotationData) data, doc);
-								}
-								docPane.add(doc);
-								v = doc.getPreferredSize().height;
-								if (h < v) h = v;
-							}
-						}
-					}
-					*/
 			}
 			//load the thumbnails 
 			/*
@@ -733,7 +692,6 @@ class AnnotationDataUI
 			Iterator i = list.iterator();
 			int width = 0;
 			JPanel p = initRow();
-			List<Long> immutable;
 			DataObject data;
 			switch (filter) {
 				case SHOW_ALL:
@@ -772,49 +730,8 @@ class AnnotationDataUI
 							p.add(doc);
 						}
 					}
-					/*
-					immutable = model.getImmutableAnnotationIds();
-					while (i.hasNext()) {
-						data = (DataObject) i.next();
-						doc = new DocComponent(data, model);
-						doc.addPropertyChangeListener(controller);
-						tagsDocList.add(doc);
-						if (!immutable.contains(data.getId())) {
-							if (width+doc.getPreferredSize().width 
-									>= COLUMN_WIDTH) {
-								tagsPane.add(p);
-								p = initRow();
-								width = 0;
-							} else {
-								width += doc.getPreferredSize().width;
-								width += 2;
-							}
-							p.add(doc);
-						}
-					}
-					*/
 					break;
 				case ADDED_BY_OTHERS:
-					/*
-					immutable = model.getImmutableAnnotationIds();
-					while (i.hasNext()) {
-						data = (DataObject) i.next();
-						doc = new DocComponent(data, model);
-						doc.addPropertyChangeListener(controller);
-						tagsDocList.add(doc);
-						if (immutable.contains(data.getId())) {
-							if (width+doc.getPreferredSize().width 
-									>= COLUMN_WIDTH) {
-								tagsPane.add(p);
-								p = initRow();
-								width = 0;
-							} else {
-								width += doc.getPreferredSize().width;
-								width += 2;
-							}
-							p.add(doc);
-						}
-					}*/
 					while (i.hasNext()) {
 						data = (DataObject) i.next();
 						doc = new DocComponent(data, model);

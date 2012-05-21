@@ -213,22 +213,22 @@ class ToolBar
 		lineConnectionProperties = new FigureProperties(
 				defaultConnectionAttributes);
 		ellipseTool = new DrawingObjectCreationTool(new MeasureEllipseFigure(
-				false, true));
+				false, true, true, true, true));
 		rectTool = new DrawingObjectCreationTool(new MeasureRectangleFigure(
-				false, true));
+				false, true, true, true, true));
 		textTool = new DrawingObjectCreationTool(
 				new MeasureTextFigure(false, true));
 		lineTool = new DrawingObjectCreationTool(
-				new MeasureLineFigure(false, true));
+				new MeasureLineFigure(false, true, true, true, true));
 		connectionTool = new DrawingConnectionTool(
 						new MeasureLineConnectionFigure(), 
 						lineConnectionProperties.getProperties());
 		pointTool = new DrawingPointCreationTool(
-				new MeasurePointFigure(false, true));
+				new MeasurePointFigure(false, true, true, true, true));
 	    polygonTool = new DrawingBezierTool(
-	    		new MeasureBezierFigure(true, false, true));
+	    		new MeasureBezierFigure(true, false, true, true, true, true));
 	    polylineTool = new DrawingBezierTool(
-	    		new MeasureBezierFigure(false, false, true));
+	    		new MeasureBezierFigure(false, false, true, true, true, true));
 	    
 	    Component component;
 	    
@@ -434,13 +434,13 @@ class ToolBar
 			Boolean value;
 			while (i.hasNext()) {
 				figure = i.next();
-				if (!figure.isReadOnly()) {
+				//if (!figure.isReadOnly()) {
 					value = MeasurementAttributes.SHOWTEXT.get(figure);
 					if (value != null && value.booleanValue()) {
 						b = value.booleanValue();
 						break;
 					}
-				}
+				//}
 			}
 			showTextButton.setSelected(b);
 		}

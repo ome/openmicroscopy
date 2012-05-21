@@ -171,6 +171,9 @@ class ImViewerComponent
     /** The color changes preview.*/
     private Map<Integer, Color>				colorChanges;
     
+    /** Flag indicating that it was not possible to save the settings.*/
+    private boolean failureToSave;
+    
 	/**
 	 * Creates and returns an image including the ROI
 	 * 
@@ -290,16 +293,9 @@ class ImViewerComponent
 	private boolean saveOnClose(boolean notifyUser)
 	{
 		if (!canAnnotate()) return true;
+		if (failureToSave) return true;
 		if (!notifyUser) {
-			//savePlane();
-			try {
-				saveRndSettings();
-			} catch (Exception e) {
-				LogMessage logMsg = new LogMessage();
-				logMsg.println("Cannot save rendering settings. ");
-				logMsg.print(e);
-				ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
-			}
+			saveRndSettings();
 			return true;
 		}
 		boolean showBox = false;
@@ -614,6 +610,18 @@ class ImViewerComponent
     	fireStateChange();
     }
     
+    /**
+     * Returns <code>true</code> if some settings to save, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+	boolean hasSettingsToSave()
+	{
+		if (failureToSave) return false;
+		return !isOriginalSettings();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#activate(RndProxyDef, long)
@@ -2202,6 +2210,7 @@ class ImViewerComponent
 			model.copyRenderingSettings();
 			saveBeforeCopy = true;
 		} catch (Exception e) {
+			failureToSave = true;
 			Logger logger = ImViewerAgent.getRegistry().getLogger();
 			LogMessage logMsg = new LogMessage();
 			logMsg.print("Rendering Exception:");
@@ -2296,9 +2305,17 @@ class ImViewerComponent
     {
     	try {
     		model.saveRndSettings(true);
+    		failureToSave = false;
 		} catch (Exception e) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Save settings", "Cannot save rendering settings. ");
+			Logger logger = ImViewerAgent.getRegistry().getLogger();
+			LogMessage msg = new LogMessage();
+	        msg.print("Save rendering settings");
+	        msg.print(e);
+	        logger.error(this, msg);
+	        failureToSave = true;
+	        //post event indicating no settings to save
 		}
 		
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();

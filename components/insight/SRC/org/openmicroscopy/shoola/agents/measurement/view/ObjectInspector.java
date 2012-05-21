@@ -164,7 +164,8 @@ class ObjectInspector
 							fieldTable.getModel();
 						ROIFigure figure = ftm.getFigure();
 						if (figure != null && !figure.isReadOnly())
-							controller.showColorPicker((Color) value);
+							if (figure.canEdit())
+								controller.showColorPicker((Color) value);
 					} else if (value instanceof Boolean) {
 						toggleValue();
 					}
@@ -311,7 +312,8 @@ class ObjectInspector
 			FigureTableModel ftm = (FigureTableModel) 
 			fieldTable.getModel();
 			ROIFigure f = ftm.getFigure();
-			if (f != null && !f.isReadOnly() && f == figure)
+			//if (f != null && !f.isReadOnly() && f == figure)
+			if (f != null && f == figure)
 				fieldTable.getModel().setValueAt(show, SHOW_TEXT_ROW, 1);
 		}
 	}

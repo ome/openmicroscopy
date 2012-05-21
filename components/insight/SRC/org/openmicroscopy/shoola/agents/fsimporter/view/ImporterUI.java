@@ -472,6 +472,16 @@ class ImporterUI
 		return element;
 	}
 	
+	/** Resets the import.*/
+	void reset()
+	{
+		int n = tabs.getComponentCount();
+		for (int i = 1; i < n; i++) {
+			tabs.remove(i);
+		}
+		uiElements.clear();
+	}
+	
 	/**
 	 * Modifies the icon corresponding to the specified component when 
 	 * the import has ended.

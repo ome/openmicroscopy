@@ -257,7 +257,7 @@ public class TreeViewerAgent
      * @return See above.
      */
     public static boolean isRunAsPlugin() { return runAsPlugin() > 0; }
-    
+	
     /**
      * Handles the {@link CopyRndSettings} event.
      * 

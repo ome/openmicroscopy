@@ -45,8 +45,8 @@ $(document).ready(function() {
             } else {
                 url = '{% url webindex %}metadata_acquisition/'+orel+'/'+oid.split("-")[1]+'/?index='+well_index;
             }
-            $metadata_preview.html("<h1 style='padding: 20px 15px'><img src='{% static 'webgateway/img/spinner.gif' %}'/> Loading metadata...</h1>");
-            $metadata_preview.load(url);
+            $metadata_acquisition.html("<h1 style='padding: 20px 15px'><img src='{% static 'webgateway/img/spinner.gif' %}'/> Loading metadata...</h1>");
+            $metadata_acquisition.load(url);
         };
     };
     

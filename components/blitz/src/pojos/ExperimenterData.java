@@ -100,10 +100,7 @@ public class ExperimenterData extends DataObject {
      */
     public String getFirstName() {
         omero.RString n = asExperimenter().getFirstName();
-        if (n == null || n.getValue() == null) {
-            throw new IllegalStateException(
-                    "The name should never have been null");
-        }
+        if (n == null || n.getValue() == null) return "";
         return n.getValue();
     }
 
@@ -125,10 +122,7 @@ public class ExperimenterData extends DataObject {
      */
     public String getLastName() {
         omero.RString n = asExperimenter().getLastName();
-        if (n == null || n.getValue() == null) {
-            throw new IllegalStateException(
-                    "The name should never have been null");
-        }
+        if (n == null || n.getValue() == null) return "";
         return n.getValue();
     }
 

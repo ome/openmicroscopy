@@ -270,7 +270,7 @@ class ExperimenterPane
     		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
     		p.add(UIUtilities.buildComponentPanel(
     				UIUtilities.setTextFont("Select the group(s) to add the " +
-    				"Experimenter to")));
+    				"User to")));
     		p.add(selectionComponent);
     		c.gridy++;
     		add(new JSeparator(), c);
@@ -309,11 +309,11 @@ class ExperimenterPane
 		ExperimenterData data = new ExperimenterData();
 		field = items.get(EditorUtil.FIRST_NAME);
 		String value = field.getText().trim();
-		if (value.length() == 0) value = s;
+		if (value.length() == 0) value = "";
 		data.setFirstName(value);
 		field = items.get(EditorUtil.LAST_NAME);
 		value = field.getText().trim();
-		if (value.length() == 0) value = s;
+		if (value.length() == 0) value = "";
 		data.setLastName(value);
 		field = items.get(EditorUtil.MIDDLE_NAME);
 		value = field.getText();
