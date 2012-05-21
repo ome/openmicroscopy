@@ -368,6 +368,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     context['active_group'] = conn.getObject("ExperimenterGroup", long(active_group))
     for g in context['groups']:
         g.groupSummary()    # load leaders / members
+    context['active_user'] = conn.getObject("Experimenter", long(user_id))
     
     context['isLeader'] = conn.isLeader()
     context['template'] = template
