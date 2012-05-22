@@ -6601,6 +6601,7 @@ class OMEROGateway
 			List<Long> deleted = new ArrayList<Long>();
 			Image unloaded = new ImageI(imageID, false);
 			Roi rr;
+			int z, t;
 			for (ROIData roi : roiList)
 			{
 				/*
@@ -6636,9 +6637,11 @@ class OMEROGateway
 					for (int i = 0 ; i < serverRoi.sizeOfShapes(); i++) {
 						s = serverRoi.getShape(i);
 						if (s != null) {
-							serverCoordMap.put(new ROICoordinate(
-								s.getTheZ().getValue(), s.getTheT().getValue()),
-								s);
+							z = 0;
+							t = 0;
+							if (s.getTheZ() != null) z = s.getTheZ().getValue();
+							if (s.getTheT() != null) t = s.getTheT().getValue();
+							serverCoordMap.put(new ROICoordinate(z, t), s);
 						}
 					}
 				}
@@ -6727,12 +6730,18 @@ class OMEROGateway
 								{
 									if (serverRoi != null) 
 									{
+										z = 0;
+										t = 0;
 										serverShape = serverRoi.getShape(j);
 										if (serverShape != null) {
-											if (serverShape.getTheT().getValue()
-												== shape.getT() && 
-												serverShape.getTheZ().getValue()
-												== shape.getZ())
+											if (serverShape.getTheT() != null)
+												t = 
+												serverShape.getTheT().getValue();
+											if (serverShape.getTheZ() != null)
+												z = 
+												serverShape.getTheZ().getValue();
+											if (t == shape.getT() && 
+												z == shape.getZ())
 											{
 												shapeIndex = j;
 												break;
@@ -6743,7 +6752,8 @@ class OMEROGateway
 								if (shapeIndex !=-1) {
 									if (!removed.contains(coord))
 										updateService.deleteObject(serverShape);
-									serverRoi.addShape((Shape) shape.asIObject());
+									serverRoi.addShape(
+											(Shape) shape.asIObject());
 								} else {
 									throw new Exception("serverRoi.shapeList " +
 										"is corrupted");
