@@ -69,19 +69,20 @@ class GTest(unittest.TestCase):
         self.failUnless(self.gateway.keepAlive(), 'Could not send keepAlive to connection')
     
     def doDisconnect(self):
-        if self._has_connected:
+        if self._has_connected and self.gateway:
             self.doConnect()
             self.gateway.seppuku()
             self.assert_(not self.gateway.isConnected(), 'Can not disconnect')
         self.gateway = None
         self._has_connected = False
 
-    def doLogin (self, user, groupname=None):
+    def doLogin (self, user=None, groupname=None):
         self.doDisconnect()
         if user:
             self.gateway = dbhelpers.login(user, groupname)
         else:
             self.gateway = dbhelpers.loginAsPublic()
+        self.doConnect()
 
     def loginAsAdmin (self):
         self.doLogin(self.ADMIN)
