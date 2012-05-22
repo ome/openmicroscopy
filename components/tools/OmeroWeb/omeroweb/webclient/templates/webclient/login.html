@@ -62,7 +62,7 @@
 
 
 <div id="login">
-    <form class="standard_form inlined" action="{% url weblogin %}{% if url %}?url={{url}}{% endif %}" method="post">
+    <form class="standard_form inlined" action="{% url weblogin %}{% if url %}?{{url}}{% endif %}" method="post">
         
 			
             {% if error %}
@@ -118,9 +118,7 @@
                   {% endfor %}
 				{% endif %}
 			</div>
-            
-        <!-- <tr><td>{% if form.user_name.errors %}{{ form.user_name.errors }}{% endif %}{{ form.user_name.help_text|safe }}</td> -->
-			
+
         	<input type="submit" value="Login" />
     </form>
 </div>

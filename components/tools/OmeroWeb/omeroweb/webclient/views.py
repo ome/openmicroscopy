@@ -59,6 +59,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpRespons
 from django.shortcuts import render_to_response
 from django.template import RequestContext as Context
 from django.utils import simplejson
+from django.utils.http import urlencode
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
 from django.core.urlresolvers import reverse
@@ -161,12 +162,13 @@ def login(request):
     
     if request.method == 'POST' and server_id is not None:
         s = Server.get(server_id)
-        if not _isServerOn(s.host, s.port):
-            error = "Server is not responding, please contact administrator."
-        elif not _checkVersion(s.host, s.port):
-            error = "Client version does not match server, please contact administrator."
-        else:
-            error = "Connection not available, please check your user name and password."
+        if s is not None:
+            if not _isServerOn(s.host, s.port):
+                error = "Server is not responding, please contact administrator."
+            elif not _checkVersion(s.host, s.port):
+                error = "Client version does not match server, please contact administrator."
+            else:
+                error = "Connection not available, please check your user name and password."
     url = request.REQUEST.get("url")
     
     template = "webclient/login.html"
@@ -177,9 +179,9 @@ def login(request):
         else:
             form = LoginForm()
         
-    context = {"version": omero_version, 'error':error, 'form':form, 'url': url}
+    context = {"version": omero_version, 'error':error, 'form':form}
     if url is not None and len(url) != 0:
-        context['url'] = url
+        context['url'] = urlencode({'url':url})
     
     t = template_loader.get_template(template)
     c = Context(request, context)
