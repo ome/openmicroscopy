@@ -158,7 +158,10 @@ public class TaskBarManager
     private ScreenLoginDialog 		login;
     
     /** Flag indicating if the connection was successful or not. */
-    private boolean					success;
+    private boolean success;
+    
+    /** Dialog to reconnect to server.*/
+    private ScreenLoginDialog reconnectDialog;
     
 	/** 
 	 * Parses the passed file to determine the value of the URL.
@@ -486,12 +489,11 @@ public class TaskBarManager
 			splashLogin = IconManager.getLoginBackground();
     	
     	
-		ScreenLoginDialog dialog = new ScreenLoginDialog(Container.TITLE, 
-				splashLogin, 
-    			img, v, port);
-		dialog.resetLoginText("Reconnect");
-		dialog.showConnectionSpeed(true);
-		dialog.addPropertyChangeListener(new PropertyChangeListener() {
+		reconnectDialog = new ScreenLoginDialog(Container.TITLE, 
+				splashLogin, img, v, port);
+		reconnectDialog.resetLoginText("Reconnect");
+		reconnectDialog.showConnectionSpeed(true);
+		reconnectDialog.addPropertyChangeListener(new PropertyChangeListener() {
 			
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
@@ -505,9 +507,10 @@ public class TaskBarManager
 				}
 			}
 		});
-		dialog.setModal(true);
-		UIUtilities.centerAndShow(dialog);
-		dialog.requestFocusOnField();
+		//dialog.setModal(true);
+		UIUtilities.centerAndShow(reconnectDialog);
+		reconnectDialog.requestFocusOnField();
+		reconnectDialog.setAlwaysOnTop(true);
 		if (success) {
 			container.getRegistry().getEventBus().post(new ReconnectedEvent());
 			success = false;
@@ -544,6 +547,10 @@ public class TaskBarManager
 	 */
 	private void doExit(boolean askQuestion, SecurityContext ctx)
     {
+		if (reconnectDialog != null) {
+			exitApplication(null);
+			return;
+		}
 		Environment env = (Environment) 
 			container.getRegistry().lookup(LookupNames.ENV);
 		String title = CLOSE_APP_TITLE;
@@ -606,6 +613,7 @@ public class TaskBarManager
 	 */
 	private void exitApplication(SecurityContext ctx)
 	{
+		reconnectDialog = null;
 		//Change group if context not null
 		if (ctx != null) {
 			try {

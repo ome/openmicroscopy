@@ -59,7 +59,6 @@ public class ScreenLoginDialog
 	private void setProperties()
 	{
 		setTitle(view.getTitle());
-		setModal(true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setUndecorated(true);
