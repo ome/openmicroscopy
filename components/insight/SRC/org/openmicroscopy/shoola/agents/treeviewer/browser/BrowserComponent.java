@@ -453,8 +453,8 @@ class BrowserComponent
             	}
             	TreeImageDisplay node = getLoggedExperimenterNode();
             	if (node != null) {
-            		if (model.isSingleGroup()) node.setExpanded(true);
-                	else {
+            		//if (model.isSingleGroup()) node.setExpanded(true);
+                	if (!model.isSingleGroup()) {
                 		TreeImageDisplay p = node.getParentDisplay();
                 		if (p != null) p.setExpanded(true);
                 	}
@@ -1908,8 +1908,8 @@ class BrowserComponent
 	{
 		view.reActivate();
 		if (!model.isSelected()) return;
-		model.setState(NEW);
-		activate();
+		//model.setState(NEW);
+		//activate();
 	}
 
 	/**
