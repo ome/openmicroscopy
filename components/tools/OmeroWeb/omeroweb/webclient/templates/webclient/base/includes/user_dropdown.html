@@ -24,7 +24,7 @@
             <span>{{ ome.user.getFullName }}</span>
         </div>
         <ul class="dropdown">
-            <li id="user_settings"><a href="{% url wamyaccount 'edit' %}" title="Account Settings"> Account Settings</a></li>
+            <li id="user_settings"><a href="{% url wamyaccount 'edit' %}" title="User settings"> User settings</a></li>
 			<!-- Help -->
             <li id="help"><a href="#" onclick="return openPopup('{% url csend %}')">Help</a></li>
 			<li id="logout"><a href="{% url weblogout %}">Logout</a></li>
