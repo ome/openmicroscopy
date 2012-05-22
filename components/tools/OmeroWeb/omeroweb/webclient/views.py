@@ -1922,7 +1922,7 @@ def getObjectUrl(conn, obj):
 
     if isinstance(obj, omero.model.DatasetI):
         blitz_obj = conn.getObject("Dataset", obj.id.val)
-        for p in dataset.listParents():
+        for p in blitz_obj.listParents():
             url = "%s?path=project=%d|dataset=%d" % (base_url, p.id, blitz_obj.id)
             break
 
