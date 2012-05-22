@@ -501,9 +501,12 @@ public class TaskBarManager
 					exitApplication(null);
 				else if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
 					LoginCredentials lc = (LoginCredentials) evt.getNewValue();
-					if (lc != null) 
+					
+					if (lc != null) {
 						collectCredentials(lc, 
 								(ScreenLoginDialog) evt.getSource());
+						reconnectDialog = null;
+					}
 				}
 			}
 		});
@@ -837,6 +840,11 @@ public class TaskBarManager
 				//needed b/c need to retrieve user's details later.
 	            container.getRegistry().bind(LookupNames.USER_CREDENTIALS, uc);
 	            dialog.close();
+	            if (dialog == reconnectDialog) {
+	            	reconnectDialog = null;
+	            	container.getRegistry().getEventBus().post(
+	            			new ReconnectedEvent());
+	            }
 	            success = true;
 	            break;
 			case LoginService.TIMEOUT:
