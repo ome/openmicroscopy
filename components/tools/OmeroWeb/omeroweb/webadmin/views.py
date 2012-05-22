@@ -431,7 +431,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                                 'middle_name':experimenter.middleName, 'last_name':experimenter.lastName,
                                 'email':experimenter.email, 'institution':experimenter.institution,
                                 'administrator': experimenter.isAdmin(), 'active': experimenter.isActive(), 
-                                'default_group': defaultGroup.id, 'other_groups':[g.id for g in otherGroups],
+                                'default_group': defaultGroup, 'other_groups':[g.id for g in otherGroups],
                                 'groups':otherGroupsInitialList(groups)}
         
         form = ExperimenterForm(initial=initial)
@@ -569,8 +569,8 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         ownerIds = [e.id for e in group.getOwners()]
         
         experimenterDefaultIds = list()
-        for e in (experimenters):
-            if e.getDefaultGroup().id == group.id:
+        for e in experimenters:
+            if e.getDefaultGroup() is not None and e.getDefaultGroup().id == group.id:
                 experimenterDefaultIds.append(str(e.id))
         experimenterDefaultGroups = ",".join(experimenterDefaultIds)
         
@@ -590,7 +590,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         else:
             experimenterDefaultIds = list()
             for e in (experimenters):
-                if e.getDefaultGroup().id == group.id:
+                if e.getDefaultGroup() is not None and e.getDefaultGroup().id == group.id:
                     experimenterDefaultIds.append(e.id)
             experimenterDefaultGroups = ",".join(experimenterDefaultIds)
             
