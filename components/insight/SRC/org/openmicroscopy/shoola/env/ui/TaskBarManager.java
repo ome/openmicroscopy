@@ -123,15 +123,7 @@ public class TaskBarManager
 	
 	/** The value of the tag to find. */
 	private static final String		A_TAG = "a";
-	
-	/** The title displayed before switching group. */
-	private static final String		SWITCH_GROUP_TITLE = "Switch Group";
-	
-	/** The text displayed before switching group. */
-	private static final String		SWITCH_GROUP_TEXT = 
-		"Switching group will remove data from the display. " +
-		"\nDo you want to continue?";
-	
+
 	/** The title displayed before closing the application. */
 	private static final String		CLOSE_APP_TITLE = "Exit Application";
 		
@@ -656,6 +648,7 @@ public class TaskBarManager
     			LookupNames.SOFTWARE_NAME);
         suDialog = new SoftwareUpdateDialog(view, message, refFile);
         suDialog.setTitle(TITLE_ABOUT+" "+title+"...");
+        suDialog.setAlwaysOnTop(true);
         suDialog.addPropertyChangeListener(
         		SoftwareUpdateDialog.OPEN_URL_PROPERTY, this);
         UIUtilities.centerAndShow(suDialog);
@@ -673,7 +666,7 @@ public class TaskBarManager
     private void forum()
     {
     	String path = (String) container.getRegistry().lookup(
-    						LookupNames.FORUM);
+    			LookupNames.FORUM);
     	openURL(path);
     }
     
