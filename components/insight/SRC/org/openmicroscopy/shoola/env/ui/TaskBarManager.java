@@ -490,14 +490,13 @@ public class TaskBarManager
 				splashLogin, 
     			img, v, port);
 		dialog.resetLoginText("Reconnect");
-		dialog.setQuitButtonText("Cancel");
 		dialog.showConnectionSpeed(true);
 		dialog.addPropertyChangeListener(new PropertyChangeListener() {
 			
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (ScreenLogin.QUIT_PROPERTY.equals(name))
-					((ScreenLoginDialog) evt.getSource()).close();
+					exitApplication(null);
 				else if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
 					LoginCredentials lc = (LoginCredentials) evt.getNewValue();
 					if (lc != null) 
