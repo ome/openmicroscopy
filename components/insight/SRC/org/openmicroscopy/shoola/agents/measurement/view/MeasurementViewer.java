@@ -297,8 +297,12 @@ public interface MeasurementViewer
 	 */
 	public String getViewTitle();
 
-	/** Saves the ROI to the server. */
-	public void saveROIToServer();
+	/**
+	 * Saves the ROI to the server. 
+	 * 
+	 * @param close Indicate to close or not the window after saving.
+	 */
+	public void saveROIToServer(boolean close);
 
 	/** 
 	 * Called when the results  have been loaded from the server.

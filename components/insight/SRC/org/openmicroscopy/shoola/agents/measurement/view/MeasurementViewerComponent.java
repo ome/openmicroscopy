@@ -209,7 +209,7 @@ class MeasurementViewerComponent
     /** Saves the ROI (not asynchronously) and discards. */
     void saveAndDiscard()
     {
-    	model.saveROIToServer(false);
+    	model.saveROIToServer(false, false);
     	model.saveWorkflowToServer(false);	
     	discard();
     }
@@ -514,9 +514,9 @@ class MeasurementViewerComponent
 	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#saveROIToServer()
+     * @see MeasurementViewer#saveROIToServer(boolean)
      */
-	public void saveROIToServer()
+	public void saveROIToServer(boolean close)
 	{
 		if (!canAnnotate()) return;
 		List<ROI> l = model.getROIToDelete();
@@ -539,13 +539,13 @@ class MeasurementViewerComponent
 				}
 			}
 			if (objects.size() == 0) {
-				model.saveROIToServer(true);
+				model.saveROIToServer(true, close);
 				//model.saveWorkflowToServer(true);
 			} else {
 				model.deleteAllROIs(objects);
 			}
 		} else {
-			model.saveROIToServer(true);
+			model.saveROIToServer(true, close);
 			//model.saveWorkflowToServer(true);
 		}
 		fireStateChange();

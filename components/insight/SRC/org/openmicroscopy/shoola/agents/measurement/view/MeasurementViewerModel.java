@@ -1121,8 +1121,9 @@ class MeasurementViewerModel
 	 * 
 	 * @param async Pass <code>true</code> to save the ROI asynchronously,
 	 * 				 <code>false</code> otherwise.
+	 * @param close Indicates to close the component if <code>true</code>.
 	 */
-	void saveROIToServer(boolean async)
+	void saveROIToServer(boolean async, boolean close)
 	{
 		try {
 			List<ROIData> roiList = getROIData();
@@ -1133,7 +1134,7 @@ class MeasurementViewerModel
 			roiComponent.reset();
 			if (async) {
 				currentSaver = new ROISaver(component, getSecurityContext(),
-						getImageID(), exp.getId(), roiList);
+						getImageID(), exp.getId(), roiList, close);
 				currentSaver.load();
 				state = MeasurementViewer.SAVING_ROI;
 				notifyDataChanged(false);
@@ -1148,6 +1149,8 @@ class MeasurementViewerModel
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot save to server "+e.getMessage());
+			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Save ROI", "Unable to save the ROIs");
 		}
 	}
 	

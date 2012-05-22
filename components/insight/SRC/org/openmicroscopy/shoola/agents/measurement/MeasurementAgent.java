@@ -188,7 +188,7 @@ public class MeasurementAgent
     	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(null,
     									evt.getPixelsID());
     	if (viewer != null && evt.getType() == SaveData.MEASUREMENT_TYPE) {
-    		viewer.saveROIToServer();
+    		viewer.saveROIToServer(true);
     		viewer.discard();
     	}
     }
