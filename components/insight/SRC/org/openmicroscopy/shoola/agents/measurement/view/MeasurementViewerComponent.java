@@ -418,12 +418,15 @@ class MeasurementViewerComponent
 			TreeMap map = list.getList();
 			Iterator i = map.values().iterator();
 			ROIShape shape;
+			ROIFigure fig;
 			while (i.hasNext()) {
 				shape = (ROIShape) i.next();
 				if (shape != null)
 				{
-					drawing.add(shape.getFigure());
-					shape.getFigure().addFigureListener(controller);
+					fig = shape.getFigure();
+					drawing.add(fig);
+					if (fig.canAnnotate())
+						fig.addFigureListener(controller);
 				}
 			}
 		}
@@ -526,7 +529,7 @@ class MeasurementViewerComponent
 			DeletableObject d;
 			while (i.hasNext()) {
 				roi = i.next();
-				if (!roi.isClientSide()) {
+				if (!roi.isClientSide() && roi.canDelete()) {
 					data = new ROIData();
 					data.setId(roi.getID());
 					data.setImage(model.getImage().asImage());
@@ -628,9 +631,11 @@ class MeasurementViewerComponent
 					f = shape.getFigure();
 					c = coord.getChannel();
 					if (c >= 0) {
-						f.removeFigureListener(controller);
-						f.setVisible(model.isChannelActive(c));
-						f.addFigureListener(controller);
+						if (f.canAnnotate()) {
+							f.removeFigureListener(controller);
+							f.setVisible(model.isChannelActive(c));
+							f.addFigureListener(controller);
+						}
 					}
 				}
 			}
@@ -842,7 +847,7 @@ class MeasurementViewerComponent
 					"be invoked in the LOADING_ROI state.");
 		try {
 			if (result != null) { //some ROI previously saved.
-				model.setServerROI(result, true);
+				model.setServerROI(result);
 			} 	
 		} catch (Exception e) {
 			String s = "Cannot convert server ROI into UI objects:";
@@ -895,7 +900,7 @@ class MeasurementViewerComponent
 			if (hasResult) {
 				//some ROI previously saved.
 				//result.ge
-				model.setServerROI(result, false);	
+				model.setServerROI(result);	
 			} else {
 				model.fireROILoading(null);
 				return;

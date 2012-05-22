@@ -45,19 +45,18 @@ $(document).ready(function() {
         // this may have been called before datatree was initialised...
         var datatree = $.jstree._focused();
         if (!datatree) return;
-
-        // we use the tree to access selected objects, since we can traverse to check parents etc...
-        var selected = datatree.data.ui.selected;
-        // ...but changes to field will be stored in $("body").data
-        //var s = $("body").data("selected_objects.ome");
-        //var well_index = s.length > 0 && s[0]["index"] || 0;
         
-
-        if (selected.length == 0) {
+        // if nothing selected, clear
+        var sel_objs = $("body").data("selected_objects.ome");
+        if (sel_objs.length == 0) {
             $("div#content_details").empty();
             $("div#content_details").removeAttr('rel');
             return;
         }
+        
+        // we use the tree to access selected objects, since we can traverse to check parents etc...
+        var selected = datatree.data.ui.selected;
+
         if (selected.length > 1) {
             // if any non-images are selected, clear the centre panel
             if (selected.filter('li:not([id|=image])').length > 0) {
@@ -160,7 +159,7 @@ $(document).ready(function() {
         else if (update.rel!==null && update.url!==null && need_refresh){
             if (page) update['url'] += "&page="+page;
             if ($content_details.is(":visible")) {
-                $("div#content_details").html('<p class="loading_center">Loading... please wait. <img src ="{% static "/webgateway/img/spinner_big.gif" %}"/></p>');
+                $("div#content_details").html('<p class="loading_center">Loading... please wait. <img src ="{% static "webgateway/img/spinner_big.gif" %}"/></p>');
                 $("div#content_details").attr('rel', update.rel);
                 $("div#content_details").load(update.url, function() {
                     syncPanels(selected);

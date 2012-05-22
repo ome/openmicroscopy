@@ -432,7 +432,16 @@ public class HandleI implements _HandleOperations, IHandle,
                 // The following would probably be better handled by a
                 // background thread, or via the heartbeat mechanism. For
                 // the moment, though we'll notify callbacks per decile.
-                if ((j % (status.steps/10)) == 0) {
+
+                int numOfCallbacks = 10; // TODO: configurable
+                int mod = 1;
+
+                // status.steps == 0 can't happen
+                if (status.steps > numOfCallbacks) {
+                    mod = (status.steps / numOfCallbacks);
+                }
+
+                if ((j % mod) == 0) {
                     notifyCallbacks();
                 }
 

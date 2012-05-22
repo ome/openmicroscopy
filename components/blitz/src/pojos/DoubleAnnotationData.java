@@ -87,6 +87,7 @@ public class DoubleAnnotationData
     public void setDataValue(double value)
     {
         omero.RDouble l = rdouble(value);
+        setDirty(true);
         ((DoubleAnnotation) asAnnotation()).setDoubleValue(l);
     }
 

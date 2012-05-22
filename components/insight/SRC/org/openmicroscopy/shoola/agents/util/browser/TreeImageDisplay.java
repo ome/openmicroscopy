@@ -40,6 +40,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -447,7 +449,7 @@ public abstract class TreeImageDisplay
         else if (obj instanceof ImageData) 
             return ((ImageData) obj).getName();
         else if (obj instanceof ExperimenterData) {
-        	return EditorUtil.getExperimenterName((ExperimenterData) obj);
+        	return EditorUtil.formatExperimenter((ExperimenterData) obj);
         } else if (obj instanceof GroupData) {
         	 return ((GroupData) obj).getName();
         } else if (obj instanceof TagAnnotationData)
@@ -457,9 +459,12 @@ public abstract class TreeImageDisplay
         else if (obj instanceof PlateData) {
         	PlateData plate = (PlateData) obj;
         	return plate.getName()+" ("+plate.getPlateType()+")";
-        } else if (obj instanceof FileAnnotationData)
-        	return ((FileAnnotationData) obj).getFileName();
-        else if (obj instanceof File)
+        } else if (obj instanceof FileAnnotationData) {
+        	String name = ((FileAnnotationData) obj).getFileName();
+        	if (name.trim().length() == 0) 
+        		return "ID: "+((FileAnnotationData) obj).getId();
+        	return name;
+        } else if (obj instanceof File)
         	return ((File) obj).getName();
         else if (obj instanceof FileData)
         	return ((FileData) obj).getName();
@@ -482,7 +487,7 @@ public abstract class TreeImageDisplay
         String name = getNodeName();
         Object uo = getUserObject();
         if (uo instanceof ImageData) {
-        	if (partialName) return EditorUtil.getPartialName(name);
+        	if (partialName) return UIUtilities.formatPartialName(name);
         	return name;
         } else if (uo instanceof ExperimenterData) return name;
         else if (uo instanceof FileAnnotationData) return name;

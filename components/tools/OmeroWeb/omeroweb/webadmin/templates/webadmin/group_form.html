@@ -26,7 +26,7 @@
     {{ block.super }}
     <link rel="stylesheet" href="{% static "webadmin/css/picklist.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen/chosen.css' %}" type="text/css" media="screen"/>
-
+    <link rel="stylesheet" href="{% static 'webadmin/css/chosen.css' %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block title %}
@@ -43,8 +43,20 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {
+                var highlightDefaultGroup = function() {
+                    var experimenterDefaultIds = [{{ experimenterDefaultGroups }}];
+                    var selected = $.grep($('#id_members').data('chosen').results_data, function(item){
+                        if ($.inArray(parseInt(item.value), experimenterDefaultIds) > -1) {
+                            $("#id_members_chzn_c_"+item.array_index).addClass('search-choice-default').find("a").first().unbind("click").remove();                            
+                        }
+                    });
+                }
+                
                 $("#id_owners").chosen();
-
+                $("#id_members").chosen();
+                
+                highlightDefaultGroup();
+                
                 var ch = $('#checkbox');
                 {% if gid %}
                     {% if permissions %}

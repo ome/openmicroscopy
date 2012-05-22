@@ -37,6 +37,7 @@ import javax.swing.SwingUtilities;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -93,7 +94,8 @@ public class SwitchUserAction
     	int level = model.getGroupPermissions(group);
     	boolean b = false;
 		if (level == GroupData.PERMISSIONS_PRIVATE) {
-			if (model.isLeaderOfGroup(group))
+			if (model.isLeaderOfGroup(group) ||
+					TreeViewerAgent.isAdministrator())
 				b = l.size() > 1;
 		} else {
 			b = l.size() > 1;

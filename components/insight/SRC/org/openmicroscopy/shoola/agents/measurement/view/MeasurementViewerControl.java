@@ -541,7 +541,8 @@ class MeasurementViewerControl
 		ROIFigure roiFigure = (ROIFigure) f;
 		roiFigure.setStatus(ROIFigure.MOVING);
 		view.addROI(roiFigure);
-		roiFigure.addFigureListener(this);
+		if (roiFigure.canAnnotate())
+			roiFigure.addFigureListener(this);
 		model.setDataChanged();
 		if (!view.inDataView()) return;
 		ROIShape shape = roiFigure.getROIShape();
@@ -611,8 +612,9 @@ class MeasurementViewerControl
 			view.onAttributeChanged(fig);
 			view.refreshInspectorTable();
 			model.figureAttributeChanged(e.getAttribute(), fig);
-			if (!fig.isReadOnly())
-				model.setDataChanged();
+			if (!fig.isReadOnly()) {
+				if (fig.canEdit()) model.setDataChanged();
+			}
 		}
 	}
 

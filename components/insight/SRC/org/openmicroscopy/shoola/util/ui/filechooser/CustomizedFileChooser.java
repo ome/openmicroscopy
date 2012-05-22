@@ -235,10 +235,12 @@ class CustomizedFileChooser
 		File[] l = getCurrentDirectory().listFiles();
 		String n = model.getExtendedName(fileName, format);
 		boolean exist = false;
-		for (int i = 0; i < l.length; i++) {
-			if ((l[i].getAbsolutePath()).equals(n)) {
-				exist = true;
-				break;
+		if (l != null) {
+			for (int i = 0; i < l.length; i++) {
+				if ((l[i].getAbsolutePath()).equals(n)) {
+					exist = true;
+					break;
+				}
 			}
 		}
 		setSelectedFile(null);

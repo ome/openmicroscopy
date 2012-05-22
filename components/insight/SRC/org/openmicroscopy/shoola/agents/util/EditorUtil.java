@@ -76,7 +76,6 @@ import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LightSourceData;
 import pojos.ObjectiveData;
-import pojos.PermissionData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
@@ -789,7 +788,13 @@ public class EditorUtil
 	public static String formatExperimenter(ExperimenterData exp)
 	{
 		if (exp == null) return "";
-		return exp.getFirstName()+" "+exp.getLastName();
+		String s1 = exp.getFirstName();
+		String s2 = exp.getLastName();
+		if (s1.trim().length() == 0 && s2.trim().length() == 0)
+			return exp.getUserName();
+		if (s1.length() == 0) return s2;
+		if (s2.length() == 0) return s1;
+		return s1+" "+s2;
 	}
     
 	/**
@@ -1042,13 +1047,6 @@ public class EditorUtil
     		ho instanceof String)
         	return false;
     	if (!(ho instanceof DataObject)) return false;
-    	/*
-    	DataObject data = (DataObject) ho;
-        PermissionData permissions = data.getPermissions();
-        if (userID == data.getOwner().getId())
-            return permissions.isUserRead();
-        return permissions.isGroupRead();
-        */
     	return true; //change in permissions.
     }
     
@@ -2200,18 +2198,7 @@ public class EditorUtil
 		}
 		return result;
     }
-    
-    /**
-     * Returns the name of the experimenter.
-     * 
-     * @param exp The experimenter to handle.
-     * @return See above.
-     */
-    public static String getExperimenterName(ExperimenterData exp)
-    {
-    	if (exp == null) return "";
-    	return exp.getFirstName()+" "+exp.getLastName();
-    }
+
     
 	/**
 	 * Returns the date.

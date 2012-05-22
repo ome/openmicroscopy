@@ -216,8 +216,12 @@ public interface Executor extends ApplicationContextAware {
         final protected String description;
 
         public Descriptive(Object o, String method, Object...params) {
+            this(o.getClass().getName(), method, params);
+        }
+
+        public Descriptive(String name, String method, Object...params) {
             StringBuilder sb = new StringBuilder();
-            sb.append(o.getClass().getName());
+            sb.append(name);
             sb.append(".");
             sb.append(method);
             boolean first = true;

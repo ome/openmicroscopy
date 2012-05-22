@@ -454,6 +454,7 @@ class OmeroMetadataServiceImpl
 	{			
 		String ioType = gateway.convertPojos(data).getName();
 		IObject ho = gateway.findIObject(ctx, ioType, data.getId());
+		if (ho == null) return;
 		ModelMapper.unloadCollections(ho);
 		IObject link = null;
 		boolean exist = false;
@@ -509,7 +510,6 @@ class OmeroMetadataServiceImpl
 		long id;
 		String ioType;
 		TagAnnotation ho;
-		IObject link = null;
 		if (ann instanceof TagAnnotationData && ann.isDirty()) {
 			TagAnnotationData tag = (TagAnnotationData) ann;
 			id = tag.getId();
