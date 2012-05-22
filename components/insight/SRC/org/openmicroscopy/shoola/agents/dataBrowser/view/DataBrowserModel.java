@@ -679,7 +679,7 @@ abstract class DataBrowserModel
 	 * 
 	 * @return See above.
 	 */
-	boolean canEditParent()
+	boolean canLinkParent()
 	{
 		if (DataBrowserAgent.isAdministrator()) return true;
 		long userID = DataBrowserAgent.getUserDetails().getId();
@@ -691,20 +691,7 @@ abstract class DataBrowserModel
 			if (experimenter == null) return false;
 			return experimenter.getId() == userID;
 		}
-		boolean b = EditorUtil.isUserOwner(parent, userID);
-		if (b) return b;
-		GroupData group = null;
-		if (parent instanceof DataObject) {
-			DataObject data = (DataObject) parent;
-			group = getGroup(data.getGroupId());
-		}
-		if (group == null) return false;
-		switch (group.getPermissions().getPermissionsLevel()) {
-			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
-		}
-		return EditorUtil.isUserGroupOwner(group, userID);
+		return EditorUtil.isUserOwner(parent, userID);
 	}
 	
 	/**
