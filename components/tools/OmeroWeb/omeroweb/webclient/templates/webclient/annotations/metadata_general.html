@@ -976,7 +976,7 @@
                             <td>
                                 <div>{{ ann.getValue|escape|slice:"0:30" }}...</div>
                                 <div class="show_xml">Open in window</div><div>{{ ann.getValue }}</div>
-                                <span style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
                                     <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
@@ -986,9 +986,9 @@
                         
                         {% for ann in manager.boolean_annotations %}
                         <tr><th>Boolean:</th>
-                            <td class='tooltip'>
+                            <td>
                                 {{ ann.getValue }}
-                                <span style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
                                     <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
@@ -997,9 +997,20 @@
                         {% endfor %}
                         {% for ann in manager.double_annotations %}
                         <tr><th>Double:</th>
-                            <td class='tooltip'>
+                            <td>
                                 {{ ann.getValue }}
-                                <span style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                    {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
+                                    <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
+                                    <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% for ann in manager.long_annotations %}
+                        <tr><th>Long:</th>
+                            <td>
+                                {{ ann.getValue }}
+                                <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
                                     <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
@@ -1008,9 +1019,9 @@
                         {% endfor %}
                         {% for ann in manager.term_annotations %}
                         <tr><th>Term:</th>
-                            <td class='tooltip'>
+                            <td>
                                 {{ ann.getValue }}
-                                <span style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
                                     <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
@@ -1019,9 +1030,9 @@
                         {% endfor %}
                         {% for ann in manager.time_annotations %}
                         <tr><th>Time:</th>
-                            <td class='tooltip'>
+                            <td>
                                 {{ ann.getValue }}
-                                <span style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                <span class="tooltip_html" style='display:none'>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
                                     {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
                                     <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
                                     <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
