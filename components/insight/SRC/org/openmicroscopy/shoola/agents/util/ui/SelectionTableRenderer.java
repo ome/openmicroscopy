@@ -35,6 +35,7 @@ import javax.swing.table.DefaultTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 
 import pojos.ExperimenterData;
@@ -138,7 +139,7 @@ class SelectionTableRenderer
 			Object element = (Object) dtm.getValueAt(row, column);
 			if (element instanceof ExperimenterData) {
 				ExperimenterData exp = (ExperimenterData) element;
-				setText(exp.getFirstName()+" "+exp.getLastName());
+				setText(EditorUtil.formatExperimenter(exp));
 			} else if (element instanceof GroupData) {
 				GroupData group = (GroupData) element;
 				setText(group.getName());
