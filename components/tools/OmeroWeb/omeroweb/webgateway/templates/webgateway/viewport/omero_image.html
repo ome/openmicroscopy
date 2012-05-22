@@ -1039,11 +1039,11 @@
           <div class="even row">
             <label for="wblitz-rmodel">Color</label>
             <input id="wblitz-rmodel" type="checkbox" onclick="viewport.setModel(this.checked?'c':'g');" />
-	    {% if not blitzcon.isAnonymous and image.canWrite %}
+	    {% comment %}<!-- #8766 {% if not blitzcon.isAnonymous and image.canWrite %}
 	    <br />
             <label for="wblitz-invaxis">Invert Z/T Axis</label>
             <input id="wblitz-invaxis" type="checkbox" onchange="viewport.setInvertedAxis(this.checked);" />
-	    {% endif %}
+	    {% endif %}-->{% endcomment %}
             <br />
           </div>
             <h1>Current Image</h1>
