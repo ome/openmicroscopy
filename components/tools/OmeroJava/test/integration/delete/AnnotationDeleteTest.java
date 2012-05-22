@@ -301,32 +301,12 @@ public class AnnotationDeleteTest extends AbstractServerTest {
     public void testAnnotationsRemovedFromRoi() throws Exception {
         newUserAndGroup("rw----");
         
-        RectangleI rect = new RectangleI();
-        rect.setHeight(omero.rtypes.rdouble(1.0));
-        rect.setWidth(omero.rtypes.rdouble(1.0));
-        rect.setX(omero.rtypes.rdouble(1.0));
-        rect.setY(omero.rtypes.rdouble(1.0));
-        
-        ROI roi = new ROII();
-        roi.addShape(rect);
-        
-        Image image = createImageWithROI(1,1,1,1,1,null,roi);
+        Image image = createImageWithROI();
         ROI returnedROI = image.copyRoiLinks().get(0).getChild();
         
         annotateSaveDeleteAndCheck(returnedROI, DeleteServiceTest.REF_ROI, returnedROI.getId());
     }
     
-    /**
-     * Returns an Image with a Roi and one Rect attached.
-     * @return
-     */
-    public Image createImageWithRoi() throws Exception
-    {
-        ROI roi = new ROII();
-        roi.addShape(new RectangleI());
-        Image image = createBasicImage();
-        image.linkROI(roi);
-        return image;
-    }
+
     
 }

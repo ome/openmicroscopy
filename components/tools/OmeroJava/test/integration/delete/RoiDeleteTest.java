@@ -62,7 +62,7 @@ public class RoiDeleteTest extends AbstractServerTest {
     {
 
         EventContext owner = newUserAndGroup("rwrw--");
-        Image i1 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
+        Image i1 = (Image) createBasicImage();
         disconnect();
 
         newUserInGroup(owner);
@@ -88,7 +88,7 @@ public class RoiDeleteTest extends AbstractServerTest {
     	throws Exception 
     {
     	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
-    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	p = savePlate(iUpdate, p, false);
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = results.get(0);
     	//create the roi.
@@ -161,7 +161,8 @@ public class RoiDeleteTest extends AbstractServerTest {
     	throws Exception 
     {
     	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
-    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	p = savePlate(iUpdate, p, false);
+    	
     	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = results.get(0);
     	//create the roi.
@@ -219,8 +220,7 @@ public class RoiDeleteTest extends AbstractServerTest {
 		
 		//Now delete the rois.
 		 delete(client, new DeleteCommand(DeleteServiceTest.REF_PLATE, 
-				 p.getId().getValue(), 
-				 null));
+				 p.getId().getValue(), null));
 		 assertDoesNotExist(p);
 		 assertDoesNotExist(roi);
 		 l = svc.getRoiMeasurements(image.getId().getValue(), options);

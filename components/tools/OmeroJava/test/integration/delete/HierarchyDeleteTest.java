@@ -54,9 +54,9 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         Dataset ds2 = new DatasetI();
         ds2.setName(t3031);
 
-        Image i1 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
+        Image i1 = createBasicImage();
         i1.unload();
-
+        
         ds1.linkImage(i1);
         ds1 = (Dataset) iUpdate.saveAndReturnObject(ds1);
         ds2.linkImage(i1);
@@ -65,7 +65,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         // http://trac.openmicroscopy.org.uk/omero/ticket/3031#comment:7
         // This image is only singly linked and should be removed.
 
-        Image i2 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
+        Image i2 = createBasicImage();
         i2.unload();
 
         ds2.linkImage(i2);
@@ -98,7 +98,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         Dataset ds2 = new DatasetI();
         ds2.setName(t3031);
 
-        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
+        Image i = createBasicImage();
         i.unload();
 
         ds1.linkImage(i);
@@ -140,14 +140,13 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         Dataset ds2 = new DatasetI();
         ds2.setName(t3031);
 
-        Image i = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.createImageWithRoi());
-        ROI roi = i.copyRoiLinks().get(0).getChild();
-        i.unload();
+        Image image = createImageWithROI();
+        ROI roi = image.copyRoiLinks().get(0).getChild();
+        image.unload();
 
-        ds1.linkImage(i);
+        ds1.linkImage(image);
         ds1 = (Dataset) iUpdate.saveAndReturnObject(ds1);
-        ds2.linkImage(i);
+        ds2.linkImage(image);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
         delete(client, new DeleteCommand(DeleteServiceTest.REF_DATASET, 
@@ -155,7 +154,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
         assertDoesNotExist(ds2);
         assertExists(ds1);
-        assertExists(i);
+        assertExists(image);
         assertExists(roi);
     }
 
@@ -210,7 +209,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         s2.setName(t3031);
 
         Plate p = mmFactory.createPlate(1, 1, 1, 1, false);
-        p = (Plate) iUpdate.saveAndReturnObject(p);
+        p = savePlate(iUpdate,p, false);
         p.unload();
 
         s1.linkPlate(p);
