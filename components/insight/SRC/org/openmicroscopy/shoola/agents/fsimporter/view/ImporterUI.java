@@ -475,7 +475,7 @@ class ImporterUI
 	/** Resets the import.*/
 	void reset()
 	{
-		int n = tabs.getComponentCount();
+		int n = tabs.getTabCount();
 		for (int i = 1; i < n; i++) {
 			tabs.remove(i);
 		}
