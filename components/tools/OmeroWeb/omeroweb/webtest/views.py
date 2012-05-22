@@ -435,7 +435,10 @@ def dataset_split_view (request, datasetId, conn=None, **kwargs):
         default_z = image.getSizeZ()/2   # image.getZ() returns 0 - should return default Z? 
         # need z for render_image even if we're projecting
         images.append({"id":image.getId(), "z":default_z, "name": image.getName() })
-    
+
+    if channels is None:
+        return HttpResponse("<p class='center_message'>No Images in Dataset<p>")
+
     size = {'width':width, 'height':height}
     
     indexes = range(1, len(channels)+1)
