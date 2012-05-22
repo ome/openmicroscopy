@@ -10,6 +10,7 @@
 import omero
 import unittest
 import traceback
+import time
 from omero.rtypes import *
 from omero.cmd import *
 from omero.callbacks import CmdCallbackI
@@ -345,6 +346,22 @@ class CustomUsersTest (ChmodBaseTest):
         p = self.gateway.getObject("Project", pid)
         self.assertCanEdit(p, True)
         self.assertCanAnnotate(p, True)
+
+    def testDelete8723(self):
+        """ Tests whether regular members can delete each other's data in rwrw-- group """
+        # Login as owner...
+        self.doLogin(dbhelpers.USERS['read_write_owner'])
+        pr = omero.model.ProjectI()
+        pr.name = rstring("test-delete")
+        pr = self.gateway.getUpdateService().saveAndReturnObject(pr)
+        # Login as regular member
+        self.doLogin(dbhelpers.USERS['read_write_user'])
+        p = self.gateway.getObject("Project", pr.id.val)
+        self.assertNotEqual(None, p, "Member can access Project")
+        self.assertEqual(p.canDelete(), True, "Member can delete another user's Project")
+        self.gateway.deleteObjects("Project", [pr.id.val])
+        time.sleep(5)   # time enough for delete queue
+        self.assertEqual(None, p, "Project should be Deleted")
 
 
 class ManualCreateEditTest (ChmodBaseTest):
