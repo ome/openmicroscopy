@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.FigureTableModel 
+ * org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.

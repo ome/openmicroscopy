@@ -808,6 +808,7 @@ class EditorControl
 	public void mouseReleased(MouseEvent e)
 	{
 		JButton src = (JButton) e.getSource();
+		if (!src.isEnabled()) return;
 		int index = Integer.parseInt(src.getActionCommand());
 		Point p = e.getPoint();
 		SwingUtilities.convertPointToScreen(p, src);

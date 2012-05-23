@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.FigureTable 
+ * org.openmicroscopy.shoola.agents.measurement.util.ui.FigureTable 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.measurement.util.ui;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableCellEditor;
@@ -39,7 +38,6 @@ import javax.swing.table.TableCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AttributeField;
 import org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.model.ValueType;
-import org.openmicroscopy.shoola.util.ui.PaintPot;
 
 /** 
  * Displays the figures in a table.
