@@ -41,6 +41,7 @@ import omero.scripts as scripts
 import omero.util.imageUtil as imgUtil
 import omero.util.figureUtil as figUtil
 import omero.util.script_utils as scriptUtil
+from omero.gateway import BlitzGateway
 import omero
 from omero.rtypes import *
 import getopt, sys, os, subprocess
@@ -95,7 +96,7 @@ def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
     return True    
     
         
-def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
+def getImageFrames(conn, pixelIds, tIndexes, zStart, zEnd, width, height, spacer,
             algorithm, stepping, scalebar, overlayColour, timeUnits):
     
     """
@@ -122,8 +123,8 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spa
     white = (255, 255, 255)
     
     # create a rendering engine
-    re = session.createRenderingEngine()
-    queryService = session.getQueryService()
+    re = conn.createRenderingEngine()
+    queryService = conn.getQueryService()
     
     rowPanels = []
     totalHeight = 0
@@ -215,7 +216,7 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spa
         canvas = Image.new(mode, size, white)        # create a canvas of appropriate width, height
         
         # add text labels
-        queryService = session.getQueryService()
+        queryService = conn.getQueryService()
         textX = spacer
         textY = spacer/4
         timeLabels = figUtil.getTimeLabels(queryService, pixelsId, tIndexes, sizeT, timeUnits)
@@ -263,7 +264,7 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spa
     return figureCanvas
     
     
-def createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
+def createMovieFigure(conn, pixelIds, tIndexes, zStart, zEnd, width, height, spacer,
                             algorithm, stepping, scalebar, overlayColour, timeUnits, imageLabels):
     """
     Makes the complete Movie figure: A canvas showing an image per row with multiple columns showing 
@@ -286,7 +287,7 @@ def createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, width, height, 
     @param imageLabels    A list of lists, corresponding to pixelIds, for labelling each image with one or more strings.
     """
 
-    panelCanvas = getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
+    panelCanvas = getImageFrames(conn, pixelIds, tIndexes, zStart, zEnd, width, height, spacer,
                             algorithm, stepping, scalebar, overlayColour, timeUnits)
                     
     # add lables to row...
@@ -339,7 +340,7 @@ def createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, width, height, 
     return canvas
     
     
-def movieFigure(session, commandArgs):    
+def movieFigure(conn, commandArgs):
     """
     Makes the figure using the parameters in @commandArgs, attaches the figure to the 
     parent Project/Dataset, and returns the file-annotation ID
@@ -348,13 +349,6 @@ def movieFigure(session, commandArgs):
     @param commandArgs    Map of parameters for the script
     @ returns            Returns the id of the originalFileLink child. (ID object, not value)
     """
-    
-    # create the services we're going to need. 
-    metadataService = session.getMetadataService()
-    queryService = session.getQueryService()
-    updateService = session.getUpdateService()
-    rawFileStore = session.createRawFileStore()
-    containerService = session.getContainerService()
     
     log("Movie figure created by OMERO on %s" % date.today())
     log("")
@@ -396,27 +390,26 @@ def movieFigure(session, commandArgs):
             
     # process the list of images. If imageIds is not set, script can't run. 
     log("Image details:")
-    for idCount, imageId in enumerate(commandArgs["IDs"]):
-        iId = long(imageId.getValue())
-        image = containerService.getImages("Image", [iId], None)[0]
+    for imageId in commandArgs["IDs"]:
+        image = conn.getObject("Image", imageId)
         if image == None:
-            print "Image not found for ID:", iId
+            print "Image not found for ID:", imageId
             continue
-        imageIds.append(iId)
-        if idCount == 0:
+        imageIds.append(imageId)
+        if omeroImage is None:
             omeroImage = image        # remember the first image to attach figure to
-        pixelIds.append(image.getPrimaryPixels().getId().getValue())
-        imageNames[iId] = image.getName().getValue()
+        pixelIds.append(image.getPrimaryPixels().getId())
+        imageNames[imageId] = image.getName()
         
     if len(imageIds) == 0:
         print "No image IDs specified."
     
-    pdMap = figUtil.getDatasetsProjectsFromImages(queryService, imageIds)    # a map of imageId : list of (project, dataset) names. 
-    tagMap = figUtil.getTagsFromImages(metadataService, imageIds)
+    pdMap = figUtil.getDatasetsProjectsFromImages(conn.getQueryService(), imageIds)    # a map of imageId : list of (project, dataset) names. 
+    tagMap = figUtil.getTagsFromImages(conn.getMetadataService(), imageIds)
     # Build a legend entry for each image
     for iId in imageIds:
         name = imageNames[iId]
-        imageDate = image.getAcquisitionDate().getValue()
+        imageDate = image.getAcquisitionDate()
         tagsList = tagMap[iId]
         pdList = pdMap[iId]
         
@@ -430,15 +423,12 @@ def movieFigure(session, commandArgs):
         imageLabels.append(getLabels(name, tagsList, pdList))
     
     
-    # use the first image to define dimensions, channel colours etc. 
-    pixelsId = pixelIds[0]
-    pixels = queryService.get("Pixels", pixelsId)
-                
-    sizeX = pixels.getSizeX().getValue()
-    sizeY = pixels.getSizeY().getValue()
-    sizeZ = pixels.getSizeZ().getValue()
-    sizeC = pixels.getSizeC().getValue()
-    sizeT = pixels.getSizeT().getValue()
+    # use the first image to define dimensions, channel colours etc.
+    sizeX = omeroImage.getSizeX()
+    sizeY = omeroImage.getSizeY()
+    sizeZ = omeroImage.getSizeZ()
+    sizeC = omeroImage.getSizeC()
+    sizeT = omeroImage.getSizeT()
 
     tIndexes = []
     if "T_Indexes" in commandArgs:
@@ -495,7 +485,7 @@ def movieFigure(session, commandArgs):
         r,g,b,a = OVERLAY_COLOURS[commandArgs["Scalebar_Colour"]]
         overlayColour = (r,g,b)
                 
-    figure = createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
+    figure = createMovieFigure(conn, pixelIds, tIndexes, zStart, zEnd, width, height, spacer,
                             algorithm, stepping, scalebar, overlayColour, timeUnits, imageLabels)
     
     #figure.show()
@@ -521,9 +511,13 @@ def movieFigure(session, commandArgs):
         output = output + ".jpg"
         figure.save(output)
     
-
-    fileAnnotation = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)
-    return (fileAnnotation, omeroImage)    
+    fileAnnotation = conn.createFileAnnfromLocalFile(output, mimetype=format, desc=figLegend)
+    if omeroImage.canAnnotate():
+        log("Attaching figure to... %s %s %s" % (commandArgs['Data_Type'], omeroImage.getName(), omeroImage.getId()) )
+        omeroImage.linkAnnotation(fileAnnotation)
+        return fileAnnotation, omeroImage
+    else:
+        return fileAnnotation, None
 
 def runAsScript():
     """
@@ -590,18 +584,22 @@ See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/
     try:
         session = client.getSession();
         commandArgs = {}
-    
+        conn = BlitzGateway(client_obj=client)
+
         for key in client.getInputKeys():
             if client.getInput(key):
-                commandArgs[key] = client.getInput(key).getValue()
+                commandArgs[key] = client.getInput(key, unwrap=True)
 
         print commandArgs
 
         # Makes the figure and attaches it to Image. Returns the id of the originalFileLink child. (ID object, not value)
-        fileAnnotation, image = movieFigure(session, commandArgs)
+        fileAnnotation, image = movieFigure(conn, commandArgs)
         if fileAnnotation:
-            client.setOutput("Message", rstring("Movie Figure Attached to Image: %s" % image.name.val))
-            client.setOutput("File_Annotation", robject(fileAnnotation))
+            message = "Movie figure created"
+            if image is not None:
+                message += " and attached to image %s"  %  image.getName()
+            client.setOutput("Message", rstring(message))
+            client.setOutput("File_Annotation", robject(fileAnnotation._obj))
     finally: client.closeSession()
 
 if __name__ == "__main__":
