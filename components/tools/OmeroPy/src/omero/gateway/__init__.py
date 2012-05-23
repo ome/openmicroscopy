@@ -1814,15 +1814,19 @@ class _BlitzGateway (object):
         """
         
         return self.getEventContext().isAdmin
-    
-    def isLeader(self):
+
+    def isLeader(self, gid=None):
         """
-        Is the current group led by the current user? 
-        
+        Is the current group (or a specified group) led by the current user? 
+
         @return:    True if user leads the current group
         @rtype:     Boolean
         """
-        if self.getEventContext().groupId in self.getEventContext().leaderOfGroups:
+        if gid is None:
+            gid = self.getEventContext().groupId
+        if not isinstance(gid, LongType) or not isinstance(gid, IntType):
+            gid = long(gid)
+        if gid in self.getEventContext().leaderOfGroups:
             return True
         return False
 
@@ -1834,28 +1838,6 @@ class _BlitzGateway (object):
         """
         return 0 in self.getEventContext().memberOfGroups
 
-    def isOwner (self, gid=None):
-        """
-        Checks if a user has owner privileges of a particular group
-        or any group if gid is not specified. 
-        
-        @param gid:     ID of group to check for ownership
-        @type gid:      Long
-        @return:    True if gid specified and owner belongs to that group
-                    Otherwise True if owner belongs to any group
-        """
-        if gid is not None:
-            if not isinstance(gid, LongType) or not isinstance(gid, IntType):
-                gid = long(gid)
-            for gem in self.getUser().copyGroupExperimenterMap():
-                if gem.parent.id.val == gid and gem.owner.val == True:
-                    return True
-        else:
-            for gem in self.getUser()._user.copyGroupExperimenterMap():
-                if gem.owner.val == True:
-                    return True
-        return False
-    
     def canWrite (self, obj):
         """
         Checks if a user has write privileges to the given object.
