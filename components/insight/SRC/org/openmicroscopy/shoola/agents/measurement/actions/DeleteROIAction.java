@@ -67,7 +67,7 @@ public class DeleteROIAction
 	protected void onStateChange()
 	{
 		if (model.getState() == MeasurementViewer.READY)
-			setEnabled(model.canAnnotate() && model.hasROIToDelete());
+			setEnabled(model.canDelete() && model.hasROIToDelete());
 		else setEnabled(false);
 	}
 	
@@ -92,11 +92,11 @@ public class DeleteROIAction
      */
     public void actionPerformed(ActionEvent e)
     { 
-    	MessageBox msg = new MessageBox(model.getUI(), "Delete ROI", 
-		"Do you want to delete all your ROIs on this image.");
-    	int option = msg.centerMsgBox();
-    	if (option == MessageBox.YES_OPTION)
+    	String message = "Do you want to delete all ROIs on this image.";
+    	if (model.isMember())
+    		message = "Do you want to delete all your ROIs on this image.";
+    	MessageBox msg = new MessageBox(model.getUI(), "Delete ROI", message);
+    	if (msg.centerMsgBox() == MessageBox.YES_OPTION)
     		model.deleteAllROIs(); 
     }
-    
 }

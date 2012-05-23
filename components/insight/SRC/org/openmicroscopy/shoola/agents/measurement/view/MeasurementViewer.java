@@ -346,6 +346,14 @@ public interface MeasurementViewer
 	public boolean canAnnotate();
 	
 	/**
+	 * Returns <code>true</code> if the specified image can be annotated
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @return See above.
+	 */
+	public boolean canDelete();
+	
+	/**
 	 * Set the workflows in the measurement tool to be list passed.
 	 * @param workflows See above.
 	 */
@@ -361,5 +369,13 @@ public interface MeasurementViewer
 	 * @return See above.
 	 */
 	public boolean hasROIToDelete();
-	
+
+	/**
+	 * Returns <code>true</code> if the user is not an owner nor an admin,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isMember();
+
 }

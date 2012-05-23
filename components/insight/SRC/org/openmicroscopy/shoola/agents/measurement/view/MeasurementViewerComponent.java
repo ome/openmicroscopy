@@ -992,6 +992,26 @@ class MeasurementViewerComponent
 	}
 	
 	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#canDelete()
+     */
+	public boolean canDelete()
+	{
+		if (model.getState() == DISCARDED) return false;
+		//Check if current user can write in object
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		long id = exp.getId();
+		Object ref = model.getRefObject();
+		boolean b = EditorUtil.isUserOwner(ref, id);
+		if (b) return b;
+		if (ref instanceof DataObject) {
+			return ((DataObject) ref).canDelete();
+		}
+		return false;
+	}
+	
+	/** 
 	 * Overridden to return the name of the instance to save.
 	 * @see #toString()
 	 */
@@ -1017,8 +1037,10 @@ class MeasurementViewerComponent
      */
 	public void deleteAllROIs()
 	{
-		if (!canAnnotate()) return;
-		List<ROIData> list = model.getROIData();
+		if (!canDelete()) return;
+		List<ROIData> list;
+		if (model.isMember()) list = model.getROIData();
+		else list = model.getAllROIData();
 		//ROI owned by the current user.
 		List<DeletableObject> l = new ArrayList<DeletableObject>();
 		Iterator<ROIData> i = list.iterator();
@@ -1061,5 +1083,11 @@ class MeasurementViewerComponent
 		if (model.getState() == DISCARDED) return false;
 		return model.hasROIToDelete();
 	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#isMember()
+     */
+	public boolean isMember() { return model.isMember(); }
 	
 }

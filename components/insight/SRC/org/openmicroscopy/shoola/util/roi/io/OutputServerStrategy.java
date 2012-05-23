@@ -93,20 +93,34 @@ class OutputServerStrategy
 	 * object to supply to the server.
 	 * 
 	 * @param image The image the ROI is on.
-	 * @param ownerID The identifier of the owner.
+	 * @param index One of the constants defined by {@link ROIComponent} class.
 	 * @throws Exception 
 	 */
-	private void parseROI(ImageData image, long ownerID) 
+	private void parseROI(ImageData image, int index) 
 		throws Exception
 	{
 		TreeMap<Long, ROI> map = component.getROIMap();
-		Iterator<ROI> roiIterator = map.values().iterator();
+		Iterator<ROI> i = map.values().iterator();
 		ROI roi;
-		while (roiIterator.hasNext())
-		{
-			roi = roiIterator.next();
-			if (roi.canAnnotate())
-				ROIList.add(createServerROI(roi, image));
+		switch (index) {
+			case ROIComponent.ANNOTATE:
+				while (i.hasNext())
+				{
+					roi = i.next();
+					if (roi.canAnnotate())
+						ROIList.add(createServerROI(roi, image));
+				}
+				break;
+			case ROIComponent.DELETE:
+				while (i.hasNext())
+				{
+					roi = i.next();
+					if (roi.canDelete())
+						ROIList.add(createServerROI(roi, image));
+				}
+			case ROIComponent.ALL:
+				while (i.hasNext())
+					ROIList.add(createServerROI(i.next(), image));
 		}
 	}
 
@@ -619,18 +633,16 @@ class OutputServerStrategy
 	 * 
 	 * @param component See above.
 	 * @param image The image the ROI is on.
-	 * @param ownerID The identifier of the owner.
+	 * @param index One of the constants defined by {@link ROIComponent} class.
 	 * @throws Exception If an error occurred while parsing the ROI.
 	 */
-	List<ROIData> writeROI(ROIComponent component, ImageData image, 
-			long ownerID) 
+	List<ROIData> writeROI(ROIComponent component, ImageData image, int index)
 		throws Exception
 	{
 		this.component = component;
 		ROIList = new ArrayList<ROIData>();
-		parseROI(image, ownerID);
+		parseROI(image, index);
 		return ROIList;
 	}
 
 }
-

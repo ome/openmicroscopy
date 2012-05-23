@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -60,6 +61,8 @@ import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
 import org.openmicroscopy.shoola.agents.measurement.WorkflowLoader;
 import org.openmicroscopy.shoola.agents.measurement.WorkflowSaver;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -91,6 +94,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import pojos.ChannelData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
@@ -213,7 +217,8 @@ class MeasurementViewerModel
     
     /** The sorter to order shapes.*/
     private ViewerSorter sorter;
-	
+
+    
 	/**
 	 * Map figure attributes to ROI and ROIShape annotations where necessary. 
 	 * @param attribute see above.
@@ -1162,10 +1167,25 @@ class MeasurementViewerModel
 	 */
 	List<ROIData> getROIData()
 	{
-		ExperimenterData exp = 
-			(ExperimenterData) MeasurementAgent.getUserDetails();
 		try {
-			return roiComponent.saveROI(getImage(), exp.getId());
+			return roiComponent.saveROI(getImage(), ROIComponent.ANNOTATE);
+		} catch (Exception e) {
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.warn(this, "Cannot transform the ROI: "+e.getMessage());
+		}
+		return new ArrayList<ROIData>();
+	}
+	
+	/**
+	 * Returns the collection of ROI on the image owned by the user currently
+	 * logged in
+	 * 
+	 * @return See above.
+	 */
+	List<ROIData> getAllROIData()
+	{
+		try {
+			return roiComponent.saveROI(getImage(), ROIComponent.ALL);
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot transform the ROI: "+e.getMessage());
@@ -1754,4 +1774,30 @@ class MeasurementViewerModel
     */
    SecurityContext getSecurityContext() { return ctx; }
 
-}	
+   /**
+    * Returns <code>true</code> if the user is not an owner nor an admin,
+    * <code>false</code> otherwise.
+    * 
+    * @return See above.
+    */
+	boolean isMember()
+	{
+		if (MetadataViewerAgent.isAdministrator()) return false;
+		Set groups = MetadataViewerAgent.getAvailableUserGroups();
+		Iterator i = groups.iterator();
+		GroupData g, gRef = null;
+		long gId = getImage().getGroupId();
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getId() == gId) {
+				gRef = g;
+				break;
+			}
+		}
+		if (gRef != null)
+			return EditorUtil.isUserGroupOwner(gRef,
+				MeasurementAgent.getUserDetails().getId());
+		return false;
+	}
+
+}

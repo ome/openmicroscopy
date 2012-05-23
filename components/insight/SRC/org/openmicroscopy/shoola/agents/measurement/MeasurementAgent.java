@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement;
 
 //Java imports
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -252,6 +253,16 @@ public class MeasurementAgent
      */
     public static Registry getRegistry() { return registry; }
     
+	/**
+	 * Returns the available user groups.
+	 * 
+	 * @return See above.
+	 */
+	public static Set getAvailableUserGroups()
+	{
+		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+	}
+	
     /**
 	 * Helper method returning the current user's details.
 	 * 
@@ -261,6 +272,19 @@ public class MeasurementAgent
 	{ 
 		return (ExperimenterData) registry.lookup(
 								LookupNames.CURRENT_USER_DETAILS);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the currently logged in user
+	 * is an administrator, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isAdministrator()
+	{
+		Boolean b = (Boolean) registry.lookup(LookupNames.USER_ADMINISTRATOR);
+		if (b == null) return false;
+		return b.booleanValue();
 	}
 	
     /**

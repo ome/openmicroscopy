@@ -81,6 +81,15 @@ public class ROIComponent
 	extends Component 
 {
 
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int ANNOTATE = 0;
+	
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int DELETE = 1;
+	
+	/** Flag indicating to check if the roi can be annotated.*/
+	public static final int ALL = 2;
+	
 	/** The main object for storing and manipulating ROIs. */
 	private ROICollection				roiCollection;
 
@@ -278,16 +287,16 @@ public class ROIComponent
 	 * Converts the ROI in the component to ROIData and return. 
 	 * 
 	 * @param image The image the ROI are on.
-	 * @param ownerID The identifier of the owner.
+	 * @param index One of the constants defined by this class.
 	 * @return See above.
 	 * @throws Exception 
 	 */
-	public List<ROIData> saveROI(ImageData image, long ownerID) 
+	public List<ROIData> saveROI(ImageData image, int index) 
 		throws Exception
 	{
 		if (serverStrategy == null) 
 			serverStrategy = new ServerROIStrategy();
-		return serverStrategy.write(this, image, ownerID);
+		return serverStrategy.write(this, image, index);
 	}
 	
 	/**
