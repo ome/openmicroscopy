@@ -15,6 +15,7 @@ import logging
 import exceptions
 
 import omero
+import omero.all
 import omero.util.concurrency
 import omero_ext.uuid as uuid # see ticket:3774
 
