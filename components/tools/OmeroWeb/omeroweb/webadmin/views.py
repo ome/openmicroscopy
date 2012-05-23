@@ -591,7 +591,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             experimenterDefaultIds = list()
             for e in (experimenters):
                 if e.getDefaultGroup() is not None and e.getDefaultGroup().id == group.id:
-                    experimenterDefaultIds.append(e.id)
+                    experimenterDefaultIds.append(str(e.id))
             experimenterDefaultGroups = ",".join(experimenterDefaultIds)
             
             permissions = getActualPermissions(group)
