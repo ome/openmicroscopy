@@ -592,8 +592,7 @@ class TreeViewerModel
 	 */
 	String getExperimenterNames()
 	{
-		ExperimenterData exp = getExperimenter();
-		return exp.getFirstName()+" "+exp.getLastName();
+		return EditorUtil.formatExperimenter(getExperimenter());
 	}
 
 	/**
