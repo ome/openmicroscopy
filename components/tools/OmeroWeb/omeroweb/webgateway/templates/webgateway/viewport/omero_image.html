@@ -661,7 +661,7 @@
     // update src of roi_thumbnails, based on colour. If 'null', set no src and hide thumbs
     var update_roi_thumbs = function(line_color) {
         // we set visibility based on 'toggle_roi_thumbs' checkbox
-        var vis = ($("#toggle_roi_thumbs").attr('checked') == true);
+        var vis = ($("#toggle_roi_thumbs").is(":checked"));
         var update_thumbs = function() {
             var $thmb = $(this);
             if (vis) {
@@ -1254,6 +1254,10 @@
         if ($target.attr('id') == "toggle_roi_thumbs") {
             update_roi_thumbs();
             return true;
+        } else if ($target.hasClass('color_picker_option')) {
+            // change the colour of lines drawn on roi_thumbs
+            var line_color = $target.attr('color').substring(1);  // '#f00' -> 'f00'
+            update_roi_thumbs(line_color);
         } else if ($target.attr('id') == "toggle_shape_text") {
             var show_labels = ($("#toggle_shape_text").is( ":checked" ));
             viewport.viewportimg.get(0).show_labels(show_labels);
@@ -1282,10 +1286,6 @@
                 var $roiThead = $target.parent().parent().parent();
                 toggle_th($roiThead);
             }
-        } else if ($target.hasClass('color_picker_option')) {
-            // change the colour of lines drawn on roi_thumbs
-            var line_color = $target.attr('color').substring(1);  // '#f00' -> 'f00'
-            update_roi_thumbs(line_color);
         } else if ($target.hasClass('expand_arrow') || $target.hasClass('roi_icon')) {
             // clicked on the arrow - need to get the (th)
             var $roiThead = $target.parent().parent().parent();
