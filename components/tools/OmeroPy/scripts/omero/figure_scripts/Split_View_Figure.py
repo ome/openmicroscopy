@@ -631,9 +631,12 @@ def splitViewFigure(conn, scriptParams):
     # Upload the figure 'output' to the server, creating a file annotation and attaching it to the omeroImage, adding the 
     # figLegend as the fileAnnotation description.
     fa = conn.createFileAnnfromLocalFile(output, origFilePathAndName=None, mimetype=format, ns=None, desc=figLegend)
-    omeroImage.linkAnnotation(fa)
-
-    return fa._obj  # return the omero.model.FileAnnotationI
+    if omeroImage.canAnnotate():
+        log("Attaching figure to... %s %s %s" % (scriptParams['Data_Type'], omeroImage.getName(), omeroImage.getId()) )
+        omeroImage.linkAnnotation(fa)
+        return fa._obj, omeroImage
+    else:
+        return fa._obj, None  # return the omero.model.FileAnnotationI
     
     
 def runAsScript():
@@ -699,10 +702,13 @@ See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/
                 scriptParams[key] = unwrap(client.getInput(key))
         print scriptParams
         # call the main script, attaching resulting figure to Image. Returns the FileAnnotationI
-        fileAnnotation = splitViewFigure(conn, scriptParams)
+        [fileAnnotation,parent] = splitViewFigure(conn, scriptParams)
         # return this fileAnnotation to the client. 
         if fileAnnotation:
-            client.setOutput("Message", rstring("Split-View Figure Created"))
+            message = "Split view figure created"
+            if parent is not None:
+                message += " and attached to %s %s"  % (scriptParams['Data_Type'], parent.getName())
+            client.setOutput("Message", rstring(message))
             client.setOutput("File_Annotation", robject(fileAnnotation))
     finally:
         client.closeSession()
