@@ -2210,6 +2210,7 @@ class ImViewerComponent
 			model.copyRenderingSettings();
 			saveBeforeCopy = true;
 		} catch (Exception e) {
+			saveBeforeCopy = false;
 			failureToSave = true;
 			Logger logger = ImViewerAgent.getRegistry().getLogger();
 			LogMessage logMsg = new LogMessage();
