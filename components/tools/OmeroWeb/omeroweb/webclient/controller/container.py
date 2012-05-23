@@ -385,9 +385,32 @@ class BaseContainer(BaseController):
         self.fileannSize = len(self.file_annotations)
         self.tgannSize = len(self.tag_annotations)
 
-    
+    def canUseOthersAnns(self):
+        """
+        Test to see whether other user's Tags, Files etc should be provided for annotating.
+        Used to ensure that E.g. Group Admins / Owners don't try to link other user's Annotations
+        when in a private group (even though they could retrieve those annotations)
+        """
+        if self.conn.CONFIG['SERVICE_OPTS'] is None or 'omero.group' not in self.conn.CONFIG['SERVICE_OPTS']:
+            return False
+        gid = self.conn.CONFIG['SERVICE_OPTS']['omero.group']
+        try:
+            group = self.conn.getObject("ExperimenterGroup", long(gid))
+        except:
+            return False
+        if group is None:
+            return False
+        perms = str(group.getDetails().getPermissions())
+        print "canUseOthersAnns", perms, self.conn.isAdmin(), self.conn.isLeader(group.id)
+        rv = False
+        if perms in ("rwrw--", "rwra--"):
+            return True
+        if perms == "rwr---" and (self.conn.isAdmin() or self.conn.isLeader(group.id)):
+            return True
+        return False
+
     def getTagsByObject(self):
-        eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
+        eid = (not self.canUseOthersAnns()) and self.conn.getEventContext().userId or None
         
         def sort_tags(tag_gen):
             tag_anns = list(tag_gen)
@@ -409,7 +432,6 @@ class BaseContainer(BaseController):
         elif self.screen is not None:
             return sort_tags(self.screen.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         else:
-            eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
             if eid is not None:
                 params = omero.sys.Parameters()
                 params.theFilter = omero.sys.Filter()
@@ -418,7 +440,7 @@ class BaseContainer(BaseController):
             return sort_tags(self.conn.getObjects("TagAnnotation"))
     
     def getFilesByObject(self):
-        eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
+        eid = (not self.canUseOthersAnns()) and self.conn.getEventContext().userId or None
         ns = [omero.constants.namespaces.NSCOMPANIONFILE, omero.constants.namespaces.NSEXPERIMENTERPHOTO]
         
         def sort_file_anns(file_ann_gen):
@@ -441,7 +463,6 @@ class BaseContainer(BaseController):
         elif self.screen is not None:
             return sort_file_anns(self.screen.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         else:
-            eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
             if eid is not None:
                 params = omero.sys.Parameters()
                 params.theFilter = omero.sys.Filter()
