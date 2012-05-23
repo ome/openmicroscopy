@@ -42,12 +42,6 @@ from struct import *
 import omero.clients
 from omero.rtypes import *
 import omero.util.pixelstypetopython as pixelstypetopython
-from omero.util.OmeroPopo import EllipseData as EllipseData
-from omero.util.OmeroPopo import RectData as RectData
-from omero.util.OmeroPopo import MaskData as MaskData
-from omero.util.OmeroPopo import WorkflowData as WorkflowData
-from omero.util.OmeroPopo import ROIData as ROIData
-
 
 try:
     import hashlib
@@ -1119,6 +1113,7 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
     @param keywords The keywords associated with the workflow.
     @return see above.
     """
+    from omero.util.OmeroPopo import WorkflowData as WorkflowData
     workflow = iQuery.findByQuery("from Namespace as n where n.name = '" + namespace.val+"'", None);
     workflowData = WorkflowData();
     if(workflow!=None):
@@ -1142,6 +1137,7 @@ def findROIByImage(roiService, image, namespace):
     @param namespace The namespace of the ROI.
     @return see above.
     """
+    from omero.util.OmeroPopo import ROIData as ROIData
     roiOptions = omero.api.RoiOptions();
     roiOptions.namespace = omero.rtypes.rstring(namespace);
     results = roiService.findByImage(image, roiOptions);
