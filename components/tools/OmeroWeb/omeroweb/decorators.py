@@ -136,10 +136,10 @@ class login_required(object):
         if not self.isGroupOwner:
             return
         if gid is not None:
-            if not conn.isOwner(gid):
+            if not conn.isLeader(gid):
                 raise Http404
         else:
-            if not conn.isOwner():
+            if not conn.isLeader():
                 raise Http404
 
     def is_valid_public_url(self, server_id, request):
