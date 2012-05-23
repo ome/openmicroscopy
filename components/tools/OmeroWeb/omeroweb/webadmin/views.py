@@ -154,7 +154,7 @@ def ownedGroupsInitial(conn, excluded_names=("user","guest", "system"), excluded
         if gr.id in excluded_ids:
             flag = True
         if not flag:
-            ownedGroups.append({'group': gr, 'permissions': gr.getPermissions()})
+            ownedGroups.append(gr)
     return ownedGroups
 
 # myphoto helpers
@@ -168,33 +168,16 @@ def attach_photo(conn, newFile):
     conn.uploadMyUserPhoto(smart_str(newFile.name), format, newFile.read())
 
 # permission helpers
-def setActualPermissions(permissions, readonly=None):
-    p = PermissionsI()
+def setActualPermissions(permissions):
     permissions = int(permissions)
     if permissions == 0:
-        # 0 private
-        p.setUserRead(True)
-        p.setUserWrite(True)
-        p.setGroupRead(False)
-        p.setGroupWrite(False)
-        p.setWorldRead(False)
-        p.setWorldWrite(False)
+        p = PermissionsI("rw----")
     elif permissions == 1:
-        # 1 collaborative
-        p.setUserRead(True)
-        p.setUserWrite(True)
-        p.setGroupRead(True)
-        p.setGroupWrite(not readonly)
-        p.setWorldRead(False)
-        p.setWorldWrite(False)
+        p = PermissionsI("rwr---")
     elif permissions == 2:
-        # 2 public
-        p.setUserRead(True)
-        p.setUserWrite(True)
-        p.setGroupRead(True)
-        p.setGroupWrite(not readonly)
-        p.setWorldRead(True)
-        p.setWorldWrite(not readonly)
+        p = PermissionsI("rwra--")
+    else:
+        p = PermissionsI()
     return p
 
 def getActualPermissions(group):
@@ -205,12 +188,12 @@ def getActualPermissions(group):
         p = group.details.getPermissions()
     
     flag = None
-    if p.isUserRead():
-        flag = 0
-    if p.isGroupRead():
-        flag = 1
-    if p.isWorldRead():
+    if p.isGroupAnnotate():
         flag = 2
+    elif p.isGroupRead():
+        flag = 1
+    elif p.isUserRead():
+        flag = 0
     
     return flag
 
@@ -557,9 +540,8 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 description = form.cleaned_data['description']
                 owners = form.cleaned_data['owners']
                 permissions = form.cleaned_data['permissions']
-                readonly = toBoolean(form.cleaned_data['readonly'])
                 
-                perm = setActualPermissions(permissions, readonly)
+                perm = setActualPermissions(permissions)
                 listOfOwners = getSelectedExperimenters(conn, owners)
                 conn.createGroup(name, perm, listOfOwners, description)
                 return HttpResponseRedirect(reverse("wagroups"))
@@ -578,7 +560,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         
         permissions = getActualPermissions(group)
         form = GroupForm(initial={'name': group.name, 'description':group.description,
-                                     'permissions': permissions, 'readonly': group.isReadOnly(), 
+                                     'permissions': permissions, 
                                      'owners': ownerIds, 'members':memberIds, 'experimenters':experimenters})
         
         context = {'form':form, 'gid': gid, 'permissions': permissions, 'experimenterDefaultGroups':experimenterDefaultGroups}
@@ -604,12 +586,11 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 description = form.cleaned_data['description']
                 owners = form.cleaned_data['owners']
                 permissions = form.cleaned_data['permissions']
-                readonly = toBoolean(form.cleaned_data['readonly'])
                 members = form.cleaned_data['members']
                 
                 listOfOwners = getSelectedExperimenters(conn, owners)
-                if permissions != int(permissions) or group.isReadOnly() != readonly:
-                    perm = setActualPermissions(permissions, readonly)
+                if permissions != int(permissions):
+                    perm = setActualPermissions(permissions)
                 else:
                     perm = None
                 conn.updateGroup(group, name, perm, listOfOwners, description)
@@ -635,7 +616,7 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
     
     if action == 'edit':
         permissions = getActualPermissions(group)
-        form = GroupOwnerForm(initial={'permissions': permissions, 'readonly': group.isReadOnly()})
+        form = GroupOwnerForm(initial={'permissions': permissions})
         context = {'form':form, 'gid': gid, 'permissions': permissions, 'group':group}
     elif action == "save":
         if request.method != 'POST':
@@ -644,11 +625,10 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
             form = GroupOwnerForm(data=request.POST.copy())
             if form.is_valid():
                 permissions = form.cleaned_data['permissions']
-                readonly = toBoolean(form.cleaned_data['readonly'])
                 
                 permissions = int(permissions)
-                if getActualPermissions(group) != permissions or group.isReadOnly()!=readonly:
-                    perm = setActualPermissions(permissions, readonly)
+                if getActualPermissions(group) != permissions:
+                    perm = setActualPermissions(permissions)
                     conn.updatePermissions(group, perm)
                 return HttpResponseRedirect(reverse("wamyaccount"))
             context = {'form':form, 'gid': gid}

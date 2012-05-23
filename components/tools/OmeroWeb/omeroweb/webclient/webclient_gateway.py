@@ -1868,19 +1868,15 @@ class OmeroWebObjectWrapper (object):
             return 'unknown'
         else:
             p = self.details.getPermissions()
-
-        if p.isUserRead() and p.isUserWrite():
-            flag = 'Private'
-        elif p.isUserRead() and not p.isUserWrite():
-            flag = 'Private (read-only)'
-        if p.isGroupRead() and p.isGroupWrite():
-            flag = 'Collaborative'
-        elif p.isGroupRead() and not p.isGroupWrite():
-            flag = 'Collaborative (read-only)'
-        if p.isWorldRead() and p.isWorldWrite():
+        
+        if p.isWorldRead():
             flag = 'Public'
-        elif p.isWorldRead() and not p.isWorldWrite():
-            flag = 'Public (read-only)'
+        elif p.isGroupRead():
+            flag = 'Collaborative'
+        elif p.isUserRead():
+            flag = 'Private'
+        else:
+            flag = p
         return flag
     
     def warpName(self):

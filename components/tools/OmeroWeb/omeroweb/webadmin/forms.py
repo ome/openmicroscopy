@@ -137,8 +137,8 @@ class GroupForm(NonASCIIForm):
     
     PERMISSION_CHOICES = (
         ('0', 'Private'),
-        ('1', 'Collaborative '),
-        #('2', 'Public ')
+        ('1', 'Collaborative read-only'),
+        ('2', 'Collaborative read-annotate'),
     )
     
     def __init__(self, name_check=False, *args, **kwargs):
@@ -159,11 +159,10 @@ class GroupForm(NonASCIIForm):
         
         self.fields['permissions'] = forms.ChoiceField(choices=self.PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
         
-        self.fields.keyOrder = ['name', 'description', 'owners', 'members', 'permissions', 'readonly']
+        self.fields.keyOrder = ['name', 'description', 'owners', 'members', 'permissions']
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}))
-    description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}), required=False)    
-    readonly = forms.BooleanField(required=False, label="(read-only)")  
+    description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}), required=False) 
     
     def clean_name(self):
         if self.name_check:
@@ -173,14 +172,13 @@ class GroupForm(NonASCIIForm):
 class GroupOwnerForm(forms.Form):
     
     PERMISSION_CHOICES = (
-        ('0', 'Private'),
-        ('1', 'Collaborative '),
-        #('2', 'Public ')
+        ('0', 'Private (rw----)'),
+        ('1', 'Collaborative read-only (rwr---)'),
+        ('2', 'Collaborative read-annotate (rwra--)'),
     )
 
     permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group. This will take some time for large groups and could break the server.</div>")
-    readonly = forms.BooleanField(required=False, label="(read-only)")  
-
+    
 class MyAccountForm(NonASCIIForm):
         
     def __init__(self, email_check=False, *args, **kwargs):
