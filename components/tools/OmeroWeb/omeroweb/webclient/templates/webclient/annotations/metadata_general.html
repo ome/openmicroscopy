@@ -419,7 +419,7 @@
                 {% if manager.image.canEdit %}
 					<div class="data_heading" id="imagedescription-{{ manager.image.id }}">
 						<p>
-						<span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default:"Add Description"}}</span>
+						<span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default:"Add Description"|linebreaksbr}}</span>
 						<button class="btn silver btn_edit" alt="e" title="edit">
 							<span></span>
 						</button>
@@ -427,7 +427,7 @@
 					</div>
 					
 					{% else %}
-					<span id='image_desc'>{{ manager.image.description|default:""|linebreaks }} </span>{% endif %}
+					<span id='image_desc'>{{ manager.image.description|default:""|linebreaksbr }} </span>{% endif %}
             </div>
 			
 			
@@ -527,7 +527,7 @@
 
 					</div>
 					{% else %}
-					<span id='dataset_desc'>{{ manager.dataset.description|default:""|linebreaks }}</span>
+					<span id='dataset_desc'>{{ manager.dataset.description|default:""|linebreaksbr }}</span>
 					{% endif %}
                 </div>
                 
@@ -582,7 +582,7 @@
 						</div>
 					    {% else %}
 					    
-					    <span id='project_desc'>{{ manager.project.description|default:""|linebreaks }}</span>
+					    <span id='project_desc'>{{ manager.project.description|default:""|linebreaksbr }}</span>
 					    {% endif %}
                     </div>
                     
@@ -641,7 +641,7 @@
                 </div>
                 {% else %}
                 
-                <span id='well_desc'>{{ manager.well.getWellSample.image.description|default:""|linebreaks }}</span>
+                <span id='well_desc'>{{ manager.well.getWellSample.image.description|default:""|linebreaksbr }}</span>
                 {% endif %}
             </div>
             
@@ -726,7 +726,7 @@
                     </div>
                 {% else %}
                 
-                    <span id='acquisition_desc'>{{ manager.acquisition.description|default:""|linebreaks }}</span>
+                    <span id='acquisition_desc'>{{ manager.acquisition.description|default:""|linebreaksbr }}</span>
                 {% endif %}
                 </div>
                 
@@ -780,7 +780,7 @@
                     </div>
                     {% else %}
                     
-                    <span id='plate_desc'>{{ manager.plate.description|default:""|linebreaks }}</span>{% endif %}
+                    <span id='plate_desc'>{{ manager.plate.description|default:""|linebreaksbr }}</span>{% endif %}
                     </div>
                     <table>
                         <tr>
@@ -831,7 +831,7 @@
                             </div>
                             {% else %}
                             
-                            <span id='screen_desc'>{{ manager.screen.description|default:""|linebreaks }}</span>
+                            <span id='screen_desc'>{{ manager.screen.description|default:""|linebreaksbr }}</span>
                             {% endif %}
                             
                         </div>
@@ -1133,7 +1133,7 @@
                     
                     {% else %}
                     
-                    <span id='tag_desc'>{{ manager.tag.description|default:""|linebreaks }}</span>{% endif %}
+                    <span id='tag_desc'>{{ manager.tag.description|default:""|linebreaksbr }}</span>{% endif %}
                 </div>
         
                 <table>
