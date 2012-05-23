@@ -1169,10 +1169,7 @@ class BrowserComponent
 	public void setExperimenterData(TreeImageDisplay expNode, Collection nodes)
 	{
 		int state = model.getState();
-        if (state != LOADING_DATA)
-            throw new IllegalStateException(
-                    "This method can only be invoked in the LOADING_DATA "+
-                    "state.");
+        if (state != LOADING_DATA) return;
         if (nodes == null) throw new NullPointerException("No nodes.");
       
         if (expNode == null)
