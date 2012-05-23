@@ -238,7 +238,7 @@ class DocComponent
 		}
 		boolean b = false;
 		if (unlinkButton != null) {
-			b = model.canDelete(data);
+			b = model.canDeleteLink(data);
 			unlinkButton.setEnabled(b);
 			unlinkButton.setVisible(b);
 			if (b) count++;
@@ -251,13 +251,13 @@ class DocComponent
 			if (b) count++;
 		}
 		if (downloadButton != null) {
-			b = model.canAnnotate(data);
+			b = true;//model.canAnnotate(data);
 			downloadButton.setEnabled(b);
 			downloadButton.setVisible(b);
 			if (b) count++;
 		}
 		if (openButton != null) {
-			b = model.canAnnotate(data);
+			b = true;//model.canAnnotate(data);
 			openButton.setEnabled(b);
 			openButton.setVisible(b);
 			if (b) count++;

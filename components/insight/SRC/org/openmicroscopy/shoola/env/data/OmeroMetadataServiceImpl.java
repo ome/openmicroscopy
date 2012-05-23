@@ -182,13 +182,19 @@ class OmeroMetadataServiceImpl
 	{
 		if (annotation == null || object == null) return;
 		IObject ho = gateway.findIObject(ctx, annotation.asIObject());
-		if (ho == null || !gateway.canDelete(ho)) return;
-		IObject link = gateway.findAnnotationLink(ctx, object.getClass(),
-				       object.getId(), ho.getId().getValue(), -1);
-		if (link != null) {
-			try {
-				gateway.deleteObject(ctx, link);
-			} catch (Exception e) {
+		if (ho == null) return;
+		long id = getUserDetails().getId();
+		List links = gateway.findAnnotationLinks(ctx, object.getClass(),
+			       object.getId(), Arrays.asList(ho.getId().getValue()), id);
+		Iterator i = links.iterator();
+		IObject link;
+		while (i.hasNext()) {
+			link = (IObject) i.next();
+			if (link != null && gateway.canDelete(link)) {
+				try {
+					gateway.deleteObject(ctx, link);
+				} catch (Exception e) {
+				}
 			}
 		}
 	}

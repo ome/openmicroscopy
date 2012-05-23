@@ -3278,7 +3278,7 @@ class OMEROGateway
 			StringBuffer buffer = new StringBuffer();
 			
 			buffer.append("select link from "+table+" as link ");
-			
+			buffer.append("left outer join fetch link.details.owner ");
 			buffer.append("where link.parent.id = :parentID"); 
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();

@@ -740,6 +740,22 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns <code>true</code> if the object can be deleted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above.
+	 */
+	boolean canDeleteLink(Object data)
+	{ 
+		if (!(data instanceof DataObject)) return false;
+		DataObject d = (DataObject) data;
+		boolean b = d.canDelete();
+		if (b) return b;
+		return isLinkOwner(data);
+	}
+	
+	/**
 	 * Returns <code>true</code> if the selected objects belong to several
 	 * groups, <code>false</code> otherwise.
 	 * 
