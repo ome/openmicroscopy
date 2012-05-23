@@ -688,6 +688,8 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False
                  'retry=%r request=%r conn=%s' % (iid, saveDefs, retry,
                  r, str(conn)))
     img = conn.getObject("Image", iid)
+    if img is None:
+        return
     if r.has_key('c'):
         logger.debug("c="+r['c'])
         channels, windows, colors =  _split_channel_info(r['c'])
