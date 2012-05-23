@@ -1255,7 +1255,7 @@
             update_roi_thumbs();
             return true;
         } else if ($target.attr('id') == "toggle_shape_text") {
-            var show_labels = ($("#toggle_shape_text").attr('checked') == true);
+            var show_labels = ($("#toggle_shape_text").is( ":checked" ));
             viewport.viewportimg.get(0).show_labels(show_labels);
             return true;
         } else if ($target.hasClass('shape_cell')) {
