@@ -755,8 +755,13 @@ def roiFigure(conn, commandArgs):
     # Use util method to upload the figure 'output' to the server, attaching it to the omeroImage, adding the 
     # figLegend as the fileAnnotation description. 
     # Returns the id of the originalFileLink child. (ID object, not value)
-    fileAnnotation = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)
-    return fileAnnotation
+    fileAnnotation = conn.createFileAnnfromLocalFile(output, mimetype=format, desc=figLegend)
+    if omeroImage.canAnnotate():
+        log("Attaching figure to image %s %s" % (omeroImage.getName(), omeroImage.getId()) )
+        omeroImage.linkAnnotation(fileAnnotation)
+        return fileAnnotation, omeroImage
+    else:
+        return fileAnnotation, None
 
 def runAsScript():
     """
@@ -819,11 +824,17 @@ See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/
     
         print commandArgs
         # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
-        fileAnnotation = roiFigure(conn, commandArgs)
+        result = roiFigure(conn, commandArgs)
         # return this fileAnnotation to the client. 
-        if fileAnnotation:
+        if result is not None:
+            fileAnnotation, image = result
+            message = "ROI Split Figure Created"
+            if image is not None:
+                message += " and attached to image %s"  % image.getName()
+            client.setOutput("File_Annotation", robject(fileAnnotation._obj))
+            client.setOutput("Message", rstring(message))
+        else:
             client.setOutput("Message", rstring("ROI Split Figure Created"))
-            client.setOutput("File_Annotation", robject(fileAnnotation))
     finally:
         client.closeSession()
 
