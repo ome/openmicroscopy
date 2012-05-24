@@ -205,7 +205,7 @@
 			<xsd:documentation>Describes external info.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>
-			<xsd:attribute name="EntityID" use="required" type="xsd:long"/>
+			<xsd:attribute name="EntityId" use="required" type="xsd:long"/>
 			<xsd:attribute name="EntityType" use="required" type="xsd:string"/>
 			<xsd:attribute name="UUID" use="optional" type="OME:UniversallyUniqueIdentifier"/>
 			<xsd:attribute name="LSID" use="optional" type="OME:LSID"/>
