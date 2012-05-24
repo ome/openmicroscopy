@@ -41,6 +41,7 @@ import omero.scripts as scripts
 import omero.util.imageUtil as imgUtil
 import omero.util.figureUtil as figUtil
 import omero.util.script_utils as scriptUtil
+from omero.gateway import BlitzGateway
 from omero.rtypes import *
 # import util.figureUtil as figUtil    # need to comment out for upload to work. But need import for script to work!!
 import getopt, sys, os, subprocess
@@ -383,7 +384,7 @@ def getVerticalLabels(labels, font, textGap):
     return textCanvas.rotate(90)
     
     
-def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, 
+def getSplitView(conn, imageIds, pixelIds, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, 
         mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, 
         overlayColour, roiZoom, roiLabel):
     """ This method makes a figure of a number of images, arranged in rows with each row being the split-view
@@ -407,15 +408,15 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, merged
     @ spacer        the gap between images and around the figure. Doubled between rows. 
     """
     
-    roiService = session.getRoiService()
-    re = session.createRenderingEngine()
-    queryService = session.getQueryService()    # only needed for movie
+    roiService = conn.getRoiService()
+    re = conn.createRenderingEngine()
+    queryService = conn.getQueryService()    # only needed for movie
     
     # establish dimensions and roiZoom for the primary image
     # getTheseValues from the server
     rect = getRectangle(roiService, imageIds[0], roiLabel)
     if rect == None:
-        raise("No ROI found for the first image.")
+        raise Exception("No ROI found for the first image.")
     roiX, roiY, roiWidth, roiHeight, yMin, yMax, tMin, tMax = rect
     
     roiOutline = ((max(width, height)) / 200 ) + 1
@@ -541,7 +542,7 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, merged
     return figureCanvas
             
 
-def roiFigure(session, commandArgs):    
+def roiFigure(conn, commandArgs):
     """
         This processes the script parameters, adding defaults if needed. 
         Then calls a method to make the figure, and finally uploads and attaches this to the primary image.
@@ -553,13 +554,6 @@ def roiFigure(session, commandArgs):
         
         @return:     the id of the originalFileLink child. (ID object, not value) 
     """
-    
-    # create the services we're going to need. 
-    metadataService = session.getMetadataService()
-    queryService = session.getQueryService()
-    updateService = session.getUpdateService()
-    rawFileStore = session.createRawFileStore()
-    containerService = session.getContainerService()
     
     log("ROI figure created by OMERO on %s" % date.today())
     log("")
@@ -588,27 +582,26 @@ def roiFigure(session, commandArgs):
             
     # process the list of images. If imageIds is not set, script can't run. 
     log("Image details:")
-    for idCount, imageId in enumerate(commandArgs["IDs"]):
-        iId = long(imageId.getValue())
-        image = containerService.getImages("Image", [iId], None)[0]
+    for imageId in commandArgs["IDs"]:
+        image = conn.getObject("Image", imageId)
         if image == None:
-            print "Image not found for ID:", iId
+            print "Image not found for ID:", imageId
             continue
-        imageIds.append(iId)
-        if idCount == 0:
+        imageIds.append(imageId)
+        if omeroImage is None:
             omeroImage = image        # remember the first image to attach figure to
-        pixelIds.append(image.getPrimaryPixels().getId().getValue())
-        imageNames[iId] = image.getName().getValue()
+        pixelIds.append(image.getPrimaryPixels().getId())
+        imageNames[imageId] = image.getName()
     
     if len(imageIds) == 0:
         print "No image IDs specified."    
             
-    pdMap = figUtil.getDatasetsProjectsFromImages(queryService, imageIds)    # a map of imageId : list of (project, dataset) names. 
-    tagMap = figUtil.getTagsFromImages(metadataService, imageIds)
+    pdMap = figUtil.getDatasetsProjectsFromImages(conn.getQueryService(), imageIds)    # a map of imageId : list of (project, dataset) names. 
+    tagMap = figUtil.getTagsFromImages(conn.getMetadataService(), imageIds)
     # Build a legend entry for each image
     for iId in imageIds:
         name = imageNames[iId]
-        imageDate = image.getAcquisitionDate().getValue()
+        imageDate = image.getAcquisitionDate()
         tagsList = tagMap[iId]
         pdList = pdMap[iId]
         
@@ -622,13 +615,10 @@ def roiFigure(session, commandArgs):
         imageLabels.append(getLabels(name, tagsList, pdList))
     
     # use the first image to define dimensions, channel colours etc. 
-    pixelsId = pixelIds[0]
-    pixels = queryService.get("Pixels", pixelsId)
-
-    sizeX = pixels.getSizeX().getValue();
-    sizeY = pixels.getSizeY().getValue();
-    sizeZ = pixels.getSizeZ().getValue();
-    sizeC = pixels.getSizeC().getValue();
+    sizeX = omeroImage.getSizeX();
+    sizeY = omeroImage.getSizeY();
+    sizeZ = omeroImage.getSizeZ();
+    sizeC = omeroImage.getSizeC();
 
     
     width = sizeX
@@ -734,7 +724,7 @@ def roiFigure(session, commandArgs):
         
     spacer = (width/50) + 2
     
-    fig = getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, 
+    fig = getSplitView(conn, imageIds, pixelIds, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, 
             mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, overlayColour, roiZoom, roiLabel)
     
     if fig == None:        # e.g. No ROIs found
@@ -820,15 +810,16 @@ See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/
     try:
         session = client.getSession()
         commandArgs = {}
-    
+        conn = BlitzGateway(client_obj=client)
+
         # process the list of args above. 
         for key in client.getInputKeys():
             if client.getInput(key):
-                commandArgs[key] = client.getInput(key).getValue()
+                commandArgs[key] =  unwrap(client.getInput(key))
     
         print commandArgs
         # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
-        fileAnnotation = roiFigure(session, commandArgs)
+        fileAnnotation = roiFigure(conn, commandArgs)
         # return this fileAnnotation to the client. 
         if fileAnnotation:
             client.setOutput("Message", rstring("ROI Split Figure Created"))
