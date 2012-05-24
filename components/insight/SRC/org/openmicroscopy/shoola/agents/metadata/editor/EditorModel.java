@@ -783,7 +783,7 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isAnnotationAllowed()
+	boolean canAddAnnotationLink()
 	{
 		if (!canAnnotate()) return false;
 		if (!isMultiSelection()) return true;
@@ -802,6 +802,38 @@ class EditorModel
 			}
 		}
 		return ids.size() <= 1;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the annotation can be added, should
+	 * only be invoked for tagging or adding attachments, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canDeleteAnnotationLink()
+	{
+		if (!isMultiSelection()) return true;
+		if (MetadataViewerAgent.isAdministrator() || isGroupLeader())
+			return true;
+
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return false;
+		Map m = data.getLinks();
+		if (m == null) return false;
+		long id = MetadataViewerAgent.getUserDetails().getId();
+		Entry entry;
+		Iterator i = m.entrySet().iterator();
+		DataObject o;
+		ExperimenterData exp;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			o = (DataObject) entry.getKey();
+			exp = (ExperimenterData) entry.getValue();
+			if (id == exp.getId())
+				return true;
+		}
+		return false;
 	}
 	
 	/**

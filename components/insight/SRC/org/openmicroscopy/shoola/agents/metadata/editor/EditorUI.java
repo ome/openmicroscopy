@@ -553,8 +553,8 @@ class EditorUI
 		
 		if (!generalPane.hasTagsToUnlink()) return;
 		MessageBox box = new MessageBox(model.getRefFrame(),
-				"Remove All Tags", 
-				"Are you sure you want to remove all Tags?");
+				"Remove All Your Tags", 
+				"Are you sure you want to remove all your Tags?");
 		Dimension d = box.getPreferredSize();
 		Point p = new Point(location.x-d.width/2, location.y);
 		if (box.showMsgBox(p) == MessageBox.YES_OPTION) {

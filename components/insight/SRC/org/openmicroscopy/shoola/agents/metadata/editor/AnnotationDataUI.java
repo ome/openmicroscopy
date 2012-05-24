@@ -857,9 +857,10 @@ class AnnotationDataUI
 		addTagsButton.setEnabled(enabled);
 		addDocsButton.setEnabled(enabled);
 		
-		enabled = model.canDelete();
+		enabled = model.canDeleteAnnotationLink();
 		removeTagsButton.setEnabled(enabled);
 		removeDocsButton.setEnabled(enabled);
+		enabled = model.canDelete(); //to be reviewed
 		unrateButton.setEnabled(enabled);
 		buildGUI();
 	}
@@ -868,9 +869,10 @@ class AnnotationDataUI
 	void onRelatedNodesSet()
 	{
 		if (!addTagsButton.isEnabled()) return;
-		boolean b = model.isAnnotationAllowed();
+		boolean b = model.canAddAnnotationLink();
 		addTagsButton.setEnabled(b);
 		addDocsButton.setEnabled(b);
+		b = model.canDeleteAnnotationLink();
 		removeTagsButton.setEnabled(b);
 		removeDocsButton.setEnabled(b);
 	}
