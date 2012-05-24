@@ -1281,7 +1281,7 @@ class PropertiesUI
 	 * No implementation in this case.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	protected List<AnnotationData> getAnnotationToRemove() { return null; }
+	protected List<Object> getAnnotationToRemove() { return null; }
 
 	/**
 	 * No implementation in this case.

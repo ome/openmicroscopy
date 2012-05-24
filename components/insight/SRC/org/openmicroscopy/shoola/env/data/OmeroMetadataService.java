@@ -357,7 +357,7 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object saveData(SecurityContext ctx, Collection<DataObject> data,
-	 List<AnnotationData> toAdd, List<AnnotationData> toRemove, long userID)
+	 List<AnnotationData> toAdd, List<Object> toRemove, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -377,7 +377,7 @@ public interface OmeroMetadataService
 	 */
 	public Object saveBatchData(SecurityContext ctx,
 			Collection<DataObject> data, List<AnnotationData> toAdd,
-			List<AnnotationData> toRemove, long userID)
+			List<Object> toRemove, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -396,7 +396,7 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object saveBatchData(SecurityContext ctx, TimeRefObject data, 
-		List<AnnotationData> toAdd, List<AnnotationData> toRemove, long userID)
+		List<AnnotationData> toAdd, List<Object> toRemove, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

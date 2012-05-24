@@ -49,6 +49,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
+import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
@@ -400,15 +401,13 @@ class EditorUI
 			model.fireAdminSaving(o, async);
 			return;
 		}
-		Map<Integer, List<AnnotationData>> m = generalPane.prepareDataToSave();
-		List<AnnotationData> toAdd = m.get(TO_ADD);
-		List<AnnotationData> toRemove = m.get(TO_REMOVE);
+		DataToSave object = generalPane.prepareDataToSave();
 		List<Object> metadata = null;
 		Object refObject = model.getRefObject();
 		if (refObject instanceof ImageData)
 			metadata = acquisitionPane.prepareDataToSave();
 
-		model.fireAnnotationSaving(toAdd, toRemove, metadata, async);
+		model.fireAnnotationSaving(object, metadata, async);
 	}
 
 	/**

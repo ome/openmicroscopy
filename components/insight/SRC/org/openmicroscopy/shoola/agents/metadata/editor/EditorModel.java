@@ -70,6 +70,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
+import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -1876,14 +1877,12 @@ class EditorModel
 	/**
 	 * Starts an asynchronous call to save the annotations.
 	 * 
-	 * @param toAdd		The annotation to save.
-	 * @param toRemove	The annotation to remove.
+	 * @param object The annotation/link to add or remove.
 	 * @param metadata	The metadata to save.
 	 * @param asynch 	Pass <code>true</code> to save data asynchronously,
      * 				 	<code>false</code> otherwise.
 	 */
-	void fireAnnotationSaving(List<AnnotationData> toAdd,
-			List<AnnotationData> toRemove, List<Object> metadata, 
+	void fireAnnotationSaving(DataToSave object, List<Object> metadata,
 			boolean asynch)
 	{
 		Object ref = getRefObject();
@@ -1900,7 +1899,7 @@ class EditorModel
 					list.add(i.next());
 				toDelete.clear();
 			}
-			parent.saveData(toAdd, toRemove, list, metadata, data, asynch);
+			parent.saveData(object, list, metadata, data, asynch);
 		}
 	}
 	
@@ -1917,8 +1916,7 @@ class EditorModel
 			if (data instanceof WellSampleData) {
 				data = ((WellSampleData) ref).getImage();
 			}
-			List<AnnotationData> l = new ArrayList<AnnotationData>();
-			parent.saveData(l, l, annotations, new ArrayList<Object>(), data, 
+			parent.saveData(null, annotations, new ArrayList<Object>(), data,
 					true);
 		}
 	}

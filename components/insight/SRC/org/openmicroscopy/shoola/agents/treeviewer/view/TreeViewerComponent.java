@@ -3811,10 +3811,13 @@ class TreeViewerComponent
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null || browser.getBrowserType() != 
 			Browser.FILE_SYSTEM_EXPLORER) return;
-		if (browser.register(file.getData())) 
+		if (browser.register(file.getData())) {
+			/*
 			model.getMetadataViewer().saveData(file.getToAdd(), 
 					file.getToRemove(), file.getToDelete(), 
 					file.getMetadata(), file.getData(), true);
+					*/
+		}
 	}
 
 	/** 

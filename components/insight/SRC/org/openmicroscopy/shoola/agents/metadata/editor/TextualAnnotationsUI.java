@@ -461,20 +461,9 @@ class TextualAnnotationsUI
 	 * Returns the collection of annotations to remove.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	protected List<AnnotationData> getAnnotationToRemove()
+	protected List<Object> getAnnotationToRemove()
 	{
-		List<AnnotationData> l = new ArrayList<AnnotationData>();
-		/*
-		if (originalText != null && originalText.length() > 0) {
-			String text = commentArea.getText();
-			if (text != null) {
-				text = text.trim();
-				if (text.length() == 0) {
-					TextualAnnotationData data = model.getLastUserAnnotation();
-					if (data != null) l.add(data);
-				}
-			}
-		}*/
+		List<Object> l = new ArrayList<Object>();
 		if (annotationToRemove != null)
 			l.addAll(annotationToRemove);
 		return l;

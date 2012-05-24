@@ -79,7 +79,7 @@ public class StructuredAnnotationSaver
      * @return The {@link BatchCall}.
      */
     private BatchCall loadCall(final Collection<DataObject> data, final
-    		List<AnnotationData> toAdd, final List<AnnotationData> toRemove,
+    		List<AnnotationData> toAdd, final List<Object> toRemove,
     		final List<Object> metadata, final long userID)
     {
         return new BatchCall("Saving") {
@@ -110,7 +110,7 @@ public class StructuredAnnotationSaver
      * @return The {@link BatchCall}.
      */
     private BatchCall loadBatchCall(final Collection<DataObject> data, final
-    		List<AnnotationData> toAdd, final List<AnnotationData> toRemove,
+    		List<AnnotationData> toAdd, final List<Object> toRemove,
     		final List<Object> metadata, final long userID)
     {
         return new BatchCall("Saving") {
@@ -141,7 +141,7 @@ public class StructuredAnnotationSaver
      * @return The {@link BatchCall}.
      */
     private BatchCall loadBatchCall(final TimeRefObject data, final
-    		List<AnnotationData> toAdd, final List<AnnotationData> toRemove,
+    		List<AnnotationData> toAdd, final List<Object> toRemove,
     		final List<Object> metadata, final long userID)
     {
         return new BatchCall("Saving") {
@@ -185,8 +185,8 @@ public class StructuredAnnotationSaver
      */
     public StructuredAnnotationSaver(SecurityContext ctx,
     		Collection<DataObject> data, List<AnnotationData> toAdd,
-    		List<AnnotationData> toRemove, 
-    		List<Object> metadata, long userID, boolean batch)
+    		List<Object> toRemove, List<Object> metadata, long userID, 
+    		boolean batch)
     {
     	if (data == null)
     		throw new IllegalArgumentException("No object to save.");
@@ -208,7 +208,7 @@ public class StructuredAnnotationSaver
      */
     public StructuredAnnotationSaver(SecurityContext ctx,
     		TimeRefObject timeRefObject, List<AnnotationData> toAdd,
-    		List<AnnotationData> toRemove, long userID)
+    		List<Object> toRemove, long userID)
     {
     	if (timeRefObject == null)
     		throw new IllegalArgumentException("No time period sepecified.");

@@ -49,6 +49,7 @@ import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
+import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -356,16 +357,15 @@ class GeneralPaneUI
 	}
 	
 	/** 
-	 * Returns an array of size 2 with the collection of 
-	 * annotation to save. 
+	 * Returns the object hosting the annotation/link to save.
 	 * 
 	 * @return See above.
 	 */
-	Map<Integer, List<AnnotationData>> prepareDataToSave()
+	DataToSave prepareDataToSave()
 	{
 		if (!model.isMultiSelection()) propertiesUI.updateDataObject();
 		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
-		List<AnnotationData> toRemove = new ArrayList<AnnotationData>();
+		List<Object> toRemove = new ArrayList<Object>();
 		List<AnnotationData> l = annotationUI.getAnnotationToSave();
 		//To add
 		if (l != null && l.size() > 0)
@@ -374,17 +374,14 @@ class GeneralPaneUI
 		if (l != null && l.size() > 0)
 			toAdd.addAll(l);
 		//To remove
-		l = annotationUI.getAnnotationToRemove();
-		if (l != null && l.size() > 0)
-			toRemove.addAll(l);
-		l = textualAnnotationsUI.getAnnotationToRemove();
-		if (l != null && l.size() > 0)
-			toRemove.addAll(l);
-		Map<Integer, List<AnnotationData>> 
-			map = new HashMap<Integer, List<AnnotationData>>();
-		map.put(EditorUI.TO_ADD, toAdd);
-		map.put(EditorUI.TO_REMOVE, toRemove);
-		return map;
+		List<Object> ll = annotationUI.getAnnotationToRemove();
+		if (ll != null && ll.size() > 0)
+			toRemove.addAll(ll);
+		ll = textualAnnotationsUI.getAnnotationToRemove();
+		if (ll != null && ll.size() > 0)
+			toRemove.addAll(ll);
+		
+		return new DataToSave(toAdd, toRemove);
 	}
 	
 	/** Updates display when the parent of the root node is set. */

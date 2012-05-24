@@ -210,7 +210,7 @@ public interface MetadataHandlerView
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle saveData(SecurityContext ctx, Collection<DataObject> data,
-		List<AnnotationData> toAdd, List<AnnotationData> toRemove,
+		List<AnnotationData> toAdd, List<Object> toRemove,
 		List<Object> metadata,	long userID, AgentEventListener observer);
 	
 	/**
@@ -228,7 +228,7 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle saveBatchData(SecurityContext ctx, 
 		Collection<DataObject> data, List<AnnotationData> toAdd,
-		List<AnnotationData> toRemove, long userID,
+		List<Object> toRemove, long userID,
 		AgentEventListener observer);
 	
 	/**
@@ -246,7 +246,7 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle saveBatchData(SecurityContext ctx, 
 		TimeRefObject timeRefObject, List<AnnotationData> toAdd,
-		List<AnnotationData> toRemove, long userID,
+		List<Object> toRemove, long userID,
 		AgentEventListener observer);
 	
 	/**

@@ -1250,9 +1250,9 @@ class AnnotationDataUI
 	 * Returns the collection of annotation to remove.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	protected List<AnnotationData> getAnnotationToRemove()
+	protected List<Object> getAnnotationToRemove()
 	{ 
-		List<AnnotationData> l = new ArrayList<AnnotationData>();
+		List<Object> l = new ArrayList<Object>();
 		if (selectedValue != initialValue && selectedValue == 0) {
 			RatingAnnotationData rating = model.getUserRatingAnnotation();
 			if (rating != null) l.add(rating);
