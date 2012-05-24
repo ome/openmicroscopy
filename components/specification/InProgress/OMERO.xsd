@@ -120,7 +120,7 @@
 								</xsd:annotation>
 								<xsd:complexType>
 									<xsd:attribute name="EntityId" use="required"
-										type="OME:NonNegativeLong"/>
+										type="xsd:long"/>
 									<xsd:attribute name="EntityType" use="required"
 										type="xsd:string"/>
 									<xsd:attribute name="Action" use="required" type="xsd:string"/>
