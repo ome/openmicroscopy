@@ -272,7 +272,7 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-                <xsd:element ref="PixelsRef" minOccurs="1" maxOccurs="unbounded"/>
+                <xsd:element ref="PixelsRef" minOccurs="1" maxOccurs="1"/>
 				<xsd:element minOccurs="1" maxOccurs="1" ref="QuantumDef"/>
 				<xsd:element minOccurs="1" maxOccurs="unbounded" ref="ChannelBinding">
                     <xsd:annotation>
