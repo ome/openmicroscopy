@@ -179,6 +179,7 @@ OMERO_PACKAGE_OVERRIDES = {
 OMERO_NAMED_OPTIONAL = (
         "ROI",
         "Channel",
+        "RenderingDef",
 )
 
 # The default template for enum class processing.
