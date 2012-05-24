@@ -557,11 +557,12 @@
 
 #runningStatus {
 	 position:absolute; 
-	 bottom:2px; 
-	 left:2px; 
-	 width:10px; 
-	 height:10px; 
-	 background:green;
+	 bottom:1px; 
+	 left:1px; 
+	 width:12px; 
+	 height:12px; 
+	 border-radius:8px;
+	 background:url(../img/spinner.gif) green 75% center no-repeat;
 }
 
 	
