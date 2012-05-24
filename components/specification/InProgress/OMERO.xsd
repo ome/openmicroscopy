@@ -195,7 +195,7 @@
 			<xsd:attribute name="Conn" use="required" type="xsd:string"/>
 			<xsd:attribute name="Up" use="required" type="xsd:dateTime"/>
 			<xsd:attribute name="Down" use="optional" type="xsd:dateTime"/>
-			<xsd:attribute name="Scale" use="optional" type="xsd:long"/>
+			<xsd:attribute name="Scale" use="optional" type="xsd:integer"/>
 		</xsd:complexType>
 	</xsd:element>
 
