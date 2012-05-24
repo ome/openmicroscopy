@@ -423,9 +423,9 @@
 	</xsd:element>
 
 	<xsd:complexType name="QuantumDef">
-		<xsd:attribute name="CDStart" use="required" type="xsd:long"/>
-		<xsd:attribute name="CDEnd" use="required" type="xsd:long"/>
-		<xsd:attribute name="BitResolution" use="required" type="xsd:long"/>
+		<xsd:attribute name="CDStart" use="required" type="xsd:integer"/>
+		<xsd:attribute name="CDEnd" use="required" type="xsd:integer"/>
+		<xsd:attribute name="BitResolution" use="required" type="xsd:integer"/>
 	</xsd:complexType>
 
 	<xsd:complexType name="ChannelBinding">
