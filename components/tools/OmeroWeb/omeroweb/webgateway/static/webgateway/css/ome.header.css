@@ -534,6 +534,11 @@
 	        margin: 0;
 			position:absolute;
 		}
+		.dropdown_menu ul ul { 
+		    max-height:400px;
+		    overflow-y:auto;
+		    overflow-x:hidden;
+	    }
 				
 
 			/* Sub menu */
