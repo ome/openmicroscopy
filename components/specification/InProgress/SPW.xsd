@@ -479,7 +479,11 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element ref="WellSample" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="WellSample" minOccurs="0" maxOccurs="unbounded">
+                    <xsd:annotation>
+                        <xsd:appinfo><xsdfu><ordered/></xsdfu></xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
 				<xsd:element ref="ReagentRef" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="SA:AnnotationRef" minOccurs="0" maxOccurs="unbounded">
 					<xsd:annotation>

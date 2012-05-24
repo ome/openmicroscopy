@@ -431,6 +431,7 @@ class OMEModelProperty(OMEModelEntity):
         self.manyToMany = False
         self.isParentOrdered = False
         self.isChildOrdered = False
+        self.isOrdered = False
         self.isUnique = False
         self.isImmutable = False
         self._isReference = False
@@ -447,6 +448,8 @@ class OMEModelProperty(OMEModelEntity):
                 self.isParentOrdered = True
             if root.find('childordered') is not None:
                 self.isChildOrdered = True
+            if root.find('ordered') is not None:
+                self.isOrdered = True
             if root.find('unique') is not None:
                 self.isUnique = True
             if root.find('immutable') is not None:
@@ -662,6 +665,9 @@ class OMEModelObject(OMEModelEntity):
         self.properties = odict()
         self.isAbstract = False
         self.isAbstractProprietary = False
+        self.isParentOrdered = False
+        self.isChildOrdered = False
+        self.isOrdered = False
         self.isUnique = False
         self.isImmutable = False
         self._isGlobal = False
@@ -685,6 +691,12 @@ class OMEModelObject(OMEModelEntity):
                 self.isImmutable = True
             if root.find('global') is not None:
                 self._isGlobal = True
+            if root.find('parentordered') is not None:
+                self.isParentOrdered = True
+            if root.find('childordered') is not None:
+                self.isChildOrdered = True
+            if root.find('ordered') is not None:
+                self.isOrdered = True
             self.plural = root.findtext('plural')
         except AttributeError:
             pass
@@ -974,7 +986,10 @@ class OMEModel(object):
                 v = {'data_type': o.name, 'property_name': prop.javaMethodName,
                      'plural': prop.plural,
                      'maxOccurs': self.calculateMaxOccurs(o, prop),
-                     'minOccurs': self.calculateMinOccurs(o, prop)}
+                     'minOccurs': self.calculateMinOccurs(o, prop),
+                     'isOrdered': prop.isOrdered,
+                     'isChildOrdered': prop.isChildOrdered,
+                     'isParentOrdered': prop.isParentOrdered}
                 references[shortName].append(v)
         logging.debug("Model references: %s" % references)
 
@@ -989,6 +1004,9 @@ class OMEModel(object):
                 delegate.maxOccurs = ref['maxOccurs']
                 prop = OMEModelProperty.fromReference(delegate, o, self)
                 prop.key = key
+                prop.isChildOrdered = ref['isChildOrdered']
+                prop.isParentOrdered = ref['isParentOrdered']
+                prop.isOrdered = ref['isOrdered']
                 o.properties[key] = prop
 
     def process(klass, contentHandler):

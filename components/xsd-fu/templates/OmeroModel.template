@@ -202,31 +202,31 @@ ${customContent[o.name]['properties']}\
             <!--
             // Many-to-many reference ${prop.name}
             -->
-            <child name="${prop.javaInstanceVariableName}" type="${fq_link_class_name(o, prop)}" target="${fq_class_name(prop)}"{% if prop.isUnique %} unique="true"{% end %}/>
+            <child name="${prop.javaInstanceVariableName}" type="${fq_link_class_name(o, prop)}" target="${fq_class_name(prop)}"{% if prop.isOrdered or prop.isParentOrdered %} ordered="true"{% end %}{% if prop.isUnique %} unique="true"{% end %}/>
 {% end %}\
 {% when prop.isReference and prop.maxOccurs > 1 %}\
             <!--
             // Reference ${prop.name}
             -->
-            <onemany name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.javaArgumentName}" ordered="TODO"{% if prop.isUnique %} unique="true"{% end %}/>
+            <onemany name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.javaArgumentName}"{% if prop.isOrdered %} ordered="true"{% end %}{% if prop.isUnique %} unique="true"{% end %}/>
 {% end %}\
 {% when prop.isBackReference and prop.isManyToMany %}\
             <!--
             // Many-to-many back reference ${prop.name}
             -->
-            <parent name="${prop.javaInstanceVariableName}" type="${fq_link_class_name(o, prop)}" target="${fq_class_name(prop)}"{% if prop.isUnique %} unique="true"{% end %}/>
+            <parent name="${prop.javaInstanceVariableName}" type="${fq_link_class_name(o, prop)}" target="${fq_class_name(prop)}"{% if prop.isOrdered or prop.isChildOrdered %} ordered="true"{% end %}{% if prop.isUnique %} unique="true"{% end %}/>
 {% end %}\
 {% when prop.isBackReference and prop.maxOccurs > 1 %}\
             <!--
             // Back reference ${prop.name}
             -->
-            <{% if prop.minOccurs == 0 %}manyzero{% end %}{% if prop.minOccurs == 1 %}manyone{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.javaArgumentName}" ordered="TODO"{% if prop.isUnique %} unique="true"{% end %}/>
+            <{% if prop.minOccurs == 0 %}manyzero{% end %}{% if prop.minOccurs == 1 %}manyone{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.javaArgumentName}"{% if prop.isOrdered %} ordered="true"{% end %}{% if prop.isUnique %} unique="true"{% end %}/>
 {% end %}\
 {% when prop.isBackReference %}\
             <!--
             // Back reference ${prop.name}
             -->
-            <{% if prop.minOccurs == 0 %}optional{% end %}{% if prop.minOccurs == 1 %}required{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}"{% if prop.isUnique %} unique="true"{% end %}/>
+            <{% if prop.minOccurs == 0 %}optional{% end %}{% if prop.minOccurs == 1 %}required{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}"{% if prop.isOrdered %} ordered="true"{% end %}{% if prop.isUnique %} unique="true"{% end %}/>
 {% end %}\
 {% when prop.maxOccurs == 1 and (not o.isAbstractProprietary or prop.isAttribute or not prop.isComplex() or prop.name in fu.ABSTRACT_PROPRIETARY_OVERRIDE) %}\
             <!--
@@ -238,7 +238,7 @@ ${customContent[o.name]['properties']}\
             <!--
             // Property which occurs more than once ${prop.name}
             -->
-            <{% if prop.minOccurs == 0 %}zeromany{% end %}{% if prop.minOccurs == 1 %}onemany{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.javaArgumentName}" ordered="TODO"{% if prop.isUnique %} unique="true"{% end %}/>
+            <{% if prop.minOccurs == 0 %}zeromany{% end %}{% if prop.minOccurs == 1 %}onemany{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.javaArgumentName}"{% if prop.isOrdered %} ordered="true"{% end %}{% if prop.isUnique %} unique="true"{% end %}/>
 {% end %}\
 {% otherwise %}\
             <!--
@@ -273,8 +273,8 @@ ${customContent[o.name]['properties']}\
 {% if not o['parent'].isAnnotation and not o['child'].isAnnotation %}\
     <link id="${o['id']}"{% if o['parent'].isGlobal %} global="true"{% end %}>
         <properties>
-            <from_parent type="${fully_qualified_class_name(o['parent'])}"{% if o['child'].isParentOrdered %} ordered="true"{% end %}/>
-            <to_child type="${fully_qualified_class_name(o['child'])}"{% if o['child'].isChildOrdered %} ordered="true"{% end %}/>
+            <from_parent type="${fully_qualified_class_name(o['parent'])}"{% if o['child'].isParentOrdered or o['parent'].isOrdered or o['parent'].isParentOrdered %} ordered="true"{% end %}/>
+            <to_child type="${fully_qualified_class_name(o['child'])}"{% if o['parent'].isChildOrdered or o['child'].isOrdered or o['child'].isChildOrdered %} ordered="true"{% end %}/>
 {% if o['name'] in customContent and 'properties' in customContent[o['name']] %}\
 ${customContent[o['name']]['properties']}\
 {% end %}\

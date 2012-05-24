@@ -274,8 +274,16 @@
 			<xsd:sequence>
                 <xsd:element ref="PixelsRef" minOccurs="1" maxOccurs="unbounded"/>
 				<xsd:element minOccurs="1" maxOccurs="1" ref="QuantumDef"/>
-				<xsd:element minOccurs="1" maxOccurs="unbounded" ref="ChannelBinding"/>
-				<xsd:element minOccurs="0" maxOccurs="unbounded" ref="CodomainMapContext"/>
+				<xsd:element minOccurs="1" maxOccurs="unbounded" ref="ChannelBinding">
+                    <xsd:annotation>
+                        <xsd:appinfo><xsdfu><ordered/></xsdfu></xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+				<xsd:element minOccurs="0" maxOccurs="unbounded" ref="CodomainMapContext">
+                    <xsd:annotation>
+                        <xsd:appinfo><xsdfu><ordered/></xsdfu></xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
 			</xsd:sequence>
 			<xsd:attribute name="Model" use="required" type="RenderingModel"/>
 			<xsd:attribute name="DefaultZ" use="required" type="OME:NonNegativeInt"/>
