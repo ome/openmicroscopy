@@ -128,7 +128,6 @@
 							</xsd:element>
 						</xsd:sequence>
 						<xsd:attribute name="ID" use="required" type="EventID"/>
-						<xsd:attribute name="EntityId" use="required" type="OME:NonNegativeLong"/>
 						<xsd:attribute name="Status" use="optional" type="xsd:string"/>
 						<xsd:attribute name="Time" use="required" type="xsd:dateTime"/>
 						<xsd:attribute name="Type" use="required" type="EventType"/>
