@@ -103,7 +103,7 @@
 					<xsd:complexType>
 						<xsd:sequence>
 							<xsd:element ref="OME:ExperimenterRef" minOccurs="1" maxOccurs="1"/>
-							<xsd:element ref="OME:ExperimenterGroupRef" minOccurs="0" maxOccurs="1"/>
+							<xsd:element ref="OME:ExperimenterGroupRef" minOccurs="1" maxOccurs="1"/>
 							<xsd:element name="EventRef" minOccurs="0" maxOccurs="1">
 								<xsd:complexType>
 									<xsd:complexContent>
