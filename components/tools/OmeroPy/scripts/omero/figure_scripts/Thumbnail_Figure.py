@@ -301,10 +301,13 @@ def makeThumbnailFigure(conn, scriptParams):
         figure.save(output)
         mimetype = "image/jpeg"
 
-    fa = conn.createFileAnnfromLocalFile(output, origFilePathAndName=None, mimetype=mimetype, ns=None, desc=figLegend)
-    parent.linkAnnotation(fa)
-    
-    return fa._obj
+    fileAnnotation = conn.createFileAnnfromLocalFile(output, mimetype=format, desc=figLegend)
+    if parent.canAnnotate():
+        log("Attaching figure to %s %s %s" % (scriptParams["Data_Type"], parent.getName(), parent.getId()) )
+        parent.linkAnnotation(fileAnnotation)
+        return fileAnnotation, parent
+    else:
+        return fileAnnotation, None
         
 
 def runAsScript():
@@ -367,11 +370,14 @@ See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/
         print commandArgs
 
         # Makes the figure and attaches it to Project/Dataset. Returns FileAnnotationI object
-        fileAnnotation = makeThumbnailFigure(conn, commandArgs)
-        if fileAnnotation:
-            print fileAnnotation
-            client.setOutput("Message", rstring("Thumbnail-Figure Created"))
-            client.setOutput("File_Annotation", robject(fileAnnotation))
+        result = makeThumbnailFigure(conn, commandArgs)
+        if result is not None:
+            [fileAnnotation, parent] = result
+            message = "Thumbnail figure created"
+            if parent is not None:
+                message += " and attached to %s %s"  % (commandArgs["Data_Type"], parent.getName())
+            client.setOutput("Message", rstring(message))
+            client.setOutput("File_Annotation", robject(fileAnnotation._obj))
         else:
             client.setOutput("Message", rstring("Thumbnail-Figure Failed. See error or info"))
     finally:
