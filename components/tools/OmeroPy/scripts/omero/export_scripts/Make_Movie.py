@@ -135,9 +135,9 @@ def rangeFromList(list, index):
         maxValue = max(maxValue, i[index])
     return range(minValue, maxValue+1)
 
-def calculateAquisitionTime(session, pixelsId, cList, tzList):
+def calculateAquisitionTime(conn, pixelsId, cList, tzList):
     """ Loads the plane information. """
-    queryService = session.getQueryService()
+    queryService = conn.getQueryService()
     
     tRange = ",".join([str(i) for i in rangeFromList(tzList, 0)])
     zRange = ",".join([str(i) for i in rangeFromList(tzList, 1)])
@@ -181,9 +181,9 @@ def addScalebar(scalebar, image, pixels, commandArgs):
 def addPlaneInfo(z, t, pixels, image, colour):
     """ Displays the plane information. """
     draw = ImageDraw.Draw(image)
-    planeInfoTextY = pixels.getSizeY().getValue()-60
+    planeInfoTextY = pixels.getSizeY()-60
     textX = 20
-    if(planeInfoTextY<=0 or textX > pixels.getSizeX().getValue() or planeInfoTextY>pixels.getSizeY().getValue()):
+    if(planeInfoTextY<=0 or textX > pixels.getSizeX() or planeInfoTextY>pixels.getSizeY()):
         return image
     planeCoord = "z:"+str(z+1)+" t:"+str(t+1)
     draw.text((textX, planeInfoTextY), planeCoord, fill=colour)
@@ -199,9 +199,9 @@ def addTimePoints(time, pixels, image, colour):
     draw.text((textX, textY), str(time), fill=colour)
     return image
 
-def getRenderingEngine(session, pixelsId, sizeC, cRange):
+def getRenderingEngine(conn, pixelsId, sizeC, cRange):
     """ Initializes the rendering engine for the specified pixels set. """
-    renderingEngine = session.createRenderingEngine()
+    renderingEngine = conn.createRenderingEngine()
     renderingEngine.lookupPixels(pixelsId)
     if(renderingEngine.lookupRenderingDef(pixelsId)==0):
         renderingEngine.resetDefaults()
@@ -402,23 +402,16 @@ def writeMovie(commandArgs, conn):
     """
     log("Movie created by OMERO")
     log("")
-    session = conn.c.sf
-    gateway = session.createGateway()
-    scriptService = session.getScriptService()
-    queryService = session.getQueryService()
-    updateService = session.getUpdateService()
-    rawFileStore = session.createRawFileStore()
     
-    omeroImage = gateway.getImage(commandArgs["Image_ID"])
-    pixelsList = gateway.getPixelsFromImage(commandArgs["Image_ID"])
-    pixels = pixelsList[0]
-    pixelsId = pixels.getId().getValue()
+    omeroImage = conn.getObject("Image",commandArgs["Image_ID"])
+    pixels = omeroImage.getPrimaryPixels();
+    pixelsId = pixels.getId()
 
-    sizeX = pixels.getSizeX().getValue()
-    sizeY = pixels.getSizeY().getValue()
-    sizeZ = pixels.getSizeZ().getValue()
-    sizeC = pixels.getSizeC().getValue()
-    sizeT = pixels.getSizeT().getValue()
+    sizeX = omeroImage.getSizeX()
+    sizeY = omeroImage.getSizeY()
+    sizeZ = omeroImage.getSizeZ()
+    sizeC = omeroImage.getSizeC()
+    sizeT = omeroImage.getSizeT()
 
     if (sizeX==None or sizeY==None or sizeZ==None or sizeT==None or sizeC==None):
         return
@@ -432,16 +425,16 @@ def writeMovie(commandArgs, conn):
 
     tzList = calculateRanges(sizeZ, sizeT, commandArgs)
 
-    timeMap = calculateAquisitionTime(session, pixelsId, cRange, tzList)
+    timeMap = calculateAquisitionTime(conn, pixelsId, cRange, tzList)
     if (timeMap==None):
         commandArgs["Show_Time"]=False
     if (timeMap != None):
         if (len(timeMap)==0):
             commandArgs["Show_Time"]=False
 
-    pixelTypeString = pixels.getPixelsType().getValue().getValue()
+    pixelTypeString = pixels.getPixelsType().getValue()
     frameNo = 1
-    renderingEngine = getRenderingEngine(session, pixelsId, sizeC, cRange)
+    renderingEngine = getRenderingEngine(conn, pixelsId, sizeC, cRange)
 
     overlayColour = (255,255,255)
     if "Overlay_Colour" in commandArgs:
@@ -514,8 +507,13 @@ def writeMovie(commandArgs, conn):
     buildAVI(sizeX, sizeY, filelist, framesPerSec, movieName, format)
     figLegend = "\n".join(logLines)
     mimetype = formatMimetypes[format]
-    fileAnnotation = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, movieName, mimetype, figLegend)
-    return fileAnnotation
+
+    fileAnnotation = conn.createFileAnnfromLocalFile(movieName, mimetype=mimetype, desc=figLegend)
+    if omeroImage is not None:
+        if omeroImage.canAnnotate():
+            omeroImage.linkAnnotation(fileAnnotation)
+            return fileAnnotation, omeroImage
+    return fileAnnotation, None
 
 def runAsScript():
     """
@@ -567,11 +565,18 @@ def runAsScript():
             if client.getInput(key):
                 commandArgs[key] = client.getInput(key).getValue()
         print commandArgs
-
-        fileAnnotation = writeMovie(commandArgs, conn)
-        if fileAnnotation:
-            client.setOutput("Message", rstring("Movie Created"))
-            client.setOutput("File_Annotation", robject(fileAnnotation))
+        
+        result = writeMovie(commandArgs, conn)
+        
+        if result is not None:
+            [fileAnnotation, image] = result
+            message = "Movie created"
+            if image is not None:
+                message += " and attached to image %s"  %  image.getName()
+            client.setOutput("Message", rstring(message))
+            client.setOutput("File_Annotation", robject(fileAnnotation._obj))
+        else:
+            client.setOutput("Message", rstring("Movie not created"))
     finally:
         client.closeSession()
 
