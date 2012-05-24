@@ -208,7 +208,7 @@ ${customContent[o.name]['properties']}\
             <!--
             // Reference ${prop.name}
             -->
-            <onemany name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.name}" ordered="TODO"{% if prop.isUnique %} unique="true"{% end %}/>
+            <onemany name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.javaArgumentName}" ordered="TODO"{% if prop.isUnique %} unique="true"{% end %}/>
 {% end %}\
 {% when prop.isBackReference and prop.isManyToMany %}\
             <!--
@@ -220,7 +220,7 @@ ${customContent[o.name]['properties']}\
             <!--
             // Back reference ${prop.name}
             -->
-            <{% if prop.minOccurs == 0 %}manyzero{% end %}{% if prop.minOccurs == 1 %}manyone{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.name}" ordered="TODO"{% if prop.isUnique %} unique="true"{% end %}/>
+            <{% if prop.minOccurs == 0 %}manyzero{% end %}{% if prop.minOccurs == 1 %}manyone{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.javaArgumentName}" ordered="TODO"{% if prop.isUnique %} unique="true"{% end %}/>
 {% end %}\
 {% when prop.isBackReference %}\
             <!--
@@ -238,7 +238,7 @@ ${customContent[o.name]['properties']}\
             <!--
             // Property which occurs more than once ${prop.name}
             -->
-            <{% if prop.minOccurs == 0 %}zeromany{% end %}{% if prop.minOccurs == 1 %}onemany{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.name}" ordered="TODO"{% if prop.isUnique %} unique="true"{% end %}/>
+            <{% if prop.minOccurs == 0 %}zeromany{% end %}{% if prop.minOccurs == 1 %}onemany{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.javaArgumentName}" ordered="TODO"{% if prop.isUnique %} unique="true"{% end %}/>
 {% end %}\
 {% otherwise %}\
             <!--
