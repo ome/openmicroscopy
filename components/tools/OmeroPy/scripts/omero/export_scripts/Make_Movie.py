@@ -402,8 +402,12 @@ def writeMovie(commandArgs, conn):
     """
     log("Movie created by OMERO")
     log("")
+    message=""
     
     omeroImage = conn.getObject("Image",commandArgs["Image_ID"])
+    if not omeroImage:
+        message += "No image found. "
+        return None, message
     pixels = omeroImage.getPrimaryPixels();
     pixelsId = pixels.getId()
 
@@ -507,13 +511,11 @@ def writeMovie(commandArgs, conn):
     buildAVI(sizeX, sizeY, filelist, framesPerSec, movieName, format)
     figLegend = "\n".join(logLines)
     mimetype = formatMimetypes[format]
-
-    fileAnnotation = conn.createFileAnnfromLocalFile(movieName, mimetype=mimetype, desc=figLegend)
-    if omeroImage is not None:
-        if omeroImage.canAnnotate():
-            omeroImage.linkAnnotation(fileAnnotation)
-            return fileAnnotation, omeroImage
-    return fileAnnotation, None
+    
+    fileAnnotation, annMessage = scriptUtil.createLinkFileAnnotation(conn, movieName, omeroImage,
+        output="Movie", parenttype="image", mimetype=mimetype)
+    message += annMessage
+    return fileAnnotation, message
 
 def runAsScript():
     """
@@ -563,20 +565,15 @@ def runAsScript():
 
         for key in client.getInputKeys():
             if client.getInput(key):
-                commandArgs[key] = client.getInput(key).getValue()
+                commandArgs[key] = client.getInput(key,unwrap=True)
         print commandArgs
         
-        result = writeMovie(commandArgs, conn)
+        fileAnnotation, message = writeMovie(commandArgs, conn)
         
-        if result is not None:
-            [fileAnnotation, image] = result
-            message = "Movie created"
-            if image is not None:
-                message += " and attached to image %s"  %  image.getName()
-            client.setOutput("Message", rstring(message))
+        # return this fileAnnotation to the client. 
+        client.setOutput("Message", rstring(message))
+        if fileAnnotation is not None:
             client.setOutput("File_Annotation", robject(fileAnnotation._obj))
-        else:
-            client.setOutput("Message", rstring("Movie not created"))
     finally:
         client.closeSession()
 

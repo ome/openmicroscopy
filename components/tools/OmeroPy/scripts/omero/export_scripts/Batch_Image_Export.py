@@ -396,19 +396,10 @@ def batchImageExport(conn, scriptParams):
         compress(export_file, folder_name)
         mimetype='zip'
 
-    if os.path.exists(export_file):
-        fileAnn = conn.createFileAnnfromLocalFile(export_file, mimetype=mimetype, desc=None)
-        message += "Batch export zip created"
-        if parentToAttachZip is not None:
-            if parentToAttachZip.canAnnotate():
-                message += " and attached to %s %s."  % (scriptParams['Data_Type'], parentToAttachZip.getName())
-                log("Attaching zip to... %s %s %s" % (scriptParams['Data_Type'], parentToAttachZip.getName(), parentToAttachZip.getId()) )
-                parentToAttachZip.linkAnnotation(fileAnn)
-            else:
-                message += " but could not be attached."
-    else:
-        fileAnn = None
-    return fileAnn, message
+    fileAnnotation, annMessage = script_utils.createLinkFileAnnotation(conn, export_file, parentToAttachZip, 
+        output="Batch export zip", parenttype=scriptParams["Data_Type"], mimetype=mimetype)
+    message += annMessage
+    return fileAnnotation, message
 
 def runScript():
     """

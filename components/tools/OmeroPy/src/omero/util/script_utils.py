@@ -319,6 +319,35 @@ def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, local
     uploadFile(rawFileStore, originalFile, localName)
     fileLink = attachFileToParent(updateService, parent, originalFile, description, namespace)
     return fileLink.getChild()
+
+def createLinkFileAnnotation(conn, localPath, parent, output="Output", parenttype="Image", mimetype=None, desc=None, ns=None, origFilePathAndName=None):
+    """
+    Uploads a local file to the server, as an Original File and attaches it to the 
+    parent (Project, Dataset or Image)
+
+    @param conn:            The L{omero.gateway.BlitzGateway} connection.
+    @param parent:          The ProjectI or DatasetI or ImageI to attach file to
+    @param localPath:       Full Name (and path) of the file location to upload. String
+    @param mimetype:        The original file mimetype. E.g. "PNG". String
+    @param description:     Optional description for the file annotation. String
+    @param namespace:       Namespace to set for the original file
+    @param 
+    @param origFilePathName:    The /path/to/file/fileName.ext you want on the server. If none, use output as name
+    @return:                The originalFileLink child (FileAnnotationI) and a log message
+    """
+    if os.path.exists(localPath):
+        fileAnnotation = conn.createFileAnnfromLocalFile(localPath, origFilePathAndName=origFilePathAndName, mimetype=mimetype, ns=ns, desc=desc)
+        message = "%s created" % output
+        if parent is not None:
+            if parent.canAnnotate():
+                message += " and attached to %s %s."  % (parenttype, parent.getName())                
+                parent.linkAnnotation(fileAnnotation)
+            else:
+                message += " but could not be attached."
+    else:
+        message = "%s not created." % output
+        fileAnnotation = None
+    return fileAnnotation, message
     
     
 def addAnnotationToImage(updateService, image, annotation):
