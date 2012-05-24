@@ -514,12 +514,14 @@ def movieFigure(conn, commandArgs):
     if format == PNG:
         output = output + ".png"
         figure.save(output, "PNG")
+        mimetype = "image/png"
     else:
         output = output + ".jpg"
         figure.save(output)
+        mimetype = "image/jpeg"
     
     fileAnnotation, faMessage = scriptUtil.createLinkFileAnnotation(conn, output, omeroImage, 
-    output="Movie figure", parenttype=commandArgs["Data_Type"], mimetype=format, desc=figLegend)
+    output="Movie figure", parenttype=commandArgs["Data_Type"], mimetype=mimetype, desc=figLegend)
     message += faMessage
     
     return fileAnnotation, message

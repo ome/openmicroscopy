@@ -749,15 +749,17 @@ def roiFigure(conn, commandArgs):
     if format == PNG:
         output = output + ".png"
         fig.save(output, "PNG")
+        mimetype = "image/png"
     else:
         output = output + ".jpg"
         fig.save(output)
+        mimetype = "image/jpeg"
     
     # Use util method to upload the figure 'output' to the server, attaching it to the omeroImage, adding the 
     # figLegend as the fileAnnotation description. 
     # Returns the id of the originalFileLink child. (ID object, not value)
     fileAnnotation, faMessage = scriptUtil.createLinkFileAnnotation(conn, output, omeroImage,
-        output="ROI Split figure", parenttype=commandArgs["Data_Type"], mimetype=format, desc=figLegend)
+        output="ROI Split figure", parenttype=commandArgs["Data_Type"], mimetype=mimetype, desc=figLegend)
     message += faMessage
     
     return fileAnnotation, message
