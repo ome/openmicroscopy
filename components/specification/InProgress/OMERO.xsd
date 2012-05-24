@@ -149,7 +149,7 @@
                         <xsd:attribute name="TimeToLive" use="required" type="OME:NonNegativeLong"/>
                         <xsd:attribute name="Started" use="required" type="xsd:dateTime"/>
                         <xsd:attribute name="Closed" use="optional" type="xsd:dateTime"/>
-                        <xsd:attribute name="Message" use="optional" type="xsd:string"/>
+                        <xsd:attribute name="Message" use="optional" type="Text"/>
                     </xsd:complexType>
                 </xsd:element>
             </xsd:sequence>
