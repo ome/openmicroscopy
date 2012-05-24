@@ -102,7 +102,7 @@ ${fully_qualified_link_class_name(o, prop)}\
                 return False
             if x.name in ('ID', 'Description', 'AnnotationRef', 'Leader',
                           'BinData', 'TiffData', 'MetadataOnly', 'Union',
-                          'Union_BackReference'):
+                          'Union_BackReference', 'Pixels'):
                 return False
             return True
         return filter(f, properties)

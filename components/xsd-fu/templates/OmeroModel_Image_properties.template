@@ -1,0 +1,4 @@
+            <!--
+            // Property Pixels
+            -->
+            <oneone name="pixels" type="ome.model.core.Pixels" inverse="image"/>
