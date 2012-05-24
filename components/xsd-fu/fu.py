@@ -434,6 +434,7 @@ class OMEModelProperty(OMEModelEntity):
         self.isOrdered = False
         self.isUnique = False
         self.isImmutable = False
+        self.isInjected = False
         self._isReference = False
         try:
             try:
@@ -454,6 +455,8 @@ class OMEModelProperty(OMEModelEntity):
                 self.isUnique = True
             if root.find('immutable') is not None:
                 self.isImmutable = True
+            if root.find('injected') is not None:
+                self.isInjected = True
             if root.find('global') is not None:
                 self._isGlobal = True
         except AttributeError:
@@ -989,7 +992,8 @@ class OMEModel(object):
                      'minOccurs': self.calculateMinOccurs(o, prop),
                      'isOrdered': prop.isOrdered,
                      'isChildOrdered': prop.isChildOrdered,
-                     'isParentOrdered': prop.isParentOrdered}
+                     'isParentOrdered': prop.isParentOrdered,
+                     'isInjected': prop.isInjected}
                 references[shortName].append(v)
         logging.debug("Model references: %s" % references)
 
@@ -1007,6 +1011,7 @@ class OMEModel(object):
                 prop.isChildOrdered = ref['isChildOrdered']
                 prop.isParentOrdered = ref['isParentOrdered']
                 prop.isOrdered = ref['isOrdered']
+                prop.isInjected = ref['isInjected']
                 o.properties[key] = prop
 
     def process(klass, contentHandler):

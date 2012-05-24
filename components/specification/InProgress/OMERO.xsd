@@ -256,7 +256,11 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-                <xsd:element ref="PixelsRef" minOccurs="1" maxOccurs="1"/>
+                <xsd:element ref="PixelsRef" minOccurs="1" maxOccurs="1">
+                    <xsd:annotation>
+                        <xsd:appinfo><xsdfu><injected/></xsdfu></xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
 			</xsd:sequence>
 			<xsd:attribute name="MimeType" use="required" type="xsd:string"/>
 			<xsd:attribute name="SizeX" use="required" type="OME:NonNegativeInt"/>
@@ -272,7 +276,11 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-                <xsd:element ref="PixelsRef" minOccurs="1" maxOccurs="1"/>
+                <xsd:element ref="PixelsRef" minOccurs="1" maxOccurs="1">
+                    <xsd:annotation>
+                        <xsd:appinfo><xsdfu><injected/></xsdfu></xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
 				<xsd:element minOccurs="1" maxOccurs="1" ref="QuantumDef"/>
 				<xsd:element minOccurs="1" maxOccurs="unbounded" ref="ChannelBinding">
                     <xsd:annotation>

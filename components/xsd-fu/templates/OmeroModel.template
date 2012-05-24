@@ -220,7 +220,7 @@ ${customContent[o.name]['properties']}\
             <!--
             // Back reference ${prop.name}
             -->
-            <{% if prop.minOccurs == 0 %}manyzero{% end %}{% if prop.minOccurs == 1 %}manyone{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.javaArgumentName}"{% if prop.isOrdered %} ordered="true"{% end %}{% if prop.isUnique %} unique="true"{% end %}/>
+            <{% if prop.isInjected and prop.minOccurs == 0 %}zeromany{% end %}{% if prop.isInjected and prop.minOccurs == 1 %}onemany{% end %}{% if not prop.isInjected and prop.minOccurs == 0 %}manyzero{% end %}{% if not prop.isInjected and prop.minOccurs == 1 %}manyone{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}" inverse="${o.javaArgumentName}"{% if prop.isOrdered %} ordered="true"{% end %}{% if prop.isUnique %} unique="true"{% end %}/>
 {% end %}\
 {% when prop.isBackReference %}\
             <!--
