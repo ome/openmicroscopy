@@ -64,7 +64,7 @@
             </xsd:sequence>
 			<xsd:attribute name="Name" use="optional" type="xsd:string"/>
 			<xsd:attribute name="ID" use="required" type="OriginalFileID"/>
-			<xsd:attribute name="Path" use="required" type="xsd:string"/>
+            <xsd:attribute name="Path" use="required" type="Text"/>
 			<xsd:attribute name="Size" use="required" type="OME:NonNegativeLong"/>
 			<xsd:attribute name="Atime" use="optional" type="xsd:dateTime"/>
 			<xsd:attribute name="Mtime" use="optional" type="xsd:dateTime"/>
@@ -473,6 +473,11 @@
 			<xsd:attribute name="Format" type="Format"/>
 		</xsd:complexType>
 	</xsd:element>
+
+	<xsd:simpleType name="Text">
+        <xsd:restriction base="xsd:string">
+		</xsd:restriction>
+    </xsd:simpleType>
 
 	<xsd:simpleType name="Format">
 		<xsd:annotation>

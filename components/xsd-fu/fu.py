@@ -135,6 +135,7 @@ def updateTypeMaps(namespace):
         'PercentFraction': 'PercentFraction',
         'Color': 'Color',
         'AffineTransform': 'AffineTransform',
+        'Text': 'Text',
     }
     global JAVA_TYPE_MAP
     JAVA_TYPE_MAP = copy.deepcopy(JAVA_PRIMITIVE_TYPE_MAP)
