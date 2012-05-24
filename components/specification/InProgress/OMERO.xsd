@@ -307,10 +307,10 @@
 		<xsd:complexType>
             <xsd:complexContent>
                 <xsd:extension base="CodomainMapContext">
-                    <xsd:attribute name="UpperLimit" use="required" type="xsd:long"/>
-                    <xsd:attribute name="LowerLimit" use="required" type="xsd:long"/>
-                    <xsd:attribute name="PlaneSelected" use="required" type="xsd:long"/>
-                    <xsd:attribute name="PlanePrevious" use="required" type="xsd:long"/>
+                    <xsd:attribute name="UpperLimit" use="required" type="xsd:integer"/>
+                    <xsd:attribute name="LowerLimit" use="required" type="xsd:integer"/>
+                    <xsd:attribute name="PlaneSelected" use="required" type="xsd:integer"/>
+                    <xsd:attribute name="PlanePrevious" use="required" type="xsd:integer"/>
                     <xsd:attribute name="Constant" use="required" type="xsd:boolean"/>
                 </xsd:extension>
             </xsd:complexContent>
