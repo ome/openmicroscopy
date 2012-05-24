@@ -220,9 +220,9 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:attribute name="CurrentVersion" use="required" type="xsd:string"/>
-			<xsd:attribute name="CurrentPatch" use="required" type="xsd:long"/>
+			<xsd:attribute name="CurrentPatch" use="required" type="xsd:integer"/>
 			<xsd:attribute name="PreviousVersion" use="required" type="xsd:string"/>
-			<xsd:attribute name="PreviousPatch" use="required" type="xsd:long"/>
+			<xsd:attribute name="PreviousPatch" use="required" type="xsd:integer"/>
 			<xsd:attribute name="Finished" use="optional" type="xsd:dateTime"/>
 			<xsd:attribute name="Message" use="optional" type="xsd:string"/>
 		</xsd:complexType>
