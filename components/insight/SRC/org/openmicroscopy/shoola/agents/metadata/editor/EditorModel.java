@@ -1041,6 +1041,17 @@ class EditorModel
 	 * 
 	 * @return
 	 */
+	boolean isAdministrator()
+	{
+		return MetadataViewerAgent.isAdministrator();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the user currently logged in, is a leader
+	 * of the selected group, <code>false</code> otherwise.
+	 * 
+	 * @return
+	 */
 	boolean isGroupLeader()
 	{
 		ExperimenterData exp = MetadataViewerAgent.getUserDetails();

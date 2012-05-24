@@ -36,7 +36,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -164,8 +163,9 @@ class EditorUI
     
     /** The dummy panel displayed instead of the rendering component. */
     private JPanel						dummyPanel;
-    
-    /** Adds the renderer to the tab pane. 
+
+    /**
+     * Adds the renderer to the tab pane. 
      * 
      * @param init 	Pass <code>true</code> if it is invoked at initialization
      * 				time, <code>false</code> otherwise.
@@ -549,11 +549,10 @@ class EditorUI
 	 */
 	void removeTags(Point location)
 	{
-		
 		if (!generalPane.hasTagsToUnlink()) return;
 		MessageBox box = new MessageBox(model.getRefFrame(),
 				"Remove All Your Tags", 
-				"Are you sure you want to remove all your Tags?");
+		"Are you sure you want to remove all your Tags?");
 		Dimension d = box.getPreferredSize();
 		Point p = new Point(location.x-d.width/2, location.y);
 		if (box.showMsgBox(p) == MessageBox.YES_OPTION) {
