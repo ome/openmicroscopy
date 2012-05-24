@@ -74,8 +74,8 @@ public class DeleteServicePermissionsTest
     	omero.client user1 = client;
 
     	//Image
-    	Image img = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
+    	Image img = createBasicImage();
+    	
     	//Dataset
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asDataset());
@@ -89,8 +89,8 @@ public class DeleteServicePermissionsTest
     			mmFactory.simpleScreenData().asScreen());
 
     	//Dataset
-    	Plate plate = (Plate) iUpdate.saveAndReturnObject(
-    			mmFactory.simplePlateData().asPlate());
+    	Plate plate = mmFactory.simplePlateData().asPlate();
+    	plate = savePlate(iUpdate, plate, false);
 
     	// other user tries to delete
     	disconnect();
@@ -134,8 +134,7 @@ public class DeleteServicePermissionsTest
     	newUserAndGroup("rwr---");
 
     	// create an owner who then creates the image
-    	Image img = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.simpleImage(0));
+    	Image img = createBasicImage();
     	long imageID = img.getId().getValue();
 
     	// create another user and try to delete the image
@@ -160,8 +159,7 @@ public class DeleteServicePermissionsTest
         newUserAndGroup("rw----");
 
         // Create the data as the user
-        Image img = (Image) iUpdate.saveAndReturnObject(
-				mmFactory.createImage());
+        Image img = createBasicImage();
 
         // Log the admin into that users group
         logRootIntoGroup();
@@ -183,8 +181,7 @@ public class DeleteServicePermissionsTest
         EventContext ownerEc = newUserAndGroup("rwrw--");
 
     	//owner creates the image
-		Image img = (Image) iUpdate.saveAndReturnObject(
-				mmFactory.createImage());
+		Image img = createBasicImage();
 		
     	//group owner deletes it
 		disconnect();
@@ -209,8 +206,7 @@ public class DeleteServicePermissionsTest
         EventContext ownerEc = newUserAndGroup("rw----");
 
     	//owner creates the image
-		Image img = (Image) iUpdate.saveAndReturnObject(
-				mmFactory.createImage());
+		Image img = createBasicImage();
 		
     	//group owner deletes it
 		disconnect();
@@ -237,8 +233,7 @@ public class DeleteServicePermissionsTest
         newUserAndGroup("rwr---");
 
         // owner creates the image
-		Image img = (Image) iUpdate.saveAndReturnObject(
-				mmFactory.createImage());
+		Image img = createBasicImage();
 		
 		//admin deletes the object.
 		logRootIntoGroup();
@@ -260,8 +255,7 @@ public class DeleteServicePermissionsTest
         EventContext ec = newUserAndGroup("rwrw--");
 
         // owner creates the image
-        Image img = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image img = createBasicImage();
         
         // tagger creates tag and tags the image
         newUserInGroup(ec);
@@ -297,8 +291,7 @@ public class DeleteServicePermissionsTest
         EventContext ec = newUserAndGroup("rwrw--");
 
         // owner creates the image
-        Image img = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image img = createBasicImage();
 
         omero.client owner = disconnect();
         
@@ -345,8 +338,7 @@ public class DeleteServicePermissionsTest
         EventContext ec = newUserAndGroup("rwrw--");
 
         // owner creates the image
-        Image img = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
+        Image img = createBasicImage();
 
         omero.client owner = disconnect();
         
@@ -392,8 +384,8 @@ public class DeleteServicePermissionsTest
     {
     	EventContext ownerCtx = newUserAndGroup("rwrw--");
     	//owner creates the image
-    	Image image = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
+    	Image image = createBasicImage();
+    	
     	//create rendering settings for that user.
     	Pixels pixels = image.getPixels();
     	long id = pixels.getId().getValue();
@@ -579,8 +571,8 @@ public class DeleteServicePermissionsTest
     	EventContext ctx = newUserAndGroup("rwrw--");
     	Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	Image image1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
+    	Image image1 = createBasicImage();
+    	
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setChild((Image) image1.proxy());
     	link.setParent((Dataset) dataset.proxy());
@@ -589,8 +581,8 @@ public class DeleteServicePermissionsTest
     	EventContext user2Ctx = newUserInGroup(ctx); 
     	loginUser(user2Ctx);
     	//create new user.
-    	Image image2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
+    	Image image2 = createBasicImage();
+    	
     	link = new DatasetImageLinkI();
     	link.setChild((Image) image2.proxy());
     	link.setParent((Dataset) dataset.proxy());
@@ -624,8 +616,7 @@ public class DeleteServicePermissionsTest
     	EventContext user2Ctx = newUserInGroup(ctx); 
     	loginUser(user2Ctx);
     	//create new user.
-    	Image image = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
+    	Image image = createBasicImage();
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setChild((Image) image.proxy());
     	link.setParent((Dataset) dataset.proxy());
@@ -656,8 +647,7 @@ public class DeleteServicePermissionsTest
     	EventContext user2Ctx = newUserInGroup(ctx); 
     	loginUser(user2Ctx);
     	//create new user.
-    	Image image = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
+    	Image image = createBasicImage();
     	disconnect();
     	loginUser(ctx);
     	DatasetImageLink link = new DatasetImageLinkI();
@@ -692,8 +682,9 @@ public class DeleteServicePermissionsTest
         
         // new user
     	newUserInGroup(ctx);
-    	Plate plate = (Plate) iUpdate.saveAndReturnObject(
-    			mmFactory.simplePlateData().asIObject());
+    	Plate plate =  mmFactory.simplePlateData().asPlate();
+    	plate = savePlate(iUpdate, plate, false);
+    	
     	disconnect();
     	loginUser(ctx);
     	//now link the project and dataset.
@@ -729,8 +720,8 @@ public class DeleteServicePermissionsTest
         
         // new user
     	newUserInGroup(ctx);
-    	Plate plate = (Plate) iUpdate.saveAndReturnObject(
-    			mmFactory.simplePlateData().asIObject());
+    	Plate plate =  mmFactory.simplePlateData().asPlate();
+    	plate = savePlate(iUpdate, plate, false);
     	//now link the project and dataset.
     	ScreenPlateLink link = new ScreenPlateLinkI();
     	link.setChild((Plate) plate.proxy());
@@ -766,8 +757,8 @@ public class DeleteServicePermissionsTest
         // new user
     	newUserInGroup(ctx);
     	
-    	Plate plate = (Plate) iUpdate.saveAndReturnObject(
-    			mmFactory.simplePlateData().asIObject());
+    	Plate plate =  mmFactory.simplePlateData().asPlate();
+    	plate = savePlate(iUpdate, plate, false);
     	ScreenPlateLink link = new ScreenPlateLinkI();
     	link.setChild((Plate) plate.proxy());
     	link.setParent((Screen) screen.proxy());
@@ -798,8 +789,8 @@ public class DeleteServicePermissionsTest
         
         // new user
     	EventContext user2Ctx = newUserInGroup(ctx);
-    	Plate plate = (Plate) iUpdate.saveAndReturnObject(
-    			mmFactory.simplePlateData().asIObject());
+    	Plate plate =  mmFactory.simplePlateData().asPlate();
+    	plate = savePlate(iUpdate, plate, false);
     	disconnect();
     	loginUser(ctx);
     	//now link the project and dataset.
@@ -831,8 +822,7 @@ public class DeleteServicePermissionsTest
     	EventContext ctx = newUserAndGroup("rwrw--");
     	Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
-    	Image image = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
+    	Image image = createBasicImage();
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setChild((Image) image.proxy());
     	link.setParent((Dataset) dataset.proxy());
