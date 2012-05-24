@@ -42,7 +42,6 @@ import java.util.Map.Entry;
 import org.apache.commons.collections.ListUtils;
 
 //Application-internal dependencies
-import omero.api.delete.DeleteCommand;
 import omero.model.Annotation;
 import omero.model.Channel;
 import omero.model.DatasetAnnotationLink;
@@ -181,13 +180,17 @@ class OmeroMetadataServiceImpl
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		if (annotation == null || object == null ||
-				(!(annotation instanceof IObject))) return;
-		IObject ho = gateway.findIObject(ctx, (IObject) annotation);
+				(!(annotation instanceof IObject || 
+					annotation instanceof DataObject))) return;
+		IObject o = null;
+		if (annotation instanceof IObject) o = (IObject) annotation;
+		else o = ((DataObject) annotation).asIObject();
+		IObject ho = gateway.findIObject(ctx, o);
 		if (ho == null) return;
 		long id = getUserDetails().getId();
 		if (ho instanceof Annotation) {
 			List links = gateway.findAnnotationLinks(ctx, object.getClass(),
-				       object.getId(), Arrays.asList(ho.getId().getValue()), id);
+				   object.getId(), Arrays.asList(ho.getId().getValue()), id);
 			Iterator i = links.iterator();
 			IObject link;
 			while (i.hasNext()) {
@@ -1074,7 +1077,7 @@ class OmeroMetadataServiceImpl
 				List<IObject> toDelete = new ArrayList<IObject>();
 				Object o;
 				while (k.hasNext()) {
-					o = j.next();
+					o = k.next();
 					if (o != null) {
 						removeAnnotation(ctx, o, object);
 						if (o instanceof TextualAnnotationData) {
