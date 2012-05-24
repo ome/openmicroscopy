@@ -558,6 +558,7 @@ def roiFigure(conn, commandArgs):
     log("ROI figure created by OMERO on %s" % date.today())
     log("")
     
+    message=""
     pixelIds = []
     imageIds = []
     imageLabels = []
@@ -755,13 +756,11 @@ def roiFigure(conn, commandArgs):
     # Use util method to upload the figure 'output' to the server, attaching it to the omeroImage, adding the 
     # figLegend as the fileAnnotation description. 
     # Returns the id of the originalFileLink child. (ID object, not value)
-    fileAnnotation = conn.createFileAnnfromLocalFile(output, mimetype=format, desc=figLegend)
-    if omeroImage.canAnnotate():
-        log("Attaching figure to image %s %s" % (omeroImage.getName(), omeroImage.getId()) )
-        omeroImage.linkAnnotation(fileAnnotation)
-        return fileAnnotation, omeroImage
-    else:
-        return fileAnnotation, None
+    fileAnnotation, faMessage = scriptUtil.createLinkFileAnnotation(conn, output, omeroImage,
+        output="ROI Split figure", parenttype=commandArgs["Data_Type"], mimetype=format, desc=figLegend)
+    message += faMessage
+    
+    return fileAnnotation, message
 
 def runAsScript():
     """
@@ -823,18 +822,15 @@ See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/
                 commandArgs[key] =  unwrap(client.getInput(key))
     
         print commandArgs
+        
         # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
-        result = roiFigure(conn, commandArgs)
-        # return this fileAnnotation to the client. 
-        if result is not None:
-            fileAnnotation, image = result
-            message = "ROI Split Figure Created"
-            if image is not None:
-                message += " and attached to image %s"  % image.getName()
+        fileAnnotation, message = roiFigure(conn, commandArgs)
+        
+        # Return message and file annotation (if applicable) to the client
+        client.setOutput("Message", rstring(message))
+        if fileAnnotation is not None:
             client.setOutput("File_Annotation", robject(fileAnnotation._obj))
-            client.setOutput("Message", rstring(message))
-        else:
-            client.setOutput("Message", rstring("ROI Split Figure Created"))
+        
     finally:
         client.closeSession()
 

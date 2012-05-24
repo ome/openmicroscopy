@@ -482,6 +482,7 @@ def splitViewFigure(conn, scriptParams):
     log("Split-View figure created by OMERO on %s" % date.today())
     log("")
     
+    message=""
     imageIds = []
     pixelIds = []
     imageLabels = []
@@ -630,13 +631,11 @@ def splitViewFigure(conn, scriptParams):
 
     # Upload the figure 'output' to the server, creating a file annotation and attaching it to the omeroImage, adding the 
     # figLegend as the fileAnnotation description.
-    fa = conn.createFileAnnfromLocalFile(output, origFilePathAndName=None, mimetype=format, ns=None, desc=figLegend)
-    if omeroImage.canAnnotate():
-        log("Attaching figure to... %s %s %s" % (scriptParams['Data_Type'], omeroImage.getName(), omeroImage.getId()) )
-        omeroImage.linkAnnotation(fa)
-        return fa._obj, omeroImage
-    else:
-        return fa._obj, None  # return the omero.model.FileAnnotationI
+    fileAnnotation, faMessage = scriptUtil.createLinkFileAnnotation(conn, output, omeroImage,
+        output="Split view figure", parenttype=scriptParams["Data_Type"], mimetype=format, desc=figLegend)
+    message += faMessage
+    
+    return fileAnnotation, message
     
     
 def runAsScript():
@@ -701,15 +700,15 @@ See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/
             if client.getInput(key):
                 scriptParams[key] = unwrap(client.getInput(key))
         print scriptParams
+        
         # call the main script, attaching resulting figure to Image. Returns the FileAnnotationI
-        [fileAnnotation,parent] = splitViewFigure(conn, scriptParams)
-        # return this fileAnnotation to the client. 
-        if fileAnnotation:
-            message = "Split view figure created"
-            if parent is not None:
-                message += " and attached to %s %s"  % (scriptParams['Data_Type'], parent.getName())
-            client.setOutput("Message", rstring(message))
-            client.setOutput("File_Annotation", robject(fileAnnotation))
+        [fileAnnotation, message] = splitViewFigure(conn, scriptParams)
+        
+        # Return message and file annotation (if applicable) to the client
+        client.setOutput("Message", rstring(message))
+        if fileAnnotation is not None:
+            client.setOutput("File_Annotation", robject(fileAnnotation._obj))
+
     finally:
         client.closeSession()
 

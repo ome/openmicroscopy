@@ -38,6 +38,7 @@ back to the server as a FileAnnotation attached to the parent dataset or project
 """
 import omero.scripts as scripts
 from omero.gateway import BlitzGateway
+import omero.util.script_utils as scriptUtil
 from omero.rtypes import *
 import omero.util.imageUtil as imgUtil
 from datetime import date
@@ -206,7 +207,7 @@ def makeThumbnailFigure(conn, scriptParams):
     log("")
 
     parent = None        # figure will be attached to this object 
-
+    message=""
     imageIds = []
     datasetIds = []
     
@@ -215,25 +216,25 @@ def makeThumbnailFigure(conn, scriptParams):
         imageIds = scriptParams["IDs"]
         if "Parent_ID" in scriptParams and len(imageIds) > 1:
             pId = scriptParams["Parent_ID"]
-            parent = conn.getObject("Dataset", pId)
-            if parent:
-                log("Figure will be linked to Dataset: %s" % parent.getName())
+            parenttype = "Dataset"
+            parent = conn.getObject("Dataset", pId)               
+                
         if parent == None:
+            parenttype = "Image"
             parent = conn.getObject("Image", imageIds[0])
-            if parent:
-                log("Figure will be linked to Image: %s" % parent.getName())
                 
     else:   # Dataset
         datasetIds = scriptParams["IDs"]
         if "Parent_ID" in scriptParams and len(datasetIds) > 1:
             pId = scriptParams["Parent_ID"]
-            parent = conn.getObject("Project", pId)
-            if parent:
-                log("Figure will be linked to Project: %s" % parent.getName().getValue())
-        if parent == None:
+            parenttype = "Project"
+            parent = conn.getObject(parenttype, pId)
+
+        if parent is None:
+            parenttype = "Dataset"
             parent = conn.getObject("Dataset", datasetIds[0])
-            if parent:
-                log("Figure will be linked to Dataset: %s" % parent.getName())
+
+    log("Figure will be linked to %s: %s" % (parenttype, parent.getName()))
     
     if len(imageIds) == 0 and len(datasetIds) == 0:
         print "No image IDs or dataset IDs found"       
@@ -301,13 +302,11 @@ def makeThumbnailFigure(conn, scriptParams):
         figure.save(output)
         mimetype = "image/jpeg"
 
-    fileAnnotation = conn.createFileAnnfromLocalFile(output, mimetype=format, desc=figLegend)
-    if parent.canAnnotate():
-        log("Attaching figure to %s %s %s" % (scriptParams["Data_Type"], parent.getName(), parent.getId()) )
-        parent.linkAnnotation(fileAnnotation)
-        return fileAnnotation, parent
-    else:
-        return fileAnnotation, None
+    fileAnnotation, faMessage = scriptUtil.createLinkFileAnnotation(conn, output, parent,
+        output="Thumbnail figure figure", parenttype=parenttype, mimetype=mimetype, desc=figLegend)
+    message += faMessage
+
+    return fileAnnotation, message
         
 
 def runAsScript():
@@ -370,16 +369,12 @@ See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/
         print commandArgs
 
         # Makes the figure and attaches it to Project/Dataset. Returns FileAnnotationI object
-        result = makeThumbnailFigure(conn, commandArgs)
-        if result is not None:
-            [fileAnnotation, parent] = result
-            message = "Thumbnail figure created"
-            if parent is not None:
-                message += " and attached to %s %s"  % (commandArgs["Data_Type"], parent.getName())
-            client.setOutput("Message", rstring(message))
+        fileAnnotation, message = makeThumbnailFigure(conn, commandArgs)
+        
+        # Return message and file annotation (if applicable) to the client
+        client.setOutput("Message", rstring(message))
+        if fileAnnotation is not None:
             client.setOutput("File_Annotation", robject(fileAnnotation._obj))
-        else:
-            client.setOutput("Message", rstring("Thumbnail-Figure Failed. See error or info"))
     finally:
         client.closeSession()
 

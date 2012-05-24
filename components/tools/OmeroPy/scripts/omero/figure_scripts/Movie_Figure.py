@@ -370,6 +370,7 @@ def movieFigure(conn, commandArgs):
     imageIds = []
     imageLabels = []
     imageNames = {}
+    message = ""
     omeroImage = None    # this is set as the first image, to link figure to
 
     # function for getting image labels.
@@ -390,7 +391,8 @@ def movieFigure(conn, commandArgs):
             
     # process the list of images. If imageIds is not set, script can't run. 
     log("Image details:")
-    for imageId in commandArgs["IDs"]:
+    ids = commandArgs["IDs"]
+    for imageId in ids:
         image = conn.getObject("Image", imageId)
         if image == None:
             print "Image not found for ID:", imageId
@@ -403,6 +405,11 @@ def movieFigure(conn, commandArgs):
         
     if len(imageIds) == 0:
         print "No image IDs specified."
+        message += "No image found. "
+        return None, message
+    else:
+        if not len(imageIds) == len(ids):
+            message += "Found %s out of %s image(s). " % (len(imageIds), len(ids))
     
     pdMap = figUtil.getDatasetsProjectsFromImages(conn.getQueryService(), imageIds)    # a map of imageId : list of (project, dataset) names. 
     tagMap = figUtil.getTagsFromImages(conn.getMetadataService(), imageIds)
@@ -511,13 +518,11 @@ def movieFigure(conn, commandArgs):
         output = output + ".jpg"
         figure.save(output)
     
-    fileAnnotation = conn.createFileAnnfromLocalFile(output, mimetype=format, desc=figLegend)
-    if omeroImage.canAnnotate():
-        log("Attaching figure to... %s %s %s" % (commandArgs['Data_Type'], omeroImage.getName(), omeroImage.getId()) )
-        omeroImage.linkAnnotation(fileAnnotation)
-        return fileAnnotation, omeroImage
-    else:
-        return fileAnnotation, None
+    fileAnnotation, faMessage = scriptUtil.createLinkFileAnnotation(conn, output, omeroImage, 
+    output="Movie figure", parenttype=commandArgs["Data_Type"], mimetype=format, desc=figLegend)
+    message += faMessage
+    
+    return fileAnnotation, message
 
 def runAsScript():
     """
@@ -593,14 +598,14 @@ See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/
         print commandArgs
 
         # Makes the figure and attaches it to Image. Returns the id of the originalFileLink child. (ID object, not value)
-        fileAnnotation, image = movieFigure(conn, commandArgs)
+        fileAnnotation, message = movieFigure(conn, commandArgs)
+        
+        # Return message and file annotation (if applicable) to the client        
+        client.setOutput("Message", rstring(message))
         if fileAnnotation:
-            message = "Movie figure created"
-            if image is not None:
-                message += " and attached to image %s"  %  image.getName()
-            client.setOutput("Message", rstring(message))
             client.setOutput("File_Annotation", robject(fileAnnotation._obj))
-    finally: client.closeSession()
+    finally:
+        client.closeSession()
 
 if __name__ == "__main__":
     runAsScript()
