@@ -232,7 +232,7 @@ ${customContent[o.name]['properties']}\
             <!--
             // Property ${prop.name}
             -->
-            <{% if prop.minOccurs == 0 %}optional{% end %}{% if prop.minOccurs %}required{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}"{% if prop.isUnique %} unique="true"{% end %}/>
+            <{% if prop.minOccurs == 0 and not prop.isUnique %}optional{% end %}{% if prop.minOccurs == 1 or prop.isUnique %}required{% end %} name="${prop.javaInstanceVariableName}" type="${fq_class_name(prop)}"{% if prop.isUnique %} unique="true"{% end %}/>
 {% end %}\
 {% when prop.maxOccurs > 1 and not o.isAbstractProprietary %}\
             <!--
