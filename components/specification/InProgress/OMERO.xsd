@@ -179,11 +179,11 @@
                                 <xsd:appinfo><xsdfu><manytomany/></xsdfu></xsd:appinfo>
                             </xsd:annotation>
                         </xsd:element>
-                        <xsd:element ref="OME:ExperimenterGroupRef" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element ref="OME:ExperimenterGroupRef" minOccurs="1" maxOccurs="1"/>
                         <xsd:element ref="BIN:BinData" minOccurs="1" maxOccurs="unbounded"/>
                     </xsd:sequence>
-                    <xsd:attribute name="ItemCount" use="optional" type="xsd:long"/>
-                    <xsd:attribute name="Active" use="optional" type="xsd:boolean"/>
+                    <xsd:attribute name="ItemCount" use="required" type="xsd:long"/>
+                    <xsd:attribute name="Active" use="required" type="xsd:boolean"/>
                 </xsd:extension>
             </xsd:complexContent>
         </xsd:complexType>
