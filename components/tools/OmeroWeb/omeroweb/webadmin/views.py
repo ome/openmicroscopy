@@ -423,7 +423,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
         password_form = ChangePassword()
         context = {'form':form, 'eid': eid, 'ldapAuth': isLdapUser, 'password_form':password_form}
     elif action == 'save':
-        experimenter = prepare_experimenter(conn, eid)
+        experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", experimenter.id]))
         else:            
