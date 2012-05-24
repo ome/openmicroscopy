@@ -273,9 +273,9 @@
 		<xsd:complexType>
 			<xsd:sequence>
                 <xsd:element ref="PixelsRef" minOccurs="1" maxOccurs="unbounded"/>
-				<xsd:element name="Quantization" minOccurs="1" maxOccurs="1" type="QuantumDef"/>
-				<xsd:element name="WaveRendering" minOccurs="1" maxOccurs="unbounded" type="ChannelBinding"/>
-				<xsd:element name="SpatialDomainEnhancement" minOccurs="0" maxOccurs="unbounded" type="CodomainMapContext"/>
+				<xsd:element minOccurs="1" maxOccurs="1" ref="QuantumDef"/>
+				<xsd:element minOccurs="1" maxOccurs="unbounded" ref="ChannelBinding"/>
+				<xsd:element minOccurs="0" maxOccurs="unbounded" ref="CodomainMapContext"/>
 			</xsd:sequence>
 			<xsd:attribute name="Model" use="required" type="RenderingModel"/>
 			<xsd:attribute name="DefaultZ" use="required" type="OME:NonNegativeInt"/>
@@ -423,12 +423,18 @@
 	</xsd:element>
 
 	<xsd:complexType name="QuantumDef">
+		<xsd:annotation>
+            <xsd:appinfo><xsdfu><plural>QuantumDefs</plural></xsdfu></xsd:appinfo>
+		</xsd:annotation>
 		<xsd:attribute name="CDStart" use="required" type="xsd:integer"/>
 		<xsd:attribute name="CDEnd" use="required" type="xsd:integer"/>
 		<xsd:attribute name="BitResolution" use="required" type="xsd:integer"/>
 	</xsd:complexType>
 
 	<xsd:complexType name="ChannelBinding">
+		<xsd:annotation>
+            <xsd:appinfo><xsdfu><plural>ChannelBindings</plural></xsdfu></xsd:appinfo>
+		</xsd:annotation>
 		<xsd:attribute name="Family" use="required" type="Family"/>
 		<xsd:attribute name="Coefficient" use="required" type="xsd:double"/>
 		<xsd:attribute name="InputStart" use="required" type="xsd:double"/>
@@ -439,6 +445,9 @@
 	</xsd:complexType>
 
 	<xsd:complexType name="CodomainMapContext">
+		<xsd:annotation>
+            <xsd:appinfo><xsdfu><plural>CodomainMapContexts</plural></xsdfu></xsd:appinfo>
+		</xsd:annotation>
 		<!-- This needs some reference back to RenderingDef -->
 	</xsd:complexType>
 
