@@ -492,14 +492,6 @@ button::-moz-focus-inner {
 			text-shadow: 0 1px 0 white;
 		}
 		
-		.standard_form ol, ul {
-            display: inline-block;
-        }
-		
-		.standard_form li label {
-		    display:inline;
-		}
-		
 		.standard_form input, .standard_form select, .standard_form textarea {
 			display:inline-block;
 			margin-bottom:5px;
