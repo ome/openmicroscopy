@@ -410,11 +410,13 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             context = {'form':form}
     elif action == 'edit' :
         experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn, eid)
+        defaultGroupId = defaultGroup is not None and defaultGroup.id or None
+        
         initial={'omename': experimenter.omeName, 'first_name':experimenter.firstName,
                                 'middle_name':experimenter.middleName, 'last_name':experimenter.lastName,
                                 'email':experimenter.email, 'institution':experimenter.institution,
                                 'administrator': experimenter.isAdmin(), 'active': experimenter.isActive(), 
-                                'default_group': defaultGroup, 'other_groups':[g.id for g in otherGroups],
+                                'default_group': defaultGroupId, 'other_groups':[g.id for g in otherGroups],
                                 'groups':otherGroupsInitialList(groups)}
         
         form = ExperimenterForm(initial=initial)
@@ -645,6 +647,7 @@ def my_account(request, action=None, conn=None, **kwargs):
     template = "webadmin/myaccount.html"
     
     experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = prepare_experimenter(conn)
+    defaultGroupId = defaultGroup is not None and defaultGroup.id or None
     ownedGroups = ownedGroupsInitial(conn)
     
     password_form = ChangePassword()
@@ -670,14 +673,10 @@ def my_account(request, action=None, conn=None, **kwargs):
         form = MyAccountForm(initial={'omename': experimenter.omeName, 'first_name':experimenter.firstName,
                                     'middle_name':experimenter.middleName, 'last_name':experimenter.lastName,
                                     'email':experimenter.email, 'institution':experimenter.institution,
-                                    'default_group':defaultGroup, 'groups':otherGroups})
+                                    'default_group':defaultGroupId, 'groups':otherGroups})
     
     photo_size = conn.getExperimenterPhotoSize()
-    form = MyAccountForm(initial={'omename': experimenter.omeName, 'first_name':experimenter.firstName,
-                                    'middle_name':experimenter.middleName, 'last_name':experimenter.lastName,
-                                    'email':experimenter.email, 'institution':experimenter.institution,
-                                    'default_group':defaultGroup, 'groups':otherGroups})
-        
+    
     context = {'form':form, 'ldapAuth': isLdapUser, 'experimenter':experimenter, 'ownedGroups':ownedGroups, 'password_form':password_form}
     context['template'] = template
     return context
