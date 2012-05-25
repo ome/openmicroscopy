@@ -2436,7 +2436,7 @@
         <properties>
             <from_parent type="ome.model.core.ExperimenterGroup"/>
             <to_child type="ome.model.core.Experimenter" ordered="true"/>
-            <required name="owner" type="boolean"/>
+            <required name="owner" type="Boolean"/>
         </properties>
     </link>
 
