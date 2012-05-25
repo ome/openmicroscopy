@@ -207,7 +207,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         s.setStarted(new Timestamp(started));
         s.setTimeToIdle(idle);
         s.setTimeToLive(live);
-        s.setDefaultEventType(eventType);
+        s.setDefaultEventType(new EventType(eventType));
         s.setUserAgent(agent);
     }
 
@@ -259,7 +259,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         define(share, UUID.randomUUID().toString(), description, System
                 .currentTimeMillis(), defaultTimeToIdle, timeToLive, eventType,
                 "Share");
-        share.setGroup(new ExperimenterGroup(groupId, false));
+        share.setExperimenterGroup(new ExperimenterGroup(groupId, false));
         share.setActive(enabled);
         share.setData(new byte[] {});
         share.setItemCount(0L);
@@ -397,7 +397,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
                 // Unconditionally settable; these are open to the user for
                 // change
-                parseAndSetDefaultType(session.getDefaultEventType(), orig);
+                parseAndSetDefaultType(session.getDefaultEventType().getValue(), orig);
                 parseAndSetUserAgent(session.getUserAgent(), orig);
 
                 // Conditionally settable
@@ -778,7 +778,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
     private void parseAndSetDefaultType(String type, Session session) {
         String _type = (type == null) ? "User" : type;
-        session.setDefaultEventType(_type);
+        session.setDefaultEventType(new EventType(_type));
     }
 
     /**
@@ -859,7 +859,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             Share from = (Share) source;
             to.setItemCount(from.getItemCount());
             to.setActive(from.getActive());
-            to.setGroup(from.getGroup());
+            to.setExperimenterGroup(from.getExperimenterGroup());
             to.setData(from.getData());
         }
 
@@ -931,7 +931,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             node = new Node(0L, false); // Using default node.
         }
         session.setNode(node);
-        session.setOwner(new Experimenter(userId, false));
+        session.setExperimenter(new Experimenter(userId, false));
         Session rv = sf.getUpdateService().saveAndReturnObject(session);
         rv.putAt("#2733", session.retrieve("#2733"));
         return rv;
