@@ -230,6 +230,7 @@ public class TimelineI extends AbstractAmdServant implements
 
         final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
 
+        
         runnableCall(__current, new Adapter(__cb, __current, mapper, factory
                 .getExecutor(), factory.principal, new SimpleWork(this,
                 "getEventLogsByPeriod") {
@@ -238,6 +239,7 @@ public class TimelineI extends AbstractAmdServant implements
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
 
+            	
                 Parameters pWithDefaults = applyDefaults(p);
 
                 Map<String, List<EventLog>> events = (Map<String, List<EventLog>>) do_periodQuery(
@@ -523,12 +525,19 @@ public class TimelineI extends AbstractAmdServant implements
                 if ("EventLog".equals(type)) {
                     // SPECIAL LOGIC WORKAROUND for the complicated EventLog
                     // query
-                    if (parameters != null && parameters.theFilter != null
-                            && parameters.theFilter.ownerId != null) {
-                        qb.and("e.experimenter.id = :owner_id");
-                        qb.param("owner_id", parameters.theFilter.ownerId
-                                .getValue());
-                    }
+                	
+                	if (parameters != null && parameters.theFilter != null) {
+                		if (parameters.theFilter.ownerId != null) {
+                            qb.and("e.experimenter.id = :owner_id");
+                            qb.param("owner_id", parameters.theFilter.ownerId
+                                    .getValue());
+                        }
+                		if (parameters.theFilter.groupId != null) {
+                            qb.and("e.experimenterGroup.id = :group_id");
+                            qb.param("group_id", parameters.theFilter.groupId
+                                    .getValue());
+                        }
+                	}
                     qb.append(")");
                 } else {
                     throw new InternalException("No ownership info for: "
