@@ -256,7 +256,7 @@ applying an x, y and z shift to each channel independently. """,
     scripts.Int("Channel2_Z_shift", grouping="5.3", default=0,
         description="Offset channel by a number of Z-sections"),
 
-    scripts.Bool("Channel_3", grouping="6", default=False,
+    scripts.Bool("Channel_3", grouping="6", default=True,
         description="Choose to include this channel in the output image"),
 
     scripts.Int("Channel3_X_shift", grouping="6.1", default=0,
@@ -268,7 +268,7 @@ applying an x, y and z shift to each channel independently. """,
     scripts.Int("Channel3_Z_shift", grouping="6.3", default=0,
         description="Offset channel by a number of Z-sections"),
 
-    scripts.Bool("Channel_4", grouping="7", default=False,
+    scripts.Bool("Channel_4", grouping="7", default=True,
         description="Choose to include this channel in the output image"),
 
     scripts.Int("Channel4_X_shift", grouping="7.1", default=0,
