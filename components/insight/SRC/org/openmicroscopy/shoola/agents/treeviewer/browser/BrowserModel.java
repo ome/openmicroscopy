@@ -632,14 +632,18 @@ class BrowserModel
 	{
 		SecurityContext ctx = getSecurityContext(expNode);
 		List<TreeImageSet> n = expNode.getChildrenDisplay();
-		Iterator i = n.iterator();
+		Iterator<TreeImageSet> i = n.iterator();
 		Set<Integer> indexes = new HashSet<Integer>();
 		switch (getBrowserType()) {
 			case Browser.IMAGES_EXPLORER:
 				TreeImageTimeSet node;
+				TreeImageSet no;
 				while (i.hasNext()) {
-					node = (TreeImageTimeSet) i.next();
-					indexes.add(node.getType());
+					no = i.next();
+					if (no instanceof TreeImageTimeSet) {
+						node = (TreeImageTimeSet) no;
+						indexes.add(node.getType());
+					}
 				}
 				break;
 			case Browser.FILES_EXPLORER:
