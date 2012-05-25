@@ -448,7 +448,7 @@ public class ScriptRepoHelper {
         ofile.setName(repoFile.basename());
         ofile.setSha1(repoFile.sha1());
         ofile.setSize(repoFile.length());
-        ofile.setMimetype("text/x-python");
+        ofile.setMimeType("text/x-python");
         ofile.getDetails().setGroup(
                 new ExperimenterGroup(roles.getUserGroupId(), false));
         ofile = sf.getUpdateService().saveAndReturnObject(ofile);
