@@ -10,92 +10,34 @@
 --
 -- Triggers
 --
-  CREATE OR REPLACE FUNCTION groupexperimentermap_child_index_move() RETURNS "trigger" AS '
+  CREATE OR REPLACE FUNCTION channel_pixels_index_move() RETURNS "trigger" AS '
     DECLARE
       duplicate INT8;
     BEGIN
 
       -- Avoids a query if the new and old values of x are the same.
-      IF new.child = old.child AND new.child_index = old.child_index THEN
+      IF new.pixels = old.pixels AND new.pixels_index = old.pixels_index THEN
           RETURN new;
       END IF;
 
       -- At most, there should be one duplicate
       SELECT id INTO duplicate
-        FROM groupexperimentermap
-       WHERE child = new.child AND child_index = new.child_index
+        FROM channel
+       WHERE pixels = new.pixels AND pixels_index = new.pixels_index
       OFFSET 0
        LIMIT 1;
 
       IF duplicate IS NOT NULL THEN
-          RAISE NOTICE ''Remapping groupexperimentermap %% via (-1 - oldvalue )'', duplicate;
-          UPDATE groupexperimentermap SET child_index = -1 - child_index WHERE id = duplicate;
+          RAISE NOTICE ''Remapping channel %% via (-1 - oldvalue )'', duplicate;
+          UPDATE channel SET pixels_index = -1 - pixels_index WHERE id = duplicate;
       END IF;
 
       RETURN new;
     END;' LANGUAGE plpgsql;
 
-  CREATE TRIGGER groupexperimentermap_child_index_trigger
-        BEFORE UPDATE ON groupexperimentermap
-        FOR EACH ROW EXECUTE PROCEDURE groupexperimentermap_child_index_move ();
-
-  CREATE OR REPLACE FUNCTION codomainmapcontext_renderingDef_index_move() RETURNS "trigger" AS '
-    DECLARE
-      duplicate INT8;
-    BEGIN
-
-      -- Avoids a query if the new and old values of x are the same.
-      IF new.renderingDef = old.renderingDef AND new.renderingDef_index = old.renderingDef_index THEN
-          RETURN new;
-      END IF;
-
-      -- At most, there should be one duplicate
-      SELECT id INTO duplicate
-        FROM codomainmapcontext
-       WHERE renderingDef = new.renderingDef AND renderingDef_index = new.renderingDef_index
-      OFFSET 0
-       LIMIT 1;
-
-      IF duplicate IS NOT NULL THEN
-          RAISE NOTICE ''Remapping codomainmapcontext %% via (-1 - oldvalue )'', duplicate;
-          UPDATE codomainmapcontext SET renderingDef_index = -1 - renderingDef_index WHERE id = duplicate;
-      END IF;
-
-      RETURN new;
-    END;' LANGUAGE plpgsql;
-
-  CREATE TRIGGER codomainmapcontext_renderingDef_index_trigger
-        BEFORE UPDATE ON codomainmapcontext
-        FOR EACH ROW EXECUTE PROCEDURE codomainmapcontext_renderingDef_index_move ();
-
-  CREATE OR REPLACE FUNCTION lightpathexcitationfilterlink_parent_index_move() RETURNS "trigger" AS '
-    DECLARE
-      duplicate INT8;
-    BEGIN
-
-      -- Avoids a query if the new and old values of x are the same.
-      IF new.parent = old.parent AND new.parent_index = old.parent_index THEN
-          RETURN new;
-      END IF;
-
-      -- At most, there should be one duplicate
-      SELECT id INTO duplicate
-        FROM lightpathexcitationfilterlink
-       WHERE parent = new.parent AND parent_index = new.parent_index
-      OFFSET 0
-       LIMIT 1;
-
-      IF duplicate IS NOT NULL THEN
-          RAISE NOTICE ''Remapping lightpathexcitationfilterlink %% via (-1 - oldvalue )'', duplicate;
-          UPDATE lightpathexcitationfilterlink SET parent_index = -1 - parent_index WHERE id = duplicate;
-      END IF;
-
-      RETURN new;
-    END;' LANGUAGE plpgsql;
-
-  CREATE TRIGGER lightpathexcitationfilterlink_parent_index_trigger
-        BEFORE UPDATE ON lightpathexcitationfilterlink
-        FOR EACH ROW EXECUTE PROCEDURE lightpathexcitationfilterlink_parent_index_move ();
+  CREATE TRIGGER channel_pixels_index_trigger
+        BEFORE UPDATE ON channel
+        FOR EACH ROW EXECUTE PROCEDURE channel_pixels_index_move ();
 
   CREATE OR REPLACE FUNCTION channelbinding_renderingDef_index_move() RETURNS "trigger" AS '
     DECLARE
@@ -126,6 +68,151 @@
         BEFORE UPDATE ON channelbinding
         FOR EACH ROW EXECUTE PROCEDURE channelbinding_renderingDef_index_move ();
 
+  CREATE OR REPLACE FUNCTION lightpathexcitationfilterlink_parent_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.parent = old.parent AND new.parent_index = old.parent_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM lightpathexcitationfilterlink
+       WHERE parent = new.parent AND parent_index = new.parent_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping lightpathexcitationfilterlink %% via (-1 - oldvalue )'', duplicate;
+          UPDATE lightpathexcitationfilterlink SET parent_index = -1 - parent_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE TRIGGER lightpathexcitationfilterlink_parent_index_trigger
+        BEFORE UPDATE ON lightpathexcitationfilterlink
+        FOR EACH ROW EXECUTE PROCEDURE lightpathexcitationfilterlink_parent_index_move ();
+
+  CREATE OR REPLACE FUNCTION experimentergroupexperimenterlink_child_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.child = old.child AND new.child_index = old.child_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM experimentergroupexperimenterlink
+       WHERE child = new.child AND child_index = new.child_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping experimentergroupexperimenterlink %% via (-1 - oldvalue )'', duplicate;
+          UPDATE experimentergroupexperimenterlink SET child_index = -1 - child_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE TRIGGER experimentergroupexperimenterlink_child_index_trigger
+        BEFORE UPDATE ON experimentergroupexperimenterlink
+        FOR EACH ROW EXECUTE PROCEDURE experimentergroupexperimenterlink_child_index_move ();
+
+  CREATE OR REPLACE FUNCTION shape_roi_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.roi = old.roi AND new.roi_index = old.roi_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM shape
+       WHERE roi = new.roi AND roi_index = new.roi_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping shape %% via (-1 - oldvalue )'', duplicate;
+          UPDATE shape SET roi_index = -1 - roi_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE TRIGGER shape_roi_index_trigger
+        BEFORE UPDATE ON shape
+        FOR EACH ROW EXECUTE PROCEDURE shape_roi_index_move ();
+
+  CREATE OR REPLACE FUNCTION wellsample_well_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.well = old.well AND new.well_index = old.well_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM wellsample
+       WHERE well = new.well AND well_index = new.well_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping wellsample %% via (-1 - oldvalue )'', duplicate;
+          UPDATE wellsample SET well_index = -1 - well_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE TRIGGER wellsample_well_index_trigger
+        BEFORE UPDATE ON wellsample
+        FOR EACH ROW EXECUTE PROCEDURE wellsample_well_index_move ();
+
+  CREATE OR REPLACE FUNCTION codomainmapcontext_renderingDef_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.renderingDef = old.renderingDef AND new.renderingDef_index = old.renderingDef_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM codomainmapcontext
+       WHERE renderingDef = new.renderingDef AND renderingDef_index = new.renderingDef_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping codomainmapcontext %% via (-1 - oldvalue )'', duplicate;
+          UPDATE codomainmapcontext SET renderingDef_index = -1 - renderingDef_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE TRIGGER codomainmapcontext_renderingDef_index_trigger
+        BEFORE UPDATE ON codomainmapcontext
+        FOR EACH ROW EXECUTE PROCEDURE codomainmapcontext_renderingDef_index_move ();
+
 
 --
 -- Indexes
@@ -140,9 +227,6 @@
   CREATE INDEX i_wellannotationlink_group ON wellannotationlink(group_id);
   CREATE INDEX i_WellAnnotationLink_parent ON wellannotationlink(parent);
   CREATE INDEX i_WellAnnotationLink_child ON wellannotationlink(child);
-  CREATE INDEX i_thumbnail_owner ON thumbnail(owner_id);
-  CREATE INDEX i_thumbnail_group ON thumbnail(group_id);
-  CREATE INDEX i_Thumbnail_pixels ON thumbnail(pixels);
   CREATE INDEX i_imagemicrobeammanipulationlink_owner ON imagemicrobeammanipulationlink(owner_id);
   CREATE INDEX i_imagemicrobeammanipulationlink_group ON imagemicrobeammanipulationlink(group_id);
   CREATE INDEX i_ImageMicrobeamManipulationLink_parent ON imagemicrobeammanipulationlink(parent);
@@ -150,8 +234,6 @@
   CREATE INDEX i_lightpath_owner ON lightpath(owner_id);
   CREATE INDEX i_lightpath_group ON lightpath(group_id);
   CREATE INDEX i_LightPath_dichroic ON lightpath(dichroic);
-  CREATE INDEX i_objective_owner ON objective(owner_id);
-  CREATE INDEX i_objective_group ON objective(group_id);
   CREATE INDEX i_Objective_correction ON objective(correction);
   CREATE INDEX i_Objective_immersion ON objective(immersion);
   CREATE INDEX i_Objective_instrument ON objective(instrument);
@@ -159,7 +241,6 @@
   CREATE INDEX i_channel_group ON channel(group_id);
   CREATE INDEX i_Channel_statsInfo ON channel(statsInfo);
   CREATE INDEX i_Channel_acquisitionMode ON channel(acquisitionMode);
-  CREATE INDEX i_Channel_color ON channel(color);
   CREATE INDEX i_Channel_contrastMethod ON channel(contrastMethod);
   CREATE INDEX i_Channel_detectorSettings ON channel(detectorSettings);
   CREATE INDEX i_Channel_filterSet ON channel(filterSet);
@@ -169,8 +250,8 @@
   CREATE INDEX i_Channel_pixels ON channel(pixels);
   CREATE INDEX i_reagent_owner ON reagent(owner_id);
   CREATE INDEX i_reagent_group ON reagent(group_id);
+  CREATE INDEX i_Reagent_screen ON reagent(screen);
   CREATE INDEX i_Reagent_wells ON reagent(wells);
-  CREATE INDEX i_Reagent_screens ON reagent(screens);
   CREATE INDEX i_imageannotationlink_owner ON imageannotationlink(owner_id);
   CREATE INDEX i_imageannotationlink_group ON imageannotationlink(group_id);
   CREATE INDEX i_ImageAnnotationLink_parent ON imageannotationlink(parent);
@@ -189,8 +270,10 @@
   CREATE INDEX i_originalfileannotationlink_group ON originalfileannotationlink(group_id);
   CREATE INDEX i_OriginalFileAnnotationLink_parent ON originalfileannotationlink(parent);
   CREATE INDEX i_OriginalFileAnnotationLink_child ON originalfileannotationlink(child);
-  CREATE INDEX i_GroupExperimenterMap_parent ON groupexperimentermap(parent);
-  CREATE INDEX i_GroupExperimenterMap_child ON groupexperimentermap(child);
+  CREATE INDEX i_ExperimenterGroup_events ON experimentergroup(events);
+  CREATE INDEX i_ExperimenterGroup_shares ON experimentergroup(shares);
+  CREATE INDEX i_ShareExperimenterLink_parent ON shareexperimenterlink(parent);
+  CREATE INDEX i_ShareExperimenterLink_child ON shareexperimenterlink(child);
   CREATE INDEX i_dataset_owner ON dataset(owner_id);
   CREATE INDEX i_dataset_group ON dataset(group_id);
   CREATE INDEX i_imagingenvironment_owner ON imagingenvironment(owner_id);
@@ -205,8 +288,8 @@
   CREATE INDEX i_Plate_columnNamingConvention ON plate(columnNamingConvention);
   CREATE INDEX i_Plate_rowNamingConvention ON plate(rowNamingConvention);
   CREATE INDEX i_EventLog_event ON eventlog(event);
-  CREATE INDEX i_quantumdef_owner ON quantumdef(owner_id);
-  CREATE INDEX i_quantumdef_group ON quantumdef(group_id);
+  CREATE INDEX i_namespace_owner ON namespace(owner_id);
+  CREATE INDEX i_namespace_group ON namespace(group_id);
   CREATE INDEX i_image_owner ON image(owner_id);
   CREATE INDEX i_image_group ON image(group_id);
   CREATE INDEX i_Image_format ON image(format);
@@ -216,31 +299,19 @@
   CREATE INDEX i_Image_objectiveSettings ON image(objectiveSettings);
   CREATE INDEX i_Image_stageLabel ON image(stageLabel);
   CREATE INDEX i_Image_wellSamples ON image(wellSamples);
-  CREATE INDEX i_namespace_owner ON namespace(owner_id);
-  CREATE INDEX i_namespace_group ON namespace(group_id);
-  CREATE INDEX i_joboriginalfilelink_owner ON joboriginalfilelink(owner_id);
-  CREATE INDEX i_joboriginalfilelink_group ON joboriginalfilelink(group_id);
-  CREATE INDEX i_JobOriginalFileLink_parent ON joboriginalfilelink(parent);
-  CREATE INDEX i_JobOriginalFileLink_child ON joboriginalfilelink(child);
-  CREATE INDEX i_renderingdef_owner ON renderingdef(owner_id);
-  CREATE INDEX i_renderingdef_group ON renderingdef(group_id);
-  CREATE INDEX i_RenderingDef_pixels ON renderingdef(pixels);
-  CREATE INDEX i_RenderingDef_model ON renderingdef(model);
-  CREATE INDEX i_RenderingDef_quantization ON renderingdef(quantization);
-  CREATE INDEX i_codomainmapcontext_owner ON codomainmapcontext(owner_id);
-  CREATE INDEX i_codomainmapcontext_group ON codomainmapcontext(group_id);
-  CREATE INDEX i_CodomainMapContext_renderingDef ON codomainmapcontext(renderingDef);
-  CREATE INDEX i_dichroic_owner ON dichroic(owner_id);
-  CREATE INDEX i_dichroic_group ON dichroic(group_id);
   CREATE INDEX i_Dichroic_filterSets ON dichroic(filterSets);
-  CREATE INDEX i_Dichroic_lightPaths ON dichroic(lightPaths);
   CREATE INDEX i_Dichroic_instrument ON dichroic(instrument);
+  CREATE INDEX i_Dichroic_lightPaths ON dichroic(lightPaths);
+  CREATE INDEX i_originalfilepixelslink_owner ON originalfilepixelslink(owner_id);
+  CREATE INDEX i_originalfilepixelslink_group ON originalfilepixelslink(group_id);
+  CREATE INDEX i_OriginalFilePixelsLink_parent ON originalfilepixelslink(parent);
+  CREATE INDEX i_OriginalFilePixelsLink_child ON originalfilepixelslink(child);
   CREATE INDEX i_affinetransform_owner ON affinetransform(owner_id);
   CREATE INDEX i_affinetransform_group ON affinetransform(group_id);
-  CREATE INDEX i_objectivesettings_owner ON objectivesettings(owner_id);
-  CREATE INDEX i_objectivesettings_group ON objectivesettings(group_id);
-  CREATE INDEX i_ObjectiveSettings_objective ON objectivesettings(objective);
+  CREATE INDEX i_statsinfo_owner ON statsinfo(owner_id);
+  CREATE INDEX i_statsinfo_group ON statsinfo(group_id);
   CREATE INDEX i_ObjectiveSettings_medium ON objectivesettings(medium);
+  CREATE INDEX i_ObjectiveSettings_objective ON objectivesettings(objective);
   CREATE INDEX i_channelannotationlink_owner ON channelannotationlink(owner_id);
   CREATE INDEX i_channelannotationlink_group ON channelannotationlink(group_id);
   CREATE INDEX i_ChannelAnnotationLink_parent ON channelannotationlink(parent);
@@ -258,8 +329,6 @@
   CREATE INDEX i_Pixels_image ON pixels(image);
   CREATE INDEX i_Pixels_dimensionOrder ON pixels(dimensionOrder);
   CREATE INDEX i_Pixels_type ON pixels(type);
-  CREATE INDEX i_lightsource_owner ON lightsource(owner_id);
-  CREATE INDEX i_lightsource_group ON lightsource(group_id);
   CREATE INDEX i_LightSource_instrument ON lightsource(instrument);
   CREATE INDEX i_externalinfo_owner ON externalinfo(owner_id);
   CREATE INDEX i_externalinfo_group ON externalinfo(group_id);
@@ -276,36 +345,44 @@
   CREATE INDEX i_roiannotationlink_group ON roiannotationlink(group_id);
   CREATE INDEX i_ROIAnnotationLink_parent ON roiannotationlink(parent);
   CREATE INDEX i_ROIAnnotationLink_child ON roiannotationlink(child);
-  CREATE INDEX i_Share_group ON share("group");
+  CREATE INDEX i_Share_experimenterGroup ON share(experimenterGroup);
+  CREATE INDEX i_joboriginalfilelink_owner ON joboriginalfilelink(owner_id);
+  CREATE INDEX i_joboriginalfilelink_group ON joboriginalfilelink(group_id);
+  CREATE INDEX i_JobOriginalFileLink_parent ON joboriginalfilelink(parent);
+  CREATE INDEX i_JobOriginalFileLink_child ON joboriginalfilelink(child);
   CREATE INDEX i_namespaceannotationlink_owner ON namespaceannotationlink(owner_id);
   CREATE INDEX i_namespaceannotationlink_group ON namespaceannotationlink(group_id);
   CREATE INDEX i_NamespaceAnnotationLink_parent ON namespaceannotationlink(parent);
   CREATE INDEX i_NamespaceAnnotationLink_child ON namespaceannotationlink(child);
+  CREATE INDEX i_job_owner ON job(owner_id);
+  CREATE INDEX i_job_group ON job(group_id);
+  CREATE INDEX i_Job_status ON job(status);
   CREATE INDEX i_lightpathemissionfilterlink_owner ON lightpathemissionfilterlink(owner_id);
   CREATE INDEX i_lightpathemissionfilterlink_group ON lightpathemissionfilterlink(group_id);
   CREATE INDEX i_LightPathEmissionFilterLink_parent ON lightpathemissionfilterlink(parent);
   CREATE INDEX i_LightPathEmissionFilterLink_child ON lightpathemissionfilterlink(child);
+  CREATE INDEX i_channelbinding_owner ON channelbinding(owner_id);
+  CREATE INDEX i_channelbinding_group ON channelbinding(group_id);
+  CREATE INDEX i_ChannelBinding_family ON channelbinding(family);
+  CREATE INDEX i_ChannelBinding_renderingDef ON channelbinding(renderingDef);
   CREATE INDEX i_projectannotationlink_owner ON projectannotationlink(owner_id);
   CREATE INDEX i_projectannotationlink_group ON projectannotationlink(group_id);
   CREATE INDEX i_ProjectAnnotationLink_parent ON projectannotationlink(parent);
   CREATE INDEX i_ProjectAnnotationLink_child ON projectannotationlink(child);
-  CREATE INDEX i_detectorsettings_owner ON detectorsettings(owner_id);
-  CREATE INDEX i_detectorsettings_group ON detectorsettings(group_id);
-  CREATE INDEX i_DetectorSettings_detector ON detectorsettings(detector);
   CREATE INDEX i_DetectorSettings_binning ON detectorsettings(binning);
-  CREATE INDEX i_manufacturerspec_owner ON manufacturerspec(owner_id);
-  CREATE INDEX i_manufacturerspec_group ON manufacturerspec(group_id);
+  CREATE INDEX i_DetectorSettings_detector ON detectorsettings(detector);
   CREATE INDEX i_microbeammanipulationroilink_owner ON microbeammanipulationroilink(owner_id);
   CREATE INDEX i_microbeammanipulationroilink_group ON microbeammanipulationroilink(group_id);
   CREATE INDEX i_MicrobeamManipulationROILink_parent ON microbeammanipulationroilink(parent);
   CREATE INDEX i_MicrobeamManipulationROILink_child ON microbeammanipulationroilink(child);
+  CREATE INDEX i_manufacturerspec_owner ON manufacturerspec(owner_id);
+  CREATE INDEX i_manufacturerspec_group ON manufacturerspec(group_id);
   CREATE INDEX i_lightpathexcitationfilterlink_owner ON lightpathexcitationfilterlink(owner_id);
   CREATE INDEX i_lightpathexcitationfilterlink_group ON lightpathexcitationfilterlink(group_id);
   CREATE INDEX i_LightPathExcitationFilterLink_parent ON lightpathexcitationfilterlink(parent);
   CREATE INDEX i_LightPathExcitationFilterLink_child ON lightpathexcitationfilterlink(child);
   CREATE INDEX i_roi_owner ON roi(owner_id);
   CREATE INDEX i_roi_group ON roi(group_id);
-  CREATE INDEX i_ROI_image ON roi(image);
   CREATE INDEX i_Laser_laserMedium ON laser(laserMedium);
   CREATE INDEX i_Laser_pulse ON laser(pulse);
   CREATE INDEX i_Laser_pump ON laser(pump);
@@ -326,21 +403,14 @@
   CREATE INDEX i_plane_group ON plane(group_id);
   CREATE INDEX i_Plane_pixels ON plane(pixels);
   CREATE INDEX i_Filament_type ON filament(type);
-  CREATE INDEX i_statsinfo_owner ON statsinfo(owner_id);
-  CREATE INDEX i_statsinfo_group ON statsinfo(group_id);
-  CREATE INDEX i_lightsourcesettings_owner ON lightsourcesettings(owner_id);
-  CREATE INDEX i_lightsourcesettings_group ON lightsourcesettings(group_id);
-  CREATE INDEX i_LightSourceSettings_lightSource ON lightsourcesettings(lightSource);
-  CREATE INDEX i_LightSourceSettings_microbeamManipulation ON lightsourcesettings(microbeamManipulation);
   CREATE INDEX i_originalfile_owner ON originalfile(owner_id);
   CREATE INDEX i_originalfile_group ON originalfile(group_id);
+  CREATE INDEX i_LightSourceSettings_lightSource ON lightsourcesettings(lightSource);
+  CREATE INDEX i_LightSourceSettings_microbeamManipulation ON lightsourcesettings(microbeamManipulation);
   CREATE INDEX i_annotation_owner ON annotation(owner_id);
   CREATE INDEX i_annotation_group ON annotation(group_id);
-  CREATE INDEX i_job_owner ON job(owner_id);
-  CREATE INDEX i_job_group ON job(group_id);
-  CREATE INDEX i_Job_status ON job(status);
-  CREATE INDEX i_ShareMember_parent ON sharemember(parent);
-  CREATE INDEX i_ShareMember_child ON sharemember(child);
+  CREATE INDEX i_ExperimenterGroupExperimenterLink_parent ON experimentergroupexperimenterlink(parent);
+  CREATE INDEX i_ExperimenterGroupExperimenterLink_child ON experimentergroupexperimenterlink(child);
   CREATE INDEX i_plateannotationlink_owner ON plateannotationlink(owner_id);
   CREATE INDEX i_plateannotationlink_group ON plateannotationlink(group_id);
   CREATE INDEX i_PlateAnnotationLink_parent ON plateannotationlink(parent);
@@ -349,33 +419,37 @@
   CREATE INDEX i_experimenterannotationlink_group ON experimenterannotationlink(group_id);
   CREATE INDEX i_ExperimenterAnnotationLink_parent ON experimenterannotationlink(parent);
   CREATE INDEX i_ExperimenterAnnotationLink_child ON experimenterannotationlink(child);
+  CREATE INDEX i_renderingdef_owner ON renderingdef(owner_id);
+  CREATE INDEX i_renderingdef_group ON renderingdef(group_id);
+  CREATE INDEX i_RenderingDef_model ON renderingdef(model);
+  CREATE INDEX i_RenderingDef_pixels ON renderingdef(pixels);
+  CREATE INDEX i_RenderingDef_quantumDef ON renderingdef(quantumDef);
   CREATE INDEX i_experiment_owner ON experiment(owner_id);
   CREATE INDEX i_experiment_group ON experiment(group_id);
   CREATE INDEX i_Experiment_images ON experiment(images);
   CREATE INDEX i_Experiment_type ON experiment(type);
-  CREATE INDEX i_channelbinding_owner ON channelbinding(owner_id);
-  CREATE INDEX i_channelbinding_group ON channelbinding(group_id);
-  CREATE INDEX i_ChannelBinding_renderingDef ON channelbinding(renderingDef);
-  CREATE INDEX i_ChannelBinding_family ON channelbinding(family);
-  CREATE INDEX i_ChannelBinding_color ON channelbinding(color);
-  CREATE INDEX i_filterset_owner ON filterset(owner_id);
-  CREATE INDEX i_filterset_group ON filterset(group_id);
+  CREATE INDEX i_thumbnail_owner ON thumbnail(owner_id);
+  CREATE INDEX i_thumbnail_group ON thumbnail(group_id);
+  CREATE INDEX i_Thumbnail_pixels ON thumbnail(pixels);
   CREATE INDEX i_FilterSet_channels ON filterset(channels);
   CREATE INDEX i_FilterSet_dichroic ON filterset(dichroic);
   CREATE INDEX i_FilterSet_instrument ON filterset(instrument);
-  CREATE INDEX i_microscope_owner ON microscope(owner_id);
-  CREATE INDEX i_microscope_group ON microscope(group_id);
   CREATE INDEX i_Microscope_type ON microscope(type);
   CREATE INDEX i_microbeammanipulation_owner ON microbeammanipulation(owner_id);
   CREATE INDEX i_microbeammanipulation_group ON microbeammanipulation(group_id);
-  CREATE INDEX i_MicrobeamManipulation_type ON microbeammanipulation(type);
   CREATE INDEX i_MicrobeamManipulation_experiment ON microbeammanipulation(experiment);
+  CREATE INDEX i_MicrobeamManipulation_type ON microbeammanipulation(type);
+  CREATE INDEX i_Session_defaultEventType ON session(defaultEventType);
+  CREATE INDEX i_Session_experimenter ON session(experimenter);
   CREATE INDEX i_Session_node ON session(node);
-  CREATE INDEX i_Session_owner ON session(owner);
   CREATE INDEX i_screenannotationlink_owner ON screenannotationlink(owner_id);
   CREATE INDEX i_screenannotationlink_group ON screenannotationlink(group_id);
   CREATE INDEX i_ScreenAnnotationLink_parent ON screenannotationlink(parent);
   CREATE INDEX i_ScreenAnnotationLink_child ON screenannotationlink(child);
+  CREATE INDEX i_Experimenter_events ON experimenter(events);
+  CREATE INDEX i_Experimenter_sessions ON experimenter(sessions);
+  CREATE INDEX i_quantumdef_owner ON quantumdef(owner_id);
+  CREATE INDEX i_quantumdef_group ON quantumdef(group_id);
   CREATE INDEX i_pixelsannotationlink_owner ON pixelsannotationlink(owner_id);
   CREATE INDEX i_pixelsannotationlink_group ON pixelsannotationlink(group_id);
   CREATE INDEX i_PixelsAnnotationLink_parent ON pixelsannotationlink(parent);
@@ -393,32 +467,25 @@
   CREATE INDEX i_PlateAcquisition_plate ON plateacquisition(plate);
   CREATE INDEX i_well_owner ON well(owner_id);
   CREATE INDEX i_well_group ON well(group_id);
-  CREATE INDEX i_Well_color ON well(color);
-  CREATE INDEX i_Well_reagent ON well(reagent);
   CREATE INDEX i_Well_plate ON well(plate);
+  CREATE INDEX i_Well_reagent ON well(reagent);
   CREATE INDEX i_plateacquisitionannotationlink_owner ON plateacquisitionannotationlink(owner_id);
   CREATE INDEX i_plateacquisitionannotationlink_group ON plateacquisitionannotationlink(group_id);
   CREATE INDEX i_PlateAcquisitionAnnotationLink_parent ON plateacquisitionannotationlink(parent);
   CREATE INDEX i_PlateAcquisitionAnnotationLink_child ON plateacquisitionannotationlink(child);
-  CREATE INDEX i_detector_owner ON detector(owner_id);
-  CREATE INDEX i_detector_group ON detector(group_id);
-  CREATE INDEX i_Detector_type ON detector(type);
   CREATE INDEX i_Detector_instrument ON detector(instrument);
-  CREATE INDEX i_pixelsoriginalfilemap_owner ON pixelsoriginalfilemap(owner_id);
-  CREATE INDEX i_pixelsoriginalfilemap_group ON pixelsoriginalfilemap(group_id);
-  CREATE INDEX i_PixelsOriginalFileMap_parent ON pixelsoriginalfilemap(parent);
-  CREATE INDEX i_PixelsOriginalFileMap_child ON pixelsoriginalfilemap(child);
+  CREATE INDEX i_Detector_type ON detector(type);
   CREATE INDEX i_project_owner ON project(owner_id);
   CREATE INDEX i_project_group ON project(group_id);
   CREATE INDEX i_imageroilink_owner ON imageroilink(owner_id);
   CREATE INDEX i_imageroilink_group ON imageroilink(group_id);
   CREATE INDEX i_ImageROILink_parent ON imageroilink(parent);
   CREATE INDEX i_ImageROILink_child ON imageroilink(child);
-  CREATE INDEX i_filter_owner ON filter(owner_id);
-  CREATE INDEX i_filter_group ON filter(group_id);
+  CREATE INDEX i_settings_owner ON settings(owner_id);
+  CREATE INDEX i_settings_group ON settings(group_id);
+  CREATE INDEX i_Filter_instrument ON filter(instrument);
   CREATE INDEX i_Filter_transmittanceRange ON filter(transmittanceRange);
   CREATE INDEX i_Filter_type ON filter(type);
-  CREATE INDEX i_Filter_instrument ON filter(instrument);
   CREATE INDEX i_sessionannotationlink_owner ON sessionannotationlink(owner_id);
   CREATE INDEX i_sessionannotationlink_group ON sessionannotationlink(group_id);
   CREATE INDEX i_SessionAnnotationLink_parent ON sessionannotationlink(parent);
@@ -432,23 +499,25 @@
   CREATE INDEX i_shape_owner ON shape(owner_id);
   CREATE INDEX i_shape_group ON shape(group_id);
   CREATE INDEX i_Shape_roi ON shape(roi);
-  CREATE INDEX i_Shape_fillColor ON shape(fillColor);
   CREATE INDEX i_Shape_fillRule ON shape(fillRule);
   CREATE INDEX i_Shape_fontFamily ON shape(fontFamily);
   CREATE INDEX i_Shape_fontStyle ON shape(fontStyle);
   CREATE INDEX i_Shape_lineCap ON shape(lineCap);
-  CREATE INDEX i_Shape_strokeColor ON shape(strokeColor);
   CREATE INDEX i_Shape_transform ON shape(transform);
   CREATE INDEX i_wellsample_owner ON wellsample(owner_id);
   CREATE INDEX i_wellsample_group ON wellsample(group_id);
   CREATE INDEX i_WellSample_image ON wellsample(image);
   CREATE INDEX i_WellSample_plateAcquisitions ON wellsample(plateAcquisitions);
   CREATE INDEX i_WellSample_well ON wellsample(well);
-  CREATE INDEX i_Event_experimenter ON event(experimenter);
+  CREATE INDEX i_codomainmapcontext_owner ON codomainmapcontext(owner_id);
+  CREATE INDEX i_codomainmapcontext_group ON codomainmapcontext(group_id);
+  CREATE INDEX i_CodomainMapContext_renderingDef ON codomainmapcontext(renderingDef);
+  CREATE INDEX i_Event_event ON event(event);
+  CREATE INDEX i_Event_events ON event(events);
   CREATE INDEX i_Event_experimenterGroup ON event(experimenterGroup);
-  CREATE INDEX i_Event_type ON event(type);
-  CREATE INDEX i_Event_containingEvent ON event(containingEvent);
+  CREATE INDEX i_Event_experimenter ON event(experimenter);
   CREATE INDEX i_Event_session ON event("session");
+  CREATE INDEX i_Event_type ON event(type);
 
 --
 -- Finally, a function for showing our permissions
@@ -556,117 +625,108 @@ END;' LANGUAGE plpgsql;
 CREATE SEQUENCE seq_wellsampleannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellsampleannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_wellannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_filtertype; INSERT INTO _lock_ids (name, id) SELECT 'seq_filtertype', nextval('_lock_seq');
-CREATE SEQUENCE seq_thumbnail; INSERT INTO _lock_ids (name, id) SELECT 'seq_thumbnail', nextval('_lock_seq');
 CREATE SEQUENCE seq_imagemicrobeammanipulationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_imagemicrobeammanipulationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_lightpath; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightpath', nextval('_lock_seq');
 CREATE SEQUENCE seq_immersion; INSERT INTO _lock_ids (name, id) SELECT 'seq_immersion', nextval('_lock_seq');
-CREATE SEQUENCE seq_objective; INSERT INTO _lock_ids (name, id) SELECT 'seq_objective', nextval('_lock_seq');
 CREATE SEQUENCE seq_channel; INSERT INTO _lock_ids (name, id) SELECT 'seq_channel', nextval('_lock_seq');
 CREATE SEQUENCE seq_reagent; INSERT INTO _lock_ids (name, id) SELECT 'seq_reagent', nextval('_lock_seq');
 CREATE SEQUENCE seq_imageannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_imageannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_stagelabel; INSERT INTO _lock_ids (name, id) SELECT 'seq_stagelabel', nextval('_lock_seq');
 CREATE SEQUENCE seq_arctype; INSERT INTO _lock_ids (name, id) SELECT 'seq_arctype', nextval('_lock_seq');
-CREATE SEQUENCE seq_experimenttype; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimenttype', nextval('_lock_seq');
 CREATE SEQUENCE seq_datasetimagelink; INSERT INTO _lock_ids (name, id) SELECT 'seq_datasetimagelink', nextval('_lock_seq');
+CREATE SEQUENCE seq_experimenttype; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimenttype', nextval('_lock_seq');
 CREATE SEQUENCE seq_filtersetemissionfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filtersetemissionfilterlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_originalfileannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_originalfileannotationlink', nextval('_lock_seq');
-CREATE SEQUENCE seq_groupexperimentermap; INSERT INTO _lock_ids (name, id) SELECT 'seq_groupexperimentermap', nextval('_lock_seq');
+CREATE SEQUENCE seq_experimentergroup; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimentergroup', nextval('_lock_seq');
+CREATE SEQUENCE seq_shareexperimenterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_shareexperimenterlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_dataset; INSERT INTO _lock_ids (name, id) SELECT 'seq_dataset', nextval('_lock_seq');
 CREATE SEQUENCE seq_imagingenvironment; INSERT INTO _lock_ids (name, id) SELECT 'seq_imagingenvironment', nextval('_lock_seq');
 CREATE SEQUENCE seq_transmittancerange; INSERT INTO _lock_ids (name, id) SELECT 'seq_transmittancerange', nextval('_lock_seq');
 CREATE SEQUENCE seq_screen; INSERT INTO _lock_ids (name, id) SELECT 'seq_screen', nextval('_lock_seq');
 CREATE SEQUENCE seq_plate; INSERT INTO _lock_ids (name, id) SELECT 'seq_plate', nextval('_lock_seq');
 CREATE SEQUENCE seq_eventlog; INSERT INTO _lock_ids (name, id) SELECT 'seq_eventlog', nextval('_lock_seq');
-CREATE SEQUENCE seq_quantumdef; INSERT INTO _lock_ids (name, id) SELECT 'seq_quantumdef', nextval('_lock_seq');
 CREATE SEQUENCE seq_renderingmodel; INSERT INTO _lock_ids (name, id) SELECT 'seq_renderingmodel', nextval('_lock_seq');
-CREATE SEQUENCE seq_image; INSERT INTO _lock_ids (name, id) SELECT 'seq_image', nextval('_lock_seq');
 CREATE SEQUENCE seq_namespace; INSERT INTO _lock_ids (name, id) SELECT 'seq_namespace', nextval('_lock_seq');
-CREATE SEQUENCE seq_joboriginalfilelink; INSERT INTO _lock_ids (name, id) SELECT 'seq_joboriginalfilelink', nextval('_lock_seq');
-CREATE SEQUENCE seq_experimentergroup; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimentergroup', nextval('_lock_seq');
-CREATE SEQUENCE seq_renderingdef; INSERT INTO _lock_ids (name, id) SELECT 'seq_renderingdef', nextval('_lock_seq');
+CREATE SEQUENCE seq_image; INSERT INTO _lock_ids (name, id) SELECT 'seq_image', nextval('_lock_seq');
 CREATE SEQUENCE seq_fillrule; INSERT INTO _lock_ids (name, id) SELECT 'seq_fillrule', nextval('_lock_seq');
-CREATE SEQUENCE seq_codomainmapcontext; INSERT INTO _lock_ids (name, id) SELECT 'seq_codomainmapcontext', nextval('_lock_seq');
-CREATE SEQUENCE seq_dichroic; INSERT INTO _lock_ids (name, id) SELECT 'seq_dichroic', nextval('_lock_seq');
+CREATE SEQUENCE seq_originalfilepixelslink; INSERT INTO _lock_ids (name, id) SELECT 'seq_originalfilepixelslink', nextval('_lock_seq');
 CREATE SEQUENCE seq_affinetransform; INSERT INTO _lock_ids (name, id) SELECT 'seq_affinetransform', nextval('_lock_seq');
 CREATE SEQUENCE seq_eventtype; INSERT INTO _lock_ids (name, id) SELECT 'seq_eventtype', nextval('_lock_seq');
-CREATE SEQUENCE seq_objectivesettings; INSERT INTO _lock_ids (name, id) SELECT 'seq_objectivesettings', nextval('_lock_seq');
+CREATE SEQUENCE seq_statsinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_statsinfo', nextval('_lock_seq');
 CREATE SEQUENCE seq_microscopetype; INSERT INTO _lock_ids (name, id) SELECT 'seq_microscopetype', nextval('_lock_seq');
+CREATE SEQUENCE seq_jobstatus; INSERT INTO _lock_ids (name, id) SELECT 'seq_jobstatus', nextval('_lock_seq');
 CREATE SEQUENCE seq_channelannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_channelannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_filamenttype; INSERT INTO _lock_ids (name, id) SELECT 'seq_filamenttype', nextval('_lock_seq');
 CREATE SEQUENCE seq_projectdatasetlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_projectdatasetlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_experimentergroupannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimentergroupannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_pixels; INSERT INTO _lock_ids (name, id) SELECT 'seq_pixels', nextval('_lock_seq');
 CREATE SEQUENCE seq_namingconvention; INSERT INTO _lock_ids (name, id) SELECT 'seq_namingconvention', nextval('_lock_seq');
-CREATE SEQUENCE seq_lightsource; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightsource', nextval('_lock_seq');
 CREATE SEQUENCE seq_externalinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_externalinfo', nextval('_lock_seq');
 CREATE SEQUENCE seq_annotationannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_annotationannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_illuminationtype; INSERT INTO _lock_ids (name, id) SELECT 'seq_illuminationtype', nextval('_lock_seq');
 CREATE SEQUENCE seq_lasertype; INSERT INTO _lock_ids (name, id) SELECT 'seq_lasertype', nextval('_lock_seq');
 CREATE SEQUENCE seq_nodeannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_nodeannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_roiannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_roiannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_joboriginalfilelink; INSERT INTO _lock_ids (name, id) SELECT 'seq_joboriginalfilelink', nextval('_lock_seq');
 CREATE SEQUENCE seq_dimensionorder; INSERT INTO _lock_ids (name, id) SELECT 'seq_dimensionorder', nextval('_lock_seq');
 CREATE SEQUENCE seq_binning; INSERT INTO _lock_ids (name, id) SELECT 'seq_binning', nextval('_lock_seq');
 CREATE SEQUENCE seq_namespaceannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_namespaceannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_job; INSERT INTO _lock_ids (name, id) SELECT 'seq_job', nextval('_lock_seq');
 CREATE SEQUENCE seq_fontfamily; INSERT INTO _lock_ids (name, id) SELECT 'seq_fontfamily', nextval('_lock_seq');
 CREATE SEQUENCE seq_lightpathemissionfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightpathemissionfilterlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_channelbinding; INSERT INTO _lock_ids (name, id) SELECT 'seq_channelbinding', nextval('_lock_seq');
 CREATE SEQUENCE seq_family; INSERT INTO _lock_ids (name, id) SELECT 'seq_family', nextval('_lock_seq');
 CREATE SEQUENCE seq_projectannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_projectannotationlink', nextval('_lock_seq');
-CREATE SEQUENCE seq_detectorsettings; INSERT INTO _lock_ids (name, id) SELECT 'seq_detectorsettings', nextval('_lock_seq');
 CREATE SEQUENCE seq_detectortype; INSERT INTO _lock_ids (name, id) SELECT 'seq_detectortype', nextval('_lock_seq');
-CREATE SEQUENCE seq_manufacturerspec; INSERT INTO _lock_ids (name, id) SELECT 'seq_manufacturerspec', nextval('_lock_seq');
 CREATE SEQUENCE seq_microbeammanipulationroilink; INSERT INTO _lock_ids (name, id) SELECT 'seq_microbeammanipulationroilink', nextval('_lock_seq');
+CREATE SEQUENCE seq_manufacturerspec; INSERT INTO _lock_ids (name, id) SELECT 'seq_manufacturerspec', nextval('_lock_seq');
 CREATE SEQUENCE seq_lightpathexcitationfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightpathexcitationfilterlink', nextval('_lock_seq');
-CREATE SEQUENCE seq_roi; INSERT INTO _lock_ids (name, id) SELECT 'seq_roi', nextval('_lock_seq');
 CREATE SEQUENCE seq_pulse; INSERT INTO _lock_ids (name, id) SELECT 'seq_pulse', nextval('_lock_seq');
+CREATE SEQUENCE seq_roi; INSERT INTO _lock_ids (name, id) SELECT 'seq_roi', nextval('_lock_seq');
 CREATE SEQUENCE seq_screenplatelink; INSERT INTO _lock_ids (name, id) SELECT 'seq_screenplatelink', nextval('_lock_seq');
 CREATE SEQUENCE seq_reagentannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_reagentannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_instrument; INSERT INTO _lock_ids (name, id) SELECT 'seq_instrument', nextval('_lock_seq');
 CREATE SEQUENCE seq_plane; INSERT INTO _lock_ids (name, id) SELECT 'seq_plane', nextval('_lock_seq');
-CREATE SEQUENCE seq_statsinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_statsinfo', nextval('_lock_seq');
-CREATE SEQUENCE seq_lightsourcesettings; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightsourcesettings', nextval('_lock_seq');
 CREATE SEQUENCE seq_originalfile; INSERT INTO _lock_ids (name, id) SELECT 'seq_originalfile', nextval('_lock_seq');
 CREATE SEQUENCE seq_annotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_annotation', nextval('_lock_seq');
-CREATE SEQUENCE seq_job; INSERT INTO _lock_ids (name, id) SELECT 'seq_job', nextval('_lock_seq');
-CREATE SEQUENCE seq_sharemember; INSERT INTO _lock_ids (name, id) SELECT 'seq_sharemember', nextval('_lock_seq');
 CREATE SEQUENCE seq_dbpatch; INSERT INTO _lock_ids (name, id) SELECT 'seq_dbpatch', nextval('_lock_seq');
+CREATE SEQUENCE seq_experimentergroupexperimenterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimentergroupexperimenterlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_plateannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_plateannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_experimenterannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimenterannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_renderingdef; INSERT INTO _lock_ids (name, id) SELECT 'seq_renderingdef', nextval('_lock_seq');
 CREATE SEQUENCE seq_experiment; INSERT INTO _lock_ids (name, id) SELECT 'seq_experiment', nextval('_lock_seq');
-CREATE SEQUENCE seq_channelbinding; INSERT INTO _lock_ids (name, id) SELECT 'seq_channelbinding', nextval('_lock_seq');
 CREATE SEQUENCE seq_microbeammanipulationtype; INSERT INTO _lock_ids (name, id) SELECT 'seq_microbeammanipulationtype', nextval('_lock_seq');
+CREATE SEQUENCE seq_thumbnail; INSERT INTO _lock_ids (name, id) SELECT 'seq_thumbnail', nextval('_lock_seq');
 CREATE SEQUENCE seq_medium; INSERT INTO _lock_ids (name, id) SELECT 'seq_medium', nextval('_lock_seq');
 CREATE SEQUENCE seq_lasermedium; INSERT INTO _lock_ids (name, id) SELECT 'seq_lasermedium', nextval('_lock_seq');
-CREATE SEQUENCE seq_filterset; INSERT INTO _lock_ids (name, id) SELECT 'seq_filterset', nextval('_lock_seq');
-CREATE SEQUENCE seq_microscope; INSERT INTO _lock_ids (name, id) SELECT 'seq_microscope', nextval('_lock_seq');
 CREATE SEQUENCE seq_microbeammanipulation; INSERT INTO _lock_ids (name, id) SELECT 'seq_microbeammanipulation', nextval('_lock_seq');
 CREATE SEQUENCE seq_session; INSERT INTO _lock_ids (name, id) SELECT 'seq_session', nextval('_lock_seq');
 CREATE SEQUENCE seq_screenannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_screenannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_experimenter; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimenter', nextval('_lock_seq');
 CREATE SEQUENCE seq_format; INSERT INTO _lock_ids (name, id) SELECT 'seq_format', nextval('_lock_seq');
-CREATE SEQUENCE seq_marker; INSERT INTO _lock_ids (name, id) SELECT 'seq_marker', nextval('_lock_seq');
 CREATE SEQUENCE seq_node; INSERT INTO _lock_ids (name, id) SELECT 'seq_node', nextval('_lock_seq');
+CREATE SEQUENCE seq_marker; INSERT INTO _lock_ids (name, id) SELECT 'seq_marker', nextval('_lock_seq');
+CREATE SEQUENCE seq_quantumdef; INSERT INTO _lock_ids (name, id) SELECT 'seq_quantumdef', nextval('_lock_seq');
 CREATE SEQUENCE seq_pixelsannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_pixelsannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_planeannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_planeannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_datasetannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_datasetannotationlink', nextval('_lock_seq');
-CREATE SEQUENCE seq_correction; INSERT INTO _lock_ids (name, id) SELECT 'seq_correction', nextval('_lock_seq');
 CREATE SEQUENCE seq_plateacquisition; INSERT INTO _lock_ids (name, id) SELECT 'seq_plateacquisition', nextval('_lock_seq');
-CREATE SEQUENCE seq_well; INSERT INTO _lock_ids (name, id) SELECT 'seq_well', nextval('_lock_seq');
+CREATE SEQUENCE seq_correction; INSERT INTO _lock_ids (name, id) SELECT 'seq_correction', nextval('_lock_seq');
 CREATE SEQUENCE seq_pixeltype; INSERT INTO _lock_ids (name, id) SELECT 'seq_pixeltype', nextval('_lock_seq');
+CREATE SEQUENCE seq_well; INSERT INTO _lock_ids (name, id) SELECT 'seq_well', nextval('_lock_seq');
 CREATE SEQUENCE seq_plateacquisitionannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_plateacquisitionannotationlink', nextval('_lock_seq');
-CREATE SEQUENCE seq_detector; INSERT INTO _lock_ids (name, id) SELECT 'seq_detector', nextval('_lock_seq');
-CREATE SEQUENCE seq_pixelsoriginalfilemap; INSERT INTO _lock_ids (name, id) SELECT 'seq_pixelsoriginalfilemap', nextval('_lock_seq');
 CREATE SEQUENCE seq_project; INSERT INTO _lock_ids (name, id) SELECT 'seq_project', nextval('_lock_seq');
 CREATE SEQUENCE seq_imageroilink; INSERT INTO _lock_ids (name, id) SELECT 'seq_imageroilink', nextval('_lock_seq');
-CREATE SEQUENCE seq_filter; INSERT INTO _lock_ids (name, id) SELECT 'seq_filter', nextval('_lock_seq');
+CREATE SEQUENCE seq_settings; INSERT INTO _lock_ids (name, id) SELECT 'seq_settings', nextval('_lock_seq');
 CREATE SEQUENCE seq_sessionannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_sessionannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_linecap; INSERT INTO _lock_ids (name, id) SELECT 'seq_linecap', nextval('_lock_seq');
 CREATE SEQUENCE seq_filtersetexcitationfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filtersetexcitationfilterlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_shape; INSERT INTO _lock_ids (name, id) SELECT 'seq_shape', nextval('_lock_seq');
 CREATE SEQUENCE seq_fontstyle; INSERT INTO _lock_ids (name, id) SELECT 'seq_fontstyle', nextval('_lock_seq');
 CREATE SEQUENCE seq_wellsample; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellsample', nextval('_lock_seq');
-CREATE SEQUENCE seq_experimenter; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimenter', nextval('_lock_seq');
+CREATE SEQUENCE seq_codomainmapcontext; INSERT INTO _lock_ids (name, id) SELECT 'seq_codomainmapcontext', nextval('_lock_seq');
 CREATE SEQUENCE seq_acquisitionmode; INSERT INTO _lock_ids (name, id) SELECT 'seq_acquisitionmode', nextval('_lock_seq');
 CREATE SEQUENCE seq_event; INSERT INTO _lock_ids (name, id) SELECT 'seq_event', nextval('_lock_seq');
-CREATE SEQUENCE seq_jobstatus; INSERT INTO _lock_ids (name, id) SELECT 'seq_jobstatus', nextval('_lock_seq');
 CREATE SEQUENCE seq_contrastmethod; INSERT INTO _lock_ids (name, id) SELECT 'seq_contrastmethod', nextval('_lock_seq');
 
 
@@ -746,6 +806,10 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
             INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.Reagent'');
         END LOOP;
 
+        FOR rec IN SELECT id, parent FROM experimentergroupannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.ExperimenterGroup'');
+        END LOOP;
+
         FOR rec IN SELECT id, parent FROM datasetannotationlink WHERE child = new.id LOOP
             INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Dataset'');
         END LOOP;
@@ -758,16 +822,12 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
             INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.Plate'');
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM imageannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Image'');
-        END LOOP;
-
         FOR rec IN SELECT id, parent FROM namespaceannotationlink WHERE child = new.id LOOP
             INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Namespace'');
         END LOOP;
 
-        FOR rec IN SELECT id, parent FROM experimentergroupannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.ExperimenterGroup'');
+        FOR rec IN SELECT id, parent FROM imageannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Image'');
         END LOOP;
 
         FOR rec IN SELECT id, parent FROM pixelsannotationlink WHERE child = new.id LOOP
@@ -783,7 +843,7 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
         END LOOP;
 
         FOR rec IN SELECT id, parent FROM originalfileannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.OriginalFile'');
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.OriginalFile'');
         END LOOP;
 
         FOR rec IN SELECT id, parent FROM annotationannotationlink WHERE child = new.id LOOP
@@ -792,6 +852,10 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
 
         FOR rec IN SELECT id, parent FROM sessionannotationlink WHERE child = new.id LOOP
             INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Session'');
+        END LOOP;
+
+        FOR rec IN SELECT id, parent FROM experimenterannotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.core.Experimenter'');
         END LOOP;
 
         FOR rec IN SELECT id, parent FROM nodeannotationlink WHERE child = new.id LOOP
@@ -812,10 +876,6 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
 
         FOR rec IN SELECT id, parent FROM wellsampleannotationlink WHERE child = new.id LOOP
             INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.spw.WellSample'');
-        END LOOP;
-
-        FOR rec IN SELECT id, parent FROM experimenterannotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''ome.model.meta.Experimenter'');
         END LOOP;
 
         SELECT INTO cnt count(*) FROM _updated_annotations;
@@ -860,6 +920,10 @@ CREATE TRIGGER reagent_annotation_link_event_trigger
         AFTER UPDATE ON reagentannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.Reagent');
+CREATE TRIGGER experimentergroup_annotation_link_event_trigger
+        AFTER UPDATE ON experimentergroupannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.ExperimenterGroup');
 CREATE TRIGGER dataset_annotation_link_event_trigger
         AFTER UPDATE ON datasetannotationlink
         FOR EACH ROW
@@ -872,18 +936,14 @@ CREATE TRIGGER plate_annotation_link_event_trigger
         AFTER UPDATE ON plateannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.Plate');
-CREATE TRIGGER image_annotation_link_event_trigger
-        AFTER UPDATE ON imageannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Image');
 CREATE TRIGGER namespace_annotation_link_event_trigger
         AFTER UPDATE ON namespaceannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Namespace');
-CREATE TRIGGER experimentergroup_annotation_link_event_trigger
-        AFTER UPDATE ON experimentergroupannotationlink
+CREATE TRIGGER image_annotation_link_event_trigger
+        AFTER UPDATE ON imageannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.ExperimenterGroup');
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Image');
 CREATE TRIGGER pixels_annotation_link_event_trigger
         AFTER UPDATE ON pixelsannotationlink
         FOR EACH ROW
@@ -899,7 +959,7 @@ CREATE TRIGGER plane_annotation_link_event_trigger
 CREATE TRIGGER originalfile_annotation_link_event_trigger
         AFTER UPDATE ON originalfileannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.OriginalFile');
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.OriginalFile');
 CREATE TRIGGER annotation_annotation_link_event_trigger
         AFTER UPDATE ON annotationannotationlink
         FOR EACH ROW
@@ -908,6 +968,10 @@ CREATE TRIGGER session_annotation_link_event_trigger
         AFTER UPDATE ON sessionannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Session');
+CREATE TRIGGER experimenter_annotation_link_event_trigger
+        AFTER UPDATE ON experimenterannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Experimenter');
 CREATE TRIGGER node_annotation_link_event_trigger
         AFTER UPDATE ON nodeannotationlink
         FOR EACH ROW
@@ -928,10 +992,6 @@ CREATE TRIGGER wellsample_annotation_link_event_trigger
         AFTER UPDATE ON wellsampleannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.spw.WellSample');
-CREATE TRIGGER experimenter_annotation_link_event_trigger
-        AFTER UPDATE ON experimenterannotationlink
-        FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Experimenter');
 
 
 --
@@ -959,7 +1019,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO4.4DEV',  3,    'OMERO4.4DEV',   0,             'Initializing');
+             values ('OMERO4.4DEV',  4,    'OMERO4.4DEV',   0,             'Initializing');
 
 --
 -- Here we will create the root account and the necessary groups
@@ -1084,9 +1144,9 @@ insert into experimenttype (id,permissions,value)
 insert into experimenttype (id,permissions,value)
     select ome_nextval('seq_experimenttype'),-35,'Other';
 insert into renderingmodel (id,permissions,value)
-    select ome_nextval('seq_renderingmodel'),-35,'rgb';
+    select ome_nextval('seq_renderingmodel'),-35,'RGB';
 insert into renderingmodel (id,permissions,value)
-    select ome_nextval('seq_renderingmodel'),-35,'greyscale';
+    select ome_nextval('seq_renderingmodel'),-35,'Greyscale';
 insert into fillrule (id,permissions,value)
     select ome_nextval('seq_fillrule'),-35,'EvenOdd';
 insert into fillrule (id,permissions,value)
@@ -1119,6 +1179,24 @@ insert into microscopetype (id,permissions,value)
     select ome_nextval('seq_microscopetype'),-35,'Electrophysiology';
 insert into microscopetype (id,permissions,value)
     select ome_nextval('seq_microscopetype'),-35,'Other';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Submitted';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Resubmitted';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Queued';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Requeued';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Running';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Error';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Waiting';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Finished';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Cancelled';
 insert into filamenttype (id,permissions,value)
     select ome_nextval('seq_filamenttype'),-35,'Incandescent';
 insert into filamenttype (id,permissions,value)
@@ -1188,13 +1266,13 @@ insert into fontfamily (id,permissions,value)
 insert into fontfamily (id,permissions,value)
     select ome_nextval('seq_fontfamily'),-35,'monospace';
 insert into family (id,permissions,value)
-    select ome_nextval('seq_family'),-35,'linear';
+    select ome_nextval('seq_family'),-35,'Linear';
 insert into family (id,permissions,value)
-    select ome_nextval('seq_family'),-35,'polynomial';
+    select ome_nextval('seq_family'),-35,'Polynomial';
 insert into family (id,permissions,value)
-    select ome_nextval('seq_family'),-35,'exponential';
+    select ome_nextval('seq_family'),-35,'Exponential';
 insert into family (id,permissions,value)
-    select ome_nextval('seq_family'),-35,'logarithmic';
+    select ome_nextval('seq_family'),-35,'Logarithmic';
 insert into detectortype (id,permissions,value)
     select ome_nextval('seq_detectortype'),-35,'CCD';
 insert into detectortype (id,permissions,value)
@@ -1673,24 +1751,6 @@ insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-35,'LCM';
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-35,'Other';
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Submitted';
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Resubmitted';
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Queued';
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Requeued';
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Running';
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Error';
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Waiting';
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Finished';
-insert into jobstatus (id,permissions,value)
-    select ome_nextval('seq_jobstatus'),-35,'Cancelled';
 insert into contrastmethod (id,permissions,value)
     select ome_nextval('seq_contrastmethod'),-35,'Brightfield';
 insert into contrastmethod (id,permissions,value)
@@ -1787,7 +1847,7 @@ insert into password values (1,'');
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = now()
   where currentVersion = 'OMERO4.4DEV' and
-        currentPatch = 3 and
+        currentPatch = 4 and
         previousVersion = 'OMERO4.4DEV' and
         previousPatch = 0;
 

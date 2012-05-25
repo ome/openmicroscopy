@@ -146,12 +146,12 @@ insert into experimenttype (id,permissions,value)
         select 1 from experimenttype where value = 'Other') limit 1;
 
 insert into renderingmodel (id,permissions,value)
-    select ome_nextval('seq_renderingmodel'),-35,'rgb' from renderingmodel where not exists(
-        select 1 from renderingmodel where value = 'rgb') limit 1;
+    select ome_nextval('seq_renderingmodel'),-35,'RGB' from renderingmodel where not exists(
+        select 1 from renderingmodel where value = 'RGB') limit 1;
 
 insert into renderingmodel (id,permissions,value)
-    select ome_nextval('seq_renderingmodel'),-35,'greyscale' from renderingmodel where not exists(
-        select 1 from renderingmodel where value = 'greyscale') limit 1;
+    select ome_nextval('seq_renderingmodel'),-35,'Greyscale' from renderingmodel where not exists(
+        select 1 from renderingmodel where value = 'Greyscale') limit 1;
 
 insert into fillrule (id,permissions,value)
     select ome_nextval('seq_fillrule'),-35,'EvenOdd' from fillrule where not exists(
@@ -354,20 +354,20 @@ insert into fontfamily (id,permissions,value)
         select 1 from fontfamily where value = 'monospace') limit 1;
 
 insert into family (id,permissions,value)
-    select ome_nextval('seq_family'),-35,'linear' from family where not exists(
-        select 1 from family where value = 'linear') limit 1;
+    select ome_nextval('seq_family'),-35,'Linear' from family where not exists(
+        select 1 from family where value = 'Linear') limit 1;
 
 insert into family (id,permissions,value)
-    select ome_nextval('seq_family'),-35,'polynomial' from family where not exists(
-        select 1 from family where value = 'polynomial') limit 1;
+    select ome_nextval('seq_family'),-35,'Polynomial' from family where not exists(
+        select 1 from family where value = 'Polynomial') limit 1;
 
 insert into family (id,permissions,value)
-    select ome_nextval('seq_family'),-35,'exponential' from family where not exists(
-        select 1 from family where value = 'exponential') limit 1;
+    select ome_nextval('seq_family'),-35,'Exponential' from family where not exists(
+        select 1 from family where value = 'Exponential') limit 1;
 
 insert into family (id,permissions,value)
-    select ome_nextval('seq_family'),-35,'logarithmic' from family where not exists(
-        select 1 from family where value = 'logarithmic') limit 1;
+    select ome_nextval('seq_family'),-35,'Logarithmic' from family where not exists(
+        select 1 from family where value = 'Logarithmic') limit 1;
 
 insert into detectortype (id,permissions,value)
     select ome_nextval('seq_detectortype'),-35,'CCD' from detectortype where not exists(
