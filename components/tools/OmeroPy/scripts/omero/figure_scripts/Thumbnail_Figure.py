@@ -38,6 +38,7 @@ back to the server as a FileAnnotation attached to the parent dataset or project
 """
 import omero.scripts as scripts
 from omero.gateway import BlitzGateway
+import omero.util.script_utils as scriptUtil
 from omero.rtypes import *
 import omero.util.imageUtil as imgUtil
 from datetime import date
@@ -205,38 +206,29 @@ def makeThumbnailFigure(conn, scriptParams):
     log("Thumbnail figure created by OMERO")
     log("")
 
-    parent = None        # figure will be attached to this object 
-
+    message=""
     imageIds = []
     datasetIds = []
     
-    dataType = scriptParams["Data_Type"]
-    if dataType == "Image":
-        imageIds = scriptParams["IDs"]
-        if "Parent_ID" in scriptParams and len(imageIds) > 1:
-            pId = scriptParams["Parent_ID"]
-            parent = conn.getObject("Dataset", pId)
-            if parent:
-                log("Figure will be linked to Dataset: %s" % parent.getName())
-        if parent == None:
-            parent = conn.getObject("Image", imageIds[0])
-            if parent:
-                log("Figure will be linked to Image: %s" % parent.getName())
-                
-    else:   # Dataset
-        datasetIds = scriptParams["IDs"]
-        if "Parent_ID" in scriptParams and len(datasetIds) > 1:
-            pId = scriptParams["Parent_ID"]
-            parent = conn.getObject("Project", pId)
-            if parent:
-                log("Figure will be linked to Project: %s" % parent.getName().getValue())
-        if parent == None:
-            parent = conn.getObject("Dataset", datasetIds[0])
-            if parent:
-                log("Figure will be linked to Dataset: %s" % parent.getName())
-    
-    if len(imageIds) == 0 and len(datasetIds) == 0:
-        print "No image IDs or dataset IDs found"       
+    # Get the objects (images or datasets)
+    objects, logMessage = scriptUtil.getObjects(conn, scriptParams)
+    message += logMessage
+    if not objects:
+       return None, message
+           
+    # Get parent
+    parent = None
+    if "Parent_ID" in scriptParams and len(scriptParams["IDs"]) > 1:
+        if dataType == "Image":
+            parent = conn.getObject("Dataset", scriptParams["Parent_ID"])
+        else:
+            parent = conn.getObject("Project", scriptParams["Parent_ID"])
+
+    if parent is None:
+        parent = objects[0] # Attach figure to the first object
+
+    parentClass = parent.OMERO_CLASS
+    log("Figure will be linked to %s%s: %s" % (parentClass[0].lower(), parentClass[1:], parent.getName()))     
     
     tagIds = []
     if "Tag_IDs" in scriptParams:
@@ -254,31 +246,27 @@ def makeThumbnailFigure(conn, scriptParams):
     figHeight = 0
     figWidth = 0
     dsCanvases = []
-
-    for datasetId in datasetIds:
-        dataset = conn.getObject("Dataset", datasetId)
-        if dataset == None:
-            log("No dataset found for ID: %s" % datasetId)
-            continue
-        datasetName = dataset.getName()
-        images = list(dataset.listChildren())
-        log("Dataset: %s     ID: %d" % (datasetName, datasetId))
-        dsCanvas = paintDatasetCanvas(conn, images, datasetName, tagIds, showUntagged, length=thumbSize, colCount=maxColumns)
-        if dsCanvas == None:
-            continue
-        dsCanvases.append(dsCanvas)
-        figHeight += dsCanvas.size[1]
-        figWidth = max(figWidth, dsCanvas.size[0])
+    
+    if scriptParams["Data_Type"] == "Dataset": 
+        for dataset in objects:
+            log("Dataset: %s     ID: %d" % (dataset.getName(), dataset.getId()))
+            images = list(dataset.listChildren())
+            dsCanvas = paintDatasetCanvas(conn, images, dataset.getName(), tagIds, showUntagged, length=thumbSize, colCount=maxColumns)
+            if dsCanvas == None:
+                continue
+            dsCanvases.append(dsCanvas)
+            figHeight += dsCanvas.size[1]
+            figWidth = max(figWidth, dsCanvas.size[0])
         
-    if len(datasetIds) == 0:
-        images = list(conn.getObjects("Image", imageIds))
-        imageCanvas = paintDatasetCanvas(conn, images, "", tagIds, showUntagged, length=thumbSize, colCount=maxColumns)
+    else:
+        imageCanvas = paintDatasetCanvas(conn, objects, "", tagIds, showUntagged, length=thumbSize, colCount=maxColumns)
         dsCanvases.append(imageCanvas)
         figHeight += imageCanvas.size[1]
         figWidth = max(figWidth, imageCanvas.size[0])
     
     if len(dsCanvases) == 0:
-        return None
+        return None, message
+        
     figure = Image.new("RGB", (figWidth, figHeight), WHITE)
     y = 0
     for ds in dsCanvases:
@@ -301,10 +289,12 @@ def makeThumbnailFigure(conn, scriptParams):
         figure.save(output)
         mimetype = "image/jpeg"
 
-    fa = conn.createFileAnnfromLocalFile(output, origFilePathAndName=None, mimetype=mimetype, ns=None, desc=figLegend)
-    parent.linkAnnotation(fa)
-    
-    return fa._obj
+    namespace = omero.constants.namespaces.NSCREATED+"/omero/figure_scripts/Thumbnail_Figure"
+    fileAnnotation, faMessage = scriptUtil.createLinkFileAnnotation(conn, output, parent,
+        output="Thumbnail figure", mimetype=mimetype, ns=namespace, desc=figLegend)
+    message += faMessage
+
+    return fileAnnotation, message
         
 
 def runAsScript():
@@ -367,13 +357,12 @@ See https://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/
         print commandArgs
 
         # Makes the figure and attaches it to Project/Dataset. Returns FileAnnotationI object
-        fileAnnotation = makeThumbnailFigure(conn, commandArgs)
-        if fileAnnotation:
-            print fileAnnotation
-            client.setOutput("Message", rstring("Thumbnail-Figure Created"))
-            client.setOutput("File_Annotation", robject(fileAnnotation))
-        else:
-            client.setOutput("Message", rstring("Thumbnail-Figure Failed. See error or info"))
+        fileAnnotation, message = makeThumbnailFigure(conn, commandArgs)
+        
+        # Return message and file annotation (if applicable) to the client
+        client.setOutput("Message", rstring(message))
+        if fileAnnotation is not None:
+            client.setOutput("File_Annotation", robject(fileAnnotation._obj))
     finally:
         client.closeSession()
 

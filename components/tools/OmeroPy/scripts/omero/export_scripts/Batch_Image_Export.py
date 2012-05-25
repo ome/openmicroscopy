@@ -310,20 +310,30 @@ def batchImageExport(conn, scriptParams):
         return tRange
 
     # images to export
+    message = ""
     images = []
     objects = conn.getObjects(dataType, ids)    # images or datasets
     parentToAttachZip = None
     if dataType == 'Dataset':
-        for ds in objects:
+        datasets = list(objects)
+        for ds in datasets:
             if parentToAttachZip is None:
                 parentToAttachZip = ds
             images.extend( list(ds.listChildren()) )
         if not images:
-            raise Exception('No images found in dataset')
+            message += "No image found in dataset. "
+            return None, message
+        else:
+            if not len(datasets) == len(ids):
+                message += "Found %s out of %s dataset(s). " %  (len(datasets), len(ids))
     else:
         images = list(objects)
         if not images:
-            raise Exception('No images found')
+            message += "No image found. "
+            return None, message
+        else:
+            if not len(images) == len(ids):
+                message += "Found %s out of %s image(s). " % (len(images), len(ids))
         parentToAttachZip = images[0]
     log("Processing %s images" % len(images))
     
@@ -386,15 +396,10 @@ def batchImageExport(conn, scriptParams):
         compress(export_file, folder_name)
         mimetype='zip'
 
-    if os.path.exists(export_file):
-        fileAnn = conn.createFileAnnfromLocalFile(export_file, mimetype=mimetype, desc=None)
-        if parentToAttachZip is not None:
-            if parentToAttachZip.canAnnotate():
-                log("Attaching zip to... %s %s %s" % (scriptParams['Data_Type'], parentToAttachZip.getName(), parentToAttachZip.getId()) )
-                parentToAttachZip.linkAnnotation(fileAnn)
-            else:
-                return fileAnn, None
-        return fileAnn, parentToAttachZip
+    fileAnnotation, annMessage = script_utils.createLinkFileAnnotation(conn, export_file, parentToAttachZip, 
+        output="Batch export zip", parenttype=scriptParams["Data_Type"], mimetype=mimetype)
+    message += annMessage
+    return fileAnnotation, message
 
 def runScript():
     """
@@ -476,38 +481,32 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
     contact = "ome-users@lists.openmicroscopy.org.uk",
     ) 
     
-    startTime = datetime.now()
-    session = client.getSession()
-    scriptParams = {}
-
-    conn = BlitzGateway(client_obj=client)
-    
-    # process the list of args above. 
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            scriptParams[key] = client.getInput(key, unwrap=True)
-    log(scriptParams)
-    # call the main script - returns a file annotation wrapper
     try:
-        result = batchImageExport(conn, scriptParams)
-    except Exception, e:
-        message = "Failed. "
-        message += str(e)
-        client.setOutput("Message", rstring(message))
-        result = None
+        startTime = datetime.now()
+        session = client.getSession()
+        scriptParams = {}
 
-    stopTime = datetime.now()
-    log("Duration: %s" % str(stopTime-startTime))
+        conn = BlitzGateway(client_obj=client)
 
-    # return this fileAnnotation to the client. 
-    if result is not None:
-        fileAnnWrapper, parentToAttachZip = result
-        message = "Batch Export zip created"
-        if parentToAttachZip is not None:
-            message += " and attached to %s %s"  % (scriptParams['Data_Type'], parentToAttachZip.getName())        
-        client.setOutput("File_Annotation", robject(fileAnnWrapper._obj))
+        # process the list of args above. 
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                scriptParams[key] = client.getInput(key, unwrap=True)
+        log(scriptParams)
+
+        # call the main script - returns a file annotation wrapper
+        fileAnnotation, message = batchImageExport(conn, scriptParams)
+        
+        stopTime = datetime.now()
+        log("Duration: %s" % str(stopTime-startTime))
+
+        # return this fileAnnotation to the client. 
         client.setOutput("Message", rstring(message))
-    
+        if fileAnnotation is not None:
+                client.setOutput("File_Annotation", robject(fileAnnotation._obj))
+                    
+    finally:
+        client.closeSession()
 
 if __name__ == "__main__":
     runScript()
