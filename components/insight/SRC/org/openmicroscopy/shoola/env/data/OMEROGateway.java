@@ -3995,7 +3995,7 @@ class OMEROGateway
 				bbuf.limit(rlen);
 			}
 			stream.close();
-			save = store.save();
+			if (store.save() != null) save = store.save();
 			closeService(ctx, store);
 		} catch (Exception e) {
 			try {
