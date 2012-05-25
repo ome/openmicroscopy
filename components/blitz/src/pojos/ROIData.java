@@ -143,7 +143,7 @@ public class ROIData
 		ROI roi = (ROI) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
-		roi.setImage(image);
+		roi.linkImage(image);
 		setDirty(true);
 	}
 	
@@ -157,7 +157,7 @@ public class ROIData
 		ROI roi = (ROI) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
-		Image image = roi.getImage();
+		Image image = roi.linkedImageList().get(0);
 		if (image == null) return null;
 		return new ImageData(image);
 	}

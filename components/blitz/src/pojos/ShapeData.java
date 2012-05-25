@@ -397,12 +397,12 @@ public abstract class ShapeData
 		if (value == null) return null;
 		double[] values = new double[6];
 		//for now return identity
-		values[0] = value.getA00().getValue();
-		values[1] = value.getA10().getValue();
-		values[2] = value.getA01().getValue();
-		values[3] = value.getA11().getValue();
-		values[4] = value.getA02().getValue();
-		values[5] = value.getA12().getValue();
+		values[0] = value.getA00();
+		values[1] = value.getA10();
+		values[2] = value.getA01();
+		values[3] = value.getA11();
+		values[4] = value.getA02();
+		values[5] = value.getA12();
 		return values;
 	}
 	
@@ -420,12 +420,12 @@ public abstract class ShapeData
 		if (transform.length < 6) 
 			throw new IllegalArgumentException("Not a valid transformation.");
 		AffineTransform value = new AffineTransformI();
-		value.setA00(rtypes.rdouble(transform[0]));
-		value.setA10(rtypes.rdouble(transform[1]));
-		value.setA01(rtypes.rdouble(transform[2]));
-		value.setA11(rtypes.rdouble(transform[3]));
-		value.setA02(rtypes.rdouble(transform[4]));
-		value.setA12(rtypes.rdouble(transform[5]));
+		value.setA00(transform[0]);
+		value.setA10(transform[1]);
+		value.setA01(transform[2]);
+		value.setA11(transform[3]);
+		value.setA02(transform[4]);
+		value.setA12(transform[5]);
 		setDirty(true);
 	}
 
