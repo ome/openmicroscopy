@@ -341,7 +341,7 @@ def createLinkFileAnnotation(conn, localPath, parent, output="Output", parenttyp
         if parent is not None:
             if parent.canAnnotate():
                 parentClass = parent.OMERO_CLASS
-                message += " and attached to %s %s."  % (parentClass[0].lower+parentClass[1:], parent.getName())                
+                message += " and attached to %s%s %s."  % (parentClass[0].lower(), parentClass[1:], parent.getName())                
                 parent.linkAnnotation(fileAnnotation)
             else:
                 message += " but could not be attached."
@@ -350,6 +350,27 @@ def createLinkFileAnnotation(conn, localPath, parent, output="Output", parenttyp
         fileAnnotation = None
     return fileAnnotation, message
     
+def getObjects(conn, params):
+    """
+    Get the objects specified by the script parameters. 
+    Assume the parameters contain the keys IDs and Data_Type
+
+    @param conn:            The L{omero.gateway.BlitzGateway} connection.
+    @param params:          The script parameters
+    @return:                The valid objects and a log message
+    """
+  
+    dataType = params["Data_Type"]
+    ids = params["IDs"]
+    objects = list(conn.getObjects(dataType,ids))
+
+    message = ""
+    if not objects:
+        message += "No %s%s found. " % (dataType[0].lower(), dataType[1:])
+    else:
+        if not len(objects) == len(ids):
+            message += "Found %s out of %s %s%s(s). " % (len(objects), len(ids), dataType[0].lower(), dataType[1:])
+    return objects, message
     
 def addAnnotationToImage(updateService, image, annotation):
     """

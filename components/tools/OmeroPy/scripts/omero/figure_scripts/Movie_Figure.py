@@ -369,7 +369,7 @@ def movieFigure(conn, commandArgs):
     pixelIds = []
     imageIds = []
     imageLabels = []
-    message = ""
+    message = "" # message to be returned to the client
 
     # function for getting image labels.
     def getLabels(fullName, tagsList, pdList):
@@ -387,24 +387,20 @@ def movieFigure(conn, commandArgs):
                 return tagsList
             getLabels = getTags
   
+    # Get the images
+    images, logMessage = scriptUtil.getObjects(conn, commandArgs)
+    message += logMessage
+    if not images:
+        return None, message
+    
+    # Attach figure to the first image
+    omeroImage = images[0]
+    
     # process the list of images
     log("Image details:")
-    ids = commandArgs["IDs"]
-    images = list(conn.getObjects("Image",ids))
-
-    # Check images
-    if not images:
-        message += "No image found. "
-        return None, message
-    else:
-        if not len(images) == len(ids):
-            message += "Found %s out of %s image(s). " % (len(images), len(ids))
-
     for image in images:
         imageIds.append(image.getId())
         pixelIds.append(image.getPrimaryPixels().getId())
-
-    omeroImage = images[0]
   
     pdMap = figUtil.getDatasetsProjectsFromImages(conn.getQueryService(), imageIds)    # a map of imageId : list of (project, dataset) names. 
     tagMap = figUtil.getTagsFromImages(conn.getMetadataService(), imageIds)

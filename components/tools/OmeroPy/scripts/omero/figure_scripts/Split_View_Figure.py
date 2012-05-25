@@ -482,11 +482,10 @@ def splitViewFigure(conn, scriptParams):
     log("Split-View figure created by OMERO on %s" % date.today())
     log("")
     
-    message=""
+    message="" # message to be returned to the client
     imageIds = []
     pixelIds = []
     imageLabels = []
-    omeroImage = None    # this is set as the first image, to link figure to
 
     # function for getting image labels.
     def getLabels(fullName, tagsList, pdList):
@@ -502,25 +501,21 @@ def splitViewFigure(conn, scriptParams):
         def getTags(name, tagsList, pdList):
             return tagsList
         getLabels = getTags
+   
+    # Get the images
+    images, logMessage = scriptUtil.getObjects(conn, scriptParams)
+    message += logMessage
+    if not images:
+        return None, message
+
+    # Attach figure to the first image
+    omeroImage = images[0] 
             
     # process the list of images
     log("Image details:")
-    ids = scriptParams["IDs"]
-    images = list(conn.getObjects("Image",ids))
-
-    # Check images
-    if not images:
-        message += "No image found. "
-        return None, message
-    else:
-        if not len(images) == len(ids):
-            message += "Found %s out of %s image(s). " % (len(images), len(ids))
-
     for image in images:
         imageIds.append(image.getId())
         pixelIds.append(image.getPrimaryPixels().getId())
-
-    omeroImage = images[0] # remember the first image to attach figure to
     
     pdMap = figUtil.getDatasetsProjectsFromImages(conn.getQueryService(), imageIds)    # a map of imageId : list of (project, dataset) names. 
     tagMap = figUtil.getTagsFromImages(conn.getMetadataService(), imageIds)
