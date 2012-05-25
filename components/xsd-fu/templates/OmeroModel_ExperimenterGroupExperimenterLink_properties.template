@@ -1,1 +1,1 @@
-            <required name="owner" type="boolean"/>
+            <required name="owner" type="Boolean"/>
