@@ -231,7 +231,7 @@ class BasicEventContext extends SimpleEventContext {
         this.owner = owner;
         this.cuId = owner.getId();
         if (owner.isLoaded()) {
-            this.cuName = owner.getOmeName();
+            this.cuName = owner.getUserName();
         }
     }
 

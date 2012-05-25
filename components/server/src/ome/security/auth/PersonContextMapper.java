@@ -53,7 +53,7 @@ public class PersonContextMapper implements ContextMapper {
         DirContextAdapter ctx = (DirContextAdapter) obj;
 
         Experimenter person = new Experimenter();
-        person.setOmeName(get("omeName", ctx));
+        person.setUserName(get("userName", ctx));
         person.setFirstName(get("firstName", ctx));
         person.setLastName(get("lastName", ctx));
         person.setInstitution(get("institution", ctx));

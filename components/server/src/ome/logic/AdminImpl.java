@@ -1135,7 +1135,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                             + ". "
                             + "Password was not changed because email could not be sent "
                             + "to user:"
-                            + e.getOmeName()
+                            + e.getUserName()
                             + ". Please turn on the debug "
                             + "mode in omero.properties by the: omero.resetpassword.mail.debug=true");
         }
