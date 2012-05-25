@@ -49,6 +49,16 @@ public class AffineTransformI extends AffineTransform implements ModelBased {
     };
 
     public AffineTransformI() {
+        this(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    }
+
+    public AffineTransformI(double a00, double a01,double a10, double a11,double a02, double a12) {
+        this.a00 = a00;
+        this.a01 = a01;
+        this.a10 = a10;
+        this.a11 = a11;
+        this.a02 = a02;
+        this.a12 = a12;
     }
 
     public double getA00(Ice.Current current) {
@@ -100,7 +110,7 @@ public class AffineTransformI extends AffineTransform implements ModelBased {
     }
 
     public AffineTransform proxy(Current __current) {
-        return new AffineTransformI(value);
+        return new AffineTransformI(a00, a01, a10, a11, a02, a12);
     }
 
     public void copyObject(Filterable model, ModelMapper _mapper) {
