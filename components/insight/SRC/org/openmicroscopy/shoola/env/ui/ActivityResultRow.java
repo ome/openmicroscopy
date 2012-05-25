@@ -243,14 +243,14 @@ class ActivityResultRow
 			FileAnnotationData fa = (FileAnnotationData) row;
 			if (fa.isLoaded()) {
 				OriginalFile of = (OriginalFile) fa.getContent();
-				if (of.isLoaded() && of.getMimetype() != null)
-					mimetype = of.getMimetype().getValue();
+				if (of.isLoaded() && of.getMimeType() != null)
+					mimetype = of.getMimeType().getValue();
 			} 
 		}
 		if (row instanceof OriginalFile) {
 			OriginalFile of = (OriginalFile) row;
-			if (of.isLoaded() && of.getMimetype() != null)
-				mimetype = of.getMimetype().getValue();
+			if (of.isLoaded() && of.getMimeType() != null)
+				mimetype = of.getMimeType().getValue();
 		}
 		if (mimetype == null) return null;
 		if (JPEGFilter.MIMETYPE.equals(mimetype)) return JPEGFilter.JPEG;

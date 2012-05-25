@@ -79,6 +79,7 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.model.core.ExperimenterGroupExperimenterLink;
 import ome.system.UpgradeCheck;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
@@ -153,7 +154,6 @@ import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
-import omero.model.GroupExperimenterMap;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -3939,7 +3939,7 @@ class OMEROGateway
 				oFile.setSize(omero.rtypes.rlong(file.length()));
 				//Need to be modified
 				oFile.setSha1(omero.rtypes.rstring("pending"));
-				oFile.setMimetype(omero.rtypes.rstring(mimeType));
+				oFile.setMimeType(omero.rtypes.rstring(mimeType));
 				save = 
 					(OriginalFile) getUpdateService(ctx).saveAndReturnObject(
 							oFile);
@@ -3959,7 +3959,7 @@ class OMEROGateway
 					oFile.setSize(omero.rtypes.rlong(file.length()));
 					//Need to be modified
 					oFile.setSha1(omero.rtypes.rstring("pending"));
-					oFile.setMimetype(omero.rtypes.rstring(mimeType));
+					oFile.setMimeType(omero.rtypes.rstring(mimeType));
 					save = (OriginalFile) 
 						getUpdateService(ctx).saveAndReturnObject(oFile);
 					store.setFileId(save.getId().getValue());
@@ -3972,7 +3972,7 @@ class OMEROGateway
 							file.getAbsolutePath()));
 					newFile.setSize(omero.rtypes.rlong(file.length()));
 					newFile.setSha1(omero.rtypes.rstring("pending"));
-					oFile.setMimetype(oFile.getMimetype());
+					oFile.setMimeType(oFile.getMimeType());
 					save = (OriginalFile) 
 						getUpdateService(ctx).saveAndReturnObject(newFile);
 					store.setFileId(save.getId().getValue());
@@ -4115,7 +4115,7 @@ class OMEROGateway
 				ExperimenterData exp;
 				List<GroupData> list;
 				Iterator<GroupData> j;
-				GroupExperimenterMap gMap;
+				ExperimenterGroupExperimenterLink link;
 				GroupData group;
 				List<ExperimenterGroup> groups;
 				boolean added = false;
@@ -4140,7 +4140,7 @@ class OMEROGateway
 				ExperimenterData exp;
 				List<GroupData> list;
 				Iterator<GroupData> j;
-				GroupExperimenterMap gMap;
+				ExperimenterGroupExperimenterLink link;
 				GroupData group;
 				List<ExperimenterGroup> groups;
 				while (i.hasNext()) {
@@ -5918,7 +5918,7 @@ class OMEROGateway
 					//&&!SCRIPTS_UI_AVAILABLE.contains(v)) {
 					script = new ScriptObject(of.getId().getValue(), 
 							of.getPath().getValue(), of.getName().getValue());
-					value = of.getMimetype();
+					value = of.getMimeType();
 					if (value != null) script.setMIMEType(value.getValue());
 					scripts.add(script);
 				}
@@ -5930,7 +5930,7 @@ class OMEROGateway
 				value = of.getName();
 				script = new ScriptObject(of.getId().getValue(), 
 						of.getPath().getValue(), of.getName().getValue());
-				value = of.getMimetype();
+				value = of.getMimeType();
 				if (value != null) script.setMIMEType(value.getValue());
 				script.setOfficial(false);
 				scripts.add(script);
@@ -5975,7 +5975,7 @@ class OMEROGateway
 				if (SCRIPTS_UI_AVAILABLE.contains(v)) {
 					script = new ScriptObject(of.getId().getValue(), 
 							of.getPath().getValue(), of.getName().getValue());
-					value = of.getMimetype();
+					value = of.getMimeType();
 					if (value != null) script.setMIMEType(value.getValue());
 					scripts.add(script);
 				}
@@ -6612,7 +6612,7 @@ class OMEROGateway
 				if (!roiMap.containsKey(roi.getId()))
 				{
 					rr = (ROI) roi.asIObject();
-					rr.setImage(unloaded);
+					rr.linkImage(unloaded);
 					updateService.saveAndReturnObject(rr);
 					continue;
 				}	
@@ -6767,7 +6767,7 @@ class OMEROGateway
 					ROI ri = (ROI) roi.asIObject();
 					serverRoi.setDescription(ri.getDescription());
 					serverRoi.setNamespace(ri.getNamespace());
-					serverRoi.setImage(unloaded);
+					serverRoi.linkImage(unloaded);
 					updateService.saveAndReturnObject(serverRoi);
 				}
 				
@@ -7052,7 +7052,7 @@ class OMEROGateway
 						g = l.get(0);
 						systemGroup = true;
 					}
-					exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
+					exp.setUserName(omero.rtypes.rstring(uc.getUserName()));
 					password = uc.getPassword();
 					if (password != null && password.length() > 0) {
 						id = svc.createExperimenterWithPassword(exp, 
@@ -7138,7 +7138,7 @@ class OMEROGateway
 						l.add(getSystemGroup(ctx, GroupData.SYSTEM));
 						l.add(getSystemGroup(ctx, GroupData.USER));
 					} else l.add(getSystemGroup(ctx, GroupData.USER));
-					exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
+					exp.setUserName(omero.rtypes.rstring(uc.getUserName()));
 					password = uc.getPassword();
 					if (password != null && password.length() > 0) {
 						id = svc.createExperimenterWithPassword(exp, 
@@ -7186,13 +7186,13 @@ class OMEROGateway
 	                + " left outer join fetch m.parent"
 	                		+" where m.parent.id in (:gids)", p);
 			Iterator i = list.iterator();
-			GroupExperimenterMap g;
+			ExperimenterGroupExperimenterLink g;
 			long id;
 			Long count;
 			ExperimenterGroup group;
 			while (i.hasNext()) {
-				g = (GroupExperimenterMap) i.next();
-				group = g.getParent();
+				g = (ExperimenterGroupExperimenterLink) i.next();
+				group = (ExperimenterGroup) g.getParent();
 				if (!isSystemGroup(group)) {
 					id = group.getId().getValue();
 					groupIds.remove(id);
@@ -7529,7 +7529,7 @@ class OMEROGateway
 			Experimenter value = lookupExperimenter(ctx, userName);
 			if (value == null) {
 				Experimenter exp = experimenter.asExperimenter();
-				exp.setOmeName(omero.rtypes.rstring(userName));
+				exp.setUserName(omero.rtypes.rstring(userName));
 				IAdminPrx service = getAdminService(ctx);
 				service.updateExperimenter(exp);
 				return true;

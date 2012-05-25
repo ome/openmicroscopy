@@ -46,9 +46,10 @@ import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupExperimenterLink;
+import omero.model.ExperimenterGroupExperimenterLinkI;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
-import omero.model.GroupExperimenterMapI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -219,9 +220,10 @@ public class ModelMapper
         	 Experimenter unloadedExp = 
         		 new ExperimenterI(child.getId().getValue(), false);
              
-             GroupExperimenterMapI l = new GroupExperimenterMapI();
-             l.link(unloadedGroup, unloadedExp);
-             return l;
+        	 ExperimenterGroupExperimenterLink link = 
+        		 new ExperimenterGroupExperimenterLinkI();
+             link.link(unloadedGroup, unloadedExp);
+             return link;
         }
         return null;
     }

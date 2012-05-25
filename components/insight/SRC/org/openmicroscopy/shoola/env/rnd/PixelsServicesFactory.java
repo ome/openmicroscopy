@@ -157,20 +157,20 @@ public class PixelsServicesFactory
 		proxy.setDefaultT(rndDef.getDefaultT().getValue());
 		proxy.setColorModel(rndDef.getModel().getValue().getValue());
 		
-		QuantumDef def = rndDef.getQuantization();
+		QuantumDef def = rndDef.getQuantumDef();
 		proxy.setCodomain(def.getCdStart().getValue(), 
 				def.getCdEnd().getValue());
 		proxy.setBitResolution(def.getBitResolution().getValue());
 		
 		ChannelBinding c;
-		Collection bindings = rndDef.copyWaveRendering();
-		Iterator k = bindings.iterator();
+		List<ChannelBinding> bindings = rndDef.copyChannelBindings();
+		Iterator<ChannelBinding> k = bindings.iterator();
 		int i = 0;
 		int[] rgba;
 		ChannelBindingsProxy cb;
 		omero.model.Color color;
 		while (k.hasNext()) {
-			c = (ChannelBinding) k.next();
+			c = k.next();
 			cb = proxy.getChannel(i);
 			if (cb == null) {
 				cb = new ChannelBindingsProxy();
