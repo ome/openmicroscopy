@@ -352,7 +352,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 OriginalFile source = null;
                 for (OriginalFile file : files)
                 {
-                    if (file.getMimetype().equals(format.getValue()))
+                    if (file.getMimeType().equals(format.getValue()))
                     {
                         if (source != null)
                         {

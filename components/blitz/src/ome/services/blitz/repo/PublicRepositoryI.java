@@ -176,7 +176,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         omeroFile = createOriginalFile(file, mimetype);
 
         IceMapper mapper = new IceMapper();
-        final ome.model.meta.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
+        final ome.model.meta.OriginalFile omeFile = (ome.model.meta.OriginalFile) mapper
                 .reverse(omeroFile);
         Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
                 this, "register", path) {
@@ -212,7 +212,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
         Principal currentUser = currentUser(__current);
         IceMapper mapper = new IceMapper();
-        final ome.model.meta.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
+        final ome.model.meta.OriginalFile omeFile = (ome.model.meta.OriginalFile) mapper
 			.reverse(omeroFile);
         final String repoId = getRepoUuid();
 
@@ -1096,7 +1096,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
             file.setPath(rstring(getRelativePath(f)));
         }
         file.setSha1(rstring("UNKNOWN"));
-        file.setMimetype(mimetype);
+        file.setMimeType(mimetype);
         file.setMtime(rtime(f.lastModified()));
         file.setSize(rlong(f.length()));
         // Any other fields?
@@ -1152,7 +1152,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      */
     private OriginalFile getOriginalFile(final String path, final String name, final Principal currentUser)  {
         final String uuid = getRepoUuid();
-        ome.model.meta.OriginalFile oFile = (ome.model.core.OriginalFile) executor
+        ome.model.meta.OriginalFile oFile = (ome.model.meta.OriginalFile) executor
                 .execute(currentUser, new Executor.SimpleWork(this, "getOriginalFile", uuid, path, name) {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
@@ -1408,7 +1408,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
 	private String getRepoUuid() {
 	    if (this.repoUuid == null) {
             final long repoId = this.id;
-            ome.model.meta.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
+            ome.model.meta.OriginalFile oFile = (ome.model.meta.OriginalFile)  executor
                 .execute(principal, new Executor.SimpleWork(this, "getRepoUuid") {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {

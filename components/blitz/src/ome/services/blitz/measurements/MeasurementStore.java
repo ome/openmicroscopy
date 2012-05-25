@@ -16,6 +16,7 @@ import ome.api.local.LocalUpdate;
 import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.roi.Ellipse;
+import ome.model.roi.ImageROILink;
 import ome.model.roi.ROI;
 import omero.ApiUsageException;
 import omero.RType;
@@ -144,7 +145,7 @@ public class MeasurementStore implements OmeroMeasurementStore {
             throw new ApiUsageException(null, null,
                     "No image set; cannot create Roi");
         }
-        roi.setImage(image);
+        roi.linkImage(image);
         lsidMap.put(lsid, roi);
     }
 

@@ -267,7 +267,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
                 // Removing update event
                 // to prevent optimistic locking
-                file.setMimetype("text/x-python");
+                file.setMimeType("text/x-python");
                 file = updateFile(file);
 
                 OriginalFile official = scripts.load(file.getId(), true);
@@ -571,7 +571,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         OriginalFile file = new OriginalFile();
         file.setName(FilenameUtils.getName(path));
         file.setPath(FilenameUtils.getFullPath(path));
-        file.setMimetype(ParamsHelper.PYTHONSCRIPT);
+        file.setMimeType(ParamsHelper.PYTHONSCRIPT);
         file.setSize((long) script.getBytes().length);
         file.setSha1(Utils.bufferToSha1(script.getBytes()));
         return updateFile(file);
@@ -721,7 +721,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         } catch (ValidationException ve) {
 
             // Disable file - ticket:2282
-            file.setMimetype("text/plain");
+            file.setMimeType("text/plain");
             file = updateFile(file);
 
             // ticket:2184 - No longer catching ValidationException

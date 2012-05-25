@@ -266,7 +266,7 @@ public class GeomTool {
                     .map(shape);
 
             final ome.model.roi.ROI roi = shape.getRoi();
-            final ome.model.core.Image img = roi.getImage();
+            final ome.model.core.Image img = roi.linkedImageList().get(0);
             final ome.model.core.Pixels pix = img.getPixels();
 
             final long roiId = roi.getId();

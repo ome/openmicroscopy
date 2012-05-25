@@ -146,7 +146,7 @@ public class OverlayMetadataStore extends DummyMetadata
         {
             Image image = pixelsList.get(imageIndex).getImage();
             image = new ImageI(image.getId(), false);
-            o.setImage(image);
+            o.linkImage(image);
         }
         catch (ArrayIndexOutOfBoundsException e)
         {

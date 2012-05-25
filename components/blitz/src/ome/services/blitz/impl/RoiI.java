@@ -548,7 +548,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 						int colour = maskIterator.next();
 						mask = map.get(colour);
 						roi = new ome.model.roi.ROI();
-						roi.setImage(image);
+						roi.linkImage(image);
 						ome.model.roi.Mask  toSaveMask = mask.asMaskI(z, t);
 						roi.addShape(toSaveMask);
 						ome.model.roi.ROI newROI  = update.saveAndReturnObject(roi);

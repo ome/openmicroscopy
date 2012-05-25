@@ -120,7 +120,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
             rv = ex.execute(p, new GetOrCreateRepo(this));
             if (rv instanceof ome.model.meta.OriginalFile) {
 
-                ome.model.meta.OriginalFile r = (ome.model.core.OriginalFile) rv;
+                ome.model.meta.OriginalFile r = (ome.model.meta.OriginalFile) rv;
                 description = getDescription(r.getId());
 
                 // Success
@@ -257,7 +257,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                     r.setAtime(t);
                     r.setMtime(t);
                     r.setCtime(t);
-                    r.setMimetype("Repository"); // ticket:2211
+                    r.setMimeType("Repository"); // ticket:2211
                     r.setSize(0L);
                     r = sf.getUpdateService().saveAndReturnObject(r);
                     // ticket:1794
@@ -319,7 +319,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
     }
 
     protected OriginalFileI getDescription(final long id) throws ServerError {
-        ome.model.meta.OriginalFile file = (ome.model.core.OriginalFile) ex
+        ome.model.meta.OriginalFile file = (ome.model.meta.OriginalFile) ex
                 .execute(p,
                         new Executor.SimpleWork(this, "getDescription", id) {
                             @Transactional(readOnly = true)

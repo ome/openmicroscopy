@@ -909,12 +909,12 @@ public class OMEROMetadataStoreClient
     private AffineTransformI translateTransform(AffineTransform transform)
     {
       AffineTransformI omeroTransform = new AffineTransformI();
-      omeroTransform.setA00(toRType(transform.getA00()));
-      omeroTransform.setA01(toRType(transform.getA01()));
-      omeroTransform.setA02(toRType(transform.getA02()));
-      omeroTransform.setA10(toRType(transform.getA10()));
-      omeroTransform.setA11(toRType(transform.getA11()));
-      omeroTransform.setA12(toRType(transform.getA12()));
+      omeroTransform.setA00(transform.getA00());
+      omeroTransform.setA01(transform.getA01());
+      omeroTransform.setA02(transform.getA02());
+      omeroTransform.setA10(transform.getA10());
+      omeroTransform.setA11(transform.getA11());
+      omeroTransform.setA12(transform.getA12());
       return omeroTransform;
     }
 
@@ -2284,7 +2284,7 @@ public class OMEROMetadataStoreClient
 			getSourceObject(OriginalFile.class, indexes);
 		o.setName(toRType(file.getName()));
 		o.setSize(toRType(file.length()));
-		o.setMimetype(toRType(formatString));
+		o.setMimeType(toRType(formatString));
 		o.setPath(toRType(file.getParent() + File.separator));
 		o.setSha1(toRType("Pending"));
 		return o;
@@ -8058,7 +8058,6 @@ public class OMEROMetadataStoreClient
             int wellIndex, int wellSampleIndex)
     {
         WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
-        o.setIndex(toRType(index));
     }
 
     /* (non-Javadoc)
