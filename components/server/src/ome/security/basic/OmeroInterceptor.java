@@ -426,7 +426,7 @@ public class OmeroInterceptor implements Interceptor {
                 if (linkedUid != null && !currentUid.equals(linkedUid)) {
                     if (currentUser.isGraphCritical()) {  // ticket:1769
                         String gname = currentUser.getGroup().getName();
-                        String oname = currentUser.getOwner().getOmeName();
+                        String oname = currentUser.getOwner().getUserName();
                         Permissions p = currentUser.getCurrentEventContext()
                             .getCurrentGroupPermissions();
 
