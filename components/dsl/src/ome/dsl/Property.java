@@ -126,6 +126,8 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String NONNEGATIVEINTEGER = "NonNegativeInteger";
 
+    public final static String NONNEGATIVELONG = "NonNegativeLong";
+
     public final static String PERCENTFRACTION = "PercentFraction";
 
     public final static String COLOR = "ome.model.core.Color";
@@ -138,6 +140,7 @@ public abstract class Property { // TODO need to define equality so that two
         JAVATYPES.put(POSITIVEINTEGER, Integer.class.getName());
         JAVATYPES.put(POSITIVEFLOAT, Double.class.getName());
         JAVATYPES.put(NONNEGATIVEINTEGER, Integer.class.getName());
+        JAVATYPES.put(NONNEGATIVELONG, Long.class.getName());
         JAVATYPES.put(FLOAT, Float.class.getName());
         JAVATYPES.put(PERCENTFRACTION, Double.class.getName());
         JAVATYPES.put(DOUBLE, Double.class.getName());

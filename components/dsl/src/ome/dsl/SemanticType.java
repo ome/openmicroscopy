@@ -516,7 +516,11 @@ public abstract class SemanticType {
             else if (Property.NONNEGATIVEINTEGER.equals(p._getType())) {
                 check = propName(p) + " >= 0";
             }
-            
+
+            else if (Property.NONNEGATIVELONG.equals(p._getType())) {
+                check = propName(p) + " >= 0";
+            }
+
             else if (Property.PERCENTFRACTION.equals(p._getType())) {
                 check = propName(p) + " >= 0 and " + propName(p) + " <= 1";
             }
