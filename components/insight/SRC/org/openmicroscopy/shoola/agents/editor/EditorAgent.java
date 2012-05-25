@@ -246,7 +246,7 @@ public class EditorAgent implements Agent, AgentEventListener {
 				Environment env = (Environment) getRegistry().lookup(
 						LookupNames.ENV);
 				DownloadAndLaunchActivityParam activity;
-				if (f.isLoaded()) {
+				if (f != null && f.isLoaded()) {
 					activity = new DownloadAndLaunchActivityParam(f, new File(
 							env.getOmeroFilesHome()), null);
 				} else {
