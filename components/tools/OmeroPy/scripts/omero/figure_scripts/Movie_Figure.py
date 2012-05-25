@@ -369,9 +369,7 @@ def movieFigure(conn, commandArgs):
     pixelIds = []
     imageIds = []
     imageLabels = []
-    imageNames = {}
     message = ""
-    omeroImage = None    # this is set as the first image, to link figure to
 
     # function for getting image labels.
     def getLabels(fullName, tagsList, pdList):
@@ -388,34 +386,32 @@ def movieFigure(conn, commandArgs):
             def getTags(name, tagsList, pdList):
                 return tagsList
             getLabels = getTags
-            
-    # process the list of images. If imageIds is not set, script can't run. 
+  
+    # process the list of images
     log("Image details:")
     ids = commandArgs["IDs"]
-    for imageId in ids:
-        image = conn.getObject("Image", imageId)
-        if image == None:
-            print "Image not found for ID:", imageId
-            continue
-        imageIds.append(imageId)
-        if omeroImage is None:
-            omeroImage = image        # remember the first image to attach figure to
-        pixelIds.append(image.getPrimaryPixels().getId())
-        imageNames[imageId] = image.getName()
-        
-    if len(imageIds) == 0:
-        print "No image IDs specified."
+    images = list(conn.getObjects("Image",ids))
+
+    # Check images
+    if not images:
         message += "No image found. "
         return None, message
     else:
-        if not len(imageIds) == len(ids):
-            message += "Found %s out of %s image(s). " % (len(imageIds), len(ids))
-    
+        if not len(images) == len(ids):
+            message += "Found %s out of %s image(s). " % (len(images), len(ids))
+
+    for image in images:
+        imageIds.append(image.getId())
+        pixelIds.append(image.getPrimaryPixels().getId())
+
+    omeroImage = images[0]
+  
     pdMap = figUtil.getDatasetsProjectsFromImages(conn.getQueryService(), imageIds)    # a map of imageId : list of (project, dataset) names. 
     tagMap = figUtil.getTagsFromImages(conn.getMetadataService(), imageIds)
     # Build a legend entry for each image
-    for iId in imageIds:
-        name = imageNames[iId]
+    for image in images:
+        name = image.getName()
+        iId = image.getId()
         imageDate = image.getAcquisitionDate()
         tagsList = tagMap[iId]
         pdList = pdMap[iId]

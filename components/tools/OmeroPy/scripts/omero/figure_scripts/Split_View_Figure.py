@@ -486,7 +486,6 @@ def splitViewFigure(conn, scriptParams):
     imageIds = []
     pixelIds = []
     imageLabels = []
-    imageNames = {}
     omeroImage = None    # this is set as the first image, to link figure to
 
     # function for getting image labels.
@@ -505,27 +504,31 @@ def splitViewFigure(conn, scriptParams):
         getLabels = getTags
             
     # process the list of images
-    omeroImage = None
     log("Image details:")
-    for iId in scriptParams["IDs"]:
-        image = conn.getObject("Image", iId)
-        if image == None:
-            print "Image not found for ID:", iId
-            continue
-        imageIds.append(iId)    # only listing valid images here
-        if omeroImage is None:
-            omeroImage = image   # remember the first image to attach figure to
-        pixelIds.append(image.getPrimaryPixels().getId())
-        imageNames[iId] = image.getName()
+    ids = scriptParams["IDs"]
+    images = list(conn.getObjects("Image",ids))
 
-    if len(imageIds) == 0:
-        print "No image IDs specified."
+    # Check images
+    if not images:
+        message += "No image found. "
+        return None, message
+    else:
+        if not len(images) == len(ids):
+            message += "Found %s out of %s image(s). " % (len(images), len(ids))
+
+    for image in images:
+        imageIds.append(image.getId())
+        pixelIds.append(image.getPrimaryPixels().getId())
+
+    omeroImage = images[0] # remember the first image to attach figure to
+    
     pdMap = figUtil.getDatasetsProjectsFromImages(conn.getQueryService(), imageIds)    # a map of imageId : list of (project, dataset) names. 
     tagMap = figUtil.getTagsFromImages(conn.getMetadataService(), imageIds)
     # Build a legend entry for each image
-    for iId in imageIds:
-        name = imageNames[iId]
+    for image in images:
+        name = image.getName()
         imageDate = image.getAcquisitionDate()
+        iId = image.getId()
         tagsList = tagMap[iId]
         pdList = pdMap[iId]
         
