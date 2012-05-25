@@ -365,14 +365,6 @@
             -->
             <zeromany name="eventLogs" type="ome.model.meta.EventLog" inverse="event"/>
             <!--
-            // Property EventRef
-            -->
-            <optional name="event" type="ome.model.meta.Event"/>
-            <!--
-            // Back reference Event_BackReference
-            -->
-            <manyzero name="events" type="ome.model.meta.Event" inverse="event"/>
-            <!--
             // Property ExperimenterGroupRef
             -->
             <required name="experimenterGroup" type="ome.model.core.ExperimenterGroup"/>
