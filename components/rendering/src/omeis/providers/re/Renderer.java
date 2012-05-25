@@ -349,15 +349,14 @@ public class Renderer {
 
    
         // Create and configure the quantum strategies.
-        QuantumDef qd = rndDef.getQuantization();
+        QuantumDef qd = rndDef.getQuantumDef();
         quantumManager = new QuantumManager(metadata, quantumFactory);
         ChannelBinding[] cBindings = getChannelBindings();
         quantumManager.initStrategies(qd, metadata.getType(), cBindings);
-
         // Create and configure the codomain chain.
         codomainChain = new CodomainChain(qd.getCdStart().intValue(), qd
-                .getCdEnd().intValue(), rndDef.<ome.model.display.CodomainMapContext>
-                collectSpatialDomainEnhancement(null));
+                .getCdEnd().intValue(), rndDef.<ome.model.meta.CodomainMapContext>
+        collectCodomainMapContexts(null));
 
         // Create an appropriate rendering strategy.
         renderingStrategy = RenderingStrategy.makeNew(rndDef.getModel());
@@ -430,7 +429,7 @@ public class Renderer {
      * current quantum definition.
      */
     public void updateQuantumManager() {
-        QuantumDef qd = rndDef.getQuantization();
+        QuantumDef qd = rndDef.getQuantumDef();
         ChannelBinding[] cb = getChannelBindings();
         quantumManager.initStrategies(qd, metadata.getType(), cb);
     }
@@ -632,7 +631,7 @@ public class Renderer {
      * @return See above.
      */
     public ChannelBinding[] getChannelBindings() {
-        List<ChannelBinding> bindings = rndDef.collectWaveRendering(null);
+        List<ChannelBinding> bindings = rndDef.collectChannelBindings(null);
         return (ChannelBinding[]) bindings.toArray(new ChannelBinding[bindings
                 .size()]);
     }
@@ -644,7 +643,7 @@ public class Renderer {
      * @return See above.
      */
 	public List<ChannelBinding> getChannelBindingsAsList() {
-        return rndDef.collectWaveRendering(null);
+        return rndDef.collectChannelBindings(null);
     }
 
     /**
@@ -738,7 +737,7 @@ public class Renderer {
          * rd.setQuantization(newQd); updateQuantumManager();
          */
         RenderingDef rd = getRenderingDef();
-        QuantumDef qd = rd.getQuantization();
+        QuantumDef qd = rd.getQuantumDef();
         qd.setBitResolution(Integer.valueOf(bitResolution));
         updateQuantumManager();
     }
@@ -762,11 +761,11 @@ public class Renderer {
          * newQd.setCdEnd(Integer.valueOf(end)); rd.setQuantization(newQd);
          */
         RenderingDef rd = getRenderingDef();
-        QuantumDef qd = rd.getQuantization();
+        QuantumDef qd = rd.getQuantumDef();
         qd.setCdStart(Integer.valueOf(start));
         qd.setCdEnd(Integer.valueOf(end));
-        ome.model.display.CodomainMapContext mapCtx;
-        Iterator<ome.model.display.CodomainMapContext> i = rd.iterateSpatialDomainEnhancement();
+        ome.model.meta.CodomainMapContext mapCtx;
+        Iterator<ome.model.meta.CodomainMapContext> i = rd.iterateCodomainMapContexts();
         while (i.hasNext()) {
             mapCtx = i.next();
             throw new UnsupportedOperationException("BROKEN");
